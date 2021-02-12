@@ -179,7 +179,7 @@ OpenGLApi::~OpenGLApi()
 
 void GetInfoAndPrint(const std::string& str, GLenum i)
 {
-    int info;
+    int info{0};
     glGetIntegerv(i, &info);
     INFO_LOG(str + " : " + std::to_string(info));
 }

@@ -21,12 +21,40 @@ namespace Physics
 namespace
 {
 const float TRANSFROM_CHANGED_EPSILON = std::numeric_limits<float>::epsilon();
-}
+
 struct Shape
 {
-    std::unique_ptr<btCollisionShape> btShape_;
-    btVector3 positionOffset_;
-    bool setOffsetAsTransformPos_{false};  // tmp for terrain usage
+    Shape() = default;
+    Shape(std::unique_ptr<btCollisionShape> btShape)
+        : btShape_(std::move(btShape))
+        , positionOffset_(0.f, 0.f, 0.f)
+    {
+    }
+    Shape(std::unique_ptr<btCollisionShape> btShape, const btVector3& offset)
+        : btShape_(std::move(btShape))
+        , positionOffset_(offset)
+    {
+    }
+
+    virtual ~Shape() = default;
+
+    std::unique_ptr<btCollisionShape> btShape_{nullptr};
+    btVector3 positionOffset_{0.f, 0.f, 0.f};
+};
+
+struct MeshShape : public Shape
+{
+    MeshShape() = default;
+    MeshShape(std::unique_ptr<btTriangleMesh> btMesh)
+    : btMesh_(std::move(btMesh))
+    {}
+
+    ~MeshShape()
+    {
+        btShape_.reset();
+        btMesh_.reset();
+    }
+    std::unique_ptr<btTriangleMesh> btMesh_;
 };
 
 struct Rigidbody
@@ -36,6 +64,7 @@ struct Rigidbody
     btVector3& positionOffset_;
     uint32 shapeId{0};
 };
+}  // namespace
 
 struct BulletAdapter::Pimpl
 {
@@ -65,7 +94,7 @@ struct BulletAdapter::Pimpl
     std::unique_ptr<btDispatcher> btDispacher;
     std::unordered_map<uint32, Rigidbody> rigidBodies;
     std::unordered_map<uint32, Rigidbody> staticRigidBodies;
-    std::unordered_map<uint32, Shape> shapes_;
+    std::unordered_map<uint32, std::unique_ptr<Shape>> shapes_;
     std::mutex worldMutex_;
 };
 void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody)
@@ -151,31 +180,28 @@ void BulletAdapter::DisableSimulation()
 }
 uint32 BulletAdapter::CreateBoxColider(const vec3& positionOffset, const vec3& size)
 {
-    impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).btShape_.reset(new btBoxShape(Convert(size)));
-    impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
+    impl_->shapes_.insert(
+        {id_, std::make_unique<Shape>(std::make_unique<btBoxShape>(Convert(size)), Convert(positionOffset))});
     return id_++;
 }
 uint32 BulletAdapter::CreateSphereColider(const vec3& positionOffset, float radius)
 {
-    impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).btShape_.reset(new btSphereShape(radius));
-    impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
+    impl_->shapes_.insert(
+        {id_, std::make_unique<Shape>(std::make_unique<btSphereShape>(radius), Convert(positionOffset))});
     return id_++;
 }
 
 uint32 BulletAdapter::CreateCapsuleColider(const vec3& positionOffset, float radius, float height)
 {
-    impl_->shapes_.insert({id_, Shape()});
-    impl_->shapes_.at(id_).btShape_.reset(new btCapsuleShape(radius, height));
-    impl_->shapes_.at(id_).positionOffset_ = Convert(positionOffset);
+    impl_->shapes_.insert(
+        {id_, std::make_unique<Shape>(std::make_unique<btCapsuleShape>(radius, height), Convert(positionOffset))});
     return id_++;
 }
 
 uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const HeightMap& heightMap, const vec3& scale)
 {
-    impl_->shapes_.insert({id_, Shape()});
-    auto& shape = impl_->shapes_.at(id_);
+    impl_->shapes_.insert({id_, std::make_unique<Shape>()});
+    auto& shape = *impl_->shapes_.at(id_);
 
     std::visit(visitor{
                    [&](const std::vector<uint8>& data) {
@@ -199,62 +225,58 @@ uint32 BulletAdapter::CreateTerrainColider(const vec3& positionOffset, const Hei
 
     auto offset           = heightMap.GetMaximumHeight() * scale.y - (heightMap.GetDeltaHeight() * scale.y / 2.f);
     shape.positionOffset_ = Convert(positionOffset + vec3(0, offset, 0));
-    shape.setOffsetAsTransformPos_ = true;
     return id_++;
 }
 uint32 BulletAdapter::CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
                                          const IndicesVector& indicies, const vec3& scale)
 {
-    impl_->shapes_.insert({id_, Shape()});
-    auto& shape = impl_->shapes_.at(id_);
+    auto meshShape = std::make_unique<MeshShape>(std::make_unique<btTriangleMesh>(true, false));
+    auto btMesh = meshShape->btMesh_.get();
 
-    auto trimesh = new btTriangleMesh(true, false);
-
-    for (uint32 i = 0; i < indicies.size(); i+=3)
+    for (uint32 i = 0; i < indicies.size(); i += 3)
     {
         auto i1 = 3 * indicies[i];
-        auto i2 = 3 * indicies[i+1];
-        auto i3 = 3 * indicies[i+2];
+        auto i2 = 3 * indicies[i + 1];
+        auto i3 = 3 * indicies[i + 2];
         btVector3 v0(data[i1], data[i1 + 1], data[i1 + 2]);
         btVector3 v1(data[i2], data[i2 + 1], data[i2 + 2]);
         btVector3 v2(data[i3], data[i3 + 1], data[i3 + 2]);
-
-        trimesh->addTriangle(v0, v1, v2);
+        btMesh->addTriangle(v0, v1, v2);
     }
 
-    DEBUG_LOG("getNumTriangles " + std::to_string(trimesh->getNumTriangles()));
-    DEBUG_LOG("indicies " + std::to_string(indicies.size()));
-    btBvhTriangleMeshShape* tmpshape = new btBvhTriangleMeshShape(trimesh, true, true);
 
-    tmpshape->setLocalScaling(Convert(scale));
+    meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(btMesh, true, true);
+    meshShape->btShape_->setLocalScaling(Convert(scale));
+    meshShape->positionOffset_ = Convert(positionOffset);
 
-    shape.btShape_        = std::unique_ptr<btCollisionShape>(tmpshape);
-    shape.positionOffset_ = Convert(positionOffset);
+    impl_->shapes_.insert({id_, std::move(meshShape)});
 
+    // delete trimesh;
 
-  //  {
-        //btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(), sizeof(btVector3));
-       // convexHull->optimizeConvexHull();
-        //if (m_data->m_flags & CUF_INITIALIZE_SAT_FEATURES)
-        //{
-        //    convexHull->initializePolyhedralFeatures();
-        //}
-        //convexHull->setMargin(gUrdfDefaultCollisionMargin);
-       // convexHull->recalcLocalAabb();
-        //convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
-   // }
+    //  {
+    // btConvexHullShape* convexHull = new btConvexHullShape(&convertedVerts[0].getX(), convertedVerts.size(),
+    // sizeof(btVector3));
+    // convexHull->optimizeConvexHull();
+    // if (m_data->m_flags & CUF_INITIALIZE_SAT_FEATURES)
+    //{
+    //    convexHull->initializePolyhedralFeatures();
+    //}
+    // convexHull->setMargin(gUrdfDefaultCollisionMargin);
+    // convexHull->recalcLocalAabb();
+    // convexHull->setLocalScaling(collision->m_geometry.m_meshScale);
+    // }
 
     return id_++;
 }
 uint32 BulletAdapter::CreateRigidbody(uint32 shapeId, GameObject& gameObject, float mass, bool isStatic)
 {
     auto shapeIter = impl_->shapes_.find(shapeId);
-    if (shapeIter == impl_->shapes_.end())
+    if (shapeIter == impl_->shapes_.end() or not shapeIter->second)
     {
         ERROR_LOG("Shape not found");
         return 0;
     }
-    auto& shape               = shapeIter->second;
+    auto& shape               = *shapeIter->second;
     btCollisionShape* btShape = shape.btShape_.get();
     btAssert((!btShape || btShape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 

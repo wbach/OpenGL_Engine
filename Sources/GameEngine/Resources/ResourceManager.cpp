@@ -14,6 +14,7 @@ ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuRes
     , gpuResourceLoader_(gpuResourceLoader)
     , textureLoader_(std::make_unique<TextureLoader>(graphicsApi, gpuResourceLoader_))
     , loaderManager_(*textureLoader_)
+    , unknowFileNameResourceId_(0)
     , releaseLockState_(true)
 {
 }

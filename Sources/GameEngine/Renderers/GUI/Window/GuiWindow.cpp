@@ -12,13 +12,14 @@ GuiWindowElement::GuiWindowElement(GuiWindowStyle style, Input::InputManager& in
     , titleBarSize_(0.43f)
     , style_(style)
 {
-    inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
+    //inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });
+    //inputSubscribtionKeyDown_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { CheckCollisionPoint = {}; });
 }
 
 GuiWindowElement::~GuiWindowElement()
 {
-    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyDown_);
-    inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyUp_);
+    //inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyDown_);
+    //inputManager_.UnsubscribeOnKeyDown(KeyCodes::LMOUSE, inputSubscribtionKeyUp_);
     children_.clear();
 }
 

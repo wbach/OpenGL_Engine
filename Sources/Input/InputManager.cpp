@@ -193,18 +193,20 @@ void InputManager::ProcessEvents()
 }
 void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
 {
-    if (quque_.keyDownSubscribers_.count(key) > 0)
+    auto ququeKeyIter = quque_.keyDownSubscribers_.find(key);
+    if (ququeKeyIter != quque_.keyDownSubscribers_.end())
     {
-        quque_.keyDownSubscribers_.erase(key);
+        quque_.keyDownSubscribers_.erase(ququeKeyIter);
         return;
     }
 
-    if (subscribers_.keyDownSubscribers_.count(key) == 0)
+    auto subscribersKeyIter = subscribers_.keyDownSubscribers_.find(key);
+    if (subscribersKeyIter != subscribers_.keyDownSubscribers_.end())
     {
         ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
         return;
     }
-    subscribers_.keyDownSubscribers_.erase(key);
+    subscribers_.keyDownSubscribers_.erase(subscribersKeyIter);
 }
 void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 {
