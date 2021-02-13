@@ -85,6 +85,14 @@ struct BulletAdapter::Pimpl
         btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
     }
 
+    ~Pimpl()
+    {
+        for(const auto& [id, body] : rigidBodies)
+            btDynamicWorld->removeRigidBody(body.btRigidbody_.get());
+        for (const auto& [id, body] : staticRigidBodies)
+            btDynamicWorld->removeRigidBody(body.btRigidbody_.get());
+    }
+
     void AddRigidbody(std::unordered_map<uint32, Rigidbody>& target, uint32 id, Rigidbody newBody);
     void RemoveRigidBody(std::unordered_map<uint32, Rigidbody>& target, uint32 id);
 

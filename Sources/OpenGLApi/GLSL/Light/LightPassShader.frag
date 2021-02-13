@@ -218,6 +218,7 @@ void main()
 
     // const float gamma = 1.3f;
     // finalColor = pow(finalColor, vec4(1.f / gamma));
+
      FragColor = vec4(finalColor.rgb, 1.f);
 
 //return;
