@@ -17,6 +17,8 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/DebugTools/Painter/PlantPainter.h"
@@ -298,21 +300,21 @@ void NetworkEditorInterface::NotifSelectedCameraIsChaned()
 
 void NetworkEditorInterface::SetGameObjectPosition(GameObject &gameObject, const vec3 &position)
 {
-    auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
-    if (rigidbody)
-    {
-        rigidbody->SetPosition(position);
-    }
+    //auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
+    //if (rigidbody)
+    //{
+    //    rigidbody->SetPosition(position);
+    //}
     gameObject.GetTransform().SetPosition(position);
 }
 
 void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const vec3 &rotation)
 {
-    auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
-    if (rigidbody)
-    {
-        rigidbody->SetRotation(DegreesVec3(rotation));
-    }
+    //auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
+    //if (rigidbody)
+    //{
+    //    rigidbody->SetRotation(DegreesVec3(rotation));
+    //}
     gameObject.GetTransform().SetRotation(DegreesVec3(rotation));
 }
 
@@ -320,13 +322,26 @@ void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, c
 {
     vec3 newValue = gameObject.GetTransform().GetRotation().GetEulerDegrees().value + increseValue;
 
+    //auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
+    //if (rigidbody)
+    //{
+    //    rigidbody->SetRotation(DegreesVec3(newValue));
+    //}
+
+    gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
+}
+
+void NetworkEditorInterface::IncreseGameObjectScale(GameObject& gameObject, const vec3& value)
+{
+    vec3 newValue = gameObject.GetWorldTransform().GetScale() + value;
+
     auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
     if (rigidbody)
     {
-        rigidbody->SetRotation(DegreesVec3(newValue));
+        rigidbody->SetScale(newValue);
     }
 
-    gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
+    gameObject.SetWorldScale(newValue);
 }
 
 vec3 NetworkEditorInterface::GetRotationValueBasedOnKeys(float rotationSpeed, float dir)
@@ -361,6 +376,28 @@ vec3 NetworkEditorInterface::GetPositionChangeValueBasedOnKeys(float speed, floa
     if (scene_.inputManager_->GetKey(KeyCodes::M))
     {
         v.z = dir * speed;
+    }
+    return v;
+}
+
+vec3 NetworkEditorInterface::GetScaleChangeValueBasedOnKeys(float dir, float speed)
+{
+    vec3 v(0, 0, 0);
+    if (scene_.inputManager_->GetKey(KeyCodes::J))
+    {
+        v.x = dir * speed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::K))
+    {
+        v.y = dir * speed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::L))
+    {
+        v.z = dir * speed;
+    }
+    if (scene_.inputManager_->GetKey(KeyCodes::H))
+    {
+        return vec3(dir * speed);
     }
     return v;
 }
@@ -737,6 +774,8 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
                 GetRelativeDataPath(params.at("filename")));
             gameObject->GetTransform().SetPosition(position);
             gameObject->GetTransform().SetRotation(DegreesVec3(rotationEulerDegrees));
+            gameObject->AddComponent<Components::MeshShape>();
+            gameObject->AddComponent<Components::Rigidbody>().SetMass(0);
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
             auto parentId = AddGameObject(params, gameObject);
@@ -871,10 +910,11 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 }
 
-void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed)
+void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed, float scaleSpeed)
 {
-    UseSelectedGameObject([this, direction, rotationSpeed, moveSpeed](auto &gameObject) {
+    UseSelectedGameObject([this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject) {
         IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
+        IncreseGameObjectScale(gameObject, GetScaleChangeValueBasedOnKeys(direction, scaleSpeed));
         auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
         moveVector      = gameObject.GetTransform().GetRotation().value_ * moveVector;
         moveVector      = moveVector + gameObject.GetTransform().GetPosition();

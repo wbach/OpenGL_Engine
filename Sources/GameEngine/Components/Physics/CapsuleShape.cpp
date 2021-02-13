@@ -28,7 +28,13 @@ void CapsuleShape::ReqisterFunctions()
 }
 void CapsuleShape::OnAwake()
 {
-    collisionShapeId_ = componentContext_.physicsApi_.CreateCapsuleColider(positionOffset_, radius_, height_);
+    collisionShapeId_ = componentContext_.physicsApi_.CreateCapsuleColider(
+        positionOffset_, thisObject_.GetWorldTransform().GetScale(), radius_, height_);
+
+    if (collisionShapeId_)
+    {
+        setScale(thisObject_.GetWorldTransform().GetScale());
+    }
 }
 CapsuleShape& CapsuleShape::SetHeight(float h)
 {

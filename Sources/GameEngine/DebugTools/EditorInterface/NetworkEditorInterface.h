@@ -43,8 +43,10 @@ private:
     void SetGameObjectPosition(GameObject&, const vec3&);
     void SetGameObjectRotation(GameObject&, const vec3&);
     void IncreseGameObjectRotation(GameObject&, const vec3&);
+    void IncreseGameObjectScale(GameObject&, const vec3&);
     vec3 GetRotationValueBasedOnKeys(float, float);
     vec3 GetPositionChangeValueBasedOnKeys(float, float);
+    vec3 GetScaleChangeValueBasedOnKeys(float, float);
 
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
@@ -111,7 +113,7 @@ private:
     std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
     Painter::EntryParamters GetPainterEntryParameters();
     void SetDeubgRendererState(DebugRenderer::RenderState, const EntryParameters&);
-    void ObjectControlAction(float direction, float rotationSpeed = 2.f, float moveSpeed = 0.1f);
+    void ObjectControlAction(float direction, float rotationSpeed = 2.f, float moveSpeed = 0.2f, float scaleSpeed = 0.1f);
     void CreateDragObject(GameObject&);
     void ReleaseDragObject();
     void SetSelectedGameObject(GameObject*);

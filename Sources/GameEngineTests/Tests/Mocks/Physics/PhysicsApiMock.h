@@ -14,12 +14,12 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD0(EnableSimulation, void());
     MOCK_METHOD0(DisableSimulation, void());
     MOCK_METHOD1(SetSimulationStep, void(float));
-    MOCK_METHOD2(CreateBoxColider, uint32(const vec3&, const vec3&));
-    MOCK_METHOD2(CreateSphereColider, uint32(const vec3&, float));
-    MOCK_METHOD3(CreateCapsuleColider, uint32(const vec3&, float, float));
-    MOCK_METHOD3(CreateTerrainColider, uint32(const vec3&, const HeightMap&, const vec3&));
-    MOCK_METHOD4(CreateMeshCollider, uint32(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&));
-    MOCK_METHOD4(CreateRigidbody, uint32(uint32, GameObject&, float, bool));
+    MOCK_METHOD3(CreateBoxColider, uint32(const vec3&, const vec3&, const vec3&));
+    MOCK_METHOD3(CreateSphereColider, uint32(const vec3&, const vec3&, float));
+    MOCK_METHOD4(CreateCapsuleColider, uint32(const vec3&, const vec3&, float, float));
+    MOCK_METHOD3(CreateTerrainColider, uint32(const vec3&, const vec3&, const HeightMap&));
+    MOCK_METHOD5(CreateMeshCollider, uint32(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool));
+    MOCK_METHOD5(CreateRigidbody, uint32(uint32, GameObject&, float, bool, bool&));
     MOCK_METHOD1(RemoveRigidBody, void(uint32));
     MOCK_METHOD1(RemoveShape, void(uint32));
     MOCK_METHOD2(SetVelocityRigidbody, void(uint32, const vec3&));
@@ -32,6 +32,8 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD2(SetRotation, void(uint32, const vec3&));
     MOCK_METHOD2(SetRotation, void(uint32, const Quaternion&));
     MOCK_METHOD2(SetPosition, void(uint32, const vec3&));
+    MOCK_METHOD2(SetRigidbodyScale, void(Physics::RigidbodyId, const vec3&));
+    MOCK_METHOD2(SetShapeScale, void(Physics::ShapeId, const vec3&));
     MOCK_CONST_METHOD1(GetRotation, std::optional<Quaternion>(uint32));
     MOCK_CONST_METHOD1(GetTransfrom, std::optional<common::Transform>(uint32));
     MOCK_CONST_METHOD2(RayTest, std::optional<Physics::RayHit>(const vec3&, const vec3&));

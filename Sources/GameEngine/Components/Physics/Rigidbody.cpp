@@ -31,6 +31,7 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     , collisionShape_(nullptr)
     , mass_(1.0f)
     , isStatic_(false)
+    , updateRigidbodyOnTransformChange_(false)
 {
     // clang-format off
     nameToTypeMap_ = 
@@ -50,6 +51,11 @@ Rigidbody::~Rigidbody()
 
 void Rigidbody::CleanUp()
 {
+    if (worldTransformSubscriptionId_)
+    {
+        thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSubscriptionId_);
+    }
+
     if (not rigidBodyId_)
     {
         return;
@@ -75,7 +81,7 @@ void Rigidbody::OnStart()
         return;
     }
 
-    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_);
+    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_, updateRigidbodyOnTransformChange_);
 
     if (rigidBodyId == 0)
     {
@@ -90,6 +96,15 @@ void Rigidbody::OnStart()
 
     if (inputParams_.angularFactor_)
         componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *inputParams_.angularFactor_);
+
+    worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange([this](const auto& transform) {
+        if (not updateRigidbodyOnTransformChange_)
+        {
+            SetPosition(transform.GetPosition());
+            SetRotation(transform.GetRotation());
+            SetScale(transform.GetScale());
+        }
+    });
 }
 void Rigidbody::ReqisterFunctions()
 {
@@ -167,12 +182,28 @@ Rigidbody& Rigidbody::SetRotation(const Quaternion& rotation)
     componentContext_.physicsApi_.SetRotation(*rigidBodyId_, rotation);
     return *this;
 }
+Rigidbody& Rigidbody::SetRotation(const Rotation& rotation)
+{
+    SetRotation(rotation.value_);
+    return *this;
+}
 Rigidbody& Rigidbody::SetPosition(const vec3& pos)
 {
     if (not rigidBodyId_)
         return *this;
 
     componentContext_.physicsApi_.SetPosition(*rigidBodyId_, pos);
+    return *this;
+}
+Rigidbody& Rigidbody::SetScale(const vec3& scale)
+{
+    if (not rigidBodyId_)
+        return *this;
+
+    if (collisionShape_)
+    {
+        collisionShape_->setScale(scale);
+    }
     return *this;
 }
 void Rigidbody::ApplyImpulse(const vec3& v)

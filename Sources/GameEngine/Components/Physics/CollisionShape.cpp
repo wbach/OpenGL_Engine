@@ -3,6 +3,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -16,6 +17,12 @@ CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, 
 }
 CollisionShape::~CollisionShape()
 {
+}
+void CollisionShape::setScale(const vec3& scale)
+{
+    DEBUG_LOG(std::to_string(scale));
+    if (collisionShapeId_)
+        componentContext_.physicsApi_.SetShapeScale(*collisionShapeId_, scale);
 }
 std::optional<uint32> CollisionShape::GetCollisionShapeId() const
 {

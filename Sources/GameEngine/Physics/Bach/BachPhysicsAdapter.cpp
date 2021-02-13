@@ -174,29 +174,29 @@ void BachPhysicsAdapter::DisableSimulation()
 {
     impl_->enableSimulation_ = false;
 }
-uint32 BachPhysicsAdapter::CreateBoxColider(const vec3&, const vec3&)
+uint32 BachPhysicsAdapter::CreateBoxColider(const vec3&, const vec3&, const vec3&)
 {
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, float radius)
+uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, const vec3&, float radius)
 {
     impl_->shapes_.insert({impl_->id_, {positionOffset, radius}});
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3&, float, float)
+uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3&, const vec3&, float, float)
 {
     return uint32();
 }
-uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const HeightMap&, const vec3&)
+uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec3& scale, const HeightMap&)
 {
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&)
+uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool)
 {
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateRigidbody(uint32 shapeId, GameObject& transform, float mass, bool isStatic)
+uint32 BachPhysicsAdapter::CreateRigidbody(uint32 shapeId, GameObject& transform, float mass, bool isStatic, bool&)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, isStatic, shapeId)});
     return impl_->id_++;
@@ -244,8 +244,13 @@ void BachPhysicsAdapter::SetRotation(uint32, const Quaternion&)
 void BachPhysicsAdapter::SetPosition(uint32, const vec3&)
 {
 }
-
-std::optional<Quaternion> BachPhysicsAdapter::GetRotation(uint32 rigidBodyId) const
+void BachPhysicsAdapter::SetRigidbodyScale(RigidbodyId, const vec3&)
+{
+}
+void BachPhysicsAdapter::SetShapeScale(ShapeId, const vec3&)
+{
+}
+std::optional<Quaternion> BachPhysicsAdapter::GetRotation(uint32) const
 {
     return std::nullopt;
 }

@@ -38,7 +38,9 @@ public:
     Rigidbody& SetRotation(const DegreesVec3&);
     Rigidbody& SetRotation(const RadiansVec3&);
     Rigidbody& SetRotation(const Quaternion&);
+    Rigidbody& SetRotation(const Rotation&);
     Rigidbody& SetPosition(const vec3&);
+    Rigidbody& SetScale(const vec3&);
 
     void ApplyImpulse(const vec3&);
     void IncreaseVelocity(const vec3& v);
@@ -73,6 +75,9 @@ private:
     void detectShape();
     std::unordered_map<size_t, CollisionShape*> detectedCollisionShapes_;
     std::unordered_map<std::string, size_t> nameToTypeMap_;
+
+    bool updateRigidbodyOnTransformChange_;
+    std::optional<IdType> worldTransformSubscriptionId_;
 
 public:
     static void registerReadFunctions();

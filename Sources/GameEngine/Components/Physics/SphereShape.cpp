@@ -10,7 +10,7 @@ namespace GameEngine
 {
 namespace Components
 {
-std::string SphereShape::name = { "SphereShape" };
+std::string SphereShape::name = {"SphereShape"};
 
 SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(SphereShape).hash_code(), componentContext, gameObject)
@@ -23,7 +23,8 @@ void SphereShape::ReqisterFunctions()
 }
 void SphereShape::OnAwake()
 {
-    collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(positionOffset_, radius_ / 2.f);
+    collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(
+        positionOffset_, thisObject_.GetWorldTransform().GetScale(), radius_ / 2.f);
 }
 SphereShape& SphereShape::SetRadius(float radius)
 {
@@ -48,7 +49,7 @@ void SphereShape::registerReadFunctions()
 }
 void SphereShape::write(TreeNode& node) const
 {
-    node.attributes_.insert({ CSTR_TYPE, SphereShape::name });
+    node.attributes_.insert({CSTR_TYPE, SphereShape::name});
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_RADIUS), radius_);

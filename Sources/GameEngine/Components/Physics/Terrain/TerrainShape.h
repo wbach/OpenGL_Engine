@@ -19,14 +19,15 @@ namespace Components
 class TerrainShape : public CollisionShape
 {
 public:
-    TerrainShape(ComponentContext& componentContext, GameObject& gameObject);
+    TerrainShape(ComponentContext&, GameObject&);
+    void setScale(const vec3&);
     void CleanUp() override;
     void ReqisterFunctions() override;
 
     TerrainShape& SetHeightMap(const File&);
     HeightMap* GetHeightMap();
     const File& GetHeightMapFile() const;
-    std::optional<float> GetHeightOfTerrain(const vec3& worldPosition) const;
+    std::optional<float> GetHeightOfTerrain(const vec3&) const;
 
 private:
     void OnAwake();

@@ -165,9 +165,9 @@ void CharacterController::isOnGround()
 {
     if (isState(CharacterControllerState::Type::JUMP))
     {
-        auto position = thisObject_.GetWorldTransform().GetPosition();
+        const auto& position = thisObject_.GetWorldTransform().GetPosition();
         auto hitTest =
-            componentContext_.physicsApi_.RayTest(position + vec3(0, 1.f, 0), vec3(position.x, -10000.f, position.z));
+            componentContext_.physicsApi_.RayTest(position, vec3(position.x, -10000.f, position.z));
 
         if (hitTest)
         {

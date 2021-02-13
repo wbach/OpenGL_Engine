@@ -17,12 +17,14 @@ namespace GameEngine
 {
 namespace Components
 {
-const std::string MeshShape::name = "MeshShape";
+const std::string MeshShape::name    = "MeshShape";
+const std::string CSTR_AUTO_OPTIMIZE_MESH = "autoOptimize";
 
 MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(MeshShape).hash_code(), componentContext, gameObject)
     , size_(1.f)
     , model_(nullptr)
+    , autoOptimize_{false}
 {
 }
 
@@ -48,38 +50,47 @@ void MeshShape::OnAwake()
     }
 
     const auto& meshes = model_->GetMeshes();
-
-    if (meshes.empty())
-        return;
-
-    auto [translation, rotation, meshScale] = Utils::decompose(meshes.front().GetMeshTransform());
-    auto scale                          = size_* thisObject_.GetWorldTransform().GetScale() * meshScale;
-    DEBUG_LOG("mesh.GetMeshTransform().scale " + std::to_string(scale));
+    auto scale = calculateScale(thisObject_.GetWorldTransform().GetScale());
 
     if (meshes.size() == 1)
     {
-        auto data = meshes.front().GetCMeshDataRef();
-        collisionShapeId_ =
-            componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data.positions_, data.indices_, scale);
+        auto data         = meshes.front().GetCMeshDataRef();
+        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data.positions_,
+                                                                             data.indices_, scale, autoOptimize_);
     }
     else
     {
-        std::vector<float> data;
-        IndicesVector indicies;
+        size_t indiciesSize = 0;
+        size_t dataSize = 0;
         for (const auto& mesh : meshes)
         {
-            auto meshData = mesh.GetCMeshDataRef();
+            const auto& meshData = mesh.GetCMeshDataRef();
+            indiciesSize += meshData.indices_.size();
+            dataSize += meshData.positions_.size();
+        }
 
-            DEBUG_LOG(" data.size() " + std::to_string(data.size()));
+        std::vector<float> data;
+        IndicesVector indicies;
+        data.reserve(dataSize);
+        indicies.reserve(indiciesSize);
+
+        for (const auto& mesh : meshes)
+        {
+            const auto& meshData = mesh.GetCMeshDataRef();
+            indicies.reserve(meshData.indices_.size());
+
             for (auto& i : meshData.indices_)
             {
                 indicies.push_back(i + (data.size() / 3.f));
             }
             data.insert(std::end(data), std::begin(meshData.positions_), std::end(meshData.positions_));
-           // indicies.insert(std::end(indicies), std::begin(meshData.indices_), std::end(meshData.indices_));
         }
-        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data, indicies, scale);
+        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, data, indicies, scale, autoOptimize_);
     }
+}
+void MeshShape::setScale(const vec3& scale)
+{
+    CollisionShape::setScale(calculateScale(scale));
 }
 MeshShape& MeshShape::SetModel(Model* model)
 {
@@ -89,8 +100,12 @@ MeshShape& MeshShape::SetModel(Model* model)
 MeshShape& MeshShape::SetModel(const File& filename)
 {
     requstedModelFileName_ = filename.GetInitValue();
-    model_ = componentContext_.resourceManager_.LoadModel(filename);
+    model_                 = componentContext_.resourceManager_.LoadModel(filename);
     return *this;
+}
+void MeshShape::autoOptimize()
+{
+    autoOptimize_ = true;
 }
 const Model* MeshShape::GetModel() const
 {
@@ -100,6 +115,16 @@ MeshShape& MeshShape::SetSize(float size)
 {
     size_ = size;
     return *this;
+}
+vec3 MeshShape::calculateScale(const vec3& scale) const
+{
+    const auto& meshes = model_->GetMeshes();
+
+    if (meshes.empty())
+        return vec3(1.f);
+
+    auto [translation, rotation, meshScale] = Utils::decompose(meshes.front().GetMeshTransform());
+    return size_ * scale * meshScale;
 }
 void MeshShape::registerReadFunctions()
 {
@@ -121,6 +146,13 @@ void MeshShape::registerReadFunctions()
             component->SetModel(model);
         }
 
+        bool autoOptimize_{false};
+        ::Read(node.getChild(CSTR_AUTO_OPTIMIZE_MESH), autoOptimize_);
+        if (autoOptimize_)
+        {
+            component->autoOptimize();
+        }
+
         return component;
     };
     regsiterComponentReadFunction(MeshShape::name, readFunc);
@@ -132,6 +164,7 @@ void MeshShape::write(TreeNode& node) const
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_SIZE), GetSize());
     ::write(node.addChild(CSTR_MODEL_FILE_NAME), requstedModelFileName_);
+    ::write(node.addChild(CSTR_AUTO_OPTIMIZE_MESH), Utils::BoolToString(autoOptimize_));
 }
 }  // namespace Components
 }  // namespace GameEngine

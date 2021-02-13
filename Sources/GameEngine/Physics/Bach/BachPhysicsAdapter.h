@@ -16,14 +16,14 @@ public:
     void SetSimulationStep(float step) override;
     void EnableSimulation() override;
     void DisableSimulation() override;
-    uint32 CreateBoxColider(const vec3& positionOffset, const vec3& size) override;
-    uint32 CreateSphereColider(const vec3& positionOffset, float radius) override;
-    uint32 CreateCapsuleColider(const vec3& positionOffset, float radius, float height) override;
+    uint32 CreateBoxColider(const vec3& positionOffset, const vec3& scale, const vec3& size) override;
+    uint32 CreateSphereColider(const vec3& positionOffset, const vec3& scale, float radius) override;
+    uint32 CreateCapsuleColider(const vec3& positionOffset, const vec3& scale, float radius, float height) override;
     // void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
-    uint32 CreateTerrainColider(const vec3& positionOffset, const HeightMap& heightMap, const vec3& scale) override;
+    uint32 CreateTerrainColider(const vec3& positionOffset, const vec3& scale, const HeightMap& heightMap) override;
     uint32 CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
-        const vec3&) override;
-    uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic) override;
+        const vec3&, bool) override;
+    uint32 CreateRigidbody(uint32 shapeId, GameObject&, float mass, bool isStatic, bool&) override;
     void RemoveRigidBody(uint32) override;
     void RemoveShape(uint32) override;
     void SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity) override;
@@ -36,6 +36,8 @@ public:
     void SetRotation(uint32 rigidBodyId, const vec3&) override;
     void SetRotation(uint32 rigidBodyId, const Quaternion&) override;
     void SetPosition(uint32 rigidBodyId, const vec3&) override;
+    void SetRigidbodyScale(RigidbodyId, const vec3&) override;
+    void SetShapeScale(ShapeId, const vec3&) override;
     std::optional<Quaternion> GetRotation(uint32 rigidBodyId) const override;
     std::optional<common::Transform> GetTransfrom(uint32 rigidBodyId) const override;
     std::optional<RayHit> RayTest(const vec3&, const vec3&) const override;

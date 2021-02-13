@@ -37,6 +37,24 @@ TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameO
 {
 }
 
+void TerrainShape::setScale(const vec3& scale)
+{
+    if (heightMap_)
+    {
+        float scaleX = scale.x / static_cast<float>(heightMap_->GetImage().width - 1);
+        float scaleY = scale.z / static_cast<float>(heightMap_->GetImage().height - 1);
+
+        CollisionShape::setScale(vec3(scaleX, scale.y, scaleY));
+
+        auto rigidBody = thisObject_.GetComponent<Rigidbody>();
+        if (rigidBody)
+        {
+            auto offset = heightMap_->GetMaximumHeight() * scale.y - (heightMap_->GetDeltaHeight() * scale.y / 2.f);
+            rigidBody->SetPosition(positionOffset_ + vec3(0, offset, 0));
+        }
+    }
+}
+
 void TerrainShape::CleanUp()
 {
     if (heightMap_)
@@ -79,9 +97,8 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
 
     if (terrainRendererComponent_)
     {
-        terrainHeightGetter_ =
-            std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale(), *heightMap_,
-                                                  thisObject_.GetTransform().GetPosition());
+        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(
+            thisObject_.GetWorldTransform().GetScale(), *heightMap_, thisObject_.GetTransform().GetPosition());
     }
     else
     {
@@ -92,7 +109,8 @@ void TerrainShape::create()
 {
     if (heightMap_)
     {
-        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(positionOffset_, *heightMap_, thisObject_.GetWorldTransform().GetScale());
+        collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(
+            positionOffset_, thisObject_.GetWorldTransform().GetScale(), *heightMap_);
     }
     else
     {
