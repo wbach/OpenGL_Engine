@@ -114,12 +114,6 @@ void Scene::FullUpdate(float deltaTime)
 
     if (start_.load())
     {
-        if (physicsApi_ && simulatePhysics_.load())
-        {
-            physicsApi_->SetSimulationStep(deltaTime);
-            physicsApi_->Simulate();
-        }
-
         Update(deltaTime);
         componentController_.Update();
     }
@@ -137,13 +131,21 @@ void Scene::PostUpdate()
 
 void Scene::Start()
 {
+    DEBUG_LOG("Start");
     sceneStorage_->store();
     start_.store(true);
+    if (physicsApi_)
+        physicsApi_->EnableSimulation();
 }
 
 void Scene::Stop()
 {
+    DEBUG_LOG("Stop");
     start_.store(false);
+
+    if (physicsApi_)
+        physicsApi_->DisableSimulation();
+
     resourceManager_->LockReleaseResources();
     sceneStorage_->restore();
     resourceManager_->UnlockReleaseResources();

@@ -117,7 +117,6 @@ void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
                 for (size_t i = 0; i < model->GetMeshes().size(); ++i)
                 {
                     auto &obj = perObjectUpdateBuffer_[i];
-
                     obj->GetData().TransformationMatrix =
                         componentContext_.graphicsApi_.PrepareMatrixToLoad(transform.CalculateCurrentMatrix());
                     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*obj);

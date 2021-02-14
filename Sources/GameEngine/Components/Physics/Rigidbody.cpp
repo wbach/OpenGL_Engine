@@ -47,6 +47,10 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
 
 Rigidbody::~Rigidbody()
 {
+    DEBUG_LOG("GameObject Id : " + std::to_string(thisObject_.GetId()) + " collisionShapeId_ = " +
+              ((collisionShape_ and collisionShape_->GetCollisionShapeId())
+                   ? std::to_string(*collisionShape_->GetCollisionShapeId())
+                   : std::string("std::nullopt")));
 }
 
 void Rigidbody::CleanUp()
@@ -56,13 +60,11 @@ void Rigidbody::CleanUp()
         thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSubscriptionId_);
     }
 
-    if (not rigidBodyId_)
+    if (rigidBodyId_)
     {
-        return;
+        componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
+        rigidBodyId_ = std::nullopt;
     }
-
-    componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
-    rigidBodyId_ = std::nullopt;
 }
 void Rigidbody::OnStart()
 {
@@ -81,7 +83,8 @@ void Rigidbody::OnStart()
         return;
     }
 
-    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_, updateRigidbodyOnTransformChange_);
+    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_,
+                                                                     updateRigidbodyOnTransformChange_);
 
     if (rigidBodyId == 0)
     {

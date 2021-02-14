@@ -43,6 +43,7 @@ private:
     SceneManager sceneManager_;
     IntroRenderer introRenderer_;
     IdType loggingLvlParamSub_;
+    IdType physicsThreadId_;
     bool isRunning_;
 };
 }  // namespace GameEngine

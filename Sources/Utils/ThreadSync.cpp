@@ -38,9 +38,11 @@ ThreadSubscriber* ThreadSync::GetSubscriber(uint32 id)
 
 void ThreadSync::Unsubscribe(uint32 id)
 {
-    if (subscribers.count(id) > 0)
+    auto iter = subscribers.find(id);
+    if (iter != subscribers.end())
     {
-        subscribers.erase(id);
+        iter->second.Stop();
+        subscribers.erase(iter);
         UpdateThreadsCountText();
     }
     else

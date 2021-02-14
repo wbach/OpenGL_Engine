@@ -15,13 +15,12 @@ ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuRes
     , textureLoader_(std::make_unique<TextureLoader>(graphicsApi, gpuResourceLoader_))
     , loaderManager_(*textureLoader_)
     , unknowFileNameResourceId_(0)
-    , releaseLockState_(true)
+    , releaseLockState_(false)
 {
 }
 
 ResourceManager::~ResourceManager()
 {
-    releaseLockState_ = true;
     std::vector<Model*> toRelease;
     for (auto& model : models_)
         toRelease.push_back(model.second.resource_.get());
@@ -89,7 +88,7 @@ void ResourceManager::ReleaseModel(Model& model)
     auto& modelInfo = models_.at(absoultePath);
     --modelInfo.instances_;
 
-    if (modelInfo.instances_ > 0 and releaseLockState_)
+    if (modelInfo.instances_ > 0 or releaseLockState_)
         return;
 
     for (auto& mesh : modelInfo.resource_->GetMeshes())
@@ -104,13 +103,13 @@ void ResourceManager::ReleaseModel(Model& model)
 
 void ResourceManager::LockReleaseResources()
 {
-    releaseLockState_ = false;
+    releaseLockState_ = true;
     textureLoader_->LockReleaseResources();
 }
 
 void ResourceManager::UnlockReleaseResources()
 {
-    releaseLockState_ = true;
+    releaseLockState_ = false;
     textureLoader_->UnlockReleaseResources();
 }
 

@@ -28,7 +28,9 @@ void XmlSceneStorage::restore()
     {
         DEBUG_LOG("restore");
         scene_.ClearGameObjects();
+        DEBUG_LOG("clear objects completed");
         SceneReader::readNode(*rootNode_, scene_);
+        DEBUG_LOG("restore completed");
     }
     else
     {

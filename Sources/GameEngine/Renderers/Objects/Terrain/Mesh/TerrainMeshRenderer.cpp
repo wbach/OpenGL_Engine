@@ -7,8 +7,8 @@
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
-#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -34,7 +34,7 @@ uint32 TerrainMeshRenderer::renderSubscribers()
     for (const auto& sub : subscribes_)
     {
         renderSubscriber(sub.second);
-                return renderedTerrains_;
+        return renderedTerrains_;
     }
     return renderedTerrains_;
 }
@@ -57,7 +57,6 @@ void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber)
         }
         bindTextures(subscriber.component_->GetTextures());
         renderTerrainMeshes(*model, *subscriber.component_);
-
     }
 }
 void TerrainMeshRenderer::renderMesh(const Mesh& mesh, const GraphicsApi::ID& bufferId)
@@ -70,7 +69,7 @@ void TerrainMeshRenderer::renderMesh(const Mesh& mesh, const GraphicsApi::ID& bu
     }
 }
 void TerrainMeshRenderer::renderTerrainMeshes(const Model& model,
-                                           const Components::TerrainMeshRendererComponent& component)
+                                              const Components::TerrainMeshRendererComponent& component)
 {
     uint32 index = 0;
     for (const auto& mesh : model.GetMeshes())
@@ -101,8 +100,9 @@ void TerrainMeshRenderer::bindTexture(Texture* texture, uint32 id) const
 }
 void TerrainMeshRenderer::subscribe(GameObject& gameObject)
 {
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                         [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
+                             [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
 
     if (iter == subscribes_.end())
     {
@@ -115,8 +115,11 @@ void TerrainMeshRenderer::subscribe(GameObject& gameObject)
         auto terrainMeshComponent = terrain->GetMeshTerrain();
         if (terrainMeshComponent)
         {
-            std::lock_guard<std::mutex> lk(subscriberMutex_);
             subscribes_.push_back({gameObject.GetId(), {&gameObject, terrainMeshComponent}});
+        }
+        else
+        {
+            DEBUG_LOG("terrainMeshComponent not exist");
         }
     }
 }
@@ -127,12 +130,14 @@ void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
 
     if (iter != subscribes_.end())
     {
+        DEBUG_LOG("unSubscribe goId : " + std::to_string(gameObject.GetId()));
         std::lock_guard<std::mutex> lk(subscriberMutex_);
         subscribes_.erase(iter);
     }
 }
 void TerrainMeshRenderer::unSubscribeAll()
 {
+    DEBUG_LOG("");
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.clear();
 }

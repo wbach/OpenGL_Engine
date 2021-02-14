@@ -87,7 +87,7 @@ struct BulletAdapter::Pimpl
 
     ~Pimpl()
     {
-        for(const auto& [id, body] : rigidBodies)
+        for (const auto& [id, body] : rigidBodies)
             btDynamicWorld->removeRigidBody(body.btRigidbody_.get());
         for (const auto& [id, body] : staticRigidBodies)
             btDynamicWorld->removeRigidBody(body.btRigidbody_.get());
@@ -113,24 +113,22 @@ void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& t
     auto& body = target.at(id).btRigidbody_;
     body->setUserIndex(-1);
 
-    std::lock_guard<std::mutex> lk(worldMutex_);
+    
     btDynamicWorld->addRigidBody(body.get());
     btDynamicWorld->updateSingleAabb(body.get());
 }
 void BulletAdapter::Pimpl::RemoveRigidBody(std::unordered_map<uint32, Rigidbody>& target, uint32 id)
 {
-    if (!target.count(id))
+    std::lock_guard<std::mutex> lk(worldMutex_);
+    auto iter = target.find(id);
+    if (iter == target.end())
     {
         return;
     }
 
-    auto& rigidbody = target.at(id);
     //    shapes_.erase(rigidbody.shapeId);
-    {
-        std::lock_guard<std::mutex> lk(worldMutex_);
-        btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
-    }
-    rigidBodies.erase(id);
+    btDynamicWorld->removeRigidBody(iter->second.btRigidbody_.get());
+    target.erase(iter);
 }
 BulletAdapter::BulletAdapter()
     : simulationStep_(1.f / 60.f)
@@ -157,6 +155,7 @@ void BulletAdapter::Simulate()
     {
         impl_->btDynamicWorld->stepSimulation(simulationStep_);
 
+        std::lock_guard<std::mutex> lk(impl_->worldMutex_);
         for (auto& [id, rigidbody] : impl_->rigidBodies)
         {
             auto newPosition =
@@ -187,6 +186,7 @@ const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
 }
 void BulletAdapter::DisableSimulation()
 {
+    std::lock_guard<std::mutex> lk(impl_->worldMutex_);
     simualtePhysics_ = false;
 }
 uint32 BulletAdapter::CreateBoxColider(const PositionOffset& positionOffset, const vec3& scale, const vec3& size)
@@ -198,7 +198,7 @@ uint32 BulletAdapter::CreateBoxColider(const PositionOffset& positionOffset, con
 }
 uint32 BulletAdapter::CreateSphereColider(const PositionOffset& positionOffset, const vec3& scale, float radius)
 {
-   // DEBUG_LOG(std::to_string(positionOffset + vec3(0.f, scale.y / 2.f, 0.f)));
+    // DEBUG_LOG(std::to_string(positionOffset + vec3(0.f, scale.y / 2.f, 0.f)));
     impl_->shapes_.insert({id_, std::make_unique<Shape>(std::make_unique<btSphereShape>(radius),
                                                         Convert(positionOffset /*+ vec3(0.f, scale.y / 2.f, 0.f)*/))});
     return id_++;
@@ -291,6 +291,8 @@ uint32 BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, c
 uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, float mass, bool isStatic,
                                       bool& isUpdating)
 {
+    std::lock_guard<std::mutex> lk(impl_->worldMutex_);
+
     auto shapeIter = impl_->shapes_.find(shapeId);
     if (shapeIter == impl_->shapes_.end() or not shapeIter->second)
     {
@@ -406,6 +408,28 @@ void BulletAdapter::RemoveRigidBody(RigidbodyId id)
 }
 void BulletAdapter::RemoveShape(ShapeId id)
 {
+    std::lock_guard<std::mutex> lk(impl_->worldMutex_);
+    {
+        auto iter = std::find_if(impl_->rigidBodies.begin(), impl_->rigidBodies.end(),
+            [id](auto& pair) { return pair.second.shapeId == id; });
+
+        if (iter != impl_->rigidBodies.end())
+        {
+            impl_->btDynamicWorld->removeRigidBody(iter->second.btRigidbody_.get());
+            impl_->rigidBodies.erase(iter);
+        }
+    }
+    {
+        auto iter = std::find_if(impl_->staticRigidBodies.begin(), impl_->staticRigidBodies.end(),
+            [id](auto& pair) { return pair.second.shapeId == id; });
+
+        if (iter != impl_->staticRigidBodies.end())
+        {
+            impl_->btDynamicWorld->removeRigidBody(iter->second.btRigidbody_.get());
+            impl_->staticRigidBodies.erase(iter);
+        }
+    }
+
     auto shapeIter = impl_->shapes_.find(id);
     if (shapeIter != impl_->shapes_.end())
     {

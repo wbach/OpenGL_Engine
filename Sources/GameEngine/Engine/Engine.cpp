@@ -52,10 +52,18 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     introRenderer_.Render();
     sceneManager_.SetFactor();
+
+    physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
+        [this](float deltaTime) {
+            engineContext_.GetPhysicsApi().SetSimulationStep(deltaTime);
+            engineContext_.GetPhysicsApi().Simulate();
+        },
+        "Physics");
 }
 
 Engine::~Engine()
 {
+    engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     DEBUG_LOG("destructor");
     sceneManager_.Reset();

@@ -112,6 +112,7 @@ void SceneLoader::CheckObjectCount(Scene& scene)
 
 void SceneLoader::LoadScene(Scene& scene)
 {
+    DEBUG_LOG("Load scene thread started.");
     Utils::Timer timer;
     scene.Init();
     DEBUG_LOG("Scene loading time: " + std::to_string(timer.GetTimeMiliSeconds()) + "ms.");
