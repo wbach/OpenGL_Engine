@@ -21,9 +21,9 @@ Camera::Camera(float pitch, float yaw)
     : lock_(false)
     , idPool_(0)
     , position_(0.f)
-    , rotation_(DegreesVec3(pitch, yaw, 0))
+    , rotation_(DegreesVec3(pitch, yaw, 0.f))
     , viewMatrix_(1.f)
-    , lastNotifiedPosition_(0)
+    , lastNotifiedPosition_(0.f)
     , lastNotifRotation_(DegreesVec3(0.f))
 {
     UpdateMatrix();
@@ -31,6 +31,10 @@ Camera::Camera(float pitch, float yaw)
 Camera::Camera(const vec3& position, const vec3& lookAt)
     : lock_(false)
     , position_(position)
+    , rotation_(DegreesVec3(0.f, 0.f, 0.f))
+    , viewMatrix_(1.f)
+    , lastNotifiedPosition_(0.f)
+    , lastNotifRotation_(DegreesVec3(0.f))
 {
     LookAt(lookAt);
 }

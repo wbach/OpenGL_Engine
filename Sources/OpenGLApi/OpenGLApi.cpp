@@ -616,7 +616,19 @@ void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
 
     auto& mesh = impl_->debugNormalsMesh_.at(id);
     if (mesh.id_)
-        DeleteMesh(*mesh.id_);
+    {
+        auto& glmesh = openGlMeshes_.at(*mesh.id_);
+
+        for (auto& vbo : glmesh.vbos)
+        {
+            if (vbo.second != 0)
+                glDeleteBuffers(1, &vbo.second);
+        }
+
+        glDeleteVertexArrays(1, &glmesh.vao);
+        openGlMeshes_.erase(id);
+
+    }
     impl_->debugNormalsMesh_.erase(id);
 }
 

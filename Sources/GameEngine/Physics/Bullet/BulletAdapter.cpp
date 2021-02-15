@@ -28,11 +28,13 @@ struct Shape
     Shape(std::unique_ptr<btCollisionShape> btShape)
         : btShape_(std::move(btShape))
         , positionOffset_(0.f, 0.f, 0.f)
+        , dynamicShapeAllowed_{true}
     {
     }
     Shape(std::unique_ptr<btCollisionShape> btShape, const btVector3& offset)
         : btShape_(std::move(btShape))
         , positionOffset_(offset)
+        , dynamicShapeAllowed_{true}
     {
     }
 
@@ -40,6 +42,7 @@ struct Shape
 
     std::unique_ptr<btCollisionShape> btShape_{nullptr};
     btVector3 positionOffset_{0.f, 0.f, 0.f};
+    bool dynamicShapeAllowed_{true};
 };
 
 struct MeshShape : public Shape
@@ -48,6 +51,7 @@ struct MeshShape : public Shape
     MeshShape(std::unique_ptr<btTriangleMesh> btMesh)
         : btMesh_(std::move(btMesh))
     {
+        dynamicShapeAllowed_ = false;
     }
 
     ~MeshShape()
@@ -307,7 +311,12 @@ uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, f
     btDefaultMotionState* myMotionState{nullptr};
     int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
 
-    if (isStatic)
+    if (not isStatic and not shape.dynamicShapeAllowed_)
+    {
+        ERROR_LOG("Shape can not be set as no static");
+    }
+
+    if (isStatic or not shape.dynamicShapeAllowed_)
     {
         flags |= btCollisionObject::CF_STATIC_OBJECT;
     }

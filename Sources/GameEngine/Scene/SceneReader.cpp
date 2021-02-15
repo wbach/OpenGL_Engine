@@ -57,9 +57,20 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
     {
         for (auto& childNode : childrenNode->getChildren())
         {
-            auto child = scene.CreateGameObject(childNode->attributes_.at(CSTR_NAME));
-            Read(scene, *childNode, *child);
-            gameObject.AddChild(std::move(child));
+            if (childNode)
+            {
+                auto name  = childNode->getAttributeValue(CSTR_NAME);
+                auto child = scene.CreateGameObject(name);
+                DEBUG_LOG(name);
+                Read(scene, *childNode, *child);
+                DEBUG_LOG("Read done, adding");
+                gameObject.AddChild(std::move(child));
+                DEBUG_LOG("Add done");
+            }
+            else
+            {
+                ERROR_LOG("Somthing goes wrong. Child is empty");
+            }
         }
     }
 }

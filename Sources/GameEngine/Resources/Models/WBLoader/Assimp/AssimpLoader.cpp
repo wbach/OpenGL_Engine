@@ -72,6 +72,8 @@ AssimpLoader::~AssimpLoader()
 
 void AssimpLoader::ParseFile(const File& file)
 {
+    DEBUG_LOG(file.GetInitValue());
+
     // to do create factory and loader per one loading
     bones_.clear();
     objects.clear();

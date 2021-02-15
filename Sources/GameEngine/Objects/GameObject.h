@@ -77,14 +77,14 @@ private:
     Quaternion ConvertWorldToLocalRotation(const Quaternion&);
 
 protected:
-    GameObject* parent_;
-    std::string name_;
-    GameObjects children_;
     common::Transform localTransform_;
     common::Transform worldTransform_;
+    GameObject* parent_;
+    std::string name_;
     std::vector<std::unique_ptr<Components::IComponent>> components_;
     std::optional<uint32> parentIdTransfromSubscribtion_;
     std::optional<uint32> localTransfromSubscribtion_;
+    GameObjects children_;
 
 private:
     IdType id_;

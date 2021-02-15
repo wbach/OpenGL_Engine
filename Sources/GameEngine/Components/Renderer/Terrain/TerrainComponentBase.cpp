@@ -26,6 +26,12 @@ void TerrainComponentBase::CleanUp()
 {
     UnSubscribe();
     ReleaseTextures();
+
+    if (perTerrainTexturesBuffer_)
+    {
+        componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(perTerrainTexturesBuffer_));
+        perTerrainTexturesBuffer_ = nullptr;
+    }
 }
 
 void TerrainComponentBase::BlendMapChanged()
@@ -56,7 +62,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
                 textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
                 LoadTerrainConfiguration(terrainTexture.file);
                 LoadHeightMap(terrainTexture.file);
-                continue;
+            continue;
             case TerrainTextureType::blendMap:
                 textureParams.dataStorePolicy = DataStorePolicy::Store;
                 textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;

@@ -8,7 +8,6 @@ namespace GameEngine
 {
 namespace Components
 {
-
 ComponentController::ComponentController()
     : componentId(0)
     , isStarted(false)

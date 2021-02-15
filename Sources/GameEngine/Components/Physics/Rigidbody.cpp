@@ -47,10 +47,6 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
 
 Rigidbody::~Rigidbody()
 {
-    DEBUG_LOG("GameObject Id : " + std::to_string(thisObject_.GetId()) + " collisionShapeId_ = " +
-              ((collisionShape_ and collisionShape_->GetCollisionShapeId())
-                   ? std::to_string(*collisionShape_->GetCollisionShapeId())
-                   : std::string("std::nullopt")));
 }
 
 void Rigidbody::CleanUp()
@@ -83,6 +79,7 @@ void Rigidbody::OnStart()
         return;
     }
 
+    DEBUG_LOG("CreateRigidbody : " + thisObject_.GetName());
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_,
                                                                      updateRigidbodyOnTransformChange_);
 

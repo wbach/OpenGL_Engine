@@ -17,7 +17,6 @@ CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, 
 }
 CollisionShape::~CollisionShape()
 {
-    DEBUG_LOG("GameObject Id : " + std::to_string(thisObject_.GetId()) + " collisionShapeId_ = " + (collisionShapeId_ ? std::to_string(*collisionShapeId_) : std::string("std::nullopt")));
 }
 void CollisionShape::setScale(const vec3& scale)
 {
