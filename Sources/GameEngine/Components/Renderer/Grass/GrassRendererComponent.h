@@ -54,7 +54,7 @@ private:
     Material CreateGrassMaterial() const;
     Mesh CreateGrassMesh(const Material& material) const;
     void CopyDataToMesh(Mesh&) const;
-    void CreateGrassModel();
+    bool CreateGrassModel();
 
 private:
     ModelWrapper model_;

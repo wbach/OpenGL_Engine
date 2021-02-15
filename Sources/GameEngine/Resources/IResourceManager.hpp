@@ -18,7 +18,7 @@ public:
     virtual ~IResourceManager() = default;
 
     virtual Model* LoadModel(const File&)               = 0;
-    virtual void AddModel(std::unique_ptr<Model>)       = 0;
+    virtual Model* AddModel(std::unique_ptr<Model>)     = 0;
     virtual void ReleaseModel(Model&)                   = 0;
     virtual IGpuResourceLoader& GetGpuResourceLoader()  = 0;
     virtual ITextureLoader& GetTextureLoader()          = 0;

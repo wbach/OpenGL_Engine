@@ -11,7 +11,7 @@ class ResourceManagerMock : public IResourceManager
 {
 public:
     MOCK_METHOD1(LoadModel, Model*(const File&));
-    MOCK_METHOD1(AddModelImpl, void(Model*));
+    MOCK_METHOD1(AddModelImpl, Model*(Model*));
     MOCK_METHOD1(ReleaseModel, void(Model&));
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());
     MOCK_METHOD0(GetTextureLoader, ITextureLoader&());
@@ -19,10 +19,12 @@ public:
     MOCK_METHOD0(LockReleaseResources, void());
     MOCK_METHOD0(UnlockReleaseResources, void());
 
-    void AddModel(std::unique_ptr<Model> model) override
+    Model* AddModel(std::unique_ptr<Model> model) override
     {
-        AddModelImpl(model.get());
+        auto ptr = model.get();
+        AddModelImpl(ptr);
         models_.push_back(std::move(model));
+        return ptr;
     }
 
 private:

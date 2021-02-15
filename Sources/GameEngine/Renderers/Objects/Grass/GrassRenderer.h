@@ -47,5 +47,6 @@ private:
 
     std::vector<std::pair<uint32_t, Components::GrassRendererComponent*>> subscribes_;
     float viewDistance = 30.f;
+    std::mutex subscriberMutex_;
 };
 }  // namespace GameEngine

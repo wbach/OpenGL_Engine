@@ -35,11 +35,11 @@ Model* ResourceManager::LoadModel(const File& file)
 {
     auto absoultePath = file.GetAbsoultePath();
     std::lock_guard<std::mutex> lk(modelMutex_);
-    auto count = models_.count(absoultePath);
+    auto iter = models_.find(absoultePath);
 
-    if (count > 0)
+    if (iter != models_.end())
     {
-        auto& modelInfo = models_.at(absoultePath);
+        auto& modelInfo = iter->second;
         ++modelInfo.instances_;
         modelInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
         // ResourceGpuStatus::NotLoaded for models not implmented. T
@@ -63,18 +63,32 @@ Model* ResourceManager::LoadModel(const File& file)
     return modelPtr;
 }
 
-void ResourceManager::AddModel(std::unique_ptr<Model> model)
+Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
 {
+    if (not model)
+        return nullptr;
+
+    std::lock_guard<std::mutex> lk(modelMutex_);
+
     DEBUG_LOG("add model.");
     auto modelPtr = model.get();
     auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
                                      : model->GetFile().GetAbsoultePath();
+
+    auto iter = models_.find(filename);
+
+    if (iter != models_.end())
+    {
+        ERROR_LOG("Model \"" + filename + "\" already exist");
+        return nullptr;
+    }
 
     ResourceInfo<Model> modelInfo;
     modelInfo.resource_ = std::move(model);
 
     models_.insert({filename, std::move(modelInfo)});
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
+    return modelPtr;
 }
 void ResourceManager::ReleaseModel(Model& model)
 {

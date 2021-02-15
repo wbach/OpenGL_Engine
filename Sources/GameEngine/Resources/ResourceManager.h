@@ -1,7 +1,7 @@
 #pragma once
+#include <Mutex.hpp>
 #include <memory>
 #include <unordered_map>
-#include <Mutex.hpp>
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "IResourceManager.hpp"
 #include "Models/Model.h"
@@ -17,7 +17,7 @@ public:
     ~ResourceManager() override;
 
     Model* LoadModel(const File&) override;
-    void AddModel(std::unique_ptr<Model>) override;
+    Model* AddModel(std::unique_ptr<Model>) override;
     void ReleaseModel(Model&) override;
 
     inline ITextureLoader& GetTextureLoader() override;

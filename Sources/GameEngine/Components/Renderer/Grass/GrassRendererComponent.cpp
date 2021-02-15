@@ -20,7 +20,7 @@ const std::string COMPONENT_STR{"GrassRenderer"};
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(GrassRendererComponent).hash_code(), componentContext, gameObject)
     , textureFile_("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
-    , meshDataFile_(EngineConf.files.data + "/grassMeshData.bin")
+    , meshDataFile_()
     , isSubscribed_(false)
 {
 }
@@ -45,7 +45,7 @@ void GrassRendererComponent::UpdateModel()
 
     if (model and not model->GetMeshes().empty())
     {
-        auto& mesh = model->GetMeshes()[0];
+        auto& mesh = model->GetMeshes().front();
 
         if (mesh.GetGraphicsObjectId())
         {
@@ -114,7 +114,7 @@ std::unordered_map<ParamName, Param> GrassRendererComponent::GetParams() const
 
 void GrassRendererComponent::generatePositionsBasedOnTerrain()
 {
-   // auto terrainContext = thisObject_.GetComponent<TerrainRendererComponent>();
+    // auto terrainContext = thisObject_.GetComponent<TerrainRendererComponent>();
 }
 
 void GrassRendererComponent::ReqisterFunctions()
@@ -123,15 +123,17 @@ void GrassRendererComponent::ReqisterFunctions()
 }
 void GrassRendererComponent::CreateModelAndSubscribe()
 {
-    if (not model_.Get(LevelOfDetail::L1))
+    if (not isSubscribed_ and not model_.Get(LevelOfDetail::L1))
     {
-        CreateGrassModel();
-    }
-
-    if (not isSubscribed_)
-    {
-        componentContext_.renderersManager_.Subscribe(&thisObject_);
-        isSubscribed_ = true;
+        if (CreateGrassModel())
+        {
+            componentContext_.renderersManager_.Subscribe(&thisObject_);
+            isSubscribed_ = true;
+        }
+        else
+        {
+            ERROR_LOG("Model creation error.");
+        }
     }
 }
 void GrassRendererComponent::UnSubscribe()
@@ -156,17 +158,19 @@ void GrassRendererComponent::CopyDataToMesh(Mesh& mesh) const
     data.normals_    = meshData_.normals;
     data.tangents_   = meshData_.colors;
 }
-void GrassRendererComponent::CreateGrassModel()
+bool GrassRendererComponent::CreateGrassModel()
 {
     if (meshData_.positions.empty())
-        return;
+        return false;
 
     auto model    = std::make_unique<Model>();
     auto material = CreateGrassMaterial();
     auto mesh     = CreateGrassMesh(material);
     model->AddMesh(mesh);
     model_.Add(model.get(), LevelOfDetail::L1);
-    componentContext_.resourceManager_.AddModel(std::move(model));
+    model->SetFile(meshDataFile_);
+    auto addedModel = componentContext_.resourceManager_.AddModel(std::move(model));
+    return addedModel != nullptr;
 }
 Material GrassRendererComponent::CreateGrassMaterial() const
 {
@@ -178,18 +182,18 @@ Material GrassRendererComponent::CreateGrassMaterial() const
 void GrassRendererComponent::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
-        auto component           = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
-        auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME);
-        if (textureFileNameNode)
+        auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
+
+        if (auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME))
         {
             component->setTexture(textureFileNameNode->value_);
         }
 
-        if (node.getChild(CSTR_FILE_NAME))
+        if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
         {
             Components::GrassRendererComponent::GrassMeshes meshesData;
-
-            auto filename = node.getChild(CSTR_FILE_NAME)->value_;
+            auto filename = filenameNode->value_;
+            component->setMeshDataFile(filename);
 
             if (not filename.empty())
             {
@@ -218,7 +222,7 @@ void GrassRendererComponent::write(TreeNode& node) const
 
     auto file = getDataFile();
     if (file.empty())
-        file.DataRelative("Generated/grassMeshData_" + std::to_string(getParentGameObject().GetId()) + ".bin");
+        file.DataRelative("Generated/grassMeshData_" + std::to_string(thisObject_.GetId()) + ".bin");
 
     auto opened = file.openToWrite();
     if (opened)

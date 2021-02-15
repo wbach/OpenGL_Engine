@@ -45,8 +45,9 @@ void GrassRenderer::render()
 }
 void GrassRenderer::subscribe(GameObject& gameObject)
 {
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-            [id = gameObject.GetId()](const auto& pair){ return pair.first == id;});
+                             [id = gameObject.GetId()](const auto& pair) { return pair.first == id; });
 
     if (iter == subscribes_.end())
     {
@@ -61,22 +62,19 @@ void GrassRenderer::subscribe(GameObject& gameObject)
 
 void GrassRenderer::unSubscribe(GameObject& gameObject)
 {
-    auto iter = subscribes_.begin();
-    while (iter != subscribes_.end())
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                             [id = gameObject.GetId()](const auto& pair) { return pair.first == id; });
+
+    if (iter != subscribes_.end())
     {
-        if (iter->first == gameObject.GetId())
-        {
-            iter = subscribes_.erase(iter);
-        }
-        else
-        {
-            ++iter;
-        }
+        subscribes_.erase(iter);
     }
 }
 
 void GrassRenderer::unSubscribeAll()
 {
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.clear();
 }
 
@@ -103,14 +101,14 @@ void GrassRenderer::EndRender() const
 
 void GrassRenderer::RenderSubscribes()
 {
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+
     for (const auto& s : subscribes_)
     {
-        auto model = s.second->GetModel().Get();
-
-        if (not model)
-            continue;
-
-        RenderModel(*model);
+        if (auto model = s.second->GetModel().Get())
+        {
+            RenderModel(*model);
+        }
     }
 }
 
