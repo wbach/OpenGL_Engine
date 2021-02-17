@@ -11,18 +11,18 @@ public:
     using Painter::EntryParamters;
     PlantPainter(const EntryParamters&, Components::GrassRendererComponent&);
 
-    void setNumberOfInstances(uint32);
     void paintImpl() override;
     void setBrush(const std::string&) override;
     std::string selectedBrush() const override;
     std::vector<std::string> avaiableBrushTypes() const override;
+    void generatePositions();
 
 private:
-    void updateNumberOfInstances();
+    uint32 getNumberOfInstances();
+    void createRandomPositions(const vec3&, const TerrainHeightGetter&, float, uint32);
 
 private:
     Components::GrassRendererComponent& grassComponent_;
     TextureBrushType brushType_;
-    uint32 numberOfInstances_;
 };
 }  // namespace GameEngine

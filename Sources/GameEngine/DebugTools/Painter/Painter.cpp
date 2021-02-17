@@ -19,6 +19,7 @@ Painter::Painter(const EntryParamters& entryParamters, PaintType paintType)
 
 Painter::Painter(const EntryParamters& entryParamters, PaintType paintType, float strength, int32 brushSize)
     : paintContext_{strength, brushSize, StepInterpolation::Linear}
+    , componentController_(entryParamters.componentController)
     , inputManager_(entryParamters.inputManager)
     , pointGetter_(entryParamters.camera, entryParamters.projection, entryParamters.windowSize,
                    entryParamters.componentController)

@@ -1361,7 +1361,11 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
                 else
                     ERROR_LOG("to many bits.");
             }
-            static_cast<TerrainTexturePainter *>(terrainPainter_.get())->setColor(color);
+            static_cast<TerrainTexturePainter*>(terrainPainter_.get())->setColor(color);
+        }
+        if (params.count("generate") and terrainPainter_->getPaintType() == PaintType::Plant)
+        {
+            static_cast<PlantPainter*>(terrainPainter_.get())->generatePositions();
         }
     }
     catch (...)

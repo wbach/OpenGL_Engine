@@ -33,6 +33,7 @@ class TerrainPainterView:
             self.AddToTexturesToDialog()
         elif msg.get("type") == "Plant":
             self.PainterBaseDialog(msg)
+            self.AddToDialogGenerateButton()
 
     def PainterBaseDialog(self, msg):
         inputBrushTypes = []
@@ -96,6 +97,10 @@ class TerrainPainterView:
     def AddToDialogHeightPostProcessFunctions(self):
         tk.Button(self.dialog, text="Recalculate normals",
                   command=lambda: self.networkClient.SendCommand("recalculateTerrainNormals")).pack(fill=tk.X)
+
+    def AddToDialogGenerateButton(self):
+        tk.Button(self.dialog, text="Generate",
+                  command=lambda: self.networkClient.SendCommand("updateTerrainPainterParam generate")).pack(fill=tk.X)
 
     def AddToTexturesToDialog(self):
         texturesLabel = tk.LabelFrame(self.dialog, text="Textures")

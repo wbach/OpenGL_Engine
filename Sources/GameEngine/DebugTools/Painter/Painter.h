@@ -63,6 +63,7 @@ protected:
     PaintContext paintContext_;
 
 protected:
+    const Components::ComponentController& componentController_;
     Input::InputManager& inputManager_;
     TerrainPointGetter pointGetter_;
     std::optional<uint32> mouseKeyDownSubscribtion_;
