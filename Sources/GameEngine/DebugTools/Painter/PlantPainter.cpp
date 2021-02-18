@@ -13,22 +13,71 @@ namespace GameEngine
 PlantPainter::PlantPainter(const EntryParamters& entryParamters, Components::GrassRendererComponent& component)
     : Painter(entryParamters, PaintType::Plant, 30.f, 16)
     , grassComponent_(component)
+    , eraseMode_(false)
 {
+}
+void PlantPainter::eraseMode()
+{
+    eraseMode_ = !eraseMode_;
+}
+void PlantPainter::eraseMode(bool)
+{
+    eraseMode_ = true;
 }
 void PlantPainter::paintImpl()
 {
+    auto range        = static_cast<float>(paintContext_.brushSize / 2);
+    const auto& point = *paintContext_.currentTerrainPoint;
+
+    if (eraseMode_)
+    {
+        auto& data = grassComponent_.GetGrassMeshesData();
+        Components::GrassRendererComponent::GrassMeshes meshes;
+
+        size_t sizeAndRotationIndex = 0;
+        bool removedAtleastOne{false};
+        for (size_t i = 0; i < data.positions.size(); i += 3)
+        {
+            vec3 position(data.positions[i], data.positions[i + 1], data.positions[i + 2]);
+
+            if (glm::length(position - point.pointOnTerrain) > range)
+            {
+                meshes.positions.push_back(data.positions[i]);
+                meshes.positions.push_back(data.positions[i + 1]);
+                meshes.positions.push_back(data.positions[i + 2]);
+
+                meshes.normals.push_back(data.normals[i]);
+                meshes.normals.push_back(data.normals[i + 1]);
+                meshes.normals.push_back(data.normals[i + 2]);
+
+                meshes.colors.push_back(data.colors[i]);
+                meshes.colors.push_back(data.colors[i + 1]);
+                meshes.colors.push_back(data.colors[i + 2]);
+
+                meshes.sizesAndRotations.push_back(data.sizesAndRotations[sizeAndRotationIndex++]);
+                meshes.sizesAndRotations.push_back(data.sizesAndRotations[sizeAndRotationIndex++]);
+            }
+            else
+            {
+                removedAtleastOne = true;
+            }
+        }
+
+        if (removedAtleastOne)
+        {
+            grassComponent_.SetMeshesData(std::move(meshes));
+            grassComponent_.UpdateModel();
+        }
+        return;
+    }
     if (not paintContext_.currentTerrainPoint)
         return;
 
-    const auto& point      = *paintContext_.currentTerrainPoint;
-    auto range             = static_cast<float>(paintContext_.brushSize / 2);
     auto numberOfInstances = getNumberOfInstances();
-
     TerrainHeightGetter terrainHeightGetter(
         point.terrainComponent.getParentGameObject().GetWorldTransform().GetScale(),
         *point.terrainComponent.GetHeightMap(),
         point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
-
     createRandomPositions(point.pointOnTerrain, terrainHeightGetter, range, numberOfInstances);
 }
 uint32 PlantPainter::getNumberOfInstances()
@@ -100,7 +149,7 @@ void PlantPainter::generatePositions()
         vec2 start = position - halfScale;
         vec3 end   = position + halfScale;
 
-        auto range = static_cast<float>(paintContext_.brushSize / 2);
+        auto range             = static_cast<float>(paintContext_.brushSize / 2);
         auto numberOfInstances = getNumberOfInstances();
 
         for (float y = start.y; y < end.y; y += range)

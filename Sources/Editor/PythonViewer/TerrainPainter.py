@@ -101,6 +101,8 @@ class TerrainPainterView:
     def AddToDialogGenerateButton(self):
         tk.Button(self.dialog, text="Generate",
                   command=lambda: self.networkClient.SendCommand("updateTerrainPainterParam generate")).pack(fill=tk.X)
+        tk.Button(self.dialog, text="Erase mode",
+                  command=lambda: self.networkClient.SendCommand("updateTerrainPainterParam eraseMode")).pack(fill=tk.X)
 
     def AddToTexturesToDialog(self):
         texturesLabel = tk.LabelFrame(self.dialog, text="Textures")

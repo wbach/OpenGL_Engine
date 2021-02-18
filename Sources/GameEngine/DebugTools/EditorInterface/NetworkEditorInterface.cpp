@@ -1367,6 +1367,10 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
         {
             static_cast<PlantPainter*>(terrainPainter_.get())->generatePositions();
         }
+        if (params.count("eraseMode") and terrainPainter_->getPaintType() == PaintType::Plant)
+        {
+            static_cast<PlantPainter*>(terrainPainter_.get())->eraseMode();
+        }
     }
     catch (...)
     {

@@ -34,6 +34,7 @@ public:
     void UpdateModel();
 
     inline const GrassMeshes& GetGrassMeshesData() const;
+    inline GrassMeshes& GetGrassMeshesData();
     inline const File& getTextureFile() const;
     inline const File& getDataFile() const;
 
@@ -72,6 +73,11 @@ ModelWrapper& GrassRendererComponent::GetModel()
 }
 
 const GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshesData() const
+{
+    return meshData_;
+}
+
+GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshesData()
 {
     return meshData_;
 }

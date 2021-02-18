@@ -11,6 +11,8 @@ public:
     using Painter::EntryParamters;
     PlantPainter(const EntryParamters&, Components::GrassRendererComponent&);
 
+    void eraseMode();
+    void eraseMode(bool);
     void paintImpl() override;
     void setBrush(const std::string&) override;
     std::string selectedBrush() const override;
@@ -24,5 +26,6 @@ private:
 private:
     Components::GrassRendererComponent& grassComponent_;
     TextureBrushType brushType_;
+    bool eraseMode_;
 };
 }  // namespace GameEngine
