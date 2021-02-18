@@ -116,6 +116,7 @@ private:
     void DeleteDebugNormalMesh(uint32);
     void DeleteShader(uint32);
     void ClearRest();
+    void allocatedBytes(int64);
 
 private:
     struct Pimpl;
@@ -133,5 +134,7 @@ private:
     bool polygonMode_;
     bool useLowGLversion_;
     vec2i openGLVersion_;
+
+    int64 allocatedBytes_{0};
 };
 }  // namespace OpenGLApi

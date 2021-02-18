@@ -34,6 +34,7 @@ namespace OpenGLApi
 namespace
 {
 std::unordered_map<uint32, ObjectType> createdObjectIds;
+std::unordered_map<uint32, int64> allocatedTextureBytes;
 std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap_;
 std::unordered_map<GraphicsApi::TextureFilter, GLfloat> textureFilterMap_;
 std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
@@ -137,7 +138,7 @@ OpenGLMesh Convert(const Vao& v)
     mesh.attributes   = v.attributes;
     mesh.vertexCount  = static_cast<GLsizei>(v.size);
     mesh.useIndiecies = v.useIndicies;
-
+    mesh.sizeInBytes  = v.sizeInBytes;
     return mesh;
 }
 OpenGLApi::OpenGLApi()
@@ -573,17 +574,24 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
         if (debugNormalMesh.id_)
         {
             auto& obj = openGlMeshes_.at(*debugNormalMesh.id_);
+            auto sizeInBytesBeforeUpdate = obj.sizeInBytes;
+            obj.sizeInBytes = 0;
 
             obj.vertexCount = static_cast<GLsizei>(debugNormalMesh.position_.size());
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(), &debugNormalMesh.position_[0], GL_STREAM_DRAW);
+            obj.sizeInBytes += sizeof(float) * debugNormalMesh.position_.size();
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.normal_.size(), &debugNormalMesh.normal_[0], GL_STREAM_DRAW);
+            obj.sizeInBytes += sizeof(float) * debugNormalMesh.normal_.size();
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TANGENT]);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.tangent_.size(), &debugNormalMesh.tangent_[0], GL_STREAM_DRAW);
+            obj.sizeInBytes += sizeof(float) * debugNormalMesh.tangent_.size();
+
+            allocatedBytes(obj.sizeInBytes - sizeInBytesBeforeUpdate);
         }
     }
 }
@@ -601,6 +609,7 @@ void OpenGLApi::DeleteMesh(uint32 id)
         if (vbo.second != 0)
             glDeleteBuffers(1, &vbo.second);
     }
+    allocatedBytes(-mesh.sizeInBytes);
 
     glDeleteVertexArrays(1, &mesh.vao);
 
@@ -705,6 +714,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
         return {};
     }
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
+    uint32 dataTypeSize = 0;
     auto channels = image.getChannelsCount();
     std::visit(visitor{
                    [&](const std::vector<uint8>& data) {
@@ -712,6 +722,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
                        {
                            case 4:
                                type = GraphicsApi::TextureType::U8_RGBA;
+                               dataTypeSize = sizeof(uint8) * 4;
                                break;
                            default:
                                DEBUG_LOG("Not implmented.");
@@ -722,19 +733,24 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
                        {
                            case 1:
                                type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                               dataTypeSize = sizeof(float);
                                break;
                            case 2:
                                type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                               dataTypeSize = sizeof(float) * 2;
                                break;
                            case 3:
                                type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                               dataTypeSize = sizeof(float) * 3;
                                break;
                            case 4:
                                type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                               dataTypeSize = sizeof(float) * 4;
                                break;
                            default:
                                DEBUG_LOG("Not implmented.");
                        }
+                       dataTypeSize = sizeof(float);
                    },
                    [](std::monostate) { ERROR_LOG("Image data not set!"); },
                },
@@ -742,8 +758,12 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
 
     CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
 
+    int64 bytes = image.size().x * image.size().y * dataTypeSize;
+    allocatedBytes(bytes);
+
     auto rid = impl_->idPool_.ToUint(texture);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
+    allocatedTextureBytes.insert({rid, bytes});
 
     GraphicsApi::TextureInfo texutreInfo;
     texutreInfo.id            = rid;
@@ -801,6 +821,8 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<GraphicsApi::Ima
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, id);
     int i = 0;
+    int64 bytes{0};
+
     for (const auto& image : images)
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i++), 0, GL_RGBA,
@@ -810,11 +832,14 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<GraphicsApi::Ima
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        bytes += image.width * image.height * 4;
     }
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    allocatedBytes(bytes);
 
     auto rid              = impl_->idPool_.ToUint(id);
     createdObjectIds[rid] = ObjectType::TEXTURE_CUBE_MAP;
+    allocatedTextureBytes.insert({rid, bytes});
     return rid;
 }
 
@@ -924,11 +949,22 @@ void OpenGLApi::DeleteObject(uint32 id)
             DeleteShader(id);
             break;
         case ObjectType::TEXTURE_2D:
+        {
             glDeleteTextures(1, &openGLId);
+                        auto iter = allocatedTextureBytes.find(id);
+            if (iter != allocatedTextureBytes.end())
+                allocatedBytes(-1 * iter->second);
             break;
+        }
         case ObjectType::TEXTURE_CUBE_MAP:
+        {
             glDeleteTextures(1, &openGLId);
+
+            auto iter = allocatedTextureBytes.find(id);
+            if (iter != allocatedTextureBytes.end())
+                allocatedBytes(-1 * iter->second);
             break;
+        }
         case ObjectType::RENDER_BUFFER:
             glDeleteRenderbuffers(1, &openGLId);
             break;
@@ -1029,6 +1065,8 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.joinIds_);
     mesh            = Convert(vaoCreator.Get());
     mesh.renderType = type;
+
+    allocatedBytes(vaoCreator.Get().sizeInBytes);
     return rid;
 }
 
@@ -1044,6 +1082,8 @@ GraphicsApi::ID OpenGLApi::CreateDynamicLineMesh()
     vaoCreator.SetSize(0);
     vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::POSITION, 3);
     vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::NORMAL, 3);
+
+    allocatedBytes(vaoCreator.Get().sizeInBytes);
 
     mesh            = Convert(vaoCreator.Get());
     mesh.renderType = GraphicsApi::RenderType::LINES;
@@ -1068,6 +1108,7 @@ GraphicsApi::ID OpenGLApi::CreateParticle()
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, text_coords);
     vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TRANSFORM_MATRIX, 4, sizeof(mat4));
     mesh = Convert(vaoCreator.Get());
+    allocatedBytes(vaoCreator.Get().sizeInBytes);
     return rid;
 }
 GraphicsApi::ID OpenGLApi::CreateAnimatedParticle()
@@ -1090,6 +1131,8 @@ GraphicsApi::ID OpenGLApi::CreateAnimatedParticle()
     vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::TEXTURE_OFFSET, 4, sizeof(vec4));
     vaoCreator.AllocateDynamicAttribute(VertexBufferObjects::BLEND_FACTOR, 1, sizeof(float));
     mesh = Convert(vaoCreator.Get());
+
+    allocatedBytes(vaoCreator.Get().sizeInBytes);
     return rid;
 }
 void OpenGLApi::Compute(uint32 x, uint32 y, uint32 z)
@@ -1324,6 +1367,8 @@ GraphicsApi::ID OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
     auto glId = CreateDepthBufferAttachment(sizex, sizey);
     auto rid  = impl_->idPool_.ToUint(glId);
     createdObjectIds.insert({rid, ObjectType::TEXTURE_2D});
+
+    allocatedBytes(sizex * sizey * sizeof(float));
     return rid;
 }
 
@@ -1376,5 +1421,10 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_DST_COLOR);
             break;
     }
+}
+void OpenGLApi::allocatedBytes(int64 bytes)
+{
+    allocatedBytes_ += bytes;
+    DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" + std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
 }
 }  // namespace OpenGLApi

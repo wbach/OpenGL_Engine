@@ -9,12 +9,13 @@ namespace OpenGLApi
 struct OpenGLMesh
 {
     bool useIndiecies = false;
-    uint32 vao;
+    uint32 vao{0};
     VboMap vbos;
-    uint32 patches;
+    uint32 patches{0};
     VboMap attributes;
-    GLsizei vertexCount;
-    uint32 instancesCount;
+    GLsizei vertexCount{0};
+    uint32 instancesCount{0};
     GraphicsApi::RenderType renderType;
+    int64 sizeInBytes{0};
 };
 }  // namespace OpenGLApi

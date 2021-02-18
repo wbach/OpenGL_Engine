@@ -12,6 +12,7 @@ struct Vao
     uint32 size = 0;
     VboMap vbos;
     VboMap attributes;
+    int64 sizeInBytes{0};
 };
 
 class VaoCreator

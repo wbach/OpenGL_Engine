@@ -34,6 +34,8 @@ void VaoCreator::AddIndicesBuffer(const IndicesVector& indices)
 
     if (vao_.size == 0)
         vao_.size = indices.size();
+
+    vao_.sizeInBytes += indices.size() * sizeof(IndicesDataType);
 }
 
 void VaoCreator::AddStaticAttributePatch(VertexBufferObjects type, uint32 coordinateSize,
@@ -53,6 +55,7 @@ void VaoCreator::AddStaticAttributePatch(VertexBufferObjects type, uint32 coordi
     glEnableVertexAttribArray(attributeNumber_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     vao_.attributes[type] = attributeNumber_++;
+    vao_.sizeInBytes += data.size() * sizeof(float);
 }
 
 void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<int32>& data)
@@ -70,6 +73,7 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
     glEnableVertexAttribArray(attributeNumber_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     vao_.attributes[type] = attributeNumber_++;
+    vao_.sizeInBytes += data.size() * sizeof(int32);
 }
 
 void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateSize, const std::vector<float>& data)
@@ -87,6 +91,7 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
     glEnableVertexAttribArray(attributeNumber_);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     vao_.attributes[type] = attributeNumber_++;
+    vao_.sizeInBytes += data.size() * sizeof(float);
 
     if (type == VertexBufferObjects::POSITION && vao_.size == 0)
     {
