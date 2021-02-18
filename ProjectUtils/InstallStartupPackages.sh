@@ -29,6 +29,7 @@ sudo apt-get install -y cifs-utils
 sudo apt-get install -y python-backports.functools-lru-cache
 sudo apt-get install -y python-tk
 sudo apt-get install -y python3-tk
+sudo apt-get install -y python3-pil python3-pil.imagetk
 sudo apt-get install -y libdrm-dev
 sudo apt-get install -y gdb
 # sudo apt-get install python-support
@@ -45,6 +46,7 @@ pip install --upgrade google-api-python-client oauth2client
 pip3 install pillow
 pip3 install lxml
 pip3 install google-api-python-client oauth2client
+
 sudo dpkg -i tuxdrive-1.0.12.deb
 
 #game dev

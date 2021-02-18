@@ -46,13 +46,11 @@ public:
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     std::unordered_map<ParamName, Param> GetParams() const override;
 
-    void generatePositionsBasedOnTerrain();
-
 private:
     void CreateModelAndSubscribe();
     void UnSubscribe();
     Material CreateGrassMaterial() const;
-    Mesh CreateGrassMesh(const Material& material) const;
+    std::vector<Mesh> CreateGrassMeshes(const Material& material) const;
     void CopyDataToMesh(Mesh&) const;
     bool CreateGrassModel();
 

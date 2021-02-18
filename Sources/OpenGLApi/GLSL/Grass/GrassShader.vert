@@ -7,6 +7,7 @@ layout (location = 3) in vec3 Color;
 
 out VS_OUT
 {
+    vec3 worldPosition;
     vec2 sizeAndRotation;
     vec3 normal;
     vec3 color;
@@ -14,9 +15,9 @@ out VS_OUT
 
 void main()
 {
+    vs_out.worldPosition   = Position;
     vs_out.sizeAndRotation = SizeAndRotation;
     vs_out.normal          = Normal;
-   // vs_out.normal          = vec3(0, 1, 0);
     vs_out.color           = Color;
     gl_Position = vec4(Position, 1.0f);
 }

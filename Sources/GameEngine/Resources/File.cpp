@@ -1,7 +1,5 @@
 #include "File.h"
 
-#include <Logger/Log.h>
-
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>

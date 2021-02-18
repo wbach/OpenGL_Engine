@@ -5,8 +5,8 @@ namespace GameEngine
 namespace Params
 {
 Flora::Flora()
-    : isEnabled{false, {false, true}}
-    , viewDistance{100.f, {50.f, 100.f, 200.f, 400.f}}
+    : isEnabled{true, {false, true}}
+    , viewDistance{200.f, {10.f, 25.f, 50.f, 100.f, 200.f, 400.f, 500.f, 750.f, 1000.f}}
 {
 }
 }  // namespace Params

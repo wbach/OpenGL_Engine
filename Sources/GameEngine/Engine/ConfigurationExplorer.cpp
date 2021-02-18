@@ -28,7 +28,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              //{"Use displacement texture", EngineConf.renderer.textures.useDisplacement, true},
              {"Fps limit", EngineConf.renderer.fpsLimt, true},
              {"Flora", EngineConf.renderer.flora.isEnabled, true},
-             {"Flora view distance", EngineConf.renderer.flora.viewDistance, true},
+             {"Flora view distance", EngineConf.renderer.flora.viewDistance, false},
              {"Normal mapping distance", EngineConf.renderer.normalMappingDistance, true},
              {"Use particles", EngineConf.renderer.particles.useParticles, true},
              {"Water type", EngineConf.renderer.water.type, false},

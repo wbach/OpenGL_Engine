@@ -197,12 +197,6 @@ void TreeRendererComponent::registerReadFunctions()
 
 namespace
 {
-void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
-{
-    node.addChild(CSTR_FILE_NAME, filename);
-    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
-}
-
 void write(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
 {
     node.addChild(CSTR_FILE_NAME, filename);

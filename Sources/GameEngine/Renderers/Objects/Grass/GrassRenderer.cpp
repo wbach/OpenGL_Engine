@@ -19,10 +19,23 @@ GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
 {
+    viewDistanceChangeSubscription_ =
+        EngineConf.renderer.flora.viewDistance.subscribeForChange([this](const auto &newViewDistance) {
+            if (grassShaderBufferId_)
+            {
+                context_.gpuLoader_.AddFunctionToCall([this, newViewDistance]()
+                {
+                    grassShaderBuffer_.variables.value.x = newViewDistance;
+                    grassShaderBuffer_.variables.value.y = 0;
+                    context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
+                });
+            }
+        });
 }
 
 GrassRenderer::~GrassRenderer()
 {
+    EngineConf.renderer.flora.viewDistance.unsubscribe(viewDistanceChangeSubscription_);
 }
 
 void GrassRenderer::init()
@@ -114,11 +127,20 @@ void GrassRenderer::RenderSubscribes()
 
 void GrassRenderer::RenderModel(const Model& model)
 {
+    //int rendererdMeshes = 0;
     for (const auto& mesh : model.GetMeshes())
     {
         if (mesh.GetGraphicsObjectId())
-            RenderMesh(mesh);
+        {
+            //auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
+            //if (isVisible)
+            {
+                RenderMesh(mesh);
+                //++rendererdMeshes;
+            }
+        }
     }
+   // DEBUG_LOG("rendererdMeshes : " + std::to_string(rendererdMeshes));
 }
 
 void GrassRenderer::RenderMesh(const Mesh& mesh)

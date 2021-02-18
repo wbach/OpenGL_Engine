@@ -7,6 +7,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
@@ -15,6 +16,8 @@ namespace Components
 namespace
 {
 const std::string COMPONENT_STR{"GrassRenderer"};
+const int32 BOX_SIZE = 100;
+const bool DEVIDE_SPACE{false};
 }  // namespace
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -112,27 +115,25 @@ std::unordered_map<ParamName, Param> GrassRendererComponent::GetParams() const
     return std::unordered_map<ParamName, Param>();
 }
 
-void GrassRendererComponent::generatePositionsBasedOnTerrain()
-{
-    // auto terrainContext = thisObject_.GetComponent<TerrainRendererComponent>();
-}
-
 void GrassRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::CreateModelAndSubscribe, this));
 }
 void GrassRendererComponent::CreateModelAndSubscribe()
 {
-    if (not isSubscribed_ and not model_.Get(LevelOfDetail::L1))
+    if (EngineConf.renderer.flora.isEnabled)
     {
-        if (CreateGrassModel())
+        if (not isSubscribed_ and not model_.Get(LevelOfDetail::L1))
         {
-            componentContext_.renderersManager_.Subscribe(&thisObject_);
-            isSubscribed_ = true;
-        }
-        else
-        {
-            ERROR_LOG("Model creation error.");
+            if (CreateGrassModel())
+            {
+                componentContext_.renderersManager_.Subscribe(&thisObject_);
+                isSubscribed_ = true;
+            }
+            else
+            {
+                ERROR_LOG("Model creation error.");
+            }
         }
     }
 }
@@ -144,11 +145,80 @@ void GrassRendererComponent::UnSubscribe()
         isSubscribed_ = false;
     }
 }
-Mesh GrassRendererComponent::CreateGrassMesh(const Material& material) const
+std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& material) const
 {
-    Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
-    CopyDataToMesh(mesh);
-    return mesh;
+    std::vector<Mesh> result;
+    if (DEVIDE_SPACE)
+    {
+        std::unordered_map<int32, std::unordered_map<int32, std::unordered_map<int32, Mesh>>> meshBoxes_;
+        size_t sizeAndRotationIndex = 0;
+        for(size_t i = 0; i< meshData_.positions.size(); i += 3)
+        {
+            vec3 position(meshData_.positions[i], meshData_.positions[i +1], meshData_.positions[i+2]);
+
+            auto xIndex = static_cast<int32>(position.x) / BOX_SIZE;
+            auto yIndex = static_cast<int32>(position.y) / BOX_SIZE;
+            auto zIndex = static_cast<int32>(position.z) / BOX_SIZE;
+
+            auto& yMeshBox = meshBoxes_[xIndex][yIndex];
+            auto iter = yMeshBox.find(zIndex);
+
+            Mesh* mesh{nullptr};
+            if (iter == yMeshBox.end())
+            {
+                Mesh m(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
+                yMeshBox.insert({zIndex, std::move(m) });
+                mesh = &yMeshBox.at(zIndex);
+                vec3 bbMin(xIndex * BOX_SIZE, yIndex * BOX_SIZE, zIndex * BOX_SIZE);
+                vec3 bbMax((xIndex+1) * BOX_SIZE, (yIndex+1) * BOX_SIZE, (zIndex+1) * BOX_SIZE);
+                DEBUG_LOG("bbMin : " + std::to_string(bbMin));
+                DEBUG_LOG("bbMax : " + std::to_string(bbMax));
+                BoundingBox boundingBox(bbMin * 1.1f, bbMax * 1.1f);
+                mesh->setBoundingBox(boundingBox);
+            }
+            else
+            {
+                mesh = &iter->second;
+            }
+
+            auto& meshData = mesh->GetMeshDataRef();
+            meshData.positions_.push_back(position.x);
+            meshData.positions_.push_back(position.y);
+            meshData.positions_.push_back(position.z);
+
+            meshData.textCoords_.push_back(meshData_.sizesAndRotations[sizeAndRotationIndex++]);
+            meshData.textCoords_.push_back(meshData_.sizesAndRotations[sizeAndRotationIndex++]);
+
+            meshData.normals_.push_back(meshData_.normals[i]);
+            meshData.normals_.push_back(meshData_.normals[i+1]);
+            meshData.normals_.push_back(meshData_.normals[i+2]);
+
+            meshData.tangents_.push_back(meshData_.colors[i]);
+            meshData.tangents_.push_back(meshData_.colors[i+1]);
+            meshData.tangents_.push_back(meshData_.colors[i+2]);
+        }
+
+        for(auto& [_, yIndexMap] : meshBoxes_)
+        {
+            for(auto& [_, zIndexMap] : yIndexMap)
+            {
+                for(auto& [_, mesh] : zIndexMap)
+                {
+                    DEBUG_LOG("Mesh positions size : " + std::to_string(mesh.GetMeshDataRef().positions_.size() / 3));
+                    result.push_back(std::move(mesh));
+                }
+            }
+        }
+        DEBUG_LOG("Meshes size : " + std::to_string(result.size()));
+    }
+    else
+    {
+        Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
+        CopyDataToMesh(mesh);
+        result.push_back(std::move(mesh));
+    }
+
+    return result;
 }
 void GrassRendererComponent::CopyDataToMesh(Mesh& mesh) const
 {
@@ -165,8 +235,10 @@ bool GrassRendererComponent::CreateGrassModel()
 
     auto model    = std::make_unique<Model>();
     auto material = CreateGrassMaterial();
-    auto mesh     = CreateGrassMesh(material);
-    model->AddMesh(mesh);
+    auto meshes   = CreateGrassMeshes(material);
+    for(auto& mesh : meshes)
+        model->AddMesh(mesh);
+
     model_.Add(model.get(), LevelOfDetail::L1);
     model->SetFile(meshDataFile_);
     auto addedModel = componentContext_.resourceManager_.AddModel(std::move(model));

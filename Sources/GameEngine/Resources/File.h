@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <fstream>
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -65,9 +66,18 @@ public:
         {
             uint32 dataSize = 0;
             data.clear();
-            fread(&dataSize, sizeof(uint32), 1, fp_);
+            auto readedBytes = fread(&dataSize, sizeof(uint32), 1, fp_);
+            if (readedBytes < sizeof(uint32))
+            {
+                ERROR_LOG("Read size error");
+            }
             data.resize(dataSize);
-            fread(&data[0], sizeof(T), dataSize, fp_);
+            auto dataBytes = fread(&data[0], sizeof(T), dataSize, fp_);
+
+            if (dataBytes < sizeof(T) * dataSize)
+            {
+                ERROR_LOG("Read data error.");
+            }
         }
     }
 

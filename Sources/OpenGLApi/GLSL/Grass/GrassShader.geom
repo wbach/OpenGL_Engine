@@ -41,6 +41,7 @@ out GS_OUT
 
 in VS_OUT
 {
+    vec3 worldPosition;
     vec2 sizeAndRotation;
     vec3 normal;
     vec3 color;
@@ -183,19 +184,22 @@ void CreateZYXquad(vec4 rotation, vec2 textCoord[4])
 
 void main(void)
 {
-    gs_out.useShadows = perApp.shadowVariables.x;
+    if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < grassShaderBuffer.variables.x)
+    {
+        gs_out.useShadows = perApp.shadowVariables.x;
 
-    vec2 quadTextCoord[4];
-    quadTextCoord[0] = vec2(-1,1);
-    quadTextCoord[1] = vec2(-1,-1);
-    quadTextCoord[2] = vec2(1,1);
-    quadTextCoord[3] = vec2(1,-1);
+        vec2 quadTextCoord[4];
+        quadTextCoord[0] = vec2(-1,1);
+        quadTextCoord[1] = vec2(-1,-1);
+        quadTextCoord[2] = vec2(1,1);
+        quadTextCoord[3] = vec2(1,-1);
 
-   // vec3 normal = vec3(1, 1, 1);
-    //vec3 normal = vec3(0, 1, 0);
-    vec4 quaternion = CreateQuaternion(normalize(gs_in[0].normal));
-    CreateXYquad(quaternion, quadTextCoord);
-    CreateZYquad(quaternion, quadTextCoord);
-    CreateXYZquad(quaternion, quadTextCoord);
-    CreateZYXquad(quaternion, quadTextCoord);
+       // vec3 normal = vec3(1, 1, 1);
+        //vec3 normal = vec3(0, 1, 0);
+        vec4 quaternion = CreateQuaternion(normalize(gs_in[0].normal));
+        CreateXYquad(quaternion, quadTextCoord);
+        CreateZYquad(quaternion, quadTextCoord);
+        CreateXYZquad(quaternion, quadTextCoord);
+        CreateZYXquad(quaternion, quadTextCoord);
+    }
 }
