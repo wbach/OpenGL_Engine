@@ -74,7 +74,7 @@ void GreenIsland::keyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { menu_->isShow() ? menu_->hide() : menu_->show(PauseMenu::State::PauseMenu); });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { DEBUG_LOG("Escape pressed"); menu_->isShow() ? menu_->hide() : menu_->show(PauseMenu::State::PauseMenu); });
 
 }
 }  // namespace AvatarGame

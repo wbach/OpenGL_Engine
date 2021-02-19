@@ -7,9 +7,9 @@
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Components/IComponent.h"
 
 namespace GameEngine
 {
@@ -30,6 +30,7 @@ public:
     void SetParent(GameObject*);
     GameObject* GetParent() const;
     GameObject* GetChild(IdType id) const;
+    void MoveChild(std::unique_ptr<GameObject>);
     std::unique_ptr<GameObject> MoveChild(IdType);
     // return first child with name
     GameObject* GetChild(const std::string&) const;

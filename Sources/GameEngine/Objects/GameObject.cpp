@@ -80,11 +80,23 @@ bool GameObject::RemoveChild(IdType id)
 
 void GameObject::SetParent(GameObject* parent)
 {
-    parent_ = parent;
-    CalculateWorldTransform();
+    if (parent)
+    {
+        parent_ = parent;
+        CalculateWorldTransform();
 
-    parentIdTransfromSubscribtion_ =
-        parent->SubscribeOnWorldTransfomChange([this](const auto&) { CalculateWorldTransform(); });
+        parentIdTransfromSubscribtion_ =
+            parent->SubscribeOnWorldTransfomChange([this](const auto&) { CalculateWorldTransform(); });
+    }
+    else
+    {
+        if (parent_ and parentIdTransfromSubscribtion_)
+        {
+            parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
+            parent_ = nullptr;
+            parentIdTransfromSubscribtion_ = std::nullopt;
+        }
+    }
 }
 
 GameObject* GameObject::GetParent() const
@@ -115,6 +127,12 @@ GameObject* GameObject::GetChild(IdType id) const
     return nullptr;
 }
 
+void GameObject::MoveChild(std::unique_ptr<GameObject> object)
+{
+    object->SetParent(this);
+    children_.push_back(std::move(object));
+}
+
 std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
 {
     auto iter =
@@ -123,6 +141,7 @@ std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
     if (iter != children_.end())
     {
         auto result = std::move(*iter);
+        result->SetParent(nullptr);
         children_.erase(iter);
         return result;
     }

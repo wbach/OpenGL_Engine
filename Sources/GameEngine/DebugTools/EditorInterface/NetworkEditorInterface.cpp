@@ -698,6 +698,7 @@ void NetworkEditorInterface::DeleteGameObject(const EntryParameters &params)
             UnsubscribeTransformUpdateIfExist();
 
             auto id = go->GetId();
+            SetSelectedGameObject(nullptr);
             scene_.RemoveGameObject(*go);
 
             DebugNetworkInterface::GameObjectDeleted msg(id);
@@ -809,6 +810,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
             gameObject->AddComponent<Components::Rigidbody>().SetMass(0);
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+            SetSelectedGameObject(gameObject.get());
             auto parentId = AddGameObject(params, gameObject);
             if (parentId)
             {
@@ -980,7 +982,7 @@ void NetworkEditorInterface::SetSelectedGameObject(GameObject *gameObject)
     {
         if (gameObject and selectedGameObject_->GetId() == gameObject->GetId())
         {
-            sentNotif = false;
+            return;
         }
     }
     else
@@ -1153,7 +1155,7 @@ void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::Entr
 
     auto gameObject = GetGameObject(paramters.at("gameObjectId"));
 
-    if (not gameObject)
+    if (not gameObject or not cameraEditor)
         return;
 
     cameraEditor->SetPosition(gameObject->GetWorldTransform().GetPosition() +
@@ -1667,7 +1669,7 @@ void NetworkEditorInterface::ChangeGameObjectParent(const EntryParameters &param
         if (gameObject and newParent)
         {
             auto currentParent = gameObject->GetParent();
-            if (currentParent)
+            if (currentParent and newParent->GetId() != currentParent->GetId())
             {
                 auto worldPosition = gameObject->GetWorldTransform().GetPosition();
                 auto worldRotation = gameObject->GetWorldTransform().GetRotation();
@@ -1678,7 +1680,7 @@ void NetworkEditorInterface::ChangeGameObjectParent(const EntryParameters &param
                 if (freeGameObject)
                 {
                     auto go = freeGameObject.get();
-                    newParent->AddChild(std::move(freeGameObject));
+                    newParent->MoveChild(std::move(freeGameObject));
                     go->SetWorldPosition(worldPosition);
                     go->SetWorldRotation(worldRotation);
                     go->SetWorldScale(worldScale);
@@ -1699,6 +1701,7 @@ void NetworkEditorInterface::CloneGameObject(const EntryParameters &params)
             auto clonedGameObject = scene_.CloneGameObject(*gameObject);
             if (clonedGameObject)
             {
+                SetSelectedGameObject(clonedGameObject);
                 SendObjectCreatedNotf(*clonedGameObject);
             }
         }
