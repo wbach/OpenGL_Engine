@@ -37,7 +37,7 @@ FIBITMAP* convertTo32bppIfDifferent(FIBITMAP* image)
 
 FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolicy)
 {
-    if (sizeLimitPolicy == SizeLimitPolicy::Limited)
+    if (sizeLimitPolicy == SizeLimitPolicy::Limited and EngineConf.renderer.textures.limitTextureSize)
     {
         auto& textureSize{EngineConf.renderer.textures.maxSize};
         bool resize_texture{false};
@@ -139,7 +139,7 @@ std::optional<GraphicsApi::Image> ReadFile(const File& inputFileName, const Text
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded.");
+    DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" + std::to_string(resultImage.height));
     return std::move(resultImage);
 }
 

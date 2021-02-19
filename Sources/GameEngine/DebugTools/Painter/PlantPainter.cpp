@@ -116,4 +116,11 @@ void PlantPainter::generatePositions()
         }
     }
 }
+float PlantPainter::getWorldScaleBrushSize() 
+{
+    return static_cast<float>(paintContext_.brushSize);
+}
+void PlantPainter::calculateWorldScaleBrushSize()
+{
+}
 }  // namespace GameEngine

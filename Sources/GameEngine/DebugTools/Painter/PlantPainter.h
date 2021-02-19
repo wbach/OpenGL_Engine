@@ -15,9 +15,11 @@ public:
     void setBrush(const std::string&) override;
     std::string selectedBrush() const override;
     std::vector<std::string> avaiableBrushTypes() const override;
+    float getWorldScaleBrushSize() override;
     void generatePositions();
 
 private:
+    void calculateWorldScaleBrushSize() override;
     uint32 getNumberOfInstances();
     void createRandomPositions(const vec3&, const TerrainHeightGetter&, float, uint32);
 

@@ -63,6 +63,53 @@ std::optional<uint32> transformChangedToSend_;
 
 std::atomic_bool cameraChangedToSend_;
 uint64 sendChangeTimeInterval{100};
+
+const std::string ROTATE_OBJECT_X{"ROTATE_OBJECT_X"};
+const std::string ROTATE_OBJECT_Y{"ROTATE_OBJECT_Y"};
+const std::string ROTATE_OBJECT_Z{"ROTATE_OBJECT_Z"};
+
+const std::string MOVE_OBJECT{"MOVE_OBJECT"};
+const std::string MOVE_OBJECT_X{"MOVE_OBJECT_X"};
+const std::string MOVE_OBJECT_Y{"MOVE_OBJECT_Y"};
+const std::string MOVE_OBJECT_Z{"MOVE_OBJECT_Z"};
+
+const std::string SCALE_OBJECT{"SCALE_OBJECT"};
+const std::string SCALE_OBJECT_X{"SCALE_OBJECT_X"};
+const std::string SCALE_OBJECT_Y{"SCALE_OBJECT_Y"};
+const std::string SCALE_OBJECT_Z{"SCALE_OBJECT_Z"};
+
+const std::string START_SCENE{"START_SCENE"};
+const std::string BLENDMAPS_TO_FILE{"BLENDMAPS_TO_FILE"};
+
+const std::string SELECT_OBJECT{"SELECT_OBJECT"};
+const std::string OBJECT_CONTROL{"OBJECT_CONTROL"};
+const std::string QUICK_SAVE{"QUICK_SAVE"};
+const std::string EXIT{"EXIT"};
+
+std::unordered_map<std::string, KeyCodes::Type> editorActions{
+    {ROTATE_OBJECT_X, KeyCodes::X},
+    {ROTATE_OBJECT_Y, KeyCodes::Y},
+    {ROTATE_OBJECT_Z, KeyCodes::Z},
+
+    {MOVE_OBJECT, KeyCodes::G},
+    {MOVE_OBJECT_X, KeyCodes::B},
+    {MOVE_OBJECT_Y, KeyCodes::N},
+    {MOVE_OBJECT_Z, KeyCodes::M},
+
+    {SCALE_OBJECT, KeyCodes::H},
+    {SCALE_OBJECT_X, KeyCodes::J},
+    {SCALE_OBJECT_Y, KeyCodes::K},
+    {SCALE_OBJECT_Z, KeyCodes::L},
+
+    {QUICK_SAVE, KeyCodes::F2},
+    {START_SCENE, KeyCodes::F9},
+    {BLENDMAPS_TO_FILE, KeyCodes::F5},
+
+    {SELECT_OBJECT, KeyCodes::LMOUSE},
+    {OBJECT_CONTROL, KeyCodes::MOUSE_WHEEL},
+    {EXIT, KeyCodes::ESCAPE}
+};
+
 }  // namespace
 
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::ThreadSync &threadSync)
@@ -226,37 +273,33 @@ void NetworkEditorInterface::PrepareDebugModels()
 void NetworkEditorInterface::KeysSubscribtions()
 {
     keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::MOUSE_WHEEL, [this]() { ObjectControlAction(1.f); });
+        scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(1.f); });
     keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::MOUSE_WHEEL, [this]() { ObjectControlAction(-1.f); });
+        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(-1.f); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        KeyCodes::G, [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
+        editorActions.at(MOVE_OBJECT), [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::G, [this]() { ReleaseDragObject(); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(MOVE_OBJECT), [this]() { ReleaseDragObject(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(SELECT_OBJECT), [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
 
         SetSelectedGameObject(
             mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
-
-        UseSelectedGameObject([this](auto &gameObject) {
-            DEBUG_LOG("selected object : " + gameObject.GetName());
-            CreateDragObject(gameObject);
-        });
     });
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LMOUSE, [this]() { ReleaseDragObject(); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        KeyCodes::ESCAPE, [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
+        editorActions.at(EXIT), [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F1,
+    scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(START_SCENE),
                                              [this]() { scene_.inputManager_->AddEvent([&]() { StartScene(); }); });
 
     keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::G, [this]() { GenerateTerrainBlendMapToFile(); });
+        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(BLENDMAPS_TO_FILE), [this]() { GenerateTerrainBlendMapToFile(); });
+
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -300,34 +343,17 @@ void NetworkEditorInterface::NotifSelectedCameraIsChaned()
 
 void NetworkEditorInterface::SetGameObjectPosition(GameObject &gameObject, const vec3 &position)
 {
-    //auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
-    //if (rigidbody)
-    //{
-    //    rigidbody->SetPosition(position);
-    //}
     gameObject.GetTransform().SetPosition(position);
 }
 
 void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const vec3 &rotation)
 {
-    //auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
-    //if (rigidbody)
-    //{
-    //    rigidbody->SetRotation(DegreesVec3(rotation));
-    //}
     gameObject.GetTransform().SetRotation(DegreesVec3(rotation));
 }
 
 void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, const vec3 &increseValue)
 {
     vec3 newValue = gameObject.GetTransform().GetRotation().GetEulerDegrees().value + increseValue;
-
-    //auto rigidbody = gameObject.GetComponent<Components::Rigidbody>();
-    //if (rigidbody)
-    //{
-    //    rigidbody->SetRotation(DegreesVec3(newValue));
-    //}
-
     gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
 }
 
@@ -347,15 +373,15 @@ void NetworkEditorInterface::IncreseGameObjectScale(GameObject& gameObject, cons
 vec3 NetworkEditorInterface::GetRotationValueBasedOnKeys(float rotationSpeed, float dir)
 {
     vec3 v(0, 0, 0);
-    if (scene_.inputManager_->GetKey(KeyCodes::X))
+    if (scene_.inputManager_->GetKey(editorActions.at(ROTATE_OBJECT_X)))
     {
         v.x = dir * rotationSpeed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::Y))
+    if (scene_.inputManager_->GetKey(editorActions.at(ROTATE_OBJECT_Y)))
     {
         v.y = dir * rotationSpeed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::Z))
+    if (scene_.inputManager_->GetKey(editorActions.at(ROTATE_OBJECT_Z)))
     {
         v.z = dir * rotationSpeed;
     }
@@ -365,15 +391,15 @@ vec3 NetworkEditorInterface::GetRotationValueBasedOnKeys(float rotationSpeed, fl
 vec3 NetworkEditorInterface::GetPositionChangeValueBasedOnKeys(float speed, float dir)
 {
     vec3 v(0, 0, 0);
-    if (scene_.inputManager_->GetKey(KeyCodes::B))
+    if (scene_.inputManager_->GetKey(editorActions.at(MOVE_OBJECT_X)))
     {
         v.x = dir * speed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::N))
+    if (scene_.inputManager_->GetKey(editorActions.at(MOVE_OBJECT_Y)))
     {
         v.y = dir * speed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::M))
+    if (scene_.inputManager_->GetKey(editorActions.at(MOVE_OBJECT_Z)))
     {
         v.z = dir * speed;
     }
@@ -383,19 +409,19 @@ vec3 NetworkEditorInterface::GetPositionChangeValueBasedOnKeys(float speed, floa
 vec3 NetworkEditorInterface::GetScaleChangeValueBasedOnKeys(float dir, float speed)
 {
     vec3 v(0, 0, 0);
-    if (scene_.inputManager_->GetKey(KeyCodes::J))
+    if (scene_.inputManager_->GetKey(editorActions.at(SCALE_OBJECT_X)))
     {
         v.x = dir * speed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::K))
+    if (scene_.inputManager_->GetKey(editorActions.at(SCALE_OBJECT_Y)))
     {
         v.y = dir * speed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::L))
+    if (scene_.inputManager_->GetKey(editorActions.at(SCALE_OBJECT_Z)))
     {
         v.z = dir * speed;
     }
-    if (scene_.inputManager_->GetKey(KeyCodes::H))
+    if (scene_.inputManager_->GetKey(editorActions.at(SCALE_OBJECT)))
     {
         return vec3(dir * speed);
     }
@@ -465,6 +491,11 @@ void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::Entry
     }
 
     scene_.SaveToFile(args.at("filename"));
+}
+
+void NetworkEditorInterface::QuickSave()
+{
+    scene_.SaveToFile();
 }
 
 void NetworkEditorInterface::GetCamera(const EntryParameters &)
@@ -1018,7 +1049,8 @@ void NetworkEditorInterface::PaintTerrain()
         {
             brushCircleTransform_.SetPosition(*pointOnTerrain);
         }
-        brushCircleTransform_.SetScale(vec3(static_cast<float>(brushSize_), 1.f, static_cast<float>(brushSize_)));
+        auto worldScaleBrushSize = terrainPainter_->getWorldScaleBrushSize();
+        brushCircleTransform_.SetScale(vec3(worldScaleBrushSize, 1.f, worldScaleBrushSize));
         terrainPainterTimer_.Reset();
     }
 }

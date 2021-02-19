@@ -267,6 +267,12 @@ const std::vector<Light>& Scene::GetLights() const
 {
     return lights;
 }
+void Scene::SaveToFile() 
+{
+    DEBUG_LOG("Save scene to file : " + file_.GetAbsoultePath());
+    sceneStorage_->saveToFile(file_);
+    DEBUG_LOG("Scene save complete  , file : " + file_.GetAbsoultePath());
+}
 void Scene::SaveToFile(const File& file)
 {
     DEBUG_LOG("Save scene to file : " + file.GetAbsoultePath());

@@ -47,6 +47,7 @@ public:
     virtual void setBrush(const std::string&) = 0;
     virtual std::string selectedBrush() const = 0;
     virtual std::vector<std::string> avaiableBrushTypes() const = 0;
+    virtual float getWorldScaleBrushSize() = 0;
 
     std::optional<vec3> paint();
     PaintType getPaintType() const;
@@ -60,6 +61,7 @@ public:
 
 protected:
     virtual void paintImpl() = 0;
+    virtual void calculateWorldScaleBrushSize() = 0;
     PaintContext paintContext_;
 
 protected:

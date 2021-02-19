@@ -9,12 +9,14 @@
 #include "Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
 TerrainHeightPainter::TerrainHeightPainter(const EntryParamters& entryParameters)
     : Painter(entryParameters, PaintType::HeightMap)
     , heightBrushType_(HeightBrushType::CircleLinear)
+    , worldScaleBrushSize_(0.f)
 {
     createBrush();
 }
@@ -75,5 +77,20 @@ template<class T>
 void TerrainHeightPainter::makeBrush()
 {
     brush_ = std::make_unique<T>(paintContext_);
+}
+float TerrainHeightPainter::getWorldScaleBrushSize() 
+{
+    return worldScaleBrushSize_;
+}
+void TerrainHeightPainter::calculateWorldScaleBrushSize()
+{
+    auto heightMapTexture = paintContext_.currentTerrainPoint->terrainComponent.GetHeightMap();
+    if (heightMapTexture)
+    {
+        auto terrainScale = paintContext_.currentTerrainPoint->terrainComponent.getParentGameObject().GetWorldTransform().GetScale();
+        vec2 textureSize(heightMapTexture->GetSize().x, heightMapTexture->GetSize().y);
+        vec2 terrainSize(terrainScale.x, terrainScale.z);
+        worldScaleBrushSize_ = static_cast<float>(paintContext_.brushSize) * terrainSize.x / textureSize.x;
+    }
 }
 }  // namespace GameEngine
