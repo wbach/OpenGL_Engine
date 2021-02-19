@@ -44,7 +44,7 @@ extern const std::string CSTR_PARTICLES_ENABLED;
 extern const std::string CSTR_TEXTURES;
 extern const std::string CSTR_TEXTURE_MAX_RESOLUTION_WIDTH;
 extern const std::string CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT;
-
+extern const std::string CSTR_TEXTURE_SIZE_LIMIT;
 extern const std::string CSTR_TEXTURE_AMBIENT;
 extern const std::string CSTR_TEXTURE_DISPLACEMENT;
 extern const std::string CSTR_TEXTURE_DIFFUSE;

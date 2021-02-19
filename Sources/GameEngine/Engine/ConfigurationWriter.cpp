@@ -34,6 +34,7 @@ void Create(TreeNode& node, const Params::Textures& param)
 {
     node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_WIDTH]  = std::to_string(param.maxSize->x);
     node.attributes_[CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT] = std::to_string(param.maxSize->y);
+    node.attributes_[CSTR_TEXTURE_SIZE_LIMIT]            = Utils::BoolToString(param.limitTextureSize);
     node.attributes_[CSTR_TEXTURE_AMBIENT]               = Utils::BoolToString(param.useAmbient);
     node.attributes_[CSTR_TEXTURE_DISPLACEMENT]          = Utils::BoolToString(param.useDisplacement);
     node.attributes_[CSTR_TEXTURE_DIFFUSE]               = Utils::BoolToString(param.useDiffuse);

@@ -179,6 +179,7 @@ void Read(TreeNode& node, Params::Textures& textures)
 {
     SetParamIfExist(textures.maxSize, node.attributes_, CSTR_TEXTURE_MAX_RESOLUTION_WIDTH,
                     CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT);
+    SetParamIfExist(textures.limitTextureSize, node.attributes_, CSTR_TEXTURE_SIZE_LIMIT);
     SetParamIfExist(textures.useAmbient, node.attributes_, CSTR_TEXTURE_AMBIENT);
     SetParamIfExist(textures.useDisplacement, node.attributes_, CSTR_TEXTURE_DISPLACEMENT);
     SetParamIfExist(textures.useDiffuse, node.attributes_, CSTR_TEXTURE_DIFFUSE);
@@ -241,7 +242,7 @@ void Read(TreeNode& node, Params::Renderer& renderer)
 void Read(TreeNode& node, Params::Files& files)
 {
     if (auto child = node.getChild(CSTR_DATA_LOCATION))
-        files.data = GetDataLocationFromString(node.getChild(CSTR_DATA_LOCATION)->value_);
+        files.data = GetDataLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_SHADER_LOCATION))
         files.shaders = GetShaderLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_REQUIRED_FILE_OUTPUT))

@@ -15,13 +15,16 @@ public:
     void setBrush(const std::string&) override;
     std::string selectedBrush() const override;
     std::vector<std::string> avaiableBrushTypes() const override;
+    float getWorldScaleBrushSize() override;
 
 private:
     void createBrush();
+    void calculateWorldScaleBrushSize() override;
 
 private:
     Color color_;
     TextureBrushType brushType_;
+    float worldScaleBrushSize_;
     std::unique_ptr<CircleLinearTextureBrush> brush_;
 };
 }  // namespace GameEngine

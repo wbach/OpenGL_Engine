@@ -19,7 +19,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
         return;
     }
 
-    DEBUG_LOG("Save image : " + filename);
+    DEBUG_LOG("Save image : " + filename + ", size=" + std::to_string(size.x)+"x"+std::to_string(size.y)+":4");
     FIBITMAP *bitmap = FreeImage_Allocate(static_cast<int>(size.x), static_cast<int>(size.y), 32, 8, 8, 8);
 
     auto width  = FreeImage_GetWidth(bitmap);
@@ -47,7 +47,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
         bitmap = scaledBitmap;
     }
     auto outputFilename = std::filesystem::path(filename).replace_extension(".png").string();
-    //FreeImage_FlipVertical(bitmap);
+    FreeImage_FlipVertical(bitmap);
     FreeImage_Save(FIF_PNG, bitmap, outputFilename.c_str());
     FreeImage_Unload(bitmap);
 }

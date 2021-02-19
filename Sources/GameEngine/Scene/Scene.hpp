@@ -100,6 +100,7 @@ public:
     inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
 
+    void SaveToFile();
     void SaveToFile(const File&);
     void LoadFromFile(const File&);
     GameObject* LoadPrefab(const File&, const std::string&);

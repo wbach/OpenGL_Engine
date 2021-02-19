@@ -48,6 +48,7 @@ private:
     vec3 GetPositionChangeValueBasedOnKeys(float, float);
     vec3 GetScaleChangeValueBasedOnKeys(float, float);
 
+    void QuickSave();
     void NewUser(const std::string&, uint32);
     void DisconnectUser(uint32);
     void OnMessage(Network::UserId userId, std::unique_ptr<Network::IMessage>);

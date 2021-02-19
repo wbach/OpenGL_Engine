@@ -21,6 +21,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Window size", EngineConf.window.size, false},
              {"Render size", EngineConf.renderer.resolution, true},
              {"View distance", EngineConf.renderer.viewDistance, false},
+             {"Textures size limit", EngineConf.renderer.textures.limitTextureSize, true},
              {"Textures max size", EngineConf.renderer.textures.maxSize, true},
              //{"Use ambient texture", EngineConf.renderer.textures.useAmbient, true},
              {"Use normal texture", EngineConf.renderer.textures.useNormal, true},

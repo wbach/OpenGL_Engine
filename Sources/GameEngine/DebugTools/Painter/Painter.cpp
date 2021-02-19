@@ -54,17 +54,14 @@ Painter::~Painter()
 std::optional<vec3> Painter::paint()
 {
     auto terrainPoint = pointGetter_.GetMousePointOnTerrain(inputManager_.GetMousePosition());
-    if (lmouseKeyIsPressed_)
+    if (terrainPoint)
     {
-        if (terrainPoint)
+        paintContext_.currentTerrainPoint = std::make_unique<TerrainPoint>(*terrainPoint);
+        calculateWorldScaleBrushSize();
+
+        if (lmouseKeyIsPressed_)
         {
-            DEBUG_LOG("terrain point found");
-            paintContext_.currentTerrainPoint = std::make_unique<TerrainPoint>(*terrainPoint);
             paintImpl();
-        }
-        else
-        {
-            DEBUG_LOG("terrain point not found");
         }
     }
 

@@ -43,6 +43,7 @@ const std::string CSTR_PARTICLES_ENABLED = "enabled";
 const std::string CSTR_TEXTURES                      = "Textures";
 const std::string CSTR_TEXTURE_MAX_RESOLUTION_WIDTH  = "maxWidth";
 const std::string CSTR_TEXTURE_MAX_RESOLUTION_HEIGHT = "maxHeight";
+const std::string CSTR_TEXTURE_SIZE_LIMIT            = "textureSizeLimit";
 const std::string CSTR_TEXTURE_AMBIENT               = "ambient";
 const std::string CSTR_TEXTURE_DISPLACEMENT          = "displacement";
 const std::string CSTR_TEXTURE_DIFFUSE               = "diffuse";
