@@ -40,6 +40,7 @@ class GameObjectView:
         self.popupMenu.add_command(label="Create child", command=self.CreateChild)
         self.popupMenu.add_command(label="Create child with model", command=self.CreateChildWithModel)
         self.popupMenu.add_command(label="Clone", command=self.CreateCloneObject)
+        self.popupMenu.add_command(label="Clone instances", command=self.CreateCloneObjectInstances)
         self.popupMenu.add_command(label="Save as prefab", command=self.CreatePrefab)
        # self.popupMenu.add_command(label="ChangeParent", command=self.CreateCloneObject)
         self.popupMenu.add_command(label="Move object to camera", command=self.SendMoveObjectToCameraRequest)
@@ -130,6 +131,49 @@ class GameObjectView:
         gameObjectId = item['values'][0]
         self.networkClient.SendCommand(
             "cloneGameObject gameObjectId=" + str(gameObjectId))
+
+    def CreateCloneObjectInstances(self):
+        curItem = self.tree.focus()
+        item = self.tree.item(curItem)
+        gameObjectId = item['values'][0]
+
+        self.dialog = tk.Toplevel(self.root)
+        self.dialog.title("Clone object instances")
+
+        instancesLabel = tk.LabelFrame(self.dialog, text="Instance")
+        instancesLabel.pack(fill=tk.X)
+        self.instancesVar = tk.StringVar()
+        self.instancesVar.set("100")
+        tk.Entry(instancesLabel, textvariable=self.instancesVar).pack(fill=tk.X, expand=1)
+
+        rangeMinLabel = tk.LabelFrame(self.dialog, text="Range min")
+        rangeMinLabel.pack(fill=tk.X)
+        self.rangeMinVarX = tk.StringVar()
+        self.rangeMinVarX.set("-512")
+        tk.Entry(rangeMinLabel, textvariable=self.rangeMinVarX).pack(fill=tk.X, expand=1)
+        self.rangeMinVarZ = tk.StringVar()
+        self.rangeMinVarZ.set("-512")
+        tk.Entry(rangeMinLabel, textvariable=self.rangeMinVarZ).pack(fill=tk.X, expand=1)
+
+        rangeMaxLabel = tk.LabelFrame(self.dialog, text="Range max")
+        rangeMaxLabel.pack(fill=tk.X)
+        self.rangeMaxVarX = tk.StringVar()
+        self.rangeMaxVarX.set("512")
+        tk.Entry(rangeMaxLabel, textvariable=self.rangeMaxVarX).pack(fill=tk.X, expand=1)
+        self.rangeMaxVarZ = tk.StringVar()
+        self.rangeMaxVarZ.set("512")
+        tk.Entry(rangeMaxLabel, textvariable=self.rangeMaxVarZ).pack(fill=tk.X, expand=1)
+
+        tk.Button(self.dialog, text="Generate",
+                  command=lambda: self.networkClient.SendCommand("cloneGameObjectInstancesWithRandomPosition"
+                                                                 " gameObjectId=" + str(gameObjectId) +
+                                                                 " instances=" + self.instancesVar.get() +
+                                                                 " minRangeX=" + self.rangeMinVarX.get() +
+                                                                 " minRangeZ=" + self.rangeMinVarZ.get() +
+                                                                 " maxRangeX=" + self.rangeMaxVarX.get() +
+                                                                 " maxRangeZ=" + self.rangeMaxVarZ.get()
+                                                                 )).pack(fill=tk.X)
+
 
     def Popup(self, event):
         self.popupMenuSelection = self.tree.identify_row(event.y)

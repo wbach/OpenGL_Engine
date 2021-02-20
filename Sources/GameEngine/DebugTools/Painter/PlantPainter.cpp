@@ -90,7 +90,7 @@ void PlantPainter::createRandomPositions(const vec3& pointOnTerrain, const Terra
     std::random_device rd;
     std::mt19937 mt(rd());
 
-    std::uniform_real_distribution<float> dist(-range, static_cast<float>(range));
+    std::uniform_real_distribution<float> dist(-range, range);
 
     std::uniform_real_distribution<float> ySizeDist(0.75, 1.25);
     std::uniform_real_distribution<float> rotationDist(0.f, 360.f);

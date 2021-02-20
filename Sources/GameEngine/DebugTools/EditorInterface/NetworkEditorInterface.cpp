@@ -12,13 +12,12 @@
 #include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/PreviewComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "GameEngine/Components/Physics/MeshShape.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
 #include "GameEngine/DebugTools/Painter/PlantPainter.h"
@@ -87,28 +86,20 @@ const std::string QUICK_SAVE{"QUICK_SAVE"};
 const std::string EXIT{"EXIT"};
 
 std::unordered_map<std::string, KeyCodes::Type> editorActions{
-    {ROTATE_OBJECT_X, KeyCodes::X},
-    {ROTATE_OBJECT_Y, KeyCodes::Y},
+    {ROTATE_OBJECT_X, KeyCodes::X},    {ROTATE_OBJECT_Y, KeyCodes::Y},
     {ROTATE_OBJECT_Z, KeyCodes::Z},
 
-    {MOVE_OBJECT, KeyCodes::G},
-    {MOVE_OBJECT_X, KeyCodes::B},
-    {MOVE_OBJECT_Y, KeyCodes::N},
-    {MOVE_OBJECT_Z, KeyCodes::M},
+    {MOVE_OBJECT, KeyCodes::G},        {MOVE_OBJECT_X, KeyCodes::B},
+    {MOVE_OBJECT_Y, KeyCodes::N},      {MOVE_OBJECT_Z, KeyCodes::M},
 
-    {SCALE_OBJECT, KeyCodes::H},
-    {SCALE_OBJECT_X, KeyCodes::J},
-    {SCALE_OBJECT_Y, KeyCodes::K},
-    {SCALE_OBJECT_Z, KeyCodes::L},
+    {SCALE_OBJECT, KeyCodes::H},       {SCALE_OBJECT_X, KeyCodes::J},
+    {SCALE_OBJECT_Y, KeyCodes::K},     {SCALE_OBJECT_Z, KeyCodes::L},
 
-    {QUICK_SAVE, KeyCodes::F2},
-    {START_SCENE, KeyCodes::F9},
+    {QUICK_SAVE, KeyCodes::F2},        {START_SCENE, KeyCodes::F9},
     {BLENDMAPS_TO_FILE, KeyCodes::F5},
 
-    {SELECT_OBJECT, KeyCodes::LMOUSE},
-    {OBJECT_CONTROL, KeyCodes::MOUSE_WHEEL},
-    {EXIT, KeyCodes::ESCAPE}
-};
+    {SELECT_OBJECT, KeyCodes::LMOUSE}, {OBJECT_CONTROL, KeyCodes::MOUSE_WHEEL},
+    {EXIT, KeyCodes::ESCAPE}};
 
 }  // namespace
 
@@ -219,6 +210,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("modelPreviewRequest", ModelPreviewRequest);
     REGISTER_COMMAND("changeGameObjectParent", ChangeGameObjectParent);
     REGISTER_COMMAND("cloneGameObject", CloneGameObject);
+    REGISTER_COMMAND("cloneGameObjectInstancesWithRandomPosition", CloneGameObjectInstancesWithRandomPosition);
     REGISTER_COMMAND("createPrefabFromObject", CreatePrefabFromObject);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
@@ -272,15 +264,17 @@ void NetworkEditorInterface::PrepareDebugModels()
 
 void NetworkEditorInterface::KeysSubscribtions()
 {
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(1.f); });
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(-1.f); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(OBJECT_CONTROL),
+                                                                       [this]() { ObjectControlAction(1.f); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL),
+                                                                         [this]() { ObjectControlAction(-1.f); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        editorActions.at(MOVE_OBJECT), [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(MOVE_OBJECT), [this]() {
+        UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); });
+    });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(MOVE_OBJECT), [this]() { ReleaseDragObject(); });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(MOVE_OBJECT), [this]() { ReleaseDragObject(); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(SELECT_OBJECT), [this]() {
         MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
@@ -295,11 +289,11 @@ void NetworkEditorInterface::KeysSubscribtions()
     scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(START_SCENE),
                                              [this]() { scene_.inputManager_->AddEvent([&]() { StartScene(); }); });
 
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(BLENDMAPS_TO_FILE), [this]() { GenerateTerrainBlendMapToFile(); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(BLENDMAPS_TO_FILE),
+                                                                         [this]() { GenerateTerrainBlendMapToFile(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -357,7 +351,7 @@ void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, c
     gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
 }
 
-void NetworkEditorInterface::IncreseGameObjectScale(GameObject& gameObject, const vec3& value)
+void NetworkEditorInterface::IncreseGameObjectScale(GameObject &gameObject, const vec3 &value)
 {
     vec3 newValue = gameObject.GetWorldTransform().GetScale() + value;
 
@@ -943,7 +937,8 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 }
 
-void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed, float scaleSpeed)
+void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed,
+                                                 float scaleSpeed)
 {
     UseSelectedGameObject([this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject) {
         IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
@@ -1180,7 +1175,7 @@ void NetworkEditorInterface::StartScene()
 
     SetSelectedGameObject(nullptr);
 
-  //  scene_.renderersManager_->GetDebugRenderer().Disable();
+    //  scene_.renderersManager_->GetDebugRenderer().Disable();
     keysSubscriptionsManager_.Clear();
     SetOrignalCamera();
     scene_.inputManager_->StashPopSubscribers();
@@ -1395,15 +1390,15 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
                 else
                     ERROR_LOG("to many bits.");
             }
-            static_cast<TerrainTexturePainter*>(terrainPainter_.get())->setColor(color);
+            static_cast<TerrainTexturePainter *>(terrainPainter_.get())->setColor(color);
         }
         if (params.count("generate") and terrainPainter_->getPaintType() == PaintType::Plant)
         {
-            static_cast<PlantPainter*>(terrainPainter_.get())->generatePositions();
+            static_cast<PlantPainter *>(terrainPainter_.get())->generatePositions();
         }
         if (params.count("eraseMode") and terrainPainter_->getPaintType() == PaintType::Plant)
         {
-            static_cast<PlantPainter*>(terrainPainter_.get())->eraseMode();
+            static_cast<PlantPainter *>(terrainPainter_.get())->eraseMode();
         }
     }
     catch (...)
@@ -1422,9 +1417,9 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
 }
 void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 {
-     auto terrains = scene_.componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    auto terrains = scene_.componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
-     for (auto &terrain : terrains)
+    for (auto &terrain : terrains)
     {
         auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
 
@@ -1703,6 +1698,71 @@ void NetworkEditorInterface::CloneGameObject(const EntryParameters &params)
             {
                 SetSelectedGameObject(clonedGameObject);
                 SendObjectCreatedNotf(*clonedGameObject);
+            }
+        }
+    }
+}
+
+void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const EntryParameters &params)
+{
+    auto gameObjectIdIter = params.find("gameObjectId");
+    auto instancesIter    = params.find("instances");
+    auto minRangeXIter    = params.find("minRangeX");
+    auto minRangeZIter    = params.find("minRangeZ");
+    auto maxRangeXIter    = params.find("maxRangeX");
+    auto maxRangeZIter    = params.find("maxRangeZ");
+
+    if (gameObjectIdIter != params.end() and instancesIter != params.end() and minRangeXIter != params.end() and
+        minRangeZIter != params.end() and maxRangeXIter != params.end() and maxRangeZIter != params.end())
+    {
+        auto gameObject = GetGameObject(gameObjectIdIter->second);
+        if (gameObject)
+        {
+            try
+            {
+                auto instances = std::stoi(instancesIter->second);
+                auto minX      = std::stof(minRangeXIter->second);
+                auto minZ      = std::stof(minRangeZIter->second);
+                auto maxX      = std::stof(maxRangeXIter->second);
+                auto maxZ      = std::stof(maxRangeZIter->second);
+
+                auto container    = scene_.CreateGameObject("instances_clone_" + gameObject->GetName());
+                SendObjectCreatedNotf(*container);
+
+                auto containerPtr = container.get();
+                scene_.AddGameObject(std::move(container));
+
+                for (int i = 0; i < instances; ++i)
+                {
+                    auto clonedGameObject = scene_.CloneGameObject(*gameObject);
+                    if (clonedGameObject)
+                    {
+                        auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
+
+                        freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
+                        auto x        = getRandomFloat(minX, maxX);
+                        auto z        = getRandomFloat(minZ, maxZ);
+                        auto roatateY = getRandomFloat(0.f, 360.f);
+                        auto scale    = getRandomFloat(0.8f, 1.2f);
+
+                        auto goScale    = gameObject->GetWorldTransform().GetScale() * scale;
+                        auto goRotation = gameObject->GetWorldTransform()
+                                              .GetRotation()
+                                              .value_;  // *Rotation(DegreesVec3(0, roatateY, 0)).value_;
+
+                        auto hit = scene_.getHeightPositionInWorld(x, z);
+
+                        freeGameObject->SetWorldPositionRotationScale(hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z),
+                                                                      goRotation, goScale);
+                        auto freeGameObjectPtr = freeGameObject.get();
+                        containerPtr->MoveChild(std::move(freeGameObject));
+                        SendObjectCreatedNotf(*freeGameObjectPtr);
+                    }
+                }
+            }
+            catch (...)
+            {
+                ERROR_LOG("Something went wrong");
             }
         }
     }

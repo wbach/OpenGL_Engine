@@ -108,6 +108,8 @@ public:
     void RunNetworkEditorInterface();
     void StopNetworkEditorInterface();
 
+    std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
+
 public:
     uint32 objectCount;
 

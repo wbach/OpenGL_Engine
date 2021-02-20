@@ -49,6 +49,7 @@ typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 // clang-format on
 
 float getRandomFloat();
+float getRandomFloat(float, float);
 
 template <class T>
 struct alignas(16) AlignWrapper

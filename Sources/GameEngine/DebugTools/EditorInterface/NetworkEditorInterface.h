@@ -100,6 +100,7 @@ private:
     void ModelPreviewRequest(const EntryParameters&);
     void ChangeGameObjectParent(const EntryParameters&);
     void CloneGameObject(const EntryParameters&);
+    void CloneGameObjectInstancesWithRandomPosition(const EntryParameters&);
     void CreatePrefabFromObject(const EntryParameters&);
 
     void StartScene();

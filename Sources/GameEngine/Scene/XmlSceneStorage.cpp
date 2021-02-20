@@ -4,6 +4,7 @@
 #include <Utils/XML/XmlWriter.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "GameEngine/Scene/Scene.hpp"
 #include "SceneReader.h"
 #include "SceneWriter.h"
@@ -70,6 +71,17 @@ void XmlSceneStorage::createPrefab(const File& file, const GameObject& gameObjec
 GameObject* XmlSceneStorage::clone(const GameObject& gameObject)
 {
     auto prefabRootNode = GameEngine::createPrefab(gameObject);
-    return SceneReader::createGameObjectFromPrefabNode(scene_, prefabRootNode, "clone_of_" + gameObject.GetName());
+    auto clonedGameObject =
+        SceneReader::createGameObjectFromPrefabNode(scene_, prefabRootNode, "clone_of_" + gameObject.GetName());
+    auto result = clonedGameObject.get();
+    if (auto parent = gameObject.GetParent())
+    {
+        parent->AddChild(std::move(clonedGameObject));
+    }
+    else
+    {
+        scene_.AddGameObject(std::move(clonedGameObject));
+    }
+    return result;
 }
 }  // namespace GameEngine

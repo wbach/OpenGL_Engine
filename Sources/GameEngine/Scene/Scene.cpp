@@ -168,7 +168,8 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    return std::make_unique<GameObject>(name, componentController_,*componentFactory_, gameObjectIdPool_.getId(maybeId));
+    return std::make_unique<GameObject>(name, componentController_, *componentFactory_,
+                                        gameObjectIdPool_.getId(maybeId));
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -204,7 +205,7 @@ bool Scene::RemoveGameObject(GameObject& object)
 
 void Scene::ClearGameObjects()
 {
-    gameObjectIdPool_.clear(1); // root gameObject stay at id 1
+    gameObjectIdPool_.clear(1);  // root gameObject stay at id 1
     gameObjectsIds_.clear();
     rootGameObject_->RemoveAllChildren();
 }
@@ -216,13 +217,7 @@ void Scene::SetAddSceneEventCallback(AddEvent func)
 
 GameObject* Scene::CloneGameObject(GameObject& gameObject)
 {
-    auto cloned = sceneStorage_->clone(gameObject);
-    if (gameObject.GetParent())
-    {
-        auto free = rootGameObject_->MoveChild(cloned->GetId());
-        gameObject.GetParent()->AddChild(std::move(free));
-    }
-    return cloned;
+    return sceneStorage_->clone(gameObject);
 }
 
 GameObject* Scene::GetGameObject(uint32 id) const
@@ -267,7 +262,7 @@ const std::vector<Light>& Scene::GetLights() const
 {
     return lights;
 }
-void Scene::SaveToFile() 
+void Scene::SaveToFile()
 {
     DEBUG_LOG("Save scene to file : " + file_.GetAbsoultePath());
     sceneStorage_->saveToFile(file_);
@@ -324,5 +319,10 @@ void Scene::RunNetworkEditorInterface()
 void Scene::StopNetworkEditorInterface()
 {
     networkEditorInterface_.reset();
+}
+std::optional<Physics::RayHit> Scene::getHeightPositionInWorld(float x, float z) const
+{
+    return physicsApi_->RayTest(vec3(x, 10000, z),
+                                vec3(x, -10000, z));
 }
 }  // namespace GameEngine

@@ -94,13 +94,18 @@ GameObject* loadPrefab(Scene& scene, const File& file, const std::string& name)
     scene.AddGameObject(std::move(gameObject));
     return result;
 }
-GameObject* createGameObjectFromPrefabNode(Scene& scene, const TreeNode& node, const std::string& name)
+GameObject* createGameObjectFromPrefabNodeInRootNode(Scene& scene, const TreeNode& node, const std::string& name)
 {
-    auto gameObject = scene.CreateGameObject(name);
-    Read(scene, node, *gameObject);
+    auto gameObject = createGameObjectFromPrefabNode(scene, node, name);
     auto result = gameObject.get();
     scene.AddGameObject(std::move(gameObject));
     return result;
+}
+std::unique_ptr<GameObject> createGameObjectFromPrefabNode(Scene& scene, const TreeNode& node, const std::string& name)
+{
+    auto gameObject = scene.CreateGameObject(name);
+    Read(scene, node, *gameObject);
+    return gameObject;
 }
 std::unique_ptr<GameObject> createGameObject(const TreeNode& node, Scene& scene)
 {

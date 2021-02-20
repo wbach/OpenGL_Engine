@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+#include <random>
+
 const std::string DEFAULT_STRING{};
 const vec2 DEFAULT_VEC2{0.f};
 const vec3 VECTOR_ZERO{0.f};
@@ -11,7 +13,13 @@ const vec3 VECTOR_LEFT{-1.f, 0.f, 0.f};
 const vec3 VECTOR_RIGHT{1.f, 0.f, 0.f};
 const vec3 VECTOR_FORWARD{0.f, 0.f, -1.f};
 const vec3 VECTOR_BACKWARD{0.f, 0.f, 1.f};
-const vec3 VECTOR_ONE{ 1.f };
+const vec3 VECTOR_ONE{1.f};
+
+namespace
+{
+std::random_device rd;
+std::mt19937 mt(rd());
+}  // namespace
 
 namespace wb
 {
@@ -54,6 +62,12 @@ bool compare(float x, float y, float epsilon)
 float getRandomFloat()
 {
     return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+}
+
+float getRandomFloat(float min, float max)
+{
+    std::uniform_real_distribution<float> dist(min, max);
+    return dist(mt);
 }
 
 namespace std
