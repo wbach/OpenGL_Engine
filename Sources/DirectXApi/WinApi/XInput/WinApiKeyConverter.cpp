@@ -62,7 +62,19 @@ KeysMap keys = KeysMap({{KeyCodes::LMOUSE, VK_LBUTTON},
                         {KeyCodes::TAB, VK_TAB},
                         {KeyCodes::LSHIFT, VK_LSHIFT},
                         {KeyCodes::RSHIFT, VK_RSHIFT},
-                        {KeyCodes::BACKSPACE, VK_BACK}});
+                        {KeyCodes::BACKSPACE, VK_BACK},
+                        {KeyCodes::NUM1, VK_NUMPAD1},
+                        {KeyCodes::NUM2, VK_NUMPAD2},
+                        {KeyCodes::NUM3, VK_NUMPAD3},
+                        {KeyCodes::NUM4, VK_NUMPAD4},
+                        {KeyCodes::NUM5, VK_NUMPAD5},
+                        {KeyCodes::NUM6, VK_NUMPAD6},
+                        {KeyCodes::NUM7, VK_NUMPAD7},
+                        {KeyCodes::NUM8, VK_NUMPAD8},
+                        {KeyCodes::NUM9, VK_NUMPAD9},
+                        {KeyCodes::NUM0, VK_NUMPAD0},
+                        {KeyCodes::DEL, VK_DELETE}
+    });
 
 KeyCodes::Type Convert(uint32 type)
 {

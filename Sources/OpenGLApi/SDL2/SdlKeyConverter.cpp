@@ -78,7 +78,8 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
     {KeyCodes::NUM7, SDL_SCANCODE_7},
     {KeyCodes::NUM8, SDL_SCANCODE_8},
     {KeyCodes::NUM9, SDL_SCANCODE_9},
-    {KeyCodes::NUM0, SDL_SCANCODE_0}
+    {KeyCodes::NUM0, SDL_SCANCODE_0},
+    {KeyCodes::DEL, SDL_SCANCODE_DELETE}
 });
 
 KeyCodes::Type SdlKeyConverter::Convert(uint32 type)

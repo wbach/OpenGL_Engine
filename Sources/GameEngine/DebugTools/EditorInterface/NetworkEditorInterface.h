@@ -124,6 +124,8 @@ private:
     void PaintTerrain();
     void UpdateArrowsIndicatorPosition();
     void SendObjectCreatedNotf(const GameObject&);
+    void DeleteGameObject(IdType);
+    void DeleteGameObject(GameObject&);
 
 private:
     Scene& scene_;

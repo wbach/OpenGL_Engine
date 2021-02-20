@@ -78,6 +78,7 @@ enum Type
     NUM7,
     NUM8,
     NUM9,
-    NUM0
+    NUM0,
+    DEL
 };
 }

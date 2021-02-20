@@ -77,6 +77,8 @@ const std::string SCALE_OBJECT_X{"SCALE_OBJECT_X"};
 const std::string SCALE_OBJECT_Y{"SCALE_OBJECT_Y"};
 const std::string SCALE_OBJECT_Z{"SCALE_OBJECT_Z"};
 
+const std::string DELETE_GAMEOBJECT{"DELETE_GAMEOBJECT"};
+
 const std::string START_SCENE{"START_SCENE"};
 const std::string BLENDMAPS_TO_FILE{"BLENDMAPS_TO_FILE"};
 
@@ -85,22 +87,36 @@ const std::string OBJECT_CONTROL{"OBJECT_CONTROL"};
 const std::string QUICK_SAVE{"QUICK_SAVE"};
 const std::string EXIT{"EXIT"};
 
-std::unordered_map<std::string, KeyCodes::Type> editorActions{
-    {ROTATE_OBJECT_X, KeyCodes::X},    {ROTATE_OBJECT_Y, KeyCodes::Y},
+// clang-format off
+std::unordered_map<std::string, KeyCodes::Type> editorActions
+{
+    {ROTATE_OBJECT_X, KeyCodes::X},
+    {ROTATE_OBJECT_Y, KeyCodes::Y},
     {ROTATE_OBJECT_Z, KeyCodes::Z},
 
-    {MOVE_OBJECT, KeyCodes::G},        {MOVE_OBJECT_X, KeyCodes::B},
-    {MOVE_OBJECT_Y, KeyCodes::N},      {MOVE_OBJECT_Z, KeyCodes::M},
+    {MOVE_OBJECT, KeyCodes::G},
+    {MOVE_OBJECT_X, KeyCodes::B},
+    {MOVE_OBJECT_Y, KeyCodes::N},
+    {MOVE_OBJECT_Z, KeyCodes::M},
 
-    {SCALE_OBJECT, KeyCodes::H},       {SCALE_OBJECT_X, KeyCodes::J},
-    {SCALE_OBJECT_Y, KeyCodes::K},     {SCALE_OBJECT_Z, KeyCodes::L},
+    {SCALE_OBJECT, KeyCodes::H},
+    {SCALE_OBJECT_X, KeyCodes::J},
+    {SCALE_OBJECT_Y, KeyCodes::K},
+    {SCALE_OBJECT_Z, KeyCodes::L},
 
-    {QUICK_SAVE, KeyCodes::F2},        {START_SCENE, KeyCodes::F9},
+    {DELETE_GAMEOBJECT, KeyCodes::DEL},
+
+    {QUICK_SAVE, KeyCodes::F2},
+    {START_SCENE, KeyCodes::F9},
     {BLENDMAPS_TO_FILE, KeyCodes::F5},
 
-    {SELECT_OBJECT, KeyCodes::LMOUSE}, {OBJECT_CONTROL, KeyCodes::MOUSE_WHEEL},
-    {EXIT, KeyCodes::ESCAPE}};
-
+    {SELECT_OBJECT, KeyCodes::LMOUSE},
+    {OBJECT_CONTROL, KeyCodes::MOUSE_WHEEL},
+    {SELECT_OBJECT, KeyCodes::LMOUSE},
+    {OBJECT_CONTROL, KeyCodes::MOUSE_WHEEL},
+    {EXIT, KeyCodes::ESCAPE}
+};
+// clang-format on
 }  // namespace
 
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::ThreadSync &threadSync)
@@ -294,6 +310,13 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
+
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT), [this]() {
+        if (selectedGameObject_)
+        {
+            DeleteGameObject(*selectedGameObject_);
+        }
+    });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -689,14 +712,7 @@ void NetworkEditorInterface::DeleteGameObject(const EntryParameters &params)
         auto go = GetGameObject(params.at("gameObjectId"));
         if (go)
         {
-            UnsubscribeTransformUpdateIfExist();
-
-            auto id = go->GetId();
-            SetSelectedGameObject(nullptr);
-            scene_.RemoveGameObject(*go);
-
-            DebugNetworkInterface::GameObjectDeleted msg(id);
-            gateway_.Send(userId_, msg);
+            DeleteGameObject(*go);
         }
         else
         {
@@ -1073,6 +1089,27 @@ void NetworkEditorInterface::SendObjectCreatedNotf(const GameObject &gameObject)
     {
         SendObjectCreatedNotf(*child);
     }
+}
+
+void NetworkEditorInterface::DeleteGameObject(IdType id)
+{
+    auto go = scene_.GetGameObject(id);
+    if (go)
+    {
+        DeleteGameObject(*go);
+    }
+}
+
+void NetworkEditorInterface::DeleteGameObject(GameObject &go)
+{
+    UnsubscribeTransformUpdateIfExist();
+
+    auto id = go.GetId();
+    SetSelectedGameObject(nullptr);
+    scene_.RemoveGameObject(go);
+
+    DebugNetworkInterface::GameObjectDeleted msg(id);
+    gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
@@ -1726,7 +1763,7 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
                 auto maxX      = std::stof(maxRangeXIter->second);
                 auto maxZ      = std::stof(maxRangeZIter->second);
 
-                auto container    = scene_.CreateGameObject("instances_clone_" + gameObject->GetName());
+                auto container = scene_.CreateGameObject("instances_clone_" + gameObject->GetName());
                 SendObjectCreatedNotf(*container);
 
                 auto containerPtr = container.get();
@@ -1752,8 +1789,9 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
 
                         auto hit = scene_.getHeightPositionInWorld(x, z);
 
-                        freeGameObject->SetWorldPositionRotationScale(hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z),
-                                                                      goRotation, goScale);
+                        freeGameObject->SetWorldPositionRotationScale(
+                            hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z), goRotation,
+                            goScale);
                         auto freeGameObjectPtr = freeGameObject.get();
                         containerPtr->MoveChild(std::move(freeGameObject));
                         SendObjectCreatedNotf(*freeGameObjectPtr);
