@@ -1,6 +1,7 @@
 #include "EntityRenderer.h"
 
 #include <Logger/Log.h>
+
 #include <algorithm>
 
 #include "GameEngine/Components/Animation/Animator.h"
@@ -94,7 +95,26 @@ void EntityRenderer::renderEntities()
 
     for (const auto& sub : subscribes_)
     {
-        auto model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+        auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
+        Model* model{nullptr};
+
+        if (distance < 50.f)
+        {
+            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+        }
+        else if (distance < 150.f)
+        {
+            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L2);
+        }
+        else
+        {
+            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L3);
+        }
+
+        if (not model)
+        {
+            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+        }
 
         if (model)
         {
@@ -105,7 +125,7 @@ void EntityRenderer::renderEntities()
 
 void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model)
 {
-    auto radius = glm::compMax(subsriber.gameObject->GetWorldTransform().GetScale());
+    auto radius    = glm::compMax(subsriber.gameObject->GetWorldTransform().GetScale());
     auto isVisible = context_.frustrum_.intersection(subsriber.gameObject->GetWorldTransform().GetPosition(), radius);
 
     if (not isVisible)
@@ -121,11 +141,13 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
 
     const auto& meshes = model.GetMeshes();
 
-    uint32 meshId = 0;
     for (const auto& mesh : meshes)
     {
         if (not mesh.GetGraphicsObjectId())
+        {
+            DEBUG_LOG("not mesh.GetGraphicsObjectId()");
             continue;
+        }
 
         const auto& meshBuffer = mesh.getShaderBufferId();
 
@@ -133,19 +155,31 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         {
             context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
         }
+        else
+        {
+            DEBUG_LOG("not meshBuffer");
+        }
 
-        const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(meshId);
+        const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(mesh.GetGpuObjectId());
         if (perMeshUpdateBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshUpdateBuffer);
         }
+        else
+        {
+            DEBUG_LOG("not perMeshUpdateBuffer");
+        }
 
-        const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(meshId);
+        const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
         if (perMeshConstantBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
         }
-        ++meshId;
+        else
+        {
+            DEBUG_LOG("not perMeshConstantBuffer");
+        }
+
         renderMesh(mesh);
     }
 }

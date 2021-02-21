@@ -43,9 +43,6 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file)
     {
         result->SetFile(file);
 
-        DEBUG_LOG("File : " + file.GetDataRelativeDir());
-        DEBUG_LOG("Meshes count : " + std::to_string(result->GetMeshes().size()));
-
         auto trianglesCount = 0u;
         for (const auto& mesh : result->GetMeshes())
         {
@@ -53,7 +50,10 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file)
                                   ? (mesh.GetCMeshDataRef().indices_.size() / 3.f)
                                   : (mesh.GetCMeshDataRef().positions_.size() / 3.f / 3.f);
         }
-        DEBUG_LOG("Total triangles count : " + std::to_string(trianglesCount));
+
+        DEBUG_LOG("File : " + file.GetDataRelativeDir() +
+                  ", Meshes count : " + std::to_string(result->GetMeshes().size()) +
+                  ", Total triangles count : " + std::to_string(trianglesCount));
     }
     else
     {

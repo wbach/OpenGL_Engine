@@ -34,6 +34,8 @@ int EditorScene::Initialize()
     RunNetworkEditorInterface();
     renderersManager_->GetDebugRenderer().Enable();
 
+    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
+    LoadFromFile(sceneFile);
 
     KeySubscribtions();
 

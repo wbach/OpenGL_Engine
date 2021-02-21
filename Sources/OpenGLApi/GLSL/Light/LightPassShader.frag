@@ -216,15 +216,18 @@ void main()
 
     finalColor = mix(lightsPass.skyColor, finalColor, visibility);
 
-    // const float gamma = 1.3f;
-    // finalColor = pow(finalColor, vec4(1.f / gamma));
+    const float gamma = 1.8f;
+    finalColor = pow(finalColor, vec4(1.f / gamma));
 
      FragColor = vec4(finalColor.rgb, 1.f);
 
+   const float contrast = 0.15f;
+   FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
+   FragColor     = mix(vec4(0.8), FragColor, visibility);
+
+
 //return;
-   // const float contrast = 0.5f;
-   // FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
- //   FragColor     = mix(vec4(0.8), FragColor, visibility);
+
     //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);
     //FragColor = vec4(lightsPass.lights[0].color_, 1.f);
 }

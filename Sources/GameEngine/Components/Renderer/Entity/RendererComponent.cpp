@@ -21,6 +21,7 @@ const std::string MODEL_L1              = "model_l1";
 const std::string MODEL_L2              = "model_l2";
 const std::string MODEL_L3              = "model_l3";
 const std::string TEXTURE_INDEX         = "textureIndex";
+const GraphicsApi::ID defaultId;
 }  // namespace
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
@@ -113,7 +114,7 @@ void RendererComponent::init()
 
         if (model)
         {
-            ReserveBufferVectors(model->GetMeshes().size());
+            // ReserveBufferVectors(model->GetMeshes().size());
             CreateBuffers(*model);
 
             auto existModel = model_.Get(lvl);
@@ -141,13 +142,13 @@ void RendererComponent::ClearShaderBuffers()
 {
     for (auto iter = perObjectUpdateBuffer_.begin(); iter != perObjectUpdateBuffer_.end();)
     {
-        DeleteShaderBuffer(std::move(*iter));
+        DeleteShaderBuffer(std::move(iter->second));
         iter = perObjectUpdateBuffer_.erase(iter);
     }
 
     for (auto iter = perObjectConstantsBuffer_.begin(); iter != perObjectConstantsBuffer_.end();)
     {
-        DeleteShaderBuffer(std::move(*iter));
+        DeleteShaderBuffer(std::move(iter->second));
         iter = perObjectConstantsBuffer_.erase(iter);
     }
 }
@@ -187,23 +188,37 @@ void RendererComponent::CreateBuffers(Model& model)
 }
 void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 {
+    auto iter = perObjectUpdateBuffer_.find(mesh.GetGpuObjectId());
+    if (iter != perObjectUpdateBuffer_.end())
+    {
+        ERROR_LOG("perObjectUpdateBuffer object already exist!");
+        return;
+    }
+
     auto& graphicsApi = componentContext_.graphicsApi_;
 
-    perObjectUpdateBuffer_.push_back(
-        std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
+    auto bufferPtr = std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION);
+    auto& buffer   = *bufferPtr.get();
+    perObjectUpdateBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
-    auto& buffer = *perObjectUpdateBuffer_.back();
-
-    const mat4 transformMatrix            = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+    const mat4 transformMatrix            = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
-    perObjectConstantsBuffer_.push_back(std::make_unique<BufferObject<PerObjectConstants>>(
-        componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION));
+    auto iter = perObjectConstantsBuffer_.find(mesh.GetGpuObjectId());
+    if (iter != perObjectConstantsBuffer_.end())
+    {
+        ERROR_LOG("perObjectConstantsBuffer object already exist!");
+        return;
+    }
 
-    auto& buffer = *perObjectConstantsBuffer_.back();
+    auto bufferPtr = std::make_unique<BufferObject<PerObjectConstants>>(componentContext_.graphicsApi_,
+                                                                        PER_OBJECT_CONSTANTS_BIND_LOCATION);
+    auto& buffer   = *bufferPtr.get();
+
+    perObjectConstantsBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
     if (mesh.GetMaterial().diffuseTexture)
     {
@@ -222,42 +237,51 @@ void RendererComponent::UpdateBuffers()
 {
     thisObject_.TakeWorldTransfromSnapshot();
 
-    if (auto model = model_.Get(LevelOfDetail::L1))
+    for (const auto& [_, model] : model_.GetAll())
     {
-        size_t index = 0;
         for (const auto& mesh : model->GetMeshes())
         {
-            if (index < perObjectUpdateBuffer_.size())
+            auto iter = perObjectUpdateBuffer_.find(mesh.GetGpuObjectId());
+            if (iter != perObjectUpdateBuffer_.end() and iter->second)
             {
-                auto& poc = perObjectUpdateBuffer_[index++];
-
-                if (poc)
-                {
-                    const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
-                    poc->GetData().TransformationMatrix =
-                        componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-                    poc->UpdateGpuPass();
-                }
+                auto& buffer              = *iter->second;
+                const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+                buffer.GetData().TransformationMatrix =
+                    componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
+                buffer.UpdateGpuPass();
+            }
+            else
+            {
+                ERROR_LOG("perObjectUpdateBuffer not found! : " + thisObject_.GetName() +
+                          ", id : " + std::to_string(thisObject_.GetId()));
             }
         }
     }
 }
 void RendererComponent::useArmature(bool value)
 {
-    for (const auto& model : model_.GetAll())
+    for (const auto& [_, model] : model_.GetAll())
     {
-        if (not model.second)
+        if (not model)
             continue;
 
-        auto i = 0;
-        for (auto& mesh : model.second->GetMeshes())
+        for (auto& mesh : model->GetMeshes())
         {
-            auto& buffer           = perObjectConstantsBuffer_[i++];
-            float useBoneTransform = (value and mesh.UseArmature()) ? 1.f : 0.f;
-            if (not compare(buffer->GetData().UseBoneTransform.value, useBoneTransform, 0.1f))
+            auto iter = perObjectConstantsBuffer_.find(mesh.GetGpuObjectId());
+            if (iter != perObjectConstantsBuffer_.end() and iter->second)
             {
-                buffer->GetData().UseBoneTransform = useBoneTransform;
-                componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*buffer);
+                auto& buffer           = *iter->second;
+                float useBoneTransform = (value and mesh.UseArmature()) ? 1.f : 0.f;
+                if (not compare(buffer.GetData().UseBoneTransform.value, useBoneTransform, 0.1f))
+                {
+                    buffer.GetData().UseBoneTransform = useBoneTransform;
+                    componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
+                }
+            }
+            else
+            {
+                ERROR_LOG("perObjectUpdateBuffer not found! : " + thisObject_.GetName() +
+                          ", id : " + std::to_string(thisObject_.GetId()));
             }
         }
     }
@@ -282,15 +306,38 @@ void RendererComponent::registerReadFunctions()
         auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);
         if (textureIndexNode)
         {
-            auto textureIndex = std::stoul(node.getChild(CSTR_TEXTURE_INDEX)->value_);
-            component->SetTextureIndex(textureIndex);
+            try
+            {
+                auto textureIndex = std::stoul(textureIndexNode->value_);
+                component->SetTextureIndex(textureIndex);
+            }
+            catch (...)
+            {
+                ERROR_LOG("SetTextureIndex index error");
+            }
         }
 
-        for (const auto& fileNode : node.getChild(CSTR_MODEL_FILE_NAMES)->getChildren())
+        auto modelFileNamesNode = node.getChild(CSTR_MODEL_FILE_NAMES);
+        if (modelFileNamesNode)
         {
-            const auto& filename = fileNode->getChild(CSTR_FILE_NAME)->value_;
-            auto lod = static_cast<LevelOfDetail>(std::stoi(fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL)->value_));
-            component->AddModel(filename, lod);
+            for (const auto& fileNode : modelFileNamesNode->getChildren())
+            {
+                auto filenameNode = fileNode->getChild(CSTR_FILE_NAME);
+                auto lodNode      = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
+                if (filenameNode and lodNode)
+                {
+                    try
+                    {
+                        const auto& filename = filenameNode->value_;
+                        auto lod             = static_cast<LevelOfDetail>(std::stoi(lodNode->value_));
+                        component->AddModel(filename, lod);
+                    }
+                    catch (...)
+                    {
+                        ERROR_LOG("Set model filenames error");
+                    }
+                }
+            }
         }
 
         return component;
@@ -303,6 +350,26 @@ void RendererComponent::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex_));
     create(node.addChild(CSTR_MODEL_FILE_NAMES), filenames_);
+}
+const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId) const
+{
+    auto iter = perObjectUpdateBuffer_.find(meshId);
+    if (iter != perObjectUpdateBuffer_.end())
+    {
+        return iter->second ? iter->second->GetGraphicsObjectId() : defaultId;
+    }
+
+    return defaultId;
+}
+const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(uint64 meshId) const
+{
+    auto iter = perObjectConstantsBuffer_.find(meshId);
+    if (iter != perObjectConstantsBuffer_.end())
+    {
+        return iter->second ? iter->second->GetGraphicsObjectId() : defaultId;
+    }
+
+    return defaultId;
 }
 }  // namespace Components
 }  // namespace GameEngine

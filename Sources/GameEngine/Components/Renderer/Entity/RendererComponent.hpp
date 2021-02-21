@@ -27,8 +27,8 @@ public:
     inline ModelWrapper& GetModelWrapper();
     inline uint32_t GetTextureIndex() const;
     inline const std::unordered_map<std::string, LevelOfDetail>& GetFileNames() const;
-    inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 meshId) const;
-    inline const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint32 meshId) const;
+    const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint64 meshId) const;
+    const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint64 meshId) const;
     void useArmature(bool);
 
     virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
@@ -55,8 +55,8 @@ private:
 
 private:
     std::unordered_map<std::string, LevelOfDetail> filenames_;
-    std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
-    std::vector<std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
+    std::unordered_map<uint64, std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    std::unordered_map<uint64, std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
 
 public:
     static void registerReadFunctions();
@@ -74,14 +74,6 @@ uint32_t RendererComponent::GetTextureIndex() const
 const std::unordered_map<std::string, LevelOfDetail>& RendererComponent::GetFileNames() const
 {
     return filenames_;
-}
-const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint32 meshId) const
-{
-    return perObjectUpdateBuffer_[meshId]->GetGraphicsObjectId();
-}
-const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(uint32 meshId) const
-{
-    return perObjectConstantsBuffer_[meshId]->GetGraphicsObjectId();
 }
 }  // namespace Components
 }  // namespace GameEngine

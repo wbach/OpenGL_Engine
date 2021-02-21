@@ -27,7 +27,8 @@ void ModelWrapper::Update(Model* model, LevelOfDetail lvl)
 Model* ModelWrapper::Get(LevelOfDetail lvl)
 {
     std::lock_guard<std::mutex> lk(mutex_);
-    return models_.count(lvl) > 0 ? models_.at(lvl) : nullptr;
+    auto iter = models_.find(lvl);
+    return iter != models_.end() ? iter->second : nullptr;
 }
 const std::unordered_map<LevelOfDetail, Model*>& ModelWrapper::GetAll() const
 {

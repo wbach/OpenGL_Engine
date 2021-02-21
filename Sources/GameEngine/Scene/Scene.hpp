@@ -109,6 +109,7 @@ public:
     void StopNetworkEditorInterface();
 
     std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
+    float distanceToCamera(const GameObject&) const;
 
 public:
     uint32 objectCount;

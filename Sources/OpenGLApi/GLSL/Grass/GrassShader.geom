@@ -199,7 +199,10 @@ void main(void)
         vec4 quaternion = CreateQuaternion(normalize(gs_in[0].normal));
         CreateXYquad(quaternion, quadTextCoord);
         CreateZYquad(quaternion, quadTextCoord);
-        CreateXYZquad(quaternion, quadTextCoord);
-        CreateZYXquad(quaternion, quadTextCoord);
+        if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < (grassShaderBuffer.variables.x) / 3.f)
+        {
+            CreateXYZquad(quaternion, quadTextCoord);
+            CreateZYXquad(quaternion, quadTextCoord);
+        }
     }
 }

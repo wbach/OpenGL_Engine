@@ -322,7 +322,10 @@ void Scene::StopNetworkEditorInterface()
 }
 std::optional<Physics::RayHit> Scene::getHeightPositionInWorld(float x, float z) const
 {
-    return physicsApi_->RayTest(vec3(x, 10000, z),
-                                vec3(x, -10000, z));
+    return physicsApi_->RayTest(vec3(x, 10000, z), vec3(x, -10000, z));
+}
+float Scene::distanceToCamera(const GameObject& gameObject) const
+{
+    return glm::length(camera.GetPosition() - gameObject.GetWorldTransform().GetPosition());
 }
 }  // namespace GameEngine
