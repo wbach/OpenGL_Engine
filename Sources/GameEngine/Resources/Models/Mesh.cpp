@@ -55,18 +55,6 @@ void Mesh::ReleaseGpuPass()
 
 void Mesh::CreateMesh()
 {
-    GraphicsApi::MeshRawData data_;
-
-    for (int i = 0; i < meshRawData_.indices_.size(); i += 3)
-    {
-        auto i1 = meshRawData_.indices_[i];
-        auto i2 = meshRawData_.indices_[i+1];
-        auto i3 = meshRawData_.indices_[i+2];
-
-        vec3 v1(meshRawData_.positions_[3 * i1], meshRawData_.positions_[3 * i1 + 1], meshRawData_.positions_[3 * i1 + 2]);
-        vec3 v2(meshRawData_.positions_[3 * i2], meshRawData_.positions_[3 * i2 + 1], meshRawData_.positions_[3 * i2 + 2]);
-        vec3 v3(meshRawData_.positions_[3 * i3], meshRawData_.positions_[3 * i3 + 1], meshRawData_.positions_[3 * i3 + 2]);
-    }
     auto graphicsObjectId = graphicsApi_.CreateMesh(meshRawData_, renderType_);
 
     if (graphicsObjectId)

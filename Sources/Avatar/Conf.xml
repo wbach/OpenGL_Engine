@@ -8,7 +8,7 @@
 		<loadingScreenCircle>GUI/aLoadingCircle.png</loadingScreenCircle>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" resolutionY="768" viewDistance="3000.000000" lodDistance2="150.000000" fpsLimit="60" lodDistance0="50.000000" lodDistance1="75.000000" normalMappingDistance="200.000000">
+	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" resolutionY="768" viewDistance="3000.000000" lodDistance2="150.000000" fpsLimit="60" lodDistance0="25.000000" lodDistance1="50.000000" normalMappingDistance="200.000000">
 		<Terrain>
 			<terrainRenderer>Mesh</terrainRenderer>
 			<terrainRendererMeshResolutionDivider>1</terrainRendererMeshResolutionDivider>
@@ -20,7 +20,7 @@
 		</Water>
 		<Flora enabled="true" viewDistance="100.000000"/>
 		<Shadows firstCascadeDistance="25.000000" enabled="true" cascadesSize="4" viewDistance="400.000000" cascadeDistanceFunc="quadratic" shadowMapSize="4096"/>
-		<Textures ambient="true" maxWidth="8192" displacement="false" maxHeight="8192" textureSizeLimit="false" diffuse="true" normal="true" specular="true"/>
+		<Textures ambient="true" maxWidth="8192" displacement="false" maxHeight="8192" textureSizeLimit="false" diffuse="true" normal="false" specular="true"/>
 		<Particles enabled="true"/>
 	</Renderer>
 	<DebugParams>

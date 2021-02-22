@@ -59,13 +59,13 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
         switch (terrainTexture.type)
         {
             case TerrainTextureType::heightmap:
-                textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+               // textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
                 LoadTerrainConfiguration(terrainTexture.file);
                 LoadHeightMap(terrainTexture.file);
             continue;
             case TerrainTextureType::blendMap:
                 textureParams.dataStorePolicy = DataStorePolicy::Store;
-                textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+             //   textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
                 break;
             case TerrainTextureType::redTexture:
             case TerrainTextureType::redTextureNormal:

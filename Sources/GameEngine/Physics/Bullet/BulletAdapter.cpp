@@ -155,11 +155,11 @@ void BulletAdapter::EnableSimulation()
 }
 void BulletAdapter::Simulate()
 {
+    std::lock_guard<std::mutex> lk(impl_->worldMutex_);
     if (simualtePhysics_)
     {
         impl_->btDynamicWorld->stepSimulation(simulationStep_);
 
-        std::lock_guard<std::mutex> lk(impl_->worldMutex_);
         for (auto& [id, rigidbody] : impl_->rigidBodies)
         {
             auto newPosition =
@@ -181,9 +181,9 @@ void BulletAdapter::Simulate()
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
 {
+    std::lock_guard<std::mutex> lk(impl_->worldMutex_);
     impl_->bulletDebugDrawer_->clear();
     {
-        std::lock_guard<std::mutex> lk(impl_->worldMutex_);
         impl_->btDynamicWorld->debugDrawWorld();
     }
     return impl_->bulletDebugDrawer_->getMesh();
