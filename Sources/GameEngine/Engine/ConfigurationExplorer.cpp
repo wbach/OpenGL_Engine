@@ -9,49 +9,63 @@ namespace GameEngine
 namespace
 {
 const ConfigurationExplorer::Params emptyParams;
-}
+}  // namespace
 ConfigurationExplorer::ConfigurationExplorer()
 {
+    // clang-format off
+    categories.push_back({"Display",
+                          {
+                              {"Api", EngineConf.renderer.graphicsApi, ApplyPolicy::RestartRequired},
+                              {"Fullscreen mode", EngineConf.window.fullScreen, ApplyPolicy::RestartNotNeeded},
+                              {"Window size", EngineConf.window.size, ApplyPolicy::RestartNotNeeded},
+                              {"Render size", EngineConf.renderer.resolution, ApplyPolicy::RestartRequired},
+                          }
+                        });
     categories.push_back(
         {"Graphics",
          {
-             {"Api", EngineConf.renderer.graphicsApi, true},
-             {"Renderer type", EngineConf.renderer.type, true},
-             {"Fullscreen mode", EngineConf.window.fullScreen, false},
-             {"Window size", EngineConf.window.size, false},
-             {"Render size", EngineConf.renderer.resolution, true},
-             {"View distance", EngineConf.renderer.viewDistance, false},
-             {"Textures size limit", EngineConf.renderer.textures.limitTextureSize, true},
-             {"Textures max size", EngineConf.renderer.textures.maxSize, true},
+             {"Renderer type", EngineConf.renderer.type, ApplyPolicy::RestartRequired},
+             {"View distance", EngineConf.renderer.viewDistance, ApplyPolicy::RestartNotNeeded},
+             {"Lod0 distance ", EngineConf.renderer.lodDistance0, ApplyPolicy::RestartNotNeeded},
+             {"Lod1 distance", EngineConf.renderer.lodDistance1, ApplyPolicy::RestartNotNeeded},
+             //{"Lod2 distance", EngineConf.renderer.lodDistance2, ApplyPolicy::RestartNotNeeded},
+             {"Textures size limit", EngineConf.renderer.textures.limitTextureSize, ApplyPolicy::RestartRequired},
+             {"Textures max size", EngineConf.renderer.textures.maxSize, ApplyPolicy::RestartRequired},
              //{"Use ambient texture", EngineConf.renderer.textures.useAmbient, true},
-             {"Use normal texture", EngineConf.renderer.textures.useNormal, true},
+             {"Use normal texture", EngineConf.renderer.textures.useNormal, ApplyPolicy::RestartRequired},
              //{"Use specular texture", EngineConf.renderer.textures.useSpecular, true},
              //{"Use displacement texture", EngineConf.renderer.textures.useDisplacement, true},
-             {"Fps limit", EngineConf.renderer.fpsLimt, true},
-             {"Flora", EngineConf.renderer.flora.isEnabled, true},
-             {"Flora view distance", EngineConf.renderer.flora.viewDistance, false},
-             {"Normal mapping distance", EngineConf.renderer.normalMappingDistance, true},
-             {"Use particles", EngineConf.renderer.particles.useParticles, true},
-             {"Water type", EngineConf.renderer.water.type, false},
-             {"Water reflection texture size", EngineConf.renderer.water.waterReflectionResolution, false},
-             {"Water refraction texture size", EngineConf.renderer.water.waterRefractionResolution, false},
-             {"Shadows", EngineConf.renderer.shadows.isEnabled, false},
-             {"Shadows distance", EngineConf.renderer.shadows.distance, true},
-             {"Shadow map size", EngineConf.renderer.shadows.mapSize, true},
-             {"Shadows cascades size", EngineConf.renderer.shadows.cascadesSize, true},
-             {"Terrain mesh resolution divide factor", EngineConf.renderer.terrain.resolutionDivideFactor, false},
-             {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, false},
-         }});
+             {"Fps limit", EngineConf.renderer.fpsLimt, ApplyPolicy::RestartRequired},
+             {"Flora", EngineConf.renderer.flora.isEnabled, ApplyPolicy::RestartRequired},
+             {"Flora view distance", EngineConf.renderer.flora.viewDistance, ApplyPolicy::RestartNotNeeded},
+             {"Normal mapping distance", EngineConf.renderer.normalMappingDistance, ApplyPolicy::RestartRequired},
+             {"Use particles", EngineConf.renderer.particles.useParticles, ApplyPolicy::RestartRequired},
+             {"Water type", EngineConf.renderer.water.type, ApplyPolicy::RestartNotNeeded},
+             {"Water reflection texture size", EngineConf.renderer.water.waterReflectionResolution, ApplyPolicy::RestartNotNeeded},
+             {"Water refraction texture size", EngineConf.renderer.water.waterRefractionResolution, ApplyPolicy::RestartNotNeeded},
+             {"Shadows", EngineConf.renderer.shadows.isEnabled, ApplyPolicy::RestartNotNeeded},
+             {"Shadows distance", EngineConf.renderer.shadows.distance, ApplyPolicy::RestartRequired},
+             {"Shadow map size", EngineConf.renderer.shadows.mapSize, ApplyPolicy::RestartRequired},
+             {"Shadows cascades size", EngineConf.renderer.shadows.cascadesSize, ApplyPolicy::RestartRequired},
+             {"Terrain mesh resolution divide factor", EngineConf.renderer.terrain.resolutionDivideFactor, ApplyPolicy::RestartNotNeeded},
+             {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, ApplyPolicy::RestartNotNeeded}
+          }
+        });
     categories.push_back({"Sound",
                           {
-                              {"Enabled", EngineConf.sound.isEnabled, false},
-                              {"Volume", EngineConf.sound.volume, false},
-                          }});
-    categories.push_back({"Debug",
-                          {
-                              {"Logger lvl", EngineConf.debugParams.logLvl, false},
-                              {"Show render info", EngineConf.debugParams.showRenderInfo, false}
-                          }});
+                              {"Enabled", EngineConf.sound.isEnabled, ApplyPolicy::RestartNotNeeded},
+                              {"Volume", EngineConf.sound.volume, ApplyPolicy::RestartNotNeeded}
+                          }
+                        });
+    categories.push_back(
+        {"Debug",
+          {
+             {"Logger lvl", EngineConf.debugParams.logLvl, ApplyPolicy::RestartNotNeeded},
+             {"Show render info", EngineConf.debugParams.showRenderInfo, ApplyPolicy::RestartNotNeeded}
+          }
+        });
+
+    // clang-format on
 }
 const ConfigurationExplorer::Categories& ConfigurationExplorer::getParamsByCategories() const
 {

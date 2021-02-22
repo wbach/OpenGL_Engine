@@ -24,6 +24,9 @@ struct Renderer
     ConfigurationParam<float> normalMappingDistance;
     ConfigurationParam<uint32> fpsLimt;
     ConfigurationParam<vec2ui> resolution;
+    ConfigurationParam<float> lodDistance0;
+    ConfigurationParam<float> lodDistance1;
+    ConfigurationParam<float> lodDistance2;
 
     Terrain terrain;
     Water water;

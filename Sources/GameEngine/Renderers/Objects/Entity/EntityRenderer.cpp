@@ -98,11 +98,11 @@ void EntityRenderer::renderEntities()
         auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
         Model* model{nullptr};
 
-        if (distance < 50.f)
+        if (distance < EngineConf.renderer.lodDistance0)
         {
             model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
         }
-        else if (distance < 150.f)
+        else if (distance < EngineConf.renderer.lodDistance1)
         {
             model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L2);
         }

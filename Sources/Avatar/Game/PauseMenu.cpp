@@ -283,7 +283,7 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
                 auto str = param.configurationParam.previous();
                 paramTextPtr->SetText(str);
 
-                if (param.restartRequierd)
+                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
                 {
                     onePramaterNeedRestart_ = true;
                 }
@@ -294,22 +294,27 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
             auto str = param.configurationParam.next();
             paramTextPtr->SetText(str);
 
-            if (param.restartRequierd)
+            if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
             {
                 onePramaterNeedRestart_ = true;
             }
         });
         nextValueButton->SetLocalScale({0.05f, 1.f});
 
-        std::string applyStr = param.restartRequierd ? " apply. " : " apply ";
-        auto apllyButton     = factory_.CreateGuiButton(applyStr, [this, &param](auto&) {
+        auto apllyButton = factory_.CreateGuiButton("apply", [this, &param](auto&) {
             param.configurationParam.apply();
-            if (param.restartRequierd)
+            if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
             {
                 createMessageBox("Change will be visible after game restart");
             }
             WriteConfigurationToFile(EngineConf);
         });
+
+        if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+        {
+            apllyButton->GetText()->SetColor(Color(1.f, 1.f, 0.f, 1.f).value);
+        }
+
         apllyButton->SetLocalScale({0.1f, 1.f});
         horizontalLayout->AddChild(std::move(paramNameText));
         horizontalLayout->AddChild(std::move(previousValueButton));

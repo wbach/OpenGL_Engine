@@ -89,6 +89,9 @@ void Create(TreeNode& node, const Params::Renderer& param)
     node.attributes_[CSTR_RENDERER_RESOLUTION_Y]           = std::to_string(param.resolution->y);
     node.attributes_[CSTR_RENDERER_FPS_LIMIT]              = std::to_string(param.fpsLimt);
     node.attributes_[CSTR_RENDERER_VIEW_DISTANCE]          = std::to_string(param.viewDistance);
+    node.attributes_[CSTR_RENDERER_LOD0_DISTANCE]          = std::to_string(param.lodDistance0);
+    node.attributes_[CSTR_RENDERER_LOD1_DISTANCE]          = std::to_string(param.lodDistance1);
+    node.attributes_[CSTR_RENDERER_LOD2_DISTANCE]          = std::to_string(param.lodDistance2);
     node.attributes_[CSTR_RENDERER_NORMALMAPPING_DISTANCE] = std::to_string(param.normalMappingDistance);
 
     Create(node.addChild(CSTR_TERRAIN), param.terrain);

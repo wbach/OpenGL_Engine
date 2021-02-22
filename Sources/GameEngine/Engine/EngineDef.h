@@ -29,6 +29,9 @@ extern const std::string CSTR_RENDERER_NORMALMAPPING_DISTANCE;
 extern const std::string CSTR_RENDERER_FPS_LIMIT;
 extern const std::string CSTR_RENDERER_RESOLUTION_X;
 extern const std::string CSTR_RENDERER_RESOLUTION_Y;
+extern const std::string CSTR_RENDERER_LOD0_DISTANCE;
+extern const std::string CSTR_RENDERER_LOD1_DISTANCE;
+extern const std::string CSTR_RENDERER_LOD2_DISTANCE;
 // Shadows
 extern const std::string CSTR_SHADOWS;
 extern const std::string CSTR_SHADOWS_ENABLED;

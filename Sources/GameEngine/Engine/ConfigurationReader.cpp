@@ -224,6 +224,9 @@ void Read(TreeNode& node, Params::Renderer& renderer)
     SetParamIfExist(renderer.normalMappingDistance, node.attributes_, CSTR_RENDERER_NORMALMAPPING_DISTANCE);
     SetParamIfExist(renderer.fpsLimt, node.attributes_, CSTR_RENDERER_FPS_LIMIT);
     SetParamIfExist(renderer.resolution, node.attributes_, CSTR_RENDERER_RESOLUTION_X, CSTR_RENDERER_RESOLUTION_Y);
+    SetParamIfExist(renderer.lodDistance0, node.attributes_, CSTR_RENDERER_LOD0_DISTANCE);
+    SetParamIfExist(renderer.lodDistance1, node.attributes_, CSTR_RENDERER_LOD1_DISTANCE);
+    SetParamIfExist(renderer.lodDistance2, node.attributes_, CSTR_RENDERER_LOD2_DISTANCE);
 
     Read(node.getChild(CSTR_TERRAIN), renderer.terrain);
 

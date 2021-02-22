@@ -7,11 +7,16 @@ namespace GameEngine
 class ConfigurationExplorer
 {
 public:
+    enum class ApplyPolicy
+    {
+        RestartRequired,
+        RestartNotNeeded
+    };
     struct Param
     {
         std::string name;
         Params::IConfigurationParam& configurationParam;
-        bool restartRequierd;
+        ApplyPolicy restartRequierd;
     };
     using Params = std::vector<Param>;
     struct Category

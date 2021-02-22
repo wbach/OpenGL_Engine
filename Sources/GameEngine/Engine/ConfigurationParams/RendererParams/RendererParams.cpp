@@ -1,4 +1,5 @@
 #include "RendererParams.h"
+
 #include "GameEngine/Engine/ConfigurationParams/PramsConstants.h"
 
 namespace GameEngine
@@ -24,6 +25,9 @@ Renderer::Renderer()
     , normalMappingDistance{200.f, {100.f, 200.f, 400.f}}
     , fpsLimt{60, {30, 60, 75, 144}}
     , resolution{DEFAULT_WINDOW_SIZE, defaultResolutions()}
+    , lodDistance0{50.f, {0.f, 25.f, 50.f, 75.f, 100.f}}
+    , lodDistance1{100.f, {25.f, 50.f, 75.f, 100.f, 125.f, 150.f, 175.f, 200.f}}
+    , lodDistance2{150.f, {25.f, 50.f, 75.f, 100.f, 125.f, 150.f, 175.f, 200.f}}
 {
 }
 }  // namespace Params
