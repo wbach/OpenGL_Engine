@@ -20,7 +20,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
 
     if (rendererComponent)
     {
-        rendererComponent->UpdateBuffers();
+        AddEvent(gameObject->GetId(), std::make_unique<TransformDataEvent>(*rendererComponent));
 
         gameObject->SubscribeOnWorldTransfomChange(
             [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable {
