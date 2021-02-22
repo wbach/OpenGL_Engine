@@ -95,28 +95,15 @@ void EntityRenderer::renderEntities()
 
     for (const auto& sub : subscribes_)
     {
+        auto radius    = glm::compMax(sub.gameObject->GetWorldTransform().GetScale());
+        auto isVisible = context_.frustrum_.intersection(sub.gameObject->GetWorldTransform().GetPosition(), radius);
+
+        if (not isVisible)
+            continue;
+
         auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
-        Model* model{nullptr};
 
-        if (distance < EngineConf.renderer.lodDistance0)
-        {
-            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-        }
-        else if (distance < EngineConf.renderer.lodDistance1)
-        {
-            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L2);
-        }
-        else
-        {
-            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L3);
-        }
-
-        if (not model)
-        {
-            model = sub.renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-        }
-
-        if (model)
+        if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
             renderModel(sub, *model);
         }
@@ -125,12 +112,6 @@ void EntityRenderer::renderEntities()
 
 void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model)
 {
-    auto radius    = glm::compMax(subsriber.gameObject->GetWorldTransform().GetScale());
-    auto isVisible = context_.frustrum_.intersection(subsriber.gameObject->GetWorldTransform().GetPosition(), radius);
-
-    if (not isVisible)
-        return;
-
     if (subsriber.animator and model.getRootJoint())
     {
         const auto& perPoseBuffer = subsriber.animator->getPerPoseBufferId();
@@ -170,7 +151,8 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             DEBUG_LOG("not perMeshUpdateBuffer");
         }
 
-        const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
+        const auto& perMeshConstantBuffer =
+            subsriber.renderComponent->GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
         if (perMeshConstantBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);

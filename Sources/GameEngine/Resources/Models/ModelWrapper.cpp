@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <Types.h>
 
+#include "GameEngine/Engine/Configuration.h"
 #include "Model.h"
 
 namespace GameEngine
@@ -29,6 +30,31 @@ Model* ModelWrapper::Get(LevelOfDetail lvl)
     std::lock_guard<std::mutex> lk(mutex_);
     auto iter = models_.find(lvl);
     return iter != models_.end() ? iter->second : nullptr;
+}
+Model* ModelWrapper::get(DistanceToCamera distance)
+{
+    std::lock_guard<std::mutex> lk(mutex_);
+
+    if (distance < EngineConf.renderer.lodDistance0)
+    {
+        auto iter = models_.find(LevelOfDetail::L1);
+        return iter != models_.end() ? iter->second : nullptr;
+    }
+    else if (distance < EngineConf.renderer.lodDistance1)
+    {
+        auto iter = models_.find(LevelOfDetail::L2);
+        return iter != models_.end() ? iter->second : nullptr;
+    }
+    else
+    {
+        auto iter = models_.find(LevelOfDetail::L3);
+        return iter != models_.end() ? iter->second : nullptr;
+    }
+
+    for (auto& pair : models_)
+        return pair.second;
+
+    return nullptr;
 }
 const std::unordered_map<LevelOfDetail, Model*>& ModelWrapper::GetAll() const
 {
