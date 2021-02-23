@@ -38,17 +38,17 @@ Model* ModelWrapper::get(DistanceToCamera distance)
     if (distance < EngineConf.renderer.lodDistance0)
     {
         auto iter = models_.find(LevelOfDetail::L1);
-        return iter != models_.end() ? iter->second : nullptr;
+        if (iter != models_.end()) return iter->second;
     }
     else if (distance < EngineConf.renderer.lodDistance1)
     {
         auto iter = models_.find(LevelOfDetail::L2);
-        return iter != models_.end() ? iter->second : nullptr;
+        if (iter != models_.end()) return iter->second;
     }
     else
     {
         auto iter = models_.find(LevelOfDetail::L3);
-        return iter != models_.end() ? iter->second : nullptr;
+        if (iter != models_.end()) return iter->second;
     }
 
     for (auto& pair : models_)
