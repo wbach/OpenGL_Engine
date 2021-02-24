@@ -75,8 +75,8 @@ void SkyBoxRenderer::updateBuffer()
 
     auto position = context_.scene_ ? context_.scene_->GetCamera().GetPosition() : vec3(0);
 
-    perObjectUpdateBuffer_.TransformationMatrix =
-        Utils::CreateTransformationMatrix(position, DegreesVec3(rotation_), scale_);
+    perObjectUpdateBuffer_.TransformationMatrix = context_.graphicsApi_.PrepareMatrixToLoad(
+        Utils::CreateTransformationMatrix(position, DegreesVec3(rotation_), scale_));
 
     context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdateBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);

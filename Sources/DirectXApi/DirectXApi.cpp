@@ -624,7 +624,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
     return 0;  // to do return last binded buffer
 }
 
-ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext& context, const vec2ui &size, const void *data)
+ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec2ui &size, const void *data)
 {
     ID3D11ShaderResourceView *rv;
     ID3D11Texture2D *texture2d;
@@ -637,13 +637,13 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext& context, const vec
     desc.MipLevels = 1;
     desc.ArraySize = 1;
     // desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-    desc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
-    desc.SampleDesc.Count = 1;
+    desc.Format             = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.SampleDesc.Count   = 1;
     desc.SampleDesc.Quality = 0;
-    desc.Usage            = D3D11_USAGE_DEFAULT;
-    desc.BindFlags        = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    desc.CPUAccessFlags   = 0;
-    desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+    desc.Usage              = D3D11_USAGE_DEFAULT;
+    desc.BindFlags          = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+    desc.CPUAccessFlags     = 0;
+    desc.MiscFlags          = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
     D3D11_SUBRESOURCE_DATA subResource;
     subResource.pSysMem          = data;
@@ -680,39 +680,40 @@ GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, Graph
 {
     GraphicsApi::TextureType type{GraphicsApi::TextureType::DEPTH_BUFFER_2D};
     auto channels = image.getChannelsCount();
-    std::visit(visitor{
-                   [&](const std::vector<uint8> &data) {
-                       switch (channels)
-                       {
-                           case 4:
-                               type = GraphicsApi::TextureType::U8_RGBA;
-                               break;
-                           default:
-                               DEBUG_LOG("Not implmented.");
-                       }
-                   },
-                   [&](const std::vector<float> &data) {
-                       switch (channels)
-                       {
-                           case 1:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
-                               break;
-                           case 2:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
-                               break;
-                           case 3:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
-                               break;
-                           case 4:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
-                               break;
-                           default:
-                               DEBUG_LOG("Not implmented.");
-                       }
-                   },
-                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
-               },
-               image.getImageData());
+    std::visit(
+        visitor{
+            [&](const std::vector<uint8> &data) {
+                switch (channels)
+                {
+                    case 4:
+                        type = GraphicsApi::TextureType::U8_RGBA;
+                        break;
+                    default:
+                        DEBUG_LOG("Not implmented.");
+                }
+            },
+            [&](const std::vector<float> &data) {
+                switch (channels)
+                {
+                    case 1:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                        break;
+                    case 2:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                        break;
+                    case 3:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                        break;
+                    case 4:
+                        type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                        break;
+                    default:
+                        DEBUG_LOG("Not implmented.");
+                }
+            },
+            [](std::monostate) { ERROR_LOG("Image data not set!"); },
+        },
+        image.getImageData());
 
     if (type != GraphicsApi::TextureType::U8_RGBA)
     {
@@ -732,9 +733,69 @@ std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType,
 {
     return std::optional<uint32>();
 }
-GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<GraphicsApi::Image, 6> &)
+GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<GraphicsApi::Image, 6> &images)
 {
-    return {};
+    DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    // D3DObjects to create
+    ID3D11Texture2D *cubeTexture                 = NULL;
+    ID3D11ShaderResourceView *shaderResourceView = NULL;
+
+    // Description of each face
+    D3D11_TEXTURE2D_DESC texDesc;
+    texDesc.Width              = images[0].width;
+    texDesc.Height             = images[0].height;
+    texDesc.MipLevels          = 1;
+    texDesc.ArraySize          = 6;
+    texDesc.Format             = format;
+    texDesc.CPUAccessFlags     = 0;
+    texDesc.SampleDesc.Count   = 1;
+    texDesc.SampleDesc.Quality = 0;
+    texDesc.Usage              = D3D11_USAGE_DEFAULT;
+    texDesc.BindFlags          = D3D11_BIND_SHADER_RESOURCE;
+    texDesc.CPUAccessFlags     = 0;
+    texDesc.MiscFlags          = D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+    // The Shader Resource view description
+    D3D11_SHADER_RESOURCE_VIEW_DESC SMViewDesc;
+    SMViewDesc.Format                      = texDesc.Format;
+    SMViewDesc.ViewDimension               = D3D11_SRV_DIMENSION_TEXTURECUBE;
+    SMViewDesc.TextureCube.MipLevels       = texDesc.MipLevels;
+    SMViewDesc.TextureCube.MostDetailedMip = 0;
+
+    // Array to fill which we will use to point D3D at our loaded CPU images.
+    D3D11_SUBRESOURCE_DATA pData[6];
+    for (int cubeMapFaceIndex = 0; cubeMapFaceIndex < 6; cubeMapFaceIndex++)
+    {
+        // Pointer to the pixel data
+        pData[cubeMapFaceIndex].pSysMem = images[cubeMapFaceIndex].getRawDataPtr();
+        // Line width in bytes
+        pData[cubeMapFaceIndex].SysMemPitch = texDesc.Width * 4;
+        // This is only used for 3d textures.
+        pData[cubeMapFaceIndex].SysMemSlicePitch = 0;
+    }
+
+    // Create the Texture Resource
+    HRESULT hr = impl_->dxCondext_.dev->CreateTexture2D(&texDesc, &pData[0], &cubeTexture);
+    if (hr != S_OK)
+    {
+        ERROR_LOG("CreateTexture2D for cube map error.");
+        return std::nullopt;
+    }
+
+    // If we have created the texture resource for the six faces
+    // we create the Shader Resource View to use in our shaders.
+    hr = impl_->dxCondext_.dev->CreateShaderResourceView(cubeTexture, &SMViewDesc, &shaderResourceView);
+    if (hr != S_OK)
+    {
+        ERROR_LOG("CreateShaderResourceView for cube map error.");
+        return std::nullopt;
+    }
+
+    GraphicsApi::TextureFilter filter{GraphicsApi::TextureFilter::LINEAR};
+    GraphicsApi::TextureMipmap mimap{GraphicsApi::TextureMipmap::NONE};
+
+    auto samplerId = impl_->GetSamplerState({filter, mimap});
+    return impl_->AddTexture(shaderResourceView, samplerId);
 }
 void DirectXApi::UpdateTexture(uint32, const vec2ui &, const GraphicsApi::Image &)
 {

@@ -252,7 +252,7 @@ float4 PS(PS_INPUT input)
     lightsPass.cutOff_[0]      = 0.f;
 
     Material material;
-    material.ambient_     = float3(0.05, 0.05, 0.05) * samplerColor.xyz;
+    material.ambient_     = float3(0.2, 0.2, 0.2) * samplerColor.xyz;
     material.diffuse_     = float3(0.8, 0.8, 0.8) * samplerColor.xyz;
     material.specular_    = float3(0.0, 0.0, 0.0);
     material.shineDamper_ = 20;

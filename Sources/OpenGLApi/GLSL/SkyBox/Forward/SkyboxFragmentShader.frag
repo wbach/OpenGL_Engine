@@ -22,7 +22,8 @@ void main(void)
     vec4 texture2     = texture(NightCubeMap, TextureCoords);
     vec4 final_colour = mix(texture2, texture1, perMeshObject.blendFactor);
 
-    float factor    = (TextureCoords.y - LowerLimit)/(UpperLimit - LowerLimit );
-    factor          = clamp(factor, 0.f, 1.f);
-    outputColor    = mix(perMeshObject.fogColour, final_colour, factor);
+    float factor  = (TextureCoords.y - LowerLimit)/(UpperLimit - LowerLimit );
+    factor        = clamp(factor, 0.f, 1.f);
+    outputColor   = mix(perMeshObject.fogColour, final_colour, factor);
+	outputColor.w = 1.f;
 }

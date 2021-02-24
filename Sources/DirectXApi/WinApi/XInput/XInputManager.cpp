@@ -16,7 +16,9 @@ XInputManager::XInputManager(HWND windowHwnd, const vec2ui& windowSize)
     , halfWindowsSize_(windowSize.x / 2, windowSize.y / 2)
     , isRelativeMouseMode_(false)
     , lastMouseMovmentPosition_(GetPixelMousePosition())
+    , cursorShowState_(true)
 {
+    ::ShowCursor(TRUE);
 }
 XInputManager::~XInputManager()
 {
@@ -38,7 +40,7 @@ bool XInputManager::GetMouseKey(KeyCodes::Type key)
 void XInputManager::SetReleativeMouseMode(bool v)
 {
     isRelativeMouseMode_ = v;
-    ShowCursor(not v);
+    this->ShowCursor(not v);
 }
 vec2i XInputManager::CalcualteMouseMove()
 {
@@ -121,7 +123,11 @@ void XInputManager::GetPressedKeys()
 }
 void XInputManager::ShowCursor(bool show)
 {
-    ::ShowCursor(show ? TRUE : FALSE);
+    if (cursorShowState_ != show)
+    {
+        ::ShowCursor(show ? TRUE : FALSE);
+        cursorShowState_ = show;
+    }
 }
 KeyCodes::Type XInputManager::ConvertCode(uint32 value) const
 {

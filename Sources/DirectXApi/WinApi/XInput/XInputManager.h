@@ -35,6 +35,7 @@ private:
     vec2ui halfWindowsSize_;
     bool isRelativeMouseMode_;
     vec2i lastMouseMovmentPosition_;
+    bool cursorShowState_;
 };
 
 }  // namespace DirectX

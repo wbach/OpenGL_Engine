@@ -49,6 +49,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/WaterShader.fx"}
         }
     },
+    {
+        GraphicsApi::ShaderProgramType::SkyBox,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "SkyBox/Forward/SkyboxShader.fx"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "SkyBox/Forward/SkyboxShader.fx"}
+        }
+    },
 };
 // clang-format on
 }  // namespace
