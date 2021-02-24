@@ -51,6 +51,7 @@ private:
     EntityRenderer entityRenderer_;
 
     ShaderProgram shader_;
+    ShaderProgram instancedShader_;
     ShadowBox shadowBox_;
     mat4 projectionViewMatrix_;
     mat4 biasMatrix_;

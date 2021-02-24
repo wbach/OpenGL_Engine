@@ -65,6 +65,18 @@ void EntityRenderer::init()
     perMeshBuffer_->GpuLoadingPass();
 }
 
+void EntityRenderer::cleanUp()
+{
+    if (perInstanceBuffer_)
+    {
+        context_.gpuLoader_.AddObjectToRelease(std::move(perInstanceBuffer_));
+    }
+    if (perMeshBuffer_)
+    {
+        context_.gpuLoader_.AddObjectToRelease(std::move(perMeshBuffer_));
+    }
+}
+
 void EntityRenderer::subscribe(GameObject& gameObject)
 {
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
@@ -131,53 +143,56 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
         }
     }
 
-    if (not groupedEntities.groupToRender_.empty())
+    if (not groupedEntities.groupsToRender_.empty())
     {
         instancedEntityShader.Start();
-        for (const auto& [model, subscribers] : groupedEntities.groupToRender_)
+        for (const auto& [model, group] : groupedEntities.groupsToRender_)
         {
-            const auto perInstancesApiId = perInstanceBuffer_->GetGraphicsObjectId();
-            const auto perMeshApiId      = perMeshBuffer_->GetGraphicsObjectId();
-
-            if (perInstancesApiId and perMeshApiId)
+            for (auto& subscribers : group)
             {
-                auto& data = perInstanceBuffer_->GetData();
-                context_.graphicsApi_.BindShaderBuffer(*perInstancesApiId);
+                const auto perInstancesApiId = perInstanceBuffer_->GetGraphicsObjectId();
+                const auto perMeshApiId      = perMeshBuffer_->GetGraphicsObjectId();
 
-                for (size_t i = 0; i < subscribers.size(); ++i)
+                if (perInstancesApiId and perMeshApiId)
                 {
-                    auto& sub          = subscribers[i];
-                    data.transforms[i] = context_.graphicsApi_.PrepareMatrixToLoad(
-                        sub->gameObject->GetWorldTransform().CalculateCurrentMatrix());
-                }
-                perInstanceBuffer_->UpdateGpuPass();
+                    auto& data = perInstanceBuffer_->GetData();
+                    context_.graphicsApi_.BindShaderBuffer(*perInstancesApiId);
 
-                for (const auto& mesh : model->GetMeshes())
-                {
-                    if (not mesh.GetGraphicsObjectId())
-                        continue;
-
-                    if (const auto& meshBuffer = mesh.getShaderBufferId())
+                    for (size_t i = 0; i < subscribers.size(); ++i)
                     {
-                        context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
+                        auto& sub          = subscribers[i];
+                        data.transforms[i] = context_.graphicsApi_.PrepareMatrixToLoad(
+                            sub->gameObject->GetWorldTransform().CalculateCurrentMatrix());
                     }
+                    perInstanceBuffer_->UpdateGpuPass();
 
-                    perMeshBuffer_->GetData().TransformationMatrix =
-                        context_.graphicsApi_.PrepareMatrixToLoad(mesh.GetMeshTransform());
-                    perMeshBuffer_->UpdateGpuPass();
-                    context_.graphicsApi_.BindShaderBuffer(*perMeshApiId);
+                    for (const auto& mesh : model->GetMeshes())
+                    {
+                        if (not mesh.GetGraphicsObjectId())
+                            continue;
 
-                    bindMaterial(mesh.GetMaterial());
-                    context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(),
-                                                              static_cast<uint32>(subscribers.size()));
-                    unBindMaterial(mesh.GetMaterial());
-                    renderedMeshes_ += static_cast<uint32>(subscribers.size());
+                        if (const auto& meshBuffer = mesh.getShaderBufferId())
+                        {
+                            context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
+                        }
+
+                        perMeshBuffer_->GetData().TransformationMatrix =
+                            context_.graphicsApi_.PrepareMatrixToLoad(mesh.GetMeshTransform());
+                        perMeshBuffer_->UpdateGpuPass();
+                        context_.graphicsApi_.BindShaderBuffer(*perMeshApiId);
+
+                        bindMaterial(mesh.GetMaterial());
+                        context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(),
+                                                                  static_cast<uint32>(subscribers.size()));
+                        unBindMaterial(mesh.GetMaterial());
+                        renderedMeshes_ += static_cast<uint32>(subscribers.size());
+                    }
                 }
             }
         }
     }
 
-    if (not groupedEntities.singleEntitiesToRender_.empty() or not groupedEntities.groupToRender_.empty())
+    if (not groupedEntities.singleEntitiesToRender_.empty() or not groupedEntities.groupsToRender_.empty())
     {
         instancedEntityShader.Stop();
     }
@@ -211,16 +226,23 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
                 auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
                 if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
                 {
-                    result.groupToRender_.insert(
-                        {classificatedToSingleIter->first, {classificatedToSingleIter->second, &sub}});
+                    result.groupsToRender_.insert(
+                        {classificatedToSingleIter->first, {{classificatedToSingleIter->second, &sub}}});
                     result.singleEntitiesToRender_.erase(classificatedToSingleIter);
                 }
                 else
                 {
-                    auto iter = result.groupToRender_.find(model);
-                    if (iter != result.groupToRender_.end())
+                    auto iter = result.groupsToRender_.find(model);
+                    if (iter != result.groupsToRender_.end())
                     {
-                        iter->second.push_back(&sub);
+                        if (iter->second.back().size() >= MAX_INSTANCES)
+                        {
+                            iter->second.push_back({ &sub });
+                        }
+                        else
+                        {
+                            iter->second.back().push_back(&sub);
+                        }
                     }
                     else
                     {

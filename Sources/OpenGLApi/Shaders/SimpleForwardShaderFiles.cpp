@@ -29,6 +29,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::InstancesSimpleForwadEntity,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/Forward/InstancesSimpleEntityShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Entity/Forward/SimpleEntityShader.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::PreviewEntity,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Entity/PreviewEntity.vert"},
@@ -89,6 +96,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         GraphicsApi::ShaderProgramType::Shadows,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Shadows/ShadowVertexShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Shadows/ShadowFragmentShader.frag"}
+        }
+    },
+    {
+        GraphicsApi::ShaderProgramType::InstancesShadows,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Shadows/InstancedShadowVertexShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Shadows/ShadowFragmentShader.frag"}
         }
     },

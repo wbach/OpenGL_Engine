@@ -25,6 +25,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
     , entityRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
+    , instancedShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesShadows)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
     , biasMatrix_(Utils::CreateBiasNdcToTextureCoordinates())
@@ -63,9 +64,12 @@ ShadowMapRenderer::~ShadowMapRenderer()
 void ShadowMapRenderer::init()
 {
     shader_.Init();
+    instancedShader_.Init();
 
     if (not isActive_ or not shader_.IsReady())
         return;
+
+    entityRenderer_.init();
 
     GraphicsApi::FrameBuffer::Attachment depthAttachment(*EngineConf.renderer.shadows.mapSize,
                                                          GraphicsApi::FrameBuffer::Type::Depth,
@@ -123,6 +127,8 @@ void ShadowMapRenderer::init()
 void ShadowMapRenderer::cleanUp()
 {
     shader_.Clear();
+    instancedShader_.Clear();
+    entityRenderer_.cleanUp();
 
     if (perFrameBuffer_)
     {
@@ -142,7 +148,16 @@ void ShadowMapRenderer::cleanUp()
 
 void ShadowMapRenderer::renderScene()
 {
-    entityRenderer_.renderEntitiesWithoutGrouping();
+    if (EngineConf.renderer.useInstanceRendering)
+    {
+        entityRenderer_.renderEntityWithGrouping(shader_, instancedShader_);
+    }
+    else
+    {
+        shader_.Start();
+        entityRenderer_.renderEntitiesWithoutGrouping();
+        shader_.Stop();
+    }
 }
 
 bool ShadowMapRenderer::isInit() const
@@ -162,7 +177,6 @@ void ShadowMapRenderer::prepare()
     auto shadowMapSize = *EngineConf.renderer.shadows.mapSize;
     context_.graphicsApi_.SetViewPort(0, 0, shadowMapSize, shadowMapSize);
 
-    shader_.Start();
     context_.graphicsApi_.EnableDepthTest();
     context_.graphicsApi_.DisableCulling();
     renderCascades();
@@ -192,6 +206,7 @@ void ShadowMapRenderer::unSubscribeAll()
 void ShadowMapRenderer::reloadShaders()
 {
     shader_.Reload();
+    instancedShader_.Reload();
 }
 
 void ShadowMapRenderer::prepareFrameBuffer()

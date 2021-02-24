@@ -18,6 +18,7 @@ WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererCon
     , terrainMeshRenderer_(context)
     , skyBoxRenderer_(context)
     , entityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwadEntity)
+    , instancedEntityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesSimpleForwadEntity)
     , terrainShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwardTerrainMesh)
     , skyBoxShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::ForwardSkyBox)
     , isInit_(false)
@@ -62,6 +63,13 @@ void WaterReflectionRefractionRenderer::initResources()
         return;
     }
 
+    instancedEntityShader_.Init();
+    if (not instancedEntityShader_.IsReady())
+    {
+        cleanUp();
+        return;
+    }
+
     terrainShader_.Init();
     if (not terrainShader_.IsReady())
     {
@@ -82,6 +90,8 @@ void WaterReflectionRefractionRenderer::initResources()
         cleanUp();
         return;
     }
+
+    entityRenderer_.init();
 
     if (not reflectionPerFrameBuffer_)
     {
@@ -115,7 +125,10 @@ void WaterReflectionRefractionRenderer::cleanUp()
     entityShader_.Clear();
     terrainShader_.Clear();
     skyBoxShader_.Clear();
+    instancedEntityShader_.Clear();
     skyBoxRenderer_.cleanUp();
+
+    entityRenderer_.cleanUp();
 
     if (reflectionPerFrameBuffer_)
     {
@@ -219,6 +232,7 @@ void WaterReflectionRefractionRenderer::reloadShaders()
 {
     skyBoxShader_.Reload();
     entityShader_.Reload();
+    instancedEntityShader_.Reload();
     terrainShader_.Reload();
 }
 WaterReflectionRefractionRenderer::WaterTextures* WaterReflectionRefractionRenderer::GetWaterTextures(
@@ -261,8 +275,15 @@ void WaterReflectionRefractionRenderer::renderScene()
     skyBoxShader_.Start();
     skyBoxRenderer_.render();
 
-    entityShader_.Start();
-    entityRenderer_.renderEntitiesWithoutGrouping();
+    if (EngineConf.renderer.useInstanceRendering)
+    {
+        entityRenderer_.renderEntityWithGrouping(entityShader_, instancedEntityShader_);
+    }
+    else
+    {
+        entityShader_.Start();
+        entityRenderer_.renderEntitiesWithoutGrouping();
+    }
 
     terrainShader_.Start();
     terrainMeshRenderer_.renderSubscribers();

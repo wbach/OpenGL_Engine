@@ -85,6 +85,7 @@ private:
     SkyBoxRenderer skyBoxRenderer_;
 
     ShaderProgram entityShader_;
+    ShaderProgram instancedEntityShader_;
     ShaderProgram terrainShader_;
     ShaderProgram skyBoxShader_;
 

@@ -41,7 +41,7 @@ class EntityRenderer
     struct GroupedEntities
     {
         std::unordered_map<Model*, const EntitySubscriber*> singleEntitiesToRender_;
-        std::unordered_map<Model*, std::vector<const EntitySubscriber*>> groupToRender_;
+        std::unordered_map<Model*, std::vector<std::vector<const EntitySubscriber*>>> groupsToRender_;
     };
 
 public:
@@ -49,6 +49,7 @@ public:
     ~EntityRenderer();
 
     void init();
+    void cleanUp();
     void subscribe(GameObject&);
     void unSubscribe(GameObject&);
     void unSubscribeAll();

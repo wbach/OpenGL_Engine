@@ -33,6 +33,9 @@ ConcreteEntityRenderer::~ConcreteEntityRenderer()
 {
     DEBUG_LOG("");
     unSubscribeAll();
+    shader_.Clear();
+    instancesShader_.Clear();
+    entityRenderer_.cleanUp();
 }
 
 void ConcreteEntityRenderer::init()
