@@ -48,7 +48,7 @@ Renderer::Renderer()
     , lodDistance0{50.f, {0.f, 25.f, 50.f, 75.f, 100.f}}
     , lodDistance1{100.f, {25.f, 50.f, 75.f, 100.f, 125.f, 150.f, 175.f, 200.f}}
     , lodDistance2{150.f, {25.f, 50.f, 75.f, 100.f, 125.f, 150.f, 175.f, 200.f}}
-    , useInstanceRendering{false, {false, true}}
+    , useInstanceRendering{true, {false, true}}
 {
     preset.subscribeForChange([this](const auto& preset) {
         switch (preset)
