@@ -142,7 +142,7 @@ void ShadowMapRenderer::cleanUp()
 
 void ShadowMapRenderer::renderScene()
 {
-    entityRenderer_.render();
+    entityRenderer_.renderEntitiesWithoutGrouping();
 }
 
 bool ShadowMapRenderer::isInit() const

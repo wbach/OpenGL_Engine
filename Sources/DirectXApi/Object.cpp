@@ -33,6 +33,20 @@ void Object::Draw() const
         dxCondext_.devcon->Draw(vao_.vertexes_.size(), 0);
     }
 }
+void Object::DrawInstanced(uint32 instaces) const
+{
+    if (indieciesSize_ > 0)
+    {
+        BindVertexBuffer();
+        Bind();
+        dxCondext_.devcon->DrawIndexedInstanced(indieciesSize_, instaces, 0, 0, 0);
+    }
+    else
+    {
+        BindVertexBuffer();
+        dxCondext_.devcon->DrawInstanced(vao_.vertexes_.size(), instaces, 0, 0);
+    }
+}
 void Object::Release()
 {
     indiciesBuffer_.Release();

@@ -255,13 +255,14 @@ GraphicsApi::IFrameBuffer* WaterReflectionRefractionRenderer::createWaterFbo(con
     }
     return result;
 }
+
 void WaterReflectionRefractionRenderer::renderScene()
 {
     skyBoxShader_.Start();
     skyBoxRenderer_.render();
 
     entityShader_.Start();
-    entityRenderer_.render();
+    entityRenderer_.renderEntitiesWithoutGrouping();
 
     terrainShader_.Start();
     terrainMeshRenderer_.renderSubscribers();

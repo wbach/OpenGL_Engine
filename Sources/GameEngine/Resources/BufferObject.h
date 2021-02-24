@@ -48,7 +48,6 @@ public:
         }
     }
 
-private:
     void GpuLoadingPass() override
     {
         if (not graphicsObjectId_)

@@ -25,6 +25,7 @@ ConfigurationExplorer::ConfigurationExplorer()
         {"Graphics",
          {
              {"Renderer type", EngineConf.renderer.type, ApplyPolicy::RestartRequired},
+             {"UseInstanceRendering", EngineConf.renderer.useInstanceRendering, ApplyPolicy::RestartNotNeeded},
              {"View distance", EngineConf.renderer.viewDistance, ApplyPolicy::RestartNotNeeded},
              {"Lod0 distance ", EngineConf.renderer.lodDistance0, ApplyPolicy::RestartNotNeeded},
              {"Lod1 distance", EngineConf.renderer.lodDistance1, ApplyPolicy::RestartNotNeeded},

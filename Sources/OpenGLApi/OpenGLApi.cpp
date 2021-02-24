@@ -40,6 +40,7 @@ std::unordered_map<GraphicsApi::TextureFilter, GLfloat> textureFilterMap_;
 std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
 std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
 CFont font;
+const GraphicsApi::TextureInfo defaultTextureInfo;
 
 struct TextTypeParams
 {
@@ -369,12 +370,14 @@ mat4 OpenGLApi::PrepareMatrixToLoad(const mat4& m)
 
 std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
 {
-    if (not impl_->textureInfos_.count(id))
+    auto iter = impl_->textureInfos_.find(id);
+
+    if (iter == impl_->textureInfos_.end())
     {
         return {};
     }
 
-    const auto& textureInfo = impl_->textureInfos_.at(id);
+    const auto& textureInfo = iter->second;
     auto params             = GetTextureTypeParams(textureInfo.textureType);
 
     std::vector<uint8> data;
@@ -435,7 +438,11 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
 
 const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id) const
 {
-    return impl_->textureInfos_.at(id);
+    auto iter = impl_->textureInfos_.find(id);
+    if (iter != impl_->textureInfos_.end())
+        return iter->second;
+
+    return defaultTextureInfo;
 }
 
 void OpenGLApi::TakeSnapshoot(const std::string& path) const
@@ -573,22 +580,25 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
         if (debugNormalMesh.id_)
         {
-            auto& obj = openGlMeshes_.at(*debugNormalMesh.id_);
+            auto& obj                    = openGlMeshes_.at(*debugNormalMesh.id_);
             auto sizeInBytesBeforeUpdate = obj.sizeInBytes;
-            obj.sizeInBytes = 0;
+            obj.sizeInBytes              = 0;
 
             obj.vertexCount = static_cast<GLsizei>(debugNormalMesh.position_.size());
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(), &debugNormalMesh.position_[0], GL_STREAM_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(),
+                         &debugNormalMesh.position_[0], GL_STREAM_DRAW);
             obj.sizeInBytes += sizeof(float) * debugNormalMesh.position_.size();
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.normal_.size(), &debugNormalMesh.normal_[0], GL_STREAM_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.normal_.size(), &debugNormalMesh.normal_[0],
+                         GL_STREAM_DRAW);
             obj.sizeInBytes += sizeof(float) * debugNormalMesh.normal_.size();
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TANGENT]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.tangent_.size(), &debugNormalMesh.tangent_[0], GL_STREAM_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.tangent_.size(), &debugNormalMesh.tangent_[0],
+                         GL_STREAM_DRAW);
             obj.sizeInBytes += sizeof(float) * debugNormalMesh.tangent_.size();
 
             allocatedBytes(obj.sizeInBytes - sizeInBytesBeforeUpdate);
@@ -599,10 +609,12 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 void OpenGLApi::DeleteMesh(uint32 id)
 {
     DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
-    if (openGlMeshes_.count(id) == 0)
+
+    auto iter = openGlMeshes_.find(id);
+    if (iter == openGlMeshes_.end())
         return;
 
-    auto& mesh = openGlMeshes_.at(id);
+    auto& mesh = iter->second;
 
     for (auto& vbo : mesh.vbos)
     {
@@ -620,23 +632,28 @@ void OpenGLApi::DeleteMesh(uint32 id)
 
 void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
 {
-    if (impl_->debugNormalsMesh_.count(id) == 0)
+    auto iter = impl_->debugNormalsMesh_.find(id);
+    if (iter == impl_->debugNormalsMesh_.end())
         return;
 
-    auto& mesh = impl_->debugNormalsMesh_.at(id);
+    auto& mesh = iter->second;
+
     if (mesh.id_)
     {
-        auto& glmesh = openGlMeshes_.at(*mesh.id_);
-
-        for (auto& vbo : glmesh.vbos)
+        auto iter = openGlMeshes_.find(*mesh.id_);
+        if (iter != openGlMeshes_.end())
         {
-            if (vbo.second != 0)
-                glDeleteBuffers(1, &vbo.second);
+            auto& glmesh = iter->second;
+
+            for (auto& vbo : glmesh.vbos)
+            {
+                if (vbo.second != 0)
+                    glDeleteBuffers(1, &vbo.second);
+            }
+
+            glDeleteVertexArrays(1, &glmesh.vao);
+            openGlMeshes_.erase(id);
         }
-
-        glDeleteVertexArrays(1, &glmesh.vao);
-        openGlMeshes_.erase(id);
-
     }
     impl_->debugNormalsMesh_.erase(id);
 }
@@ -715,13 +732,13 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
     }
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
     uint32 dataTypeSize = 0;
-    auto channels = image.getChannelsCount();
+    auto channels       = image.getChannelsCount();
     std::visit(visitor{
                    [&](const std::vector<uint8>& data) {
                        switch (channels)
                        {
                            case 4:
-                               type = GraphicsApi::TextureType::U8_RGBA;
+                               type         = GraphicsApi::TextureType::U8_RGBA;
                                dataTypeSize = sizeof(uint8) * 4;
                                break;
                            default:
@@ -732,19 +749,19 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
                        switch (channels)
                        {
                            case 1:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
                                dataTypeSize = sizeof(float);
                                break;
                            case 2:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
                                dataTypeSize = sizeof(float) * 2;
                                break;
                            case 3:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
                                dataTypeSize = sizeof(float) * 3;
                                break;
                            case 4:
-                               type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
                                dataTypeSize = sizeof(float) * 4;
                                break;
                            default:
@@ -850,13 +867,13 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const GraphicsApi
         ERROR_LOG("Update image without data");
         return;
     }
-
-    if (impl_->textureInfos_.count(id) == 0)
+    auto iter = impl_->textureInfos_.find(id);
+    if (iter == impl_->textureInfos_.end())
     {
         return;
     }
 
-    auto& textureInfo = impl_->textureInfos_.at(id);
+    auto& textureInfo = iter->second;
     auto params       = GetTextureTypeParams(textureInfo.textureType);
 
     BindTexture(id);
@@ -866,13 +883,14 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const GraphicsApi
 }
 void OpenGLApi::UpdateTexture(uint32 id, const GraphicsApi::Image& image)
 {
-    if (impl_->textureInfos_.count(id) == 0)
+    auto iter = impl_->textureInfos_.find(id);
+    if (iter == impl_->textureInfos_.end())
     {
         ERROR_LOG("Texture not found id : " + std::to_string(id));
         return;
     }
 
-    auto& textureInfo = impl_->textureInfos_.at(id);
+    auto& textureInfo = iter->second;
     auto glId         = impl_->idPool_.ToGL(id);
 
     CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap, image.size(),
@@ -951,7 +969,7 @@ void OpenGLApi::DeleteObject(uint32 id)
         case ObjectType::TEXTURE_2D:
         {
             glDeleteTextures(1, &openGLId);
-                        auto iter = allocatedTextureBytes.find(id);
+            auto iter = allocatedTextureBytes.find(id);
             if (iter != allocatedTextureBytes.end())
                 allocatedBytes(-1 * iter->second);
             break;
@@ -1172,7 +1190,10 @@ FloatBufferMatrix GetFloatBufferMatrix(const std::vector<mat4>& matrixes)
 
 void OpenGLApi::UpdateMatrixes(uint32 objectId, const std::vector<mat4>& mat)
 {
-    auto& obj = openGlMeshes_.at(objectId);
+    auto iter = openGlMeshes_.find(objectId);
+    if (iter == openGlMeshes_.end())
+        return;
+    auto& obj = iter->second;
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TRANSFORM_MATRIX]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(mat4) * mat.size(), &mat[0], GL_STREAM_DRAW);
@@ -1187,7 +1208,10 @@ void UpdateVBO(OpenGLMesh& obj, VertexBufferObjects type, const std::vector<floa
 void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data,
                            const std::set<VertexBufferObjects>& buffers)
 {
-    auto& obj = openGlMeshes_.at(objectId);
+    auto iter = openGlMeshes_.find(objectId);
+    if (iter == openGlMeshes_.end())
+        return;
+    auto& obj = iter->second;
 
     for (auto& buffer : buffers)
     {
@@ -1218,8 +1242,10 @@ void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data
 }
 void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mesh)
 {
-    auto& obj = openGlMeshes_.at(objectId);
-
+    auto iter = openGlMeshes_.find(objectId);
+    if (iter == openGlMeshes_.end())
+        return;
+    auto& obj       = iter->second;
     obj.vertexCount = static_cast<GLsizei>(mesh.positions_.size());
 
     glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
@@ -1230,34 +1256,42 @@ void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mes
 }
 void OpenGLApi::UpdateOffset(uint32 objectId, const std::vector<vec4>& offset)
 {
-    auto& obj = openGlMeshes_.at(objectId);
+    auto iter = openGlMeshes_.find(objectId);
+    if (iter == openGlMeshes_.end())
+        return;
+    auto& mesh = iter->second;
 
-    glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::TEXTURE_OFFSET]);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[VertexBufferObjects::TEXTURE_OFFSET]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * offset.size(), &offset[0], GL_STREAM_DRAW);
 }
 void OpenGLApi::UpdateBlend(uint32 objectId, const std::vector<float>& blendFactor)
 {
-    auto& obj = openGlMeshes_.at(objectId);
+    auto iter = openGlMeshes_.find(objectId);
+    if (iter == openGlMeshes_.end())
+        return;
+    auto& mesh = iter->second;
 
-    glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::BLEND_FACTOR]);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[VertexBufferObjects::BLEND_FACTOR]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * blendFactor.size(), &blendFactor[0], GL_STREAM_DRAW);
 }
 void OpenGLApi::RenderPurePatchedMeshInstances(uint32 id)
 {
-    if (openGlMeshes_.count(id) == 0)
+    auto iter = openGlMeshes_.find(id);
+    if (iter == openGlMeshes_.end())
         return;
+    auto& mesh = iter->second;
 
-    const auto& obj = openGlMeshes_.at(id);
-    glBindVertexArray(obj.vao);
-    glDrawArraysInstanced(GL_PATCHES, 0, obj.patches, obj.instancesCount);
+    glBindVertexArray(mesh.vao);
+    glDrawArraysInstanced(GL_PATCHES, 0, mesh.patches, mesh.instancesCount);
 }
 
 void OpenGLApi::RenderMesh(uint32 id)
 {
-    if (openGlMeshes_.count(id) == 0)
+    auto iter = openGlMeshes_.find(id);
+    if (iter == openGlMeshes_.end())
         return;
 
-    auto& mesh = openGlMeshes_.at(id);
+    auto& mesh = iter->second;
 
     glBindVertexArray(mesh.vao);
 
@@ -1273,10 +1307,11 @@ void OpenGLApi::RenderMesh(uint32 id)
 
 void OpenGLApi::RenderTriangleStripMesh(uint32 id)
 {
-    if (openGlMeshes_.count(id) == 0)
+    auto iter = openGlMeshes_.find(id);
+    if (iter == openGlMeshes_.end())
         return;
 
-    auto& mesh = openGlMeshes_.at(id);
+    auto& mesh = iter->second;
 
     glBindVertexArray(mesh.vao);
     glDrawElements(GL_TRIANGLE_STRIP, mesh.vertexCount, GL_UNSIGNED_INT, nullptr);
@@ -1284,13 +1319,22 @@ void OpenGLApi::RenderTriangleStripMesh(uint32 id)
 
 void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
 {
-    if (openGlMeshes_.count(id) == 0)
+    auto iter = openGlMeshes_.find(id);
+    if (iter == openGlMeshes_.end())
         return;
 
-    auto& mesh = openGlMeshes_.at(id);
-
+    auto& mesh = iter->second;
     glBindVertexArray(mesh.vao);
-    glDrawElementsInstanced(GL_TRIANGLES, mesh.vertexCount, GL_UNSIGNED_INT, nullptr, istanced);
+
+    if (mesh.useIndiecies)
+    {
+        glDrawElementsInstanced(renderTypeMap_.at(mesh.renderType), mesh.vertexCount, GL_UNSIGNED_INT, nullptr,
+                                istanced);
+    }
+    else
+    {
+        glDrawArraysInstanced(renderTypeMap_.at(mesh.renderType), 0, mesh.vertexCount, istanced);
+    }
 }
 
 void OpenGLApi::RenderDebugNormals(uint32 referentMeshId)
@@ -1307,10 +1351,10 @@ void OpenGLApi::RenderDebugNormals(uint32 referentMeshId)
 
 void OpenGLApi::RenderPoints(uint32 id)
 {
-    if (openGlMeshes_.count(id) == 0)
+    auto iter = openGlMeshes_.find(id);
+    if (iter == openGlMeshes_.end())
         return;
-
-    auto& mesh = openGlMeshes_.at(id);
+    auto& mesh = iter->second;
     glBindVertexArray(mesh.vao);
     glDrawArrays(GL_POINTS, 0, mesh.vertexCount);
 }
@@ -1358,8 +1402,12 @@ void OpenGLApi::BindTexture(uint32 id) const
 
 void OpenGLApi::BindImageTexture(uint32 id, GraphicsApi::TextureAccess acces)
 {
-    glActiveTexture(0);
-    glBindImageTexture(0, impl_->idPool_.ToGL(id), 0, false, 0, textureAccessMap_.at(acces), GL_RGBA32F);
+    auto iter = textureAccessMap_.find(acces);
+    if (iter != textureAccessMap_.end())
+    {
+        glActiveTexture(0);
+        glBindImageTexture(0, impl_->idPool_.ToGL(id), 0, false, 0, iter->second, GL_RGBA32F);
+    }
 }
 
 GraphicsApi::ID OpenGLApi::CreateShadowMap(uint32 sizex, uint32 sizey)
@@ -1425,6 +1473,7 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
 void OpenGLApi::allocatedBytes(int64 bytes)
 {
     allocatedBytes_ += bytes;
-    DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" + std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
+    DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
+              std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
 }
 }  // namespace OpenGLApi

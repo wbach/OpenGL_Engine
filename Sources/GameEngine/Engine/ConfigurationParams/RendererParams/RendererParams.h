@@ -27,6 +27,7 @@ struct Renderer
     ConfigurationParam<float> lodDistance0;
     ConfigurationParam<float> lodDistance1;
     ConfigurationParam<float> lodDistance2;
+    ConfigurationParam<bool> useInstanceRendering;
 
     Terrain terrain;
     Water water;

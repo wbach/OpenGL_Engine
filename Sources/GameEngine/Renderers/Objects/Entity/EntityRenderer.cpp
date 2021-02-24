@@ -6,10 +6,11 @@
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GraphicsApi/ShaderProgramType.h"
@@ -27,16 +28,41 @@ EntityRenderer::~EntityRenderer()
     unSubscribeAll();
 }
 
-uint32 EntityRenderer::render()
+uint32 EntityRenderer::renderEntitiesWithoutGrouping()
 {
     renderedMeshes_ = 0;
 
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
     if (not subscribes_.empty())
     {
-        renderEntities();
-    }
+        for (const auto& sub : subscribes_)
+        {
+            const auto& objectTransform = sub.gameObject->GetWorldTransform();
+            auto radius                 = glm::compMax(objectTransform.GetScale());
+            auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(), radius);
 
+            if (isVisible)
+            {
+                auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
+                if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
+                {
+                    renderModel(sub, *model);
+                }
+            }
+        }
+    }
     return renderedMeshes_;
+}
+
+void EntityRenderer::init()
+{
+    perInstanceBuffer_ =
+        std::make_unique<BufferObject<PerInstances>>(context_.graphicsApi_, PER_INSTANCES_BIND_LOCATION);
+    perInstanceBuffer_->GpuLoadingPass();
+
+    perMeshBuffer_ =
+        std::make_unique<BufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
+    perMeshBuffer_->GpuLoadingPass();
 }
 
 void EntityRenderer::subscribe(GameObject& gameObject)
@@ -89,14 +115,85 @@ void EntityRenderer::unSubscribeAll()
     subscribes_.clear();
 }
 
-void EntityRenderer::renderEntities()
+uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShader, ShaderProgram& instancedEntityShader)
 {
+    renderedMeshes_ = 0;
     std::lock_guard<std::mutex> lk(subscriberMutex_);
+
+    auto groupedEntities = groupEntities();
+
+    if (not groupedEntities.singleEntitiesToRender_.empty())
+    {
+        singleEntityShader.Start();
+        for (const auto& [model, subscriber] : groupedEntities.singleEntitiesToRender_)
+        {
+            renderModel(*subscriber, *model);
+        }
+    }
+
+    if (not groupedEntities.groupToRender_.empty())
+    {
+        instancedEntityShader.Start();
+        for (const auto& [model, subscribers] : groupedEntities.groupToRender_)
+        {
+            const auto perInstancesApiId = perInstanceBuffer_->GetGraphicsObjectId();
+            const auto perMeshApiId      = perMeshBuffer_->GetGraphicsObjectId();
+
+            if (perInstancesApiId and perMeshApiId)
+            {
+                auto& data = perInstanceBuffer_->GetData();
+                context_.graphicsApi_.BindShaderBuffer(*perInstancesApiId);
+
+                for (size_t i = 0; i < subscribers.size(); ++i)
+                {
+                    auto& sub          = subscribers[i];
+                    data.transforms[i] = context_.graphicsApi_.PrepareMatrixToLoad(
+                        sub->gameObject->GetWorldTransform().CalculateCurrentMatrix());
+                }
+                perInstanceBuffer_->UpdateGpuPass();
+
+                for (const auto& mesh : model->GetMeshes())
+                {
+                    if (not mesh.GetGraphicsObjectId())
+                        continue;
+
+                    if (const auto& meshBuffer = mesh.getShaderBufferId())
+                    {
+                        context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
+                    }
+
+                    perMeshBuffer_->GetData().TransformationMatrix =
+                        context_.graphicsApi_.PrepareMatrixToLoad(mesh.GetMeshTransform());
+                    perMeshBuffer_->UpdateGpuPass();
+                    context_.graphicsApi_.BindShaderBuffer(*perMeshApiId);
+
+                    bindMaterial(mesh.GetMaterial());
+                    context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(),
+                                                              static_cast<uint32>(subscribers.size()));
+                    unBindMaterial(mesh.GetMaterial());
+                    renderedMeshes_ += static_cast<uint32>(subscribers.size());
+                }
+            }
+        }
+    }
+
+    if (not groupedEntities.singleEntitiesToRender_.empty() or not groupedEntities.groupToRender_.empty())
+    {
+        instancedEntityShader.Stop();
+    }
+
+    return renderedMeshes_;
+}
+
+EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
+{
+    GroupedEntities result;
 
     for (const auto& sub : subscribes_)
     {
-        auto radius    = glm::compMax(sub.gameObject->GetWorldTransform().GetScale());
-        auto isVisible = context_.frustrum_.intersection(sub.gameObject->GetWorldTransform().GetPosition(), radius);
+        const auto& objectTransform = sub.gameObject->GetWorldTransform();
+        auto radius                 = glm::compMax(objectTransform.GetScale());
+        auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(), radius);
 
         if (not isVisible)
             continue;
@@ -105,9 +202,35 @@ void EntityRenderer::renderEntities()
 
         if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
-            renderModel(sub, *model);
+            if ((sub.animator and model->getRootJoint()))
+            {
+                result.singleEntitiesToRender_.insert({model, &sub});
+            }
+            else
+            {
+                auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
+                if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
+                {
+                    result.groupToRender_.insert(
+                        {classificatedToSingleIter->first, {classificatedToSingleIter->second, &sub}});
+                    result.singleEntitiesToRender_.erase(classificatedToSingleIter);
+                }
+                else
+                {
+                    auto iter = result.groupToRender_.find(model);
+                    if (iter != result.groupToRender_.end())
+                    {
+                        iter->second.push_back(&sub);
+                    }
+                    else
+                    {
+                        result.singleEntitiesToRender_.insert({model, {&sub}});
+                    }
+                }
+            }
         }
     }
+    return result;
 }
 
 void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model& model)

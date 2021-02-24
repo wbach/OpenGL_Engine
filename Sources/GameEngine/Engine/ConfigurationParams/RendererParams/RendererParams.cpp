@@ -23,11 +23,12 @@ Renderer::Renderer()
     , viewDistance{3000.f,
                    {50.f, 100.f, 200.f, 400.f, 800.f, 1000.f, 1200.f, 1500.f, 2000.f, 3000.f, 4000.f, 5000.f, 10000.f}}
     , normalMappingDistance{200.f, {100.f, 200.f, 400.f}}
-    , fpsLimt{60, {30, 60, 75, 144}}
+    , fpsLimt{60, {0, 30, 60, 75, 144}}
     , resolution{DEFAULT_WINDOW_SIZE, defaultResolutions()}
     , lodDistance0{50.f, {0.f, 25.f, 50.f, 75.f, 100.f}}
     , lodDistance1{100.f, {25.f, 50.f, 75.f, 100.f, 125.f, 150.f, 175.f, 200.f}}
     , lodDistance2{150.f, {25.f, 50.f, 75.f, 100.f, 125.f, 150.f, 175.f, 200.f}}
+    , useInstanceRendering{false, {false, true}}
 {
 }
 }  // namespace Params

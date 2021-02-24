@@ -25,5 +25,6 @@ private:
     RendererContext& context_;
     EntityRenderer entityRenderer_;
     ShaderProgram shader_;
+    ShaderProgram instancesShader_;
 };
 }  // namespace GameEngine

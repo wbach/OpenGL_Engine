@@ -118,7 +118,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
     int index = 0;
     for (const auto& pos : positions_)
     {
-        perInstances_->GetData().transformationMatrixes[index++] =
+        perInstances_->GetData().transforms[index++] =
             Utils::CreateTransformationMatrix(pos, DegreesVec3(0.f), vec3(1.f));
     }
 

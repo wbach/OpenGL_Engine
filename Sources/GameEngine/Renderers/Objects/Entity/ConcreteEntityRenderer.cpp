@@ -24,6 +24,7 @@ ConcreteEntityRenderer::ConcreteEntityRenderer(RendererContext& context)
     : context_(context)
     , entityRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
+    , instancesShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesEntity)
 {
     measurementValue_ = &context.measurmentHandler_.AddNewMeasurment("EnityRendererdMeshes", "0");
 }
@@ -38,19 +39,29 @@ void ConcreteEntityRenderer::init()
 {
     DEBUG_LOG("");
     shader_.Init();
+    instancesShader_.Init();
+    entityRenderer_.init();
 }
 
 void ConcreteEntityRenderer::render()
 {
     if (shader_.IsReady())
     {
-        shader_.Start();
         bindShadowMap(CASCADE_INDEX0, 4); // enity bind material texture + 1
         bindShadowMap(CASCADE_INDEX1, 5);
         bindShadowMap(CASCADE_INDEX2, 6);
         bindShadowMap(CASCADE_INDEX3, 7);
-        *measurementValue_ = std::to_string(entityRenderer_.render());
-        shader_.Stop();
+
+        if (EngineConf.renderer.useInstanceRendering)
+        {
+            *measurementValue_ = std::to_string(entityRenderer_.renderEntityWithGrouping(shader_, instancesShader_));
+        }
+        else
+        {
+            shader_.Start();
+            *measurementValue_ = std::to_string(entityRenderer_.renderEntitiesWithoutGrouping());
+            shader_.Stop();
+        }
     }
 }
 
