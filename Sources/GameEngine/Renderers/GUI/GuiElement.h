@@ -28,6 +28,7 @@ public:
 public:
     virtual void AddChild(std::unique_ptr<GuiElement>);
     const std::vector<std::unique_ptr<GuiElement>>& GetChildren() const;
+    std::vector<GuiElement*> GetAllShowed() const;
     bool RemoveChild(uint32 id);
     void RemoveAll();
 

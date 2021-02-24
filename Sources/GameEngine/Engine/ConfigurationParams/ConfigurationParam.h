@@ -5,7 +5,7 @@
 #include <Mutex.hpp>
 #include <functional>
 #include <memory>
-#include <unordered_map>
+#include <algorithm>
 
 #include "IConfigurationParam.h"
 #include "ParamToString.h"
@@ -113,13 +113,14 @@ public:
     {
         std::lock_guard<std::mutex> lk(subscriberMock_);
         auto id = idPool_.getId();
-        subscribers_.insert({id, action});
+        subscribers_.push_back({id, action});
         return id;
     }
     void unsubscribe(const IdType& id)
     {
         std::lock_guard<std::mutex> lk(subscriberMock_);
-        subscribers_.erase(id);
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& pair) { return pair.first == id; });
+        subscribers_.erase(iter);
     }
     void operator=(const T& v)
     {
@@ -168,7 +169,7 @@ private:
 
 private:
     std::mutex subscriberMock_;
-    std::unordered_map<IdType, std::function<void(const T&)>> subscribers_;
+    std::vector<std::pair<IdType, std::function<void(const T&)>>> subscribers_;
     Utils::IdPool idPool_;
     T value_;
     size_t defaultValueIndex_;

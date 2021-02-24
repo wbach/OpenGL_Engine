@@ -23,7 +23,6 @@ private:
     void UpdateVisibility();
     void EnableScroll();
     void DisableScroll();
-    std::vector<GuiElement*> GetAllShowed() const;
     void AdjustSize(const std::vector<GuiElement*>&);
     bool IsVisible(const GuiElement&) const;
 

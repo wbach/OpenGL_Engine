@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
-#include "ConfigurationParams/IConfigurationParam.h"
+
+#include "ConfigurationParams/ConfigurationParam.h"
 
 namespace GameEngine
 {
@@ -15,7 +16,7 @@ public:
     struct Param
     {
         std::string name;
-        Params::IConfigurationParam& configurationParam;
+        GameEngine::Params::IConfigurationParam& configurationParam;
         ApplyPolicy restartRequierd;
     };
     using Params = std::vector<Param>;

@@ -162,18 +162,6 @@ void VerticalLayout::DisableScroll()
     }
 }
 
-std::vector<GuiElement *> VerticalLayout::GetAllShowed() const
-{
-    std::vector<GuiElement *> result;
-
-    for (const auto &child : children_)
-    {
-        if (child->IsShow())
-            result.push_back(child.get());
-    }
-    return result;
-}
-
 void VerticalLayout::AdjustSize(const std::vector<GuiElement *> &elements)
 {
     if (not adjustSize_ or elements.empty())

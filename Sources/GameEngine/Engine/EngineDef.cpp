@@ -21,6 +21,8 @@ const std::string CSTR_LOADING_SCREEN_BACKGROUND = "loadingScreenBackground";
 const std::string CSTR_LOADING_SCREEN_CIRCLE     = "loadingScreenCircle";
 // Renderer
 const std::string CSTR_RENDERER                        = "Renderer";
+const std::string CSTR_PRESET                          = "preset";
+const std::string CSTR_USE_ENTITY_INSTANCED_GROUPING   = "entityInstancedGrouping";
 const std::string CSTR_GRAPHICS_API                    = "graphicsApi";
 const std::string CSTR_RENDERER_TYPE                   = "type";
 const std::string CSTR_RENDERER_VIEW_DISTANCE          = "viewDistance";

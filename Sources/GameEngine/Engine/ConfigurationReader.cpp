@@ -215,10 +215,15 @@ void Read(TreeNode* node, Params::Terrain& param)
 
 void Read(TreeNode& node, Params::Renderer& renderer)
 {
-    if (node.attributes_.count(CSTR_RENDERER_TYPE))
-        renderer.type =
-            static_cast<GraphicsApi::RendererType>(Utils::StringToInt(node.attributes_.at(CSTR_RENDERER_TYPE)));
+    auto rendererTypeStr = node.getAttributeValue(CSTR_RENDERER_TYPE);
+    if (not rendererTypeStr.empty())
+        renderer.type = static_cast<GraphicsApi::RendererType>(Utils::StringToInt(rendererTypeStr));
 
+    auto presetStr = node.getAttributeValue(CSTR_PRESET);
+    if (not presetStr.empty())
+        renderer.preset = static_cast<Params::PresetSettings>(Utils::StringToInt(presetStr));
+
+    SetParamIfExist(renderer.useInstanceRendering, node.attributes_, CSTR_USE_ENTITY_INSTANCED_GROUPING);
     SetParamIfExist(renderer.graphicsApi, node.attributes_, CSTR_GRAPHICS_API);
     SetParamIfExist(renderer.viewDistance, node.attributes_, CSTR_RENDERER_VIEW_DISTANCE);
     SetParamIfExist(renderer.normalMappingDistance, node.attributes_, CSTR_RENDERER_NORMALMAPPING_DISTANCE);

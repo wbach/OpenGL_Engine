@@ -14,12 +14,24 @@ namespace GameEngine
 {
 namespace Params
 {
+enum class PresetSettings
+{
+    UltraLow,
+    Low,
+    Medium,
+    High,
+    Ultra
+};
+
+std::string paramToString(PresetSettings);
+
 struct Renderer
 {
     Renderer();
     ConfigurationParam<std::string> graphicsApi;
     ConfigurationParam<GraphicsApi::RendererType> type;
 
+    ConfigurationParam<PresetSettings> preset;
     ConfigurationParam<float> viewDistance;
     ConfigurationParam<float> normalMappingDistance;
     ConfigurationParam<uint32> fpsLimt;

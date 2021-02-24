@@ -85,6 +85,7 @@ void Create(TreeNode& node, const Params::Renderer& param)
 {
     node.attributes_[CSTR_GRAPHICS_API]                    = param.graphicsApi;
     node.attributes_[CSTR_RENDERER_TYPE]                   = std::to_string(static_cast<uint32>(*param.type));
+    node.attributes_[CSTR_PRESET]                          = std::to_string(static_cast<uint32>(*param.preset));
     node.attributes_[CSTR_RENDERER_RESOLUTION_X]           = std::to_string(param.resolution->x);
     node.attributes_[CSTR_RENDERER_RESOLUTION_Y]           = std::to_string(param.resolution->y);
     node.attributes_[CSTR_RENDERER_FPS_LIMIT]              = std::to_string(param.fpsLimt);
@@ -93,6 +94,7 @@ void Create(TreeNode& node, const Params::Renderer& param)
     node.attributes_[CSTR_RENDERER_LOD1_DISTANCE]          = std::to_string(param.lodDistance1);
     node.attributes_[CSTR_RENDERER_LOD2_DISTANCE]          = std::to_string(param.lodDistance2);
     node.attributes_[CSTR_RENDERER_NORMALMAPPING_DISTANCE] = std::to_string(param.normalMappingDistance);
+    node.attributes_[CSTR_USE_ENTITY_INSTANCED_GROUPING]   = Utils::BoolToString(param.useInstanceRendering);
 
     Create(node.addChild(CSTR_TERRAIN), param.terrain);
     Create(node.addChild(CSTR_WATER), param.water);

@@ -33,6 +33,17 @@ const std::vector<std::unique_ptr<GuiElement>>& GuiElement::GetChildren() const
 {
     return children_;
 }
+std::vector<GuiElement*> GuiElement::GetAllShowed() const
+{
+    std::vector<GuiElement*> result;
+
+    for (const auto& child : children_)
+    {
+        if (child->IsShow())
+            result.push_back(child.get());
+    }
+    return result;
+}
 bool GuiElement::RemoveChild(uint32 id)
 {
     auto iter =

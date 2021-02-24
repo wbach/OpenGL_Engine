@@ -10,20 +10,23 @@ namespace
 {
 const ConfigurationExplorer::Params emptyParams;
 }  // namespace
+
+// clang-format off
 ConfigurationExplorer::ConfigurationExplorer()
 {
-    // clang-format off
     categories.push_back({"Display",
                           {
                               {"Api", EngineConf.renderer.graphicsApi, ApplyPolicy::RestartRequired},
                               {"Fullscreen mode", EngineConf.window.fullScreen, ApplyPolicy::RestartNotNeeded},
                               {"Window size", EngineConf.window.size, ApplyPolicy::RestartNotNeeded},
                               {"Render size", EngineConf.renderer.resolution, ApplyPolicy::RestartRequired},
+                              {"Fps limit", EngineConf.renderer.fpsLimt, ApplyPolicy::RestartRequired}
                           }
                         });
     categories.push_back(
         {"Graphics",
          {
+             {"Preset settings", EngineConf.renderer.preset, ApplyPolicy::RestartRequired},
              {"Renderer type", EngineConf.renderer.type, ApplyPolicy::RestartRequired},
              {"UseInstanceRendering", EngineConf.renderer.useInstanceRendering, ApplyPolicy::RestartNotNeeded},
              {"View distance", EngineConf.renderer.viewDistance, ApplyPolicy::RestartNotNeeded},
@@ -36,7 +39,6 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Use normal texture", EngineConf.renderer.textures.useNormal, ApplyPolicy::RestartRequired},
              //{"Use specular texture", EngineConf.renderer.textures.useSpecular, true},
              //{"Use displacement texture", EngineConf.renderer.textures.useDisplacement, true},
-             {"Fps limit", EngineConf.renderer.fpsLimt, ApplyPolicy::RestartRequired},
              {"Flora", EngineConf.renderer.flora.isEnabled, ApplyPolicy::RestartRequired},
              {"Flora view distance", EngineConf.renderer.flora.viewDistance, ApplyPolicy::RestartNotNeeded},
              {"Normal mapping distance", EngineConf.renderer.normalMappingDistance, ApplyPolicy::RestartRequired},
