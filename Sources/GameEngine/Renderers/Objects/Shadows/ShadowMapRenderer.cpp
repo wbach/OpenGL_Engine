@@ -28,24 +28,24 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , shadowBox_(context.projection_)
     , projectionViewMatrix_(1.f)
     , biasMatrix_(Utils::CreateBiasNdcToTextureCoordinates())
-    , isActive_{true}
+    , isActive_{EngineConf.renderer.shadows.isEnabled}
 {
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
     {
         shadowFrameBuffer_[cascadeIndex] = nullptr;
     }
 
-    isActive_ = *EngineConf.renderer.shadows.isEnabled;
-
     shadowEnabledSubscriptionId_ =
         EngineConf.renderer.shadows.isEnabled.subscribeForChange([this](const auto& isEnabled) {
             context_.gpuLoader_.AddFunctionToCall([this, isEnabled]() {
-                if (isEnabled and not isInit())
+                if (isEnabled)
                 {
-                    init();
+                    if (not isInit())
+                        init();
+
                     isActive_ = true;
                 }
-                else if (not isEnabled and isInit())
+                else
                 {
                     isActive_ = false;
                     cleanUp();
@@ -64,7 +64,7 @@ void ShadowMapRenderer::init()
 {
     shader_.Init();
 
-    if (not shader_.IsReady())
+    if (not isActive_ or not shader_.IsReady())
         return;
 
     GraphicsApi::FrameBuffer::Attachment depthAttachment(*EngineConf.renderer.shadows.mapSize,

@@ -20,11 +20,10 @@ GrassRenderer::GrassRenderer(RendererContext& context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
 {
     viewDistanceChangeSubscription_ =
-        EngineConf.renderer.flora.viewDistance.subscribeForChange([this](const auto &newViewDistance) {
+        EngineConf.renderer.flora.viewDistance.subscribeForChange([this](const auto& newViewDistance) {
             if (grassShaderBufferId_)
             {
-                context_.gpuLoader_.AddFunctionToCall([this, newViewDistance]()
-                {
+                context_.gpuLoader_.AddFunctionToCall([this, newViewDistance]() {
                     grassShaderBuffer_.variables.value.x = newViewDistance;
                     grassShaderBuffer_.variables.value.y = 0;
                     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
@@ -47,14 +46,14 @@ void GrassRenderer::init()
 
 void GrassRenderer::render()
 {
-    if (not shader_.IsReady() or subscribes_.empty())
-        return;
+    if (EngineConf.renderer.flora.isEnabled and shader_.IsReady() and not subscribes_.empty())
+    {
+        prepareShader();
+        context_.graphicsApi_.DisableCulling();
 
-    prepareShader();
-    context_.graphicsApi_.DisableCulling();
-
-    RenderSubscribes();
-    EndRender();
+        RenderSubscribes();
+        EndRender();
+    }
 }
 void GrassRenderer::subscribe(GameObject& gameObject)
 {
@@ -127,20 +126,20 @@ void GrassRenderer::RenderSubscribes()
 
 void GrassRenderer::RenderModel(const Model& model)
 {
-    //int rendererdMeshes = 0;
+    // int rendererdMeshes = 0;
     for (const auto& mesh : model.GetMeshes())
     {
         if (mesh.GetGraphicsObjectId())
         {
-            //auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
-            //if (isVisible)
+            // auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
+            // if (isVisible)
             {
                 RenderMesh(mesh);
                 //++rendererdMeshes;
             }
         }
     }
-   // DEBUG_LOG("rendererdMeshes : " + std::to_string(rendererdMeshes));
+    // DEBUG_LOG("rendererdMeshes : " + std::to_string(rendererdMeshes));
 }
 
 void GrassRenderer::RenderMesh(const Mesh& mesh)
