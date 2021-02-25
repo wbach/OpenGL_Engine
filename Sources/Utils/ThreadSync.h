@@ -24,7 +24,7 @@ public:
     ThreadSync(ThreadSync&&)      = delete;
     ~ThreadSync();
 
-    uint32 Subscribe(frameFunc func, const std::string& label = "unnamed");
+    uint32 Subscribe(frameFunc func, const std::string& label = "unnamed", uint32 = 60);
     ThreadSubscriber* GetSubscriber(uint32);
     void Unsubscribe(uint32 id);
     void Start();

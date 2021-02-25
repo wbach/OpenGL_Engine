@@ -48,6 +48,7 @@ private:
 
     IdType changeWindowSizeSubscription_;
     IdType changeFullScreenSubscription_;
+    IdType fpsLimitParamSub_;
 };
 
 const Time& DisplayManager::GetTime() const

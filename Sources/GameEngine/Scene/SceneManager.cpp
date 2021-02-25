@@ -11,14 +11,23 @@ namespace GameEngine
 SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<SceneFactoryBase> sceneFactory)
     : engineContext_(engineContext)
     , sceneFactory_(std::move(sceneFactory))
-    , sceneWrapper_(engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(), engineContext.GetGpuResourceLoader())
+    , sceneWrapper_(engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(),
+                    engineContext.GetGpuResourceLoader())
     , currentSceneId_(0)
     , isRunning_(false)
 {
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
+        if (updateSceneThreadId_)
+        {
+            engineContext_.GetThreadSync().GetSubscriber(*updateSceneThreadId_)->SetFpsLimit(newFpsLimit);
+        }
+    });
+
     Start();
 }
 SceneManager::~SceneManager()
 {
+    EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
     DEBUG_LOG("destructor");
     Stop();
 }
@@ -205,8 +214,9 @@ void SceneManager::Start()
     if (not isRunning_)
     {
         DEBUG_LOG("Starting scene");
-        updateSceneThreadId_ = engineContext_.GetThreadSync().Subscribe(
-            std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene");
+        updateSceneThreadId_ =
+            engineContext_.GetThreadSync().Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1),
+                                                     "UpdateScene", EngineConf.renderer.fpsLimt);
         isRunning_ = true;
     }
     else
@@ -220,7 +230,8 @@ void SceneManager::Stop()
     if (isRunning_)
     {
         DEBUG_LOG("Stopping scene");
-        engineContext_.GetThreadSync().Unsubscribe(updateSceneThreadId_);
+        if (updateSceneThreadId_)
+            engineContext_.GetThreadSync().Unsubscribe(*updateSceneThreadId_);
         isRunning_ = false;
     }
     else

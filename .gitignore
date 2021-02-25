@@ -10,6 +10,8 @@ Logs/
 tmp/
 __pycache__/
 GameEngineCM/output/
+.cmake/
+CMakeFiles/
 #dynamic links
 Data
 Tools

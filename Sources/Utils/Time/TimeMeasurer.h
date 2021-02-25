@@ -22,6 +22,7 @@ public:
     void EndFrame();
     int64 GetFps() const;
     double GetDeltaTime() const;
+    void setLockFps(uint32);
 
 private:
     int64 CalculateTime(const Timepoint&, const Timepoint&) const;

@@ -5,10 +5,11 @@ namespace Utils
 {
 namespace Thread
 {
-ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler & measurementHandler)
+ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler & measurementHandler, uint32 fpsLimit)
     : measurementValue_(measurementHandler.AddNewMeasurment(label + "Fps"))
     , func(func)
     , isRunning(false)
+    , timeMeasurer(fpsLimit)
     , label_(label)
 {
     Start();
@@ -60,6 +61,11 @@ void ThreadSubscriber::PrintFps()
 bool ThreadSubscriber::IsStarted() const
 {
     return isRunning.load();
+}
+
+void ThreadSubscriber::SetFpsLimit(uint32 fps)
+{
+    timeMeasurer.setLockFps(fps);
 }
 }  // namespace Thread
 }  // namespace Utils

@@ -49,6 +49,12 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
         }
     });
 
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
+        auto physicsSubscriber = engineContext_.GetThreadSync().GetSubscriber(physicsThreadId_);
+        if (physicsSubscriber)
+            physicsSubscriber->SetFpsLimit(newFpsLimit);
+    });
+
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     introRenderer_.Render();
     sceneManager_.SetFactor();
@@ -58,13 +64,14 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
             engineContext_.GetPhysicsApi().SetSimulationStep(deltaTime);
             engineContext_.GetPhysicsApi().Simulate();
         },
-        "Physics");
+        "Physics", EngineConf.renderer.fpsLimt);
 }
 
 Engine::~Engine()
 {
     engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
+    EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
     DEBUG_LOG("destructor");
     sceneManager_.Reset();
     EngineConf_SaveRequiredFiles();

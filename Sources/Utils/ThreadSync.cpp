@@ -20,10 +20,10 @@ ThreadSync::~ThreadSync()
     Stop();
 }
 
-uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label)
+uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label, uint32 fpsLimit)
 {
     auto id = idPool_++;
-    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, measurementHandler_));
+    subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, measurementHandler_, fpsLimit));
     UpdateThreadsCountText();
     return id;
 }

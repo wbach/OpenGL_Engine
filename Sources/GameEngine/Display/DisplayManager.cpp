@@ -27,6 +27,10 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     changeFullScreenSubscription_ =
         EngineConf.window.fullScreen.subscribeForChange([this](const auto& newValue) { SetFullScreen(newValue); });
 
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
+        timeMeasurer_.setLockFps(newFpsLimit);
+    });
+
     auto windowType =
         EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
@@ -56,6 +60,7 @@ DisplayManager::~DisplayManager()
 {
     EngineConf.window.size.unsubscribe(changeWindowSizeSubscription_);
     EngineConf.window.fullScreen.unsubscribe(changeFullScreenSubscription_);
+    EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
 
     DEBUG_LOG("destructor");
     graphicsApi_.DeleteContext();

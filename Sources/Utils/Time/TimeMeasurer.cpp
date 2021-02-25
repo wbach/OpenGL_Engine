@@ -41,6 +41,13 @@ double CTimeMeasurer::GetDeltaTime() const
     return deltaTime_ / 1e9;
 }
 
+void CTimeMeasurer::setLockFps(uint32 lockFps)
+{
+    vsync = lockFps > 0;
+    lockFps_ = lockFps;
+    lockframeTime_ = vsync ? E9 / lockFps_ : 0;
+}
+
 int64 CTimeMeasurer::CalculateTime(const Timepoint& t1, const Timepoint& t2) const
 {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t2).count();

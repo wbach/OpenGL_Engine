@@ -20,7 +20,7 @@ ConfigurationExplorer::ConfigurationExplorer()
                               {"Fullscreen mode", EngineConf.window.fullScreen, ApplyPolicy::RestartNotNeeded},
                               {"Window size", EngineConf.window.size, ApplyPolicy::RestartNotNeeded},
                               {"Render size", EngineConf.renderer.resolution, ApplyPolicy::RestartRequired},
-                              {"Fps limit", EngineConf.renderer.fpsLimt, ApplyPolicy::RestartRequired}
+                              {"Fps limit", EngineConf.renderer.fpsLimt, ApplyPolicy::RestartNotNeeded}
                           }
                         });
     categories.push_back(

@@ -58,7 +58,8 @@ private:
     std::queue<GameEngine::SceneEvent> events_;
     std::queue<GameEngine::SceneEvent> processingEvents_;
 
-    uint32 updateSceneThreadId_;
+    std::optional<IdType> updateSceneThreadId_;
+    IdType fpsLimitParamSub_;
     bool isRunning_;
 };
 }  // namespace GameEngine
