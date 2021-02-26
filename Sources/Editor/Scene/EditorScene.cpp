@@ -4,6 +4,7 @@
 #include <Input/InputManager.h>
 #include <Types.h>
 
+#include <Utils/Variant.h>
 #include "Editor/Context.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
@@ -19,6 +20,7 @@ namespace Editor
 EditorScene::EditorScene(Context& context)
     : GameEngine::Scene("EditorScene")
     , context_(context)
+    , gameObject(nullptr)
 {
 }
 EditorScene::~EditorScene()
@@ -34,8 +36,36 @@ int EditorScene::Initialize()
     RunNetworkEditorInterface();
     renderersManager_->GetDebugRenderer().Enable();
 
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
-    LoadFromFile(sceneFile);
+    // const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
+    // LoadFromFile(sceneFile);
+    auto text = guiElementFactory_->CreateGuiText("Drag object to preview");
+    text->SetScreenScale({0.1, 0.05});
+    text->SetScreenPostion({0.05, 0.05});
+    text->SetColor(vec4(0.05, 0.05, 0.05, 1.f));
+    guiManager_->Add(std::move(text));
+
+    graphicsApi_->GetWindowApi().SubscribeForEvent([&](auto& event) {
+        std::visit(
+            visitor{
+                [&](const GraphicsApi::DropFileEvent& dropFileEvent) {
+                    if (dropFileEvent.filename.empty())
+                        return;
+
+                    if (gameObject)
+                    {
+                        RemoveGameObject(*gameObject);
+                    }
+                    auto newGameObject = CreateGameObject();
+					DEBUG_LOG(dropFileEvent.filename);
+                    newGameObject->AddComponent<Components::RendererComponent>().AddModel(dropFileEvent.filename);
+                    gameObject = newGameObject.get();
+                    AddGameObject(std::move(newGameObject));
+                },
+                [](const GraphicsApi::QuitEvent&) {},
+
+            },
+            event);
+    });
 
     KeySubscribtions();
 

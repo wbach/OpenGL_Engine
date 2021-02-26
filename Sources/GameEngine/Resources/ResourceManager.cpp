@@ -33,7 +33,9 @@ ResourceManager::~ResourceManager()
 
 Model* ResourceManager::LoadModel(const File& file)
 {
+	DEBUG_LOG(file.GetInitValue());
     auto absoultePath = file.GetAbsoultePath();
+	DEBUG_LOG(absoultePath);
     std::lock_guard<std::mutex> lk(modelMutex_);
     auto iter = models_.find(absoultePath);
 

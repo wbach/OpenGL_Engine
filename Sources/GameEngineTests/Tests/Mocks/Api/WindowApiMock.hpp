@@ -15,6 +15,8 @@ public:
     MOCK_METHOD0(DeleteContext, void());
     MOCK_METHOD0(ProcessEvents, void());
     MOCK_METHOD0(UpdateWindow, void());
+	MOCK_METHOD1(SubscribeForEvent, IdType(std::function<void(const GraphicsApi::IWindowApi::Event&)>));
+	MOCK_METHOD1(UnsubscribeForEvent, void(IdType));
     MOCK_METHOD1(SetFullScreen, void(bool));
     MOCK_METHOD0(CheckActiveWindow, bool());
     MOCK_METHOD1(ShowCursor, void(bool));

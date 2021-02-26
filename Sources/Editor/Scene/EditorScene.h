@@ -21,5 +21,6 @@ private:
 private:
     Context& context_;
     double timeClock = 0;
+	GameEngine::GameObject* gameObject;
 };
 }  // namespace Editor

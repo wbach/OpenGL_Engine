@@ -2,6 +2,7 @@
 #include "WinApi.h"
 #include <D3D11.h>
 #include <Logger/Log.h>
+#include <Utils/IdPool.h>
 #include <Windows.h>
 #include "DirectXApi/DirectXContext.h"
 #include "XInput/XInputManager.h"
@@ -13,6 +14,9 @@ namespace DirectX
 namespace
 {
 std::function<void(uint32, uint32)> addKeyEventFunc;
+Utils::IdPool eventSubscribersEventsPool_;
+std::mutex eventSubscribersMutex_;
+std::unordered_map<IdType, std::function<void(const GraphicsApi::IWindowApi::Event&)>> eventsSubscribers_;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -21,6 +25,42 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+        case WM_CREATE:
+            DragAcceptFiles(hwnd, TRUE);
+            break;
+
+        case WM_DROPFILES:
+        {
+            HDROP drop                 = (HDROP)wParam;
+            auto filePathesCount       = DragQueryFile(drop, 0xFFFF, (LPSTR)NULL, 0);
+            wchar_t* fileName          = NULL;
+
+            // If NULL as the third parameter: return the length of the path, not counting the trailing '0'
+            UINT longestFileNameLength = 0;
+            for (UINT i = 0; i < filePathesCount; ++i)
+            {
+                // If NULL as the third parameter: return the length of the path, not counting the trailing '0'
+                UINT fileNameLength = DragQueryFileW(drop, i, NULL, 512) + 1;
+                if (fileNameLength > longestFileNameLength)
+                {
+                    longestFileNameLength = fileNameLength;
+                    fileName              = (wchar_t*)realloc(fileName, longestFileNameLength * sizeof(*fileName));
+                }
+                DragQueryFileW(drop, i, fileName, fileNameLength);
+                DEBUG_LOG("fileName : " + reinterpret_cast<char*>(fileName));
+            }
+
+            std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+            for (const auto& [_, subscriber] : eventsSubscribers_)
+            {
+                subscriber(GraphicsApi::DropFileEvent{reinterpret_cast<char*>(fileName)});
+            }
+
+            free(fileName);
+            DragFinish(drop);
+        }
+
+        break;
         case WM_KEYDOWN:
             if (addKeyEventFunc)
                 addKeyEventFunc(WM_KEYDOWN, wParam);
@@ -51,8 +91,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
 
         case WM_CLOSE:
+        {
+            std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+            for (const auto& [_, subscriber] : eventsSubscribers_)
+            {
+                subscriber(GraphicsApi::QuitEvent{});
+            }
+
             DestroyWindow(hwnd);
-            break;
+        }
+        break;
 
         case WM_DESTROY:
             // CleanD3D();
@@ -128,6 +176,23 @@ void WinApi::ProcessEvents()
 void WinApi::UpdateWindow()
 {
     impl_->directXContext_.swapchain->Present(0, 0);
+}
+IdType WinApi::SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)> f)
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+    auto id = eventSubscribersEventsPool_.getId();
+    eventsSubscribers_.insert({id, f});
+    return id;
+}
+void WinApi::UnsubscribeForEvent(IdType id)
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+    auto iter = eventsSubscribers_.find(id);
+    if (iter != eventsSubscribers_.end())
+    {
+        eventSubscribersEventsPool_.releaseId(id);
+        eventsSubscribers_.erase(iter);
+    }
 }
 void WinApi::SetFullScreen(bool full_screen)
 {

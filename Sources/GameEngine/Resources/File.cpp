@@ -118,7 +118,7 @@ std::string File::GetBaseName() const
 
 std::string File::GetExtension() const
 {
-    auto str = std::filesystem::path(dataRelative_).extension().string();
+    auto str = std::filesystem::path(absoultePath_).extension().string();
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     return str;
 }

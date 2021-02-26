@@ -33,6 +33,13 @@ public:
     virtual void UpdateWindow() override
     {
     }
+    IdType SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)>) override
+    {
+        return {};
+    }
+    void UnsubscribeForEvent(IdType) override
+    {
+    }
     virtual void SetFullScreen(bool) override
     {
     }

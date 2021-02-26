@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <optional>
+#include <variant>
 #include <vector>
 
 #include "ApiMessages.h"
@@ -23,9 +24,19 @@ struct DisplayMode
     int displayIndex;
 };
 
+struct DropFileEvent
+{
+    std::string filename;
+};
+struct QuitEvent
+{
+};
+
 class IWindowApi
 {
 public:
+    using Event = std::variant<DropFileEvent, QuitEvent>;
+
     virtual ~IWindowApi() = default;
 
     virtual void Init()                                                                     = 0;
@@ -35,6 +46,8 @@ public:
     virtual void DeleteContext()                                                            = 0;
     virtual void ProcessEvents()                                                            = 0;
     virtual void UpdateWindow()                                                             = 0;
+    virtual IdType SubscribeForEvent(std::function<void(const Event&)>)                     = 0;
+    virtual void UnsubscribeForEvent(IdType)                                                = 0;
     virtual void SetFullScreen(bool full_screen)                                            = 0;
     virtual bool CheckActiveWindow()                                                        = 0;
     virtual void ShowCursor(bool show)                                                      = 0;

@@ -24,6 +24,8 @@ public:
 
     void ProcessEvents() override;
     void UpdateWindow() override;
+    IdType SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)>) override;
+    void UnsubscribeForEvent(IdType) override;
     void SetFullScreen(bool full_screen) override;
     bool CheckActiveWindow() override;
 

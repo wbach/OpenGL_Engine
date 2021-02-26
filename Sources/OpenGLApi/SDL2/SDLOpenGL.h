@@ -1,7 +1,9 @@
 #pragma once
+#include <Utils/IdPool.h>
 #include <functional>
 #include <memory>
 #include "GraphicsApi/WindowApi.hpp"
+#include "Mutex.hpp"
 #include "Types.h"
 
 namespace OpenGLApi
@@ -9,6 +11,7 @@ namespace OpenGLApi
 class SdlOpenGlApi : public GraphicsApi::IWindowApi
 {
 public:
+
     SdlOpenGlApi();
     ~SdlOpenGlApi() override;
     void Init() override;
@@ -20,6 +23,9 @@ public:
 
     void ProcessEvents() override;
     void UpdateWindow() override;
+    IdType SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)>) override;
+    void UnsubscribeForEvent(IdType) override;
+
     void SetFullScreen(bool full_screen) override;
     bool CheckActiveWindow() override;
 
@@ -40,7 +46,7 @@ private:
     void CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
 
 private:
-    void ProcessSdlEvent() const;
+    void ProcessSdlEvent();
     void ProccesSdlKeyDown(uint32 type) const;
 
 private:
@@ -52,5 +58,9 @@ private:
 
     std::function<void(uint32, uint32)> addKeyEvent_;
     std::vector<GraphicsApi::DisplayMode> displayModes_;
+
+    Utils::IdPool eventSubscribersEventsPool_;
+    std::mutex eventSubscribersMutex_;
+    std::unordered_map<IdType, std::function<void(const GraphicsApi::IWindowApi::Event&)>> eventsSubscribers_;
 };
 }  // namespace OpenGLApi

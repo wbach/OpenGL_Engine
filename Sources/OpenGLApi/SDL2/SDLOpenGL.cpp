@@ -6,6 +6,7 @@
 #include <optional>
 #include "InputSDL.h"
 #include "Logger/Log.h"
+#include <Utils/Utils.h>
 
 #include <iostream>
 /*
@@ -105,6 +106,23 @@ void SdlOpenGlApi::DeleteContext()
 void SdlOpenGlApi::UpdateWindow()
 {
     SDL_GL_SwapWindow(impl_->window);
+}
+IdType SdlOpenGlApi::SubscribeForEvent(std::function<void(const GraphicsApi::IWindowApi::Event&)> f)
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+    auto id = eventSubscribersEventsPool_.getId();
+    eventsSubscribers_.insert({id, f});
+    return id;
+}
+void SdlOpenGlApi::UnsubscribeForEvent(IdType id)
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+    auto iter = eventsSubscribers_.find(id);
+    if (iter != eventsSubscribers_.end())
+    {
+        eventSubscribersEventsPool_.releaseId(id);
+        eventsSubscribers_.erase(iter);
+    }
 }
 void SdlOpenGlApi::SetFullScreen(bool full_screen)
 {
@@ -236,12 +254,19 @@ void SdlOpenGlApi::ProcessEvents()
     }
 }
 
-void SdlOpenGlApi::ProcessSdlEvent() const
+void SdlOpenGlApi::ProcessSdlEvent()
 {
     switch (impl_->event.type)
     {
         case SDL_QUIT:
-            break;
+        {
+            std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+            for (const auto& [_, subscriber] : eventsSubscribers_)
+            {
+                subscriber(GraphicsApi::QuitEvent{});
+            }
+        }
+        break;
         case SDL_MOUSEBUTTONDOWN:
             addKeyEvent_(SDL_KEYDOWN, impl_->event.button.button);
             break;
@@ -267,6 +292,16 @@ void SdlOpenGlApi::ProcessSdlEvent() const
             break;
         case SDL_FINGERDOWN:
             break;
+        case SDL_DROPFILE:
+        {
+            std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
+            for (const auto& [_, subscriber] : eventsSubscribers_)
+            {
+                subscriber(GraphicsApi::DropFileEvent{impl_->event.drop.file});
+            }
+            DEBUG_LOG("Drop file : " + impl_->event.drop.file);
+        }
+        break;
     }
 }
 

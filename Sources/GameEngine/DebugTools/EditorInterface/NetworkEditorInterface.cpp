@@ -267,6 +267,7 @@ void NetworkEditorInterface::PrepareDebugModels()
 
     if (arrowsIndicator_)
     {
+        arrowsIndicatorTransform_.SetPosition(vec3(std::numeric_limits<float>::max()));
         scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*arrowsIndicator_, arrowsIndicatorTransform_);
     }
 
@@ -274,6 +275,7 @@ void NetworkEditorInterface::PrepareDebugModels()
 
     if (brushCircle_)
     {
+        brushCircleTransform_.SetPosition(vec3(std::numeric_limits<float>::max()));
         scene_.renderersManager_->GetDebugRenderer().AddDebugObject(*brushCircle_, brushCircleTransform_);
     }
 }
@@ -1777,10 +1779,10 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
                         auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
 
                         freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
-                        auto x        = getRandomFloat(minX, maxX);
-                        auto z        = getRandomFloat(minZ, maxZ);
-                        //auto roatateY = getRandomFloat(0.f, 360.f);
-                        auto scale    = getRandomFloat(0.8f, 1.2f);
+                        auto x = getRandomFloat(minX, maxX);
+                        auto z = getRandomFloat(minZ, maxZ);
+                        // auto roatateY = getRandomFloat(0.f, 360.f);
+                        auto scale = getRandomFloat(0.8f, 1.2f);
 
                         auto goScale    = gameObject->GetWorldTransform().GetScale() * scale;
                         auto goRotation = gameObject->GetWorldTransform()

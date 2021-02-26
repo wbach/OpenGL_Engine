@@ -130,6 +130,7 @@ protected:
     std::unordered_map<uint32, GameObject*> gameObjectsIds_;
     CameraWrapper camera;
 
+	GraphicsApi::IGraphicsApi* graphicsApi_;
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;

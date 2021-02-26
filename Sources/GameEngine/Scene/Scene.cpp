@@ -23,6 +23,7 @@ namespace GameEngine
 Scene::Scene(const std::string& name)
     : objectCount(0)
     , componentFactory_(nullptr)
+	, graphicsApi_(nullptr)
     , inputManager_(nullptr)
     , displayManager_(nullptr)
     , renderersManager_(nullptr)
@@ -54,6 +55,7 @@ Scene::~Scene()
 
 void Scene::InitResources(EngineContext& context)
 {
+    graphicsApi_      = &context.GetGraphicsApi();
     inputManager_     = &context.GetInputManager();
     physicsApi_       = &context.GetPhysicsApi();
     displayManager_   = &context.GetDisplayManager();
