@@ -157,5 +157,26 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
     }
     Utils::Xml::Write(file.GetAbsoultePath(), rootNode);
 }
+std::optional<std::string> IsAnimationClip(const File& file)
+{
+    Utils::XmlReader reader;
+    if (reader.Read(file.GetAbsoultePath()))
+    {
+        auto root = reader.Get();
+        if (root and root->name() == "AnimationClip")
+        {
+            auto name = root->getAttributeValue("name");
+            if (not name.empty())
+            {
+                return name;
+            }
+            else
+            {
+                return file.GetBaseName();
+            }
+        }
+    }
+	return std::nullopt;
+}
 }  // namespace Animation
 }  // namespace GameEngine

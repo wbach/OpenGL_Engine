@@ -3,6 +3,7 @@
 #include "JointTransform.h"
 #include "AnimationClip.h"
 #include "GameEngine/Resources/File.h"
+#include <optional>
 
 namespace GameEngine
 {
@@ -15,6 +16,7 @@ void CalcInverseBindTransform(Joint& joint, const mat4& parentBindTransform = ma
 JointTransform Interpolate(const JointTransform& frameA, const JointTransform& frameB, float progress);
 AnimationClip ReadAnimationClip(const File&, Joint&);
 void ExportAnimationClipToFile(const File&, const AnimationClip&, Joint&);
+std::optional<std::string> IsAnimationClip(const File&);
 //void ConvertAnimationClipToOtherSkeleton(const File&, const File&, )
 }  // namespace Animation
 }  // namespace GameEngine

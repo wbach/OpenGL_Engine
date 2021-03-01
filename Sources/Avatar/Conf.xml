@@ -8,7 +8,7 @@
 		<loadingScreenCircle>GUI/aLoadingCircle.png</loadingScreenCircle>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" lodDistance1="200.000000" preset="3" resolutionY="768" lodDistance2="150.000000" viewDistance="2000.000000" fpsLimit="0" lodDistance0="100.000000" normalMappingDistance="50.000000" entityInstancedGrouping="true">
+	<Renderer graphicsApi="DirectX11" resolutionX="1366" type="1" lodDistance1="200.000000" preset="3" resolutionY="768" lodDistance2="150.000000" viewDistance="2000.000000" fpsLimit="0" lodDistance0="100.000000" normalMappingDistance="50.000000" entityInstancedGrouping="false">
 		<Terrain>
 			<terrainRenderer>Mesh</terrainRenderer>
 			<terrainRendererMeshResolutionDivider>1</terrainRendererMeshResolutionDivider>

@@ -46,6 +46,41 @@ std::string FindFile(const std::string& filename, const std::string& dir)
 
     return std::string();
 }
+
+void FindFilesWithExtension(const std::string&, const std::string&, std::vector<std::string>& result)
+{
+}
+
+std::vector<std::string> FindFilesWithExtension(const std::string& dir, const std::string& extension)
+{
+    std::vector<std::string> result;
+
+    try
+    {
+        if (not dir.empty())
+        {
+            for (auto& p : std::filesystem::directory_iterator(std::filesystem::canonical(dir)))
+            {
+                if (p.is_directory())
+                {
+                    auto subResult = FindFilesWithExtension(p.path().string(), extension);
+                    result.insert(result.end(), subResult.begin(), subResult.end());
+                }
+                else
+                {
+                    if (p.path().extension() == extension)
+                        result.push_back(p.path().string());
+                }
+            }
+        }
+    }
+    catch (...)
+    {
+        ERROR_LOG("Find files error. searching files with extension : " + extension + " in dir : " + dir);
+    }
+
+    return result;
+}
 std::string GetFileName(const std::string& filename)
 {
     return std::filesystem::path(filename).filename().string();

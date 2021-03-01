@@ -38,13 +38,14 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
 
 void Animator::CleanUp()
 {
+    machine_.currentState_.reset();
     if (jointData_.buffer and jointData_.buffer->GetGraphicsObjectId())
         componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(jointData_.buffer));
 }
 void Animator::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
-    RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this));
+    RegisterFunction(FunctionType::OnStart, std::bind(&Animator::GetSkeletonAndAnimations, this));
 }
 
 Animator& Animator::SetAnimation(const std::string& name)

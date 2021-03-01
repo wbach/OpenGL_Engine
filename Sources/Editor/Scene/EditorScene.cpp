@@ -1,11 +1,17 @@
 #include "EditorScene.h"
 
+#include <GameEngine/Animations/AnimationUtils.h>
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Renderers/GUI/Button/GuiButton.h>
+#include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <Input/InputManager.h>
 #include <Types.h>
 #include <Utils/Variant.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "Editor/Context.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
@@ -44,27 +50,83 @@ int EditorScene::Initialize()
     text->SetColor(vec4(0.05, 0.05, 0.05, 1.f));
     guiManager_->Add(std::move(text));
 
-    graphicsApi_->GetWindowApi().SubscribeForEvent([&](auto& event) {
-        std::visit(
-            visitor{
-                [&](const GraphicsApi::DropFileEvent& dropFileEvent) {
-                    if (dropFileEvent.filename.empty())
-                        return;
+    auto avaiableAnimationsPtr = guiElementFactory_->CreateVerticalLayout();
+    auto avaiableAnimations    = avaiableAnimationsPtr.get();
+    avaiableAnimationsPtr->SetScreenPostion({0.0625, 0.5});
+    avaiableAnimationsPtr->SetScreenScale({0.125, 1.f});
+    guiManager_->Add(std::move(avaiableAnimationsPtr));
 
-                    if (gameObject)
-                    {
-                        RemoveGameObject(*gameObject);
-                    }
-                    auto newGameObject = CreateGameObject();
-                    DEBUG_LOG(dropFileEvent.filename);
-                    newGameObject->AddComponent<Components::RendererComponent>().AddModel(dropFileEvent.filename);
-                    gameObject = newGameObject.get();
-                    AddGameObject(std::move(newGameObject));
-                },
-                [](const GraphicsApi::QuitEvent&) {},
+    graphicsApi_->GetWindowApi().SubscribeForEvent([&, animationLayout = avaiableAnimations](auto& event) {
+        std::visit(visitor{
+                       [&](const GraphicsApi::DropFileEvent& dropFileEvent) {
+                           if (dropFileEvent.filename.empty())
+                               return;
 
-            },
-            event);
+                           if (gameObject)
+                           {
+                               animationLayout->RemoveAll();
+                               RemoveGameObject(*gameObject);
+                           }
+
+                           auto newGameObject = CreateGameObject();
+                           DEBUG_LOG(dropFileEvent.filename);
+                           auto& component = newGameObject->AddComponent<Components::RendererComponent>();
+                           auto& animator  = newGameObject->AddComponent<Components::Animator>();
+                           animator.startupAnimationClipName_ = "noname";
+                           component.AddModel(dropFileEvent.filename);
+
+                           auto files = Utils::FindFilesWithExtension(
+                               GameEngine::File(dropFileEvent.filename).GetParentDir(), ".xml");
+
+                           auto button = guiElementFactory_->CreateGuiButton(
+                               "Refresh clips", [&, &clips = animator.animationClips_](const auto&) {
+                                   for (const auto& [name, _] : clips)
+                                   {
+                                       auto button2 =
+                                           guiElementFactory_->CreateGuiButton(name, [&, animName = name](const auto&) {
+                                               animator.ChangeAnimation(
+                                                   animName, Components::Animator::AnimationChangeType::smooth);
+                                           });
+                                       button2->SetScreenScale({1.f, 0.05f});
+                                       animationLayout->AddChild(std::move(button2));
+                                   }
+                               });
+                           button->SetScreenScale({1.f, 0.05f});
+                           animationLayout->AddChild(std::move(button));
+
+                           if (not files.empty())
+                           {
+                               for (const auto& file : files)
+                               {
+                                   DEBUG_LOG(file);
+                                   if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
+                                   {
+                                       animator.AddAnimationClip(GameEngine::File(file));
+                                       auto button = guiElementFactory_->CreateGuiButton(
+                                           *animationName, [&, animName = *animationName](const auto&) {
+                                               DEBUG_LOG(animName);
+                                               animator.ChangeAnimation(
+                                                   animName, Components::Animator::AnimationChangeType::smooth);
+                                           });
+                                       button->SetScreenScale({1.f, 0.05f});
+                                       animationLayout->AddChild(std::move(button));
+                                   }
+                               }
+
+                               auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
+                               if (animationName)
+                               {
+                                   animator.startupAnimationClipName_ = *animationName;
+                               }
+                           }
+
+                           gameObject = newGameObject.get();
+                           AddGameObject(std::move(newGameObject));
+                       },
+                       [](const GraphicsApi::QuitEvent&) {},
+
+                   },
+                   event);
     });
 
     KeySubscribtions();
@@ -76,6 +138,20 @@ void EditorScene::PostInitialize()
 }
 int EditorScene::Update(float)
 {
+    if (gameObject and inputManager_->GetKey(KeyCodes::LMOUSE))
+    {
+        auto currentRotation = gameObject->GetWorldTransform().GetRotation().value_;
+        auto v               = inputManager_->CalcualteMouseMove();
+        const float sensitive = 0.01f;
+        if (v.x != 0)
+        {
+            gameObject->SetWorldRotation(currentRotation * glm::angleAxis(sensitive * float(v.x), vec3(0.f, 1.f, 0.f)));
+        }
+        //if (v.y != 0)
+        //{
+        //    gameObject->SetWorldRotation(currentRotation * glm::angleAxis(sensitive * float(v.x), vec3(0.f, 0.f, 1.f)));
+        //}
+    }
     return 0;
 }
 
