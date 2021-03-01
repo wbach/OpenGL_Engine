@@ -65,6 +65,10 @@ bool GameObject::RemoveChild(IdType id)
 
     if (iter != children_.end())
     {
+        for(auto& component : (**iter).GetComponents())
+        {
+            component->CleanUp();
+        }
         children_.erase(iter);
         return true;
     }

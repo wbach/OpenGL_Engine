@@ -3,8 +3,8 @@
 #include <GameEngine/Engine/Configuration.h>
 #include <Input/InputManager.h>
 #include <Types.h>
-
 #include <Utils/Variant.h>
+
 #include "Editor/Context.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
@@ -56,7 +56,7 @@ int EditorScene::Initialize()
                         RemoveGameObject(*gameObject);
                     }
                     auto newGameObject = CreateGameObject();
-					DEBUG_LOG(dropFileEvent.filename);
+                    DEBUG_LOG(dropFileEvent.filename);
                     newGameObject->AddComponent<Components::RendererComponent>().AddModel(dropFileEvent.filename);
                     gameObject = newGameObject.get();
                     AddGameObject(std::move(newGameObject));

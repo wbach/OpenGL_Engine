@@ -284,6 +284,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         else
         {
             DEBUG_LOG("not meshBuffer");
+            continue;
         }
 
         const auto& perMeshUpdateBuffer = subsriber.renderComponent->GetPerObjectUpdateBuffer(mesh.GetGpuObjectId());
@@ -294,6 +295,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         else
         {
             DEBUG_LOG("not perMeshUpdateBuffer");
+            continue;
         }
 
         const auto& perMeshConstantBuffer =
@@ -305,6 +307,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         else
         {
             DEBUG_LOG("not perMeshConstantBuffer");
+            continue;
         }
 
         renderMesh(mesh);

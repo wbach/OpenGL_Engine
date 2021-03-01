@@ -110,7 +110,7 @@ void RendererComponent::init()
     bool atLeastOneModelIsCreated{false};
     for (auto& [filename, lvl] : filenames_)
     {
-		DEBUG_LOG(filename);
+        DEBUG_LOG(filename);
         auto model = componentContext_.resourceManager_.LoadModel(filename);
 
         if (model)
