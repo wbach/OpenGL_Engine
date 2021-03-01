@@ -82,7 +82,7 @@ float4 PS(PS_INPUT input)
 
     float factor  = (input.textureCoords.y - LowerLimit)/(UpperLimit - LowerLimit );
     factor        = saturate(factor);  // clamp(factor, 0.f, 1.f)
-    float4 output = lerp(fogData.xyz, finalColor, factor); // mix
+    float4 output = lerp(float4(fogData.xyz, 1.f), finalColor, factor); // mix
     output.w = 1.f;
     return output;
 }
