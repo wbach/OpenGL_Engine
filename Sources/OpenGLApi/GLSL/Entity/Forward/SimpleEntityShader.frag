@@ -4,8 +4,9 @@
 layout (std140, align=16, binding=0) uniform PerApp
 {
     vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
-    float viewDistance;
-    vec3 shadowVariables;
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
 layout (std140, align=16, binding=6) uniform PerMeshObject
@@ -27,6 +28,7 @@ in VS_OUT
     vec2 textureOffset;
     vec3 normal;
     float outOfViewRange;
+    float visibility;
 } vs_in;
 
 uniform sampler2D DiffuseTexture;
@@ -75,4 +77,8 @@ void main()
     }
     vec4 color = colorFromTexture * perMeshObject.diffuse;
     outputColor = vec4(color.rgb * dummyDiffuseFactor, color.a);
+
+    const vec4 fogColor = vec4(perApp.fogData.xyz, 1.f);
+    outputColor = mix(fogColor, outputColor, vs_in.visibility);
+
 }

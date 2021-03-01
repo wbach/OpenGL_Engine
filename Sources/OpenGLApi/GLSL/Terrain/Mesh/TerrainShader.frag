@@ -20,6 +20,7 @@ in GS_OUT
     float shadowMapSize;
     mat3 tbn;
     vec3 faceNormal;
+    float visibility;
 } fs_in;
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;

@@ -13,8 +13,9 @@ layout (location = 5) in ivec4 BoneIds;
 layout (std140, align=16, binding=0) uniform PerApp
 {
     vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
-    float viewDistance;
-    vec3 shadowVariables;
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
 layout (std140,binding=1) uniform PerFrame
@@ -46,6 +47,7 @@ out VS_OUT
     vec2 textureOffset;
     vec3 normal;
     float outOfViewRange;
+    float visibility;
 } vs_out;
 
 struct VertexWorldData
@@ -97,4 +99,8 @@ void main()
     vs_out.outOfViewRange = 0.f; //length(modelViewPosition.xyz) > perApp.viewDistance ? 1.f : 0.f;
     gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perFrame.clipPlane);
+
+    float distance = length(perFrame.cameraPosition - worldData.worldPosition.xyz);
+    float visibility = exp(-pow((distance*( ( 3.f / perApp.viewDistance.x))), perApp.fogData.w));
+    vs_out.visibility = clamp(visibility, 0.f, 1.f);
 }

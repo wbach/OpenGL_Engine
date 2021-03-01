@@ -21,6 +21,7 @@ in VS_OUT
     vec3 normal;
     vec3 worldPos;
     vec3 toCameraVector;
+    float visibility;
 } vs_out;
 
 layout(binding = 0) uniform sampler2D reflectionTexture;
@@ -55,9 +56,8 @@ vec3 calculateNormal(vec4 normalMapValue)
 
 void main(void)
 {
-    //vec2 distortedTexCoords = calculateDisctortionCoords();
-    // vec4 normalMapValue = texture(normalMap, distortedTexCoords);
-    // vec3 normal = calculateNormal(normalMapValue);
-
     outputColor  = vec4(perMeshObject.waterColor.xyz, 0.5f);
+
+    const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
+    outputColor = mix(fogColor, outputColor, vs_out.visibility);
 }

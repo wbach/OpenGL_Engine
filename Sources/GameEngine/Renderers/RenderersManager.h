@@ -91,6 +91,7 @@ private:
     RendererContext rendererContext_;
     DebugRenderer debugRenderer_;
     IdType shadowEnabledSubscriptionId_;
+    IdType viewDistanceSubscriptionId_;
 };
 }  // namespace Renderer
 }  // namespace GameEngine

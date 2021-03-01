@@ -60,12 +60,16 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
 
     shadowEnabledSubscriptionId_ = EngineConf.renderer.shadows.isEnabled.subscribeForChange(
         [this](const auto&) { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
+
+    viewDistanceSubscriptionId_ = EngineConf.renderer.viewDistance.subscribeForChange(
+        [this](const auto&) { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
 }
 RenderersManager::~RenderersManager()
 {
     DEBUG_LOG("destructor");
 
     EngineConf.renderer.shadows.isEnabled.unsubscribe(shadowEnabledSubscriptionId_);
+    EngineConf.renderer.viewDistance.unsubscribe(viewDistanceSubscriptionId_);
 
     if (perFrameId_)
     {
@@ -279,6 +283,8 @@ void RenderersManager::UpdatePerAppBuffer()
             vec4(F(*shadowsConfig.isEnabled), *shadowsConfig.distance, *shadowsConfig.mapSize, 0.f);
         perApp_.viewDistance = vec4(*rendererConfig.viewDistance, *rendererConfig.normalMappingDistance,
                                     *floraConfig.viewDistance, *rendererConfig.viewDistance);
+
+        perApp_.fogData = vec4(rendererContext_.fogColor_, 3.5f);
         graphicsApi_.UpdateShaderBuffer(*perAppId_, &perApp_);
         graphicsApi_.BindShaderBuffer(*perAppId_);
     }

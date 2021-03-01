@@ -15,6 +15,7 @@ in VS_OUT
     vec4 worldPosition;
     vec2 texCoord;
     vec3 normal;
+    float visibility;
 } gs_in[];
 
 out GS_OUT
@@ -23,6 +24,7 @@ out GS_OUT
     vec2 texCoord;
     vec3 normal;
     vec3 faceNormal;
+    float visibility;
 } gs_out;
 
 vec3 calculateFaceNormal()
@@ -41,6 +43,7 @@ void main()
         gs_out.worldPosition  = gs_in[i].worldPosition;
         gs_out.texCoord       = gs_in[i].texCoord;
         gs_out.normal         = gs_in[i].normal;
+        gs_out.visibility     = gs_in[i].visibility;
         gs_out.faceNormal     = faceNormal;
         gl_ClipDistance[0]    = dot(gs_in[i].worldPosition, perFrame.clipPlane);
         gl_Position           = gl_in[i].gl_Position;

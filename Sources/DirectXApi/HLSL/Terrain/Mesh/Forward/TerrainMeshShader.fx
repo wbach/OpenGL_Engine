@@ -30,7 +30,7 @@ cbuffer PerApp : register(b0)
     float4 useTextures;
     float4 viewDistance;
     float4 shadowVariables;
-    float4 clipPlane;
+    float4 fogData;
 };
 
 cbuffer PerFrame : register(b1)

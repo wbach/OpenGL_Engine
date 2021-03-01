@@ -52,7 +52,6 @@ private:
 
     struct PerMeshObject
     {
-        AlignWrapper<vec4> fogColor_;
         AlignWrapper<float> blendFactor_;
     };
 

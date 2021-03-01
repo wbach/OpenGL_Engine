@@ -41,9 +41,7 @@ void SkyBoxRenderer::init()
     {
         perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
                                                                     sizeof(SkyBoxRenderer::PerMeshObject));
-
         perMeshObject_.blendFactor_ = 1.f;
-        perMeshObject_.fogColor_    = context_.fogColor_;
     }
     // max size : skybox width <= (2 * sqrt(3) / 3)
     calculateBoxScale();

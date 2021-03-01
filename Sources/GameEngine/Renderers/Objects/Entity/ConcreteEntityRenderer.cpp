@@ -87,6 +87,7 @@ void ConcreteEntityRenderer::reloadShaders()
 {
     DEBUG_LOG("");
     shader_.Reload();
+    instancesShader_.Reload();
 }
 
 void ConcreteEntityRenderer::bindShadowMap(uint32 id, uint32 nr) const

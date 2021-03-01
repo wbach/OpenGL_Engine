@@ -33,7 +33,7 @@ struct RendererContext
         , measurmentHandler_(measurmentHandler)
         , time_(time)
         , scene_(nullptr)
-        , fogColor_(0.8f, 0.8f, 0.8f, 1.f)
+        , fogColor_(0.8f, 0.8f, 0.8f)
     {
     }
     Projection& projection_;
@@ -43,7 +43,7 @@ struct RendererContext
     Utils::MeasurementHandler& measurmentHandler_;
     const Time& time_;
     Scene* scene_;
-    vec4 fogColor_;
+    vec3 fogColor_;
 
     GraphicsApi::ID cascadedShadowMapsIds_[Params::MAX_SHADOW_MAP_CASADES];
     GraphicsApi::ID shadowsBufferId_;

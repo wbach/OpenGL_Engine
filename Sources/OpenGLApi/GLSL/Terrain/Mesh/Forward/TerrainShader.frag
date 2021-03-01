@@ -6,6 +6,7 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
     vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
     vec4 shadowVariables;
+    vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
 layout (std140, binding = 6) uniform PerTerrainTexturesBuffer
@@ -20,6 +21,7 @@ in GS_OUT
     vec2 texCoord;
     vec3 normal;
     vec3 faceNormal;
+    float visibility;
 } fs_in;
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;
@@ -165,4 +167,7 @@ void main()
 
     vec4 color = CalculateTerrainColor();
     outputColor = vec4(color.rgb * dummyDiffuseFactor, color.a);
+
+    const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
+    outputColor = mix(fogColor, outputColor, fs_in.visibility);
 }

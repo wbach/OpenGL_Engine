@@ -5,6 +5,14 @@ SamplerState linearSamplerState : register(s0);
 TextureCube DayCubeMap : register(t0);
 TextureCube NightCubeMap : register(t1);
 
+cbuffer PerApp : register(b0)
+{
+    float4 useTextures;
+    float4 viewDistance;
+    float4 shadowVariables;
+    float4 fogData;
+};
+
 cbuffer PerFrame : register(b1)
 {
     matrix projectionViewMatrix;
@@ -18,7 +26,6 @@ cbuffer PerObjectUpdate : register(b3)
 
 cbuffer PerMeshObject : register(b6)
 {
-    float4 fogColour;
     float blendFactor;
 };
 
@@ -37,7 +44,7 @@ struct PS_INPUT
 {
     float4 position : SV_POSITION;
     float4 worldPosition : POSITION1;
-	float3 textureCoords : POSITION2;
+    float3 textureCoords : POSITION2;
 };
 
 //--------------------------------------------------------------------------------------
@@ -49,7 +56,7 @@ PS_INPUT VS(VS_INPUT input)
     output.position = float4(input.Pos, 1);
     output.worldPosition = mul(output.position, transformationMatrix);
     output.position = mul(output.worldPosition, projectionViewMatrix);
-	output.textureCoords = input.Pos;
+    output.textureCoords = input.Pos;
     return output;
 }
 
@@ -68,14 +75,14 @@ float4 textureColor(TextureCube inputTexture, float3 textCoord)
 float4 PS(PS_INPUT input)
     : SV_Target
 {
-	float4 texture1   = textureColor(DayCubeMap, input.textureCoords);
+    float4 texture1   = textureColor(DayCubeMap, input.textureCoords);
     float4 texture2   = textureColor(NightCubeMap, input.textureCoords);
     float4 finalColor = lerp(texture2, texture1, blendFactor);
-	return finalColor;
+    return finalColor;
 
     float factor  = (input.textureCoords.y - LowerLimit)/(UpperLimit - LowerLimit );
     factor        = saturate(factor);  // clamp(factor, 0.f, 1.f)
-    float4 output = lerp(fogColour, finalColor, factor); // mix
-	output.w = 1.f;
-	return output;
+    float4 output = lerp(fogData.xyz, finalColor, factor); // mix
+    output.w = 1.f;
+    return output;
 }
