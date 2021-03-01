@@ -1,4 +1,6 @@
 #include "Joint.h"
+#include <Logger/Log.h>
+
 namespace GameEngine
 {
 namespace Animation
@@ -67,7 +69,7 @@ Joint* Joint::getJoint(JointId boneId)
     }
     for (auto& child : children)
     {
-        auto result = child.getJoint(name);
+        auto result = child.getJoint(boneId);
         if (result)
             return result;
     }
@@ -97,7 +99,7 @@ const Joint* Joint::getJoint(JointId boneId) const
     }
     for (auto& child : children)
     {
-        auto result = child.getJoint(name);
+        auto result = child.getJoint(boneId);
         if (result)
             return result;
     }

@@ -34,7 +34,7 @@ void PrintFiles()
     Utils::PrintFilesInDirectory(".");
 }
 
-void ExportAnimationClips(const GameEngine::File& file)
+std::vector<std::string> ExportAnimationClips(const GameEngine::File& file)
 {
     std::cout << file.GetAbsoultePath() << std::endl;
 
@@ -48,41 +48,47 @@ void ExportAnimationClips(const GameEngine::File& file)
     if (not model)
     {
         std::cout << file.GetBaseName() << " create model error. " << file.GetAbsoultePath() << std::endl;
-        return;
+        return {};
     }
 
     std::cout << "Animation clips : " << std::to_string(model->animationClips_.size()) << std::endl;
 
-    auto outputpath = "./output/" + file.GetBaseName() + "_animationClips/";
+    auto outputpath = std::filesystem::path(file.GetAbsoultePath() ).parent_path().string() + "/output/" + file.GetBaseName() + "_animationClips/";
     std::filesystem::create_directories(outputpath);
 
     auto maybeRootJoint = model->getRootJoint();
+    std::vector<std::string> result;
 
     if (maybeRootJoint)
     {
         for (const auto& animation : model->animationClips_)
         {
             std::cout << "-- " << animation.first << std::endl;
-            GameEngine::Animation::ExportAnimationClipToFile(
-                Utils::GetAbsolutePath(outputpath) + "/" + animation.first + ".xml", animation.second, *maybeRootJoint);
+            std::string outputFile = Utils::GetAbsolutePath(outputpath) + "/" + animation.first + ".xml";
+            GameEngine::Animation::ExportAnimationClipToFile(outputFile, animation.second, *maybeRootJoint);
+            result.push_back(outputFile);
         }
     }
 
     std::cout << file.GetBaseName() << " done." << std::endl;
+    return result;
 }
 
-void exportAnimationClips(const GameEngine::File& input)
+std::vector<std::string> exportAnimationClips(const GameEngine::File& input)
 {
     if (input.GetExtension() != ".txt")
     {
-        ExportAnimationClips(input);
+        return ExportAnimationClips(input);
     }
     else
     {
+        std::vector<std::string> result;
         for (const auto& file : Utils::ReadFileLines(input.GetAbsoultePath()))
         {
-            ExportAnimationClips(file);
+            auto exported = ExportAnimationClips(file);
+            result.insert(result.end(), exported.begin(), exported.end());
         }
+        return result;
     }
 }
 
@@ -94,10 +100,57 @@ void glslInclude()
     Utils::WrtieToFile("D:\\tmp\\" + testFile + "_all.txt", sourceCode);
 }
 
+void md5MultipleAnimsExtractor(const std::string& filename, const std::string& animationsDir)
+{
+    // ./TestGlGameExe -l -md5 /mnt/t610/GoogleDrive/GameData/Data/Meshes/DungeonDefenders/Spider/Spider_SK.md5mesh /mnt/t610/GoogleDrive/GameData/Data/Meshes/DungeonDefenders/Spider/Spider_Anims
+    DEBUG_LOG("md5MultipleAnimsExtractor : " + filename + ", " + animationsDir);
+    std::filesystem::path meshFile(filename);
+
+    for (auto& p : std::filesystem::directory_iterator(std::filesystem::canonical(animationsDir)))
+    {
+        DEBUG_LOG(p.path().string() + ", extension : " + p.path().extension().string());
+        //        if (p.is_directory())
+        //        {
+        //            if (p.path().string() != dir)
+        //            {
+        //                auto maybeFileName = FindFile(filename, p.path().string());
+        //                if (not maybeFileName.empty())
+        //                    return maybeFileName;
+        //            }
+        //        }
+        //        else
+        {
+            if (p.path().extension() == ".md5anim")
+            {
+                std::string outputFile =
+                    meshFile.parent_path().string() + "/" + meshFile.filename().stem().string() + ".md5anim";
+                DEBUG_LOG(p.path().string() + " => " + outputFile);
+                if (std::filesystem::exists(outputFile))
+                {
+                    std::filesystem::remove(outputFile);
+                }
+
+                std::filesystem::copy_file(p.path(), outputFile);
+
+                auto exportedAnims = exportAnimationClips(filename);
+
+                if (not exportedAnims.empty())
+                {
+                    std::filesystem::path outPath(exportedAnims.front());
+                    std::string finalOutput =  outPath.parent_path().string() + "/"  + p.path().stem().string() + ".xml";
+                    DEBUG_LOG(finalOutput);
+                    Utils::RenameFile(exportedAnims.front(), finalOutput);
+                }
+            }
+        }
+    }
+}
+
 int main(int argc, char* argv[])
 {
     std::cout << "Bengine Animation clips extractor." << std::endl;
 
+    bool md5multipleConvert{false};
     for (int32 n = 1; n < argc; ++n)
     {
         if (std::string(argv[n]) == "-l")
@@ -106,8 +159,21 @@ int main(int argc, char* argv[])
             CLogger::Instance().ImmeditalyLog();
             continue;
         }
+        if (std::string(argv[n]) == "-md5")
+        {
+            md5multipleConvert = true;
+            continue;
+        }
 
-        exportAnimationClips(argv[n]);
+        if (md5multipleConvert and n + 1 < argc)
+        {
+            md5MultipleAnimsExtractor(argv[n], argv[n + 1]);
+            return 0;
+        }
+        else
+        {
+            exportAnimationClips(argv[n]);
+        }
     }
 }
 //

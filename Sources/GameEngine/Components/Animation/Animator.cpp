@@ -248,6 +248,10 @@ void Animator::initAnimationClips(const Model& model)
     {
         SetAnimation(clipIter->first);
     }
+    else
+    {
+        WARNING_LOG("Startup animation not found : " + startupAnimationClipName_);
+    }
 
     if (animationClips_.size() > 0)
         rendererComponent_->useArmature(true);

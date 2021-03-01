@@ -58,7 +58,15 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
 
     if (root)
     {
-        AnimationClip animationClip(root->attributes_["name"]);
+        std::string animationClipName = file.GetBaseName();
+
+        auto animationNameAttribute = root->getAttributeValue("name");
+        if (not animationNameAttribute.empty())
+        {
+            animationClipName = animationNameAttribute;
+        }
+
+        AnimationClip animationClip(animationClipName);
         animationClip.filePath = file.GetInitValue();
         animationClip.SetLength(std::stof(root->attributes_["length"]));
 
@@ -70,7 +78,12 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
             for (const auto& transformNode : keyframeNode->getChild("Transforms")->getChildren())
             {
                 JointTransform transform;
-                auto jointName = transformNode->attributes_.at("jointName");
+                auto jointName = transformNode->getAttributeValue("jointName");
+                if (jointName.empty())
+                {
+                    ERROR_LOG("Joint name empty");
+                    continue;
+                }
 
                 Read(transformNode->getChild("Position"), transform.position);
                 Read(transformNode->getChild("Rotation"), transform.rotation);
@@ -82,8 +95,10 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
                 }
                 else
                 {
-                    ERROR_LOG("Joint \"" 
-                              "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
+                    ERROR_LOG(
+                        "Joint \""
+                        "\" not found in skeleton. Skeleton root joint name : " +
+                        rootJoint.name);
                 }
             }
             animationClip.AddFrame(keyFrame);
@@ -98,7 +113,11 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
 {
     TreeNode rootNode("AnimationClip");
 
-    rootNode.attributes_.insert({"name", animationClip.name.empty() ? "NoName" : animationClip.name});
+    if (not animationClip.name.empty())
+    {
+        rootNode.attributes_.insert({"name", animationClip.name});
+    }
+
     rootNode.attributes_.insert({"length", std::to_string(animationClip.GetLength())});
 
     auto& keyFramesNode = rootNode.addChild("KeyFrames");
@@ -110,28 +129,27 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
         keyFrame.addChild("timeStamp", std::to_string(frame.timeStamp));
         auto& jontTransformsNode = keyFrame.addChild("Transforms");
 
-        for (const auto& transformPair : frame.transforms)
+        for (const auto& [jointId, transform] : frame.transforms)
         {
             auto& transformNode = jontTransformsNode.addChild("Transform");
-            if (transformPair.first == rootJoint.id)
+            if (jointId == rootJoint.id)
             {
                 transformNode.attributes_.insert({"jointName", rootJoint.name});
             }
             else
             {
-                auto joint = rootJoint.getJoint(transformPair.first);
+                auto joint = rootJoint.getJoint(jointId);
                 if (joint)
                 {
                     transformNode.attributes_.insert({"jointName", joint->name});
                 }
                 else
                 {
-                    ERROR_LOG("Joint id=\"" + std::to_string(transformPair.first) +
+                    ERROR_LOG("Joint id=\"" + std::to_string(jointId) +
                               "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
                 }
             }
 
-            const auto& transform = transformPair.second;
             transformNode.addChild(Convert("Position", transform.position));
             transformNode.addChild(Convert("Rotation", transform.rotation));
             transformNode.addChild(Convert("Scale", transform.scale));
