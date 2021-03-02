@@ -608,7 +608,7 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
 void OpenGLApi::DeleteMesh(uint32 id)
 {
-    DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+   // DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
 
     auto iter = openGlMeshes_.find(id);
     if (iter == openGlMeshes_.end())
@@ -627,7 +627,7 @@ void OpenGLApi::DeleteMesh(uint32 id)
 
     openGlMeshes_.erase(id);
     DeleteDebugNormalMesh(id);
-    DEBUG_LOG("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+    //DEBUG_LOG("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
 }
 
 void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
@@ -997,7 +997,7 @@ void OpenGLApi::DeleteObject(uint32 id)
             break;
     }
 
-    DEBUG_LOG("Delete object :" + std::to_string(id));
+    //DEBUG_LOG("Delete object :" + std::to_string(id));
     createdObjectIds.erase(id);
 }
 
@@ -1473,7 +1473,7 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
 void OpenGLApi::allocatedBytes(int64 bytes)
 {
     allocatedBytes_ += bytes;
-    DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
-              std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
+   // DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
+     //         std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
 }
 }  // namespace OpenGLApi

@@ -45,6 +45,7 @@ out VS_OUT
     float useShadows;
     float shadowMapSize;
     mat3 tbn;
+    float visibility;
 } vs_out;
 
 bool Is(float f)
@@ -88,4 +89,8 @@ void main()
 
     gl_Position = perFrame.projectionViewMatrix * vs_out.worldPos;
     vs_out.clipSpaceZ = gl_Position.z;
+
+    float distance = length(perFrame.cameraPosition - vs_out.worldPos.xyz);
+    float visibility = exp(-pow((distance*( ( 3.0f / perApp.viewDistance.x))), perApp.fogData.w));
+    vs_out.visibility = clamp(visibility, 0.f, 1.f);
 }

@@ -79,7 +79,7 @@ void Rigidbody::OnStart()
         return;
     }
 
-    DEBUG_LOG("CreateRigidbody : " + thisObject_.GetName());
+   // DEBUG_LOG("CreateRigidbody : " + thisObject_.GetName());
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_,
                                                                      updateRigidbodyOnTransformChange_);
 
@@ -300,10 +300,8 @@ CollisionShape* Rigidbody::GetCollisionShape()
 
     if (shapeName_.empty())
     {
-        WARNING_LOG("Shape type is not set, searching another shape component.");
         for (auto& pair : detectedCollisionShapes_)
         {
-            WARNING_LOG("Shape type is found, shape type is set to : " + std::to_string(pair.first));
             return pair.second;
         }
         return nullptr;
@@ -325,8 +323,6 @@ CollisionShape* Rigidbody::GetCollisionShape()
 
     for (auto& pair : detectedCollisionShapes_)
     {
-        WARNING_LOG("Requsted shape (" + shapeName_ +
-                    ") not found but another is detected, shape type is set to : " + std::to_string(shapeType));
         return pair.second;
     }
 

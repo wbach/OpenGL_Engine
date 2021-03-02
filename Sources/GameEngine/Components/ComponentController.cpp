@@ -40,7 +40,7 @@ uint32 ComponentController::RegisterFunction(IdType gameObjectId, FunctionType t
     return id;
 }
 
-uint32 ComponentController::RegisterComponent(size_t type, IComponent* component)
+uint32 ComponentController::RegisterComponent(IComponent::Type type, IComponent* component)
 {
     auto currentComponentId = componentId++;
 
@@ -48,11 +48,12 @@ uint32 ComponentController::RegisterComponent(size_t type, IComponent* component
     return currentComponentId;
 }
 
-void ComponentController::UnRegisterComponent(size_t type, uint32 id)
+void ComponentController::UnRegisterComponent(IComponent::Type type, uint32 id)
 {
-    if (registredComponents_.count(type) > 0)
+    auto iter = registredComponents_.find(type);
+    if (iter != registredComponents_.end())
     {
-        registredComponents_.at(type).erase(id);
+        iter->second.erase(id);
     }
     else
     {

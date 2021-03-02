@@ -8,7 +8,7 @@
 		<loadingScreenCircle>GUI/aLoadingCircle.png</loadingScreenCircle>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer graphicsApi="DirectX11" resolutionX="1366" type="1" lodDistance1="200.000000" preset="3" resolutionY="768" lodDistance2="150.000000" viewDistance="2000.000000" fpsLimit="0" lodDistance0="100.000000" normalMappingDistance="50.000000" entityInstancedGrouping="false">
+	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" lodDistance1="200.000000" preset="3" resolutionY="768" lodDistance2="150.000000" viewDistance="10000.000000" fpsLimit="60" lodDistance0="100.000000" normalMappingDistance="50.000000" entityInstancedGrouping="false">
 		<Terrain>
 			<terrainRenderer>Mesh</terrainRenderer>
 			<terrainRendererMeshResolutionDivider>1</terrainRendererMeshResolutionDivider>
@@ -18,7 +18,7 @@
 			<Reflection width="1366" height="768"/>
 			<Refraction width="1366" height="768"/>
 		</Water>
-		<Flora enabled="true" viewDistance="50.000000"/>
+		<Flora enabled="true" viewDistance="500.000000"/>
 		<Shadows firstCascadeDistance="25.000000" enabled="true" cascadesSize="4" viewDistance="50.000000" cascadeDistanceFunc="quadratic" shadowMapSize="2048"/>
 		<Textures ambient="true" maxWidth="2048" displacement="false" maxHeight="2048" textureSizeLimit="true" diffuse="true" normal="true" specular="true"/>
 		<Particles enabled="true"/>
@@ -26,7 +26,7 @@
 	<DebugParams>
 		<PhysicsVisualizator useWorker="false" refreshStepDown="0"/>
 		<loggingLvl>error/warning/info/debug</loggingLvl>
-		<showRenderInfo>true</showRenderInfo>
+		<showRenderInfo>false</showRenderInfo>
 	</DebugParams>
 	<EnableBinaryLoading>false</EnableBinaryLoading>
 </Config>

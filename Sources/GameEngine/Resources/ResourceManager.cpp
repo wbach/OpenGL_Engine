@@ -33,9 +33,7 @@ ResourceManager::~ResourceManager()
 
 Model* ResourceManager::LoadModel(const File& file)
 {
-	DEBUG_LOG(file.GetInitValue());
     auto absoultePath = file.GetAbsoultePath();
-	DEBUG_LOG(absoultePath);
     std::lock_guard<std::mutex> lk(modelMutex_);
     auto iter = models_.find(absoultePath);
 
@@ -47,8 +45,9 @@ Model* ResourceManager::LoadModel(const File& file)
         // ResourceGpuStatus::NotLoaded for models not implmented. T
         // To do: Can be useful for simplified physics collision mesh shapes.
         // Visual representation of physics shape not needed
-        DEBUG_LOG(file.GetBaseName() +
-                  " model already loaded, instances count : " + std::to_string(modelInfo.instances_));
+
+     /*   DEBUG_LOG(file.GetBaseName() +
+                  " model already loaded, instances count : " + std::to_string(modelInfo.instances_));*/
         return modelInfo.resource_.get();
     }
 
@@ -72,7 +71,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
 
     std::lock_guard<std::mutex> lk(modelMutex_);
 
-    DEBUG_LOG("add model.");
+ //   DEBUG_LOG("add model.");
     auto modelPtr = model.get();
     auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
                                      : model->GetFile().GetAbsoultePath();
@@ -114,7 +113,7 @@ void ResourceManager::ReleaseModel(Model& model)
 
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(absoultePath);
-    DEBUG_LOG("models_ erase , size : " + std::to_string(models_.size()));
+//    DEBUG_LOG("models_ erase , size : " + std::to_string(models_.size()));
 }
 
 void ResourceManager::LockReleaseResources()

@@ -61,11 +61,8 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
             {
                 auto name  = childNode->getAttributeValue(CSTR_NAME);
                 auto child = scene.CreateGameObject(name);
-                DEBUG_LOG(name);
                 Read(scene, *childNode, *child);
-                DEBUG_LOG("Read done, adding");
                 gameObject.AddChild(std::move(child));
-                DEBUG_LOG("Add done");
             }
             else
             {

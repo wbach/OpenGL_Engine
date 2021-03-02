@@ -15,6 +15,7 @@ in VS_OUT
     float useShadows;
     float shadowMapSize;
     mat3 tbn;
+    float visibility;
 } gs_in[];
 
 out GS_OUT
@@ -29,6 +30,7 @@ out GS_OUT
     float shadowMapSize;
     mat3 tbn;
     vec3 faceNormal;
+    float visibility;
 } gs_out;
 
 vec3 calculateFaceNormal()
@@ -53,6 +55,7 @@ void main()
         gs_out.shadowMapSize    = gs_in[i].shadowMapSize;
         gs_out.clipSpaceZ       = gs_in[i].clipSpaceZ;
         gs_out.tbn              = gs_in[i].tbn;
+        gs_out.visibility       = gs_in[i].visibility;
         gs_out.faceNormal       = faceNormal;
         gl_Position             = gl_in[i].gl_Position;
         EmitVertex();

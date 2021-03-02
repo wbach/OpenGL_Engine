@@ -86,12 +86,12 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     File inputFile = inputFileName;
     if (not inputFileName)
     {
-        WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in data directory");
+        //WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in data directory");
         auto filename = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
         if (not filename.empty())
         {
             inputFile = File(filename);
-            DEBUG_LOG("Found texture in : " + inputFile.GetAbsoultePath());
+            //DEBUG_LOG("Found texture in : " + inputFile.GetAbsoultePath());
         }
         else
         {
@@ -188,7 +188,7 @@ void TextureLoader::DeleteTexture(Texture& texture)
 
             gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
             textures_.erase(iter);
-            DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
+           // DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
         }
     }
     else
@@ -271,7 +271,7 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const Textur
 {
     if (textures_.count(name))
     {
-        DEBUG_LOG("Created texture already exist : " + name);
+     //   DEBUG_LOG("Created texture already exist : " + name);
 
         auto& textureInfo = textures_.at(name);
         ++textureInfo.instances_;

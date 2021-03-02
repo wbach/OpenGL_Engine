@@ -45,7 +45,7 @@ void Animator::CleanUp()
 void Animator::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
-    RegisterFunction(FunctionType::OnStart, std::bind(&Animator::GetSkeletonAndAnimations, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this));
 }
 
 Animator& Animator::SetAnimation(const std::string& name)

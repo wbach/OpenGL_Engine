@@ -30,6 +30,8 @@ typedef std::string ParamName;
 class IComponent
 {
 public:
+    using Type = size_t;
+
     virtual ~IComponent()                                                            = default;
     virtual void CleanUp()                                                           = 0;
     virtual void ReqisterFunctions()                                                 = 0;

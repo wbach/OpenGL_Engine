@@ -3,15 +3,13 @@
 
 #include <functional>
 #include <unordered_map>
-
+#include "IComponent.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class IComponent;
-
 enum class FunctionType
 {
     Awake,
@@ -57,8 +55,8 @@ public:
     void UnRegisterFunction(GameObjectId, FunctionType, uint32);
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, uint32, bool);
 
-    uint32 RegisterComponent(size_t, IComponent*);
-    void UnRegisterComponent(size_t, uint32);
+    uint32 RegisterComponent(IComponent::Type, IComponent*);
+    void UnRegisterComponent(IComponent::Type, uint32);
 
     void UnRegisterAll();
 
@@ -73,7 +71,7 @@ public:
 
 private:
     ComponentFunctions functions_;
-    std::unordered_map<size_t, RegistredComponentsMap> registredComponents_;
+    std::unordered_map<IComponent::Type, RegistredComponentsMap> registredComponents_;
     Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;

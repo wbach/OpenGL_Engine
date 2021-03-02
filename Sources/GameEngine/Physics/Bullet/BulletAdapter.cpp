@@ -311,11 +311,6 @@ uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, f
     btDefaultMotionState* myMotionState{nullptr};
     int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
 
-    if (not isStatic and not shape.dynamicShapeAllowed_)
-    {
-        ERROR_LOG("Shape can not be set as no static");
-    }
-
     if (isStatic or not shape.dynamicShapeAllowed_)
     {
         flags |= btCollisionObject::CF_STATIC_OBJECT;

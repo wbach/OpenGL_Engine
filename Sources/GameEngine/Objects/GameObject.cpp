@@ -22,8 +22,6 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 
 GameObject::~GameObject()
 {
-    DEBUG_LOG(name_);
-
     for (auto& component : components_)
     {
         component->CleanUp();

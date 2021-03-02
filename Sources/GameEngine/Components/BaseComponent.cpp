@@ -17,8 +17,6 @@ BaseComponent::BaseComponent(size_t type, ComponentContext& componentContext, Ga
 }
 BaseComponent::~BaseComponent()
 {
-    DEBUG_LOG("destructor " + std::to_string(type_));
-
     for (auto id : ids_)
     {
         componentContext_.componentController_.UnRegisterFunction(thisObject_.GetId(), id.second, id.first);
