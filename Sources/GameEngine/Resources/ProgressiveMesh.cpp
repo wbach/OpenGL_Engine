@@ -13,7 +13,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <algorithm>
 #include <vector>
 
 class tridata

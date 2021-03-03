@@ -28,6 +28,8 @@ set(GameEngineIncludes
 ../../Sources/GameEngine/Components/Animation/PlayAnimation.h
 ../../Sources/GameEngine/Components/Animation/PlayAnimationEvent.h
 ../../Sources/GameEngine/Components/Animation/PlayDirection.h
+../../Sources/GameEngine/Components/Animation/PlayMixedAnimation.h
+../../Sources/GameEngine/Components/Animation/PlayMixedAnimationEvent.h
 ../../Sources/GameEngine/Components/Animation/PoseUpdateAction.h
 ../../Sources/GameEngine/Components/Animation/StateMachine.h
 ../../Sources/GameEngine/Components/BaseComponent.h

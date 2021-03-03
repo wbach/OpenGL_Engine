@@ -7,23 +7,43 @@ namespace GameEngine
 {
 namespace Components
 {
-void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float progression)
+void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame,
+                      float progression)
 {
-    for (const auto& pair : previousFrame.transforms)
+    for (const auto& [jointId, previousTransform] : previousFrame.transforms)
     {
-        const auto& jointId                = pair.first;
+        const auto& nextFrameTransformIter = nextFrame.transforms.find(jointId);
+        if (nextFrameTransformIter != nextFrame.transforms.cend())
+        {
+            auto& poseData            = currentPose[jointId];
+            const auto& nextTransform = nextFrameTransformIter->second;
+            poseData.transform        = Interpolate(previousTransform, nextTransform, progression);
+            poseData.matrix           = GetLocalTransform(poseData.transform);
+        }
+    }
+}
+
+void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame,
+                      float progression, const std::vector<uint32>& usedJointIds)
+{
+    for (const auto& [jointId, previousTransform] : previousFrame.transforms)
+    {
+        auto usedJointIdsIter = std::find(usedJointIds.begin(), usedJointIds.end(), jointId);
+        if (usedJointIdsIter == usedJointIds.end())
+            continue;
+
         const auto& nextFrameTransformIter = nextFrame.transforms.find(jointId);
 
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
-            auto& poseData = currentPose[jointId];
-            const auto& previousTransform = pair.second;
-            const auto& nextTransform     = nextFrameTransformIter->second;
-            poseData.transform = Interpolate(previousTransform, nextTransform, progression);
-            poseData.matrix = GetLocalTransform(poseData.transform);
+            auto& poseData            = currentPose[jointId];
+            const auto& nextTransform = nextFrameTransformIter->second;
+            poseData.transform        = Interpolate(previousTransform, nextTransform, progression);
+            poseData.matrix           = GetLocalTransform(poseData.transform);
         }
     }
 }
+
 float calculateProgression(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float time)
 {
     float totalTime   = nextFrame.timeStamp - previousFrame.timeStamp;
@@ -53,6 +73,13 @@ void calculateCurrentAnimationPose(Pose& currentPose, const Animation::Animation
     auto frames       = getPreviousAndNextFrames(clip, time);
     float progression = calculateProgression(frames.first, frames.second, time);
     interpolatePoses(currentPose, frames.first, frames.second, progression);
+}
+void calculateCurrentAnimationPose(Pose& currentPose, const Animation::AnimationClip& clip, float time,
+                                   const std::vector<uint32>& usedJointIds)
+{
+    auto frames       = getPreviousAndNextFrames(clip, time);
+    float progression = calculateProgression(frames.first, frames.second, time);
+    interpolatePoses(currentPose, frames.first, frames.second, progression, usedJointIds);
 }
 Animation::KeyFrame convert(const Pose& pose, float timestamp)
 {

@@ -17,6 +17,8 @@ set(GameEngineSources
 ../../Sources/GameEngine/Components/Animation/JointData.cpp
 ../../Sources/GameEngine/Components/Animation/PlayAnimation.cpp
 ../../Sources/GameEngine/Components/Animation/PlayAnimationEvent.cpp
+../../Sources/GameEngine/Components/Animation/PlayMixedAnimation.cpp
+../../Sources/GameEngine/Components/Animation/PlayMixedAnimationEvent.cpp
 ../../Sources/GameEngine/Components/Animation/StateMachine.cpp
 ../../Sources/GameEngine/Components/BaseComponent.cpp
 ../../Sources/GameEngine/Components/Camera/ThridPersonCameraComponent.cpp
@@ -243,6 +245,7 @@ set(GameEngineSources
 ../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.cpp
 ../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.cpp
+../../Sources/GameEngine/Resources/ProgressiveMesh.cpp
 ../../Sources/GameEngine/Resources/ResourceManager.cpp
 ../../Sources/GameEngine/Resources/ResourceUtils.cpp
 ../../Sources/GameEngine/Resources/TextureLoader.cpp

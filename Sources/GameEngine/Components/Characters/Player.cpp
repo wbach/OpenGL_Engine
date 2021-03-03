@@ -73,6 +73,11 @@ void Player::Init()
         animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back(attackAction);
         animator_->onAnimationEnd_[characterController_->attackAnimationName2].push_back(attackAction);
         animator_->onAnimationEnd_[characterController_->attackAnimationName3].push_back(attackAction);
+
+        componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::V, [&]() {
+            animator_->MixAnimation({{characterController_->attackAnimationName, "upperBody"},
+                                     {characterController_->moveForwardAnimationName, "lowerBody"}});
+        });
     }
 
     const vec2 windowSize(0.2f, 0.1f);

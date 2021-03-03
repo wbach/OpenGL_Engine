@@ -7,15 +7,15 @@
 
 #include "AnimationTransitionEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "PlayAnimationEvent.h"
-
-#include "GameEngine/Components/CommonReadDef.h"
-#include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "PlayMixedAnimationEvent.h"
 
 namespace GameEngine
 {
@@ -26,7 +26,8 @@ namespace Components
 namespace
 {
 const std::string COMPONENT_STR{"Animator"};
-const std::string CSTR_STARTUP_ANIMATION = "startupAnimationClip";
+const std::string CSTR_STARTUP_ANIMATION{"startupAnimationClip"};
+const std::string CSTR_JOINT_GROUPS{"jointGroups"};
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
@@ -108,6 +109,25 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
 
     machine_.handle(std::make_unique<AnimationTransitionEvent>(jointData_.pose, info));
 }
+void Animator::MixAnimation(const std::vector<std::pair<std::string, std::string>>& animationsGroups)
+{
+    std::vector<std::pair<AnimationPlayingInfo, std::vector<uint32>>> input;
+    input.reserve(animationsGroups.size());
+
+    for (const auto& [animationName, jointGroupName] : animationsGroups)
+    {
+        const auto clipIter  = animationClips_.find(animationName);
+        const auto groupIter = jointGroupsIds_.find(jointGroupName);
+
+        if (clipIter != animationClips_.end() and groupIter != jointGroupsIds_.end())
+        {
+            input.push_back({AnimationPlayingInfo{clipIter->second, animationSpeed_, PlayDirection::forward,
+                                                  onAnimationEnd_[clipIter->first]},
+                             groupIter->second});
+        }
+    }
+    machine_.handle(std::make_unique<PlayMixedAnimationEvent>(jointData_.pose, input));
+}
 void Animator::GetSkeletonAndAnimations()
 {
     rendererComponent_ = thisObject_.GetComponent<RendererComponent>();
@@ -126,6 +146,20 @@ void Animator::GetSkeletonAndAnimations()
             jointData_.rootJoint = *maybeRootJoint;
             initAnimationClips(*model);
             createShaderJointBuffers();
+
+            for (auto& [groupName, jointNamesInGroup] : jointGroups_)
+            {
+                jointGroupsIds_[groupName].reserve(jointNamesInGroup.size());
+
+                for (auto& name : jointNamesInGroup)
+                {
+                    auto joint = jointData_.rootJoint.getJoint(name);
+                    if (joint)
+                    {
+                        jointGroupsIds_.at(groupName).push_back(joint->id);
+                    }
+                }
+            }
         }
     }
 }
@@ -277,6 +311,15 @@ void Animator::registerReadFunctions()
             component->startupAnimationClipName_ = startupAnimationNode->value_;
         }
 
+        auto jointGroupNode = node.getChild(CSTR_JOINT_GROUPS);
+        if (jointGroupNode)
+        {
+            for (auto& node : jointGroupNode->getChildren())
+            {
+                component->jointGroups_[node->name()] = Utils::SplitString(node->value_, ' ');
+            }
+        }
+
         return component;
     };
 
@@ -294,6 +337,22 @@ void Animator::write(TreeNode& node) const
         {
             animationClipsNode.addChild(CSTR_ANIMATION_CLIP, clip.second.filePath);
         }
+    }
+
+    auto& jointGroupNode = node.addChild(CSTR_JOINT_GROUPS);
+
+    for (auto& [groupName, jointNames] : jointGroups_)
+    {
+        std::string jointNamesValue;
+        for (auto& jointName : jointNames)
+        {
+            jointNamesValue += jointName + " ";
+        }
+
+        if (not jointNamesValue.empty())
+            jointNamesValue.pop_back();
+
+        jointGroupNode.addChild(groupName, jointNamesValue);
     }
 }
 }  // namespace Components

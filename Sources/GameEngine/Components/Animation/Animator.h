@@ -49,6 +49,8 @@ public:
     void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
     void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward);
+    void MixAnimation(const std::vector<std::pair<std::string, std::string>>&);
+
     const std::string& GetCurrentAnimationName() const;
     GraphicsApi::ID getPerPoseBufferId() const;
     std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&, const std::optional<vec3>& po = {},
@@ -63,6 +65,8 @@ public:
     JointData jointData_;
     float animationSpeed_;
     std::string startupAnimationClipName_;
+
+    std::unordered_map<std::string, std::vector<std::string>> jointGroups_;
 
 protected:
     void updateShaderBuffers();
@@ -79,6 +83,7 @@ protected:
     RendererComponent* rendererComponent_;
     std::unordered_map<uint32, ConnectedObject> connectedObjects_;
     std::vector<GameEngine::File> clipsToRead_;
+    std::unordered_map<std::string, std::vector<uint32>> jointGroupsIds_;
 
 public:
     static void registerReadFunctions();
