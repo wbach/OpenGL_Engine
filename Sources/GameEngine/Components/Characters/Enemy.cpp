@@ -55,7 +55,7 @@ void Enemy::Init()
             iter->second.playType = Animation::AnimationClip::PlayType::once;
         }
 
-        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
+        auto attackAction = [this]() {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -66,7 +66,11 @@ void Enemy::Init()
                     componentPtr->hurt(characterStatistic_.attackDmg);
                 }
             }
-        });
+        };
+
+        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back(attackAction);
+        animator_->onAnimationEnd_[characterController_->attackAnimationName2].push_back(attackAction);
+        animator_->onAnimationEnd_[characterController_->attackAnimationName3].push_back(attackAction);
     }
 
     const vec2 windowSize(0.2f, 0.033f);

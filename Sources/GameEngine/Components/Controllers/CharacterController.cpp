@@ -19,6 +19,8 @@ const std::string CSTR_RUN_ANIMATION          = "run";
 const std::string CSTR_MOVEBACKWARD_ANIMATION = "moveBackward";
 const std::string CSTR_WALK_ANIMATION         = "walk";
 const std::string CSTR_ATTACK_ANIMATION       = "attack";
+const std::string CSTR_ATTACK_ANIMATION2      = "attack2";
+const std::string CSTR_ATTACK_ANIMATION3      = "attack3";
 const std::string CSTR_HURT_ANIMATION         = "hurt";
 const std::string CSTR_DEATH_ANIMATION        = "death";
 const std::string CSTR_JUMP_ANIMATION         = "jump";
@@ -26,8 +28,8 @@ const std::string CSTR_JUMP_ANIMATION         = "jump";
 const std::unordered_map<CharacterControllerState::Type, uint8> statePriorities{
     // clang-format off
     {CharacterControllerState::Type::DEATH, 0},
-    {CharacterControllerState::Type::HURT, 1},
-    {CharacterControllerState::Type::ATTACK, 2},
+    {CharacterControllerState::Type::ATTACK, 1},
+    {CharacterControllerState::Type::HURT, 2},
     {CharacterControllerState::Type::JUMP, 3},
     {CharacterControllerState::Type::MOVE_FORWARD, 4},
     {CharacterControllerState::Type::MOVE_BACKWARD, 5},
@@ -90,13 +92,76 @@ void CharacterController::Init()
     {
         animator_->setPlayOnceForAnimationClip(jumpAnimationName);
         animator_->setPlayOnceForAnimationClip(hurtAnimationName);
-        animator_->setPlayOnceForAnimationClip(attackAnimationName);
         animator_->setPlayOnceForAnimationClip(deathAnimationName);
+        animator_->setPlayOnceForAnimationClip(attackAnimationName);
+        animator_->setPlayOnceForAnimationClip(attackAnimationName2);
+        animator_->setPlayOnceForAnimationClip(attackAnimationName3);
 
-        animator_->onAnimationEnd_[hurtAnimationName].push_back(
-            [this]() { removeState(CharacterControllerState::Type::HURT); });
-        animator_->onAnimationEnd_[attackAnimationName].push_back(
-            [this]() { removeState(CharacterControllerState::Type::ATTACK); });
+        if (not hurtAnimationName.empty())
+        {
+            animator_->onAnimationEnd_[hurtAnimationName].push_back(
+                [this]() { removeState(CharacterControllerState::Type::HURT); });
+        }
+
+        if (not attackAnimationName.empty())
+        {
+            animator_->onAnimationEnd_[attackAnimationName].push_back([this]() {
+                if (not attackAnimationName2.empty())
+                {
+                    auto iter = stateTypeToAnimName_.find(CharacterControllerState::Type::ATTACK);
+                    if (iter != stateTypeToAnimName_.end())
+                    {
+                        iter->second = &attackAnimationName2;
+
+                        attackTimer_.SetCallback(
+                            1000, [iter, attack1namePtr = &attackAnimationName]() { iter->second = attack1namePtr; });
+                    }
+                }
+
+                removeState(CharacterControllerState::Type::ATTACK);
+            });
+        }
+
+        if (not attackAnimationName2.empty())
+        {
+            animator_->onAnimationEnd_[attackAnimationName2].push_back([this]() {
+                if (not attackAnimationName3.empty())
+                {
+                    auto iter = stateTypeToAnimName_.find(CharacterControllerState::Type::ATTACK);
+                    if (iter != stateTypeToAnimName_.end())
+                    {
+                        iter->second = &attackAnimationName3;
+
+                        attackTimer_.SetCallback(
+                            1000, [iter, attack1namePtr = &attackAnimationName]() { iter->second = attack1namePtr; });
+                    }
+                }
+                else
+                {
+                    auto iter = stateTypeToAnimName_.find(CharacterControllerState::Type::ATTACK);
+                    if (iter != stateTypeToAnimName_.end())
+                    {
+                        iter->second = &attackAnimationName;
+                    }
+                    attackTimer_.Reset();
+                }
+
+                removeState(CharacterControllerState::Type::ATTACK);
+            });
+        }
+
+        if (not attackAnimationName3.empty())
+        {
+            animator_->onAnimationEnd_[attackAnimationName3].push_back([this]() {
+                auto iter = stateTypeToAnimName_.find(CharacterControllerState::Type::ATTACK);
+                if (iter != stateTypeToAnimName_.end())
+                {
+                    iter->second = &attackAnimationName;
+                }
+                attackTimer_.Reset();
+                removeState(CharacterControllerState::Type::ATTACK);
+            });
+        }
     }
 }
 
@@ -107,6 +172,7 @@ void CharacterController::Update()
         return;
     }
 
+    attackTimer_.Update();
     isOnGround();
     processStates();
     clearVelocityIfNotMoving();
@@ -166,8 +232,7 @@ void CharacterController::isOnGround()
     if (isState(CharacterControllerState::Type::JUMP))
     {
         const auto& position = thisObject_.GetWorldTransform().GetPosition();
-        auto hitTest =
-            componentContext_.physicsApi_.RayTest(position, vec3(position.x, -10000.f, position.z));
+        auto hitTest         = componentContext_.physicsApi_.RayTest(position, vec3(position.x, -10000.f, position.z));
 
         if (hitTest)
         {
@@ -330,6 +395,8 @@ void CharacterController::registerReadFunctions()
             ::Read(animationClipsNode->getChild(CSTR_MOVEBACKWARD_ANIMATION), component->moveBackwardAnimationName);
             ::Read(animationClipsNode->getChild(CSTR_DEATH_ANIMATION), component->deathAnimationName);
             ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION), component->attackAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION2), component->attackAnimationName2);
+            ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION3), component->attackAnimationName3);
             ::Read(animationClipsNode->getChild(CSTR_JUMP_ANIMATION), component->jumpAnimationName);
         }
         return component;
@@ -340,7 +407,7 @@ void CharacterController::registerReadFunctions()
 
 void CharacterController::write(TreeNode& node) const
 {
-    node.attributes_.insert({ CSTR_TYPE, COMPONENT_STR });
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     auto& animClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
     ::write(animClipsNode.addChild(CSTR_IDLE_ANIMATION), idleAnimationName);
     ::write(animClipsNode.addChild(CSTR_HURT_ANIMATION), hurtAnimationName);
@@ -348,6 +415,8 @@ void CharacterController::write(TreeNode& node) const
     ::write(animClipsNode.addChild(CSTR_MOVEBACKWARD_ANIMATION), moveBackwardAnimationName);
     ::write(animClipsNode.addChild(CSTR_DEATH_ANIMATION), deathAnimationName);
     ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION), attackAnimationName);
+    ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION2), attackAnimationName2);
+    ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION3), attackAnimationName3);
     ::write(animClipsNode.addChild(CSTR_JUMP_ANIMATION), jumpAnimationName);
 }
 }  // namespace Components

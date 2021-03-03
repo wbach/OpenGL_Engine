@@ -2,6 +2,7 @@
 #include <Common/Controllers/CharacterController/Character.h>
 #include <GameEngine/Components/Physics/Rigidbody.h>
 
+#include <Utils/Time/Timer.h>
 #include <Utils/math.hpp>
 #include <unordered_map>
 
@@ -32,6 +33,8 @@ public:
         JUMP,
         HURT,
         ATTACK,
+        ATTACK2,
+        ATTACK3,
         DEATH
     };
 
@@ -296,6 +299,8 @@ public:
 public:
     std::string hurtAnimationName;
     std::string attackAnimationName;
+    std::string attackAnimationName2;
+    std::string attackAnimationName3;
     std::string deathAnimationName;
     std::string jumpAnimationName;
     std::string moveForwardAnimationName;
@@ -325,6 +330,8 @@ private:
     float jumpPower_;
     float turnSpeed_;
     float runSpeed_;
+
+    Utils::Timer attackTimer_;
 
 private:
     Quaternion rotateTarget;

@@ -52,7 +52,7 @@ void Player::Init()
 
     if (animator_ and characterController_)
     {
-        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back([this]() {
+        auto attackAction = [this]() {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -68,7 +68,11 @@ void Player::Init()
                     }
                 }
             }
-        });
+        };
+
+        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back(attackAction);
+        animator_->onAnimationEnd_[characterController_->attackAnimationName2].push_back(attackAction);
+        animator_->onAnimationEnd_[characterController_->attackAnimationName3].push_back(attackAction);
     }
 
     const vec2 windowSize(0.2f, 0.1f);
@@ -142,7 +146,6 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
         std::move(hitText), GuiAnimation::Duration(1.f),
         [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
             GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable {
-
             if (elapsedTime > 0.5f)
             {
                 const float speed    = 0.05f;
@@ -151,7 +154,7 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
                 offset.y += (speed * deltaTime);
             }
 
-            auto hitInfoWorldPoision = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
+            auto hitInfoWorldPoision   = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
             auto hitInfoScreenPosition = rendererManager.convertToScreenPosition(hitInfoWorldPoision);
             text.SetScreenPostion(hitInfoScreenPosition + offset);
 

@@ -40,6 +40,7 @@ void PlayerInputController::CleanUp()
 void PlayerInputController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&PlayerInputController::Init, this));
+    RegisterFunction(FunctionType::Update, std::bind(&PlayerInputController::Update, this));
 }
 
 void PlayerInputController::Init()
@@ -87,8 +88,8 @@ void PlayerInputController::SubscribeForPushActions()
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         KeyCodes::SPACE, [&]() { characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER)); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
+//    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+//        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
 }
 
 void PlayerInputController::SubscribeForPopActions()
@@ -100,7 +101,15 @@ void PlayerInputController::SubscribeForPopActions()
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         KeyCodes::A, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT); });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
+                KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
+}
+
+void PlayerInputController::Update()
+{
+    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
+    {
+        characterController_->addState(std::make_unique<Attack>());
+    }
 }
 
 void PlayerInputController::registerReadFunctions()

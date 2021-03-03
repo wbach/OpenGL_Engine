@@ -28,6 +28,7 @@ private:
     void Init();
     void SubscribeForPushActions();
     void SubscribeForPopActions();
+    void Update();
 
 private:
     Animator* animator_;
