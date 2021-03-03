@@ -117,7 +117,7 @@ void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& t
     auto& body = target.at(id).btRigidbody_;
     body->setUserIndex(-1);
 
-    
+
     btDynamicWorld->addRigidBody(body.get());
     btDynamicWorld->updateSingleAabb(body.get());
 }

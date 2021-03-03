@@ -137,9 +137,10 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
     if (not groupedEntities.singleEntitiesToRender_.empty())
     {
         singleEntityShader.Start();
-        for (const auto& [model, subscriber] : groupedEntities.singleEntitiesToRender_)
+        for (const auto& [model, subscribers] : groupedEntities.singleEntitiesToRender_)
         {
-            renderModel(*subscriber, *model);
+            for (auto& subscriber : subscribers)
+                renderModel(*subscriber, *model);
         }
     }
 
@@ -219,15 +220,29 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
         {
             if ((sub.animator and model->getRootJoint()))
             {
-                result.singleEntitiesToRender_.insert({model, &sub});
+                auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
+                if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
+                {
+                    classificatedToSingleIter->second.push_back(&sub);
+                }
+                else
+                {
+                    result.singleEntitiesToRender_.insert({model, {&sub}});
+                }
             }
             else
             {
                 auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);
                 if (classificatedToSingleIter != result.singleEntitiesToRender_.end())
                 {
+                    if (classificatedToSingleIter->second.size() > 1)
+                    {
+                        ERROR_LOG("Multiple single should be only for animated models");
+                        continue;
+                    }
+
                     result.groupsToRender_.insert(
-                        {classificatedToSingleIter->first, {{classificatedToSingleIter->second, &sub}}});
+                        {classificatedToSingleIter->first, {{classificatedToSingleIter->second.front(), &sub}}});
                     result.singleEntitiesToRender_.erase(classificatedToSingleIter);
                 }
                 else
@@ -237,7 +252,7 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
                     {
                         if (iter->second.back().size() >= MAX_INSTANCES)
                         {
-                            iter->second.push_back({ &sub });
+                            iter->second.push_back({&sub});
                         }
                         else
                         {

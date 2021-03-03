@@ -40,7 +40,7 @@ class EntityRenderer
 {
     struct GroupedEntities
     {
-        std::unordered_map<Model*, const EntitySubscriber*> singleEntitiesToRender_;
+        std::unordered_map<Model*, std::vector<const EntitySubscriber*>> singleEntitiesToRender_;
         std::unordered_map<Model*, std::vector<std::vector<const EntitySubscriber*>>> groupsToRender_;
     };
 

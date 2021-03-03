@@ -86,6 +86,7 @@ void SdlOpenGlApi::CreateGameWindow(const std::string& window_name, uint32 width
 void SdlOpenGlApi::SetWindowSize(const vec2ui& size)
 {
     SDL_SetWindowSize(impl_->window, static_cast<int>(size.x), static_cast<int>(size.y));
+    SDL_SetWindowPosition(impl_->window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED );
 }
 
 void SdlOpenGlApi::CreateContext()
