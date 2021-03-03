@@ -59,6 +59,7 @@ Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::uniq
     introRenderer_.Render();
     sceneManager_.SetFactor();
 
+    engineContext_.GetPhysicsApi().DisableSimulation();
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
         [this](float deltaTime) {
             engineContext_.GetPhysicsApi().SetSimulationStep(deltaTime);

@@ -39,6 +39,11 @@ Scene::Scene(const std::string& name)
 
 Scene::~Scene()
 {
+    if (physicsApi_)
+    {
+        physicsApi_->DisableSimulation();
+    }
+
     DEBUG_LOG("destructor");
 
     networkEditorInterface_.reset();
