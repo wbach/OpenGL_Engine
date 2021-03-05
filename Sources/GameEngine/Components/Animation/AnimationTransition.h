@@ -1,6 +1,7 @@
 #pragma once
 #include "IState.h"
-#include "AnimationPlayingInfo.h"
+#include "AnimationClipInfo.h"
+#include "Context.h"
 
 namespace GameEngine
 {
@@ -12,23 +13,26 @@ struct StateMachine;
 class AnimationTransition : public IState
 {
 public:
-    AnimationTransition(const AnimationTransitionEvent&);
-    void update(float) override;
+    AnimationTransition(Context&, float, const AnimationClipInfo&);
+    bool update(float) override;
     const std::string& getAnimationClipName() const override;
+
+    void handle(const ChangeAnimationEvent&) override;
+    void handle(const StopAnimationEvent&) override;
 
 private:
     void calculateTime(float deltaTime);
 
 private:
-    StateMachine& machine_;
-    const AnimationPlayingInfo info_;
-    Pose& currentPose_;
+    Context& context_;
+    const AnimationClipInfo info_;
 
     Animation::KeyFrame startChaneAnimKeyFrame_;
     Animation::KeyFrame endChangeAnimKeyFrame_;
 
     float timeForChange_;
     float currentTime_;
+    float startTime_;
 };
 }  // namespace Components
 }  // namespace GameEngine

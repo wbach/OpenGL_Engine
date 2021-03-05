@@ -1,62 +1,70 @@
 #include "PlayAnimation.h"
 
-#include "EndAnimationTransitionEvent.h"
-#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
+#include "AnimationTransition.h"
+#include "AnimationTransitionGrouped.h"
 #include "StateMachine.h"
+#include "EmptyState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-struct TimeSnap
-{
-    float frameTime;
-    std::array<mat4, MAX_BONES> boneTransforms;
-};
-using ModelId = uint32;
-using Clipname = std::string;
-
-std::unordered_map<ModelId, std::unordered_map<Clipname, std::vector<TimeSnap>>> precaculatedAnimationTransforms;
-}  // namespace
-
-PlayAnimation::PlayAnimation(const PlayAnimationEvent& event)
-    : machine_{*event.machine}
-    , clip_{event.animationPlayingInfo_.clip}
-    , currentPose_{event.currentPose}
-    , time_{0}
-    , playingSpeed_{event.animationPlayingInfo_.playDirection_ == PlayDirection::forward
-                        ? fabsf(event.animationPlayingInfo_.playSpeed_)
-                        : -fabsf(event.animationPlayingInfo_.playSpeed_)}
-    , endCallbacks_{event.animationPlayingInfo_.endCallbacks_}
+PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, float startTime)
+    : context_{context}
+    , time_{startTime}
+    , clipInfo_{info}
 {
 }
-void PlayAnimation::update(float deltaTime)
+bool PlayAnimation::update(float deltaTime)
 {
-    calculateCurrentAnimationPose(currentPose_, clip_, time_);
+    calculateCurrentAnimationPose(context_.currentPose, clipInfo_.clip, time_);
     increaseAnimationTime(deltaTime);
+    return true;
 }
 const std::string& PlayAnimation::getAnimationClipName() const
 {
-    return clip_.name;
+    return clipInfo_.clip.name;
 }
+
+void PlayAnimation::handle(const ChangeAnimationEvent& event)
+{
+    if (event.jointGroupName)
+    {
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionGrouped>(clipInfo_, time_, event));
+    }
+    else
+    {
+        context_.machine.transitionTo(std::make_unique<AnimationTransition>(event.startTime, event.info));
+    }
+}
+
+void PlayAnimation::handle(const StopAnimationEvent&)
+{
+    context_.machine.transitionTo(std::make_unique<EmptyState>());
+}
+
 void PlayAnimation::increaseAnimationTime(float deltaTime)
 {
-    time_ += deltaTime * playingSpeed_;
+    time_ += deltaTime * clipInfo_.playSpeed * direction_;
 
-    if (time_ > clip_.GetLength())
+    if (time_ > clipInfo_.clip.GetLength())
     {
-        if (clip_.playType == Animation::AnimationClip::PlayType::once)
+        if (clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
         {
-            machine_.handle(std::make_unique<EndAnimationTransitionEvent>(endCallbacks_));
+            for (const auto& callback : clipInfo_.endCallbacks_)
+            {
+                callback();
+            }
+
+            context_.machine.transitionTo(std::make_unique<EmptyState>());
             return;
         }
-        time_ = fmodf(time_, clip_.GetLength());
+
+        time_ = fmodf(time_, clipInfo_.clip.GetLength());
     }
     if (time_ < 0)
     {
-        time_ = clip_.GetLength() + time_;
+        time_ = clipInfo_.clip.GetLength() + time_;
     }
 }
 }  // namespace Components

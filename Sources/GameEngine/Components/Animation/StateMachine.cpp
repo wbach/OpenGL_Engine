@@ -11,6 +11,11 @@ StateMachine::~StateMachine()
 }
 PoseUpdateAction StateMachine::update(float deltaTime)
 {
+    if (tmpState_)
+    {
+        currentState_ = std::move(tmpState_);
+    }
+
     if (currentState_)
     {
         currentState_->update(deltaTime);
@@ -19,19 +24,14 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 
     return PoseUpdateAction::nothingToDo;
 }
-void StateMachine::handle(std::unique_ptr<Event> event)
+void StateMachine::handle(std::variant<ChangeAnimationEvent, StopAnimationEvent> v)
 {
-    event->machine = this;
-    events_.push_back(std::move(event));
+    if (currentState_)
+        std::visit(*currentState_, v);
 }
-void StateMachine::processEvents()
+void StateMachine::transitionTo(std::unique_ptr<IState> newState)
 {
-    std::vector<std::unique_ptr<Event>> eventsToExectue = std::move(events_);
-
-    for (auto& e : eventsToExectue)
-    {
-        e->process();
-    }
+    tmpState_ = std::move(newState);
 }
 const std::string& StateMachine::getCurrentAnimationClipName() const
 {

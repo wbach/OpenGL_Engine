@@ -5,7 +5,6 @@
 
 #include <algorithm>
 
-#include "AnimationTransitionEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -14,8 +13,8 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "PlayAnimationEvent.h"
-#include "PlayMixedAnimationEvent.h"
+#include "ChangeAnimationEvent.h"
+#include "StopAnimationEvent.h"
 
 namespace GameEngine
 {
@@ -54,8 +53,10 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClips_.find(name);
     if (clipIter != animationClips_.end())
     {
-        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, clipIter->second, animationSpeed_,
-                                                             PlayDirection::forward, onAnimationEnd_[name]));
+//        machine_.handle((jointData_.pose, clipIter->second, animationSpeed_,
+//                                                             PlayDirection::forward, onAnimationEnd_[name]));
+
+        machine_.handle(ChangeAnimationEvent{0.f, {animationSpeed_, clipIter->second}, std::nullopt});
     }
     return *this;
 }

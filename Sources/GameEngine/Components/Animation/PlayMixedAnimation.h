@@ -1,27 +1,28 @@
 #pragma once
+#include "Context.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "IState.h"
-#include "PlayMixedAnimationEvent.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class StateMachine;
-
 class PlayMixedAnimation : public IState
 {
 public:
-    PlayMixedAnimation(const PlayMixedAnimationEvent&);
-    void update(float) override;
+    PlayMixedAnimation(Context&);
+
+    bool update(float) override;
     const std::string& getAnimationClipName() const override;
+
+    void handle(const ChangeAnimationEvent&) override;
+    void handle(const StopAnimationEvent&) override;
 
 private:
     void increaseAnimationTime(float deltaTime);
 
 private:
-    StateMachine& machine_;
-    Pose& currentPose_;
+    Context& context_;
 
     struct Group
     {
@@ -33,7 +34,7 @@ private:
     };
 
     std::string animationName_;
-    std::vector<Group> groups_;
+    std::unordered_map<std::string, Group> groups_;
 };
 }  // namespace Components
 }  // namespace GameEngine

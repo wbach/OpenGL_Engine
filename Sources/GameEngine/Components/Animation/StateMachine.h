@@ -1,7 +1,9 @@
 #pragma once
+#include <Variant.h>
+
 #include <memory>
 #include <optional>
-#include <vector>
+#include <variant>
 
 #include "Common.h"
 #include "IState.h"
@@ -16,12 +18,13 @@ struct Event;
 struct StateMachine
 {
     ~StateMachine();
+
     PoseUpdateAction update(float);
-    void handle(std::unique_ptr<Event>);
-    void processEvents();
+    void handle(std::variant<ChangeAnimationEvent, StopAnimationEvent>);
+    void transitionTo(std::unique_ptr<IState>);
     const std::string& getCurrentAnimationClipName() const;
 
-    std::vector<std::unique_ptr<Event>> events_;
+    std::unique_ptr<IState> tmpState_;
     std::unique_ptr<IState> currentState_;
 };
 }  // namespace Components
