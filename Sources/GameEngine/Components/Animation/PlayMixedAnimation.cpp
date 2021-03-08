@@ -52,6 +52,7 @@ const std::string& PlayMixedAnimation::getAnimationClipName() const
 
 void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
 {
+    DEBUG_LOG("");
     if (event.jointGroupName)
     {
         auto iter = groups_.find(*event.jointGroupName);
@@ -63,6 +64,7 @@ void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
     }
     else
     {
+        DEBUG_LOG("AnimationTransition");
         context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
@@ -109,6 +111,11 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
+                for (const auto& callback : group.clipInfo.endCallbacks_)
+                {
+                    callback();
+                }
+
                 groupsToRemove_.push_back(name);
                 continue;
             }
@@ -122,12 +129,24 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
 
     if (groupsToRemove_.size() == groups_.size())
     {
+        DEBUG_LOG("EmptyState");
         context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
     }
     else if (groupsToRemove_.size() == groups_.size() - 1)
     {
-        //  std::vector<CurrentGroupsPlayingInfo> infos;
-        //  context_.machine.transitionTo(std::make_unique<AnimationTransitionMixedToSingle>(context_, infos));
+        for (auto& toRemoveName : groupsToRemove_)
+        {
+            for (auto& [name, group] : groups_)
+            {
+                if (name != toRemoveName)
+                {
+                    DEBUG_LOG("AnimationTransitionMixedToSingle");
+                    CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
+                    context_.machine.transitionTo(std::make_unique<AnimationTransitionMixedToSingle>(context_, info));
+                    return;
+                }
+            }
+        }
     }
     else
     {

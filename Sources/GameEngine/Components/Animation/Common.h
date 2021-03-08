@@ -30,6 +30,7 @@ float calculateProgression(const Animation::KeyFrame&, const Animation::KeyFrame
 std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames(const Animation::AnimationClip&, float);
 void calculateCurrentAnimationPose(Pose&, const Animation::AnimationClip&, float);
 void calculateCurrentAnimationPose(Pose&, const Animation::AnimationClip&, float, const std::vector<uint32>&);
+std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames(const Animation::AnimationClip&, float);
 Animation::KeyFrame convert(const Pose&, float = 0.f);
 }  // namespace Components
 }  // namespace GameEngine

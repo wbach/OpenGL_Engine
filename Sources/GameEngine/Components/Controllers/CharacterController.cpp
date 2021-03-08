@@ -108,6 +108,7 @@ void CharacterController::Init()
         if (not attackAnimationName.empty())
         {
             animator_->onAnimationEnd_[attackAnimationName].push_back([this]() {
+                DEBUG_LOG("attack 1 end");
                 if (not attackAnimationName2.empty())
                 {
                     auto iter = stateTypeToAnimName_.find(CharacterControllerState::Type::ATTACK);
@@ -126,6 +127,7 @@ void CharacterController::Init()
 
         if (not attackAnimationName2.empty())
         {
+            DEBUG_LOG("attack 2 end");
             animator_->onAnimationEnd_[attackAnimationName2].push_back([this]() {
                 if (not attackAnimationName3.empty())
                 {
@@ -154,6 +156,7 @@ void CharacterController::Init()
 
         if (not attackAnimationName3.empty())
         {
+            DEBUG_LOG("attack 3 end");
             animator_->onAnimationEnd_[attackAnimationName3].push_back([this]() {
                 auto iter = stateTypeToAnimName_.find(CharacterControllerState::Type::ATTACK);
                 if (iter != stateTypeToAnimName_.end())

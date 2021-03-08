@@ -13,8 +13,7 @@ class ChangeAnimationEvent;
 class AnimationTransitionMixedToSingle : public IState
 {
 public:
-    AnimationTransitionMixedToSingle(Context&, float, const AnimationClipInfo&, const std::vector<std::string>&);
-    AnimationTransitionMixedToSingle(Context&, const std::vector<CurrentGroupsPlayingInfo>&, const ChangeAnimationEvent&);
+    AnimationTransitionMixedToSingle(Context&, const CurrentGroupsPlayingInfo&);
     bool update(float) override;
     const std::string& getAnimationClipName() const override;
 
@@ -27,24 +26,25 @@ private:
 
 private:
     Context& context_;
+
+    float currentClipProgres_;
+    AnimationClipInfo currentClipInfo_;
+
     struct Group
     {
-        AnimationClipInfo currentClipInfo_;
-        float currentClipProgres_;
+        std::string name;
         std::vector<uint32> currentAnimJointGroup_;
     };
     std::vector<Group> currentGroups_;
 
-    float secondaryClipStartupTime_;
-    AnimationClipInfo secondaryClipInfo_;
-
-    std::string secondaryJointGroupName;
-    std::vector<uint32> secondaryAnimJointGroup_;
-
     Animation::KeyFrame startChaneAnimKeyFrame_;
 
-    float startTime_;
-    float timeForChange_;
+    struct TransitionGroups
+    {
+        const std::vector<uint32>& jointGroups;
+    };
+    std::vector<TransitionGroups> transitionGroups_;
+
     float transitionProgress_;
 };
 }  // namespace Components
