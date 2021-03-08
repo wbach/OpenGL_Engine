@@ -15,8 +15,8 @@ namespace Components
 namespace
 {
 const std::string COMPONENT_STR{"PlayerInputController"};
-const std::string CSTR_WEAPON_CHILD_NAME = "weaponChildName";
-const std::string CSTR_WEAPON_BONE_NAME = "weaponBoneName";
+const std::string CSTR_WEAPON_CHILD_NAME           = "weaponChildName";
+const std::string CSTR_WEAPON_BONE_NAME            = "weaponBoneName";
 const std::string CSTR_WEAPON_BONE_POSITION_OFFSET = "weaponBonePositionOffset";
 const std::string CSTR_WEAPON_BONE_ROTATION_OFFSET = "weaponBoneRotationOffset";
 }  // namespace
@@ -88,8 +88,11 @@ void PlayerInputController::SubscribeForPushActions()
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         KeyCodes::SPACE, [&]() { characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER)); });
-//    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-//        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
+        subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+            KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
+
+        subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+            KeyCodes::RMOUSE, [&]() { characterController_->removeState(CharacterControllerState::Type::ATTACK);});
 }
 
 void PlayerInputController::SubscribeForPopActions()
@@ -101,15 +104,15 @@ void PlayerInputController::SubscribeForPopActions()
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         KeyCodes::A, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT); });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-                KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
+        KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
 }
 
 void PlayerInputController::Update()
 {
-    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
-    {
-        characterController_->addState(std::make_unique<Attack>());
-    }
+//    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
+//    {
+//        characterController_->addState(std::make_unique<Attack>());
+//    }
 }
 
 void PlayerInputController::registerReadFunctions()
@@ -128,7 +131,7 @@ void PlayerInputController::registerReadFunctions()
 
 void PlayerInputController::write(TreeNode& node) const
 {
-    node.attributes_.insert({ CSTR_TYPE, COMPONENT_STR });
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_WEAPON_CHILD_NAME, weaponChildObjectName_);
     node.addChild(CSTR_WEAPON_BONE_NAME, weaponBoneName_);
 

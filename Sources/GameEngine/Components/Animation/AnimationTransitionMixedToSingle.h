@@ -10,11 +10,11 @@ namespace Components
 {
 class ChangeAnimationEvent;
 
-class AnimationTransitionGrouped : public IState
+class AnimationTransitionMixedToSingle : public IState
 {
 public:
-    AnimationTransitionGrouped(Context&, float, const AnimationClipInfo&, const std::vector<std::string>&);
-    AnimationTransitionGrouped(Context&, const std::vector<CurrentGroupsPlayingInfo>&, const ChangeAnimationEvent&);
+    AnimationTransitionMixedToSingle(Context&, float, const AnimationClipInfo&, const std::vector<std::string>&);
+    AnimationTransitionMixedToSingle(Context&, const std::vector<CurrentGroupsPlayingInfo>&, const ChangeAnimationEvent&);
     bool update(float) override;
     const std::string& getAnimationClipName() const override;
 

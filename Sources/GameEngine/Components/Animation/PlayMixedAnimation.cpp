@@ -1,7 +1,10 @@
 #include "PlayMixedAnimation.h"
 
+#include <Logger/Log.h>
+
 #include "AnimationTransition.h"
-#include "AnimationTransitionGrouped.h"
+#include "AnimationTransitionMixedToSingle.h"
+#include "AnimationTransitionToMixed.h"
 #include "EmptyState.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "PlayAnimation.h"
@@ -15,14 +18,21 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
     : context_{context}
     , animationName_{"mixed"}
 {
+    DEBUG_LOG("");
+
     for (auto& [name, pair] : animationPlayingInfoPerGroup)
     {
-        const auto& info        = pair.first;
-        const auto& jointGroups = pair.second;
+        auto iter = context.jointGroups.find(name);
 
-        float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
+        if (iter != context.jointGroups.end())
+        {
+            auto& info     = pair.first;
+            auto startTime = pair.second;
 
-        groups_.insert({name, {info, 0.f, direction, jointGroups}});
+            const auto& jointGroups = iter->second;
+            float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
+            groups_.insert({name, {info, startTime, direction, jointGroups}});
+        }
     }
 }
 bool PlayMixedAnimation::update(float deltaTime)
@@ -48,12 +58,12 @@ void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
         if (iter != groups_.end())
         {
             std::vector<CurrentGroupsPlayingInfo> infos;
-            context_.machine.transitionTo(std::make_unique<AnimationTransitionGrouped>(context_, infos, event));
+            context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
         }
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.startTime, event.info));
+        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
 
@@ -76,7 +86,7 @@ void PlayMixedAnimation::handle(const StopAnimationEvent& event)
                 if (name != *event.jointGroupName)
                 {
                     context_.machine.transitionTo(
-                        std::make_unique<AnimationTransition>(context_, group.time, group.clipInfo));
+                        std::make_unique<AnimationTransition>(context_, group.clipInfo, group.time));
                     return;
                 }
             }
@@ -116,8 +126,8 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
     }
     else if (groupsToRemove_.size() == groups_.size() - 1)
     {
-        std::vector<CurrentGroupsPlayingInfo> infos;
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionGrouped>(context_, infos));
+        //  std::vector<CurrentGroupsPlayingInfo> infos;
+        //  context_.machine.transitionTo(std::make_unique<AnimationTransitionMixedToSingle>(context_, infos));
     }
     else
     {

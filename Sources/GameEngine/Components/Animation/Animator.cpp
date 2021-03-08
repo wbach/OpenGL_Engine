@@ -98,6 +98,7 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
 }
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection, std::optional<std::string> groupName)
 {
+    DEBUG_LOG(name);
     auto clipIter = animationClips_.find(name);
 
     if (clipIter == animationClips_.end())
@@ -112,6 +113,7 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
 //        return;
 //    }
 
+    DEBUG_LOG("");
     machine_.handle(ChangeAnimationEvent{
         0.f,
         {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, playDirection, onAnimationEnd_[clipIter->first]},

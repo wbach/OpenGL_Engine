@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <unordered_map>
+
 #include "AnimationClipInfo.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/JointId.h"
@@ -21,7 +22,7 @@ struct PoseData
 typedef std::unordered_map<Animation::JointId, PoseData> Pose;
 typedef std::unordered_map<std::string, std::vector<std::string>> JointGroups;
 typedef std::unordered_map<std::string, std::vector<uint32>> JointGroupsIds;
-typedef std::unordered_map<std::string, std::pair<AnimationClipInfo, std::vector<uint32>>> AnimationClipInfoPerGroup;
+typedef std::unordered_map<std::string, std::pair<AnimationClipInfo, float>> AnimationClipInfoPerGroup;
 
 void interpolatePoses(Pose&, const Animation::KeyFrame&, const Animation::KeyFrame&, float);
 void interpolatePoses(Pose&, const Animation::KeyFrame&, const Animation::KeyFrame&, float, const std::vector<uint32>&);

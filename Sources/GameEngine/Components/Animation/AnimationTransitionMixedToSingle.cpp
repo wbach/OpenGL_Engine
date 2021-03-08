@@ -1,4 +1,4 @@
-#include "AnimationTransitionGrouped.h"
+#include "AnimationTransitionMixedToSingle.h"
 
 #include <Logger/Log.h>
 #include "EmptyState.h"
@@ -13,25 +13,34 @@ namespace Components
 {
 namespace
 {
-const std::string clipName{"AnimationTransitionGrouped"};
+const std::string clipName{"AnimationTransitionMixedToSingle"};
 }
 
-AnimationTransitionGrouped::AnimationTransitionGrouped(
+AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(
     Context &context, const std::vector<CurrentGroupsPlayingInfo> &currentGroupsPlayingInfos,
     const ChangeAnimationEvent &event)
     : context_{context}
     , secondaryClipStartupTime_{event.startTime}
     , secondaryClipInfo_{event.info}
 {
-    for (auto & info : currentGroupsPlayingInfos)
-    {
-        currentGroups_.push_back({info.info, info.currentTime, info.jointsGroup});
-    }
+    DEBUG_LOG("");
+//    for (auto &info : currentGroupsPlayingInfos)
+//    {
+//        for (auto &groupName : info.jointGroupNames)
+//        {
+//            auto iter = context.jointGroups.find(groupName);
+
+//            if (iter != context_.jointGroups.end())
+//            {
+//                currentGroups_.push_back({info.info, info.currentTime, iter->second, groupName});
+//            }
+//        }
+//    }
 
     startChaneAnimKeyFrame_ = convert(context_.currentPose);
 }
 
-bool AnimationTransitionGrouped::update(float deltaTime)
+bool AnimationTransitionMixedToSingle::update(float deltaTime)
 {
     for (const auto &group : currentGroups_)
     {
@@ -50,12 +59,12 @@ bool AnimationTransitionGrouped::update(float deltaTime)
     return true;
 }
 
-const std::string &AnimationTransitionGrouped::getAnimationClipName() const
+const std::string &AnimationTransitionMixedToSingle::getAnimationClipName() const
 {
     return clipName;
 }
 
-void AnimationTransitionGrouped::handle(const ChangeAnimationEvent &event)
+void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
@@ -63,11 +72,11 @@ void AnimationTransitionGrouped::handle(const ChangeAnimationEvent &event)
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.startTime, event.info));
+        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
 
-void AnimationTransitionGrouped::handle(const StopAnimationEvent &event)
+void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
@@ -80,7 +89,7 @@ void AnimationTransitionGrouped::handle(const StopAnimationEvent &event)
     }
 }
 
-void AnimationTransitionGrouped::increaseAnimationTime(float deltaTime)
+void AnimationTransitionMixedToSingle::increaseAnimationTime(float deltaTime)
 {
     for (auto &group : currentGroups_)
     {
@@ -97,7 +106,7 @@ void AnimationTransitionGrouped::increaseAnimationTime(float deltaTime)
     }
 }
 
-void AnimationTransitionGrouped::increaseTransitionTime(float deltaTime)
+void AnimationTransitionMixedToSingle::increaseTransitionTime(float deltaTime)
 {
     transitionProgress_ += (1.f / timeForChange_) * deltaTime;
 

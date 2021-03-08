@@ -33,8 +33,6 @@ public:
         JUMP,
         HURT,
         ATTACK,
-        ATTACK2,
-        ATTACK3,
         DEATH
     };
 
@@ -307,6 +305,9 @@ public:
     std::string moveBackwardAnimationName;
     std::string idleAnimationName;
 
+    std::string upperBodyGroupName;
+    std::string lowerBodyGroupName;
+
 private:
     void isOnGround();
     void onStateAdittion(CharacterControllerState::Type);
@@ -314,7 +315,7 @@ private:
     void processStates();
     void clearVelocityIfNotMoving();
 
-    void setAnimation(const std::string&, PlayDirection = PlayDirection::forward);
+    void setAnimation(const std::string&, PlayDirection = PlayDirection::forward, std::optional<std::string> = std::nullopt);
 
     bool isState(CharacterControllerState::Type);
     bool isStates(const std::vector<CharacterControllerState::Type>&);
@@ -332,6 +333,8 @@ private:
     float runSpeed_;
 
     Utils::Timer attackTimer_;
+
+    std::string currentAnimation;
 
 private:
     Quaternion rotateTarget;

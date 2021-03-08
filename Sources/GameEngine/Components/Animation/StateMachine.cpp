@@ -1,4 +1,7 @@
 #include "StateMachine.h"
+
+#include <Logger/Log.h>
+
 #include "EmptyState.h"
 #include "Event.h"
 
@@ -24,8 +27,8 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 
     if (currentState_)
     {
-        currentState_->update(deltaTime);
-        return PoseUpdateAction::update;
+        if (currentState_->update(deltaTime))
+            return PoseUpdateAction::update;
     }
 
     return PoseUpdateAction::nothingToDo;
@@ -34,7 +37,12 @@ void StateMachine::handle(std::variant<ChangeAnimationEvent, StopAnimationEvent>
 {
     if (currentState_)
     {
+        DEBUG_LOG("Handle");
         std::visit(visitor{[&](const auto& event) { currentState_->handle(event); }}, v);
+    }
+    else
+    {
+        DEBUG_LOG("state not set");
     }
 }
 void StateMachine::transitionTo(std::unique_ptr<IState> newState)

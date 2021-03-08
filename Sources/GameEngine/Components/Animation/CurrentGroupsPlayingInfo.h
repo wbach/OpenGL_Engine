@@ -10,7 +10,7 @@ struct CurrentGroupsPlayingInfo
 {
     const AnimationClipInfo& info;
     float currentTime;
-    std::vector<uint32> jointsGroup;
+    std::vector<std::string> jointGroupNames;
 };
 }  // namespace Components
 }  // namespace GameEngine

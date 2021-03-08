@@ -2,6 +2,7 @@
 
 #include "AnimationTransition.h"
 #include "StateMachine.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -15,6 +16,7 @@ const std::string clipName = "emptyState";
 EmptyState::EmptyState(Context &context)
     : context_{context}
 {
+    DEBUG_LOG("");
 }
 
 bool EmptyState::update(float)
@@ -29,7 +31,8 @@ const std::string &EmptyState::getAnimationClipName() const
 
 void EmptyState::handle(const ChangeAnimationEvent &event)
 {
-    auto action = std::make_unique<AnimationTransition>(context_, event.startTime, event.info);
+    DEBUG_LOG("ChangeAnimationEvent");
+    auto action = std::make_unique<AnimationTransition>(context_, event.info, event.startTime);
     context_.machine.transitionTo(std::move(action));
 }
 

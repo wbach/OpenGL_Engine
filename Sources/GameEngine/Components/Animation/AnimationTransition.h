@@ -13,7 +13,7 @@ struct StateMachine;
 class AnimationTransition : public IState
 {
 public:
-    AnimationTransition(Context&, float, const AnimationClipInfo&);
+    AnimationTransition(Context&, const AnimationClipInfo&, float);
     bool update(float) override;
     const std::string& getAnimationClipName() const override;
 

@@ -1,7 +1,9 @@
 #include "PlayAnimation.h"
 
+#include <Logger/Log.h>
+
 #include "AnimationTransition.h"
-#include "AnimationTransitionGrouped.h"
+#include "AnimationTransitionToMixed.h"
 #include "EmptyState.h"
 #include "StateMachine.h"
 
@@ -12,8 +14,10 @@ namespace Components
 PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, float startTime)
     : context_{context}
     , time_{startTime}
+    , direction_{info.playDirection == PlayDirection::forward ? 1.f : -1.f}
     , clipInfo_{info}
 {
+    DEBUG_LOG("");
 }
 bool PlayAnimation::update(float deltaTime)
 {
@@ -28,23 +32,24 @@ const std::string& PlayAnimation::getAnimationClipName() const
 
 void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
+    DEBUG_LOG("ChangeAnimationEvent");
     if (event.jointGroupName)
     {
-        std::vector<uint32> jointIds;
+        std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, {}}};
+
         for (auto& [name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
-                jointIds.insert(jointIds.end(), group.begin(), group.end());
+                v.front().jointGroupNames.push_back(name);
             }
         }
-
-        std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, jointIds}};
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionGrouped>(context_, v, event));
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.startTime, event.info));
+        DEBUG_LOG("no groups");
+        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
 

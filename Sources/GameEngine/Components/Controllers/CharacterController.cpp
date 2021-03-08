@@ -51,6 +51,8 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , moveForwardAnimationName{"Run"}
     , moveBackwardAnimationName{}
     , idleAnimationName{"Idle"}
+    , upperBodyGroupName{"upperBody"}
+    , lowerBodyGroupName{"lowerBody"}
     , rigidbody_{nullptr}
     , jumpPower_(DEFAULT_JUMP_POWER)
     , turnSpeed_(DEFAULT_TURN_SPEED)
@@ -246,26 +248,93 @@ void CharacterController::isOnGround()
 
 void CharacterController::onStateAdittion(CharacterControllerState::Type type)
 {
-    auto incomingPrioIter = statePriorities.find(type);
-    auto changeAnimation =
-        std::all_of(states_.begin(), states_.end(), [incomingPrio = incomingPrioIter->second](const auto& state) {
-            auto prioIter = statePriorities.find(state->getType());
-            return incomingPrio <= prioIter->second;
+    if (type == CharacterControllerState::Type::DEATH)
+    {
+        setAnimation(deathAnimationName);
+        return;
+    }
+
+    auto animNameIter = stateTypeToAnimName_.find(type);
+
+    if (type == CharacterControllerState::Type::ATTACK)
+    {
+        auto isMoving = std::any_of(states_.begin(), states_.end(), [](const auto& state) {
+            return state->getType() == CharacterControllerState::Type::MOVE_FORWARD or
+                   state->getType() == CharacterControllerState::Type::MOVE_BACKWARD or
+                   state->getType() == CharacterControllerState::Type::JUMP;
         });
 
-    if (changeAnimation)
-    {
-        auto animNameIter = stateTypeToAnimName_.find(type);
-
-        if (animNameIter != stateTypeToAnimName_.end() and not animNameIter->second->empty())
+        if (not isMoving)
         {
             setAnimation(*animNameIter->second);
         }
-        else if (type == CharacterControllerState::Type::MOVE_BACKWARD and not moveForwardAnimationName.empty())
+        else
         {
-            setAnimation(moveForwardAnimationName, PlayDirection::backward);
+            setAnimation(*animNameIter->second, PlayDirection::forward, upperBodyGroupName);
         }
+
+        return;
     }
+
+    if (type == CharacterControllerState::Type::MOVE_FORWARD or type == CharacterControllerState::Type::MOVE_BACKWARD or
+        type == CharacterControllerState::Type::JUMP)
+    {
+        auto isAttacking = std::any_of(states_.begin(), states_.end(), [](const auto& state) {
+            return state->getType() == CharacterControllerState::Type::ATTACK;
+        });
+
+        if (not isAttacking)
+        {
+            setAnimation(*animNameIter->second);
+        }
+        else
+        {
+            setAnimation(*animNameIter->second, PlayDirection::forward, lowerBodyGroupName);
+        }
+
+        return;
+    }
+
+    setAnimation(idleAnimationName);
+
+    //    auto incomingPrioIter = statePriorities.find(type);
+
+    //    if (getParentGameObject().GetName() == "Aang")
+    //    {
+    //        DEBUG_LOG(std::to_string((int)type) + " incomingPrioIter" + std::to_string(incomingPrioIter->second));
+
+    //        for(auto& state : states_)
+    //        {
+    //            auto prioIter = statePriorities.find(state->getType());
+    //            DEBUG_LOG(std::to_string((int)state->getType()) + " incomingPrioIter" +
+    //            std::to_string(prioIter->second));
+    //        }
+    //    }
+
+    //    auto changeAnimation =
+    //        std::all_of(states_.begin(), states_.end(), [incomingPrio = incomingPrioIter->second](const auto& state) {
+    //            auto prioIter = statePriorities.find(state->getType());
+    //            return incomingPrio <= prioIter->second;
+    //        });
+
+    //    if (changeAnimation)
+    //    {
+    //        auto animNameIter = stateTypeToAnimName_.find(type);
+
+    //        if (animNameIter != stateTypeToAnimName_.end())
+    //            DEBUG_LOG(*animNameIter->second);
+    //        else
+    //            DEBUG_LOG(std::to_string((int)type));
+
+    //        if (animNameIter != stateTypeToAnimName_.end() and not animNameIter->second->empty())
+    //        {
+    //            setAnimation(*animNameIter->second);
+    //        }
+    //        else if (type == CharacterControllerState::Type::MOVE_BACKWARD and not moveForwardAnimationName.empty())
+    //        {
+    //            setAnimation(moveForwardAnimationName, PlayDirection::backward);
+    //        }
+    //    }
 }
 
 void CharacterController::onStateRemove(CharacterControllerState::Type type)
@@ -337,11 +406,13 @@ void CharacterController::clearVelocityIfNotMoving()
     }
 }
 
-void CharacterController::setAnimation(const std::string& name, PlayDirection direction)
+void CharacterController::setAnimation(const std::string& name, PlayDirection direction,
+                                       std::optional<std::string> groupName)
 {
-    if (animator_ and name != animator_->GetCurrentAnimationName())
+    if (animator_ and name != currentAnimation)
     {
-        animator_->ChangeAnimation(name, Animator::AnimationChangeType::smooth, direction);
+        animator_->ChangeAnimation(name, Animator::AnimationChangeType::smooth, direction, groupName);
+        currentAnimation = name;
     }
 }
 

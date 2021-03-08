@@ -12,7 +12,7 @@ struct Context
     Pose& currentPose;
     StateMachine& machine;
     const JointGroupsIds& jointGroups;
-    float transitionTime{1.f};
+    float transitionTime{0.25f};
 };
 }  // namespace Components
 }  // namespace GameEngine
