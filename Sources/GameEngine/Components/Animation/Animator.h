@@ -48,7 +48,7 @@ public:
     void AddAnimationClip(const GameEngine::File&);
     void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
-    void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward);
+    void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward, std::optional<std::string> = std::nullopt);
     void MixAnimation(const std::vector<std::pair<std::string, std::string>>&);
 
     const std::string& GetCurrentAnimationName() const;
@@ -66,7 +66,7 @@ public:
     float animationSpeed_;
     std::string startupAnimationClipName_;
 
-    std::unordered_map<std::string, std::vector<std::string>> jointGroups_;
+    JointGroups jointGroups_;
 
 protected:
     void updateShaderBuffers();
@@ -83,7 +83,7 @@ protected:
     RendererComponent* rendererComponent_;
     std::unordered_map<uint32, ConnectedObject> connectedObjects_;
     std::vector<GameEngine::File> clipsToRead_;
-    std::unordered_map<std::string, std::vector<uint32>> jointGroupsIds_;
+    JointGroupsIds jointGroupsIds_;
 
 public:
     static void registerReadFunctions();

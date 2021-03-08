@@ -1,7 +1,6 @@
 #pragma once
 #include "GameEngine/Animations/AnimationClip.h"
 #include "IState.h"
-#include "PlayAnimationEvent.h"
 #include "Context.h"
 
 namespace GameEngine

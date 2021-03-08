@@ -2,8 +2,8 @@
 
 #include "AnimationTransition.h"
 #include "AnimationTransitionGrouped.h"
-#include "StateMachine.h"
 #include "EmptyState.h"
+#include "StateMachine.h"
 
 namespace GameEngine
 {
@@ -30,17 +30,27 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionGrouped>(clipInfo_, time_, event));
+        std::vector<uint32> jointIds;
+        for (auto& [name, group] : context_.jointGroups)
+        {
+            if (name != event.jointGroupName)
+            {
+                jointIds.insert(jointIds.end(), group.begin(), group.end());
+            }
+        }
+
+        std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, jointIds}};
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionGrouped>(context_, v, event));
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(event.startTime, event.info));
+        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.startTime, event.info));
     }
 }
 
 void PlayAnimation::handle(const StopAnimationEvent&)
 {
-    context_.machine.transitionTo(std::make_unique<EmptyState>());
+    context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
 }
 
 void PlayAnimation::increaseAnimationTime(float deltaTime)
@@ -56,7 +66,7 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
                 callback();
             }
 
-            context_.machine.transitionTo(std::make_unique<EmptyState>());
+            context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
             return;
         }
 

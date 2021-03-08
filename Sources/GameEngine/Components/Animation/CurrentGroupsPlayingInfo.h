@@ -1,17 +1,16 @@
 #pragma once
-#include <optional>
-
+#include <vector>
 #include "AnimationClipInfo.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-struct ChangeAnimationEvent
+struct CurrentGroupsPlayingInfo
 {
-    float startTime{0.f};
-    AnimationClipInfo info;
-    std::optional<std::string> jointGroupName;
+    const AnimationClipInfo& info;
+    float currentTime;
+    std::vector<uint32> jointsGroup;
 };
 }  // namespace Components
 }  // namespace GameEngine

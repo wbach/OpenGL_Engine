@@ -5,6 +5,7 @@
 
 #include <algorithm>
 
+#include "ChangeAnimationEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -13,7 +14,6 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "ChangeAnimationEvent.h"
 #include "StopAnimationEvent.h"
 
 namespace GameEngine
@@ -33,6 +33,7 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(Animator).hash_code(), componentContext, gameObject)
     , jointData_(componentContext_.graphicsApi_)
     , animationSpeed_{1.f}
+    , machine_(jointData_.pose, jointGroupsIds_)
 {
 }
 
@@ -53,10 +54,13 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClips_.find(name);
     if (clipIter != animationClips_.end())
     {
-//        machine_.handle((jointData_.pose, clipIter->second, animationSpeed_,
-//                                                             PlayDirection::forward, onAnimationEnd_[name]));
+        //        machine_.handle((jointData_.pose, clipIter->second, animationSpeed_,
+        //                                                             PlayDirection::forward, onAnimationEnd_[name]));
 
-        machine_.handle(ChangeAnimationEvent{0.f, {animationSpeed_, clipIter->second}, std::nullopt});
+        machine_.handle(ChangeAnimationEvent{
+            0.f,
+            {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, PlayDirection::forward, onAnimationEnd_[name]},
+            std::nullopt});
     }
     return *this;
 }
@@ -92,7 +96,7 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
         iter->second.playType = Animation::AnimationClip::PlayType::once;
     }
 }
-void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection)
+void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection, std::optional<std::string> groupName)
 {
     auto clipIter = animationClips_.find(name);
 
@@ -100,19 +104,24 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
     {
         return;
     }
-    AnimationPlayingInfo info{clipIter->second, animationSpeed_, playDirection, onAnimationEnd_[clipIter->first]};
+    //AnimationPlayingInfo info{clipIter->second, animationSpeed_, playDirection, onAnimationEnd_[clipIter->first]};
 
-    if (changeType == AnimationChangeType::direct)
-    {
-        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, info));
-        return;
-    }
+//    if (changeType == AnimationChangeType::direct)
+//    {
+//        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, info));
+//        return;
+//    }
 
-    machine_.handle(std::make_unique<AnimationTransitionEvent>(jointData_.pose, info));
+    machine_.handle(ChangeAnimationEvent{
+        0.f,
+        {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, playDirection, onAnimationEnd_[clipIter->first]},
+        groupName});
+
+//    machine_.handle(std::make_unique<AnimationTransitionEvent>(jointData_.pose, info));
 }
 void Animator::MixAnimation(const std::vector<std::pair<std::string, std::string>>& animationsGroups)
 {
-    std::vector<std::pair<AnimationPlayingInfo, std::vector<uint32>>> input;
+    /*std::vector<std::pair<AnimationPlayingInfo, std::vector<uint32>>> input;
     input.reserve(animationsGroups.size());
 
     for (const auto& [animationName, jointGroupName] : animationsGroups)
@@ -128,6 +137,7 @@ void Animator::MixAnimation(const std::vector<std::pair<std::string, std::string
         }
     }
     machine_.handle(std::make_unique<PlayMixedAnimationEvent>(jointData_.pose, input));
+    */
 }
 void Animator::GetSkeletonAndAnimations()
 {
@@ -174,7 +184,6 @@ void Animator::updateShaderBuffers()
 }
 void Animator::Update()
 {
-    machine_.processEvents();
     auto status = machine_.update(componentContext_.time_.deltaTime);
 
     if (status == PoseUpdateAction::update)

@@ -8,6 +8,7 @@
 #include "Common.h"
 #include "IState.h"
 #include "PoseUpdateAction.h"
+#include "Context.h"
 
 namespace GameEngine
 {
@@ -17,6 +18,7 @@ struct Event;
 
 struct StateMachine
 {
+    StateMachine(Pose&, const JointGroupsIds&);
     ~StateMachine();
 
     PoseUpdateAction update(float);
@@ -24,6 +26,7 @@ struct StateMachine
     void transitionTo(std::unique_ptr<IState>);
     const std::string& getCurrentAnimationClipName() const;
 
+    Context context_;
     std::unique_ptr<IState> tmpState_;
     std::unique_ptr<IState> currentState_;
 };

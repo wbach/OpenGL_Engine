@@ -1,11 +1,17 @@
 #include "StateMachine.h"
-
+#include "EmptyState.h"
 #include "Event.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+StateMachine::StateMachine(Pose& pose, const JointGroupsIds& jointGroups)
+    : context_{pose, *this, jointGroups}
+{
+    currentState_ = std::make_unique<EmptyState>(context_);
+}
+
 StateMachine::~StateMachine()
 {
 }
@@ -27,7 +33,9 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 void StateMachine::handle(std::variant<ChangeAnimationEvent, StopAnimationEvent> v)
 {
     if (currentState_)
-        std::visit(*currentState_, v);
+    {
+        std::visit(visitor{[&](const auto& event) { currentState_->handle(event); }}, v);
+    }
 }
 void StateMachine::transitionTo(std::unique_ptr<IState> newState)
 {

@@ -2,6 +2,7 @@
 #include "Context.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "IState.h"
+#include <unordered_map>
 
 namespace GameEngine
 {
@@ -10,7 +11,7 @@ namespace Components
 class PlayMixedAnimation : public IState
 {
 public:
-    PlayMixedAnimation(Context&);
+    PlayMixedAnimation(Context&, const AnimationClipInfoPerGroup&);
 
     bool update(float) override;
     const std::string& getAnimationClipName() const override;
@@ -26,11 +27,10 @@ private:
 
     struct Group
     {
-        const Animation::AnimationClip& clip_;
-        float time_;
-        float playingSpeed_;
-        const std::vector<std::function<void()>>& endCallbacks_;
-        std::vector<uint32> joints_;
+        AnimationClipInfo clipInfo;
+        float time;
+        float direction;
+        std::vector<uint32> jointIds;
     };
 
     std::string animationName_;
