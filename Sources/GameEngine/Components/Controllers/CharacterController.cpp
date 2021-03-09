@@ -261,6 +261,7 @@ void CharacterController::onStateAdittion(CharacterControllerState::Type type)
         return;
     }
 
+
     auto animNameIter = stateTypeToAnimName_.find(type);
 
     if (type == CharacterControllerState::Type::ATTACK)
@@ -346,41 +347,74 @@ void CharacterController::onStateAdittion(CharacterControllerState::Type type)
 
 void CharacterController::onStateRemove(CharacterControllerState::Type type)
 {
-    auto incomingPrioIter = statePriorities.find(type);
+    if (type == CharacterControllerState::Type::ROTATE_LEFT or type == CharacterControllerState::Type::ROTATE_RIGHT or
+        type == CharacterControllerState::Type::ROTATE_TARGET)
+        return;
 
-    auto doNotchangeAnimation =
-        std::any_of(states_.begin(), states_.end(), [incomingPrio = incomingPrioIter->second](const auto& state) {
-            auto prioIter = statePriorities.find(state->getType());
-            return (incomingPrio > prioIter->second);
+    if (type == CharacterControllerState::Type::MOVE_FORWARD or type == CharacterControllerState::Type::MOVE_BACKWARD or
+        type == CharacterControllerState::Type::JUMP)
+    {
+        auto isAttacking = std::any_of(states_.begin(), states_.end(), [](const auto& state) {
+            return state->getType() == CharacterControllerState::Type::ATTACK;
         });
 
-    if (doNotchangeAnimation)
-    {
-        return;
+        if (isAttacking)
+        {
+            return;
+        }
     }
 
-    if (not states_.empty())
+    if (type == CharacterControllerState::Type::ATTACK)
     {
-        auto result = std::min_element(states_.begin(), states_.end(), [](const auto& l, const auto& r) {
-            auto lp = statePriorities.find(l->getType());
-            auto rp = statePriorities.find(r->getType());
-
-            if (lp != statePriorities.end() and rp != statePriorities.end())
-            {
-                return lp->second < rp->second;
-            }
-            return false;
+        auto isMoving = std::any_of(states_.begin(), states_.end(), [](const auto& state) {
+            return state->getType() == CharacterControllerState::Type::MOVE_FORWARD or
+                   state->getType() == CharacterControllerState::Type::MOVE_BACKWARD or
+                   state->getType() == CharacterControllerState::Type::JUMP;
         });
 
-        auto animNameIter = stateTypeToAnimName_.find((**result).getType());
-        if (animNameIter != stateTypeToAnimName_.end() and not animNameIter->second->empty())
+        if (isMoving)
         {
-            setAnimation(*animNameIter->second);
             return;
         }
     }
 
     setAnimation(idleAnimationName);
+
+    // auto incomingPrioIter = statePriorities.find(type);
+
+    // auto doNotchangeAnimation =
+    //    std::any_of(states_.begin(), states_.end(), [incomingPrio = incomingPrioIter->second](const auto& state) {
+    //        auto prioIter = statePriorities.find(state->getType());
+    //        return (incomingPrio > prioIter->second);
+    //    });
+
+    // if (doNotchangeAnimation)
+    //{
+    //    return;
+    //}
+
+    // if (not states_.empty())
+    //{
+    //    auto result = std::min_element(states_.begin(), states_.end(), [](const auto& l, const auto& r) {
+    //        auto lp = statePriorities.find(l->getType());
+    //        auto rp = statePriorities.find(r->getType());
+
+    //        if (lp != statePriorities.end() and rp != statePriorities.end())
+    //        {
+    //            return lp->second < rp->second;
+    //        }
+    //        return false;
+    //    });
+
+    //    auto animNameIter = stateTypeToAnimName_.find((**result).getType());
+    //    if (animNameIter != stateTypeToAnimName_.end() and not animNameIter->second->empty())
+    //    {
+    //        setAnimation(*animNameIter->second);
+    //        return;
+    //    }
+    //}
+
+    // setAnimation(idleAnimationName);
 }
 
 void CharacterController::processStates()
