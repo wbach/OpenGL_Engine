@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include "AnimationTransitionToMixed.h"
 #include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "StateMachine.h"
@@ -37,8 +38,17 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        // context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, info_, startTime_));
-        DEBUG_LOG("Not implmented");
+        DEBUG_LOG("");
+        std::vector<CurrentGroupsPlayingInfo> v{{info_, 0.f, {}}};
+
+        for (auto& [name, group] : context_.jointGroups)
+        {
+            if (name != event.jointGroupName)
+            {
+                v.front().jointGroupNames.push_back(name);
+            }
+        }
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
     }
     else
     {

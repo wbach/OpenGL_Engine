@@ -6,6 +6,7 @@
 #include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "PlayMixedAnimation.h"
+#include "AnimationTransitionToMixed.h"
 #include "StateMachine.h"
 
 namespace GameEngine
@@ -83,7 +84,16 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
-        DEBUG_LOG("not implmented.");
+        std::vector<CurrentGroupsPlayingInfo> v{{currentClipInfo_, currentClipProgres_, {}}};
+
+        for (auto& [name, group] : context_.jointGroups)
+        {
+            if (name != event.jointGroupName)
+            {
+                v.front().jointGroupNames.push_back(name);
+            }
+        }
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
     }
     else
     {

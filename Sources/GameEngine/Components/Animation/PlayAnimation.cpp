@@ -66,12 +66,12 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
     {
         if (clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
         {
+            context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+
             for (const auto& callback : clipInfo_.endCallbacks_)
             {
                 callback();
             }
-
-            context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
             return;
         }
 

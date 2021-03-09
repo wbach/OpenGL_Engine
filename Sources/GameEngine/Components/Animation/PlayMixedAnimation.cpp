@@ -58,7 +58,7 @@ void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
         auto iter = groups_.find(*event.jointGroupName);
         if (iter != groups_.end())
         {
-            std::vector<CurrentGroupsPlayingInfo> infos;
+            std::vector<CurrentGroupsPlayingInfo> infos{{event.info, event.startTime, {*event.jointGroupName}}};
             context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
         }
     }

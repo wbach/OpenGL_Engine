@@ -251,6 +251,10 @@ void CharacterController::isOnGround()
 
 void CharacterController::onStateAdittion(CharacterControllerState::Type type)
 {
+    if (type == CharacterControllerState::Type::ROTATE_LEFT or type == CharacterControllerState::Type::ROTATE_RIGHT or
+        type == CharacterControllerState::Type::ROTATE_TARGET)
+        return;
+
     if (type == CharacterControllerState::Type::DEATH)
     {
         setAnimation(deathAnimationName);
