@@ -22,6 +22,7 @@ AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &cont
     : context_{context}
     , currentClipProgres_{info.currentTime}
     , currentClipInfo_{info.info}
+    , transitionProgress_{0.f}
 {
     DEBUG_LOG("");
 
@@ -36,9 +37,14 @@ AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &cont
                 iter->second,
             });
         }
-        else
+    }
+
+    for (const auto &[name, group] : context_.jointGroups)
+    {
+        auto iter = std::find(info.jointGroupNames.begin(), info.jointGroupNames.end(), name);
+        if (iter == info.jointGroupNames.end())
         {
-            transitionGroups_.push_back({iter->second});
+            transitionGroups_.push_back({group});
         }
     }
 
@@ -100,18 +106,16 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
 
 void AnimationTransitionMixedToSingle::increaseAnimationTime(float deltaTime)
 {
+    currentClipProgres_ += deltaTime * currentClipInfo_.playSpeed;  //* direction_;
 
-        currentClipProgres_ += deltaTime * currentClipInfo_.playSpeed;  //* direction_;
-
-        if (currentClipProgres_ > currentClipInfo_.clip.GetLength())
-        {
-            currentClipProgres_ = fmodf(currentClipProgres_, currentClipInfo_.clip.GetLength());
-        }
-        if (currentClipProgres_ < 0)
-        {
-            currentClipProgres_ = currentClipInfo_.clip.GetLength() + currentClipProgres_;
-        }
-    
+    if (currentClipProgres_ > currentClipInfo_.clip.GetLength())
+    {
+        currentClipProgres_ = fmodf(currentClipProgres_, currentClipInfo_.clip.GetLength());
+    }
+    if (currentClipProgres_ < 0)
+    {
+        currentClipProgres_ = currentClipInfo_.clip.GetLength() + currentClipProgres_;
+    }
 }
 
 void AnimationTransitionMixedToSingle::increaseTransitionTime(float deltaTime)
@@ -120,12 +124,7 @@ void AnimationTransitionMixedToSingle::increaseTransitionTime(float deltaTime)
 
     if (transitionProgress_ > 1.f)
     {
-        AnimationClipInfoPerGroup infoPerGroup;
-
-        for (const auto &group : currentGroups_)
-        {
-        }
-        context_.machine.transitionTo(std::make_unique<PlayMixedAnimation>(context_, infoPerGroup));
+        context_.machine.transitionTo(std::make_unique<PlayAnimation>(context_, currentClipInfo_, currentClipProgres_));
         return;
     }
 }
