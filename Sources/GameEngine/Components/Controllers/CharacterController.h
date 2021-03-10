@@ -9,6 +9,8 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 
+#include "CharacterControllerFsm.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -308,6 +310,7 @@ public:
     std::string upperBodyGroupName;
     std::string lowerBodyGroupName;
 
+    CharacterControllerFsm* fsm();
 private:
     void isOnGround();
     void onStateAdittion(CharacterControllerState::Type);
@@ -337,6 +340,8 @@ private:
     std::string currentAnimation;
 
 private:
+    std::unique_ptr<CharacterControllerFsm> stateMachine_;
+
     Quaternion rotateTarget;
     Quaternion startedRotation;
     float progress_;

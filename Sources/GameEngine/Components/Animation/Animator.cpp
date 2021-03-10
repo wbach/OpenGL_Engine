@@ -98,11 +98,12 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
 }
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection, std::optional<std::string> groupName)
 {
-    DEBUG_LOG(name);
+    DEBUG_LOG("Search  : " + name);
     auto clipIter = animationClips_.find(name);
 
     if (clipIter == animationClips_.end())
     {
+        DEBUG_LOG("Not found!  : " + name);
         return;
     }
     //AnimationPlayingInfo info{clipIter->second, animationSpeed_, playDirection, onAnimationEnd_[clipIter->first]};

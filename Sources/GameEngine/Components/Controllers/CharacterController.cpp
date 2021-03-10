@@ -87,6 +87,13 @@ void CharacterController::Init()
     rigidbody_ = thisObject_.GetComponent<Rigidbody>();
     animator_  = thisObject_.GetComponent<Animator>();
 
+    if (animator_ and rigidbody_)
+    {
+        stateMachine_ = std::make_unique<CharacterControllerFsm>(
+            IdleState(*animator_, idleAnimationName),
+            MoveState(*rigidbody_, *animator_, moveForwardAnimationName, moveBackwardAnimationName));
+    }
+
     if (rigidbody_)
         rigidbody_->InputParams().angularFactor_ = vec3(0);
 
@@ -177,10 +184,16 @@ void CharacterController::Update()
         return;
     }
 
-    attackTimer_.Update();
-    isOnGround();
-    processStates();
-    clearVelocityIfNotMoving();
+    if (stateMachine_)
+    {
+        auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
+        std::visit(passEventToState, stateMachine_->getCurrentState());
+    }
+
+    // attackTimer_.Update();
+    // isOnGround();
+    // processStates();
+    // clearVelocityIfNotMoving();
 }
 
 bool CharacterController::addState(std::unique_ptr<CharacterControllerState> state)
@@ -232,6 +245,11 @@ void CharacterController::SetJumpPower(float v)
     jumpPower_ = v;
 }
 
+CharacterControllerFsm* CharacterController::fsm()
+{
+    return stateMachine_.get();
+}
+
 void CharacterController::isOnGround()
 {
     if (isState(CharacterControllerState::Type::JUMP))
@@ -260,7 +278,6 @@ void CharacterController::onStateAdittion(CharacterControllerState::Type type)
         setAnimation(deathAnimationName);
         return;
     }
-
 
     auto animNameIter = stateTypeToAnimName_.find(type);
 

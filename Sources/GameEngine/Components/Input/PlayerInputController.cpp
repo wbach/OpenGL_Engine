@@ -71,12 +71,18 @@ void PlayerInputController::Init()
 void PlayerInputController::SubscribeForPushActions()
 {
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::W, [&]() {
-        characterController_->addState(std::make_unique<MoveForward>());
-        characterController_->removeState(CharacterControllerState::Type::MOVE_BACKWARD);
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(MoveForwardEvent{DEFAULT_RUN_SPEED});
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
-        characterController_->addState(std::make_unique<MoveBackward>());
-        characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(MoveBackwardEvent{DEFAULT_RUN_SPEED});
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() {
         characterController_->addState(std::make_unique<RotateLeft>());
@@ -88,19 +94,29 @@ void PlayerInputController::SubscribeForPushActions()
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         KeyCodes::SPACE, [&]() { characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER)); });
-        subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-            KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
 
-        subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-            KeyCodes::RMOUSE, [&]() { characterController_->removeState(CharacterControllerState::Type::ATTACK);});
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        KeyCodes::RMOUSE, [&]() { characterController_->removeState(CharacterControllerState::Type::ATTACK); });
 }
 
 void PlayerInputController::SubscribeForPopActions()
 {
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::W, [&]() { characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::S, [&]() { characterController_->removeState(CharacterControllerState::Type::MOVE_BACKWARD); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::W, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(EndMoveEvent{});
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::S, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(EndMoveEvent{});
+        }
+    });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         KeyCodes::A, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT); });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
@@ -109,10 +125,10 @@ void PlayerInputController::SubscribeForPopActions()
 
 void PlayerInputController::Update()
 {
-//    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
-//    {
-//        characterController_->addState(std::make_unique<Attack>());
-//    }
+    //    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
+    //    {
+    //        characterController_->addState(std::make_unique<Attack>());
+    //    }
 }
 
 void PlayerInputController::registerReadFunctions()
