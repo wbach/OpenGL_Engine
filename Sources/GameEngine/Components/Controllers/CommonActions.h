@@ -6,7 +6,7 @@ namespace GameEngine
 namespace Components
 {
 class Rigidbody;
-class FsmContext;
+struct FsmContext;
 
 void moveRigidbody(FsmContext&);
 void moveRigidbody(Rigidbody&, const vec3&, float);

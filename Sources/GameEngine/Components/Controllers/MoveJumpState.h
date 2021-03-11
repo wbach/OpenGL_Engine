@@ -8,17 +8,16 @@ namespace GameEngine
 {
 namespace Components
 {
-class IdleState;
-class MoveJumpState;
+class MoveState;
+class JumpState;
 
-class JumpState : public Utils::StateMachine::Will<
-                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                      Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::TransitionTo<IdleState>>>
+class MoveJumpState : public Utils::StateMachine::Will<
+                          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                          Utils::StateMachine::On<EndMoveEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+                          Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::TransitionTo<MoveState>>>
 {
 public:
-    JumpState(FsmContext& context, std::function<void()> endCallback)
+    MoveJumpState(FsmContext& context, std::function<void()> endCallback)
         : context_{context}
         , endCallback_{endCallback}
     {
@@ -26,7 +25,7 @@ public:
 
     void onEnter(const JumpEvent& event)
     {
-        DEBUG_LOG("onEnter()");
+        DEBUG_LOG("onEnter(JumpEvent)");
         if (not context_.jumpAnimationName.empty())
         {
             context_.animator.ChangeAnimation(context_.jumpAnimationName, Animator::AnimationChangeType::smooth,
@@ -59,28 +58,14 @@ public:
                 return true;
             }
         }
+        return false;
 
         // https://www.immersivelimit.com/tutorials/simple-character-controller-for-unity
 
-        //float capsuleRadius = 1.f;
-        //float capsuleHeight = 1.5f;
+        //        float capsuleHeight = Mathf.Max(capsuleCollider.radius * 2f, capsuleCollider.height);
+        //        Vector3 capsuleBottom = transform.TransformPoint(capsuleCollider.center - Vector3.up * capsuleHeight /
+        //        2f); float radius = transform.TransformVector(capsuleCollider.radius, 0f, 0f).magnitude;
 
-        //float capsuleHeight = glm::max(capsuleRadius * 2.f, capsuleHeight);
-        //vec3 capsuleBottom  = transform.TransformPoint(capsuleCollider.center - VECTOR_UP * capsuleHeight / 2.f);
-        //float radius        = transform.TransformVector(capsuleCollider.radius, 0f, 0f).magnitude;
-
-        //Ray ray = new Ray(capsuleBottom + transform.up * .01f, -transform.up);
-        //RaycastHit hit;
-        //if (Physics.Raycast(ray, out hit, radius * 5f))
-        //{
-        //    float normalAngle = glm::angle(hit.normal, transform.up);
-        //    if (normalAngle < slopeLimit)
-        //    {
-        //        float maxDist = radius / Mathf.Cos(Mathf.Deg2Rad * normalAngle) - radius + .02f;
-        //        if (hit.distance < maxDist)
-        //            return true;
-        //    }
-        //}
         //        Ray ray = new Ray(capsuleBottom + transform.up * .01f, -transform.up);
         //        RaycastHit hit;
         //        if (Physics.Raycast(ray, out hit, radius * 5f))
@@ -93,8 +78,7 @@ public:
         //                    return true;
         //            }
         //        }
-
-        return false;
+        return true;
     }
 
 private:

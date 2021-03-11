@@ -1,9 +1,11 @@
 #pragma once
 #include <Types.h>
 
+#include <memory>
+
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
-
+#include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
@@ -11,6 +13,8 @@ namespace Components
 {
 struct FsmContext
 {
+    GameObject& gameObject;
+    Physics::IPhysicsApi& physicsApi;
     Rigidbody& rigidbody;
     Animator& animator;
 

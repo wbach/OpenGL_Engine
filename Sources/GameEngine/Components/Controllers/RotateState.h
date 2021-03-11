@@ -45,6 +45,17 @@ public:
     void onEnter(const RotateTargetEvent& event)
     {
         DEBUG_LOG("onEnter(const RotateTargetEvent& )");
+
+        progress_ += (deltaTime / rotateSpeed_);
+
+        if (progress_ > 1.f)
+        {
+            progress_ = 1.f;
+            toRemove_ = true;
+        }
+
+        auto newRotation = glm::slerp(startedRotation_, rotateTarget_, progress_);
+        rigidbody_->SetRotation(newRotation);
     }
 
     void update(float deltaTime)

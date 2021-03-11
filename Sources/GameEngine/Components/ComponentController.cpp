@@ -17,19 +17,19 @@ ComponentController::~ComponentController()
 {
     DEBUG_LOG("destructor");
 
-    for (auto& f : functions_)
+    for (auto& [type, functionMap] : functions_)
     {
-        if (f.second.size() > 0)
+        if (functionMap.size() > 0)
         {
-            WARNING_LOG("Some funstion left.");
+            WARNING_LOG("Some funstion left. GameObjectId := " + std::to_string(type));
         }
     }
 
-    for (auto& f : registredComponents_)
+    for (auto& [type, componentMap] : registredComponents_)
     {
-        if (f.second.size() > 0)
+        if (componentMap.size() > 0)
         {
-            WARNING_LOG("Some components left.");
+            WARNING_LOG("Some components left. Type : " + std::to_string(type));
         }
     }
 }
