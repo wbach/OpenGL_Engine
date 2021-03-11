@@ -311,6 +311,7 @@ public:
     std::string lowerBodyGroupName;
 
     CharacterControllerFsm* fsm();
+
 private:
     void isOnGround();
     void onStateAdittion(CharacterControllerState::Type);
@@ -340,6 +341,7 @@ private:
     std::string currentAnimation;
 
 private:
+    std::unique_ptr<FsmContext> fsmContext;
     std::unique_ptr<CharacterControllerFsm> stateMachine_;
 
     Quaternion rotateTarget;

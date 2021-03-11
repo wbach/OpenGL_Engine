@@ -1,4 +1,6 @@
 #pragma once
+#include <Logger/Log.h>
+
 namespace Utils
 {
 namespace StateMachine
@@ -11,9 +13,15 @@ public:
     void execute(Machine& machine, State& prevState, const Event& event)
     {
         leave(prevState, event);
+
         TargetState& newState = machine.template transitionTo<TargetState>();
+
+        DEBUG_LOG("prevState : " + typeid(prevState).name() + " newState : " + typeid(newState).name() +
+                  " Event : " + typeid(event).name());
+
         enter(newState);
         enter(newState, event);
+        enter(newState, prevState, event);
     }
 
 private:
@@ -35,6 +43,13 @@ private:
     auto enter(State& state, const Event& event) -> decltype(state.onEnter(event))
     {
         return state.onEnter(event);
+    }
+
+    template <typename NewState, typename PrevState, typename Event>
+    auto enter(NewState& newState, const PrevState& prevState, const Event& event)
+        -> decltype(newState.onEnter(prevState, event))
+    {
+        return newState.onEnter(prevState, event);
     }
 
     template <typename State>

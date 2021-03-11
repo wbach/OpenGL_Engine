@@ -40,6 +40,9 @@ private:
 
     std::function<void()> jumpCallback_;
 
+    bool isRotateLeftPressed_{false};
+    bool isRotateRightPressed_{false};
+
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;

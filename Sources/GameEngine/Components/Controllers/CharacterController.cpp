@@ -89,9 +89,12 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
+        fsmContext.reset(new FsmContext{*rigidbody_, *animator_, moveForwardAnimationName, moveBackwardAnimationName,
+                                        jumpAnimationName, idleAnimationName});
+
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            IdleState(*animator_, idleAnimationName),
-            MoveState(*rigidbody_, *animator_, moveForwardAnimationName, moveBackwardAnimationName));
+            IdleState(*fsmContext), MoveState(*fsmContext), RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
+            JumpState(*fsmContext));
     }
 
     if (rigidbody_)

@@ -85,15 +85,32 @@ void PlayerInputController::SubscribeForPushActions()
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() {
-        characterController_->addState(std::make_unique<RotateLeft>());
-        characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT);
+        isRotateLeftPressed_ = true;
+        auto fsm             = characterController_->fsm();
+        if (fsm)
+        {
+            DEBUG_LOG("RotateLeftEvent");
+            fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::D, [&]() {
-        characterController_->addState(std::make_unique<RotateRight>());
-        characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT);
+        isRotateRightPressed_ = true;
+        auto fsm              = characterController_->fsm();
+        if (fsm)
+        {
+            DEBUG_LOG("RotateRightEvent");
+            fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
+        }
     });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::SPACE, [&]() { characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER)); });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::SPACE, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            DEBUG_LOG("JumpEvent");
+            fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
+        }
+    });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
 
@@ -117,10 +134,22 @@ void PlayerInputController::SubscribeForPopActions()
             fsm->handle(EndMoveEvent{});
         }
     });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::A, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::A, [&]() {
+        auto fsm             = characterController_->fsm();
+        isRotateLeftPressed_ = false;
+        if (fsm and not isRotateRightPressed_)
+        {
+            fsm->handle(EndRotationEvent{});
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::D, [&]() {
+        auto fsm              = characterController_->fsm();
+        isRotateRightPressed_ = false;
+        if (fsm and not isRotateLeftPressed_)
+        {
+            fsm->handle(EndRotationEvent{});
+        }
+    });
 }
 
 void PlayerInputController::Update()

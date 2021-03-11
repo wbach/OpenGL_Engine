@@ -7,3 +7,4 @@
 #include "actions/OneOf.h"
 #include "actions/TransitionTo.h"
 #include "actions/Will.h"
+#include "actions/Update.h"
