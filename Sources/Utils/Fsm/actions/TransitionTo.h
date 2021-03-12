@@ -1,6 +1,4 @@
 #pragma once
-#include <Logger/Log.h>
-
 namespace Utils
 {
 namespace StateMachine
@@ -15,9 +13,6 @@ public:
         leave(prevState, event);
 
         TargetState& newState = machine.template transitionTo<TargetState>();
-
-        DEBUG_LOG("prevState : " + typeid(prevState).name() + " newState : " + typeid(newState).name() +
-                  " Event : " + typeid(event).name());
 
         enter(newState);
         enter(newState, event);

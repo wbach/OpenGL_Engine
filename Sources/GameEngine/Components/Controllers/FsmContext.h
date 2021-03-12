@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "Attack/AttackFsm.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/IPhysicsApi.h"

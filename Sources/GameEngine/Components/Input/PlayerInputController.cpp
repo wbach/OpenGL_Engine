@@ -89,7 +89,6 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm             = characterController_->fsm();
         if (fsm)
         {
-            DEBUG_LOG("RotateLeftEvent");
             fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
         }
     });
@@ -98,7 +97,6 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm              = characterController_->fsm();
         if (fsm)
         {
-            DEBUG_LOG("RotateRightEvent");
             fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
         }
     });
@@ -107,7 +105,6 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            DEBUG_LOG("JumpEvent");
             fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
         }
     });

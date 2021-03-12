@@ -3,9 +3,6 @@
 https://sii.pl/blog/implementing-a-state-machine-in-c17/
 https://github.com/AdamsPL/state-machine
 */
-
-#include <Logger/Log.h>
-
 #include <tuple>
 #include <variant>
 
@@ -35,7 +32,6 @@ public:
     template <typename Event>
     void handle(const Event& event)
     {
-        DEBUG_LOG("handle " + typeid(event).name());
         handleBy(event, *this);
     }
 
@@ -43,11 +39,9 @@ public:
     void handleBy(const Event& event, Machine& machine)
     {
         auto passEventToState = [&machine, &event](auto statePtr) {
-            DEBUG_LOG("passEvent " + typeid(event).name() + " to " + typeid(*statePtr).name());
             auto action = statePtr->handle(event);
             action.execute(machine, *statePtr, event);
         };
-        DEBUG_LOG("handleBy " + typeid(event).name());
         std::visit(passEventToState, currentState);
     }
 
