@@ -13,9 +13,11 @@ class MoveState;
 class RotateState;
 class JumpState;
 class AttackState;
+class DeathState;
 
 class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                      Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                       Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
                       Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
                       Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateState>>,
@@ -24,24 +26,9 @@ class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    IdleState(FsmContext& context)
-        : context_{context}
-    {
-    }
-
-    void onEnter()
-    {
-        DEBUG_LOG("onEnter()");
-        if (not context_.idleAnimationName.empty())
-        {
-            context_.animator.ChangeAnimation(context_.idleAnimationName, Animator::AnimationChangeType::smooth,
-                                              PlayDirection::forward, std::nullopt);
-        }
-    }
-
-    void update(float)
-    {
-    }
+    IdleState(FsmContext&);
+    void onEnter();
+    void update(float);
 
 private:
     FsmContext& context_;

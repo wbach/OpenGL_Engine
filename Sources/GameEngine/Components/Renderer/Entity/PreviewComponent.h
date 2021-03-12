@@ -16,7 +16,6 @@ class PreviewComponent : public BaseComponent
 {
 public:
     PreviewComponent(ComponentContext&, GameObject&);
-    ~PreviewComponent();
 
     void CleanUp() override;
     void ReqisterFunctions() override;

@@ -24,6 +24,7 @@ struct RotateRightEvent
 };
 struct RotateTargetEvent
 {
+    Quaternion target;
 };
 struct EndRotationEvent
 {
@@ -36,6 +37,9 @@ struct EndJumpEvent
 {
 };
 struct AttackEvent
+{
+};
+struct DeathEvent
 {
 };
 }  // namespace GameEngine

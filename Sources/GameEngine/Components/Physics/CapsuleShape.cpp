@@ -21,7 +21,6 @@ CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameO
     : CollisionShape(typeid(CapsuleShape).hash_code(), componentContext, gameObject)
 {
 }
-
 void CapsuleShape::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&CapsuleShape::OnAwake, this));

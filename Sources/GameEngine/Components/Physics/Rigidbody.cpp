@@ -34,7 +34,7 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     , updateRigidbodyOnTransformChange_(false)
 {
     // clang-format off
-    nameToTypeMap_ = 
+    nameToTypeMap_ =
     {
         {BoxShape::name,     typeid(BoxShape).hash_code()},
         {TerrainShape::name, typeid(TerrainShape).hash_code()},
@@ -43,10 +43,6 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
         {CapsuleShape::name, typeid(CapsuleShape).hash_code()},
     };
     // clang-format on
-}
-
-Rigidbody::~Rigidbody()
-{
 }
 
 void Rigidbody::CleanUp()

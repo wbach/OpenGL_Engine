@@ -15,9 +15,6 @@ CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, 
     , positionOffset_(0.f)
 {
 }
-CollisionShape::~CollisionShape()
-{
-}
 void CollisionShape::setScale(const vec3& scale)
 {
     DEBUG_LOG(std::to_string(scale));

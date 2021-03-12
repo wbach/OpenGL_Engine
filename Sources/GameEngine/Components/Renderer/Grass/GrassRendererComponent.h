@@ -25,7 +25,6 @@ public:
         std::vector<float> colors;
     };
     GrassRendererComponent(ComponentContext&, GameObject&);
-    ~GrassRendererComponent();
 
     void CleanUp() override;
     void ReqisterFunctions() override;

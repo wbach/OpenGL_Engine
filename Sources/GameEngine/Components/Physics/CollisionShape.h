@@ -9,7 +9,6 @@ class CollisionShape : public BaseComponent
 {
 public:
     CollisionShape(size_t type, ComponentContext& componentContext, GameObject& gameObject);
-    ~CollisionShape();
 
     virtual void setScale(const vec3&);
     std::optional<uint32> GetCollisionShapeId() const;

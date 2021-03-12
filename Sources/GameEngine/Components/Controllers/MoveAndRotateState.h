@@ -1,11 +1,9 @@
 #pragma once
-#include <Logger/Log.h>
 #include <Utils/Fsm/Actions.h>
 
 #include "CharacterControllerEvents.h"
-#include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
-#include "FsmContext.h"
+#include "MoveStateBase.h"
+#include "RotateStateBase.h"
 
 namespace GameEngine
 {
@@ -14,10 +12,16 @@ namespace Components
 class MoveState;
 class RotateState;
 class JumpState;
+class DeathState;
+
+struct FsmContext;
 
 class MoveAndRotateState
-    : public Utils::StateMachine::Will<
+    : public MoveStateBase,
+      public RotateStateBase,
+      public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<EndMoveEvent, Utils::StateMachine::TransitionTo<RotateState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
@@ -28,15 +32,14 @@ class MoveAndRotateState
 public:
     MoveAndRotateState(FsmContext&);
 
+    void onEnter(const EndJumpEvent&);
+    void onEnter(const MoveForwardEvent&);
+    void onEnter(const MoveBackwardEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
-    void onEnter(const MoveForwardEvent&);
-    void onEnter(const MoveBackwardEvent&);
-    void update(float);
 
-private:
-    FsmContext& context_;
+    void update(float);
 };
 }  // namespace Components
 }  // namespace GameEngine

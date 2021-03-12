@@ -3,8 +3,7 @@
 #include <Utils/Fsm/Actions.h>
 
 #include "CharacterControllerEvents.h"
-#include "FsmContext.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "RotateStateBase.h"
 
 namespace GameEngine
 {
@@ -14,10 +13,13 @@ class MoveState;
 class MoveAndRotateState;
 class JumpState;
 class IdleState;
+class DeathState;
 
 class RotateState
-    : public Utils::StateMachine::Will<
+    : public RotateStateBase,
+      public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateState>>,
@@ -28,45 +30,9 @@ class RotateState
 {
 public:
     RotateState(FsmContext& context)
-        : context_{context}
+        : RotateStateBase{context}
     {
     }
-
-    void onEnter(const RotateLeftEvent& event)
-    {
-        DEBUG_LOG("onEnter(const RotateLeftEvent& )");
-        context_.rotationSpeed = fabsf(event.speed);
-    }
-    void onEnter(const RotateRightEvent& event)
-    {
-        DEBUG_LOG("onEnter(const RotateRightEvent& )");
-        context_.rotationSpeed = -fabsf(event.speed);
-    }
-    void onEnter(const RotateTargetEvent& event)
-    {
-        DEBUG_LOG("onEnter(const RotateTargetEvent& )");
-
-        progress_ += (deltaTime / rotateSpeed_);
-
-        if (progress_ > 1.f)
-        {
-            progress_ = 1.f;
-            toRemove_ = true;
-        }
-
-        auto newRotation = glm::slerp(startedRotation_, rotateTarget_, progress_);
-        rigidbody_->SetRotation(newRotation);
-    }
-
-    void update(float deltaTime)
-    {
-        auto rotation = context_.rigidbody.GetRotation() *
-                        glm::angleAxis(glm::radians(context_.rotationSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
-        context_.rigidbody.SetRotation(rotation);
-    }
-
-private:
-    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

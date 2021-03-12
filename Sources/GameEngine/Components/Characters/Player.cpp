@@ -125,11 +125,16 @@ void Player::hurt(int64 dmg)
         characterStatistic_.currentHp -= dmg;
         if (characterStatistic_.currentHp > 0)
         {
-            characterController_->addState(std::make_unique<Hurt>());
+            //characterController_->addState(std::make_unique<Hurt>());
         }
         else
         {
-            characterController_->addState(std::make_unique<Death>());
+            auto fsm = characterController_->fsm();
+            if (fsm)
+            {
+                characterController_->fsm()->handle(DeathEvent{});
+            }
+
             characterController_->Deactivate();
             Deactivate();
         }

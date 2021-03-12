@@ -33,12 +33,9 @@ private:
 private:
     Animator* animator_;
     CharacterController* characterController_;
-    std::vector<CharacterControllerState::Type> states_;
     Input::KeysSubscriptionsManager subscriptions_;
 
     std::optional<uint32> connectedBone_;
-
-    std::function<void()> jumpCallback_;
 
     bool isRotateLeftPressed_{false};
     bool isRotateRightPressed_{false};

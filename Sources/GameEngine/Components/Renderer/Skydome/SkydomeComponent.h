@@ -13,7 +13,6 @@ class SkydomeComponent : public BaseComponent
 {
 public:
     SkydomeComponent(ComponentContext&, GameObject&);
-    ~SkydomeComponent() override;
 
     void CleanUp() override;
     void ReqisterFunctions() override;

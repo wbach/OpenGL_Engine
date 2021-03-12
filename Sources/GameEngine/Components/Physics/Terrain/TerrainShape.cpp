@@ -36,7 +36,6 @@ TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameO
     , heightMap_(nullptr)
 {
 }
-
 void TerrainShape::setScale(const vec3& scale)
 {
     if (heightMap_)
@@ -54,7 +53,6 @@ void TerrainShape::setScale(const vec3& scale)
         }
     }
 }
-
 void TerrainShape::CleanUp()
 {
     if (heightMap_)

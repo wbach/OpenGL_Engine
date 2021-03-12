@@ -17,6 +17,8 @@ namespace Components
 namespace
 {
 const float playerDetectionRange{10.f};
+const auto moveSpeed = Utils::KmToMs(8.f);
+
 const std::string COMPONENT_STR = "EnemyController";
 }  // namespace
 
@@ -45,8 +47,11 @@ void EnemyController::Init()
 }
 void EnemyController::Update()
 {
-    if (not characterController_ and not enemy_)
+    if (not characterController_ or not enemy_ or not characterController_->fsm())
         return;
+
+    auto& fsm = *characterController_->fsm();
+
 
     auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
         componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
@@ -55,20 +60,21 @@ void EnemyController::Update()
     {
         if (distance > enemy_->characterStatistic().attackRange)
         {
-            characterController_->addState(std::make_unique<MoveForward>(Utils::KmToMs(8.f)));
+            fsm.handle(MoveForwardEvent{moveSpeed});
         }
         else
         {
-            characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
-            characterController_->addState(std::make_unique<Attack>());
+            fsm.handle(EndMoveEvent{});
+            fsm.handle(AttackEvent{});
         }
-        characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(vectorToPlayer)));
+
+        fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
         return;
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-    characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(vectorToTarget), 2.f));
-    characterController_->addState(std::make_unique<MoveForward>(Utils::KmToMs(8.f)));
+    fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
+    fsm.handle(MoveForwardEvent{moveSpeed});
 
     auto distanceToPoint = glm::length(vectorToTarget);
     if (distanceToPoint < 2.f)
@@ -81,8 +87,6 @@ void EnemyController::Update()
             freeWalkingTargetPointIndex = 0;
         }
     }
-    characterController_->removeState(CharacterControllerState::Type::ATTACK);
-   // clearStates();
 }
 Quaternion EnemyController::caclulateTargetRotation(const vec3& toPlayer) const
 {
@@ -95,17 +99,11 @@ Quaternion EnemyController::caclulateTargetRotation(const vec3& toPlayer) const
 
     return targertRotation;
 }
-void EnemyController::clearStates()
-{
-    characterController_->removeState(CharacterControllerState::Type::ATTACK);
-    characterController_->removeState(CharacterControllerState::Type::ROTATE_TARGET);
-    characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
-}
 void EnemyController::calculateMovingPoints()
 {
     auto position = thisObject_.GetWorldTransform().GetPosition();
 
-    const float range = 4.f;
+    const float range  = 4.f;
     const float offset = 5;
 
     movingPoints_[0] = position + vec3(getRandomFloat() * range + offset, 0, getRandomFloat() * range + offset);

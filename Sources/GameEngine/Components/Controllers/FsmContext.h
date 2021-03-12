@@ -22,6 +22,7 @@ struct FsmContext
     const std::string& backwardAnimationName;
     const std::string& jumpAnimationName;
     const std::string& idleAnimationName;
+    const std::string& diedAnimationName;
 
     float moveSpeed{0.f};
     vec3 moveDirection{0.f};

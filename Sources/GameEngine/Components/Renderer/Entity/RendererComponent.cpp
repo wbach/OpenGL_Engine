@@ -30,10 +30,6 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
 {
 }
 
-RendererComponent::~RendererComponent()
-{
-}
-
 void RendererComponent::CleanUp()
 {
     UnSubscribe();

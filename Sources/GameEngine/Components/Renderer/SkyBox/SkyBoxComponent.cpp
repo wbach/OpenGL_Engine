@@ -61,9 +61,6 @@ SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject&
     dayTextureFiles_   = {"right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp"};
     nightTextureFiles_ = {"right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp"};
 }
-SkyBoxComponent::~SkyBoxComponent()
-{
-}
 void SkyBoxComponent::CleanUp()
 {
     UnSubscribe();

@@ -15,9 +15,7 @@ PreviewComponent::PreviewComponent(ComponentContext& componentContext, GameObjec
     , isSubscribed_(false)
 {
 }
-PreviewComponent::~PreviewComponent()
-{
-}
+
 void PreviewComponent::CleanUp()
 {
     UnSubscribe();

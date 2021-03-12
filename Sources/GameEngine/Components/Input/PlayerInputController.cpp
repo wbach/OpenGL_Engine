@@ -111,11 +111,9 @@ void PlayerInputController::SubscribeForPushActions()
             fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
         }
     });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {});
 
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::RMOUSE, [&]() { characterController_->removeState(CharacterControllerState::Type::ATTACK); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {});
 }
 
 void PlayerInputController::SubscribeForPopActions()
@@ -137,17 +135,32 @@ void PlayerInputController::SubscribeForPopActions()
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::A, [&]() {
         auto fsm             = characterController_->fsm();
         isRotateLeftPressed_ = false;
-        if (fsm and not isRotateRightPressed_)
+
+        if (fsm)
         {
-            fsm->handle(EndRotationEvent{});
+            if (not isRotateRightPressed_)
+            {
+                fsm->handle(EndRotationEvent{});
+            }
+            else
+            {
+                fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
+            }
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::D, [&]() {
         auto fsm              = characterController_->fsm();
         isRotateRightPressed_ = false;
-        if (fsm and not isRotateLeftPressed_)
+        if (fsm)
         {
-            fsm->handle(EndRotationEvent{});
+            if (not isRotateLeftPressed_)
+            {
+                fsm->handle(EndRotationEvent{});
+            }
+            else
+            {
+                fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
+            }
         }
     });
 }
