@@ -14,6 +14,7 @@ namespace Components
 {
 struct FsmContext
 {
+    AttackFsm& attackFsm;
     GameObject& gameObject;
     Physics::IPhysicsApi& physicsApi;
     Rigidbody& rigidbody;
@@ -24,6 +25,8 @@ struct FsmContext
     const std::string& jumpAnimationName;
     const std::string& idleAnimationName;
     const std::string& diedAnimationName;
+
+    std::vector<std::string> jointGroupNames;
 
     float moveSpeed{0.f};
     vec3 moveDirection{0.f};

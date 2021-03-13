@@ -1,7 +1,7 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
 
-#include "../CharacterControllerEvents.h"
+#include "AttackEvents.h"
 #include "AttackFsmContext.h"
 
 namespace GameEngine
@@ -12,16 +12,12 @@ class EmptyState;
 
 class AttackState : public Utils::StateMachine::Will<
                         Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<EmptyState>>>
+                        Utils::StateMachine::On<AttackFsmEvents::End, Utils::StateMachine::TransitionTo<EmptyState>>>
 {
 public:
-    AttackState(AttackFsmContext& context)
-        : context_{context}
-    {
-    }
-    void onEnter()
-    {
-    }
+    AttackState(AttackFsmContext&);
+    void onEnter(const AttackFsmEvents::Attack&);
+    void onEnter(const AttackFsmEvents::AttackGrouped&);
 
 private:
     AttackFsmContext& context_;

@@ -1,4 +1,5 @@
 #include "IdleState.h"
+#include "Attack/AttackEvents.h"
 
 namespace GameEngine
 {
@@ -17,8 +18,19 @@ void IdleState::onEnter()
                                           PlayDirection::forward, std::nullopt);
     }
 }
+
+void IdleState::onEnter(const AttackEvent&)
+{
+    context_.attackFsm.handle(AttackFsmEvents::Attack{});
+}
+
+void IdleState::onEnter(const EndAttackEvent &)
+{
+    onEnter();
+}
 void IdleState::update(float)
 {
 }
+
 }  // namespace Components
 }  // namespace GameEngine

@@ -39,6 +39,9 @@ struct EndJumpEvent
 struct AttackEvent
 {
 };
+struct EndAttackEvent
+{
+};
 struct DeathEvent
 {
 };

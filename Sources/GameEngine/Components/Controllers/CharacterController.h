@@ -6,6 +6,7 @@
 #include <Utils/math.hpp>
 #include <unordered_map>
 
+#include "Attack/AttackFsm.h"
 #include "CharacterControllerFsm.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
@@ -64,6 +65,8 @@ private:
 
 private:
     std::unique_ptr<FsmContext> fsmContext;
+    std::unique_ptr<AttackFsmContext> attackFsmContext;
+    std::unique_ptr<AttackFsm> attackFsm_;
     std::unique_ptr<CharacterControllerFsm> stateMachine_;
 
 public:

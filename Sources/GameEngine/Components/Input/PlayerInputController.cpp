@@ -108,7 +108,13 @@ void PlayerInputController::SubscribeForPushActions()
             fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
         }
     });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {});
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(AttackEvent{});
+        }
+    });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {});
 }
