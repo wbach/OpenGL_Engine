@@ -17,6 +17,8 @@ class DeathState;
 class MoveState : public MoveStateBase,
                   public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<MoveState>>,
+                      Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<MoveState>>,
                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                       Utils::StateMachine::On<EndMoveEvent, Utils::StateMachine::TransitionTo<IdleState>>,
                       Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,

@@ -10,6 +10,16 @@ MoveAndRotateState::MoveAndRotateState(FsmContext &context)
 {
 }
 
+void MoveAndRotateState::onEnter(const AttackEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void MoveAndRotateState::onEnter(const EndAttackEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
 void MoveAndRotateState::onEnter(const EndJumpEvent &event)
 {
     MoveStateBase::onEnter(event);

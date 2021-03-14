@@ -26,7 +26,10 @@ struct FsmContext
     const std::string& idleAnimationName;
     const std::string& diedAnimationName;
 
-    std::vector<std::string> jointGroupNames;
+    const std::string& upperBodyGroupName;
+    const std::string& lowerBodyGroupName;
+
+    bool multiAnimations{false};
 
     float moveSpeed{0.f};
     vec3 moveDirection{0.f};

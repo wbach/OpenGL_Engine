@@ -5,6 +5,8 @@ namespace GameEngine
 struct EndJumpEvent;
 struct MoveForwardEvent;
 struct MoveBackwardEvent;
+struct AttackEvent;
+struct EndAttackEvent;
 
 namespace Components
 {
@@ -17,6 +19,8 @@ public:
     void onEnter(const EndJumpEvent&);
     void onEnter(const MoveForwardEvent&);
     void onEnter(const MoveBackwardEvent&);
+    void onEnter(const AttackEvent&);
+    void onEnter(const EndAttackEvent&);
     void update(float);
 
 private:

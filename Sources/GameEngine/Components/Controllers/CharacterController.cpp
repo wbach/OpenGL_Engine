@@ -57,16 +57,22 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        attackFsmContext.reset(new AttackFsmContext{*animator_, attackAnimationName, [&]() {
-                                                        if (stateMachine_)
-                                                            stateMachine_->handle(EndAttackEvent{});
-                                                    }});
+        auto sendEndAtatackCallback = [this]() {
+            DEBUG_LOG("Try send EndAttackEvent");
+            if (stateMachine_)
+                stateMachine_->handle(EndAttackEvent{});
+            else
+                ERROR_LOG("StateMachine not set!");
+        };
+
+        attackFsmContext.reset(new AttackFsmContext{*animator_, attackAnimationName, sendEndAtatackCallback});
 
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState{*attackFsmContext}, AttackState{*attackFsmContext});
 
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
                                         *animator_, moveForwardAnimationName, moveBackwardAnimationName,
-                                        jumpAnimationName, idleAnimationName, deathAnimationName});
+                                        jumpAnimationName, idleAnimationName, deathAnimationName, upperBodyGroupName,
+                                        lowerBodyGroupName});
 
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
             IdleState(*fsmContext), MoveState(*fsmContext), RotateState(*fsmContext), MoveAndRotateState(*fsmContext),

@@ -13,7 +13,6 @@ class MoveState;
 class RotateState;
 class JumpState;
 class DeathState;
-
 struct FsmContext;
 
 class MoveAndRotateState
@@ -22,6 +21,8 @@ class MoveAndRotateState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
           Utils::StateMachine::On<EndMoveEvent, Utils::StateMachine::TransitionTo<RotateState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<MoveAndRotateState>>,
@@ -32,6 +33,8 @@ class MoveAndRotateState
 public:
     MoveAndRotateState(FsmContext&);
 
+    void onEnter(const AttackEvent&);
+    void onEnter(const EndAttackEvent&);
     void onEnter(const EndJumpEvent&);
     void onEnter(const MoveForwardEvent&);
     void onEnter(const MoveBackwardEvent&);

@@ -109,9 +109,11 @@ void PlayerInputController::SubscribeForPushActions()
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        DEBUG_LOG("KeyCodes::LMOUSE");
         auto fsm = characterController_->fsm();
         if (fsm)
         {
+            DEBUG_LOG("AttackEvent");
             fsm->handle(AttackEvent{});
         }
     });

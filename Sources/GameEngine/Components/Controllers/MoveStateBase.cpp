@@ -43,6 +43,16 @@ void MoveStateBase::onEnter(const MoveBackwardEvent &event)
 
     setBackwardAnim();
 }
+void MoveStateBase::onEnter(const AttackEvent &)
+{
+    context_.multiAnimations = true;
+    context_.attackFsm.handle(AttackFsmEvents::AttackGrouped{context_.upperBodyGroupName});
+}
+void MoveStateBase::onEnter(const EndAttackEvent &)
+{
+    context_.multiAnimations = false;
+    context_.attackFsm.handle(AttackFsmEvents::End{});
+}
 void MoveStateBase::update(float)
 {
     moveRigidbody(context_);
@@ -52,8 +62,9 @@ void MoveStateBase::setForwardAnim()
 {
     if (not context_.forwardAnimationName.empty())
     {
-        context_.animator.ChangeAnimation(context_.forwardAnimationName, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, std::nullopt);
+        context_.animator.ChangeAnimation(
+            context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
     }
 }
 
@@ -61,15 +72,17 @@ void MoveStateBase::setBackwardAnim()
 {
     if (not context_.backwardAnimationName.empty())
     {
-        context_.animator.ChangeAnimation(context_.backwardAnimationName, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, std::nullopt);
+        context_.animator.ChangeAnimation(
+            context_.backwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
     }
     else
     {
         if (not context_.forwardAnimationName.empty())
         {
-            context_.animator.ChangeAnimation(context_.forwardAnimationName, Animator::AnimationChangeType::smooth,
-                                              PlayDirection::backward, std::nullopt);
+            context_.animator.ChangeAnimation(
+                context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::backward,
+                context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
         }
     }
 }

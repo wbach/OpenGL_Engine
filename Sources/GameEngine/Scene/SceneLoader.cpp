@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 #include <Utils/Time/Timer.h>
+#include <Utils/Time/TimeMeasurer.h>
 
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
@@ -95,11 +96,15 @@ void SceneLoader::UpdateScreen()
 
 void SceneLoader::ScreenRenderLoop()
 {
+    Utils::Time::CTimeMeasurer timeMeasurer(30, 1000);
+
     while (IsLoading())
     {
+        timeMeasurer.StartFrame();
         displayManager_.ProcessEvents();
         gpuLoader_.RuntimeGpuTasks();
         UpdateScreen();
+        timeMeasurer.EndFrame();
     }
 }
 

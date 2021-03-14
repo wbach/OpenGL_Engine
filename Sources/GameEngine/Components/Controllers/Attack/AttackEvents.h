@@ -10,7 +10,7 @@ struct Attack
 };
 struct AttackGrouped
 {
-    const std::string& groupName;
+    std::string groupName;
 };
 struct End
 {

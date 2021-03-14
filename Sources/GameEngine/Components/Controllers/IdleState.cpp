@@ -1,4 +1,5 @@
 #include "IdleState.h"
+
 #include "Attack/AttackEvents.h"
 
 namespace GameEngine
@@ -19,14 +20,19 @@ void IdleState::onEnter()
     }
 }
 
-void IdleState::onEnter(const AttackEvent&)
+void IdleState::onEnter(const AttackEvent &)
 {
+    DEBUG_LOG("onEnter(const AttackEvent&)");
+    context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
 void IdleState::onEnter(const EndAttackEvent &)
 {
+    DEBUG_LOG("onEnter(const EndAttackEvent&)");
     onEnter();
+    context_.attackFsm.handle(AttackFsmEvents::End{});
+    context_.multiAnimations = false;
 }
 void IdleState::update(float)
 {
