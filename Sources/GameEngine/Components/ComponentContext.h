@@ -1,4 +1,6 @@
 #pragma once
+#include <Utils/Time/TimerService.h>
+
 #include <memory>
 
 #include "ComponentController.h"
@@ -35,10 +37,10 @@ typedef std::unordered_map<uint32, FunctionType> ComponentIdsMap;
 
 struct ComponentContext
 {
-    ComponentContext(Scene& scene, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time,
-                     Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
+    ComponentContext(Scene& scene, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
+                     Time& time, Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
                      IResourceManager& resourceManager, Renderer::RenderersManager& renderersManager,
-                     ComponentController& componentController, GuiElementFactory& guiElementFactory)
+                     ComponentController& componentController, GuiElementFactory& guiElementFactory, Utils::Time::TimerService& timerService)
         : scene_(scene)
         , graphicsApi_(graphicsApi)
         , gpuResourceLoader_(gpuResourceLoader)
@@ -50,6 +52,7 @@ struct ComponentContext
         , componentController_(componentController)
         , renderersManager_(renderersManager)
         , guiElementFactory_(guiElementFactory)
+        , timerService_(timerService)
     {
     }
     Scene& scene_;
@@ -63,6 +66,7 @@ struct ComponentContext
     ComponentController& componentController_;
     Renderer::RenderersManager& renderersManager_;
     GuiElementFactory& guiElementFactory_;
+    Utils::Time::TimerService& timerService_;
     // ComponentIdsMap ids_;
 };
 }  // namespace Components

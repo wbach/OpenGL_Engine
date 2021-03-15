@@ -2,6 +2,8 @@
 #include <Types.h>
 #include <Utils/MeasurementHandler.h>
 #include <Utils/ThreadSync.h>
+#include <Utils/Time/TimerService.h>
+
 #include <Mutex.hpp>
 #include <list>
 #include <memory>
@@ -52,6 +54,7 @@ public:
     inline Utils::Thread::ThreadSync& GetThreadSync();
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi();
     inline Renderer::RenderersManager& GetRenderersManager();
+    inline Utils::Time::TimerService& GetTimerService();
 
 private:
     Utils::MeasurementHandler measurmentHandler_;
@@ -60,6 +63,7 @@ private:
     DisplayManager displayManager_;
     std::unique_ptr<Input::InputManager> inputManager_;
     Utils::Thread::ThreadSync threadSync_;
+    Utils::Time::TimerService timerService_;
 
     GpuResourceLoader gpuResourceLoader_;
     Renderer::RenderersManager renderersManager_;
@@ -106,5 +110,9 @@ GraphicsApi::IGraphicsApi& EngineContext::GetGraphicsApi()
 Renderer::RenderersManager& EngineContext::GetRenderersManager()
 {
     return renderersManager_;
+}
+Utils::Time::TimerService& EngineContext::GetTimerService()
+{
+    return timerService_;
 }
 }  // namespace GameEngine

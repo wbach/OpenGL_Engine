@@ -1,5 +1,6 @@
 #pragma once
 #include <Utils/TreeNode.h>
+#include <Utils/Time/TimerService.h>
 
 #include <functional>
 #include <memory>
@@ -33,7 +34,7 @@ class ComponentFactory
 public:
     ComponentFactory(Scene&, ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&,
                      Input::InputManager&, IResourceManager&, Renderer::RenderersManager&, CameraWrapper&,
-                     Physics::IPhysicsApi&, GuiElementFactory&);
+                     Physics::IPhysicsApi&, GuiElementFactory&, Utils::Time::TimerService&);
 
     template <typename Component>
     std::unique_ptr<IComponent> Create(GameObject& gameObject)

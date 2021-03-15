@@ -3,37 +3,49 @@
 namespace Utils
 {
 Timer::Timer()
+    : isPeriodic_{false}
 {
     Reset();
+}
+
+Timer::Timer(std::chrono::milliseconds time, std::function<void()> callback, bool isPeriodic)
+    : Timer()
+{
+    SetCallback(time, callback, isPeriodic);
 }
 
 void Timer::Reset()
 {
     start_ = std::chrono::high_resolution_clock::now();
-
-    if (callback_)
-    {
-        callback_ = nullptr;
-    }
 }
 
-void Timer::SetCallback(uint64 time, std::function<void()> callback)
+void Timer::SetCallback(std::chrono::milliseconds time, std::function<void()> callback, bool isPeriodic)
 {
     Reset();
     callbackTime_ = time;
     callback_     = callback;
+    isPeriodic_   = isPeriodic;
 }
 
-void Timer::Update()
+bool Timer::Update()
 {
     if (callback_)
     {
-        if (GetTimeMiliSeconds() > callbackTime_)
+        if (GetTimeMiliSeconds() > callbackTime_.count())
         {
             callback_();
-            callback_ = nullptr;
+            if (isPeriodic_)
+            {
+                Reset();
+            }
+            else
+            {
+                callback_ = nullptr;
+                return true;
+            }
         }
     }
+    return false;
 }
 
 uint64 Timer::GetTimeNanoseconds() const

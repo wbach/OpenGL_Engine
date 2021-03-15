@@ -69,6 +69,8 @@ private:
     std::unique_ptr<AttackFsm> attackFsm_;
     std::unique_ptr<CharacterControllerFsm> stateMachine_;
 
+    std::optional<IdType> timerId_;
+
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;

@@ -44,6 +44,8 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
 }
 void CharacterController::CleanUp()
 {
+    if (timerId_)
+        componentContext_.timerService_.cancel(*timerId_);
 }
 void CharacterController::ReqisterFunctions()
 {
@@ -55,6 +57,7 @@ void CharacterController::Init()
     rigidbody_ = thisObject_.GetComponent<Rigidbody>();
     animator_  = thisObject_.GetComponent<Animator>();
 
+    timerId_ = componentContext_.timerService_.periodicTimer(std::chrono::milliseconds{ 1000 }, [&]() {DEBUG_LOG(thisObject_.GetName() + " + Timer! "); });
     if (animator_ and rigidbody_)
     {
         auto sendEndAtatackCallback = [this]() {
@@ -65,7 +68,15 @@ void CharacterController::Init()
                 ERROR_LOG("StateMachine not set!");
         };
 
-        attackFsmContext.reset(new AttackFsmContext{*animator_, attackAnimationName, sendEndAtatackCallback});
+        auto nextAtatackCallback = [this]() {
+            DEBUG_LOG("Try send EndAttackEvent");
+            if (stateMachine_)
+                stateMachine_->handle(NextAttackEvent{});
+            else
+                ERROR_LOG("StateMachine not set!");
+        };
+
+        attackFsmContext.reset(new AttackFsmContext{*animator_, attackAnimationName, nextAtatackCallback, sendEndAtatackCallback});
 
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState{*attackFsmContext}, AttackState{*attackFsmContext});
 

@@ -10,6 +10,7 @@ struct AttackFsmContext
 {
     Animator& animator;
     const std::string& attackAnimationName;
+    std::function<void()> nextAttackEvent;
     std::function<void ()> sendEndEventCallback;
 };
 }  // namespace Components

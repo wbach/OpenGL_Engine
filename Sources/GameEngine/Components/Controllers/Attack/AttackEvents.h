@@ -12,6 +12,9 @@ struct AttackGrouped
 {
     std::string groupName;
 };
+struct NextAttack
+{
+};
 struct End
 {
 };
