@@ -15,24 +15,25 @@ void IdleState::onEnter()
     DEBUG_LOG("onEnter()");
     if (not context_.idleAnimationName.empty())
     {
-        context_.animator.ChangeAnimation(context_.idleAnimationName, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, std::nullopt);
+        context_.animator.ChangeAnimation(
+            context_.idleAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
     }
 }
 
-void IdleState::onEnter(const AttackEvent &)
+void IdleState::update(const AttackEvent &)
 {
-    DEBUG_LOG("onEnter(const AttackEvent&)");
+    DEBUG_LOG("update(const AttackEvent&)");
     context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
-void IdleState::onEnter(const EndAttackEvent &)
+void IdleState::update(const EndAttackEvent &)
 {
-    DEBUG_LOG("onEnter(const EndAttackEvent&)");
-    onEnter();
+    DEBUG_LOG("update(const EndAttackEvent&)");
     context_.attackFsm.handle(AttackFsmEvents::End{});
     context_.multiAnimations = false;
+    onEnter();
 }
 void IdleState::update(float)
 {

@@ -10,14 +10,16 @@ MoveAndRotateState::MoveAndRotateState(FsmContext &context)
 {
 }
 
-void MoveAndRotateState::onEnter(const AttackEvent& event)
+void MoveAndRotateState::update(const AttackEvent& event)
 {
-    MoveStateBase::onEnter(event);
+    DEBUG_LOG("update(const AttackEvent &)");
+    MoveStateBase::update(event);
 }
 
-void MoveAndRotateState::onEnter(const EndAttackEvent& event)
+void MoveAndRotateState::update(const EndAttackEvent& event)
 {
-    MoveStateBase::onEnter(event);
+    DEBUG_LOG("update(const EndAttackEvent &)");
+    MoveStateBase::update(event);
 }
 
 void MoveAndRotateState::onEnter(const EndJumpEvent &event)

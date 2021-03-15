@@ -43,12 +43,12 @@ void MoveStateBase::onEnter(const MoveBackwardEvent &event)
 
     setBackwardAnim();
 }
-void MoveStateBase::onEnter(const AttackEvent &)
+void MoveStateBase::update(const AttackEvent &)
 {
     context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::AttackGrouped{context_.upperBodyGroupName});
 }
-void MoveStateBase::onEnter(const EndAttackEvent &)
+void MoveStateBase::update(const EndAttackEvent &)
 {
     context_.multiAnimations = false;
     context_.attackFsm.handle(AttackFsmEvents::End{});

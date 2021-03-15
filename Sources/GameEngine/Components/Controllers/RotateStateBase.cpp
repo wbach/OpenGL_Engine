@@ -1,7 +1,8 @@
 #include "RotateStateBase.h"
-#include "CharacterControllerEvents.h"
+
 #include <Logger/Log.h>
 
+#include "CharacterControllerEvents.h"
 #include "FsmContext.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 
@@ -39,6 +40,18 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
 
     //        auto newRotation = glm::slerp(startedRotation_, rotateTarget_, progress_);
     //        rigidbody_->SetRotation(newRotation);
+}
+
+void RotateStateBase::update(const AttackEvent &)
+{
+    DEBUG_LOG("update(const AttackEvent &)");
+    context_.attackFsm.handle(AttackFsmEvents::Attack{});
+}
+
+void RotateStateBase::update(const EndAttackEvent &)
+{
+    DEBUG_LOG("update(const EndAttackEvent &)");
+    context_.attackFsm.handle(AttackFsmEvents::End{});
 }
 
 void RotateStateBase::update(float deltaTime)

@@ -21,12 +21,6 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(
     Context &context, const std::vector<CurrentGroupsPlayingInfo> &currentGroupsPlayingInfos,
     const ChangeAnimationEvent &event)
     : context_{context}
-    , secondaryClipStartupTime_{event.startTime}
-    , secondaryClipInfo_{event.info}
-    , secondaryAnimJointGroup_{nullptr}
-    , startChaneAnimKeyFrame_{convert(context_.currentPose)}
-    , timeForChange_{context_.transitionTime}
-    , transitionProgress_{0.f}
 {
     DEBUG_LOG("");
     for (auto &info : currentGroupsPlayingInfos)
@@ -41,13 +35,14 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(
             }
         }
     }
+
     if (event.jointGroupName)
     {
-        secondaryGroupName = *event.jointGroupName;
         auto iter = context_.jointGroups.find(*event.jointGroupName);
         if (iter != context_.jointGroups.end())
         {
-            secondaryAnimJointGroup_ = &iter->second;
+            transtionGroups_.push_back(TransitionGroup{event.startTime, event.info, *event.jointGroupName, iter->second,
+                                                       convert(context_.currentPose), context_.transitionTime, 0.f});
         }
     }
 }
@@ -63,11 +58,11 @@ bool AnimationTransitionToMixed::update(float deltaTime)
         }
     }
 
-    if (secondaryAnimJointGroup_)
+    for (const auto &group : transtionGroups_)
     {
-        const auto &endChangeAnimKeyFrame = secondaryClipInfo_.clip.GetFrames().front();
-        interpolatePoses(context_.currentPose, startChaneAnimKeyFrame_, endChangeAnimKeyFrame, transitionProgress_,
-                         *secondaryAnimJointGroup_);
+        const auto &endChangeAnimKeyFrame = group.clipInfo_.clip.GetFrames().front();
+        interpolatePoses(context_.currentPose, group.startKeyFrame_, endChangeAnimKeyFrame, group.progress_,
+                         group.animJointGroup_);
     }
 
     increaseAnimationTime(deltaTime);
@@ -112,7 +107,7 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
         auto length    = group.clipInfo_.clip.GetLength();
         auto &progress = group.progres_;
 
-        progress += deltaTime * group.clipInfo_.playSpeed; //* direction_;
+        progress += deltaTime * group.clipInfo_.playSpeed;  //* direction_;
 
         if (progress > length)
         {
@@ -127,19 +122,22 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
 
 void AnimationTransitionToMixed::increaseTransitionTime(float deltaTime)
 {
-    transitionProgress_ += (1.f / timeForChange_) * deltaTime;
-
-    if (transitionProgress_ > 1.f)
+    for (auto &group : transtionGroups_)
     {
-        AnimationClipInfoPerGroup infoPerGroup;
-        for (const auto &group : currentGroups_)
-        {
-            infoPerGroup.insert({group.name, {group.clipInfo_, group.progres_}});
-        }
+        group.progress_ += (1.f / group.timeForChange_) * deltaTime;
 
-        infoPerGroup.insert({secondaryGroupName, {secondaryClipInfo_, 0.f}});
-        context_.machine.transitionTo(std::make_unique<PlayMixedAnimation>(context_, infoPerGroup));
-        return;
+        if (group.progress_ > 1.f)
+        {
+            AnimationClipInfoPerGroup infoPerGroup;
+            for (const auto &group : currentGroups_)
+            {
+                infoPerGroup.insert({group.name, {group.clipInfo_, group.progres_}});
+            }
+
+            infoPerGroup.insert({group.groupName, {group.clipInfo_, 0.f}});
+            context_.machine.transitionTo(std::make_unique<PlayMixedAnimation>(context_, infoPerGroup));
+            return;
+        }
     }
 }
 }  // namespace Components

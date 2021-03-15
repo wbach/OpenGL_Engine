@@ -19,8 +19,8 @@ public:
     void onEnter(const EndJumpEvent&);
     void onEnter(const MoveForwardEvent&);
     void onEnter(const MoveBackwardEvent&);
-    void onEnter(const AttackEvent&);
-    void onEnter(const EndAttackEvent&);
+    void update(const AttackEvent&);
+    void update(const EndAttackEvent&);
     void update(float);
 
 private:

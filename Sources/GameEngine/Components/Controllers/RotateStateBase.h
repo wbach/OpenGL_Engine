@@ -5,6 +5,8 @@ namespace GameEngine
 struct RotateLeftEvent;
 struct RotateRightEvent;
 struct RotateTargetEvent;
+struct AttackEvent;
+struct EndAttackEvent;
 
 namespace Components
 {
@@ -17,6 +19,8 @@ public:
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
+    void update(const AttackEvent&);
+    void update(const EndAttackEvent&);
     void update(float);
 
 private:

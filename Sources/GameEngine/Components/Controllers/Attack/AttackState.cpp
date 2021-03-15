@@ -17,6 +17,7 @@ AttackState::AttackState(AttackFsmContext &context)
 void AttackState::onEnter(const AttackFsmEvents::Attack &)
 {
     DEBUG_LOG("onEnter(const AttackFsmEvents::Attack&) ");
+
     if (not context_.attackAnimationName.empty())
     {
         context_.animator.ChangeAnimation(context_.attackAnimationName, Animator::AnimationChangeType::smooth,
@@ -25,6 +26,8 @@ void AttackState::onEnter(const AttackFsmEvents::Attack &)
 }
 void AttackState::onEnter(const AttackFsmEvents::AttackGrouped &event)
 {
+    DEBUG_LOG("onEnter(const AttackFsmEvents::AttackGrouped&) ");
+
     if (not context_.attackAnimationName.empty())
     {
         context_.animator.ChangeAnimation(context_.attackAnimationName, Animator::AnimationChangeType::smooth,

@@ -14,6 +14,7 @@ class AnimationTransitionToMixed : public IState
 {
 public:
     AnimationTransitionToMixed(Context&, const std::vector<CurrentGroupsPlayingInfo>&, const ChangeAnimationEvent&);
+   // AnimationTransitionToMixed(Context&, const std::vector<CurrentGroupsPlayingInfo>&, const ChangeAnimationEvent&);
     bool update(float) override;
     const std::string& getAnimationClipName() const override;
 
@@ -35,17 +36,20 @@ private:
     };
     std::vector<Group> currentGroups_;
 
-    float secondaryClipStartupTime_;
-    AnimationClipInfo secondaryClipInfo_;
+    struct TransitionGroup
+    {
+        float startupTime_;
+        AnimationClipInfo clipInfo_;
 
-    std::string secondaryJointGroupName;
-    std::string secondaryGroupName;
-    const std::vector<uint32>* secondaryAnimJointGroup_;
+        std::string groupName;
+        const std::vector<uint32>& animJointGroup_;
 
-    Animation::KeyFrame startChaneAnimKeyFrame_;
+        Animation::KeyFrame startKeyFrame_;
 
-    float timeForChange_;
-    float transitionProgress_;
+        float timeForChange_;
+        float progress_;
+    };
+    std::vector<TransitionGroup> transtionGroups_;
 };
 }  // namespace Components
 }  // namespace GameEngine

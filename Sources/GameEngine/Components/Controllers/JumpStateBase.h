@@ -13,6 +13,8 @@ struct JumpStateBase
 public:
     JumpStateBase(FsmContext&, std::function<void()>);
     void onEnter(const JumpEvent&);
+    void onEnter(const AttackEvent&);
+    void onEnter(const EndAttackEvent&);
     void update(float);
 
 private:

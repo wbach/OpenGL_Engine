@@ -118,7 +118,16 @@ void PlayerInputController::SubscribeForPushActions()
         }
     });
 
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {});
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]()
+    {
+        DEBUG_LOG("KeyCodes::RMOUSE");
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            DEBUG_LOG("EndAttackEvent");
+            fsm->handle(EndAttackEvent{});
+        }
+    });
 }
 
 void PlayerInputController::SubscribeForPopActions()

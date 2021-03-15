@@ -55,12 +55,22 @@ void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
     DEBUG_LOG("");
     if (event.jointGroupName)
     {
-        auto iter = groups_.find(*event.jointGroupName);
-        if (iter != groups_.end())
+//        auto iter = groups_.find(*event.jointGroupName);
+//        if (iter != groups_.end())
+//        {
+//            std::vector<CurrentGroupsPlayingInfo> infos{{event.info, event.startTime, {*event.jointGroupName}}};
+//            context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
+//        }
+
+        std::vector<CurrentGroupsPlayingInfo> infos{};
+        for(auto& [name, group] : groups_)
         {
-            std::vector<CurrentGroupsPlayingInfo> infos{{event.info, event.startTime, {*event.jointGroupName}}};
-            context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
+            if (name != event.jointGroupName)
+            {
+                infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name} });
+            }
         }
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
     }
     else
     {

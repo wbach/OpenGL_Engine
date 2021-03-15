@@ -16,8 +16,8 @@ class DeathState;
 
 class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<IdleState>>,
-                      Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<IdleState>>,
+                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+                      Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                       Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
                       Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
@@ -29,8 +29,8 @@ class IdleState : public Utils::StateMachine::Will<
 public:
     IdleState(FsmContext&);
     void onEnter();
-    void onEnter(const AttackEvent&);
-    void onEnter(const EndAttackEvent&);
+    void update(const AttackEvent&);
+    void update(const EndAttackEvent&);
     void update(float);
 
 private:
