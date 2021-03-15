@@ -17,7 +17,7 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , direction_{info.playDirection == PlayDirection::forward ? 1.f : -1.f}
     , clipInfo_{info}
 {
-    DEBUG_LOG("");
+    DEBUG_LOG(info.clip.name);
 }
 bool PlayAnimation::update(float deltaTime)
 {
@@ -32,7 +32,7 @@ const std::string& PlayAnimation::getAnimationClipName() const
 
 void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
-    DEBUG_LOG("ChangeAnimationEvent");
+    DEBUG_LOG("ChangeAnimationEvent : " + event.info.clip.name);
     if (event.jointGroupName)
     {
         std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, {}}};
@@ -44,17 +44,19 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
                 v.front().jointGroupNames.push_back(name);
             }
         }
+        DEBUG_LOG("AnimationTransitionToMixed " + event.info.clip.name);
         context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
     }
     else
     {
-        DEBUG_LOG("no groups");
+        DEBUG_LOG("no groups " + event.info.clip.name);
         context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
 
 void PlayAnimation::handle(const StopAnimationEvent&)
 {
+    DEBUG_LOG("StopAnimationEvent");
     context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
 }
 

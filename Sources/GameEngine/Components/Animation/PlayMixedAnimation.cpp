@@ -28,6 +28,7 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
         {
             auto& info     = pair.first;
             auto startTime = pair.second;
+            DEBUG_LOG(info.clip.name);
 
             const auto& jointGroups = iter->second;
             float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
@@ -52,24 +53,18 @@ const std::string& PlayMixedAnimation::getAnimationClipName() const
 
 void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
 {
-    DEBUG_LOG("");
+    DEBUG_LOG("PlayMixedAnimation " + event.info.clip.name);
     if (event.jointGroupName)
     {
-//        auto iter = groups_.find(*event.jointGroupName);
-//        if (iter != groups_.end())
-//        {
-//            std::vector<CurrentGroupsPlayingInfo> infos{{event.info, event.startTime, {*event.jointGroupName}}};
-//            context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
-//        }
-
         std::vector<CurrentGroupsPlayingInfo> infos{};
-        for(auto& [name, group] : groups_)
+        for (auto& [name, group] : groups_)
         {
             if (name != event.jointGroupName)
             {
-                infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name} });
+                infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name}});
             }
         }
+        DEBUG_LOG("AnimationTransitionToMixed " + *event.jointGroupName);
         context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
     }
     else

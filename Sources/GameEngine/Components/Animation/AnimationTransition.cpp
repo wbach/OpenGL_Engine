@@ -21,7 +21,7 @@ AnimationTransition::AnimationTransition(Context& context, const AnimationClipIn
     , currentTime_{0.f}
     , startTime_{0.f}
 {
-    DEBUG_LOG("");
+    DEBUG_LOG(infoClip.clip.name);
 }
 bool AnimationTransition::update(float deltaTime)
 {
@@ -38,13 +38,14 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        DEBUG_LOG("");
+        DEBUG_LOG("event.jointGroupName " +  event.info.clip.name);
         std::vector<CurrentGroupsPlayingInfo> v{{info_, 0.f, {}}};
 
         for (auto& [name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
+                DEBUG_LOG("Group : " + name + " to clip : " + info_.clip.name);
                 v.front().jointGroupNames.push_back(name);
             }
         }
@@ -52,6 +53,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
     }
     else
     {
+        DEBUG_LOG("move to AnimationTransition  " +  event.info.clip.name);
         context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }

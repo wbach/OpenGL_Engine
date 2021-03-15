@@ -37,8 +37,11 @@ void StateMachine::handle(std::variant<ChangeAnimationEvent, StopAnimationEvent>
 {
     if (currentState_)
     {
-        DEBUG_LOG("Handle");
-        std::visit(visitor{[&](const auto& event) { currentState_->handle(event); }}, v);
+        std::visit(visitor{[&](const auto& event) {
+                       DEBUG_LOG("Handle " + typeid(event).name());
+                       currentState_->handle(event);
+                   }},
+                   v);
     }
     else
     {

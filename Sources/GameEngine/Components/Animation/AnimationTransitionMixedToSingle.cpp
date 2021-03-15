@@ -25,7 +25,7 @@ AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &cont
     , currentClipInfo_{info.info}
     , transitionProgress_{0.f}
 {
-    DEBUG_LOG("");
+    DEBUG_LOG(info.info.clip.name);
 
     for (auto &groupName : info.jointGroupNames)
     {
@@ -93,10 +93,12 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
                 v.front().jointGroupNames.push_back(name);
             }
         }
+        DEBUG_LOG("AnimationTransitionToMixed");
         context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
     }
     else
     {
+        DEBUG_LOG("AnimationTransition");
         context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
