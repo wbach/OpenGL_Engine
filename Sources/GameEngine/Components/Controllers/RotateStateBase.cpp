@@ -45,6 +45,7 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
 void RotateStateBase::update(const AttackEvent &)
 {
     DEBUG_LOG("update(const AttackEvent &)");
+    context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
@@ -52,6 +53,7 @@ void RotateStateBase::update(const EndAttackEvent &)
 {
     DEBUG_LOG("update(const EndAttackEvent &)");
     context_.attackFsm.handle(AttackFsmEvents::End{});
+    context_.multiAnimations = false;
 }
 
 void RotateStateBase::update(float deltaTime)

@@ -26,12 +26,14 @@ void JumpStateBase::onEnter(const JumpEvent &event)
 
 void JumpStateBase::onEnter(const AttackEvent &)
 {
+    context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
 void JumpStateBase::onEnter(const EndAttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::End{});
+    context_.multiAnimations = false;
 }
 void JumpStateBase::update(float)
 {

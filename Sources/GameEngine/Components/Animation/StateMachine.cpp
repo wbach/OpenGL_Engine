@@ -22,10 +22,11 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 {
     if (tmpState_)
     {
+        DEBUG_LOG("Move state");
         currentState_ = std::move(tmpState_);
     }
 
-    if (currentState_)
+    if (currentState_ and not tmpState_)
     {
         if (currentState_->update(deltaTime))
             return PoseUpdateAction::update;
@@ -35,6 +36,11 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 }
 void StateMachine::handle(std::variant<ChangeAnimationEvent, StopAnimationEvent> v)
 {
+    if (tmpState_)
+    {
+        currentState_ = std::move(tmpState_);
+    }
+
     if (currentState_)
     {
         std::visit(visitor{[&](const auto& event) {

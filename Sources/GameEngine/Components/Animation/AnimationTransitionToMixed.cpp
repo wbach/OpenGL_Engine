@@ -118,7 +118,7 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
     }
     else
     {
-        DEBUG_LOG("AnimationTransition " + event.info.clip.name + " " + *event.jointGroupName);
+        DEBUG_LOG("AnimationTransition " + event.info.clip.name);
         context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
