@@ -24,6 +24,7 @@ struct RotateRightEvent
 };
 struct RotateTargetEvent
 {
+    float speed{1.f};
     Quaternion target;
 };
 struct EndRotationEvent

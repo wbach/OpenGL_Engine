@@ -50,6 +50,8 @@ public:
 
     CharacterControllerFsm* fsm();
 
+    float getShapeSize() const;
+
 private:
     void isOnGround();
     void clearVelocityIfNotMoving();
@@ -62,14 +64,13 @@ private:
     float jumpPower_;
     float turnSpeed_;
     float runSpeed_;
+    float shapeSize_;
 
 private:
     std::unique_ptr<FsmContext> fsmContext;
     std::unique_ptr<AttackFsmContext> attackFsmContext;
     std::unique_ptr<AttackFsm> attackFsm_;
     std::unique_ptr<CharacterControllerFsm> stateMachine_;
-
-    std::optional<IdType> timerId_;
 
 public:
     static void registerReadFunctions();

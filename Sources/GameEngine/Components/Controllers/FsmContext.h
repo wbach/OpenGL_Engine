@@ -35,6 +35,11 @@ struct FsmContext
     vec3 moveDirection{0.f};
 
     float rotationSpeed{0.f};
+
+    bool rotateToTarget{false};
+    float rotateToTargetProgress{0.f};
+    Quaternion startRotation;
+    Quaternion targetRotation;
 };
 }  // namespace Components
 }  // namespace GameEngine

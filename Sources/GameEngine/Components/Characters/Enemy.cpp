@@ -61,7 +61,7 @@ void Enemy::Init()
 
             if (componentPtr)
             {
-                if (distance < characterStatistic_.attackRange)
+                if (distance < (characterStatistic_.attackRange + characterController_->getShapeSize()))
                 {
                     componentPtr->hurt(characterStatistic_.attackDmg);
                 }

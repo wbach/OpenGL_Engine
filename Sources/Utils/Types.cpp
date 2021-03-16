@@ -61,7 +61,8 @@ bool compare(float x, float y, float epsilon)
 
 float getRandomFloat()
 {
-    return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+    //return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+    return getRandomFloat(0.f, 1.f);
 }
 
 float getRandomFloat(float min, float max)

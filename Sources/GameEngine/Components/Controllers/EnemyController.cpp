@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -17,7 +18,8 @@ namespace Components
 namespace
 {
 const float playerDetectionRange{10.f};
-const auto moveSpeed = Utils::KmToMs(8.f);
+const auto moveSpeed   = Utils::KmToMs(8.f);
+const auto rotateSpeed = 1.f;
 
 const std::string COMPONENT_STR = "EnemyController";
 }  // namespace
@@ -52,32 +54,33 @@ void EnemyController::Update()
 
     auto& fsm = *characterController_->fsm();
 
-
     auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
         componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
     if (componentPtr and distance < playerDetectionRange)
     {
-        if (distance > enemy_->characterStatistic().attackRange)
-        {
-            fsm.handle(MoveForwardEvent{moveSpeed});
-        }
-        else
+        if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
             fsm.handle(EndMoveEvent{});
             fsm.handle(AttackEvent{});
         }
+        else
+        {
+            fsm.handle(EndAttackEvent{});
+            fsm.handle(MoveForwardEvent{moveSpeed});
+        }
 
-        fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
+        fsm.handle(RotateTargetEvent{rotateSpeed, caclulateTargetRotation(vectorToPlayer)});
         return;
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-    fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
+    fsm.handle(EndAttackEvent{});
+    fsm.handle(RotateTargetEvent{rotateSpeed, caclulateTargetRotation(vectorToTarget)});
     fsm.handle(MoveForwardEvent{moveSpeed});
 
     auto distanceToPoint = glm::length(vectorToTarget);
-    if (distanceToPoint < 2.f)
+    if (distanceToPoint < 5.f)
     {
         freeWalkingTargetPoint = movingPoints_[freeWalkingTargetPointIndex];
         ++freeWalkingTargetPointIndex;
@@ -103,7 +106,7 @@ void EnemyController::calculateMovingPoints()
 {
     auto position = thisObject_.GetWorldTransform().GetPosition();
 
-    const float range  = 4.f;
+    const float range  = 10.f;
     const float offset = 5;
 
     movingPoints_[0] = position + vec3(getRandomFloat() * range + offset, 0, getRandomFloat() * range + offset);

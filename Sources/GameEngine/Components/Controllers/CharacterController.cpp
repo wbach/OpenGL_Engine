@@ -4,6 +4,7 @@
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
@@ -40,12 +41,11 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , jumpPower_(DEFAULT_JUMP_POWER)
     , turnSpeed_(DEFAULT_TURN_SPEED)
     , runSpeed_(DEFAULT_RUN_SPEED)
+    , shapeSize_(1.f)
 {
 }
 void CharacterController::CleanUp()
 {
-    if (timerId_)
-        componentContext_.timerService_.cancel(*timerId_);
 }
 void CharacterController::ReqisterFunctions()
 {
@@ -57,7 +57,12 @@ void CharacterController::Init()
     rigidbody_ = thisObject_.GetComponent<Rigidbody>();
     animator_  = thisObject_.GetComponent<Animator>();
 
-    timerId_ = componentContext_.timerService_.periodicTimer(std::chrono::milliseconds{ 1000 }, [&]() {DEBUG_LOG(thisObject_.GetName() + " + Timer! "); });
+    if (auto capsuleShape = thisObject_.GetComponent<CapsuleShape>())
+    {
+        const auto& scale = thisObject_.GetWorldTransform().GetScale();
+        shapeSize_        = capsuleShape->GetRadius() * glm::compMax(vec2(scale.x, scale.z));
+    }
+
     if (animator_ and rigidbody_)
     {
         auto sendEndAtatackCallback = [this]() {
@@ -76,7 +81,8 @@ void CharacterController::Init()
                 ERROR_LOG("StateMachine not set!");
         };
 
-        attackFsmContext.reset(new AttackFsmContext{*animator_, attackAnimationName, nextAtatackCallback, sendEndAtatackCallback});
+        attackFsmContext.reset(
+            new AttackFsmContext{*animator_, attackAnimationName, nextAtatackCallback, sendEndAtatackCallback});
 
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState{*attackFsmContext}, AttackState{*attackFsmContext});
 
@@ -114,6 +120,11 @@ void CharacterController::SetJumpPower(float v)
 CharacterControllerFsm* CharacterController::fsm()
 {
     return stateMachine_.get();
+}
+
+float CharacterController::getShapeSize() const
+{
+    return shapeSize_;
 }
 void CharacterController::SetTurnSpeed(float v)
 {

@@ -1,4 +1,8 @@
 #pragma once
+#include <Logger/Log.h>
+
+#include <type_traits>
+
 namespace Utils
 {
 namespace StateMachine
@@ -14,9 +18,9 @@ public:
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
-        enter(newState);
-        enter(newState, event);
         enter(newState, prevState, event);
+        enter(newState, event);
+        enter(newState);
     }
 
 private:
