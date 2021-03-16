@@ -82,9 +82,9 @@ void CharacterController::Init()
         };
 
         attackFsmContext.reset(
-            new AttackFsmContext{*animator_, attackAnimationName, nextAtatackCallback, sendEndAtatackCallback});
+            new AttackFsmContext{ *animator_, {attackAnimationName, attackAnimationName2, attackAnimationName3}, nextAtatackCallback, sendEndAtatackCallback });
 
-        attackFsm_ = std::make_unique<AttackFsm>(EmptyState{*attackFsmContext}, AttackState{*attackFsmContext});
+        attackFsm_ = std::make_unique<AttackFsm>(EmptyState(*attackFsmContext), AttackState(*attackFsmContext));
 
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
                                         *animator_, moveForwardAnimationName, moveBackwardAnimationName,
@@ -94,7 +94,7 @@ void CharacterController::Init()
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
             IdleState(*fsmContext), MoveState(*fsmContext), RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
-            MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }), DeathState{*fsmContext});
+            MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }), DeathState(*fsmContext));
 
         rigidbody_->InputParams().angularFactor_ = vec3(0);
         animator_->setPlayOnceForAnimationClip(jumpAnimationName);

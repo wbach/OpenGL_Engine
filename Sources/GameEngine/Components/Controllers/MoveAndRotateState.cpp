@@ -12,13 +12,13 @@ MoveAndRotateState::MoveAndRotateState(FsmContext &context)
 
 void MoveAndRotateState::update(const AttackEvent& event)
 {
-    DEBUG_LOG("update(const AttackEvent &)");
+    //DEBUG_LOG("update(const AttackEvent &)");
     MoveStateBase::update(event);
 }
 
 void MoveAndRotateState::update(const EndAttackEvent& event)
 {
-    DEBUG_LOG("update(const EndAttackEvent &)");
+    //DEBUG_LOG("update(const EndAttackEvent &)");
     MoveStateBase::update(event);
 }
 

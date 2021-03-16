@@ -116,7 +116,7 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
-                for (const auto& callback : group.clipInfo.endCallbacks_)
+                for (const auto& [_, callback] : group.clipInfo.endCallbacks_)
                 {
                     callback();
                 }

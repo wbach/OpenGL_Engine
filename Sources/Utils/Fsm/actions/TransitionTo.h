@@ -14,6 +14,7 @@ public:
     template <typename Machine, typename State, typename Event>
     void execute(Machine& machine, State& prevState, const Event& event)
     {
+        leave(prevState);
         leave(prevState, event);
 
         TargetState& newState = machine.template transitionTo<TargetState>();
@@ -32,6 +33,12 @@ private:
     auto leave(State& state, const Event& event) -> decltype(state.onLeave(event))
     {
         return state.onLeave(event);
+    }
+
+    template <typename State>
+    auto leave(State& state) -> decltype(state.onLeave())
+    {
+        return state.onLeave();
     }
 
     void enter(...)

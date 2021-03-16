@@ -70,7 +70,7 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
         {
             context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
 
-            for (const auto& callback : clipInfo_.endCallbacks_)
+            for (const auto& [_, callback] : clipInfo_.endCallbacks_)
             {
                 callback();
             }

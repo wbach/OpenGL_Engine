@@ -6,9 +6,9 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
+#include "JointData.h"
 #include "PlayDirection.h"
 #include "StateMachine.h"
-#include "JointData.h"
 
 namespace common
 {
@@ -48,7 +48,8 @@ public:
     void AddAnimationClip(const GameEngine::File&);
     void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
-    void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward, std::optional<std::string> = std::nullopt);
+    void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward,
+                         std::optional<std::string> = std::nullopt);
     void MixAnimation(const std::vector<std::pair<std::string, std::string>>&);
 
     const std::string& GetCurrentAnimationName() const;
@@ -57,11 +58,11 @@ public:
                                                 const std::optional<Rotation>& ro = {});
     void disconnectObjectFromBone(uint32);
     void setPlayOnceForAnimationClip(const std::string&);
+    IdType SubscribeForAnimationEnd(const std::string&, std::function<void()>);
+    void UnSubscribeForAnimationEnd(IdType);
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
-    std::unordered_map<std::string, std::vector<std::function<void()>>> onAnimationEnd_;
-
     JointData jointData_;
     float animationSpeed_;
     std::string startupAnimationClipName_;
@@ -79,6 +80,8 @@ protected:
 
 protected:
     StateMachine machine_;
+    std::unordered_map<std::string, std::vector<std::pair<IdType, std::function<void()>>>> onAnimationEnd_;
+    Utils::IdPool animationEndIdPool_;
 
     RendererComponent* rendererComponent_;
     std::unordered_map<uint32, ConnectedObject> connectedObjects_;

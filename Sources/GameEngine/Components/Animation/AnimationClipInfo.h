@@ -16,7 +16,7 @@ struct AnimationClipInfo
     const Animation::AnimationClip& clip;
     PlayPolicy policy{PlayPolicy::PlayInLoop};
     PlayDirection playDirection{PlayDirection::forward};
-    const std::vector<std::function<void()>>& endCallbacks_;
+    const std::vector<std::pair<IdType, std::function<void()>>>& endCallbacks_;
 };
 }  // namespace Components
 }  // namespace GameEngine

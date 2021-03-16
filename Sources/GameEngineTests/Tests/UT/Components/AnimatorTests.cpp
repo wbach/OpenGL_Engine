@@ -105,8 +105,7 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
     bool run{true};
     uint64 avarageTime{0};
     uint64 avarageFrameTime{0};
-
-    sut_.onAnimationEnd_[CLIP_NAME].push_back([&timer, &run, &avarageTime]() {
+    sut_.SubscribeForAnimationEnd(CLIP_NAME, [&timer, &run, &avarageTime]() {
         run       = false;
         auto time = timer.GetTimeNanoseconds();
         avarageTime += time;

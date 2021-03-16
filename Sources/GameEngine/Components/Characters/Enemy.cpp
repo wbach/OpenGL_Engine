@@ -68,9 +68,9 @@ void Enemy::Init()
             }
         };
 
-        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back(attackAction);
-        animator_->onAnimationEnd_[characterController_->attackAnimationName2].push_back(attackAction);
-        animator_->onAnimationEnd_[characterController_->attackAnimationName3].push_back(attackAction);
+        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName, attackAction);
+        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName2, attackAction);
+        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName3, attackAction);
     }
 
     const vec2 windowSize(0.2f, 0.033f);
