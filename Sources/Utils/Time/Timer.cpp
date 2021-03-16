@@ -31,7 +31,8 @@ bool Timer::Update()
 {
     if (callback_)
     {
-        if (GetTimeMiliSeconds() > callbackTime_.count())
+        auto now = std::chrono::high_resolution_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start_) > callbackTime_)
         {
             callback_();
             if (isPeriodic_)

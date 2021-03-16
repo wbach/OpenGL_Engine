@@ -49,16 +49,19 @@ void TimerService::cancel(IdType id)
 void TimerService::update()
 {
     measurer_.StartFrame();
-    std::lock_guard<std::mutex> lk(mutex_);
 
-    std::vector<IdType> expired;
-    for (auto& [id, timer] : timers_)
     {
-        if (timer.Update())
-            expired.push_back(id);
+        std::lock_guard<std::mutex> lk(mutex_);
+        std::vector<IdType> expired;
+        for (auto& [id, timer] : timers_)
+        {
+            if (timer.Update())
+                expired.push_back(id);
+        }
+        for (auto id : expired)
+            cancelWithoutLock(id);
     }
-    for (auto id : expired)
-        cancelWithoutLock(id);
+
     measurer_.EndFrame();
 }
 void TimerService::startThread()
