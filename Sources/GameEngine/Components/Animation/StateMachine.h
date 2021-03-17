@@ -27,7 +27,7 @@ struct StateMachine
     const std::string& getCurrentAnimationClipName() const;
 
     Context context_;
-    std::unique_ptr<IState> tmpState_;
+    std::unique_ptr<IState> transitionState_;
     std::unique_ptr<IState> currentState_;
 };
 }  // namespace Components

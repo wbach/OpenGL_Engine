@@ -37,6 +37,7 @@ AttackState::~AttackState()
 }
 void AttackState::onEnter(const AttackFsmEvents::Attack &)
 {
+    context_.jointGroupName.reset();
     DEBUG_LOG("onEnter(const AttackFsmEvents::Attack&) ");
 
     if (not context_.attackAnimationNames.empty())
@@ -47,6 +48,8 @@ void AttackState::onEnter(const AttackFsmEvents::Attack &)
 }
 void AttackState::onEnter(const AttackFsmEvents::AttackGrouped &event)
 {
+    context_.jointGroupName = event.groupName;
+
     DEBUG_LOG("onEnter(const AttackFsmEvents::AttackGrouped&) ");
 
     if (not context_.attackAnimationNames.empty())
@@ -91,18 +94,19 @@ void AttackState::subscribeForAnimationsEnd()
         for (const auto &animationName : context_.attackAnimationNames)
         {
             onAnimationEndSubIds.push_back(context_.animator.SubscribeForAnimationEnd(animationName, [&]() {
-                
-                //if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.attackAnimationNames.size())
-                //{
-                //    currentAnimIndex_ = animationIndex_;
 
-                //    if (not context_.attackAnimationNames.empty())
-                //    {
-                //        context_.animator.ChangeAnimation(context_.attackAnimationNames[currentAnimIndex_], Animator::AnimationChangeType::smooth,
-                //            PlayDirection::forward);
-                //    }
-                //}
-                //else
+                if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.attackAnimationNames.size())
+                {
+                    currentAnimIndex_ = animationIndex_;
+
+                    if (not context_.attackAnimationNames.empty())
+                    {
+                        context_.animator.ChangeAnimation(context_.attackAnimationNames[currentAnimIndex_],
+                                                          Animator::AnimationChangeType::smooth,
+                                                          PlayDirection::forward, context_.jointGroupName);
+                    }
+                }
+                else
                 {
                     context_.sendEndEventCallback();
                 }
