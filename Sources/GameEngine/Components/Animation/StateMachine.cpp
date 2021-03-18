@@ -34,25 +34,39 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 
     return PoseUpdateAction::nothingToDo;
 }
-void StateMachine::handle(std::variant<ChangeAnimationEvent, StopAnimationEvent> v)
-{
-    if (transitionState_)
-    {
-        currentState_ = std::move(transitionState_);
-    }
 
-    if (currentState_)
+void StateMachine::processEvents()
+{
+    // for(auto& event : queueEvents_)
+    while (not queueEvents_.empty())
     {
-        std::visit(visitor{[&](const auto& event) {
-                       DEBUG_LOG("Handle " + typeid(event).name());
-                       currentState_->handle(event);
-                   }},
-                   v);
+        auto& incomingEvent = queueEvents_.front();
+
+        if (transitionState_)
+        {
+            currentState_ = std::move(transitionState_);
+        }
+
+        if (currentState_)
+        {
+            std::visit(visitor{[&](const auto& event) {
+                           DEBUG_LOG("Handle " + typeid(event).name());
+                           currentState_->handle(event);
+                       }},
+                       incomingEvent);
+        }
+        else
+        {
+            DEBUG_LOG("state not set");
+        }
+
+        queueEvents_.pop();
     }
-    else
-    {
-        DEBUG_LOG("state not set");
-    }
+}
+void StateMachine::handle(const IncomingEvent& event)
+{
+    std::lock_guard<std::mutex> lk(queueMutex_);
+    queueEvents_.emplace(event);
 }
 void StateMachine::transitionTo(std::unique_ptr<IState> newState)
 {

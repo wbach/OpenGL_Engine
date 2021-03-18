@@ -205,6 +205,9 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
         ++iter;
     }
 
+//    if (not context_.machine.queueEvents_.empty())
+//        return;
+
     if (currentGroups_.empty() and transtionGroups_.size() == 1)
     {
         for (auto &[_, group] : transtionGroups_)

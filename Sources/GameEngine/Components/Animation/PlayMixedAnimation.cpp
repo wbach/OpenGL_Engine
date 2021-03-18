@@ -132,8 +132,8 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
         }
     }
 
-    if (context_.machine.transitionState_)
-        return;
+//    if (context_.machine.transitionState_)
+//        return;
 
     if (groupsToRemove_.size() == groups_.size())
     {

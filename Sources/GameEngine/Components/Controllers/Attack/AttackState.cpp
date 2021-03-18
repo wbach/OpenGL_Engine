@@ -94,20 +94,24 @@ void AttackState::subscribeForAnimationsEnd()
         for (const auto &animationName : context_.attackAnimationNames)
         {
             onAnimationEndSubIds.push_back(context_.animator.SubscribeForAnimationEnd(animationName, [&]() {
-
-                if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.attackAnimationNames.size())
+                if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.attackAnimationNames.size() and
+                    not context_.attackAnimationNames[animationIndex_].empty())
                 {
                     currentAnimIndex_ = animationIndex_;
 
                     if (not context_.attackAnimationNames.empty())
                     {
+                        DEBUG_LOG("Change anim : " + context_.attackAnimationNames[currentAnimIndex_]);
                         context_.animator.ChangeAnimation(context_.attackAnimationNames[currentAnimIndex_],
-                                                          Animator::AnimationChangeType::smooth,
-                                                          PlayDirection::forward, context_.jointGroupName);
+                                                          Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                                          context_.jointGroupName);
                     }
                 }
                 else
                 {
+                    animationIndex_   = 0;
+                    currentAnimIndex_ = 0;
+                    DEBUG_LOG("send end");
                     context_.sendEndEventCallback();
                 }
             }));
