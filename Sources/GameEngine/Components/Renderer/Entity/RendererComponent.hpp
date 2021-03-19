@@ -15,7 +15,6 @@ class RendererComponent : public BaseComponent
 {
 public:
     RendererComponent(ComponentContext&, GameObject&);
-    ~RendererComponent();
 
     void CleanUp() override;
     void ReqisterFunctions() override;

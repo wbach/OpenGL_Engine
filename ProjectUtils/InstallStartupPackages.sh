@@ -32,6 +32,7 @@ sudo apt-get install -y python3-tk
 sudo apt-get install -y python3-pil python3-pil.imagetk
 sudo apt-get install -y libdrm-dev
 sudo apt-get install -y gdb
+sudo apt-get install -y gitk
 # sudo apt-get install python-support
 # sudo update-python-modules -a
 

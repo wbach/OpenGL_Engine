@@ -13,9 +13,9 @@ ComponentFactory::ComponentFactory(Scene& scene, ComponentController& componentC
                                    IGpuResourceLoader& gpuResourceLoader, Time& time, Input::InputManager& input,
                                    IResourceManager& resourceManager, Renderer::RenderersManager& rendererManager,
                                    CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
-                                   GuiElementFactory& guiElementFactory)
+                                   GuiElementFactory& guiElementFactory, Utils::Time::TimerService& timerService)
     : context_(scene, graphicsApi, gpuResourceLoader, time, input, camera, physicsApi, resourceManager, rendererManager,
-               componentController, guiElementFactory)
+               componentController, guiElementFactory, timerService)
 {
 }
 std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameObject& gameObject)

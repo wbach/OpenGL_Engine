@@ -25,7 +25,6 @@ public:
 
 private:
     Quaternion caclulateTargetRotation(const vec3&) const;
-    void clearStates();
     void calculateMovingPoints();
 
 private:

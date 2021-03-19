@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-#include "AnimationTransitionEvent.h"
+#include "ChangeAnimationEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -14,8 +14,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "PlayAnimationEvent.h"
-#include "PlayMixedAnimationEvent.h"
+#include "StopAnimationEvent.h"
 
 namespace GameEngine
 {
@@ -34,6 +33,7 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(Animator).hash_code(), componentContext, gameObject)
     , jointData_(componentContext_.graphicsApi_)
     , animationSpeed_{1.f}
+    , machine_(jointData_.pose, jointGroupsIds_)
 {
 }
 
@@ -54,14 +54,12 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClips_.find(name);
     if (clipIter != animationClips_.end())
     {
-        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, clipIter->second, animationSpeed_,
-                                                             PlayDirection::forward, onAnimationEnd_[name]));
+        machine_.handle(ChangeAnimationEvent{
+            0.f,
+            {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, PlayDirection::forward, onAnimationEnd_[name]},
+            std::nullopt});
     }
     return *this;
-}
-const std::string& Animator::GetCurrentAnimationName() const
-{
-    return machine_.getCurrentAnimationClipName();
 }
 GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
@@ -91,42 +89,39 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
         iter->second.playType = Animation::AnimationClip::PlayType::once;
     }
 }
-void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection)
+IdType Animator::SubscribeForAnimationEnd(const std::string& animName, std::function<void()> function)
+{
+    auto id = animationEndIdPool_.getId();
+    onAnimationEnd_[animName].push_back({ id, function });
+    return id;
+}
+void Animator::UnSubscribeForAnimationEnd(IdType id)
+{
+    for (auto& [_, subscribers] : onAnimationEnd_)
+    {
+        auto iter = std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& pair) { return pair.first == id; });
+        if (iter != subscribers.end())
+        {
+            subscribers.erase(iter);
+            return;
+        }
+    }
+}
+void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection, std::optional<std::string> groupName)
 {
     auto clipIter = animationClips_.find(name);
 
     if (clipIter == animationClips_.end())
     {
-        return;
-    }
-    AnimationPlayingInfo info{clipIter->second, animationSpeed_, playDirection, onAnimationEnd_[clipIter->first]};
-
-    if (changeType == AnimationChangeType::direct)
-    {
-        machine_.handle(std::make_unique<PlayAnimationEvent>(jointData_.pose, info));
+        DEBUG_LOG("Not found!  : " + name);
         return;
     }
 
-    machine_.handle(std::make_unique<AnimationTransitionEvent>(jointData_.pose, info));
-}
-void Animator::MixAnimation(const std::vector<std::pair<std::string, std::string>>& animationsGroups)
-{
-    std::vector<std::pair<AnimationPlayingInfo, std::vector<uint32>>> input;
-    input.reserve(animationsGroups.size());
+    machine_.handle(ChangeAnimationEvent{
+        0.f,
+        {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, playDirection, onAnimationEnd_[clipIter->first]},
+        groupName});
 
-    for (const auto& [animationName, jointGroupName] : animationsGroups)
-    {
-        const auto clipIter  = animationClips_.find(animationName);
-        const auto groupIter = jointGroupsIds_.find(jointGroupName);
-
-        if (clipIter != animationClips_.end() and groupIter != jointGroupsIds_.end())
-        {
-            input.push_back({AnimationPlayingInfo{clipIter->second, animationSpeed_, PlayDirection::forward,
-                                                  onAnimationEnd_[clipIter->first]},
-                             groupIter->second});
-        }
-    }
-    machine_.handle(std::make_unique<PlayMixedAnimationEvent>(jointData_.pose, input));
 }
 void Animator::GetSkeletonAndAnimations()
 {

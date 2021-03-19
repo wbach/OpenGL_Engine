@@ -18,7 +18,6 @@ public:
     TreeRendererComponent& SetBottomModel(const std::string& filename,
                                           GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d = vec2ui(0, 0));
-    ~TreeRendererComponent() override;
 
     void CleanUp() override;
     void ReqisterFunctions() override;

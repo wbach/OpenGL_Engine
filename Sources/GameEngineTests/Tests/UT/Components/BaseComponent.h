@@ -1,7 +1,9 @@
 #pragma once
 #include <Utils/MeasurementHandler.h>
 #include <Utils/ThreadSync.h>
+#include <Utils/Time/TimerService.h>
 #include <gtest/gtest.h>
+
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
@@ -40,8 +42,8 @@ public:
     GuiManager guiManager_;
     Frustrum frustrum_;
 
-
     Utils::Thread::ThreadSync threadSync_;
+    Utils::Time::TimerService timerService_;
     ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
     Scene scene;
     ResourceManager resourcesManager_;

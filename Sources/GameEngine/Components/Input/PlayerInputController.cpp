@@ -15,8 +15,8 @@ namespace Components
 namespace
 {
 const std::string COMPONENT_STR{"PlayerInputController"};
-const std::string CSTR_WEAPON_CHILD_NAME = "weaponChildName";
-const std::string CSTR_WEAPON_BONE_NAME = "weaponBoneName";
+const std::string CSTR_WEAPON_CHILD_NAME           = "weaponChildName";
+const std::string CSTR_WEAPON_BONE_NAME            = "weaponBoneName";
 const std::string CSTR_WEAPON_BONE_POSITION_OFFSET = "weaponBonePositionOffset";
 const std::string CSTR_WEAPON_BONE_ROTATION_OFFSET = "weaponBoneRotationOffset";
 }  // namespace
@@ -71,45 +71,115 @@ void PlayerInputController::Init()
 void PlayerInputController::SubscribeForPushActions()
 {
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::W, [&]() {
-        characterController_->addState(std::make_unique<MoveForward>());
-        characterController_->removeState(CharacterControllerState::Type::MOVE_BACKWARD);
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(MoveForwardEvent{DEFAULT_RUN_SPEED});
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
-        characterController_->addState(std::make_unique<MoveBackward>());
-        characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(MoveBackwardEvent{DEFAULT_RUN_SPEED});
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() {
-        characterController_->addState(std::make_unique<RotateLeft>());
-        characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT);
+        isRotateLeftPressed_ = true;
+        auto fsm             = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
+        }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::D, [&]() {
-        characterController_->addState(std::make_unique<RotateRight>());
-        characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT);
+        isRotateRightPressed_ = true;
+        auto fsm              = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
+        }
     });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::SPACE, [&]() { characterController_->addState(std::make_unique<Jump>(DEFAULT_JUMP_POWER)); });
-//    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-//        KeyCodes::LMOUSE, [&]() { characterController_->addState(std::make_unique<Attack>()); });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::SPACE, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(AttackEvent{});
+        }
+    });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(EndAttackEvent{});
+        }
+    });
 }
 
 void PlayerInputController::SubscribeForPopActions()
 {
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::W, [&]() { characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::S, [&]() { characterController_->removeState(CharacterControllerState::Type::MOVE_BACKWARD); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::A, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_LEFT); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-                KeyCodes::D, [&]() { characterController_->removeState(CharacterControllerState::Type::ROTATE_RIGHT); });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::W, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(EndMoveEvent{});
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::S, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(EndMoveEvent{});
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::A, [&]() {
+        auto fsm             = characterController_->fsm();
+        isRotateLeftPressed_ = false;
+
+        if (fsm)
+        {
+            if (not isRotateRightPressed_)
+            {
+                fsm->handle(EndRotationEvent{});
+            }
+            else
+            {
+                fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
+            }
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::D, [&]() {
+        auto fsm              = characterController_->fsm();
+        isRotateRightPressed_ = false;
+        if (fsm)
+        {
+            if (not isRotateLeftPressed_)
+            {
+                fsm->handle(EndRotationEvent{});
+            }
+            else
+            {
+                fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
+            }
+        }
+    });
 }
 
 void PlayerInputController::Update()
 {
-    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
-    {
-        characterController_->addState(std::make_unique<Attack>());
-    }
+    //    if (componentContext_.inputManager_.GetKey(KeyCodes::LMOUSE))
+    //    {
+    //        characterController_->addState(std::make_unique<Attack>());
+    //    }
 }
 
 void PlayerInputController::registerReadFunctions()
@@ -128,7 +198,7 @@ void PlayerInputController::registerReadFunctions()
 
 void PlayerInputController::write(TreeNode& node) const
 {
-    node.attributes_.insert({ CSTR_TYPE, COMPONENT_STR });
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_WEAPON_CHILD_NAME, weaponChildObjectName_);
     node.addChild(CSTR_WEAPON_BONE_NAME, weaponBoneName_);
 

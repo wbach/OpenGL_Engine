@@ -27,11 +27,6 @@ GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContex
     , isSubscribed_(false)
 {
 }
-
-GrassRendererComponent::~GrassRendererComponent()
-{
-}
-
 void GrassRendererComponent::CleanUp()
 {
     UnSubscribe();

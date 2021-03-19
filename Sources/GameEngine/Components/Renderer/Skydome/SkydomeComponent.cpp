@@ -19,10 +19,6 @@ SkydomeComponent::SkydomeComponent(ComponentContext& componentContext, GameObjec
     , isSubscribed_(false)
 {
 }
-SkydomeComponent::~SkydomeComponent()
-{
-}
-
 void SkydomeComponent::CleanUp()
 {
     UnSubscribe();

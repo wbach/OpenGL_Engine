@@ -1,6 +1,7 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Utils/IdPool.h>
+#include <Utils/Time/TimerService.h>
 
 #include <atomic>
 #include <list>
@@ -136,6 +137,7 @@ protected:
     Renderer::RenderersManager* renderersManager_;
     Physics::IPhysicsApi* physicsApi_;
     Utils::Thread::ThreadSync* threadSync_;
+    Utils::Time::TimerService* timerService_;
 
     std::string name;
     File file_;

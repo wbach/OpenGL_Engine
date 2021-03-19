@@ -43,10 +43,6 @@ ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentCont
     emitFunction_ = std::bind(&ParticleEffectComponent::DefaultEmitFunction, this, std::placeholders::_1);
     particles_.reserve(10000);
 }
-ParticleEffectComponent::~ParticleEffectComponent()
-{
-}
-
 void ParticleEffectComponent::CleanUp()
 {
     UnSubscribe();

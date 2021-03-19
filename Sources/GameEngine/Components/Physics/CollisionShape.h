@@ -8,15 +8,14 @@ namespace Components
 class CollisionShape : public BaseComponent
 {
 public:
-    CollisionShape(size_t type, ComponentContext& componentContext, GameObject& gameObject);
-    ~CollisionShape();
+    CollisionShape(size_t, ComponentContext&, GameObject&);
 
     virtual void setScale(const vec3&);
     std::optional<uint32> GetCollisionShapeId() const;
     void CleanUp() override;
 
 public:
-    void SetPostionOffset(const vec3& position);
+    void SetPostionOffset(const vec3&);
     const vec3& GetPositionOffset() const;
 
 protected:

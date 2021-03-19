@@ -12,6 +12,7 @@ using namespace ::testing;
 namespace
 {
 const std::string CLIP_NAME{"DefaultAnimationClip"};
+const std::string CLIP_NAME2{"DefaultAnimationClip2"};
 const uint32 BONE_COUNT{100};
 const std::string boneName{"bone_"};
 }  // namespace
@@ -56,8 +57,13 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
     virtual void SetUp() override
     {
         sut_.setDeltaTime(.01f);
-        auto& anim    = sut_.animationClips_[CLIP_NAME];
-        anim.name     = CLIP_NAME;
+        createClip(CLIP_NAME);
+        createClip(CLIP_NAME2);
+    }
+    void createClip(const std::string& clipName)
+    {
+        auto& anim    = sut_.animationClips_[clipName];
+        anim.name     = clipName;
         anim.playType = AnimationClip::PlayType::once;
 
         KeyFrame frame;
@@ -76,7 +82,7 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
         frame.timeStamp = 0.99f;
         anim.AddFrame(frame);
 
-        sut_.SetAnimation(CLIP_NAME);
+        sut_.SetAnimation(clipName);
     }
 
     AnimatorTestWrapper sut_;
@@ -99,8 +105,7 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
     bool run{true};
     uint64 avarageTime{0};
     uint64 avarageFrameTime{0};
-
-    sut_.onAnimationEnd_[CLIP_NAME].push_back([&timer, &run, &avarageTime]() {
+    sut_.SubscribeForAnimationEnd(CLIP_NAME, [&timer, &run, &avarageTime]() {
         run       = false;
         auto time = timer.GetTimeNanoseconds();
         avarageTime += time;
@@ -128,4 +133,8 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
               std::to_string(static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter)));
     DEBUG_LOG("Avarage animation time : " +
               std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
+}
+
+TEST_F(AnimatorTestSchould, StateMachinePlayToPlay)
+{
 }

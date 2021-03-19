@@ -23,7 +23,7 @@ public:
 
 public:
     Rigidbody(ComponentContext& componentContext, GameObject& gameObject);
-    ~Rigidbody() override;
+
     void CleanUp() override;
     void ReqisterFunctions() override;
 

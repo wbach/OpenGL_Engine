@@ -58,7 +58,7 @@ void Player::Init()
 
             if (componentPtr)
             {
-                if (distance < ATTACK_RANGE)
+                if (distance < ATTACK_RANGE + characterController_->getShapeSize())
                 {
                     auto dmg = componentPtr->hurt(characterStatistic_.attackDmg);
 
@@ -69,15 +69,9 @@ void Player::Init()
                 }
             }
         };
-
-        animator_->onAnimationEnd_[characterController_->attackAnimationName].push_back(attackAction);
-        animator_->onAnimationEnd_[characterController_->attackAnimationName2].push_back(attackAction);
-        animator_->onAnimationEnd_[characterController_->attackAnimationName3].push_back(attackAction);
-
-        componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::V, [&]() {
-            animator_->MixAnimation({{characterController_->attackAnimationName, "upperBody"},
-                                     {characterController_->moveForwardAnimationName, "lowerBody"}});
-        });
+        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName, attackAction);
+        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName2, attackAction);
+        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName3, attackAction);
     }
 
     const vec2 windowSize(0.2f, 0.1f);
@@ -125,11 +119,16 @@ void Player::hurt(int64 dmg)
         characterStatistic_.currentHp -= dmg;
         if (characterStatistic_.currentHp > 0)
         {
-            characterController_->addState(std::make_unique<Hurt>());
+            //characterController_->addState(std::make_unique<Hurt>());
         }
         else
         {
-            characterController_->addState(std::make_unique<Death>());
+            auto fsm = characterController_->fsm();
+            if (fsm)
+            {
+                characterController_->fsm()->handle(DeathEvent{});
+            }
+
             characterController_->Deactivate();
             Deactivate();
         }

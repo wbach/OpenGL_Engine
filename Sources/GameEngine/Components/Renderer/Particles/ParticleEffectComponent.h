@@ -12,7 +12,6 @@ class ParticleEffectComponent : public BaseComponent
 {
 public:
     ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject);
-    ~ParticleEffectComponent() override;
 
     void CleanUp() override;
     void ReqisterFunctions() override;

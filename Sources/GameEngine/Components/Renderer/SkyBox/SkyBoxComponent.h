@@ -16,7 +16,6 @@ class SkyBoxComponent : public BaseComponent
 {
 public:
     SkyBoxComponent(ComponentContext&, GameObject&);
-    ~SkyBoxComponent() override;
 
     void CleanUp() override;
     void ReqisterFunctions() override;

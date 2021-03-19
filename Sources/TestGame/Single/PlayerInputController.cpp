@@ -73,10 +73,6 @@ void PlayerInputController::RemoveState(common::Controllers::CharacterActions::T
 
 void PlayerInputController::SetRunAnim()
 {
-    auto anim = animator_->GetCurrentAnimationName();
-
-  /*  if (anim != "Run")
-        animator_->ChangeAnimation("Run");*/
 }
 
 void PlayerInputController::SetIdleAnim()

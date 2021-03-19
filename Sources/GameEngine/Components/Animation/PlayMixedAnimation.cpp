@@ -1,59 +1,152 @@
 #include "PlayMixedAnimation.h"
 
-#include "EndAnimationTransitionEvent.h"
+#include <Logger/Log.h>
+
+#include "AnimationTransition.h"
+#include "AnimationTransitionMixedToSingle.h"
+#include "AnimationTransitionToMixed.h"
+#include "EmptyState.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
+#include "PlayAnimation.h"
 #include "StateMachine.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-PlayMixedAnimation::PlayMixedAnimation(const PlayMixedAnimationEvent& event)
-    : machine_{*event.machine}
-    , currentPose_{event.currentPose}
-    , animationName_{"mixed"}
+PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfoPerGroup& animationPlayingInfoPerGroup)
+    : context_{context}
 {
-    groups_.reserve(event.animationPlayingInfoPerGroup_.size());
-    for (auto& [info, group] : event.animationPlayingInfoPerGroup_)
+    for (auto& [name, pair] : animationPlayingInfoPerGroup)
     {
-        float playingSpeed{info.playDirection_ == PlayDirection::forward ? fabsf(info.playSpeed_)
-                                                                         : -fabsf(info.playSpeed_)};
-        groups_.push_back({info.clip, 0.f, playingSpeed, info.endCallbacks_, group});
-        animationName_ += "_" + info.clip.name;
+        auto iter = context.jointGroups.find(name);
+
+        if (iter != context.jointGroups.end())
+        {
+            auto& info     = pair.first;
+            auto startTime = pair.second;
+
+            const auto& jointGroups = iter->second;
+            float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
+            groups_.insert({name, {info, startTime, direction, jointGroups}});
+        }
     }
 }
-void PlayMixedAnimation::update(float deltaTime)
+bool PlayMixedAnimation::update(float deltaTime)
 {
-    for (auto& group : groups_)
+    for (auto& [_, group] : groups_)
     {
-        calculateCurrentAnimationPose(currentPose_, group.clip_, group.time_, group.joints_);
+        calculateCurrentAnimationPose(context_.currentPose, group.clipInfo.clip, group.time, group.jointIds);
     }
 
     increaseAnimationTime(deltaTime);
+    return true;
 }
-const std::string& PlayMixedAnimation::getAnimationClipName() const
+void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
 {
-    return animationName_;
+    if (event.jointGroupName)
+    {
+        std::vector<CurrentGroupsPlayingInfo> infos{};
+        for (auto& [name, group] : groups_)
+        {
+            if (name != event.jointGroupName)
+            {
+                infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name}});
+            }
+        }
+        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
+    }
+    else
+    {
+        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
+    }
+}
+
+void PlayMixedAnimation::handle(const StopAnimationEvent& event)
+{
+    if (event.jointGroupName and groups_.size() > 1)
+    {
+        if (groups_.size() > 2)
+        {
+            auto iter = groups_.find(*event.jointGroupName);
+            if (iter != groups_.end())
+            {
+                groups_.erase(iter);
+            }
+        }
+        else
+        {
+            for (auto& [name, group] : groups_)
+            {
+                if (name != *event.jointGroupName)
+                {
+                    context_.machine.transitionTo(
+                        std::make_unique<AnimationTransition>(context_, group.clipInfo, group.time));
+                    return;
+                }
+            }
+        }
+    }
+    else
+    {
+        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+    }
 }
 void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
 {
-    for (auto& group : groups_)
+    std::vector<std::string> groupsToRemove_;
+
+    for (auto& [name, group] : groups_)
     {
-        group.time_ += deltaTime * group.playingSpeed_;
+        group.time += deltaTime * group.clipInfo.playSpeed * group.direction;
 
-        if (group.time_ > group.clip_.GetLength())
+        if (group.time > group.clipInfo.clip.GetLength())
         {
-            // if (clip_.playType == Animation::AnimationClip::PlayType::once)
-            //{
-            //    machine_.handle(std::make_unique<EndAnimationTransitionEvent>(endCallbacks_));
-            //    return;
-            //}
+            if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
+            {
+                for (const auto& [_, callback] : group.clipInfo.endCallbacks_)
+                {
+                    callback();
+                }
 
-            group.time_ = fmodf(group.time_, group.clip_.GetLength());
+                groupsToRemove_.push_back(name);
+                continue;
+            }
+            group.time = fmodf(group.time, group.clipInfo.clip.GetLength());
         }
-        if (group.time_ < 0)
+        if (group.time < 0)
         {
-            group.time_ = group.clip_.GetLength() + group.time_;
+            group.time = group.clipInfo.clip.GetLength() + group.time;
+        }
+    }
+
+//    if (context_.machine.transitionState_)
+//        return;
+
+    if (groupsToRemove_.size() == groups_.size())
+    {
+        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+    }
+    else if (groupsToRemove_.size() == groups_.size() - 1)
+    {
+        for (auto& toRemoveName : groupsToRemove_)
+        {
+            for (auto& [name, group] : groups_)
+            {
+                if (name != toRemoveName)
+                {
+                    CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
+                    context_.machine.transitionTo(std::make_unique<AnimationTransitionMixedToSingle>(context_, info));
+                    return;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (auto& name : groupsToRemove_)
+        {
+            groups_.erase(name);
         }
     }
 }

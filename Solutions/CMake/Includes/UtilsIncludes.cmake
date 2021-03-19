@@ -1,6 +1,16 @@
 set(UtilsIncludes
 ../../Sources/Utils/BidirectionalUnorderedMap.h
 ../../Sources/Utils/EngineUitls.h
+../../Sources/Utils/Fsm/actions/ByDefault.h
+../../Sources/Utils/Fsm/actions/Maybe.h
+../../Sources/Utils/Fsm/actions/Nothing.h
+../../Sources/Utils/Fsm/actions/On.h
+../../Sources/Utils/Fsm/actions/OneOf.h
+../../Sources/Utils/Fsm/actions/TransitionTo.h
+../../Sources/Utils/Fsm/actions/Update.h
+../../Sources/Utils/Fsm/actions/Will.h
+../../Sources/Utils/Fsm/Actions.h
+../../Sources/Utils/Fsm/Fsm.h
 ../../Sources/Utils/GLM/GLMUtils.h
 ../../Sources/Utils/Glm.h
 ../../Sources/Utils/IdPool.h
@@ -16,6 +26,7 @@ set(UtilsIncludes
 ../../Sources/Utils/ThreadSync.h
 ../../Sources/Utils/Time/TimeMeasurer.h
 ../../Sources/Utils/Time/Timer.h
+../../Sources/Utils/Time/TimerService.h
 ../../Sources/Utils/TreeNode.h
 ../../Sources/Utils/Types.h
 ../../Sources/Utils/UndifineWindows.h

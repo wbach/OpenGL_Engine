@@ -23,7 +23,7 @@ namespace GameEngine
 Scene::Scene(const std::string& name)
     : objectCount(0)
     , componentFactory_(nullptr)
-	, graphicsApi_(nullptr)
+    , graphicsApi_(nullptr)
     , inputManager_(nullptr)
     , displayManager_(nullptr)
     , renderersManager_(nullptr)
@@ -66,6 +66,7 @@ void Scene::InitResources(EngineContext& context)
     displayManager_   = &context.GetDisplayManager();
     renderersManager_ = &context.GetRenderersManager();
     threadSync_       = &context.GetThreadSync();
+    timerService_     = &context.GetTimerService();
     addEngineEvent    = [&context](EngineEvent event) { context.AddEngineEvent(event); };
 
     CreateResourceManger(context.GetGraphicsApi(), context.GetGpuResourceLoader());
@@ -80,7 +81,7 @@ void Scene::InitResources(EngineContext& context)
 
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
         *this, componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_, *inputManager_,
-        *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_);
+        *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_, *timerService_);
 
     rootGameObject_ = CreateGameObject("root");
 }

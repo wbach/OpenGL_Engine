@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -17,6 +18,9 @@ namespace Components
 namespace
 {
 const float playerDetectionRange{10.f};
+const auto moveSpeed   = Utils::KmToMs(8.f);
+const auto rotateSpeed = 1.f;
+
 const std::string COMPONENT_STR = "EnemyController";
 }  // namespace
 
@@ -45,33 +49,38 @@ void EnemyController::Init()
 }
 void EnemyController::Update()
 {
-    if (not characterController_ and not enemy_)
+    if (not characterController_ or not enemy_ or not characterController_->fsm())
         return;
+
+    auto& fsm = *characterController_->fsm();
 
     auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
         componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
     if (componentPtr and distance < playerDetectionRange)
     {
-        if (distance > enemy_->characterStatistic().attackRange)
+        if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
-            characterController_->addState(std::make_unique<MoveForward>(Utils::KmToMs(8.f)));
+            fsm.handle(EndMoveEvent{});
+            fsm.handle(AttackEvent{});
         }
         else
         {
-            characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
-            characterController_->addState(std::make_unique<Attack>());
+            fsm.handle(EndAttackEvent{});
+            fsm.handle(MoveForwardEvent{moveSpeed});
         }
-        characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(vectorToPlayer)));
+
+        fsm.handle(RotateTargetEvent{rotateSpeed, caclulateTargetRotation(vectorToPlayer)});
         return;
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-    characterController_->addState(std::make_unique<RotateToTarget>(caclulateTargetRotation(vectorToTarget), 2.f));
-    characterController_->addState(std::make_unique<MoveForward>(Utils::KmToMs(8.f)));
+    fsm.handle(EndAttackEvent{});
+    fsm.handle(RotateTargetEvent{rotateSpeed, caclulateTargetRotation(vectorToTarget)});
+    fsm.handle(MoveForwardEvent{moveSpeed});
 
     auto distanceToPoint = glm::length(vectorToTarget);
-    if (distanceToPoint < 2.f)
+    if (distanceToPoint < 5.f)
     {
         freeWalkingTargetPoint = movingPoints_[freeWalkingTargetPointIndex];
         ++freeWalkingTargetPointIndex;
@@ -81,8 +90,6 @@ void EnemyController::Update()
             freeWalkingTargetPointIndex = 0;
         }
     }
-    characterController_->removeState(CharacterControllerState::Type::ATTACK);
-   // clearStates();
 }
 Quaternion EnemyController::caclulateTargetRotation(const vec3& toPlayer) const
 {
@@ -95,17 +102,11 @@ Quaternion EnemyController::caclulateTargetRotation(const vec3& toPlayer) const
 
     return targertRotation;
 }
-void EnemyController::clearStates()
-{
-    characterController_->removeState(CharacterControllerState::Type::ATTACK);
-    characterController_->removeState(CharacterControllerState::Type::ROTATE_TARGET);
-    characterController_->removeState(CharacterControllerState::Type::MOVE_FORWARD);
-}
 void EnemyController::calculateMovingPoints()
 {
     auto position = thisObject_.GetWorldTransform().GetPosition();
 
-    const float range = 4.f;
+    const float range  = 10.f;
     const float offset = 5;
 
     movingPoints_[0] = position + vec3(getRandomFloat() * range + offset, 0, getRandomFloat() * range + offset);

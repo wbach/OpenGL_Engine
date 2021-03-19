@@ -324,6 +324,7 @@ uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, f
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, shapeId, isUpdating};
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
+    body.btRigidbody_->setFriction(1);
     impl_->AddRigidbody(isStatic ? impl_->staticRigidBodies : impl_->rigidBodies, id_, std::move(body));
     return id_++;
 }

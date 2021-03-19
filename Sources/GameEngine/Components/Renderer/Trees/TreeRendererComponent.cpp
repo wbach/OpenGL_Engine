@@ -26,9 +26,6 @@ TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext,
     , isSubsribed_(false)
 {
 }
-TreeRendererComponent::~TreeRendererComponent()
-{
-}
 void TreeRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&TreeRendererComponent::Subscribe, this));
