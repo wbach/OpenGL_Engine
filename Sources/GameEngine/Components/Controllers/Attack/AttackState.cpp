@@ -13,13 +13,6 @@ AttackState::AttackState(AttackFsmContext &context)
 {
     subscribeForAnimationsEnd();
 }
-AttackState::AttackState(const AttackState &state)
-    : context_(state.context_)
-    , animationIndex_{state.animationIndex_}
-    , currentAnimIndex_{state.currentAnimIndex_}
-{
-    subscribeForAnimationsEnd();
-}
 AttackState::AttackState(AttackState &&state)
     : context_(state.context_)
     , animationIndex_{state.animationIndex_}

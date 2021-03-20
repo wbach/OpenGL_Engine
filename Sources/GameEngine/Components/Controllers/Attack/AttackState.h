@@ -18,7 +18,7 @@ class AttackState : public Utils::StateMachine::Will<
 {
 public:
     AttackState(AttackFsmContext&);
-    AttackState(const AttackState&);
+    AttackState(const AttackState&) = delete;
     AttackState(AttackState&&);
     ~AttackState();
     void onEnter(const AttackFsmEvents::Attack&);

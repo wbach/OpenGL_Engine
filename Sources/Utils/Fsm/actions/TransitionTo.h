@@ -25,7 +25,8 @@ public:
     }
 
 private:
-    void leave(...)
+    template <typename ...Args>
+    void leave(Args& ...)
     {
     }
 
@@ -41,7 +42,8 @@ private:
         return state.onLeave();
     }
 
-    void enter(...)
+    template <typename ...Args>
+    void enter(Args& ...)
     {
     }
 
