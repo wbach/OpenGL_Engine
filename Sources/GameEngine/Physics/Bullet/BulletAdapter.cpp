@@ -72,6 +72,15 @@ struct Rigidbody
 };
 }  // namespace
 
+bool colissionCallbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
+                           const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
+{
+    //  ((bulletObject*)obj1->getUserPointer())->hit=true;
+    //  ((bulletObject*)obj2->getUserPointer())->hit=true;
+    DEBUG_LOG("collision");
+    return false;
+}
+
 struct BulletAdapter::Pimpl
 {
     Pimpl()
@@ -87,6 +96,7 @@ struct BulletAdapter::Pimpl
         bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
         bulletDebugDrawer_->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
         btDynamicWorld->setDebugDrawer(bulletDebugDrawer_.get());
+        //gContactAddedCallback = colissionCallbackFunc;
     }
 
     ~Pimpl()
@@ -116,7 +126,6 @@ void BulletAdapter::Pimpl::AddRigidbody(std::unordered_map<uint32, Rigidbody>& t
     target.insert({id, std::move(newBody)});
     auto& body = target.at(id).btRigidbody_;
     body->setUserIndex(-1);
-
 
     btDynamicWorld->addRigidBody(body.get());
     btDynamicWorld->updateSingleAabb(body.get());
@@ -223,20 +232,21 @@ uint32 BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset,
     impl_->shapes_.insert({id_, std::make_unique<Shape>()});
     auto& shape = *impl_->shapes_.at(id_);
 
-    std::visit(visitor{
-                   [&](const std::vector<uint8>& data) {
-                       shape.btShape_.reset(new btHeightfieldTerrainShape(
-                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
-                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
-                   },
-                   [&](const std::vector<float>& data) {
-                       shape.btShape_.reset(new btHeightfieldTerrainShape(
-                           heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
-                           heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
-                   },
-                   [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
-               },
-               heightMap.GetImage().getImageData());
+    std::visit(
+        visitor{
+            [&](const std::vector<uint8>& data) {
+                shape.btShape_.reset(new btHeightfieldTerrainShape(
+                    heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                    heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
+            },
+            [&](const std::vector<float>& data) {
+                shape.btShape_.reset(new btHeightfieldTerrainShape(
+                    heightMap.GetImage().width, heightMap.GetImage().height, &data[0], 1.f,
+                    heightMap.GetMinimumHeight(), heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
+            },
+            [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
+        },
+        heightMap.GetImage().getImageData());
 
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
     float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);
@@ -292,6 +302,7 @@ uint32 BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, c
 
     return id_++;
 }
+
 uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, float mass, bool isStatic,
                                       bool& isUpdating)
 {
@@ -309,7 +320,7 @@ uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, f
 
     btVector3 localInertia(0, 0, 0);
     btDefaultMotionState* myMotionState{nullptr};
-    int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
+    int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT | btCollisionObject:CF_CUSTOM_MATERIAL_CALLBACK;
 
     if (isStatic or not shape.dynamicShapeAllowed_)
     {
@@ -325,6 +336,7 @@ uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, f
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, shapeId, isUpdating};
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
     body.btRigidbody_->setFriction(1);
+
     impl_->AddRigidbody(isStatic ? impl_->staticRigidBodies : impl_->rigidBodies, id_, std::move(body));
     return id_++;
 }
@@ -416,7 +428,7 @@ void BulletAdapter::RemoveShape(ShapeId id)
     std::lock_guard<std::mutex> lk(impl_->worldMutex_);
     {
         auto iter = std::find_if(impl_->rigidBodies.begin(), impl_->rigidBodies.end(),
-            [id](auto& pair) { return pair.second.shapeId == id; });
+                                 [id](auto& pair) { return pair.second.shapeId == id; });
 
         if (iter != impl_->rigidBodies.end())
         {
@@ -426,7 +438,7 @@ void BulletAdapter::RemoveShape(ShapeId id)
     }
     {
         auto iter = std::find_if(impl_->staticRigidBodies.begin(), impl_->staticRigidBodies.end(),
-            [id](auto& pair) { return pair.second.shapeId == id; });
+                                 [id](auto& pair) { return pair.second.shapeId == id; });
 
         if (iter != impl_->staticRigidBodies.end())
         {
