@@ -2,6 +2,7 @@
 
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Logger/Log.h>
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Engine/Configuration.h"
@@ -159,7 +160,7 @@ HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
     if (texture)
     {
         SetTexture(TerrainTextureType::heightmap, texture);
-        heightMap_ = static_cast<HeightMap*>(texture);
+        heightMap_ = static_cast<HeightMap *>(texture);
         inputData_.push_back({file, 1.f, TerrainTextureType ::heightmap});
     }
     else

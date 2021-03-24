@@ -9,6 +9,17 @@
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 
+#ifndef USE_GNU
+#include <DirectXApi/DirectXApi.h>
+#include <Windows.h>
+#include <shlobj.h>
+#else
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+#include <OpenGLApi/OpenGLApi.h>
+
 namespace GameEngine
 {
 namespace
@@ -16,19 +27,64 @@ namespace
 const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
 }
 
-EnableLogger::EnableLogger()
+ReadConfiguration::ReadConfiguration()
 {
-    if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    std::string configFile("./Conf.xml");
+
+#ifdef USE_GNU
+    struct passwd* pw = getpwuid(getuid());
+    configFile = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
+#else
+    wchar_t myDocumentsPath[1024];
+    HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
+    if (SUCCEEDED(hr))
     {
-        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-        CLogger::Instance().ImmeditalyLog();
+        char str[1024];
+        wcstombs(str, myDocumentsPath, 1023);
+        configFile = std::string(str) + "\\bengine\\Conf.xml";
     }
+#endif
+   GameEngine::ReadFromFile(configFile);
+
+   if (EngineConf.debugParams.logLvl != LogginLvl::None)
+   {
+       CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+       CLogger::Instance().ImmeditalyLog();
+   }
 }
 
-Engine::Engine(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi, std::unique_ptr<Physics::IPhysicsApi> physicsApi,
-               std::unique_ptr<SceneFactoryBase> sceneFactory)
-    : enableLogger_()
-    , engineContext_(std::move(graphicsApi), std::move(physicsApi))
+std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
+{
+    std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
+
+#ifndef USE_GNU
+    if (EngineConf.renderer.graphicsApi == "OpenGL")
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
+    else if (EngineConf.renderer.graphicsApi == "DirectX11")
+    {
+        graphicsApi = std::make_unique<DirectX::DirectXApi>();
+    }
+    else
+    {
+        graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+    }
+#else
+    if (EngineConf.renderer.graphicsApi != "OpenGL")
+    {
+        DEBUG_LOG("GNU support only OpenGL");
+    }
+    graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+#endif
+    graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
+
+    return graphicsApi;
+}
+
+Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<SceneFactoryBase> sceneFactory)
+    : readConfiguration_()
+    , engineContext_(createGraphicsApi(), std::move(physicsApi))
     , sceneManager_(engineContext_, std::move(sceneFactory))
     , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(),
                      engineContext_.GetDisplayManager())

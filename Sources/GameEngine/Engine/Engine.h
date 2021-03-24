@@ -15,15 +15,15 @@ namespace GameEngine
 class DisplayManager;
 class LoadingScreenRenderer;
 
-struct EnableLogger
+struct ReadConfiguration
 {
-    EnableLogger();
+    ReadConfiguration();
 };
 
 class Engine
 {
 public:
-    Engine(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>,
+    Engine(std::unique_ptr<Physics::IPhysicsApi>,
            std::unique_ptr<SceneFactoryBase>);
     ~Engine();
 
@@ -38,7 +38,7 @@ private:
     void Quit();
 
 private:
-    EnableLogger enableLogger_;
+    ReadConfiguration readConfiguration_;
     EngineContext engineContext_;
     SceneManager sceneManager_;
     IntroRenderer introRenderer_;

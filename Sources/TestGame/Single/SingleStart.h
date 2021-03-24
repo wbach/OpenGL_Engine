@@ -3,5 +3,5 @@
 
 namespace TestGame
 {
-	void TestGameStart(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr);
+	void TestGameStart();
 }

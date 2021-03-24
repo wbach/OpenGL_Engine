@@ -1,6 +1,8 @@
 #include "Configuration.h"
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <fstream>
+
 #include "ConfigurationReader.h"
 #include "ConfigurationWriter.h"
 #include "Logger/Log.h"
@@ -122,13 +124,17 @@ void ReadFromFile(const std::string& filename)
     if (Utils::CheckFileExist(filename))
     {
         ReadConfiguration(EngineConf, filename);
-        // Update
-        WriteConfigurationToFile(EngineConf, filename);
     }
     else
     {
-        WriteConfigurationToFile(EngineConf, filename);
+        auto parentPath = std::filesystem::path(filename).parent_path();
+        if (not std::filesystem::exists(parentPath))
+        {
+            std::filesystem::create_directories(parentPath);
+        }
     }
+
+    WriteConfigurationToFile(EngineConf, filename);
     AddRequiredFile(filename);
     EngineConf.filename = filename;
 }

@@ -253,6 +253,10 @@ void Read(TreeNode& node, Params::Files& files)
         files.data = GetDataLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_SHADER_LOCATION))
         files.shaders = GetShaderLocationFromString(child->value_);
+    if (auto child = node.getChild(CSTR_CACHE_LOCATION))
+        files.cache = GetShaderLocationFromString(child->value_);
+    if (auto child = node.getChild(CSTR_USER_DIR_LOCATION))
+        files.userDir = GetShaderLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_REQUIRED_FILE_OUTPUT))
         files.requiredFilesOutputFile = child->value_;
     if (auto child = node.getChild(CSTR_LOADING_SCREEN_BACKGROUND))

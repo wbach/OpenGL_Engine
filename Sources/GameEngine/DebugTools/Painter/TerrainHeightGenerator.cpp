@@ -207,12 +207,13 @@ void TerrainHeightGenerator::perlinNoise2D()
     {
         if (not terrain->GetHeightMap())
         {
-            terrain->createHeightMap(perTerrainHeightMapsize_);
-            if (not terrain->GetHeightMap())
-            {
-                ERROR_LOG("Unsuccessful create heightmap");
-                continue;
-            }
+            //terrain->createHeightMap(perTerrainHeightMapsize_);
+            //if (not terrain->GetHeightMap())
+            //{
+            //    ERROR_LOG("Unsuccessful create heightmap");
+            //    continue;
+            //}
+            continue;
         }
 
         auto& heightMap = *terrain->GetHeightMap();

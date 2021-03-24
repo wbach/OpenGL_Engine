@@ -15,6 +15,8 @@
 
 const std::string DEFAULT_DATA_PATH          = "../Data/";
 const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
+const std::string DEFAULT_CACHE_PATH         = "../Cache/";
+const std::string DEFAULT_USER_DIR_PATH      = "../User/";
 const std::string DEFAULT_REQUIRED_FILE_NAME = "required_files.inf";
 
 namespace GameEngine
@@ -25,6 +27,8 @@ struct Files
 {
     std::string data                    = DEFAULT_DATA_PATH;
     std::string shaders                 = DEFAULT_SHADERS_PATH;
+    std::string cache                   = DEFAULT_CACHE_PATH;
+    std::string userDir                 = DEFAULT_USER_DIR_PATH;
     std::string requiredFilesOutputFile = DEFAULT_REQUIRED_FILE_NAME;
     std::string loadingScreenCircleTexture{"GUI/aLoadingCircle.png"};
     std::string loadingScreenBackgroundTexture{"GUI/dark3.png"};

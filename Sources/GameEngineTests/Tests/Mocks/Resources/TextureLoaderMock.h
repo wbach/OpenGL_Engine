@@ -17,6 +17,7 @@ public:
     MOCK_METHOD2(LoadTexture, GeneralTexture*(const File&, const TextureParameters&));
     MOCK_METHOD2(LoadCubeMap, CubeMapTexture*(const std::array<File, 6>&, const TextureParameters&));
     MOCK_METHOD2(LoadHeightMap, HeightMap*(const File&, const TextureParameters&));
+    MOCK_METHOD3(CreateHeightMap, HeightMap* (const File&, const vec2ui&, const TextureParameters&));
     MOCK_METHOD2(CreateNormalMap, GeneralTexture*(const HeightMap&, const vec3&));
     MOCK_METHOD0(GetGraphicsApi, GraphicsApi::IGraphicsApi&());
     MOCK_METHOD1(DeleteTexture, void(Texture&));

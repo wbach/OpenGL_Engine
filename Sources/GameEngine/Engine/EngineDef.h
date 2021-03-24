@@ -17,6 +17,8 @@ extern const std::string CSTR_SOUND_VOLUME;
 extern const std::string CSTR_FILES;
 extern const std::string CSTR_DATA_LOCATION;
 extern const std::string CSTR_SHADER_LOCATION;
+extern const std::string CSTR_CACHE_LOCATION;
+extern const std::string CSTR_USER_DIR_LOCATION;
 extern const std::string CSTR_REQUIRED_FILE_OUTPUT;
 extern const std::string CSTR_LOADING_SCREEN_BACKGROUND;
 extern const std::string CSTR_LOADING_SCREEN_CIRCLE;

@@ -59,6 +59,8 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
     {
         SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
     }
+
+    terrainComponent_->createHeightMap({ 1024, 1024 });
 }
 
 TerrainRendererComponent::~TerrainRendererComponent()
@@ -316,7 +318,7 @@ void TerrainRendererComponent::registerReadFunctions()
         if (texturesNode)
         {
             auto textures = ReadTerrainTextures(*node.getChild(CSTR_TEXTURE_FILENAMES));
-            component->LoadTextures(textures);
+            //component->LoadTextures(textures);
         }
         else
         {
