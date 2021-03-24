@@ -2,6 +2,7 @@
 
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Logger/Log.h>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -10,6 +11,7 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
@@ -47,58 +49,27 @@ void TerrainComponentBase::BlendMapChanged()
 
 void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textures)
 {
-    perTerrainTexturesBuffer_ =
-        std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6);
+    inputData_ = textures;
+
+    TextureParameters textureParams;
+    textureParams.flipMode = TextureFlip::VERTICAL;
+    textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
 
     for (const auto &terrainTexture : textures)
     {
-        TextureParameters textureParams;
-        textureParams.flipMode = TextureFlip::VERTICAL;
-        textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
-
-        switch (terrainTexture.type)
+        if (TerrainTextureType::blendMap == terrainTexture.type)
         {
-            case TerrainTextureType::heightmap:
-               // textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
-                LoadTerrainConfiguration(terrainTexture.file);
-                LoadHeightMap(terrainTexture.file);
-            continue;
-            case TerrainTextureType::blendMap:
-                textureParams.dataStorePolicy = DataStorePolicy::Store;
-             //   textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
-                break;
-            case TerrainTextureType::redTexture:
-            case TerrainTextureType::redTextureNormal:
-            case TerrainTextureType::redTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.r = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::greenTexture:
-            case TerrainTextureType::greenTextureNormal:
-            case TerrainTextureType::greenTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.g = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::blueTexture:
-            case TerrainTextureType::blueTextureNormal:
-            case TerrainTextureType::blueTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.b = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::alphaTexture:
-            case TerrainTextureType::alphaTextureNormal:
-            case TerrainTextureType::alphaTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.w = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::backgorundTexture:
-            case TerrainTextureType::backgorundTextureNormal:
-            case TerrainTextureType::backgorundTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.x = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::rockTexture:
-            case TerrainTextureType::rockTextureNormal:
-            case TerrainTextureType::rockTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.y = terrainTexture.tiledScale;
-                break;
-            default:
-                DEBUG_LOG("unknown");
+            textureParams.dataStorePolicy = DataStorePolicy::Store;
+        }
+        else
+        {
+            textureParams.dataStorePolicy = DataStorePolicy::ToRelease;
+        }
+
+        if (TerrainTextureType::heightmap ==
+            terrainTexture.type /*or TerrainTextureType::blendMap == terrainTexture.type*/)
+        {
+            textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         }
 
         auto texture =
@@ -114,8 +85,11 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
                       ", file : " + terrainTexture.file.GetAbsoultePath());
         }
     }
+
+    perTerrainTexturesBuffer_ =
+        std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6);
+    updateTerrainTextureBufferData();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*perTerrainTexturesBuffer_);
-    inputData_ = textures;
 }
 
 const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
@@ -141,44 +115,7 @@ TerrainComponentBase::TerrainTexture *TerrainComponentBase::getTerrainTexture(Te
 
 void TerrainComponentBase::updateTerrainTextureBuffer()
 {
-    for (const auto &terrainTexture : inputData_)
-    {
-        switch (terrainTexture.type)
-        {
-            case TerrainTextureType::redTexture:
-            case TerrainTextureType::redTextureNormal:
-            case TerrainTextureType::redTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.r = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::greenTexture:
-            case TerrainTextureType::greenTextureNormal:
-            case TerrainTextureType::greenTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.g = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::blueTexture:
-            case TerrainTextureType::blueTextureNormal:
-            case TerrainTextureType::blueTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.b = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::alphaTexture:
-            case TerrainTextureType::alphaTextureNormal:
-            case TerrainTextureType::alphaTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().rgbaTextureScales.value.w = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::backgorundTexture:
-            case TerrainTextureType::backgorundTextureNormal:
-            case TerrainTextureType::backgorundTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.x = terrainTexture.tiledScale;
-                break;
-            case TerrainTextureType::rockTexture:
-            case TerrainTextureType::rockTextureNormal:
-            case TerrainTextureType::rockTextureDisplacement:
-                perTerrainTexturesBuffer_->GetData().backgroundTextureScales.value.y = terrainTexture.tiledScale;
-                break;
-            default:
-                break;
-        }
-    }
+    updateTerrainTextureBufferData();
     componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*perTerrainTexturesBuffer_);
 }
 
@@ -206,6 +143,31 @@ Texture *TerrainComponentBase::GetTexture(TerrainTextureType type) const
 const TerrainConfiguration &TerrainComponentBase::GetConfiguration() const
 {
     return config_;
+}
+
+HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
+{
+    auto filename = EngineConf.files.data + "/heightmap_" + componentContext_.scene_.GetName() + "_" +
+                    std::to_string(thisObject_.GetId()) + ".terrain";
+
+    Utils::CreateEmptyFile(filename);
+    File file(filename);
+
+    auto texture =
+        componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(file, size, heightMapParameters_);
+
+    if (texture)
+    {
+        SetTexture(TerrainTextureType::heightmap, texture);
+        heightMap_ = static_cast<HeightMap*>(texture);
+        inputData_.push_back({file, 1.f, TerrainTextureType ::heightmap});
+    }
+    else
+    {
+        ERROR_LOG("create error");
+    }
+
+    return heightMap_;
 }
 
 HeightMap *TerrainComponentBase::GetHeightMap()
@@ -308,6 +270,75 @@ void TerrainComponentBase::UnSubscribe()
     {
         componentContext_.renderersManager_.UnSubscribe(&thisObject_);
         isSubscribed_ = false;
+    }
+}
+
+void TerrainComponentBase::updateTerrainTextureBufferData()
+{
+    auto &bufferData = perTerrainTexturesBuffer_->GetData();
+
+    for (const auto &terrainTexture : inputData_)
+    {
+        switch (terrainTexture.type)
+        {
+            case TerrainTextureType::heightmap:
+                LoadHeightMap(terrainTexture.file);
+                LoadTerrainConfiguration(terrainTexture.file);
+                continue;
+            case TerrainTextureType::blendMap:
+                bufferData.haveBlendMap = 1.f;
+                break;
+            case TerrainTextureType::redTexture:
+                bufferData.haveTextureR.value.x = 1.f;
+            case TerrainTextureType::redTextureNormal:
+                bufferData.haveTextureR.value.y = 1.f;
+            case TerrainTextureType::redTextureDisplacement:
+                bufferData.haveTextureR.value.z      = 1.f;
+                bufferData.rgbaTextureScales.value.r = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::greenTexture:
+                bufferData.haveTextureG.value.x = 1.f;
+            case TerrainTextureType::greenTextureNormal:
+                bufferData.haveTextureG.value.y = 1.f;
+            case TerrainTextureType::greenTextureDisplacement:
+                bufferData.haveTextureG.value.z      = 1.f;
+                bufferData.rgbaTextureScales.value.g = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::blueTexture:
+                bufferData.haveTextureB.value.x = 1.f;
+            case TerrainTextureType::blueTextureNormal:
+                bufferData.haveTextureB.value.y = 1.f;
+            case TerrainTextureType::blueTextureDisplacement:
+                bufferData.haveTextureB.value.z      = 1.f;
+                bufferData.rgbaTextureScales.value.b = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::alphaTexture:
+                bufferData.haveTextureA.value.x = 1.f;
+            case TerrainTextureType::alphaTextureNormal:
+                bufferData.haveTextureA.value.y = 1.f;
+            case TerrainTextureType::alphaTextureDisplacement:
+                bufferData.haveTextureA.value.z      = 1.f;
+                bufferData.rgbaTextureScales.value.w = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::backgorundTexture:
+                bufferData.haveTextureBackground.value.x = 1.f;
+            case TerrainTextureType::backgorundTextureNormal:
+                bufferData.haveTextureBackground.value.y = 1.f;
+            case TerrainTextureType::backgorundTextureDisplacement:
+                bufferData.haveTextureBackground.value.z   = 1.f;
+                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                break;
+            case TerrainTextureType::rockTexture:
+                bufferData.haveTextureRock.value.x = 1.f;
+            case TerrainTextureType::rockTextureNormal:
+                bufferData.haveTextureRock.value.y = 1.f;
+            case TerrainTextureType::rockTextureDisplacement:
+                bufferData.haveTextureRock.value.z         = 1.f;
+                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                break;
+            default:
+                DEBUG_LOG("unknown");
+        }
     }
 }
 

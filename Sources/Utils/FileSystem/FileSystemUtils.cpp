@@ -11,6 +11,7 @@
 #endif
 
 #include <filesystem>
+#include <fstream>
 
 namespace Utils
 {
@@ -349,6 +350,19 @@ std::string ReadFilesWithIncludes(const std::string& filename)
         ERROR_LOG(filename + " including error");
     }
     return sourceCode.str();
+}
+void CreateEmptyFile(const std::string& filename)
+{
+    try
+    {
+        std::ofstream newFile;
+        newFile.open(filename);
+        newFile.close();
+    }
+    catch (...)
+    {
+        ERROR_LOG("Create file error : " + filename);
+    }
 }
 void RenameFile(const std::string& path, const std::string& newName)
 {

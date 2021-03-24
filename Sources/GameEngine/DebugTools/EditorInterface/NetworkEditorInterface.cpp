@@ -1114,6 +1114,98 @@ void NetworkEditorInterface::DeleteGameObject(GameObject &go)
     gateway_.Send(userId_, msg);
 }
 
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, bool &value)
+{
+    auto iter = params.find(name);
+    if (iter != params.end())
+    {
+        try
+        {
+            value = Utils::StringToBool(iter->second);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+        }
+    }
+}
+
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, int &value)
+{
+    auto iter = params.find(name);
+    if (iter != params.end())
+    {
+        try
+        {
+            value = std::stoi(iter->second);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+        }
+    }
+}
+
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, uint32 &value)
+{
+    auto iter = params.find(name);
+    if (iter != params.end())
+    {
+        try
+        {
+            value = std::stoi(iter->second);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+        }
+    }
+}
+
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, float &value)
+{
+    auto iter = params.find(name);
+    if (iter != params.end())
+    {
+        try
+        {
+            value = std::stof(iter->second);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+        }
+    }
+}
+
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, double &value)
+{
+    auto iter = params.find(name);
+    if (iter != params.end())
+    {
+        try
+        {
+            value = std::stof(iter->second);
+        }
+        catch (...)
+        {
+            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+        }
+    }
+}
+
+template <typename T>
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name,
+                                              std::optional<T> &maybeValue)
+{
+    auto iter = params.find(name);
+    if (iter != params.end())
+    {
+        maybeValue = T{};
+        setParamIfExitst(params, name, *maybeValue);
+    }
+}
+
 void NetworkEditorInterface::SetPhysicsVisualization(const EntryParameters &params)
 {
     SetDeubgRendererState(DebugRenderer::RenderState::Physics, params);
@@ -1477,41 +1569,14 @@ void NetworkEditorInterface::GenerateTerrains(const EntryParameters &params)
     TerrainHeightGenerator::EntryParamters entryParamters;
     bool updateNoiseSeed{true};
 
-    try
-    {
-        if (params.count("bias"))
-        {
-            entryParamters.bias = std::stof(params.at("bias"));
-        }
-        if (params.count("octaves"))
-        {
-            entryParamters.octaves = std::stoi(params.at("octaves"));
-        }
-        if (params.count("width"))
-        {
-            entryParamters.perTerrainHeightMapsize.x = std::stoi(params.at("width"));
-        }
-        if (params.count("height"))
-        {
-            entryParamters.perTerrainHeightMapsize.y = std::stoi(params.at("height"));
-        }
-        if (params.count("scale"))
-        {
-            entryParamters.scale = std::stof(params.at("scale"));
-        }
-        if (params.count("heightFactor"))
-        {
-            entryParamters.heightFactor = std::stof(params.at("heightFactor"));
-        }
-        if (params.count("updateNoiseSeed"))
-        {
-            updateNoiseSeed = Utils::StringToBool(params.at("updateNoiseSeed"));
-        }
-    }
-    catch (...)
-    {
-        ERROR_LOG("Pram parsing failed.");
-    }
+    setParamIfExitst(params, "gameObjectId", entryParamters.gameObjectId);
+    setParamIfExitst(params, "bias", entryParamters.bias);
+    setParamIfExitst(params, "octaves", entryParamters.octaves);
+    setParamIfExitst(params, "width", entryParamters.perTerrainHeightMapsize.x);
+    setParamIfExitst(params, "height", entryParamters.perTerrainHeightMapsize.y);
+    setParamIfExitst(params, "scale", entryParamters.scale);
+    setParamIfExitst(params, "heightFactor", entryParamters.heightFactor);
+    setParamIfExitst(params, "updateNoiseSeed", updateNoiseSeed);
 
     TerrainHeightGenerator generator(scene_.componentController_, entryParamters);
 

@@ -52,6 +52,12 @@ void TerrainMeshRendererComponent::HeightMapChanged()
         heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
     }
 }
+HeightMap *TerrainMeshRendererComponent::createHeightMap(const vec2ui &size)
+{
+    auto result = TerrainComponentBase::createHeightMap(size);
+    init();
+    return result;
+}
 void TerrainMeshRendererComponent::CleanUp()
 {
     TerrainComponentBase::CleanUp();
@@ -85,16 +91,8 @@ const BoundingBox &TerrainMeshRendererComponent::getMeshBoundingBox(uint32 index
         return defaultBoundingBox;
     return boundingBoxes_[index + 1];
 }
-void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
+void TerrainMeshRendererComponent::init()
 {
-    heightMapFile_ = file;
-
-    heightMapParameters_.loadType        = TextureLoadType::None;
-    heightMapParameters_.flipMode        = TextureFlip::NONE;
-    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
-    heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
-
-    TerrainComponentBase::LoadHeightMap(file);
     if (not heightMap_)
         return;
 
@@ -123,6 +121,18 @@ void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
                 }
             });
     }
+}
+void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
+{
+    heightMapFile_ = file;
+
+    heightMapParameters_.loadType        = TextureLoadType::None;
+    heightMapParameters_.flipMode        = TextureFlip::NONE;
+    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
+
+    TerrainComponentBase::LoadHeightMap(file);
+    init();
 }
 
 void TerrainMeshRendererComponent::UpdateHeightMap(const File &)

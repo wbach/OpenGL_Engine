@@ -24,8 +24,10 @@ public:
 
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
     void HeightMapChanged() override;
+    HeightMap* createHeightMap(const vec2ui&) override;
 
 private:
+    void init();
     void LoadHeightMap(const File&) override;
     void UpdateHeightMap(const File&) override;
     void CreateShaderBuffers(const GameEngine::Model&);

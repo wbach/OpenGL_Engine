@@ -320,7 +320,8 @@ uint32 BulletAdapter::CreateRigidbody(ShapeId shapeId, GameObject& gameObject, f
 
     btVector3 localInertia(0, 0, 0);
     btDefaultMotionState* myMotionState{nullptr};
-    int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT | btCollisionObject:CF_CUSTOM_MATERIAL_CALLBACK;
+
+    int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
 
     if (isStatic or not shape.dynamicShapeAllowed_)
     {

@@ -86,12 +86,12 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     File inputFile = inputFileName;
     if (not inputFileName)
     {
-        //WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in data directory");
+        // WARNING_LOG("File not exist : " + inputFileName.GetAbsoultePath() + " try find it in data directory");
         auto filename = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
         if (not filename.empty())
         {
             inputFile = File(filename);
-            //DEBUG_LOG("Found texture in : " + inputFile.GetAbsoultePath());
+            // DEBUG_LOG("Found texture in : " + inputFile.GetAbsoultePath());
         }
         else
         {
@@ -163,6 +163,27 @@ GeneralTexture* TextureLoader::CreateNormalMap(const HeightMap& heightMap, const
     AddTexture(GetNoName(), std::move(normaltexture), TextureLoadType::AddToGpuPass);
     return normaltexturePtr;
 }
+HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& size, const TextureParameters& params)
+{
+    auto dataSize = size.x * size.y;
+    std::vector<float> floatData;
+    floatData.resize(dataSize);
+    for (auto& f : floatData)
+        f = 0.f;
+
+    GraphicsApi::Image image;
+    image.width  = size.x;
+    image.height = size.y;
+    image.setChannels(1);
+    image.moveData(std::move(floatData));
+
+    auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, params, filename, std::move(image));
+    auto heightmapTexturePtr = heightmapTexture.get();
+
+    SaveHeightMap(*heightmapTexture, filename);
+    AddTexture(filename.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
+    return heightmapTexturePtr;
+}
 GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()
 {
     return graphicsApi_;
@@ -188,7 +209,7 @@ void TextureLoader::DeleteTexture(Texture& texture)
 
             gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
             textures_.erase(iter);
-           // DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
+            // DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
         }
     }
     else
@@ -271,7 +292,7 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const Textur
 {
     if (textures_.count(name))
     {
-     //   DEBUG_LOG("Created texture already exist : " + name);
+        //   DEBUG_LOG("Created texture already exist : " + name);
 
         auto& textureInfo = textures_.at(name);
         ++textureInfo.instances_;

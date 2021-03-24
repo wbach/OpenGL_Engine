@@ -1,5 +1,8 @@
 #version 440 core
+#include "../../PerTerrainTexturesBuffer.glsl"
+
 const float EPSILON = 0.00001f;
+const vec4 DEFAULT_COLOR         = vec4(0.8f, 0.8f, 0.8f, 1.f);
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
@@ -8,12 +11,6 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 shadowVariables;
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
-
-layout (std140, binding = 6) uniform PerTerrainTexturesBuffer
-{
-    vec4 rgbaTextureScales;
-    vec4 backgroundTextureScales;
-} perTerrainTextures;
 
 in GS_OUT
 {
@@ -69,6 +66,16 @@ float GetRockBlendFactor()
     return value;
 }
 
+vec4 textureColor(sampler2D inputTexture, vec2 coords, float useThatTexture)
+{
+    if (Is(useThatTexture))
+    {
+        return texture(inputTexture, coords);
+    }
+
+    return DEFAULT_COLOR;
+}
+
 vec3 getTriPlanarTextureBlendingFactor()
 {
     vec3 normal = fs_in.faceNormal;
@@ -99,9 +106,21 @@ vec4 calculateBackgroundColor(float backTextureAmount)
     }
 
     float blendFactor = GetRockBlendFactor();
-    vec4 backgorundTextureColor = getTriPlanarMappingColor(backgorundTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.x) * backTextureAmount * (1.f - blendFactor);
-    vec4 rockTextureColor       = getTriPlanarMappingColor(rockTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.y) * backTextureAmount * blendFactor;
-    return backgorundTextureColor + rockTextureColor;
+
+    vec4 rockTextureColor       = DEFAULT_COLOR;
+    vec4 backgorundTextureColor = DEFAULT_COLOR;
+    
+    if (Is(perTerrainTextures.haveTextureBackground.x))
+    {
+        backgorundTextureColor = getTriPlanarMappingColor(backgorundTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.x) * backTextureAmount;
+    }
+
+    if (Is(perTerrainTextures.haveTextureRock.x))
+    {
+        rockTextureColor = getTriPlanarMappingColor(rockTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.y) * backTextureAmount;
+    }
+
+    return (backgorundTextureColor * (1.f - blendFactor)) + (rockTextureColor * blendFactor);
 }
 
 vec4 CalculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
@@ -121,14 +140,15 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
 {
     if (!Is(perApp.useTextures.x))
     {
-        return vec4(.8f, .8f, .8f, 1.f);
+        return DEFAULT_COLOR;
     }
 
     vec4 backgorundTextureColour = calculateBackgroundColor(backTextureAmount);
-    vec4 redTextureColor         = texture(redTexture, tiledCoords) * blendMapColor.r;
-    vec4 greenTextureColor       = texture(greenTexture, tiledCoords) * blendMapColor.g;
-    vec4 blueTextureColor        = texture(blueTexture, tiledCoords) * blendMapColor.b;
-    vec4 alphaTextureColor       = texture(alphaTexture, tiledCoords) * blendMapColor.a;
+    vec4 redTextureColor         = textureColor(redTexture, tiledCoords, perTerrainTextures.haveTextureR.x) * blendMapColor.r;
+    vec4 greenTextureColor       = textureColor(greenTexture, tiledCoords, perTerrainTextures.haveTextureG.x) * blendMapColor.g;
+    vec4 blueTextureColor        = textureColor(blueTexture, tiledCoords, perTerrainTextures.haveTextureB.x) * blendMapColor.b;
+    vec4 alphaTextureColor       = textureColor(alphaTexture, tiledCoords, perTerrainTextures.haveTextureA.x) * blendMapColor.a;
+
     return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
 }
 

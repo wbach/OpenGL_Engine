@@ -16,6 +16,7 @@ struct File
     Type type;
     std::string name;
 };
+void CreateEmptyFile(const std::string&);
 void RenameFile(const std::string&, const std::string&);
 std::string FindFile(const std::string&, const std::string&);
 std::vector<std::string> FindFilesWithExtension(const std::string&, const std::string&);

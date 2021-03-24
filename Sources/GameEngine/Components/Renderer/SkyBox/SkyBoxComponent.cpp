@@ -25,18 +25,24 @@ const std::string CSTR_NIGHT_TEXTURES   = "nightTextures";
 std::array<File, 6> ReadCubeMapArray(const TreeNode& node, const std::string& str)
 {
     std::array<File, 6> textures;
-    uint32 index = 0;
-    for (const auto& modelFileName : node.getChild(str)->getChildren())
+    uint32 index   = 0;
+    auto childNode = node.getChild(str);
+
+    if (childNode)
     {
-        if (index < 6)
+        for (const auto& modelFileName : childNode->getChildren())
         {
-            textures[index++] = modelFileName->value_;
-        }
-        else
-        {
-            ERROR_LOG("To many textures in cubeMap texture.");
+            if (index < 6)
+            {
+                textures[index++] = modelFileName->value_;
+            }
+            else
+            {
+                ERROR_LOG("To many textures in cubeMap texture.");
+            }
         }
     }
+
     return textures;
 }
 void Create(TreeNode& node, const std::array<File, 6>& str)
@@ -51,7 +57,13 @@ void read(const TreeNode& node, Components::SkyBoxComponent& component)
 {
     component.SetDayTexture(ReadCubeMapArray(node, CSTR_DAY_TEXTURES));
     component.SetNightTexture(ReadCubeMapArray(node, CSTR_NIGHT_TEXTURES));
-    component.SetModel(node.getChild(CSTR_MODEL_FILE_NAME)->value_);
+
+    auto modelNode = node.getChild(CSTR_MODEL_FILE_NAME);
+
+    if (modelNode)
+        component.SetModel(modelNode->value_);
+    else
+        component.SetModel("Meshes/SkyBox/cube.obj");
 }
 
 SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -137,8 +149,7 @@ void SkyBoxComponent::UnSubscribe()
 void SkyBoxComponent::registerReadFunctions()
 {
     ReadFunctions::instance().componentsReadFunctions.insert(
-        {CSTR_COMPONENT_SKYBOX,
-         [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        {CSTR_COMPONENT_SKYBOX, [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
              auto component = std::make_unique<SkyBoxComponent>(componentContext, gameObject);
              read(node, *component);
              return component;

@@ -151,6 +151,11 @@ TerrainMeshRendererComponent* TerrainRendererComponent::GetMeshTerrain()
     return static_cast<TerrainMeshRendererComponent*>(terrainComponent_.get());
 }
 
+HeightMap* TerrainRendererComponent::createHeightMap(const vec2ui& size)
+{
+    return terrainComponent_->createHeightMap(size);
+}
+
 HeightMap* TerrainRendererComponent::GetHeightMap()
 {
     return terrainComponent_->GetHeightMap();
@@ -372,14 +377,15 @@ void TerrainRendererComponent::write(TreeNode& node) const
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(visitor{
-                           [&](const std::vector<uint8>& data) {
-                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                           },
-                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                       },
-                       image.getImageData());
+            std::visit(
+                visitor{
+                    [&](const std::vector<uint8>& data) {
+                        Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                    },
+                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                },
+                image.getImageData());
         }
     }
 }

@@ -9,6 +9,7 @@
 
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -26,6 +27,7 @@ std::vector<float> noiseSeed;
 TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
                                                const EntryParamters& parmaters)
     : componentController_(componentController)
+    , gameObjectId_(parmaters.gameObjectId)
     , perTerrainHeightMapsize_(parmaters.perTerrainHeightMapsize)
     , octaves_(parmaters.octaves)
     , bias_(parmaters.bias)
@@ -82,7 +84,14 @@ void TerrainHeightGenerator::generateHeightMapsImage()
         createSeed();
     }
 
-    getAllSceneTerrains();
+    if (not gameObjectId_)
+    {
+        getAllSceneTerrains();
+    }
+    else
+    {
+        getTerrain();
+    }
 
     if (terrains_.size() != 1)
     {
@@ -112,13 +121,24 @@ void TerrainHeightGenerator::createSeed()
     DEBUG_LOG("Noise size : " + std::to_string(noiseSeed.size()));
 }
 
+void TerrainHeightGenerator::getTerrain()
+{
+    const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+
+    for (auto& [_, terrain] : components)
+    {
+        if (terrain->getParentGameObject().GetId() == *gameObjectId_)
+            terrains_.push_back(static_cast<Components::TerrainRendererComponent*>(terrain));
+    }
+}
+
 void TerrainHeightGenerator::getAllSceneTerrains()
 {
     const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
-    for (auto& terrain : components)
+    for (auto& [_, terrain] : components)
     {
-        terrains_.push_back(static_cast<Components::TerrainRendererComponent*>(terrain.second));
+        terrains_.push_back(static_cast<Components::TerrainRendererComponent*>(terrain));
     }
 }
 
@@ -187,7 +207,12 @@ void TerrainHeightGenerator::perlinNoise2D()
     {
         if (not terrain->GetHeightMap())
         {
-            continue;
+            terrain->createHeightMap(perTerrainHeightMapsize_);
+            if (not terrain->GetHeightMap())
+            {
+                ERROR_LOG("Unsuccessful create heightmap");
+                continue;
+            }
         }
 
         auto& heightMap = *terrain->GetHeightMap();

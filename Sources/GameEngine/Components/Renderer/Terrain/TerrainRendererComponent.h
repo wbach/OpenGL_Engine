@@ -42,6 +42,7 @@ public:
     TerrainRendererComponent& LoadTextures(const std::vector<TerrainComponentBase::TerrainTexture>&);
     Texture* GetTexture(TerrainTextureType) const;
 
+    HeightMap* createHeightMap(const vec2ui&);
     HeightMap* GetHeightMap();
     const TerrainConfiguration& GetTerrainConfiguration() const;
     const std::vector<TerrainComponentBase::TerrainTexture>& GetInputDataTextures() const;

@@ -28,6 +28,7 @@ public:
     virtual GeneralTexture* LoadTexture(const File&, const TextureParameters&)                                     = 0;
     virtual CubeMapTexture* LoadCubeMap(const std::array<File, 6>&, const TextureParameters&)                      = 0;
     virtual HeightMap* LoadHeightMap(const File&, const TextureParameters&)                                        = 0;
+    virtual HeightMap* CreateHeightMap(const File&, const vec2ui&, const TextureParameters&)                       = 0;
     virtual GeneralTexture* CreateNormalMap(const HeightMap&, const vec3&)                                         = 0;
     virtual GraphicsApi::IGraphicsApi& GetGraphicsApi()                                                            = 0;
     virtual void DeleteTexture(Texture&)                                                                           = 0;

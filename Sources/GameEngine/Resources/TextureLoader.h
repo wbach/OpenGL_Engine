@@ -24,6 +24,7 @@ public:
     GeneralTexture* LoadTexture(const File&, const TextureParameters&) override;
     CubeMapTexture* LoadCubeMap(const std::array<File, 6>&, const TextureParameters&) override;
     GeneralTexture* CreateNormalMap(const HeightMap&, const vec3&) override;
+    HeightMap* CreateHeightMap(const File&, const vec2ui&, const TextureParameters&) override;
     HeightMap* LoadHeightMap(const File&, const TextureParameters&) override;
     GraphicsApi::IGraphicsApi& GetGraphicsApi() override;
     void DeleteTexture(Texture& texture) override;

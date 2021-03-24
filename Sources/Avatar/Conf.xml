@@ -8,19 +8,19 @@
 		<loadingScreenCircle>GUI/aLoadingCircle.png</loadingScreenCircle>
 	</Files>
 	<Sound enabled="1" volume="1.000000"/>
-	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="1" lodDistance1="200.000000" preset="3" resolutionY="768" lodDistance2="150.000000" viewDistance="10000.000000" fpsLimit="75" lodDistance0="100.000000" normalMappingDistance="50.000000" entityInstancedGrouping="false">
+	<Renderer graphicsApi="OpenGL" resolutionX="1366" type="0" lodDistance1="50.000000" preset="1" resolutionY="768" lodDistance2="150.000000" viewDistance="200.000000" fpsLimit="75" lodDistance0="25.000000" normalMappingDistance="0.000000" entityInstancedGrouping="false">
 		<Terrain>
 			<terrainRenderer>Mesh</terrainRenderer>
 			<terrainRendererMeshResolutionDivider>1</terrainRendererMeshResolutionDivider>
 			<partsCount>8</partsCount>
 		</Terrain>
-		<Water type="1">
-			<Reflection width="1366" height="768"/>
-			<Refraction width="1366" height="768"/>
+		<Water type="0">
+			<Reflection width="16" height="16"/>
+			<Refraction width="16" height="16"/>
 		</Water>
-		<Flora enabled="true" viewDistance="500.000000"/>
-		<Shadows firstCascadeDistance="25.000000" enabled="true" cascadesSize="4" viewDistance="50.000000" cascadeDistanceFunc="quadratic" shadowMapSize="2048"/>
-		<Textures ambient="true" maxWidth="2048" displacement="false" maxHeight="2048" textureSizeLimit="true" diffuse="true" normal="true" specular="true"/>
+		<Flora enabled="false" viewDistance="0.000000"/>
+		<Shadows firstCascadeDistance="25.000000" enabled="false" cascadesSize="1" viewDistance="0.000000" cascadeDistanceFunc="quadratic" shadowMapSize="16"/>
+		<Textures ambient="true" maxWidth="512" displacement="false" maxHeight="512" textureSizeLimit="true" diffuse="true" normal="false" specular="true"/>
 		<Particles enabled="true"/>
 	</Renderer>
 	<DebugParams>
