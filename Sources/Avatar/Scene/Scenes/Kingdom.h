@@ -1,6 +1,11 @@
 #pragma once
 #include "GameEngine/Scene/Scene.hpp"
 
+namespace GameEngine
+{
+class FirstPersonCamera;
+}
+
 namespace AvatarGame
 {
 class PauseMenu;
@@ -21,5 +26,6 @@ private:
 
 private:
     std::unique_ptr<PauseMenu> menu_;
+    std::unique_ptr<GameEngine::FirstPersonCamera> camera_;
 };
 }  // namespace AvatarGame

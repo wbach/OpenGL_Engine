@@ -25,7 +25,6 @@ public:
 
 private:
     GraphicsApi::Image image_;
-    vec3 scale_;
     float maximumHeight_;
     float minimumHeight_;
     float deltaHeight_;

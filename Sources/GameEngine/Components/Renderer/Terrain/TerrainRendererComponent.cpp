@@ -59,8 +59,6 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
     {
         SetRendererType(Convert(EngineConf.renderer.terrain.terrainType));
     }
-
-    terrainComponent_->createHeightMap({ 1024, 1024 });
 }
 
 TerrainRendererComponent::~TerrainRendererComponent()
@@ -318,12 +316,12 @@ void TerrainRendererComponent::registerReadFunctions()
         if (texturesNode)
         {
             auto textures = ReadTerrainTextures(*node.getChild(CSTR_TEXTURE_FILENAMES));
-            //component->LoadTextures(textures);
+            component->LoadTextures(textures);
         }
-        else
-        {
-            ERROR_LOG("Child node with textures not found in terrain render component.");
-        }
+
+        if (not component->GetHeightMap())
+            component->createHeightMap({1024, 1024});
+
         return component;
     };
 
@@ -379,15 +377,14 @@ void TerrainRendererComponent::write(TreeNode& node) const
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(
-                visitor{
-                    [&](const std::vector<uint8>& data) {
-                        Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                    },
-                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                },
-                image.getImageData());
+            std::visit(visitor{
+                           [&](const std::vector<uint8>& data) {
+                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
+                           },
+                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                       },
+                       image.getImageData());
         }
     }
 }

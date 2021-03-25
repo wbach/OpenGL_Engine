@@ -21,9 +21,12 @@ namespace Components
 TerrainComponentBase::TerrainComponentBase(ComponentContext &componentContext, GameObject &gameObject)
     : componentContext_(componentContext)
     , thisObject_(gameObject)
+    , perTerrainTexturesBuffer_(
+          std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6))
     , heightMap_(nullptr)
     , isSubscribed_(false)
 {
+    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*perTerrainTexturesBuffer_);
 }
 void TerrainComponentBase::CleanUp()
 {
@@ -50,6 +53,9 @@ void TerrainComponentBase::BlendMapChanged()
 
 void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textures)
 {
+    if (textures.empty())
+        return;
+
     inputData_ = textures;
 
     TextureParameters textureParams;
@@ -58,6 +64,14 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
 
     for (const auto &terrainTexture : textures)
     {
+        if (TerrainTextureType::heightmap ==
+            terrainTexture.type)
+        {
+            LoadHeightMap(terrainTexture.file);
+            LoadTerrainConfiguration(terrainTexture.file);
+            continue;
+        }
+
         if (TerrainTextureType::blendMap == terrainTexture.type)
         {
             textureParams.dataStorePolicy = DataStorePolicy::Store;
@@ -65,12 +79,6 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
         else
         {
             textureParams.dataStorePolicy = DataStorePolicy::ToRelease;
-        }
-
-        if (TerrainTextureType::heightmap ==
-            terrainTexture.type /*or TerrainTextureType::blendMap == terrainTexture.type*/)
-        {
-            textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         }
 
         auto texture =
@@ -87,10 +95,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
         }
     }
 
-    perTerrainTexturesBuffer_ =
-        std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6);
-    updateTerrainTextureBufferData();
-    componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*perTerrainTexturesBuffer_);
+    updateTerrainTextureBuffer();
 }
 
 const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
@@ -283,9 +288,7 @@ void TerrainComponentBase::updateTerrainTextureBufferData()
         switch (terrainTexture.type)
         {
             case TerrainTextureType::heightmap:
-                LoadHeightMap(terrainTexture.file);
-                LoadTerrainConfiguration(terrainTexture.file);
-                continue;
+                break;
             case TerrainTextureType::blendMap:
                 bufferData.haveBlendMap = 1.f;
                 break;

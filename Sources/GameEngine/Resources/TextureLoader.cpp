@@ -163,8 +163,14 @@ GeneralTexture* TextureLoader::CreateNormalMap(const HeightMap& heightMap, const
     AddTexture(GetNoName(), std::move(normaltexture), TextureLoadType::AddToGpuPass);
     return normaltexturePtr;
 }
-HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& size, const TextureParameters& params)
+HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& requestedSize,
+                                          const TextureParameters& params)
 {
+    // textures_.find(filename);
+    auto ox   = requestedSize.x % 2 == 0 ? 1 : 0;
+    auto oy   = requestedSize.y % 2 == 0 ? 1 : 0;
+    auto size = vec2ui(ox, oy) + requestedSize;
+
     auto dataSize = size.x * size.y;
     std::vector<float> floatData;
     floatData.resize(dataSize);
@@ -199,18 +205,19 @@ void TextureLoader::DeleteTexture(Texture& texture)
     if (iter != textures_.end())
     {
         if (textureNotFound_.first and
-            iter->second.resource_->GetGraphicsObjectId() != textureNotFound_.first->GetGraphicsObjectId())
+            iter->second.resource_->GetGraphicsObjectId() == textureNotFound_.first->GetGraphicsObjectId())
         {
-            auto& textureInfo = iter->second;
-            --textureInfo.instances_;
-
-            if (textureInfo.instances_ > 0 or releaseLockState_)
-                return;
-
-            gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
-            textures_.erase(iter);
-            // DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
+            return;
         }
+        auto& textureInfo = iter->second;
+        --textureInfo.instances_;
+
+        if (textureInfo.instances_ > 0 or releaseLockState_)
+            return;
+
+        gpuResourceLoader_.AddObjectToRelease(std::move(textureInfo.resource_));
+        textures_.erase(iter);
+        // DEBUG_LOG("textures_ erase , size : " + std::to_string(textures_.size()));
     }
     else
     {

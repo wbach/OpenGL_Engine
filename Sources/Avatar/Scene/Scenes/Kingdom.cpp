@@ -38,6 +38,11 @@ int Kingdom::Initialize()
 {
     DEBUG_LOG("Kingdom::Initialize()");
 
+    camera_ = std::make_unique<GameEngine::FirstPersonCamera>(*this->inputManager_, *this->displayManager_);
+    SetCamera(*camera_);
+    camera.SetPosition(vec3(1, 1, 1));
+    camera.LookAt(vec3(0));
+
     prepareMenu();
     keyOperations();
 
