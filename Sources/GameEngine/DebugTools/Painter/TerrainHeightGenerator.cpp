@@ -18,7 +18,8 @@ enum class Interpolation
 {
     linear,
     cosinus,
-    smoothstep
+    smoothstep,
+    smootherstep
 };
 namespace
 {
@@ -31,8 +32,6 @@ TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentContro
     , perTerrainHeightMapsize_(parmaters.perTerrainHeightMapsize)
     , octaves_(parmaters.octaves)
     , bias_(parmaters.bias)
-    , scale_(parmaters.scale)
-    , heightFactor_(parmaters.heightFactor)
 {
     if (bias_ < 0.1f)
         bias_ = 0.1f;
@@ -116,7 +115,8 @@ void TerrainHeightGenerator::createSeed()
     for (auto& noise : noiseSeed)
     {
         // noise = dist(mt);
-        noise = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+        // noise = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+        noise = getRandomFloat(0.f, 1.f);
     }
     DEBUG_LOG("Noise size : " + std::to_string(noiseSeed.size()));
 }
@@ -161,7 +161,6 @@ float cubicHermite(float A, float B, float C, float D, float t)
 
     return a * t * t * t + b * t * t + c * t + d;
 }
-
 float clamp(float x, float lowerlimit, float upperlimit)
 {
     if (x < lowerlimit)
@@ -170,16 +169,33 @@ float clamp(float x, float lowerlimit, float upperlimit)
         x = upperlimit;
     return x;
 }
-
-float smoothstep(float edge0, float edge1, float x)
+float smoothstep(float x)
 {
+    float edge0 = 0.f;
+    float edge1 = 1.f;
+
     // Scale, bias and saturate x to 0..1 range
     x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
     // Evaluate polynomial
     return x * x * (3 - 2 * x);
 }
+float smootherstep(float x)
+{
+    float edge0 = 0.f;
+    float edge1 = 1.f;
 
-float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::linear)
+    // Scale, and clamp x to 0..1 range
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    // Evaluate polynomial
+    return x * x * x * (x * (x * 6 - 15) + 10);
+}
+
+float fade(float t)
+{
+    return ((6 * t - 15) * t + 10) * t * t * t;
+}
+
+float interpolate(float a, float b, float blend, Interpolation interpolation = Interpolation::smootherstep)
 {
     switch (interpolation)
     {
@@ -188,9 +204,10 @@ float interpolate(float a, float b, float blend, Interpolation interpolation = I
         case Interpolation::cosinus:
             return cosinusInterpolation(a, b, blend);
         case Interpolation::smoothstep:
-            return smoothstep(a, b, blend);
+            return linearInterpolation(a, b, smoothstep(blend));
+        case Interpolation::smootherstep:
+            return linearInterpolation(a, b, smootherstep(blend));
     }
-
     return 0.f;
 }
 
@@ -240,7 +257,7 @@ void TerrainHeightGenerator::perlinNoise2D()
                     auto sampleB =
                         interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
-                    noise += (blendY * (sampleB - sampleT) + sampleT) * scale;
+                    noise += interpolate(sampleT, sampleB, blendY) * scale;
 
                     scaleAcc += scale;
                     scale = scale / bias_;
@@ -256,7 +273,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         image.setChannels(1);
         image.moveData(heights);
 
-        image.applyFilter(GraphicsApi::gaussian7x7Filter());
+        // image.applyFilter(GraphicsApi::gaussian7x7Filter());
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }

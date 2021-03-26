@@ -123,15 +123,6 @@ class Menu:
             widthLabel = tk.Entry(widthLabel, textvariable=self.width)
             widthLabel.pack(fill=tk.X, expand=1)
 
-            scaleLabel = tk.LabelFrame(dialog, text="Scale")
-            scaleLabel.pack(fill=tk.X)
-            scaleLabel = tk.Entry(scaleLabel, textvariable=self.scale)
-            scaleLabel.pack(fill=tk.X, expand=1)
-
-            heightFactorLabel = tk.LabelFrame(dialog, text="Height Factor")
-            heightFactorLabel.pack(fill=tk.X)
-            tk.Entry(heightFactorLabel, textvariable=self.heightFactor).pack(fill=tk.X, expand=1)
-
             tk.Button(dialog, text="Generate with the same seed", command=partial(self.SendGenerateTerrain, "false"))\
                 .pack(fill=tk.X)
             tk.Button(dialog, text="Generate terrain with new seed", command=partial(self.SendGenerateTerrain, "true"))\
@@ -141,8 +132,7 @@ class Menu:
         if self.networkClient.IsConnected():
             self.networkClient.SendCommand("generateTerrains width=" + self.width.get() + " height=" +
                                            self.width.get() + " octaves=" + self.octaves.get() + " bias=" +
-                                           self.bias.get() + " scale=" + self.scale.get() + " heightFactor=" +
-                                           self.heightFactor.get() + " updateNoiseSeed=" + updateNoiseSeed)
+                                           self.bias.get() + " updateNoiseSeed=" + updateNoiseSeed)
 
     def TexturesControlDiffuseChange(self, *args):
         if self.networkClient.IsConnected():

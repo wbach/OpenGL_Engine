@@ -17,9 +17,7 @@ public:
     struct EntryParamters
     {
         float bias{2.f};
-        float scale{10.f};
         uint32 octaves{9};
-        float heightFactor{20.f};
         vec2ui perTerrainHeightMapsize{512, 512};
         std::optional<IdType> gameObjectId;
     };
@@ -42,7 +40,5 @@ private:
     vec2ui perTerrainHeightMapsize_;
     uint32 octaves_;
     float bias_;
-    float scale_;
-    float heightFactor_;
 };
 }  // namespace GameEngine

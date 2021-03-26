@@ -1593,8 +1593,6 @@ void NetworkEditorInterface::GenerateTerrains(const EntryParameters &params)
     setParamIfExitst(params, "octaves", entryParamters.octaves);
     setParamIfExitst(params, "width", entryParamters.perTerrainHeightMapsize.x);
     setParamIfExitst(params, "height", entryParamters.perTerrainHeightMapsize.y);
-    setParamIfExitst(params, "scale", entryParamters.scale);
-    setParamIfExitst(params, "heightFactor", entryParamters.heightFactor);
     setParamIfExitst(params, "updateNoiseSeed", updateNoiseSeed);
 
     TerrainHeightGenerator generator(scene_.componentController_, entryParamters);
