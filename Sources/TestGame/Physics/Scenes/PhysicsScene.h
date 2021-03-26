@@ -48,6 +48,6 @@ private:
     void AddStartupObjects();
 
 private:
-    std::unique_ptr<GameEngine::ICamera> camera_;
+    std::optional<IdType> cameraId_;
 };
 }  // namespace PhysicsTestGame

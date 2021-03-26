@@ -30,6 +30,7 @@ public:
     const GameObject& getParentGameObject() const override;
 
     void write(TreeNode&) const override;
+    std::optional<IdType> getRegisteredFunctionId(FunctionType) const override;
 
 protected:
     void RegisterFunction(FunctionType, std::function<void()> func);
@@ -44,7 +45,7 @@ private:
 
 private:
     bool isActive_;
-    std::unordered_map<uint32, FunctionType> ids_;
+    std::unordered_map<uint32, FunctionType> registeredFunctionsIds_;
     std::optional<uint32> componentRegistredId_;
 };
 }  // namespace Components

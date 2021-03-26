@@ -2,36 +2,33 @@
 #include <Utils/IdPool.h>
 
 #include <functional>
+#include <set>
 #include <unordered_map>
+
 #include "IComponent.h"
 #include "Types.h"
+#include "FunctionType.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-enum class FunctionType
-{
-    Awake,
-    OnStart,
-    Update,
-    PostUpdate,
-    AlwaysUpdate,
-};
-
 typedef std::unordered_map<uint32, IComponent*> RegistredComponentsMap;
 
 class ComponentController final
 {
 public:
+    using FunctionId   = IdType;
+    using ComponentId  = IdType;
+    using GameObjectId = IdType;
+
     struct ComponentFunction
     {
-        IdType id{0};
+        FunctionId id{0};
         bool isActive{true};
         std::function<void()> function;
     };
 
-    using GameObjectId = IdType;
     using ComponentFunctions =
         std::unordered_map<GameObjectId, std::unordered_map<FunctionType, std::vector<ComponentFunction>>>;
 
@@ -51,12 +48,13 @@ public:
         return DEFAULT_COMPONETNS_MAP;
     }
 
-    uint32 RegisterFunction(IdType, FunctionType, std::function<void()>);
-    void UnRegisterFunction(GameObjectId, FunctionType, uint32);
-    void setActivateStateOfComponentFunction(GameObjectId, FunctionType, uint32, bool);
+    FunctionId RegisterFunction(GameObjectId, FunctionType, std::function<void()>);
+    void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);
+    void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
+    void callComponentFunction(GameObjectId, FunctionType, FunctionId);
 
-    uint32 RegisterComponent(IComponent::Type, IComponent*);
-    void UnRegisterComponent(IComponent::Type, uint32);
+    ComponentId RegisterComponent(IComponent::Type, IComponent*);
+    void UnRegisterComponent(IComponent::Type, ComponentId);
 
     void UnRegisterAll();
 
@@ -75,6 +73,7 @@ private:
     Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;
+    std::set<GameObjectId> startedGameObjects_;
 
 private:
     const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;

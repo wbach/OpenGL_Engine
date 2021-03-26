@@ -27,7 +27,7 @@ private:
     void OnGetPlayer(NetworkCharacter* character);
 
 private:
-    std::unique_ptr<GameEngine::ICamera> camera_;
+    std::optional<IdType> cameraId_;
     std::shared_ptr<PlayerController> playerController_;
     NetworkCharacterManagerPtr networkCharacterManager_;
     ModelsCreatorPtr modelsCreator_;

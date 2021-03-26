@@ -89,7 +89,6 @@ public:
 
     // Cameras
     void UpdateCamera();
-    void SetCamera(ICamera& camera);
     CameraWrapper& GetCamera();
     const CameraWrapper& GetCamera() const;
 
@@ -131,7 +130,7 @@ protected:
     std::unordered_map<uint32, GameObject*> gameObjectsIds_;
     CameraWrapper camera;
 
-	GraphicsApi::IGraphicsApi* graphicsApi_;
+    GraphicsApi::IGraphicsApi* graphicsApi_;
     Input::InputManager* inputManager_;
     DisplayManager* displayManager_;
     Renderer::RenderersManager* renderersManager_;

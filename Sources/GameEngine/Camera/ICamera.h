@@ -46,7 +46,7 @@ struct ICamera
     virtual void SetRotation(const Rotation&) = 0;
     virtual void SetPosition(const vec3&)     = 0;
 
-    virtual uint32 SubscribeOnChange(std::function<void(const ICamera&)>) = 0;
-    virtual void UnsubscribeOnChange(uint32)                              = 0;
+    virtual IdType SubscribeOnChange(std::function<void(const ICamera&)>) = 0;
+    virtual void UnsubscribeOnChange(IdType)                              = 0;
 };
 }  // namespace GameEngine

@@ -159,7 +159,6 @@ private:
     Utils::Timer cameraTimer_;
     Utils::Timer transformTimer_;
     Input::KeysSubscriptionsManager keysSubscriptionsManager_;
-    ICamera* sceneCamera_;
     bool running_;
 
     std::mutex selectedGameObjectMutex_;
@@ -175,5 +174,7 @@ private:
 
     common::Transform arrowsIndicatorTransform_;
     common::Transform brushCircleTransform_;
+
+    std::optional<IdType> cameraEditorId_;
 };
 }  // namespace GameEngine

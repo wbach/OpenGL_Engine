@@ -246,11 +246,6 @@ void Scene::UpdateCamera()
     camera.Update();
 }
 
-void Scene::SetCamera(ICamera& cam)
-{
-    camera.Set(cam);
-}
-
 CameraWrapper& Scene::GetCamera()
 {
     return camera;

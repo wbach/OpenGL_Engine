@@ -15,7 +15,9 @@
 #include <GameEngine/Resources/ResourceManager.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
 #include <Logger/Log.h>
+
 #include <Thread.hpp>
+
 #include "Avatar/Game/PauseMenu.h"
 #include "PauseMenuTheme.h"
 
@@ -32,14 +34,20 @@ Kingdom::~Kingdom()
 {
     DEBUG_LOG(__FUNCTION__);
     menu_.reset();
+
+    if (*cameraId_)
+    {
+        camera.remove(*cameraId_);
+    }
 }
 
 int Kingdom::Initialize()
 {
     DEBUG_LOG("Kingdom::Initialize()");
 
-    camera_ = std::make_unique<GameEngine::FirstPersonCamera>(*this->inputManager_, *this->displayManager_);
-    SetCamera(*camera_);
+    auto fpCamera = std::make_unique<GameEngine::FirstPersonCamera>(*this->inputManager_, *this->displayManager_);
+    cameraId_ = camera.addAndSet(std::move(fpCamera));
+
     camera.SetPosition(vec3(1, 1, 1));
     camera.LookAt(vec3(0));
 

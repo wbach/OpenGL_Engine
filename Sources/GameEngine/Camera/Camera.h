@@ -1,6 +1,6 @@
 #pragma once
 #include <functional>
-
+#include <Utils/IdPool.h>
 #include "ICamera.h"
 
 namespace GameEngine
@@ -46,8 +46,8 @@ public:
     void SetPitch(float pitch) override;
     void SetRotation(const Rotation&) override;
     void SetPosition(const vec3&) override;
-    uint32 SubscribeOnChange(std::function<void(const ICamera&)>) override;
-    void UnsubscribeOnChange(uint32) override;
+    IdType SubscribeOnChange(std::function<void(const ICamera&)>) override;
+    void UnsubscribeOnChange(IdType) override;
 
     void NotifySubscribers();
 
@@ -59,7 +59,7 @@ protected:
     bool lock_;
 
 private:
-    uint32 idPool_;
+    Utils::IdPool idPool_;
     std::vector<std::pair<uint32, std::function<void(const ICamera&)>>> subscribers_;
 
     vec3 position_;

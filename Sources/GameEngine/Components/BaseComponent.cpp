@@ -1,5 +1,7 @@
 #include "BaseComponent.h"
+
 #include <Logger/Log.h>
+
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -17,9 +19,9 @@ BaseComponent::BaseComponent(size_t type, ComponentContext& componentContext, Ga
 }
 BaseComponent::~BaseComponent()
 {
-    for (auto id : ids_)
+    for (const auto& [id, type] : registeredFunctionsIds_)
     {
-        componentContext_.componentController_.UnRegisterFunction(thisObject_.GetId(), id.second, id.first);
+        componentContext_.componentController_.UnRegisterFunction(thisObject_.GetId(), type, id);
     }
 
     if (componentRegistredId_)
@@ -56,6 +58,16 @@ const GameObject& BaseComponent::getParentGameObject() const
 void BaseComponent::write(TreeNode&) const
 {
 }
+
+std::optional<IdType> BaseComponent::getRegisteredFunctionId(FunctionType functionType) const
+{
+    for (const auto& [id, type] : registeredFunctionsIds_)
+    {
+        if (type == functionType)
+            return id;
+    }
+    return std::nullopt;
+}
 bool BaseComponent::IsActive() const
 {
     return isActive_;
@@ -65,15 +77,16 @@ void BaseComponent::InitFromParams(const std::unordered_map<std::string, std::st
 }
 void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
 {
-    ids_.insert({componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type, func), type});
+    registeredFunctionsIds_.insert(
+        {componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type, func), type});
 }
 
 void BaseComponent::changeActivateStateRegisteredFunctions()
 {
-    for (auto id : ids_)
+    for (const auto& [id, type] : registeredFunctionsIds_)
     {
-        componentContext_.componentController_.setActivateStateOfComponentFunction(thisObject_.GetId(), id.second,
-                                                                                   id.first, isActive_);
+        componentContext_.componentController_.setActivateStateOfComponentFunction(thisObject_.GetId(), type, id,
+                                                                                   isActive_);
     }
 }
 

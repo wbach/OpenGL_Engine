@@ -20,10 +20,9 @@ private:
 
 private:
     Input::KeysSubscriptionsManager keysSubscriptionsManager_;
+    std::optional<IdType> cameraId_;
     float zoomSpeed_;
-    std::unique_ptr<ICamera> camera_;
     vec3 offset_;
-    ICamera* previousCamera_;
 
 public:
     static void registerReadFunctions();

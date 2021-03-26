@@ -55,7 +55,6 @@ namespace GameEngine
 namespace
 {
 using CameraEditorType = CameraEditor;
-std::unique_ptr<CameraEditorType> cameraEditor;
 
 std::mutex transformChangedMutex_;
 std::optional<uint32> transformChangedToSend_;
@@ -126,7 +125,6 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::Thre
     , selectedGameObject_{nullptr}
     , userId_{0}
     , keysSubscriptionsManager_(*scene_.inputManager_)
-    , sceneCamera_{nullptr}
     , running_{false}
     , arrowsIndicator_{nullptr}
 {
@@ -134,7 +132,6 @@ NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::Thre
 
 NetworkEditorInterface::~NetworkEditorInterface()
 {
-    DEBUG_LOG("destructor");
     if (arrowsIndicator_)
     {
         scene_.resourceManager_->ReleaseModel(*arrowsIndicator_);
@@ -142,7 +139,6 @@ NetworkEditorInterface::~NetworkEditorInterface()
 
     UnsubscribeCameraUpdateIfExist();
     SetOrignalCamera();
-    cameraEditor.reset();
     KeysUnsubscribe();
     UnsubscribeTransformUpdateIfExist();
     scene_.renderersManager_->GetDebugRenderer().clear();
@@ -236,13 +232,16 @@ void NetworkEditorInterface::DefineCommands()
 
 void NetworkEditorInterface::SetupCamera()
 {
-    sceneCamera_ = scene_.camera.Get();
-    sceneCamera_->Lock();
+    if (cameraEditorId_)
+    {
 
-    cameraEditor = std::make_unique<CameraEditorType>(*scene_.inputManager_, *scene_.displayManager_);
-    cameraEditor->SetPosition(sceneCamera_->GetPosition());
-    cameraEditor->SetRotation(sceneCamera_->GetRotation());
-    scene_.SetCamera(*cameraEditor);
+    }
+    scene_.camera.Lock();
+
+    auto cameraEditor = std::make_unique<CameraEditorType>(*scene_.inputManager_, *scene_.displayManager_);
+    cameraEditor->SetPosition(scene_.camera.GetPosition());
+    cameraEditor->SetRotation(scene_.camera.GetRotation());
+    cameraEditorId_ = scene_.camera.addAndSet(std::move(cameraEditor));
 }
 
 void NetworkEditorInterface::StartGatway()
@@ -896,6 +895,24 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
             if (component)
             {
                 component->ReqisterFunctions();
+
+                {
+                    auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);
+                    if (maybeId)
+                    {
+                        scene_.componentController_.callComponentFunction(go->GetId(), Components::FunctionType::Awake,
+                                                                          *maybeId);
+                    }
+                }
+                {
+                    auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::OnStart);
+                    if (maybeId)
+                    {
+                        scene_.componentController_.callComponentFunction(go->GetId(),
+                                                                          Components::FunctionType::OnStart, *maybeId);
+                    }
+                }
+
                 DebugNetworkInterface::NewComponentMsgInd componentNameMsg(componentName, component->IsActive());
                 gateway_.Send(userId_, componentNameMsg);
             }
@@ -1281,12 +1298,12 @@ void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::Entr
 
     auto gameObject = GetGameObject(paramters.at("gameObjectId"));
 
-    if (not gameObject or not cameraEditor)
+    if (not gameObject)
         return;
 
-    cameraEditor->SetPosition(gameObject->GetWorldTransform().GetPosition() +
+    scene_.camera.SetPosition(gameObject->GetWorldTransform().GetPosition() +
                               (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
-    cameraEditor->LookAt(gameObject->GetWorldTransform().GetPosition());
+    scene_.camera.LookAt(gameObject->GetWorldTransform().GetPosition());
 }
 
 void NetworkEditorInterface::StartScene(const NetworkEditorInterface::EntryParameters &)
@@ -1312,6 +1329,7 @@ void NetworkEditorInterface::StartScene()
     scene_.inputManager_->StashPopSubscribers();
 
     scene_.Start();
+    scene_.camera.Unlock();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
 }
 
@@ -1320,6 +1338,7 @@ void NetworkEditorInterface::StopScene()
     if (not scene_.start_.load())
         return;
 
+    scene_.camera.Lock();
     UnsubscribeTransformUpdateIfExist();
     scene_.Stop();
 
@@ -1948,18 +1967,18 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
     if (cameraChangeSubscriptionId_)
     {
         scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
-        if (cameraEditor)
-            cameraEditor->UnsubscribeOnChange(*cameraChangeSubscriptionId_);
         cameraChangeSubscriptionId_ = std::nullopt;
     }
 }
 
 void NetworkEditorInterface::SetOrignalCamera()
 {
-    scene_.SetCamera(*sceneCamera_);
-    if (sceneCamera_)
-        sceneCamera_->Unlock();
-    cameraEditor.reset();
+    if (cameraEditorId_)
+    {
+        scene_.camera.remove(*cameraEditorId_);
+        scene_.camera.Unlock();
+        cameraEditorId_ = std::nullopt;
+    }
 }
 std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameters &params,
                                                             std::unique_ptr<GameObject> &gameObject)

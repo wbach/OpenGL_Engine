@@ -41,6 +41,7 @@ Console::Console(Scene &scene)
 Console::~Console()
 {
     DEBUG_LOG("destructor");
+    DisableFreeCam({});
 }
 
 void Console::ExecuteCommands()
@@ -106,20 +107,22 @@ void Console::CameraInfo(const std::vector<std::string> &)
 
 void Console::SetFreeCamera(const std::vector<std::string> &)
 {
-    if (firstPersonCamera_)
+    if (firstPersonCameraId_)
         return;
 
-    firstPersonCamera_ = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
-    stashedCamera_     = scene_.GetCamera().Get();
-    firstPersonCamera_->SetPosition(stashedCamera_->GetPosition());
-    firstPersonCamera_->SetRotation(stashedCamera_->GetRotation());
-    scene_.SetCamera(*firstPersonCamera_);
+    auto firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
+    firstPersonCamera->SetPosition(scene_.camera.GetPosition());
+    firstPersonCamera->SetRotation(scene_.camera.GetRotation());
+    scene_.camera.addAndSet(std::move(firstPersonCamera));
 }
 
 void Console::DisableFreeCam(const std::vector<std::string> &)
 {
-    scene_.SetCamera(*stashedCamera_);
-    firstPersonCamera_.reset(nullptr);
+    if (firstPersonCameraId_)
+    {
+        scene_.camera.remove(*firstPersonCameraId_);
+        firstPersonCameraId_ = std::nullopt;
+    }
 }
 
 void Console::AddCommand(const std::string &command)

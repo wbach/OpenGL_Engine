@@ -84,13 +84,13 @@ void Camera::NotifySubscribers()
         lastNotifiedPosition_ = position_;
     }
 }
-uint32 Camera::SubscribeOnChange(std::function<void(const ICamera&)> callback)
+IdType Camera::SubscribeOnChange(std::function<void(const ICamera&)> callback)
 {
-    subscribers_.push_back({idPool_, callback});
-    ++idPool_;
-    return idPool_ - 1;
+    auto id = idPool_.getId();
+    subscribers_.push_back({id, callback});
+    return id;
 }
-void Camera::UnsubscribeOnChange(uint32 id)
+void Camera::UnsubscribeOnChange(IdType id)
 {
     if (not subscribers_.empty())
     {
@@ -100,6 +100,7 @@ void Camera::UnsubscribeOnChange(uint32 id)
         if (iter != subscribers_.end())
         {
             subscribers_.erase(iter);
+            idPool_.releaseId(id);
         }
     }
 }

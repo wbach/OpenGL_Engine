@@ -1,6 +1,11 @@
 #include "MainRpgScene.h"
+
+#include <Common/Messages/GetCharacterData/GetCharactersDataMsgReq.h>
+#include <Common/Messages/RemoveCharacter/DisconnectCharacterMsg.h>
+#include <Common/Messages/TransformMessages/TransformMessageTypes.h>
 #include <GameEngine/Engine/EngineEvent.h>
 #include <Input/InputManager.h>
+
 #include "Camera/FirstPersonCamera.h"
 #include "Camera/ThridPersonCamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -10,9 +15,6 @@
 #include "TestGame/MRpg/Handlers/DisconnectCharacter/DisconnectHandler.h"
 #include "TestGame/MRpg/Handlers/GetCharacterData/GetCharacterDataHandler.h"
 #include "TestGame/MRpg/Handlers/Transform/TransformHandler.h"
-#include <Common/Messages/GetCharacterData/GetCharactersDataMsgReq.h>
-#include <Common/Messages/RemoveCharacter/DisconnectCharacterMsg.h>
-#include <Common/Messages/TransformMessages/TransformMessageTypes.h>
 
 using namespace GameEngine;
 
@@ -26,6 +28,9 @@ MainRpgScene::MainRpgScene(Network::Gateway& gateway, const std::string& serverA
 MainRpgScene::~MainRpgScene()
 {
     DEBUG_LOG("");
+
+    if (cameraId_)
+        camera.remove(*cameraId_);
 }
 
 int MainRpgScene::Initialize()
@@ -34,8 +39,11 @@ int MainRpgScene::Initialize()
 
     DEBUG_LOG("MainRpgScene::Initialize()");
 
-    modelsCreator_           = std::make_unique<ModelsCreator>(resourceManager_.get());
-    networkCharacterManager_ = std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_, std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1), std::bind(&MainRpgScene::CreateGameObjectWithDefaultName, this));
+    modelsCreator_ = std::make_unique<ModelsCreator>(resourceManager_.get());
+    networkCharacterManager_ =
+        std::make_unique<NetworkCharacterManager>(modelsCreator_.get(), *renderersManager_, gameContext_,
+                                                  std::bind(&MainRpgScene::AddGameObject, this, std::placeholders::_1),
+                                                  std::bind(&MainRpgScene::CreateGameObjectWithDefaultName, this));
 
     networkCharacterManager_->SubscribeOnGetPlayer(std::bind(&MainRpgScene::OnGetPlayer, this, std::placeholders::_1));
 
@@ -88,8 +96,9 @@ void MainRpgScene::ReqNetworkSceneCharacters()
 
 void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 {
-    camera_ = std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().GetTransform());
-    camera.Set(*camera_);
+    auto tcamera =
+        std::make_unique<GameEngine::ThirdPersonCamera>(*inputManager_, character->GetGameObject().GetTransform());
+    cameraId_ = camera.addAndSet(std::move(tcamera));
 }
 
 /*void MainRpgScene::HandleTransformMsg(std::shared_ptr<Network::TransformMsgResp> msg)
@@ -98,14 +107,14 @@ void MainRpgScene::OnGetPlayer(NetworkCharacter* character)
 std::to_string(msg->action));
 
     auto characterId = msg->id;
-    DEBUG_LOG("msg->position : " + Utils::ToString(msg->position) + " msg->rotation : " + Utils::ToString(msg->rotation));
-    networkCharacters_[msg->id]->GetEntity()->worldTransform.SetPosition(msg->position);
+    DEBUG_LOG("msg->position : " + Utils::ToString(msg->position) + " msg->rotation : " +
+Utils::ToString(msg->rotation)); networkCharacters_[msg->id]->GetEntity()->worldTransform.SetPosition(msg->position);
     networkCharacters_[msg->id]->GetEntity()->worldTransform.SetRotation(msg->rotation);
     auto icontroller =
 networkCharacters_[msg->id]->GetControllerByType(common::Controllers::Types::CharacterControllerType);
     auto controller = common::Controllers::castControllerAs<common::Controllers::CharacterController>(icontroller);
-    DEBUG_LOG("Controller->position : " + Utils::ToString(controller->GetTransform().GetPosition()) + " Controller->rotation :
-" + Utils::ToString(controller->GetTransform().GetRotation()));
+    DEBUG_LOG("Controller->position : " + Utils::ToString(controller->GetTransform().GetPosition()) + "
+Controller->rotation : " + Utils::ToString(controller->GetTransform().GetRotation()));
 
     switch (msg->action)
     {

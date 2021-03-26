@@ -1,4 +1,6 @@
 #pragma once
+#include <Utils/IdPool.h>
+
 #include <memory>
 
 #include "Camera.h"
@@ -10,8 +12,13 @@ class CameraWrapper
 public:
     CameraWrapper();
     CameraWrapper(ICamera& camera);
-    void Set(ICamera& camera);
-    ICamera* Get() const;
+
+    IdType add(std::unique_ptr<ICamera>);
+    IdType addAndSet(std::unique_ptr<ICamera>);
+    void remove(IdType);
+
+    void set(IdType);
+    void pop();
 
     void Update();
 
@@ -41,11 +48,23 @@ public:
     void SetRotation(const Rotation&);
     void SetPosition(const vec3&);
 
-    uint32 SubscribeOnChange(std::function<void(const ICamera&)>);
+    IdType SubscribeOnChange(std::function<void(const ICamera&)>);
     void UnsubscribeOnChange(uint32);
 
 private:
+    void notifySubscribersWhenCameraChange();
+    ICamera* Get() const;
+    void setCamera(ICamera*);
+    void removeCamera(ICamera*);
+    void moveSubscribtionsToCurrentCamera(ICamera&, ICamera&);
+
+private:
     Camera baseCamera_;
-    ICamera* camera_;
+    Utils::IdPool camerasIdPool_;
+    Utils::IdPool subscribtionsIdPool_;
+    std::vector<ICamera*> setCameras_;
+    std::unordered_map<IdType, std::unique_ptr<ICamera>> avaiableCameras_;
+    std::unordered_map<IdType, std::function<void(const ICamera&)>> subscribtions_;
+    std::unordered_map<IdType, IdType> subscribtionMap_;
 };
 }  // namespace GameEngine

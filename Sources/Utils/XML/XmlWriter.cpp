@@ -127,6 +127,12 @@ void WriteNode(TreeNode& node, XmlNodeWrapper& nodeWrapper)
 
 void Xml::Write(const std::string& filename, TreeNode& root)
 {
+    auto parentPath = std::filesystem::path(filename).parent_path();
+    if (not std::filesystem::exists(parentPath))
+    {
+        std::filesystem::create_directories(parentPath);
+    }
+
     XmlCreator creator;
     auto& builderRoot = creator.CreateRoot(root.name(), root.value_);
 

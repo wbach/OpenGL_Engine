@@ -25,7 +25,11 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& compone
 void ThridPersonCameraComponent::CleanUp()
 {
     keysSubscriptionsManager_.UnsubscribeKeys();
-    componentContext_.camera_.Set(*previousCamera_);
+
+    if (cameraId_)
+    {
+        componentContext_.camera_.remove(*cameraId_);
+    }
 }
 
 void ThridPersonCameraComponent::ReqisterFunctions()
@@ -35,22 +39,21 @@ void ThridPersonCameraComponent::ReqisterFunctions()
 
 void ThridPersonCameraComponent::init()
 {
-    camera_ = std::make_unique<ThirdPersonCamera>(componentContext_.inputManager_, thisObject_.GetTransform(), offset_);
-    auto ptrCam = camera_.get();
+    auto camera =
+        std::make_unique<ThirdPersonCamera>(componentContext_.inputManager_, thisObject_.GetTransform(), offset_);
 
     keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(zoomSpeed_); });
+        KeyCodes::MOUSE_WHEEL, [ptrCam = camera.get(), this]() { ptrCam->CalculateZoom(zoomSpeed_); });
     keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::MOUSE_WHEEL, [ptrCam, this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
+        KeyCodes::MOUSE_WHEEL, [ptrCam = camera.get(), this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
 
-    previousCamera_ = componentContext_.camera_.Get();
-    componentContext_.camera_.Set(*camera_);
+    cameraId_ = componentContext_.camera_.addAndSet(std::move(camera));
 }
 
 void ThridPersonCameraComponent::registerReadFunctions()
 {
     ReadFunctions::instance().componentsReadFunctions.insert(
-        {COMPONENT_STR, [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        {COMPONENT_STR, [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
              return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject);
          }});
 }

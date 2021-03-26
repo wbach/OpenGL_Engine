@@ -1,6 +1,11 @@
 #pragma once
+#include <Types.h>
+
+#include <optional>
 #include <string>
 #include <unordered_map>
+
+#include "FunctionType.h"
 
 class TreeNode;
 
@@ -43,6 +48,7 @@ public:
     virtual GameObject& GetParentGameObject()                                        = 0;
     virtual const GameObject& getParentGameObject() const                            = 0;
     virtual void write(TreeNode&) const                                              = 0;
+    virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const        = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

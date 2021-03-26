@@ -43,6 +43,8 @@ PhysicsScene::PhysicsScene()
 PhysicsScene::~PhysicsScene()
 {
     DEBUG_LOG("");
+    if (cameraId_)
+        camera.remove(*cameraId_);
 }
 
 float Random()
@@ -145,8 +147,8 @@ int PhysicsScene::Initialize()
     // octext.colour   = vec3(1, 0, 0);
     UpdateObjectsCountText();
 
-    camera_ = std::make_unique<FirstPersonCamera>(*inputManager_, *displayManager_);
-    camera.Set(*camera_);
+    auto fpCamera = std::make_unique<FirstPersonCamera>(*inputManager_, *displayManager_);
+    cameraId_ = camera.addAndSet(std::move(fpCamera));
     camera.SetPosition(vec3(0, 5, -10));
     AddStartupObjects();
 

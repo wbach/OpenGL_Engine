@@ -81,8 +81,7 @@ private:
     GuiTextElement* currentCommand_;
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
     int32 commandHistoryIndex_;
-    ICamera* stashedCamera_;
-    std::unique_ptr<FirstPersonCamera> firstPersonCamera_;
+    std::optional<IdType> firstPersonCameraId_;
 
 private:
     Input::KeysSubscriptionsManager keysSubscribtionManager_;
