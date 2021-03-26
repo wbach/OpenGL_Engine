@@ -53,6 +53,13 @@ void BoundingBox::scale(const vec3 & scaleFactor)
     calculate();
 }
 
+void BoundingBox::translate(const vec3& translation)
+{
+    min_ += translation;
+    max_ += translation;
+    calculate();
+}
+
 const vec3 &BoundingBox::min() const
 {
     return min_;

@@ -162,12 +162,14 @@ void TerrainMeshRendererComponent::createBoundongBoxes(const GameEngine::Model &
 
     auto boundingBox = model.getBoundingBox();
     boundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+    boundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
     boundingBoxes_.push_back(boundingBox);
 
     for (const auto &mesh : model.GetMeshes())
     {
         auto boundingBox = mesh.getBoundingBox();
         boundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+        boundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
         boundingBoxes_.push_back(boundingBox);
     }
 }

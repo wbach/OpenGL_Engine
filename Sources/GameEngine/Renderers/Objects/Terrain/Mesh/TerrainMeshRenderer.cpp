@@ -34,7 +34,6 @@ uint32 TerrainMeshRenderer::renderSubscribers()
     for (const auto& sub : subscribes_)
     {
         renderSubscriber(sub.second);
-        return renderedTerrains_;
     }
     return renderedTerrains_;
 }

@@ -74,8 +74,6 @@ def CreateVectorInput(rootFrame, label, startColumn, startRow, inputCallback):
 
     return xVar, yVar, zVar
 
-
-
 #pid=subprocess.Popen(["/home/bach/Projects/OpenGL_Engine/build/Editor"]).pid
 
 #notes

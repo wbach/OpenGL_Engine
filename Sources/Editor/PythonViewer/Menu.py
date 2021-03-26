@@ -1,7 +1,7 @@
 import tkinter as tk
 from functools import partial
 from tkinter import messagebox
-from tkinter import filedialog
+from TerrainGeneratorDialog import TerrainGeneratorDialog
 from tkinter import simpledialog
 
 import os
@@ -92,47 +92,10 @@ class Menu:
         self.networkClient.SubscribeOnDisconnect(self.OnDisconnect)
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
 
-        self.bias = tk.StringVar()
-        self.bias.set("2.0")
-        self.octaves = tk.StringVar()
-        self.octaves.set("9")
-        self.width = tk.StringVar()
-        self.width.set("512")
-        self.scale = tk.StringVar()
-        self.scale.set("10.0")
-        self.heightFactor = tk.StringVar()
-        self.heightFactor.set("20.0")
+        self.terrainGeneratorDialog = TerrainGeneratorDialog(self.root, self.networkClient)
 
     def GenerateTerrain(self):
-        if self.networkClient.IsConnected():
-            dialog = tk.Toplevel(self.root)
-            dialog.title("Terran generate view")
-
-            biasLabel = tk.LabelFrame(dialog, text="Bias")
-            biasLabel.pack(fill=tk.X)
-            biasInput = tk.Entry(biasLabel, textvariable=self.bias)
-            biasInput.pack(fill=tk.X, expand=1)
-
-            octavesLabel = tk.LabelFrame(dialog, text="Octaves")
-            octavesLabel.pack(fill=tk.X)
-            octavesLabel = tk.Entry(octavesLabel, textvariable=self.octaves)
-            octavesLabel.pack(fill=tk.X, expand=1)
-
-            widthLabel = tk.LabelFrame(dialog, text="Width")
-            widthLabel.pack(fill=tk.X)
-            widthLabel = tk.Entry(widthLabel, textvariable=self.width)
-            widthLabel.pack(fill=tk.X, expand=1)
-
-            tk.Button(dialog, text="Generate with the same seed", command=partial(self.SendGenerateTerrain, "false"))\
-                .pack(fill=tk.X)
-            tk.Button(dialog, text="Generate terrain with new seed", command=partial(self.SendGenerateTerrain, "true"))\
-                .pack(fill=tk.X)
-
-    def SendGenerateTerrain(self, updateNoiseSeed):
-        if self.networkClient.IsConnected():
-            self.networkClient.SendCommand("generateTerrains width=" + self.width.get() + " height=" +
-                                           self.width.get() + " octaves=" + self.octaves.get() + " bias=" +
-                                           self.bias.get() + " updateNoiseSeed=" + updateNoiseSeed)
+        self.terrainGeneratorDialog.Show()
 
     def TexturesControlDiffuseChange(self, *args):
         if self.networkClient.IsConnected():

@@ -21,6 +21,7 @@ public:
     void min(const vec3&);
     void max(const vec3&);
     void scale(const vec3&);
+    void translate(const vec3&);
     const vec3& min() const;
     const vec3& max() const;
     const vec3& center() const;

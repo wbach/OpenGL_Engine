@@ -6,6 +6,8 @@ from functools import partial
 from PIL import Image, ImageTk
 from os import path
 import sys
+from TerrainGeneratorDialog import TerrainGeneratorDialog
+
 class ComponentsView:
     def __init__(self, context, rootFrame, fileManager):
         self.size = 0
@@ -20,6 +22,7 @@ class ComponentsView:
         self.requestedParams = dict() #defaultdict(list)
         self.seletedCompoentName=""
         self.fileManager = fileManager
+        self.terrainGenerator = TerrainGeneratorDialog(self.rootFrame, self.networkClient)
 
         self.componentsFrame = tk.LabelFrame(rootFrame, text="Components", width=270, height=25)
         self.componentsFrame.pack(padx=5, pady=5, fill=tk.X)
@@ -205,6 +208,12 @@ class ComponentsView:
         if msg.get("name") == "GrassRenderer":
             btn = tk.Button(self.componentsFrame, text="Enable grass painter",
                             command=lambda: self.networkClient.SendCommand("enablePlantPainter gameObjectId=" + str(self.gameObjectId)), width=30)
+            btn.grid(column=1, row=self.size, padx=5, pady=0)
+            self.size = self.size + 1
+
+        if msg.get("name") == "TerrainRenderer":
+            btn = tk.Button(self.componentsFrame, text="Enable terrain generator",
+                            command=lambda: self.terrainGenerator.Show(str(self.gameObjectId)), width=30)
             btn.grid(column=1, row=self.size, padx=5, pady=0)
             self.size = self.size + 1
 

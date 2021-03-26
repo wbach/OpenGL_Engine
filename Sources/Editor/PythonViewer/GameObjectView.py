@@ -56,6 +56,7 @@ class GameObjectView:
         self.networkClient.SubscribeOnConnect(self.OnConnect)
         self.networkClient.SubscribeOnDisconnect(self.Clear)
 
+
     def DragObjectOnMouseRelease(self, event):
         tv = event.widget
         print("DragObjectOnMouseRelease")
@@ -324,3 +325,34 @@ class GameObjectView:
     def SendMoveObjectToCameraRequest(self):
         name, gameObjectId, type = self.GetGameObjectNameAndId()
         self.networkClient.SendCommand("moveObjectToCameraPosition gameObjectId=" + str(gameObjectId))
+
+    def GenerateTerrain(self):
+        if self.networkClient.IsConnected():
+            dialog = tk.Toplevel(self.root)
+            dialog.title("Terran generate view")
+
+            biasLabel = tk.LabelFrame(dialog, text="Bias")
+            biasLabel.pack(fill=tk.X)
+            biasInput = tk.Entry(biasLabel, textvariable=self.bias)
+            biasInput.pack(fill=tk.X, expand=1)
+
+            octavesLabel = tk.LabelFrame(dialog, text="Octaves")
+            octavesLabel.pack(fill=tk.X)
+            octavesLabel = tk.Entry(octavesLabel, textvariable=self.octaves)
+            octavesLabel.pack(fill=tk.X, expand=1)
+
+            widthLabel = tk.LabelFrame(dialog, text="Width")
+            widthLabel.pack(fill=tk.X)
+            widthLabel = tk.Entry(widthLabel, textvariable=self.width)
+            widthLabel.pack(fill=tk.X, expand=1)
+
+            tk.Button(dialog, text="Generate with the same seed", command=partial(self.SendGenerateTerrain, "false"))\
+                .pack(fill=tk.X)
+            tk.Button(dialog, text="Generate terrain with new seed", command=partial(self.SendGenerateTerrain, "true"))\
+                .pack(fill=tk.X)
+
+    def SendGenerateTerrain(self, updateNoiseSeed):
+        if self.networkClient.IsConnected():
+            self.networkClient.SendCommand("generateTerrains width=" + self.width.get() + " height=" +
+                                           self.width.get() + " octaves=" + self.octaves.get() + " bias=" +
+                                           self.bias.get() + " updateNoiseSeed=" + updateNoiseSeed)
