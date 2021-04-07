@@ -208,7 +208,7 @@ std::unique_ptr<TreeNode> Convert(const std::string& label, const vec2& v)
         { CSTR_Y, std::to_string(v.y) }
     };
     // clang-format on
-    return std::move(root);
+    return root;
 }
 
 std::unique_ptr<TreeNode> Convert(const std::string& label, const vec3& v)
@@ -222,7 +222,7 @@ std::unique_ptr<TreeNode> Convert(const std::string& label, const vec3& v)
         { CSTR_Z, std::to_string(v.z) }
     };
     // clang-format on
-    return std::move(root);
+    return root;
 }
 
 std::unique_ptr<TreeNode> Convert(const std::string& label, const Quaternion& v)
@@ -237,7 +237,7 @@ std::unique_ptr<TreeNode> Convert(const std::string& label, const Quaternion& v)
         { CSTR_W, std::to_string(v.w) }
     };
     // clang-format on
-    return std::move(root);
+    return root;
 }
 
 vec2 ConvertToVec2(TreeNode& node)

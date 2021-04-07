@@ -101,6 +101,98 @@ void TerrainHeightGenerator::generateHeightMapsImage()
     perlinNoise2D();
 }
 
+void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionSize)
+{
+    DEBUG_LOG("");
+    auto transform1 = go1.GetWorldTransform();
+    auto transform2 = go2.GetWorldTransform();
+
+    Components::TerrainRendererComponent* component1{nullptr};
+    Components::TerrainRendererComponent* component2{nullptr};
+
+    if (compare(transform1.GetPosition().x, transform2.GetPosition().x))
+    {
+        if (compare(transform1.GetPosition().z, transform2.GetPosition().z))
+        {
+            ERROR_LOG("Both terrain have the same position!");
+            return;
+        }
+
+        if (transform1.GetPosition().z > transform2.GetPosition().z)
+        {
+            component1 = go1.GetComponent<Components::TerrainRendererComponent>();
+            component2 = go2.GetComponent<Components::TerrainRendererComponent>();
+        }
+        else
+        {
+            component1 = go2.GetComponent<Components::TerrainRendererComponent>();
+            component2 = go1.GetComponent<Components::TerrainRendererComponent>();
+        }
+
+        if (not component1 or not component2)
+            return;
+
+        auto heightMap1 = component1->GetHeightMap();
+        auto heightMap2 = component2->GetHeightMap();
+
+        if (not heightMap1 or not heightMap2)
+        {
+            ERROR_LOG("Heihtmap not set!, heightMap1{" + Utils::BoolToString(heightMap1) + "} heightmap2{" +
+                      Utils::BoolToString(heightMap2) + "}");
+            return;
+        }
+
+        if (heightMap1->GetImage().size() != heightMap2->GetImage().size())
+        {
+            ERROR_LOG("Height map are diffrentSize, unsupported");
+            return;
+        }
+
+        auto scale1 = component1->getParentGameObject().GetWorldTransform().GetScale().y;
+        auto scale2 = component2->getParentGameObject().GetWorldTransform().GetScale().y;
+
+        auto size = heightMap1->GetImage().size();
+        DEBUG_LOG("creating transition...");
+        for (uint32 x = 0; x < size.x; ++x)
+        {
+            for (uint32 y = 0; y < transitionSize; ++y)
+            {
+                vec2ui sourcePixel{x, size.y - y};
+                vec2ui targetPixel{x, y};
+
+                auto heightMapValue1 = heightMap1->GetImage().getPixel(targetPixel);
+                auto heightMapValue2 = heightMap2->GetImage().getPixel(sourcePixel);
+
+                if (heightMapValue1 and heightMapValue2)
+                {
+                    // auto targetHeight = heightMapValue1->value.x * scale1;
+                    // auto sourceHeight = heightMapValue2->value.x * scale2;
+                    // heightMapValue2->value.x * scale2 = heightMapValue1->value.x * scale1;
+                    // heightMapValue1->value.x = heightMapValue2->value.x * scale2 / scale1
+
+                    auto newHeight = heightMapValue2->value.x * scale2 / scale1;
+                    // auto newHeight = heightMapValue2->value.x * scale2 / scale1 / scale1;
+                    DEBUG_LOG("Old height " + std::to_string(heightMapValue1->value) + " | New height " + std::to_string(newHeight));
+                    heightMap1->SetHeight(targetPixel, newHeight);
+                }
+            }
+        }
+
+        DEBUG_LOG("Notif about heightmap change");
+        component1->HeightMapChanged();
+    }
+    else if (compare(transform1.GetPosition().z, transform2.GetPosition().z))
+    {
+        if (compare(transform1.GetPosition().x, transform2.GetPosition().x))
+        {
+            ERROR_LOG("Both terrain have the same position!");
+            return;
+        }
+    }
+
+    DEBUG_LOG("Done.");
+}
+
 void TerrainHeightGenerator::createSeed()
 {
     std::random_device rd;
@@ -283,9 +375,9 @@ void TerrainHeightGenerator::perlinNoise2D()
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 {
     uint32 offset = 1;
-    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - 1 - offset) or
-        y > (perTerrainHeightMapsize_.y  - 1- offset))
-        return 0.5f;
+//    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - 1 - offset) or
+//        y > (perTerrainHeightMapsize_.y - 1 - offset))
+//        return 0.5f;
 
     auto index = x + perTerrainHeightMapsize_.x * y;
     if (index < noiseSeed.size())

@@ -102,6 +102,7 @@ private:
     void CloneGameObject(const EntryParameters&);
     void CloneGameObjectInstancesWithRandomPosition(const EntryParameters&);
     void CreatePrefabFromObject(const EntryParameters&);
+    void CreateTerrainTranstion(const EntryParameters&);
 
     void StartScene();
     void StopScene();

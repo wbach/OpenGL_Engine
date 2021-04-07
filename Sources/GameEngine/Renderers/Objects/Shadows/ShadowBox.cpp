@@ -93,7 +93,7 @@ void expDistances(float* cascadeDistances)
 {
     float a = pow(EngineConf.renderer.shadows.distance.get() , 1.f / (EngineConf.renderer.shadows.cascadesSize.get() - 1));
 
-    for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+    for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
         cascadeDistances[i] = pow(a, i);
         DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances[i]));
@@ -105,7 +105,7 @@ void quadraticDistances(float* cascadeDistances)
     float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
     float a  = (*EngineConf.renderer.shadows.distance - s0) / pow(*EngineConf.renderer.shadows.cascadesSize - 1, 2);
 
-    for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+    for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
         cascadeDistances[i] = a * pow(i, 2) + s0;
         DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances[i]));
@@ -117,7 +117,7 @@ void linearDistances(float* cascadeDistances)
     float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
     float a  = (*EngineConf.renderer.shadows.distance - s0) / (*EngineConf.renderer.shadows.cascadesSize - 1);
 
-    for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+    for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
         cascadeDistances[i] = a * i + s0;
         DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances[i]));
@@ -128,7 +128,7 @@ void ShadowBox::caclulateCascadeDistances()
 {
     if (EngineConf.renderer.shadows.cascadesSize.get() == 1)
     {
-        for (int i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
+        for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
         {
             cascadeDistances_[i] = *EngineConf.renderer.shadows.distance;
             DEBUG_LOG("Cascade : " + std::to_string(cascadeDistances_[i]));

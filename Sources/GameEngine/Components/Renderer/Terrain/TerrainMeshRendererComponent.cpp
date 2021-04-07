@@ -40,6 +40,16 @@ void TerrainMeshRendererComponent::HeightMapChanged()
     if (not heightMap_)
         return;
 
+                    UnSubscribe();
+                ReleaseModels();
+                createModels();
+
+                if (modelWrapper_.Get(LevelOfDetail::L1))
+                {
+                    Subscribe();
+                }
+                return;
+                
     TerrainMeshUpdater meshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)});
 
     if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
@@ -51,6 +61,7 @@ void TerrainMeshRendererComponent::HeightMapChanged()
         meshUpdater.reCreate();
         heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
     }
+    Subscribe();
 }
 HeightMap *TerrainMeshRendererComponent::createHeightMap(const vec2ui &size)
 {

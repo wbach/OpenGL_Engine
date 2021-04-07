@@ -224,6 +224,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("cloneGameObject", CloneGameObject);
     REGISTER_COMMAND("cloneGameObjectInstancesWithRandomPosition", CloneGameObjectInstancesWithRandomPosition);
     REGISTER_COMMAND("createPrefabFromObject", CreatePrefabFromObject);
+    REGISTER_COMMAND("createTerrainTransition", CreateTerrainTranstion);
 
     gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 }
@@ -234,7 +235,6 @@ void NetworkEditorInterface::SetupCamera()
 {
     if (cameraEditorId_)
     {
-
     }
     scene_.camera.Lock();
 
@@ -1902,6 +1902,24 @@ void NetworkEditorInterface::CreatePrefabFromObject(const EntryParameters &param
         {
             scene_.CreatePrefab(filenameIter->second, *gameObject);
         }
+    }
+}
+
+void NetworkEditorInterface::CreateTerrainTranstion(const NetworkEditorInterface::EntryParameters &params)
+{
+    auto paramTerrainGameObjectId1 = params.find("terrainGameObjectId1");
+    auto paramTerrainGameObjectId2 = params.find("terrainGameObjectId2");
+
+    float transition = 5.f;
+    setParamIfExitst(params, "transitionSize", transition);
+
+    if (paramTerrainGameObjectId1 != params.end() and paramTerrainGameObjectId2 != params.end())
+    {
+        auto go1 = GetGameObject(paramTerrainGameObjectId1->second);
+        auto go2 = GetGameObject(paramTerrainGameObjectId2->second);
+
+        if (go1 and go2)
+            createTerrainTransition(*go1, *go2, transition);
     }
 }
 

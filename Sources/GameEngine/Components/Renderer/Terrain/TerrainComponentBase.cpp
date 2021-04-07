@@ -64,8 +64,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
 
     for (const auto &terrainTexture : textures)
     {
-        if (TerrainTextureType::heightmap ==
-            terrainTexture.type)
+        if (TerrainTextureType::heightmap == terrainTexture.type)
         {
             LoadHeightMap(terrainTexture.file);
             LoadTerrainConfiguration(terrainTexture.file);
@@ -123,6 +122,13 @@ void TerrainComponentBase::updateTerrainTextureBuffer()
 {
     updateTerrainTextureBufferData();
     componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*perTerrainTexturesBuffer_);
+}
+
+void TerrainComponentBase::setTexture(Texture &texture, float, TerrainTextureType type)
+{
+    SetTexture(type, &texture);
+    if (type == TerrainTextureType::heightmap)
+        heightMap_ = static_cast<HeightMap *>(&texture);
 }
 
 const std::vector<TerrainComponentBase::TerrainTexture> &TerrainComponentBase::GetInputDataTextures() const

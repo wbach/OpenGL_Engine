@@ -75,12 +75,11 @@ template <class T>
 std::unique_ptr<TreeNode> Convert(const std::string& label, const std::vector<T>& v)
 {
     auto root = std::make_unique<TreeNode>(label);
-
     for (const auto& element : v)
     {
         root->addChild(std::move(Convert(element)));
     }
-    return std::move(root);
+    return root;
 }
 
 void write(TreeNode&, float);

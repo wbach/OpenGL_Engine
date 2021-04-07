@@ -37,9 +37,11 @@ public:
 
     void RecalculateNormals();
     void HeightMapChanged();
+
     void BlendMapChanged();
-    void UpdateTexture(TerrainTextureType, const std::string&);
+    void setTexture(Texture&, float, TerrainTextureType);
     TerrainRendererComponent& LoadTextures(const std::vector<TerrainComponentBase::TerrainTexture>&);
+    void UpdateTexture(TerrainTextureType, const std::string&);
     Texture* GetTexture(TerrainTextureType) const;
 
     HeightMap* createHeightMap(const vec2ui&);

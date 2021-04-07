@@ -102,7 +102,7 @@ void BEngineLoader::ParseFile(const File& file)
         }
         else
         {
-            for (int x = 0; x < positionSize; x += 3)
+            for (size_t x = 0; x < positionSize; x += 3)
             {
                 mesh.GetMeshDataRef().normals_.push_back(0);
                 mesh.GetMeshDataRef().normals_.push_back(1);

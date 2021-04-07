@@ -2,6 +2,7 @@ import tkinter as tk
 from functools import partial
 from tkinter import messagebox
 from TerrainGeneratorDialog import TerrainGeneratorDialog
+from TerrainTransitionDialog import TerrainTransitionDialog
 from tkinter import simpledialog
 
 import os
@@ -40,6 +41,7 @@ class Menu:
 
         toolsMenu = tk.Menu(menubar, tearoff=0)
         toolsMenu.add_command(label="Generate terrain", command=self.GenerateTerrain)
+        toolsMenu.add_command(label="Create terrain transition", command=self.CreateTerrainTransition)
         toolsMenu.add_command(label="Terrain height painter", command=self.EnableTerrainHeightPainter)
         toolsMenu.add_command(label="Terrain texture painter", command=self.EnableTerrainTexturePainter)
         menubar.add_cascade(label="Tools", menu=toolsMenu)
@@ -93,9 +95,13 @@ class Menu:
         self.networkClient.SubscribeOnMessage("SceneFileMsg", self.OnSceneFileMsg)
 
         self.terrainGeneratorDialog = TerrainGeneratorDialog(self.root, self.networkClient)
+        self.terrainTransitionDialog = TerrainTransitionDialog(self.root, self.networkClient)
 
     def GenerateTerrain(self):
         self.terrainGeneratorDialog.Show()
+
+    def CreateTerrainTransition(self):
+        self.terrainTransitionDialog.Show()
 
     def TexturesControlDiffuseChange(self, *args):
         if self.networkClient.IsConnected():

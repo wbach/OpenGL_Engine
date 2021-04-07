@@ -4,9 +4,12 @@ if(BUILD_AVATAR_GAME)
     ../../Sources/GameEngine/
     )
     include(./Sources/AvatarSources.cmake)
+    set_source_files_properties(
+      ${AvatarSources}
+      PROPERTIES
+      COMPILE_FLAGS ${EngineCompileFlags}
+    )
     add_executable(AvatarGameExe ${AvatarSources})
-    if(BUILD_I386)
-        set_target_properties(AvatarGameExe PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
+    #set_target_properties(AvatarGameExe PROPERTIES COMPILE_FLAGS ${EngineCompileFlags})
     target_link_libraries(AvatarGameExe GameEngineLib OpenGLApiLib GraphicsApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs} ${BoostLinkingLibs})
 endif()

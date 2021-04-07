@@ -34,6 +34,7 @@ std::string to_string(GameEngine::GuiElementTypes type)
         case GameEngine::GuiElementTypes::VerticalLayout:   return "VerticalLayout";
         case GameEngine::GuiElementTypes::HorizontalLayout: return "HorizontalLayout";
         case GameEngine::GuiElementTypes::TreeView:         return "TreeView";
+        case GameEngine::GuiElementTypes::Layer:            return "Layer";
     }
 
     return "undefined";

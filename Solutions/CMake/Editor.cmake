@@ -5,9 +5,12 @@ if(BUILD_EDITOR)
     ../../Sources/GameEngine/
     )
     include(./Sources/EditorSources.cmake)
+    set_source_files_properties(
+      ${EditorSources}
+      PROPERTIES
+      COMPILE_FLAGS ${EngineCompileFlags}
+    )
     add_executable(EditorExe ${EditorSources})
-    if(BUILD_I386)
-        set_target_properties(EditorExe PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
-    endif()
+    #set_target_properties(EditorExe PROPERTIES COMPILE_FLAGS ${EngineCompileFlags})
     target_link_libraries(EditorExe GameEngineLib OpenGLApiLib GraphicsApiLib InputLib UtilsNetworkLib CommonLib UtilsLib ${LinkingLibs} ${BulletLinkingLibs} ${BoostLinkingLibs})
 endif()

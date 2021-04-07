@@ -93,7 +93,6 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
 
     DEBUG_LOG("Rest : " + std::to_string(rest));
 
-    auto halfTerrainScale = tools.getTerrainScale() * .5f;
     vec3 modelBoundingBoxMin(-0.5f, std::numeric_limits<float>::max(), -0.5f);
     vec3 modelBoundingBoxMax(0.5f, -std::numeric_limits<float>::max(), 0.5f);
 

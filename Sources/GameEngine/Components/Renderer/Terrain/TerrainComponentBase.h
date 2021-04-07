@@ -40,6 +40,7 @@ public:
     void BlendMapChanged();
 
     void updateTerrainTextureBuffer();
+    void setTexture(Texture&, float, TerrainTextureType);
     void LoadTextures(const std::vector<TerrainTexture>&);
 
     const File* getTextureFile(TerrainTextureType) const;
@@ -61,7 +62,7 @@ protected:
     void UpdateTexture(TerrainTextureType, Texture*);
     void Subscribe();
     void UnSubscribe();
-	void updateTerrainTextureBufferData();
+    void updateTerrainTextureBufferData();
 
 private:
     void ReleaseTextures();

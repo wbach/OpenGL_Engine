@@ -5,6 +5,8 @@
 
 namespace GameEngine
 {
+class GameObject;
+
 namespace Components
 {
 class ComponentController;
@@ -41,4 +43,6 @@ private:
     uint32 octaves_;
     float bias_;
 };
+
+void createTerrainTransition(GameObject&, GameObject&, float);
 }  // namespace GameEngine
