@@ -1,5 +1,5 @@
 #pragma once
-#include <Physics/IPhysicsApi.h>
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
