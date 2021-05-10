@@ -15,7 +15,7 @@ int main(int, char**)
 {
     Editor::Context editorContext;
 
-    Engine engine(std::make_unique<BulletAdapter>(), std::make_unique<Editor::SceneFactory>(editorContext));
+    Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<Editor::SceneFactory>(editorContext));
     engine.Init();
     engine.GetSceneManager().SetActiveScene("EditorScene");
     engine.GameLoop();

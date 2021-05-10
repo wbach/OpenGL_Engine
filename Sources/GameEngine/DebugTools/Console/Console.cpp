@@ -483,6 +483,7 @@ void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
 
     auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
+    scene_.physicsApi_->enableVisualizationForAllRigidbodys();
 }
 
 void Console::Help(const std::vector<std::string> &)

@@ -93,6 +93,7 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
     size_.x = heightMap_->GetImage().width;
     size_.y = heightMap_->GetImage().height;
 
+    terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
     if (terrainRendererComponent_)
     {
         terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(
@@ -112,7 +113,7 @@ void TerrainShape::create()
     }
     else
     {
-        ERROR_LOG("heightMap not set ");
+        ERROR_LOG("Collision shape create error, heightMap not set ");
     }
 }
 void TerrainShape::registerReadFunctions()

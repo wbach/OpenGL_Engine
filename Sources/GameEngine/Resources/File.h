@@ -69,14 +69,14 @@ public:
             auto readedBytes = fread(&dataSize, sizeof(uint32), 1, fp_);
             if (readedBytes < sizeof(uint32))
             {
-                ERROR_LOG("Read size error");
+                ERROR_LOG("Read size error in " + absoultePath_);
             }
             data.resize(dataSize);
             auto dataBytes = fread(&data[0], sizeof(T), dataSize, fp_);
 
             if (dataBytes < sizeof(T) * dataSize)
             {
-                ERROR_LOG("Read data error.");
+                ERROR_LOG("Read data error in " + absoultePath_);
             }
         }
     }

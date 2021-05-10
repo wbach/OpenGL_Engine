@@ -14,7 +14,8 @@ using namespace ::testing;
 
 namespace GameEngine
 {
-const float textureTiledSize = 1.f;
+//const float textureTiledSize = 1.f;
+
 struct TerrainTransitionShould : public BaseComponentTestSchould
 {
     TerrainTransitionShould()
@@ -24,8 +25,8 @@ struct TerrainTransitionShould : public BaseComponentTestSchould
         CLogger::Instance().EnableLogs();
         CLogger::Instance().ImmeditalyLog();
 
-        auto& terrainComponent1 = go1.AddComponent<Components::TerrainRendererComponent>();
-        auto& terrainComponent2 = go2.AddComponent<Components::TerrainRendererComponent>();
+        //auto& terrainComponent1 = go1.AddComponent<Components::TerrainRendererComponent>();
+        //auto& terrainComponent2 = go2.AddComponent<Components::TerrainRendererComponent>();
 
         GraphicsApi::Image image1;
         GraphicsApi::Image image2;

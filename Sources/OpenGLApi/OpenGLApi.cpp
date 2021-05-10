@@ -1245,6 +1245,7 @@ void OpenGLApi::UpdateLineMesh(uint32 objectId, const GraphicsApi::LineMesh& mes
     auto iter = openGlMeshes_.find(objectId);
     if (iter == openGlMeshes_.end())
         return;
+
     auto& obj       = iter->second;
     obj.vertexCount = static_cast<GLsizei>(mesh.positions_.size());
 

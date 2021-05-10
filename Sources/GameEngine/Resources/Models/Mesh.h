@@ -17,7 +17,7 @@ class Mesh : public GpuObject
 public:
     Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
     Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
-         const mat4& = mat4(1.f));
+         const mat4& = mat4(1.f), const vec3& = vec3(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&)      = default;
     ~Mesh() override;
@@ -36,6 +36,7 @@ public:
 
     const Material& GetMaterial() const;
     inline const mat4& GetMeshTransform() const;
+    inline const vec3& GetNormalizedScale() const;
     inline GraphicsApi::MeshRawData& GetMeshDataRef();
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
 
@@ -56,6 +57,7 @@ private:
 
     // local transform in mesh
     mat4 transform_;
+    vec3 normalizedScale_;
     BoundingBox boundingBox_;
     GraphicsApi::ID perMeshObjectBuffer_;
 };
@@ -63,6 +65,11 @@ private:
 const mat4& Mesh::GetMeshTransform() const
 {
     return transform_;
+}
+
+const vec3 &Mesh::GetNormalizedScale() const
+{
+    return normalizedScale_;
 }
 
 GraphicsApi::MeshRawData& Mesh::GetMeshDataRef()

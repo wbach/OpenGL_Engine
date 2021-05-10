@@ -20,7 +20,7 @@ void CollisionShape::setScale(const vec3& scale)
     if (collisionShapeId_)
         componentContext_.physicsApi_.SetShapeScale(*collisionShapeId_, scale);
 }
-std::optional<uint32> CollisionShape::GetCollisionShapeId() const
+const Physics::ShapeId& CollisionShape::GetCollisionShapeId() const
 {
     return collisionShapeId_;
 }

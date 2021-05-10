@@ -13,16 +13,18 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi_(graphicsApi)
     , renderType_(type)
     , transform_(1.f)
+    , normalizedScale_(1.f)
 {
 }
 
 Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::MeshRawData data,
-           const Material& material, const mat4& transformMatix)
+           const Material& material, const mat4& transformMatix, const vec3& normalizedScale)
     : graphicsApi_(graphicsApi)
     , meshRawData_(std::move(data))
     , renderType_(type)
     , material_(material)
     , transform_(transformMatix)
+    , normalizedScale_(normalizedScale)
 {
 }
 

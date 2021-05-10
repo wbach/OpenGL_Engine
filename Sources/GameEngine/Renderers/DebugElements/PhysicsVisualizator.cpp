@@ -4,6 +4,8 @@
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
@@ -38,6 +40,13 @@ void PhysicsVisualizator::Init()
 
     if (useWorkerToUpdate_)
         worker_ = &threadSync_.AddWorker();
+
+    PerObjectUpdate buffer;
+    defaultPerObjectUpdateId_ =
+        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+
+    if (defaultPerObjectUpdateId_)
+        graphicsApi_.UpdateShaderBuffer(*defaultPerObjectUpdateId_, &buffer);
 }
 
 void PhysicsVisualizator::Render()
@@ -57,6 +66,7 @@ void PhysicsVisualizator::Render()
     if (physicsLineMeshReady_.load())
     {
         shader_.Start();
+        graphicsApi_.BindShaderBuffer(*defaultPerObjectUpdateId_);
         graphicsApi_.RenderMesh(*lineMeshId_);
         shader_.Stop();
     }
@@ -82,10 +92,10 @@ void PhysicsVisualizator::UpdatePhycisLineMesh()
             graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
             physicsLineMeshReady_.store(true);
         }
-		else
-		{
-			physicsLineMeshReady_.store(false);
-		}
+        else
+        {
+            physicsLineMeshReady_.store(false);
+        }
 
         frameRefreshNumber_ = 0;
     }
@@ -125,7 +135,7 @@ void PhysicsVisualizator::UpdatePhysicsByWorker()
 
 bool PhysicsVisualizator::IsReady() const
 {
-    return physicsDebugDraw_ and lineMeshId_;
+    return physicsDebugDraw_ and lineMeshId_ and defaultPerObjectUpdateId_;
 }
 
 }  // namespace GameEngine

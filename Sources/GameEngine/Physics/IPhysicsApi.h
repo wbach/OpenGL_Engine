@@ -16,45 +16,48 @@ namespace GameEngine
 class HeightMap;
 namespace Physics
 {
-using RigidbodyId    = uint32;
-using ShapeId        = uint32;
+using RigidbodyId    = std::optional<uint32>;
+using ShapeId        = std::optional<uint32>;
 using PositionOffset = vec3;
+using Scale          = vec3;
+using Size           = vec3;
+using Radius         = float;
 
 struct IPhysicsApi
 {
-    virtual ~IPhysicsApi()                                                                                    = default;
-    virtual void Simulate()                                                                                   = 0;
-    virtual const GraphicsApi::LineMesh& DebugDraw()                                                          = 0;
-    virtual void EnableSimulation()                                                                           = 0;
-    virtual void DisableSimulation()                                                                          = 0;
-    virtual void SetSimulationStep(float step)                                                                = 0;
-    virtual uint32 CreateBoxColider(const PositionOffset&, const vec3& scale, const vec3& size)               = 0;
-    virtual uint32 CreateSphereColider(const PositionOffset&, const vec3& scale, float radius)                = 0;
-    virtual uint32 CreateCapsuleColider(const PositionOffset&, const vec3& scale, float radius, float height) = 0;
-    virtual uint32 CreateTerrainColider(const PositionOffset&, const vec3& scale, const HeightMap&)           = 0;
-    virtual uint32 CreateMeshCollider(const PositionOffset&, const std::vector<float>& data,
-                                      const IndicesVector& indicies, const vec3&, bool)                       = 0;
-    virtual uint32 CreateRigidbody(ShapeId, GameObject&, float mass, bool isStatic, bool& isUpdating)         = 0;
-    virtual void RemoveRigidBody(ShapeId)                                                                     = 0;
-    virtual void RemoveShape(ShapeId)                                                                         = 0;
-    virtual void SetVelocityRigidbody(RigidbodyId, const vec3&)                                               = 0;
-    virtual void ApplyImpulse(RigidbodyId, const vec3&)                                                       = 0;
-    virtual void IncreaseVelocityRigidbody(RigidbodyId, const vec3& velocity)                                 = 0;
-    virtual std::optional<vec3> GetVelocity(RigidbodyId)                                                      = 0;
-    virtual void SetAngularFactor(RigidbodyId, float)                                                         = 0;
-    virtual void SetAngularFactor(RigidbodyId, const vec3&)                                                   = 0;
-    virtual std::optional<vec3> GetAngularFactor(RigidbodyId)                                                 = 0;
-    virtual void SetRotation(RigidbodyId, const vec3&)                                                        = 0;
-    virtual void SetRotation(RigidbodyId, const Quaternion&)                                                  = 0;
-    virtual void SetPosition(RigidbodyId, const vec3&)                                                        = 0;
-    virtual void SetRigidbodyScale(RigidbodyId, const vec3&)                                                  = 0;
-    virtual void SetShapeScale(ShapeId, const vec3&)                                                          = 0;
-    virtual std::optional<Quaternion> GetRotation(RigidbodyId) const                                          = 0;
-    virtual std::optional<common::Transform> GetTransfrom(RigidbodyId) const                                  = 0;
-    virtual std::optional<RayHit> RayTest(const vec3&, const vec3&) const                                     = 0;
-    virtual void setVisualizatedRigidbody(RigidbodyId)                                                        = 0;
-    virtual void enableVisualizationForAllRigidbodys()                                                        = 0;
-    virtual void disableVisualizationForAllRigidbodys()                                                       = 0;
+    virtual ~IPhysicsApi()                                                                          = default;
+    virtual void Simulate()                                                                         = 0;
+    virtual const GraphicsApi::LineMesh& DebugDraw()                                                = 0;
+    virtual void EnableSimulation()                                                                 = 0;
+    virtual void DisableSimulation()                                                                = 0;
+    virtual void SetSimulationStep(float step)                                                      = 0;
+    virtual ShapeId CreateBoxColider(const PositionOffset&, const Scale&, const Size&)              = 0;
+    virtual ShapeId CreateSphereColider(const PositionOffset&, const Scale&, Radius)                = 0;
+    virtual ShapeId CreateCapsuleColider(const PositionOffset&, const Scale&, Radius, float height) = 0;
+    virtual ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap&)     = 0;
+    virtual ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector&,
+                                       const vec3&, bool)                                           = 0;
+    virtual RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, float mass, bool isStatic, bool& isUpdating) = 0;
+    virtual void RemoveRigidBody(const RigidbodyId&)                                                              = 0;
+    virtual void RemoveShape(const ShapeId&)                                                                      = 0;
+    virtual void SetVelocityRigidbody(const RigidbodyId&, const vec3&)                                            = 0;
+    virtual void ApplyImpulse(const RigidbodyId&, const vec3&)                                                    = 0;
+    virtual void IncreaseVelocityRigidbody(const RigidbodyId&, const vec3& velocity)                              = 0;
+    virtual std::optional<vec3> GetVelocity(const RigidbodyId&)                                                   = 0;
+    virtual void SetAngularFactor(const RigidbodyId&, float)                                                      = 0;
+    virtual void SetAngularFactor(const RigidbodyId&, const vec3&)                                                = 0;
+    virtual std::optional<vec3> GetAngularFactor(const RigidbodyId&)                                              = 0;
+    virtual void SetRotation(const RigidbodyId&, const vec3&)                                                     = 0;
+    virtual void SetRotation(const RigidbodyId&, const Quaternion&)                                               = 0;
+    virtual void SetPosition(const RigidbodyId&, const vec3&)                                                     = 0;
+    virtual void SetRigidbodyScale(const RigidbodyId&, const vec3&)                                               = 0;
+    virtual void SetShapeScale(const ShapeId&, const vec3&)                                                       = 0;
+    virtual std::optional<Quaternion> GetRotation(const RigidbodyId&) const                                       = 0;
+    virtual std::optional<common::Transform> GetTransfrom(const RigidbodyId&) const                               = 0;
+    virtual std::optional<RayHit> RayTest(const vec3&, const vec3&) const                                         = 0;
+    virtual void setVisualizatedRigidbody(const RigidbodyId&)                                                     = 0;
+    virtual void enableVisualizationForAllRigidbodys()                                                            = 0;
+    virtual void disableVisualizationForAllRigidbodys()                                                           = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

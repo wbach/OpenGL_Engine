@@ -33,6 +33,7 @@ private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     Utils::Thread::ThreadSync& threadSync_;
     ShaderProgram shader_;
+    GraphicsApi::ID defaultPerObjectUpdateId_;
 
     std::function<const GraphicsApi::LineMesh&()> physicsDebugDraw_;
 

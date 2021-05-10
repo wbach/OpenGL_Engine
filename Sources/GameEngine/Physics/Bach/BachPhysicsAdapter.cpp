@@ -174,88 +174,88 @@ void BachPhysicsAdapter::DisableSimulation()
 {
     impl_->enableSimulation_ = false;
 }
-uint32 BachPhysicsAdapter::CreateBoxColider(const vec3&, const vec3&, const vec3&)
+ShapeId BachPhysicsAdapter::CreateBoxColider(const vec3&, const vec3&, const vec3&)
 {
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, const vec3&, float radius)
+ShapeId BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, const vec3&, float radius)
 {
     impl_->shapes_.insert({impl_->id_, {positionOffset, radius}});
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateCapsuleColider(const vec3&, const vec3&, float, float)
+ShapeId BachPhysicsAdapter::CreateCapsuleColider(const vec3&, const vec3&, float, float)
 {
     return uint32();
 }
-uint32 BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec3& scale, const HeightMap&)
+ShapeId BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec3&, const HeightMap&)
 {
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool)
+ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool)
 {
     return impl_->id_++;
 }
-uint32 BachPhysicsAdapter::CreateRigidbody(uint32 shapeId, GameObject& transform, float mass, bool isStatic, bool&)
+RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, float mass, bool isStatic, bool&)
 {
-    impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, isStatic, shapeId)});
+    impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, isStatic, *shapeId)});
     return impl_->id_++;
 }
-void BachPhysicsAdapter::SetVelocityRigidbody(uint32 rigidBodyId, const vec3& velocity)
+void BachPhysicsAdapter::SetVelocityRigidbody(const RigidbodyId& rigidBodyId, const vec3& velocity)
 {
-    impl_->rigidbodies_.at(rigidBodyId).velocity_ = velocity;
+    impl_->rigidbodies_.at(*rigidBodyId).velocity_ = velocity;
 }
 
-void BachPhysicsAdapter::ApplyImpulse(uint32, const vec3&)
+void BachPhysicsAdapter::ApplyImpulse(const RigidbodyId&, const vec3&)
 {
 }
-void BachPhysicsAdapter::IncreaseVelocityRigidbody(uint32, const vec3&)
+void BachPhysicsAdapter::IncreaseVelocityRigidbody(const RigidbodyId&, const vec3&)
 {
 }
-std::optional<vec3> BachPhysicsAdapter::GetVelocity(uint32)
+std::optional<vec3> BachPhysicsAdapter::GetVelocity(const RigidbodyId&)
 {
     return {};
 }
-void BachPhysicsAdapter::SetAngularFactor(uint32, float)
+void BachPhysicsAdapter::SetAngularFactor(const RigidbodyId&, float)
 {
 }
 
-void BachPhysicsAdapter::SetAngularFactor(uint32, const vec3&)
+void BachPhysicsAdapter::SetAngularFactor(const RigidbodyId&, const vec3&)
 {
 }
 
-std::optional<vec3> BachPhysicsAdapter::GetAngularFactor(uint32)
+std::optional<vec3> BachPhysicsAdapter::GetAngularFactor(const RigidbodyId&)
 {
     return std::nullopt;
 }
-void BachPhysicsAdapter::RemoveRigidBody(uint32 id)
+void BachPhysicsAdapter::RemoveRigidBody(const RigidbodyId& id)
 {
-    impl_->rigidbodies_.erase(id);
+    impl_->rigidbodies_.erase(*id);
 }
-void BachPhysicsAdapter::RemoveShape(uint32)
-{
-}
-void BachPhysicsAdapter::SetRotation(uint32, const vec3&)
+void BachPhysicsAdapter::RemoveShape(const ShapeId&)
 {
 }
-void BachPhysicsAdapter::SetRotation(uint32, const Quaternion&)
+void BachPhysicsAdapter::SetRotation(const RigidbodyId&, const vec3&)
 {
 }
-void BachPhysicsAdapter::SetPosition(uint32, const vec3&)
+void BachPhysicsAdapter::SetRotation(const RigidbodyId&, const Quaternion&)
 {
 }
-void BachPhysicsAdapter::SetRigidbodyScale(RigidbodyId, const vec3&)
+void BachPhysicsAdapter::SetPosition(const RigidbodyId&, const vec3&)
 {
 }
-void BachPhysicsAdapter::SetShapeScale(ShapeId, const vec3&)
+void BachPhysicsAdapter::SetRigidbodyScale(const RigidbodyId&, const vec3&)
 {
 }
-std::optional<Quaternion> BachPhysicsAdapter::GetRotation(uint32) const
+void BachPhysicsAdapter::SetShapeScale(const ShapeId&, const vec3&)
+{
+}
+std::optional<Quaternion> BachPhysicsAdapter::GetRotation(const RigidbodyId&) const
 {
     return std::nullopt;
 }
 
-std::optional<common::Transform> BachPhysicsAdapter::GetTransfrom(uint32 rigidBodyId) const
+std::optional<common::Transform> BachPhysicsAdapter::GetTransfrom(const RigidbodyId&) const
 {
     return std::nullopt;
 }
@@ -263,7 +263,7 @@ std::optional<RayHit> BachPhysicsAdapter::RayTest(const vec3&, const vec3&) cons
 {
     return std::optional<RayHit>();
 }
-void BachPhysicsAdapter::setVisualizatedRigidbody(uint32)
+void BachPhysicsAdapter::setVisualizatedRigidbody(const RigidbodyId&)
 {
 }
 void BachPhysicsAdapter::enableVisualizationForAllRigidbodys()

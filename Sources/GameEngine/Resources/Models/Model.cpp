@@ -43,9 +43,9 @@ Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& ap
     return meshes_.back();
 }
 Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api, GraphicsApi::MeshRawData data,
-                     const Material& material, const mat4& transformMatix)
+                     const Material& material, const mat4& transformMatix, const vec3& normalizedScale)
 {
-    meshes_.emplace_back(type, api, std::move(data), material, transformMatix);
+    meshes_.emplace_back(type, api, std::move(data), material, transformMatix, normalizedScale);
     return meshes_.back();
 }
 bool Model::IsAnyMeshUseTransform() const

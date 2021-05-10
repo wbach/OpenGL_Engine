@@ -27,7 +27,7 @@ public:
     Mesh& AddMesh(Mesh&);
     Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
     Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
-                  const mat4& = mat4(1.f));
+                  const mat4& = mat4(1.f), const vec3& = vec3(1.f));
     bool IsAnyMeshUseTransform() const;
 
     void setBoundingBox(const BoundingBox&);

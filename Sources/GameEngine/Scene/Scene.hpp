@@ -121,14 +121,16 @@ protected:
 
 protected:
     std::unique_ptr<IResourceManager> resourceManager_;
+    CameraWrapper camera;
+
     Components::ComponentController componentController_;
     std::unique_ptr<Components::ComponentFactory> componentFactory_;
     std::unique_ptr<GuiManager> guiManager_;
     std::unique_ptr<GuiElementFactory> guiElementFactory_;
     std::unique_ptr<GuiEngineContextManger> guiEngineContextManger_;
+
     std::unique_ptr<GameObject> rootGameObject_;
     std::unordered_map<uint32, GameObject*> gameObjectsIds_;
-    CameraWrapper camera;
 
     GraphicsApi::IGraphicsApi* graphicsApi_;
     Input::InputManager* inputManager_;

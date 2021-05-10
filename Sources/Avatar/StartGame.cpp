@@ -11,10 +11,10 @@ namespace AvatarGame
 {
 void Start()
 {
-    Engine engine(std::make_unique<BulletAdapter>(), std::make_unique<SceneFactory>());
+    Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<SceneFactory>());
     engine.Init();
-    //engine.GetSceneManager().SetActiveScene("MainMenu");
-	engine.GetSceneManager().SetActiveScene("Kingdom");
+    engine.GetSceneManager().SetActiveScene("MainMenu");
+    //engine.GetSceneManager().SetActiveScene("Kingdom");
     //engine.GetSceneManager().SetActiveScene("GreenIsland");
     engine.GameLoop();
 }

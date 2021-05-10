@@ -1,4 +1,5 @@
 #pragma once
+#include <Physics/IPhysicsApi.h>
 #include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
@@ -11,7 +12,7 @@ public:
     CollisionShape(size_t, ComponentContext&, GameObject&);
 
     virtual void setScale(const vec3&);
-    std::optional<uint32> GetCollisionShapeId() const;
+    const Physics::ShapeId& GetCollisionShapeId() const;
     void CleanUp() override;
 
 public:
@@ -19,7 +20,7 @@ public:
     const vec3& GetPositionOffset() const;
 
 protected:
-    std::optional<uint32> collisionShapeId_;
+    Physics::ShapeId collisionShapeId_;
     vec3 positionOffset_;
 
 public:

@@ -123,7 +123,7 @@ vec3 MeshShape::calculateScale(const vec3& scale) const
     if (meshes.empty())
         return vec3(1.f);
 
-    auto [postion, rotation, meshScale] = Utils::decompose(meshes.front().GetMeshTransform());
+    const auto& meshScale = meshes.front().GetNormalizedScale();
     return size_ * scale * meshScale;
 }
 void MeshShape::registerReadFunctions()

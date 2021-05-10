@@ -89,7 +89,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
         for (auto& mesh : obj.meshes)
         {
             newModel->AddMesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, mesh.createMeshRawData(), mesh.material,
-                              obj.transformMatrix);
+                              obj.transformMatrix, vec3(normalizeFactor));
         }
     }
     objects.clear();

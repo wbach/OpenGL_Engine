@@ -307,11 +307,11 @@ Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend)
 
 std::tuple<vec3, Quaternion, vec3, vec3, vec4> fullDecompose(const mat4& matrix)
 {
-    vec3 scale;
-    Quaternion rotation;
-    vec3 translation;
-    vec3 skew;
-    vec4 perspective;
+    vec3 scale(1.f);
+    Quaternion rotation(1.0f, 0.0f, 0.0f, 0.0f);
+    vec3 translation(0.f);
+    vec3 skew(0.f);
+    vec4 perspective(0.f);
     glm::decompose(matrix, scale, rotation, translation, skew, perspective);
 
     return {translation, rotation, scale, skew, perspective};
@@ -319,11 +319,11 @@ std::tuple<vec3, Quaternion, vec3, vec3, vec4> fullDecompose(const mat4& matrix)
 
 std::tuple<vec3, Quaternion, vec3> decompose(const mat4& matrix)
 {
-    vec3 scale;
-    Quaternion rotation;
-    vec3 translation;
-    vec3 skew;
-    vec4 perspective;
+    vec3 scale(1.f);
+    Quaternion rotation(1.0, 0.0, 0.0, 0.0);
+    vec3 translation(0.f);
+    vec3 skew(0.f);
+    vec4 perspective(0.f);
     glm::decompose(matrix, scale, rotation, translation, skew, perspective);
 
     return {translation, rotation, scale};

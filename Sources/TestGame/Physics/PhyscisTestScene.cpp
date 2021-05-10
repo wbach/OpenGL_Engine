@@ -10,7 +10,7 @@ namespace PhysicsTestGame
 {
 void Start(std::unique_ptr<GraphicsApi::IGraphicsApi> gptr)
 {
-    Engine engine(std::make_unique<BulletAdapter>(), std::make_unique<PhysicsSceneFactory>());
+    Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<PhysicsSceneFactory>());
     engine.Init();
     engine.GetSceneManager().SetActiveScene("PhysicsScene");
     engine.GameLoop();
