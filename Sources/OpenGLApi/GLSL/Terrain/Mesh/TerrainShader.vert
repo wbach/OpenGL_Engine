@@ -53,9 +53,9 @@ bool Is(float f)
     return f > .5f;
 }
 
-mat3 CreateTBNMatrix(vec3 normal)
+mat3 CreateTBNMatrix(mat4 normalTransformationMatrix, vec3 normal)
 {
-    vec3 tangent  = normalize((perObjectUpdate.transformationMatrix * vec4(TANGENT, 0.0)).xyz);
+    vec3 tangent  = normalize((normalTransformationMatrix * vec4(TANGENT, 0.0)).xyz);
     tangent = normalize(tangent - dot(tangent, normal) * normal);
     vec3 binormal = cross(normal, tangent);
     return mat3(tangent, binormal, normal);
@@ -63,13 +63,14 @@ mat3 CreateTBNMatrix(vec3 normal)
 
 void main()
 {
+    mat4 normalTransformationMatrix = transpose(inverse(perObjectUpdate.transformationMatrix));
     vs_out.worldPos    = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
-    vs_out.normal      = normalize((perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz);
+    vs_out.normal      = normalize(( normalTransformationMatrix * vec4(NORMAL, 0.0)).xyz);
     vs_out.texCoord    = TEXTCOORD;
 
     if (Is(perApp.useTextures.y))
     {
-        vs_out.tbn = CreateTBNMatrix(vs_out.normal);
+        vs_out.tbn = CreateTBNMatrix(normalTransformationMatrix, vs_out.normal);
     }
 
     float distanceToCam = length(perFrame.cameraPosition - vs_out.worldPos.xyz);

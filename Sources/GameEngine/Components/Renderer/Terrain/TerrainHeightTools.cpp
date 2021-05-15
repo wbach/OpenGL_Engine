@@ -33,7 +33,7 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 
     if (heightMapImage_.getChannelsCount() == 1)
     {
-        return (maybeColor->value.x * heightFactor_);
+        return (maybeColor->value.x);
     }
     else
     {

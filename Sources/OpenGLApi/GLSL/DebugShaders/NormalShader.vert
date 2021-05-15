@@ -26,9 +26,10 @@ out VS_OUT
 
 void main()
 {
+    mat4 normalTransformationMatrix = transpose(inverse(perObjectUpdate.transformationMatrix));
     vs_out.worldPosition = perObjectUpdate.transformationMatrix * vec4(Position, 1.f);
-    vec4 normal = perObjectUpdate.transformationMatrix * vec4(Normal, 1.f);
-    vec4 tangent = perObjectUpdate.transformationMatrix * vec4(Tangent, 1.f);
+    vec4 normal = normalTransformationMatrix * vec4(Normal, 1.f);
+    vec4 tangent = normalTransformationMatrix * vec4(Tangent, 1.f);
 
     vs_out.normal  = perFrame.projectionViewMatrix * (vs_out.worldPosition + vec4(normalize(normal.xyz), 0.f));
     vs_out.tangent = perFrame.projectionViewMatrix * (vs_out.worldPosition + vec4(normalize(tangent.xyz), 0.f));

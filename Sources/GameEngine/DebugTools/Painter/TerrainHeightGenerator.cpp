@@ -172,7 +172,8 @@ void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionS
 
                     auto newHeight = heightMapValue2->value.x * scale2 / scale1;
                     // auto newHeight = heightMapValue2->value.x * scale2 / scale1 / scale1;
-                    DEBUG_LOG("Old height " + std::to_string(heightMapValue1->value) + " | New height " + std::to_string(newHeight));
+                    DEBUG_LOG("Old height " + std::to_string(heightMapValue1->value) + " | New height " +
+                              std::to_string(newHeight));
                     heightMap1->SetHeight(targetPixel, newHeight);
                 }
             }
@@ -375,9 +376,9 @@ void TerrainHeightGenerator::perlinNoise2D()
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 {
     uint32 offset = 1;
-//    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - 1 - offset) or
-//        y > (perTerrainHeightMapsize_.y - 1 - offset))
-//        return 0.5f;
+    if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - 1 - offset) or
+        y > (perTerrainHeightMapsize_.y - 1 - offset))
+        return 0.0f;
 
     auto index = x + perTerrainHeightMapsize_.x * y;
     if (index < noiseSeed.size())
