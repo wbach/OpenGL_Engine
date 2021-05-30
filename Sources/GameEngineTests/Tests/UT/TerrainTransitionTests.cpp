@@ -28,8 +28,8 @@ struct TerrainTransitionShould : public BaseComponentTestSchould
         //auto& terrainComponent1 = go1.AddComponent<Components::TerrainRendererComponent>();
         //auto& terrainComponent2 = go2.AddComponent<Components::TerrainRendererComponent>();
 
-        GraphicsApi::Image image1;
-        GraphicsApi::Image image2;
+        Utils::Image image1;
+        Utils::Image image2;
         heightMap1_ = std::make_unique<HeightMap>(graphicsApiMock_, TextureParameters{}, File{}, image1);
         heightMap2_ = std::make_unique<HeightMap>(graphicsApiMock_, TextureParameters{}, File{}, image2);
 

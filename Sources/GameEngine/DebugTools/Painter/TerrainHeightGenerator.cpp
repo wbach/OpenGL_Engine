@@ -1,6 +1,6 @@
 #include "TerrainHeightGenerator.h"
 
-#include <GraphicsApi/ImageFilters.h>
+#include <Utils/Image/ImageFilters.h>
 #include <Logger/Log.h>
 
 #include <algorithm>
@@ -360,7 +360,7 @@ void TerrainHeightGenerator::perlinNoise2D()
             }
         }
 
-        GraphicsApi::Image image;
+        Utils::Image image;
         image.width  = width;
         image.height = height;
         image.setChannels(1);

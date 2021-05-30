@@ -1,5 +1,6 @@
 #pragma once
 #include <Types.h>
+#include <Utils/Image/Image.h>
 
 #include <array>
 #include <functional>
@@ -14,7 +15,6 @@
 #include "FunctionsTypes.h"
 #include "GraphicsApiDef.h"
 #include "IFrameBuffer.h"
-#include "Image.h"
 #include "LineMesh.h"
 #include "RenderType.h"
 #include "RendererType.h"
@@ -55,11 +55,11 @@ public:
     virtual void UpdateShaderBuffer(uint32 id, void const* buffer)                            = 0;
     virtual uint32 BindShaderBuffer(uint32)                                                   = 0;
     virtual void UseShader(uint32)                                                            = 0;
-    virtual ID CreateTexture(const Image&, TextureFilter, TextureMipmap)                      = 0;
+    virtual ID CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)               = 0;
     virtual ID CreateTextureStorage(TextureType, TextureFilter, int32 N)                      = 0;
-    virtual ID CreateCubMapTexture(const std::array<Image, 6>&)                               = 0;
-    virtual void UpdateTexture(uint32, const vec2ui&, const Image&)                           = 0;
-    virtual void UpdateTexture(uint32, const Image&)                                          = 0;
+    virtual ID CreateCubMapTexture(const std::array<Utils::Image, 6>&)                        = 0;
+    virtual void UpdateTexture(uint32, const vec2ui&, const Utils::Image&)                    = 0;
+    virtual void UpdateTexture(uint32, const Utils::Image&)                                   = 0;
     virtual void ClearTexture(uint32, const Color&)                                           = 0;
     virtual void EnableBlend()                                                                = 0;
     virtual void DisableBlend()                                                               = 0;

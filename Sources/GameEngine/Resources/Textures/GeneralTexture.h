@@ -1,5 +1,5 @@
 #pragma once
-#include <GraphicsApi/Image.h>
+#include <Utils/Image/Image.h>
 
 #include "GameEngine/Resources/DataStorePolicy.h"
 #include "GameEngine/Resources/TextureParameters.h"
@@ -10,16 +10,16 @@ namespace GameEngine
 class GeneralTexture : public Texture
 {
 public:
-    GeneralTexture(GraphicsApi::IGraphicsApi&, GraphicsApi::Image, const TextureParameters&,
+    GeneralTexture(GraphicsApi::IGraphicsApi&, Utils::Image, const TextureParameters&,
                    const std::optional<File>& = std::nullopt);
     ~GeneralTexture();
     void GpuLoadingPass() override;
-    void SetImage(GraphicsApi::Image);
-    const GraphicsApi::Image& GetImage() const;
+    void SetImage(Utils::Image);
+    const Utils::Image& GetImage() const;
     void SetPixel(const vec2ui&, const Color&);
 
 private:
-    GraphicsApi::Image image_;
+    Utils::Image image_;
     TextureParameters paramters_;
 };
 }  // namespace GameEngine

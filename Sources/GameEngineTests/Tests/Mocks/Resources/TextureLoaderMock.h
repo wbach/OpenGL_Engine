@@ -11,7 +11,7 @@ class TextureLoaderMock : public ITextureLoader
 {
 public:
     MOCK_METHOD3(CreateTexture,
-                 GeneralTexture*(const std::string&, const TextureParameters&, const GraphicsApi::Image&));
+                 GeneralTexture*(const std::string&, const TextureParameters&, const Utils::Image&));
     MOCK_METHOD1(UpdateTexture, void(const GeneralTexture&));
     MOCK_METHOD2(UpdateTexture, void(GeneralTexture*&, const std::string&));
     MOCK_METHOD2(LoadTexture, GeneralTexture*(const File&, const TextureParameters&));

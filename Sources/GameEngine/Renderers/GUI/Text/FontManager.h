@@ -1,6 +1,6 @@
 #pragma once
 #include <GameEngine/Resources/File.h>
-#include <GraphicsApi/Image.h>
+#include <Utils/Image/Image.h>
 #include <Types.h>
 
 #include <memory>
@@ -18,7 +18,7 @@ public:
     struct TextureData
     {
         std::string name;
-        GraphicsApi::Image image;
+        Utils::Image image;
     };
     FontManager();
     ~FontManager();

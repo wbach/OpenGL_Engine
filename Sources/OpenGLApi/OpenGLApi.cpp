@@ -718,7 +718,7 @@ void CreateGlTexture(GLuint texture, GraphicsApi::TextureType type, GraphicsApi:
     glBindTexture(params.target, 0);
 }
 
-GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, GraphicsApi::TextureFilter filter,
+GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi::TextureFilter filter,
                                          GraphicsApi::TextureMipmap mipmap)
 {
     GLuint texture;
@@ -734,7 +734,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
     uint32 dataTypeSize = 0;
     auto channels       = image.getChannelsCount();
     std::visit(visitor{
-                   [&](const std::vector<uint8>& data) {
+                   [&](const std::vector<uint8>&) {
                        switch (channels)
                        {
                            case 4:
@@ -745,7 +745,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const GraphicsApi::Image& image, Graphi
                                DEBUG_LOG("Not implmented.");
                        }
                    },
-                   [&](const std::vector<float>& data) {
+                   [&](const std::vector<float>&) {
                        switch (channels)
                        {
                            case 1:
@@ -825,7 +825,7 @@ GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, Graphi
     return rid;
 }
 
-GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<GraphicsApi::Image, 6>& images)
+GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<Utils::Image, 6>& images)
 {
     uint32 id;
     glGenTextures(1, &id);
@@ -860,7 +860,7 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<GraphicsApi::Ima
     return rid;
 }
 
-void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const GraphicsApi::Image& image)
+void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const Utils::Image& image)
 {
     if (image.empty())
     {
@@ -881,7 +881,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const GraphicsApi
                     static_cast<GLsizei>(image.width), static_cast<GLsizei>(image.height), params.format,
                     params.dataType, image.getRawDataPtr());
 }
-void OpenGLApi::UpdateTexture(uint32 id, const GraphicsApi::Image& image)
+void OpenGLApi::UpdateTexture(uint32 id, const Utils::Image& image)
 {
     auto iter = impl_->textureInfos_.find(id);
     if (iter == impl_->textureInfos_.end())

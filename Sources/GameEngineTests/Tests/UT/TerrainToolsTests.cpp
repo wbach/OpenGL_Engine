@@ -25,7 +25,7 @@ struct TerrainToolsShould : public ::testing::Test
     void TearDown() override
     {
     }
-    void init(const vec3& scale, const GraphicsApi::Image& image )
+    void init(const vec3& scale, const Utils::Image& image )
     {
         sut_ = std::make_unique<TerrainHeightTools>(scale, image);
     }
@@ -36,7 +36,7 @@ struct TerrainToolsShould : public ::testing::Test
 TEST_F(TerrainToolsShould, vauleInRangeInZeroPos)
 {
     vec3 terrainScale{ 1, 1, 1 };
-    GraphicsApi::Image image;
+    Utils::Image image;
     image.width = 32;
     image.height = 32;
     image.setChannels(1);

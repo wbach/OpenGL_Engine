@@ -7,7 +7,7 @@
 
 namespace GameEngine
 {
-TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const GraphicsApi::Image& heightMapImage)
+TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const Utils::Image& heightMapImage)
     : heightMapImage_(heightMapImage)
     , terrainScaleVec3_(terrainScale)
     , terrainScale_(terrainScale.x, terrainScale.z)

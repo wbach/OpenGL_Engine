@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::Image image,
+GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Image image,
                                const TextureParameters& paramters, const std::optional<File>& file)
     : Texture(graphicsApi, paramters, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
@@ -54,13 +54,13 @@ void GeneralTexture::GpuLoadingPass()
         image_.clearData();
     }
 }
-void GeneralTexture::SetImage(GraphicsApi::Image image)
+void GeneralTexture::SetImage(Utils::Image image)
 {
     image_       = std::move(image);
     size_        = vec2ui(image.width, image.height);
     orginalData_ = false;
 }
-const GraphicsApi::Image& GeneralTexture::GetImage() const
+const Utils::Image& GeneralTexture::GetImage() const
 {
     return image_;
 }

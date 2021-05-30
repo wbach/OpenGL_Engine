@@ -1,6 +1,6 @@
 #pragma once
 #include "CircleHeightBrush.h"
-#include <GraphicsApi/ImageFilters.h>
+#include <Utils/Image/ImageFilters.h>
 
 namespace GameEngine
 {
@@ -14,7 +14,7 @@ private:
     bool main(const vec2ui&) override;
 
 private:
-    GraphicsApi::ImageFilter imageFilter_;
+    Utils::ImageFilter imageFilter_;
     vec2ui halfFilterSize_;
 };
 }  // namespace GameEngine

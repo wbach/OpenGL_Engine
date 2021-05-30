@@ -41,7 +41,7 @@ TextureLoader::~TextureLoader()
         DeleteTexture(*texture);
 }
 GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params,
-                                             const GraphicsApi::Image& image)
+                                             const Utils::Image& image)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
@@ -124,7 +124,7 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
     if (auto texture = GetTextureIfLoaded(textureName.str(), params))
         return static_cast<CubeMapTexture*>(texture);
 
-    std::array<GraphicsApi::Image, 6> images;
+    std::array<Utils::Image, 6> images;
 
     size_t index = 0;
     for (const auto& file : files)
@@ -177,7 +177,7 @@ HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& re
     for (auto& f : floatData)
         f = 0.f;
 
-    GraphicsApi::Image image;
+    Utils::Image image;
     image.width  = size.x;
     image.height = size.y;
     image.setChannels(1);
@@ -269,7 +269,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
         return nullptr;
     }
 
-    GraphicsApi::Image image;
+    Utils::Image image;
     image.width  = header.width;
     image.height = header.height;
     image.setChannels(1);

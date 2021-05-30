@@ -3,7 +3,7 @@
 #include <optional>
 #include <vector>
 
-namespace GraphicsApi
+namespace Utils
 {
 struct ImageFilter
 {

@@ -36,9 +36,10 @@ out VS_OUT
 
 void main()
 {
+    mat4 normalTransformationMatrix = transpose(inverse(perObjectUpdate.transformationMatrix));
     vs_out.worldPosition = perObjectUpdate.transformationMatrix * vec4(POSITION, 1.0);
     vs_out.texCoord      = TEXTCOORD;
-    vs_out.normal        = normalize(perObjectUpdate.transformationMatrix * vec4(NORMAL, 0.0)).xyz;
+    vs_out.normal        = normalize(( normalTransformationMatrix * vec4(NORMAL, 0.0)).xyz);
     gl_Position = perFrame.projectionViewMatrix * vs_out.worldPosition;
 
     float distance = length(perFrame.cameraPosition - vs_out.worldPosition.xyz);

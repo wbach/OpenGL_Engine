@@ -9,7 +9,7 @@ namespace GameEngine
 {
 CircleGaussianHeightBrush::CircleGaussianHeightBrush(PaintContext& context)
     : CircleHeightBrush(context)
-    , imageFilter_(GraphicsApi::gaussian7x7Filter())
+    , imageFilter_(Utils::gaussian7x7Filter())
     , halfFilterSize_(imageFilter_.size.x / 2, imageFilter_.size.y / 2)
 {
 }

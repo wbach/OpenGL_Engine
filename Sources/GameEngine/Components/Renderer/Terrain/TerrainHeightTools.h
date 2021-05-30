@@ -1,6 +1,6 @@
 #pragma once
 #include <Types.h>
-#include <GraphicsApi/Image.h>
+#include <Utils/Image/Image.h>
 #include <functional>
 
 namespace GameEngine
@@ -8,7 +8,7 @@ namespace GameEngine
 class TerrainHeightTools
 {
 public:
-    TerrainHeightTools(const vec3&, const GraphicsApi::Image&);
+    TerrainHeightTools(const vec3&, const Utils::Image&);
     const vec3& getTerrainScale() const;
     uint32 getHeightMapResolution() const;
     float GetHeight(uint32 x, uint32 y) const;
@@ -24,7 +24,7 @@ private:
     uint32 Down(uint32 z) const;
 
 private:
-    const GraphicsApi::Image& heightMapImage_;
+    const Utils::Image& heightMapImage_;
     vec3 terrainScaleVec3_;
     vec2 terrainScale_;
     float heightFactor_;

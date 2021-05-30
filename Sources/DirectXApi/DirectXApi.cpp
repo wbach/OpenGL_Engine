@@ -675,7 +675,7 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
     return rv;
 }
 
-GraphicsApi::ID DirectXApi::CreateTexture(const GraphicsApi::Image &image, GraphicsApi::TextureFilter filter,
+GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi::TextureFilter filter,
                                           GraphicsApi::TextureMipmap mipmap)
 {
     GraphicsApi::TextureType type{GraphicsApi::TextureType::DEPTH_BUFFER_2D};
@@ -733,7 +733,7 @@ std::optional<uint32> DirectXApi::CreateTextureStorage(GraphicsApi::TextureType,
 {
     return std::optional<uint32>();
 }
-GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<GraphicsApi::Image, 6> &images)
+GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6> &images)
 {
     DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
     // D3DObjects to create
@@ -797,10 +797,10 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<GraphicsApi::Im
     auto samplerId = impl_->GetSamplerState({filter, mimap});
     return impl_->AddTexture(shaderResourceView, samplerId);
 }
-void DirectXApi::UpdateTexture(uint32, const vec2ui &, const GraphicsApi::Image &)
+void DirectXApi::UpdateTexture(uint32, const vec2ui &, const Utils::Image &)
 {
 }
-void DirectXApi::UpdateTexture(uint32 id, const GraphicsApi::Image &image)
+void DirectXApi::UpdateTexture(uint32 id, const Utils::Image &image)
 {
     // TO DO: maybe is better way to update texture than delete and create new one
 

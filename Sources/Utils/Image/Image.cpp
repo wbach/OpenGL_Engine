@@ -2,7 +2,7 @@
 
 #include <Logger/Log.h>
 
-namespace GraphicsApi
+namespace Utils
 {
 struct ImageDataPtrVisitor
 {
@@ -210,7 +210,7 @@ vec2ui Image::size() const
     return vec2ui(width, height);
 }
 
-const void* GraphicsApi::Image::getRawDataPtr() const
+const void* Image::getRawDataPtr() const
 {
     return std::visit(ImageDataPtrVisitor(), data_);
 }

@@ -1,6 +1,6 @@
 #include "ImageFilters.h"
 
-namespace GraphicsApi
+namespace Utils
 {
 namespace
 {

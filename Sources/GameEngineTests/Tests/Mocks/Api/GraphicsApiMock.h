@@ -28,11 +28,11 @@ public:
     MOCK_METHOD2(UpdateShaderBuffer, void(uint32 id, void const* buffer));
     MOCK_METHOD1(BindShaderBuffer, uint32(uint32));
     MOCK_METHOD1(UseShader, void(uint32));
-    MOCK_METHOD3(CreateTexture, ID(const Image&, TextureFilter, TextureMipmap));
+    MOCK_METHOD3(CreateTexture, ID(const Utils::Image&, TextureFilter, TextureMipmap));
     MOCK_METHOD3(CreateTextureStorage, ID(TextureType, TextureFilter, int32 N));
-    MOCK_METHOD1(CreateCubMapTexture, ID(const std::array<Image, 6>&));
-    MOCK_METHOD3(UpdateTexture, void(uint32, const vec2ui&, const Image&));
-    MOCK_METHOD2(UpdateTexture, void(uint32, const Image&));
+    MOCK_METHOD1(CreateCubMapTexture, ID(const std::array<Utils::Image, 6>&));
+    MOCK_METHOD3(UpdateTexture, void(uint32, const vec2ui&, const Utils::Image&));
+    MOCK_METHOD2(UpdateTexture, void(uint32, const Utils::Image&));
     MOCK_METHOD2(ClearTexture, void(uint32, const Color&));
     MOCK_METHOD0(EnableBlend, void());
     MOCK_METHOD0(DisableBlend, void());

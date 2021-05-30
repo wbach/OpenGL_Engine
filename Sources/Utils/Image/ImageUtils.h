@@ -1,7 +1,8 @@
 #pragma once
+#include <algorithm>
 #include <optional>
 #include <vector>
-#include <algorithm>
+#include "Image.h"
 #include "Types.h"
 
 namespace Utils
@@ -45,4 +46,5 @@ void ConvertImageData(const std::vector<T>& inputData, std::vector<uint8>& outpu
 }
 
 void SaveImage(const std::vector<uint8>&, const vec2ui&, const std::string&, const std::optional<vec2>& = std::nullopt);
+void SaveImage(const Image&, const std::string&, const std::optional<vec2>& = std::nullopt);
 }  // namespace Utils

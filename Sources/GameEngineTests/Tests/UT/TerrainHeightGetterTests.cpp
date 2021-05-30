@@ -14,7 +14,7 @@ struct TerrainHeightGetterShould : public ::testing::Test
     TerrainHeightGetterShould()
     {
         uint32 heightMapSize = 100;
-        GraphicsApi::Image image;
+        Utils::Image image;
         image.width  = heightMapSize;
         image.height = heightMapSize;
         image.setChannels(1);

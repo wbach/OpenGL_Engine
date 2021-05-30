@@ -1,6 +1,6 @@
 #pragma once
 #include <stdexcept>
-#include <GraphicsApi/Image.h>
+#include <Utils/Image/Image.h>
 #include "Texture.h"
 
 namespace GameEngine
@@ -8,13 +8,13 @@ namespace GameEngine
 class HeightMap : public Texture
 {
 public:
-    HeightMap(GraphicsApi::IGraphicsApi&, const TextureParameters&, const File&, GraphicsApi::Image);
+    HeightMap(GraphicsApi::IGraphicsApi&, const TextureParameters&, const File&, Utils::Image);
 
     void GpuLoadingPass() override;
 
     //GraphicsApi::Image& GetImage();
-    void setImage(GraphicsApi::Image);
-    const GraphicsApi::Image& GetImage() const;
+    void setImage(Utils::Image);
+    const Utils::Image& GetImage() const;
     float GetMaximumHeight() const;
     float GetMinimumHeight() const;
     float GetDeltaHeight() const;
@@ -24,7 +24,7 @@ public:
     bool UpdateMaximumHeight();
 
 private:
-    GraphicsApi::Image image_;
+    Utils::Image image_;
     float maximumHeight_;
     float minimumHeight_;
     float deltaHeight_;

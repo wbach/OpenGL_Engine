@@ -1,7 +1,7 @@
 #pragma once
 #include <Types.h>
 #include "Surface.h"
-#include <GraphicsApi/Image.h>
+#include <Utils/Image/Image.h>
 
 namespace GameEngine
 {
@@ -11,7 +11,7 @@ struct RenderedText
     std::string text;
     Color color;
     uint32 outline;
-    GraphicsApi::Image image;
+    Utils::Image image;
     uint32 insances;
 };
 }  // namespace GameEngine

@@ -112,19 +112,19 @@ public:
     {
         return {};
     }
-    GraphicsApi::ID CreateTexture(const GraphicsApi::Image&, GraphicsApi::TextureFilter,
+    GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter,
                                   GraphicsApi::TextureMipmap) override
     {
         return ++id;
     }
-    GraphicsApi::ID CreateCubMapTexture(const std::array<GraphicsApi::Image, 6>&) override
+    GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override
     {
         return ++id;
     }
-    void UpdateTexture(uint32, const vec2ui&, const GraphicsApi::Image&) override
+    void UpdateTexture(uint32, const vec2ui&, const Utils::Image&) override
     {
     }
-    void UpdateTexture(uint32, const GraphicsApi::Image&) override
+    void UpdateTexture(uint32, const Utils::Image&) override
     {
     }
     void ClearTexture(uint32, const Color&) override

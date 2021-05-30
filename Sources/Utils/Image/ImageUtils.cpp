@@ -2,6 +2,7 @@
 
 #include <FreeImage.h>
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -19,7 +20,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
         return;
     }
 
-    DEBUG_LOG("Save image : " + filename + ", size=" + std::to_string(size.x)+"x"+std::to_string(size.y)+":4");
+    DEBUG_LOG("Save image : " + filename + ", size=" + std::to_string(size.x) + "x" + std::to_string(size.y) + ":4");
     FIBITMAP *bitmap = FreeImage_Allocate(static_cast<int>(size.x), static_cast<int>(size.y), 32, 8, 8, 8);
 
     auto width  = FreeImage_GetWidth(bitmap);
@@ -42,7 +43,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     {
         auto scaledBitmap =
             FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
-       
+
         FreeImage_Unload(bitmap);
         bitmap = scaledBitmap;
     }
@@ -51,4 +52,14 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     FreeImage_Save(FIF_PNG, bitmap, outputFilename.c_str());
     FreeImage_Unload(bitmap);
 }
+
+void SaveImage(const Image &image, const std::string &outputFilePath, const std::optional<vec2> &scale)
+{
+    std::visit(
+        visitor{[&](std::vector<uint8> data) { SaveImage(data, image.size(), outputFilePath, scale); },
+                [&](const std::vector<float> &) { DEBUG_LOG("SaveImage for floats not implemented"); },
+                [](std::monostate) { ERROR_LOG("Data not set!"); }},
+        image.getImageData());
+}
+
 }  // namespace Utils

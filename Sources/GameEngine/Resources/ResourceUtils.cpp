@@ -91,7 +91,7 @@ void flipImageIfRequest(FIBITMAP* image, TextureFlip flipMode)
     }
 }
 
-std::optional<GraphicsApi::Image> ReadFile(const File& inputFileName, const TextureParameters& params)
+std::optional<Utils::Image> ReadFile(const File& inputFileName, const TextureParameters& params)
 {
     auto absoultePath = inputFileName.GetAbsoultePath();
 
@@ -125,7 +125,7 @@ std::optional<GraphicsApi::Image> ReadFile(const File& inputFileName, const Text
         return {};
     }
 
-    GraphicsApi::Image resultImage;
+    Utils::Image resultImage;
     resultImage.width  = FreeImage_GetWidth(image);
     resultImage.height = FreeImage_GetHeight(image);
     resultImage.setChannels(4);
@@ -273,11 +273,11 @@ uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)
     return static_cast<uint8>(value * 255.f);
 }
 
-GraphicsApi::Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap, const vec2& thresholds)
+Utils::Image GenerateBlendMapImage(const vec3& terrainScale, const HeightMap& heightMap, const vec2& thresholds)
 {
     auto width = heightMap.GetImage().width;
     TerrainHeightTools tools(terrainScale, heightMap.GetImage());
-    GraphicsApi::Image outputImage;
+    Utils::Image outputImage;
     outputImage.width  = heightMap.GetImage().width;
     outputImage.height = heightMap.GetImage().height;
     outputImage.setChannels(4);
@@ -301,7 +301,7 @@ std::unique_ptr<GeneralTexture> CreateNormalTexture(GraphicsApi::IGraphicsApi& g
 
     auto width = heightMap.GetImage().width;
 
-    GraphicsApi::Image normalImage;
+    Utils::Image normalImage;
     normalImage.width  = heightMap.GetImage().width;
     normalImage.height = heightMap.GetImage().height;
     normalImage.setChannels(3);
@@ -337,7 +337,7 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                     Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview");
                     Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview_scaled", vec2(4));
                 },
-                [&](const std::vector<float>& data) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
+                [&](const std::vector<float>&) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
                 [](std::monostate) { ERROR_LOG("Data not set!"); }},
         image.getImageData());
 }
