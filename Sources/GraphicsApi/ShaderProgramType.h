@@ -34,6 +34,8 @@ enum class ShaderProgramType
     Grid,
     Line,
     DebugNormal,
-    Fxaa
+    Fxaa,
+    Sobel,
+    Outline
 };
 }  // namespace GraphicsApi

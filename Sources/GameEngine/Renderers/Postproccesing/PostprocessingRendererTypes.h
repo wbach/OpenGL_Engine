@@ -8,6 +8,7 @@ enum class PostprocessingRendererType
     BLUR,
     COLOR_FLIPER,
     DEFFERED_LIGHT,
-    CONTRAST_CHANGER
+    CONTRAST_CHANGER,
+    OUTLINE
 };
 }

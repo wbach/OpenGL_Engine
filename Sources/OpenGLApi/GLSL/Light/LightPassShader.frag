@@ -69,7 +69,12 @@ vec4 CalculateBaseLight(SMaterial material, vec3 light_direction, vec3 world_pos
     if (diffuse_factor > 0.f)
     {
         diffuse_color = light_color * diffuse_factor;
-       // ambient_color = vec3(0.f);
+        //ambient_color = diffuse_color * 0.2f;
+    }
+    else
+    {
+        // for sobel filter?
+       // diffuse_color = light_color * -1.f * diffuse_factor;
     }
 
     diffuse_color = diffuse_color * material.diffuse_;
@@ -193,7 +198,7 @@ void main()
     SMaterial material;
     float maxValue = max3(color);
     float norm = 1.f - maxValue;
-    float ambientFactor = 0.2f;
+    float ambientFactor = 0.1f;
     material.ambient_ = (color + vec3(maxValue, maxValue, maxValue)) * ambientFactor;
     material.diffuse_ = color - material.ambient_;
     material.specular_ = specular.xyz;

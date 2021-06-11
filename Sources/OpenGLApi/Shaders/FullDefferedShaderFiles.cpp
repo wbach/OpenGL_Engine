@@ -224,6 +224,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::Outline,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Outline/Outline.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Outline/Outline.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::DebugNormal,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "DebugShaders/NormalShader.vert"},

@@ -6,6 +6,7 @@
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <Input/InputManager.h>
 #include <Types.h>
+#include <Utils/Image/ImageUtils.h>
 #include <Utils/Variant.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -14,6 +15,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/BoxShape.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
@@ -50,6 +52,73 @@ int EditorScene::Initialize()
     text->SetColor(vec4(0.05, 0.05, 0.05, 1.f));
     guiManager_->Add(std::move(text));
 
+    auto actionsButtonsLayotPtr = guiElementFactory_->CreateVerticalLayout();
+    auto actionsButtonsLayot    = actionsButtonsLayotPtr.get();
+    actionsButtonsLayotPtr->SetScreenPostion({0.8625, 0.0});
+    actionsButtonsLayotPtr->SetScreenScale({0.125, 1.f});
+    guiManager_->Add(std::move(actionsButtonsLayotPtr));
+
+    auto button = guiElementFactory_->CreateGuiButton("Convert mesh to png heightmap", [&](auto&) {
+        if (not gameObject)
+            return;
+        uint32 heightmapResultuion = 512;
+        float step                 = 1.f / static_cast<float>(heightmapResultuion);
+
+        Utils::Image image;
+        image.width  = heightmapResultuion;
+        image.height = heightmapResultuion;
+        image.setChannels(4);
+        image.allocateImage<uint8>();
+
+        std::vector<std::vector<float>> heights;
+        heights.reserve(heightmapResultuion);
+        std::optional<float> maxHeight;
+        std::optional<float> minHeight;
+
+        for (float y = -0.5f; y < 0.5f; y += step)
+        {
+            heights.push_back({});
+            auto& row = heights.back();
+
+            for (float x = -0.5f; x < 0.5f; x += step)
+            {
+                vec3 from(x, 5.f, y);
+                vec3 to(x, -5.f, y);
+                auto maybeHit = physicsApi_->RayTest(from, to);
+
+                float height{0.f};
+                maybeHit ? height = maybeHit->pointWorld.y : 0.f;
+
+                if (not maxHeight or (*maxHeight) < height)
+                {
+                    maxHeight = height;
+                }
+
+                if (not minHeight or (*minHeight) > height)
+                {
+                    minHeight = height;
+                }
+                row.push_back(height);
+            }
+        }
+
+        for (uint32 y = 0; y < heightmapResultuion; y++)
+        {
+            for (uint32 x = 0; x < heightmapResultuion; x++)
+            {
+                auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
+                Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
+                //uint8_t* array;
+                //array = reinterpret_cast<uint8_t*>(&normalizedHeight);
+                //Color color(array[0], array[1], array[2], array[3]);
+                image.setPixel(vec2ui{y, x}, color);
+            }
+        }
+        Utils::SaveImage(image, "heightmap.png");
+    });
+    button->SetLocalScale({1.f, 0.05f});
+    actionsButtonsLayot->AddChild(std::move(button));
+
     auto avaiableAnimationsPtr = guiElementFactory_->CreateVerticalLayout();
     auto avaiableAnimations    = avaiableAnimationsPtr.get();
     avaiableAnimationsPtr->SetScreenPostion({0.0625, 0.5});
@@ -74,6 +143,9 @@ int EditorScene::Initialize()
                            auto& animator  = newGameObject->AddComponent<Components::Animator>();
                            animator.startupAnimationClipName_ = "noname";
                            component.AddModel(dropFileEvent.filename);
+
+                           newGameObject->AddComponent<Components::MeshShape>();
+                           newGameObject->AddComponent<Components::Rigidbody>();
 
                            auto files = Utils::FindFilesWithExtension(
                                GameEngine::File(dropFileEvent.filename).GetParentDir(), ".xml");
@@ -140,16 +212,17 @@ int EditorScene::Update(float)
 {
     if (gameObject and inputManager_->GetKey(KeyCodes::LMOUSE))
     {
-        auto currentRotation = gameObject->GetWorldTransform().GetRotation().value_;
-        auto v               = inputManager_->CalcualteMouseMove();
+        auto currentRotation  = gameObject->GetWorldTransform().GetRotation().value_;
+        auto v                = inputManager_->CalcualteMouseMove();
         const float sensitive = 0.01f;
         if (v.x != 0)
         {
             gameObject->SetWorldRotation(currentRotation * glm::angleAxis(sensitive * float(v.x), vec3(0.f, 1.f, 0.f)));
         }
-        //if (v.y != 0)
+        // if (v.y != 0)
         //{
-        //    gameObject->SetWorldRotation(currentRotation * glm::angleAxis(sensitive * float(v.x), vec3(0.f, 0.f, 1.f)));
+        //    gameObject->SetWorldRotation(currentRotation * glm::angleAxis(sensitive * float(v.x), vec3(0.f,
+        //    0.f, 1.f)));
         //}
     }
     return 0;
