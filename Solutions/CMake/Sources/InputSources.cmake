@@ -1,5 +1,5 @@
 set(InputSources
-../../Sources/Input/InputManager.cpp
-../../Sources/Input/KeyCodeToCharConverter.cpp
-../../Sources/Input/KeysSubscriptionsManager.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Input/KeyCodeToCharConverter.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Input/InputManager.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Input/KeysSubscriptionsManager.cpp
 )

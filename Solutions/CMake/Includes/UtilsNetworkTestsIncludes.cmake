@@ -1,3 +1,3 @@
 set(UtilsNetworkTestsIncludes
-../../Sources/UtilsNetworkTests/UT/Mocks/SDLNetWrapperMock.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetworkTests/UT/Mocks/SDLNetWrapperMock.h
 )

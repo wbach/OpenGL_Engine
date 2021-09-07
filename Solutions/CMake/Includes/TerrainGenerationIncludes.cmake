@@ -1,7 +1,7 @@
 set(TerrainGenerationIncludes
-../../Sources/TerrainGeneration/Configuration.h
-../../Sources/TerrainGeneration/Image.h
-../../Sources/TerrainGeneration/SingleTon.h
-../../Sources/TerrainGeneration/Terrain.h
-../../Sources/TerrainGeneration/Tests.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/TerrainGeneration/Image.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/TerrainGeneration/Configuration.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/TerrainGeneration/Tests.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/TerrainGeneration/Terrain.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/TerrainGeneration/SingleTon.h
 )

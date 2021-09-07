@@ -79,17 +79,21 @@ message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
 message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
 
+message(STATUS ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
-    ${PROJECT_BINARY_DIR}/../Tools/linux/fbx/
-    ${PROJECT_BINARY_DIR}/../Tools/common/
-    ${PROJECT_BINARY_DIR}/../Tools/common/glm
-    ${PROJECT_BINARY_DIR}/../Tools/common/assimp-5.0.1/include/
-    ${PROJECT_BINARY_DIR}/../Tools/common/bullet/src/
-    ${PROJECT_BINARY_DIR}/../Tools/common/rapidxml-1.13/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
 )
+
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/lib/gcc4/x64/release)
 
 set(BulletLinkingLibs
             BulletDynamics
@@ -131,7 +135,4 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Editor.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/TestGame.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Avatar.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameServer.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/LibNoise.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/TerrainGenerator.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngineTest.cmake)
-

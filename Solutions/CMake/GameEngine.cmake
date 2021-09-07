@@ -1,7 +1,6 @@
 if(BUILD_GAME_ENGINE)
     link_directories(${CMAKE_CURRENT_BINARY_DIR}/bullet)
     link_directories(${CMAKE_CURRENT_BINARY_DIR}/assimpp)
-    link_directories(${PROJECT_BINARY_DIR}/../Tools/linux/fbx/lib/gcc4/x64/release)
 
     set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "")
     set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "")
@@ -16,8 +15,8 @@ if(BUILD_GAME_ENGINE)
 
 
     #option(ASSIMP_BUILD_TESTS "" OFF)
-    add_subdirectory(${PROJECT_BINARY_DIR}/../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
-    add_subdirectory(${PROJECT_BINARY_DIR}/../Tools/common/assimp-5.0.1/ ${CMAKE_CURRENT_BINARY_DIR}/assimp)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/ ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 
     include(./Sources/GameEngineSources.cmake)
     set_source_files_properties(

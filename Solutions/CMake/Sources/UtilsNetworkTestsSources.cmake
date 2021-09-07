@@ -1,5 +1,5 @@
 set(UtilsNetworkTestsSources
-../../Sources/UtilsNetworkTests/main.cpp
-../../Sources/UtilsNetworkTests/MT/Tests/ClientServerTests.cpp
-../../Sources/UtilsNetworkTests/UT/Tests/ServerCreatorTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetworkTests/UT/Tests/ServerCreatorTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetworkTests/main.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetworkTests/MT/Tests/ClientServerTests.cpp
 )

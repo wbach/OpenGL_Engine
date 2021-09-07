@@ -1,8 +1,8 @@
 set(EditorIncludes
-../../Sources/Editor/Context.h
-../../Sources/Editor/Scene/ChooseEditor.h
-../../Sources/Editor/Scene/EditorScene.h
-../../Sources/Editor/Scene/FileExplorer.h
-../../Sources/Editor/Scene/GuiEditScene.h
-../../Sources/Editor/Scene/SceneFactory.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Editor/Scene/SceneFactory.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Editor/Scene/EditorScene.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Editor/Scene/FileExplorer.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Editor/Scene/GuiEditScene.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Editor/Scene/ChooseEditor.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Editor/Context.h
 )

@@ -18,7 +18,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     continue
   fi
   #v=${line::-1}
-  sources+=($line)
+  prefix='${CMAKE_CURRENT_SOURCE_DIR}/'
+  filteredFile=${line#"$prefix"}
+  sources+=($filteredFile)
   #($v)
 done < "$sourceFilePath"
 
@@ -31,7 +33,9 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     continue
   fi
   #v=#${line::-1}
-  headers+=($line)
+  prefix='${CMAKE_CURRENT_SOURCE_DIR}/'
+  filteredFile=${line#"$prefix"}
+  headers+=($filteredFile)
 done < "$includeFilePath"
 
 sdkVersion="10.0.16299.0"
@@ -515,14 +519,14 @@ echo '<?xml version="1.0" encoding="utf-8"?>
   '
   for cpp in "${sources[@]}"
   do
-    echo $'<ClCompile Include="'" $vs_s"$cpp'" />'
+    echo $'<ClCompile Include="'"$vs_s"$cpp'" />'
   done
   echo '</ItemGroup>'
   echo '<ItemGroup>'
 
   for inc in "${headers[@]}"
   do
-    echo $'<ClInclude Include="'" $vs_s"$inc'" />'
+    echo $'<ClInclude Include="'"$vs_s"$inc'" />'
   done
 
   echo '</ItemGroup>'
