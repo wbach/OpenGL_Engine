@@ -17,6 +17,7 @@
 #include "Textures/CubeMapTexture.h"
 #include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
+#include "textureNotFound.h"
 
 namespace GameEngine
 {
@@ -323,13 +324,48 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const Textur
 
     return nullptr;
 }
+
+void convertImageToCpp(const Utils::Image& image)
+{
+    DEBUG_LOG("createCppFile...");
+    std::ofstream ofs("/home/bach/Projects/OpenGL_Engine/Data/textureNotFound.h", std::ofstream::out);
+    ofs << "#pragma once\n\n";
+    //ofs << "#include <array>\n";
+    ofs << "namespace GameEngine\n";
+    ofs << "{\n";
+    ofs << "namespace Resource\n";
+    ofs << "{\n";
+    ofs << "namespace TextureNotFound\n";
+    ofs << "{\n";
+    ofs << "static const unsigned int width{" << image.width << "};\n";
+    ofs << "static const unsigned int height{" << image.height << "};\n";
+    ofs << "static const unsigned int chanelsCount{" << static_cast<uint32>(image.getChannelsCount()) << "};\n";
+    ofs << "static const unsigned char data[] = {";
+
+    auto data = reinterpret_cast<const uint8*>(image.getRawDataPtr());
+    uint32 count = image.width * image.height * image.getChannelsCount();
+    for(uint32 i = 0; i < count; ++i)
+    {
+        unsigned char v = data[i];
+        ofs << static_cast<uint32>(v);
+        if (i < count - 1)
+            ofs << ",";
+    }
+    ofs << "};\n";
+    ofs << "} // namespace TextureNotFound\n";
+    ofs << "} // namespace Resource\n";
+    ofs << "} // namespace GameEngine\n";
+    ofs.close();
+    exit(0);
+
+}
 GeneralTexture* TextureLoader::GetTextureNotFound()
 {
-    File file("Textures/textureNotFound.png");
+    const std::string textureName("cppTexture_textureNotFound");
 
     if (textureNotFound_.second)
     {
-        auto texture = textures_.find(file.GetAbsoultePath());
+        auto texture = textures_.find(textureName);
         if (texture != textures_.end())
         {
             ++texture->second.instances_;
@@ -337,16 +373,22 @@ GeneralTexture* TextureLoader::GetTextureNotFound()
         return textureNotFound_.first;
     }
 
-    textureNotFound_.second = true;
     TextureParameters params;
-    auto image = ReadFile(file, params);
+    // params.flipMode = TextureFlip::VERTICAL;
+    // auto image = ReadFile("textureNotFound.png", params);
+    // convertImageToCpp(*image);
 
-    if (image)
-    {
-        auto texture           = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, file);
-        textureNotFound_.first = texture.get();
-        AddTexture(file.GetAbsoultePath(), std::move(texture), params.loadType);
-    }
+    textureNotFound_.second = true;
+    Utils::Image textureNotFoundImage;
+    textureNotFoundImage.width  = Resource::TextureNotFound::width;
+    textureNotFoundImage.height = Resource::TextureNotFound::height;
+    textureNotFoundImage.setChannels(Resource::TextureNotFound::chanelsCount);
+    textureNotFoundImage.allocateImage<uint8>();
+    textureNotFoundImage.copyImage<uint8>(Resource::TextureNotFound::data);
+
+    auto texture = std::make_unique<GeneralTexture>(graphicsApi_, textureNotFoundImage, params);
+    textureNotFound_.first = texture.get();
+    AddTexture(textureName, std::move(texture), params.loadType);
 
     return textureNotFound_.first;
 }

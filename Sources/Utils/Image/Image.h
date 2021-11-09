@@ -37,9 +37,9 @@ public:
         data_ = std::move(input);
     }
     template <typename T>
-    void copyImage(void* rawData)
+    void copyImage(const void* rawData)
     {
-        T* buff = reinterpret_cast<T*>(rawData);
+        auto buff = reinterpret_cast<const T*>(rawData);
         auto len = channels_ * width * height;
         data_ = std::vector<T>(buff, buff + len);
     }

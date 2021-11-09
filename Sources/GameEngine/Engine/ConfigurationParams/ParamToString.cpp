@@ -67,17 +67,18 @@ std::string paramToString(LogginLvl lvl)
     return {"unknown"};
 }
 
-LogginLvl paramFromString(const std::string & str)
+LogginLvl paramFromString(const std::string & input)
 {
+    auto str = Utils::toLower(input);
     if (str=="none")
         return LogginLvl::None;
-    if (str == "error")
+    if (str == "error" or str == "error")
         return LogginLvl::Error;
-    if (str == "error/warning")
+    if (str == "error/warning" or str == "warning")
         return LogginLvl::ErrorWarning;
-    if (str == "error/warning/info")
+    if (str == "error/warning/info" or str == "info")
         return LogginLvl::ErrorWarningInfo;
-    if (str == "error/warning/info/debug")
+    if (str == "error/warning/info/debug" or str == "debug")
         return LogginLvl::ErrorWarningInfoDebug;
 
     return LogginLvl::None;

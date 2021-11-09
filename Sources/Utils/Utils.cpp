@@ -296,6 +296,14 @@ bool StringToBool(const std::string& str)
     return (s == "true" ? true : false);
 }
 
+std::string toLower(const std::string& input)
+{
+    std::string result{input};
+    std::transform(result.begin(), result.end(), result.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+    return result;
+}
+
 std::string BoolToString(bool b)
 {
     return b ? "true" : "false";

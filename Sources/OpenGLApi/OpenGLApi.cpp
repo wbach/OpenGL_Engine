@@ -188,6 +188,8 @@ void GetInfoAndPrint(const std::string& str, GLenum i)
 
 void OpenGLApi::Init()
 {
+    DEBUG_LOG("Init openGLApi");
+
     auto glew_init_result = glewInit();
 
     if (glew_init_result != GLEW_OK)
@@ -210,6 +212,8 @@ void OpenGLApi::Init()
     }
 
     glPolygonOffset(1, 1);
+
+    DEBUG_LOG("Init done.");
 }
 void OpenGLApi::SetShadersFilesLocations(const std::string& path)
 {
