@@ -237,7 +237,7 @@ void SdlOpenGlApi::CreateSDLWindow(const std::string& window_name, const int& wi
     if (impl_->window)
         return;
 
-    ERROR_LOG("SDL_CreateWindow error.");
+    ERROR_LOG("SDL_CreateWindow error. " + SDL_GetError());
     exit(-1);
 }
 

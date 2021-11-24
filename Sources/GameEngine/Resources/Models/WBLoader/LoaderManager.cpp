@@ -8,7 +8,6 @@
 #include "Assimp/AssimpLoader.h"
 #include "BEngine/BEngineLoader.h"
 #include "Collada/Collada.h"
-#include "Fbx/FbxLoader.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "ParseUtils.h"
 #include "Terrain/TerrainMeshLoader.h"
@@ -23,7 +22,6 @@ LoaderManager::LoaderManager(ITextureLoader& textureloader)
     // loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
     // loaders_.emplace_back(new WBLoader::ColladaDae(textureloader));
     loaders_.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
-    // loaders_.emplace_back(new WBLoader::FbxLoader(textureloader));
     loaders_.emplace_back(new WBLoader::AssimpLoader(textureloader));
 }
 

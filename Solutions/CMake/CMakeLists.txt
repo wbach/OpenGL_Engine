@@ -20,10 +20,26 @@ option(BUILD_I386 "32bit build" OFF)
 if (BUILD_EDITOR)
     SET(BUILD_UTILS ON)
     SET(BUILD_UTILS_NETWORK ON)
-    SET(BUILD_UTILS_NETWORK_TESTS ON)
     SET(BUILD_COMMON ON)
     SET(BUILD_GAME_ENGINE ON)
     SET(BUILD_EDITOR ON)
+endif()
+
+if(BUILD_AVATAR_GAME)
+    SET(BUILD_UTILS ON)
+    SET(BUILD_UTILS_NETWORK ON)
+    SET(BUILD_COMMON ON)
+    SET(BUILD_GAME_ENGINE ON)
+    SET(BUILD_AVATAR_GAME ON)
+endif()
+
+if(BUILD_TESTS)
+    SET(BUILD_UTILS ON)
+    SET(BUILD_UTILS_NETWORK ON)
+    SET(BUILD_UTILS_NETWORK_TESTS ON)
+    SET(BUILD_COMMON ON)
+    SET(BUILD_GAME_ENGINE ON)
+    SET(BUILD_TESTS ON)
 endif()
 
 if(BUILD_ALL)
@@ -85,15 +101,13 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
 )
-
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/lib/gcc4/x64/release)
 
 set(BulletLinkingLibs
             BulletDynamics
@@ -115,13 +129,7 @@ set(BulletLinkingLibs
             #GIMPACTUtils
             #HACD
             LinearMath
-            fbxsdk
       )
-
-set(BoostLinkingLibs
-    boost_system
-    boost_filesystem
-)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Input.cmake)

@@ -13,7 +13,6 @@ if(BUILD_GAME_ENGINE)
     set(BUILD_ENET OFF CACHE BOOL "")
     set(BUILD_EXTRAS OFF CACHE BOOL "")
 
-
     #option(ASSIMP_BUILD_TESTS "" OFF)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/ ${CMAKE_CURRENT_BINARY_DIR}/assimp)

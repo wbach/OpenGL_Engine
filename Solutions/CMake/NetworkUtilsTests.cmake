@@ -18,6 +18,6 @@ if(BUILD_UTILS_NETWORK_TESTS)
     )
     add_executable(UtilsNetworkTestsExe ${UtilsNetworkTestsSources})
     #set_target_properties(UtilsNetworkTestsExe PROPERTIES COMPILE_FLAGS ${EngineCompileFlags})
-    target_link_libraries(UtilsNetworkTestsExe UtilsNetworkLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs} ${BoostLinkingLibs})
+    target_link_libraries(UtilsNetworkTestsExe UtilsNetworkLib UtilsLib gtest gtest_main gmock gmock_main ${LinkingLibs})
 endif()
 

@@ -1,10 +1,10 @@
 set(AvatarIncludes
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/StartGame.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Game/PauseMenu.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/SceneFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/GreenIsland.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/PauseMenuTheme.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/Kingdom.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/SouthPole.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/MainMenu.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Game/PauseMenu.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/PauseMenuTheme.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Scene/Scenes/SouthPole.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/StartGame.h
 )

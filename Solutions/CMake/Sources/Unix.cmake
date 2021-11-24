@@ -48,7 +48,6 @@ if(UNIX)
                 stdc++fs
                 freeimage
                 freetype
-                fbxsdk
           )
 
 endif()
