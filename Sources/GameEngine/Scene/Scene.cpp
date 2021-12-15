@@ -331,4 +331,14 @@ float Scene::distanceToCamera(const GameObject& gameObject) const
 {
     return glm::length(camera.GetPosition() - gameObject.GetWorldTransform().GetPosition());
 }
+
+void Scene::SendEvent(SceneEvent& event)
+{
+    addSceneEvent(event);
+}
+
+void Scene::SendEvent(EngineEvent& event)
+{
+    addEngineEvent(event);
+}
 }  // namespace GameEngine

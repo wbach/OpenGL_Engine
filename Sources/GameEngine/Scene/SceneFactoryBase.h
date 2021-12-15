@@ -32,6 +32,7 @@ public:
     bool IsExist(uint32 name) const;
     bool IsExist(const std::string& name) const;
     void SetEngineContext(EngineContext&);
+    const IdMap& GetAvaiableScenes() const;
 
 protected:
     ScenePtr GetScene(const std::string& name);

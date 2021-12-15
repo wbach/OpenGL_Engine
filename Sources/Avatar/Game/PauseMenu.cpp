@@ -24,6 +24,12 @@ namespace AvatarGame
 {
 PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
                      GameEngine::GuiManager& guiManager)
+    : PauseMenu(scene, factory, guiManager, {})
+{
+}
+
+PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
+                     GameEngine::GuiManager& guiManager, const std::vector<std::string>& avaiableSscenes)
     : scene_{scene}
     , factory_{factory}
     , guiManager_{guiManager}
@@ -32,7 +38,10 @@ PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& fa
     , settingsLayout_{nullptr}
     , pauseMenuLayout_{nullptr}
     , mainMenuLayout_{nullptr}
+    , sceneLoaderLayout_{nullptr}
+    , currentView_{nullptr}
     , menuButtonSize_{1.f, 0.075f}
+    , avaiableScenes_{avaiableSscenes}
 {
     init();
 }
@@ -91,6 +100,9 @@ void PauseMenu::enableState(State state)
         case State::SettingsView:
             enableSettingsViewState();
             break;
+        case State::SceneLoader:
+            enableSceneLoaderViewState();
+            break;
     }
 }
 
@@ -101,35 +113,22 @@ void PauseMenu::backToStartState()
 
 void PauseMenu::enableMainMenuState()
 {
-    guiManager_.AddTask([this]() {
-        hideSettingWindows();
-        mainMenuLayout_->Show();
-        settingsLayout_->Hide();
-        pauseMenuLayout_->Hide();
-        mainWindow_->Show();
-    });
+    guiManager_.AddTask([this]() { setLayoutAsActive(mainMenuLayout_); });
 }
 
 void PauseMenu::enablePauseMenuState()
 {
-    guiManager_.AddTask([this]() {
-        hideSettingWindows();
-        mainMenuLayout_->Hide();
-        settingsLayout_->Hide();
-        pauseMenuLayout_->Show();
-        mainWindow_->Show();
-    });
+    guiManager_.AddTask([this]() { setLayoutAsActive(pauseMenuLayout_); });
 }
 
 void PauseMenu::enableSettingsViewState()
 {
-    guiManager_.AddTask([this]() {
-        hideSettingWindows();
-        mainMenuLayout_->Hide();
-        pauseMenuLayout_->Hide();
-        settingsLayout_->Show();
-        mainWindow_->Show();
-    });
+    guiManager_.AddTask([this]() { setLayoutAsActive(settingsLayout_); });
+}
+
+void PauseMenu::enableSceneLoaderViewState()
+{
+    guiManager_.AddTask([this]() { setLayoutAsActive(sceneLoaderLayout_); });
 }
 
 void PauseMenu::init()
@@ -146,18 +145,27 @@ void PauseMenu::init()
 
     auto mainMenuLayout = createMainMenuLayout();
     mainMenuLayout_     = mainMenuLayout.get();
+    mainMenuLayout_->Hide();
     setMainWindowVerticalLayoutTransform(*mainMenuLayout);
     mainWindow_->AddChild(std::move(mainMenuLayout));
 
     auto pauseLayout = createPauseMenuLayout();
     pauseMenuLayout_ = pauseLayout.get();
+    pauseMenuLayout_->Hide();
     setMainWindowVerticalLayoutTransform(*pauseLayout);
     mainWindow_->AddChild(std::move(pauseLayout));
 
     auto settingsLayout = createSettingsLayout();
     settingsLayout_     = settingsLayout.get();
+    settingsLayout_->Hide();
     setMainWindowVerticalLayoutTransform(*settingsLayout);
     mainWindow_->AddChild(std::move(settingsLayout));
+
+    auto sceneLoaderLayout = createSceneLoaderLayout();
+    sceneLoaderLayout_     = sceneLoaderLayout.get();
+    sceneLoaderLayout_->Hide();
+    setMainWindowVerticalLayoutTransform(*sceneLoaderLayout);
+    mainWindow_->AddChild(std::move(sceneLoaderLayout));
 
     guiManager_.Add(std::move(mainWindow));
 }
@@ -180,6 +188,12 @@ std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createMainMenuLayout()
     {
         auto guiButton =
             factory_.CreateGuiButton("Load game", [this](auto&) { createMessageBox("Not implemented yet"); });
+        guiButton->SetLocalScale(menuButtonSize_);
+        verticalLayout->AddChild(std::move(guiButton));
+    }
+    {
+        auto guiButton =
+            factory_.CreateGuiButton("Start specyfic scene", [this](auto&) { enableSceneLoaderViewState(); });
         guiButton->SetLocalScale(menuButtonSize_);
         verticalLayout->AddChild(std::move(guiButton));
     }
@@ -258,6 +272,26 @@ std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSettingsLayout()
     backButton->SetLocalScale(menuButtonSize_);
     verticalLayout->AddChild(std::move(backButton));
 
+    return verticalLayout;
+}
+
+std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSceneLoaderLayout()
+{
+    auto verticalLayout = factory_.CreateVerticalLayout();
+    for (const auto& sceneName : avaiableScenes_)
+    {
+        auto guiButton = factory_.CreateGuiButton(sceneName, [this, sceneName](auto&) {
+            GameEngine::SceneEvent sceneEvent(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
+            scene_.SendEvent(sceneEvent);
+        });
+        guiButton->SetLocalScale(menuButtonSize_);
+        verticalLayout->AddChild(std::move(guiButton));
+    }
+    {
+        auto guiButton = factory_.CreateGuiButton("Back to main menu", [this](const auto&) { enableMainMenuState(); });
+        guiButton->SetLocalScale(menuButtonSize_);
+        verticalLayout->AddChild(std::move(guiButton));
+    }
     return verticalLayout;
 }
 
@@ -410,6 +444,20 @@ void PauseMenu::createMessageBox(const std::string& messageText)
     guiManager_.Add(std::move(messageBoxWindow));
 
     factory_.SetTheme(orginalTheme);
+}
+
+void PauseMenu::setLayoutAsActive(GameEngine::VerticalLayout* layout)
+{
+    if (not layout)
+        return;
+
+    hideSettingWindows();
+    if (currentView_)
+        currentView_->Hide();
+
+    currentView_ = layout;
+    currentView_->Show();
+    mainWindow_->Show();
 }
 
 }  // namespace AvatarGame

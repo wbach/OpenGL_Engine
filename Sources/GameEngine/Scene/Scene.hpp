@@ -111,6 +111,9 @@ public:
     std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
     float distanceToCamera(const GameObject&) const;
 
+    void SendEvent(SceneEvent&);
+    void SendEvent(EngineEvent&);
+
 public:
     uint32 objectCount;
 

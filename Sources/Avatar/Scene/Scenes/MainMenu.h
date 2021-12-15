@@ -10,7 +10,7 @@ class PauseMenu;
 class MainMenu : public GameEngine::Scene
 {
 public:
-    MainMenu();
+    MainMenu(const std::unordered_map<std::string, uint32>&);
     virtual ~MainMenu() override;
 
     virtual int Initialize() override;
@@ -22,5 +22,6 @@ private:
 
 private:
     std::unique_ptr<PauseMenu> menu_;
+    const std::unordered_map<std::string, uint32>& avaiableScenes_;
 };
 }  // namespace AvatarGame

@@ -8,7 +8,7 @@ namespace AvatarGame
 {
 SceneFactory::SceneFactory()
 {
-    AddScene("MainMenu", []() { return std::make_unique<MainMenu>(); });
+    AddScene("MainMenu", [this]() { return std::make_unique<MainMenu>(GetAvaiableScenes());});
     AddScene("GreenIsland", []() { return std::make_unique<GreenIsland>(); });
     AddScene("SouthPole", []() { return std::make_unique<SouthPole>(); });
     AddScene("Kingdom", []() { return std::make_unique<Kingdom>(); });

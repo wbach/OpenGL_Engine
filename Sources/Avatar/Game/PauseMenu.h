@@ -24,10 +24,12 @@ public:
     {
         MainMenu,
         PauseMenu,
-        SettingsView
+        SettingsView,
+        SceneLoader
     };
 
     PauseMenu(GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&);
+    PauseMenu(GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&, const std::vector<std::string>&);
     ~PauseMenu();
 
     void show(State);
@@ -40,15 +42,18 @@ private:
     void enableMainMenuState();
     void enablePauseMenuState();
     void enableSettingsViewState();
+    void enableSceneLoaderViewState();
     void init();
     void setMainWindowVerticalLayoutTransform(GameEngine::VerticalLayout&);
     std::unique_ptr<GameEngine::VerticalLayout> createMainMenuLayout();
     std::unique_ptr<GameEngine::VerticalLayout> createPauseMenuLayout();
     std::unique_ptr<GameEngine::VerticalLayout> createSettingsLayout();
+    std::unique_ptr<GameEngine::VerticalLayout> createSceneLoaderLayout();
     void fillSettingsParamWindow(GameEngine::VerticalLayout&, const std::string&);
     void hideSettingWindows();
     void showSettingWindow(const std::string&);
     void createMessageBox(const std::string&);
+    void setLayoutAsActive(GameEngine::VerticalLayout*);
 
 private:
     bool onePramaterNeedRestart_{false};
@@ -63,6 +68,8 @@ private:
     GameEngine::VerticalLayout* settingsLayout_;
     GameEngine::VerticalLayout* pauseMenuLayout_;
     GameEngine::VerticalLayout* mainMenuLayout_;
+    GameEngine::VerticalLayout* sceneLoaderLayout_;
+    GameEngine::VerticalLayout* currentView_;
     GameEngine::ConfigurationExplorer configurationExplorer_;
 
     std::unordered_map<std::string, GameEngine::GuiWindowElement*> settingWindows_;
@@ -70,6 +77,7 @@ private:
     std::mutex eventMutex_;
     std::vector<std::function<void()>> events_;
 
-    const vec2& menuButtonSize_;
+    const vec2 menuButtonSize_;
+    std::vector<std::string> avaiableScenes_;
 };
 }  // namespace AvatarGame

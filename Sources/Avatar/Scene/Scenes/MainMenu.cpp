@@ -17,8 +17,9 @@ using namespace GameEngine;
 
 namespace AvatarGame
 {
-MainMenu::MainMenu()
+MainMenu::MainMenu(const std::unordered_map<std::string, uint32>& avaiableScenes)
     : Scene("MainMenu")
+    , avaiableScenes_{avaiableScenes}
 {
 }
 MainMenu::~MainMenu()
@@ -57,7 +58,12 @@ void MainMenu::prepareMenu()
     guiManager_->RegisterAction("LoadGame()", [&](auto&) {});
     guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
-    menu_ = std::make_unique<PauseMenu>(*this, *guiElementFactory_, *guiManager_);
+    std::vector<std::string> scenes;
+    scenes.reserve(avaiableScenes_.size());
+    for(const auto&[name, _] : avaiableScenes_)
+        scenes.push_back(name);
+
+    menu_ = std::make_unique<PauseMenu>(*this, *guiElementFactory_, *guiManager_, scenes);
     menu_->show(PauseMenu::State::MainMenu);
 }
 }  // namespace AvatarGame

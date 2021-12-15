@@ -63,4 +63,9 @@ void SceneFactoryBase::SetEngineContext(EngineContext& engineContext)
 {
     engineContext_ = &engineContext;
 }
+
+const IdMap &SceneFactoryBase::GetAvaiableScenes() const
+{
+    return idMap_;
+}
 }  // namespace GameEngine
