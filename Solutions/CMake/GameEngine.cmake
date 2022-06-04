@@ -18,6 +18,11 @@ if(BUILD_GAME_ENGINE)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/ ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 
     include(./Sources/GameEngineSources.cmake)
+
+    include_directories(
+      ${CMAKE_CURRENT_BINARY_DIR}/assimp/include/
+  )
+
     set_source_files_properties(
       ${GameEngineSources}
       PROPERTIES
