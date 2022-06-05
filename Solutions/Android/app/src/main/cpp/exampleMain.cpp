@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LOG_TAG "libgl2jni"
+#define LOG_TAG "libengine"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
@@ -183,16 +183,16 @@ void renderFrame()
 
 extern "C"
 {
-    JNIEXPORT void JNICALL Java_com_android_gl2jni_GL2JNILib_init(JNIEnv* env, jobject obj, jint width, jint height);
-    JNIEXPORT void JNICALL Java_com_android_gl2jni_GL2JNILib_step(JNIEnv* env, jobject obj);
+    JNIEXPORT void JNICALL Java_com_android_engine_EngineLib_init(JNIEnv* env, jobject obj, jint width, jint height);
+    JNIEXPORT void JNICALL Java_com_android_engine_EngineLib_step(JNIEnv* env, jobject obj);
 };
 
-JNIEXPORT void JNICALL Java_com_android_gl2jni_GL2JNILib_init(JNIEnv* env, jobject obj, jint width, jint height)
+JNIEXPORT void JNICALL Java_com_android_engine_EngineLib_init(JNIEnv* env, jobject obj, jint width, jint height)
 {
     setupGraphics(width, height);
 }
 
-JNIEXPORT void JNICALL Java_com_android_gl2jni_GL2JNILib_step(JNIEnv* env, jobject obj)
+JNIEXPORT void JNICALL Java_com_android_engine_EngineLib_step(JNIEnv* env, jobject obj)
 {
     renderFrame();
 }
