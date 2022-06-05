@@ -11,6 +11,7 @@ function createSrc()
 }
 
 createSrc DirectXApi
+createSrc VulkanApi
 createSrc GraphicsApi
 createSrc Input
 createSrc OpenGLApi
