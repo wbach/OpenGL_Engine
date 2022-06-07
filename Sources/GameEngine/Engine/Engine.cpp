@@ -9,16 +9,19 @@
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 
-#ifndef USE_GNU
+#if !defined USE_GNU && !defined USE_ANDROID
 #include <DirectXApi/DirectXApi.h>
 #include <Windows.h>
 #include <shlobj.h>
 #else
-#include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
+
+#if !defined USE_ANDROID
 #include <OpenGLApi/OpenGLApi.h>
+#endif
 
 namespace GameEngine
 {
@@ -33,7 +36,7 @@ ReadConfiguration::ReadConfiguration()
 
 #ifdef USE_GNU
     struct passwd* pw = getpwuid(getuid());
-    configFile = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
+    configFile        = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
 #else
     wchar_t myDocumentsPath[1024];
     HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
@@ -44,21 +47,21 @@ ReadConfiguration::ReadConfiguration()
         configFile = std::string(str) + "\\bengine\\Conf.xml";
     }
 #endif
-   GameEngine::ReadFromFile(configFile);
+    GameEngine::ReadFromFile(configFile);
 
-   if (EngineConf.debugParams.logLvl != LogginLvl::None)
-   {
-       CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-       CLogger::Instance().ImmeditalyLog();
-       std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
-   }
+    if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    {
+        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+        CLogger::Instance().ImmeditalyLog();
+        std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
+    }
 }
 
 std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 {
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-#ifndef USE_GNU
+#if !defined USE_GNU && !defined USE_ANDROID
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
@@ -72,11 +75,13 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
     }
 #else
+#if !defined USE_ANDROID
     if (EngineConf.renderer.graphicsApi != "OpenGL")
     {
         DEBUG_LOG("GNU support only OpenGL");
     }
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
+#endif
 #endif
     graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
 
@@ -94,23 +99,27 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     srand((unsigned)time(NULL));
     Components::RegisterReadFunctionForDefaultEngineComponents();
 
-    loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange([](auto&) {
-        if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange(
+        [](auto&)
         {
-            CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-            CLogger::Instance().ImmeditalyLog();
-        }
-        else
-        {
-            CLogger::Instance().DisableLogs();
-        }
-    });
+            if (EngineConf.debugParams.logLvl != LogginLvl::None)
+            {
+                CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+                CLogger::Instance().ImmeditalyLog();
+            }
+            else
+            {
+                CLogger::Instance().DisableLogs();
+            }
+        });
 
-    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
-        auto physicsSubscriber = engineContext_.GetThreadSync().GetSubscriber(physicsThreadId_);
-        if (physicsSubscriber)
-            physicsSubscriber->SetFpsLimit(newFpsLimit);
-    });
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange(
+        [this](float newFpsLimit)
+        {
+            auto physicsSubscriber = engineContext_.GetThreadSync().GetSubscriber(physicsThreadId_);
+            if (physicsSubscriber)
+                physicsSubscriber->SetFpsLimit(newFpsLimit);
+        });
 
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     introRenderer_.Render();
@@ -118,7 +127,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 
     engineContext_.GetPhysicsApi().DisableSimulation();
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
-        [this](float deltaTime) {
+        [this](float deltaTime)
+        {
             engineContext_.GetPhysicsApi().SetSimulationStep(deltaTime);
             engineContext_.GetPhysicsApi().Simulate();
         },
@@ -195,7 +205,8 @@ void Engine::ProcessEngineEvents()
             break;
         case EngineEvent::ASK_QUIT:
             engineContext_.GetGraphicsApi().GetWindowApi().ShowMessageBox("Quit", "Do you really want exit?",
-                                                                          [this](bool ok) {
+                                                                          [this](bool ok)
+                                                                          {
                                                                               if (ok)
                                                                               {
                                                                                   Quit();

@@ -14,26 +14,12 @@ if(UNIX)
         #pkg_check_modules(FREEIMAGE REQUIRED freeimage)
         pkg_check_modules(FREETYPE REQUIRED freetype2)
         pkg_check_modules(GLU REQUIRED glu)
-
-          set(LinkingLibs
-                SDL2main
-                SDL2
-                SDL2_net
-                SDL2_ttf
-                GL
-                GLU
-                GLEW
-                drm
-                assimp
-                pthread
-                stdc++fs
-                freeimage
-                freetype
-          )
     endif()
 
-    add_definitions(-DUSE_GNU)
-    link_directories(${PROJECT_BINARY_DIR}/../Tools/linux/fbx/lib/gcc4/x64/release/)
+    if(NOT BUILD_ANDROID)
+        add_definitions(-DUSE_GNU)
+    endif()
+
     set(LinkingLibs
                 SDL2main
                 SDL2

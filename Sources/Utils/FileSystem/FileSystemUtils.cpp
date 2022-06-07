@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <iostream>
 
-#ifndef USE_GNU
+#if !defined USE_GNU && !defined USE_ANDROID
 #include <Windows.h>
 #endif
 
@@ -116,7 +116,7 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
 {
     std::vector<File> result;
 
-#ifndef USE_GNU
+#if !defined USE_GNU && !defined USE_ANDROID
     if (dirPath.empty() or dirPath == "/")
     {
         DWORD mydrives = 100;
@@ -150,13 +150,15 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
         }
     }
 
-    std::sort(result.begin(), result.end(), [](const File& l, const File& r) {
-        auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFileName(l.name);
-        auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFileName(r.name);
-        std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
-        std::transform(rname.begin(), rname.end(), rname.begin(), ::tolower);
-        return lname < rname;
-    });
+    std::sort(result.begin(), result.end(),
+              [](const File& l, const File& r)
+              {
+                  auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFileName(l.name);
+                  auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFileName(r.name);
+                  std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
+                  std::transform(rname.begin(), rname.end(), rname.begin(), ::tolower);
+                  return lname < rname;
+              });
 
     return result;
 }

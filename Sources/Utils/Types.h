@@ -41,10 +41,12 @@ typedef uint32_t IdType;
 #ifdef USE_GNU
 typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
-#define not !
-#define and &&
-#define or ||
-typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
+    typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
+    #ifndef USE_ANDROID
+        #define not !
+        #define and &&
+        #define or ||
+    #endif
 #endif
 // clang-format on
 

@@ -55,11 +55,10 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
 
 void SaveImage(const Image &image, const std::string &outputFilePath, const std::optional<vec2> &scale)
 {
-    std::visit(
-        visitor{[&](std::vector<uint8> data) { SaveImage(data, image.size(), outputFilePath, scale); },
-                [&](const std::vector<float> &) { DEBUG_LOG("SaveImage for floats not implemented"); },
-                [](std::monostate) { ERROR_LOG("Data not set!"); }},
-        image.getImageData());
+    std::visit(visitor{[&](std::vector<uint8> data) { SaveImage(data, image.size(), outputFilePath, scale); },
+                       [&](const std::vector<float> &) { DEBUG_LOG("SaveImage for floats not implemented"); },
+                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+               image.getImageData());
 }
 
 }  // namespace Utils

@@ -14,7 +14,7 @@ option(BUILD_AVATAR_GAME "Build avatar game" OFF)
 option(BUILD_RPG_GAME_SERVER "Build rpg game server" OFF)
 option(BUILD_TERRAIN_GENERATOR "Build terrain generator" OFF)
 option(BUILD_EDITOR "Build editor" OFF)
-
+option(BUILD_ANDROID "Build android" OFF)
 option(BUILD_I386 "32bit build" OFF)
 
 if (BUILD_EDITOR)
@@ -57,6 +57,7 @@ if(BUILD_ALL)
     SET(BUILD_EDITOR ON)
 endif()
 
+message(STATUS "Build Android: ${BUILD_ANDROID}")
 message(STATUS "32bit build: ${BUILD_I386}")
 message(STATUS "Build utils: ${BUILD_UTILS}")
 message(STATUS "Build network utils: ${BUILD_UTILS_NETWORK}")
@@ -94,6 +95,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/Unix.cmake)
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "CMAKE_CURRENT_LIST_DIR: ${CMAKE_CURRENT_LIST_DIR}")
 message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
+message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 
 message(STATUS ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/)
 
@@ -101,7 +103,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
-    #${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
@@ -145,3 +146,24 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/TestGame.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Avatar.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameServer.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngineTest.cmake)
+
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/FreeImage/ ${CMAKE_CURRENT_BINARY_DIR}/FreeImage)
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/FreeImage)
+# include_directories(
+#     ${CMAKE_CURRENT_BINARY_DIR}/FreeImage/include/
+# )
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/FreeImage/Source/
+)
+if(BUILD_ANDROID)
+    add_definitions(-DUSE_ANDROID)
+    add_library(engine SHARED ../Android/app/src/main/cpp/exampleMain.cpp)
+    # add lib dependencies
+    target_link_libraries(engine
+                        android
+                        log 
+                        EGL
+                        GLESv2
+                        UtilsLib)
+endif()

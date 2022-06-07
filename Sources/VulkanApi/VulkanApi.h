@@ -29,7 +29,10 @@ public:
     GraphicsApi::ID CreateShader(GraphicsApi::ShaderProgramType) override;
     void UseShader(uint32) override;
 
-    GraphicsApi::ID CreateShaderBuffer(uint32 bindLocatipimpl_
+    GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size) override;
+    void UpdateShaderBuffer(uint32 id, void const* buffer) override;
+    uint32 BindShaderBuffer(uint32) override;
+
     GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32 N) override;
     GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
