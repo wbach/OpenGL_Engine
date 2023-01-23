@@ -1,5 +1,6 @@
 #include "Item.hpp"
 #include "Avatar/Game/Character.hpp"
+#include <Types.h>
 
 namespace AvatarGame
 {

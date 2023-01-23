@@ -98,7 +98,7 @@ void PostProcessingManager::AddEffects()
 }
 void PostProcessingManager::bindDefaultFrameBuffer()
 {
-    const auto& windowSize = EngineConf.window.size.get();
+    const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
 
     if (context_.projection_.GetRenderingSize() != windowSize)
     {

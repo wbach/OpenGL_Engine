@@ -1,6 +1,13 @@
 project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
+if(DEFINED ENV{USERROOT})
+    message("ENV :")
+    message($ENV{USERROOT})
+    SET(CMAKE_SYSROOT $ENV{USERROOT})
+    include_directories($ENV{USERROOT}/usr/include/)
+endif()
+
 option(BUILD_ALL "Build all" OFF)
 option(BUILD_UTILS "Build game engine utils" OFF)
 option(BUILD_UTILS_NETWORK "Build network utils" OFF)

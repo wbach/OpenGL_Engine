@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 #include <SDL2/SDL_ttf.h>
+#include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
 
@@ -9,13 +10,48 @@
 
 namespace GameEngine
 {
+namespace
+{
+uint32 getPixel(SDL_Surface *surface, int x, int y)
+{
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to retrieve */
+    uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch (bpp)
+    {
+        case 1:
+            return *p;
+            break;
+
+        case 2:
+            return *(uint16 *)p;
+            break;
+
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+                return p[0] << 16 | p[1] << 8 | p[2];
+            else
+                return p[0] | p[1] << 8 | p[2] << 16;
+            break;
+
+        case 4:
+            return *(uint32 *)p;
+            break;
+
+        default:
+            return 0; /* shouldn't happen, but avoids warnings */
+    }
+}
+}  // namespace
+
 struct FontManager::Pimpl
 {
-    std::vector<TTF_Font*> fonts_;
+    std::vector<TTF_Font *> fonts_;
 
     void Clear()
     {
-        for (auto& font : fonts_)
+        for (auto &font : fonts_)
         {
             TTF_CloseFont(font);
         }
@@ -39,7 +75,7 @@ FontManager::~FontManager()
     impl_->Clear();
     TTF_Quit();
 }
-std::optional<uint32> FontManager::openFont(const File& filename, uint32 size)
+std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
 {
     if (not isInit_)
         return std::nullopt;
@@ -59,6 +95,7 @@ std::optional<uint32> FontManager::openFont(const File& filename, uint32 size)
 
     if (font)
     {
+        // TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
         impl_->fonts_.push_back(font);
         auto id = impl_->fonts_.size();
         fontNameToIdMap_.insert({fname, id});
@@ -69,7 +106,7 @@ std::optional<uint32> FontManager::openFont(const File& filename, uint32 size)
     return {};
 }
 
-std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, const std::string& text, uint32 outline)
+std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, const std::string &text, uint32 outline)
 {
     if (not isInit_ or text.empty())
         return std::nullopt;
@@ -80,7 +117,7 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
         return std::nullopt;
     }
 
-    const auto& font = impl_->fonts_[index];
+    const auto &font = impl_->fonts_[index];
 
     SDL_Color sdlColor;
     sdlColor.r = 255;
@@ -90,21 +127,38 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
 
     if (outline > 0)
         TTF_SetFontOutline(font, static_cast<int>(outline));
+
     auto sdlSurface = TTF_RenderText_Blended(font, text.c_str(), sdlColor);
-    if (outline > 0)
-        TTF_SetFontOutline(font, static_cast<int>(outline));
+
     if (not sdlSurface)
     {
         ERROR_LOG("Cannot make a text texture" + std::string(SDL_GetError()));
         return {};
     }
 
+    SDL_LockSurface(sdlSurface);
+
     FontManager::TextureData sdlSizeImage;
     sdlSizeImage.name = text + "_" + std::to_string(fontId) + "_" + std::to_string(outline);
     sdlSizeImage.image.setChannels(sdlSurface->format->BytesPerPixel);
     sdlSizeImage.image.width  = static_cast<uint32>(sdlSurface->w);
     sdlSizeImage.image.height = static_cast<uint32>(sdlSurface->h);
-    sdlSizeImage.image.copyImage<uint8>(sdlSurface->pixels);
+    // sdlSizeImage.image.copyImage<uint8>(sdlSurface->pixels);
+    sdlSizeImage.image.allocateImage<uint8>();
+
+    for (uint32 y = 0; y < static_cast<uint32>(sdlSurface->h); y++)
+    {
+        for (uint32 x = 0; x < static_cast<uint32>(sdlSurface->w); x++)
+        {
+            SDL_Color color;
+            Uint32 data = getPixel(sdlSurface, x, y);
+            SDL_GetRGBA(data, sdlSurface->format, &color.r, &color.g, &color.b, &color.a);
+            sdlSizeImage.image.setPixel({x, y}, Color(vec4ui8(color.r, color.g, color.b, color.a)));
+        }
+    }
+    SDL_UnlockSurface(sdlSurface);
+    //    Utils::SaveImage(sdlSizeImage.image, text);
+    //    SDL_SaveBMP(sdlSurface, (text + ".bmp").c_str());
 
     SDL_FreeSurface(sdlSurface);
     return sdlSizeImage;

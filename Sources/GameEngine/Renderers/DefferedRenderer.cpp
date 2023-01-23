@@ -58,9 +58,10 @@ void DefferedRenderer::init()
     createFrameBuffer();
     createRenderers();
 
-    if (context_.projection_.GetRenderingSize() != *EngineConf.window.size)
+    const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
+    if (context_.projection_.GetRenderingSize() != windowSize)
     {
-        DEBUG_LOG("Resize mode enabled. Window size :  " + std::to_string(*EngineConf.window.size) +
+        DEBUG_LOG("Resize mode enabled. Window size :  " + std::to_string(windowSize) +
                   ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
     }
 
@@ -77,14 +78,15 @@ void DefferedRenderer::reloadShaders()
 }
 void DefferedRenderer::setViewPort()
 {
-    if (context_.projection_.GetRenderingSize() != *EngineConf.window.size)
+    const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
+    if (context_.projection_.GetRenderingSize() != windowSize)
     {
         const auto& renderingSize = context_.projection_.GetRenderingSize();
         context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
     }
     else
     {
-        context_.graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
+        context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
 }
 void DefferedRenderer::bindDefferedFbo()

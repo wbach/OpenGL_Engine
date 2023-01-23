@@ -19,6 +19,8 @@ public:
     void CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
                           GraphicsApi::WindowType full_screen) override;
     void SetWindowSize(const vec2ui&) override;
+    vec2ui GetWindowSize() const override;
+
     void CreateContext() override;
     void DeleteContext() override;
 
@@ -55,6 +57,7 @@ private:
     std::unique_ptr<Pimpl> impl_;
     uint32 startTime;
     bool fullScreenActive;
+    vec2ui windowSize;
 
     std::function<void(uint32, uint32)> addKeyEvent_;
     std::vector<GraphicsApi::DisplayMode> dispalyModes_;

@@ -1,7 +1,12 @@
 if(UNIX)
     message(STATUS "Unix : ON")
-    include_directories(/usr/include/freetype2)
 
+    if(DEFINED ENV{USERROOT})
+      include_directories($ENV{USERROOT}/usr/include/freetype2)
+      include_directories($ENV{USERROOT}/usr/include/minizip)
+    else()
+      include_directories(/usr/include/freetype2)
+    endif()
 
     if(BUILD_I386)
     else()

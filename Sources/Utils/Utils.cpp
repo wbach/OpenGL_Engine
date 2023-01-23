@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <stdexcept>
+#include <cctype>
 #include "Logger/Log.h"
 #include "FileSystem/FileSystemUtils.hpp"
 

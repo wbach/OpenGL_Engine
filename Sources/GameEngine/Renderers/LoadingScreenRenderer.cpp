@@ -25,7 +25,7 @@ void LoadingScreenRenderer::init()
 {
     shader_.Init();
     CreateBuffers();
-    const auto& windowSize = EngineConf.window.size.get();
+    const auto windowSize = graphicsApi_.GetWindowApi().GetWindowSize();
     graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
 
     timer_.AddOnTickCallback([this]()

@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <memory>
+#include <iterator>
 
 #include "Messages/MessageTypes.h"
 #include "Types.h"

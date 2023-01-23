@@ -2,6 +2,7 @@
 #include <optional>
 #include <variant>
 #include <vector>
+
 #include "ImageFilters.h"
 #include "Types.h"
 
@@ -40,8 +41,8 @@ public:
     void copyImage(const void* rawData)
     {
         auto buff = reinterpret_cast<const T*>(rawData);
-        auto len = channels_ * width * height;
-        data_ = std::vector<T>(buff, buff + len);
+        auto len  = channels_ * width * height;
+        data_     = std::vector<T>(buff, buff + len);
     }
     template <typename T>
     void moveData(std::vector<T> input)
@@ -53,4 +54,4 @@ private:
     uint8 channels_{4};
     ImageData data_;
 };
-}  // namespace GraphicsApi
+}  // namespace Utils

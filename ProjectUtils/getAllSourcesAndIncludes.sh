@@ -1,5 +1,8 @@
 #!/bin/bash
-cd ../Solutions/CMake/
+ScriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ParentDir="$(dirname "$ScriptDir")"
+
+cd $ParentDir/Solutions/CMake/
 
 function createSrc()
 {

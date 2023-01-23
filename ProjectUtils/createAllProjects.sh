@@ -1,4 +1,7 @@
 #!/bin/bash
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd $SCRIPT_DIR
+
 #GUID (or UUID) genreator: https://www.guidgenerator.com/online-guid-generator.aspx
 DirectXApiId='{e2cc3475-9000-4c81-873f-fd93d925e34a}'
 GraphicsApiId='{c84bf5e8-9a00-48fa-8465-4f55bbeaa7d6}'

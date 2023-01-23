@@ -145,6 +145,7 @@ void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint
                               GraphicsApi::WindowType full_screen)
 {
     RECT r{0, 0, width, height};
+    windowSize = {width, height};
     impl_->rect_ = r;
     AdjustWindowRect(&impl_->rect_, WS_OVERLAPPEDWINDOW, FALSE);
     impl_->directXContext_.mainWindow =
@@ -162,6 +163,10 @@ void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint
 }
 void WinApi::SetWindowSize(const vec2ui&)
 {
+}
+vec2ui WinApi::GetWindowSize() const
+{
+    return windowSize;
 }
 void WinApi::CreateContext()
 {

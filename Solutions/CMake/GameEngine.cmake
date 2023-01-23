@@ -14,6 +14,7 @@ if(BUILD_GAME_ENGINE)
     set(BUILD_EXTRAS OFF CACHE BOOL "")
 
     #option(ASSIMP_BUILD_TESTS "" OFF)
+    #add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/FreeImage/ ${CMAKE_CURRENT_BINARY_DIR}/freeimage)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/ ${CMAKE_CURRENT_BINARY_DIR}/bullet)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/ ${CMAKE_CURRENT_BINARY_DIR}/assimp)
 
@@ -21,6 +22,7 @@ if(BUILD_GAME_ENGINE)
 
     include_directories(
       ${CMAKE_CURRENT_BINARY_DIR}/assimp/include/
+     # ${CMAKE_CURRENT_BINARY_DIR}/FreeImage/Source/
   )
 
     set_source_files_properties(

@@ -42,6 +42,7 @@ public:
     virtual void Init()                                                                     = 0;
     virtual void CreateGameWindow(const std::string&, uint32, uint32, WindowType)           = 0;
     virtual void SetWindowSize(const vec2ui&)                                               = 0;
+    virtual vec2ui GetWindowSize() const                                                    = 0;
     virtual void CreateContext()                                                            = 0;
     virtual void DeleteContext()                                                            = 0;
     virtual void ProcessEvents()                                                            = 0;

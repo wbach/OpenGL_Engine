@@ -21,6 +21,10 @@ public:
     void SetWindowSize(const vec2ui&) override
     {
     }
+    vec2ui GetWindowSize() const override
+    {
+        return {};
+    }
     virtual void CreateContext() override
     {
     }
