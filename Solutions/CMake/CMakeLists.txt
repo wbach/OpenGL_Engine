@@ -8,6 +8,9 @@ if(DEFINED ENV{USERROOT})
     include_directories($ENV{USERROOT}/usr/include/)
 endif()
 
+message(STATUS "CMAKE_PREFIX_PATH : ${CMAKE_PREFIX_PATH}")
+message(STATUS "CMAKE_MODULE_PATH : ${CMAKE_MODULE_PATH}")
+
 option(BUILD_ALL "Build all" OFF)
 option(BUILD_UTILS "Build game engine utils" OFF)
 option(BUILD_UTILS_NETWORK "Build network utils" OFF)
