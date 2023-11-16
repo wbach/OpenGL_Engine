@@ -49,6 +49,9 @@ void MeshShape::OnAwake()
         model_ = renderer->GetModelWrapper().Get(GameEngine::L1);
     }
 
+    if (not model_)
+        return;
+
     const auto& meshes = model_->GetMeshes();
     auto scale = calculateScale(thisObject_.GetWorldTransform().GetScale());
 

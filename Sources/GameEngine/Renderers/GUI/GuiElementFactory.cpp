@@ -18,6 +18,7 @@
 #include "Texutre/GuiTextureElement.h"
 #include "TreeView/TreeView.h"
 #include "Window/GuiWindow.h"
+#include "Menu/Menu.h"
 
 namespace GameEngine
 {
@@ -248,6 +249,11 @@ std::unique_ptr<HorizontalLayout> GuiElementFactory::CreateHorizontalLayout()
 std::unique_ptr<TreeView> GuiElementFactory::CreateTreeView(std::function<void(GuiElement &)> action)
 {
     return std::make_unique<TreeView>(*this, action);
+}
+
+std::unique_ptr<Menu> GuiElementFactory::CreateMenu()
+{
+    return std::make_unique<Menu>(*this);
 }
 
 void GuiElementFactory::CreateMessageBox(const std::string &title, const std::string &message,

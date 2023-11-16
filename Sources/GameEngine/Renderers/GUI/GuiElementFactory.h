@@ -26,6 +26,7 @@ class VerticalLayout;
 class HorizontalLayout;
 class TreeView;
 class File;
+class Menu;
 
 namespace Renderer
 {
@@ -80,6 +81,7 @@ public:
     std::unique_ptr<HorizontalLayout> CreateHorizontalLayout();
 
     std::unique_ptr<TreeView> CreateTreeView(std::function<void(GuiElement&)> action);
+    std::unique_ptr<Menu> CreateMenu();
 
     void CreateMessageBox(const std::string& title, const std::string& message, std::function<void()> = nullptr);
 

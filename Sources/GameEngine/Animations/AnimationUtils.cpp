@@ -109,7 +109,7 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
     return AnimationClip();
 }
 
-void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, Joint& rootJoint)
+void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, const Joint& rootJoint)
 {
     TreeNode rootNode("AnimationClip");
 

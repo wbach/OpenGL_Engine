@@ -19,12 +19,14 @@ File::File(const std::string &input)
     , fp_{nullptr}
     , fileSize_(0)
 {
-    if (Utils::IsAbsolutePath(input))
-        AbsoultePath(input);
-    else if (IsProjectRelativePath(input))
-        ProjectRelative(input);
+    if (Utils::IsAbsolutePath(initValue_))
+        AbsoultePath(initValue_);
+    else if (IsProjectRelativePath(initValue_))
+        ProjectRelative(initValue_);
     else
-        DataRelative(input);
+        DataRelative(initValue_);
+
+    ClearSpecialCharacters();
 }
 File::File(const char *input)
     : File(std::string(input))
@@ -49,7 +51,7 @@ void File::DataRelative(const std::string &filename)
         {
             try
             {
-                ///std::filesystem::create_directories(parentPath);
+                /// std::filesystem::create_directories(parentPath);
             }
             catch (const std::exception &e)
             {
@@ -292,5 +294,30 @@ bool File::IsProjectRelativePath(const std::string &inputpath) const
 void File::printError(const std::string &str) const
 {
     ERROR_LOG(str);
+}
+void File::ClearSpecialCharacters()
+{
+    const std::string notAllowed{"<>:\"|?*"};
+
+    bool changeNeeded{false};
+    auto fname   = GetFilename();
+    auto new_end = std::remove_if(
+        fname.begin(), fname.end(),
+        [notAllowed, this, &changeNeeded](std::string::value_type c)
+        {
+            auto result = notAllowed.find(c) != std::string::npos;
+            if (result)
+            {
+                changeNeeded = true;
+                DEBUG_LOG(std::string("Remove notAllowed character \"") + c + "\" from file : " + initValue_);
+            }
+            return result;
+        });
+
+    if (changeNeeded)
+    {
+        fname.erase(new_end, fname.end());
+        ChangeFileName(fname);
+    }
 }
 }  // namespace GameEngine

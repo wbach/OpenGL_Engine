@@ -10,7 +10,7 @@ additionalIncludesDir='
 '$sourcesDir'/OpenGLApi;
 '$sourcesDir'/GraphicsApi;
 '$toolsDir'/common/glm;
-'$toolsDir'/common/bullet/;
+'$toolsDir'/common/bullet/src/;
 '$toolsDir'/common/rapidxml-1.13;
 '$toolsDir'/Windows/assimp-5.0.1/include;
 '$toolsDir'/Windows/SDL2-2.0.12/include/;

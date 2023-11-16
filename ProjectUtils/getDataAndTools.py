@@ -1,9 +1,9 @@
 from ftplib import FTP
 from zipfile import ZipFile
 import os
-ftp = FTP('wbach.ddns.net', 'baszek', 'e0XkEWxFBlIxmAOw3jeg')
+ftp = FTP('wbach.ddns.net', 'GameData', 'OpenGL@GameData&Tools')
 
-remoteDir = './baszek/GoogleDrive/GameData/'
+remoteDir = './GameData'
 localDir = '../'
 filenames = {"Tools.zip", "Data.zip"}
 
@@ -22,7 +22,7 @@ def getFile(filename):
    file = open(localDir + filename, 'wb')
    def fileWrite(data):
       global progress
-      file.write(data) 
+      file.write(data)
       progress += len(data)
       print("Downloading {fname} : {p:.2f}%\r".format(fname=filename, p=progress/fileSize * 100), end="")
 

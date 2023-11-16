@@ -86,6 +86,7 @@ private:
     void ConvertSlashesAndAddToRequired(const std::string&, const std::string&, const std::string&);
     bool IsProjectRelativePath(const std::string&) const;
     void printError(const std::string&) const;
+    void ClearSpecialCharacters();
 
 private:
     std::string initValue_;
