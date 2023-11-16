@@ -22,5 +22,6 @@ private:
     Context& context_;
     double timeClock = 0;
     GameEngine::GameObject* gameObject;
+    std::vector<uint32> clipsButtonsIds_;
 };
 }  // namespace Editor

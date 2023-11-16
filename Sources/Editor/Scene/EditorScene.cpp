@@ -74,24 +74,19 @@ int EditorScene::Initialize()
     RunNetworkEditorInterface();
     renderersManager_->GetDebugRenderer().Enable();
 
-    // const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/TestSene.xml");
-    // LoadFromFile(sceneFile);
+    // auto menu = guiElementFactory_->CreateMenu();
+    // menu->AddRootElement("File");
+    // menu->Add("File", "Open", [](GuiElement& button) {});
+    // menu->Add("File", "Save", [](GuiElement& button) {});
+    // menu->Add("File", "Exit", [](GuiElement& button) {});
 
-    // auto messageBox = guiElementFactory_->CreateMessageBox();
+    // menu->AddRootElement("Edit");
+    // menu->Add("Edit", "Preferences", [](GuiElement& button) {});
 
-    auto menu = guiElementFactory_->CreateMenu();
-    menu->AddRootElement("File");
-    menu->Add("File", "Open", [](GuiElement& button) {});
-    menu->Add("File", "Save", [](GuiElement& button) {});
-    menu->Add("File", "Exit", [](GuiElement& button) {});
-
-    menu->AddRootElement("Edit");
-    menu->Add("Edit", "Preferences", [](GuiElement& button) {});
-
-    // menu->AddRootElement("View");
-    menu->AddRootElement("Help");
-    menu->Add("Help", "About", [](GuiElement& button) {});
-    guiManager_->Add(std::move(menu));
+    //// menu->AddRootElement("View");
+    // menu->AddRootElement("Help");
+    // menu->Add("Help", "About", [](GuiElement& button) {});
+    // guiManager_->Add(std::move(menu));
 
     auto text = guiElementFactory_->CreateGuiText("Drag object to preview");
     text->SetScreenScale({0.1, 0.05});
@@ -105,67 +100,64 @@ int EditorScene::Initialize()
     actionsButtonsLayotPtr->SetScreenScale({0.125, 1.f});
     guiManager_->Add(std::move(actionsButtonsLayotPtr));
 
-    auto button = guiElementFactory_->CreateGuiButton(
-        "Convert mesh to png heightmap",
-        [&](auto&)
+    auto button = guiElementFactory_->CreateGuiButton("Convert mesh to png heightmap", [&](auto&) {
+        if (not gameObject)
+            return;
+        uint32 heightmapResultuion = 512;
+        float step                 = 1.f / static_cast<float>(heightmapResultuion);
+
+        Utils::Image image;
+        image.width  = heightmapResultuion;
+        image.height = heightmapResultuion;
+        image.setChannels(4);
+        image.allocateImage<uint8>();
+
+        std::vector<std::vector<float>> heights;
+        heights.reserve(heightmapResultuion);
+        std::optional<float> maxHeight;
+        std::optional<float> minHeight;
+
+        for (float y = -0.5f; y < 0.5f; y += step)
         {
-            if (not gameObject)
-                return;
-            uint32 heightmapResultuion = 512;
-            float step                 = 1.f / static_cast<float>(heightmapResultuion);
+            heights.push_back({});
+            auto& row = heights.back();
 
-            Utils::Image image;
-            image.width  = heightmapResultuion;
-            image.height = heightmapResultuion;
-            image.setChannels(4);
-            image.allocateImage<uint8>();
-
-            std::vector<std::vector<float>> heights;
-            heights.reserve(heightmapResultuion);
-            std::optional<float> maxHeight;
-            std::optional<float> minHeight;
-
-            for (float y = -0.5f; y < 0.5f; y += step)
+            for (float x = -0.5f; x < 0.5f; x += step)
             {
-                heights.push_back({});
-                auto& row = heights.back();
+                vec3 from(x, 5.f, y);
+                vec3 to(x, -5.f, y);
+                auto maybeHit = physicsApi_->RayTest(from, to);
 
-                for (float x = -0.5f; x < 0.5f; x += step)
+                float height{0.f};
+                maybeHit ? height = maybeHit->pointWorld.y : 0.f;
+
+                if (not maxHeight or (*maxHeight) < height)
                 {
-                    vec3 from(x, 5.f, y);
-                    vec3 to(x, -5.f, y);
-                    auto maybeHit = physicsApi_->RayTest(from, to);
-
-                    float height{0.f};
-                    maybeHit ? height = maybeHit->pointWorld.y : 0.f;
-
-                    if (not maxHeight or (*maxHeight) < height)
-                    {
-                        maxHeight = height;
-                    }
-
-                    if (not minHeight or (*minHeight) > height)
-                    {
-                        minHeight = height;
-                    }
-                    row.push_back(height);
+                    maxHeight = height;
                 }
-            }
 
-            for (uint32 y = 0; y < heightmapResultuion; y++)
+                if (not minHeight or (*minHeight) > height)
+                {
+                    minHeight = height;
+                }
+                row.push_back(height);
+            }
+        }
+
+        for (uint32 y = 0; y < heightmapResultuion; y++)
+        {
+            for (uint32 x = 0; x < heightmapResultuion; x++)
             {
-                for (uint32 x = 0; x < heightmapResultuion; x++)
-                {
-                    auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
-                    Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
-                    // uint8_t* array;
-                    // array = reinterpret_cast<uint8_t*>(&normalizedHeight);
-                    // Color color(array[0], array[1], array[2], array[3]);
-                    image.setPixel(vec2ui{y, x}, color);
-                }
+                auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
+                Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
+                // uint8_t* array;
+                // array = reinterpret_cast<uint8_t*>(&normalizedHeight);
+                // Color color(array[0], array[1], array[2], array[3]);
+                image.setPixel(vec2ui{y, x}, color);
             }
-            Utils::SaveImage(image, "heightmap.png");
-        });
+        }
+        Utils::SaveImage(image, "heightmap.png");
+    });
     button->SetLocalScale({1.f, 0.05f});
     actionsButtonsLayot->AddChild(std::move(button));
 
@@ -175,105 +167,101 @@ int EditorScene::Initialize()
     avaiableAnimationsPtr->SetScreenScale({0.125, 1.f});
     guiManager_->Add(std::move(avaiableAnimationsPtr));
 
-    graphicsApi_->GetWindowApi().SubscribeForEvent(
-        [&, animationLayout = avaiableAnimations](auto& event)
-        {
-            std::visit(
-                visitor{
-                    [&](const GraphicsApi::DropFileEvent& dropFileEvent)
+    graphicsApi_->GetWindowApi().SubscribeForEvent([&, animationLayout = avaiableAnimations](auto& event) {
+        std::visit(
+            visitor{
+                [&](const GraphicsApi::DropFileEvent& dropFileEvent) {
+                    if (dropFileEvent.filename.empty())
+                        return;
+
+                    if (gameObject)
                     {
-                        if (dropFileEvent.filename.empty())
-                            return;
+                        animationLayout->RemoveAll();
+                        RemoveGameObject(*gameObject);
+                    }
 
-                        if (gameObject)
+                    auto newGameObject = CreateGameObject();
+                    DEBUG_LOG(dropFileEvent.filename);
+                    auto& component                    = newGameObject->AddComponent<Components::RendererComponent>();
+                    auto& animator                     = newGameObject->AddComponent<Components::Animator>();
+                    animator.startupAnimationClipName_ = "noname";
+                    component.AddModel(dropFileEvent.filename);
+
+                    newGameObject->AddComponent<Components::MeshShape>();
+                    newGameObject->AddComponent<Components::Rigidbody>();
+
+                    auto refreshClipsAction = [&, &clips = animator.animationClips_,
+                                               inputFilename = dropFileEvent.filename](const auto&) {
+                        for (auto id : clipsButtonsIds_)
                         {
-                            animationLayout->RemoveAll();
-                            RemoveGameObject(*gameObject);
+                            animationLayout->RemoveChild(id);
                         }
-
-                        auto newGameObject = CreateGameObject();
-                        DEBUG_LOG(dropFileEvent.filename);
-                        auto& component = newGameObject->AddComponent<Components::RendererComponent>();
-                        auto& animator  = newGameObject->AddComponent<Components::Animator>();
-                        animator.startupAnimationClipName_ = "noname";
-                        component.AddModel(dropFileEvent.filename);
-                        // component.GetModelWrapper().Get();
-
-                        newGameObject->AddComponent<Components::MeshShape>();
-                        newGameObject->AddComponent<Components::Rigidbody>();
-
-                        auto files = Utils::FindFilesWithExtension(
-                            GameEngine::File(dropFileEvent.filename).GetParentDir(), ".xml");
-
-                        auto button = guiElementFactory_->CreateGuiButton(
-                            "Refresh clips",
-                            [&, &clips = animator.animationClips_](const auto&)
-                            {
-                                for (const auto& [name, _] : clips)
-                                {
-                                    auto button2 = guiElementFactory_->CreateGuiButton(
-                                        name,
-                                        [&, animName = name](const auto&) {
-                                            animator.ChangeAnimation(animName,
-                                                                     Components::Animator::AnimationChangeType::smooth);
-                                        });
-                                    button2->SetScreenScale({1.f, 0.05f});
-                                    animationLayout->AddChild(std::move(button2));
-                                }
-
-                                auto exportButton = guiElementFactory_->CreateGuiButton(
-                                    "ExportAllAnimationsToXml",
-                                    [&](const auto&)
-                                    {
-                                        auto model = component.GetModelWrapper().Get();
-                                        if (model)
-                                        {
-                                            auto rootJoint = model->getRootJoint();
-                                            exportAnimationClips(rootJoint, clips, dropFileEvent.filename);
-                                        }
-                                    });
-                                exportButton->SetScreenScale({1.f, 0.05f});
-                                animationLayout->AddChild(std::move(exportButton));
+                        for (const auto& [name, _] : clips)
+                        {
+                            auto button2 = guiElementFactory_->CreateGuiButton(name, [&, animName = name](const auto&) {
+                                animator.ChangeAnimation(animName, Components::Animator::AnimationChangeType::smooth);
                             });
-                        button->SetScreenScale({1.f, 0.05f});
-                        animationLayout->AddChild(std::move(button));
+                            button2->SetScreenScale({1.f, 0.05f});
+                            clipsButtonsIds_.push_back(button2->GetId());
+                            animationLayout->AddChild(std::move(button2));
+                        }
 
-                        if (not files.empty())
-                        {
-                            for (const auto& file : files)
-                            {
-                                DEBUG_LOG(file);
-                                if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
+                        auto exportButton = guiElementFactory_->CreateGuiButton(
+                            "ExportAllAnimationsToXml", [&, filename = inputFilename](const auto&) {
+                                auto model = component.GetModelWrapper().Get();
+                                if (model)
                                 {
-                                    animator.AddAnimationClip(GameEngine::File(file));
-                                    auto button = guiElementFactory_->CreateGuiButton(
-                                        *animationName,
-                                        [&, animName = *animationName](const auto&)
-                                        {
-                                            DEBUG_LOG(animName);
-                                            animator.ChangeAnimation(animName,
-                                                                     Components::Animator::AnimationChangeType::smooth);
-                                        });
-                                    button->SetScreenScale({1.f, 0.05f});
-                                    animationLayout->AddChild(std::move(button));
+                                    auto rootJoint = model->getRootJoint();
+                                    exportAnimationClips(rootJoint, clips, filename);
                                 }
-                            }
+                            });
+                        exportButton->SetScreenScale({1.f, 0.05f});
+                        clipsButtonsIds_.push_back(exportButton->GetId());
+                        animationLayout->AddChild(std::move(exportButton));
+                    };
 
-                            auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
-                            if (animationName)
+                    auto button = guiElementFactory_->CreateGuiButton("Refresh clips", refreshClipsAction);
+
+                    button->SetScreenScale({1.f, 0.05f});
+                    animationLayout->AddChild(std::move(button));
+
+                    auto files =
+                        Utils::FindFilesWithExtension(GameEngine::File(dropFileEvent.filename).GetParentDir(), ".xml");
+                    if (not files.empty())
+                    {
+                        for (const auto& file : files)
+                        {
+                            DEBUG_LOG("Found animation file in subfolders add clip : " + file);
+                            if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
                             {
-                                animator.startupAnimationClipName_ = *animationName;
+                                animator.AddAnimationClip(GameEngine::File(file));
+                                // auto button = guiElementFactory_->CreateGuiButton(
+                                //    *animationName, [&, animName = *animationName](const auto&) {
+                                //        DEBUG_LOG(animName);
+                                //        animator.ChangeAnimation(
+                                //            animName, Components::Animator::AnimationChangeType::smooth);
+                                //    });
+                                // button->SetScreenScale({1.f, 0.05f});
+                                // clipsButtonsIds_.push_back(button->GetId());
+                                // animationLayout->AddChild(std::move(button));
                             }
                         }
 
-                        gameObject = newGameObject.get();
-                        AddGameObject(std::move(newGameObject));
-                    },
-                    [](const GraphicsApi::QuitEvent&) {},
+                        auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
+                        if (animationName)
+                        {
+                            animator.startupAnimationClipName_ = *animationName;
+                        }
+                    }
 
+                    gameObject = newGameObject.get();
+                    AddGameObject(std::move(newGameObject));
                 },
-                event);
-        });
+                [](const GraphicsApi::QuitEvent&) {},
+
+            },
+            event);
+    });
 
     KeySubscribtions();
 
@@ -282,13 +270,13 @@ int EditorScene::Initialize()
 void EditorScene::PostInitialize()
 {
 }
-int EditorScene::Update(float)
+int EditorScene::Update(float dt)
 {
     if (gameObject and inputManager_->GetKey(KeyCodes::LMOUSE))
     {
         auto currentRotation  = gameObject->GetWorldTransform().GetRotation().value_;
         auto v                = inputManager_->CalcualteMouseMove();
-        const float sensitive = 0.01f;
+        const float sensitive = dt;
         if (v.x != 0)
         {
             gameObject->SetWorldRotation(currentRotation * glm::angleAxis(sensitive * float(v.x), vec3(0.f, 1.f, 0.f)));
@@ -327,13 +315,11 @@ void EditorScene::KeySubscribtions()
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::ASK_QUIT); });
     inputManager_->SubscribeOnKeyDown(
         KeyCodes::L, [renderersManager = this->renderersManager_]() { renderersManager->SwapLineFaceRender(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::J,
-                                      [&]()
-                                      {
-                                          for (auto& go : GetGameObjects())
-                                          {
-                                              go->GetTransform().IncrasePosition(vec3(0.001f));
-                                          }
-                                      });
+    inputManager_->SubscribeOnKeyDown(KeyCodes::J, [&]() {
+        for (auto& go : GetGameObjects())
+        {
+            go->GetTransform().IncrasePosition(vec3(0.001f));
+        }
+    });
 }
 }  // namespace Editor

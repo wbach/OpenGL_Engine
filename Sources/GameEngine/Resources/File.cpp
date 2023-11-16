@@ -115,7 +115,7 @@ const std::string &File::GetInitValue() const
 
 std::string File::GetBaseName() const
 {
-    return std::filesystem::path(dataRelative_).stem().string();
+    return std::filesystem::path(absoultePath_).stem().string();
 }
 
 std::string File::GetExtension() const
@@ -127,7 +127,7 @@ std::string File::GetExtension() const
 
 std::string File::GetFilename() const
 {
-    return std::filesystem::path(dataRelative_).filename().string();
+    return std::filesystem::path(absoultePath_).filename().string();
 }
 
 std::string File::GetParentDir() const
