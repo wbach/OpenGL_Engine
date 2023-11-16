@@ -46,6 +46,10 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
 }
 void CharacterController::CleanUp()
 {
+    attackFsm_.reset();
+    stateMachine_.reset();
+    attackFsmContext.reset();
+    fsmContext.reset();
 }
 void CharacterController::ReqisterFunctions()
 {

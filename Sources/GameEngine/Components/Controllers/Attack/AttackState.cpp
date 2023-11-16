@@ -24,7 +24,7 @@ AttackState::~AttackState()
 {
     for (auto &id : onAnimationEndSubIds)
     {
-      //  context_.animator.UnSubscribeForAnimationEnd(id);
+        context_.animator.UnSubscribeForAnimationEnd(id);
     }
 }
 void AttackState::onEnter(const AttackFsmEvents::Attack &)
