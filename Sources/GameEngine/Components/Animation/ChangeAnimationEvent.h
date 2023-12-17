@@ -12,6 +12,7 @@ struct ChangeAnimationEvent
     float startTime{0.f};
     AnimationClipInfo info;
     std::optional<std::string> jointGroupName;
+    std::function<void()> onTransitionEnd{nullptr};
 };
 }  // namespace Components
 }  // namespace GameEngine

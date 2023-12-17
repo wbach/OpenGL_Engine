@@ -49,7 +49,7 @@ public:
     void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
     void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward,
-                         std::optional<std::string> = std::nullopt);
+                         std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     GraphicsApi::ID getPerPoseBufferId() const;
     std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&, const std::optional<vec3>& po = {},

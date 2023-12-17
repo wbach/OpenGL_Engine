@@ -11,7 +11,8 @@ namespace GameEngine
 {
 namespace Components
 {
-AnimationTransition::AnimationTransition(Context& context, const AnimationClipInfo& infoClip, float /*startTime*/)
+AnimationTransition::AnimationTransition(Context& context, const AnimationClipInfo& infoClip, float /*startTime*/,
+                                         OnTransitionEnd onTransitionEnd)
     : context_{context}
     , info_{infoClip}
     , startChaneAnimKeyFrame_{convert(context_.currentPose)}  // to do , calculate pose for startTime
@@ -20,6 +21,7 @@ AnimationTransition::AnimationTransition(Context& context, const AnimationClipIn
     , timeForChange_{context.transitionTime}
     , currentTime_{0.f}
     , startTime_{0.f}
+    , onTransitionEnd_{onTransitionEnd}
 {
 }
 bool AnimationTransition::update(float deltaTime)
@@ -65,6 +67,10 @@ void AnimationTransition::calculateTime(float deltaTime)
     currentTime_ += (1.f / timeForChange_) * deltaTime;
     if (currentTime_ > 1.f)
     {
+        if (onTransitionEnd_)
+        {
+            onTransitionEnd_();
+        }
         context_.machine.transitionTo(std::make_unique<PlayAnimation>(context_, info_, startTime_));
         return;
     }

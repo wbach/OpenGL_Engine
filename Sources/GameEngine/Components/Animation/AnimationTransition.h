@@ -1,7 +1,7 @@
 #pragma once
-#include "IState.h"
 #include "AnimationClipInfo.h"
 #include "Context.h"
+#include "IState.h"
 
 namespace GameEngine
 {
@@ -13,7 +13,9 @@ struct StateMachine;
 class AnimationTransition : public IState
 {
 public:
-    AnimationTransition(Context&, const AnimationClipInfo&, float);
+    using OnTransitionEnd = std::function<void()>;
+
+    AnimationTransition(Context&, const AnimationClipInfo&, float, OnTransitionEnd = nullptr);
     bool update(float) override;
 
     void handle(const ChangeAnimationEvent&) override;
@@ -32,6 +34,8 @@ private:
     float timeForChange_;
     float currentTime_;
     float startTime_;
+
+    OnTransitionEnd onTransitionEnd_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -41,7 +41,8 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
+        context_.machine.transitionTo(
+            std::make_unique<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd));
     }
 }
 

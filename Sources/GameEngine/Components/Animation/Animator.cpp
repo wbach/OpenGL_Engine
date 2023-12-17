@@ -92,14 +92,15 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
 IdType Animator::SubscribeForAnimationEnd(const std::string& animName, std::function<void()> function)
 {
     auto id = animationEndIdPool_.getId();
-    onAnimationEnd_[animName].push_back({ id, function });
+    onAnimationEnd_[animName].push_back({id, function});
     return id;
 }
 void Animator::UnSubscribeForAnimationEnd(IdType id)
 {
     for (auto& [_, subscribers] : onAnimationEnd_)
     {
-        auto iter = std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& pair) { return pair.first == id; });
+        auto iter =
+            std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& pair) { return pair.first == id; });
         if (iter != subscribers.end())
         {
             subscribers.erase(iter);
@@ -107,7 +108,8 @@ void Animator::UnSubscribeForAnimationEnd(IdType id)
         }
     }
 }
-void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection, std::optional<std::string> groupName)
+void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
+                               std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
     auto clipIter = animationClips_.find(name);
 
@@ -120,8 +122,8 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
     machine_.handle(ChangeAnimationEvent{
         0.f,
         {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, playDirection, onAnimationEnd_[clipIter->first]},
-        groupName});
-
+        groupName,
+        onTransitionEnd});
 }
 void Animator::GetSkeletonAndAnimations()
 {

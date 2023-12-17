@@ -58,9 +58,11 @@ void MoveStateBase::setForwardAnim()
 {
     if (not context_.forwardAnimationName.empty())
     {
+        animationIsReady_ = false;
         context_.animator.ChangeAnimation(
             context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
+            [this]() { animationIsReady_ = true; });
     }
 }
 
@@ -68,38 +70,42 @@ void MoveStateBase::setBackwardAnim()
 {
     if (not context_.backwardAnimationName.empty())
     {
+        animationIsReady_ = false;
         context_.animator.ChangeAnimation(
             context_.backwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
+            [this]() { animationIsReady_ = true; });
     }
-    else
+    else if (not context_.forwardAnimationName.empty())
     {
-        if (not context_.forwardAnimationName.empty())
-        {
-            context_.animator.ChangeAnimation(
-                context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::backward,
-                context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-        }
+        animationIsReady_ = false;
+        context_.animator.ChangeAnimation(
+            context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::backward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
+            [this]() { animationIsReady_ = true; });
     }
 }
 void MoveStateBase::moveRigidbody(FsmContext &context)
 {
-    const auto &moveDirection = context.moveDirection;
-    const auto &moveSpeed     = context.moveSpeed;
-    auto &rigidbody           = context.rigidbody;
+    if (animationIsReady_)
+    {
+        const auto &moveDirection = context.moveDirection;
+        const auto &moveSpeed     = context.moveSpeed;
+        auto &rigidbody           = context.rigidbody;
 
-    auto targetVelocity = rigidbody.GetRotation() * moveDirection;
-    targetVelocity      = glm::normalize(targetVelocity);
-    targetVelocity *= moveSpeed;
+        auto targetVelocity = rigidbody.GetRotation() * moveDirection;
+        targetVelocity      = glm::normalize(targetVelocity);
+        targetVelocity *= moveSpeed;
 
-    auto velocity       = rigidbody.GetVelocity();
-    auto velocityChange = (targetVelocity - velocity);
-    velocityChange.x    = glm::clamp(velocityChange.x, -moveSpeed, moveSpeed);
-    velocityChange.z    = glm::clamp(velocityChange.z, -moveSpeed, moveSpeed);
-    velocityChange.y    = 0;
+        auto velocity       = rigidbody.GetVelocity();
+        auto velocityChange = (targetVelocity - velocity);
+        velocityChange.x    = glm::clamp(velocityChange.x, -moveSpeed, moveSpeed);
+        velocityChange.z    = glm::clamp(velocityChange.z, -moveSpeed, moveSpeed);
+        velocityChange.y    = 0;
 
-    auto newVelocity = velocity + velocityChange;
-    rigidbody.SetVelocity(newVelocity);
+        auto newVelocity = velocity + velocityChange;
+        rigidbody.SetVelocity(newVelocity);
+    }
 }
 
 }  // namespace Components

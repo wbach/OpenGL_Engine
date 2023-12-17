@@ -30,6 +30,7 @@ private:
 
 private:
     FsmContext& context_;
+    bool animationIsReady_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine
