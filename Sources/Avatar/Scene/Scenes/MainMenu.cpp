@@ -52,7 +52,7 @@ void MainMenu::prepareMenu()
     guiManager_->Add(std::move(backgorund));
 
     guiManager_->RegisterAction("StartGame()", [&](auto&) {
-        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 1);
+        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 3);
         addSceneEvent(sceneEvent);
     });
     guiManager_->RegisterAction("LoadGame()", [&](auto&) {});

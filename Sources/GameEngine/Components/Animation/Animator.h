@@ -72,7 +72,7 @@ protected:
     void GetSkeletonAndAnimations();
     void applyPoseToJoints(Animation::Joint&, const mat4&);
     void applyPoseToJoints();
-    void updateConnectedObjectToJoint(uint32, const Animation::Joint&);
+    void updateConnectedObjectToJoint(uint32, const Animation::Joint&, const glm::mat4&);
     void createShaderJointBuffers();
     void initAnimationClips(const Model&);
 
