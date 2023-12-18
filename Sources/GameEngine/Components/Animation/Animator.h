@@ -26,12 +26,12 @@ class RendererComponent;
 
 class Animator : public BaseComponent
 {
-    struct ConnectedObject
-    {
-        GameObject& gameObject;
-        vec3 worldPositionOffset;
-        Rotation worldRotationOffset;
-    };
+    //struct ConnectedObject
+    //{
+    //    GameObject& gameObject;
+    //    vec3 worldPositionOffset;
+    //    Rotation worldRotationOffset;
+    //};
 
 public:
     enum class AnimationChangeType
@@ -52,12 +52,15 @@ public:
                          std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     GraphicsApi::ID getPerPoseBufferId() const;
-    std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&, const std::optional<vec3>& po = {},
-                                                const std::optional<Rotation>& ro = {});
+    //std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&, const std::optional<vec3>& po = {},
+    //                                            const std::optional<Rotation>& ro = {});
     void disconnectObjectFromBone(uint32);
     void setPlayOnceForAnimationClip(const std::string&);
     IdType SubscribeForAnimationEnd(const std::string&, std::function<void()>);
+
     void UnSubscribeForAnimationEnd(IdType);
+
+    Animation::Joint* GetJoint(const std::string& name);
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
@@ -72,7 +75,7 @@ protected:
     void GetSkeletonAndAnimations();
     void applyPoseToJoints(Animation::Joint&, const mat4&);
     void applyPoseToJoints();
-    void updateConnectedObjectToJoint(uint32, const Animation::Joint&, const glm::mat4&);
+    //void updateConnectedObjectToJoint(uint32, const Animation::Joint&, const glm::mat4&);
     void createShaderJointBuffers();
     void initAnimationClips(const Model&);
 
@@ -82,7 +85,7 @@ protected:
     Utils::IdPool animationEndIdPool_;
 
     RendererComponent* rendererComponent_;
-    std::unordered_map<uint32, ConnectedObject> connectedObjects_;
+  //  std::unordered_map<uint32, ConnectedObject> connectedObjects_;
     std::vector<GameEngine::File> clipsToRead_;
     JointGroupsIds jointGroupsIds_;
 

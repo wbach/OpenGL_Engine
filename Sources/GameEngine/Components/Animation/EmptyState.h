@@ -6,8 +6,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class StateMachine;
-
+struct StateMachine;
 struct StopAnmiationEvent;
 
 class EmptyState : public IState

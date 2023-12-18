@@ -1,6 +1,7 @@
 #include "RegisterReadFunctionForDefaultEngineComponents.h"
 
 #include "Animation/Animator.h"
+#include "Animation/JointPoseUpdater.h"
 #include "Camera/ThridPersonCameraComponent.h"
 #include "Characters/Enemy.h"
 #include "Characters/Player.h"
@@ -34,6 +35,7 @@ void registerReadFunction()
 void RegisterReadFunctionForDefaultEngineComponents()
 {
     registerReadFunction<Animator>();
+    registerReadFunction<JointPoseUpdater>();
     registerReadFunction<ThridPersonCameraComponent>();
     registerReadFunction<Enemy>();
     registerReadFunction<Player>();

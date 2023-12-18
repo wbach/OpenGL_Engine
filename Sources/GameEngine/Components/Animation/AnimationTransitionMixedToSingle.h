@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class ChangeAnimationEvent;
+struct ChangeAnimationEvent;
 
 class AnimationTransitionMixedToSingle : public IState
 {

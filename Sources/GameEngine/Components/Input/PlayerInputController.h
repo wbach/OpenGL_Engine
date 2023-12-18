@@ -2,7 +2,6 @@
 #include <Common/Controllers/CharacterController/CharacterActions.h>
 #include <Input/KeysSubscriptionsManager.h>
 
-#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController.h"
 
@@ -18,24 +17,14 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
-public:
-    std::string weaponChildObjectName_;
-    std::string weaponBoneName_;
-    vec3 weponBonePositionOffset_;
-    vec3 weponBoneRotationOffsetDegreesEulers_;
-
 private:
     void Init();
     void SubscribeForPushActions();
     void SubscribeForPopActions();
-    void Update();
 
 private:
-    Animator* animator_;
     CharacterController* characterController_;
     Input::KeysSubscriptionsManager subscriptions_;
-
-    std::optional<uint32> connectedBone_;
 
     bool isRotateLeftPressed_{false};
     bool isRotateRightPressed_{false};

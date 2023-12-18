@@ -5,7 +5,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class StateMachine;
+struct StateMachine;
 
 struct Context
 {
