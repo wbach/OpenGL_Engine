@@ -3,7 +3,7 @@ from zipfile import ZipFile
 import os
 ftp = FTP('wbach.ddns.net', 'GameData', 'OpenGL@GameData&Tools')
 
-remoteDir = './GameData'
+remoteDir = './gameData'
 localDir = '../'
 filenames = {"Tools.zip", "Data.zip"}
 
