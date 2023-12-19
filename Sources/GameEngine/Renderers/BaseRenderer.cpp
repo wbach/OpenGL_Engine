@@ -38,22 +38,16 @@ void BaseRenderer::prepare()
 }
 void BaseRenderer::subscribe(GameObject& gameObject)
 {
-    subscribeJointPoseUpdater(gameObject);
-
     for (auto& renderer : renderers)
         renderer->subscribe(gameObject);
 }
 void BaseRenderer::unSubscribe(GameObject& gameObject)
 {
-    subscribers_.erase(gameObject.GetId());
-
     for (auto& r : renderers)
         r->unSubscribe(gameObject);
 }
 void BaseRenderer::unSubscribeAll()
 {
-    subscribers_.clear();
-
     for (auto& r : renderers)
         r->unSubscribeAll();
 }
@@ -70,12 +64,6 @@ void BaseRenderer::initRenderers()
 void BaseRenderer::render()
 {
     setViewPort();
-
-    for (auto& [_, posUpdater] : subscribers_)
-    {
-        posUpdater->updateGameObjectTransform();
-    }
-
     for (auto& renderer : renderers)
         renderer->render();
 }
@@ -101,19 +89,5 @@ void BaseRenderer::createRenderers()
     addRenderer<ParticlesRenderer>();
     addRenderer<WaterRenderer>();
     addRenderer<ShadowMapRenderer>();
-}
-void BaseRenderer::subscribeJointPoseUpdater(GameObject& gameobject)
-{
-    auto iter = subscribers_.find(gameobject.GetId());
-
-    if (iter != subscribers_.end())
-        return;
-
-    auto jointPoseUpdater = gameobject.GetComponent<Components::JointPoseUpdater>();
-
-    if (jointPoseUpdater == nullptr)
-        return;
-
-    subscribers_.insert({gameobject.GetId(), jointPoseUpdater});
 }
 }  // namespace GameEngine

@@ -15,7 +15,7 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
-    void updateGameObjectTransform();
+    void updateGameObjectTransform();  // Call on rendering thread
 
 private:
     void calculateOffsets();

@@ -8,7 +8,6 @@
 #include "IRenderer.h"
 #include "Postproccesing/PostprocessingRenderersManager.h"
 #include "RendererContext.h"
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
 
 namespace GameEngine
 {
@@ -42,13 +41,8 @@ protected:
         renderers.push_back(std::make_unique<T>(context_));
     }
 
-private:
-    void subscribeJointPoseUpdater(GameObject&);
-
 protected:
     RendererContext& context_;
     Renderers renderers;
-
-    std::unordered_map<uint32, Components::JointPoseUpdater*> subscribers_;
 };
 }  // namespace GameEngine
