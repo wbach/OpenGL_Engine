@@ -99,14 +99,16 @@ Animation::Joint* Animator::GetJoint(const std::string& name)
 
 uint32 Animator::subscribeForPoseBufferUpdate(std::function<void()> func)
 {
-    auto id = updatePoseBufferIdPool_.getId();
-    poseUpdateSubs_.insert({id, func});
-    return id;
+    if (jointData_.buffer)
+        return jointData_.buffer->SubscribeForUpdate(func);
+
+    return 0;
 }
 
 void Animator::unSubscribeForPoseUpdateBuffer(uint32 id)
 {
-    poseUpdateSubs_.erase(id);
+    if (jointData_.buffer)
+        jointData_.buffer->UnSubscribeForUpdate(id);
 }
 
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
@@ -167,10 +169,6 @@ void Animator::updateShaderBuffers()
     if (jointData_.buffer)
     {
         componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*jointData_.buffer);
-        for (auto& [_, sub] : poseUpdateSubs_)
-        {
-            sub();
-        }
     }
 }
 void Animator::Update()

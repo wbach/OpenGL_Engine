@@ -91,6 +91,7 @@ void JointPoseUpdater::updateGameObjectTransform()
 
     // path bone to world pos
     // worldPosition = parentMatrix * parentMeshMatrix * jointMatrix * inverse(jointOffset) * point
+    parent->TakeWorldTransfromSnapshot();
 
     auto boneMatrix = parent->GetWorldTransform().GetMatrix() * (*meshTransform_) * joint_->animatedTransform *
                       glm::inverse(joint_->offset);

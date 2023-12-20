@@ -60,8 +60,6 @@ public:
     JointData jointData_;
     float animationSpeed_;
     std::string startupAnimationClipName_;
-    std::unordered_map<uint32, std::function<void()>> poseUpdateSubs_;
-
     JointGroups jointGroups_;
 
 protected:
@@ -69,7 +67,6 @@ protected:
     void GetSkeletonAndAnimations();
     void applyPoseToJoints(Animation::Joint&, const mat4&);
     void applyPoseToJoints();
-    //void updateConnectedObjectToJoint(uint32, const Animation::Joint&, const glm::mat4&);
     void createShaderJointBuffers();
     void initAnimationClips(const Model&);
 
@@ -77,10 +74,8 @@ protected:
     StateMachine machine_;
     std::unordered_map<std::string, std::vector<std::pair<IdType, std::function<void()>>>> onAnimationEnd_;
     Utils::IdPool animationEndIdPool_;
-    Utils::IdPool updatePoseBufferIdPool_;
 
     RendererComponent* rendererComponent_;
-  //  std::unordered_map<uint32, ConnectedObject> connectedObjects_;
     std::vector<GameEngine::File> clipsToRead_;
     JointGroupsIds jointGroupsIds_;
 
