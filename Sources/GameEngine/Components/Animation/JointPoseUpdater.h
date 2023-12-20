@@ -24,6 +24,7 @@ public:
     std::string jointName_;
     vec3 positionOffset_;
     Rotation rotationOffset_;
+    std::optional<uint32> updateJointBufferSubId_;
 
 private:
     Animation::Joint* joint_;

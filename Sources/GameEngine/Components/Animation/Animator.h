@@ -26,13 +26,6 @@ class RendererComponent;
 
 class Animator : public BaseComponent
 {
-    //struct ConnectedObject
-    //{
-    //    GameObject& gameObject;
-    //    vec3 worldPositionOffset;
-    //    Rotation worldRotationOffset;
-    //};
-
 public:
     enum class AnimationChangeType
     {
@@ -52,21 +45,22 @@ public:
                          std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     GraphicsApi::ID getPerPoseBufferId() const;
-    //std::optional<uint32> connectBoneWithObject(const std::string&, GameObject&, const std::optional<vec3>& po = {},
-    //                                            const std::optional<Rotation>& ro = {});
-    void disconnectObjectFromBone(uint32);
     void setPlayOnceForAnimationClip(const std::string&);
     IdType SubscribeForAnimationEnd(const std::string&, std::function<void()>);
 
     void UnSubscribeForAnimationEnd(IdType);
 
-    Animation::Joint* GetJoint(const std::string& name);
+    Animation::Joint* GetJoint(const std::string&);
+
+    uint32 subscribeForPoseBufferUpdate(std::function<void()>);
+    void unSubscribeForPoseUpdateBuffer(uint32);
 
 public:
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
     JointData jointData_;
     float animationSpeed_;
     std::string startupAnimationClipName_;
+    std::unordered_map<uint32, std::function<void()>> poseUpdateSubs_;
 
     JointGroups jointGroups_;
 
@@ -83,6 +77,7 @@ protected:
     StateMachine machine_;
     std::unordered_map<std::string, std::vector<std::pair<IdType, std::function<void()>>>> onAnimationEnd_;
     Utils::IdPool animationEndIdPool_;
+    Utils::IdPool updatePoseBufferIdPool_;
 
     RendererComponent* rendererComponent_;
   //  std::unordered_map<uint32, ConnectedObject> connectedObjects_;

@@ -51,6 +51,7 @@ private:
     ModelWrapper model_;
     bool isSubscribed_;
     uint32_t textureIndex_;
+    std::optional<uint32> worldTransformSub_;
 
 private:
     std::unordered_map<std::string, LevelOfDetail> filenames_;

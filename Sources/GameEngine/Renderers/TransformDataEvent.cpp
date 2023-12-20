@@ -2,23 +2,17 @@
 
 #include <Common/Transform.h>
 
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 
 namespace GameEngine
 {
-TransformDataEvent::TransformDataEvent(Components::RendererComponent& renderComponent,
-                                       Components::JointPoseUpdater* jointPoseUpdater)
+TransformDataEvent::TransformDataEvent(Components::RendererComponent& renderComponent)
     : renderComponent_{renderComponent}
-    , jointPoseUpdater_{jointPoseUpdater}
 {
 }
 void TransformDataEvent::Execute()
 {
     renderComponent_.UpdateBuffers();
-    if (jointPoseUpdater_)
-    {
-        jointPoseUpdater_->updateGameObjectTransform();
-    }
 }
 }  // namespace GameEngine

@@ -39,6 +39,9 @@ void RendererComponent::CleanUp()
         componentContext_.resourceManager_.ReleaseModel(*model);
     }
     ClearShaderBuffers();
+
+    if (worldTransformSub_)
+        thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSub_);
 }
 
 void RendererComponent::ReqisterFunctions()
@@ -133,6 +136,10 @@ void RendererComponent::init()
     }
     if (atLeastOneModelIsCreated)
         Subscribe();
+
+    //    worldTransformSub_ =
+    //        thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { UpdateBuffers(); }); // TO
+    //        DO
 }
 void RendererComponent::ClearShaderBuffers()
 {
@@ -197,7 +204,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     auto& buffer   = *bufferPtr.get();
     perObjectUpdateBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
-    const mat4 transformMatrix            = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
+    const mat4 transformMatrix = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
@@ -245,6 +252,7 @@ void RendererComponent::UpdateBuffers()
                 buffer.GetData().TransformationMatrix =
                     componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
                 buffer.UpdateGpuPass();
+                // componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
             }
             else
             {
@@ -296,7 +304,8 @@ void create(TreeNode& node, const std::unordered_map<std::string, LevelOfDetail>
 }
 void RendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<RendererComponent>(componentContext, gameObject);
 
         auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);

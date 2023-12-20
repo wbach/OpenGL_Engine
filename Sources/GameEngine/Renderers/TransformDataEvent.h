@@ -12,18 +12,16 @@ namespace GameEngine
 namespace Components
 {
 class RendererComponent;
-class JointPoseUpdater;
 
 }  // namespace Components
 
 class TransformDataEvent : public IBufferDataUpdaterEvent
 {
 public:
-    TransformDataEvent(Components::RendererComponent&, Components::JointPoseUpdater*);
+    TransformDataEvent(Components::RendererComponent&);
     virtual void Execute() override;
 
 private:
     Components::RendererComponent& renderComponent_;
-    Components::JointPoseUpdater* jointPoseUpdater_;
 };
 }  // namespace GameEngine

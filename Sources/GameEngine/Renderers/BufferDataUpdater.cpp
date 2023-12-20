@@ -2,7 +2,6 @@
 
 #include <Logger/Log.h>
 
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "TransformDataEvent.h"
@@ -25,16 +24,14 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
     }
 
     auto rendererComponent = gameObject->GetComponent<Components::RendererComponent>();
-    auto jointPoseUpdaterPtr = gameObject->GetComponent<Components::JointPoseUpdater>();
 
     if (rendererComponent)
     {
-        AddEvent(gameObject->GetId(), std::make_unique<TransformDataEvent>(*rendererComponent, jointPoseUpdaterPtr));
+        AddEvent(gameObject->GetId(), std::make_unique<TransformDataEvent>(*rendererComponent));
 
         gameObject->SubscribeOnWorldTransfomChange(
-            [id = gameObject->GetId(), this, rendererComponent, jointPoseUpdaterPtr](const auto&) mutable {
-                AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent, jointPoseUpdaterPtr));
-            });
+            [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable
+            { AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent)); });
     }
 }
 void BufferDataUpdater::UnSubscribe(GameObject* gameObject)

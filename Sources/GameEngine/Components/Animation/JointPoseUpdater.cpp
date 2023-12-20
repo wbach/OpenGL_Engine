@@ -23,51 +23,62 @@ JointPoseUpdater::JointPoseUpdater(ComponentContext& componentContext, GameObjec
 }
 void JointPoseUpdater::CleanUp()
 {
+    if (updateJointBufferSubId_)
+    {
+        auto parent   = thisObject_.GetParent();
+        auto animator = parent->GetComponent<Animator>();
+        animator->unSubscribeForPoseUpdateBuffer(*updateJointBufferSubId_);
+    }
 }
 void JointPoseUpdater::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, [this]() {
-        auto parent = thisObject_.GetParent();
+    RegisterFunction(FunctionType::OnStart,
+                     [this]()
+                     {
+                         auto parent = thisObject_.GetParent();
 
-        if (not parent)
-        {
-            WARNING_LOG("Parent not found.");
-            return;
-        }
+                         if (not parent)
+                         {
+                             WARNING_LOG("Parent not found.");
+                             return;
+                         }
 
-        auto animator = parent->GetComponent<Animator>();
-        if (not animator)
-        {
-            WARNING_LOG("Animator not found");
-            return;
-        }
-        joint_ = animator->GetJoint(jointName_);
+                         auto animator = parent->GetComponent<Animator>();
+                         if (not animator)
+                         {
+                             WARNING_LOG("Animator not found");
+                             return;
+                         }
+                         joint_ = animator->GetJoint(jointName_);
 
-        if (not joint_)
-        {
-            WARNING_LOG("Joint: \"" + jointName_ + "\" not found");
-            return;
-        }
+                         if (not joint_)
+                         {
+                             WARNING_LOG("Joint: \"" + jointName_ + "\" not found");
+                             return;
+                         }
 
-        auto rendererCopmponent = parent->GetComponent<RendererComponent>();
+                         auto rendererCopmponent = parent->GetComponent<RendererComponent>();
 
-        if (not rendererCopmponent)
-        {
-            WARNING_LOG("RendererComponent not found");
-            return;
-        }
+                         if (not rendererCopmponent)
+                         {
+                             WARNING_LOG("RendererComponent not found");
+                             return;
+                         }
 
-        auto model = rendererCopmponent->GetModelWrapper().Get();
+                         auto model = rendererCopmponent->GetModelWrapper().Get();
 
-        if (not model or model->GetMeshes().empty())
-        {
-            WARNING_LOG("Mesh not found");
-            return;
-        }
+                         if (not model or model->GetMeshes().empty())
+                         {
+                             WARNING_LOG("Mesh not found");
+                             return;
+                         }
 
-        meshTransform_ = model->GetMeshes().front().GetMeshTransform();
-        calculateOffsets();
-    });
+                         meshTransform_ = model->GetMeshes().front().GetMeshTransform();
+                         calculateOffsets();
+
+                         updateJointBufferSubId_ =
+                             animator->subscribeForPoseBufferUpdate([this]() { updateGameObjectTransform(); });
+                     });
 }
 void JointPoseUpdater::updateGameObjectTransform()
 {
@@ -81,16 +92,16 @@ void JointPoseUpdater::updateGameObjectTransform()
     // path bone to world pos
     // worldPosition = parentMatrix * parentMeshMatrix * jointMatrix * inverse(jointOffset) * point
 
-    auto worldBoneMatrix = parent->GetWorldTransform().GetMatrix() * (*meshTransform_) * joint_->animatedTransform *
-                           glm::inverse(joint_->offset);
-    worldBoneMatrix                                    = worldBoneMatrix * glm::translate(positionOffset_);
-    auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);
-
-    thisObject_.SetWorldPositionRotation(boneWorldPosition, boneWorldRotation * rotationOffset_.value_);
+    auto boneMatrix = parent->GetWorldTransform().GetMatrix() * (*meshTransform_) * joint_->animatedTransform *
+                      glm::inverse(joint_->offset);
+    boneMatrix                           = boneMatrix * glm::translate(positionOffset_);
+    auto [bonePosition, boneRotation, _] = Utils::decompose(boneMatrix);
+    thisObject_.SetWorldPositionRotation(bonePosition, boneRotation * rotationOffset_.value_);
 }
 void JointPoseUpdater::calculateOffsets()
 {
-    auto worldBoneMatrix = thisObject_.GetParent()->GetWorldTransform().GetMatrix() * (*meshTransform_) * glm::inverse(joint_->offset);
+    auto worldBoneMatrix =
+        thisObject_.GetParent()->GetWorldTransform().GetMatrix() * (*meshTransform_) * glm::inverse(joint_->offset);
     auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);
 
     const auto& position = thisObject_.GetWorldTransform().GetPosition();
@@ -101,7 +112,8 @@ void JointPoseUpdater::calculateOffsets()
 }
 void JointPoseUpdater::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<JointPoseUpdater>(componentContext, gameObject);
         ::Read(node.getChild(CSTR_WEAPON_JOINT_NAME), component->jointName_);
         return component;
