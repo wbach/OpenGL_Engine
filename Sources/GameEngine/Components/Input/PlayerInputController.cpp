@@ -94,12 +94,18 @@ void PlayerInputController::SubscribeForPushActions()
             fsm->handle(AttackEvent{});
         }
     });
-
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {
         auto fsm = characterController_->fsm();
         if (fsm)
         {
             fsm->handle(EndAttackEvent{});
+        }
+    });
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::F, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(WeaponStateEvent{});
         }
     });
 }

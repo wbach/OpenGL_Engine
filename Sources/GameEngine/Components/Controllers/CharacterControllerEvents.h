@@ -49,4 +49,7 @@ struct EndAttackEvent
 struct DeathEvent
 {
 };
+struct WeaponStateEvent
+{
+};
 }  // namespace GameEngine

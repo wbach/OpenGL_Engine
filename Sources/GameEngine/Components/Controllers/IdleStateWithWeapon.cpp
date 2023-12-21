@@ -1,4 +1,4 @@
-#include "IdleState.h"
+#include "IdleStateWithWeapon.h"
 
 #include "Attack/AttackEvents.h"
 
@@ -6,28 +6,23 @@ namespace GameEngine
 {
 namespace Components
 {
-IdleState::IdleState(FsmContext &context, const std::string &idleAnimName, const std::string &disarmAnimName)
+IdleStateWithWeapon::IdleStateWithWeapon(FsmContext &context, const std::string &idleAnimName,
+                                         const std::string &equipAnimName)
     : context_{context}
     , idleAnimName_{idleAnimName}
-    , disarmAnimName_{disarmAnimName}
+    , equipAnimName_{equipAnimName}
 {
 }
-void IdleState::onEnter()
+void IdleStateWithWeapon::onEnter()
 {
-    if (not idleAnimName_.empty() and not weaponChangeTriggered_)
-    {
-        context_.animator.ChangeAnimation(
-            idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-    }
 }
 
-void IdleState::onEnter(const WeaponStateEvent &)
+void IdleStateWithWeapon::onEnter(const WeaponStateEvent &)
 {
-    if (not idleAnimName_.empty())
+    if (not idleAnimName_.empty() and not equipAnimName_.empty())
     {
         subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationEnd(
-            disarmAnimName_,
+            equipAnimName_,
             [this]()
             {
                 context_.animator.ChangeAnimation(
@@ -35,37 +30,35 @@ void IdleState::onEnter(const WeaponStateEvent &)
                     context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
 
                 context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
-                weaponChangeTriggered_ = false;
             });
 
         context_.animator.ChangeAnimation(
-            disarmAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            equipAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-
-        weaponChangeTriggered_ = true;
     }
 }
 
-void IdleState::update(const AttackEvent &)
+void IdleStateWithWeapon::update(const AttackEvent &)
 {
     context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
-void IdleState::update(const EndAttackEvent &)
+void IdleStateWithWeapon::update(const EndAttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::End{});
     context_.multiAnimations = false;
     onEnter();
 }
-void IdleState::update(float)
+void IdleStateWithWeapon::update(float)
 {
 }
-
-void IdleState::leave()
+void IdleStateWithWeapon::leave()
 {
-    weaponChangeTriggered_ = false;
-    context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
+    if (subscribeForTransitionAnimationEnd_)
+    {
+        context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
+    }
 }
 
 }  // namespace Components

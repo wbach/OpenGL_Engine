@@ -23,7 +23,6 @@ struct FsmContext
     const std::string& forwardAnimationName;
     const std::string& backwardAnimationName;
     const std::string& jumpAnimationName;
-    const std::string& idleAnimationName;
     const std::string& diedAnimationName;
 
     const std::string& upperBodyGroupName;

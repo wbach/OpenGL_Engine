@@ -70,6 +70,8 @@ std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames(con
 }
 void calculateCurrentAnimationPose(Pose& currentPose, const Animation::AnimationClip& clip, float time)
 {
+    if (clip.GetFrames().empty())
+        return;
     auto frames       = getPreviousAndNextFrames(clip, time);
     float progression = calculateProgression(frames.first, frames.second, time);
     interpolatePoses(currentPose, frames.first, frames.second, progression);

@@ -44,6 +44,9 @@ public:
     std::string moveForwardAnimationName;
     std::string moveBackwardAnimationName;
     std::string idleAnimationName;
+    std::string idleAnimationWithWeaponName;
+    std::string equipAnimName;
+    std::string disarmAnimName;
 
     std::string upperBodyGroupName;
     std::string lowerBodyGroupName;

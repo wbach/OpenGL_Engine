@@ -13,13 +13,13 @@ class MoveState;
 class RotateState;
 class JumpState;
 class DeathState;
-class IdleStateWithWeapon;
+class IdleState;
 
-class IdleState : public Utils::StateMachine::Will<
+class IdleStateWithWeapon : public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                       Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
                       Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-                      Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleStateWithWeapon>>,
+                      Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleState>>,
                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                       Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
                       Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
@@ -29,7 +29,7 @@ class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    IdleState(FsmContext&, const std::string& idleAnimName, const std::string& disarmAnimName);
+    IdleStateWithWeapon(FsmContext&, const std::string&, const std::string&);
     void onEnter();
     void onEnter(const WeaponStateEvent&);
     void update(const AttackEvent&);
@@ -39,10 +39,9 @@ public:
 
 private:
     FsmContext& context_;
-    std::string idleAnimName_;
-    std::string disarmAnimName_;
+    const std::string& idleAnimName_;
+    const std::string& equipAnimName_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
-    bool weaponChangeTriggered_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

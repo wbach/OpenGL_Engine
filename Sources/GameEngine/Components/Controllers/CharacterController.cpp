@@ -14,17 +14,20 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR               = "CharacterController";
-const std::string CSTR_IDLE_ANIMATION         = "idle";
-const std::string CSTR_RUN_ANIMATION          = "run";
-const std::string CSTR_MOVEBACKWARD_ANIMATION = "moveBackward";
-const std::string CSTR_WALK_ANIMATION         = "walk";
-const std::string CSTR_ATTACK_ANIMATION       = "attack";
-const std::string CSTR_ATTACK_ANIMATION2      = "attack2";
-const std::string CSTR_ATTACK_ANIMATION3      = "attack3";
-const std::string CSTR_HURT_ANIMATION         = "hurt";
-const std::string CSTR_DEATH_ANIMATION        = "death";
-const std::string CSTR_JUMP_ANIMATION         = "jump";
+const std::string COMPONENT_STR                = "CharacterController";
+const std::string CSTR_IDLE_ANIMATION          = "idle";
+const std::string CSTR_IDLE_WEAPON_ANIMATION   = "idleWithWeapon";
+const std::string CSTR_EQUIP_WEAPON_ANIMATION  = "equipWeapon";
+const std::string CSTR_DISARM_WEAPON_ANIMATION = "disarmWeapon";
+const std::string CSTR_RUN_ANIMATION           = "run";
+const std::string CSTR_MOVEBACKWARD_ANIMATION  = "moveBackward";
+const std::string CSTR_WALK_ANIMATION          = "walk";
+const std::string CSTR_ATTACK_ANIMATION        = "attack";
+const std::string CSTR_ATTACK_ANIMATION2       = "attack2";
+const std::string CSTR_ATTACK_ANIMATION3       = "attack3";
+const std::string CSTR_HURT_ANIMATION          = "hurt";
+const std::string CSTR_DEATH_ANIMATION         = "death";
+const std::string CSTR_JUMP_ANIMATION          = "jump";
 }  // namespace
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
@@ -35,6 +38,9 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , moveForwardAnimationName{"Run"}
     , moveBackwardAnimationName{}
     , idleAnimationName{"Idle"}
+    , idleAnimationWithWeaponName{"StandingIdle"}
+    , equipAnimName{"EquipBow"}
+    , disarmAnimName{"DisarmBow"}
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
     , rigidbody_{nullptr}
@@ -53,7 +59,7 @@ void CharacterController::CleanUp()
 }
 void CharacterController::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Init, this));
+    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }
 void CharacterController::Init()
@@ -69,35 +75,42 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]() {
+        auto sendEndAtatackCallback = [this]()
+        {
             if (stateMachine_)
                 stateMachine_->handle(EndAttackEvent{});
         };
 
-
         attackFsmContext.reset(new AttackFsmContext{*animator_,
                                                     {attackAnimationName, attackAnimationName2, attackAnimationName3},
-                                                    sendEndAtatackCallback, std::nullopt});
+                                                    sendEndAtatackCallback,
+                                                    std::nullopt});
 
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
 
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
                                         *animator_, moveForwardAnimationName, moveBackwardAnimationName,
-                                        jumpAnimationName, idleAnimationName, deathAnimationName, upperBodyGroupName,
+                                        jumpAnimationName, deathAnimationName, upperBodyGroupName,
                                         lowerBodyGroupName});
 
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            IdleState(*fsmContext), MoveState(*fsmContext), RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
+            IdleState(*fsmContext, idleAnimationName, disarmAnimName),
+            IdleStateWithWeapon(*fsmContext, idleAnimationWithWeaponName, equipAnimName), MoveState(*fsmContext),
+            RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }), DeathState(*fsmContext));
 
         rigidbody_->InputParams().angularFactor_ = vec3(0);
+        animator_->setPlayOnceForAnimationClip(equipAnimName);
+        animator_->setPlayOnceForAnimationClip(disarmAnimName);
         animator_->setPlayOnceForAnimationClip(jumpAnimationName);
         animator_->setPlayOnceForAnimationClip(hurtAnimationName);
         animator_->setPlayOnceForAnimationClip(deathAnimationName);
         animator_->setPlayOnceForAnimationClip(attackAnimationName);
         animator_->setPlayOnceForAnimationClip(attackAnimationName2);
         animator_->setPlayOnceForAnimationClip(attackAnimationName3);
+
+        animator_->SetAnimation(idleAnimationName);
     }
 }
 void CharacterController::Update()
@@ -131,13 +144,17 @@ void CharacterController::SetRunSpeed(float v)
 }
 void CharacterController::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<CharacterController>(componentContext, gameObject);
 
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
         if (animationClipsNode)
         {
             ::Read(animationClipsNode->getChild(CSTR_IDLE_ANIMATION), component->idleAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_IDLE_WEAPON_ANIMATION), component->idleAnimationWithWeaponName);
+            ::Read(animationClipsNode->getChild(CSTR_EQUIP_WEAPON_ANIMATION), component->equipAnimName);
+            ::Read(animationClipsNode->getChild(CSTR_DISARM_WEAPON_ANIMATION), component->disarmAnimName);
             ::Read(animationClipsNode->getChild(CSTR_HURT_ANIMATION), component->hurtAnimationName);
             ::Read(animationClipsNode->getChild(CSTR_RUN_ANIMATION), component->moveForwardAnimationName);
             ::Read(animationClipsNode->getChild(CSTR_MOVEBACKWARD_ANIMATION), component->moveBackwardAnimationName);
@@ -157,6 +174,9 @@ void CharacterController::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     auto& animClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
     ::write(animClipsNode.addChild(CSTR_IDLE_ANIMATION), idleAnimationName);
+    ::write(animClipsNode.addChild(CSTR_IDLE_WEAPON_ANIMATION), idleAnimationWithWeaponName);
+    ::write(animClipsNode.addChild(CSTR_EQUIP_WEAPON_ANIMATION), equipAnimName);
+    ::write(animClipsNode.addChild(CSTR_DISARM_WEAPON_ANIMATION), disarmAnimName);
     ::write(animClipsNode.addChild(CSTR_HURT_ANIMATION), hurtAnimationName);
     ::write(animClipsNode.addChild(CSTR_RUN_ANIMATION), moveForwardAnimationName);
     ::write(animClipsNode.addChild(CSTR_MOVEBACKWARD_ANIMATION), moveBackwardAnimationName);

@@ -92,13 +92,21 @@ float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 position
             vec2 offsets = vec2(float(x) * texelSize, float(y) * texelSize);
             vec3 uvc = vec3(positionInLightSpace.xy + offsets, positionInLightSpace.z);
 
-            if (texture(cascadeShadowMap, uvc) > 0.f)
-                //factor += (fs_in.shadowTransition * 0.4f);
+            if (uvc.x < 0 || uvc.y < 0 || uvc.x > fs_in.shadowMapSize || uvc.y > fs_in.shadowMapSize)
+            {
                 factor += 1.f;
+            }
+            else
+            {
+                if (texture(cascadeShadowMap, uvc) > 0.f)
+                    //factor += (fs_in.shadowTransition * 0.4f);
+                    factor += 1.f;
+            }
+
            a++;
         }
     }
-    float value = (.5f + (factor / a));
+    float value = (.7f + (factor / a));
     if( value > 1.f )
         value = 1.f ;
 

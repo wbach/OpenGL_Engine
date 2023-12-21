@@ -8,11 +8,12 @@
 #include "MoveAndRotateState.h"
 #include "MoveJumpState.h"
 #include "DeathState.h"
+#include "IdleStateWithWeapon.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-using CharacterControllerFsm = Utils::StateMachine::Fsm<IdleState, MoveState, RotateState, MoveAndRotateState, JumpState, MoveJumpState, DeathState>;
+using CharacterControllerFsm = Utils::StateMachine::Fsm<IdleState, IdleStateWithWeapon, MoveState, RotateState, MoveAndRotateState, JumpState, MoveJumpState, DeathState>;
 }
 }  // namespace GameEngine
