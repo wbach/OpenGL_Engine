@@ -35,7 +35,10 @@ public:
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
     void update(float);
-    void leave();
+    void onLeave();
+
+private:
+    void unsubscribe();
 
 private:
     FsmContext& context_;

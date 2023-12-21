@@ -26,17 +26,13 @@ void IdleState::onEnter(const WeaponStateEvent &)
 {
     if (not idleAnimName_.empty())
     {
-        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationEnd(
-            disarmAnimName_,
-            [this]()
-            {
-                context_.animator.ChangeAnimation(
-                    idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                    context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationEnd(disarmAnimName_, [this]() {
+            context_.animator.ChangeAnimation(
+                idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
 
-                context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
-                weaponChangeTriggered_ = false;
-            });
+            unsubscribe();
+        });
 
         context_.animator.ChangeAnimation(
             disarmAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
@@ -62,10 +58,20 @@ void IdleState::update(float)
 {
 }
 
-void IdleState::leave()
+void IdleState::onLeave()
+{
+    unsubscribe();
+}
+
+void IdleState::unsubscribe()
 {
     weaponChangeTriggered_ = false;
-    context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
+
+    if (subscribeForTransitionAnimationEnd_)
+    {
+        context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
+        subscribeForTransitionAnimationEnd_ = std::nullopt;
+    }
 }
 
 }  // namespace Components
