@@ -48,6 +48,12 @@ PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& fa
 
 PauseMenu::~PauseMenu()
 {
+    for (auto& [subid, configParam] : paramChangeSubs_)
+    {
+        DEBUG_LOG("unsubscribe " + std::to_string(subid));
+        configParam->unsubscribe(subid);
+    }
+
     if (mainWindow_)
         guiManager_.Remove(*mainWindow_);
     for (auto& pair : settingWindows_)
@@ -258,9 +264,8 @@ std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSettingsLayout()
 
         auto categoryText = factory_.CreateGuiText(category);
         auto categoryButton =
-            factory_.CreateGuiButton([&, categoryName = category, categoryTextPtr = categoryText.get()](auto&) {
-                showSettingWindow(categoryName);
-            });
+            factory_.CreateGuiButton([&, categoryName = category, categoryTextPtr = categoryText.get()](auto&)
+                                     { showSettingWindow(categoryName); });
 
         categoryButton->SetLocalScale(menuButtonSize_);
         categoryButton->SetText(std::move(categoryText));
@@ -280,10 +285,13 @@ std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSceneLoaderLayout()
     auto verticalLayout = factory_.CreateVerticalLayout();
     for (const auto& sceneName : avaiableScenes_)
     {
-        auto guiButton = factory_.CreateGuiButton(sceneName, [this, sceneName](auto&) {
-            GameEngine::SceneEvent sceneEvent(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
-            scene_.SendEvent(sceneEvent);
-        });
+        auto guiButton = factory_.CreateGuiButton(sceneName,
+                                                  [this, sceneName](auto&)
+                                                  {
+                                                      GameEngine::SceneEvent sceneEvent(
+                                                          GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
+                                                      scene_.SendEvent(sceneEvent);
+                                                  });
         guiButton->SetLocalScale(menuButtonSize_);
         verticalLayout->AddChild(std::move(guiButton));
     }
@@ -312,8 +320,16 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
         auto paramText = factory_.CreateGuiText(" " + param.configurationParam.toString() + " ");
         paramText->SetLocalScale({0.2f, 1.f});
 
-        auto previousValueButton =
-            factory_.CreateGuiButton(" < ", [this, &param, paramTextPtr = paramText.get()](auto&) {
+        auto id = param.configurationParam.subscribeForChange(
+            [guiText = paramText.get(), &param]() { guiText->SetText(param.configurationParam.toString()); });
+
+        DEBUG_LOG("subscribeForChange " + std::to_string(id));
+        paramChangeSubs_.push_back({id, &param.configurationParam});
+
+        auto previousValueButton = factory_.CreateGuiButton(
+            " < ",
+            [this, &param, paramTextPtr = paramText.get()](auto&)
+            {
                 auto str = param.configurationParam.previous();
                 paramTextPtr->SetText(str);
 
@@ -324,25 +340,31 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
             });
         previousValueButton->SetLocalScale({0.05f, 1.f});
 
-        auto nextValueButton = factory_.CreateGuiButton(" > ", [this, &param, paramTextPtr = paramText.get()](auto&) {
-            auto str = param.configurationParam.next();
-            paramTextPtr->SetText(str);
-
-            if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+        auto nextValueButton = factory_.CreateGuiButton(
+            " > ",
+            [this, &param, paramTextPtr = paramText.get()](auto&)
             {
-                onePramaterNeedRestart_ = true;
-            }
-        });
+                auto str = param.configurationParam.next();
+                paramTextPtr->SetText(str);
+
+                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+                {
+                    onePramaterNeedRestart_ = true;
+                }
+            });
         nextValueButton->SetLocalScale({0.05f, 1.f});
 
-        auto apllyButton = factory_.CreateGuiButton("apply", [this, &param](auto&) {
-            param.configurationParam.apply();
-            if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+        auto apllyButton = factory_.CreateGuiButton(
+            "apply",
+            [this, &param](auto&)
             {
-                createMessageBox("Change will be visible after game restart");
-            }
-            WriteConfigurationToFile(EngineConf);
-        });
+                param.configurationParam.apply();
+                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+                {
+                    createMessageBox("Change will be visible after game restart");
+                }
+                WriteConfigurationToFile(EngineConf);
+            });
 
         if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
         {
@@ -361,20 +383,23 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
     auto horizontalLayout = factory_.CreateHorizontalLayout();
     horizontalLayout->SetAlgin(GameEngine::Layout::Algin::CENTER);
     horizontalLayout->SetLocalScale({1.f, 0.0375f});
-    auto apllyButton = factory_.CreateGuiButton(" apply all ", [this, categoryName](auto&) {
-        const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
-        for (auto& param : params)
-        {
-            param.configurationParam.apply();
-        }
+    auto apllyButton = factory_.CreateGuiButton(" apply all ",
+                                                [this, categoryName](auto&)
+                                                {
+                                                    const auto& params =
+                                                        configurationExplorer_.getParamsFromCategory(categoryName);
+                                                    for (auto& param : params)
+                                                    {
+                                                        param.configurationParam.apply();
+                                                    }
 
-        if (onePramaterNeedRestart_)
-        {
-            createMessageBox("One from changed param need restart game");
-            onePramaterNeedRestart_ = false;
-        }
-        WriteConfigurationToFile(EngineConf);
-    });
+                                                    if (onePramaterNeedRestart_)
+                                                    {
+                                                        createMessageBox("One from changed param need restart game");
+                                                        onePramaterNeedRestart_ = false;
+                                                    }
+                                                    WriteConfigurationToFile(EngineConf);
+                                                });
 
     // to do : button without horizontal layout position issue
 
@@ -429,13 +454,15 @@ void PauseMenu::createMessageBox(const std::string& messageText)
     text->SetLocalPostion({0.5f, 0.5f});
     messageBoxWindow->AddChild(std::move(text));
 
-    auto okbutton = factory_.CreateGuiButton("ok", [this](auto&) {
-        if (messageBox_)
-        {
-            guiManager_.AddRemoveTask(messageBox_);
-            messageBox_ = nullptr;
-        }
-    });
+    auto okbutton = factory_.CreateGuiButton("ok",
+                                             [this](auto&)
+                                             {
+                                                 if (messageBox_)
+                                                 {
+                                                     guiManager_.AddRemoveTask(messageBox_);
+                                                     messageBox_ = nullptr;
+                                                 }
+                                             });
 
     okbutton->SetLocalScale(buttonSize);
     okbutton->SetLocalPostion({0.5f, 0.2f});

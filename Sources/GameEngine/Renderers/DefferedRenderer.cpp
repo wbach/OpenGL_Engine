@@ -22,10 +22,12 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     , postprocessingRenderersManager_(context)
     , isReady_(false)
 {
-    windowSizeSubscribtionChange_ = EngineConf.window.size.subscribeForChange([this](const auto& newWindowSize) {
-        DEBUG_LOG("Resize mode enabled. Window size :  " + std::to_string(newWindowSize) +
-                  ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
-    });
+    windowSizeSubscribtionChange_ = EngineConf.window.size.subscribeForChange(
+        [this]()
+        {
+            DEBUG_LOG("Resize mode enabled. Window size :  " + std::to_string(EngineConf.window.size) +
+                      ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
+        });
 }
 
 DefferedRenderer::~DefferedRenderer()

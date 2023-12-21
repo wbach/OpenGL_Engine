@@ -16,12 +16,16 @@ SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<SceneFa
     , currentSceneId_(0)
     , isRunning_(false)
 {
-    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
-        if (updateSceneThreadId_)
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange(
+        [this]()
         {
-            engineContext_.GetThreadSync().GetSubscriber(*updateSceneThreadId_)->SetFpsLimit(newFpsLimit);
-        }
-    });
+            if (updateSceneThreadId_)
+            {
+                engineContext_.GetThreadSync()
+                    .GetSubscriber(*updateSceneThreadId_)
+                    ->SetFpsLimit(EngineConf.renderer.fpsLimt);
+            }
+        });
 
     Start();
 }

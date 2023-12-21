@@ -33,7 +33,6 @@ public:
     BufferObject(const T& data, GraphicsApi::IGraphicsApi& graphicsApi, uint32 bindLocation)
         : BaseBufferObject(graphicsApi, bindLocation)
         , data_(data)
-        , oncall_{nullptr}
     {
     }
     ~BufferObject()

@@ -24,20 +24,25 @@ WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererCon
     , isInit_(false)
     , isActive_(true)
 {
-    enabledSubscriptionId_ = EngineConf.renderer.water.type.subscribeForChange([this](const auto& waterType) {
-        context_.gpuLoader_.AddFunctionToCall([this, waterType]() {
-            if (waterType == Params::WaterType::FULL or waterType == Params::WaterType::REFLECTED_REFRACTED)
-            {
-                initResources();
-                isActive_ = true;
-            }
-            else
-            {
-                isActive_ = false;
-                cleanUp();
-            }
+    enabledSubscriptionId_ = EngineConf.renderer.water.type.subscribeForChange(
+        [this]()
+        {
+            context_.gpuLoader_.AddFunctionToCall(
+                [this]()
+                {
+                    const auto& waterType = EngineConf.renderer.water.type;
+                    if (waterType == Params::WaterType::FULL or waterType == Params::WaterType::REFLECTED_REFRACTED)
+                    {
+                        initResources();
+                        isActive_ = true;
+                    }
+                    else
+                    {
+                        isActive_ = false;
+                        cleanUp();
+                    }
+                });
         });
-    });
 }
 WaterReflectionRefractionRenderer::~WaterReflectionRefractionRenderer()
 {
@@ -402,7 +407,7 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
             }
             else
             {
-                fbo->positionY       = currentPositionY;
+                fbo->positionY               = currentPositionY;
                 subscriber.waterFboPositionY = currentPositionY;
             }
         }
@@ -429,9 +434,9 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
 
 WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::findFbo(float positionY)
 {
-    auto iter = std::find_if(waterFbos_.begin(), waterFbos_.end(), [positionY](const auto& fbo) {
-        return compare(positionY, fbo.positionY, POSITION_EPSILON);
-    });
+    auto iter =
+        std::find_if(waterFbos_.begin(), waterFbos_.end(),
+                     [positionY](const auto& fbo) { return compare(positionY, fbo.positionY, POSITION_EPSILON); });
 
     if (iter != waterFbos_.end())
     {

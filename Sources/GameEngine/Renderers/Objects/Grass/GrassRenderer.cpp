@@ -19,15 +19,18 @@ GrassRenderer::GrassRenderer(RendererContext& context)
     : context_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Grass)
 {
-    viewDistanceChangeSubscription_ =
-        EngineConf.renderer.flora.viewDistance.subscribeForChange([this](const auto& newViewDistance) {
+    viewDistanceChangeSubscription_ = EngineConf.renderer.flora.viewDistance.subscribeForChange(
+        [this]()
+        {
             if (grassShaderBufferId_)
             {
-                context_.gpuLoader_.AddFunctionToCall([this, newViewDistance]() {
-                    grassShaderBuffer_.variables.value.x = newViewDistance;
-                    grassShaderBuffer_.variables.value.y = 0;
-                    context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
-                });
+                context_.gpuLoader_.AddFunctionToCall(
+                    [this]()
+                    {
+                        grassShaderBuffer_.variables.value.x = EngineConf.renderer.flora.viewDistance;
+                        grassShaderBuffer_.variables.value.y = 0;
+                        context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
+                    });
             }
         });
 }

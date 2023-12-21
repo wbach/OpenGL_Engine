@@ -40,16 +40,16 @@ void TerrainMeshRendererComponent::HeightMapChanged()
     if (not heightMap_)
         return;
 
-                    UnSubscribe();
-                ReleaseModels();
-                createModels();
+    UnSubscribe();
+    ReleaseModels();
+    createModels();
 
-                if (modelWrapper_.Get(LevelOfDetail::L1))
-                {
-                    Subscribe();
-                }
-                return;
-                
+    if (modelWrapper_.Get(LevelOfDetail::L1))
+    {
+        Subscribe();
+    }
+    return;
+
     TerrainMeshUpdater meshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)});
 
     if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
@@ -117,8 +117,9 @@ void TerrainMeshRendererComponent::init()
         createBoundongBoxes(*model);
         CreateShaderBuffers(*model);
 
-        worldTransfomChangeSubscrbtion_ =
-            thisObject_.SubscribeOnWorldTransfomChange([this, model](const auto &transform) {
+        worldTransfomChangeSubscrbtion_ = thisObject_.SubscribeOnWorldTransfomChange(
+            [this, model](const auto &transform)
+            {
                 DEBUG_LOG("Terrain transform changed, " + std::to_string(transform.GetPosition()));
 
                 createBoundongBoxes(*model);
@@ -213,8 +214,9 @@ void TerrainMeshRendererComponent::ClearShaderBuffers()
 }
 void TerrainMeshRendererComponent::subscribeForEngineConfChange()
 {
-    resolutionDivideFactorSubscription_ =
-        EngineConf.renderer.terrain.resolutionDivideFactor.subscribeForChange([this](const auto &) {
+    resolutionDivideFactorSubscription_ = EngineConf.renderer.terrain.resolutionDivideFactor.subscribeForChange(
+        [this]()
+        {
             if (not heightMapFile_.empty())
             {
                 UnSubscribe();
@@ -227,22 +229,24 @@ void TerrainMeshRendererComponent::subscribeForEngineConfChange()
                 }
             }
         });
-    partsCountSubscription_ = EngineConf.renderer.terrain.meshPartsCount.subscribeForChange([this](const auto &) {
-        if (not heightMapFile_.empty())
+    partsCountSubscription_ = EngineConf.renderer.terrain.meshPartsCount.subscribeForChange(
+        [this]()
         {
-            UnSubscribe();
-            ClearShaderBuffers();
-            ReleaseModels();
-            createModels();
-
-            if (auto model = modelWrapper_.Get(LevelOfDetail::L1))
+            if (not heightMapFile_.empty())
             {
-                CreateShaderBuffers(*model);
-                createBoundongBoxes(*model);
-                Subscribe();
+                UnSubscribe();
+                ClearShaderBuffers();
+                ReleaseModels();
+                createModels();
+
+                if (auto model = modelWrapper_.Get(LevelOfDetail::L1))
+                {
+                    CreateShaderBuffers(*model);
+                    createBoundongBoxes(*model);
+                    Subscribe();
+                }
             }
-        }
-    });
+        });
 }
 void TerrainMeshRendererComponent::ReleaseModels()
 {

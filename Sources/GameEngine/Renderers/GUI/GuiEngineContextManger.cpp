@@ -23,10 +23,8 @@ GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measur
     verticalLayout_ = verticalLayout.get();
     rootWindow_->AddChild(std::move(verticalLayout));
 
-    isShowSub_ = EngineConf.debugParams.showRenderInfo.subscribeForChange([this](const auto& newValue)
-    {
-        rootWindow_->Show(newValue);
-    });
+    isShowSub_ = EngineConf.debugParams.showRenderInfo.subscribeForChange(
+        [this]() { rootWindow_->Show(EngineConf.debugParams.showRenderInfo); });
 }
 
 GuiEngineContextManger::~GuiEngineContextManger()

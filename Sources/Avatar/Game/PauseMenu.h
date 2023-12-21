@@ -79,5 +79,7 @@ private:
 
     const vec2 menuButtonSize_;
     std::vector<std::string> avaiableScenes_;
+
+    std::vector<std::pair<uint32, GameEngine::Params::IConfigurationParam*>> paramChangeSubs_;
 };
 }  // namespace AvatarGame

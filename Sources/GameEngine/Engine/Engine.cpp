@@ -14,9 +14,9 @@
 #include <Windows.h>
 #include <shlobj.h>
 #else
-#include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 #include <OpenGLApi/OpenGLApi.h>
 
@@ -33,7 +33,7 @@ ReadConfiguration::ReadConfiguration()
 
 #ifdef USE_GNU
     struct passwd* pw = getpwuid(getuid());
-    configFile = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
+    configFile        = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
 #else
     wchar_t myDocumentsPath[1024];
     HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
@@ -44,14 +44,14 @@ ReadConfiguration::ReadConfiguration()
         configFile = std::string(str) + "\\bengine\\Conf.xml";
     }
 #endif
-   GameEngine::ReadFromFile(configFile);
+    GameEngine::ReadFromFile(configFile);
 
-   if (EngineConf.debugParams.logLvl != LogginLvl::None)
-   {
-       CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-       CLogger::Instance().ImmeditalyLog();
-       std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
-   }
+    if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    {
+        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+        CLogger::Instance().ImmeditalyLog();
+        std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
+    }
 }
 
 std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
@@ -94,23 +94,27 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     srand((unsigned)time(NULL));
     Components::RegisterReadFunctionForDefaultEngineComponents();
 
-    loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange([](auto&) {
-        if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange(
+        []()
         {
-            CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-            CLogger::Instance().ImmeditalyLog();
-        }
-        else
-        {
-            CLogger::Instance().DisableLogs();
-        }
-    });
+            if (EngineConf.debugParams.logLvl != LogginLvl::None)
+            {
+                CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
+                CLogger::Instance().ImmeditalyLog();
+            }
+            else
+            {
+                CLogger::Instance().DisableLogs();
+            }
+        });
 
-    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
-        auto physicsSubscriber = engineContext_.GetThreadSync().GetSubscriber(physicsThreadId_);
-        if (physicsSubscriber)
-            physicsSubscriber->SetFpsLimit(newFpsLimit);
-    });
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange(
+        [this]()
+        {
+            auto physicsSubscriber = engineContext_.GetThreadSync().GetSubscriber(physicsThreadId_);
+            if (physicsSubscriber)
+                physicsSubscriber->SetFpsLimit(EngineConf.renderer.fpsLimt);
+        });
 
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     introRenderer_.Render();
@@ -118,7 +122,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 
     engineContext_.GetPhysicsApi().DisableSimulation();
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
-        [this](float deltaTime) {
+        [this](float deltaTime)
+        {
             engineContext_.GetPhysicsApi().SetSimulationStep(deltaTime);
             engineContext_.GetPhysicsApi().Simulate();
         },
@@ -195,7 +200,8 @@ void Engine::ProcessEngineEvents()
             break;
         case EngineEvent::ASK_QUIT:
             engineContext_.GetGraphicsApi().GetWindowApi().ShowMessageBox("Quit", "Do you really want exit?",
-                                                                          [this](bool ok) {
+                                                                          [this](bool ok)
+                                                                          {
                                                                               if (ok)
                                                                               {
                                                                                   Quit();

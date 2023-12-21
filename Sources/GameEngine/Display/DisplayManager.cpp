@@ -22,14 +22,13 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , windowsSize_(EngineConf.window.size)
 {
     changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange(
-        [this](const auto& newSize) { graphicsApi_.GetWindowApi().SetWindowSize(newSize); });
+        [this]() { graphicsApi_.GetWindowApi().SetWindowSize(EngineConf.window.size); });
 
     changeFullScreenSubscription_ =
-        EngineConf.window.fullScreen.subscribeForChange([this](const auto& newValue) { SetFullScreen(newValue); });
+        EngineConf.window.fullScreen.subscribeForChange([this]() { SetFullScreen(EngineConf.window.fullScreen); });
 
-    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange([this](float newFpsLimit) {
-        timeMeasurer_.setLockFps(newFpsLimit);
-    });
+    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange(
+        [this]() { timeMeasurer_.setLockFps(EngineConf.renderer.fpsLimt); });
 
     auto windowType =
         EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
@@ -50,10 +49,12 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
 
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 
-    timeMeasurer_.AddOnTickCallback([this, &measurmentValue]() {
-        time_.fps       = static_cast<float>(timeMeasurer_.GetFps());
-        measurmentValue = std::to_string(timeMeasurer_.GetFps());
-    });
+    timeMeasurer_.AddOnTickCallback(
+        [this, &measurmentValue]()
+        {
+            time_.fps       = static_cast<float>(timeMeasurer_.GetFps());
+            measurmentValue = std::to_string(timeMeasurer_.GetFps());
+        });
 }
 
 DisplayManager::~DisplayManager()

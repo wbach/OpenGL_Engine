@@ -59,10 +59,10 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
     frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
 
     shadowEnabledSubscriptionId_ = EngineConf.renderer.shadows.isEnabled.subscribeForChange(
-        [this](const auto&) { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
+        [this]() { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
 
     viewDistanceSubscriptionId_ = EngineConf.renderer.viewDistance.subscribeForChange(
-        [this](const auto&) { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
+        [this]() { gpuLoader_.AddFunctionToCall([this]() { UpdatePerAppBuffer(); }); });
 }
 RenderersManager::~RenderersManager()
 {

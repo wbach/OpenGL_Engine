@@ -36,22 +36,25 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
         shadowFrameBuffer_[cascadeIndex] = nullptr;
     }
 
-    shadowEnabledSubscriptionId_ =
-        EngineConf.renderer.shadows.isEnabled.subscribeForChange([this](const auto& isEnabled) {
-            context_.gpuLoader_.AddFunctionToCall([this, isEnabled]() {
-                if (isEnabled)
+    shadowEnabledSubscriptionId_ = EngineConf.renderer.shadows.isEnabled.subscribeForChange(
+        [this]()
+        {
+            context_.gpuLoader_.AddFunctionToCall(
+                [this]()
                 {
-                    if (not isInit())
-                        init();
+                    if (EngineConf.renderer.shadows.isEnabled)
+                    {
+                        if (not isInit())
+                            init();
 
-                    isActive_ = true;
-                }
-                else
-                {
-                    isActive_ = false;
-                    cleanUp();
-                }
-            });
+                        isActive_ = true;
+                    }
+                    else
+                    {
+                        isActive_ = false;
+                        cleanUp();
+                    }
+                });
         });
 }
 

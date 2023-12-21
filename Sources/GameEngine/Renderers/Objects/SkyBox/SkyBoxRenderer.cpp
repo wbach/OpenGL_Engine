@@ -21,7 +21,7 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     , scale_(150.f)
 {
     viewDistanceChangeSubscription_ =
-        EngineConf.renderer.viewDistance.subscribeForChange([this](const auto&) { calculateBoxScale(); });
+        EngineConf.renderer.viewDistance.subscribeForChange([this]() { calculateBoxScale(); });
 }
 
 SkyBoxRenderer::~SkyBoxRenderer()
@@ -39,8 +39,8 @@ void SkyBoxRenderer::init()
     }
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
-                                                                    sizeof(SkyBoxRenderer::PerMeshObject));
+        perMeshObjectId_            = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
+                                                                               sizeof(SkyBoxRenderer::PerMeshObject));
         perMeshObject_.blendFactor_ = 1.f;
     }
     // max size : skybox width <= (2 * sqrt(3) / 3)

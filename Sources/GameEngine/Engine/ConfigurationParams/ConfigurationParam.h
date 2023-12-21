@@ -1,11 +1,12 @@
 #pragma once
+#include <Logger/Log.h>
 #include <Types.h>
 #include <Utils/IdPool.h>
 
 #include <Mutex.hpp>
+#include <algorithm>
 #include <functional>
 #include <memory>
-#include <algorithm>
 
 #include "IConfigurationParam.h"
 #include "ParamToString.h"
@@ -88,6 +89,11 @@ public:
     {
         if (not defaultValues_.empty())
         {
+            if (defaultValueIndex_ > defaultValues_.size())
+            {
+                WARNING_LOG("Param index out of range");
+                return;
+            }
             set(defaultValues_[defaultValueIndex_]);
         }
     }
@@ -105,21 +111,22 @@ public:
 
         for (const auto& subscriber : subscribers_)
         {
-            subscriber.second(value_);
+            subscriber.second();
         }
         updatetValueIndex();
     }
-    IdType subscribeForChange(std::function<void(const T&)> action)
+    IdType subscribeForChange(std::function<void()> action) override
     {
         std::lock_guard<std::mutex> lk(subscriberMock_);
         auto id = idPool_.getId();
         subscribers_.push_back({id, action});
         return id;
     }
-    void unsubscribe(const IdType& id)
+    void unsubscribe(const IdType& id) override
     {
         std::lock_guard<std::mutex> lk(subscriberMock_);
-        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& pair) { return pair.first == id; });
+        auto iter =
+            std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& pair) { return pair.first == id; });
         subscribers_.erase(iter);
     }
     void operator=(const T& v)
@@ -169,7 +176,7 @@ private:
 
 private:
     std::mutex subscriberMock_;
-    std::vector<std::pair<IdType, std::function<void(const T&)>>> subscribers_;
+    std::vector<std::pair<IdType, std::function<void()>>> subscribers_;
     Utils::IdPool idPool_;
     T value_;
     size_t defaultValueIndex_;

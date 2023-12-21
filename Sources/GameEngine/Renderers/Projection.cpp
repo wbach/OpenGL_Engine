@@ -17,7 +17,6 @@ std::mutex mmutex;
 std::mutex wmutex;
 
 const float DEFAULT_NEAR_PLANE{.3f};
-const float DEFAULT_FAR_PLANE{10000.f};
 const float DEFAULT_FOV{60.f};
 }  // namespace
 Projection::Projection()
@@ -37,9 +36,10 @@ Projection::Projection(const vec2ui &renderingSize, float near, float far, float
 {
     CreateProjectionMatrix();
 
-    viewDistanceChangeSubscription_ =
-        EngineConf.renderer.viewDistance.subscribeForChange([this](const auto &newViewDistance) {
-            farPlane_ = newViewDistance;
+    viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange(
+        [this]()
+        {
+            farPlane_ = EngineConf.renderer.viewDistance;
             CreateProjectionMatrix();
         });
 }
