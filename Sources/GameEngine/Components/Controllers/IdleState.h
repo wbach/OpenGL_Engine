@@ -14,6 +14,7 @@ class RotateState;
 class JumpState;
 class DeathState;
 class IdleStateWithWeapon;
+class JointPoseUpdater;
 
 class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -46,6 +47,8 @@ private:
     std::string disarmAnimName_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
     bool weaponChangeTriggered_{false};
+
+    JointPoseUpdater* jointPoseUpdater_;
 };
 }  // namespace Components
 }  // namespace GameEngine

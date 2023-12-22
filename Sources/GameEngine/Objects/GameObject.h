@@ -47,6 +47,9 @@ public:
     T* GetComponent();
 
     template <class T>
+    T* GetComponentInChild();
+
+    template <class T>
     T& AddComponent();
 
     Components::IComponent* InitComponent(const TreeNode&);
@@ -75,6 +78,7 @@ private:
     void CalculateWorldTransform();
     vec3 ConvertWorldToLocalPosition(const vec3&);
     vec3 ConvertWorldToLocalScale(const vec3&);
+    mat4 ConvertWorldToLocalMatrix(const mat4&);
     Quaternion ConvertWorldToLocalRotation(const Quaternion&);
 
 protected:
@@ -121,6 +125,24 @@ inline T* GameObject::GetComponent()
     }
     return nullptr;
 }
+
+template <class T>
+inline T* GameObject::GetComponentInChild()
+{
+    for (auto& child : children_)
+    {
+        for (auto& component : child->GetComponents())
+        {
+            if (typeid(*component) == typeid(T))
+            {
+                return static_cast<T*>(component.get());
+            }
+        }
+        return child->GetComponentInChild<T>();
+    }
+    return nullptr;
+}
+
 template <class T>
 inline T& GameObject::AddComponent()
 {

@@ -1,5 +1,6 @@
 #include "GameObject.h"
 
+#include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
 
 #include <algorithm>
@@ -63,7 +64,7 @@ bool GameObject::RemoveChild(IdType id)
 
     if (iter != children_.end())
     {
-        for(auto& component : (**iter).GetComponents())
+        for (auto& component : (**iter).GetComponents())
         {
             component->CleanUp();
         }
@@ -95,7 +96,7 @@ void GameObject::SetParent(GameObject* parent)
         if (parent_ and parentIdTransfromSubscribtion_)
         {
             parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
-            parent_ = nullptr;
+            parent_                        = nullptr;
             parentIdTransfromSubscribtion_ = std::nullopt;
         }
     }
@@ -234,14 +235,7 @@ void GameObject::SetWorldScale(const vec3& worldScale)
 
 void GameObject::SetWorldMatrix(const mat4& worldMatrix)
 {
-    vec3 scale;
-    Quaternion rotation;
-    vec3 translation;
-    vec3 skew;
-    vec4 perspective;
-    glm::decompose(worldMatrix, scale, rotation, translation, skew, perspective);
-
-    SetWorldPositionRotationScale(translation, rotation, scale);
+    localTransform_.SetMatrix(ConvertWorldToLocalMatrix(worldMatrix));
 }
 
 void GameObject::SetWorldPositionRotation(const vec3& position, const Quaternion& rotation)
@@ -297,6 +291,15 @@ vec3 GameObject::ConvertWorldToLocalScale(const vec3& worldScale)
     }
 
     return worldScale;
+}
+
+mat4 GameObject::ConvertWorldToLocalMatrix(const mat4& mat)
+{
+    if (parent_)
+    {
+        return glm::inverse(parent_->GetWorldTransform().CalculateCurrentMatrix()) * mat;
+    }
+    return mat;
 }
 Quaternion GameObject::ConvertWorldToLocalRotation(const Quaternion& rotatnion)
 {

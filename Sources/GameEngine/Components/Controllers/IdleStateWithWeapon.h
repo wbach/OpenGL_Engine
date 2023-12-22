@@ -14,19 +14,21 @@ class RotateState;
 class JumpState;
 class DeathState;
 class IdleState;
+class JointPoseUpdater;
 
-class IdleStateWithWeapon : public Utils::StateMachine::Will<
-                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-                      Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-                      Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleState>>,
-                      Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-                      Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
-                      Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
-                      Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateState>>,
-                      Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateState>>,
-                      Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateState>>,
-                      Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
+class IdleStateWithWeapon
+    : public Utils::StateMachine::Will<
+          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleState>>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateState>>,
+          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
     IdleStateWithWeapon(FsmContext&, const std::string&, const std::string&);
@@ -36,7 +38,7 @@ public:
     void update(const EndAttackEvent&);
     void update(float);
     void onLeave();
-    
+
 private:
     void unsubscribe();
 
@@ -45,6 +47,8 @@ private:
     const std::string& idleAnimName_;
     const std::string& equipAnimName_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
+
+    JointPoseUpdater* jointPoseUpdater_;
 };
 }  // namespace Components
 }  // namespace GameEngine

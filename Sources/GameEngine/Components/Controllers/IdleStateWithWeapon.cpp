@@ -1,6 +1,7 @@
 #include "IdleStateWithWeapon.h"
 
 #include "Attack/AttackEvents.h"
+#include "GameEngine/Components/Animation/JointPoseUpdater.h"
 
 namespace GameEngine
 {
@@ -11,6 +12,7 @@ IdleStateWithWeapon::IdleStateWithWeapon(FsmContext &context, const std::string 
     : context_{context}
     , idleAnimName_{idleAnimName}
     , equipAnimName_{equipAnimName}
+    , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }
 void IdleStateWithWeapon::onEnter()
@@ -21,13 +23,25 @@ void IdleStateWithWeapon::onEnter(const WeaponStateEvent &)
 {
     if (not idleAnimName_.empty() and not equipAnimName_.empty())
     {
-        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationEnd(equipAnimName_, [this]() {
-            context_.animator.ChangeAnimation(
-                idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationEnd(
+            equipAnimName_,
+            [this]()
+            {
+                context_.animator.ChangeAnimation(
+                    idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                    context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
 
-            unsubscribe();
-        });
+                unsubscribe();
+
+                if (jointPoseUpdater_)
+                {
+                    jointPoseUpdater_->setEquipJointAsCurrent();
+                }
+                else
+                {
+                    WARNING_LOG("jointPoseUpdater_ not set");
+                }
+            });
 
         context_.animator.ChangeAnimation(
             equipAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,

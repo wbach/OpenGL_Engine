@@ -263,14 +263,14 @@ void Transform::NotifySubscribers()
 
 void Transform::SetMatrix(const mat4& matrix)
 {
-    glm::vec3 scale;
-    glm::quat rotation;
-    glm::vec3 translation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
+    auto [position, rotation, scale] = Utils::decompose(matrix);
 
-    glm::decompose(matrix, scale, rotation, translation, skew, perspective);
-    SetPositionAndRotationAndScale(translation, rotation, scale);
+    context_.position = position;
+    context_.rotation = rotation;
+    context_.scale    = scale;
+    matrix_           = matrix;
+
+    NotifySubscribers();
 }
 
 }  // namespace common
