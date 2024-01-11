@@ -190,7 +190,7 @@ int EditorScene::Initialize()
                     newGameObject->AddComponent<Components::MeshShape>();
                     newGameObject->AddComponent<Components::Rigidbody>();
 
-                    auto refreshClipsAction = [&, clips = animator.getAnimationClips(),
+                    auto refreshClipsAction = [&, &clips = animator.getAnimationClips(),
                                                inputFilename = dropFileEvent.filename](const auto&) {
                         for (auto id : clipsButtonsIds_)
                         {

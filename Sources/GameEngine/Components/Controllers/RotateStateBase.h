@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace GameEngine
 {
@@ -15,7 +16,7 @@ struct FsmContext;
 class RotateStateBase
 {
 public:
-    RotateStateBase(FsmContext&);
+    RotateStateBase(FsmContext&, const std::string&, const std::string&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
@@ -25,6 +26,8 @@ public:
 
 private:
     FsmContext& context_;
+    const std::string& rotateLeftAnim_;
+    const std::string& rotateRightAnim_;
 };
 }  // namespace Components
 }  // namespace GameEngine

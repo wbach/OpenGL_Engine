@@ -7,7 +7,8 @@ namespace Components
 {
 MoveAndRotateState::MoveAndRotateState(FsmContext &context)
     : MoveStateBase{context, context.animClipNames.disarmed.run.forward, context.animClipNames.disarmed.run.backward}
-    , RotateStateBase{context}
+    , RotateStateBase{context, context.animClipNames.disarmed.run.rotateLeft,
+                          context.animClipNames.disarmed.run.rotateRight }
 {
 }
 

@@ -10,20 +10,37 @@ namespace GameEngine
 {
 namespace Components
 {
-RotateStateBase::RotateStateBase(FsmContext &context)
+RotateStateBase::RotateStateBase(FsmContext &context, const std::string &rotateLeftAnim,
+                                 const std::string &rotateRightAnim)
     : context_{context}
+    , rotateLeftAnim_{rotateLeftAnim}
+    , rotateRightAnim_{rotateRightAnim}
 {
 }
 void RotateStateBase::onEnter(const RotateLeftEvent &event)
 {
     context_.rotationSpeed  = fabsf(event.speed);
     context_.rotateToTarget = false;
+
+    if (not rotateLeftAnim_.empty())
+    {
+        context_.animator.ChangeAnimation(
+            rotateLeftAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+    }
 }
 
 void RotateStateBase::onEnter(const RotateRightEvent &event)
 {
     context_.rotationSpeed  = -fabsf(event.speed);
     context_.rotateToTarget = false;
+
+    if (not rotateRightAnim_.empty())
+    {
+        context_.animator.ChangeAnimation(
+            rotateRightAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+    }
 }
 
 void RotateStateBase::onEnter(const RotateTargetEvent &event)

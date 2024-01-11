@@ -3,6 +3,7 @@
 #include <Utils/Fsm/Actions.h>
 
 #include "CharacterControllerEvents.h"
+#include "FsmContext.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
@@ -32,7 +33,8 @@ class RotateState
 {
 public:
     RotateState(FsmContext& context)
-        : RotateStateBase{context}
+        : RotateStateBase{context, context.animClipNames.disarmed.walk.rotateLeft,
+                          context.animClipNames.disarmed.walk.rotateRight}
     {
     }
 };
