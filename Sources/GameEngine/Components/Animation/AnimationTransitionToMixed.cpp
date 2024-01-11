@@ -169,10 +169,10 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
             {
-                for (const auto& [_, callback] : group.clipInfo_.endCallbacks_)
-                {
-                    callback();
-                }
+//                for (const auto& [_, callback] : group.clipInfo_.endCallbacks_)
+//                {
+//                    callback();
+//                }
 
                 iter = currentGroups_.erase(iter);
                 continue;

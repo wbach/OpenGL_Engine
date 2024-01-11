@@ -30,7 +30,7 @@ class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    IdleState(FsmContext&, const std::string& idleAnimName, const std::string& disarmAnimName);
+    IdleState(FsmContext&, const std::string& idleAnimName, const std::string& disarmAnimName, float disarmTimeStamp);
     void onEnter();
     void onEnter(const WeaponStateEvent&);
     void update(const AttackEvent&);
@@ -47,6 +47,7 @@ private:
     std::string disarmAnimName_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
     bool weaponChangeTriggered_{false};
+    float disarmTimeStamp_{0.0};
 
     JointPoseUpdater* jointPoseUpdater_;
 };

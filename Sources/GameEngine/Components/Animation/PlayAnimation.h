@@ -21,13 +21,15 @@ public:
 
 private:
     void increaseAnimationTime(float deltaTime);
+    void notifyClipSubscribers();
 
 private:
     Context& context_;
 
     float time_;
     float direction_;
-    AnimationClipInfo clipInfo_;
+    const AnimationClipInfo& clipInfo_;
+    float previousFrameTimeStamp;
 };
 }  // namespace Components
 }  // namespace GameEngine

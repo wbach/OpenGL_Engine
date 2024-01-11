@@ -59,7 +59,7 @@ bool AnimationTransitionMixedToSingle::update(float deltaTime)
     for (const auto &transitionGroup : transitionGroups_)
     {
         auto [_, nextKeyFrame] = getPreviousAndNextFrames(currentClipInfo_.clip, currentClipProgres_);
-        interpolatePoses(context_.currentPose, startChaneAnimKeyFrame_, nextKeyFrame, transitionProgress_,
+        interpolatePoses(context_.currentPose, startChaneAnimKeyFrame_, *nextKeyFrame, transitionProgress_,
                          transitionGroup.jointGroups);
     }
 

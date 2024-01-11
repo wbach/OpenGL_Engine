@@ -26,7 +26,7 @@ private:
 
 private:
     Context& context_;
-    const AnimationClipInfo info_;
+    const AnimationClipInfo& info_;
 
     Animation::KeyFrame startChaneAnimKeyFrame_;
     Animation::KeyFrame endChangeAnimKeyFrame_;

@@ -104,10 +104,10 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
-                for (const auto& [_, callback] : group.clipInfo.endCallbacks_)
-                {
-                    callback();
-                }
+//                for (const auto& [_, callback] : group.clipInfo.endCallbacks_)
+//                {
+//                    callback();
+//                }
 
                 groupsToRemove_.push_back(name);
                 continue;

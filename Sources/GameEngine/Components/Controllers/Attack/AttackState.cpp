@@ -24,7 +24,7 @@ AttackState::~AttackState()
 {
     for (auto &id : onAnimationEndSubIds)
     {
-        context_.animator.UnSubscribeForAnimationEnd(id);
+        context_.animator.UnSubscribeForAnimationFrame(id);
     }
 }
 void AttackState::onEnter(const AttackFsmEvents::Attack &)
@@ -82,7 +82,7 @@ void AttackState::subscribeForAnimationsEnd()
     {
         for (const auto &animationName : context_.attackAnimationNames)
         {
-            onAnimationEndSubIds.push_back(context_.animator.SubscribeForAnimationEnd(animationName, [&]() {
+            onAnimationEndSubIds.push_back(context_.animator.SubscribeForAnimationFrame(animationName, [&]() {
                 if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.attackAnimationNames.size() and
                     not context_.attackAnimationNames[animationIndex_].empty())
                 {

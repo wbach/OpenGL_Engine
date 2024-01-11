@@ -69,9 +69,9 @@ void Player::Init()
                 }
             }
         };
-        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName, attackAction);
-        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName2, attackAction);
-        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName3, attackAction);
+        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName, attackAction);
+        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName2, attackAction);
+        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName3, attackAction);
     }
 
     const vec2 windowSize(0.2f, 0.1f);

@@ -28,7 +28,7 @@ private:
 
     struct Group
     {
-        AnimationClipInfo clipInfo_;
+        const AnimationClipInfo& clipInfo_;
         float progres_;
         const std::vector<uint32>& jointGroup_;
     };
@@ -37,7 +37,7 @@ private:
     struct TransitionGroup
     {
         float startupTime_;
-        AnimationClipInfo clipInfo_;
+        const AnimationClipInfo& clipInfo_;
         const std::vector<uint32>& jointGroup_;
         Animation::KeyFrame startKeyFrame_;
         float timeForChange_;

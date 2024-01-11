@@ -51,6 +51,9 @@ public:
     std::string upperBodyGroupName;
     std::string lowerBodyGroupName;
 
+    float equipTimeStamp;
+    float disarmTimeStamp;
+
     CharacterControllerFsm* fsm();
 
     float getShapeSize() const;

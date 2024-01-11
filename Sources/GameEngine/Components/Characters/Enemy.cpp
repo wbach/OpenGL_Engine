@@ -49,13 +49,10 @@ void Enemy::Init()
 
     if (animator_ and characterController_)
     {
-        auto iter = animator_->animationClips_.find(characterController_->hurtAnimationName);
-        if (iter != animator_->animationClips_.end())
-        {
-            iter->second.playType = Animation::AnimationClip::PlayType::once;
-        }
+        animator_->setPlayOnceForAnimationClip(characterController_->hurtAnimationName);
 
-        auto attackAction = [this]() {
+        auto attackAction = [this]()
+        {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -68,9 +65,9 @@ void Enemy::Init()
             }
         };
 
-        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName, attackAction);
-        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName2, attackAction);
-        animator_->SubscribeForAnimationEnd(characterController_->attackAnimationName3, attackAction);
+        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName, attackAction);
+        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName2, attackAction);
+        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName3, attackAction);
     }
 
     const vec2 windowSize(0.2f, 0.033f);
@@ -152,9 +149,8 @@ void Enemy::isOnGround()
 }
 void Enemy::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
-        return std::make_unique<Enemy>(componentContext, gameObject);
-    };
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
+    { return std::make_unique<Enemy>(componentContext, gameObject); };
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
 }
 void Enemy::write(TreeNode& node) const

@@ -8,10 +8,11 @@ namespace GameEngine
 namespace Components
 {
 IdleStateWithWeapon::IdleStateWithWeapon(FsmContext &context, const std::string &idleAnimName,
-                                         const std::string &equipAnimName)
+                                         const std::string &equipAnimName, float equipTimeStamp)
     : context_{context}
     , idleAnimName_{idleAnimName}
     , equipAnimName_{equipAnimName}
+    , equipTimeStamp_{equipTimeStamp}
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }
@@ -23,7 +24,7 @@ void IdleStateWithWeapon::onEnter(const WeaponStateEvent &)
 {
     if (not idleAnimName_.empty() and not equipAnimName_.empty())
     {
-        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationEnd(
+        subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
             equipAnimName_,
             [this]()
             {
@@ -41,7 +42,8 @@ void IdleStateWithWeapon::onEnter(const WeaponStateEvent &)
                 {
                     WARNING_LOG("jointPoseUpdater_ not set");
                 }
-            });
+            },
+            equipTimeStamp_);
 
         context_.animator.ChangeAnimation(
             equipAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
@@ -73,7 +75,7 @@ void IdleStateWithWeapon::unsubscribe()
 {
     if (subscribeForTransitionAnimationEnd_)
     {
-        context_.animator.UnSubscribeForAnimationEnd(*subscribeForTransitionAnimationEnd_);
+        context_.animator.UnSubscribeForAnimationFrame(*subscribeForTransitionAnimationEnd_);
         subscribeForTransitionAnimationEnd_ = std::nullopt;
     }
 }

@@ -28,7 +28,7 @@ namespace Editor
 {
 std::vector<std::string> exportAnimationClips(
     const std::optional<Animation::Joint>& maybeRootJoint,
-    const std::unordered_map<std::string, Animation::AnimationClip>& animationClips, const GameEngine::File& file)
+    const Components::Animator::AnimationInfoClips& animationClips, const GameEngine::File& file)
 {
     std::cout << file.GetAbsoultePath() << std::endl;
 
@@ -42,11 +42,11 @@ std::vector<std::string> exportAnimationClips(
 
     if (maybeRootJoint)
     {
-        for (const auto& [name, clip] : animationClips)
+        for (const auto& [name, info] : animationClips)
         {
             std::cout << "-- " << name << std::endl;
             std::string outputFile = Utils::GetAbsolutePath(outputpath) + "/" + name + ".xml";
-            GameEngine::Animation::ExportAnimationClipToFile(outputFile, clip, *maybeRootJoint);
+            GameEngine::Animation::ExportAnimationClipToFile(outputFile, info.clip, *maybeRootJoint);
             result.push_back(outputFile);
         }
     }
@@ -190,7 +190,7 @@ int EditorScene::Initialize()
                     newGameObject->AddComponent<Components::MeshShape>();
                     newGameObject->AddComponent<Components::Rigidbody>();
 
-                    auto refreshClipsAction = [&, &clips = animator.animationClips_,
+                    auto refreshClipsAction = [&, clips = animator.getAnimationClips(),
                                                inputFilename = dropFileEvent.filename](const auto&) {
                         for (auto id : clipsButtonsIds_)
                         {

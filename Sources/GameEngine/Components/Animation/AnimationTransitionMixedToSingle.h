@@ -27,7 +27,7 @@ private:
     Context& context_;
 
     float currentClipProgres_;
-    AnimationClipInfo currentClipInfo_;
+    const AnimationClipInfo& currentClipInfo_;
 
     struct Group
     {

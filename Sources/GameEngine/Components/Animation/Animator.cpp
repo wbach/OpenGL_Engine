@@ -51,13 +51,10 @@ void Animator::ReqisterFunctions()
 
 Animator& Animator::SetAnimation(const std::string& name)
 {
-    auto clipIter = animationClips_.find(name);
-    if (clipIter != animationClips_.end())
+    auto clipIter = animationClipInfo_.find(name);
+    if (clipIter != animationClipInfo_.end())
     {
-        machine_.handle(ChangeAnimationEvent{
-            0.f,
-            {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, PlayDirection::forward, onAnimationEnd_[name]},
-            std::nullopt});
+        machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
     }
     return *this;
 }
@@ -67,29 +64,49 @@ GraphicsApi::ID Animator::getPerPoseBufferId() const
 }
 void Animator::setPlayOnceForAnimationClip(const std::string& name)
 {
-    auto iter = animationClips_.find(name);
-    if (iter != animationClips_.end())
+    auto iter = animationClipInfo_.find(name);
+    if (iter != animationClipInfo_.end())
     {
-        iter->second.playType = Animation::AnimationClip::PlayType::once;
+        iter->second.clip.playType = Animation::AnimationClip::PlayType::once;
     }
 }
-IdType Animator::SubscribeForAnimationEnd(const std::string& animName, std::function<void()> function)
+IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frame)
 {
-    auto id = animationEndIdPool_.getId();
-    onAnimationEnd_[animName].push_back({id, function});
-    return id;
-}
-void Animator::UnSubscribeForAnimationEnd(IdType id)
-{
-    for (auto& [_, subscribers] : onAnimationEnd_)
+    auto iter = animationClipInfo_.find(animName);
+    if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
     {
-        auto iter =
-            std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& pair) { return pair.first == id; });
-        if (iter != subscribers.end())
+        auto id = animationEndIdPool_.getId();
+
+        if (frame < 0.0f)
         {
-            subscribers.erase(iter);
-            return;
+            frame = iter->second.clip.GetFrames().back().timeStamp;
         }
+
+        DEBUG_LOG("SubscribeForAnimationFrame anim: " + animName + " frame: " + std::to_string(frame));
+
+        auto& subscribers = iter->second.subscribers;
+        subscribers.push_back({id, function, frame});
+        animationClipInfoSubscriptions_.insert({id, &subscribers});
+
+        return id;
+    }
+
+    WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found!");
+    return 0;
+}
+void Animator::UnSubscribeForAnimationFrame(IdType id)
+{
+    auto iter = animationClipInfoSubscriptions_.find(id);
+    if (iter != animationClipInfoSubscriptions_.end())
+    {
+        auto& subscribers = *iter->second;
+        auto subIter =
+            std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& sub) { return sub.id == id; });
+
+        if (subIter != subscribers.end())
+            subscribers.erase(subIter);
+
+        animationClipInfoSubscriptions_.erase(id);
     }
 }
 Animation::Joint* Animator::GetJoint(const std::string& name)
@@ -111,22 +128,23 @@ void Animator::unSubscribeForPoseUpdateBuffer(uint32 id)
         jointData_.buffer->UnSubscribeForUpdate(id);
 }
 
+const Animator::AnimationInfoClips& Animator::getAnimationClips() const
+{
+    return animationClipInfo_;
+}
+
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
-    auto clipIter = animationClips_.find(name);
+    auto clipIter = animationClipInfo_.find(name);
 
-    if (clipIter == animationClips_.end())
+    if (clipIter == animationClipInfo_.end())
     {
         DEBUG_LOG("Not found!  : " + name);
         return;
     }
 
-    machine_.handle(ChangeAnimationEvent{
-        0.f,
-        {animationSpeed_, clipIter->second, PlayPolicy::PlayInLoop, playDirection, onAnimationEnd_[clipIter->first]},
-        groupName,
-        onTransitionEnd});
+    machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::GetSkeletonAndAnimations()
 {
@@ -187,9 +205,9 @@ void Animator::AddAnimationClip(const GameEngine::File& file)
 }
 void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
 {
-    if (not animationClips_.count(clip.name))
+    if (not animationClipInfo_.count(clip.name))
     {
-        animationClips_.insert({clip.name, clip});
+        animationClipInfo_.insert({clip.name, {1.f, clip, PlayPolicy::PlayInLoop, PlayDirection::forward}});
     }
     else
     {
@@ -201,9 +219,9 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 {
     mat4 currentTransform(1.f);
 
-    auto currentPoseIter = jointData_.pose.find(joint.id);
+    auto currentPoseIter = jointData_.pose.data.find(joint.id);
 
-    if (currentPoseIter != jointData_.pose.end())
+    if (currentPoseIter != jointData_.pose.data.end())
     {
         const auto& currentLocalTransform = currentPoseIter->second.matrix;
         currentTransform                  = parentTransform * currentLocalTransform;
@@ -240,13 +258,17 @@ void Animator::initAnimationClips(const Model& model)
         AddAnimationClip(Animation::ReadAnimationClip(file, jointData_.rootJoint));
     }
 
-    for (const auto& clip : model.animationClips_)
+    for (const auto& [name, clip] : model.animationClips_)
     {
-        animationClips_.insert(clip);
+        auto iter = animationClipInfo_.find(name);
+        if (iter == animationClipInfo_.end())
+        {
+            animationClipInfo_.insert({name, {1.f, clip, PlayPolicy::PlayInLoop, PlayDirection::forward}});
+        }
     }
 
-    auto clipIter = animationClips_.find(startupAnimationClipName_);
-    if (clipIter != animationClips_.end())
+    auto clipIter = animationClipInfo_.find(startupAnimationClipName_);
+    if (clipIter != animationClipInfo_.end())
     {
         SetAnimation(clipIter->first);
     }
@@ -255,9 +277,10 @@ void Animator::initAnimationClips(const Model& model)
         WARNING_LOG("Startup animation not found : " + startupAnimationClipName_);
     }
 
-    if (animationClips_.size() > 0)
+    if (animationClipInfo_.size() > 0)
         rendererComponent_->useArmature(true);
 }
+
 void Animator::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
@@ -299,11 +322,11 @@ void Animator::write(TreeNode& node) const
     node.addChild(CSTR_STARTUP_ANIMATION, startupAnimationClipName_);
     auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
 
-    for (const auto& clip : animationClips_)
+    for (const auto& [_, info] : animationClipInfo_)
     {
-        if (not clip.second.filePath.empty())
+        if (not info.clip.filePath.empty())
         {
-            animationClipsNode.addChild(CSTR_ANIMATION_CLIP, clip.second.filePath);
+            animationClipsNode.addChild(CSTR_ANIMATION_CLIP, info.clip.filePath);
         }
     }
 

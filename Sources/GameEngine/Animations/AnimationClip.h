@@ -1,5 +1,6 @@
 #pragma once
 #include "KeyFrame.h"
+#include <optional>
 
 namespace GameEngine
 {
@@ -22,6 +23,7 @@ public:
     void SetLength(float l);
     KeyFrame* getFrame(float);
     KeyFrame* getFrame(size_t);
+    std::optional<uint32> getFrameId(float);
 
 public:
     std::string name;

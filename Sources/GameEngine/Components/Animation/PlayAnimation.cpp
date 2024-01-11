@@ -16,6 +16,7 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , time_{startTime}
     , direction_{info.playDirection == PlayDirection::forward ? 1.f : -1.f}
     , clipInfo_{info}
+    , previousFrameTimeStamp{-1.0f}
 {
 }
 bool PlayAnimation::update(float deltaTime)
@@ -55,17 +56,13 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
 {
     time_ += deltaTime * clipInfo_.playSpeed * direction_;
 
+    notifyClipSubscribers();
+
     if (time_ > clipInfo_.clip.GetLength())
     {
         if (clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
         {
             context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
-
-            for (const auto& [_, callback] : clipInfo_.endCallbacks_)
-            {
-                callback();
-            }
-            return;
         }
 
         time_ = fmodf(time_, clipInfo_.clip.GetLength());
@@ -74,6 +71,39 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
     {
         time_ = clipInfo_.clip.GetLength() + time_;
     }
+}
+
+void PlayAnimation::notifyClipSubscribers()
+{
+    auto currentFrame = context_.currentPose.frames.first;
+
+    if (not currentFrame or clipInfo_.subscribers.empty())
+    {
+        return;
+    }
+
+    // TO DO: Remove workaround
+    if (time_ > clipInfo_.clip.GetLength())
+    {
+        DEBUG_LOG("Workaround set last frame if over time");
+        currentFrame = &clipInfo_.clip.GetFrames().back();
+    }
+
+    DEBUG_LOG("notifyClipSubscribers currentFrame.timeStamp=" + std::to_string(currentFrame->timeStamp));
+    DEBUG_LOG("notifyClipSubscribers nextFrame.timeStamp=" +
+              std::to_string(context_.currentPose.frames.second->timeStamp));
+
+    for (const auto& sub : clipInfo_.subscribers)
+    {
+        DEBUG_LOG("notifyClipSubscribers sub.timeStamp=" + std::to_string(sub.timeStamp));
+
+        if (compare(sub.timeStamp, currentFrame->timeStamp) and
+            not compare(currentFrame->timeStamp, previousFrameTimeStamp))
+        {
+            sub.callback();
+        }
+    }
+    previousFrameTimeStamp = currentFrame->timeStamp;
 }
 }  // namespace Components
 }  // namespace GameEngine

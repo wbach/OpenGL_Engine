@@ -15,10 +15,18 @@ void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFram
         const auto& nextFrameTransformIter = nextFrame.transforms.find(jointId);
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
-            auto& poseData            = currentPose[jointId];
-            const auto& nextTransform = nextFrameTransformIter->second;
-            poseData.transform        = Interpolate(previousTransform, nextTransform, progression);
-            poseData.matrix           = GetLocalTransform(poseData.transform);
+            auto currentPoseJointIter = currentPose.data.find(jointId);
+            if (currentPoseJointIter != currentPose.data.end())
+            {
+                auto& poseData            = currentPoseJointIter->second;
+                const auto& nextTransform = nextFrameTransformIter->second;
+                poseData.transform        = Interpolate(previousTransform, nextTransform, progression);
+                poseData.matrix           = GetLocalTransform(poseData.transform);
+            }
+            else
+            {
+                currentPose.data.insert({jointId, {}});
+            }
         }
     }
 }
@@ -36,7 +44,7 @@ void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFram
 
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
-            auto& poseData            = currentPose[jointId];
+            auto& poseData            = currentPose.data[jointId];
             const auto& nextTransform = nextFrameTransformIter->second;
             poseData.transform        = Interpolate(previousTransform, nextTransform, progression);
             poseData.matrix           = GetLocalTransform(poseData.transform);
@@ -50,21 +58,21 @@ float calculateProgression(const Animation::KeyFrame& previousFrame, const Anima
     float currentTime = time - previousFrame.timeStamp;
     return glm::clamp(currentTime / totalTime, 0.f, 1.f);
 }
-std::pair<Animation::KeyFrame, Animation::KeyFrame> getPreviousAndNextFrames(const Animation::AnimationClip& clip,
-                                                                             float time)
+
+CurrentFrames getPreviousAndNextFrames(const Animation::AnimationClip& clip, float time)
 {
     const auto& allFrames = clip.GetFrames();
 
-    auto previousFrame = allFrames[0];
-    auto nextFrame     = allFrames[0];
+    auto previousFrame = &allFrames[0];
+    auto nextFrame     = &allFrames[0];
 
     for (uint32 i = 1; i < allFrames.size(); i++)
     {
-        nextFrame = allFrames[i];
-        if (nextFrame.timeStamp > time)
+        nextFrame = &allFrames[i];
+        if (nextFrame->timeStamp > time)
             break;
 
-        previousFrame = allFrames[i];
+        previousFrame = &allFrames[i];
     }
     return {previousFrame, nextFrame};
 }
@@ -72,23 +80,28 @@ void calculateCurrentAnimationPose(Pose& currentPose, const Animation::Animation
 {
     if (clip.GetFrames().empty())
         return;
-    auto frames       = getPreviousAndNextFrames(clip, time);
-    float progression = calculateProgression(frames.first, frames.second, time);
-    interpolatePoses(currentPose, frames.first, frames.second, progression);
+
+    currentPose.frames = getPreviousAndNextFrames(clip, time);
+    float progression  = calculateProgression(*currentPose.frames.first, *currentPose.frames.second, time);
+    interpolatePoses(currentPose, *currentPose.frames.first, *currentPose.frames.second, progression);
 }
 void calculateCurrentAnimationPose(Pose& currentPose, const Animation::AnimationClip& clip, float time,
                                    const std::vector<uint32>& usedJointIds)
 {
-    auto frames       = getPreviousAndNextFrames(clip, time);
-    float progression = calculateProgression(frames.first, frames.second, time);
-    interpolatePoses(currentPose, frames.first, frames.second, progression, usedJointIds);
+    if (clip.GetFrames().empty())
+        return;
+
+    currentPose.frames = getPreviousAndNextFrames(clip, time);
+    float progression  = calculateProgression(*currentPose.frames.first, *currentPose.frames.second, time);
+    interpolatePoses(currentPose, *currentPose.frames.first, *currentPose.frames.second, progression, usedJointIds);
 }
+
 Animation::KeyFrame convert(const Pose& pose, float timestamp)
 {
     Animation::KeyFrame result;
     result.timeStamp = timestamp;
 
-    for (const auto& pair : pose)
+    for (const auto& pair : pose.data)
     {
         result.transforms.insert({pair.first, pair.second.transform});
     }

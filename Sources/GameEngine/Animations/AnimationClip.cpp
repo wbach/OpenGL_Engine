@@ -57,6 +57,12 @@ KeyFrame* AnimationClip::getFrame(size_t i)
     return i < frames.size() ? &frames[i] : nullptr;
 }
 
+std::optional<uint32> AnimationClip::getFrameId(float time)
+{
+
+    return std::nullopt;
+}
+
 }  // namespace Animation
 }  // namespace GameEngine
 

@@ -26,7 +26,7 @@ private:
 
     struct Group
     {
-        AnimationClipInfo clipInfo;
+        const AnimationClipInfo& clipInfo;
         float time;
         float direction;
         std::vector<uint32> jointIds;

@@ -27,6 +27,8 @@ class RendererComponent;
 class Animator : public BaseComponent
 {
 public:
+    using AnimationInfoClips = std::unordered_map<std::string, AnimationClipInfo>;
+
     enum class AnimationChangeType
     {
         smooth,
@@ -46,17 +48,18 @@ public:
 
     GraphicsApi::ID getPerPoseBufferId() const;
     void setPlayOnceForAnimationClip(const std::string&);
-    IdType SubscribeForAnimationEnd(const std::string&, std::function<void()>);
 
-    void UnSubscribeForAnimationEnd(IdType);
+    IdType SubscribeForAnimationFrame(const std::string&, std::function<void()>, float = -1);
+    void UnSubscribeForAnimationFrame(IdType);
 
     Animation::Joint* GetJoint(const std::string&);
 
     uint32 subscribeForPoseBufferUpdate(std::function<void()>);
     void unSubscribeForPoseUpdateBuffer(uint32);
 
+    const AnimationInfoClips& getAnimationClips() const;
+
 public:
-    std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
     JointData jointData_;
     float animationSpeed_;
     std::string startupAnimationClipName_;
@@ -72,7 +75,8 @@ protected:
 
 protected:
     StateMachine machine_;
-    std::unordered_map<std::string, std::vector<std::pair<IdType, std::function<void()>>>> onAnimationEnd_;
+    AnimationInfoClips animationClipInfo_;
+    std::unordered_map<IdType, std::vector<AnimationClipInfo::Subscription>*> animationClipInfoSubscriptions_;
     Utils::IdPool animationEndIdPool_;
 
     RendererComponent* rendererComponent_;

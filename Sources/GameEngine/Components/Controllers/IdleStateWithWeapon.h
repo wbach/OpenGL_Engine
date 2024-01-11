@@ -31,7 +31,7 @@ class IdleStateWithWeapon
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    IdleStateWithWeapon(FsmContext&, const std::string&, const std::string&);
+    IdleStateWithWeapon(FsmContext&, const std::string&, const std::string&, float);
     void onEnter();
     void onEnter(const WeaponStateEvent&);
     void update(const AttackEvent&);
@@ -47,6 +47,7 @@ private:
     const std::string& idleAnimName_;
     const std::string& equipAnimName_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
+    float equipTimeStamp_{0.0f};
 
     JointPoseUpdater* jointPoseUpdater_;
 };

@@ -12,11 +12,17 @@ namespace Components
 {
 struct AnimationClipInfo
 {
+    struct Subscription
+    {
+        IdType id;
+        std::function<void()> callback;
+        float timeStamp;
+    };
     float playSpeed{1.f};
-    const Animation::AnimationClip& clip;
+    Animation::AnimationClip clip;
     PlayPolicy policy{PlayPolicy::PlayInLoop};
     PlayDirection playDirection{PlayDirection::forward};
-    const std::vector<std::pair<IdType, std::function<void()>>>& endCallbacks_;
+    std::vector<Subscription> subscribers;
 };
 }  // namespace Components
 }  // namespace GameEngine

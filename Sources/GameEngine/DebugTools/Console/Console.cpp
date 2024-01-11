@@ -83,9 +83,9 @@ void Console::RegisterActions()
     commandsActions_.insert({"prefab", [this](const auto &params) { LoadPrefab(params); }});
     commandsActions_.insert({"pos", [this](const auto &params) { PrintPosition(params); }});
     commandsActions_.insert({"setpos", [this](const auto &params) { SetPosition(params); }});
-    commandsActions_.insert({"savescene", [this](const auto &params) { SaveScene(params); }});
-    commandsActions_.insert({"loadscene", [this](const auto &params) { LoadScene(params); }});
-    commandsActions_.insert({"reloadscene", [this](const auto &params) { ReloadScene(params); }});
+    commandsActions_.insert({"save", [this](const auto &params) { SaveScene(params); }});
+    commandsActions_.insert({"load", [this](const auto &params) { LoadScene(params); }});
+    commandsActions_.insert({"reload", [this](const auto &params) { ReloadScene(params); }});
     commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
     commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
     commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
@@ -370,9 +370,13 @@ void Console::PrintPosition(const std::vector<std::string> &args)
 void Console::SaveScene(const std::vector<std::string> &params)
 {
     if (params.empty())
-        return;
-
-    scene_.SaveToFile(params[0]);
+    {
+        scene_.SaveToFile();
+    }
+    else
+    {
+        scene_.SaveToFile(params[0]);
+    }
 }
 
 void Console::LoadScene(const std::vector<std::string> &params)
@@ -534,79 +538,89 @@ void Console::LoadCommandHistoryFromFile()
 
 void Console::SubscribeKeys()
 {
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
-        if (not window_->IsShow() or not currentCommand_)
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER,
+                                             [&]()
+                                             {
+                                                 if (not window_->IsShow() or not currentCommand_)
+                                                 {
+                                                     return;
+                                                 }
+                                                 commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+                                                 AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
+                                                 currentCommand_ = AddOrUpdateGuiText("");
+                                             });
+    scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::DARROW,
+        [this]()
         {
-            return;
-        }
-        commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
-        AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
-        currentCommand_ = AddOrUpdateGuiText("");
-    });
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
-        if (commandsHistory_.empty())
-            return;
+            if (commandsHistory_.empty())
+                return;
 
-        if (commandHistoryIndex_ < 0)
+            if (commandHistoryIndex_ < 0)
+            {
+                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+            }
+            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+            {
+                commandHistoryIndex_ = 0;
+            }
+
+            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+            ++commandHistoryIndex_;
+        });
+
+    scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::UARROW,
+        [this]()
         {
-            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-        }
-        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-        {
-            commandHistoryIndex_ = 0;
-        }
+            if (commandsHistory_.empty())
+                return;
 
-        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-        ++commandHistoryIndex_;
-    });
+            if (commandHistoryIndex_ < 0)
+            {
+                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+            }
+            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+            {
+                commandHistoryIndex_ = 0;
+            }
 
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
-        if (commandsHistory_.empty())
-            return;
-
-        if (commandHistoryIndex_ < 0)
-        {
-            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-        }
-        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-        {
-            commandHistoryIndex_ = 0;
-        }
-
-        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-        --commandHistoryIndex_;
-    });
+            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+            --commandHistoryIndex_;
+        });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
-        if (not window_->IsShow())
-            return;
-
-        switch (key)
+    scene_.inputManager_->SubscribeOnAnyKeyPress(
+        [this](KeyCodes::Type key)
         {
-            case KeyCodes::SPACE:
-                currentCommand_->Append(' ');
-                break;
+            if (not window_->IsShow())
+                return;
 
-            case KeyCodes::BACKSPACE:
-                if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
-                    currentCommand_->Pop();
-                break;
-
-            default:
+            switch (key)
             {
-                auto character = Input::KeyCodeToCharConverter::Convert(key, inputType);
-                if (character)
+                case KeyCodes::SPACE:
+                    currentCommand_->Append(' ');
+                    break;
+
+                case KeyCodes::BACKSPACE:
+                    if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
+                        currentCommand_->Pop();
+                    break;
+
+                default:
                 {
-                    currentCommand_->Append(*character);
+                    auto character = Input::KeyCodeToCharConverter::Convert(key, inputType);
+                    if (character)
+                    {
+                        currentCommand_->Append(*character);
+                    }
                 }
+                break;
             }
-            break;
-        }
-    });
+        });
 
     auto closeConsole = [this]() { scene_.inputManager_->AddEvent([&]() { CloseConsole(); }); };
 
@@ -638,23 +652,28 @@ void Console::PrepareConsoleWindow()
 
     scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
 
-    keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
-        window_->Show();
-        DEBUG_LOG("f2");
-        if (not commandsHistory_.empty())
-            commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+    keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        KeyCodes::F2,
+        [this]()
+        {
+            window_->Show();
+            DEBUG_LOG("f2");
+            if (not commandsHistory_.empty())
+                commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
 
-        if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
-            currentCommand_ = AddOrUpdateGuiText("");
+            if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+                currentCommand_ = AddOrUpdateGuiText("");
 
-        currentCommand_->Show();
+            currentCommand_->Show();
 
-        scene_.camera.Lock();
-        scene_.inputManager_->AddEvent([&]() {
-            scene_.inputManager_->StashSubscribers();
-            SubscribeKeys();
+            scene_.camera.Lock();
+            scene_.inputManager_->AddEvent(
+                [&]()
+                {
+                    scene_.inputManager_->StashSubscribers();
+                    SubscribeKeys();
+                });
         });
-    });
 }
 }  // namespace Debug
 }  // namespace GameEngine

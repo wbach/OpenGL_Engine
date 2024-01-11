@@ -28,7 +28,10 @@ const std::string CSTR_ATTACK_ANIMATION3       = "attack3";
 const std::string CSTR_HURT_ANIMATION          = "hurt";
 const std::string CSTR_DEATH_ANIMATION         = "death";
 const std::string CSTR_JUMP_ANIMATION          = "jump";
+const std::string CSTR_EQUIP_TIMESTAMP         = "equipTimeStamp";
+const std::string CSTR_DISARM_TIMESTAMP        = "disarmTimeStamp";
 }  // namespace
+
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
     , hurtAnimationName{"Hurt"}
@@ -43,6 +46,8 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , disarmAnimName{"DisarmBow"}
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
+    , equipTimeStamp{-1.0}
+    , disarmTimeStamp{-1.0}
     , rigidbody_{nullptr}
     , jumpPower_(DEFAULT_JUMP_POWER)
     , turnSpeed_(DEFAULT_TURN_SPEED)
@@ -90,13 +95,12 @@ void CharacterController::Init()
 
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
                                         *animator_, moveForwardAnimationName, moveBackwardAnimationName,
-                                        jumpAnimationName, deathAnimationName, upperBodyGroupName,
-                                        lowerBodyGroupName});
+                                        jumpAnimationName, deathAnimationName, upperBodyGroupName, lowerBodyGroupName});
 
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            IdleState(*fsmContext, idleAnimationName, disarmAnimName),
-            IdleStateWithWeapon(*fsmContext, idleAnimationWithWeaponName, equipAnimName), MoveState(*fsmContext),
-            RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
+            IdleState(*fsmContext, idleAnimationName, disarmAnimName, disarmTimeStamp),
+            IdleStateWithWeapon(*fsmContext, idleAnimationWithWeaponName, equipAnimName, equipTimeStamp),
+            MoveState(*fsmContext), RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }), DeathState(*fsmContext));
 
@@ -163,6 +167,8 @@ void CharacterController::registerReadFunctions()
             ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION2), component->attackAnimationName2);
             ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION3), component->attackAnimationName3);
             ::Read(animationClipsNode->getChild(CSTR_JUMP_ANIMATION), component->jumpAnimationName);
+            ::Read(animationClipsNode->getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
+            ::Read(animationClipsNode->getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
         }
         return component;
     };
@@ -185,6 +191,8 @@ void CharacterController::write(TreeNode& node) const
     ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION2), attackAnimationName2);
     ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION3), attackAnimationName3);
     ::write(animClipsNode.addChild(CSTR_JUMP_ANIMATION), jumpAnimationName);
+    ::write(animClipsNode.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
+    ::write(animClipsNode.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
 }
 }  // namespace Components
 }  // namespace GameEngine
