@@ -39,6 +39,9 @@ void Player::CleanUp()
     {
         guiManager_.Remove(*hudElements_.window);
     }
+
+    for (auto& id : animSubs_)
+        animator_->UnSubscribeForAnimationFrame(id);
 }
 void Player::ReqisterFunctions()
 {
@@ -52,7 +55,8 @@ void Player::Init()
 
     if (animator_ and characterController_)
     {
-        auto attackAction = [this]() {
+        auto attackAction = [this]()
+        {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -69,9 +73,14 @@ void Player::Init()
                 }
             }
         };
-        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName, attackAction);
-        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName2, attackAction);
-        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName3, attackAction);
+        for (const auto& attackAnim : characterController_->animationClipsNames_.armed.attack)
+        {
+            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackAnim, attackAction));
+        }
+        for (const auto& attackAnim : characterController_->animationClipsNames_.disarmed.attack)
+        {
+            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackAnim, attackAction));
+        }
     }
 
     const vec2 windowSize(0.2f, 0.1f);
@@ -119,7 +128,7 @@ void Player::hurt(int64 dmg)
         characterStatistic_.currentHp -= dmg;
         if (characterStatistic_.currentHp > 0)
         {
-            //characterController_->addState(std::make_unique<Hurt>());
+            // characterController_->addState(std::make_unique<Hurt>());
         }
         else
         {
@@ -149,7 +158,8 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
     guiManager_.add(GuiAnimation(
         std::move(hitText), GuiAnimation::Duration(1.f),
         [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
-            GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable {
+            GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable
+        {
             if (elapsedTime > 0.5f)
             {
                 const float speed    = 0.05f;
@@ -182,9 +192,8 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
 }
 void Player::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
-        return std::make_unique<Player>(componentContext, gameObject);
-    };
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
+    { return std::make_unique<Player>(componentContext, gameObject); };
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
 }
 void Player::write(TreeNode& node) const

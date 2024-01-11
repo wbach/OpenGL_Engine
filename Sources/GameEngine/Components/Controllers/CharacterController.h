@@ -35,21 +35,10 @@ public:
     void SetJumpPower(float);
 
 public:
-    std::string hurtAnimationName;
-    std::string attackAnimationName;
-    std::string attackAnimationName2;
-    std::string attackAnimationName3;
-    std::string deathAnimationName;
-    std::string jumpAnimationName;
-    std::string moveForwardAnimationName;
-    std::string moveBackwardAnimationName;
-    std::string idleAnimationName;
-    std::string idleAnimationWithWeaponName;
-    std::string equipAnimName;
-    std::string disarmAnimName;
-
     std::string upperBodyGroupName;
     std::string lowerBodyGroupName;
+
+    AnimationClipsNames animationClipsNames_;
 
     float equipTimeStamp;
     float disarmTimeStamp;

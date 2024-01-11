@@ -7,10 +7,10 @@ namespace GameEngine
 {
 namespace Components
 {
-IdleState::IdleState(FsmContext &context, const std::string &idleAnimName, const std::string &disarmAnimName, float disarmTimeStamp)
+IdleState::IdleState(FsmContext &context, float disarmTimeStamp)
     : context_{context}
-    , idleAnimName_{idleAnimName}
-    , disarmAnimName_{disarmAnimName}
+    , idleAnimName_{context_.animClipNames.disarmed.idle}
+    , disarmAnimName_{context_.animClipNames.disarm}
     , disarmTimeStamp_{disarmTimeStamp}
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {

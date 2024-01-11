@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace GameEngine
 {
@@ -15,7 +16,7 @@ struct FsmContext;
 class MoveStateBase
 {
 public:
-    MoveStateBase(FsmContext&);
+    MoveStateBase(FsmContext&, const std::string&, const std::string&);
     void onEnter(const EndJumpEvent&);
     void onEnter(const MoveForwardEvent&);
     void onEnter(const MoveBackwardEvent&);
@@ -30,6 +31,8 @@ private:
 
 private:
     FsmContext& context_;
+    std::string forwardAnimName_;
+    std::string backwardAnimName_;
     bool animationIsReady_{false};
 };
 }  // namespace Components

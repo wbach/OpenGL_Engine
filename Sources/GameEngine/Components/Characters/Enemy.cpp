@@ -36,6 +36,9 @@ void Enemy::CleanUp()
 {
     if (hud_.window)
         guiManager_.Remove(*hud_.window);
+
+    for (auto& id : animSubs_)
+        animator_->UnSubscribeForAnimationFrame(id);
 }
 void Enemy::ReqisterFunctions()
 {
@@ -49,8 +52,6 @@ void Enemy::Init()
 
     if (animator_ and characterController_)
     {
-        animator_->setPlayOnceForAnimationClip(characterController_->hurtAnimationName);
-
         auto attackAction = [this]()
         {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
@@ -65,9 +66,14 @@ void Enemy::Init()
             }
         };
 
-        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName, attackAction);
-        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName2, attackAction);
-        animator_->SubscribeForAnimationFrame(characterController_->attackAnimationName3, attackAction);
+        for (const auto& attackName : characterController_->animationClipsNames_.armed.attack)
+        {
+            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackName, attackAction));
+        }
+        for (const auto& attackName : characterController_->animationClipsNames_.disarmed.attack)
+        {
+            animSubs_.push_back(animator_->SubscribeForAnimationFrame(attackName, attackAction));
+        }
     }
 
     const vec2 windowSize(0.2f, 0.033f);

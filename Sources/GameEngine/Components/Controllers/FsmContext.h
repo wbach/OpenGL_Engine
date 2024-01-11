@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "AnimationClipNames.h"
 #include "Attack/AttackFsm.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -20,10 +21,7 @@ struct FsmContext
     Rigidbody& rigidbody;
     Animator& animator;
 
-    const std::string& forwardAnimationName;
-    const std::string& backwardAnimationName;
-    const std::string& jumpAnimationName;
-    const std::string& diedAnimationName;
+    const AnimationClipsNames& animClipNames;
 
     const std::string& upperBodyGroupName;
     const std::string& lowerBodyGroupName;

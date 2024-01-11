@@ -13,14 +13,14 @@ class MoveState;
 class RotateState;
 class JumpState;
 class DeathState;
-class IdleStateWithWeapon;
+class ArmedIdleState;
 class JointPoseUpdater;
 
 class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+                      // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
                       Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-                      Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleStateWithWeapon>>,
+                      Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                       Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
                       Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
@@ -30,7 +30,7 @@ class IdleState : public Utils::StateMachine::Will<
                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    IdleState(FsmContext&, const std::string& idleAnimName, const std::string& disarmAnimName, float disarmTimeStamp);
+    IdleState(FsmContext&,  float disarmTimeStamp);
     void onEnter();
     void onEnter(const WeaponStateEvent&);
     void update(const AttackEvent&);

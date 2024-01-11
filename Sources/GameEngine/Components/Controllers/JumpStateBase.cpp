@@ -11,10 +11,10 @@ JumpStateBase::JumpStateBase(FsmContext &context, std::function<void()> endCallb
 }
 void JumpStateBase::onEnter(const JumpEvent &event)
 {
-    if (not context_.jumpAnimationName.empty())
+    if (not context_.animClipNames.disarmed.jump.empty())
     {
         context_.animator.ChangeAnimation(
-            context_.jumpAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.animClipNames.disarmed.jump, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
     }
 

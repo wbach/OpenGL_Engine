@@ -9,29 +9,29 @@ namespace GameEngine
 {
 namespace Components
 {
-class MoveState;
+class ArmedMoveState;
 class RotateState;
 class JumpState;
 class DeathState;
 class IdleState;
 class JointPoseUpdater;
 
-class IdleStateWithWeapon
+class ArmedIdleState
     : public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          //          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          //          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
-          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedMoveState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedMoveState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateState>>,
-          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateState>>>
+//          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    IdleStateWithWeapon(FsmContext&, const std::string&, const std::string&, float);
+    ArmedIdleState(FsmContext&, float);
     void onEnter();
     void onEnter(const WeaponStateEvent&);
     void update(const AttackEvent&);

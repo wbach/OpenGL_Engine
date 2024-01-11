@@ -8,42 +8,128 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
+namespace
+{
+const std::string COMPONENT_STR = "CharacterController";
+
+const std::string CSTR_EQUIP_TIMESTAMP  = "equipTimeStamp";
+const std::string CSTR_DISARM_TIMESTAMP = "disarmTimeStamp";
+
+const std::string CSTR_ATTACK_ANIMATIONS         = "attackAnimations";
+const std::string CSTR_ANIMATION                 = "animation";
+const std::string CSTR_ANIMATION_ARMED           = "armedAnimations";
+const std::string CSTR_ANIMATION_DISARMED        = "disarmedAnimations";
+const std::string CSTR_ANIMATION_CROUCH          = "crouchAnimations";
+const std::string CSTR_ANIMATION_EQUIP           = "equipAnimation";
+const std::string CSTR_ANIMATION_DISARM          = "disarmAnimation";
+const std::string CSTR_ANIMATION_WALK            = "walk";
+const std::string CSTR_ANIMATION_RUN             = "run";
+const std::string CSTR_ANIMATION_SPRINT          = "sprint";
+const std::string CSTR_ANIMATION_DOGE            = "doge";
+const std::string CSTR_ANIMATION_DOGE_JUMP       = "dogeJump";
+const std::string CSTR_ANIMATION_CROUCH_MOVEMENT = "crouchMovement";
+const std::string CSTR_ANIMATION_FORWARD         = "forward";
+const std::string CSTR_ANIMATION_BACKWARD        = "backward";
+const std::string CSTR_ANIMATION_ROTATE_LEFT     = "rotateLeft";
+const std::string CSTR_ANIMATION_ROTATE_RIGHT    = "rotateRight";
+const std::string CSTR_ANIMATION_MOVE_LEFT       = "moveLeft";
+const std::string CSTR_ANIMATION_MOVE_RIGHT      = "moveRight";
+const std::string CSTR_JUMP_ANIMATION            = "jump";
+const std::string CSTR_IDLE_MAIN                 = "mainIdle";
+const std::string CSTR_HURT_ANIMATION            = "hurt";
+const std::string CSTR_DEATH_ANIMATION           = "death";
+}  // namespace
+
+void write(TreeNode& node, const GameEngine::Components::MovmentClipNames& names)
+{
+    ::write(node.addChild(CSTR_ANIMATION_FORWARD), names.forward);
+    ::write(node.addChild(CSTR_ANIMATION_BACKWARD), names.backward);
+    ::write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), names.rotateLeft);
+    ::write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), names.rotateRight);
+    ::write(node.addChild(CSTR_ANIMATION_MOVE_LEFT), names.moveleft);
+    ::write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.moveRight);
+}
+void write(TreeNode& node, const std::vector<std::string>& names)
+{
+    for (const auto& name : names)
+    {
+        ::write(node.addChild(CSTR_ANIMATION), name);
+    }
+}
+
+void write(TreeNode& node, const GameEngine::Components::StateClipsNames& names)
+{
+    ::write(node.addChild(CSTR_ANIMATION_WALK), names.walk);
+    ::write(node.addChild(CSTR_ANIMATION_RUN), names.run);
+    ::write(node.addChild(CSTR_ANIMATION_CROUCH_MOVEMENT), names.crouch);
+    ::write(node.addChild(CSTR_JUMP_ANIMATION), names.jump);
+    ::write(node.addChild(CSTR_IDLE_MAIN), names.idle);
+    ::write(node.addChild(CSTR_HURT_ANIMATION), names.hurt);
+    ::write(node.addChild(CSTR_DEATH_ANIMATION), names.death);
+    ::write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);
+}
+
+void write(TreeNode& node, const GameEngine::Components::AnimationClipsNames& names)
+{
+    ::write(node.addChild(CSTR_ANIMATION_ARMED), names.armed);
+    ::write(node.addChild(CSTR_ANIMATION_DISARMED), names.disarmed);
+    ::write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
+    ::write(node.addChild(CSTR_ANIMATION_DOGE), names.doge);
+    ::write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
+    ::write(node.addChild(CSTR_ANIMATION_EQUIP), names.equip);
+    ::write(node.addChild(CSTR_ANIMATION_DISARM), names.disarm);
+}
+
+void Read(const TreeNode& node, GameEngine::Components::MovmentClipNames& result)
+{
+    Read(node.getChild(CSTR_ANIMATION_FORWARD), result.forward);
+    Read(node.getChild(CSTR_ANIMATION_BACKWARD), result.backward);
+    Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.rotateLeft);
+    Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.rotateRight);
+    Read(node.getChild(CSTR_ANIMATION_MOVE_LEFT), result.moveleft);
+    Read(node.getChild(CSTR_ANIMATION_MOVE_RIGHT), result.moveRight);
+}
+
+void Read(const TreeNode& node, std::vector<std::string>& result)
+{
+    for (const auto& node : node.getChildren())
+    {
+        std::string str;
+        Read(*node, str);
+        result.push_back(str);
+    }
+}
+
+void Read(const TreeNode& node, GameEngine::Components::StateClipsNames& result)
+{
+    Read(node.getChild(CSTR_ANIMATION_WALK), result.walk);
+    Read(node.getChild(CSTR_ANIMATION_RUN), result.run);
+    Read(node.getChild(CSTR_ANIMATION_CROUCH_MOVEMENT), result.crouch);
+    Read(node.getChild(CSTR_JUMP_ANIMATION), result.jump);
+    Read(node.getChild(CSTR_IDLE_MAIN), result.idle);
+    Read(node.getChild(CSTR_HURT_ANIMATION), result.hurt);
+    Read(node.getChild(CSTR_DEATH_ANIMATION), result.death);
+    Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
+}
+
+void Read(const TreeNode& node, GameEngine::Components::AnimationClipsNames& result)
+{
+    Read(node.getChild(CSTR_ANIMATION_ARMED), result.armed);
+    Read(node.getChild(CSTR_ANIMATION_DISARMED), result.disarmed);
+    Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
+    Read(node.getChild(CSTR_ANIMATION_DOGE), result.doge);
+    Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
+    Read(node.getChild(CSTR_ANIMATION_EQUIP), result.equip);
+    Read(node.getChild(CSTR_ANIMATION_DISARM), result.disarm);
+}
+
 namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const std::string COMPONENT_STR                = "CharacterController";
-const std::string CSTR_IDLE_ANIMATION          = "idle";
-const std::string CSTR_IDLE_WEAPON_ANIMATION   = "idleWithWeapon";
-const std::string CSTR_EQUIP_WEAPON_ANIMATION  = "equipWeapon";
-const std::string CSTR_DISARM_WEAPON_ANIMATION = "disarmWeapon";
-const std::string CSTR_RUN_ANIMATION           = "run";
-const std::string CSTR_MOVEBACKWARD_ANIMATION  = "moveBackward";
-const std::string CSTR_WALK_ANIMATION          = "walk";
-const std::string CSTR_ATTACK_ANIMATION        = "attack";
-const std::string CSTR_ATTACK_ANIMATION2       = "attack2";
-const std::string CSTR_ATTACK_ANIMATION3       = "attack3";
-const std::string CSTR_HURT_ANIMATION          = "hurt";
-const std::string CSTR_DEATH_ANIMATION         = "death";
-const std::string CSTR_JUMP_ANIMATION          = "jump";
-const std::string CSTR_EQUIP_TIMESTAMP         = "equipTimeStamp";
-const std::string CSTR_DISARM_TIMESTAMP        = "disarmTimeStamp";
-}  // namespace
 
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
-    , hurtAnimationName{"Hurt"}
-    , attackAnimationName{"Attack"}
-    , deathAnimationName{"Death"}
-    , jumpAnimationName{"Jump"}
-    , moveForwardAnimationName{"Run"}
-    , moveBackwardAnimationName{}
-    , idleAnimationName{"Idle"}
-    , idleAnimationWithWeaponName{"StandingIdle"}
-    , equipAnimName{"EquipBow"}
-    , disarmAnimName{"DisarmBow"}
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
     , equipTimeStamp{-1.0}
@@ -86,35 +172,41 @@ void CharacterController::Init()
                 stateMachine_->handle(EndAttackEvent{});
         };
 
-        attackFsmContext.reset(new AttackFsmContext{*animator_,
-                                                    {attackAnimationName, attackAnimationName2, attackAnimationName3},
-                                                    sendEndAtatackCallback,
-                                                    std::nullopt});
+        attackFsmContext.reset(
+            new AttackFsmContext{*animator_, animationClipsNames_, sendEndAtatackCallback, std::nullopt});
 
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
 
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
-                                        *animator_, moveForwardAnimationName, moveBackwardAnimationName,
-                                        jumpAnimationName, deathAnimationName, upperBodyGroupName, lowerBodyGroupName});
-
+                                        *animator_, animationClipsNames_, upperBodyGroupName, lowerBodyGroupName});
+        // clang-format off
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            IdleState(*fsmContext, idleAnimationName, disarmAnimName, disarmTimeStamp),
-            IdleStateWithWeapon(*fsmContext, idleAnimationWithWeaponName, equipAnimName, equipTimeStamp),
-            MoveState(*fsmContext), RotateState(*fsmContext), MoveAndRotateState(*fsmContext),
+            IdleState(*fsmContext, disarmTimeStamp),
+            MoveState(*fsmContext),
+            RotateState(*fsmContext),
+            MoveAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
-            MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }), DeathState(*fsmContext));
+            MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
+            ArmedIdleState(*fsmContext, equipTimeStamp),
+            ArmedMoveState(*fsmContext), DeathState(*fsmContext));
+        // clang-format on
 
         rigidbody_->InputParams().angularFactor_ = vec3(0);
-        animator_->setPlayOnceForAnimationClip(equipAnimName);
-        animator_->setPlayOnceForAnimationClip(disarmAnimName);
-        animator_->setPlayOnceForAnimationClip(jumpAnimationName);
-        animator_->setPlayOnceForAnimationClip(hurtAnimationName);
-        animator_->setPlayOnceForAnimationClip(deathAnimationName);
-        animator_->setPlayOnceForAnimationClip(attackAnimationName);
-        animator_->setPlayOnceForAnimationClip(attackAnimationName2);
-        animator_->setPlayOnceForAnimationClip(attackAnimationName3);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarm);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.hurt);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.death);
+        for (const auto& attack : animationClipsNames_.armed.attack)
+        {
+            animator_->setPlayOnceForAnimationClip(attack);
+        }
+        for (const auto& attack : animationClipsNames_.disarmed.attack)
+        {
+            animator_->setPlayOnceForAnimationClip(attack);
+        }
 
-        animator_->SetAnimation(idleAnimationName);
+        animator_->SetAnimation(animationClipsNames_.disarmed.idle);
     }
 }
 void CharacterController::Update()
@@ -155,44 +247,25 @@ void CharacterController::registerReadFunctions()
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
         if (animationClipsNode)
         {
-            ::Read(animationClipsNode->getChild(CSTR_IDLE_ANIMATION), component->idleAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_IDLE_WEAPON_ANIMATION), component->idleAnimationWithWeaponName);
-            ::Read(animationClipsNode->getChild(CSTR_EQUIP_WEAPON_ANIMATION), component->equipAnimName);
-            ::Read(animationClipsNode->getChild(CSTR_DISARM_WEAPON_ANIMATION), component->disarmAnimName);
-            ::Read(animationClipsNode->getChild(CSTR_HURT_ANIMATION), component->hurtAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_RUN_ANIMATION), component->moveForwardAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_MOVEBACKWARD_ANIMATION), component->moveBackwardAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_DEATH_ANIMATION), component->deathAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION), component->attackAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION2), component->attackAnimationName2);
-            ::Read(animationClipsNode->getChild(CSTR_ATTACK_ANIMATION3), component->attackAnimationName3);
-            ::Read(animationClipsNode->getChild(CSTR_JUMP_ANIMATION), component->jumpAnimationName);
-            ::Read(animationClipsNode->getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
-            ::Read(animationClipsNode->getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
+            ::Read(*animationClipsNode, component->animationClipsNames_);
         }
+
+        ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
+        ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
+
         return component;
     };
 
     regsiterComponentReadFunction(COMPONENT_STR, readFunc);
 }
+
 void CharacterController::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
-    auto& animClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
-    ::write(animClipsNode.addChild(CSTR_IDLE_ANIMATION), idleAnimationName);
-    ::write(animClipsNode.addChild(CSTR_IDLE_WEAPON_ANIMATION), idleAnimationWithWeaponName);
-    ::write(animClipsNode.addChild(CSTR_EQUIP_WEAPON_ANIMATION), equipAnimName);
-    ::write(animClipsNode.addChild(CSTR_DISARM_WEAPON_ANIMATION), disarmAnimName);
-    ::write(animClipsNode.addChild(CSTR_HURT_ANIMATION), hurtAnimationName);
-    ::write(animClipsNode.addChild(CSTR_RUN_ANIMATION), moveForwardAnimationName);
-    ::write(animClipsNode.addChild(CSTR_MOVEBACKWARD_ANIMATION), moveBackwardAnimationName);
-    ::write(animClipsNode.addChild(CSTR_DEATH_ANIMATION), deathAnimationName);
-    ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION), attackAnimationName);
-    ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION2), attackAnimationName2);
-    ::write(animClipsNode.addChild(CSTR_ATTACK_ANIMATION3), attackAnimationName3);
-    ::write(animClipsNode.addChild(CSTR_JUMP_ANIMATION), jumpAnimationName);
-    ::write(animClipsNode.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
-    ::write(animClipsNode.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
+
+    ::write(node.addChild(CSTR_ANIMATION_CLIPS), animationClipsNames_);
+    ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
+    ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -3,6 +3,7 @@
 
 #include "CharacterControllerEvents.h"
 #include "MoveStateBase.h"
+#include "FsmContext.h"
 
 namespace GameEngine
 {
@@ -28,7 +29,7 @@ class MoveState : public MoveStateBase,
 {
 public:
     MoveState(FsmContext& context)
-        : MoveStateBase{context}
+        : MoveStateBase{context, context.animClipNames.disarmed.run.forward, context.animClipNames.disarmed.run.backward}
     {
     }
 };

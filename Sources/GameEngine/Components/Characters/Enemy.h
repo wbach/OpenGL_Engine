@@ -46,6 +46,7 @@ private:
     CharacterController* characterController_;
     CharacterStatistic characterStatistic_;
     HudElements hud_;
+    std::vector<IdType> animSubs_;
 
 public:
     static void registerReadFunctions();

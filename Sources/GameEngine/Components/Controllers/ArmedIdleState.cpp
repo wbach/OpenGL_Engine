@@ -1,4 +1,4 @@
-#include "IdleStateWithWeapon.h"
+#include "ArmedIdleState.h"
 
 #include "Attack/AttackEvents.h"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
@@ -7,20 +7,19 @@ namespace GameEngine
 {
 namespace Components
 {
-IdleStateWithWeapon::IdleStateWithWeapon(FsmContext &context, const std::string &idleAnimName,
-                                         const std::string &equipAnimName, float equipTimeStamp)
+ArmedIdleState::ArmedIdleState(FsmContext &context, float equipTimeStamp)
     : context_{context}
-    , idleAnimName_{idleAnimName}
-    , equipAnimName_{equipAnimName}
+    , idleAnimName_{context.animClipNames.armed.idle}
+    , equipAnimName_{context.animClipNames.equip}
     , equipTimeStamp_{equipTimeStamp}
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }
-void IdleStateWithWeapon::onEnter()
+void ArmedIdleState::onEnter()
 {
 }
 
-void IdleStateWithWeapon::onEnter(const WeaponStateEvent &)
+void ArmedIdleState::onEnter(const WeaponStateEvent &)
 {
     if (not idleAnimName_.empty() and not equipAnimName_.empty())
     {
@@ -51,27 +50,27 @@ void IdleStateWithWeapon::onEnter(const WeaponStateEvent &)
     }
 }
 
-void IdleStateWithWeapon::update(const AttackEvent &)
+void ArmedIdleState::update(const AttackEvent &)
 {
     context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
-void IdleStateWithWeapon::update(const EndAttackEvent &)
+void ArmedIdleState::update(const EndAttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::End{});
     context_.multiAnimations = false;
     onEnter();
 }
-void IdleStateWithWeapon::update(float)
+void ArmedIdleState::update(float)
 {
 }
-void IdleStateWithWeapon::onLeave()
+void ArmedIdleState::onLeave()
 {
     unsubscribe();
 }
 
-void IdleStateWithWeapon::unsubscribe()
+void ArmedIdleState::unsubscribe()
 {
     if (subscribeForTransitionAnimationEnd_)
     {

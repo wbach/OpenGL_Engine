@@ -10,8 +10,11 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveStateBase::MoveStateBase(FsmContext &context)
+MoveStateBase::MoveStateBase(FsmContext &context, const std::string &forwardAnimName,
+                             const std::string &backwardAnimName)
     : context_{context}
+    , forwardAnimName_{forwardAnimName}
+    , backwardAnimName_{backwardAnimName}
 {
 }
 void MoveStateBase::onEnter(const EndJumpEvent &)
@@ -56,11 +59,11 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::setForwardAnim()
 {
-    if (not context_.forwardAnimationName.empty())
+    if (not forwardAnimName_.empty())
     {
         animationIsReady_ = false;
         context_.animator.ChangeAnimation(
-            context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            forwardAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
             [this]() { animationIsReady_ = true; });
     }
@@ -68,19 +71,19 @@ void MoveStateBase::setForwardAnim()
 
 void MoveStateBase::setBackwardAnim()
 {
-    if (not context_.backwardAnimationName.empty())
+    if (not backwardAnimName_.empty())
     {
         animationIsReady_ = false;
         context_.animator.ChangeAnimation(
-            context_.backwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            backwardAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
             [this]() { animationIsReady_ = true; });
     }
-    else if (not context_.forwardAnimationName.empty())
+    else if (not forwardAnimName_.empty())
     {
         animationIsReady_ = false;
         context_.animator.ChangeAnimation(
-            context_.forwardAnimationName, Animator::AnimationChangeType::smooth, PlayDirection::backward,
+            forwardAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::backward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
             [this]() { animationIsReady_ = true; });
     }

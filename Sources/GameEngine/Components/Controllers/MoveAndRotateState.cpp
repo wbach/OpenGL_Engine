@@ -1,11 +1,12 @@
 #include "MoveAndRotateState.h"
+#include "FsmContext.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 MoveAndRotateState::MoveAndRotateState(FsmContext &context)
-    : MoveStateBase{context}
+    : MoveStateBase{context, context.animClipNames.disarmed.run.forward, context.animClipNames.disarmed.run.backward}
     , RotateStateBase{context}
 {
 }

@@ -11,9 +11,9 @@ DeathState::DeathState(FsmContext &context)
 
 void DeathState::onEnter()
 {
-    if (not context_.diedAnimationName.empty())
+    if (not context_.animClipNames.disarmed.death.empty())
     {
-        context_.animator.ChangeAnimation(context_.diedAnimationName, Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(context_.animClipNames.disarmed.death, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, std::nullopt);
     }
 }

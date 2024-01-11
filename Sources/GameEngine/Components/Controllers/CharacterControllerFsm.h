@@ -1,19 +1,22 @@
 #pragma once
 #include <Utils/Fsm/Fsm.h>
 
+#include "ArmedIdleState.h"
+#include "ArmedMoveState.h"
+#include "DeathState.h"
 #include "IdleState.h"
-#include "MoveState.h"
-#include "RotateState.h"
 #include "JumpState.h"
 #include "MoveAndRotateState.h"
 #include "MoveJumpState.h"
-#include "DeathState.h"
-#include "IdleStateWithWeapon.h"
+#include "MoveState.h"
+#include "RotateState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-using CharacterControllerFsm = Utils::StateMachine::Fsm<IdleState, IdleStateWithWeapon, MoveState, RotateState, MoveAndRotateState, JumpState, MoveJumpState, DeathState>;
+using CharacterControllerFsm =
+    Utils::StateMachine::Fsm<IdleState, MoveState, RotateState, MoveAndRotateState, JumpState,
+                             MoveJumpState, ArmedIdleState, ArmedMoveState, DeathState>;
 }
 }  // namespace GameEngine

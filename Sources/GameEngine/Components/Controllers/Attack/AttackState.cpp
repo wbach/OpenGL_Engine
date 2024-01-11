@@ -31,9 +31,9 @@ void AttackState::onEnter(const AttackFsmEvents::Attack &)
 {
     context_.jointGroupName.reset();
 
-    if (not context_.attackAnimationNames.empty())
+    if (not context_.animClipNames.disarmed.attack.empty())
     {
-        context_.animator.ChangeAnimation(context_.attackAnimationNames.front(), Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(context_.animClipNames.disarmed.attack.front(), Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward);
     }
 }
@@ -41,9 +41,9 @@ void AttackState::onEnter(const AttackFsmEvents::AttackGrouped &event)
 {
     context_.jointGroupName = event.groupName;
 
-    if (not context_.attackAnimationNames.empty())
+    if (not context_.animClipNames.disarmed.attack.empty())
     {
-        context_.animator.ChangeAnimation(context_.attackAnimationNames.front(), Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(context_.animClipNames.disarmed.attack.front(), Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, event.groupName);
     }
 }
@@ -53,7 +53,7 @@ void AttackState::update(const AttackFsmEvents::Attack &)
     {
         ++animationIndex_;
 
-        if (animationIndex_ >= context_.attackAnimationNames.size())
+        if (animationIndex_ >= context_.animClipNames.disarmed.attack.size())
         {
             animationIndex_ = 0;
         }
@@ -65,7 +65,7 @@ void AttackState::update(const AttackFsmEvents::AttackGrouped &)
     {
         ++animationIndex_;
 
-        if (animationIndex_ >= context_.attackAnimationNames.size())
+        if (animationIndex_ >= context_.animClipNames.disarmed.attack.size())
         {
             animationIndex_ = 0;
         }
@@ -80,17 +80,17 @@ void AttackState::subscribeForAnimationsEnd()
 {
     if (context_.sendEndEventCallback)
     {
-        for (const auto &animationName : context_.attackAnimationNames)
+        for (const auto &animationName : context_.animClipNames.disarmed.attack)
         {
             onAnimationEndSubIds.push_back(context_.animator.SubscribeForAnimationFrame(animationName, [&]() {
-                if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.attackAnimationNames.size() and
-                    not context_.attackAnimationNames[animationIndex_].empty())
+                if (animationIndex_ != currentAnimIndex_ and animationIndex_ < context_.animClipNames.disarmed.attack.size() and
+                    not context_.animClipNames.disarmed.attack[animationIndex_].empty())
                 {
                     currentAnimIndex_ = animationIndex_;
 
-                    if (not context_.attackAnimationNames.empty())
+                    if (not context_.animClipNames.disarmed.attack.empty())
                     {
-                        context_.animator.ChangeAnimation(context_.attackAnimationNames[currentAnimIndex_],
+                        context_.animator.ChangeAnimation(context_.animClipNames.disarmed.attack[currentAnimIndex_],
                                                           Animator::AnimationChangeType::direct, PlayDirection::forward,
                                                           context_.jointGroupName);
                     }
