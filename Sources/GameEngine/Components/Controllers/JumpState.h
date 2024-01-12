@@ -9,7 +9,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class IdleState;
+class DisarmedIdleState;
 class MoveJumpState;
 class DeathState;
 
@@ -21,7 +21,7 @@ class JumpState : public JumpStateBase,
                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                       Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
                       Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::TransitionTo<IdleState>>>
+                      Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>>
 
 {
 public:

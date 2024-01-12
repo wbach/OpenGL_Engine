@@ -5,26 +5,39 @@ namespace GameEngine
 {
 struct MoveForwardEvent
 {
-    float moveSpeed{1.f};
 };
 struct MoveBackwardEvent
 {
-    float moveSpeed{1.f};
+};
+struct MoveLeftEvent
+{
+};
+struct MoveRightEvent
+{
+};
+struct WalkEvent
+{
+};
+struct RunEvent
+{
+};
+struct CrouchEvent
+{
+};
+struct SprintEvent
+{
 };
 struct EndMoveEvent
 {
 };
 struct RotateLeftEvent
 {
-    float speed{1.f};
 };
 struct RotateRightEvent
 {
-    float speed{1.f};
 };
 struct RotateTargetEvent
 {
-    float speed{1.f};
     Quaternion target;
 };
 struct EndRotationEvent

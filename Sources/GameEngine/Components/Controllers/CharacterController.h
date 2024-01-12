@@ -3,7 +3,6 @@
 #include <GameEngine/Components/Physics/Rigidbody.h>
 #include <Utils/Time/Timer.h>
 
-#include <Utils/math.hpp>
 #include <unordered_map>
 
 #include "Attack/AttackFsm.h"
@@ -15,10 +14,6 @@ namespace GameEngine
 {
 namespace Components
 {
-const float DEFAULT_RUN_SPEED  = Utils::KmToMs(12.f);
-const float DEFAULT_TURN_SPEED = 160.f;
-const float DEFAULT_JUMP_POWER = 10.f;
-
 class CharacterController : public BaseComponent
 {
 public:

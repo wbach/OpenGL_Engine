@@ -10,16 +10,17 @@ namespace GameEngine
 {
 namespace Components
 {
-RotateStateBase::RotateStateBase(FsmContext &context, const std::string &rotateLeftAnim,
+RotateStateBase::RotateStateBase(FsmContext &context, float rotateSpeed, const std::string &rotateLeftAnim,
                                  const std::string &rotateRightAnim)
     : context_{context}
     , rotateLeftAnim_{rotateLeftAnim}
     , rotateRightAnim_{rotateRightAnim}
+    , rotateSpeed_{rotateSpeed}
 {
 }
-void RotateStateBase::onEnter(const RotateLeftEvent &event)
+void RotateStateBase::onEnter(const RotateLeftEvent &)
 {
-    context_.rotationSpeed  = fabsf(event.speed);
+    rotateSpeed_            = fabsf(rotateSpeed_);
     context_.rotateToTarget = false;
 
     if (not rotateLeftAnim_.empty())
@@ -30,9 +31,9 @@ void RotateStateBase::onEnter(const RotateLeftEvent &event)
     }
 }
 
-void RotateStateBase::onEnter(const RotateRightEvent &event)
+void RotateStateBase::onEnter(const RotateRightEvent &)
 {
-    context_.rotationSpeed  = -fabsf(event.speed);
+    rotateSpeed_            = -fabsf(rotateSpeed_);
     context_.rotateToTarget = false;
 
     if (not rotateRightAnim_.empty())
@@ -49,7 +50,6 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
     {
         context_.startRotation          = context_.rigidbody.GetRotation();
         context_.targetRotation         = event.target;
-        context_.rotationSpeed          = event.speed;
         context_.rotateToTarget         = true;
         context_.rotateToTargetProgress = 0.f;
     }
@@ -72,14 +72,14 @@ void RotateStateBase::update(float deltaTime)
     if (not context_.rotateToTarget)
     {
         auto rotation = context_.rigidbody.GetRotation() *
-                        glm::angleAxis(glm::radians(context_.rotationSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+                        glm::angleAxis(glm::radians(rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
         context_.rigidbody.SetRotation(rotation);
     }
     else
     {
         if (context_.rotateToTargetProgress < 1.f)
         {
-            context_.rotateToTargetProgress += (context_.rotationSpeed * deltaTime);
+            context_.rotateToTargetProgress += (rotateSpeed_ * deltaTime);
             context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
 
             auto newRotation =

@@ -19,7 +19,6 @@ namespace
 {
 const float playerDetectionRange{10.f};
 const auto moveSpeed   = Utils::KmToMs(8.f);
-const auto rotateSpeed = 1.f;
 
 const std::string COMPONENT_STR = "EnemyController";
 }  // namespace
@@ -67,17 +66,17 @@ void EnemyController::Update()
         else
         {
             fsm.handle(EndAttackEvent{});
-            fsm.handle(MoveForwardEvent{moveSpeed});
+            fsm.handle(MoveForwardEvent{});
         }
 
-        fsm.handle(RotateTargetEvent{rotateSpeed, caclulateTargetRotation(vectorToPlayer)});
+        fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
         return;
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
     fsm.handle(EndAttackEvent{});
-    fsm.handle(RotateTargetEvent{rotateSpeed, caclulateTargetRotation(vectorToTarget)});
-    fsm.handle(MoveForwardEvent{moveSpeed});
+    fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
+    fsm.handle(MoveForwardEvent{});
 
     auto distanceToPoint = glm::length(vectorToTarget);
     if (distanceToPoint < 5.f)

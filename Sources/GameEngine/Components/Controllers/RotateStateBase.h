@@ -16,7 +16,7 @@ struct FsmContext;
 class RotateStateBase
 {
 public:
-    RotateStateBase(FsmContext&, const std::string&, const std::string&);
+    RotateStateBase(FsmContext&, float, const std::string&, const std::string&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
@@ -28,6 +28,7 @@ private:
     FsmContext& context_;
     const std::string& rotateLeftAnim_;
     const std::string& rotateRightAnim_;
+    float rotateSpeed_;
 };
 }  // namespace Components
 }  // namespace GameEngine

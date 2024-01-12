@@ -10,11 +10,12 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveStateBase::MoveStateBase(FsmContext &context, const std::string &forwardAnimName,
+MoveStateBase::MoveStateBase(FsmContext &context, const MoveSpeed &moveSpeed, const std::string &forwardAnimName,
                              const std::string &backwardAnimName)
     : context_{context}
     , forwardAnimName_{forwardAnimName}
     , backwardAnimName_{backwardAnimName}
+    , moveSpeed_{moveSpeed}
 {
 }
 void MoveStateBase::onEnter(const EndJumpEvent &)
@@ -28,19 +29,35 @@ void MoveStateBase::onEnter(const EndJumpEvent &)
         setBackwardAnim();
     }
 }
-void MoveStateBase::onEnter(const MoveForwardEvent &event)
+void MoveStateBase::onEnter(const MoveForwardEvent &)
 {
     context_.moveDirection = vec3(0.f, 0.f, 1.f);
-    context_.moveSpeed     = fabsf(event.moveSpeed);
+    currentMoveSpeed_      = fabsf(moveSpeed_.forward);
 
     setForwardAnim();
 }
-void MoveStateBase::onEnter(const MoveBackwardEvent &event)
+void MoveStateBase::onEnter(const MoveBackwardEvent &)
 {
     context_.moveDirection = vec3(0.f, 0.f, -1.f);
-    context_.moveSpeed     = fabsf(event.moveSpeed);
+    currentMoveSpeed_      = fabsf(moveSpeed_.backward);
 
     setBackwardAnim();
+}
+
+void MoveStateBase::onEnter(const MoveLeftEvent &)
+{
+    context_.moveDirection = vec3(1.f, 0.f, 0.f);
+    currentMoveSpeed_      = fabsf(moveSpeed_.leftRight);
+
+    //setLeftAnim();
+}
+
+void MoveStateBase::onEnter(const MoveRightEvent &)
+{
+    context_.moveDirection = vec3(-1.f, 0.f, 0.f);
+    currentMoveSpeed_      = fabsf(moveSpeed_.leftRight);
+
+   // setRightAnim();
 }
 void MoveStateBase::update(const AttackEvent &)
 {
@@ -93,17 +110,16 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
     if (animationIsReady_)
     {
         const auto &moveDirection = context.moveDirection;
-        const auto &moveSpeed     = context.moveSpeed;
         auto &rigidbody           = context.rigidbody;
 
         auto targetVelocity = rigidbody.GetRotation() * moveDirection;
         targetVelocity      = glm::normalize(targetVelocity);
-        targetVelocity *= moveSpeed;
+        targetVelocity *= currentMoveSpeed_;
 
         auto velocity       = rigidbody.GetVelocity();
         auto velocityChange = (targetVelocity - velocity);
-        velocityChange.x    = glm::clamp(velocityChange.x, -moveSpeed, moveSpeed);
-        velocityChange.z    = glm::clamp(velocityChange.z, -moveSpeed, moveSpeed);
+        velocityChange.x    = glm::clamp(velocityChange.x, -currentMoveSpeed_, currentMoveSpeed_);
+        velocityChange.z    = glm::clamp(velocityChange.z, -currentMoveSpeed_, currentMoveSpeed_);
         velocityChange.y    = 0;
 
         auto newVelocity = velocity + velocityChange;

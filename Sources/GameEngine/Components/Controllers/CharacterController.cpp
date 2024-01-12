@@ -180,15 +180,19 @@ void CharacterController::Init()
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
                                         *animator_, animationClipsNames_, upperBodyGroupName, lowerBodyGroupName});
         // clang-format off
+
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            IdleState(*fsmContext, disarmTimeStamp),
-            MoveState(*fsmContext),
-            RotateState(*fsmContext),
-            MoveAndRotateState(*fsmContext),
+            DisarmedIdleState(*fsmContext, disarmTimeStamp),
+            DisarmedRunState(*fsmContext),
+            DisarmedRotateState(*fsmContext),
+            DisarmedRunAndRotateState(*fsmContext),
+            ArmedIdleState(*fsmContext, equipTimeStamp),
+            ArmedRunState(*fsmContext),
+            ArmedRotateState(*fsmContext),
+            ArmedRunAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
-            ArmedIdleState(*fsmContext, equipTimeStamp),
-            ArmedMoveState(*fsmContext), DeathState(*fsmContext));
+            DeathState(*fsmContext));
         // clang-format on
 
         rigidbody_->InputParams().angularFactor_ = vec3(0);

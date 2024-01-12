@@ -89,17 +89,18 @@ void PlayAnimation::notifyClipSubscribers()
         currentFrame = &clipInfo_.clip.GetFrames().back();
     }
 
-    DEBUG_LOG("notifyClipSubscribers currentFrame.timeStamp=" + std::to_string(currentFrame->timeStamp));
-    DEBUG_LOG("notifyClipSubscribers nextFrame.timeStamp=" +
-              std::to_string(context_.currentPose.frames.second->timeStamp));
+    //    DEBUG_LOG("notifyClipSubscribers currentFrame.timeStamp=" + std::to_string(currentFrame->timeStamp));
+    //    DEBUG_LOG("notifyClipSubscribers nextFrame.timeStamp=" +
+    //              std::to_string(context_.currentPose.frames.second->timeStamp));
 
     for (const auto& sub : clipInfo_.subscribers)
     {
-        DEBUG_LOG("notifyClipSubscribers sub.timeStamp=" + std::to_string(sub.timeStamp));
+        // DEBUG_LOG("notifyClipSubscribers sub.timeStamp=" + std::to_string(sub.timeStamp));
 
         if (compare(sub.timeStamp, currentFrame->timeStamp) and
             not compare(currentFrame->timeStamp, previousFrameTimeStamp))
         {
+            // DEBUG_LOG("callback()");
             sub.callback();
         }
     }

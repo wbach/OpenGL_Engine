@@ -2,21 +2,36 @@
 #include <Utils/Fsm/Fsm.h>
 
 #include "ArmedIdleState.h"
-#include "ArmedMoveState.h"
+#include "ArmedRotateState.h"
+#include "ArmedRunAndRotateState.h"
+#include "ArmedRunState.h"
 #include "DeathState.h"
-#include "IdleState.h"
+#include "DisarmedIdleState.h"
+#include "DisarmedRotateState.h"
+#include "DisarmedRunAndRotateState.h"
+#include "DisarmedRunState.h"
 #include "JumpState.h"
-#include "MoveAndRotateState.h"
 #include "MoveJumpState.h"
-#include "MoveState.h"
-#include "RotateState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+// clang-format off
 using CharacterControllerFsm =
-    Utils::StateMachine::Fsm<IdleState, MoveState, RotateState, MoveAndRotateState, JumpState,
-                             MoveJumpState, ArmedIdleState, ArmedMoveState, DeathState>;
+    Utils::StateMachine::Fsm<
+                            DisarmedIdleState,
+                            DisarmedRunState,
+                            DisarmedRotateState,
+                            DisarmedRunAndRotateState,
+                            ArmedIdleState,
+                            ArmedRunState,
+                            ArmedRotateState,
+                            ArmedRunAndRotateState,
+                            JumpState,
+                            MoveJumpState,
+                            DeathState
+                            >;
 }
+// clang-format on
 }  // namespace GameEngine

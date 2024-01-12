@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "MoveSpeed.h"
 
 namespace GameEngine
 {
@@ -28,10 +29,13 @@ struct FsmContext
 
     bool multiAnimations{false};
 
-    float moveSpeed{0.f};
-    vec3 moveDirection{0.f};
+    MoveSpeed walkSpeed;
+    MoveSpeed runSpeed;
+    MoveSpeed crouchSpeed;
 
-    float rotationSpeed{0.f};
+    float sprintSpeed{1.0};
+
+    vec3 moveDirection{0.f};
 
     bool rotateToTarget{false};
     float rotateToTargetProgress{0.f};

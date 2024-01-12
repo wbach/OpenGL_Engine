@@ -53,14 +53,14 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(MoveForwardEvent{DEFAULT_RUN_SPEED});
+            fsm->handle(MoveForwardEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(MoveBackwardEvent{DEFAULT_RUN_SPEED});
+            fsm->handle(MoveBackwardEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() {
@@ -68,7 +68,7 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm             = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
+            fsm->handle(RotateLeftEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::D, [&]() {
@@ -76,7 +76,7 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm              = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
+            fsm->handle(RotateRightEvent{});
         }
     });
 
@@ -138,7 +138,7 @@ void PlayerInputController::SubscribeForPopActions()
             }
             else
             {
-                fsm->handle(RotateRightEvent{DEFAULT_TURN_SPEED});
+                fsm->handle(RotateRightEvent{});
             }
         }
     });
@@ -153,7 +153,7 @@ void PlayerInputController::SubscribeForPopActions()
             }
             else
             {
-                fsm->handle(RotateLeftEvent{DEFAULT_TURN_SPEED});
+                fsm->handle(RotateLeftEvent{});
             }
         }
     });

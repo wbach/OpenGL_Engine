@@ -1,21 +1,21 @@
-#include "IdleState.h"
+#include "IdleStateBase.h"
 
 #include "Attack/AttackEvents.h"
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
+#include "GameEngine/Components/Animation/Animator.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-IdleState::IdleState(FsmContext &context, float disarmTimeStamp)
+IdleStateBase::IdleStateBase(FsmContext &context, float armChangeTimeStamp, const std::string &idleAnimName,
+                             const std::string &armChangeAnimName)
     : context_{context}
-    , idleAnimName_{context_.animClipNames.disarmed.idle}
-    , disarmAnimName_{context_.animClipNames.disarm}
-    , disarmTimeStamp_{disarmTimeStamp}
-    , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
+    , idleAnimName_{idleAnimName}
+    , armChangeAnimName_{armChangeAnimName}
+    , armChangeTimeStamp_{armChangeTimeStamp}
 {
 }
-void IdleState::onEnter()
+void IdleStateBase::onEnter()
 {
     if (not idleAnimName_.empty() and not weaponChangeTriggered_)
     {
@@ -25,12 +25,12 @@ void IdleState::onEnter()
     }
 }
 
-void IdleState::onEnter(const WeaponStateEvent &)
+void IdleStateBase::onEnter(const WeaponStateEvent &)
 {
     if (not idleAnimName_.empty())
     {
         subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
-            disarmAnimName_,
+            armChangeAnimName_,
             [this]()
             {
                 context_.animator.ChangeAnimation(
@@ -38,48 +38,41 @@ void IdleState::onEnter(const WeaponStateEvent &)
                     context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
 
                 unsubscribe();
-
-                if (jointPoseUpdater_)
-                {
-                    jointPoseUpdater_->setDisarmJointAsCurrent();
-                }
-                else
-                {
-                    WARNING_LOG("jointPoseUpdater_ not set");
-                }
+                setWeaponPosition();
             },
-            disarmTimeStamp_);
+            armChangeTimeStamp_);
 
         context_.animator.ChangeAnimation(
-            disarmAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            armChangeAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
 
         weaponChangeTriggered_ = true;
     }
 }
 
-void IdleState::update(const AttackEvent &)
+void IdleStateBase::update(const AttackEvent &)
 {
     context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
-void IdleState::update(const EndAttackEvent &)
+void IdleStateBase::update(const EndAttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::End{});
     context_.multiAnimations = false;
     onEnter();
 }
-void IdleState::update(float)
+
+void IdleStateBase::update(float)
 {
 }
 
-void IdleState::onLeave()
+void IdleStateBase::onLeave()
 {
     unsubscribe();
 }
 
-void IdleState::unsubscribe()
+void IdleStateBase::unsubscribe()
 {
     weaponChangeTriggered_ = false;
 

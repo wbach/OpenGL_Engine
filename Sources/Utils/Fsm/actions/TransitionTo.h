@@ -17,6 +17,8 @@ public:
         leave(prevState);
         leave(prevState, event);
 
+        //DEBUG_LOG("Entering " + typeid (TargetState).name());
+
         TargetState& newState = machine.template transitionTo<TargetState>();
 
         enter(newState, prevState, event);
