@@ -40,7 +40,7 @@ void MoveStateBase::onEnter(const MoveForwardEvent &)
 }
 void MoveStateBase::onEnter(const MoveBackwardEvent &)
 {
-    isBackwardEvent_ = true;
+    isBackwardEvent_       = true;
     context_.moveDirection = vec3(0.f, 0.f, -1.f);
     currentMoveSpeed_      = fabsf(moveSpeed_.backward);
 
@@ -64,7 +64,6 @@ void MoveStateBase::onEnter(const MoveRightEvent &)
 }
 bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
 {
-    DEBUG_LOG("transitionCondition EndForwardMoveEvent");
     isForwardEvent_ = false;
 
     if (isBackwardEvent_ and context_.moveDirection.z > 0.5f)
@@ -76,13 +75,11 @@ bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
 }
 bool MoveStateBase::transitionCondition(const EndBackwardMoveEvent &)
 {
-    DEBUG_LOG("transitionCondition EndBackwardMoveEvent");
     isBackwardEvent_ = false;
 
     if (isForwardEvent_ and context_.moveDirection.z < -0.5f)
     {
         onEnter(MoveForwardEvent());
-
     }
     return not isForwardEvent_;
 }
@@ -101,11 +98,11 @@ void MoveStateBase::update(const EndAttackEvent &)
     context_.multiAnimations = false;
     context_.attackFsm.handle(AttackFsmEvents::End{});
 }
-void MoveStateBase::update(const MoveForwardEvent& event)
+void MoveStateBase::update(const MoveForwardEvent &event)
 {
     onEnter(event);
 }
-void MoveStateBase::update(const MoveBackwardEvent& event)
+void MoveStateBase::update(const MoveBackwardEvent &event)
 {
     onEnter(event);
 }

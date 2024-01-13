@@ -72,14 +72,13 @@ void Rigidbody::OnStart()
 
     if (not maybeShapeId)
     {
+        ERROR_LOG("Shape not initilized!");
         return;
     }
 
-   // DEBUG_LOG("CreateRigidbody : " + thisObject_.GetName());
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_,
                                                                      updateRigidbodyOnTransformChange_);
-
-    if (rigidBodyId == 0)
+    if (not rigidBodyId)
     {
         ERROR_LOG("create rigidbody error.");
         return;
@@ -93,14 +92,16 @@ void Rigidbody::OnStart()
     if (inputParams_.angularFactor_)
         componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *inputParams_.angularFactor_);
 
-    worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange([this](const auto& transform) {
-        if (not updateRigidbodyOnTransformChange_)
+    worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange(
+        [this](const auto& transform)
         {
-            SetPosition(transform.GetPosition());
-            SetRotation(transform.GetRotation());
-            SetScale(transform.GetScale());
-        }
-    });
+            if (not updateRigidbodyOnTransformChange_)
+            {
+                SetPosition(transform.GetPosition());
+                SetRotation(transform.GetRotation());
+                SetScale(transform.GetScale());
+            }
+        });
 }
 void Rigidbody::ReqisterFunctions()
 {
@@ -238,7 +239,7 @@ const std::string& Rigidbody::GetCollisionShapeType() const
 vec3 Rigidbody::GetVelocity() const
 {
     if (not rigidBodyId_)
-        return {};
+        return vec3(0.f);
     return *componentContext_.physicsApi_.GetVelocity(*rigidBodyId_);
 }
 vec3 Rigidbody::GetAngularFactor() const
@@ -327,7 +328,8 @@ CollisionShape* Rigidbody::GetCollisionShape()
 }
 void Rigidbody::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<Rigidbody>(componentContext, gameObject);
 
         float mass{1.f};

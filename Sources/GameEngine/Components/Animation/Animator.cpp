@@ -54,6 +54,7 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClipInfo_.find(name);
     if (clipIter != animationClipInfo_.end())
     {
+        currentAnimationName_ = name;
         machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
     }
     return *this;
@@ -133,6 +134,11 @@ const Animator::AnimationInfoClips& Animator::getAnimationClips() const
     return animationClipInfo_;
 }
 
+const std::string& Animator::getCurrentAnimationName() const
+{
+    return currentAnimationName_;
+}
+
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
@@ -144,6 +150,7 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         return;
     }
 
+    currentAnimationName_ = name;
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::GetSkeletonAndAnimations()

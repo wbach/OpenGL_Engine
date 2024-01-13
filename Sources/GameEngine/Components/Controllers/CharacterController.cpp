@@ -212,6 +212,10 @@ void CharacterController::Init()
 
         animator_->SetAnimation(animationClipsNames_.disarmed.idle);
     }
+    else
+    {
+        WARNING_LOG("Animator or rigidbody_ not exist in object");
+    }
 }
 void CharacterController::Update()
 {
