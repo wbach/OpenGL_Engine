@@ -62,9 +62,9 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
     }
     void createClip(const std::string& clipName)
     {
-        auto& anim    = sut_.animationClips_[clipName];
-        anim.name     = clipName;
-        anim.playType = AnimationClip::PlayType::once;
+        AnimationClip clip;
+        clip.name     = clipName;
+        clip.playType = AnimationClip::PlayType::once;
 
         KeyFrame frame;
 
@@ -74,14 +74,15 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
         }
 
         frame.timeStamp = 0;
-        anim.AddFrame(frame);
+        clip.AddFrame(frame);
         frame.timeStamp = 0.33f;
-        anim.AddFrame(frame);
+        clip.AddFrame(frame);
         frame.timeStamp = 0.6f;
-        anim.AddFrame(frame);
+        clip.AddFrame(frame);
         frame.timeStamp = 0.99f;
-        anim.AddFrame(frame);
+        clip.AddFrame(frame);
 
+        sut_.AddAnimationClip(clip);
         sut_.SetAnimation(clipName);
     }
 
@@ -92,10 +93,10 @@ TEST_F(AnimatorTestSchould, GetLastNextFrame)
 {
     float currentTime{.5f};
     sut_.setDeltaTime(currentTime);
-    auto& anim  = sut_.animationClips_[CLIP_NAME];
-    auto result = getPreviousAndNextFrames(anim, currentTime);
-    ASSERT_FLOAT_EQ(result.first.timeStamp, 0.33f);
-    ASSERT_FLOAT_EQ(result.second.timeStamp, 0.6f);
+    const auto& anim  = sut_.getAnimationClips().at(CLIP_NAME).clip;
+    auto [prevFrame, nextFrame] = getPreviousAndNextFrames(anim, currentTime);
+    ASSERT_FLOAT_EQ(prevFrame->timeStamp, 0.33f);
+    ASSERT_FLOAT_EQ(nextFrame->timeStamp, 0.6f);
 }
 
 TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
@@ -105,12 +106,14 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
     bool run{true};
     uint64 avarageTime{0};
     uint64 avarageFrameTime{0};
-    sut_.SubscribeForAnimationEnd(CLIP_NAME, [&timer, &run, &avarageTime]() {
-        run       = false;
-        auto time = timer.GetTimeNanoseconds();
-        avarageTime += time;
-        DEBUG_LOG("Execute time : " + std::to_string(time));
-    });
+    sut_.SubscribeForAnimationFrame(CLIP_NAME,
+                                    [&timer, &run, &avarageTime]()
+                                    {
+                                        run       = false;
+                                        auto time = timer.GetTimeNanoseconds();
+                                        avarageTime += time;
+                                        DEBUG_LOG("Execute time : " + std::to_string(time));
+                                    });
 
     DEBUG_LOG("Start timer...");
 

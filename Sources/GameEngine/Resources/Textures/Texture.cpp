@@ -85,7 +85,7 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
     auto cfile = file;
     std::replace(cfile.begin(), cfile.end(), '\\', '/');
     auto v        = Utils::SplitString(cfile, '/');
-    auto filename = v.back().substr(0, v.back().find_last_of('.'));
+    auto filename = v.empty()? cfile : v.back().substr(0, v.back().find_last_of('.'));
 
     auto rowsPos = filename.find("_rows_");
 

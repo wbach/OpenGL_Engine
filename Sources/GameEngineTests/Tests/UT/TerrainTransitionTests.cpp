@@ -16,9 +16,9 @@ namespace GameEngine
 {
 //const float textureTiledSize = 1.f;
 
-struct TerrainTransitionShould : public BaseComponentTestSchould
+struct TerrainTransitionTests : public BaseComponentTestSchould
 {
-    TerrainTransitionShould()
+    TerrainTransitionTests()
         : go1("go1", componentController_, componentFactory_, 1)
         , go2("go2", componentController_, componentFactory_, 2)
     {
@@ -54,7 +54,7 @@ struct TerrainTransitionShould : public BaseComponentTestSchould
     std::unique_ptr<HeightMap> heightMap2_;
 };
 
-TEST_F(TerrainTransitionShould, vauleInRangeInZeroPos)
+TEST_F(TerrainTransitionTests, vauleInRangeInZeroPos)
 {
 
 }
