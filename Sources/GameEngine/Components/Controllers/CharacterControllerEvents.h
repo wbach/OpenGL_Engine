@@ -27,7 +27,10 @@ struct CrouchEvent
 struct SprintEvent
 {
 };
-struct EndMoveEvent
+struct EndForwardMoveEvent
+{
+};
+struct EndBackwardMoveEvent
 {
 };
 struct RotateLeftEvent

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-
+#include "CharacterControllerEvents.h"
 #include "MoveSpeed.h"
 
 namespace GameEngine
@@ -28,7 +28,14 @@ public:
     void onEnter(const MoveRightEvent&);
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
+    void update(const MoveForwardEvent&);
+    void update(const MoveBackwardEvent&);
     void update(float);
+
+    bool transitionCondition(const EndForwardMoveEvent&);
+    bool transitionCondition(const EndBackwardMoveEvent&);
+
+    void onLeave();
 
 private:
     void moveRigidbody(FsmContext&);
@@ -44,6 +51,9 @@ private:
     MoveSpeed moveSpeed_;
 
     float currentMoveSpeed_{0.0};
+
+    bool isForwardEvent_{ false };
+    bool isBackwardEvent_{ false };
 };
 }  // namespace Components
 }  // namespace GameEngine

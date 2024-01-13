@@ -14,10 +14,14 @@ public:
     template <typename Machine, typename State, typename Event>
     void execute(Machine& machine, State& prevState, const Event& event)
     {
+        if (not transitionCondition(prevState, event))
+        {
+            return;
+        }
         leave(prevState);
         leave(prevState, event);
 
-        //DEBUG_LOG("Entering " + typeid (TargetState).name());
+        DEBUG_LOG("Entering " + typeid (TargetState).name());
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
@@ -27,8 +31,8 @@ public:
     }
 
 private:
-    template <typename ...Args>
-    void leave(Args& ...)
+    template <typename... Args>
+    void leave(Args&...)
     {
     }
 
@@ -44,8 +48,8 @@ private:
         return state.onLeave();
     }
 
-    template <typename ...Args>
-    void enter(Args& ...)
+    template <typename... Args>
+    void enter(Args&...)
     {
     }
 
@@ -66,6 +70,20 @@ private:
     auto enter(State& state) -> decltype(state.onEnter())
     {
         return state.onEnter();
+    }
+
+    template <typename... Args>
+    bool transitionCondition(Args&...)
+    {
+       // DEBUG_LOG("transitionCondition(Args& ...)");
+        return true;
+    }
+
+    template <typename State, typename Event>
+    auto transitionCondition(State& state, const Event& event) -> decltype(state.transitionCondition(event))
+    {
+       // DEBUG_LOG("transitionCondition(State& state, const Event& event)");
+        return state.transitionCondition(event);
     }
 };
 }  // namespace StateMachine

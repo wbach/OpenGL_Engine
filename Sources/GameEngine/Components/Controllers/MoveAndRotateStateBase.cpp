@@ -23,6 +23,26 @@ void MoveAndRotateStateBase::update(const EndAttackEvent &event)
     MoveStateBase::update(event);
 }
 
+void MoveAndRotateStateBase::update(const MoveForwardEvent& e)
+{
+    MoveStateBase::update(e);
+}
+
+void MoveAndRotateStateBase::update(const MoveBackwardEvent& e)
+{
+    MoveStateBase::update(e);
+}
+
+bool MoveAndRotateStateBase::transitionCondition(const EndForwardMoveEvent& e)
+{
+    return MoveStateBase::transitionCondition(e);
+}
+
+bool MoveAndRotateStateBase::transitionCondition(const EndBackwardMoveEvent& e)
+{
+    return MoveStateBase::transitionCondition(e);
+}
+
 void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
 {
     MoveStateBase::onEnter(event);
@@ -38,17 +58,32 @@ void MoveAndRotateStateBase::onEnter(const MoveBackwardEvent &event)
     MoveStateBase::onEnter(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const RotateLeftEvent &event)
+void MoveAndRotateStateBase::onEnter(const RotateLeftEvent& event)
 {
     RotateStateBase::onEnter(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const RotateRightEvent &event)
+void MoveAndRotateStateBase::onEnter(const RotateRightEvent& event)
 {
     RotateStateBase::onEnter(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const RotateTargetEvent &event)
+void MoveAndRotateStateBase::onEnter(const RotateTargetEvent& event)
+{
+    RotateStateBase::onEnter(event);
+}
+
+void MoveAndRotateStateBase::update(const RotateLeftEvent &event)
+{
+    RotateStateBase::onEnter(event);
+}
+
+void MoveAndRotateStateBase::update(const RotateRightEvent &event)
+{
+    RotateStateBase::onEnter(event);
+}
+
+void MoveAndRotateStateBase::update(const RotateTargetEvent &event)
 {
     RotateStateBase::onEnter(event);
 }

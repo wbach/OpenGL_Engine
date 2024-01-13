@@ -18,16 +18,24 @@ class MoveAndRotateStateBase : public MoveStateBase, public RotateStateBase
 public:
     MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &);
 
-    void update(const AttackEvent &);
-    void update(const EndAttackEvent &);
     void onEnter(const EndJumpEvent &);
     void onEnter(const MoveForwardEvent &);
     void onEnter(const MoveBackwardEvent &);
-    void onEnter(const RotateLeftEvent &);
-    void onEnter(const RotateRightEvent &);
-    void onEnter(const RotateTargetEvent &);
+    void onEnter(const RotateLeftEvent&);
+    void onEnter(const RotateRightEvent&);
+    void onEnter(const RotateTargetEvent&);
 
     void update(float);
+    void update(const RotateLeftEvent &);
+    void update(const RotateRightEvent &);
+    void update(const RotateTargetEvent &);
+    void update(const AttackEvent &);
+    void update(const EndAttackEvent &);
+    void update(const MoveForwardEvent &);
+    void update(const MoveBackwardEvent &);
+
+    bool transitionCondition(const EndForwardMoveEvent &);
+    bool transitionCondition(const EndBackwardMoveEvent &);
 };
 }  // namespace Components
 }  // namespace GameEngine

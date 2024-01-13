@@ -116,14 +116,14 @@ void PlayerInputController::SubscribeForPopActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(EndMoveEvent{});
+            fsm->handle(EndForwardMoveEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::S, [&]() {
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(EndMoveEvent{});
+            fsm->handle(EndBackwardMoveEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::A, [&]() {

@@ -60,7 +60,7 @@ void EnemyController::Update()
     {
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
-            fsm.handle(EndMoveEvent{});
+            fsm.handle(EndForwardMoveEvent{});
             fsm.handle(AttackEvent{});
         }
         else
