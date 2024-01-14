@@ -1,6 +1,6 @@
 #ifndef COLLADALOADERMOCK_H
 #define COLLADALOADERMOCK_H
-#include "Resources/Models/WBLoader/Collada/Collada.h"
+#include "GameEngine/Resources/Models/WBLoader/Collada/Collada.h"
 #include "TextureLoaderMock.h"
 
 namespace GameEngine

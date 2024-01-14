@@ -1,4 +1,4 @@
-#include "Scene/Scene.hpp"
+#include "GameEngine/Scene/Scene.hpp"
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <gtest/gtest.h>

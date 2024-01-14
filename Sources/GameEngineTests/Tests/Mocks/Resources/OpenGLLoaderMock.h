@@ -1,5 +1,5 @@
 #pragma once
-#include "Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 
 namespace GameEngine
 {

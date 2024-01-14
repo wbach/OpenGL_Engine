@@ -71,4 +71,4 @@ echo "Generate VisualStudio TerrainGeneration project"
 ./prepareProject.sh TerrainGeneration $TerrainGenerationId Application > ../Sources/TerrainGeneration/TerrainGeneration.vcxproj
 
 echo "Generate VisualStudio GameEngineTests project"
-./prepareProject.sh GameEngineTests $GameEngineTestsId GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/GameEngineTests/GameEngineTests.vcxproj
+./prepareProject.sh GameEngineTests $GameEngineTestsId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/GameEngineTests/GameEngineTests.vcxproj
