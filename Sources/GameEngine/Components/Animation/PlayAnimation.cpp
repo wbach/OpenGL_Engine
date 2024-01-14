@@ -55,7 +55,6 @@ void PlayAnimation::handle(const StopAnimationEvent&)
 void PlayAnimation::increaseAnimationTime(float deltaTime)
 {
     time_ += deltaTime * clipInfo_.playSpeed * direction_;
-
     notifyClipSubscribers();
 
     if (time_ > clipInfo_.clip.GetLength())

@@ -92,7 +92,7 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
         return id;
     }
 
-    WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found!");
+    WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found or frames are empty!");
     return 0;
 }
 void Animator::UnSubscribeForAnimationFrame(IdType id)
