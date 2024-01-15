@@ -29,6 +29,15 @@ void IdleStateBase::onEnter(const WeaponStateEvent &)
 {
     if (not idleAnimName_.empty())
     {
+        subscribeForTransitionAnimationFrame_ = context_.animator.SubscribeForAnimationFrame(
+            armChangeAnimName_,
+            [this]()
+            {
+                setWeaponPosition();
+                unsubscribe(subscribeForTransitionAnimationFrame_);
+            },
+            armChangeTimeStamp_);
+
         subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
             armChangeAnimName_,
             [this]()
@@ -37,10 +46,9 @@ void IdleStateBase::onEnter(const WeaponStateEvent &)
                     idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                     context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
 
-                unsubscribe();
-                setWeaponPosition();
-            },
-            armChangeTimeStamp_);
+                unsubscribe(subscribeForTransitionAnimationEnd_);
+                weaponChangeTriggered_ = false;
+            });
 
         context_.animator.ChangeAnimation(
             armChangeAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
@@ -69,18 +77,23 @@ void IdleStateBase::update(float)
 
 void IdleStateBase::onLeave()
 {
-    unsubscribe();
+    unsubscribeAll();
 }
 
-void IdleStateBase::unsubscribe()
+void IdleStateBase::unsubscribe(std::optional<uint32> &maybeId)
+{
+    if (maybeId)
+    {
+        context_.animator.UnSubscribeForAnimationFrame(*maybeId);
+        maybeId = std::nullopt;
+    }
+}
+
+void IdleStateBase::unsubscribeAll()
 {
     weaponChangeTriggered_ = false;
-
-    if (subscribeForTransitionAnimationEnd_)
-    {
-        context_.animator.UnSubscribeForAnimationFrame(*subscribeForTransitionAnimationEnd_);
-        subscribeForTransitionAnimationEnd_ = std::nullopt;
-    }
+    unsubscribe(subscribeForTransitionAnimationEnd_);
+    unsubscribe(subscribeForTransitionAnimationFrame_);
 }
 
 }  // namespace Components

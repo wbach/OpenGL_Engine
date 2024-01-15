@@ -7,7 +7,7 @@ namespace GameEngine
 namespace Components
 {
 DisarmedIdleState::DisarmedIdleState(FsmContext &context, float timestamp)
-    : IdleStateBase(context, timestamp, context.animClipNames.disarmed.idle, context.animClipNames.equip)
+    : IdleStateBase(context, timestamp, context.animClipNames.disarmed.idle, context.animClipNames.disarm)
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }

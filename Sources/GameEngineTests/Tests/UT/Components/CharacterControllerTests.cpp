@@ -15,7 +15,7 @@ namespace
 {
 const int DUMMY_FRAMES             = 4;
 const float DUMMY_FRAME_TIME_DELTA = 0.25f;
-const float DUMMY_CLIP_LENGTH = DUMMY_FRAME_TIME_DELTA * static_cast<float>(DUMMY_FRAMES);
+const float DUMMY_CLIP_LENGTH      = DUMMY_FRAME_TIME_DELTA * static_cast<float>(DUMMY_FRAMES);
 }  // namespace
 
 struct CharacterControllerTests : public BaseComponentTestSchould
@@ -156,15 +156,39 @@ TEST_F(CharacterControllerTests, DisarmedToArmedStateIdle)
 
     EXPECT_EQ(animator_->getCurrentAnimationName(), sut_.animationClipsNames_.equip);
 
-    //Animation transition : None -> Armed idle state (
+    // Animation transition : None -> Armed idle state (
     context_.time_.deltaTime = DEFAULT_ANIMATION_TRANSITION_TIME + 0.1f;
     animator_->Update();
     sut_.Update();
 
-    //Animation transition : EquipAnim
+    // Animation : EquipAnim
     context_.time_.deltaTime = DUMMY_CLIP_LENGTH + 0.1f;
     animator_->Update();
     sut_.Update();
 
     EXPECT_EQ(animator_->getCurrentAnimationName(), sut_.animationClipsNames_.armed.idle);
+}
+
+TEST_F(CharacterControllerTests, RunForwardDuringDisarmedToArmedState)
+{
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    EXPECT_EQ(animator_->getCurrentAnimationName(), sut_.animationClipsNames_.equip);
+
+    // Animation transition : None -> Armed idle state (
+    context_.time_.deltaTime = DEFAULT_ANIMATION_TRANSITION_TIME + 0.1f;
+    animator_->Update();
+    sut_.Update();
+
+    // Animation : EquipAnim
+    context_.time_.deltaTime = DUMMY_CLIP_LENGTH / 2.f;
+    animator_->Update();
+    sut_.Update();
+
+    sut_.fsm()->handle(MoveForwardEvent{});
+
+    animator_->Update();
+    sut_.Update();
+
+    EXPECT_EQ(animator_->getCurrentAnimationName(), sut_.animationClipsNames_.armed.run.forward);
 }

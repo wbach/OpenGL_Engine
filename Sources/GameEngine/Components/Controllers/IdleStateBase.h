@@ -37,12 +37,14 @@ protected:
     virtual void setWeaponPosition() = 0;
 
 private:
-    void unsubscribe();
+    void unsubscribeAll();
+    void unsubscribe(std::optional<uint32>&);
 
 private:
     FsmContext& context_;
     std::string idleAnimName_;
     std::string armChangeAnimName_;
+    std::optional<uint32> subscribeForTransitionAnimationFrame_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;
     bool weaponChangeTriggered_{false};
     float armChangeTimeStamp_{0.0};

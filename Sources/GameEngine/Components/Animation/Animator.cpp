@@ -14,6 +14,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "PlayAnimation.h"
 #include "StopAnimationEvent.h"
 
 namespace GameEngine
@@ -149,8 +150,19 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         DEBUG_LOG("Not found!  : " + name);
         return;
     }
-
     currentAnimationName_ = name;
+
+    if (changeType == AnimationChangeType::direct)
+    {
+        DEBUG_LOG(" AnimationChangeType::direct not implemnted go to smooth");
+        //        machine_.transitionTo(std::make_unique<PlayAnimation>(machine_.context_, clipIter->second, 0.0f));
+        //        if (onTransitionEnd)
+        //        {
+        //            onTransitionEnd();
+        //        }
+        //        return;
+    }
+
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::GetSkeletonAndAnimations()

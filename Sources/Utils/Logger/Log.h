@@ -1,5 +1,8 @@
 #pragma once
+#include <cxxabi.h>
+
 #include <atomic>
+#include <cstdlib>
 #include <list>
 #include <string>
 
@@ -67,3 +70,17 @@ std::string FileNameLogRepresentation(const char*);
 #define WARNING_LOG(x) do {CLogger::Instance().WarningLog(FileNameLogRepresentation(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
 #define ERROR_LOG(x) do {CLogger::Instance().ErrorLog(FileNameLogRepresentation(__FILE__) + ":" + std::to_string(__LINE__) + " " + __FUNCTION__ + std::string(": ") + x);} while(0)
 // clang-format on
+
+template <typename T>
+std::string typeName()
+{
+    int status;
+    std::string tname    = typeid(T).name();
+    char* demangled_name = abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status);
+    if (status == 0)
+    {
+        tname = demangled_name;
+        std::free(demangled_name);
+    }
+    return tname;
+}

@@ -88,18 +88,13 @@ void PlayAnimation::notifyClipSubscribers()
         currentFrame = &clipInfo_.clip.GetFrames().back();
     }
 
-    //    DEBUG_LOG("notifyClipSubscribers currentFrame.timeStamp=" + std::to_string(currentFrame->timeStamp));
-    //    DEBUG_LOG("notifyClipSubscribers nextFrame.timeStamp=" +
-    //              std::to_string(context_.currentPose.frames.second->timeStamp));
-
-    for (const auto& sub : clipInfo_.subscribers)
+    //Unsubscribe during callbacks
+    auto tmpSubscirbers = clipInfo_.subscribers;
+    for (const auto& sub : tmpSubscirbers)
     {
-        // DEBUG_LOG("notifyClipSubscribers sub.timeStamp=" + std::to_string(sub.timeStamp));
-
         if (compare(sub.timeStamp, currentFrame->timeStamp) and
             not compare(currentFrame->timeStamp, previousFrameTimeStamp))
         {
-            // DEBUG_LOG("callback()");
             sub.callback();
         }
     }
