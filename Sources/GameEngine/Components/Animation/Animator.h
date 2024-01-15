@@ -60,6 +60,8 @@ public:
     const AnimationInfoClips& getAnimationClips() const;
     const std::string& getCurrentAnimationName() const;
 
+    void alignAnimations(const std::string&, const std::string&);
+
 public:
     JointData jointData_;
     float animationSpeed_;

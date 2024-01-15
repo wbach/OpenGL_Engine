@@ -140,6 +140,41 @@ const std::string& Animator::getCurrentAnimationName() const
     return currentAnimationName_;
 }
 
+void Animator::alignAnimations(const std::string& animName1, const std::string& animName2)
+{
+    auto clipIter1 = animationClipInfo_.find(animName1);
+    auto clipIter2 = animationClipInfo_.find(animName2);
+
+    if (clipIter1 == animationClipInfo_.end() or clipIter2 == animationClipInfo_.end())
+    {
+        WARNING_LOG("Align not found animation!  : " + animName1 + " or " + animName2);
+        return;
+    }
+    auto& clip1       = clipIter1->second.clip;
+    const auto& clip2 = clipIter2->second.clip;
+
+    const auto& clip1Frames = clip1.GetFrames();
+    const auto& clip2Frames = clip2.GetFrames();
+
+    if (clip1Frames.empty() or clip2Frames.empty())
+    {
+        WARNING_LOG("Align empty frames!  : " + animName1 + " or " + animName2);
+        return;
+    }
+
+    clip1.AddFrame(clip2Frames.front());
+    auto lastFrame = clip1.getFrame(clip1Frames[clip1Frames.size() - 1].timeStamp);
+    if (lastFrame)
+    {
+        lastFrame->transforms = clip2Frames.front().transforms;
+    }
+    else
+    {
+        WARNING_LOG("Last frame not found!");
+    }
+    DEBUG_LOG("Aligned animations: " + animName1 + " and " + animName2);
+}
+
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
@@ -301,8 +336,7 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
 

@@ -201,6 +201,9 @@ void CharacterController::Init()
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.hurt);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.death);
+
+        // animator_->alignAnimations(animationClipsNames_.disarm, animationClipsNames_.disarmed.idle);
+
         for (const auto& attack : animationClipsNames_.armed.attack)
         {
             animator_->setPlayOnceForAnimationClip(attack);

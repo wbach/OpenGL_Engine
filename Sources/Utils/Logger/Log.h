@@ -1,5 +1,7 @@
 #pragma once
+#ifdef USE_GNU
 #include <cxxabi.h>
+#endif
 
 #include <atomic>
 #include <cstdlib>
