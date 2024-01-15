@@ -18,10 +18,9 @@ RotateStateBase::RotateStateBase(FsmContext &context, float rotateSpeed, const s
     , rotateSpeed_{rotateSpeed}
 {
 }
-void RotateStateBase::onEnter(const RotateLeftEvent &)
+void RotateStateBase::onEnter(const RotateLeftEvent &e)
 {
-    rotateSpeed_            = fabsf(rotateSpeed_);
-    context_.rotateToTarget = false;
+    update(e);
 
     if (not rotateLeftAnim_.empty())
     {
@@ -31,10 +30,9 @@ void RotateStateBase::onEnter(const RotateLeftEvent &)
     }
 }
 
-void RotateStateBase::onEnter(const RotateRightEvent &)
+void RotateStateBase::onEnter(const RotateRightEvent &e)
 {
-    rotateSpeed_            = -fabsf(rotateSpeed_);
-    context_.rotateToTarget = false;
+    update(e);
 
     if (not rotateRightAnim_.empty())
     {
@@ -71,15 +69,16 @@ void RotateStateBase::update(float deltaTime)
 {
     if (not context_.rotateToTarget)
     {
-        auto rotation = context_.rigidbody.GetRotation() *
-                        glm::angleAxis(glm::radians(rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+        auto rotation =
+            context_.rigidbody.GetRotation() *
+            glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
         context_.rigidbody.SetRotation(rotation);
     }
     else
     {
         if (context_.rotateToTargetProgress < 1.f)
         {
-            context_.rotateToTargetProgress += (rotateSpeed_ * deltaTime);
+            context_.rotateToTargetProgress += (context_.rotateStateData_.rotateSpeed_ * deltaTime);
             context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
 
             auto newRotation =
@@ -88,6 +87,22 @@ void RotateStateBase::update(float deltaTime)
             context_.rigidbody.SetRotation(newRotation);
         }
     }
+}
+
+void RotateStateBase::update(const RotateLeftEvent &)
+{
+    context_.rotateStateData_.rotateSpeed_ = fabsf(rotateSpeed_);
+    context_.rotateToTarget                = false;
+}
+
+void RotateStateBase::update(const RotateRightEvent &)
+{
+    context_.rotateStateData_.rotateSpeed_ = -fabsf(rotateSpeed_);
+    context_.rotateToTarget                = false;
+}
+
+void RotateStateBase::update(const RotateTargetEvent &)
+{
 }
 
 }  // namespace Components

@@ -36,6 +36,10 @@ public:
         : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run}
     {
     }
+
+    using MoveAndRotateStateBase::update;
+    using MoveAndRotateStateBase::onEnter;
+    using MoveAndRotateStateBase::transitionCondition;
 };
 }  // namespace Components
 }  // namespace GameEngine

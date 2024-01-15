@@ -16,11 +16,27 @@ namespace Components
 {
 struct FsmContext
 {
+    struct MoveStateData
+    {
+        float currentMoveSpeed_{0.0};
+        bool isForwardEvent_{false};
+        bool isBackwardEvent_{false};
+        bool animationIsReady_{false};
+    };
+
+    struct RotateStateData
+    {
+        float rotateSpeed_;
+    };
+
     AttackFsm& attackFsm;
     GameObject& gameObject;
     Physics::IPhysicsApi& physicsApi;
     Rigidbody& rigidbody;
     Animator& animator;
+
+    MoveStateData moveStateData_;
+    RotateStateData rotateStateData_;
 
     const AnimationClipsNames& animClipNames;
 

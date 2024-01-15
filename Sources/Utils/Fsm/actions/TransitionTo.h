@@ -21,7 +21,8 @@ public:
         leave(prevState);
         leave(prevState, event);
 
-        // DEBUG_LOG("Entering : " + typeName<TargetState>());
+//        DEBUG_LOG("PrevState : " + typeName<State>());
+//        DEBUG_LOG("Entering : " + typeName<TargetState>());
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
@@ -60,7 +61,7 @@ private:
     }
 
     template <typename NewState, typename PrevState, typename Event>
-    auto enter(NewState& newState, const PrevState& prevState, const Event& event)
+    auto enter(NewState& newState, PrevState& prevState, const Event& event)
         -> decltype(newState.onEnter(prevState, event))
     {
         return newState.onEnter(prevState, event);

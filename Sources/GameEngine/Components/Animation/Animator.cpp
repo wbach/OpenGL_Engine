@@ -162,7 +162,6 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         //        }
         //        return;
     }
-
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::GetSkeletonAndAnimations()

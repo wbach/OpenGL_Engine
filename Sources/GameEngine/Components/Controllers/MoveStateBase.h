@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include "CharacterControllerEvents.h"
 #include "MoveSpeed.h"
 
@@ -37,23 +38,19 @@ public:
 
     void onLeave();
 
-private:
+    void setMoveForward();
+    void setMoveBackward();
+
+protected:
     void moveRigidbody(FsmContext&);
     void setForwardAnim();
     void setBackwardAnim();
 
-private:
+protected:
     FsmContext& context_;
     std::string forwardAnimName_;
     std::string backwardAnimName_;
-    bool animationIsReady_{false};
-
     MoveSpeed moveSpeed_;
-
-    float currentMoveSpeed_{0.0};
-
-    bool isForwardEvent_{ false };
-    bool isBackwardEvent_{ false };
 };
 }  // namespace Components
 }  // namespace GameEngine

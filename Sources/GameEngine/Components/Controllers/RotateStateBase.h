@@ -24,7 +24,11 @@ public:
     void update(const EndAttackEvent&);
     void update(float);
 
-private:
+    void update(const RotateLeftEvent&);
+    void update(const RotateRightEvent&);
+    void update(const RotateTargetEvent&);
+
+protected:
     FsmContext& context_;
     const std::string& rotateLeftAnim_;
     const std::string& rotateRightAnim_;

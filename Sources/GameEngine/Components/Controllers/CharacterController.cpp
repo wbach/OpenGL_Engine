@@ -178,7 +178,7 @@ void CharacterController::Init()
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
 
         fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
-                                        *animator_, animationClipsNames_, upperBodyGroupName, lowerBodyGroupName});
+                                        *animator_, {}, {}, animationClipsNames_, upperBodyGroupName, lowerBodyGroupName});
         // clang-format off
 
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
