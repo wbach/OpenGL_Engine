@@ -14,6 +14,8 @@ namespace GameEngine
 {
 namespace Components
 {
+class JointPoseUpdater;
+
 struct FsmContext
 {
     struct MoveStateData
@@ -27,6 +29,12 @@ struct FsmContext
     struct RotateStateData
     {
         float rotateSpeed_;
+    };
+
+    struct TimeStamp
+    {
+        float arm;
+        float disarm;
     };
 
     AttackFsm& attackFsm;
@@ -43,6 +51,8 @@ struct FsmContext
     const std::string& upperBodyGroupName;
     const std::string& lowerBodyGroupName;
 
+    TimeStamp armTimeStamps;
+
     bool multiAnimations{false};
 
     MoveSpeed walkSpeed;
@@ -57,6 +67,7 @@ struct FsmContext
     float rotateToTargetProgress{0.f};
     Quaternion startRotation{};
     Quaternion targetRotation{};
+
 };
 }  // namespace Components
 }  // namespace GameEngine

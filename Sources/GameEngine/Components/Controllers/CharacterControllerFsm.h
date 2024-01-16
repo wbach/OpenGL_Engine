@@ -18,6 +18,7 @@ namespace GameEngine
 namespace Components
 {
 // clang-format off
+struct FsmContext;
 using CharacterControllerFsm =
     Utils::StateMachine::Fsm<
                             DisarmedIdleState,

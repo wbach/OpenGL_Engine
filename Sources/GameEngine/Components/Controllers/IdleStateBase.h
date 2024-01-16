@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "FsmContext.h"
+#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -21,35 +22,25 @@ class JumpState;
 class DeathState;
 class JointPoseUpdater;
 
-class IdleStateBase
+class IdleStateBase : public StateBase
 {
 public:
-    IdleStateBase(FsmContext&, float, const std::string&, const std::string&);
+    IdleStateBase(FsmContext&, const std::string&);
 
-    void onEnter();
-    void onEnter(const WeaponStateEvent&);
+    using StateBase::onEnter;
+
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
     void update(float);
     void onLeave();
 
 protected:
-    virtual void setWeaponPosition() = 0;
-
-private:
-    void unsubscribeAll();
-    void unsubscribe(std::optional<uint32>&);
+    void enter() override;
+    void onWeaponChanged() override;
 
 private:
     FsmContext& context_;
     std::string idleAnimName_;
-    std::string armChangeAnimName_;
-    std::optional<uint32> subscribeForTransitionAnimationFrame_;
-    std::optional<uint32> subscribeForTransitionAnimationEnd_;
-    bool weaponChangeTriggered_{false};
-    float armChangeTimeStamp_{0.0};
-
-    std::function<void()> setWeaponPosition_;
 };
 }  // namespace Components
 }  // namespace GameEngine

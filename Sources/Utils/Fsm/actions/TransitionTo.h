@@ -22,7 +22,7 @@ public:
         leave(prevState, event);
 
 //        DEBUG_LOG("PrevState : " + typeName<State>());
-//        DEBUG_LOG("Entering : " + typeName<TargetState>());
+        DEBUG_LOG("Entering : " + typeName<TargetState>());
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 

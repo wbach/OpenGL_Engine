@@ -39,7 +39,7 @@ public:
     template <typename Event, typename Machine>
     void handleBy(const Event& event, Machine& machine)
     {
-        // DEBUG_LOG("Handle event : " + typeName<Event>());
+         DEBUG_LOG("Handle event : " + typeName<Event>());
         auto passEventToState = [&machine, &event](auto statePtr) {
             auto action = statePtr->handle(event);
             action.execute(machine, *statePtr, event);

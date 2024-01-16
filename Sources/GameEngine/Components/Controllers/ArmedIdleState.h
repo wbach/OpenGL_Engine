@@ -15,7 +15,6 @@ class ArmedRotateState;
 class DisarmedIdleState;
 class JumpState;
 class DeathState;
-class JointPoseUpdater;
 
 class ArmedIdleState
     : public IdleStateBase,
@@ -33,12 +32,10 @@ class ArmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedIdleState(FsmContext&, float);
+    ArmedIdleState(FsmContext&);
 
-private:
-    void setWeaponPosition() override;
-
-    JointPoseUpdater* jointPoseUpdater_;
+    using IdleStateBase::onEnter;
+    void onEnter(const WeaponStateEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

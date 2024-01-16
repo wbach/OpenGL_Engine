@@ -139,6 +139,7 @@ void JointPoseUpdater::setDisarmJointAsCurrent()
 {
     currentJoint_ = &disarmJoint_;
 }
+
 void JointPoseUpdater::fillOffsetsForJoint(Joint& joint)
 {
     auto currentParentWorldMatrix = thisObject_.GetParent()->GetWorldTransform().CalculateCurrentMatrix();
@@ -155,6 +156,7 @@ void JointPoseUpdater::fillOffsetsForJoint(Joint& joint)
     //  joint.offset.rotation = rotation.value_ - boneWorldRotation;
     joint.offset.rotation = rotation.value_ * glm::inverse(boneWorldRotation);
 }
+
 void JointPoseUpdater::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
@@ -179,6 +181,7 @@ void JointPoseUpdater::registerReadFunctions()
 
     regsiterComponentReadFunction(COMPONENT_STR, readFunc);
 }
+
 void JointPoseUpdater::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});

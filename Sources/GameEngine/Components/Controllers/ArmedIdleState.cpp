@@ -1,23 +1,18 @@
 #include "ArmedIdleState.h"
 
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
-
 namespace GameEngine
 {
 namespace Components
 {
-ArmedIdleState::ArmedIdleState(FsmContext &context, float timestamp)
-    : IdleStateBase(context, timestamp, context.animClipNames.armed.idle, context.animClipNames.equip)
-    , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
+ArmedIdleState::ArmedIdleState(FsmContext &context)
+    : IdleStateBase(context, context.animClipNames.armed.idle)
 {
 }
 
-void ArmedIdleState::setWeaponPosition()
+void ArmedIdleState::onEnter(const WeaponStateEvent &)
 {
-    if (jointPoseUpdater_)
-    {
-        jointPoseUpdater_->setEquipJointAsCurrent();
-    }
+    DEBUG_LOG("WeaponStateEvent");
+    StateBase::equipWeapon();
 }
 }  // namespace Components
 }  // namespace GameEngine

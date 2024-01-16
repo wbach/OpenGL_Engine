@@ -177,16 +177,25 @@ void CharacterController::Init()
 
         attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
 
-        fsmContext.reset(new FsmContext{*attackFsm_, thisObject_, componentContext_.physicsApi_, *rigidbody_,
-                                        *animator_, {}, {}, animationClipsNames_, upperBodyGroupName, lowerBodyGroupName});
+        fsmContext.reset(new FsmContext{*attackFsm_,
+                                        thisObject_,
+                                        componentContext_.physicsApi_,
+                                        *rigidbody_,
+                                        *animator_,
+                                        {},
+                                        {},
+                                        animationClipsNames_,
+                                        upperBodyGroupName,
+                                        lowerBodyGroupName,
+                                        {equipTimeStamp, disarmTimeStamp}});
         // clang-format off
 
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            DisarmedIdleState(*fsmContext, disarmTimeStamp),
+            DisarmedIdleState(*fsmContext),
             DisarmedRunState(*fsmContext),
             DisarmedRotateState(*fsmContext),
             DisarmedRunAndRotateState(*fsmContext),
-            ArmedIdleState(*fsmContext, equipTimeStamp),
+            ArmedIdleState(*fsmContext),
             ArmedRunState(*fsmContext),
             ArmedRotateState(*fsmContext),
             ArmedRunAndRotateState(*fsmContext),

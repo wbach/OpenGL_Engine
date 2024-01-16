@@ -199,6 +199,15 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
     }
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
+void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)
+{
+    group.push_back(joint.name);
+
+    for (const auto& child : joint.children)
+    {
+        createDefaultJointGroup(group, child);
+    }
+}
 void Animator::GetSkeletonAndAnimations()
 {
     rendererComponent_ = thisObject_.GetComponent<RendererComponent>();
@@ -217,6 +226,12 @@ void Animator::GetSkeletonAndAnimations()
             jointData_.rootJoint = *maybeRootJoint;
             initAnimationClips(*model);
             createShaderJointBuffers();
+
+            if (jointGroups_.empty())
+            {
+                DEBUG_LOG("create default joint group");
+                createDefaultJointGroup(jointGroups_["deafult"], jointData_.rootJoint);
+            }
 
             for (auto& [groupName, jointNamesInGroup] : jointGroups_)
             {
@@ -336,7 +351,8 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
 
