@@ -63,6 +63,11 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
         context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
     }
 }
+
+std::vector<std::string> AnimationTransition::getCurrentAnimation() const
+{
+    return {info_.clip.name};
+}
 void AnimationTransition::calculateTime(float deltaTime)
 {
     currentTime_ += (deltaTime / timeForChange_);

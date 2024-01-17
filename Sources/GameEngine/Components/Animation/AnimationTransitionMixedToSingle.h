@@ -19,6 +19,8 @@ public:
     void handle(const ChangeAnimationEvent&) override;
     void handle(const StopAnimationEvent&) override;
 
+     std::vector<std::string> getCurrentAnimation() const override;
+
 private:
     void increaseAnimationTime(float);
     void increaseTransitionTime(float);

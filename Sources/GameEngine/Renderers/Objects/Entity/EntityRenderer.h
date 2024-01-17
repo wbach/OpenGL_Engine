@@ -46,7 +46,7 @@ class EntityRenderer
 
 public:
     EntityRenderer(RendererContext&);
-    ~EntityRenderer();
+    virtual ~EntityRenderer();
 
     void init();
     void cleanUp();

@@ -22,3 +22,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     EXPECT_CALL(graphicsApiMock_, CreateFrameBuffer(_)).WillRepeatedly(ReturnRef(frameBufferMock_));
     renderersManager_.Init();
 }
+
+BaseComponentTestSchould::~BaseComponentTestSchould()
+{
+}

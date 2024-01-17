@@ -55,7 +55,6 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClipInfo_.find(name);
     if (clipIter != animationClipInfo_.end())
     {
-        currentAnimationName_ = name;
         machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
     }
     return *this;
@@ -135,9 +134,9 @@ const Animator::AnimationInfoClips& Animator::getAnimationClips() const
     return animationClipInfo_;
 }
 
-const std::string& Animator::getCurrentAnimationName() const
+std::vector<std::string> Animator::getCurrentAnimationName() const
 {
-    return currentAnimationName_;
+    return machine_.currentState_->getCurrentAnimation();
 }
 
 void Animator::alignAnimations(const std::string& animName1, const std::string& animName2)
@@ -185,7 +184,6 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         DEBUG_LOG("Not found!  : " + name);
         return;
     }
-    currentAnimationName_ = name;
 
     if (changeType == AnimationChangeType::direct)
     {

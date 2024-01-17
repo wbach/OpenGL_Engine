@@ -15,6 +15,7 @@ namespace GameEngine
 namespace Components
 {
 class JointPoseUpdater;
+class CharacterController;
 
 struct FsmContext
 {
@@ -42,6 +43,7 @@ struct FsmContext
     Physics::IPhysicsApi& physicsApi;
     Rigidbody& rigidbody;
     Animator& animator;
+    CharacterController& characterController;
 
     MoveStateData moveStateData_;
     RotateStateData rotateStateData_;
@@ -54,6 +56,7 @@ struct FsmContext
     TimeStamp armTimeStamps;
 
     bool multiAnimations{false};
+    bool weaponChangeTriggered_{false};
 
     MoveSpeed walkSpeed;
     MoveSpeed runSpeed;
@@ -67,7 +70,6 @@ struct FsmContext
     float rotateToTargetProgress{0.f};
     Quaternion startRotation{};
     Quaternion targetRotation{};
-
 };
 }  // namespace Components
 }  // namespace GameEngine

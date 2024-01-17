@@ -24,5 +24,10 @@ void EmptyState::handle(const ChangeAnimationEvent &event)
 void EmptyState::handle(const StopAnimationEvent &)
 {
 }
+
+std::vector<std::string> EmptyState::getCurrentAnimation() const
+{
+    return {};
+}
 }  // namespace Components
 }  // namespace GameEngine

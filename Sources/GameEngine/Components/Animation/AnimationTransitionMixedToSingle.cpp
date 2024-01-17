@@ -3,10 +3,10 @@
 #include <Logger/Log.h>
 
 #include "AnimationTransition.h"
+#include "AnimationTransitionToMixed.h"
 #include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "PlayMixedAnimation.h"
-#include "AnimationTransitionToMixed.h"
 #include "StateMachine.h"
 
 namespace GameEngine
@@ -74,7 +74,7 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
     {
         std::vector<CurrentGroupsPlayingInfo> v{{currentClipInfo_, currentClipProgres_, {}}};
 
-        for (auto& [name, group] : context_.jointGroups)
+        for (auto &[name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
@@ -100,6 +100,11 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
     {
         context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
     }
+}
+
+std::vector<std::string> AnimationTransitionMixedToSingle::getCurrentAnimation() const
+{
+    return {currentClipInfo_.clip.name};
 }
 
 void AnimationTransitionMixedToSingle::increaseAnimationTime(float deltaTime)

@@ -3,6 +3,7 @@
 
 #include "CharacterControllerEvents.h"
 #include "MoveSpeed.h"
+#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -18,7 +19,7 @@ namespace Components
 {
 struct FsmContext;
 
-class MoveStateBase
+class MoveStateBase : public StateBase
 {
 public:
     MoveStateBase(FsmContext&, const MoveSpeed&, const std::string&, const std::string&);
@@ -27,6 +28,8 @@ public:
     void onEnter(const MoveBackwardEvent&);
     void onEnter(const MoveLeftEvent&);
     void onEnter(const MoveRightEvent&);
+
+    void update(const WeaponChangeEndEvent&);
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
     void update(const MoveForwardEvent&);
@@ -47,7 +50,6 @@ protected:
     void setBackwardAnim();
 
 protected:
-    FsmContext& context_;
     std::string forwardAnimName_;
     std::string backwardAnimName_;
     MoveSpeed moveSpeed_;

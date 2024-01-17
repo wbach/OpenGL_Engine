@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class FsmContext;
+struct FsmContext;
 class JointPoseUpdater;
 
 class StateBase
@@ -20,7 +20,6 @@ public:
 
 protected:
     virtual void enter();
-    virtual void onWeaponChanged();
 
     void equipWeapon();
     void disarmWeapon();
@@ -30,10 +29,11 @@ private:
     void unsubscribe(std::optional<uint32>&);
     void unsubscribeAll();
 
-private:
+protected:
     FsmContext& context_;
+
+private:
     bool armed_{false};
-    bool weaponChangeTriggered_{false};
     JointPoseUpdater* jointPoseUpdater_{nullptr};
 
     std::optional<uint32> subscribeForTransitionAnimationFrame_;

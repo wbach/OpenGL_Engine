@@ -26,6 +26,7 @@ EntityRenderer::~EntityRenderer()
 {
     DEBUG_LOG("");
     unSubscribeAll();
+    cleanUp();
 }
 
 uint32 EntityRenderer::renderEntitiesWithoutGrouping()
@@ -124,6 +125,7 @@ void EntityRenderer::unSubscribe(GameObject& gameObject)
 
 void EntityRenderer::unSubscribeAll()
 {
+    DEBUG_LOG("subscribes_ size: " + std::to_string(subscribes_.size()) +  " subscribes_ clear");
     subscribes_.clear();
 }
 

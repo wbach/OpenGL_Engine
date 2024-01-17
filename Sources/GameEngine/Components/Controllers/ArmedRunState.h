@@ -25,6 +25,7 @@ class ArmedRunState
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
@@ -38,6 +39,23 @@ public:
         : MoveStateBase{context, context.runSpeed, context.animClipNames.armed.run.forward,
                         context.animClipNames.armed.run.backward}
     {
+    }
+
+    using MoveStateBase::onEnter;
+
+    void onEnter(const WeaponStateEvent&)
+    {
+        DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(context_.moveDirection));
+        context_.multiAnimations = true;
+        StateBase::equipWeapon();
+        if (context_.moveDirection.z > 0.01f)
+        {
+            setForwardAnim();
+        }
+        else if (context_.moveDirection.z < -0.01f)
+        {
+            setBackwardAnim();
+        }
     }
 };
 }  // namespace Components

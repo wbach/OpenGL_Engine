@@ -22,6 +22,7 @@
 #include "GameEngineTests/Tests/Mocks/Api/WindowApiMock.hpp"
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
+#include "GameEngineTests/Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -30,8 +31,9 @@ class BaseComponentTestSchould : public ::testing::Test
 {
 public:
     BaseComponentTestSchould();
+    virtual ~BaseComponentTestSchould();
 
-    GpuResourceLoader gpuResourceLoader_;
+    ::testing::NiceMock<GpuResourceLoaderMock> gpuResourceLoader_;
     Utils::MeasurementHandler measurementHandler_;
     Input::InputManagerMock inputManagerMock_;
     GraphicsApi::FrameBufferMock frameBufferMock_;

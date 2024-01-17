@@ -22,9 +22,10 @@ class DisarmedRunState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
@@ -38,6 +39,14 @@ public:
         : MoveStateBase{context, context.runSpeed, context.animClipNames.disarmed.run.forward,
                         context.animClipNames.disarmed.run.backward}
     {
+    }
+
+    using MoveStateBase::onEnter;
+
+    void onEnter(const WeaponStateEvent&)
+    {
+        context_.multiAnimations = true;
+        StateBase::equipWeapon();
     }
 };
 }  // namespace Components

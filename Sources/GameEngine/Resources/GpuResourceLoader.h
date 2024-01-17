@@ -10,6 +10,8 @@ class GpuResourceLoader : public IGpuResourceLoader
 {
 public:
     GpuResourceLoader();
+    ~GpuResourceLoader();
+
     void AddFunctionToCall(std::function<void()>) override;
     void CallFunctions() override;
 
@@ -26,6 +28,8 @@ public:
     size_t CountObjectsToAdd() override;
     size_t CountObjectsToUpdate() override;
     size_t CountObjectsToRelease() override;
+
+    void clear();
 
 private:
     void RuntimeLoadObjectToGpu();

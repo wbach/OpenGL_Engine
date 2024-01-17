@@ -58,7 +58,7 @@ public:
     void unSubscribeForPoseUpdateBuffer(uint32);
 
     const AnimationInfoClips& getAnimationClips() const;
-    const std::string& getCurrentAnimationName() const;
+    std::vector<std::string> getCurrentAnimationName() const;
 
     void alignAnimations(const std::string&, const std::string&);
 
@@ -85,8 +85,6 @@ protected:
     RendererComponent* rendererComponent_;
     std::vector<GameEngine::File> clipsToRead_;
     JointGroupsIds jointGroupsIds_;
-
-    std::string currentAnimationName_;
 
 public:
     static void registerReadFunctions();

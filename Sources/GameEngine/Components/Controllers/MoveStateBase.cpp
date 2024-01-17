@@ -12,7 +12,7 @@ namespace Components
 {
 MoveStateBase::MoveStateBase(FsmContext &context, const MoveSpeed &moveSpeed, const std::string &forwardAnimName,
                              const std::string &backwardAnimName)
-    : context_{context}
+    : StateBase(context)
     , forwardAnimName_{forwardAnimName}
     , backwardAnimName_{backwardAnimName}
     , moveSpeed_{moveSpeed}
@@ -55,6 +55,12 @@ void MoveStateBase::onEnter(const MoveRightEvent &)
 
     // setRightAnim();
 }
+
+void MoveStateBase::update(const WeaponChangeEndEvent &)
+{
+    DEBUG_LOG("WeaponChangeEndEvent");
+    context_.multiAnimations = false;
+}
 bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
 {
     context_.moveStateData_.isForwardEvent_ = false;
@@ -78,22 +84,22 @@ bool MoveStateBase::transitionCondition(const EndBackwardMoveEvent &)
 }
 void MoveStateBase::onLeave()
 {
-//    context_.moveStateData_.isForwardEvent_  = false;
-//    context_.moveStateData_.isBackwardEvent_ = false;
+    //    context_.moveStateData_.isForwardEvent_  = false;
+    //    context_.moveStateData_.isBackwardEvent_ = false;
 }
 
 void MoveStateBase::setMoveForward()
 {
     context_.moveStateData_.isForwardEvent_ = true;
 
-    context_.moveDirection  = vec3(0.f, 0.f, 1.f);
+    context_.moveDirection                    = vec3(0.f, 0.f, 1.f);
     context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
 }
 
 void MoveStateBase::setMoveBackward()
 {
     context_.moveStateData_.isBackwardEvent_  = true;
-    context_.moveDirection  = vec3(0.f, 0.f, -1.f);
+    context_.moveDirection                    = vec3(0.f, 0.f, -1.f);
     context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
 }
 void MoveStateBase::update(const AttackEvent &)
@@ -121,6 +127,7 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::setForwardAnim()
 {
+    DEBUG_LOG(forwardAnimName_);
     if (not forwardAnimName_.empty())
     {
         context_.moveStateData_.animationIsReady_ = false;
@@ -133,6 +140,7 @@ void MoveStateBase::setForwardAnim()
 
 void MoveStateBase::setBackwardAnim()
 {
+    DEBUG_LOG(forwardAnimName_);
     if (not backwardAnimName_.empty())
     {
         context_.moveStateData_.animationIsReady_ = false;
@@ -163,8 +171,10 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
 
         auto velocity       = rigidbody.GetVelocity();
         auto velocityChange = (targetVelocity - velocity);
-        velocityChange.x    = glm::clamp(velocityChange.x, -context_.moveStateData_.currentMoveSpeed_, context_.moveStateData_.currentMoveSpeed_);
-        velocityChange.z    = glm::clamp(velocityChange.z, -context_.moveStateData_.currentMoveSpeed_, context_.moveStateData_.currentMoveSpeed_);
+        velocityChange.x    = glm::clamp(velocityChange.x, -context_.moveStateData_.currentMoveSpeed_,
+                                         context_.moveStateData_.currentMoveSpeed_);
+        velocityChange.z    = glm::clamp(velocityChange.z, -context_.moveStateData_.currentMoveSpeed_,
+                                         context_.moveStateData_.currentMoveSpeed_);
         velocityChange.y    = 0;
 
         auto newVelocity = velocity + velocityChange;

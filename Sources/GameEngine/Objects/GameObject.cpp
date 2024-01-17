@@ -23,6 +23,8 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 
 GameObject::~GameObject()
 {
+    DEBUG_LOG("~GameObject() " + name_);
+
     for (auto& component : components_)
     {
         component->CleanUp();
@@ -33,6 +35,8 @@ GameObject::~GameObject()
 
     if (localTransfromSubscribtion_)
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
+
+    DEBUG_LOG(name_);
 }
 Components::IComponent* GameObject::InitComponent(const TreeNode& node)
 {

@@ -22,6 +22,7 @@ class ArmedIdleState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
@@ -35,6 +36,8 @@ public:
     ArmedIdleState(FsmContext&);
 
     using IdleStateBase::onEnter;
+    using IdleStateBase::update;
+
     void onEnter(const WeaponStateEvent&);
 };
 }  // namespace Components

@@ -18,9 +18,11 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , clipInfo_{info}
     , previousFrameTimeStamp{-1.0f}
 {
+    DEBUG_LOG(info.clip.name);
 }
 bool PlayAnimation::update(float deltaTime)
 {
+    DEBUG_LOG(clipInfo_.clip.name);
     calculateCurrentAnimationPose(context_.currentPose, clipInfo_.clip, time_);
     increaseAnimationTime(deltaTime);
     return true;
@@ -50,6 +52,11 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
 void PlayAnimation::handle(const StopAnimationEvent&)
 {
     context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+}
+
+std::vector<std::string> PlayAnimation::getCurrentAnimation() const
+{
+    return {clipInfo_.clip.name};
 }
 
 void PlayAnimation::increaseAnimationTime(float deltaTime)
@@ -88,7 +95,7 @@ void PlayAnimation::notifyClipSubscribers()
         currentFrame = &clipInfo_.clip.GetFrames().back();
     }
 
-    //Unsubscribe during callbacks
+    // Unsubscribe during callbacks
     auto tmpSubscirbers = clipInfo_.subscribers;
     for (const auto& sub : tmpSubscirbers)
     {

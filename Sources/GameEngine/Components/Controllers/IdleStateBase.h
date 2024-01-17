@@ -31,15 +31,14 @@ public:
 
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
+    void update(const WeaponChangeEndEvent&);
     void update(float);
     void onLeave();
 
 protected:
     void enter() override;
-    void onWeaponChanged() override;
 
 private:
-    FsmContext& context_;
     std::string idleAnimName_;
 };
 }  // namespace Components

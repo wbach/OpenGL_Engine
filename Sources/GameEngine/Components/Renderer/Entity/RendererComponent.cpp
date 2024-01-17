@@ -23,6 +23,7 @@ const std::string MODEL_L3              = "model_l3";
 const std::string TEXTURE_INDEX         = "textureIndex";
 const GraphicsApi::ID defaultId;
 }  // namespace
+
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
     , isSubscribed_(false)
@@ -91,6 +92,13 @@ std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
 
     return result;
 }
+
+RendererComponent &RendererComponent::AddModel(Model *model, LevelOfDetail i)
+{
+    model_.Add(model, i);
+    return *this;
+}
+
 RendererComponent& RendererComponent::AddModel(const std::string& filename, GameEngine::LevelOfDetail lvl)
 {
     if (filename.empty())

@@ -182,6 +182,7 @@ void CharacterController::Init()
                                         componentContext_.physicsApi_,
                                         *rigidbody_,
                                         *animator_,
+                                        *this,
                                         {},
                                         {},
                                         animationClipsNames_,
@@ -223,6 +224,20 @@ void CharacterController::Init()
         }
 
         animator_->SetAnimation(animationClipsNames_.disarmed.idle);
+
+        auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
+        if (lowerBodyGroupIter == animator_->jointGroups_.end())
+        {
+            DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty." );
+            animator_->jointGroups_.insert({lowerBodyGroupName, {}});
+        }
+
+        auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
+        if (upperBodyGroupIter == animator_->jointGroups_.end())
+        {
+            DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty" );
+            animator_->jointGroups_.insert({upperBodyGroupName, {}});
+        }
     }
     else
     {

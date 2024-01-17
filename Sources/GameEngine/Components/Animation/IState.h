@@ -14,9 +14,10 @@ struct IState
 {
     virtual ~IState() = default;
 
-    virtual bool update(float)                       = 0;
-    virtual void handle(const ChangeAnimationEvent&) = 0;
-    virtual void handle(const StopAnimationEvent&)   = 0;
+    virtual bool update(float)                                   = 0;
+    virtual void handle(const ChangeAnimationEvent&)             = 0;
+    virtual void handle(const StopAnimationEvent&)               = 0;
+    virtual std::vector<std::string> getCurrentAnimation() const = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

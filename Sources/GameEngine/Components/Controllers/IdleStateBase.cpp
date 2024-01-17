@@ -9,7 +9,6 @@ namespace Components
 {
 IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName)
     : StateBase(context)
-    , context_{context}
     , idleAnimName_{idleAnimName}
 {
 }
@@ -35,6 +34,18 @@ void IdleStateBase::onLeave()
 {
 }
 
+void IdleStateBase::update(const WeaponChangeEndEvent&)
+{
+    DEBUG_LOG(idleAnimName_);
+    if (not idleAnimName_.empty())
+    {
+        DEBUG_LOG("a");
+        context_.animator.ChangeAnimation(
+            idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+    }
+}
+
 void IdleStateBase::enter()
 {
     if (not idleAnimName_.empty())
@@ -44,16 +55,5 @@ void IdleStateBase::enter()
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
     }
 }
-
-void IdleStateBase::onWeaponChanged()
-{
-    if (not idleAnimName_.empty())
-    {
-        context_.animator.ChangeAnimation(
-            idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-    }
-}
-
 }  // namespace Components
 }  // namespace GameEngine

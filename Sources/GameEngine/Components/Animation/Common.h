@@ -30,7 +30,7 @@ struct Pose
 
 typedef std::unordered_map<std::string, std::vector<std::string>> JointGroups;
 typedef std::unordered_map<std::string, std::vector<uint32>> JointGroupsIds;
-typedef std::unordered_map<std::string, std::pair<AnimationClipInfo, float>> AnimationClipInfoPerGroup;
+typedef std::unordered_map<std::string, std::pair<const AnimationClipInfo&, float>> AnimationClipInfoPerGroup;
 
 void interpolatePoses(Pose&, const Animation::KeyFrame&, const Animation::KeyFrame&, float);
 void interpolatePoses(Pose&, const Animation::KeyFrame&, const Animation::KeyFrame&, float, const std::vector<uint32>&);

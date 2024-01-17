@@ -1,5 +1,7 @@
+
 #include "StateBase.h"
 
+#include "CharacterController.h"
 #include "FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
@@ -17,7 +19,7 @@ StateBase::StateBase(FsmContext& context)
 
 void StateBase::onEnter()
 {
-    if (not weaponChangeTriggered_)
+    if (not context_.weaponChangeTriggered_)
     {
         enter();
     }
@@ -25,7 +27,6 @@ void StateBase::onEnter()
 
 void StateBase::enter()
 {
-
 }
 
 void StateBase::equipWeapon()
@@ -52,13 +53,9 @@ void StateBase::disarmWeapon()
     triggerChange();
 }
 
-void StateBase::onWeaponChanged()
-{
-}
-
 void StateBase::triggerChange()
 {
-    weaponChangeTriggered_ = true;
+    context_.weaponChangeTriggered_ = true;
 
     const auto& animName = armed_ ? context_.animClipNames.equip : context_.animClipNames.disarm;
 
@@ -80,20 +77,20 @@ void StateBase::triggerChange()
         },
         armed_ ? context_.armTimeStamps.disarm : context_.armTimeStamps.disarm);
 
-    subscribeForTransitionAnimationEnd_ =
-        context_.animator.SubscribeForAnimationFrame(animName,
-                                                     [this]()
-                                                     {
-                                                         onWeaponChanged();
-                                                         unsubscribe(subscribeForTransitionAnimationEnd_);
-                                                         weaponChangeTriggered_ = false;
-                                                     });
+    subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
+        animName,
+        [this]()
+        {
+            context_.characterController.fsm()->handle(WeaponChangeEndEvent{});
+            unsubscribe(subscribeForTransitionAnimationEnd_);
+            context_.weaponChangeTriggered_ = false;
+        });
 
     context_.animator.ChangeAnimation(
         animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-        context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+        context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
 
-    weaponChangeTriggered_ = true;
+    context_.weaponChangeTriggered_ = true;
 }
 void StateBase::unsubscribe(std::optional<uint32>& maybeId)
 {
@@ -106,7 +103,7 @@ void StateBase::unsubscribe(std::optional<uint32>& maybeId)
 
 void StateBase::unsubscribeAll()
 {
-    weaponChangeTriggered_ = false;
+    context_.weaponChangeTriggered_ = false;
     unsubscribe(subscribeForTransitionAnimationEnd_);
     unsubscribe(subscribeForTransitionAnimationFrame_);
 }
