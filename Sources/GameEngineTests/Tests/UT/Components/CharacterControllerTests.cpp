@@ -136,8 +136,14 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     {
         EXPECT_EQ(animator_->getCurrentAnimationName().size(), names.size());
 
+        for(const auto& name : names)
+        {
+            DEBUG_LOG("Expected :" + name);
+        }
+
         for(const auto& name : animator_->getCurrentAnimationName())
         {
+            DEBUG_LOG("Current :" + name);
             auto iter = std::find(names.begin(), names.end(), name);
             EXPECT_TRUE(iter != names.end());
         }
@@ -280,5 +286,42 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringDisarmedRunForward)
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+}
+
+TEST_F(CharacterControllerTests, DisarmWeaponDuringArmedRunForward)
+{
+    vec3 runningVelocity(0.0, 0.0, DEFAULT_RUN_SPEED);
+
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, runningVelocity)).Times(AtLeast(1));
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+
+    sut_.fsm()->handle(MoveForwardEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(runningVelocity));
+
+    // PlayMixedAnimation with equip
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.disarm});
+
+    // Animation : Tirgger EquipAnim end, and notify state
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }
