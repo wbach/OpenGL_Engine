@@ -33,6 +33,7 @@ public:
     void update(const EndAttackEvent &);
     void update(const MoveForwardEvent &);
     void update(const MoveBackwardEvent &);
+    void update(const WeaponChangeEndEvent&);
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);

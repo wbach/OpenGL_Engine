@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -13,7 +14,7 @@ namespace Components
 {
 struct FsmContext;
 
-class RotateStateBase
+class RotateStateBase : public StateBase
 {
 public:
     RotateStateBase(FsmContext&, float, const std::string&, const std::string&);
@@ -29,7 +30,6 @@ public:
     void update(const RotateTargetEvent&);
 
 protected:
-    FsmContext& context_;
     const std::string& rotateLeftAnim_;
     const std::string& rotateRightAnim_;
     float rotateSpeed_;

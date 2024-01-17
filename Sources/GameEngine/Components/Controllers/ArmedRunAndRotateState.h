@@ -25,6 +25,7 @@ class ArmedRunAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
@@ -37,9 +38,24 @@ public:
     {
     }
 
-    using MoveAndRotateStateBase::update;
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::update;
+
+    void onEnter(const WeaponStateEvent &)
+    {
+        DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(StateBase::context_.moveDirection));
+        StateBase::context_.multiAnimations = true;
+        StateBase::equipWeapon();
+        if (StateBase::context_.moveDirection.z > 0.01f)
+        {
+            setForwardAnim();
+        }
+        else if (StateBase::context_.moveDirection.z < -0.01f)
+        {
+            setBackwardAnim();
+        }
+    }
 };
 }  // namespace Components
 }  // namespace GameEngine

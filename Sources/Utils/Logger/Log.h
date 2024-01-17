@@ -76,6 +76,7 @@ std::string FileNameLogRepresentation(const char*);
 template <typename T>
 std::string typeName()
 {
+#ifdef USE_GNU
     int status;
     std::string tname    = typeid(T).name();
     char* demangled_name = abi::__cxa_demangle(tname.c_str(), NULL, NULL, &status);
@@ -85,4 +86,9 @@ std::string typeName()
         std::free(demangled_name);
     }
     return tname;
+#else
+    return typeid(T).name();
+#endif
+
+
 }

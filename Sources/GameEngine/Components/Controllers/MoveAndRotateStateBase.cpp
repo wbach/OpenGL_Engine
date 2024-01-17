@@ -33,6 +33,11 @@ void MoveAndRotateStateBase::update(const MoveBackwardEvent &e)
     MoveStateBase::update(e);
 }
 
+void MoveAndRotateStateBase::update(const WeaponChangeEndEvent& e)
+{
+    MoveStateBase::update(e);
+}
+
 bool MoveAndRotateStateBase::transitionCondition(const EndForwardMoveEvent &e)
 {
     return MoveStateBase::transitionCondition(e);

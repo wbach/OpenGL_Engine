@@ -12,7 +12,7 @@ namespace Components
 {
 RotateStateBase::RotateStateBase(FsmContext &context, float rotateSpeed, const std::string &rotateLeftAnim,
                                  const std::string &rotateRightAnim)
-    : context_{context}
+    : StateBase{context}
     , rotateLeftAnim_{rotateLeftAnim}
     , rotateRightAnim_{rotateRightAnim}
     , rotateSpeed_{rotateSpeed}
