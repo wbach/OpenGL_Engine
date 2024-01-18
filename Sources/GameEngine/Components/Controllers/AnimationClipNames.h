@@ -10,8 +10,6 @@ struct MovmentClipNames
 {
     std::string forward;
     std::string backward;
-    std::string rotateLeft;
-    std::string rotateRight;
     std::string moveleft;
     std::string moveRight;
 };
@@ -21,6 +19,9 @@ struct StateClipsNames
     MovmentClipNames walk;
     MovmentClipNames run;
     MovmentClipNames crouch;
+
+    std::string rotateLeft;
+    std::string rotateRight;
     std::string jump;
     std::string idle;
     std::string hurt;

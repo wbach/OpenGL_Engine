@@ -11,6 +11,7 @@ namespace Components
 {
 class ArmedRunState;
 class ArmedRotateState;
+class DisarmedRunAndRotateState;
 class JumpState;
 class DeathState;
 
@@ -27,6 +28,7 @@ class ArmedRunAndRotateState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
@@ -34,7 +36,8 @@ class ArmedRunAndRotateState
 {
 public:
     ArmedRunAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run}
+        : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run, context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
+        , context_{context}
     {
     }
 
@@ -44,18 +47,21 @@ public:
 
     void onEnter(const WeaponStateEvent &)
     {
-        DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(StateBase::context_.moveDirection));
-        StateBase::context_.multiAnimations = true;
-        StateBase::equipWeapon();
-        if (StateBase::context_.moveDirection.z > 0.01f)
+        DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(context_.moveDirection));
+        context_.multiAnimations = true;
+        MoveStateBase::equipWeapon();
+
+        if (context_.moveDirection.z > 0.01f)
         {
             setForwardAnim();
         }
-        else if (StateBase::context_.moveDirection.z < -0.01f)
+        else if (context_.moveDirection.z < -0.01f)
         {
             setBackwardAnim();
         }
     }
+
+    FsmContext &context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -7,9 +7,9 @@ namespace GameEngine
 namespace Components
 {
 MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const MoveSpeed &moveSpeed,
-                                               const MovmentClipNames &clipnames)
+                                               const MovmentClipNames &clipnames, const std::string& rotateLeft, const std::string& rotateRight)
     : MoveStateBase{context, context.runSpeed, clipnames.forward, clipnames.backward}
-    , RotateStateBase{context, context.runSpeed.leftRight, clipnames.rotateLeft, clipnames.rotateRight}
+    , RotateStateBase{context, context.runSpeed.leftRight, rotateLeft, rotateRight}
 {
 }
 

@@ -29,6 +29,9 @@ public:
     void update(const RotateRightEvent&);
     void update(const RotateTargetEvent&);
 
+    void setRotateLeftAnim();
+    void setRotateRightAnim();
+
 protected:
     const std::string& rotateLeftAnim_;
     const std::string& rotateRightAnim_;

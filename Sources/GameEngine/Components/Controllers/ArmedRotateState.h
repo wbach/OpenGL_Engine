@@ -14,6 +14,7 @@ class ArmedIdleState;
 class ArmedRunAndRotateState;
 class JumpState;
 class DeathState;
+class DisarmedRotateState;
 
 class ArmedRotateState
     : public RotateStateBase,
@@ -22,6 +23,8 @@ class ArmedRotateState
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
@@ -32,9 +35,24 @@ class ArmedRotateState
 {
 public:
     ArmedRotateState(FsmContext& context)
-        : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.armed.walk.rotateLeft,
-                          context.animClipNames.armed.walk.rotateRight}
+        : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
+                          context.animClipNames.armed.rotateRight}
     {
+    }
+
+    void onEnter(const WeaponStateEvent&)
+    {
+        DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(context_.moveDirection));
+        context_.multiAnimations = true;
+        StateBase::equipWeapon();
+        if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
+        {
+            setRotateLeftAnim();
+        }
+        else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
+        {
+            setRotateRightAnim();
+        }
     }
 };
 }  // namespace Components

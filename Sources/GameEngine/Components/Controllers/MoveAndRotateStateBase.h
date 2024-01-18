@@ -16,7 +16,7 @@ struct FsmContext;
 class MoveAndRotateStateBase : public MoveStateBase, public RotateStateBase
 {
 public:
-    MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &);
+    MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &, const std::string&, const std::string&);
 
     void onEnter(const EndJumpEvent &);
     void onEnter(const MoveForwardEvent &);

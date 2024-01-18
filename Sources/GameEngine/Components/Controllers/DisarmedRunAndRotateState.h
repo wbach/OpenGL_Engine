@@ -11,6 +11,7 @@ namespace Components
 {
 class DisarmedRunState;
 class DisarmedRotateState;
+class ArmedRunAndRotateState;
 class JumpState;
 class DeathState;
 struct FsmContext;
@@ -27,6 +28,8 @@ class DisarmedRunAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
@@ -34,7 +37,7 @@ class DisarmedRunAndRotateState
 {
 public:
     DisarmedRunAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.disarmed.run}
+        : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.disarmed.run, context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
     {
     }
 

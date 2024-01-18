@@ -44,8 +44,6 @@ void write(TreeNode& node, const GameEngine::Components::MovmentClipNames& names
 {
     ::write(node.addChild(CSTR_ANIMATION_FORWARD), names.forward);
     ::write(node.addChild(CSTR_ANIMATION_BACKWARD), names.backward);
-    ::write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), names.rotateLeft);
-    ::write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), names.rotateRight);
     ::write(node.addChild(CSTR_ANIMATION_MOVE_LEFT), names.moveleft);
     ::write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.moveRight);
 }
@@ -67,6 +65,8 @@ void write(TreeNode& node, const GameEngine::Components::StateClipsNames& names)
     ::write(node.addChild(CSTR_HURT_ANIMATION), names.hurt);
     ::write(node.addChild(CSTR_DEATH_ANIMATION), names.death);
     ::write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);
+    ::write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), names.rotateLeft);
+    ::write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), names.rotateRight);
 }
 
 void write(TreeNode& node, const GameEngine::Components::AnimationClipsNames& names)
@@ -84,8 +84,6 @@ void Read(const TreeNode& node, GameEngine::Components::MovmentClipNames& result
 {
     Read(node.getChild(CSTR_ANIMATION_FORWARD), result.forward);
     Read(node.getChild(CSTR_ANIMATION_BACKWARD), result.backward);
-    Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.rotateLeft);
-    Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.rotateRight);
     Read(node.getChild(CSTR_ANIMATION_MOVE_LEFT), result.moveleft);
     Read(node.getChild(CSTR_ANIMATION_MOVE_RIGHT), result.moveRight);
 }
@@ -110,6 +108,8 @@ void Read(const TreeNode& node, GameEngine::Components::StateClipsNames& result)
     Read(node.getChild(CSTR_HURT_ANIMATION), result.hurt);
     Read(node.getChild(CSTR_DEATH_ANIMATION), result.death);
     Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
+    Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.rotateLeft);
+    Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.rotateRight);
 }
 
 void Read(const TreeNode& node, GameEngine::Components::AnimationClipsNames& result)

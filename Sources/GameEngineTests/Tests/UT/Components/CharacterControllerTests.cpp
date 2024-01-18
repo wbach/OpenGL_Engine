@@ -58,6 +58,10 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         clips.armed.run.backward    = "ARB";
         clips.equip                 = "equip";
         clips.disarm                = "disarm";
+        clips.disarmed.rotateLeft   = "DRL";
+        clips.disarmed.rotateRight  = "DRR";
+        clips.armed.rotateLeft      = "ARL";
+        clips.armed.rotateRight     = "ARR";
 
         addDummyClip(clips.equip);
         addDummyClip(clips.disarm);
@@ -67,6 +71,11 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         addDummyClip(clips.armed.idle);
         addDummyClip(clips.armed.run.forward);
         addDummyClip(clips.armed.run.backward);
+        addDummyClip(clips.disarmed.rotateLeft);
+        addDummyClip(clips.disarmed.rotateRight);
+        addDummyClip(clips.armed.rotateLeft);
+        addDummyClip(clips.armed.rotateRight);
+
         sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
         sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
 
@@ -136,12 +145,12 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     {
         EXPECT_EQ(animator_->getCurrentAnimationName().size(), names.size());
 
-        for(const auto& name : names)
+        for (const auto& name : names)
         {
             DEBUG_LOG("Expected :" + name);
         }
 
-        for(const auto& name : animator_->getCurrentAnimationName())
+        for (const auto& name : animator_->getCurrentAnimationName())
         {
             DEBUG_LOG("Current :" + name);
             auto iter = std::find(names.begin(), names.end(), name);
@@ -324,4 +333,52 @@ TEST_F(CharacterControllerTests, DisarmWeaponDuringArmedRunForward)
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
     Update(ADVANCED_TIME_TRANSITION_TIME);
+}
+
+TEST_F(CharacterControllerTests, EquipWeaponDuringRotateLeftState)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    sut_.fsm()->handle(RotateLeftEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateLeft});
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.equip});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateLeft});
+}
+
+TEST_F(CharacterControllerTests, EquipWeaponDuringRotateRightState)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    sut_.fsm()->handle(RotateRightEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight});
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.equip});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateRight});
 }

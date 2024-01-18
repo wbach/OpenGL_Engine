@@ -20,26 +20,15 @@ RotateStateBase::RotateStateBase(FsmContext &context, float rotateSpeed, const s
 }
 void RotateStateBase::onEnter(const RotateLeftEvent &e)
 {
+    DEBUG_LOG("onEnter(const RotateLeftEvent &e)");
     update(e);
-
-    if (not rotateLeftAnim_.empty())
-    {
-        context_.animator.ChangeAnimation(
-            rotateLeftAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-    }
+    setRotateLeftAnim();
 }
 
 void RotateStateBase::onEnter(const RotateRightEvent &e)
 {
     update(e);
-
-    if (not rotateRightAnim_.empty())
-    {
-        context_.animator.ChangeAnimation(
-            rotateRightAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-    }
+    setRotateRightAnim();
 }
 
 void RotateStateBase::onEnter(const RotateTargetEvent &event)
@@ -103,6 +92,28 @@ void RotateStateBase::update(const RotateRightEvent &)
 
 void RotateStateBase::update(const RotateTargetEvent &)
 {
+}
+
+void RotateStateBase::setRotateLeftAnim()
+{
+    DEBUG_LOG("setRotateLeftAnim");
+    if (not rotateLeftAnim_.empty())
+    {
+        DEBUG_LOG("not empty setRotateLeftAnim");
+        context_.animator.ChangeAnimation(
+            rotateLeftAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+    }
+}
+
+void RotateStateBase::setRotateRightAnim()
+{
+    if (not rotateRightAnim_.empty())
+    {
+        context_.animator.ChangeAnimation(
+            rotateRightAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+    }
 }
 
 }  // namespace Components
