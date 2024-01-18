@@ -94,6 +94,11 @@ void RotateStateBase::update(const RotateTargetEvent &)
 {
 }
 
+void RotateStateBase::update(const WeaponChangeEndEvent &)
+{
+    context_.multiAnimations = false;
+}
+
 void RotateStateBase::setRotateLeftAnim()
 {
     DEBUG_LOG("setRotateLeftAnim");

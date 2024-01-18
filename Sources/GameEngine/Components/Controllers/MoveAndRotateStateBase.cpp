@@ -65,17 +65,17 @@ void MoveAndRotateStateBase::onEnter(const MoveBackwardEvent &event)
 
 void MoveAndRotateStateBase::onEnter(const RotateLeftEvent &event)
 {
-    RotateStateBase::onEnter(event);
+    RotateStateBase::update(event);
 }
 
 void MoveAndRotateStateBase::onEnter(const RotateRightEvent &event)
 {
-    RotateStateBase::onEnter(event);
+    RotateStateBase::update(event);
 }
 
 void MoveAndRotateStateBase::onEnter(const RotateTargetEvent &event)
 {
-    RotateStateBase::onEnter(event);
+    RotateStateBase::update(event);
 }
 
 void MoveAndRotateStateBase::update(const RotateLeftEvent &event)

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include "StateBase.h"
 
 namespace GameEngine
@@ -9,6 +10,7 @@ struct RotateRightEvent;
 struct RotateTargetEvent;
 struct AttackEvent;
 struct EndAttackEvent;
+struct WeaponChangeEndEvent;
 
 namespace Components
 {
@@ -28,6 +30,7 @@ public:
     void update(const RotateLeftEvent&);
     void update(const RotateRightEvent&);
     void update(const RotateTargetEvent&);
+    void update(const WeaponChangeEndEvent&);
 
     void setRotateLeftAnim();
     void setRotateRightAnim();
