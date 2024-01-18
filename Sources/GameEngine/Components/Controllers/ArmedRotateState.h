@@ -47,14 +47,7 @@ public:
         DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(context_.moveDirection));
         context_.multiAnimations = true;
         StateBase::equipWeapon();
-        if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
-        {
-            setRotateLeftAnim();
-        }
-        else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
-        {
-            setRotateRightAnim();
-        }
+        RotateStateBase::setCurrentAnim();
     }
 };
 }  // namespace Components

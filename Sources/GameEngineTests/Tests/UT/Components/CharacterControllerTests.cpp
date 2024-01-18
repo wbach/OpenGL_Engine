@@ -419,7 +419,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringRotateRightState)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedState_RunForwardAndRotateLeft)
+TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateLeft)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -438,9 +438,34 @@ TEST_F(CharacterControllerTests, DisarmedState_RunForwardAndRotateLeft)
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(EndRotationEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+    ;
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedState_RunForwardAndRotateRight)
+TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateRight)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -459,4 +484,79 @@ TEST_F(CharacterControllerTests, DisarmedState_RunForwardAndRotateRight)
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(EndRotationEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
+}
+
+TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeaponState)
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.equip});
+
+    sut_.fsm()->handle(MoveForwardEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(RotateLeftEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.disarm});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateLeft});
+
+    sut_.fsm()->handle(EndRotationEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }

@@ -50,17 +50,10 @@ public:
         DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(context_.moveDirection));
         context_.multiAnimations = true;
         MoveStateBase::equipWeapon();
-
-        if (context_.moveDirection.z > 0.01f)
-        {
-            setForwardAnim();
-        }
-        else if (context_.moveDirection.z < -0.01f)
-        {
-            setBackwardAnim();
-        }
+        MoveStateBase::setCurrentAnim();
     }
 
+private:
     FsmContext &context_;
 };
 }  // namespace Components

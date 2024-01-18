@@ -158,6 +158,18 @@ void MoveStateBase::setBackwardAnim()
             [this]() { context_.moveStateData_.animationIsReady_ = true; });
     }
 }
+
+void MoveStateBase::setCurrentAnim()
+{
+    if (context_.moveDirection.z > 0.01f)
+    {
+        setForwardAnim();
+    }
+    else if (context_.moveDirection.z < -0.01f)
+    {
+        setBackwardAnim();
+    }
+}
 void MoveStateBase::moveRigidbody(FsmContext &context)
 {
     if (context_.moveStateData_.animationIsReady_)

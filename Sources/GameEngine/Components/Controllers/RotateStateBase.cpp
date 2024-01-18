@@ -42,6 +42,16 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
     }
 }
 
+void RotateStateBase::onEnter(const EndForwardMoveEvent &)
+{
+    setCurrentAnim();
+}
+
+void RotateStateBase::onEnter(const EndBackwardMoveEvent &)
+{
+    setCurrentAnim();
+}
+
 void RotateStateBase::update(const AttackEvent &)
 {
     context_.multiAnimations = true;
@@ -118,6 +128,18 @@ void RotateStateBase::setRotateRightAnim()
         context_.animator.ChangeAnimation(
             rotateRightAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+    }
+}
+
+void RotateStateBase::setCurrentAnim()
+{
+    if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
+    {
+        setRotateLeftAnim();
+    }
+    else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
+    {
+        setRotateRightAnim();
     }
 }
 

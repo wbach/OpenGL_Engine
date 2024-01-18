@@ -48,6 +48,7 @@ protected:
     void moveRigidbody(FsmContext&);
     void setForwardAnim();
     void setBackwardAnim();
+    void setCurrentAnim();
 
 protected:
     std::string forwardAnimName_;
