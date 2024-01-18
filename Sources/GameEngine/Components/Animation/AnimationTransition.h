@@ -1,7 +1,7 @@
 #pragma once
 #include "AnimationClipInfo.h"
 #include "Context.h"
-#include "IState.h"
+#include "AnimationStateBase.h"
 
 namespace GameEngine
 {
@@ -10,7 +10,7 @@ namespace Components
 struct AnimationTransitionEvent;
 struct StateMachine;
 
-class AnimationTransition : public IState
+class AnimationTransition : public AnimationStateBase
 {
 public:
     using OnTransitionEnd = std::function<void()>;

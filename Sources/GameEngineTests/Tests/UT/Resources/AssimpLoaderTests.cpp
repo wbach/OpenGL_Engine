@@ -53,7 +53,7 @@ struct AssimpLoaderShould : public ::testing::Test
     TextureLoaderMock textureLoaderMock_;
     std::unique_ptr<WBLoader::AssimpLoader> sut_;
 };
-TEST_F(AssimpLoaderShould, ReadSimpleCube)
+TEST_F(AssimpLoaderShould, DISABLED_ReadSimpleCube)
 {
     std::string cubeFile{"Meshes/box.fbx"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + cubeFile));

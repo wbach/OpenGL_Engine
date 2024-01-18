@@ -114,12 +114,14 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
     {
         DEBUG_LOG(name);
         group.time += deltaTime * group.clipInfo.playSpeed * group.direction;
-        notifyFrameSubsribers(group);
+        //notifyFrameSubsribers(group);
+        AnimationStateBase::notifyFrameSubsribers(group.clipInfo, group.frames.first, group.time, group.previousFrameTimeStamp);
 
         if (group.time > group.clipInfo.clip.GetLength())
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
+                DEBUG_LOG("To remove" + name);
                 groupsToRemove_.push_back(name);
                 continue;
             }

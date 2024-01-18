@@ -184,10 +184,11 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/Contex
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/CurrentGroupsPlayingInfo.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PlayAnimation.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/Common.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/IState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PlayDirection.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/IAnimationState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/AnimationTransitionToMixed.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/AnimationClipInfo.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/AnimationStateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PoseUpdateAction.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/AnimationTransition.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PlayMixedAnimation.h
@@ -196,6 +197,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/StateM
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/StopAnimationEvent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/ChangeAnimationEvent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/JointPoseUpdater.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/TransitionGroupsPlaying.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/Event.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/JointData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/EmptyState.h

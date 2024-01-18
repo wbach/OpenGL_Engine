@@ -6,7 +6,7 @@
 #include <variant>
 
 #include "Common.h"
-#include "IState.h"
+#include "IAnimationState.h"
 #include "PoseUpdateAction.h"
 #include "Context.h"
 #include <queue>
@@ -28,11 +28,11 @@ struct StateMachine
     PoseUpdateAction update(float);
     void processEvents();
     void handle(const IncomingEvent&);
-    void transitionTo(std::unique_ptr<IState>);
+    void transitionTo(std::unique_ptr<IAnimationState>);
 
     Context context_;
-    std::unique_ptr<IState> transitionState_;
-    std::unique_ptr<IState> currentState_;
+    std::unique_ptr<IAnimationState> transitionState_;
+    std::unique_ptr<IAnimationState> currentState_;
 
     std::mutex queueMutex_;
     std::queue<IncomingEvent> queueEvents_;

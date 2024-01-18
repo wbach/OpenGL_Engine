@@ -1,5 +1,5 @@
 #pragma once
-#include "IState.h"
+#include "AnimationStateBase.h"
 #include "Context.h"
 
 namespace GameEngine
@@ -9,7 +9,7 @@ namespace Components
 struct StateMachine;
 struct StopAnmiationEvent;
 
-class EmptyState : public IState
+class EmptyState : public AnimationStateBase
 {
 public:
     EmptyState(Context&);

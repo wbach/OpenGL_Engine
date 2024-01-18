@@ -1,6 +1,6 @@
 #pragma once
 #include "GameEngine/Animations/AnimationClip.h"
-#include "IState.h"
+#include "AnimationStateBase.h"
 #include "Context.h"
 
 namespace GameEngine
@@ -10,7 +10,7 @@ namespace Components
 struct StateMachine;
 struct StopAnmiationEvent;
 
-class PlayAnimation : public IState
+class PlayAnimation : public AnimationStateBase
 {
 public:
     PlayAnimation(Context&, const AnimationClipInfo&, float);

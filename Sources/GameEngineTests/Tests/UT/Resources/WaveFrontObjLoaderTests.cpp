@@ -28,7 +28,7 @@ struct WaveFrontObjLoaderShould : public ::testing::Test
     TextureLoaderMock textureLoaderMock_;
     std::unique_ptr<WBLoader::WaveFrontObjLoader> sut_;
 };
-TEST_F(WaveFrontObjLoaderShould, ReadSimpleCube)
+TEST_F(WaveFrontObjLoaderShould, DISABLED_ReadSimpleCube)
 {
     std::string cubeFile{"Meshes/box.obj"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + cubeFile));

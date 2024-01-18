@@ -25,6 +25,13 @@ bool PlayAnimation::update(float deltaTime)
     DEBUG_LOG(clipInfo_.clip.name);
     calculateCurrentAnimationPose(context_.currentPose, clipInfo_.clip, time_);
     increaseAnimationTime(deltaTime);
+
+    //    if (not AnimationStateBase::increaseAnimationTime(time_, previousFrameTimeStamp, clipInfo_,
+    //    context_.currentPose.frames.first, deltaTime))
+    //    {
+    //        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+    //    }
+
     return true;
 }
 void PlayAnimation::handle(const ChangeAnimationEvent& event)

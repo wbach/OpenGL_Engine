@@ -263,6 +263,11 @@ TEST_F(CharacterControllerTests, RunForwardDuringDisarmedToArmedState)
     sut_.fsm()->handle(MoveForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+
+    Update(DUMMY_CLIP_LENGTH / 2.f);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
 }
 
@@ -529,13 +534,13 @@ TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeap
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     sut_.fsm()->handle(RotateLeftEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     sut_.fsm()->handle(WeaponStateEvent{});
 
@@ -559,4 +564,26 @@ TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeap
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+}
+// DISABLED_
+TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRotateLeftAndChangeWeaponState)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+    ;
+
+    sut_.fsm()->handle(WeaponStateEvent{});
+    sut_.fsm()->handle(MoveForwardEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
 }

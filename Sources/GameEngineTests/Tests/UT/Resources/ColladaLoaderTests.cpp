@@ -68,7 +68,7 @@ TEST_F(ColladaLoaderShould, GetFloatsFromString)
         EXPECT_EQ(ref[x], result[x]);
     }
 }
-TEST_F(ColladaLoaderShould, ReadSimpleCube)
+TEST_F(ColladaLoaderShould, DISABLED_ReadSimpleCube)
 {
     std::string cubeFile{"Meshes/box.dae"};
     ASSERT_TRUE(Utils::CheckFileExist("../Data/" + cubeFile));

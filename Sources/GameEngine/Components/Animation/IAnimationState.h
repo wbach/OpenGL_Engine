@@ -10,9 +10,10 @@ namespace GameEngine
 {
 namespace Components
 {
-struct IState
+class IAnimationState
 {
-    virtual ~IState() = default;
+public:
+    virtual ~IAnimationState() = default;
 
     virtual bool update(float)                                   = 0;
     virtual void handle(const ChangeAnimationEvent&)             = 0;

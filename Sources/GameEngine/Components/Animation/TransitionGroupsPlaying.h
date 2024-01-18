@@ -7,11 +7,12 @@ namespace GameEngine
 {
 namespace Components
 {
-struct CurrentGroupsPlayingInfo
+struct TransitionGroupsPlaying
 {
     const AnimationClipInfo& info;
     float currentTime;
     std::vector<std::string> jointGroupNames;
+    std::function<void()> onTransitionEnd;
 };
 }  // namespace Components
 }  // namespace GameEngine

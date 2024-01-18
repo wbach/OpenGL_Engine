@@ -20,22 +20,25 @@ MoveStateBase::MoveStateBase(FsmContext &context, const MoveSpeed &moveSpeed, co
 }
 void MoveStateBase::onEnter(const EndJumpEvent &)
 {
-    if (context_.moveDirection.z > 0)
-    {
-        setForwardAnim();
-    }
-    else
-    {
-        setBackwardAnim();
-    }
+    setCurrentAnim();
 }
 void MoveStateBase::onEnter(const MoveForwardEvent &)
 {
+    if (context_.weaponChangeTriggered_)
+    {
+        context_.multiAnimations = true;
+    }
+
     setMoveForward();
     setForwardAnim();
 }
 void MoveStateBase::onEnter(const MoveBackwardEvent &)
 {
+    if (context_.weaponChangeTriggered_)
+    {
+        context_.multiAnimations = true;
+    }
+
     setMoveBackward();
     setBackwardAnim();
 }

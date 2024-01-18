@@ -2,7 +2,7 @@
 #include "AnimationClipInfo.h"
 #include "Context.h"
 #include "CurrentGroupsPlayingInfo.h"
-#include "IState.h"
+#include "AnimationStateBase.h"
 
 namespace GameEngine
 {
@@ -10,7 +10,7 @@ namespace Components
 {
 struct ChangeAnimationEvent;
 
-class AnimationTransitionMixedToSingle : public IState
+class AnimationTransitionMixedToSingle : public AnimationStateBase
 {
 public:
     AnimationTransitionMixedToSingle(Context&, const CurrentGroupsPlayingInfo&);

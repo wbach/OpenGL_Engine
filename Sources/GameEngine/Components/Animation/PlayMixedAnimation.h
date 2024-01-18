@@ -3,13 +3,13 @@
 
 #include "Context.h"
 #include "GameEngine/Animations/AnimationClip.h"
-#include "IState.h"
+#include "AnimationStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class PlayMixedAnimation : public IState
+class PlayMixedAnimation : public AnimationStateBase
 {
 private:
     struct Group

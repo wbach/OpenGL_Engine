@@ -6,6 +6,7 @@
 #include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "StateMachine.h"
+#include "TransitionGroupsPlaying.h"
 
 namespace GameEngine
 {
@@ -34,16 +35,18 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        std::vector<CurrentGroupsPlayingInfo> v{{info_, 0.f, {}}};
+        std::vector<TransitionGroupsPlaying> currentAnimtionTransitionInfo{{info_, currentTime_, {}, onTransitionEnd_}};
+        auto& jointGroupNames = currentAnimtionTransitionInfo.front();
 
         for (auto& [name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
-                v.front().jointGroupNames.push_back(name);
+                jointGroupNames.jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
+        context_.machine.transitionTo(
+            std::make_unique<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event));
     }
     else
     {
