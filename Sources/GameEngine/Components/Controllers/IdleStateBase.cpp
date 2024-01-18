@@ -37,6 +37,7 @@ void IdleStateBase::onLeave()
 void IdleStateBase::update(const WeaponChangeEndEvent&)
 {
     DEBUG_LOG(idleAnimName_);
+   // context_.weaponChangeTriggered_ = !context_.weaponChangeTriggered_;
     if (not idleAnimName_.empty())
     {
         DEBUG_LOG("a");
@@ -48,7 +49,7 @@ void IdleStateBase::update(const WeaponChangeEndEvent&)
 
 void IdleStateBase::enter()
 {
-    if (not idleAnimName_.empty())
+    if (not idleAnimName_.empty() and not context_.weaponChangeTriggered_)
     {
         context_.animator.ChangeAnimation(
             idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,

@@ -565,14 +565,12 @@ TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeap
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
-// DISABLED_
 TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRotateLeftAndChangeWeaponState)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
-    ;
 
     sut_.fsm()->handle(WeaponStateEvent{});
     sut_.fsm()->handle(MoveForwardEvent{});
@@ -586,4 +584,53 @@ TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRo
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+}
+
+TEST_F(CharacterControllerTests, DisarmedStopMovingDuringEuip)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+
+    sut_.fsm()->handle(MoveForwardEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+    sut_.fsm()->handle(WeaponStateEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.equip});
+    sut_.fsm()->handle(WeaponStateEvent{});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisamredDuringEquip)
+{
+    sut_.fsm()->handle(WeaponStateEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.equip});
+    sut_.fsm()->handle(WeaponStateEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarm});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisamredDuringEquipTransition)
+{
+    sut_.fsm()->handle(WeaponStateEvent{});
+    sut_.fsm()->handle(WeaponStateEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarm});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
