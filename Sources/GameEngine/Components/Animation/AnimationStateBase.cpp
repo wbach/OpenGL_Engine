@@ -17,7 +17,7 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
         return;
     }
 
-    DEBUG_LOG("notifyFrameSubsribers time = " + std::to_string(time) + " / " +
+    DEBUG_LOG("notifyFrameSubsribers clip " + clipInfo.clip.name + ", time = " + std::to_string(time) + " / " +
               std::to_string(clipInfo.clip.GetLength()));
 
     // TO DO: Remove workaround
@@ -34,9 +34,9 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
         if (compare(sub.timeStamp, currentFrame->timeStamp) and
             not compare(currentFrame->timeStamp, previousFrameTimeStamp))
         {
-            DEBUG_LOG("notifyFrameSubsribers");
+            DEBUG_LOG("notifyFrameSubsribers for clip : " + clipInfo.clip.name);
             sub.callback();
-            DEBUG_LOG("notifyFrameSubsribers end");
+            DEBUG_LOG("notifyFrameSubsribers end for clip : " + clipInfo.clip.name);
         }
     }
 

@@ -16,11 +16,7 @@ class StateBase
 public:
     StateBase(FsmContext&);
 
-    void onEnter();
-
 protected:
-    virtual void enter();
-
     void equipWeapon();
     void disarmWeapon();
 

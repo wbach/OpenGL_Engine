@@ -23,38 +23,41 @@ void IdleStateBase::update(const EndAttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::End{});
     context_.multiAnimations = false;
-    onEnter();
+    setIdleAnim();
 }
 
 void IdleStateBase::update(float)
 {
 }
 
-void IdleStateBase::onLeave()
+void IdleStateBase::setIdleAnim()
 {
-}
-
-void IdleStateBase::update(const WeaponChangeEndEvent&)
-{
-    DEBUG_LOG(idleAnimName_);
-   // context_.weaponChangeTriggered_ = !context_.weaponChangeTriggered_;
     if (not idleAnimName_.empty())
     {
-        DEBUG_LOG("a");
+        DEBUG_LOG("enter() idleAnimName_=" + idleAnimName_ +
+                  " multiAnimations=" + std::to_string(context_.multiAnimations));
         context_.animator.ChangeAnimation(
             idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
     }
 }
 
-void IdleStateBase::enter()
+void IdleStateBase::update(const WeaponChangeEndEvent &)
 {
-    if (not idleAnimName_.empty() and not context_.weaponChangeTriggered_)
-    {
-        context_.animator.ChangeAnimation(
-            idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
-    }
+    DEBUG_LOG("update(const WeaponChangeEndEvent&)");
+    context_.multiAnimations        = false;
+    context_.weaponChangeTriggered_ = false;
+    setIdleAnim();
+}
+
+void IdleStateBase::onEnter(const EndForwardMoveEvent &)
+{
+    setIdleAnim();
+}
+
+void IdleStateBase::onEnter(const EndRotationEvent &)
+{
+    setIdleAnim();
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -23,7 +23,7 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
     for (auto& [name, pair] : animationPlayingInfoPerGroup)
     {
         auto iter = context.jointGroups.find(name);
-        DEBUG_LOG(name);
+        DEBUG_LOG("Group name : " + name + " Clip name : " + pair.first.clip.name);
         if (iter != context.jointGroups.end())
         {
             auto& info     = pair.first;
@@ -50,20 +50,26 @@ bool PlayMixedAnimation::update(float deltaTime)
 }
 void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
 {
+    DEBUG_LOG("ChangeAnimationEvent anim name : " + event.info.clip.name);
     if (event.jointGroupName)
     {
+        DEBUG_LOG(*event.jointGroupName);
+
         std::vector<CurrentGroupsPlayingInfo> infos{};
         for (auto& [name, group] : groups_)
         {
             if (name != event.jointGroupName)
             {
+                DEBUG_LOG("CurrentGroupsPlayingInfo : " + group.clipInfo.clip.name);
                 infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name}});
             }
         }
+
         context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
     }
     else
     {
+        DEBUG_LOG("AnimationTransition : " + event.info.clip.name);
         context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
     }
 }
@@ -114,14 +120,14 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
     {
         DEBUG_LOG(name);
         group.time += deltaTime * group.clipInfo.playSpeed * group.direction;
-        //notifyFrameSubsribers(group);
-        AnimationStateBase::notifyFrameSubsribers(group.clipInfo, group.frames.first, group.time, group.previousFrameTimeStamp);
+
+        notifyFrameSubsribers(group.clipInfo, group.frames.first, group.time, group.previousFrameTimeStamp);
 
         if (group.time > group.clipInfo.clip.GetLength())
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
-                DEBUG_LOG("To remove" + name);
+                DEBUG_LOG("To remove : " + name);
                 groupsToRemove_.push_back(name);
                 continue;
             }
@@ -132,9 +138,6 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
             group.time = group.clipInfo.clip.GetLength() + group.time;
         }
     }
-
-    //    if (context_.machine.transitionState_)
-    //        return;
 
     if (groupsToRemove_.size() == groups_.size())
     {
@@ -162,35 +165,6 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
             groups_.erase(name);
         }
     }
-}
-
-void PlayMixedAnimation::notifyFrameSubsribers(Group& group)
-{
-    DEBUG_LOG("notifyFrameSubsribers time = " + std::to_string(group.time) + " / " +
-              std::to_string(group.clipInfo.clip.GetLength()));
-    auto currentFrame = group.frames.first;
-
-    // TO DO: Remove workaround
-    if (group.time > group.clipInfo.clip.GetLength())
-    {
-        DEBUG_LOG("Workaround set last frame if over time");
-        currentFrame = &group.clipInfo.clip.GetFrames().back();
-    }
-
-    // Unsubscribe during callbacks
-    auto tmpSubscirbers = group.clipInfo.subscribers;
-    for (const auto& sub : tmpSubscirbers)
-    {
-        if (compare(sub.timeStamp, currentFrame->timeStamp) and
-            not compare(currentFrame->timeStamp, group.previousFrameTimeStamp))
-        {
-            DEBUG_LOG("notifyFrameSubsribers");
-            sub.callback();
-            DEBUG_LOG("notifyFrameSubsribers end");
-        }
-    }
-
-    group.previousFrameTimeStamp = currentFrame->timeStamp;
 }
 }  // namespace Components
 }  // namespace GameEngine

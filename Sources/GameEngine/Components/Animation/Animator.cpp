@@ -195,6 +195,11 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         //        }
         //        return;
     }
+
+    if (groupName)
+    {
+        DEBUG_LOG("MultiAnimationEnabled entering group=" + *groupName);
+    }
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)

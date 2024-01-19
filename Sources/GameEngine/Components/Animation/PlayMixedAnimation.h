@@ -34,7 +34,6 @@ public:
 
 private:
     void increaseAnimationTime(float deltaTime);
-    void notifyFrameSubsribers(Group&);
 
 private:
     Context& context_;

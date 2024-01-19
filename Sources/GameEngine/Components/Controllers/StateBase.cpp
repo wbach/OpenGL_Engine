@@ -17,18 +17,6 @@ StateBase::StateBase(FsmContext& context)
 {
 }
 
-void StateBase::onEnter()
-{
-    if (not context_.weaponChangeTriggered_)
-    {
-        enter();
-    }
-}
-
-void StateBase::enter()
-{
-}
-
 void StateBase::equipWeapon()
 {
     if (not jointPoseUpdater_)

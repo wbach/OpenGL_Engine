@@ -27,16 +27,16 @@ class IdleStateBase : public StateBase
 public:
     IdleStateBase(FsmContext&, const std::string&);
 
-    using StateBase::onEnter;
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndRotationEvent&);
 
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
     void update(const WeaponChangeEndEvent&);
     void update(float);
-    void onLeave();
 
-protected:
-    void enter() override;
+private:
+    void setIdleAnim();
 
 private:
     std::string idleAnimName_;
