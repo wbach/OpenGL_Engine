@@ -21,8 +21,10 @@ public:
         leave(prevState);
         leave(prevState, event);
 
-//        DEBUG_LOG("PrevState : " + typeName<State>());
+#ifdef NOREALTIME_LOG_ENABLED
+        DEBUG_LOG("PrevState : " + typeName<State>());
         DEBUG_LOG("Entering : " + typeName<TargetState>());
+#endif
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 

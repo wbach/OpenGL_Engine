@@ -47,7 +47,6 @@ public:
 
     void onEnter(const WeaponStateEvent &)
     {
-        DEBUG_LOG("void onEnter(const WeaponStateEvent&) dir=" + std::to_string(context_.moveDirection));
         context_.multiAnimations = true;
         MoveStateBase::equipWeapon();
         MoveStateBase::setCurrentAnim();

@@ -61,7 +61,6 @@ void MoveStateBase::onEnter(const MoveRightEvent &)
 
 void MoveStateBase::update(const WeaponChangeEndEvent &)
 {
-    DEBUG_LOG("WeaponChangeEndEvent");
     context_.multiAnimations = false;
 }
 bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
@@ -130,7 +129,6 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::setForwardAnim()
 {
-    DEBUG_LOG(forwardAnimName_);
     if (not forwardAnimName_.empty())
     {
         context_.moveStateData_.animationIsReady_ = false;
@@ -143,7 +141,6 @@ void MoveStateBase::setForwardAnim()
 
 void MoveStateBase::setBackwardAnim()
 {
-    DEBUG_LOG(forwardAnimName_);
     if (not backwardAnimName_.empty())
     {
         context_.moveStateData_.animationIsReady_ = false;

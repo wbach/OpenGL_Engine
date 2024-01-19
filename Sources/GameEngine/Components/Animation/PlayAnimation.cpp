@@ -18,19 +18,23 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , clipInfo_{info}
     , previousFrameTimeStamp{-1.0f}
 {
-    DEBUG_LOG(info.clip.name);
+#ifdef TESTS_ENABLED
+    DEBUG_LOG("AnimationClip : " + info.clip.name);
+#endif
 }
 bool PlayAnimation::update(float deltaTime)
 {
-    DEBUG_LOG(clipInfo_.clip.name);
+#ifdef TESTS_ENABLED
+    DEBUG_LOG("AnimationClip : " + clipInfo_.clip.name);
+#endif
     calculateCurrentAnimationPose(context_.currentPose, clipInfo_.clip, time_);
-    increaseAnimationTime(deltaTime);
+    // increaseAnimationTime(deltaTime);
 
-    //    if (not AnimationStateBase::increaseAnimationTime(time_, previousFrameTimeStamp, clipInfo_,
-    //    context_.currentPose.frames.first, deltaTime))
-    //    {
-    //        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
-    //    }
+    if (not AnimationStateBase::increaseAnimationTime(time_, previousFrameTimeStamp, clipInfo_,
+                                                      context_.currentPose.frames.first, deltaTime))
+    {
+        context_.machine.transitionTo<EmptyState>(context_);
+    }
 
     return true;
 }
@@ -47,18 +51,18 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
                 v.front().jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, v, event);
     }
     else
     {
-        context_.machine.transitionTo(
-            std::make_unique<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd));
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
+                                                           event.onTransitionEnd);
     }
 }
 
 void PlayAnimation::handle(const StopAnimationEvent&)
 {
-    context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+    context_.machine.transitionTo<EmptyState>(context_);
 }
 
 std::vector<std::string> PlayAnimation::getCurrentAnimation() const
@@ -75,7 +79,7 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
     {
         if (clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
         {
-            context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+            context_.machine.transitionTo<EmptyState>(context_);
         }
 
         time_ = fmodf(time_, clipInfo_.clip.GetLength());

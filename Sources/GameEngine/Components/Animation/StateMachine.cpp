@@ -62,9 +62,5 @@ void StateMachine::handle(const IncomingEvent& event)
     std::lock_guard<std::mutex> lk(queueMutex_);
     queueEvents_.emplace(event);
 }
-void StateMachine::transitionTo(std::unique_ptr<IAnimationState> newState)
-{
-    transitionState_ = std::move(newState);
-}
 }  // namespace Components
 }  // namespace GameEngine

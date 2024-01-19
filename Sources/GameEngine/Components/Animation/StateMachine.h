@@ -1,16 +1,17 @@
 #pragma once
 #include <Variant.h>
+#include <Logger/Log.h>
 
+#include <Mutex.hpp>
 #include <memory>
 #include <optional>
+#include <queue>
 #include <variant>
 
 #include "Common.h"
+#include "Context.h"
 #include "IAnimationState.h"
 #include "PoseUpdateAction.h"
-#include "Context.h"
-#include <queue>
-#include <Mutex.hpp>
 
 namespace GameEngine
 {
@@ -28,7 +29,14 @@ struct StateMachine
     PoseUpdateAction update(float);
     void processEvents();
     void handle(const IncomingEvent&);
-    void transitionTo(std::unique_ptr<IAnimationState>);
+    template <typename State, typename... Args>
+    void transitionTo(Args&&... args)
+    {
+#ifdef NOREALTIME_LOG_ENABLED
+        DEBUG_LOG("Animation state transition : " + typeName<State>());
+#endif
+        transitionState_ = std::make_unique<State>(std::forward<Args>(args)...);
+    }
 
     Context context_;
     std::unique_ptr<IAnimationState> transitionState_;

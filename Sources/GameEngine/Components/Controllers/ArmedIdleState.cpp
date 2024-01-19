@@ -11,7 +11,6 @@ ArmedIdleState::ArmedIdleState(FsmContext &context)
 
 void ArmedIdleState::onEnter(const WeaponStateEvent &)
 {
-    DEBUG_LOG("WeaponStateEvent");
     StateBase::equipWeapon();
 }
 }  // namespace Components

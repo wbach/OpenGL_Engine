@@ -17,13 +17,12 @@ namespace Components
 PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfoPerGroup& animationPlayingInfoPerGroup)
     : context_{context}
 {
-    DEBUG_LOG("PlayMixedAnimation animationPlayingInfoPerGroup.size=" +
-              std::to_string(animationPlayingInfoPerGroup.size()));
-
     for (auto& [name, pair] : animationPlayingInfoPerGroup)
     {
         auto iter = context.jointGroups.find(name);
+#ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("Group name : " + name + " Clip name : " + pair.first.clip.name);
+#endif
         if (iter != context.jointGroups.end())
         {
             auto& info     = pair.first;
@@ -37,10 +36,11 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
 }
 bool PlayMixedAnimation::update(float deltaTime)
 {
+#ifdef NOREALTIME_LOG_ENABLED
     DEBUG_LOG("update dt = " + std::to_string(deltaTime));
+#endif
     for (auto& [name, group] : groups_)
     {
-        DEBUG_LOG("Group name : " + name + " clip name : " + group.clipInfo.clip.name);
         calculateCurrentAnimationPose(context_.currentPose, group.clipInfo.clip, group.time, group.jointIds);
         group.frames = context_.currentPose.frames;
     }
@@ -50,27 +50,25 @@ bool PlayMixedAnimation::update(float deltaTime)
 }
 void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
 {
+#ifdef NOREALTIME_LOG_ENABLED
     DEBUG_LOG("ChangeAnimationEvent anim name : " + event.info.clip.name);
+#endif
     if (event.jointGroupName)
     {
-        DEBUG_LOG(*event.jointGroupName);
-
         std::vector<CurrentGroupsPlayingInfo> infos{};
         for (auto& [name, group] : groups_)
         {
             if (name != event.jointGroupName)
             {
-                DEBUG_LOG("CurrentGroupsPlayingInfo : " + group.clipInfo.clip.name);
                 infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name}});
             }
         }
 
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, infos, event));
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, infos, event);
     }
     else
     {
-        DEBUG_LOG("AnimationTransition : " + event.info.clip.name);
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime);
     }
 }
 
@@ -92,8 +90,7 @@ void PlayMixedAnimation::handle(const StopAnimationEvent& event)
             {
                 if (name != *event.jointGroupName)
                 {
-                    context_.machine.transitionTo(
-                        std::make_unique<AnimationTransition>(context_, group.clipInfo, group.time));
+                    context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo, group.time);
                     return;
                 }
             }
@@ -101,7 +98,7 @@ void PlayMixedAnimation::handle(const StopAnimationEvent& event)
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+        context_.machine.transitionTo<EmptyState>(context_);
     }
 }
 
@@ -118,7 +115,6 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
 
     for (auto& [name, group] : groups_)
     {
-        DEBUG_LOG(name);
         group.time += deltaTime * group.clipInfo.playSpeed * group.direction;
 
         notifyFrameSubsribers(group.clipInfo, group.frames.first, group.time, group.previousFrameTimeStamp);
@@ -127,7 +123,9 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
+#ifdef NOREALTIME_LOG_ENABLED
                 DEBUG_LOG("To remove : " + name);
+#endif
                 groupsToRemove_.push_back(name);
                 continue;
             }
@@ -141,7 +139,7 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
 
     if (groupsToRemove_.size() == groups_.size())
     {
-        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+        context_.machine.transitionTo<EmptyState>(context_);
     }
     else if (groupsToRemove_.size() == groups_.size() - 1)
     {
@@ -152,7 +150,7 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
                 if (name != toRemoveName)
                 {
                     CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
-                    context_.machine.transitionTo(std::make_unique<AnimationTransitionMixedToSingle>(context_, info));
+                    context_.machine.transitionTo<AnimationTransitionMixedToSingle>(context_, info);
                     return;
                 }
             }

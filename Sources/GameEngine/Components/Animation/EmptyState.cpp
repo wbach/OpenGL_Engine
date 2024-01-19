@@ -18,8 +18,7 @@ bool EmptyState::update(float)
 }
 void EmptyState::handle(const ChangeAnimationEvent &event)
 {
-    auto action = std::make_unique<AnimationTransition>(context_, event.info, event.startTime);
-    context_.machine.transitionTo(std::move(action));
+    context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime);
 }
 void EmptyState::handle(const StopAnimationEvent &)
 {

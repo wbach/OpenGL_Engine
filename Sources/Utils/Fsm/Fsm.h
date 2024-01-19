@@ -3,9 +3,10 @@
 https://sii.pl/blog/implementing-a-state-machine-in-c17/
 https://github.com/AdamsPL/state-machine
 */
+#include <Logger/Log.h>
+
 #include <tuple>
 #include <variant>
-#include <Logger/Log.h>
 
 namespace Utils
 {
@@ -39,8 +40,11 @@ public:
     template <typename Event, typename Machine>
     void handleBy(const Event& event, Machine& machine)
     {
-         DEBUG_LOG("Handle event : " + typeName<Event>());
-        auto passEventToState = [&machine, &event](auto statePtr) {
+#ifdef NOREALTIME_LOG_ENABLED
+        DEBUG_LOG("Handle event : " + typeName<Event>());
+#endif
+        auto passEventToState = [&machine, &event](auto statePtr)
+        {
             auto action = statePtr->handle(event);
             action.execute(machine, *statePtr, event);
         };

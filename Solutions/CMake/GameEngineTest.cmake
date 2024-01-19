@@ -1,4 +1,5 @@
 if(BUILD_TESTS)
+    add_definitions(-DNOREALTIME_LOG_ENABLED)
     include_directories(
         ../../Sources/GameEngine/
     )

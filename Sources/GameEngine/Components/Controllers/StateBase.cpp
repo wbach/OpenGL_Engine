@@ -47,7 +47,6 @@ void StateBase::triggerChange()
 
     const auto& animName = armed_ ? context_.animClipNames.equip : context_.animClipNames.disarm;
 
-    DEBUG_LOG("triggerChange animName : " + animName);
     subscribeForTransitionAnimationFrame_ = context_.animator.SubscribeForAnimationFrame(
         animName,
         [this, isArmed = armed_]()

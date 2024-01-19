@@ -20,7 +20,6 @@ RotateStateBase::RotateStateBase(FsmContext &context, float rotateSpeed, const s
 }
 void RotateStateBase::onEnter(const RotateLeftEvent &e)
 {
-    DEBUG_LOG("onEnter(const RotateLeftEvent &e)");
     update(e);
     setRotateLeftAnim();
 }
@@ -111,10 +110,8 @@ void RotateStateBase::update(const WeaponChangeEndEvent &)
 
 void RotateStateBase::setRotateLeftAnim()
 {
-    DEBUG_LOG("setRotateLeftAnim");
     if (not rotateLeftAnim_.empty())
     {
-        DEBUG_LOG("not empty setRotateLeftAnim");
         context_.animator.ChangeAnimation(
             rotateLeftAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);

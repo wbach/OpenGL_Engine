@@ -81,11 +81,11 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
                 v.front().jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo(std::make_unique<AnimationTransitionToMixed>(context_, v, event));
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, v, event);
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<AnimationTransition>(context_, event.info, event.startTime));
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime);
     }
 }
 
@@ -98,7 +98,7 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+        context_.machine.transitionTo<EmptyState>(context_);
     }
 }
 
@@ -127,7 +127,7 @@ void AnimationTransitionMixedToSingle::increaseTransitionTime(float deltaTime)
 
     if (transitionProgress_ > 1.f)
     {
-        context_.machine.transitionTo(std::make_unique<PlayAnimation>(context_, currentClipInfo_, currentClipProgres_));
+        context_.machine.transitionTo<PlayAnimation>(context_, currentClipInfo_, currentClipProgres_);
         return;
     }
 }

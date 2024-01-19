@@ -24,6 +24,9 @@ AnimationTransition::AnimationTransition(Context& context, const AnimationClipIn
     , startTime_{0.f}
     , onTransitionEnd_{onTransitionEnd}
 {
+#ifdef NOREALTIME_LOG_ENABLED
+    DEBUG_LOG("Clip : " + infoClip.clip.name);
+#endif
 }
 bool AnimationTransition::update(float deltaTime)
 {
@@ -45,13 +48,12 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
                 jointGroupNames.jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo(
-            std::make_unique<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event));
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event);
     }
     else
     {
-        context_.machine.transitionTo(
-            std::make_unique<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd));
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
+                                                           event.onTransitionEnd);
     }
 }
 
@@ -63,7 +65,7 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
     }
     else
     {
-        context_.machine.transitionTo(std::make_unique<EmptyState>(context_));
+        context_.machine.transitionTo<EmptyState>(context_);
     }
 }
 
@@ -81,7 +83,7 @@ void AnimationTransition::calculateTime(float deltaTime)
         {
             onTransitionEnd_();
         }
-        context_.machine.transitionTo(std::make_unique<PlayAnimation>(context_, info_, startTime_));
+        context_.machine.transitionTo<PlayAnimation>(context_, info_, startTime_);
         return;
     }
 }

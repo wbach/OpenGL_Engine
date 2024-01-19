@@ -83,8 +83,6 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
             frame = iter->second.clip.GetFrames().back().timeStamp;
         }
 
-        DEBUG_LOG("SubscribeForAnimationFrame anim: " + animName + " frame: " + std::to_string(frame));
-
         auto& subscribers = iter->second.subscribers;
         subscribers.push_back({id, function, frame});
         animationClipInfoSubscriptions_.insert({id, &subscribers});
@@ -196,10 +194,6 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
         //        return;
     }
 
-    if (groupName)
-    {
-        DEBUG_LOG("MultiAnimationEnabled entering group=" + *groupName);
-    }
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)

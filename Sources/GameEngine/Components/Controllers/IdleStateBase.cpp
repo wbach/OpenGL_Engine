@@ -34,8 +34,6 @@ void IdleStateBase::setIdleAnim()
 {
     if (not idleAnimName_.empty())
     {
-        DEBUG_LOG("enter() idleAnimName_=" + idleAnimName_ +
-                  " multiAnimations=" + std::to_string(context_.multiAnimations));
         context_.animator.ChangeAnimation(
             idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
             context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
@@ -44,7 +42,6 @@ void IdleStateBase::setIdleAnim()
 
 void IdleStateBase::update(const WeaponChangeEndEvent &)
 {
-    DEBUG_LOG("update(const WeaponChangeEndEvent&)");
     context_.multiAnimations        = false;
     context_.weaponChangeTriggered_ = false;
     setIdleAnim();

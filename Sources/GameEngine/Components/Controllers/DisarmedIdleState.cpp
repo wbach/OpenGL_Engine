@@ -11,7 +11,6 @@ DisarmedIdleState::DisarmedIdleState(FsmContext &context)
 
 void DisarmedIdleState::onEnter(const WeaponStateEvent &)
 {
-    DEBUG_LOG("WeaponStateEvent");
     StateBase::disarmWeapon();
 }
 
