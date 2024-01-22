@@ -282,17 +282,16 @@ void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
 
 void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 {
-    mat4 currentTransform(1.f);
+    mat4 currentTransform(parentTransform);
 
     auto currentPoseIter = jointData_.pose.data.find(joint.id);
 
     if (currentPoseIter != jointData_.pose.data.end())
     {
-        const auto& currentLocalTransform = currentPoseIter->second.matrix;
-        currentTransform                  = parentTransform * currentLocalTransform;
-
-        joint.animatedTransform = currentTransform * joint.offset;
+        currentTransform = parentTransform * currentPoseIter->second.matrix;
     }
+
+    joint.animatedTransform = currentTransform * joint.offset;
 
     for (Joint& childJoint : joint.children)
     {
@@ -301,7 +300,7 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
-    applyPoseToJoints(jointData_.rootJoint, mat4(1.f));
+    applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
     updateShaderBuffers();
 }
 void Animator::createShaderJointBuffers()

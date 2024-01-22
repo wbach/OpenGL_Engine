@@ -23,15 +23,17 @@ float AnimationClip::GetLength() const
     return length;
 }
 
-void AnimationClip::AddFrame(const KeyFrame& frame)
+KeyFrame& AnimationClip::AddFrame(const KeyFrame& frame)
 {
     auto it = std::lower_bound(frames.begin(), frames.end(), frame,
                                [](const auto& a, const auto& b) { return a.timeStamp < b.timeStamp; });
 
-    frames.insert(it, frame);
+    auto insertedFrameIter = frames.insert(it, frame);
 
     if (frame.timeStamp > length)
         length = frame.timeStamp;
+
+    return *insertedFrameIter;
 }
 
 const std::vector<KeyFrame>& AnimationClip::GetFrames() const

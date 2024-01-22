@@ -18,7 +18,7 @@ public:
     AnimationClip();
     AnimationClip(const std::string&);
     float GetLength() const;
-    void AddFrame(const KeyFrame&);
+    KeyFrame &AddFrame(const KeyFrame&);
     const std::vector<KeyFrame>& GetFrames() const;
     void SetLength(float l);
     KeyFrame* getFrame(float);

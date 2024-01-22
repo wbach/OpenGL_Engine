@@ -58,6 +58,107 @@ mat4 convert(const aiMatrix4x4& aiMatrix)
     m[3][3] = aiMatrix.d4;
     return m;
 }
+
+struct SimplifiedTransform
+{
+    std::optional<vec3> position;
+    std::optional<Quaternion> rotation;
+    std::optional<vec3> scale;
+};
+struct TmpKeyFrame
+{
+    float timeStamp{0.f};
+    std::unordered_map<Animation::JointId, SimplifiedTransform> transforms;
+};
+
+struct TmpAnimationClip
+{
+    std::vector<TmpKeyFrame> frames;
+
+    TmpKeyFrame& getTmpKeyFrame(float time)
+    {
+        auto iter = std::find_if(frames.begin(), frames.end(),
+                                 [time](const auto& frame) { return compare(frame.timeStamp, time); });
+
+        if (iter != frames.end())
+        {
+            return *iter;
+        }
+
+        TmpKeyFrame frame;
+        frame.timeStamp = time;
+        auto it         = std::lower_bound(frames.begin(), frames.end(), frame,
+                                           [](const auto& a, const auto& b) { return a.timeStamp < b.timeStamp; });
+
+        return *frames.insert(it, frame);
+    }
+
+    void addNotSimplifiedFramesToClip(Animation::AnimationClip& clip)
+    {
+        Animation::KeyFrame const* previousFrame{nullptr};
+        for (const auto& tmpFrame : frames)
+        {
+            Animation::KeyFrame keyFrame;
+            keyFrame.timeStamp = tmpFrame.timeStamp;
+
+            for (const auto& [jointId, simplifiedTransform] : tmpFrame.transforms)
+            {
+                auto& jointTransform = keyFrame.transforms[jointId];
+
+                if (simplifiedTransform.position)
+                {
+                    jointTransform.position = *simplifiedTransform.position;
+                }
+                else
+                {
+                    if (previousFrame != nullptr)
+                    {
+                        auto iter = previousFrame->transforms.find(jointId);
+                        if (iter != previousFrame->transforms.end())
+                        {
+                            jointTransform.position = iter->second.position;
+                        }
+                    }
+                }
+
+                if (simplifiedTransform.rotation)
+                {
+                    jointTransform.rotation = *simplifiedTransform.rotation;
+                }
+                else
+                {
+                    if (previousFrame != nullptr)
+                    {
+                        auto iter = previousFrame->transforms.find(jointId);
+                        if (iter != previousFrame->transforms.end())
+                        {
+                            jointTransform.rotation = iter->second.rotation;
+                        }
+                    }
+                }
+
+                if (simplifiedTransform.scale)
+                {
+                    jointTransform.scale = *simplifiedTransform.scale;
+                }
+                else
+                {
+                    if (previousFrame != nullptr)
+                    {
+                        auto iter = previousFrame->transforms.find(jointId);
+                        if (iter != previousFrame->transforms.end())
+                        {
+                            jointTransform.scale = iter->second.scale;
+                        }
+                    }
+                }
+            }
+            previousFrame = &keyFrame;
+            clip.AddFrame(keyFrame);
+        }
+    }
+};
+
 }  // namespace
 AssimpLoader::AssimpLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
@@ -399,11 +500,7 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
 
 Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAnim)
 {
-    Animation::AnimationClip clip;
-    clip.name = aiAnim.mName.data;
-
-    auto totalAnimationTime = aiAnim.mDuration / aiAnim.mTicksPerSecond;
-    clip.SetLength(static_cast<float>(totalAnimationTime));
+    TmpAnimationClip tmpClip;
 
     for (uint32 i = 0; i < aiAnim.mNumChannels; i++)
     {
@@ -420,26 +517,30 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
         for (uint32 i = 0; i < animChannel.mNumRotationKeys; i++)
         {
             const auto& rotationKey = animChannel.mRotationKeys[i];
-            auto& frame = getFrameByTimeStamp(clip, static_cast<float>(rotationKey.mTime / aiAnim.mTicksPerSecond));
+            auto& frame = tmpClip.getTmpKeyFrame(static_cast<float>(rotationKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[joint->id].rotation = covnertQuat(rotationKey.mValue);
         }
 
         for (uint32 i = 0; i < animChannel.mNumPositionKeys; i++)
         {
             const auto& positionKey = animChannel.mPositionKeys[i];
-            auto& frame = getFrameByTimeStamp(clip, static_cast<float>(positionKey.mTime / aiAnim.mTicksPerSecond));
+            auto& frame = tmpClip.getTmpKeyFrame(static_cast<float>(positionKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[joint->id].position = covnertVec3(positionKey.mValue);
         }
 
         for (uint32 i = 0; i < animChannel.mNumScalingKeys; i++)
         {
             const auto& scalingKey = animChannel.mScalingKeys[i];
-            auto& frame = getFrameByTimeStamp(clip, static_cast<float>(scalingKey.mTime / aiAnim.mTicksPerSecond));
+            auto& frame = tmpClip.getTmpKeyFrame(static_cast<float>(scalingKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[joint->id].scale = covnertVec3(scalingKey.mValue);
         }
     }
 
-    //  DEBUG_LOG(std::to_string(clip));
+    Animation::AnimationClip clip;
+    clip.name = aiAnim.mName.data;
+    clip.SetLength(static_cast<float>(aiAnim.mDuration / aiAnim.mTicksPerSecond));
+    tmpClip.addNotSimplifiedFramesToClip(clip);
+
     return clip;
 }
 
@@ -451,10 +552,12 @@ Animation::KeyFrame& AssimpLoader::getFrameByTimeStamp(Animation::AnimationClip&
     {
         Animation::KeyFrame frame;
         frame.timeStamp = time;
-        clip.AddFrame(frame);
+        return clip.AddFrame(frame);
     }
-
-    return *clip.getFrame(time);
+    else
+    {
+        return *frame;
+    }
 }
 
 void AssimpLoader::readAdditionInfoFile(const File& file)

@@ -18,7 +18,7 @@ typedef std::pair<Animation::KeyFrame const *, Animation::KeyFrame const *> Curr
 struct PoseData
 {
     Animation::JointTransform transform;
-    mat4 matrix;
+    mat4 matrix{1.f};
 };
 
 struct Pose

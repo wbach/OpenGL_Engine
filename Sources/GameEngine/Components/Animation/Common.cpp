@@ -15,17 +15,20 @@ void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFram
         const auto& nextFrameTransformIter = nextFrame.transforms.find(jointId);
         if (nextFrameTransformIter != nextFrame.transforms.cend())
         {
+            const auto& nextTransform = nextFrameTransformIter->second;
+
             auto currentPoseJointIter = currentPose.data.find(jointId);
             if (currentPoseJointIter != currentPose.data.end())
             {
-                auto& poseData            = currentPoseJointIter->second;
-                const auto& nextTransform = nextFrameTransformIter->second;
-                poseData.transform        = Interpolate(previousTransform, nextTransform, progression);
-                poseData.matrix           = GetLocalTransform(poseData.transform);
+                auto& poseData = currentPoseJointIter->second;
+
+                poseData.transform = Interpolate(previousTransform, nextTransform, progression);
+                poseData.matrix    = GetLocalTransform(poseData.transform);
             }
             else
             {
-                currentPose.data.insert({jointId, {}});
+                auto transform = Interpolate(previousTransform, nextTransform, progression);
+                currentPose.data.insert({jointId, {transform, GetLocalTransform(transform)}});
             }
         }
     }
