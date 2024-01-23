@@ -44,7 +44,15 @@ void MoveStateBase::onEnter(const EndJumpEvent &)
 void MoveStateBase::onEnter(const WalkChangeStateEvent &)
 {
     setCurrentAnim();
-    context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+
+    if (context_.moveDirection.z > 0.01f)
+    {
+        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+    }
+    else if (context_.moveDirection.z < -0.01f)
+    {
+        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
+    }
 }
 void MoveStateBase::onEnter(const MoveLeftEvent &)
 {

@@ -12,6 +12,7 @@ namespace Components
 class ArmedWalkState;
 class ArmedRotateState;
 class DisarmedWalkAndRotateState;
+class ArmedRunAndRotateState;
 class JumpState;
 class DeathState;
 
@@ -28,6 +29,7 @@ class ArmedWalkAndRotateState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
@@ -36,7 +38,8 @@ class ArmedWalkAndRotateState
 {
 public:
     ArmedWalkAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context, context.walkSpeed, context.animClipNames.armed.walk, context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
+        : MoveAndRotateStateBase{context, context.walkSpeed, context.animClipNames.armed.walk,
+                                 context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
         , context_{context}
     {
     }
