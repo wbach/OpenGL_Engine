@@ -16,14 +16,18 @@ struct FsmContext;
 class MoveAndRotateStateBase : public MoveStateBase, public RotateStateBase
 {
 public:
-    MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &, const std::string&, const std::string&);
+    MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &, const std::string &,
+                           const std::string &);
 
+    void onEnter(const WalkForwardEvent &);
+    void onEnter(const WalkBackwardEvent &);
     void onEnter(const EndJumpEvent &);
-    void onEnter(const MoveForwardEvent &);
-    void onEnter(const MoveBackwardEvent &);
-    void onEnter(const RotateLeftEvent&);
-    void onEnter(const RotateRightEvent&);
-    void onEnter(const RotateTargetEvent&);
+    void onEnter(const RunForwardEvent &);
+    void onEnter(const RunBackwardEvent &);
+    void onEnter(const RotateLeftEvent &);
+    void onEnter(const RotateRightEvent &);
+    void onEnter(const RotateTargetEvent &);
+    void onEnter(const WalkChangeStateEvent&);
 
     void update(float);
     void update(const RotateLeftEvent &);
@@ -31,9 +35,9 @@ public:
     void update(const RotateTargetEvent &);
     void update(const AttackEvent &);
     void update(const EndAttackEvent &);
-    void update(const MoveForwardEvent &);
-    void update(const MoveBackwardEvent &);
-    void update(const WeaponChangeEndEvent&);
+    void update(const RunForwardEvent &);
+    void update(const RunBackwardEvent &);
+    void update(const WeaponChangeEndEvent &);
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);

@@ -22,6 +22,7 @@ class RotateStateBase : public StateBase
 {
 public:
     RotateStateBase(FsmContext&, float, const std::string&, const std::string&);
+
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);

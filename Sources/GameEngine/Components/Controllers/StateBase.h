@@ -3,6 +3,7 @@
 #include <Utils/Fsm/Actions.h>
 
 #include <optional>
+#include "CharacterControllerEvents.h"
 
 namespace GameEngine
 {

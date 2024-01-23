@@ -7,10 +7,21 @@ namespace GameEngine
 namespace Components
 {
 MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const MoveSpeed &moveSpeed,
-                                               const MovmentClipNames &clipnames, const std::string& rotateLeft, const std::string& rotateRight)
-    : MoveStateBase{context, context.runSpeed, clipnames.forward, clipnames.backward}
-    , RotateStateBase{context, context.runSpeed.leftRight, rotateLeft, rotateRight}
+                                               const MovmentClipNames &clipnames, const std::string &rotateLeft,
+                                               const std::string &rotateRight)
+    : MoveStateBase{context, moveSpeed, clipnames.forward, clipnames.backward}
+    , RotateStateBase{context, moveSpeed.leftRight, rotateLeft, rotateRight}
 {
+}
+
+void MoveAndRotateStateBase::onEnter(const WalkForwardEvent &event)
+{
+    MoveStateBase::update(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const WalkBackwardEvent &event)
+{
+    MoveStateBase::update(event);
 }
 
 void MoveAndRotateStateBase::update(const AttackEvent &event)
@@ -23,17 +34,17 @@ void MoveAndRotateStateBase::update(const EndAttackEvent &event)
     MoveStateBase::update(event);
 }
 
-void MoveAndRotateStateBase::update(const MoveForwardEvent &e)
+void MoveAndRotateStateBase::update(const RunForwardEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const MoveBackwardEvent &e)
+void MoveAndRotateStateBase::update(const RunBackwardEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const WeaponChangeEndEvent& e)
+void MoveAndRotateStateBase::update(const WeaponChangeEndEvent &e)
 {
     MoveStateBase::update(e);
 }
@@ -53,12 +64,12 @@ void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
     MoveStateBase::onEnter(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const MoveForwardEvent &event)
+void MoveAndRotateStateBase::onEnter(const RunForwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const MoveBackwardEvent &event)
+void MoveAndRotateStateBase::onEnter(const RunBackwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }
@@ -76,6 +87,11 @@ void MoveAndRotateStateBase::onEnter(const RotateRightEvent &event)
 void MoveAndRotateStateBase::onEnter(const RotateTargetEvent &event)
 {
     RotateStateBase::update(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const WalkChangeStateEvent &event)
+{
+    MoveStateBase::onEnter(event);
 }
 
 void MoveAndRotateStateBase::update(const RotateLeftEvent &event)

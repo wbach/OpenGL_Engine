@@ -49,28 +49,36 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         componentController_.CallFunctions(FunctionType::Awake);
         componentController_.CallFunctions(FunctionType::OnStart);
 
-        auto& clips                 = sut_.animationClipsNames_;
-        clips.disarmed.idle         = "DI";
-        clips.disarmed.run.forward  = "DRF";
-        clips.disarmed.run.backward = "DRB";
-        clips.armed.idle            = "AI";
-        clips.armed.run.forward     = "ARF";
-        clips.armed.run.backward    = "ARB";
-        clips.equip                 = "equip";
-        clips.disarm                = "disarm";
-        clips.disarmed.rotateLeft   = "DRL";
-        clips.disarmed.rotateRight  = "DRR";
-        clips.armed.rotateLeft      = "ARL";
-        clips.armed.rotateRight     = "ARR";
+        auto& clips                  = sut_.animationClipsNames_;
+        clips.disarmed.idle          = "DI";
+        clips.disarmed.run.forward   = "DRF";
+        clips.disarmed.run.backward  = "DRB";
+        clips.disarmed.walk.forward  = "DWF";
+        clips.disarmed.walk.backward = "DWB";
+        clips.armed.idle             = "AI";
+        clips.armed.run.forward      = "ARF";
+        clips.armed.run.backward     = "ARB";
+        clips.armed.run.forward      = "AWF";
+        clips.armed.run.backward     = "AWB";
+        clips.equip                  = "equip";
+        clips.disarm                 = "disarm";
+        clips.disarmed.rotateLeft    = "DRL";
+        clips.disarmed.rotateRight   = "DRR";
+        clips.armed.rotateLeft       = "ARL";
+        clips.armed.rotateRight      = "ARR";
 
         addDummyClip(clips.equip);
         addDummyClip(clips.disarm);
         addDummyClip(clips.disarmed.idle);
         addDummyClip(clips.disarmed.run.forward);
         addDummyClip(clips.disarmed.run.backward);
+        addDummyClip(clips.disarmed.walk.forward);
+        addDummyClip(clips.disarmed.walk.backward);
         addDummyClip(clips.armed.idle);
         addDummyClip(clips.armed.run.forward);
         addDummyClip(clips.armed.run.backward);
+        addDummyClip(clips.armed.walk.forward);
+        addDummyClip(clips.armed.walk.backward);
         addDummyClip(clips.disarmed.rotateLeft);
         addDummyClip(clips.disarmed.rotateRight);
         addDummyClip(clips.armed.rotateLeft);
@@ -174,11 +182,15 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForward)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
 TEST_F(CharacterControllerTests, DisarmedState_IdleToRunBackward)
@@ -188,11 +200,15 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunBackward)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, -DEFAULT_BACKWARD_RUN_SPEED)))
         .Times(AtLeast(1));
 
-    sut_.fsm()->handle(MoveBackwardEvent{});
+    sut_.fsm()->handle(RunBackwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.backward});
+
+    sut_.fsm()->handle(EndBackwardMoveEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
 TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForwardAndBackward)
@@ -203,7 +219,7 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForwardAndBackward)
         .Times(AtLeast(1));
     ;
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -214,7 +230,7 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForwardAndBackward)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, -DEFAULT_BACKWARD_RUN_SPEED)))
         .Times(AtLeast(1));
     ;
-    sut_.fsm()->handle(MoveBackwardEvent{});
+    sut_.fsm()->handle(RunBackwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -224,7 +240,7 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForwardAndBackward)
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
-    ;
+
     sut_.fsm()->handle(EndBackwardMoveEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -260,7 +276,7 @@ TEST_F(CharacterControllerTests, RunForwardDuringDisarmedToArmedState)
     // Animation : EquipAnim
     Update(DUMMY_CLIP_LENGTH / 2.f);
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
@@ -279,7 +295,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringDisarmedRunForward)
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, runningVelocity)).Times(AtLeast(1));
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -316,7 +332,7 @@ TEST_F(CharacterControllerTests, DisarmWeaponDuringArmedRunForward)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -432,7 +448,7 @@ TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateLeft)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -478,7 +494,7 @@ TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateRight)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -530,7 +546,7 @@ TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeap
 
     expectAnimsToBeSet({sut_.animationClipsNames_.equip});
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -573,7 +589,7 @@ TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRo
         .Times(AtLeast(1));
 
     sut_.fsm()->handle(WeaponStateEvent{});
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -593,7 +609,7 @@ TEST_F(CharacterControllerTests, DisarmedStopMovingDuringEuip)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
 
-    sut_.fsm()->handle(MoveForwardEvent{});
+    sut_.fsm()->handle(RunForwardEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
     sut_.fsm()->handle(WeaponStateEvent{});
@@ -634,4 +650,159 @@ TEST_F(CharacterControllerTests, DisamredDuringEquipTransition)
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, IdleToWalkToIdleState)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_WALK_SPEED)))
+        .Times(AtLeast(1));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(DUMMY_CLIP_LENGTH);
+    sut_.fsm()->handle(WalkForwardEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, RunToWalkToRunState)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(DUMMY_CLIP_LENGTH);
+    sut_.fsm()->handle(RunForwardEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(WalkChangeStateEvent{});
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_WALK_SPEED)))
+        .Times(AtLeast(1));
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(WalkChangeStateEvent{});
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(WalkChangeStateEvent{});
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_WALK_SPEED)))
+        .Times(AtLeast(1));
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(RunForwardEvent{});
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+}
+
+TEST_F(CharacterControllerTests, WalkAndRotateState)
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_WALK_SPEED)))
+        .Times(AtLeast(1));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(DUMMY_CLIP_LENGTH);
+    sut_.fsm()->handle(WalkForwardEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(RotateRightEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight});
+}
+
+TEST_F(CharacterControllerTests, RotateAndWalkState)
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_WALK_SPEED)))
+        .Times(AtLeast(1));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+
+    sut_.fsm()->handle(RotateRightEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(DUMMY_CLIP_LENGTH);
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight});
+
+    sut_.fsm()->handle(WalkForwardEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight});
+}
+
+TEST_F(CharacterControllerTests, RunAndRotateToWalkAndRotate)
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_RUN_SPEED)))
+        .Times(AtLeast(1));
+    sut_.fsm()->handle(RunForwardEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    sut_.fsm()->handle(RotateRightEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    Update(DUMMY_CLIP_LENGTH);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, DEFAULT_WALK_SPEED)))
+        .Times(AtLeast(1));
+    sut_.fsm()->handle(WalkChangeStateEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    sut_.fsm()->handle(EndForwardMoveEvent{});
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight});
 }

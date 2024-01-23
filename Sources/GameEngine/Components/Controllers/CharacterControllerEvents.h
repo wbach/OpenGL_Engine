@@ -3,19 +3,25 @@
 
 namespace GameEngine
 {
-struct MoveForwardEvent
+struct WalkForwardEvent
 {
 };
-struct MoveBackwardEvent
+struct WalkBackwardEvent
+{
+};
+struct WalkChangeStateEvent
+{
+};
+struct RunForwardEvent
+{
+};
+struct RunBackwardEvent
 {
 };
 struct MoveLeftEvent
 {
 };
 struct MoveRightEvent
-{
-};
-struct WalkEvent
 {
 };
 struct RunEvent

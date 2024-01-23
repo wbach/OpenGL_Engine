@@ -300,7 +300,9 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
+    //DEBUG_LOG(jointData_.rootJoint.children[0].name);
     applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
+    //jointData_.rootJoint.children[0].animatedTransform = glm::mat3(jointData_.rootJoint.children[0].animatedTransform);
     updateShaderBuffers();
 }
 void Animator::createShaderJointBuffers()

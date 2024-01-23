@@ -18,31 +18,34 @@ MoveStateBase::MoveStateBase(FsmContext &context, const MoveSpeed &moveSpeed, co
     , moveSpeed_{moveSpeed}
 {
 }
+
+void MoveStateBase::onEnter(const WalkForwardEvent &)
+{
+    moveForward();
+}
+
+void MoveStateBase::onEnter(const WalkBackwardEvent &)
+{
+    moveBackward();
+}
+void MoveStateBase::onEnter(const RunForwardEvent &)
+{
+    moveForward();
+}
+void MoveStateBase::onEnter(const RunBackwardEvent &)
+{
+    moveBackward();
+}
 void MoveStateBase::onEnter(const EndJumpEvent &)
 {
     setCurrentAnim();
 }
-void MoveStateBase::onEnter(const MoveForwardEvent &)
+
+void MoveStateBase::onEnter(const WalkChangeStateEvent &)
 {
-    if (context_.weaponChangeTriggered_)
-    {
-        context_.multiAnimations = true;
-    }
-
-    setMoveForward();
-    setForwardAnim();
+    setCurrentAnim();
+    context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
 }
-void MoveStateBase::onEnter(const MoveBackwardEvent &)
-{
-    if (context_.weaponChangeTriggered_)
-    {
-        context_.multiAnimations = true;
-    }
-
-    setMoveBackward();
-    setBackwardAnim();
-}
-
 void MoveStateBase::onEnter(const MoveLeftEvent &)
 {
     context_.moveDirection                    = vec3(1.f, 0.f, 0.f);
@@ -69,7 +72,7 @@ bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
 
     if (context_.moveStateData_.isBackwardEvent_ and context_.moveDirection.z > 0.5f)
     {
-        onEnter(MoveBackwardEvent());
+        moveBackward();
     }
 
     return not context_.moveStateData_.isBackwardEvent_;
@@ -80,7 +83,7 @@ bool MoveStateBase::transitionCondition(const EndBackwardMoveEvent &)
 
     if (context_.moveStateData_.isForwardEvent_ and context_.moveDirection.z < -0.5f)
     {
-        onEnter(MoveForwardEvent());
+        moveForward();
     }
     return not context_.moveStateData_.isForwardEvent_;
 }
@@ -90,7 +93,29 @@ void MoveStateBase::onLeave()
     //    context_.moveStateData_.isBackwardEvent_ = false;
 }
 
-void MoveStateBase::setMoveForward()
+void MoveStateBase::moveForward()
+{
+    if (context_.weaponChangeTriggered_)
+    {
+        context_.multiAnimations = true;
+    }
+
+    setMoveForwardData();
+    setForwardAnim();
+}
+
+void MoveStateBase::moveBackward()
+{
+    if (context_.weaponChangeTriggered_)
+    {
+        context_.multiAnimations = true;
+    }
+
+    setMoveBackwardData();
+    setBackwardAnim();
+}
+
+void MoveStateBase::setMoveForwardData()
 {
     context_.moveStateData_.isForwardEvent_ = true;
 
@@ -98,7 +123,7 @@ void MoveStateBase::setMoveForward()
     context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
 }
 
-void MoveStateBase::setMoveBackward()
+void MoveStateBase::setMoveBackwardData()
 {
     context_.moveStateData_.isBackwardEvent_  = true;
     context_.moveDirection                    = vec3(0.f, 0.f, -1.f);
@@ -114,14 +139,25 @@ void MoveStateBase::update(const EndAttackEvent &)
     context_.multiAnimations = false;
     context_.attackFsm.handle(AttackFsmEvents::End{});
 }
-void MoveStateBase::update(const MoveForwardEvent &event)
+void MoveStateBase::update(const RunForwardEvent &event)
 {
     onEnter(event);
 }
-void MoveStateBase::update(const MoveBackwardEvent &event)
+void MoveStateBase::update(const RunBackwardEvent &event)
 {
     onEnter(event);
 }
+
+void MoveStateBase::update(const WalkForwardEvent &event)
+{
+    onEnter(event);
+}
+
+void MoveStateBase::update(const WalkBackwardEvent &event)
+{
+    onEnter(event);
+}
+
 void MoveStateBase::update(float)
 {
     moveRigidbody(context_);

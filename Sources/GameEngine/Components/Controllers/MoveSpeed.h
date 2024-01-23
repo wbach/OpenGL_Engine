@@ -5,18 +5,21 @@ namespace GameEngine
 {
 namespace Components
 {
-
+const float DEFAULT_CROUCH_SPEED  = Utils::KmToMs(3.f);
+const float DEFAULT_WALK_SPEED  = Utils::KmToMs(6.f);
 const float DEFAULT_RUN_SPEED  = Utils::KmToMs(12.f);
-const float DEFAULT_TURN_SPEED = 160.f;
-const float DEFAULT_JUMP_POWER = 10.f;
+const float DEFAULT_SPRINT_SPEED  = Utils::KmToMs(18.f);
 const float DEFAULT_BACKWARD_RUN_SPEED = DEFAULT_RUN_SPEED * 0.75f;
+const float DEFAULT_BACKWARD_WALK_SPEED = DEFAULT_WALK_SPEED * 0.75f;
+const float DEFAULT_TURN_SPEED = 160.f;
+const float DEFAULT_CROUCH_TURN_SPEED = 100.f;
+const float DEFAULT_JUMP_POWER = 5.f;
 
 struct MoveSpeed
 {
-    float forward{DEFAULT_RUN_SPEED};
-    float backward{DEFAULT_BACKWARD_RUN_SPEED};
-    float leftRight{DEFAULT_TURN_SPEED};
-    float rotate{DEFAULT_JUMP_POWER};
+    float forward{0};
+    float backward{0};
+    float leftRight{0};
 };
 }  // namespace Components
 }  // namespace GameEngine

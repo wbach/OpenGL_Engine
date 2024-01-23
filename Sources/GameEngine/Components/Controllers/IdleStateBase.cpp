@@ -52,6 +52,11 @@ void IdleStateBase::onEnter(const EndForwardMoveEvent &)
     setIdleAnim();
 }
 
+void IdleStateBase::onEnter(const EndBackwardMoveEvent &)
+{
+    setIdleAnim();
+}
+
 void IdleStateBase::onEnter(const EndRotationEvent &)
 {
     setIdleAnim();

@@ -66,7 +66,7 @@ void EnemyController::Update()
         else
         {
             fsm.handle(EndAttackEvent{});
-            fsm.handle(MoveForwardEvent{});
+            fsm.handle(RunForwardEvent{});
         }
 
         fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
@@ -76,7 +76,7 @@ void EnemyController::Update()
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
     fsm.handle(EndAttackEvent{});
     fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
-    fsm.handle(MoveForwardEvent{});
+    fsm.handle(RunForwardEvent{});
 
     auto distanceToPoint = glm::length(vectorToTarget);
     if (distanceToPoint < 5.f)

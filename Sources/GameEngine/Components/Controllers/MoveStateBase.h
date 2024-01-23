@@ -7,14 +7,6 @@
 
 namespace GameEngine
 {
-struct EndJumpEvent;
-struct MoveForwardEvent;
-struct MoveBackwardEvent;
-struct MoveLeftEvent;
-struct MoveRightEvent;
-struct AttackEvent;
-struct EndAttackEvent;
-
 namespace Components
 {
 struct FsmContext;
@@ -22,30 +14,37 @@ struct FsmContext;
 class MoveStateBase : public StateBase
 {
 public:
-    MoveStateBase(FsmContext&, const MoveSpeed&, const std::string&, const std::string&);
-    void onEnter(const EndJumpEvent&);
-    void onEnter(const MoveForwardEvent&);
-    void onEnter(const MoveBackwardEvent&);
-    void onEnter(const MoveLeftEvent&);
-    void onEnter(const MoveRightEvent&);
+    MoveStateBase(FsmContext &, const MoveSpeed &, const std::string &, const std::string &);
+    void onEnter(const RunForwardEvent &);
+    void onEnter(const RunBackwardEvent &);
+    void onEnter(const WalkForwardEvent &);
+    void onEnter(const WalkBackwardEvent &);
+    void onEnter(const MoveLeftEvent &);
+    void onEnter(const MoveRightEvent &);
+    void onEnter(const EndJumpEvent &);
+    void onEnter(const WalkChangeStateEvent&);
 
-    void update(const WeaponChangeEndEvent&);
-    void update(const AttackEvent&);
-    void update(const EndAttackEvent&);
-    void update(const MoveForwardEvent&);
-    void update(const MoveBackwardEvent&);
+    void update(const WeaponChangeEndEvent &);
+    void update(const AttackEvent &);
+    void update(const EndAttackEvent &);
+    void update(const RunForwardEvent &);
+    void update(const RunBackwardEvent &);
+    void update(const WalkForwardEvent &);
+    void update(const WalkBackwardEvent &);
     void update(float);
 
-    bool transitionCondition(const EndForwardMoveEvent&);
-    bool transitionCondition(const EndBackwardMoveEvent&);
+    bool transitionCondition(const EndForwardMoveEvent &);
+    bool transitionCondition(const EndBackwardMoveEvent &);
 
     void onLeave();
 
-    void setMoveForward();
-    void setMoveBackward();
+    void moveForward();
+    void moveBackward();
+    void setMoveForwardData();
+    void setMoveBackwardData();
 
 protected:
-    void moveRigidbody(FsmContext&);
+    void moveRigidbody(FsmContext &);
     void setForwardAnim();
     void setBackwardAnim();
     void setCurrentAnim();

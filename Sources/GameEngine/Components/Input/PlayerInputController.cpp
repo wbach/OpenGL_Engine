@@ -53,14 +53,28 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(MoveForwardEvent{});
+            if (componentContext_.inputManager_.GetKey(KeyCodes::LCTRL))
+            {
+                fsm->handle(WalkForwardEvent{});
+            }
+            else
+            {
+                fsm->handle(RunForwardEvent{});
+            }
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::S, [&]() {
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(MoveBackwardEvent{});
+            if (componentContext_.inputManager_.GetKey(KeyCodes::LCTRL))
+            {
+                fsm->handle(WalkBackwardEvent{});
+            }
+            else
+            {
+                fsm->handle(RunBackwardEvent{});
+            }
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::A, [&]() {
@@ -84,21 +98,30 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
+            //fsm->handle(JumpEvent{DEFAULT_JUMP_POWER});
         }
     });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LCTRL, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(WalkChangeStateEvent{});
+        }
+    });
+
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [&]() {
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(AttackEvent{});
+           // fsm->handle(AttackEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-            fsm->handle(EndAttackEvent{});
+            // fsm->handle(EndAttackEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::F, [&]() {

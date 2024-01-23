@@ -12,6 +12,7 @@ namespace Components
 {
 class DisarmedIdleState;
 class DisarmedRunAndRotateState;
+class DisarmedWalkAndRotateState;
 class JumpState;
 class DeathState;
 class ArmedRotateState;
@@ -25,8 +26,10 @@ class DisarmedRotateState
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
-          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
+          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,

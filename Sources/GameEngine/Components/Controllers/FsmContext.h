@@ -58,9 +58,9 @@ struct FsmContext
     bool multiAnimations{false};
     bool weaponChangeTriggered_{false};
 
-    MoveSpeed walkSpeed;
-    MoveSpeed runSpeed;
-    MoveSpeed crouchSpeed;
+    MoveSpeed walkSpeed{DEFAULT_WALK_SPEED, DEFAULT_BACKWARD_WALK_SPEED, DEFAULT_TURN_SPEED};
+    MoveSpeed runSpeed{DEFAULT_RUN_SPEED, DEFAULT_BACKWARD_RUN_SPEED, DEFAULT_TURN_SPEED};
+    MoveSpeed crouchSpeed{DEFAULT_CROUCH_SPEED, DEFAULT_CROUCH_SPEED, DEFAULT_CROUCH_TURN_SPEED};
 
     float sprintSpeed{1.0};
 

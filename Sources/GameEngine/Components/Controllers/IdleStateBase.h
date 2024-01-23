@@ -28,6 +28,7 @@ public:
     IdleStateBase(FsmContext&, const std::string&);
 
     void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndRotationEvent&);
 
     void update(const AttackEvent&);
