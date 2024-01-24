@@ -19,6 +19,24 @@ MoveStateBase::MoveStateBase(FsmContext &context, const MoveSpeed &moveSpeed, co
 {
 }
 
+MoveStateBase::MoveStateBase(FsmContext &context, float forwardMoveSpeed, const std::string &forwardAnimName)
+    : StateBase(context)
+    , forwardAnimName_{forwardAnimName}
+    , moveSpeed_{forwardMoveSpeed, 0.0f, 0.0f}
+{
+}
+
+void MoveStateBase::onEnter(const SprintStartEvent &)
+{
+    moveForward();
+}
+
+void MoveStateBase::onEnter(const SprintStateChangeEvent &)
+{
+    // Sprint is only for forward move
+    moveForward();
+}
+
 void MoveStateBase::onEnter(const WalkForwardEvent &)
 {
     moveForward();

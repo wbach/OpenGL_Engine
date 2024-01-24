@@ -30,7 +30,10 @@ struct RunEvent
 struct CrouchEvent
 {
 };
-struct SprintEvent
+struct SprintStartEvent
+{
+};
+struct SprintStateChangeEvent
 {
 };
 struct EndForwardMoveEvent

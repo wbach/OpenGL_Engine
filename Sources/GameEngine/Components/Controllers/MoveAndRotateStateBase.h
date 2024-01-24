@@ -18,6 +18,7 @@ class MoveAndRotateStateBase : public MoveStateBase, public RotateStateBase
 public:
     MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &, const std::string &,
                            const std::string &);
+    MoveAndRotateStateBase(FsmContext &, float, const std::string &, float, const std::string &, const std::string &);
 
     void onEnter(const WalkForwardEvent &);
     void onEnter(const WalkBackwardEvent &);
@@ -27,7 +28,7 @@ public:
     void onEnter(const RotateLeftEvent &);
     void onEnter(const RotateRightEvent &);
     void onEnter(const RotateTargetEvent &);
-    void onEnter(const WalkChangeStateEvent&);
+    void onEnter(const WalkChangeStateEvent &);
 
     void update(float);
     void update(const RotateLeftEvent &);

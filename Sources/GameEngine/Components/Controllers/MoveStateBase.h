@@ -15,6 +15,10 @@ class MoveStateBase : public StateBase
 {
 public:
     MoveStateBase(FsmContext &, const MoveSpeed &, const std::string &, const std::string &);
+    MoveStateBase(FsmContext &, float, const std::string &);
+
+    void onEnter(const SprintStartEvent&);
+    void onEnter(const SprintStateChangeEvent&);
     void onEnter(const RunForwardEvent &);
     void onEnter(const RunBackwardEvent &);
     void onEnter(const WalkForwardEvent &);

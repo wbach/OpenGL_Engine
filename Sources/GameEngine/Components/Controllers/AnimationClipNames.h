@@ -26,6 +26,7 @@ struct StateClipsNames
     std::string idle;
     std::string hurt;
     std::string death;
+    std::string sprint;
 
     std::vector<std::string> attack;
 };
@@ -35,7 +36,6 @@ struct AnimationClipsNames
     StateClipsNames armed;
     StateClipsNames disarmed;
 
-    std::string sprint;
     std::string doge;
     std::string dogeJump;
     std::string equip;

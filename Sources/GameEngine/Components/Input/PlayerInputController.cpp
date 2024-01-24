@@ -57,6 +57,10 @@ void PlayerInputController::SubscribeForPushActions()
             {
                 fsm->handle(WalkForwardEvent{});
             }
+            else if (componentContext_.inputManager_.GetKey(KeyCodes::LSHIFT))
+            {
+                fsm->handle(SprintStartEvent{});
+            }
             else
             {
                 fsm->handle(RunForwardEvent{});
@@ -107,6 +111,14 @@ void PlayerInputController::SubscribeForPushActions()
         if (fsm)
         {
             fsm->handle(WalkChangeStateEvent{});
+        }
+    });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(SprintStateChangeEvent{});
         }
     });
 

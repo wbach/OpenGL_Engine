@@ -67,13 +67,13 @@ void write(TreeNode& node, const GameEngine::Components::StateClipsNames& names)
     ::write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);
     ::write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), names.rotateLeft);
     ::write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), names.rotateRight);
+    ::write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
 }
 
 void write(TreeNode& node, const GameEngine::Components::AnimationClipsNames& names)
 {
     ::write(node.addChild(CSTR_ANIMATION_ARMED), names.armed);
     ::write(node.addChild(CSTR_ANIMATION_DISARMED), names.disarmed);
-    ::write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
     ::write(node.addChild(CSTR_ANIMATION_DOGE), names.doge);
     ::write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
     ::write(node.addChild(CSTR_ANIMATION_EQUIP), names.equip);
@@ -110,13 +110,13 @@ void Read(const TreeNode& node, GameEngine::Components::StateClipsNames& result)
     Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
     Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.rotateLeft);
     Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.rotateRight);
+    Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
 }
 
 void Read(const TreeNode& node, GameEngine::Components::AnimationClipsNames& result)
 {
     Read(node.getChild(CSTR_ANIMATION_ARMED), result.armed);
     Read(node.getChild(CSTR_ANIMATION_DISARMED), result.disarmed);
-    Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
     Read(node.getChild(CSTR_ANIMATION_DOGE), result.doge);
     Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
     Read(node.getChild(CSTR_ANIMATION_EQUIP), result.equip);
@@ -198,12 +198,16 @@ void CharacterController::Init()
             DisarmedRunAndRotateState(*fsmContext),
             DisarmedWalkState(*fsmContext),
             DisarmedWalkAndRotateState(*fsmContext),
+            DisarmedSprintState(*fsmContext),
+            DisarmedSprintAndRotateState(*fsmContext),
             ArmedIdleState(*fsmContext),
             ArmedRunState(*fsmContext),
             ArmedRotateState(*fsmContext),
             ArmedRunAndRotateState(*fsmContext),
             ArmedWalkState(*fsmContext),
             ArmedWalkAndRotateState(*fsmContext),
+            ArmedSprintState(*fsmContext),
+            ArmedSprintAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             DeathState(*fsmContext));
@@ -232,14 +236,14 @@ void CharacterController::Init()
         auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
         if (lowerBodyGroupIter == animator_->jointGroups_.end())
         {
-            DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty." );
+            DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
             animator_->jointGroups_.insert({lowerBodyGroupName, {}});
         }
 
         auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
         if (upperBodyGroupIter == animator_->jointGroups_.end())
         {
-            DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty" );
+            DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
             animator_->jointGroups_.insert({upperBodyGroupName, {}});
         }
     }
