@@ -113,6 +113,16 @@ bool MoveStateBase::transitionCondition(const EndBackwardMoveEvent &)
     }
     return not context_.moveStateData_.isForwardEvent_;
 }
+
+bool MoveStateBase::transitionCondition(const SprintStartEvent &)
+{
+    return context_.moveDirection.z > -0.001f;
+}
+
+bool MoveStateBase::transitionCondition(const SprintStateChangeEvent &)
+{
+    return context_.moveDirection.z > 0.01f;
+}
 void MoveStateBase::onLeave()
 {
     //    context_.moveStateData_.isForwardEvent_  = false;

@@ -77,6 +77,16 @@ bool MoveAndRotateStateBase::transitionCondition(const EndBackwardMoveEvent &e)
     return MoveStateBase::transitionCondition(e);
 }
 
+bool MoveAndRotateStateBase::transitionCondition(const SprintStartEvent &e)
+{
+    return MoveStateBase::transitionCondition(e);
+}
+
+bool MoveAndRotateStateBase::transitionCondition(const SprintStateChangeEvent &e)
+{
+    return MoveStateBase::transitionCondition(e);
+}
+
 void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
 {
     MoveStateBase::onEnter(event);

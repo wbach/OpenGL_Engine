@@ -41,6 +41,8 @@ public:
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);
+    bool transitionCondition(const SprintStartEvent &);
+    bool transitionCondition(const SprintStateChangeEvent &);
 
     void onLeave();
 
