@@ -11,8 +11,9 @@ namespace Components
 {
 class DisarmedRunState;
 class DisarmedRotateState;
-class ArmedRunAndRotateState;
 class DisarmedWalkAndRotateState;
+class DisarmedSprintAndRotateState;
+class ArmedRunAndRotateState;
 class JumpState;
 class DeathState;
 struct FsmContext;
@@ -35,6 +36,8 @@ class DisarmedRunAndRotateState
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent,
+                                  Utils::StateMachine::TransitionTo<DisarmedSprintAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

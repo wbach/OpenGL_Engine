@@ -184,6 +184,11 @@ void MoveStateBase::update(const WalkBackwardEvent &event)
     onEnter(event);
 }
 
+void MoveStateBase::update(const SprintStateChangeEvent & event)
+{
+    onEnter(event);
+}
+
 void MoveStateBase::update(float)
 {
     moveRigidbody(context_);

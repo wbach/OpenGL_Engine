@@ -20,6 +20,7 @@ public:
                            const std::string &);
     MoveAndRotateStateBase(FsmContext &, float, const std::string &, float, const std::string &, const std::string &);
 
+    void onEnter(const SprintStateChangeEvent &);
     void onEnter(const WalkForwardEvent &);
     void onEnter(const WalkBackwardEvent &);
     void onEnter(const EndJumpEvent &);

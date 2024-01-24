@@ -9,13 +9,14 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedRunAndRotateState;
-class JumpState;
-class DisarmedIdleState;
-class MoveJumpState;
 class DeathState;
+class JumpState;
+class MoveJumpState;
 class ArmedRunState;
+class DisarmedIdleState;
 class DisarmedWalkState;
+class DisarmedSprintState;
+class DisarmedRunAndRotateState;
 
 class DisarmedRunState
     : public MoveStateBase,
@@ -35,6 +36,8 @@ class DisarmedRunState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
+          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:

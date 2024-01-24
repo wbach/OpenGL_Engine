@@ -9,10 +9,12 @@ namespace GameEngine
 {
 namespace Components
 {
+class ArmedRunAndRotateState;
 class DisarmedRunState;
 class DisarmedRotateState;
-class ArmedRunAndRotateState;
+class DisarmedSprintState;
 class DisarmedWalkAndRotateState;
+class DisarmedRunAndRotateState;
 class JumpState;
 class DeathState;
 struct FsmContext;
@@ -21,7 +23,6 @@ class DisarmedSprintAndRotateState
     : public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
@@ -30,11 +31,13 @@ class DisarmedSprintAndRotateState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

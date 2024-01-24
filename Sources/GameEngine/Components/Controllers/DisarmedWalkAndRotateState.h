@@ -9,10 +9,12 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedRunState;
-class DisarmedRotateState;
 class ArmedWalkAndRotateState;
+class DisarmedRunState;
+class DisarmedWalkState;
+class DisarmedRotateState;
 class DisarmedRunAndRotateState;
+class DisarmedSprintAndRotateState;
 class JumpState;
 class DeathState;
 struct FsmContext;
@@ -35,6 +37,9 @@ class DisarmedWalkAndRotateState
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedWalkState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent,
+                                  Utils::StateMachine::TransitionTo<DisarmedSprintAndRotateState>>,
+          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<DisarmedSprintAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

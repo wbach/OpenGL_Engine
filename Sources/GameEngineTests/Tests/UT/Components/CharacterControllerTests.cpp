@@ -1107,6 +1107,88 @@ TEST_F(CharacterControllerTests, DisarmeIdleToSprint)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
+TEST_F(CharacterControllerTests, DisarmeWalkToSprint)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<WalkForwardEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.forward});
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintState>({sut_.animationClipsNames_.disarmed.sprint});
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+    tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmeRunToSprint)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintState>({sut_.animationClipsNames_.disarmed.sprint});
+
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintState>({sut_.animationClipsNames_.disarmed.sprint});
+
+    tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmeWalkAndRotateToSprint)
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<WalkForwardEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.forward});
+    tiggerAndExpect<RotateRightEvent, DisarmedWalkAndRotateState>({sut_.animationClipsNames_.disarmed.walk.forward});
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintAndRotateState>({sut_.animationClipsNames_.disarmed.sprint});
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedRunAndRotateState>(
+        {sut_.animationClipsNames_.disarmed.run.forward});
+    tiggerAndExpect<EndForwardMoveEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateRight});
+    tiggerAndExpect<EndRotationEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmeRunAndRotateToSprint)
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+    tiggerAndExpect<RotateRightEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.forward});
+
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintAndRotateState>({sut_.animationClipsNames_.disarmed.sprint});
+
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.forward});
+
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintAndRotateState>({sut_.animationClipsNames_.disarmed.sprint});
+    tiggerAndExpect<EndRotationEvent, DisarmedSprintState>({sut_.animationClipsNames_.disarmed.sprint});
+    tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
+}
+
 TEST_F(CharacterControllerTests, ArmedIdleToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));

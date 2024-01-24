@@ -21,6 +21,11 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext & context, float forwa
 
 }
 
+void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent & event)
+{
+    MoveStateBase::update(event);
+}
+
 void MoveAndRotateStateBase::onEnter(const WalkForwardEvent &event)
 {
     MoveStateBase::update(event);
