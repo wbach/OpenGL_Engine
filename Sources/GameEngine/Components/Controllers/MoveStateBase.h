@@ -36,6 +36,7 @@ public:
     void update(const WalkForwardEvent &);
     void update(const WalkBackwardEvent &);
     void update(const SprintStateChangeEvent&);
+    void update(const SprintStartEvent&);
     void update(float);
 
     bool transitionCondition(const EndForwardMoveEvent &);

@@ -11,8 +11,9 @@ namespace Components
 {
 class ArmedWalkState;
 class ArmedRotateState;
-class DisarmedWalkAndRotateState;
 class ArmedRunAndRotateState;
+class ArmedSprintAndRotateState;
+class DisarmedWalkAndRotateState;
 class JumpState;
 class DeathState;
 
@@ -34,6 +35,8 @@ class ArmedWalkAndRotateState
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
+          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

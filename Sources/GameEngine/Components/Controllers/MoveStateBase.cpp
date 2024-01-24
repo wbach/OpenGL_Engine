@@ -184,7 +184,12 @@ void MoveStateBase::update(const WalkBackwardEvent &event)
     onEnter(event);
 }
 
-void MoveStateBase::update(const SprintStateChangeEvent & event)
+void MoveStateBase::update(const SprintStateChangeEvent &event)
+{
+    onEnter(event);
+}
+
+void MoveStateBase::update(const SprintStartEvent &event)
 {
     onEnter(event);
 }

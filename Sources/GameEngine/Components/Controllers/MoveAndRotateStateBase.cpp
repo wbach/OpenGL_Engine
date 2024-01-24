@@ -14,14 +14,20 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const MoveSp
 {
 }
 
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext & context, float forwardSpeed, const std::string & forwardAnimName, float rotateSpeed, const std::string & rotateLeft, const std::string &rotateRight)
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, float forwardSpeed,
+                                               const std::string &forwardAnimName, float rotateSpeed,
+                                               const std::string &rotateLeft, const std::string &rotateRight)
     : MoveStateBase{context, forwardSpeed, forwardAnimName}
     , RotateStateBase{context, rotateSpeed, rotateLeft, rotateRight}
 {
-
 }
 
-void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent & event)
+void MoveAndRotateStateBase::onEnter(const SprintStartEvent &event)
+{
+    MoveStateBase::update(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
 {
     MoveStateBase::update(event);
 }
