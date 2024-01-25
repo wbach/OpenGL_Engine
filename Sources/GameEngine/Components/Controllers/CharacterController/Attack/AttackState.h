@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class EmptyState;
+struct EmptyState;
 
 class AttackState : public Utils::StateMachine::Will<
                         Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
