@@ -221,6 +221,7 @@ void CharacterController::Init()
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             AimState(*fsmContext),
+            AimRotateState(*fsmContext),
             RecoilState(*fsmContext),
             DrawArrowState(*fsmContext),
             DeathState(*fsmContext));

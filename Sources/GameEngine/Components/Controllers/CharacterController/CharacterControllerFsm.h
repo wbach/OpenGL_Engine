@@ -23,6 +23,7 @@
 #include "States/AimState.h"
 #include "States/RecoilState.h"
 #include "States/DrawArrowState.h"
+#include "States/AimRotateState.h"
 
 namespace GameEngine
 {
@@ -51,6 +52,7 @@ using CharacterControllerFsm =
                             JumpState,
                             MoveJumpState,
                             AimState,
+                            AimRotateState,
                             RecoilState,
                             DrawArrowState,
                             DeathState
