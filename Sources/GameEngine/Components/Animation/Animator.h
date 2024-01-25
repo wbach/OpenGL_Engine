@@ -43,7 +43,7 @@ public:
     void AddAnimationClip(const GameEngine::File&);
     void AddAnimationClip(const Animation::AnimationClip&);
     Animator& SetAnimation(const std::string&);
-    void ChangeAnimation(const std::string&, AnimationChangeType, PlayDirection = PlayDirection::forward,
+    void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
                          std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     GraphicsApi::ID getPerPoseBufferId() const;

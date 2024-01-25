@@ -16,17 +16,9 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
     {
         return;
     }
-#ifdef NOREALTIME_LOG_ENABLED
-    DEBUG_LOG("notifyFrameSubsribers clip " + clipInfo.clip.name + ", time = " + std::to_string(time) + " / " +
-              std::to_string(clipInfo.clip.GetLength()));
-#endif
-
     // TO DO: Remove workaround
     if (time > clipInfo.clip.GetLength())
     {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Workaround set last frame if over time");
-#endif
         currentFrame = &clipInfo.clip.GetFrames().back();
     }
 
@@ -38,7 +30,7 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
             not compare(currentFrame->timeStamp, previousFrameTimeStamp))
         {
 #ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("notifyFrameSubsribers for clip : " + clipInfo.clip.name);
+            DEBUG_LOG("notifyFrameSubsribers for clip : " + clipInfo.clip.name + " time : " + std::to_string(currentFrame->timeStamp));
 #endif
             sub.callback();
         }

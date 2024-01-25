@@ -1515,7 +1515,6 @@ TEST_F(CharacterControllerTests, ArmdIdleToDrawStateAndBackToIdle)
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-
 TEST_F(CharacterControllerTests, ArmdIdleToAimStateAndBackToIdle)
 {
     expectState<DisarmedIdleState>();
@@ -1529,5 +1528,22 @@ TEST_F(CharacterControllerTests, ArmdIdleToAimStateAndBackToIdle)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<AimState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
+}
+
+TEST_F(CharacterControllerTests, ArrowSimpleShoot)
+{
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    tiggerAndExpect<WeaponStateEvent, ArmedIdleState>(
+        {sut_.animationClipsNames_.armed.idle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+
+    tiggerAndExpect<DrawArrowEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<AimState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<ShootEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow}, {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }

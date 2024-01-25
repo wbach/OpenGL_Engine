@@ -8,10 +8,12 @@ namespace GameEngine
 {
 namespace Components
 {
+class RecoilState;
 class ArmedIdleState;
 
 class AimState : public Utils::StateMachine::Will<
                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                     Utils::StateMachine::On<ShootEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
                      Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
 
 // Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
