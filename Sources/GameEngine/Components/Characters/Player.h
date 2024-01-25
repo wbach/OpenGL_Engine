@@ -6,7 +6,7 @@
 #include "CharacterStatistic.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "Bar.h"
 
 namespace GameEngine

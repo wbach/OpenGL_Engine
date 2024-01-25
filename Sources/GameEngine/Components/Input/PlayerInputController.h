@@ -3,7 +3,7 @@
 #include <Input/KeysSubscriptionsManager.h>
 
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 
 namespace GameEngine
 {

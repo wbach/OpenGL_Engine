@@ -5,7 +5,7 @@
 #include "Camera/ThridPersonCameraComponent.h"
 #include "Characters/Enemy.h"
 #include "Characters/Player.h"
-#include "Controllers/CharacterController.h"
+#include "Controllers/CharacterController/CharacterController.h"
 #include "Controllers/EnemyController.h"
 #include "Input/PlayerInputController.h"
 #include "Physics/BoxShape.h"

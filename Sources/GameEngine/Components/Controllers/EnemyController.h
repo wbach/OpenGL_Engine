@@ -5,7 +5,7 @@
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/Controllers/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 
 namespace GameEngine
 {
