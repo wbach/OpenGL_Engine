@@ -89,7 +89,4 @@ struct AimStartEvent
 struct AimStopEvent
 {
 };
-struct ShootEvent
-{
-};
 }  // namespace GameEngine

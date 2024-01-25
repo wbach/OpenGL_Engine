@@ -14,7 +14,7 @@ RecoilState::RecoilState(FsmContext& contex)
     context_.animator.setPlayOnceForAnimationClip(animName_);
 }
 
-void RecoilState::onEnter(const ShootEvent)
+void RecoilState::onEnter(const AttackEvent&)
 {
     DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
 

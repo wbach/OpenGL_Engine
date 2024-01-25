@@ -12,7 +12,7 @@ namespace Components
 {
 class AimState;
 class RecoilState;
-class ArmedIdleState;
+class ArmedRotateState;
 class DisarmedRotateState;
 
 class AimRotateState : public AimStateBase,
@@ -22,9 +22,9 @@ class AimRotateState : public AimStateBase,
                            Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
                            Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
                            Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-                           Utils::StateMachine::On<ShootEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
+                           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
                            Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimState>>,
-                           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
+                           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
 {
 public:
     AimRotateState(FsmContext&);

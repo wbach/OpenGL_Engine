@@ -50,7 +50,6 @@ void AimRotateState::update(float dt)
 
 void AimRotateState::leave()
 {
-    context_.multiAnimations = false;
 }
 }  // namespace Components
 }  // namespace GameEngine

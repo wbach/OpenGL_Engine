@@ -20,7 +20,7 @@ class RecoilState : public Utils::StateMachine::Will<
 {
 public:
     RecoilState(FsmContext&);
-    void onEnter(const ShootEvent);
+    void onEnter(const AttackEvent&);
     void update(float)
     {
     }

@@ -126,8 +126,7 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
-           // fsm->handle(AttackEvent{});
-            fsm->handle(ShootEvent{});
+            fsm->handle(AttackEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(KeyCodes::RMOUSE, [&]() {

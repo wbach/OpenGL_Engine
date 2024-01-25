@@ -50,6 +50,12 @@ void RotateStateBase::onEnter(const EndBackwardMoveEvent &)
     setCurrentAnim();
 }
 
+void RotateStateBase::onEnter(const AimStopEvent&)
+{
+    context_.multiAnimations = false;
+    setCurrentAnim();
+}
+
 void RotateStateBase::update(const AttackEvent &)
 {
     context_.multiAnimations = true;
