@@ -113,6 +113,18 @@ void RotateStateBase::update(const WeaponChangeEndEvent &)
     context_.multiAnimations = false;
 }
 
+void RotateStateBase::update(const AimStartEvent&)
+{
+    if (context_.rotateStateData_.rotateSpeed_ > 0.f)
+    {
+        update(RotateLeftEvent{});
+    }
+    else
+    {
+        update(RotateRightEvent{});
+    }
+}
+
 void RotateStateBase::setRotateLeftAnim()
 {
     if (not rotateLeftAnim_.empty())

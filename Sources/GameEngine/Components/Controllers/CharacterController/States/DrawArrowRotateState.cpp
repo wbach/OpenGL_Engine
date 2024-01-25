@@ -37,8 +37,9 @@ void DrawArrowRotateState::update(const RotateRightEvent& event)
 {
     onEnter(event);
 }
-void DrawArrowRotateState::update(float)
+void DrawArrowRotateState::update(float dt)
 {
+    RotateStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine

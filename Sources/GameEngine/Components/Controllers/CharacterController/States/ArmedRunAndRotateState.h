@@ -23,8 +23,8 @@ class ArmedRunAndRotateState
     : public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          //Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          //Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,

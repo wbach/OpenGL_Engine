@@ -19,6 +19,7 @@ void AimRotateState::onEnter(const AimStartEvent &event)
     context_.multiAnimations = true;
     DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
     AimStateBase::onEnter(event);
+    RotateStateBase::update(event);
 }
 
 void AimRotateState::onEnter(const RotateLeftEvent &event)

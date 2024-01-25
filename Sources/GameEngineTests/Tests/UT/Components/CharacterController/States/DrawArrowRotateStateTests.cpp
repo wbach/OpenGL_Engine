@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
+    EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
     test.expectState<DisarmedIdleState>();
@@ -46,3 +46,9 @@ TEST_F(CharacterControllerTests, DrawArowRotate_AimStopEvent)
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
 }
+TEST_F(CharacterControllerTests, DrawArowRotateToAimRotate)
+{
+    prepareState(*this);
+    tiggerAndExpect<AimStartEvent, AimRotateState>({ sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle });
+}
+

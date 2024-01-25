@@ -24,8 +24,8 @@ class ArmedIdleState
     : public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          //Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          //Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,

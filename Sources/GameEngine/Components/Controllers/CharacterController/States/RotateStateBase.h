@@ -29,6 +29,7 @@ public:
     void update(const RotateRightEvent&);
     void update(const RotateTargetEvent&);
     void update(const WeaponChangeEndEvent&);
+    void update(const AimStartEvent&);
 
     void setRotateLeftAnim();
     void setRotateRightAnim();
