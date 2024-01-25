@@ -1484,14 +1484,23 @@ TEST_F(CharacterControllerTests, ArmeWalkBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedWalkSprintAndEquipWeapon)
+TEST_F(CharacterControllerTests, DisarmedWalkAndEquipWeapon)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
 
     expectState<DisarmedIdleState>();
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<WalkForwardEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.backward});
+    tiggerAndExpect<WalkForwardEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.forward});
+
+    tiggerAndExpect<WeaponStateEvent, ArmedWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+
+    tiggerAndExpect<WeaponStateEvent, DisarmedWalkState>(
+        {sut_.animationClipsNames_.disarmed.walk.forward},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, ArmdIdleToDrawStateAndBackToIdle)
