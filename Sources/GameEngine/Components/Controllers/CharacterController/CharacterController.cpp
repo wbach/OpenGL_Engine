@@ -224,6 +224,7 @@ void CharacterController::Init()
             AimRotateState(*fsmContext),
             RecoilState(*fsmContext),
             DrawArrowState(*fsmContext),
+            DrawArrowRotateState(*fsmContext),
             DeathState(*fsmContext));
         // clang-format on
 
