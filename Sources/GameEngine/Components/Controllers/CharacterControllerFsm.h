@@ -20,6 +20,9 @@
 #include "DisarmedWalkState.h"
 #include "JumpState.h"
 #include "MoveJumpState.h"
+#include "AimState.h"
+#include "RecoilState.h"
+#include "DrawArrowState.h"
 
 namespace GameEngine
 {
@@ -47,6 +50,9 @@ using CharacterControllerFsm =
                             ArmedSprintAndRotateState,
                             JumpState,
                             MoveJumpState,
+                            AimState,
+                            RecoilState,
+                            DrawArrowState,
                             DeathState
                             >;
 }

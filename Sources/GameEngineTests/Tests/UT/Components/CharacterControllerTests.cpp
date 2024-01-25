@@ -68,6 +68,9 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         clips.disarmed.rotateRight   = "DRR";
         clips.armed.rotateLeft       = "ARL";
         clips.armed.rotateRight      = "ARR";
+        clips.drawArrow              = "drawArrow";
+        clips.recoilArrow            = "recoilArrow";
+        clips.aimIdle                = "aimIdle";
 
         addDummyClip(clips.equip);
         addDummyClip(clips.disarm);
@@ -87,6 +90,9 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         addDummyClip(clips.disarmed.rotateRight);
         addDummyClip(clips.armed.rotateLeft);
         addDummyClip(clips.armed.rotateRight);
+        addDummyClip(clips.drawArrow);
+        addDummyClip(clips.recoilArrow);
+        addDummyClip(clips.aimIdle);
 
         sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
         sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
@@ -1121,7 +1127,8 @@ TEST_F(CharacterControllerTests, DisarmeRunAndRotateBackwardIgnoreSprintEvent)
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RotateLeftEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateLeft});
     tiggerAndExpect<RunBackwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
-    tiggerAndExpect<SprintStateChangeEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedRunAndRotateState>(
+        {sut_.animationClipsNames_.disarmed.run.backward});
     tiggerAndExpect<EndRotationEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.backward});
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
@@ -1138,7 +1145,8 @@ TEST_F(CharacterControllerTests, DisarmedWalkAndRotateBackwardIgnoreSprintEvent)
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<RotateLeftEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateLeft});
     tiggerAndExpect<WalkBackwardEvent, DisarmedWalkAndRotateState>({sut_.animationClipsNames_.disarmed.walk.backward});
-    tiggerAndExpect<SprintStateChangeEvent, DisarmedWalkAndRotateState>({sut_.animationClipsNames_.disarmed.walk.backward});
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedWalkAndRotateState>(
+        {sut_.animationClipsNames_.disarmed.walk.backward});
     tiggerAndExpect<EndRotationEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
@@ -1474,4 +1482,43 @@ TEST_F(CharacterControllerTests, ArmeWalkBackwardIgnoreSprintEvent)
     tiggerAndExpect<WalkBackwardEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.backward});
     tiggerAndExpect<SprintStartEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmedWalkSprintAndEquipWeapon)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    tiggerAndExpect<WalkForwardEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.backward});
+}
+
+TEST_F(CharacterControllerTests, ArmdIdleToDrawStateAndBackToIdle)
+{
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    tiggerAndExpect<WeaponStateEvent, ArmedIdleState>(
+        {sut_.animationClipsNames_.armed.idle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+
+    tiggerAndExpect<DrawArrowEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
+    tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
+}
+
+
+TEST_F(CharacterControllerTests, ArmdIdleToAimStateAndBackToIdle)
+{
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    tiggerAndExpect<WeaponStateEvent, ArmedIdleState>(
+        {sut_.animationClipsNames_.armed.idle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+
+    tiggerAndExpect<DrawArrowEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<AimState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }

@@ -40,6 +40,9 @@ struct AnimationClipsNames
     std::string dogeJump;
     std::string equip;
     std::string disarm;
+    std::string drawArrow;
+    std::string recoilArrow;
+    std::string aimIdle;
 };
 }  // namespace Components
 }  // namespace GameEngine

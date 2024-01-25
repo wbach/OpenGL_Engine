@@ -13,6 +13,11 @@ IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimNam
 {
 }
 
+void IdleStateBase::onEnter(const AimStopEvent &)
+{
+    setIdleAnim();
+}
+
 void IdleStateBase::update(const AttackEvent &)
 {
     context_.multiAnimations = true;

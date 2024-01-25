@@ -38,6 +38,10 @@ const std::string CSTR_JUMP_ANIMATION            = "jump";
 const std::string CSTR_IDLE_MAIN                 = "mainIdle";
 const std::string CSTR_HURT_ANIMATION            = "hurt";
 const std::string CSTR_DEATH_ANIMATION           = "death";
+const std::string CSTR_DRAW_ARROW_ANIMATION   = "drawArrow";
+const std::string CSTR_RECOIL_ARROW_ANIMATION = "recoilArrow";
+const std::string CSTR_AIM_IDLE_ANIMATION     = "aimIdle";
+
 }  // namespace
 
 void write(TreeNode& node, const GameEngine::Components::MovmentClipNames& names)
@@ -78,6 +82,9 @@ void write(TreeNode& node, const GameEngine::Components::AnimationClipsNames& na
     ::write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
     ::write(node.addChild(CSTR_ANIMATION_EQUIP), names.equip);
     ::write(node.addChild(CSTR_ANIMATION_DISARM), names.disarm);
+    ::write(node.addChild(CSTR_DRAW_ARROW_ANIMATION), names.drawArrow);
+    ::write(node.addChild(CSTR_RECOIL_ARROW_ANIMATION), names.recoilArrow);
+    ::write(node.addChild(CSTR_AIM_IDLE_ANIMATION), names.aimIdle);
 }
 
 void Read(const TreeNode& node, GameEngine::Components::MovmentClipNames& result)
@@ -121,6 +128,9 @@ void Read(const TreeNode& node, GameEngine::Components::AnimationClipsNames& res
     Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
     Read(node.getChild(CSTR_ANIMATION_EQUIP), result.equip);
     Read(node.getChild(CSTR_ANIMATION_DISARM), result.disarm);
+    Read(node.getChild(CSTR_DRAW_ARROW_ANIMATION), result.drawArrow);
+    Read(node.getChild(CSTR_RECOIL_ARROW_ANIMATION), result.recoilArrow);
+    Read(node.getChild(CSTR_AIM_IDLE_ANIMATION), result.aimIdle);
 }
 
 namespace GameEngine
@@ -210,6 +220,9 @@ void CharacterController::Init()
             ArmedSprintAndRotateState(*fsmContext),
             JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
+            AimState(*fsmContext),
+            RecoilState(*fsmContext),
+            DrawArrowState(*fsmContext),
             DeathState(*fsmContext));
         // clang-format on
 

@@ -133,6 +133,7 @@ void PlayerInputController::SubscribeForPushActions()
         auto fsm = characterController_->fsm();
         if (fsm)
         {
+            fsm->handle(DrawArrowEvent{});
             // fsm->handle(EndAttackEvent{});
         }
     });
@@ -190,6 +191,14 @@ void PlayerInputController::SubscribeForPopActions()
             {
                 fsm->handle(RotateLeftEvent{});
             }
+        }
+    });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(KeyCodes::RMOUSE, [&]() {
+        auto fsm = characterController_->fsm();
+        if (fsm)
+        {
+            fsm->handle(AimStopEvent{});
         }
     });
 }

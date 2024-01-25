@@ -80,4 +80,13 @@ struct WeaponStateEvent
 struct WeaponChangeEndEvent
 {
 };
+struct DrawArrowEvent
+{
+};
+struct AimStartEvent
+{
+};
+struct AimStopEvent
+{
+};
 }  // namespace GameEngine

@@ -27,6 +27,7 @@ class IdleStateBase : public StateBase
 public:
     IdleStateBase(FsmContext&, const std::string&);
 
+    void onEnter(const AimStopEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndRotationEvent&);
