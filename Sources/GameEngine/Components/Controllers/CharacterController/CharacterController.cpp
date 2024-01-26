@@ -223,6 +223,7 @@ void CharacterController::Init()
             AimState(*fsmContext),
             AimRotateState(*fsmContext),
             RecoilState(*fsmContext),
+            RecoilRotateState(*fsmContext),
             DrawArrowState(*fsmContext),
             DrawArrowRotateState(*fsmContext),
             DeathState(*fsmContext));

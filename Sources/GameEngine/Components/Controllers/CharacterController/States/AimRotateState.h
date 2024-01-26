@@ -11,7 +11,7 @@ namespace GameEngine
 namespace Components
 {
 class AimState;
-class RecoilState;
+class RecoilRotateState;
 class ArmedRotateState;
 class DisarmedRotateState;
 
@@ -22,7 +22,7 @@ class AimRotateState : public AimStateBase,
                            Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
                            Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
                            Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-                           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
+                           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
                            Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimState>>,
                            Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
 {

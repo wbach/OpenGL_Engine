@@ -4,7 +4,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/MT/GUI/GuiTextTe
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/TerrainHeightGetterTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/TerrainTransitionTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/CharacterControllerTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RecoilStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DrawArrowStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RecoilRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/AimRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DrawArrowRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp

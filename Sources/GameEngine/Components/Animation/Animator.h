@@ -46,6 +46,7 @@ public:
     void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
                          std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
+    void StopAnimation(std::optional<std::string> = std::nullopt);
     GraphicsApi::ID getPerPoseBufferId() const;
     void setPlayOnceForAnimationClip(const std::string&);
 

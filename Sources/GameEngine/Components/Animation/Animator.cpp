@@ -59,6 +59,10 @@ Animator& Animator::SetAnimation(const std::string& name)
     }
     return *this;
 }
+void Animator::StopAnimation(std::optional<std::string> maybeJoingGroupName)
+{
+    machine_.handle(StopAnimationEvent{maybeJoingGroupName});
+}
 GraphicsApi::ID Animator::getPerPoseBufferId() const
 {
     return jointData_.buffer ? jointData_.buffer->GetGraphicsObjectId() : std::nullopt;
@@ -300,9 +304,10 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
-    //DEBUG_LOG(jointData_.rootJoint.children[0].name);
+    // DEBUG_LOG(jointData_.rootJoint.children[0].name);
     applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
-    //jointData_.rootJoint.children[0].animatedTransform = glm::mat3(jointData_.rootJoint.children[0].animatedTransform);
+    // jointData_.rootJoint.children[0].animatedTransform =
+    // glm::mat3(jointData_.rootJoint.children[0].animatedTransform);
     updateShaderBuffers();
 }
 void Animator::createShaderJointBuffers()
@@ -349,8 +354,7 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
 
