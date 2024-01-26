@@ -41,11 +41,22 @@ TEST_F(CharacterControllerTests, Aim_WeaponStateEvent)
 TEST_F(CharacterControllerTests, Aim_AttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AttackEvent, RecoilState>(
-        {sut_.animationClipsNames_.recoilArrow});
+    tiggerAndExpect<AttackEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, Aim_AimStopEvent)
 {
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
+}
+TEST_F(CharacterControllerTests, Aim_RunForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunForwardEvent, AimRunState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, Aim_RunBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunBackwardEvent, AimRunState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.backward});
 }

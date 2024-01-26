@@ -14,17 +14,24 @@ class AimState;
 class RecoilRotateState;
 class ArmedRotateState;
 class DisarmedRotateState;
+class AimRunAndRotateState;
+class AimWalkAndRotateState;
 
-class AimRotateState : public AimStateBase,
-                       public RotateStateBase,
-                       public Utils::StateMachine::Will<
-                           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
-                           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
-                           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-                           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
-                           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimState>>,
-                           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
+class AimRotateState
+    : public AimStateBase,
+      public RotateStateBase,
+      public Utils::StateMachine::Will<
+          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimState>>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
 {
 public:
     AimRotateState(FsmContext&);

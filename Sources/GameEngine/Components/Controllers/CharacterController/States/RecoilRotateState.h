@@ -15,6 +15,8 @@ class RecoilState;
 class ArmedRotateState;
 class DisarmedRotateState;
 class DrawArrowRotateState;
+class RecoilRunAndRotateState;
+class RecoilWalkAndRotateState;
 
 class RecoilRotateState
     : public RecoilStateBase,
@@ -23,6 +25,10 @@ class RecoilRotateState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
+          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RecoilRunAndRotateState>>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RecoilRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,

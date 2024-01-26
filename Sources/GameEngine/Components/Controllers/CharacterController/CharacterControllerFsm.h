@@ -26,6 +26,18 @@
 #include "States/AimRotateState.h"
 #include "States/DrawArrowRotateState.h"
 #include "States/RecoilRotateState.h"
+#include "States/AimRunState.h"
+#include "States/AimRunAndRotateState.h"
+#include "States/AimWalkState.h"
+#include "States/AimWalkAndRotateState.h"
+#include "States/DrawArrowRunState.h"
+#include "States/DrawArrowRunAndRotateState.h"
+#include "States/DrawArrowWalkState.h"
+#include "States/DrawArrowWalkAndRotateState.h"
+#include "States/RecoilRunState.h"
+#include "States/RecoilRunAndRotateState.h"
+#include "States/RecoilWalkState.h"
+#include "States/RecoilWalkAndRotateState.h"
 
 namespace GameEngine
 {
@@ -55,10 +67,22 @@ using CharacterControllerFsm =
                             MoveJumpState,
                             AimState,
                             AimRotateState,
+                            AimRunState,
+                            AimRunAndRotateState,
+                            AimWalkState,
+                            AimWalkAndRotateState,
                             RecoilState,
                             RecoilRotateState,
+                            RecoilRunState,
+                            RecoilRunAndRotateState,
+                            RecoilWalkState,
+                            RecoilWalkAndRotateState,
                             DrawArrowState,
                             DrawArrowRotateState,
+                            DrawArrowRunState,
+                            DrawArrowRunAndRotateState,
+                            DrawArrowWalkState,
+                            DrawArrowWalkAndRotateState,
                             DeathState
                             >;
 }

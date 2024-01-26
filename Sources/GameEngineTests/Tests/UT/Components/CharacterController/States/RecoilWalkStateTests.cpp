@@ -17,40 +17,38 @@ void prepareState(CharacterControllerTests& test)
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
     test.expectState<AimState>();
     test.tiggerAndExpect<AttackEvent, RecoilState>({test.sut_.animationClipsNames_.recoilArrow});
+    test.tiggerAndExpect<WalkForwardEvent, RecoilWalkState>(
+        {test.sut_.animationClipsNames_.recoilArrow, test.sut_.animationClipsNames_.armed.walk.forward});
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, Recoil_RotateLeft)
+TEST_F(CharacterControllerTests, RecoilWalk_RotateLeft)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-    tiggerAndExpect<RotateLeftEvent, RecoilRotateState>(
-        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateLeft});
+    tiggerAndExpect<RotateLeftEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, Recoil_RotateRight)
+TEST_F(CharacterControllerTests, RecoilWalk_RotateRight)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-    tiggerAndExpect<RotateRightEvent, RecoilRotateState>(
-        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateRight});
+    tiggerAndExpect<RotateRightEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, Recoil_WeaponStateEvent)
+TEST_F(CharacterControllerTests, RecoilWalk_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.forward});
 }
-TEST_F(CharacterControllerTests, Recoil_AttackEvent)
+TEST_F(CharacterControllerTests, RecoilWalk_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AttackEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
+    tiggerAndExpect<DrawArrowEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, Recoil_AimStopEvent)
+TEST_F(CharacterControllerTests, RecoilWalk_AimStopEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
-}
-TEST_F(CharacterControllerTests, Recoil_DrawArrowEvent)
-{
-    prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
+    tiggerAndExpect<AimStopEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.forward});
 }
