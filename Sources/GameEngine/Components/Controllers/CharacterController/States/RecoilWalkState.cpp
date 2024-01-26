@@ -16,5 +16,14 @@ void RecoilWalkState::update(float dt)
 {
     MoveStateBase::update(dt);
 }
+void RecoilWalkState::onLeave(const AimStopEvent& e)
+{
+    RecoilStateBase::onLeave(e);
+}
+
+void RecoilWalkState::onLeave(const WeaponStateEvent& e)
+{
+    RecoilStateBase::onLeave(e);
+}
 }  // namespace Components
 }  // namespace GameEngine

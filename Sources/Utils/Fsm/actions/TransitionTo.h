@@ -28,9 +28,9 @@ public:
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
-        enter(newState, prevState, event);
-        enter(newState, event);
         enter(newState);
+        enter(newState, event);
+        enter(newState, prevState, event);
     }
 
 private:

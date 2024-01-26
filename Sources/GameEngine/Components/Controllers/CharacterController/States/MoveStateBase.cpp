@@ -70,10 +70,6 @@ void MoveStateBase::onEnter(const WalkChangeStateEvent &)
     }
 }
 
-void MoveStateBase::onEnter(const AimStopEvent &)
-{
-    context_.multiAnimations = false;
-}
 void MoveStateBase::onEnter(const MoveLeftEvent &)
 {
     context_.moveDirection                    = vec3(1.f, 0.f, 0.f);

@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace Components
 {
-AimWalkState::AimWalkState(FsmContext& context)
+AimWalkState::AimWalkState(FsmContext &context)
     : AimStateBase(context)
     , MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
@@ -14,21 +14,21 @@ AimWalkState::AimWalkState(FsmContext& context)
 {
 }
 
-void AimWalkState::onEnter(const WalkForwardEvent & event)
+void AimWalkState::onEnter(const WalkForwardEvent &event)
 {
     context_.multiAnimations = true;
     AimStateBase::setAnim();
     MoveStateBase::onEnter(event);
 }
 
-void AimWalkState::onEnter(const WalkBackwardEvent & event)
+void AimWalkState::onEnter(const WalkBackwardEvent &event)
 {
     context_.multiAnimations = true;
     AimStateBase::setAnim();
     MoveStateBase::onEnter(event);
 }
 
-void AimWalkState::onEnter(const WalkChangeStateEvent & event)
+void AimWalkState::onEnter(const WalkChangeStateEvent &event)
 {
     context_.multiAnimations = true;
     AimStateBase::setAnim();
@@ -39,10 +39,14 @@ void AimWalkState::update(float dt)
     MoveStateBase::update(dt);
 }
 
-void AimWalkState::onLeave(const AimStopEvent &)
+void AimWalkState::onLeave(const AimStopEvent &e)
 {
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.upperBodyGroupName);
+    AimStateBase::onLeave(e);
+}
+
+void AimWalkState::onLeave(const WeaponStateEvent &e)
+{
+    AimStateBase::onLeave(e);
 }
 }  // namespace Components
 }  // namespace GameEngine

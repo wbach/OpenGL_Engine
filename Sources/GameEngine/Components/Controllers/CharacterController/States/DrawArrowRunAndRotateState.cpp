@@ -19,5 +19,15 @@ void DrawArrowRunAndRotateState::update(float dt)
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
 }
+
+void DrawArrowRunAndRotateState::onLeave(const AimStopEvent& e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
+
+void DrawArrowRunAndRotateState::onLeave(const WeaponStateEvent& e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
 }  // namespace Components
 }  // namespace GameEngine

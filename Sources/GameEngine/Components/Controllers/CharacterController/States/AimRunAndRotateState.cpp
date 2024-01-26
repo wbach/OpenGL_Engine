@@ -19,5 +19,15 @@ void AimRunAndRotateState::update(float dt)
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
 }
+
+void AimRunAndRotateState::onLeave(const AimStopEvent& event)
+{
+    AimStateBase::onLeave(event);
+}
+
+void AimRunAndRotateState::onLeave(const WeaponStateEvent& event)
+{
+    AimStateBase::onLeave(event);
+}
 }  // namespace Components
 }  // namespace GameEngine

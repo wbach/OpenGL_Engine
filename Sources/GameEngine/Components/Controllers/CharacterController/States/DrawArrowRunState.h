@@ -35,7 +35,18 @@ class DrawArrowRunState
 {
 public:
     DrawArrowRunState(FsmContext&);
+
+    void onEnter();
+    void onEnter(const DrawArrowEvent&);
+    void onEnter(const RunForwardEvent&);
+
+    void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
+
     void update(float);
+
+protected:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

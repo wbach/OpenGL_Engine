@@ -40,6 +40,7 @@ public:
     void update(float);
 
     void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
 
 private:
     FsmContext& context_;

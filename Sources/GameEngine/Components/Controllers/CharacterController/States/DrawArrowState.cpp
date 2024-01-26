@@ -12,5 +12,14 @@ DrawArrowState::DrawArrowState(FsmContext &context)
 {
     context.animator.setPlayOnceForAnimationClip(context.animClipNames.drawArrow);
 }
+void DrawArrowState::onLeave(const AimStopEvent &e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
+
+void DrawArrowState::onLeave(const WeaponStateEvent &e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
 }  // namespace Components
 }  // namespace GameEngine

@@ -27,7 +27,6 @@ public:
     void onEnter(const MoveRightEvent &);
     void onEnter(const EndJumpEvent &);
     void onEnter(const WalkChangeStateEvent&);
-    void onEnter(const AimStopEvent&);
 
     void update(const WeaponChangeEndEvent &);
     void update(const AttackEvent &);

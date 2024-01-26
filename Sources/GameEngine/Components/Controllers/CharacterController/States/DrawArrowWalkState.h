@@ -36,6 +36,9 @@ class DrawArrowWalkState
 public:
     DrawArrowWalkState(FsmContext&);
     void update(float);
+
+    void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

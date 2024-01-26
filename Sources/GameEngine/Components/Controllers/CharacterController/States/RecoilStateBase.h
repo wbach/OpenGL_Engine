@@ -20,8 +20,12 @@ public:
     void onEnter(const AttackEvent&);
     void update(float);
 
+    void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
+
 protected:
     void setAnim();
+    void stopAnim();
 
 protected:
     FsmContext& context_;

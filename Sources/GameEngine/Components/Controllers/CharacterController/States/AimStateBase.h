@@ -16,8 +16,12 @@ public:
     void onEnter(const EndRotationEvent&);
     void update(float);
 
+    void onLeave(const WeaponStateEvent&);
+    void onLeave(const AimStopEvent&);
+
 protected:
     void setAnim();
+    void stopAnim();
 
 protected:
     FsmContext& context_;

@@ -7,12 +7,12 @@ namespace GameEngine
 {
 namespace Components
 {
-DrawArrowStateBase::DrawArrowStateBase(FsmContext& context)
+DrawArrowStateBase::DrawArrowStateBase(FsmContext &context)
     : context_{context}
 {
 }
 
-void DrawArrowStateBase::onEnter(const DrawArrowEvent&)
+void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
 {
     DEBUG_LOG("On enter DrawArrowEvent clip: " + context_.animClipNames.drawArrow);
 
@@ -32,7 +32,7 @@ void DrawArrowStateBase::onEnter(const DrawArrowEvent&)
         context_.animClipNames.drawArrow, [&]() { context_.characterController.fsm()->handle(AimStartEvent{}); });
 }
 
-void DrawArrowStateBase::onEnter(const EndRotationEvent&)
+void DrawArrowStateBase::onEnter(const EndRotationEvent &)
 {
     context_.multiAnimations = false;
     DEBUG_LOG("onEnter EndRotationEvent clip : " + context_.animClipNames.drawArrow);
@@ -46,8 +46,24 @@ void DrawArrowStateBase::setAnim()
         context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
 }
 
+void DrawArrowStateBase::stopAnim()
+{
+    context_.multiAnimations = false;
+    context_.animator.StopAnimation(context_.upperBodyGroupName);
+}
+
 void DrawArrowStateBase::update(float)
 {
+}
+
+void DrawArrowStateBase::onLeave(const AimStopEvent &)
+{
+    stopAnim();
+}
+
+void DrawArrowStateBase::onLeave(const WeaponStateEvent &)
+{
+    stopAnim();
 }
 
 }  // namespace Components

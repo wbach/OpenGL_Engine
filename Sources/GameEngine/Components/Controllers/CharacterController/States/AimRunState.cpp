@@ -31,9 +31,14 @@ void AimRunState::onEnter(const RunForwardEvent& event)
     MoveStateBase::onEnter(event);
 }
 
-void AimRunState::onLeave(const AimStopEvent&)
+void AimRunState::onLeave(const WeaponStateEvent& event)
 {
-    context_.multiAnimations = false;
+    AimStateBase::onLeave(event);
+}
+
+void AimRunState::onLeave(const AimStopEvent& event)
+{
+    AimStateBase::onLeave(event);
 }
 void AimRunState::update(float dt)
 {

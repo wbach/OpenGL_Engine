@@ -7,20 +7,20 @@ namespace GameEngine
 {
 namespace Components
 {
-RecoilStateBase::RecoilStateBase(FsmContext& contex)
+RecoilStateBase::RecoilStateBase(FsmContext &contex)
     : context_{contex}
     , animName_{context_.animClipNames.recoilArrow}
 {
     context_.animator.setPlayOnceForAnimationClip(animName_);
 }
 
-void RecoilStateBase::onEnter(const EndRotationEvent&)
+void RecoilStateBase::onEnter(const EndRotationEvent &)
 {
     context_.multiAnimations = false;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
-void RecoilStateBase::onEnter(const AttackEvent&)
+void RecoilStateBase::onEnter(const AttackEvent &)
 {
     DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
 
@@ -36,6 +36,22 @@ void RecoilStateBase::onEnter(const AttackEvent&)
 }
 void RecoilStateBase::update(float)
 {
+}
+
+void RecoilStateBase::stopAnim()
+{
+    context_.multiAnimations = false;
+    context_.animator.StopAnimation(context_.upperBodyGroupName);
+}
+
+void RecoilStateBase::onLeave(const AimStopEvent &)
+{
+    stopAnim();
+}
+
+void RecoilStateBase::onLeave(const WeaponStateEvent &)
+{
+    stopAnim();
 }
 void RecoilStateBase::setAnim()
 {

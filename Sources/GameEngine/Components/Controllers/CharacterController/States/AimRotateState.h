@@ -43,7 +43,8 @@ public:
     void update(const RotateRightEvent&);
     void update(float);
 
-    void leave();
+    void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
 
 private:
     FsmContext& context_;
