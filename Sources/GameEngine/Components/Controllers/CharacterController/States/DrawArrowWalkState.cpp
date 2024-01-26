@@ -12,8 +12,9 @@ DrawArrowWalkState::DrawArrowWalkState(FsmContext& context)
                     context.animClipNames.armed.walk.backward}
 {
 }
-void DrawArrowWalkState::update(float)
+void DrawArrowWalkState::update(float dt)
 {
+    MoveStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine

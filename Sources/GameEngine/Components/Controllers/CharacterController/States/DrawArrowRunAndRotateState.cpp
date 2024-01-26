@@ -14,8 +14,10 @@ DrawArrowRunAndRotateState::DrawArrowRunAndRotateState(FsmContext& context)
                       context.animClipNames.armed.rotateRight)
 {
 }
-void DrawArrowRunAndRotateState::update(float)
+void DrawArrowRunAndRotateState::update(float dt)
 {
+    MoveStateBase::update(dt);
+    RotateStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine

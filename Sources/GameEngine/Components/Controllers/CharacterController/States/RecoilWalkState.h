@@ -34,7 +34,9 @@ class RecoilWalkState
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
 {
 public:
-    RecoilWalkState(FsmContext&); 
+    RecoilWalkState(FsmContext&);
+    using RecoilStateBase::onEnter;
+    using MoveStateBase::onEnter;
     void update(float);
 };
 }  // namespace Components

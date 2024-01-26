@@ -39,6 +39,8 @@ public:
 
     void update(float);
 
+    void onLeave(const AimStopEvent&);
+
 private:
     FsmContext& context_;
 };

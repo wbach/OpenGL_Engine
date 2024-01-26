@@ -69,6 +69,11 @@ void MoveStateBase::onEnter(const WalkChangeStateEvent &)
         context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
     }
 }
+
+void MoveStateBase::onEnter(const AimStopEvent &)
+{
+    context_.multiAnimations = false;
+}
 void MoveStateBase::onEnter(const MoveLeftEvent &)
 {
     context_.moveDirection                    = vec3(1.f, 0.f, 0.f);

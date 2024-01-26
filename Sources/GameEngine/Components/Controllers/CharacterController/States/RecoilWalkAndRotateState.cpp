@@ -14,8 +14,10 @@ RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext& context)
                       context.animClipNames.armed.rotateRight)
 {
 }
-void RecoilWalkAndRotateState::update(float)
+void RecoilWalkAndRotateState::update(float dt)
 {
+    MoveStateBase::update(dt);
+    RotateStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine

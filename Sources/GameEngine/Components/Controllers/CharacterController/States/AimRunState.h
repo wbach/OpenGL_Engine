@@ -32,7 +32,17 @@ class AimRunState
 {
 public:
     AimRunState(FsmContext&);
+
+    void onEnter();
+    void onEnter(const AimStartEvent&);
+    void onEnter(const RunForwardEvent&);
+
+    void onLeave(const AimStopEvent&);
+
     void update(float);
+
+protected:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

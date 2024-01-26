@@ -34,8 +34,15 @@ void AimWalkState::onEnter(const WalkChangeStateEvent & event)
     AimStateBase::setAnim();
     MoveStateBase::onEnter(event);
 }
-void AimWalkState::update(float)
+void AimWalkState::update(float dt)
 {
+    MoveStateBase::update(dt);
+}
+
+void AimWalkState::onLeave(const AimStopEvent &)
+{
+    context_.multiAnimations = false;
+    context_.animator.StopAnimation(context_.upperBodyGroupName);
 }
 }  // namespace Components
 }  // namespace GameEngine

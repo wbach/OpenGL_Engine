@@ -4,7 +4,9 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
+    EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    test.expectForwardVelocity(DEFAULT_WALK_SPEED);
 
     test.expectState<DisarmedIdleState>();
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.idle});

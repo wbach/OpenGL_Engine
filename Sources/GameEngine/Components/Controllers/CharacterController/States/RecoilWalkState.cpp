@@ -12,8 +12,9 @@ RecoilWalkState::RecoilWalkState(FsmContext& context)
                     context.animClipNames.armed.walk.backward}
 {
 }
-void RecoilWalkState::update(float)
+void RecoilWalkState::update(float dt)
 {
+    MoveStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine
