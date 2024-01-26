@@ -16,7 +16,7 @@ public:
     void onEnter(const EndRotationEvent&);
     void update(float);
 
-private:
+protected:
     void setAnim();
 
 protected:

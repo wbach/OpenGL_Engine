@@ -32,7 +32,15 @@ class AimWalkState
 {
 public:
     AimWalkState(FsmContext&);
+    using AimStateBase::onEnter;
+    void onEnter(const WalkForwardEvent&);
+    void onEnter(const WalkBackwardEvent&);
+    void onEnter(const WalkChangeStateEvent&);
+
     void update(float);
+
+private:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine
