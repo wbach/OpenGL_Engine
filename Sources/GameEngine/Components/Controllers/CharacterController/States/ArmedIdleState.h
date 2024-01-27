@@ -3,7 +3,6 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
@@ -24,8 +23,9 @@ class ArmedIdleState
     : public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          //Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          //Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
@@ -47,6 +47,14 @@ public:
     using IdleStateBase::update;
 
     void onEnter(const WeaponStateEvent&);
+    void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
+    void onEnter(const DrawArrowEvent&);
+
+    void update(const AimStopEvent&);
+    void onLeave();
+
+private:
+    std::optional<IdType> drawArrowEndSub_;
 };
 }  // namespace Components
 }  // namespace GameEngine

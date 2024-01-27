@@ -14,6 +14,7 @@ class MoveJumpState;
 class DeathState;
 class ArmedRunState;
 class ArmedWalkState;
+class DrawArrowWalkState;
 class DisarmedRunState;
 class DisarmedIdleState;
 class DisarmedSprintState;
@@ -23,8 +24,8 @@ class DisarmedWalkState
     : public MoveStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          //Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          //Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
@@ -40,6 +41,7 @@ class DisarmedWalkState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:

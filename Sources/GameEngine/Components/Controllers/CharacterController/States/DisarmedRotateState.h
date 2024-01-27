@@ -14,6 +14,7 @@ class DisarmedIdleState;
 class DisarmedRunAndRotateState;
 class DisarmedWalkAndRotateState;
 class DisarmedSprintAndRotateState;
+class DrawArrowRotateState;
 class JumpState;
 class DeathState;
 class ArmedRotateState;
@@ -36,6 +37,7 @@ class DisarmedRotateState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<DisarmedSprintAndRotateState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
