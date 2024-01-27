@@ -34,9 +34,17 @@ void AimStateBase::stopAnim()
 
 void AimStateBase::onEnter(const EndRotationEvent &)
 {
-    context_.multiAnimations = false;
-    DEBUG_LOG("onEnter EndRotationEvent clip : " + context_.animClipNames.aimIdle);
-    setAnim();
+    stopMultiAnimation();
+}
+
+void AimStateBase::onEnter(const EndForwardMoveEvent &)
+{
+    stopMultiAnimation();
+}
+
+void AimStateBase::onEnter(const EndBackwardMoveEvent &)
+{
+    stopMultiAnimation();
 }
 
 void AimStateBase::onLeave(const AimStopEvent &)
@@ -50,6 +58,10 @@ void AimStateBase::onLeave(const WeaponStateEvent &)
     DEBUG_LOG("onLeave(WeaponStateEvent)");
     stopAnim();
 }
-
+void AimStateBase::stopMultiAnimation()
+{
+    context_.multiAnimations = false;
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
 }  // namespace Components
 }  // namespace GameEngine

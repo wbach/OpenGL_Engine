@@ -18,6 +18,8 @@ public:
     DrawArrowStateBase(FsmContext&);
     void onEnter(const DrawArrowEvent&);
     void onEnter(const EndRotationEvent&);
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
     void update(float);
 
     void onLeave(const AimStopEvent&);
@@ -25,6 +27,7 @@ public:
 
 private:
     void setAnim();
+    void stopMultiAnimation();
     void stopAnim();
 
 private:

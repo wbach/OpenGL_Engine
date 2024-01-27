@@ -18,6 +18,8 @@ public:
     RecoilStateBase(FsmContext&);
     void onEnter(const EndRotationEvent&);
     void onEnter(const AttackEvent&);
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
     void update(float);
 
     void onLeave(const AimStopEvent&);
@@ -25,6 +27,7 @@ public:
 
 protected:
     void setAnim();
+    void stopMultiAnimation();
     void stopAnim();
 
 protected:

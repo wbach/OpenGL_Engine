@@ -16,10 +16,18 @@ RecoilStateBase::RecoilStateBase(FsmContext &contex)
 
 void RecoilStateBase::onEnter(const EndRotationEvent &)
 {
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    stopMultiAnimation();
 }
 
+void RecoilStateBase::onEnter(const EndForwardMoveEvent &)
+{
+    stopMultiAnimation();
+}
+
+void RecoilStateBase::onEnter(const EndBackwardMoveEvent &)
+{
+    stopMultiAnimation();
+}
 void RecoilStateBase::onEnter(const AttackEvent &)
 {
     DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
@@ -58,6 +66,12 @@ void RecoilStateBase::setAnim()
     context_.animator.ChangeAnimation(
         animName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
         context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
+}
+
+void RecoilStateBase::stopMultiAnimation()
+{
+    context_.multiAnimations = false;
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 }  // namespace Components
 }  // namespace GameEngine

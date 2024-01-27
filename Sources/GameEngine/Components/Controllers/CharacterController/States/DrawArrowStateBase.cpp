@@ -35,9 +35,17 @@ void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
 
 void DrawArrowStateBase::onEnter(const EndRotationEvent &)
 {
-    context_.multiAnimations = false;
-    DEBUG_LOG("onEnter EndRotationEvent clip : " + context_.animClipNames.drawArrow);
-    setAnim();
+    stopMultiAnimation();
+}
+
+void DrawArrowStateBase::onEnter(const EndForwardMoveEvent &)
+{
+    stopMultiAnimation();
+}
+
+void DrawArrowStateBase::onEnter(const EndBackwardMoveEvent &)
+{
+    stopMultiAnimation();
 }
 
 void DrawArrowStateBase::setAnim()
@@ -66,6 +74,10 @@ void DrawArrowStateBase::onLeave(const WeaponStateEvent &)
 {
     stopAnim();
 }
-
+void DrawArrowStateBase::stopMultiAnimation()
+{
+    context_.multiAnimations = false;
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
 }  // namespace Components
 }  // namespace GameEngine
