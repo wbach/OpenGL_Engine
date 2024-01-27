@@ -10,7 +10,6 @@ namespace Components
 DrawArrowState::DrawArrowState(FsmContext &context)
     : DrawArrowStateBase{context}
 {
-    context.animator.setPlayOnceForAnimationClip(context.animClipNames.drawArrow);
 }
 void DrawArrowState::onLeave(const AimStopEvent &e)
 {

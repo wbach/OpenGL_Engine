@@ -10,6 +10,7 @@ namespace Components
 DrawArrowStateBase::DrawArrowStateBase(FsmContext &context)
     : context_{context}
 {
+    context.animator.setPlayOnceForAnimationClip(context.animClipNames.drawArrow);
 }
 
 void DrawArrowStateBase::onEnter(const DrawArrowEvent &)

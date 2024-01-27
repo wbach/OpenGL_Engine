@@ -12,8 +12,44 @@ RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext& context)
                     context.animClipNames.armed.walk.backward}
     , RotateStateBase(context, context.walkSpeed.leftRight, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
+    , context_{context}
 {
 }
+void RecoilWalkAndRotateState::onEnter()
+{
+    context_.multiAnimations = true;
+}
+
+void RecoilWalkAndRotateState::onEnter(const WalkChangeStateEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkAndRotateState::onEnter(const WalkBackwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkAndRotateState::onEnter(const WalkForwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkAndRotateState::onEnter(const AttackEvent& event)
+{
+    RecoilStateBase::onEnter(event);
+}
+
+void RecoilWalkAndRotateState::onEnter(const RotateRightEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void RecoilWalkAndRotateState::onEnter(const RotateLeftEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
 void RecoilWalkAndRotateState::update(float dt)
 {
     MoveStateBase::update(dt);

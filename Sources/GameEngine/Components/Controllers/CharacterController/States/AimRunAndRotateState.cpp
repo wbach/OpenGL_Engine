@@ -12,8 +12,39 @@ AimRunAndRotateState::AimRunAndRotateState(FsmContext& context)
                     context.animClipNames.armed.run.backward}
     , RotateStateBase(context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
+    , context_{context}
 {
 }
+void AimRunAndRotateState::onEnter()
+{
+    context_.multiAnimations = true;
+}
+
+void AimRunAndRotateState::onEnter(const AimStartEvent& event)
+{
+    AimStateBase::onEnter(event);
+}
+
+void AimRunAndRotateState::onEnter(const RunForwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void AimRunAndRotateState::onEnter(const RunBackwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void AimRunAndRotateState::onEnter(const RotateLeftEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void AimRunAndRotateState::onEnter(const RotateRightEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
 void AimRunAndRotateState::update(float dt)
 {
     MoveStateBase::update(dt);

@@ -39,6 +39,7 @@ public:
     void onEnter();
     void onEnter(const DrawArrowEvent&);
     void onEnter(const RunForwardEvent&);
+    void onEnter(const RunBackwardEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

@@ -39,6 +39,8 @@ public:
     void onEnter();
     void onEnter(const AttackEvent&);
     void onEnter(const RunForwardEvent&);
+    void onEnter(const RunBackwardEvent&);
+    //void onEnter(const EndRotationEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

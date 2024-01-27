@@ -36,10 +36,20 @@ class DrawArrowRunAndRotateState
 {
 public:
     DrawArrowRunAndRotateState(FsmContext&);
+    void onEnter();
+    void onEnter(const DrawArrowEvent&);
+    void onEnter(const RunForwardEvent&);
+    void onEnter(const RunBackwardEvent&);
+    void onEnter(const RotateLeftEvent&);
+    void onEnter(const RotateRightEvent&);
+
     void update(float);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+
+private:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

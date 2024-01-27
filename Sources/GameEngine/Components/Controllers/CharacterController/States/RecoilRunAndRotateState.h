@@ -37,10 +37,21 @@ class RecoilRunAndRotateState
 {
 public:
     RecoilRunAndRotateState(FsmContext&);
+
+    void onEnter();
+    void onEnter(const AttackEvent&);
+    void onEnter(const RunForwardEvent&);
+    void onEnter(const RunBackwardEvent&);
+    void onEnter(const RotateLeftEvent&);
+    void onEnter(const RotateRightEvent&);
+
     void update(float);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+
+protected:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

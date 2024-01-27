@@ -31,6 +31,11 @@ void AimRunState::onEnter(const RunForwardEvent& event)
     MoveStateBase::onEnter(event);
 }
 
+void AimRunState::onEnter(const RunBackwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
 void AimRunState::onLeave(const WeaponStateEvent& event)
 {
     AimStateBase::onLeave(event);

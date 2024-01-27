@@ -35,7 +35,22 @@ class AimWalkAndRotateState
 {
 public:
     AimWalkAndRotateState(FsmContext&);
+
+    void onEnter();
+    void onEnter(const AimStartEvent&);
+    void onEnter(const WalkForwardEvent&);
+    void onEnter(const WalkBackwardEvent&);
+    void onEnter(const WalkChangeStateEvent&);
+    void onEnter(const RotateLeftEvent&);
+    void onEnter(const RotateRightEvent&);
+
     void update(float);
+
+    void onLeave(const AimStopEvent&);
+    void onLeave(const WeaponStateEvent&);
+
+private:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -10,8 +10,34 @@ DrawArrowWalkState::DrawArrowWalkState(FsmContext &context)
     : DrawArrowStateBase(context)
     , MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
+    , context_{context}
 {
 }
+void DrawArrowWalkState::onEnter()
+{
+    context_.multiAnimations = true;
+}
+
+void DrawArrowWalkState::onEnter(const WalkChangeStateEvent & event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::onEnter(const WalkBackwardEvent & event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::onEnter(const WalkForwardEvent & event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::onEnter(const DrawArrowEvent & event)
+{
+    DrawArrowStateBase::onEnter(event);
+}
+
 void DrawArrowWalkState::update(float dt)
 {
     MoveStateBase::update(dt);

@@ -15,6 +15,7 @@ class AimWalkAndRotateState;
 class ArmedWalkAndRotateState;
 class RecoilRunAndRotateState;
 class DisarmedWalkAndRotateState;
+class DrawArrowWalkAndRotateState;
 
 class RecoilWalkAndRotateState
     : public RecoilStateBase,
@@ -30,14 +31,26 @@ class RecoilWalkAndRotateState
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RecoilRunAndRotateState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RecoilRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
-          Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>>
 {
 public:
     RecoilWalkAndRotateState(FsmContext&);
+
+    void onEnter();
+    void onEnter(const AttackEvent&);
+    void onEnter(const RotateLeftEvent&);
+    void onEnter(const RotateRightEvent&);
+    void onEnter(const WalkForwardEvent&);
+    void onEnter(const WalkBackwardEvent&);
+    void onEnter(const WalkChangeStateEvent&);
+
     void update(float);
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+
+private:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

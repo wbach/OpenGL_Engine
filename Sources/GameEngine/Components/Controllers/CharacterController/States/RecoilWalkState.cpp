@@ -10,7 +10,32 @@ RecoilWalkState::RecoilWalkState(FsmContext& context)
     : RecoilStateBase(context)
     , MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
+    , context_{context}
 {
+}
+
+void RecoilWalkState::onEnter()
+{
+    context_.multiAnimations = true;
+}
+void RecoilWalkState::onEnter(const WalkChangeStateEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkState::onEnter(const WalkBackwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkState::onEnter(const WalkForwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkState::onEnter(const AttackEvent& event)
+{
+    RecoilStateBase::onEnter(event);
 }
 void RecoilWalkState::update(float dt)
 {

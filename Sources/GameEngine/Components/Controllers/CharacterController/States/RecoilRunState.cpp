@@ -29,12 +29,17 @@ void RecoilRunState::onEnter(const RunForwardEvent &event)
     MoveStateBase::onEnter(event);
 }
 
-void RecoilRunState::onLeave(const AimStopEvent& e)
+void RecoilRunState::onEnter(const RunBackwardEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilRunState::onLeave(const AimStopEvent &e)
 {
     RecoilStateBase::onLeave(e);
 }
 
-void RecoilRunState::onLeave(const WeaponStateEvent& e)
+void RecoilRunState::onLeave(const WeaponStateEvent &e)
 {
     RecoilStateBase::onLeave(e);
 }

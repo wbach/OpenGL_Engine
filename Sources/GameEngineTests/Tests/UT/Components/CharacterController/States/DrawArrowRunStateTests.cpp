@@ -37,7 +37,8 @@ TEST_F(CharacterControllerTests, DrawArrowRun_RotateRight)
 TEST_F(CharacterControllerTests, DrawArrowRun_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+    tiggerAndExpect<WeaponStateEvent, DisarmedRunState>(
+        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.run.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowRun_AimStartEvent)
 {

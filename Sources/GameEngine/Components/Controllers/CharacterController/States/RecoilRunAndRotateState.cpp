@@ -12,7 +12,37 @@ RecoilRunAndRotateState::RecoilRunAndRotateState(FsmContext& context)
                     context.animClipNames.armed.run.backward}
     , RotateStateBase(context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
+    , context_{context}
 {
+}
+void RecoilRunAndRotateState::onEnter()
+{
+    context_.multiAnimations = true;
+}
+
+void RecoilRunAndRotateState::onEnter(const AttackEvent& event)
+{
+    RecoilStateBase::onEnter(event);
+}
+
+void RecoilRunAndRotateState::onEnter(const RunForwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilRunAndRotateState::onEnter(const RunBackwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilRunAndRotateState::onEnter(const RotateLeftEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void RecoilRunAndRotateState::onEnter(const RotateRightEvent& event)
+{
+    RotateStateBase::update(event);
 }
 void RecoilRunAndRotateState::update(float dt)
 {
