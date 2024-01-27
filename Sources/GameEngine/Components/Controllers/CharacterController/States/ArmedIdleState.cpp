@@ -1,5 +1,6 @@
 #include "ArmedIdleState.h"
 
+#include "../CharacterController.h"
 #include "DisarmedIdleState.h"
 
 namespace GameEngine
@@ -16,9 +17,10 @@ void ArmedIdleState::onEnter(const WeaponStateEvent &)
     StateBase::equipWeapon();
 }
 
-void ArmedIdleState::onEnter(DisarmedIdleState &idleState, const DrawArrowEvent &)
+void ArmedIdleState::onEnter(DisarmedIdleState &, const DrawArrowEvent &)
 {
-    drawArrowEndSub_ = idleState.drawArrowEndSub_;
+    drawArrowEndSub_ = context_.animator.SubscribeForAnimationFrame(
+        context_.animClipNames.equip, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });
 }
 
 void ArmedIdleState::onEnter(const DrawArrowEvent &)

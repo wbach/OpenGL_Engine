@@ -1,40 +1,36 @@
-#include "ArmedRunState.h"
-
+#include "ArmedRotateState.h"
 #include "../CharacterController.h"
-#include "DisarmedRunState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-
-ArmedRunState::ArmedRunState(FsmContext &context)
-    : MoveStateBase{context, context.runSpeed, context.animClipNames.armed.run.forward,
-                    context.animClipNames.armed.run.backward}
+ArmedRotateState::ArmedRotateState(FsmContext &context)
+    : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
+                      context.animClipNames.armed.rotateRight}
 {
 }
 
-void ArmedRunState::onEnter(const WeaponStateEvent &)
+void ArmedRotateState::onEnter(const WeaponStateEvent &)
 {
     context_.multiAnimations = true;
     StateBase::equipWeapon();
-    MoveStateBase::setCurrentAnim();
+    RotateStateBase::setCurrentAnim();
 }
-
-void ArmedRunState::onEnter(DisarmedRunState &, const DrawArrowEvent &)
+void ArmedRotateState::onEnter(DisarmedRunState &, const DrawArrowEvent &)
 {
     drawArrowEndSub_ = context_.animator.SubscribeForAnimationFrame(
         context_.animClipNames.equip, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });
 }
 
-void ArmedRunState::onEnter(const DrawArrowEvent &)
+void ArmedRotateState::onEnter(const DrawArrowEvent &)
 {
     context_.multiAnimations = true;
     StateBase::equipWeapon();
-    MoveStateBase::setCurrentAnim();
+    RotateStateBase::setCurrentAnim();
 }
 
-void ArmedRunState::update(const AimStopEvent &)
+void ArmedRotateState::update(const AimStopEvent &)
 {
     if (drawArrowEndSub_)
     {
@@ -43,10 +39,9 @@ void ArmedRunState::update(const AimStopEvent &)
     }
 }
 
-void ArmedRunState::onLeave()
+void ArmedRotateState::onLeave()
 {
     drawArrowEndSub_ = std::nullopt;
 }
-
 }  // namespace Components
 }  // namespace GameEngine

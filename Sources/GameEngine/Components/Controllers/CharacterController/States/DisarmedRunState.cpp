@@ -1,5 +1,4 @@
 #include "DisarmedRunState.h"
-#include "../CharacterController.h"
 
 namespace GameEngine
 {
@@ -17,12 +16,6 @@ void DisarmedRunState::onEnter(const WeaponStateEvent &)
     context_.multiAnimations = true;
     StateBase::disarmWeapon();
     MoveStateBase::setCurrentAnim();
-}
-
-void DisarmedRunState::onLeave(const DrawArrowEvent &)
-{
-    drawArrowEndSub_ = context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.equip, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });
 }
 
 }  // namespace Components

@@ -48,9 +48,6 @@ public:
 
     using IdleStateBase::onEnter;
     void onEnter(const WeaponStateEvent&);
-    void onLeave(const DrawArrowEvent&);
-
-    std::optional<IdType> drawArrowEndSub_;
 };
 }  // namespace Components
 }  // namespace GameEngine
