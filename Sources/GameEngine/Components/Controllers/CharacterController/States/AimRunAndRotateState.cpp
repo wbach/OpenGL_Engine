@@ -8,10 +8,8 @@ namespace Components
 {
 AimRunAndRotateState::AimRunAndRotateState(FsmContext& context)
     : AimStateBase(context)
-    , MoveStateBase{context, context.runSpeed, context.animClipNames.armed.run.forward,
-                    context.animClipNames.armed.run.backward}
-    , RotateStateBase(context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
-                      context.animClipNames.armed.rotateRight)
+    , MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run,
+                             context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
     , context_{context}
 {
 }
@@ -23,26 +21,6 @@ void AimRunAndRotateState::onEnter()
 void AimRunAndRotateState::onEnter(const AimStartEvent& event)
 {
     AimStateBase::onEnter(event);
-}
-
-void AimRunAndRotateState::onEnter(const RunForwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void AimRunAndRotateState::onEnter(const RunBackwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void AimRunAndRotateState::onEnter(const RotateLeftEvent& event)
-{
-    RotateStateBase::update(event);
-}
-
-void AimRunAndRotateState::onEnter(const RotateRightEvent& event)
-{
-    RotateStateBase::update(event);
 }
 
 void AimRunAndRotateState::update(float dt)

@@ -12,6 +12,7 @@ namespace Components
 {
 class RecoilRunState;
 class ArmedRunState;
+class AimState;
 class AimRunState;
 class AimRunAndRotateState;
 class DisarmedRunState;
@@ -28,6 +29,8 @@ class AimRunState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRunState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>>
 {
 public:
@@ -35,13 +38,12 @@ public:
 
     void onEnter();
     void onEnter(const AimStartEvent&);
-    void onEnter(const RunForwardEvent&);
-    void onEnter(const RunBackwardEvent&);
+
+    using MoveStateBase::onEnter;
+    using MoveStateBase::update;
 
     void onLeave(const WeaponStateEvent&);
     void onLeave(const AimStopEvent&);
-
-    void update(float);
 
 protected:
     FsmContext& context_;

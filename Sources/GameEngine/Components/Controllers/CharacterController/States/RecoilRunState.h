@@ -10,6 +10,7 @@ namespace GameEngine
 {
 namespace Components
 {
+class RecoilState;
 class RecoilWalkState;
 class RecoilRunAndRotateState;
 class ArmedRunState;
@@ -31,6 +32,8 @@ class RecoilRunState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RecoilRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>>
 {
 public:
@@ -40,7 +43,7 @@ public:
     void onEnter(const AttackEvent&);
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);
-    //void onEnter(const EndRotationEvent&);
+    // void onEnter(const EndRotationEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

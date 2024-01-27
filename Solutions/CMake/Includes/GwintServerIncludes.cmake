@@ -1,10 +1,10 @@
 set(GwintServerIncludes
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/Header.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/SwapCardMessage.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/MessageParser.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/Body.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/PushCardMessage.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/Body.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/Message.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/MessageParser.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Messages/Header.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/GameServer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Dispatcher.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GwintServer/Network/User.h

@@ -4,8 +4,7 @@
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
 #include "AimStateBase.h"
-#include "MoveStateBase.h"
-#include "RotateStateBase.h"
+#include "MoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -14,14 +13,15 @@ namespace Components
 class RecoilWalkState;
 class RecoilWalkAndRotateState;
 class ArmedWalkAndRotateState;
+class AimWalkState;
+class AimRotateState;
 class AimWalkAndRotateState;
 class AimRunAndRotateState;
 class DisarmedWalkAndRotateState;
 
 class AimWalkAndRotateState
     : public AimStateBase,
-      public MoveStateBase,
-      public RotateStateBase,
+      public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
@@ -31,6 +31,9 @@ class AimWalkAndRotateState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>>
 {
 public:
@@ -38,11 +41,9 @@ public:
 
     void onEnter();
     void onEnter(const AimStartEvent&);
-    void onEnter(const WalkForwardEvent&);
-    void onEnter(const WalkBackwardEvent&);
-    void onEnter(const WalkChangeStateEvent&);
-    void onEnter(const RotateLeftEvent&);
-    void onEnter(const RotateRightEvent&);
+
+    using MoveAndRotateStateBase::onEnter;
+    using MoveAndRotateStateBase::update;
 
     void update(float);
 

@@ -8,10 +8,8 @@ namespace Components
 {
 DrawArrowRunAndRotateState::DrawArrowRunAndRotateState(FsmContext& context)
     : DrawArrowStateBase(context)
-    , MoveStateBase{context, context.runSpeed, context.animClipNames.armed.run.forward,
-                    context.animClipNames.armed.run.backward}
-    , RotateStateBase(context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
-                      context.animClipNames.armed.rotateRight)
+    , MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run,
+                             context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
     , context_{context}
 {
 }
@@ -23,26 +21,6 @@ void DrawArrowRunAndRotateState::onEnter()
 void DrawArrowRunAndRotateState::onEnter(const DrawArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
-}
-
-void DrawArrowRunAndRotateState::onEnter(const RunForwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void DrawArrowRunAndRotateState::onEnter(const RunBackwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void DrawArrowRunAndRotateState::onEnter(const RotateLeftEvent& event)
-{
-    RotateStateBase::update(event);
-}
-
-void DrawArrowRunAndRotateState::onEnter(const RotateRightEvent& event)
-{
-    RotateStateBase::update(event);
 }
 
 void DrawArrowRunAndRotateState::update(float dt)

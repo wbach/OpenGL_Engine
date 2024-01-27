@@ -4,7 +4,6 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
@@ -21,6 +20,7 @@ void prepareState(CharacterControllerTests& test)
     test.expectState<AimState>();
     test.tiggerAndExpect<RunForwardEvent, AimRunState>(
         {test.sut_.animationClipsNames_.aimIdle, test.sut_.animationClipsNames_.armed.run.forward});
+    test.expectRotationRight(ADVANCED_TIME_TRANSITION_TIME);
     test.tiggerAndExpect<RotateRightEvent, AimRunAndRotateState>(
         {test.sut_.animationClipsNames_.aimIdle, test.sut_.animationClipsNames_.armed.run.forward});
 }
@@ -29,6 +29,7 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, AimRunAndRotate_RotateLeft)
 {
     prepareState(*this);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateLeftEvent, AimRunAndRotateState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
 }

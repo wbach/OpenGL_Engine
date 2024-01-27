@@ -13,6 +13,8 @@ namespace Components
 {
 class AimRunAndRotateState;
 class ArmedRunAndRotateState;
+class RecoilRunState;
+class RecoilRotateState;
 class RecoilRunAndRotateState;
 class RecoilWalkAndRotateState;
 class DisarmedRunAndRotateState;
@@ -33,6 +35,9 @@ class RecoilRunAndRotateState
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RecoilRunState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>>
 {
 public:

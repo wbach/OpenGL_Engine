@@ -2,13 +2,13 @@
 #include <Utils/Time/Timer.h>
 #include <gtest/gtest.h>
 
-#include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -16,11 +16,11 @@ using namespace ::testing;
 
 namespace
 {
-    const int DUMMY_FRAMES = 4;
-    const float DUMMY_FRAME_TIME_DELTA = 0.25f;
-    const float DUMMY_CLIP_LENGTH = DUMMY_FRAME_TIME_DELTA * static_cast<float>(DUMMY_FRAMES);
-    const float ADVANCED_TIME_TRANSITION_TIME = DEFAULT_ANIMATION_TRANSITION_TIME + 0.1f;
-    const float ADVANCED_TIME_CLIP_TIME = DUMMY_CLIP_LENGTH + 0.1f;
+const int DUMMY_FRAMES                    = 4;
+const float DUMMY_FRAME_TIME_DELTA        = 0.25f;
+const float DUMMY_CLIP_LENGTH             = DUMMY_FRAME_TIME_DELTA * static_cast<float>(DUMMY_FRAMES);
+const float ADVANCED_TIME_TRANSITION_TIME = DEFAULT_ANIMATION_TRANSITION_TIME + 0.1f;
+const float ADVANCED_TIME_CLIP_TIME       = DUMMY_CLIP_LENGTH + 0.1f;
 }  // namespace
 
 struct CharacterControllerTests : public BaseComponentTestSchould
@@ -32,7 +32,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         EXPECT_CALL(physicsApiMock_, CreateSphereColider(_, _, _)).WillOnce(Return(shapeId));
         EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _)).WillOnce(Return(rigidbodyid));
 
-        animator_ = &obj_.AddComponent<Animator>();
+        animator_  = &obj_.AddComponent<Animator>();
         rigidbody_ = &obj_.AddComponent<Rigidbody>();
 
         obj_.AddComponent<RendererComponent>().AddModel(&model_);
@@ -50,28 +50,28 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         componentController_.CallFunctions(FunctionType::Awake);
         componentController_.CallFunctions(FunctionType::OnStart);
 
-        auto& clips = sut_.animationClipsNames_;
-        clips.disarmed.idle = "DI";
-        clips.disarmed.sprint = "DS";
-        clips.disarmed.run.forward = "DRF";
-        clips.disarmed.run.backward = "DRB";
-        clips.disarmed.walk.forward = "DWF";
+        auto& clips                  = sut_.animationClipsNames_;
+        clips.disarmed.idle          = "DI";
+        clips.disarmed.sprint        = "DS";
+        clips.disarmed.run.forward   = "DRF";
+        clips.disarmed.run.backward  = "DRB";
+        clips.disarmed.walk.forward  = "DWF";
         clips.disarmed.walk.backward = "DWB";
-        clips.armed.idle = "AI";
-        clips.armed.sprint = "AS";
-        clips.armed.run.forward = "ARF";
-        clips.armed.run.backward = "ARB";
-        clips.armed.walk.forward = "AWF";
-        clips.armed.walk.backward = "AWB";
-        clips.equip = "equip";
-        clips.disarm = "disarm";
-        clips.disarmed.rotateLeft = "DRL";
-        clips.disarmed.rotateRight = "DRR";
-        clips.armed.rotateLeft = "ARL";
-        clips.armed.rotateRight = "ARR";
-        clips.drawArrow = "drawArrow";
-        clips.recoilArrow = "recoilArrow";
-        clips.aimIdle = "aimIdle";
+        clips.armed.idle             = "AI";
+        clips.armed.sprint           = "AS";
+        clips.armed.run.forward      = "ARF";
+        clips.armed.run.backward     = "ARB";
+        clips.armed.walk.forward     = "AWF";
+        clips.armed.walk.backward    = "AWB";
+        clips.equip                  = "equip";
+        clips.disarm                 = "disarm";
+        clips.disarmed.rotateLeft    = "DRL";
+        clips.disarmed.rotateRight   = "DRR";
+        clips.armed.rotateLeft       = "ARL";
+        clips.armed.rotateRight      = "ARR";
+        clips.drawArrow              = "drawArrow";
+        clips.recoilArrow            = "recoilArrow";
+        clips.aimIdle                = "aimIdle";
 
         addDummyClip(clips.equip);
         addDummyClip(clips.disarm);
@@ -95,7 +95,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         addDummyClip(clips.recoilArrow);
         addDummyClip(clips.aimIdle);
 
-        sut_.equipTimeStamp = DUMMY_CLIP_LENGTH;
+        sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
         sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
 
         auto weaponPtr =
@@ -121,13 +121,13 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     void createDummySkeleton()
     {
-        animator_->jointGroups_.insert({ sut_.lowerBodyGroupName, {"head", "neck", "leftHand", "rightHand"} });
-        animator_->jointGroups_.insert({ sut_.upperBodyGroupName, {"hips, leftLeg", "rightLeg"} });
+        animator_->jointGroups_.insert({sut_.lowerBodyGroupName, {"head", "neck", "leftHand", "rightHand"}});
+        animator_->jointGroups_.insert({sut_.upperBodyGroupName, {"hips, leftLeg", "rightLeg"}});
 
         Animation::JointId id = 0;
         Animation::Joint rootJoint;
         rootJoint.name = "Armature";
-        rootJoint.id = id;
+        rootJoint.id   = id;
 
         for (const auto& [_, group] : animator_->jointGroups_)
         {
@@ -135,7 +135,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
             {
                 Animation::Joint joint;
                 joint.name = jointName;
-                joint.id = ++id;
+                joint.id   = ++id;
                 rootJoint.addChild(joint);
             }
         }
@@ -148,7 +148,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         Animation::AnimationClip clip(name);
         for (int i = 0; i <= DUMMY_FRAMES; ++i)
         {
-            clip.AddFrame(Animation::KeyFrame{ DUMMY_FRAME_TIME_DELTA * (float)i, {{0, Animation::JointTransform{}}} });
+            clip.AddFrame(Animation::KeyFrame{DUMMY_FRAME_TIME_DELTA * (float)i, {{0, Animation::JointTransform{}}}});
         }
         DEBUG_LOG("addDummyClip : " + name + " Length : " + std::to_string(clip.GetLength()));
         animator_->AddAnimationClip(clip);
@@ -187,7 +187,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     template <typename Event, typename State>
     void tiggerAndExpect(const std::vector<std::string>& clipNames,
-        std::vector<float> updateTimes = { ADVANCED_TIME_TRANSITION_TIME })
+                         std::vector<float> updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
         sut_.fsm()->handle(Event{});
         for (auto updateTime : updateTimes)
@@ -201,11 +201,31 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed))).Times(AtLeast(1));
     }
 
+    void expectRotatation(float deltaTime, float rotateSpeed)
+    {
+        auto rotation =
+            glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+
+        DEBUG_LOG("Expected rotation : " + std::to_string(rotation));
+        EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(Quaternion(rotation))))
+            .Times(AtLeast(1));
+    }
+
+    void expectRotationLeft(float dt)
+    {
+        expectRotatation(dt, DEFAULT_TURN_SPEED);
+    }
+
+    void expectRotationRight(float dt)
+    {
+        expectRotatation(dt, -DEFAULT_TURN_SPEED);
+    }
+
     CharacterController sut_;
-    Animator* animator_{ nullptr };
-    Rigidbody* rigidbody_{ nullptr };
+    Animator* animator_{nullptr};
+    Rigidbody* rigidbody_{nullptr};
 
     GameEngine::Model model_;
-    GameEngine::Physics::ShapeId shapeId{ 1 };
-    GameEngine::Physics::RigidbodyId rigidbodyid{ 1 };
+    GameEngine::Physics::ShapeId shapeId{1};
+    GameEngine::Physics::RigidbodyId rigidbodyid{1};
 };

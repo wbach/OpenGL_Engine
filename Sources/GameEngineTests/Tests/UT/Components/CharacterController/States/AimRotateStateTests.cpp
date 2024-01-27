@@ -34,7 +34,8 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    // EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const
+    // Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
     test.expectState<DisarmedIdleState>();
@@ -47,6 +48,7 @@ void prepareState(CharacterControllerTests& test)
     test.Update(ADVANCED_TIME_CLIP_TIME);
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
     test.expectState<AimState>();
+    test.expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     test.tiggerAndExpect<RotateLeftEvent, AimRotateState>(
         {test.sut_.animationClipsNames_.aimIdle, test.sut_.animationClipsNames_.armed.rotateLeft});
 }
@@ -61,26 +63,29 @@ TEST_F(CharacterControllerTests, AimRotate_RotateLeft)
 TEST_F(CharacterControllerTests, AimRotate_RotateRight)
 {
     prepareState(*this);
+    expectRotationRight(ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateRightEvent, AimRotateState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateRight});
 }
 TEST_F(CharacterControllerTests, AimRotate_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.rotateLeft});
+    tiggerAndExpect<WeaponStateEvent, DisarmedRotateState>(
+        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, AimRotate_AttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AttackEvent, RecoilRotateState>({ sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow });
+    tiggerAndExpect<AttackEvent, RecoilRotateState>(
+        {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, AimRotate_EndRotationEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndRotationEvent, AimState>({ sut_.animationClipsNames_.aimIdle });
+    tiggerAndExpect<EndRotationEvent, AimState>({sut_.animationClipsNames_.aimIdle});
 }
 TEST_F(CharacterControllerTests, AimRotate_AimStopEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AimStopEvent, ArmedRotateState>({ sut_.animationClipsNames_.armed.rotateLeft });
+    tiggerAndExpect<AimStopEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateLeft});
 }

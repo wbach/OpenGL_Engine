@@ -4,8 +4,7 @@
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
 #include "DrawArrowStateBase.h"
-#include "MoveStateBase.h"
-#include "RotateStateBase.h"
+#include "MoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -13,14 +12,15 @@ namespace Components
 {
 class AimRunAndRotateState;
 class ArmedRunAndRotateState;
+class DrawArrowRunState;
+class DrawArrowRotateState;
 class DrawArrowRunAndRotateState;
 class DrawArrowWalkAndRotateState;
 class DisarmedRunAndRotateState;
 
 class DrawArrowRunAndRotateState
     : public DrawArrowStateBase,
-      public MoveStateBase,
-      public RotateStateBase,
+      public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
@@ -31,6 +31,9 @@ class DrawArrowRunAndRotateState
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>>
 {
@@ -38,10 +41,9 @@ public:
     DrawArrowRunAndRotateState(FsmContext&);
     void onEnter();
     void onEnter(const DrawArrowEvent&);
-    void onEnter(const RunForwardEvent&);
-    void onEnter(const RunBackwardEvent&);
-    void onEnter(const RotateLeftEvent&);
-    void onEnter(const RotateRightEvent&);
+
+    using MoveAndRotateStateBase::onEnter;
+    using MoveAndRotateStateBase::update;
 
     void update(float);
 

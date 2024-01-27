@@ -25,17 +25,6 @@ void AimRunState::onEnter(const AimStartEvent& event)
     AimStateBase::onEnter(event);
 }
 
-void AimRunState::onEnter(const RunForwardEvent& event)
-{
-    DEBUG_LOG("onEnter(RunForwardEvent)");
-    MoveStateBase::onEnter(event);
-}
-
-void AimRunState::onEnter(const RunBackwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
 void AimRunState::onLeave(const WeaponStateEvent& event)
 {
     AimStateBase::onLeave(event);
@@ -44,10 +33,6 @@ void AimRunState::onLeave(const WeaponStateEvent& event)
 void AimRunState::onLeave(const AimStopEvent& event)
 {
     AimStateBase::onLeave(event);
-}
-void AimRunState::update(float dt)
-{
-    MoveStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine
