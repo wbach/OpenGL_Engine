@@ -28,6 +28,7 @@ class ArmedRunState
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
@@ -44,20 +45,20 @@ class ArmedRunState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:
-    ArmedRunState(FsmContext& context)
-        : MoveStateBase{context, context.runSpeed, context.animClipNames.armed.run.forward,
-                        context.animClipNames.armed.run.backward}
-    {
-    }
+    ArmedRunState(FsmContext& context);
 
     using MoveStateBase::onEnter;
+    using MoveStateBase::update;
 
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::equipWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
+    void onEnter(const WeaponStateEvent&);
+    void onEnter(DisarmedRunState&, const DrawArrowEvent&);
+    void onEnter(const DrawArrowEvent&);
+
+    void update(const AimStopEvent&);
+    void onLeave();
+
+private:
+    std::optional<IdType> drawArrowEndSub_;
 };
 }  // namespace Components
 }  // namespace GameEngine

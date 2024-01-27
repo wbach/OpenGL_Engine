@@ -17,7 +17,6 @@ class DisarmedIdleState;
 class DisarmedWalkState;
 class DisarmedSprintState;
 class DisarmedRunAndRotateState;
-class DrawArrowRunState;
 
 class DisarmedRunState
     : public MoveStateBase,
@@ -40,24 +39,17 @@ class DisarmedRunState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:
-    DisarmedRunState(FsmContext& context)
-        : MoveStateBase{context, context.runSpeed, context.animClipNames.disarmed.run.forward,
-                        context.animClipNames.disarmed.run.backward}
-    {
-    }
+    DisarmedRunState(FsmContext& context);
 
     using MoveStateBase::onEnter;
+    void onEnter(const WeaponStateEvent&);
+    void onLeave(const DrawArrowEvent &);
 
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::disarmWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
+    std::optional<IdType> drawArrowEndSub_;
 };
 }  // namespace Components
 }  // namespace GameEngine
