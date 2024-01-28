@@ -23,8 +23,10 @@ public:
     void Move() override;
     void CalculateInput() override;
     void CalculateZoom(float) override;
+    void LockInputs(bool);
     void Lock() override;
     void Unlock() override;
+
 
 private:
     void SetRelativeMode(bool);
@@ -35,12 +37,13 @@ private:
     const common::Transform& lookAtTransform_;
     float angleAroundPlayer_;
     float distanceFromPlayer_;
-
+    
     vec3 offset_;
     vec3 lookAtOffset_;
     float mouseSensitivity_;
     bool captureMouse_;
     bool isRelativeModeEnabled_;
+    bool lockInputs_;
 
     Utils::CClock clock_;
 };

@@ -19,6 +19,7 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& compone
     , keysSubscriptionsManager_(componentContext.inputManager_)
     , zoomSpeed_(0.1f)
     , offset_(0, 1.8f, 0)
+    , thirdPersonCamera{nullptr}
 {
 }
 
@@ -41,6 +42,8 @@ void ThridPersonCameraComponent::init()
 {
     auto camera =
         std::make_unique<ThirdPersonCamera>(componentContext_.inputManager_, thisObject_.GetTransform(), offset_);
+
+    thirdPersonCamera = camera.get();
 
     keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyUp(
         KeyCodes::MOUSE_WHEEL, [ptrCam = camera.get(), this]() { ptrCam->CalculateZoom(zoomSpeed_); });

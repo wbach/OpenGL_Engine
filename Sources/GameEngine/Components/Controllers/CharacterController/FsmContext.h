@@ -44,6 +44,7 @@ struct FsmContext
     Rigidbody& rigidbody;
     Animator& animator;
     CharacterController& characterController;
+    Input::InputManager& inputManager;
 
     MoveStateData moveStateData_;
     RotateStateData rotateStateData_;

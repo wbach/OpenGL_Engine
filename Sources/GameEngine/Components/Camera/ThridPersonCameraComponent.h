@@ -5,6 +5,7 @@
 namespace GameEngine
 {
 struct ICamera;
+class ThirdPersonCamera;
 
 namespace Components
 {
@@ -14,6 +15,7 @@ public:
     ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
+    ThirdPersonCamera* thirdPersonCamera;
 
 private:
     void init();
@@ -23,6 +25,7 @@ private:
     std::optional<IdType> cameraId_;
     float zoomSpeed_;
     vec3 offset_;
+
 
 public:
     static void registerReadFunctions();

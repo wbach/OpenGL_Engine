@@ -193,6 +193,7 @@ void CharacterController::Init()
                                         *rigidbody_,
                                         *animator_,
                                         *this,
+                                        componentContext_.inputManager_,
                                         {},
                                         {},
                                         animationClipsNames_,

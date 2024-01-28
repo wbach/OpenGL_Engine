@@ -17,10 +17,11 @@ struct Joint
     uint32 size      = 1;
     std::string name = "";
 
-    mat4 transform         = glm::mat4(1.f);
-    mat4 offset            = glm::mat4(1.f);
-    mat4 invtransform      = glm::mat4(1.f);
-    mat4 animatedTransform = glm::mat4(1.f);
+    mat4 additionalUserMofiyTransform = glm::mat4(1.f);
+    mat4 transform                    = glm::mat4(1.f);
+    mat4 offset                       = glm::mat4(1.f);
+    mat4 invtransform                 = glm::mat4(1.f);
+    mat4 animatedTransform            = glm::mat4(1.f);
 
     std::vector<Joint> children;
 

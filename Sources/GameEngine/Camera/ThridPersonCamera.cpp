@@ -22,6 +22,7 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
     , lookAtOffset_(lookAtOffset)
     , mouseSensitivity_(.4f)
     , isRelativeModeEnabled_(false)
+    , lockInputs_{false}
     , clock_(std::chrono::milliseconds(5))
 {
     SetRelativeMode(true);
@@ -31,6 +32,9 @@ ThirdPersonCamera::~ThirdPersonCamera()
 }
 void ThirdPersonCamera::CalculateInput()
 {
+    if (lockInputs_)
+        return;
+
      if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
     {
         inputManager_.ShowCursor(true);
@@ -63,6 +67,10 @@ void ThirdPersonCamera::Move()
 void ThirdPersonCamera::CalculateZoom(float v)
 {
     distanceFromPlayer_ += v;
+}
+void ThirdPersonCamera::LockInputs(bool state)
+{
+    lockInputs_ = state;
 }
 void ThirdPersonCamera::Lock()
 {
