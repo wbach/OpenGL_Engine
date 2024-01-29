@@ -39,6 +39,7 @@ protected:
     float pitch = 0;
     float yaw = 0;
     Rotation rotation;
+    const float camSensitive = 0.2f;
 };
 }  // namespace Components
 }  // namespace GameEngine

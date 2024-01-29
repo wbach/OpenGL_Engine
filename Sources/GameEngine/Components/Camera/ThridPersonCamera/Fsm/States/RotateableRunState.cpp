@@ -28,7 +28,7 @@ void RotateableRunState::onEnter(const StopAimEvent&)
 
 void RotateableRunState::cameraUpdate()
 {
-    DEBUG_LOG("RotateableRunState::cameraUpdate()");
+    //DEBUG_LOG("RotateableRunState::cameraUpdate()");
     // CalculateInput();
 
     auto worldCameraPosition = context.gameObject.GetWorldTransform().GetMatrix() * relativeCamerePosition;

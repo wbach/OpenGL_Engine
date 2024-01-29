@@ -294,10 +294,6 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
     {
         currentTransform = parentTransform * currentPoseIter->second.matrix;
     }
-    //if (joint.name == "mixamorig:Spine1")
-    //{
-    //    DEBUG_LOG(std::to_string(joint.additionalUserMofiyTransform));
-    //}
     currentTransform = currentTransform * joint.additionalUserMofiyTransform;
     joint.animatedTransform = currentTransform * joint.offset;
 

@@ -5,6 +5,10 @@
 
 namespace GameEngine
 {
+namespace Animation
+{
+class Joint;
+}
 namespace Components
 {
 namespace Camera
@@ -25,6 +29,7 @@ private:
 private:
     Context& context;
     vec4 relativeCamerePosition;
+    Animation::Joint* joint;
 };
 }  // namespace Camera
 }  // namespace Components
