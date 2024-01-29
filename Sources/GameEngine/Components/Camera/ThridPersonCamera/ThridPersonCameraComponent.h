@@ -1,6 +1,8 @@
 #pragma once
-#include "GameEngine/Components/BaseComponent.h"
 #include <Input/KeysSubscriptionsManager.h>
+#include "Fsm/Context.h"
+#include "Fsm/ThridPersonCameraFsm.h"
+#include "GameEngine/Components/BaseComponent.h"
 
 namespace GameEngine
 {
@@ -12,20 +14,23 @@ namespace Components
 class ThridPersonCameraComponent : public BaseComponent
 {
 public:
-    ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject);
+    ThridPersonCameraComponent(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
-    ThirdPersonCamera* thirdPersonCamera;
+
+    template <typename Event>
+    void handleEvent(const Event& event)
+    {
+        if (fsm)
+            fsm->handle(event);
+    }
 
 private:
     void init();
 
 private:
-    Input::KeysSubscriptionsManager keysSubscriptionsManager_;
-    std::optional<IdType> cameraId_;
-    float zoomSpeed_;
-    vec3 offset_;
-
+    std::unique_ptr<Camera::ThridPersonCameraFsm> fsm;
+    std::unique_ptr<Camera::Context> fsmContext;
 
 public:
     static void registerReadFunctions();

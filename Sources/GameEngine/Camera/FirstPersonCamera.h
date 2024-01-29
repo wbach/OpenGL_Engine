@@ -14,8 +14,9 @@ class FirstPersonCamera : public Camera
 {
 public:
     FirstPersonCamera(Input::InputManager&, DisplayManager&);
-    void Move() override;
+    void Update() override;
     void Lock() override;
+    void MoveLock(bool);
     void Unlock() override;
 
 private:
@@ -27,5 +28,6 @@ private:
 private:
     Input::InputManager& inputManager_;
     DisplayManager& displayManager_;
+    bool moveLock_;
 };
 }  // namespace GameEngine

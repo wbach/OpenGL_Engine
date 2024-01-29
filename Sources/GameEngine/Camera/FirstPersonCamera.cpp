@@ -16,26 +16,27 @@ FirstPersonCamera::FirstPersonCamera(Input::InputManager& inputManager, GameEngi
     : Camera(vec3(2.f), vec3(0.f))
     , inputManager_(inputManager)
     , displayManager_(displayManager)
+    , moveLock_(false)
 {
     inputManager_.SetReleativeMouseMode(true);
 }
 
-void FirstPersonCamera::Move()
+void FirstPersonCamera::Update()
 {
-    if (lock_)
-        return;
-
     auto mouseMove = CalcualteMouseMove() * defaultCamRotationSpeed;
     CalculateYaw(mouseMove.x);
     CalculatePitch(mouseMove.y);
 
-    vec3 moveVector = CalculateInputs();
-
-    if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
+    if (not moveLock_)
     {
-        moveVector = moveVector * glm::normalize(GetRotation().value_);
-        moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTime;
-        IncreasePosition(moveVector);
+        vec3 moveVector = CalculateInputs();
+
+        if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
+        {
+            moveVector = moveVector * glm::normalize(GetRotation().value_);
+            moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTime;
+            IncreasePosition(moveVector);
+        }
     }
 }
 

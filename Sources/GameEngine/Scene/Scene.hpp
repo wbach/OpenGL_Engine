@@ -114,6 +114,8 @@ public:
     void SendEvent(SceneEvent&);
     void SendEvent(EngineEvent&);
 
+    DisplayManager* getDisplayManager();
+
 public:
     uint32 objectCount;
 

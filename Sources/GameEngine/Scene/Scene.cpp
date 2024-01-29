@@ -341,4 +341,9 @@ void Scene::SendEvent(EngineEvent& event)
 {
     addEngineEvent(event);
 }
+
+DisplayManager *Scene::getDisplayManager()
+{
+    return displayManager_;
+}
 }  // namespace GameEngine

@@ -32,11 +32,8 @@ CameraEditor::~CameraEditor()
     inputManager_.UnsubscribeOnKeyUp(KeyCodes::RMOUSE, mouseKeyUpSubscribtion_);
 }
 
-void CameraEditor::Move()
+void CameraEditor::Update()
 {
-    if (lock_)
-        return;
-
     if (referenceMousePosition_)
     {
         auto mouseMove = CalcualteMouseMove() * defaultCamRotationSpeed;

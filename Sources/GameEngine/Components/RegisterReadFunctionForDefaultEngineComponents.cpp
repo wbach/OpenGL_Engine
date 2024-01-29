@@ -2,7 +2,7 @@
 
 #include "Animation/Animator.h"
 #include "Animation/JointPoseUpdater.h"
-#include "Camera/ThridPersonCameraComponent.h"
+#include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Characters/Enemy.h"
 #include "Characters/Player.h"
 #include "Controllers/CharacterController/CharacterController.h"

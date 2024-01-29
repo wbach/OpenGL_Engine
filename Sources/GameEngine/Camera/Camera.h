@@ -14,9 +14,8 @@ public:
 
     ~Camera() override = default;
 
-    void Move() override;
-    void CalculateInput() override;
-    void CalculateZoom(float) override;
+    void UpdateImpl() override;
+    void Update() override;
     void Lock() override;
     void Unlock() override;
     bool IsLocked() const override;

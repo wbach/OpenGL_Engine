@@ -107,27 +107,8 @@ void CameraWrapper::removeCamera(ICamera *camera)
 void CameraWrapper::Update()
 {
     std::lock_guard<std::mutex> m(cameraMutex);
-    Get()->CalculateInput();
-    Get()->Move();
+    Get()->Update();
     Get()->UpdateMatrix();
-}
-
-void CameraWrapper::Move()
-{
-    std::lock_guard<std::mutex> m(cameraMutex);
-    Get()->Move();
-}
-
-void CameraWrapper::CalculateInput()
-{
-    std::lock_guard<std::mutex> m(cameraMutex);
-    Get()->CalculateInput();
-}
-
-void CameraWrapper::CalculateZoom(float lvl)
-{
-    std::lock_guard<std::mutex> m(cameraMutex);
-    Get()->CalculateZoom(lvl);
 }
 
 bool CameraWrapper::IsLocked() const

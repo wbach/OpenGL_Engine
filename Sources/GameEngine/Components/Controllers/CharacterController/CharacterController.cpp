@@ -286,7 +286,7 @@ void CharacterController::Update()
     if (stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
         auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
-        std::visit(passEventToState, stateMachine_->getCurrentState());
+        std::visit(passEventToState, stateMachine_->currentState);
     }
 }
 void CharacterController::SetJumpPower(float v)

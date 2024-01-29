@@ -182,7 +182,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     template <typename State>
     void expectState()
     {
-        EXPECT_TRUE(std::holds_alternative<State*>(sut_.fsm()->getCurrentState()));
+        EXPECT_TRUE(std::holds_alternative<State*>(sut_.fsm()->currentState));
     }
 
     template <typename Event, typename State>

@@ -2,35 +2,32 @@
 
 #include <Input/InputManager.h>
 
-#include "GameEngine/Camera/ThridPersonCamera.h"
+#include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Scene/Scene.hpp"
+
+#include <Utils/Fsm/Fsm.h>
 
 namespace GameEngine
 {
 namespace Components
 {
+using namespace Camera;
 namespace
 {
 const std::string& COMPONENT_STR{"ThridPersonCamera"};
 }
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(ThridPersonCameraComponent).hash_code(), componentContext, gameObject)
-    , keysSubscriptionsManager_(componentContext.inputManager_)
-    , zoomSpeed_(0.1f)
-    , offset_(0, 1.8f, 0)
-    , thirdPersonCamera{nullptr}
 {
 }
 
 void ThridPersonCameraComponent::CleanUp()
 {
-    keysSubscriptionsManager_.UnsubscribeKeys();
-
-    if (cameraId_)
-    {
-        componentContext_.camera_.remove(*cameraId_);
-    }
+    DEBUG_LOG("CleanUp()");
+    fsm.reset();
+    fsmContext.reset();
 }
 
 void ThridPersonCameraComponent::ReqisterFunctions()
@@ -40,17 +37,20 @@ void ThridPersonCameraComponent::ReqisterFunctions()
 
 void ThridPersonCameraComponent::init()
 {
-    auto camera =
-        std::make_unique<ThirdPersonCamera>(componentContext_.inputManager_, thisObject_.GetTransform(), offset_);
+    DEBUG_LOG("init");
+    if (not componentContext_.scene_.getDisplayManager())
+    {
+        ERROR_LOG("Display manager not set!");
+        return;
+    }
+    auto camera = std::make_unique<CustomCamera>();
+    fsmContext.reset(new Context{componentContext_.inputManager_, *componentContext_.scene_.getDisplayManager(), thisObject_, *camera});
+    componentContext_.camera_.addAndSet(std::move(camera));
 
-    thirdPersonCamera = camera.get();
+    fsm = std::make_unique<ThridPersonCameraFsm>(RotateableRunState(*fsmContext), AimState(*fsmContext));
 
-    keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        KeyCodes::MOUSE_WHEEL, [ptrCam = camera.get(), this]() { ptrCam->CalculateZoom(zoomSpeed_); });
-    keysSubscriptionsManager_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        KeyCodes::MOUSE_WHEEL, [ptrCam = camera.get(), this]() { ptrCam->CalculateZoom(-1.f * zoomSpeed_); });
-
-    cameraId_ = componentContext_.camera_.addAndSet(std::move(camera));
+    // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
+    fsm->handle(InitEvent{});
 }
 
 void ThridPersonCameraComponent::registerReadFunctions()

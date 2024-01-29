@@ -20,13 +20,12 @@ public:
     ThirdPersonCamera(Input::InputManager&, const common::Transform&);
     ThirdPersonCamera(Input::InputManager&, const common::Transform&, const vec3&);
     ~ThirdPersonCamera() override;
-    void Move() override;
-    void CalculateInput() override;
-    void CalculateZoom(float) override;
+    void Update() override;
+    void CalculateInput();
+    void CalculateZoom(float);
     void LockInputs(bool);
     void Lock() override;
     void Unlock() override;
-
 
 private:
     void SetRelativeMode(bool);

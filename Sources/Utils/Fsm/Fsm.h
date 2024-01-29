@@ -51,12 +51,6 @@ public:
         std::visit(passEventToState, currentState);
     }
 
-    std::variant<States*...>& getCurrentState()
-    {
-        return currentState;
-    }
-
-private:
     std::tuple<States...> states;
     std::variant<States*...> currentState{&std::get<0>(states)};
 };

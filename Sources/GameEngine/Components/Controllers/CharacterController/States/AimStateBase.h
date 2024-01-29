@@ -8,6 +8,8 @@ namespace GameEngine
 {
 namespace Components
 {
+class ThridPersonCameraComponent;
+
 class AimStateBase
 {
 public:
@@ -32,6 +34,7 @@ protected:
 
 protected:
     FsmContext& context_;
+    ThridPersonCameraComponent* thridPersonCameraComponent_;
 
     float pitch = 0;
     float yaw = 0;

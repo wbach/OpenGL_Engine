@@ -3,7 +3,8 @@
 #include <GLM/GLMUtils.h>
 
 #include "GameEngine/Camera/ThridPersonCamera.h"
-#include "GameEngine/Components/Camera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Input/InputManager.h"
 #include "Logger/Log.h"
 
@@ -17,26 +18,38 @@ const float defaultCamRotationSpeed = 0.2f;
 }
 AimStateBase::AimStateBase(FsmContext &context)
     : context_{context}
+    , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
 {
 }
 
 void AimStateBase::onEnter()
 {
-    auto thridPersoncamera = context_.gameObject.GetComponent<ThridPersonCameraComponent>();
-    if (thridPersoncamera and thridPersoncamera->thirdPersonCamera)
-        thridPersoncamera->thirdPersonCamera->LockInputs(true);
 }
 
 void AimStateBase::onEnter(const AimStartEvent &)
 {
-
-
     DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
     setAnim();
+
+    if (thridPersonCameraComponent_)
+    {
+        thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{});
+    }
+    else
+    {
+        DEBUG_LOG("ThridPersonCameraComponent Component not found! Try again...");
+        thridPersonCameraComponent_ = context_.gameObject.GetComponent<ThridPersonCameraComponent>();
+        if (thridPersonCameraComponent_)
+        {
+            thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{});
+        }
+    }
 }
 
 void AimStateBase::update(float deltaTime)
 {
+    return;
+
     auto maybeJoint = context_.animator.GetJoint("mixamorig:Spine1");
     if (maybeJoint)
     {
@@ -88,13 +101,15 @@ void AimStateBase::onLeave(const AimStopEvent &)
 {
     DEBUG_LOG("onLeave(AimStopEvent)");
     stopAnim();
+
+    if (thridPersonCameraComponent_)
+    {
+        thridPersonCameraComponent_->handleEvent(Camera::StopAimEvent{});
+    }
 }
 
 void AimStateBase::onLeave()
 {
-    auto thridPersoncamera = context_.gameObject.GetComponent<ThridPersonCameraComponent>();
-    if (thridPersoncamera and thridPersoncamera->thirdPersonCamera)
-        thridPersoncamera->thirdPersonCamera->LockInputs(false);
 }
 
 void AimStateBase::onLeave(const WeaponStateEvent &)

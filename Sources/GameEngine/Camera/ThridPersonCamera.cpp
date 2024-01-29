@@ -54,10 +54,9 @@ void ThirdPersonCamera::CalculateInput()
     offset_    = pitch * yaw * offset_;
 }
 
-void ThirdPersonCamera::Move()
+void ThirdPersonCamera::Update()
 {
-    if (lock_)
-        return;
+    CalculateInput();
 
     auto lookAtPosition = lookAtTransform_.GetPosition() + lookAtOffset_;
     SetPosition(lookAtPosition + (lookAtTransform_.GetRotation().value_ * offset_ * distanceFromPlayer_));

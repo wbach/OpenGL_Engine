@@ -11,9 +11,8 @@ struct ICamera
 {
     virtual ~ICamera() = default;
 
-    virtual void Move()                        = 0;
-    virtual void CalculateInput()              = 0;
-    virtual void CalculateZoom(float zoom_lvl) = 0;
+    virtual void Update() = 0;
+    virtual void UpdateImpl() = 0;
 
     virtual void Lock()           = 0;
     virtual void Unlock()         = 0;

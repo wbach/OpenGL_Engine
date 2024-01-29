@@ -16,7 +16,7 @@ class CameraEditor : public Camera
 public:
     CameraEditor(Input::InputManager&, DisplayManager&);
     ~CameraEditor();
-    void Move() override;
+    void Update() override;
 
 private:
     vec3 CalculateInputs();

@@ -38,13 +38,13 @@ Camera::Camera(const vec3& position, const vec3& lookAt)
 {
     LookAt(lookAt);
 }
-void Camera::Move()
+
+void Camera::UpdateImpl()
 {
+    if (not lock_)
+        Update();
 }
-void Camera::CalculateInput()
-{
-}
-void Camera::CalculateZoom(float)
+void Camera::Update()
 {
 }
 void Camera::Lock()

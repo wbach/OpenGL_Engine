@@ -22,9 +22,6 @@ public:
 
     void Update();
 
-    void Move();
-    void CalculateInput();
-    void CalculateZoom(float zoom_lvl);
     bool IsLocked() const;
     void Lock();
     void Unlock();
