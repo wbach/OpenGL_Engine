@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Animation
 {
-class Joint;
+struct Joint;
 }
 namespace Components
 {

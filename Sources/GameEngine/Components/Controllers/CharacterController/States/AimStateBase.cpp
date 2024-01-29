@@ -54,7 +54,7 @@ void AimStateBase::update(float deltaTime)
         // glm::vec3(0.f, 1.f, 0.f));
         auto mouseMove = context_.inputManager.CalcualteMouseMove();
         IncreaseYaw(-static_cast<float>(mouseMove.x) * camSensitive);
-        IncreasePitch(static_cast<float>(mouseMove.y) * camSensitive);
+        IncreasePitch(-static_cast<float>(mouseMove.y) * camSensitive);
 
         // auto mouseMove = vec2(-v.x, v.y) * defaultCamRotationSpeed;
         // yaw += mouseMove.x;
@@ -63,8 +63,16 @@ void AimStateBase::update(float deltaTime)
         //  IncreasePitch(mouseMove.y);
         //  y += DEFAULT_TURN_SPEED * deltaTime;
         // rotation = Rotation(DegreesVec3(0, yaw, 0 /*pitch*/));
+        maybeJoint->adrotY = rotationY;
+        //maybeJoint->adrotZ = rotation;
 
-        maybeJoint->additionalUserMofiyTransform = glm::mat4_cast(rotation.value_);
+       // maybeJoint->adrotZ.value_ *= glm::angleAxis(glm::radians(static_cast<float>(mouseMove.y) * camSensitive), glm::vec3(1.f, 0, 0));
+        
+       ///* 
+       glm::quat qPitch = glm::angleAxis(glm::radians(static_cast<float>(mouseMove.y) * camSensitive), glm::vec3(1.f, 0, 0));
+        maybeJoint->adrotZ.value_ = glm::normalize(maybeJoint->adrotZ.value_ * qPitch); //*/
+
+        maybeJoint->additionalUserMofiyTransform = glm::mat4_cast(rotationY.value_ * rotation.value_);
         // DEBUG_LOG(std::to_string(maybeJoint->additionalUserMofiyTransform));
     }
 }
@@ -124,16 +132,15 @@ void AimStateBase::stopMultiAnimation()
 }
 void AimStateBase::IncreaseYaw(float yaw)
 {
-    rotation.value_ *= glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
-    DEBUG_LOG("rotation.value_ = " + std::to_string(rotation.value_));
+    rotationY.value_ *= glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
 }
 void AimStateBase::IncreasePitch(float pitch)
 {
-    DEBUG_LOG("rotation.value_ = " + std::to_string(rotation.value_));
     //    rotation.value_*= glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
     //    return;
-    glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
+    glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(0, 0, 1));
     rotation.value_  = glm::normalize(qPitch * rotation.value_);
+
 
     //    auto euler = glm::eulerAngles(rotation.value_).y;
 

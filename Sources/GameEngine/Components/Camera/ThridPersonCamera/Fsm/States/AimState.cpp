@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "Input/InputManager.h"
+#include <Utils/GLM/GLMUtils.h>
 
 namespace GameEngine
 {
@@ -42,14 +43,16 @@ void AimState::onEnter(const StartAimEvent&)
 
 void AimState::cameraUpdate()
 {
-    // DEBUG_LOG("AimState::cameraUpdate()");
-//    auto [pos, rot, scale] = Utils::decompose(joint->additionalUserMofiyTransform);
-//    Rotation r(rot);
-//    auto erot = r.GetEulerDegrees();
-//    Rotation nr(DegreesVec3(erot.value.z, erot.value.y, erot.value.x));
+     DEBUG_LOG("AimState::cameraUpdate()");
+    //auto [pos, rot, scale] = Utils::decompose(joint->additionalUserMofiyTransform);
+    //Rotation r(rot);
+    //auto erot = r.GetEulerDegrees();
+    //Rotation nr(DegreesVec3(erot.value.z, erot.value.y, erot.value.x));
+
+     auto jointMatrix =  joint->adrotY.value_ * joint->adrotZ.value_;
 
     auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
-    parentWorldTransform = parentWorldTransform ;//* joint->additionalUserMofiyTransform;
+    parentWorldTransform = parentWorldTransform * glm::mat4_cast(jointMatrix);// *joint->additionalUserMofiyTransform;
 
     auto worldCameraPosition = parentWorldTransform * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);

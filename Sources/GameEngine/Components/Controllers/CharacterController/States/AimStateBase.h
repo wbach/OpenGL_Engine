@@ -36,8 +36,7 @@ protected:
     FsmContext& context_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
 
-    float pitch = 0;
-    float yaw = 0;
+    Rotation rotationY;
     Rotation rotation;
     const float camSensitive = 0.2f;
 };
