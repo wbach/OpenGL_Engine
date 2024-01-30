@@ -32,12 +32,19 @@ protected:
     void IncreaseYRotation(Rotation&, float yaw);
     void IncreaseXZRotation(Rotation&, float pitch, const vec3&);
     vec2 calculateMouseMove();
+    void LockPitch();
+    void LockYaw();
 
 protected:
     FsmContext& context_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
     Animation::Joint* joint_;
-    const float camSensitive = 0.2f;
+    const float camSensitive;
+
+    float pitch;
+    float yaw;
+    vec2 yawLimit;
+    vec2 pitchLimit;
 };
 }  // namespace Components
 }  // namespace GameEngine

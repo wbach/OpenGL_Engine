@@ -23,6 +23,11 @@ AimStateBase::AimStateBase(FsmContext &context, const std::string &jointName)
     : context_{context}
     , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
     , joint_{context_.animator.GetJoint(jointName)}
+    , camSensitive{0.2f}
+    , pitch{0.f}
+    , yaw{0.f}
+    , yawLimit{-75.f, 45.f}
+    , pitchLimit{-40.f, 50.f}
 {
 }
 
@@ -61,10 +66,18 @@ void AimStateBase::update(float deltaTime)
     if (joint_)
     {
         auto mouseMove = calculateMouseMove();
+        yaw -= mouseMove.x;
+        pitch -= mouseMove.y;
 
-        IncreaseYRotation(joint_->additionalRotations.y, -mouseMove.x);
-        IncreaseXZRotation(joint_->additionalRotations.z, -mouseMove.y, zVector);
-        IncreaseXZRotation(joint_->additionalRotations.x, mouseMove.y, xVector);
+        LockYaw();
+        LockPitch();
+
+        joint_->additionalRotations.x.value_ =
+            glm::normalize(glm::angleAxis(glm::radians(-pitch), glm::vec3(1.f, 0.f, 0.f)));
+        joint_->additionalRotations.y.value_ =
+            glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+        joint_->additionalRotations.z.value_ =
+            glm::normalize(glm::angleAxis(glm::radians(pitch), glm::vec3(0.f, 0.f, 1.f)));
 
         joint_->additionalUserMofiyTransform =
             matrixRotationOffset *
@@ -148,6 +161,20 @@ void AimStateBase::IncreaseXZRotation(Rotation &rotation, float value, const vec
     glm::quat qPitch = glm::angleAxis(glm::radians(value), dir);
     rotation.value_  = glm::normalize(qPitch * rotation.value_);
 }
+void AimStateBase::LockPitch()
+{
+    if (pitch < pitchLimit.x)
+        pitch = pitchLimit.x;
+    if (pitch > pitchLimit.y)
+        pitch = pitchLimit.y;
+}
 
+void AimStateBase::LockYaw()
+{
+    if (yaw < yawLimit.x)
+        yaw = yawLimit.x;
+    if (yaw > yawLimit.y)
+        yaw = yawLimit.y;
+}
 }  // namespace Components
 }  // namespace GameEngine
