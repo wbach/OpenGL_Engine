@@ -1,6 +1,7 @@
 #pragma once
-#include <Types.h>
 #include <Rotation.h>
+#include <Types.h>
+
 #include <vector>
 
 namespace GameEngine
@@ -17,10 +18,15 @@ struct Joint
     uint32 size      = 1;
     std::string name = "";
 
-    Rotation adrotY{ DegreesVec3() };
-    Rotation adrotZ{ DegreesVec3() };
-
+    struct AdditionalRotations
+    {
+        Rotation x{DegreesVec3()};
+        Rotation y{DegreesVec3()};
+        Rotation z{DegreesVec3()};
+    };
+    AdditionalRotations additionalRotations;
     mat4 additionalUserMofiyTransform = glm::mat4(1.f);
+
     mat4 transform                    = glm::mat4(1.f);
     mat4 offset                       = glm::mat4(1.f);
     mat4 invtransform                 = glm::mat4(1.f);

@@ -13,7 +13,7 @@ class ThridPersonCameraComponent;
 class AimStateBase
 {
 public:
-    AimStateBase(FsmContext&);
+    AimStateBase(FsmContext&, const std::string& = "mixamorig:Spine1");
     void onEnter();
     void onEnter(const AimStartEvent&);
     void onEnter(const EndRotationEvent&);
@@ -29,15 +29,14 @@ protected:
     void setAnim();
     void stopMultiAnimation();
     void stopAnim();
-    void IncreaseYaw(float yaw);
-    void IncreasePitch(float pitch);
+    void IncreaseYRotation(Rotation&, float yaw);
+    void IncreaseXZRotation(Rotation&, float pitch, const vec3&);
+    vec2 calculateMouseMove();
 
 protected:
     FsmContext& context_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
-
-    Rotation rotationY;
-    Rotation rotation;
+    Animation::Joint* joint_;
     const float camSensitive = 0.2f;
 };
 }  // namespace Components

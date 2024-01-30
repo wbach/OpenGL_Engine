@@ -12,10 +12,16 @@ namespace GameEngine
 {
 namespace Components
 {
-AimStateBase::AimStateBase(FsmContext &context)
+namespace
+{
+const vec3 xVector(1.f, 0.f, 0.f);
+const vec3 zVector(0.f, 0.f, 1.f);
+}  // namespace
+
+AimStateBase::AimStateBase(FsmContext &context, const std::string& jointName)
     : context_{context}
     , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
-    , rotation(DegreesVec3(0.f, 0.f, 0.f))
+    , joint_{context_.animator.GetJoint(jointName)}
 {
 }
 
@@ -45,35 +51,16 @@ void AimStateBase::onEnter(const AimStartEvent &)
 
 void AimStateBase::update(float deltaTime)
 {
-    // return;
-
-    auto maybeJoint = context_.animator.GetJoint("mixamorig:Spine1");
-    if (maybeJoint)
+    if (joint_)
     {
-        // rotation.value_ = rotation.value_ * glm::angleAxis(glm::radians(DEFAULT_TURN_SPEED * deltaTime),
-        // glm::vec3(0.f, 1.f, 0.f));
-        auto mouseMove = context_.inputManager.CalcualteMouseMove();
-        IncreaseYaw(-static_cast<float>(mouseMove.x) * camSensitive);
-        IncreasePitch(-static_cast<float>(mouseMove.y) * camSensitive);
+        auto mouseMove = calculateMouseMove();
 
-        // auto mouseMove = vec2(-v.x, v.y) * defaultCamRotationSpeed;
-        // yaw += mouseMove.x;
-        // pitch += mouseMove.y;
-        //  IncreaseYaw(mouseMove.x);
-        //  IncreasePitch(mouseMove.y);
-        //  y += DEFAULT_TURN_SPEED * deltaTime;
-        // rotation = Rotation(DegreesVec3(0, yaw, 0 /*pitch*/));
-        maybeJoint->adrotY = rotationY;
-        //maybeJoint->adrotZ = rotation;
+        IncreaseYRotation(joint_->additionalRotations.y, -mouseMove.x);
+        IncreaseXZRotation(joint_->additionalRotations.z, -mouseMove.y, zVector);
+        IncreaseXZRotation(joint_->additionalRotations.x, mouseMove.y, xVector);
 
-       // maybeJoint->adrotZ.value_ *= glm::angleAxis(glm::radians(static_cast<float>(mouseMove.y) * camSensitive), glm::vec3(1.f, 0, 0));
-        
-       ///* 
-       glm::quat qPitch = glm::angleAxis(glm::radians(static_cast<float>(mouseMove.y) * camSensitive), glm::vec3(1.f, 0, 0));
-        maybeJoint->adrotZ.value_ = glm::normalize(maybeJoint->adrotZ.value_ * qPitch); //*/
-
-        maybeJoint->additionalUserMofiyTransform = glm::mat4_cast(rotationY.value_ * rotation.value_);
-        // DEBUG_LOG(std::to_string(maybeJoint->additionalUserMofiyTransform));
+        joint_->additionalUserMofiyTransform =
+            glm::mat4_cast(joint_->additionalRotations.y.value_ * joint_->additionalRotations.z.value_);
     }
 }
 
@@ -88,6 +75,12 @@ void AimStateBase::stopAnim()
 {
     context_.multiAnimations = false;
     context_.animator.StopAnimation(context_.upperBodyGroupName);
+}
+
+vec2 AimStateBase::calculateMouseMove()
+{
+    auto mouseMove = context_.inputManager.CalcualteMouseMove();
+    return vec2(static_cast<float>(mouseMove.x), static_cast<float>(mouseMove.y)) * camSensitive;
 }
 
 void AimStateBase::onEnter(const EndRotationEvent &)
@@ -114,6 +107,11 @@ void AimStateBase::onLeave(const AimStopEvent &)
     {
         thridPersonCameraComponent_->handleEvent(Camera::StopAimEvent{});
     }
+
+    if (joint_)
+    {
+        joint_->additionalUserMofiyTransform = mat4(1.f);
+    }
 }
 
 void AimStateBase::onLeave()
@@ -130,29 +128,14 @@ void AimStateBase::stopMultiAnimation()
     context_.multiAnimations = false;
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
-void AimStateBase::IncreaseYaw(float yaw)
+void AimStateBase::IncreaseYRotation(Rotation &rotation, float value)
 {
-    rotationY.value_ *= glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+    rotation.value_ *= glm::normalize(glm::angleAxis(glm::radians(value), glm::vec3(0.f, 1.f, 0.f)));
 }
-void AimStateBase::IncreasePitch(float pitch)
+void AimStateBase::IncreaseXZRotation(Rotation &rotation, float value, const vec3 &dir)
 {
-    //    rotation.value_*= glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
-    //    return;
-    glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(0, 0, 1));
+    glm::quat qPitch = glm::angleAxis(glm::radians(value), dir);
     rotation.value_  = glm::normalize(qPitch * rotation.value_);
-
-
-    //    auto euler = glm::eulerAngles(rotation.value_).y;
-
-    //   // auto rotY = context_.gameObject.GetWorldTransform().GetPosition().y;
-    //    float x   = glm::radians(pitch) * glm::sin(euler);
-    //    float y   = glm::radians(pitch) * glm::cos(euler);
-
-    //    glm::quat qPitch = glm::angleAxis(x, glm::vec3(0, 0, 1));
-    //    rotation.value_  = glm::normalize(qPitch * rotation.value_);
-
-    //    glm::quat qRoll          = glm::angleAxis(y, glm::vec3(1, 0, 0));
-    //    rotation.value_ = glm::normalize(qRoll * rotation.value_);
 }
 
 }  // namespace Components

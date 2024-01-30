@@ -1,11 +1,12 @@
 #include "AimState.h"
 
+#include <Utils/GLM/GLMUtils.h>
+
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "Input/InputManager.h"
-#include <Utils/GLM/GLMUtils.h>
 
 namespace GameEngine
 {
@@ -15,7 +16,7 @@ namespace Camera
 {
 AimState::AimState(Context& context)
     : context{context}
-    , relativeCamerePosition(-0.25f, 1.0f, -0.75f, 1.f)
+    , relativeCamerePosition(-0.25f, 0.f, -0.75f, 1.f)
     , joint{nullptr}
 
 {
@@ -33,7 +34,6 @@ AimState::AimState(Context& context)
 
 void AimState::onEnter(const StartAimEvent&)
 {
-    DEBUG_LOG("StartAimEvent");
     context.inputManager.ShowCursor(true);
     context.inputManager.SetReleativeMouseMode(false);
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
@@ -43,16 +43,9 @@ void AimState::onEnter(const StartAimEvent&)
 
 void AimState::cameraUpdate()
 {
-     DEBUG_LOG("AimState::cameraUpdate()");
-    //auto [pos, rot, scale] = Utils::decompose(joint->additionalUserMofiyTransform);
-    //Rotation r(rot);
-    //auto erot = r.GetEulerDegrees();
-    //Rotation nr(DegreesVec3(erot.value.z, erot.value.y, erot.value.x));
-
-     auto jointMatrix =  joint->adrotY.value_ * joint->adrotZ.value_;
-
+    auto jointMatrix = joint->additionalRotations.y.value_ * joint->additionalRotations.x.value_;
     auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
-    parentWorldTransform = parentWorldTransform * glm::mat4_cast(jointMatrix);// *joint->additionalUserMofiyTransform;
+    parentWorldTransform      = parentWorldTransform * glm::translate(vec3(0.f, 1.f, 0)) * glm::mat4_cast(jointMatrix);
 
     auto worldCameraPosition = parentWorldTransform * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);
