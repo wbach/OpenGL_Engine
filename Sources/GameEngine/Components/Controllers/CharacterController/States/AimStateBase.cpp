@@ -16,9 +16,10 @@ namespace
 {
 const vec3 xVector(1.f, 0.f, 0.f);
 const vec3 zVector(0.f, 0.f, 1.f);
+const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::vec3(0.f, 1.f, 0.f)));
 }  // namespace
 
-AimStateBase::AimStateBase(FsmContext &context, const std::string& jointName)
+AimStateBase::AimStateBase(FsmContext &context, const std::string &jointName)
     : context_{context}
     , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
     , joint_{context_.animator.GetJoint(jointName)}
@@ -36,16 +37,22 @@ void AimStateBase::onEnter(const AimStartEvent &)
 
     if (thridPersonCameraComponent_)
     {
-        thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{});
+        if (joint_)
+        {
+            thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{joint_->id});
+        }
     }
     else
     {
         DEBUG_LOG("ThridPersonCameraComponent Component not found! Try again...");
-        thridPersonCameraComponent_ = context_.gameObject.GetComponent<ThridPersonCameraComponent>();
-        if (thridPersonCameraComponent_)
-        {
-            thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{});
-        }
+    }
+
+    if (joint_)
+    {
+        joint_->ignoreParentRotation         = true;
+        joint_->additionalUserMofiyTransform = matrixRotationOffset;
+
+        calculateMouseMove();  // skip first random move
     }
 }
 
@@ -60,6 +67,7 @@ void AimStateBase::update(float deltaTime)
         IncreaseXZRotation(joint_->additionalRotations.x, mouseMove.y, xVector);
 
         joint_->additionalUserMofiyTransform =
+            matrixRotationOffset *
             glm::mat4_cast(joint_->additionalRotations.y.value_ * joint_->additionalRotations.z.value_);
     }
 }
@@ -110,7 +118,10 @@ void AimStateBase::onLeave(const AimStopEvent &)
 
     if (joint_)
     {
+        // reset joint position
+        joint_->additionalRotations          = Animation::Joint::AdditionalRotations{};
         joint_->additionalUserMofiyTransform = mat4(1.f);
+        joint_->ignoreParentRotation         = false;
     }
 }
 

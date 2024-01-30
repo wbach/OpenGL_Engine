@@ -1,5 +1,6 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
+
 #include "../Context.h"
 #include "../ThridPersonCameraEvents.h"
 
@@ -25,6 +26,7 @@ public:
 
 private:
     void cameraUpdate();
+    void setJointIfNeeded(const StartAimEvent&);
 
 private:
     Context& context;

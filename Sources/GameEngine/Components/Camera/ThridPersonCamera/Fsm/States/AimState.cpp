@@ -20,30 +20,27 @@ AimState::AimState(Context& context)
     , joint{nullptr}
 
 {
-    auto animator = context.gameObject.GetComponent<Animator>();
-    if (animator)
-    {
-        joint = animator->GetJoint("mixamorig:Spine1");
-    }
-
-    if (not joint)
-    {
-        ERROR_LOG("Joint not found");
-    }
 }
 
-void AimState::onEnter(const StartAimEvent&)
+void AimState::onEnter(const StartAimEvent& event)
 {
     context.inputManager.ShowCursor(true);
     context.inputManager.SetReleativeMouseMode(false);
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
     cameraUpdate();
     context.inputManager.SetReleativeMouseMode(true);
+    setJointIfNeeded(event);
 }
 
 void AimState::cameraUpdate()
 {
-    auto jointMatrix = joint->additionalRotations.y.value_ * joint->additionalRotations.x.value_;
+    if (not joint)
+    {
+        ERROR_LOG("Joint not set !");
+        return;
+    }
+
+    auto jointMatrix          = joint->additionalRotations.y.value_ * joint->additionalRotations.x.value_;
     auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
     parentWorldTransform      = parentWorldTransform * glm::translate(vec3(0.f, 1.f, 0)) * glm::mat4_cast(jointMatrix);
 
@@ -54,6 +51,23 @@ void AimState::cameraUpdate()
     lookAtLocalPosition.z *= -1.f;
     auto lookAtPosition = parentWorldTransform * lookAtLocalPosition;
     context.camera.LookAt(lookAtPosition);
+}
+
+void AimState::setJointIfNeeded(const StartAimEvent &event)
+{
+    if (joint and joint->id == event.jointId)
+        return;
+
+    auto animator = context.gameObject.GetComponent<Animator>();
+    if (animator)
+    {
+        joint = animator->GetJoint(event.jointId);
+    }
+
+    if (not joint)
+    {
+        ERROR_LOG("Joint : " + context.jointName + " not found");
+    }
 }
 
 }  // namespace Camera

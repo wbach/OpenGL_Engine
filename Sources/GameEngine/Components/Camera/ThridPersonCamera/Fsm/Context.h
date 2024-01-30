@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace Input
 {
@@ -21,6 +22,7 @@ struct Context
     DisplayManager& displayManager;
     GameObject& gameObject;
     CustomCamera& camera;
+    std::string jointName;
 };
 }  // namespace Camera
 }  // namespace Components

@@ -54,6 +54,7 @@ public:
     void UnSubscribeForAnimationFrame(IdType);
 
     Animation::Joint* GetJoint(const std::string&);
+    Animation::Joint* GetJoint(const Animation::JointId&);
 
     uint32 subscribeForPoseBufferUpdate(std::function<void()>);
     void unSubscribeForPoseUpdateBuffer(uint32);

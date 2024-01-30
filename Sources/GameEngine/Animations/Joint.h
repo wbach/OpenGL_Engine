@@ -26,6 +26,7 @@ struct Joint
     };
     AdditionalRotations additionalRotations;
     mat4 additionalUserMofiyTransform = glm::mat4(1.f);
+    bool ignoreParentRotation{false};
 
     mat4 transform                    = glm::mat4(1.f);
     mat4 offset                       = glm::mat4(1.f);

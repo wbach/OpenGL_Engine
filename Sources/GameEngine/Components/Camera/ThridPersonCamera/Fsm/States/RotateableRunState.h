@@ -1,6 +1,7 @@
 #pragma once
 #include <Input/KeysSubscriptionsManager.h>
 #include <Utils/Fsm/Actions.h>
+
 #include "../Context.h"
 #include "../ThridPersonCameraEvents.h"
 
@@ -12,10 +13,10 @@ namespace Camera
 {
 class AimState;
 
-class RotateableRunState
-    : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                                       Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
-                                       Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
+class RotateableRunState : public Utils::StateMachine::Will<
+                               Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                               Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
+                               Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
 {
 public:
     RotateableRunState(Context&);

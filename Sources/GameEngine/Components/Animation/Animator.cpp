@@ -117,6 +117,11 @@ Animation::Joint* Animator::GetJoint(const std::string& name)
     return jointData_.rootJoint.getJoint(name);
 }
 
+Joint* Animator::GetJoint(const Animation::JointId& id)
+{
+    return jointData_.rootJoint.getJoint(id);
+}
+
 uint32 Animator::subscribeForPoseBufferUpdate(std::function<void()> func)
 {
     if (jointData_.buffer)
@@ -286,15 +291,27 @@ void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
 
 void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 {
+    mat4 parent(parentTransform);
     mat4 currentTransform(parentTransform);
 
+    if (joint.ignoreParentRotation)
+    {
+       // auto invertedParentWithoutTranslation = glm::mat4(glm::mat3(glm::inverse(parentTransform)));
+        auto invertedParentWithoutTranslation = glm::inverse(parentTransform);
+        // remove translation
+        invertedParentWithoutTranslation[3][0] = 0;
+        invertedParentWithoutTranslation[3][1] = 0;
+        invertedParentWithoutTranslation[3][2] = 0;
+        // remove rotation from parent
+        parent =parent * invertedParentWithoutTranslation;
+    }
     auto currentPoseIter = jointData_.pose.data.find(joint.id);
 
     if (currentPoseIter != jointData_.pose.data.end())
     {
-        currentTransform = parentTransform * currentPoseIter->second.matrix;
+        currentTransform = parent * currentPoseIter->second.matrix;
     }
-    currentTransform = currentTransform * joint.additionalUserMofiyTransform;
+    currentTransform        = currentTransform * joint.additionalUserMofiyTransform;
     joint.animatedTransform = currentTransform * joint.offset;
 
     for (Joint& childJoint : joint.children)
@@ -304,10 +321,7 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
-    // DEBUG_LOG(jointData_.rootJoint.children[0].name);
     applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
-    // jointData_.rootJoint.children[0].animatedTransform =
-    // glm::mat3(jointData_.rootJoint.children[0].animatedTransform);
     updateShaderBuffers();
 }
 void Animator::createShaderJointBuffers()
@@ -354,7 +368,8 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
 

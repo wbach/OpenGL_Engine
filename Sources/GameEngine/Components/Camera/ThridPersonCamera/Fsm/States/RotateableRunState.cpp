@@ -1,5 +1,7 @@
 #include "RotateableRunState.h"
+
 #include <Logger/Log.h>
+
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Objects/GameObject.h"
 
@@ -28,8 +30,8 @@ void RotateableRunState::onEnter(const StopAimEvent&)
 
 void RotateableRunState::cameraUpdate()
 {
-    //DEBUG_LOG("RotateableRunState::cameraUpdate()");
-    // CalculateInput();
+    // DEBUG_LOG("RotateableRunState::cameraUpdate()");
+    //  CalculateInput();
 
     auto worldCameraPosition = context.gameObject.GetWorldTransform().GetMatrix() * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);

@@ -13,7 +13,7 @@ class ThridPersonCameraComponent;
 class AimStateBase
 {
 public:
-    AimStateBase(FsmContext&, const std::string& = "mixamorig:Spine1");
+    AimStateBase(FsmContext&, const std::string& = "mixamorig:Spine2");
     void onEnter();
     void onEnter(const AimStartEvent&);
     void onEnter(const EndRotationEvent&);
