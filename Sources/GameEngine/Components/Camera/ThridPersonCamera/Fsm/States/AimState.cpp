@@ -14,12 +14,14 @@ namespace Components
 {
 namespace Camera
 {
-AimState::AimState(Context& context)
+AimState::AimState(Context& context, const vec3& rcp)
     : context{context}
-    , relativeCamerePosition(-0.25f, 0.f, -0.75f, 1.f)
     , joint{nullptr}
-
+    , relativeCamerePosition{rcp.x, 0.f, rcp.z, 1.f}
+    , lookAtLocalPosition(relativeCamerePosition)
+    , yTranslation{glm::translate(vec3(0.f, rcp.y, 0.f))}
 {
+    lookAtLocalPosition.z *= -1.f;
 }
 
 void AimState::onEnter(const StartAimEvent& event)
@@ -32,6 +34,16 @@ void AimState::onEnter(const StartAimEvent& event)
     setJointIfNeeded(event);
 }
 
+const vec4& AimState::getRelativeCamerePosition() const
+{
+    return relativeCamerePosition;
+}
+
+const vec4& AimState::getLookAtPosition() const
+{
+    return lookAtLocalPosition;
+}
+
 void AimState::cameraUpdate()
 {
     if (not joint)
@@ -42,18 +54,16 @@ void AimState::cameraUpdate()
 
     auto jointMatrix          = joint->additionalRotations.y.value_ * joint->additionalRotations.x.value_;
     auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
-    parentWorldTransform      = parentWorldTransform * glm::translate(vec3(0.f, 1.f, 0)) * glm::mat4_cast(jointMatrix);
+    parentWorldTransform      = parentWorldTransform * yTranslation * glm::mat4_cast(jointMatrix);
 
     auto worldCameraPosition = parentWorldTransform * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);
 
-    auto lookAtLocalPosition = relativeCamerePosition;
-    lookAtLocalPosition.z *= -1.f;
     auto lookAtPosition = parentWorldTransform * lookAtLocalPosition;
     context.camera.LookAt(lookAtPosition);
 }
 
-void AimState::setJointIfNeeded(const StartAimEvent &event)
+void AimState::setJointIfNeeded(const StartAimEvent& event)
 {
     if (joint and joint->id == event.jointId)
         return;

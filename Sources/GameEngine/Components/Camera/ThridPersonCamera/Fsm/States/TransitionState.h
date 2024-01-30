@@ -8,32 +8,31 @@ namespace GameEngine
 {
 namespace Components
 {
+class ThridPersonCameraComponent;
 namespace Camera
 {
-class TransitionState;
+class AimState;
+class RotateableRunState;
 
-class RotateableRunState
+class TransitionState
     : public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<TransitionState>>>
+          Utils::StateMachine::On<StopAimEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
+          Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
 {
 public:
-    RotateableRunState(Context&, const vec3& = {-0.5f, 1.0f, -1.5f});
-    ~RotateableRunState();
+    TransitionState(Context&);
 
-    void onEnter(const StopAimEvent&);
-    void update(const InitEvent&);
-    const vec4& getRelativeCamerePosition() const;
-    const vec4& getLookAtPosition() const;
+    void onEnter(RotateableRunState&, const StartAimEvent&);
+    void onEnter(AimState&, const StopAimEvent&);
 
 private:
     void cameraUpdate();
 
 private:
     Context& context;
-    vec4 relativeCamerePosition;
-    vec4 lookAtLocalPosition;
+    ThridPersonCameraComponent* thridPersonCameraComponent;
 };
 }  // namespace Camera
 }  // namespace Components
