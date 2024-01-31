@@ -40,8 +40,6 @@ protected:
     ThridPersonCameraComponent* thridPersonCameraComponent_;
     const float camSensitive;
 
-    float pitch;
-    float yaw;
     vec2 yawLimit;
     vec2 pitchLimit;
 };

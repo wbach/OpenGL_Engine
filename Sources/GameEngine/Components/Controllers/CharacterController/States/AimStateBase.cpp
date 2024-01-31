@@ -21,8 +21,6 @@ AimStateBase::AimStateBase(FsmContext &context)
     : context_{context}
     , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
     , camSensitive{0.2f}
-    , pitch{0.f}
-    , yaw{0.f}
     , yawLimit{-75.f, 45.f}
     , pitchLimit{-40.f, 50.f}
 {
@@ -43,8 +41,8 @@ void AimStateBase::onEnter(const AimStartEvent &)
         context_.aimingJoint->additionalUserMofiyTransform = matrixRotationOffset;
     }
 
-    yaw   = 0.f;
-    pitch = 0.f;
+    context_.aimYaw   = 0.f;
+    context_.aimPitch = 0.f;
     context_.inputManager.CalcualteMouseMove();
 }
 
@@ -53,22 +51,22 @@ void AimStateBase::update(float)
     if (context_.aimingJoint)
     {
         auto mouseMove = calculateMouseMove();
-        yaw -= mouseMove.x;
-        pitch -= mouseMove.y;
+        context_.aimYaw -= mouseMove.x;
+        context_.aimPitch -= mouseMove.y;
 
         LockYaw();
         LockPitch();
 
         context_.aimingJoint->additionalRotations.x.value_ =
-            glm::normalize(glm::angleAxis(glm::radians(-pitch), glm::vec3(1.f, 0.f, 0.f)));
+            glm::normalize(glm::angleAxis(glm::radians(-context_.aimPitch), glm::vec3(1.f, 0.f, 0.f)));
         context_.aimingJoint->additionalRotations.y.value_ =
-            glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+            glm::normalize(glm::angleAxis(glm::radians(context_.aimYaw), glm::vec3(0.f, 1.f, 0.f)));
         context_.aimingJoint->additionalRotations.z.value_ =
-            glm::normalize(glm::angleAxis(glm::radians(pitch), glm::vec3(0.f, 0.f, 1.f)));
+            glm::normalize(glm::angleAxis(glm::radians(context_.aimPitch), glm::vec3(0.f, 0.f, 1.f)));
 
         context_.aimingJoint->additionalUserMofiyTransform =
-            matrixRotationOffset *
-            glm::mat4_cast(context_.aimingJoint->additionalRotations.y.value_ * context_.aimingJoint->additionalRotations.z.value_);
+            matrixRotationOffset * glm::mat4_cast(context_.aimingJoint->additionalRotations.y.value_ *
+                                                  context_.aimingJoint->additionalRotations.z.value_);
     }
 }
 
@@ -150,18 +148,18 @@ void AimStateBase::IncreaseXZRotation(Rotation &rotation, float value, const vec
 }
 void AimStateBase::LockPitch()
 {
-    if (pitch < pitchLimit.x)
-        pitch = pitchLimit.x;
-    if (pitch > pitchLimit.y)
-        pitch = pitchLimit.y;
+    if (context_.aimPitch < pitchLimit.x)
+        context_.aimPitch = pitchLimit.x;
+    if (context_.aimPitch > pitchLimit.y)
+        context_.aimPitch = pitchLimit.y;
 }
 
 void AimStateBase::LockYaw()
 {
-    if (yaw < yawLimit.x)
-        yaw = yawLimit.x;
-    if (yaw > yawLimit.y)
-        yaw = yawLimit.y;
+    if (context_.aimYaw < yawLimit.x)
+        context_.aimYaw = yawLimit.x;
+    if (context_.aimYaw > yawLimit.y)
+        context_.aimYaw = yawLimit.y;
 }
 }  // namespace Components
 }  // namespace GameEngine

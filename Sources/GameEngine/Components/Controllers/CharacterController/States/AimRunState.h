@@ -14,6 +14,7 @@ class RecoilRunState;
 class ArmedRunState;
 class AimState;
 class AimRunState;
+class AimWalkState;
 class AimRunAndRotateState;
 class DisarmedRunState;
 
@@ -24,7 +25,7 @@ class AimRunState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<AimRunState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
@@ -41,6 +42,8 @@ public:
 
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
+
+    void update(float);
 
     void onLeave(const WeaponStateEvent&);
     void onLeave(const AimStopEvent&);

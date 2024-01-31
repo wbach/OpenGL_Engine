@@ -40,6 +40,7 @@ void DrawArrowRotateState::update(const RotateRightEvent& event)
 void DrawArrowRotateState::update(float dt)
 {
     RotateStateBase::update(dt);
+    DrawArrowStateBase::update(dt);
 }
 
 void DrawArrowRotateState::onLeave(const AimStopEvent& e)

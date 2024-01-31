@@ -17,7 +17,7 @@ void ArmedRotateState::onEnter(const WeaponStateEvent &)
     StateBase::equipWeapon();
     RotateStateBase::setCurrentAnim();
 }
-void ArmedRotateState::onEnter(DisarmedRunState &, const DrawArrowEvent &)
+void ArmedRotateState::onEnter(DisarmedRotateState &, const DrawArrowEvent &)
 {
     drawArrowEndSub_ = context_.animator.SubscribeForAnimationFrame(
         context_.animClipNames.equip, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });

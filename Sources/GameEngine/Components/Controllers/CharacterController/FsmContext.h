@@ -72,6 +72,8 @@ struct FsmContext
     float rotateToTargetProgress{0.f};
     Quaternion startRotation{};
     Quaternion targetRotation{};
+    float aimPitch{0.f};
+    float aimYaw{0.f};
 
 };
 }  // namespace Components

@@ -25,6 +25,12 @@ void AimRunState::onEnter(const AimStartEvent& event)
     AimStateBase::onEnter(event);
 }
 
+void AimRunState::update(float dt)
+{
+    MoveStateBase::update(dt);
+    AimStateBase::update(dt);
+}
+
 void AimRunState::onLeave(const WeaponStateEvent& event)
 {
     AimStateBase::onLeave(event);

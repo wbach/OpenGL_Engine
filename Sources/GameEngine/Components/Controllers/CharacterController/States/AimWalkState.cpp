@@ -37,6 +37,7 @@ void AimWalkState::onEnter(const WalkChangeStateEvent &event)
 void AimWalkState::update(float dt)
 {
     MoveStateBase::update(dt);
+    AimStateBase::update(dt);
 }
 
 void AimWalkState::onLeave(const AimStopEvent &e)

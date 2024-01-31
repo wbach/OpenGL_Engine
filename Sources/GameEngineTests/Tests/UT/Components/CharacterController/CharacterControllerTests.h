@@ -211,12 +211,12 @@ struct CharacterControllerTests : public BaseComponentTestSchould
             .Times(AtLeast(1));
     }
 
-    void expectRotationLeft(float dt)
+    void expectRotationLeft(float dt = ADVANCED_TIME_TRANSITION_TIME)
     {
         expectRotatation(dt, DEFAULT_TURN_SPEED);
     }
 
-    void expectRotationRight(float dt)
+    void expectRotationRight(float dt = ADVANCED_TIME_TRANSITION_TIME)
     {
         expectRotatation(dt, -DEFAULT_TURN_SPEED);
     }

@@ -47,6 +47,7 @@ void AimRotateState::update(const RotateRightEvent &event)
 void AimRotateState::update(float dt)
 {
     RotateStateBase::update(dt);
+    AimStateBase::update(dt);
 }
 
 void AimRotateState::onLeave(const AimStopEvent &event)

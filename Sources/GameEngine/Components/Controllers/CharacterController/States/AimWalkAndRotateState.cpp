@@ -27,6 +27,7 @@ void AimWalkAndRotateState::update(float dt)
 {
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
+    AimStateBase::update(dt);
 }
 
 void AimWalkAndRotateState::onLeave(const AimStopEvent &e)
