@@ -33,6 +33,7 @@ void DrawArrowWalkAndRotateState::update(float dt)
 {
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
+    DrawArrowStateBase::update(dt);
 }
 
 void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent &e)

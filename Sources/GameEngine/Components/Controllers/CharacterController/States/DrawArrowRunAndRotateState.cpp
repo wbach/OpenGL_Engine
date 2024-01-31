@@ -30,6 +30,7 @@ void DrawArrowRunAndRotateState::onEnter(const ReloadArrowEvent& event)
 
 void DrawArrowRunAndRotateState::update(float dt)
 {
+    DrawArrowStateBase::update(dt);
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
 }

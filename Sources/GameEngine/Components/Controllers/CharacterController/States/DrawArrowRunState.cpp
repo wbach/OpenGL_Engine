@@ -51,6 +51,8 @@ void DrawArrowRunState::onLeave(const WeaponStateEvent &e)
 void DrawArrowRunState::update(float dt)
 {
     MoveStateBase::update(dt);
+    DrawArrowStateBase::update(dt);
+
 }
 }  // namespace Components
 }  // namespace GameEngine

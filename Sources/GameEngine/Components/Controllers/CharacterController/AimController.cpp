@@ -61,7 +61,7 @@ void AimController::reset()
     joint.ignoreParentRotation         = false;
 }
 
-const Animation::Joint &AimController::getJoint() const
+const Animation::Joint& AimController::getJoint() const
 {
     return joint;
 }

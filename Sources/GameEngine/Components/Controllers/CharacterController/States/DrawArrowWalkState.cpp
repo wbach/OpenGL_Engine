@@ -46,6 +46,7 @@ void DrawArrowWalkState::onEnter(const ReloadArrowEvent &event)
 void DrawArrowWalkState::update(float dt)
 {
     MoveStateBase::update(dt);
+    DrawArrowStateBase::update(dt);
 }
 
 void DrawArrowWalkState::onLeave(const AimStopEvent &e)

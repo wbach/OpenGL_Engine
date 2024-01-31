@@ -9,8 +9,8 @@ namespace GameEngine
 {
 namespace Animation
 {
-class Joint;
-}
+struct Joint;
+} // namespace Animation
 namespace Components
 {
 class AimController
