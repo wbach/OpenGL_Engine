@@ -16,20 +16,21 @@ namespace Camera
 TransitionState::TransitionState(Context& context)
     : context{context}
     , thridPersonCameraComponent{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
-    , progress{0}
+    , currentTime{0}
     , transitionLength{0.1f}
 {
 }
 
 void TransitionState::onEnter()
 {
-    progress = 0;
+    currentTime = 0;
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }
-void TransitionState::onEnter(RotateableRunState& rotateableRunState, const StartAimEvent& event)
+void TransitionState::onEnter(const StartAimEvent& event)
 {
     if (thridPersonCameraComponent)
     {
+        auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
         auto aimState = std::get<AimState>(thridPersonCameraComponent->fsm->states);
 
         sourcePosition = rotateableRunState.getRelativeCamerePosition();
@@ -39,11 +40,12 @@ void TransitionState::onEnter(RotateableRunState& rotateableRunState, const Star
 
     processingEvent = event;
 }
-void TransitionState::onEnter(AimState& aimState, const StopAimEvent& event)
+void TransitionState::onEnter(const StopAimEvent& event)
 {
     if (thridPersonCameraComponent)
     {
         auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
+        auto aimState = std::get<AimState>(thridPersonCameraComponent->fsm->states);
 
         sourcePosition = aimState.getRelativeCamerePosition();
         targetPosition = rotateableRunState.getRelativeCamerePosition();
@@ -52,20 +54,38 @@ void TransitionState::onEnter(AimState& aimState, const StopAimEvent& event)
 
     processingEvent = event;
 }
+
+bool TransitionState::transitionCondition(const StopAimEvent & event)
+{
+    if (progress > 1.f)
+        return true;
+
+    onEnter(event);
+    return false;
+}
+
+bool TransitionState::transitionCondition(const StartAimEvent & event)
+{
+    if (progress > 1.f)
+        return true;
+
+    onEnter(event);
+    return false;
+}
 void TransitionState::cameraUpdate()
 {
-    progress += context.displayManager.GetTime().deltaTime;
-    auto t = progress / transitionLength;
+    currentTime += context.displayManager.GetTime().deltaTime;
+    progress = currentTime / transitionLength;
 
-    if (t > 1.0f)
+    if (progress > 1.0f)
     {
         if (thridPersonCameraComponent)
             thridPersonCameraComponent->pushEventToQueue(processingEvent);
         return;
     }
 
-    auto relativeCamerePosition = glm::mix(sourcePosition, targetPosition, t);
-    auto lookAtLocalPosition    = glm::mix(sourceLookAt, targetLookAt, t);
+    auto relativeCamerePosition = glm::mix(sourcePosition, targetPosition, progress);
+    auto lookAtLocalPosition    = glm::mix(sourceLookAt, targetLookAt, progress);
 
     auto worldCameraPosition = context.gameObject.GetWorldTransform().GetMatrix() * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);

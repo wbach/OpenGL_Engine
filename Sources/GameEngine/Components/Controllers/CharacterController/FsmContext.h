@@ -55,6 +55,7 @@ struct FsmContext
     const std::string& lowerBodyGroupName;
 
     TimeStamp armTimeStamps;
+    Animation::Joint* aimingJoint{nullptr};
 
     bool multiAnimations{false};
     bool weaponChangeTriggered_{false};
@@ -71,6 +72,7 @@ struct FsmContext
     float rotateToTargetProgress{0.f};
     Quaternion startRotation{};
     Quaternion targetRotation{};
+
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -1,6 +1,7 @@
 #include "DrawArrowState.h"
 
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Logger/Log.h"
 
 namespace GameEngine

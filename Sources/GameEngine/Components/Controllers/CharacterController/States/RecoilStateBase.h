@@ -11,6 +11,7 @@ namespace Components
 class DrawArrowState;
 class ArmedIdleState;
 class DisarmedIdleState;
+class ThridPersonCameraComponent;
 
 class RecoilStateBase
 {
@@ -33,6 +34,7 @@ protected:
 protected:
     FsmContext& context_;
     std::string animName_;
+    ThridPersonCameraComponent* thridPersonCameraComponent_;
 };
 }  // namespace Components
 }  // namespace GameEngine

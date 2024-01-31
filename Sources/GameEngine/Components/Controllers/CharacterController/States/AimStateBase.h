@@ -13,7 +13,7 @@ class ThridPersonCameraComponent;
 class AimStateBase
 {
 public:
-    AimStateBase(FsmContext&, const std::string& = "mixamorig:Spine2");
+    AimStateBase(FsmContext&);
     void onEnter();
     void onEnter(const AimStartEvent&);
     void onEnter(const EndRotationEvent&);
@@ -38,7 +38,6 @@ protected:
 protected:
     FsmContext& context_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
-    Animation::Joint* joint_;
     const float camSensitive;
 
     float pitch;

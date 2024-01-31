@@ -25,8 +25,11 @@ public:
     TransitionState(Context&);
 
     void onEnter();
-    void onEnter(RotateableRunState&, const StartAimEvent&);
-    void onEnter(AimState&, const StopAimEvent&);
+    void onEnter(const StartAimEvent&);
+    void onEnter(const StopAimEvent&);
+
+    bool transitionCondition(const StopAimEvent&);
+    bool transitionCondition(const StartAimEvent&);
 
 private:
     void cameraUpdate();
@@ -36,6 +39,7 @@ private:
     Context& context;
     ThridPersonCameraComponent* thridPersonCameraComponent;
     float progress;
+    float currentTime;
     float transitionLength;
     using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent>;
     Event processingEvent;
