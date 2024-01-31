@@ -57,9 +57,9 @@ TEST_F(CharacterControllerTests, RecoilRotate_AimStopEvent)
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateLeft});
 }
-TEST_F(CharacterControllerTests, RecoilRotate_DrawArrowRotateState)
+TEST_F(CharacterControllerTests, RecoilRotate_ReloadArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent, DrawArrowRotateState>(
+    tiggerAndExpect<ReloadArrowEvent, DrawArrowRotateState>(
         {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.drawArrow});
 }

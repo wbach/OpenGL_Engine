@@ -19,7 +19,12 @@ void DrawArrowWalkAndRotateState::onEnter()
     context_.multiAnimations = true;
 }
 
-void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent & event)
+void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent &event)
+{
+    DrawArrowStateBase::onEnter(event);
+}
+
+void DrawArrowWalkAndRotateState::onEnter(const ReloadArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
 }

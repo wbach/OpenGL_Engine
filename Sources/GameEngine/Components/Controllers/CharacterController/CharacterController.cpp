@@ -137,6 +137,10 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+Animation::Joint dummyJoint;
+}
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
     , upperBodyGroupName{"upperBody"}
@@ -175,7 +179,8 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]() {
+        auto sendEndAtatackCallback = [this]()
+        {
             if (stateMachine_)
                 stateMachine_->handle(EndAttackEvent{});
         };
@@ -183,22 +188,31 @@ void CharacterController::Init()
         attackFsmContext.reset(
             new AttackFsmContext{*animator_, animationClipsNames_, sendEndAtatackCallback, std::nullopt});
 
-        attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
+        attackFsm_    = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
 
-        fsmContext.reset(new FsmContext{*attackFsm_,
-                                        thisObject_,
-                                        componentContext_.physicsApi_,
-                                        *rigidbody_,
-                                        *animator_,
-                                        *this,
-                                        componentContext_.inputManager_,
-                                        {},
-                                        {},
-                                        animationClipsNames_,
-                                        upperBodyGroupName,
-                                        lowerBodyGroupName,
-                                        {equipTimeStamp, disarmTimeStamp},
-                                        animator_->GetJoint("mixamorig:Spine2")});
+        auto aimJoint = animator_->GetJoint("mixamorig:Spine2");
+        if (not aimJoint)
+            ERROR_LOG("Aim joint not found");
+
+        aimController_ =
+            std::make_unique<AimController>(componentContext_.inputManager_, aimJoint ? *aimJoint : dummyJoint);
+
+        fsmContext.reset(new FsmContext{
+            *attackFsm_,
+            thisObject_,
+            componentContext_.physicsApi_,
+            *rigidbody_,
+            *animator_,
+            *this,
+            componentContext_.inputManager_,
+            *aimController_,
+            {},
+            {},
+            animationClipsNames_,
+            upperBodyGroupName,
+            lowerBodyGroupName,
+            {equipTimeStamp, disarmTimeStamp},
+        });
         // clang-format off
         stateMachine_ = std::make_unique<CharacterControllerFsm>(
             DisarmedIdleState(*fsmContext),
@@ -238,105 +252,104 @@ void CharacterController::Init()
             DrawArrowWalkState(*fsmContext),
             DrawArrowWalkAndRotateState(*fsmContext),
             DeathState(*fsmContext));
-            // clang-format on
+        // clang-format on
 
-            rigidbody_->InputParams().angularFactor_ = vec3(0);
-            animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);
-            animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarm);
-            animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
-            animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.hurt);
-            animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.death);
+        rigidbody_->InputParams().angularFactor_ = vec3(0);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarm);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.hurt);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.death);
 
-            // animator_->alignAnimations(animationClipsNames_.disarm, animationClipsNames_.disarmed.idle);
+        // animator_->alignAnimations(animationClipsNames_.disarm, animationClipsNames_.disarmed.idle);
 
-            for (const auto& attack : animationClipsNames_.armed.attack)
-            {
-                animator_->setPlayOnceForAnimationClip(attack);
-            }
-            for (const auto& attack : animationClipsNames_.disarmed.attack)
-            {
-                animator_->setPlayOnceForAnimationClip(attack);
-            }
+        for (const auto& attack : animationClipsNames_.armed.attack)
+        {
+            animator_->setPlayOnceForAnimationClip(attack);
+        }
+        for (const auto& attack : animationClipsNames_.disarmed.attack)
+        {
+            animator_->setPlayOnceForAnimationClip(attack);
+        }
 
-            animator_->SetAnimation(animationClipsNames_.disarmed.idle);
+        animator_->SetAnimation(animationClipsNames_.disarmed.idle);
 
-            auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
-            if (lowerBodyGroupIter == animator_->jointGroups_.end())
-            {
-                DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName +
-                          ", not found in animator, create empty.");
-                animator_->jointGroups_.insert({lowerBodyGroupName, {}});
-            }
+        auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
+        if (lowerBodyGroupIter == animator_->jointGroups_.end())
+        {
+            DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
+            animator_->jointGroups_.insert({lowerBodyGroupName, {}});
+        }
 
-            auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
-            if (upperBodyGroupIter == animator_->jointGroups_.end())
-            {
-                DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName +
-                          ", not found in animator, create empty");
-                animator_->jointGroups_.insert({upperBodyGroupName, {}});
-            }
+        auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
+        if (upperBodyGroupIter == animator_->jointGroups_.end())
+        {
+            DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
+            animator_->jointGroups_.insert({upperBodyGroupName, {}});
+        }
     }
     else
     {
-            WARNING_LOG("Animator or rigidbody_ not exist in object");
+        WARNING_LOG("Animator or rigidbody_ not exist in object");
     }
-    }
-    void CharacterController::Update()
+}
+void CharacterController::Update()
+{
+    if (stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
-        if (stateMachine_ and rigidbody_ and rigidbody_->IsReady())
+        auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
+        std::visit(passEventToState, stateMachine_->currentState);
+    }
+}
+void CharacterController::SetJumpPower(float v)
+{
+    jumpPower_ = v;
+}
+CharacterControllerFsm* CharacterController::fsm()
+{
+    return stateMachine_.get();
+}
+
+float CharacterController::getShapeSize() const
+{
+    return shapeSize_;
+}
+void CharacterController::SetTurnSpeed(float v)
+{
+    turnSpeed_ = v;
+}
+void CharacterController::SetRunSpeed(float v)
+{
+    runSpeed_ = v;
+}
+void CharacterController::registerReadFunctions()
+{
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
+        auto component = std::make_unique<CharacterController>(componentContext, gameObject);
+
+        auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
+        if (animationClipsNode)
         {
-            auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
-            std::visit(passEventToState, stateMachine_->currentState);
+            ::Read(*animationClipsNode, component->animationClipsNames_);
         }
-    }
-    void CharacterController::SetJumpPower(float v)
-    {
-        jumpPower_ = v;
-    }
-    CharacterControllerFsm* CharacterController::fsm()
-    {
-        return stateMachine_.get();
-    }
 
-    float CharacterController::getShapeSize() const
-    {
-        return shapeSize_;
-    }
-    void CharacterController::SetTurnSpeed(float v)
-    {
-        turnSpeed_ = v;
-    }
-    void CharacterController::SetRunSpeed(float v)
-    {
-        runSpeed_ = v;
-    }
-    void CharacterController::registerReadFunctions()
-    {
-        auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
-            auto component = std::make_unique<CharacterController>(componentContext, gameObject);
+        ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
+        ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
 
-            auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
-            if (animationClipsNode)
-            {
-                ::Read(*animationClipsNode, component->animationClipsNames_);
-            }
+        return component;
+    };
 
-            ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
-            ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
+    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+}
 
-            return component;
-        };
+void CharacterController::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 
-        regsiterComponentReadFunction(COMPONENT_STR, readFunc);
-    }
-
-    void CharacterController::write(TreeNode & node) const
-    {
-        node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
-
-        ::write(node.addChild(CSTR_ANIMATION_CLIPS), animationClipsNames_);
-        ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
-        ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
-    }
+    ::write(node.addChild(CSTR_ANIMATION_CLIPS), animationClipsNames_);
+    ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
+    ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
+}
 }  // namespace Components
-}  // namespace Components
+}  // namespace GameEngine

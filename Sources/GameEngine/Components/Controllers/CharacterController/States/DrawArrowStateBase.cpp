@@ -19,6 +19,18 @@ void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
 {
     DEBUG_LOG("On enter DrawArrowEvent clip: " + context_.animClipNames.drawArrow);
 
+    onEnter(ReloadArrowEvent{});
+
+    if (thridPersonCameraComponent_)
+    {
+        thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{context_.aimController.getJoint().id});
+    }
+
+    context_.aimController.enter();
+}
+
+void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
+{
     if (context_.animClipNames.drawArrow.empty())
     {
         return;
@@ -29,11 +41,6 @@ void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
     if (subId_)
     {
         context_.animator.UnSubscribeForAnimationFrame(*subId_);
-    }
-
-    if (thridPersonCameraComponent_)
-    {
-        thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{context_.aimingJoint->id});
     }
 
     subId_ = context_.animator.SubscribeForAnimationFrame(
@@ -72,17 +79,12 @@ void DrawArrowStateBase::stopAnim()
         thridPersonCameraComponent_->handleEvent(Camera::StopAimEvent{});
     }
 
-    if (context_.aimingJoint)
-    {
-        // reset joint position
-        context_.aimingJoint->additionalRotations          = Animation::Joint::AdditionalRotations{};
-        context_.aimingJoint->additionalUserMofiyTransform = mat4(1.f);
-        context_.aimingJoint->ignoreParentRotation         = false;
-    }
+    context_.aimController.reset();
 }
 
 void DrawArrowStateBase::update(float)
 {
+    context_.aimController.update();
 }
 
 void DrawArrowStateBase::onLeave(const AimStopEvent &)

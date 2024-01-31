@@ -35,6 +35,7 @@ class DrawArrowRotateState
 public:
     DrawArrowRotateState(FsmContext&);
     void onEnter(const DrawArrowEvent&);
+    void onEnter(const ReloadArrowEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
 

@@ -49,8 +49,8 @@ TEST_F(CharacterControllerTests, Recoil_AimStopEvent)
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
-TEST_F(CharacterControllerTests, Recoil_DrawArrowEvent)
+TEST_F(CharacterControllerTests, Recoil_ReloadArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
+    tiggerAndExpect<ReloadArrowEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
 }

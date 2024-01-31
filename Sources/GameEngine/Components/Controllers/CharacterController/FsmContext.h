@@ -9,6 +9,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "MoveSpeed.h"
+#include "AimController.h"
 
 namespace GameEngine
 {
@@ -45,6 +46,7 @@ struct FsmContext
     Animator& animator;
     CharacterController& characterController;
     Input::InputManager& inputManager;
+    AimController& aimController;
 
     MoveStateData moveStateData_;
     RotateStateData rotateStateData_;
@@ -55,7 +57,6 @@ struct FsmContext
     const std::string& lowerBodyGroupName;
 
     TimeStamp armTimeStamps;
-    Animation::Joint* aimingJoint{nullptr};
 
     bool multiAnimations{false};
     bool weaponChangeTriggered_{false};
@@ -72,9 +73,6 @@ struct FsmContext
     float rotateToTargetProgress{0.f};
     Quaternion startRotation{};
     Quaternion targetRotation{};
-    float aimPitch{0.f};
-    float aimYaw{0.f};
-
 };
 }  // namespace Components
 }  // namespace GameEngine

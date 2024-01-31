@@ -45,10 +45,10 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_WeaponStateEvent)
     tiggerAndExpect<WeaponStateEvent, DisarmedWalkAndRotateState>(
         {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.walk.forward});
 }
-TEST_F(CharacterControllerTests, RecoilWalkAndRotate_DrawArrowEvent)
+TEST_F(CharacterControllerTests, RecoilWalkAndRotate_ReloadArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent, DrawArrowWalkAndRotateState>(
+    tiggerAndExpect<ReloadArrowEvent, DrawArrowWalkAndRotateState>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_AimStopEvent)

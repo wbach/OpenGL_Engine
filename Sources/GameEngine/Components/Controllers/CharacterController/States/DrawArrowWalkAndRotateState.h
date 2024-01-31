@@ -40,6 +40,7 @@ public:
     DrawArrowWalkAndRotateState(FsmContext&);
     void onEnter();
     void onEnter(const DrawArrowEvent&);
+    void onEnter(const ReloadArrowEvent&);
 
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::update;

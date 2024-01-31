@@ -23,6 +23,11 @@ void DrawArrowRunState::onEnter(const DrawArrowEvent &event)
     DrawArrowStateBase::onEnter(event);
 }
 
+void DrawArrowRunState::onEnter(const ReloadArrowEvent &event)
+{
+    DrawArrowStateBase::onEnter(event);
+}
+
 void DrawArrowRunState::onEnter(const RunForwardEvent &event)
 {
     MoveStateBase::onEnter(event);

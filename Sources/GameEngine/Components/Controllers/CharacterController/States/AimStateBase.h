@@ -14,7 +14,6 @@ class AimStateBase
 {
 public:
     AimStateBase(FsmContext&);
-    void onEnter();
     void onEnter(const AimStartEvent&);
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
@@ -23,25 +22,18 @@ public:
 
     void onLeave(const WeaponStateEvent&);
     void onLeave(const AimStopEvent&);
-    void onLeave();
 
 protected:
     void setAnim();
     void stopMultiAnimation();
     void stopAnim();
-    void IncreaseYRotation(Rotation&, float yaw);
-    void IncreaseXZRotation(Rotation&, float pitch, const vec3&);
-    vec2 calculateMouseMove();
-    void LockPitch();
-    void LockYaw();
+
 
 protected:
     FsmContext& context_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
-    const float camSensitive;
 
-    vec2 yawLimit;
-    vec2 pitchLimit;
+
 };
 }  // namespace Components
 }  // namespace GameEngine

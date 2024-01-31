@@ -83,6 +83,9 @@ struct WeaponChangeEndEvent
 struct DrawArrowEvent
 {
 };
+struct ReloadArrowEvent
+{
+};
 struct AimStartEvent
 {
 };

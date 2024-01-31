@@ -42,10 +42,11 @@ void RecoilStateBase::onEnter(const AttackEvent &)
     setAnim();
 
     context_.animator.SubscribeForAnimationFrame(
-        animName_, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });
+        animName_, [&]() { context_.characterController.fsm()->handle(ReloadArrowEvent{}); });
 }
 void RecoilStateBase::update(float)
 {
+    context_.aimController.update();
 }
 
 void RecoilStateBase::stopAnim()
@@ -58,13 +59,7 @@ void RecoilStateBase::stopAnim()
         thridPersonCameraComponent_->handleEvent(Camera::StopAimEvent{});
     }
 
-    if (context_.aimingJoint)
-    {
-        // reset joint position
-        context_.aimingJoint->additionalRotations          = Animation::Joint::AdditionalRotations{};
-        context_.aimingJoint->additionalUserMofiyTransform = mat4(1.f);
-        context_.aimingJoint->ignoreParentRotation         = false;
-    }
+    context_.aimController.reset();
 }
 
 void RecoilStateBase::onLeave(const AimStopEvent &)

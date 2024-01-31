@@ -41,6 +41,7 @@ public:
 
     void onEnter();
     void onEnter(const DrawArrowEvent&);
+    void onEnter(const ReloadArrowEvent&);
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);
 

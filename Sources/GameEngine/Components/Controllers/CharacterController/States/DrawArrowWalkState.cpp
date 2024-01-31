@@ -18,22 +18,27 @@ void DrawArrowWalkState::onEnter()
     context_.multiAnimations = true;
 }
 
-void DrawArrowWalkState::onEnter(const WalkChangeStateEvent & event)
+void DrawArrowWalkState::onEnter(const WalkChangeStateEvent &event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void DrawArrowWalkState::onEnter(const WalkBackwardEvent & event)
+void DrawArrowWalkState::onEnter(const WalkBackwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void DrawArrowWalkState::onEnter(const WalkForwardEvent & event)
+void DrawArrowWalkState::onEnter(const WalkForwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void DrawArrowWalkState::onEnter(const DrawArrowEvent & event)
+void DrawArrowWalkState::onEnter(const DrawArrowEvent &event)
+{
+    DrawArrowStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::onEnter(const ReloadArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
 }

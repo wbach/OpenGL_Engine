@@ -16,7 +16,12 @@ DrawArrowRotateState::DrawArrowRotateState(FsmContext& context)
 void DrawArrowRotateState::onEnter(const DrawArrowEvent& event)
 {
     context_.multiAnimations = true;
-    DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
+    DrawArrowStateBase::onEnter(event);
+}
+
+void DrawArrowRotateState::onEnter(const ReloadArrowEvent & event)
+{
+    context_.multiAnimations = true;
     DrawArrowStateBase::onEnter(event);
 }
 void DrawArrowRotateState::onEnter(const RotateLeftEvent& event)

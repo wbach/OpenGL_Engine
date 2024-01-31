@@ -61,6 +61,7 @@ private:
     std::unique_ptr<AttackFsmContext> attackFsmContext;
     std::unique_ptr<AttackFsm> attackFsm_;
     std::unique_ptr<CharacterControllerFsm> stateMachine_;
+    std::unique_ptr<AimController> aimController_;
 
 public:
     static void registerReadFunctions();

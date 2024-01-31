@@ -40,6 +40,7 @@ public:
     DrawArrowWalkState(FsmContext&);
     void onEnter();
     void onEnter(const DrawArrowEvent&);
+    void onEnter(const ReloadArrowEvent&);
     void onEnter(const WalkForwardEvent&);
     void onEnter(const WalkBackwardEvent&);
     void onEnter(const WalkChangeStateEvent&);
