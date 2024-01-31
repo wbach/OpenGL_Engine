@@ -8,6 +8,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 
 #include <Utils/Fsm/Fsm.h>
+#include <Utils/Variant.h>
 
 namespace GameEngine
 {
@@ -33,6 +34,7 @@ void ThridPersonCameraComponent::CleanUp()
 void ThridPersonCameraComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::OnStart, [this]() { init(); });
+    RegisterFunction(FunctionType::Update, [this]() { processEvent(); });
 }
 
 void ThridPersonCameraComponent::init()
@@ -44,13 +46,33 @@ void ThridPersonCameraComponent::init()
         return;
     }
     auto camera = std::make_unique<CustomCamera>();
-    fsmContext.reset(new Context{componentContext_.inputManager_, *componentContext_.scene_.getDisplayManager(), thisObject_, *camera});
+    fsmContext.reset(new Context{componentContext_.inputManager_, *componentContext_.scene_.getDisplayManager(),
+                                 thisObject_, *camera});
     componentContext_.camera_.addAndSet(std::move(camera));
 
-    fsm = std::make_unique<ThridPersonCameraFsm>(RotateableRunState(*fsmContext), AimState(*fsmContext), TransitionState(*fsmContext));
+    fsm = std::make_unique<ThridPersonCameraFsm>(RotateableRunState(*fsmContext), AimState(*fsmContext),
+                                                 TransitionState(*fsmContext));
 
     // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
     fsm->handle(InitEvent{});
+}
+
+void ThridPersonCameraComponent::processEvent()
+{
+    if (not eventQueue.empty())
+    {
+        for (auto& event : eventQueue)
+        {
+            std::visit(
+                visitor{
+                    [&](const auto& event) { handleEvent(event); },
+                },
+                event);
+
+            handleEvent(event);
+        }
+        eventQueue.clear();
+    }
 }
 
 void ThridPersonCameraComponent::registerReadFunctions()

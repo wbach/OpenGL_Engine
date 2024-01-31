@@ -46,7 +46,7 @@ int Kingdom::Initialize()
     DEBUG_LOG("Kingdom::Initialize()");
 
     auto fpCamera = std::make_unique<GameEngine::FirstPersonCamera>(*this->inputManager_, *this->displayManager_);
-    cameraId_ = camera.addAndSet(std::move(fpCamera));
+    cameraId_     = camera.addAndSet(std::move(fpCamera));
 
     camera.SetPosition(vec3(1, 1, 1));
     camera.LookAt(vec3(0));
@@ -58,6 +58,9 @@ int Kingdom::Initialize()
     LoadFromFile(sceneFile);
 
     DEBUG_LOG("Kingdom::Initialized");
+
+ //   inputManager_->ShowCursor(false);
+    inputManager_->SetReleativeMouseMode(true);
     return 0;
 }
 

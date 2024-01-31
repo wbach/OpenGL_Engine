@@ -24,15 +24,26 @@ class TransitionState
 public:
     TransitionState(Context&);
 
+    void onEnter();
     void onEnter(RotateableRunState&, const StartAimEvent&);
     void onEnter(AimState&, const StopAimEvent&);
 
 private:
     void cameraUpdate();
+    void calculateLookAts();
 
 private:
     Context& context;
     ThridPersonCameraComponent* thridPersonCameraComponent;
+    float progress;
+    float transitionLength;
+    using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent>;
+    Event processingEvent;
+
+    vec4 sourcePosition;
+    vec4 sourceLookAt;
+    vec4 targetPosition;
+    vec4 targetLookAt;
 };
 }  // namespace Camera
 }  // namespace Components

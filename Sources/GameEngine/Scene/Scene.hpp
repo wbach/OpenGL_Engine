@@ -115,6 +115,7 @@ public:
     void SendEvent(EngineEvent&);
 
     DisplayManager* getDisplayManager();
+    Input::InputManager* getInputManager();
 
 public:
     uint32 objectCount;

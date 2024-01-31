@@ -14,8 +14,6 @@ namespace Components
 {
 namespace
 {
-const vec3 xVector(1.f, 0.f, 0.f);
-const vec3 zVector(0.f, 0.f, 1.f);
 const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::vec3(0.f, 1.f, 0.f)));
 }  // namespace
 
@@ -56,16 +54,19 @@ void AimStateBase::onEnter(const AimStartEvent &)
     {
         joint_->ignoreParentRotation         = true;
         joint_->additionalUserMofiyTransform = matrixRotationOffset;
-
-        calculateMouseMove();  // skip first random move
     }
+
+    yaw   = 0.f;
+    pitch = 0.f;
+    context_.inputManager.CalcualteMouseMove();
 }
 
-void AimStateBase::update(float deltaTime)
+void AimStateBase::update(float)
 {
     if (joint_)
     {
         auto mouseMove = calculateMouseMove();
+        //DEBUG_LOG("Mouse pos : " + std::to_string(context_.inputManager.GetMousePosition()));
         yaw -= mouseMove.x;
         pitch -= mouseMove.y;
 
@@ -101,6 +102,7 @@ void AimStateBase::stopAnim()
 vec2 AimStateBase::calculateMouseMove()
 {
     auto mouseMove = context_.inputManager.CalcualteMouseMove();
+   // DEBUG_LOG("Mouse mouseMove : " + std::to_string(mouseMove));
     return vec2(static_cast<float>(mouseMove.x), static_cast<float>(mouseMove.y)) * camSensitive;
 }
 

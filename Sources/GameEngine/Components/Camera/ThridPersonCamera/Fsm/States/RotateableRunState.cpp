@@ -40,8 +40,6 @@ void RotateableRunState::cameraUpdate()
 
 void RotateableRunState::update(const InitEvent&)
 {
-    context.inputManager.ShowCursor(true);
-    context.inputManager.SetReleativeMouseMode(false);
     DEBUG_LOG("init tp camera");
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }

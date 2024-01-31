@@ -34,6 +34,7 @@ private:
     Context& context;
     Animation::Joint* joint;
 
+    vec4 referenceRelativeCamerePosition;
     vec4 relativeCamerePosition;
     vec4 lookAtLocalPosition;
     const mat4 yTranslation;

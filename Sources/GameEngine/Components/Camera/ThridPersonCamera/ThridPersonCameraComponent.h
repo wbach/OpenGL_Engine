@@ -1,6 +1,7 @@
 #pragma once
 #include <Input/KeysSubscriptionsManager.h>
 #include "Fsm/Context.h"
+#include "Fsm/ThridPersonCameraEvents.h"
 #include "Fsm/ThridPersonCameraFsm.h"
 #include "GameEngine/Components/BaseComponent.h"
 
@@ -14,6 +15,8 @@ namespace Components
 class ThridPersonCameraComponent : public BaseComponent
 {
 public:
+    using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent>;
+
     ThridPersonCameraComponent(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -25,12 +28,27 @@ public:
             fsm->handle(event);
     }
 
-private:
-    void init();
+    template <typename Event>
+    void pushEventToQueue(const Event& event)
+    {
+        eventQueue.push_back(event);
+    }
+
+    void pushEventToQueue(const Event& event)
+    {
+        eventQueue.push_back(event);
+    }
 
 private:
+    void init();
+    void processEvent();
+
+public:
     std::unique_ptr<Camera::ThridPersonCameraFsm> fsm;
     std::unique_ptr<Camera::Context> fsmContext;
+
+private:
+    std::vector<Event> eventQueue;
 
 public:
     static void registerReadFunctions();

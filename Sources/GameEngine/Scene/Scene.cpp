@@ -346,4 +346,9 @@ DisplayManager *Scene::getDisplayManager()
 {
     return displayManager_;
 }
+
+Input::InputManager *Scene::getInputManager()
+{
+    return inputManager_;
+}
 }  // namespace GameEngine

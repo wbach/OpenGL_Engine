@@ -17,6 +17,7 @@ namespace Camera
 AimState::AimState(Context& context, const vec3& rcp)
     : context{context}
     , joint{nullptr}
+    , referenceRelativeCamerePosition{rcp, 1.f}
     , relativeCamerePosition{rcp.x, 0.f, rcp.z, 1.f}
     , lookAtLocalPosition(relativeCamerePosition)
     , yTranslation{glm::translate(vec3(0.f, rcp.y, 0.f))}
@@ -26,17 +27,14 @@ AimState::AimState(Context& context, const vec3& rcp)
 
 void AimState::onEnter(const StartAimEvent& event)
 {
-    context.inputManager.ShowCursor(true);
-    context.inputManager.SetReleativeMouseMode(false);
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
     cameraUpdate();
-    context.inputManager.SetReleativeMouseMode(true);
     setJointIfNeeded(event);
 }
 
 const vec4& AimState::getRelativeCamerePosition() const
 {
-    return relativeCamerePosition;
+    return referenceRelativeCamerePosition;
 }
 
 const vec4& AimState::getLookAtPosition() const
