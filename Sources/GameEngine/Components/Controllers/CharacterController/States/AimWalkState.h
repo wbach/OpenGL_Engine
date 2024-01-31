@@ -35,15 +35,17 @@ class AimWalkState
 {
 public:
     AimWalkState(FsmContext&);
-    using AimStateBase::onEnter;
-    void onEnter(const WalkForwardEvent&);
-    void onEnter(const WalkBackwardEvent&);
-    void onEnter(const WalkChangeStateEvent&);
+
+    void onEnter();
+    void onEnter(const AimStartEvent&);
+
+    using MoveStateBase::onEnter;
+    using MoveStateBase::update;
 
     void update(float);
 
-    void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+    void onLeave(const AimStopEvent&);
 
 private:
     FsmContext& context_;

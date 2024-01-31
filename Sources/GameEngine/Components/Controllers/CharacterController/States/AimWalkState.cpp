@@ -14,26 +14,17 @@ AimWalkState::AimWalkState(FsmContext &context)
 {
 }
 
-void AimWalkState::onEnter(const WalkForwardEvent &event)
+void AimWalkState::onEnter()
 {
+    DEBUG_LOG("onEnter()");
     context_.multiAnimations = true;
-    AimStateBase::setAnim();
-    MoveStateBase::onEnter(event);
 }
 
-void AimWalkState::onEnter(const WalkBackwardEvent &event)
+void AimWalkState::onEnter(const AimStartEvent& event)
 {
-    context_.multiAnimations = true;
-    AimStateBase::setAnim();
-    MoveStateBase::onEnter(event);
+    AimStateBase::onEnter(event);
 }
 
-void AimWalkState::onEnter(const WalkChangeStateEvent &event)
-{
-    context_.multiAnimations = true;
-    AimStateBase::setAnim();
-    MoveStateBase::onEnter(event);
-}
 void AimWalkState::update(float dt)
 {
     MoveStateBase::update(dt);

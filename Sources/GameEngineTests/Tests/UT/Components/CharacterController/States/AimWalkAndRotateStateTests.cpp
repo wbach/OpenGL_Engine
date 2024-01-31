@@ -55,3 +55,9 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_AimStopEvent)
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
 }
+TEST_F(CharacterControllerTests, AimWalkAndRotate_EndRotationEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndRotationEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
+}

@@ -40,11 +40,6 @@ public:
     AimRunAndRotateState(FsmContext&);
     void onEnter();
     void onEnter(const AimStartEvent&);
-    //    void onEnter(const RunForwardEvent&);
-    //    void onEnter(const RunBackwardEvent&);
-    //    void onEnter(const RotateLeftEvent&);
-    //    void onEnter(const RotateRightEvent&);
-
     void update(float);
 
     using MoveAndRotateStateBase::onEnter;
