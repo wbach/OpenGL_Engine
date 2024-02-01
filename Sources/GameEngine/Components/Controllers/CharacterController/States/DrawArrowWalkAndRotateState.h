@@ -43,14 +43,23 @@ class DrawArrowWalkAndRotateState
 {
 public:
     DrawArrowWalkAndRotateState(FsmContext&);
+
     void onEnter();
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
-
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::update;
+    void onEnter(const RotateLeftEvent&);
+    void onEnter(const RotateRightEvent&);
+    void onEnter(const RotateTargetEvent&);
+    void onEnter(const WalkForwardEvent&);
+    void onEnter(const WalkBackwardEvent&);
+    void onEnter(const WalkChangeStateEvent&);
 
     void update(float);
+    void update(const RotateLeftEvent&);
+    void update(const RotateRightEvent&);
+    void update(const RotateTargetEvent&);
+    void update(const WalkForwardEvent&);
+    void update(const WalkBackwardEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

@@ -51,11 +51,18 @@ public:
     void onEnter(const AttackEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
+    void onEnter(const RotateTargetEvent&);
     void onEnter(const WalkForwardEvent&);
     void onEnter(const WalkBackwardEvent&);
     void onEnter(const WalkChangeStateEvent&);
 
     void update(float);
+    void update(const RotateLeftEvent&);
+    void update(const RotateRightEvent&);
+    void update(const RotateTargetEvent&);
+    void update(const WalkForwardEvent&);
+    void update(const WalkBackwardEvent&);
+
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
 

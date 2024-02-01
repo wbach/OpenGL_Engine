@@ -4,6 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     test.expectForwardVelocity(DEFAULT_WALK_SPEED);
@@ -66,11 +67,13 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_WalkForwardEvent)
 TEST_F(CharacterControllerTests, DrawArrowWalk_WalkBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, DrawArrowWalkState>({sut_.animationClipsNames_.armed.walk.backward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalk_WalkChangeStateEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<WalkChangeStateEvent, DrawArrowRunState>({sut_.animationClipsNames_.armed.run.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalk_DeathEvent)
@@ -81,16 +84,19 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_DeathEvent)
 TEST_F(CharacterControllerTests, DrawArrowWalk_RunForwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, DrawArrowRunState>({sut_.animationClipsNames_.armed.run.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalk_RunBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, DrawArrowRunState>({sut_.animationClipsNames_.armed.run.backward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalk_SprintStateChangeEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<DeathEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalk_EndForwardMoveEvent)
@@ -102,6 +108,7 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, DrawArrowState>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});

@@ -45,6 +45,11 @@ void RecoilWalkAndRotateState::onEnter(const RotateRightEvent& event)
     RotateStateBase::update(event);
 }
 
+void RecoilWalkAndRotateState::onEnter(const RotateTargetEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
 void RecoilWalkAndRotateState::onEnter(const RotateLeftEvent& event)
 {
     RotateStateBase::update(event);
@@ -54,6 +59,26 @@ void RecoilWalkAndRotateState::update(float dt)
 {
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
+}
+void RecoilWalkAndRotateState::update(const RotateLeftEvent& event)
+{
+    RotateStateBase::update(event);
+}
+void RecoilWalkAndRotateState::update(const RotateRightEvent& event)
+{
+    RotateStateBase::update(event);
+}
+void RecoilWalkAndRotateState::update(const RotateTargetEvent& event)
+{
+    RotateStateBase::update(event);
+}
+void RecoilWalkAndRotateState::update(const WalkForwardEvent& event)
+{
+    MoveStateBase::update(event);
+}
+void RecoilWalkAndRotateState::update(const WalkBackwardEvent& event)
+{
+    MoveStateBase::update(event);
 }
 void RecoilWalkAndRotateState::onLeave(const AimStopEvent& e)
 {

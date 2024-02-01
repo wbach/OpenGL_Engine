@@ -4,6 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
@@ -103,5 +104,6 @@ TEST_F(CharacterControllerTests, AimRun_DeathEvent)
 TEST_F(CharacterControllerTests, AimRun_SprintStateChangeEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }

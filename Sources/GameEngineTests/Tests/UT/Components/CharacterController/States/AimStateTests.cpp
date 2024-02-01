@@ -4,6 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
     test.expectState<DisarmedIdleState>();
@@ -58,24 +59,28 @@ TEST_F(CharacterControllerTests, Aim_AimStopEvent)
 TEST_F(CharacterControllerTests, Aim_RunForwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, AimRunState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
 }
 TEST_F(CharacterControllerTests, Aim_RunBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, AimRunState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.backward});
 }
 TEST_F(CharacterControllerTests, Aim_WalkForwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkForwardEvent, AimWalkState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, Aim_WalkBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, AimWalkState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.backward});
 }
@@ -87,5 +92,6 @@ TEST_F(CharacterControllerTests, Aim_DeathEvent)
 TEST_F(CharacterControllerTests, Aim_SprintStartEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStartEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }

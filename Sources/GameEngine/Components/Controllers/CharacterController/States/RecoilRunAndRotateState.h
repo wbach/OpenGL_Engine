@@ -54,6 +54,13 @@ public:
     void onEnter(const RunBackwardEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
+    void onEnter(const RotateTargetEvent&);
+
+    void update(const RunForwardEvent&);
+    void update(const RunBackwardEvent&);
+    void update(const RotateLeftEvent&);
+    void update(const RotateRightEvent&);
+    void update(const RotateTargetEvent&);
 
     void update(float);
 

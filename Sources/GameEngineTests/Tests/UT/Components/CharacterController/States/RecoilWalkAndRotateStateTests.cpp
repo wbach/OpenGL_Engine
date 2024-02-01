@@ -4,6 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
     EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -71,12 +72,14 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_WalkForwardEvent)
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_WalkBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, RecoilWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_WalkChangeStateEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<WalkChangeStateEvent, RecoilRunAndRotateState>(
         {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.recoilArrow});
 }
@@ -88,23 +91,27 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_DeathEvent)
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_SprintStateChangeEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RunForwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, RecoilRunAndRotateState>(
         {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RunBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, RecoilRunAndRotateState>(
         {sut_.animationClipsNames_.armed.run.backward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RunEndRotationEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<EndRotationEvent, RecoilRunState>(
         {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.recoilArrow});
 }
@@ -119,6 +126,7 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_EndBackwardMoveEvent)
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, RecoilRotateState>(
         {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow});
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, RecoilWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.recoilArrow});
     tiggerAndExpect<EndBackwardMoveEvent, RecoilRotateState>(

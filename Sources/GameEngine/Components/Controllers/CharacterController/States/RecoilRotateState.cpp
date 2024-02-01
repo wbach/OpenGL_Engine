@@ -26,12 +26,35 @@ void RecoilRotateState::onEnter(const RotateRightEvent& event)
     RotateStateBase::onEnter(event);
 }
 
+void RecoilRotateState::onEnter(const RotateTargetEvent& event)
+{
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
+
+void RecoilRotateState::onEnter(const EndForwardMoveEvent& event)
+{
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
+
+void RecoilRotateState::onEnter(const EndBackwardMoveEvent& event)
+{
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
+
 void RecoilRotateState::update(const RotateLeftEvent& event)
 {
     onEnter(event);
 }
 
 void RecoilRotateState::update(const RotateRightEvent& event)
+{
+    onEnter(event);
+}
+
+void RecoilRotateState::update(const RotateTargetEvent& event)
 {
     onEnter(event);
 }

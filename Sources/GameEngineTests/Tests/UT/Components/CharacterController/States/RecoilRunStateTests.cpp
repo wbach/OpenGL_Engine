@@ -4,6 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
@@ -71,6 +72,7 @@ TEST_F(CharacterControllerTests, RecoilRun_RunForwardEvent)
 TEST_F(CharacterControllerTests, RecoilRun_RunBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, RecoilRunState>(
         {sut_.animationClipsNames_.armed.run.backward, sut_.animationClipsNames_.recoilArrow});
 }
@@ -87,18 +89,21 @@ TEST_F(CharacterControllerTests, RecoilRun_SprintStateChangeEvent)
 TEST_F(CharacterControllerTests, RecoilRun_WalkForwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkForwardEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilRun_WalkChangeStateEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkChangeStateEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilRun_WalkBackwardEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.recoilArrow});
 }
@@ -111,7 +116,8 @@ TEST_F(CharacterControllerTests, RecoilRun_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
-    tiggerAndExpect<RunBackwardEvent, RecoilState>(
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
+    tiggerAndExpect<RunBackwardEvent, RecoilRunState>(
         {sut_.animationClipsNames_.armed.run.backward, sut_.animationClipsNames_.recoilArrow});
     tiggerAndExpect<EndBackwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
 }

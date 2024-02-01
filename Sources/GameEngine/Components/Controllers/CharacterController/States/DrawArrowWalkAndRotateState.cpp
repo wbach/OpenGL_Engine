@@ -24,9 +24,39 @@ void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent &event)
     DrawArrowStateBase::onEnter(event);
 }
 
+void DrawArrowWalkAndRotateState::onEnter(const RotateLeftEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
 void DrawArrowWalkAndRotateState::onEnter(const ReloadArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
+}
+
+void DrawArrowWalkAndRotateState::onEnter(const RotateRightEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::onEnter(const RotateTargetEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::onEnter(const WalkForwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkAndRotateState::onEnter(const WalkBackwardEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkAndRotateState::onEnter(const WalkChangeStateEvent& event)
+{
+    MoveStateBase::onEnter(event);
 }
 
 void DrawArrowWalkAndRotateState::update(float dt)
@@ -34,6 +64,31 @@ void DrawArrowWalkAndRotateState::update(float dt)
     MoveStateBase::update(dt);
     RotateStateBase::update(dt);
     DrawArrowStateBase::update(dt);
+}
+
+void DrawArrowWalkAndRotateState::update(const RotateLeftEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::update(const RotateRightEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::update(const RotateTargetEvent& event)
+{
+    RotateStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::update(const WalkForwardEvent& event)
+{
+    MoveStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::update(const WalkBackwardEvent& event)
+{
+    MoveStateBase::update(event);
 }
 
 void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent &e)
