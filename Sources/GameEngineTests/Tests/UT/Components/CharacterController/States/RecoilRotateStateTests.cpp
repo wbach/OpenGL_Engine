@@ -35,6 +35,12 @@ TEST_F(CharacterControllerTests, RecoilRotate_RotateRight)
     tiggerAndExpect<RotateRightEvent, RecoilRotateState>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateRight});
 }
+TEST_F(CharacterControllerTests, RecoilRotate_RotateTargetEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RotateTargetEvent, RecoilRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateRight});
+}
 TEST_F(CharacterControllerTests, RecoilRotate_WeaponStateEvent)
 {
     prepareState(*this);
@@ -62,4 +68,38 @@ TEST_F(CharacterControllerTests, RecoilRotate_ReloadArrowEvent)
     prepareState(*this);
     tiggerAndExpect<ReloadArrowEvent, DrawArrowRotateState>(
         {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.drawArrow});
+}
+TEST_F(CharacterControllerTests, RecoilRotate_DeathEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+}
+TEST_F(CharacterControllerTests, RecoilRotate_SprintStartEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<SprintStartEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
+}
+TEST_F(CharacterControllerTests, RecoilRotate_WalkForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WalkForwardEvent, RecoilWalkAndRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
+}
+TEST_F(CharacterControllerTests, RecoilRotate_WalkBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WalkBackwardEvent, RecoilWalkAndRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
+}
+TEST_F(CharacterControllerTests, RecoilRotate_RunForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunForwardEvent, RecoilRunAndRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, RecoilRotate_RunBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunBackwardEvent, RecoilRunAndRotateState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.run.backward});
 }

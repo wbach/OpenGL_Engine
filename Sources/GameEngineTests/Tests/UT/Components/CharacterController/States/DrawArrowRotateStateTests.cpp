@@ -14,7 +14,8 @@ void prepareState(CharacterControllerTests& test)
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 
     test.tiggerAndExpect<DrawArrowEvent, DrawArrowState>({test.sut_.animationClipsNames_.drawArrow});
-    test.tiggerAndExpect<RotateRightEvent, DrawArrowRotateState>({test.sut_.animationClipsNames_.drawArrow, test.sut_.animationClipsNames_.armed.rotateRight });
+    test.tiggerAndExpect<RotateRightEvent, DrawArrowRotateState>(
+        {test.sut_.animationClipsNames_.drawArrow, test.sut_.animationClipsNames_.armed.rotateRight});
 }
 }  // namespace
 
@@ -28,6 +29,12 @@ TEST_F(CharacterControllerTests, DrawArowRotate_RotateRight)
 {
     prepareState(*this);
     tiggerAndExpect<RotateRightEvent, DrawArrowRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+}
+TEST_F(CharacterControllerTests, DrawArowRotate_RotateTargetEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RotateTargetEvent, DrawArrowRotateState>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
 }
 TEST_F(CharacterControllerTests, DrawArowRotate_WeaponStateEvent)
@@ -49,26 +56,40 @@ TEST_F(CharacterControllerTests, DrawArowRotate_AimStopEvent)
 TEST_F(CharacterControllerTests, DrawArowRotateToAimRotate)
 {
     prepareState(*this);
-    tiggerAndExpect<AimStartEvent, AimRotateState>({ sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle });
+    tiggerAndExpect<AimStartEvent, AimRotateState>(
+        {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle});
 }
-
-//Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-//Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-//Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-//Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
-//Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
-//Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
-//Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
-//Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-//Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DrawArrowState>>,
-//Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
-//Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
-
-
-// Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-// Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-// Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-// Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
+TEST_F(CharacterControllerTests, DrawArowRotate_DeathEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+}
+TEST_F(CharacterControllerTests, DrawArowRotate_SprintStartEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<SprintStartEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
+}
+TEST_F(CharacterControllerTests, DrawArowRotate_WalkForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WalkForwardEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
+}
+TEST_F(CharacterControllerTests, DrawArowRotate_WalkBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WalkBackwardEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
+}
+TEST_F(CharacterControllerTests, DrawArowRotate_RunForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunForwardEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, DrawArowRotate_RunBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunBackwardEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.backward});
+}

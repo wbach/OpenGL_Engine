@@ -35,6 +35,12 @@ TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_RotateRight)
     tiggerAndExpect<RotateRightEvent, DrawArrowRunAndRotateState>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.forward});
 }
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_RotateTargetEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RotateTargetEvent, DrawArrowRunAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.forward});
+}
 TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_WeaponStateEvent)
 {
     prepareState(*this);
@@ -51,4 +57,54 @@ TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_AimStopEvent)
 {
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_RunForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunForwardEvent, DrawArrowRunAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_RunBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunBackwardEvent, DrawArrowRunAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.backward});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_DeathEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WalkChangeStateEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_EndRotationEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndRotationEvent, DrawArrowRunState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, DrawArrowRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+}
+TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, DrawArrowRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+    tiggerAndExpect<RunBackwardEvent, DrawArrowRunAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.backward});
+    tiggerAndExpect<EndBackwardMoveEvent, DrawArrowRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
 }
