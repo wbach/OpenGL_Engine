@@ -25,87 +25,7 @@ const float ADVANCED_TIME_CLIP_TIME       = DUMMY_CLIP_LENGTH + 0.1f;
 
 struct CharacterControllerTests : public BaseComponentTestSchould
 {
-    CharacterControllerTests()
-        : BaseComponentTestSchould()
-        , sut_(context_, obj_)
-    {
-        EXPECT_CALL(physicsApiMock_, CreateSphereColider(_, _, _)).WillOnce(Return(shapeId));
-        EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _)).WillOnce(Return(rigidbodyid));
-
-        animator_  = &obj_.AddComponent<Animator>();
-        rigidbody_ = &obj_.AddComponent<Rigidbody>();
-
-        obj_.AddComponent<RendererComponent>().AddModel(&model_);
-        obj_.AddComponent<SphereShape>();
-
-        createDummySkeleton();
-
-        for (auto& component : obj_.GetComponents())
-        {
-            component->ReqisterFunctions();
-        }
-
-        sut_.ReqisterFunctions();
-
-        componentController_.CallFunctions(FunctionType::Awake);
-        componentController_.CallFunctions(FunctionType::OnStart);
-
-        auto& clips                  = sut_.animationClipsNames_;
-        clips.disarmed.idle          = "DI";
-        clips.disarmed.sprint        = "DS";
-        clips.disarmed.run.forward   = "DRF";
-        clips.disarmed.run.backward  = "DRB";
-        clips.disarmed.walk.forward  = "DWF";
-        clips.disarmed.walk.backward = "DWB";
-        clips.armed.idle             = "AI";
-        clips.armed.sprint           = "AS";
-        clips.armed.run.forward      = "ARF";
-        clips.armed.run.backward     = "ARB";
-        clips.armed.walk.forward     = "AWF";
-        clips.armed.walk.backward    = "AWB";
-        clips.equip                  = "equip";
-        clips.disarm                 = "disarm";
-        clips.disarmed.rotateLeft    = "DRL";
-        clips.disarmed.rotateRight   = "DRR";
-        clips.armed.rotateLeft       = "ARL";
-        clips.armed.rotateRight      = "ARR";
-        clips.drawArrow              = "drawArrow";
-        clips.recoilArrow            = "recoilArrow";
-        clips.aimIdle                = "aimIdle";
-
-        addDummyClip(clips.equip);
-        addDummyClip(clips.disarm);
-        addDummyClip(clips.disarmed.idle);
-        addDummyClip(clips.disarmed.sprint);
-        addDummyClip(clips.disarmed.run.forward);
-        addDummyClip(clips.disarmed.run.backward);
-        addDummyClip(clips.disarmed.walk.forward);
-        addDummyClip(clips.disarmed.walk.backward);
-        addDummyClip(clips.armed.idle);
-        addDummyClip(clips.armed.sprint);
-        addDummyClip(clips.armed.run.forward);
-        addDummyClip(clips.armed.run.backward);
-        addDummyClip(clips.armed.walk.forward);
-        addDummyClip(clips.armed.walk.backward);
-        addDummyClip(clips.disarmed.rotateLeft);
-        addDummyClip(clips.disarmed.rotateRight);
-        addDummyClip(clips.armed.rotateLeft);
-        addDummyClip(clips.armed.rotateRight);
-        addDummyClip(clips.drawArrow);
-        addDummyClip(clips.recoilArrow);
-        addDummyClip(clips.aimIdle);
-
-        sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
-        sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
-
-        auto weaponPtr =
-            std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, IdType(1));
-        weaponPtr->AddComponent<JointPoseUpdater>();
-        obj_.AddChild(std::move(weaponPtr));
-
-        sut_.Init();
-        gpuResourceLoader_.RuntimeGpuTasks();
-    }
+    CharacterControllerTests();
     virtual void SetUp() override
     {
         ASSERT_TRUE(sut_.fsm() != nullptr);
@@ -203,8 +123,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     void expectRotatation(float deltaTime, float rotateSpeed)
     {
-        auto rotation =
-            glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+        auto rotation = glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
 
         DEBUG_LOG("Expected rotation : " + std::to_string(rotation));
         EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(Quaternion(rotation))))

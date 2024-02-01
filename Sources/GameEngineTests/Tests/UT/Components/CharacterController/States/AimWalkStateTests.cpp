@@ -37,10 +37,18 @@ TEST_F(CharacterControllerTests, AimWalk_RotateRight)
     tiggerAndExpect<RotateRightEvent, AimWalkAndRotateState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.forward});
 }
+TEST_F(CharacterControllerTests, AimWalk_RotateTargetEvent)
+{
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    tiggerAndExpect<RotateTargetEvent, AimWalkAndRotateState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.forward});
+}
 TEST_F(CharacterControllerTests, AimWalk_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent, DisarmedWalkState>(
+        {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
 }
 TEST_F(CharacterControllerTests, AimWalk_AttackEvent)
 {
@@ -52,4 +60,45 @@ TEST_F(CharacterControllerTests, AimWalk_AimStopEvent)
 {
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.forward});
+}
+TEST_F(CharacterControllerTests, AimWalk_RunForwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunForwardEvent, AimRunState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, AimWalk_RunBackwardEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<RunForwardEvent, AimRunState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.backward});
+}
+TEST_F(CharacterControllerTests, AimWalk_WalkChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WalkChangeStateEvent, AimRunState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, AimWalk_EndForwardMoveEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, AimState>({sut_.animationClipsNames_.aimIdle});
+}
+TEST_F(CharacterControllerTests, AimWalk_EndBackwardMoveEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, AimState>({sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<WalkBackwardEvent, AimWalkState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.backward});
+    tiggerAndExpect<EndBackwardMoveEvent, AimState>({sut_.animationClipsNames_.aimIdle});
+}
+TEST_F(CharacterControllerTests, AimWalk_DeathEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+}
+TEST_F(CharacterControllerTests, AimWalk_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }

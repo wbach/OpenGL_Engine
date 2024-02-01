@@ -18,20 +18,6 @@ void RecoilWalkState::onEnter()
 {
     context_.multiAnimations = true;
 }
-void RecoilWalkState::onEnter(const WalkChangeStateEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void RecoilWalkState::onEnter(const WalkBackwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void RecoilWalkState::onEnter(const WalkForwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
 
 void RecoilWalkState::onEnter(const AttackEvent& event)
 {
