@@ -52,7 +52,16 @@ void DrawArrowRunState::update(float dt)
 {
     MoveStateBase::update(dt);
     DrawArrowStateBase::update(dt);
+}
 
+void DrawArrowRunState::update(const RunForwardEvent &event)
+{
+    MoveStateBase::update(event);
+}
+
+void DrawArrowRunState::update(const RunBackwardEvent &event)
+{
+    MoveStateBase::update(event);
 }
 }  // namespace Components
 }  // namespace GameEngine

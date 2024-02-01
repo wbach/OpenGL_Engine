@@ -48,10 +48,13 @@ public:
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);
 
+    void update(float);
+    void update(const RunForwardEvent&);
+    void update(const RunBackwardEvent&);
+
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
 
-    void update(float);
 
 protected:
     FsmContext& context_;

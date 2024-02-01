@@ -19,7 +19,7 @@ void DrawArrowRotateState::onEnter(const DrawArrowEvent& event)
     DrawArrowStateBase::onEnter(event);
 }
 
-void DrawArrowRotateState::onEnter(const ReloadArrowEvent & event)
+void DrawArrowRotateState::onEnter(const ReloadArrowEvent& event)
 {
     context_.multiAnimations = true;
     DrawArrowStateBase::onEnter(event);
@@ -30,6 +30,18 @@ void DrawArrowRotateState::onEnter(const RotateLeftEvent& event)
     RotateStateBase::onEnter(event);
 }
 void DrawArrowRotateState::onEnter(const RotateRightEvent& event)
+{
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
+
+void DrawArrowRotateState::onEnter(const EndForwardMoveEvent& event)
+{
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
+
+void DrawArrowRotateState::onEnter(const EndBackwardMoveEvent& event)
 {
     context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
