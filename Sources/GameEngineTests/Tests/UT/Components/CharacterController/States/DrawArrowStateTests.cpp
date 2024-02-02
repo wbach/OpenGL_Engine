@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
     EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
@@ -66,23 +66,27 @@ TEST_F(CharacterControllerTests, DrawArow_WalkForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<WalkForwardEvent, DrawArrowWalkState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<WalkForwardEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, DrawArow_WalkBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, DrawArrowWalkState>({sut_.animationClipsNames_.armed.walk.backward});
+    tiggerAndExpect<WalkBackwardEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, DrawArow_RunForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<RunForwardEvent, DrawArrowRunState>({sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<RunForwardEvent, DrawArrowRunState>(
+        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, DrawArow_RunBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, DrawArrowRunState>({sut_.animationClipsNames_.armed.run.backward});
+    tiggerAndExpect<RunBackwardEvent, DrawArrowRunState>(
+        {sut_.animationClipsNames_.armed.run.backward, sut_.animationClipsNames_.drawArrow});
 }

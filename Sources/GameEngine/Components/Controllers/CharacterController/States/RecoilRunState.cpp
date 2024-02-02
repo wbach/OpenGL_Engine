@@ -34,16 +34,21 @@ void RecoilRunState::onEnter(const RunBackwardEvent &event)
     MoveStateBase::onEnter(event);
 }
 
-void RecoilRunState::onEnter(const EndRotationEvent&)
+void RecoilRunState::onEnter(const EndRotationEvent &event)
 {
 }
 
-void RecoilRunState::update(const RunForwardEvent& event)
+void RecoilRunState::onEnter(const WalkChangeStateEvent &event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void RecoilRunState::update(const RunBackwardEvent& event)
+void RecoilRunState::update(const RunForwardEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilRunState::update(const RunBackwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }

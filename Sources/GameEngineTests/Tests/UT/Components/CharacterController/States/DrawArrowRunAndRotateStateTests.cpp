@@ -105,10 +105,10 @@ TEST_F(CharacterControllerTests, DrawArrowRunAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, DrawArrowRotateState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight}, {0});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, DrawArrowRunAndRotateState>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.backward});
     tiggerAndExpect<EndBackwardMoveEvent, DrawArrowRotateState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight}, {0});
 }

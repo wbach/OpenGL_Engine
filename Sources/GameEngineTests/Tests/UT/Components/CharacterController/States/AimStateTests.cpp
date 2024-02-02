@@ -59,6 +59,7 @@ TEST_F(CharacterControllerTests, Aim_AimStopEvent)
 TEST_F(CharacterControllerTests, Aim_RunForwardEvent)
 {
     prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, AimRunState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
@@ -66,6 +67,7 @@ TEST_F(CharacterControllerTests, Aim_RunForwardEvent)
 TEST_F(CharacterControllerTests, Aim_RunBackwardEvent)
 {
     prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, AimRunState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.backward});
@@ -73,6 +75,7 @@ TEST_F(CharacterControllerTests, Aim_RunBackwardEvent)
 TEST_F(CharacterControllerTests, Aim_WalkForwardEvent)
 {
     prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkForwardEvent, AimWalkState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.forward});
@@ -80,6 +83,7 @@ TEST_F(CharacterControllerTests, Aim_WalkForwardEvent)
 TEST_F(CharacterControllerTests, Aim_WalkBackwardEvent)
 {
     prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, AimWalkState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.backward});
@@ -92,6 +96,7 @@ TEST_F(CharacterControllerTests, Aim_DeathEvent)
 TEST_F(CharacterControllerTests, Aim_SprintStartEvent)
 {
     prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStartEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }

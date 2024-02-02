@@ -26,78 +26,12 @@ const float ADVANCED_TIME_CLIP_TIME       = DUMMY_CLIP_LENGTH + 0.1f;
 struct CharacterControllerTests : public BaseComponentTestSchould
 {
     CharacterControllerTests();
-    virtual void SetUp() override
-    {
-        ASSERT_TRUE(sut_.fsm() != nullptr);
-        EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
-        EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
-
-        Update(ADVANCED_TIME_TRANSITION_TIME);  // To set first anim
-    }
-
-    virtual void TearDown() override
-    {
-    }
-
-    void createDummySkeleton()
-    {
-        animator_->jointGroups_.insert({sut_.lowerBodyGroupName, {"head", "neck", "leftHand", "rightHand"}});
-        animator_->jointGroups_.insert({sut_.upperBodyGroupName, {"hips, leftLeg", "rightLeg"}});
-
-        Animation::JointId id = 0;
-        Animation::Joint rootJoint;
-        rootJoint.name = "Armature";
-        rootJoint.id   = id;
-
-        for (const auto& [_, group] : animator_->jointGroups_)
-        {
-            for (const auto& jointName : group)
-            {
-                Animation::Joint joint;
-                joint.name = jointName;
-                joint.id   = ++id;
-                rootJoint.addChild(joint);
-            }
-        }
-
-        model_.setRootJoint(rootJoint);
-    }
-
-    void addDummyClip(const std::string& name)
-    {
-        Animation::AnimationClip clip(name);
-        for (int i = 0; i <= DUMMY_FRAMES; ++i)
-        {
-            clip.AddFrame(Animation::KeyFrame{DUMMY_FRAME_TIME_DELTA * (float)i, {{0, Animation::JointTransform{}}}});
-        }
-        DEBUG_LOG("addDummyClip : " + name + " Length : " + std::to_string(clip.GetLength()));
-        animator_->AddAnimationClip(clip);
-    }
-
-    void Update(float time)
-    {
-        DEBUG_LOG("Update");
-        context_.time_.deltaTime = time;
-        componentController_.CallFunctions(FunctionType::Update);
-        sut_.Update();
-    }
-
-    void expectAnimsToBeSet(const std::vector<std::string>& names)
-    {
-        EXPECT_EQ(animator_->getCurrentAnimationName().size(), names.size());
-
-        for (const auto& name : names)
-        {
-            DEBUG_LOG("Expected : " + name);
-        }
-
-        for (const auto& name : animator_->getCurrentAnimationName())
-        {
-            DEBUG_LOG("Current  : " + name);
-            auto iter = std::find(names.begin(), names.end(), name);
-            EXPECT_TRUE(iter != names.end());
-        }
-    }
+    virtual void SetUp() override;
+    virtual void TearDown() override;
+    void createDummySkeleton();
+    void addDummyClip(const std::string& name);
+    void Update(float time);
+    void expectAnimsToBeSet(const std::vector<std::string>& names);
 
     template <typename State>
     void expectState()
@@ -116,29 +50,10 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         expectAnimsToBeSet(clipNames);
     }
 
-    void expectForwardVelocity(float speed)
-    {
-        EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed))).Times(AtLeast(1));
-    }
-
-    void expectRotatation(float deltaTime, float rotateSpeed)
-    {
-        auto rotation = glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
-
-        DEBUG_LOG("Expected rotation : " + std::to_string(rotation));
-        EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(Quaternion(rotation))))
-            .Times(AtLeast(1));
-    }
-
-    void expectRotationLeft(float dt = ADVANCED_TIME_TRANSITION_TIME)
-    {
-        expectRotatation(dt, DEFAULT_TURN_SPEED);
-    }
-
-    void expectRotationRight(float dt = ADVANCED_TIME_TRANSITION_TIME)
-    {
-        expectRotatation(dt, -DEFAULT_TURN_SPEED);
-    }
+    void expectForwardVelocity(float speed);
+    void expectRotatation(float deltaTime, float rotateSpeed);
+    void expectRotationLeft(float dt = ADVANCED_TIME_TRANSITION_TIME);
+    void expectRotationRight(float dt = ADVANCED_TIME_TRANSITION_TIME);
 
     CharacterController sut_;
     Animator* animator_{nullptr};

@@ -48,6 +48,11 @@ void RecoilRunAndRotateState::onEnter(const RotateTargetEvent& event)
 {
     RotateStateBase::update(event);
 }
+
+void RecoilRunAndRotateState::onEnter(const WalkChangeStateEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
 void RecoilRunAndRotateState::update(const RunForwardEvent& event)
 {
     MoveStateBase::update(event);

@@ -50,6 +50,7 @@ public:
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);
     void onEnter(const EndRotationEvent&);
+    void onEnter(const WalkChangeStateEvent&);
 
     void update(const RunForwardEvent&);
     void update(const RunBackwardEvent&);

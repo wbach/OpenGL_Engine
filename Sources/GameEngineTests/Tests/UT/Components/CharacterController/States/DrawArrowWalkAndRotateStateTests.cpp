@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
     EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -107,9 +107,9 @@ TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_RunBackwardEvent)
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_EndRotationEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<EndRotationEvent, DrawArrowRunState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.run.forward});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<EndRotationEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_EndForwardMoveEvent)
 {
@@ -121,10 +121,13 @@ TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, DrawArrowRotateState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight},
+        {ADVANCED_TIME_TRANSITION_TIME / 4.f});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, DrawArrowRotateState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
+    tiggerAndExpect<WalkBackwardEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward},
+        {ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<EndBackwardMoveEvent, DrawArrowRotateState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight},
+        {ADVANCED_TIME_TRANSITION_TIME / 4.f});
 }

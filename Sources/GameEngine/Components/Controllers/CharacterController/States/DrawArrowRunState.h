@@ -47,6 +47,7 @@ public:
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);
+    void onEnter(const WalkChangeStateEvent&);
 
     void update(float);
     void update(const RunForwardEvent&);

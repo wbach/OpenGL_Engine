@@ -55,6 +55,7 @@ public:
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
+    void onEnter(const WalkChangeStateEvent&);
 
     void update(const RunForwardEvent&);
     void update(const RunBackwardEvent&);

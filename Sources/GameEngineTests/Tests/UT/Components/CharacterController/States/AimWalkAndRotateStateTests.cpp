@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
     EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -99,12 +99,14 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, AimRotateState>(
-        {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle});
+        {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle},
+        {ADVANCED_TIME_CLIP_TIME / 4.f});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, ArmedWalkAndRotateState>(
+    tiggerAndExpect<WalkBackwardEvent, AimWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.aimIdle});
     tiggerAndExpect<EndBackwardMoveEvent, AimRotateState>(
-        {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle});
+        {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle},
+        {ADVANCED_TIME_CLIP_TIME / 4.f});
 }
 TEST_F(CharacterControllerTests, AimWalkAndRotate_DeathEvent)
 {

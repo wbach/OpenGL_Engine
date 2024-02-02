@@ -38,6 +38,11 @@ void DrawArrowRunState::onEnter(const RunBackwardEvent &event)
     MoveStateBase::onEnter(event);
 }
 
+void DrawArrowRunState::onEnter(const WalkChangeStateEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
 void DrawArrowRunState::onLeave(const AimStopEvent &e)
 {
     DrawArrowStateBase::onLeave(e);

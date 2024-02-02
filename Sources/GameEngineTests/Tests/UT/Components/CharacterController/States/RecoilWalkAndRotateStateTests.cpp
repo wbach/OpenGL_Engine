@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
     EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -108,12 +108,12 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RunBackwardEvent)
     tiggerAndExpect<RunBackwardEvent, RecoilRunAndRotateState>(
         {sut_.animationClipsNames_.armed.run.backward, sut_.animationClipsNames_.recoilArrow});
 }
-TEST_F(CharacterControllerTests, RecoilWalkAndRotate_RunEndRotationEvent)
+TEST_F(CharacterControllerTests, RecoilWalkAndRotate_EndRotationEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<EndRotationEvent, RecoilRunState>(
-        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.recoilArrow});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<EndRotationEvent, RecoilWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilWalkAndRotate_EndForwardMoveEvent)
 {
@@ -125,10 +125,12 @@ TEST_F(CharacterControllerTests, RecoilWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, RecoilRotateState>(
-        {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow});
+        {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow},
+        {ADVANCED_TIME_TRANSITION_TIME / 4.f});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<WalkBackwardEvent, RecoilWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.recoilArrow});
     tiggerAndExpect<EndBackwardMoveEvent, RecoilRotateState>(
-        {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow});
+        {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow},
+        {ADVANCED_TIME_TRANSITION_TIME / 4.f});
 }

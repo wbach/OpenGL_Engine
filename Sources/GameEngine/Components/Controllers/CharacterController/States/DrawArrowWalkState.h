@@ -50,6 +50,9 @@ public:
     void onEnter(const WalkBackwardEvent&);
     void onEnter(const WalkChangeStateEvent&);
 
+    void update(const WalkForwardEvent&);
+    void update(const WalkBackwardEvent&);
+
     void update(float);
 
     void onLeave(const AimStopEvent&);
