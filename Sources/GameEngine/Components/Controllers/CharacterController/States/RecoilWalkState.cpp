@@ -32,6 +32,11 @@ void RecoilWalkState::onLeave(const AimStopEvent& e)
     RecoilStateBase::onLeave(e);
 }
 
+void RecoilWalkState::onLeave(const SprintStateChangeEvent& e)
+{
+    RecoilStateBase::onLeave(e);
+}
+
 void RecoilWalkState::onLeave(const WeaponStateEvent& e)
 {
     RecoilStateBase::onLeave(e);

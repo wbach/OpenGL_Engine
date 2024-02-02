@@ -16,6 +16,11 @@ void AimState::onLeave(const WeaponStateEvent& event)
     AimStateBase::onLeave(event);
 }
 
+void AimState::onLeave(const SprintStartEvent& event)
+{
+    AimStateBase::onLeave(event);
+}
+
 void AimState::onLeave(const AimStopEvent& event)
 {
     AimStateBase::onLeave(event);

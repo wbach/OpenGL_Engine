@@ -101,5 +101,6 @@ TEST_F(CharacterControllerTests, DrawArrowRun_EndBackwardMoveEvent)
 TEST_F(CharacterControllerTests, DrawArrowRun_SprintStateChangeEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<SprintStateChangeEvent, DrawArrowState>({sut_.animationClipsNames_.armed.sprint});
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }

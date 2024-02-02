@@ -96,6 +96,16 @@ void DrawArrowStateBase::onLeave(const WeaponStateEvent &)
 {
     stopAnim();
 }
+
+void DrawArrowStateBase::onLeave(const SprintStartEvent &)
+{
+    stopAnim();
+}
+
+void DrawArrowStateBase::onLeave(const SprintStateChangeEvent &)
+{
+    stopAnim();
+}
 void DrawArrowStateBase::stopMultiAnimation()
 {
     context_.multiAnimations = false;

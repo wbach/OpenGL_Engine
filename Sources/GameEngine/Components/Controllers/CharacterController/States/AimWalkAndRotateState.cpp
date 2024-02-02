@@ -39,5 +39,10 @@ void AimWalkAndRotateState::onLeave(const WeaponStateEvent &e)
 {
     AimStateBase::onLeave(e);
 }
+
+void AimWalkAndRotateState::onLeave(const SprintStateChangeEvent &e)
+{
+    AimStateBase::onLeave(e);
+}
 }  // namespace Components
 }  // namespace GameEngine

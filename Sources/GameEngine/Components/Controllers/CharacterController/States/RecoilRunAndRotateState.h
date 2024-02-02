@@ -67,6 +67,7 @@ public:
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+    void onLeave(const SprintStateChangeEvent&);
 
 protected:
     FsmContext& context_;

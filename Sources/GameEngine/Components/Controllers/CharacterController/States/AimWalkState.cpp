@@ -20,7 +20,7 @@ void AimWalkState::onEnter()
     context_.multiAnimations = true;
 }
 
-void AimWalkState::onEnter(const AimStartEvent& event)
+void AimWalkState::onEnter(const AimStartEvent &event)
 {
     AimStateBase::onEnter(event);
 }
@@ -32,6 +32,11 @@ void AimWalkState::update(float dt)
 }
 
 void AimWalkState::onLeave(const AimStopEvent &e)
+{
+    AimStateBase::onLeave(e);
+}
+
+void AimWalkState::onLeave(const SprintStateChangeEvent & e)
 {
     AimStateBase::onLeave(e);
 }

@@ -1,7 +1,7 @@
 #include "RecoilStateBase.h"
 
-#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -68,6 +68,16 @@ void RecoilStateBase::onLeave(const AimStopEvent &)
 }
 
 void RecoilStateBase::onLeave(const WeaponStateEvent &)
+{
+    stopAnim();
+}
+
+void RecoilStateBase::onLeave(const SprintStartEvent &)
+{
+    stopAnim();
+}
+
+void RecoilStateBase::onLeave(const SprintStateChangeEvent &)
 {
     stopAnim();
 }

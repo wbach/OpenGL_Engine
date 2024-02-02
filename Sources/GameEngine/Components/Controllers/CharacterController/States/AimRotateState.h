@@ -52,6 +52,7 @@ public:
     void update(float);
 
     void onLeave(const AimStopEvent&);
+    void onLeave(const SprintStartEvent&);
     void onLeave(const WeaponStateEvent&);
 
 private:

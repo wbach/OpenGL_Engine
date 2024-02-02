@@ -40,5 +40,10 @@ void AimRunState::onLeave(const AimStopEvent& event)
 {
     AimStateBase::onLeave(event);
 }
+
+void AimRunState::onLeave(const SprintStateChangeEvent& event)
+{
+    AimStateBase::onLeave(event);
+}
 }  // namespace Components
 }  // namespace GameEngine

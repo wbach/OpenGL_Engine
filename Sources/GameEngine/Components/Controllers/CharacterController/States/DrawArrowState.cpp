@@ -1,7 +1,7 @@
 #include "DrawArrowState.h"
 
-#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -18,6 +18,11 @@ void DrawArrowState::onLeave(const AimStopEvent &e)
 }
 
 void DrawArrowState::onLeave(const WeaponStateEvent &e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
+
+void DrawArrowState::onLeave(const SprintStartEvent &e)
 {
     DrawArrowStateBase::onLeave(e);
 }

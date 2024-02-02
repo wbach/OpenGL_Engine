@@ -6,7 +6,7 @@ namespace GameEngine
 {
 namespace Components
 {
-DrawArrowWalkAndRotateState::DrawArrowWalkAndRotateState(FsmContext &context)
+DrawArrowWalkAndRotateState::DrawArrowWalkAndRotateState(FsmContext& context)
     : DrawArrowStateBase(context)
     , MoveAndRotateStateBase{context, context.walkSpeed, context.animClipNames.armed.walk,
                              context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
@@ -19,7 +19,7 @@ void DrawArrowWalkAndRotateState::onEnter()
     context_.multiAnimations = true;
 }
 
-void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent &event)
+void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
 }
@@ -29,7 +29,7 @@ void DrawArrowWalkAndRotateState::onEnter(const RotateLeftEvent& event)
     RotateStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::onEnter(const ReloadArrowEvent &event)
+void DrawArrowWalkAndRotateState::onEnter(const ReloadArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
 }
@@ -91,12 +91,17 @@ void DrawArrowWalkAndRotateState::update(const WalkBackwardEvent& event)
     MoveStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent &e)
+void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent& e)
 {
     DrawArrowStateBase::onLeave(e);
 }
 
-void DrawArrowWalkAndRotateState::onLeave(const WeaponStateEvent &e)
+void DrawArrowWalkAndRotateState::onLeave(const WeaponStateEvent& e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
+
+void DrawArrowWalkAndRotateState::onLeave(const SprintStateChangeEvent& e)
 {
     DrawArrowStateBase::onLeave(e);
 }

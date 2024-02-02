@@ -53,6 +53,11 @@ void DrawArrowRunState::onLeave(const WeaponStateEvent &e)
     DrawArrowStateBase::onLeave(e);
 }
 
+void DrawArrowRunState::onLeave(const SprintStateChangeEvent &e)
+{
+    DrawArrowStateBase::onLeave(e);
+}
+
 void DrawArrowRunState::update(float dt)
 {
     MoveStateBase::update(dt);

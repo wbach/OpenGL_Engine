@@ -25,6 +25,8 @@ public:
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+    void onLeave(const SprintStartEvent&);
+    void onLeave(const SprintStateChangeEvent&);
 
 protected:
     void setAnim();

@@ -62,6 +62,11 @@ void RecoilRunState::onLeave(const WeaponStateEvent &e)
 {
     RecoilStateBase::onLeave(e);
 }
+
+void RecoilRunState::onLeave(const SprintStateChangeEvent &e)
+{
+    RecoilStateBase::onLeave(e);
+}
 void RecoilRunState::update(float dt)
 {
     MoveStateBase::update(dt);

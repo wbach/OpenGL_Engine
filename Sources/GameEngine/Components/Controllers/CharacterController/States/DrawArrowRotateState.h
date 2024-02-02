@@ -52,6 +52,7 @@ public:
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
+    void onLeave(const SprintStartEvent&);
 
 private:
     FsmContext& context_;

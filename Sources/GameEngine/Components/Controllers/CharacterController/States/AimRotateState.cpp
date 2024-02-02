@@ -34,13 +34,13 @@ void AimRotateState::onEnter(const RotateRightEvent &event)
     RotateStateBase::onEnter(event);
 }
 
-void AimRotateState::onEnter(const EndForwardMoveEvent & event)
+void AimRotateState::onEnter(const EndForwardMoveEvent &event)
 {
     context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
 
-void AimRotateState::onEnter(const EndBackwardMoveEvent & event)
+void AimRotateState::onEnter(const EndBackwardMoveEvent &event)
 {
     context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
@@ -65,6 +65,11 @@ void AimRotateState::update(float dt)
 void AimRotateState::onLeave(const AimStopEvent &event)
 {
     DEBUG_LOG("onLeave(AimStopEvent)");
+    AimStateBase::onLeave(event);
+}
+
+void AimRotateState::onLeave(const SprintStartEvent &event)
+{
     AimStateBase::onLeave(event);
 }
 

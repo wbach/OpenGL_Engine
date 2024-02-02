@@ -104,6 +104,5 @@ TEST_F(CharacterControllerTests, AimRotate_SprintStartEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<RunForwardEvent, ArmedSprintAndRotateState>(
-        {sut_.animationClipsNames_.armed.sprint, sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<SprintStartEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
 }
