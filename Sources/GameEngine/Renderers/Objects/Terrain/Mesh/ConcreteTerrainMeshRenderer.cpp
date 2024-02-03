@@ -43,8 +43,8 @@ void ConcreteTerrainMeshRenderer::init()
 }
 void ConcreteTerrainMeshRenderer::render()
 {
-    context_.graphicsApi_.EnableCulling();
-    context_.graphicsApi_.EnableBlend();
+    //context_.graphicsApi_.EnableCulling();
+    //context_.graphicsApi_.EnableBlend();
     shader_.Start();
     bindShadowMap(CASCADE_INDEX0, 0);
     bindShadowMap(CASCADE_INDEX1, 22);

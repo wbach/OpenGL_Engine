@@ -241,6 +241,7 @@ void NetworkEditorInterface::SetupCamera()
     auto cameraEditor = std::make_unique<CameraEditorType>(*scene_.inputManager_, *scene_.displayManager_);
     cameraEditor->SetPosition(scene_.camera.GetPosition());
     cameraEditor->SetRotation(scene_.camera.GetRotation());
+    scene_.inputManager_->ShowCursor(true);
     cameraEditorId_ = scene_.camera.addAndSet(std::move(cameraEditor));
 }
 

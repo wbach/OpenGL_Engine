@@ -107,7 +107,7 @@ void CameraWrapper::removeCamera(ICamera *camera)
 void CameraWrapper::Update()
 {
     std::lock_guard<std::mutex> m(cameraMutex);
-    Get()->Update();
+    Get()->UpdateImpl();
     Get()->UpdateMatrix();
 }
 
