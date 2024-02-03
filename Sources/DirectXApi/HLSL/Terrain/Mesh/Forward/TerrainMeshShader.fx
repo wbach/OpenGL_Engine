@@ -288,7 +288,7 @@ float4 CalculateTerrainColor(float2 tiledCoords, float4 blendMapColor, float bac
 
 TerrainData GetTerrainData(float3 normal, float2 texCoord)
 {
-    float2 tiledCoords   = texCoord * 40.0f ;
+    float2 tiledCoords   = texCoord * 480.0f ;
     float4 blendMapColor = textureColor(blendMap, texCoord);
     float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
 

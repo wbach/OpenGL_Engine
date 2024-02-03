@@ -41,6 +41,7 @@ void MeshShape::OnAwake()
 {
     if (not model_)
     {
+        DEBUG_LOG("No model");
         auto renderer = thisObject_.GetComponent<RendererComponent>();
 
         if (not renderer)
@@ -51,7 +52,7 @@ void MeshShape::OnAwake()
 
     if (not model_)
         return;
-
+    DEBUG_LOG("Model file used : " + model_->GetFile().GetFilename());
     const auto& meshes = model_->GetMeshes();
     auto scale = calculateScale(thisObject_.GetWorldTransform().GetScale());
 
@@ -146,6 +147,7 @@ void MeshShape::registerReadFunctions()
         ::Read(node.getChild(CSTR_MODEL_FILE_NAME), model);
         if (not model.empty())
         {
+            DEBUG_LOG("Set collider model :" + model);
             component->SetModel(model);
         }
 

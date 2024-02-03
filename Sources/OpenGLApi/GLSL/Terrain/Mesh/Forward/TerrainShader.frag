@@ -109,7 +109,7 @@ vec4 calculateBackgroundColor(float backTextureAmount)
 
     vec4 rockTextureColor       = DEFAULT_COLOR;
     vec4 backgorundTextureColor = DEFAULT_COLOR;
-    
+
     if (Is(perTerrainTextures.haveTextureBackground.x))
     {
         backgorundTextureColor = getTriPlanarMappingColor(backgorundTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.x) * backTextureAmount;
@@ -154,7 +154,7 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
 
 vec4 CalculateTerrainColor()
 {
-    vec2 tiledCoords        = fs_in.texCoord * 60.0f ;
+    vec2 tiledCoords        = fs_in.texCoord * 480.0f ;
     vec4 blendMapColor      = texture(blendMap, fs_in.texCoord);
     float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
     return CalculateTerrainColor(tiledCoords, blendMapColor, backTextureAmount);

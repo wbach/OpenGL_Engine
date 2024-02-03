@@ -42,7 +42,7 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
             auto radius                 = glm::compMax(objectTransform.GetScale());
             auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(), radius);
 
-            if (isVisible)
+            if (isVisible or true) // TO DO : fix
             {
                 auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
                 if (auto model = sub.renderComponent->GetModelWrapper().get(distance))

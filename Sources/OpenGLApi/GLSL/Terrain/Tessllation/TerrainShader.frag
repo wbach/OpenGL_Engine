@@ -174,7 +174,7 @@ vec4 CalculateTerrainNormal(vec2 tiledCoords, vec4 blendMapColor, float backText
 
 TerrainData GetTerrainData()
 {
-    vec2 tiledCoords   = fs_in.texCoord * 40.0f ;
+    vec2 tiledCoords   = fs_in.texCoord * 480.0f;
     vec4 blendMapColor = texture(blendMap, fs_in.texCoord);
     float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
 
