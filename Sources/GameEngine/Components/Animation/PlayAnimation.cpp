@@ -79,6 +79,7 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
     {
         if (clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
         {
+            DEBUG_LOG("increaseAnimationTime once end : " + clipInfo_.clip.name);
             context_.machine.transitionTo<EmptyState>(context_);
         }
 

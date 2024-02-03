@@ -18,10 +18,11 @@ bool EmptyState::update(float)
 }
 void EmptyState::handle(const ChangeAnimationEvent &event)
 {
-    context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime);
+    context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
 }
 void EmptyState::handle(const StopAnimationEvent &)
 {
+    DEBUG_LOG("EmptyState StopAnimationEvent?");
 }
 
 std::vector<std::string> EmptyState::getCurrentAnimation() const
