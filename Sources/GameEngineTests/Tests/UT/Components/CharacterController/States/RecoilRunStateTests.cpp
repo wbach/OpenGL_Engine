@@ -84,6 +84,7 @@ TEST_F(CharacterControllerTests, RecoilRun_DeathEvent)
 TEST_F(CharacterControllerTests, RecoilRun_SprintStateChangeEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }
 TEST_F(CharacterControllerTests, RecoilRun_WalkForwardEvent)

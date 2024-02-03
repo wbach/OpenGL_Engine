@@ -115,5 +115,5 @@ TEST_F(CharacterControllerTests, AimRunAndRotate_SprintStateChangeEvent)
     prepareState(*this);
     //disarm weapon and start spinrt
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.death});
+    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
 }

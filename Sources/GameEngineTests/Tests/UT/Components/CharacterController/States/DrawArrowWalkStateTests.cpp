@@ -102,7 +102,7 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_SprintStateChangeEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<DeathEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
+    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalk_EndForwardMoveEvent)
 {
