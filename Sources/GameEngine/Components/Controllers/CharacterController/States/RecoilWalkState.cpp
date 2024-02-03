@@ -26,6 +26,7 @@ void RecoilWalkState::onEnter(const AttackEvent& event)
 void RecoilWalkState::update(float dt)
 {
     MoveStateBase::update(dt);
+    RecoilStateBase::update(dt);
 }
 void RecoilWalkState::onLeave(const AimStopEvent& e)
 {

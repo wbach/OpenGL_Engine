@@ -70,6 +70,7 @@ void RecoilRunState::onLeave(const SprintStateChangeEvent &e)
 void RecoilRunState::update(float dt)
 {
     MoveStateBase::update(dt);
+    RecoilStateBase::update(dt);
 }
 }  // namespace Components
 }  // namespace GameEngine
