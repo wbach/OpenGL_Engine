@@ -31,12 +31,19 @@ void RotateStateBase::onEnter(const RotateRightEvent &e)
 
 void RotateStateBase::onEnter(const RotateTargetEvent &event)
 {
+    DEBUG_LOG("context_.rotateToTarget : " + std::to_string(context_.rotateToTarget));
+    DEBUG_LOG("context_.targetRotationt : " + std::to_string(context_.targetRotation));
+    DEBUG_LOG("event.target : " + std::to_string(event.target));
+
     if (not context_.rotateToTarget or context_.targetRotation != event.target)
     {
+        DEBUG_LOG("rotateToTarget");
         context_.startRotation          = context_.rigidbody.GetRotation();
         context_.targetRotation         = event.target;
         context_.rotateToTarget         = true;
         context_.rotateToTargetProgress = 0.f;
+
+        setRotateLeftAnim();
     }
 }
 
@@ -79,6 +86,7 @@ void RotateStateBase::update(float deltaTime)
     }
     else
     {
+        DEBUG_LOG("context_.rotateToTargetProgress : " + std::to_string(context_.rotateToTargetProgress));
         if (context_.rotateToTargetProgress < 1.f)
         {
             context_.rotateToTargetProgress += (context_.rotateStateData_.rotateSpeed_ * deltaTime);
@@ -104,8 +112,16 @@ void RotateStateBase::update(const RotateRightEvent &)
     context_.rotateToTarget                = false;
 }
 
-void RotateStateBase::update(const RotateTargetEvent &)
+void RotateStateBase::update(const RotateTargetEvent & event)
 {
+    if (not context_.rotateToTarget or context_.targetRotation != event.target)
+    {
+        DEBUG_LOG("rotateToTarget");
+        context_.startRotation = context_.rigidbody.GetRotation();
+        context_.targetRotation = event.target;
+        context_.rotateToTarget = true;
+        context_.rotateToTargetProgress = 0.f;
+    }
 }
 
 void RotateStateBase::update(const WeaponChangeEndEvent &)

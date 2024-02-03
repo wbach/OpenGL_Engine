@@ -23,14 +23,14 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, Aim_RotateLeft)
 {
     prepareState(*this);
-    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    expectRotationLeft();
     tiggerAndExpect<RotateLeftEvent, AimRotateState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, Aim_RotateRight)
 {
     prepareState(*this);
-    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    expectRotationRight();
     tiggerAndExpect<RotateRightEvent, AimRotateState>(
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateRight});
 }
@@ -38,8 +38,10 @@ TEST_F(CharacterControllerTests, Aim_RotateTargetEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-    tiggerAndExpect<RotateTargetEvent, AimRotateState>(
-        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateRight});
+
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent, AimRotateState>(RotateTargetEvent{targetRotation.value_},
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, Aim_WeaponStateEvent)
 {

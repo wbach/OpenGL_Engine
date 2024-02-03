@@ -43,7 +43,11 @@ TEST_F(CharacterControllerTests, AimRunAndRotate_RotateRight)
 TEST_F(CharacterControllerTests, AimRunAndRotate_RotateTargetEvent)
 {
     prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent, AimRunAndRotateState>(
+        RotateTargetEvent{targetRotation.value_},
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
 }
 TEST_F(CharacterControllerTests, AimRunAndRotate_WeaponStateEvent)
@@ -113,7 +117,6 @@ TEST_F(CharacterControllerTests, AimRunAndRotate_DeathEvent)
 TEST_F(CharacterControllerTests, AimRunAndRotate_SprintStateChangeEvent)
 {
     prepareState(*this);
-    //disarm weapon and start spinrt
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
 }

@@ -34,7 +34,11 @@ void DrawArrowRotateState::onEnter(const RotateRightEvent& event)
     context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
-
+void DrawArrowRotateState::onEnter(const RotateTargetEvent& event)
+{
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
 void DrawArrowRotateState::onEnter(const EndForwardMoveEvent& event)
 {
     context_.multiAnimations = true;
@@ -51,6 +55,10 @@ void DrawArrowRotateState::update(const RotateLeftEvent& event)
     onEnter(event);
 }
 void DrawArrowRotateState::update(const RotateRightEvent& event)
+{
+    onEnter(event);
+}
+void DrawArrowRotateState::update(const RotateTargetEvent& event)
 {
     onEnter(event);
 }

@@ -35,8 +35,11 @@ TEST_F(CharacterControllerTests, DrawArowRotate_RotateRight)
 TEST_F(CharacterControllerTests, DrawArowRotate_RotateTargetEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<RotateTargetEvent, DrawArrowRotateState>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent, DrawArrowRotateState>(RotateTargetEvent{ targetRotation.value_ },
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, DrawArowRotate_WeaponStateEvent)
 {

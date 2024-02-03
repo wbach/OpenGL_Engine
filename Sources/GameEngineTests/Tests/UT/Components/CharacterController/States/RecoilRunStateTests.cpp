@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     test.expectForwardVelocity(DEFAULT_RUN_SPEED);
@@ -43,7 +43,10 @@ TEST_F(CharacterControllerTests, RecoilRun_RotateTargetEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent, RecoilRunAndRotateState>(
+        RotateTargetEvent{targetRotation.value_},
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.run.forward});
 }
 TEST_F(CharacterControllerTests, RecoilRun_WeaponStateEvent)

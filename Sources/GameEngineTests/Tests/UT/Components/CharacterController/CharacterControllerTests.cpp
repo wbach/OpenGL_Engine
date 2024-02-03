@@ -77,8 +77,7 @@ CharacterControllerTests::CharacterControllerTests()
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
     sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
 
-    auto weaponPtr =
-            std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, IdType(1));
+    auto weaponPtr = std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, IdType(1));
     weaponPtr->AddComponent<JointPoseUpdater>();
     obj_.AddChild(std::move(weaponPtr));
 
@@ -123,7 +122,7 @@ void CharacterControllerTests::createDummySkeleton()
     model_.setRootJoint(rootJoint);
 }
 
-void CharacterControllerTests::addDummyClip(const std::string &name)
+void CharacterControllerTests::addDummyClip(const std::string& name)
 {
     Animation::AnimationClip clip(name);
     for (int i = 0; i <= DUMMY_FRAMES; ++i)
@@ -142,7 +141,7 @@ void CharacterControllerTests::Update(float time)
     sut_.Update();
 }
 
-void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string> &names)
+void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>& names)
 {
     EXPECT_EQ(animator_->getCurrentAnimationName().size(), names.size());
 
@@ -166,13 +165,18 @@ void CharacterControllerTests::expectForwardVelocity(float speed)
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed))).Times(AtLeast(1));
 }
 
+Rotation CharacterControllerTests::createRotaion(float deltaTime, float rotateSpeed)
+{
+    return glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+}
+
 void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpeed)
 {
-    auto rotation = glm::angleAxis(glm::radians(rotateSpeed * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+    auto rotation = createRotaion(rotateSpeed, deltaTime);
 
-    DEBUG_LOG("Expected rotation : " + std::to_string(rotation));
-    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(Quaternion(rotation))))
-            .Times(AtLeast(1));
+    DEBUG_LOG("Expected rotation : " + std::to_string(rotation.value_));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_)))
+        .Times(AtLeast(1));
 }
 
 void CharacterControllerTests::expectRotationLeft(float dt)

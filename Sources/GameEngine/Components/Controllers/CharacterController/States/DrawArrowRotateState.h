@@ -43,11 +43,13 @@ public:
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
+    void onEnter(const RotateTargetEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
 
     void update(const RotateLeftEvent&);
     void update(const RotateRightEvent&);
+    void update(const RotateTargetEvent&);
     void update(float);
 
     void onLeave(const AimStopEvent&);

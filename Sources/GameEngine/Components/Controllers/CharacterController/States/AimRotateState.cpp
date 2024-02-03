@@ -34,6 +34,13 @@ void AimRotateState::onEnter(const RotateRightEvent &event)
     RotateStateBase::onEnter(event);
 }
 
+void AimRotateState::onEnter(const RotateTargetEvent& event)
+{
+    DEBUG_LOG("AimRotateState::onEnter(const RotateTargetEvent& event)");
+    context_.multiAnimations = true;
+    RotateStateBase::onEnter(event);
+}
+
 void AimRotateState::onEnter(const EndForwardMoveEvent &event)
 {
     context_.multiAnimations = true;
@@ -50,12 +57,14 @@ void AimRotateState::update(const RotateLeftEvent &event)
 {
     onEnter(event);
 }
-
 void AimRotateState::update(const RotateRightEvent &event)
 {
     onEnter(event);
 }
-
+void AimRotateState::update(const RotateTargetEvent& event)
+{
+    onEnter(event);
+}
 void AimRotateState::update(float dt)
 {
     RotateStateBase::update(dt);

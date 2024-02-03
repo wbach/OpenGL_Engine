@@ -40,17 +40,25 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     }
 
     template <typename Event, typename State>
-    void tiggerAndExpect(const std::vector<std::string>& clipNames,
-                         std::vector<float> updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
+    void tiggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
+                         const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
-        sut_.fsm()->handle(Event{});
+        sut_.fsm()->handle(event);
         for (auto updateTime : updateTimes)
             Update(updateTime);
         expectState<State>();
         expectAnimsToBeSet(clipNames);
     }
 
+    template <typename Event, typename State>
+    void tiggerAndExpect(const std::vector<std::string>& clipNames,
+                         const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
+    {
+        tiggerAndExpect<Event, State>(Event{}, clipNames, updateTimes);
+    }
+
     void expectForwardVelocity(float speed);
+    Rotation createRotaion(float deltaTime, float rotateSpeed);
     void expectRotatation(float deltaTime, float rotateSpeed);
     void expectRotationLeft(float dt = ADVANCED_TIME_TRANSITION_TIME);
     void expectRotationRight(float dt = ADVANCED_TIME_TRANSITION_TIME);

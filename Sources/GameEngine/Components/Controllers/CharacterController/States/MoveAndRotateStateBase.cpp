@@ -134,7 +134,7 @@ void MoveAndRotateStateBase::update(const RotateRightEvent &event)
 
 void MoveAndRotateStateBase::update(const RotateTargetEvent &event)
 {
-    RotateStateBase::onEnter(event);
+    RotateStateBase::update(event);
 }
 
 void MoveAndRotateStateBase::update(float deltaTime)
