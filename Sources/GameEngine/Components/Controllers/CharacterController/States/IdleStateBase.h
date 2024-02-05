@@ -4,7 +4,6 @@
 #include <functional>
 
 #include "../FsmContext.h"
-#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -22,7 +21,7 @@ class JumpState;
 class DeathState;
 class JointPoseUpdater;
 
-class IdleStateBase : public StateBase
+class IdleStateBase
 {
 public:
     IdleStateBase(FsmContext&, const std::string&);
@@ -34,13 +33,13 @@ public:
 
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);
-    void update(const WeaponChangeEndEvent&);
     void update(float);
 
 private:
     void setIdleAnim();
 
-private:
+protected:
+    FsmContext& context_;
     std::string idleAnimName_;
 };
 }  // namespace Components

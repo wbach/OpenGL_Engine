@@ -4,8 +4,10 @@ namespace GameEngine
 {
 namespace Components
 {
-JumpStateBase::JumpStateBase(FsmContext &context, std::function<void()> endCallback)
+JumpStateBase::JumpStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
+                             std::function<void()> endCallback)
     : context_{context}
+    , jointGroupName_{jointGroupName}
     , endCallback_{endCallback}
 {
 }
@@ -13,9 +15,8 @@ void JumpStateBase::onEnter(const JumpEvent &event)
 {
     if (not context_.animClipNames.disarmed.jump.empty())
     {
-        context_.animator.ChangeAnimation(
-            context_.animClipNames.disarmed.jump, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+        context_.animator.ChangeAnimation(context_.animClipNames.disarmed.jump, Animator::AnimationChangeType::smooth,
+                                          PlayDirection::forward, jointGroupName_);
     }
 
     auto velocity = context_.rigidbody.GetVelocity();
@@ -25,14 +26,12 @@ void JumpStateBase::onEnter(const JumpEvent &event)
 
 void JumpStateBase::onEnter(const AttackEvent &)
 {
-    context_.multiAnimations = true;
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
 void JumpStateBase::onEnter(const EndAttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::End{});
-    context_.multiAnimations = false;
 }
 void JumpStateBase::update(float)
 {

@@ -24,8 +24,8 @@ class ArmedSprintAndRotateState
     : public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          //Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          //Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
@@ -43,6 +43,7 @@ class ArmedSprintAndRotateState
 public:
     ArmedSprintAndRotateState(FsmContext &context)
         : MoveAndRotateStateBase{context,
+                                 std::nullopt,
                                  context.sprintSpeed,
                                  context.animClipNames.armed.sprint,
                                  context.runSpeed.leftRight,
@@ -55,13 +56,6 @@ public:
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-
-    void onEnter(const WeaponStateEvent &)
-    {
-        context_.multiAnimations = true;
-        MoveStateBase::equipWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 
 private:
     FsmContext &context_;

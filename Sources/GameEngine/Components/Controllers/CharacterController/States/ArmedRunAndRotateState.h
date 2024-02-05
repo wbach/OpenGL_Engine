@@ -43,8 +43,12 @@ class ArmedRunAndRotateState
 {
 public:
     ArmedRunAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run,
-                                 context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
+        : MoveAndRotateStateBase{context,
+                                 std::nullopt,
+                                 context.runSpeed,
+                                 context.animClipNames.armed.run,
+                                 context.animClipNames.armed.rotateLeft,
+                                 context.animClipNames.armed.rotateRight}
         , context_{context}
     {
     }
@@ -52,13 +56,6 @@ public:
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-
-    void onEnter(const WeaponStateEvent &)
-    {
-        context_.multiAnimations = true;
-        MoveStateBase::equipWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 
 private:
     FsmContext &context_;

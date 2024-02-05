@@ -45,19 +45,12 @@ class ArmedWalkState
 {
 public:
     ArmedWalkState(FsmContext& context)
-        : MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
+        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.armed.walk.forward,
                         context.animClipNames.armed.walk.backward}
     {
     }
 
     using MoveStateBase::onEnter;
-
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::equipWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 };
 }  // namespace Components
 }  // namespace GameEngine

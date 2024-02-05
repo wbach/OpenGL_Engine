@@ -46,7 +46,6 @@ public:
     DisarmedRunState(FsmContext& context);
 
     using MoveStateBase::onEnter;
-    void onEnter(const WeaponStateEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

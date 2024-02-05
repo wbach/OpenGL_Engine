@@ -43,7 +43,6 @@ class AimRunAndRotateState
 {
 public:
     AimRunAndRotateState(FsmContext&);
-    void onEnter();
     void onEnter(const AimStartEvent&);
     void update(float);
 

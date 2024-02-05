@@ -16,7 +16,7 @@ class ThridPersonCameraComponent;
 class RecoilStateBase
 {
 public:
-    RecoilStateBase(FsmContext&);
+    RecoilStateBase(FsmContext&, const std::optional<std::string> &);
     void onEnter(const EndRotationEvent&);
     void onEnter(const AttackEvent&);
     void onEnter(const EndForwardMoveEvent&);
@@ -30,11 +30,11 @@ public:
 
 protected:
     void setAnim();
-    void stopMultiAnimation();
     void stopAnim();
 
 protected:
     FsmContext& context_;
+    std::optional<std::string> jointGroupName_;
     std::string animName_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
 };

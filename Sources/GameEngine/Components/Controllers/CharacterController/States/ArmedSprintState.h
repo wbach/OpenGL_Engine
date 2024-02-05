@@ -42,18 +42,11 @@ class ArmedSprintState
 {
 public:
     ArmedSprintState(FsmContext& context)
-        : MoveStateBase{context, context.sprintSpeed, context.animClipNames.armed.sprint}
+        : MoveStateBase{context, std::nullopt, context.sprintSpeed, context.animClipNames.armed.sprint}
     {
     }
 
     using MoveStateBase::onEnter;
-
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::equipWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 };
 }  // namespace Components
 }  // namespace GameEngine

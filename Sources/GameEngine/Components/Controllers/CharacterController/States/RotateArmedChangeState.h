@@ -4,6 +4,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
+#include "ArmedChangeStateBase.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
@@ -21,7 +22,8 @@ class ArmedRotateState;
 class DisarmedRotateState;
 
 class RotateArmedChangeState
-    : public RotateStateBase,
+    : public ArmedChangeStateBase,
+      public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
@@ -44,10 +46,13 @@ class RotateArmedChangeState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    RotateArmedChangeState(FsmContext& context);
+    RotateArmedChangeState(FsmContext&);
 
     using RotateStateBase::onEnter;
     void onEnter(const WeaponStateEvent&);
+
+private:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -44,7 +44,6 @@ class AimWalkAndRotateState
 public:
     AimWalkAndRotateState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AimStartEvent&);
 
     using MoveAndRotateStateBase::onEnter;

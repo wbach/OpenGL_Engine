@@ -44,8 +44,12 @@ class DisarmedRunAndRotateState
 {
 public:
     DisarmedRunAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.disarmed.run,
-                                 context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
+        : MoveAndRotateStateBase{context,
+                                 std::nullopt,
+                                 context.runSpeed,
+                                 context.animClipNames.disarmed.run,
+                                 context.animClipNames.disarmed.rotateLeft,
+                                 context.animClipNames.disarmed.rotateRight}
         , context_{context}
     {
     }
@@ -53,13 +57,6 @@ public:
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-
-    void onEnter(const WeaponStateEvent &)
-    {
-        context_.multiAnimations = true;
-        MoveStateBase::disarmWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 
 private:
     FsmContext &context_;

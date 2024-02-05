@@ -43,18 +43,11 @@ class DisarmedSprintState
 {
 public:
     DisarmedSprintState(FsmContext& context)
-        : MoveStateBase{context, context.sprintSpeed, context.animClipNames.disarmed.sprint}
+        : MoveStateBase{context, std::nullopt, context.sprintSpeed, context.animClipNames.disarmed.sprint}
     {
     }
 
     using MoveStateBase::onEnter;
-
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::disarmWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 };
 }  // namespace Components
 }  // namespace GameEngine

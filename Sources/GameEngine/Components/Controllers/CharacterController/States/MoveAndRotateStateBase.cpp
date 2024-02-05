@@ -6,19 +6,19 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const MoveSpeed &moveSpeed,
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const std::optional<std::string> & moveJointGroupName, const MoveSpeed &moveSpeed,
                                                const MovmentClipNames &clipnames, const std::string &rotateLeft,
                                                const std::string &rotateRight)
-    : MoveStateBase{context, moveSpeed, clipnames.forward, clipnames.backward}
-    , RotateStateBase{context, moveSpeed.leftRight, rotateLeft, rotateRight}
+    : MoveStateBase{context, moveJointGroupName, moveSpeed, clipnames.forward, clipnames.backward}
+    , RotateStateBase{context, std::nullopt, moveSpeed.leftRight, rotateLeft, rotateRight}
 {
 }
 
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, float forwardSpeed,
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const std::optional<std::string> & moveJointGroupName, float forwardSpeed,
                                                const std::string &forwardAnimName, float rotateSpeed,
                                                const std::string &rotateLeft, const std::string &rotateRight)
-    : MoveStateBase{context, forwardSpeed, forwardAnimName}
-    , RotateStateBase{context, rotateSpeed, rotateLeft, rotateRight}
+    : MoveStateBase{context, moveJointGroupName, forwardSpeed, forwardAnimName}
+    , RotateStateBase{context, std::nullopt, rotateSpeed, rotateLeft, rotateRight}
 {
 }
 
@@ -44,12 +44,12 @@ void MoveAndRotateStateBase::onEnter(const WalkBackwardEvent &event)
 
 void MoveAndRotateStateBase::update(const AttackEvent &event)
 {
-    MoveStateBase::update(event);
+
 }
 
 void MoveAndRotateStateBase::update(const EndAttackEvent &event)
 {
-    MoveStateBase::update(event);
+
 }
 
 void MoveAndRotateStateBase::update(const RunForwardEvent &e)
@@ -58,11 +58,6 @@ void MoveAndRotateStateBase::update(const RunForwardEvent &e)
 }
 
 void MoveAndRotateStateBase::update(const RunBackwardEvent &e)
-{
-    MoveStateBase::update(e);
-}
-
-void MoveAndRotateStateBase::update(const WeaponChangeEndEvent &e)
 {
     MoveStateBase::update(e);
 }

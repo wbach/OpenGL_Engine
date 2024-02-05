@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
+#include <optional>
 
 #include "../CharacterControllerEvents.h"
-#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -10,10 +10,10 @@ namespace Components
 {
 struct FsmContext;
 
-class RotateStateBase : public StateBase
+class RotateStateBase
 {
 public:
-    RotateStateBase(FsmContext&, float, const std::string&, const std::string&);
+    RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const std::string&, const std::string&);
 
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
@@ -28,7 +28,6 @@ public:
     void update(const RotateLeftEvent&);
     void update(const RotateRightEvent&);
     void update(const RotateTargetEvent&);
-    void update(const WeaponChangeEndEvent&);
     void update(const AimStartEvent&);
 
     void setRotateLeftAnim();
@@ -36,6 +35,8 @@ public:
     void setCurrentAnim();
 
 protected:
+    FsmContext& context_;
+    const std::optional<std::string>& jointGroupName_;
     const std::string& rotateLeftAnim_;
     const std::string& rotateRightAnim_;
     float rotateSpeed_;

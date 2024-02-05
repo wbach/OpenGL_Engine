@@ -3,6 +3,7 @@
 #include <Utils/Fsm/Actions.h>
 
 #include <optional>
+
 #include "../CharacterControllerEvents.h"
 
 namespace GameEngine
@@ -12,10 +13,10 @@ namespace Components
 struct FsmContext;
 class JointPoseUpdater;
 
-class StateBase
+class ArmedChangeStateBase
 {
 public:
-    StateBase(FsmContext&);
+    ArmedChangeStateBase(FsmContext&, const std::optional<std::string>&);
 
 protected:
     void equipWeapon();
@@ -28,6 +29,7 @@ private:
 
 protected:
     FsmContext& context_;
+    std::optional<std::string> jointGroupName_;
 
 private:
     bool armed_{false};

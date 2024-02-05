@@ -46,19 +46,12 @@ class DisarmedWalkState
 {
 public:
     DisarmedWalkState(FsmContext& context)
-        : MoveStateBase{context, context.walkSpeed, context.animClipNames.disarmed.walk.forward,
+        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.disarmed.walk.forward,
                         context.animClipNames.disarmed.walk.backward}
     {
     }
 
     using MoveStateBase::onEnter;
-
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::disarmWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 };
 }  // namespace Components
 }  // namespace GameEngine

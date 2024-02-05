@@ -148,7 +148,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/MoveStateBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RunArmedChangeState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RecoilStateBase.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/StateBase.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedChangeStateBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedIdleState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedRunState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RotateStateBase.cpp

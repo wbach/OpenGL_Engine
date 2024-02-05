@@ -43,7 +43,6 @@ class DrawArrowWalkState
 {
 public:
     DrawArrowWalkState(FsmContext&);
-    void onEnter();
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const WalkForwardEvent&);

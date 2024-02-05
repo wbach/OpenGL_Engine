@@ -44,7 +44,6 @@ class DrawArrowWalkAndRotateState
 public:
     DrawArrowWalkAndRotateState(FsmContext&);
 
-    void onEnter();
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RotateLeftEvent&);

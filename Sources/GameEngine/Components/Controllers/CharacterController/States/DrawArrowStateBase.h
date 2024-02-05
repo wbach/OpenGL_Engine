@@ -16,7 +16,7 @@ class ThridPersonCameraComponent;
 class DrawArrowStateBase
 {
 public:
-    DrawArrowStateBase(FsmContext&);
+    DrawArrowStateBase(FsmContext&, const std::optional<std::string>&);
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const EndRotationEvent&);
@@ -31,11 +31,11 @@ public:
 
 private:
     void setAnim();
-    void stopMultiAnimation();
     void stopAnim();
 
 private:
     FsmContext& context_;
+    std::optional<std::string> jointGroupName_;
     std::optional<IdType> subId_;
 
     ThridPersonCameraComponent* thridPersonCameraComponent_;

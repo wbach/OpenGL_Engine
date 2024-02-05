@@ -3,6 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
+#include "ArmedChangeStateBase.h"
 #include "MoveAndRotateStateBase.h"
 
 namespace GameEngine
@@ -25,7 +26,8 @@ class RunArmedChangeState;
 
 struct FsmContext;
 class RunAndRotateArmedChangeState
-    : public MoveAndRotateStateBase,
+    : public ArmedChangeStateBase,
+      public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,

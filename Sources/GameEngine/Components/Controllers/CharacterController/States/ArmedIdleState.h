@@ -46,10 +46,6 @@ public:
     using IdleStateBase::onEnter;
     using IdleStateBase::update;
 
-    void onEnter(const WeaponStateEvent&);
-    void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
-    void onEnter(const DrawArrowEvent&);
-
     void update(const AimStopEvent&);
     void onLeave();
 

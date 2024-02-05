@@ -42,7 +42,6 @@ class AimRunState
 public:
     AimRunState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AimStartEvent&);
 
     using MoveStateBase::onEnter;

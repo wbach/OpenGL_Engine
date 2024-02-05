@@ -9,7 +9,7 @@ namespace GameEngine
 namespace Components
 {
 DrawArrowState::DrawArrowState(FsmContext &context)
-    : DrawArrowStateBase{context}
+    : DrawArrowStateBase{context, std::nullopt}
 {
 }
 void DrawArrowState::onLeave(const AimStopEvent &e)

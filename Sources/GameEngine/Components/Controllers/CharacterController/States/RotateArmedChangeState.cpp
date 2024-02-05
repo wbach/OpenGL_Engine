@@ -4,17 +4,17 @@ namespace GameEngine
 {
 namespace Components
 {
-
 RotateArmedChangeState::RotateArmedChangeState(FsmContext &context)
-    : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.disarmed.rotateLeft,
-                      context.animClipNames.disarmed.rotateRight}
+    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.leftRight,
+                      context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
+    , context_{context}
 {
 }
 
 void RotateArmedChangeState::onEnter(const WeaponStateEvent &)
 {
-    context_.multiAnimations = true;
-    StateBase::disarmWeapon();
+    ArmedChangeStateBase::disarmWeapon();
     if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
     {
         setRotateLeftAnim();
@@ -25,5 +25,5 @@ void RotateArmedChangeState::onEnter(const WeaponStateEvent &)
     }
 }
 
-}
+}  // namespace Components
 }  // namespace GameEngine

@@ -8,8 +8,9 @@ namespace GameEngine
 {
 namespace Components
 {
-DrawArrowStateBase::DrawArrowStateBase(FsmContext &context)
+DrawArrowStateBase::DrawArrowStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
     : context_{context}
+    , jointGroupName_{jointGroupName}
     , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
 {
     context.animator.setPlayOnceForAnimationClip(context.animClipNames.drawArrow);
@@ -49,30 +50,28 @@ void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
 
 void DrawArrowStateBase::onEnter(const EndRotationEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void DrawArrowStateBase::onEnter(const EndForwardMoveEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void DrawArrowStateBase::onEnter(const EndBackwardMoveEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void DrawArrowStateBase::setAnim()
 {
-    context_.animator.ChangeAnimation(
-        context_.animClipNames.drawArrow, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-        context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
+    context_.animator.ChangeAnimation(context_.animClipNames.drawArrow, Animator::AnimationChangeType::smooth,
+                                      PlayDirection::forward, jointGroupName_);
 }
 
 void DrawArrowStateBase::stopAnim()
 {
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.upperBodyGroupName);
+    context_.animator.StopAnimation(jointGroupName_);
 
     if (thridPersonCameraComponent_)
     {
@@ -106,10 +105,6 @@ void DrawArrowStateBase::onLeave(const SprintStateChangeEvent &)
 {
     stopAnim();
 }
-void DrawArrowStateBase::stopMultiAnimation()
-{
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
-}
+
 }  // namespace Components
 }  // namespace GameEngine

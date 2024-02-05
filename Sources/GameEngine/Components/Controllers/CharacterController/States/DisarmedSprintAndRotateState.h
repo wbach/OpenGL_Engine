@@ -43,6 +43,7 @@ class DisarmedSprintAndRotateState
 public:
     DisarmedSprintAndRotateState(FsmContext &context)
         : MoveAndRotateStateBase{context,
+                                 std::nullopt,
                                  context.sprintSpeed,
                                  context.animClipNames.disarmed.sprint,
                                  context.runSpeed.leftRight,
@@ -55,13 +56,6 @@ public:
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-
-    void onEnter(const WeaponStateEvent &)
-    {
-        context_.multiAnimations = true;
-        MoveStateBase::disarmWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 
 private:
     FsmContext &context_;

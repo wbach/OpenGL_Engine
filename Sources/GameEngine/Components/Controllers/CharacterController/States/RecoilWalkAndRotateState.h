@@ -47,7 +47,6 @@ class RecoilWalkAndRotateState
 public:
     RecoilWalkAndRotateState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AttackEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);

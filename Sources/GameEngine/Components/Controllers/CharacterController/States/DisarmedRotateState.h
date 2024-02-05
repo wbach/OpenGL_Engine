@@ -42,26 +42,12 @@ class DisarmedRotateState
 {
 public:
     DisarmedRotateState(FsmContext& context)
-        : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.disarmed.rotateLeft,
+        : RotateStateBase{context, std::nullopt, context.runSpeed.leftRight, context.animClipNames.disarmed.rotateLeft,
                           context.animClipNames.disarmed.rotateRight}
     {
     }
 
     using RotateStateBase::onEnter;
-
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::disarmWeapon();
-        if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
-        {
-            setRotateLeftAnim();
-        }
-        else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
-        {
-            setRotateRightAnim();
-        }
-    }
 };
 }  // namespace Components
 }  // namespace GameEngine

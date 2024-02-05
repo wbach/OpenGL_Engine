@@ -13,8 +13,9 @@ namespace GameEngine
 namespace Components
 {
 
-AimStateBase::AimStateBase(FsmContext &context)
+AimStateBase::AimStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
     : context_{context}
+    , jointGroupName_{jointGroupName}
     , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
 
 {
@@ -33,15 +34,13 @@ void AimStateBase::update(float)
 
 void AimStateBase::setAnim()
 {
-    context_.animator.ChangeAnimation(
-        context_.animClipNames.aimIdle, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-        context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
+    context_.animator.ChangeAnimation(context_.animClipNames.aimIdle, Animator::AnimationChangeType::smooth,
+                                      PlayDirection::forward, jointGroupName_);
 }
 
 void AimStateBase::stopAnim()
 {
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.upperBodyGroupName);
+    context_.animator.StopAnimation(jointGroupName_);
 
     if (thridPersonCameraComponent_)
     {
@@ -52,17 +51,17 @@ void AimStateBase::stopAnim()
 
 void AimStateBase::onEnter(const EndRotationEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void AimStateBase::onEnter(const EndForwardMoveEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void AimStateBase::onEnter(const EndBackwardMoveEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void AimStateBase::onLeave(const AimStopEvent &)
@@ -87,11 +86,6 @@ void AimStateBase::onLeave(const SprintStateChangeEvent &)
 {
     DEBUG_LOG("onLeave(WeaponStateEvent)");
     stopAnim();
-}
-void AimStateBase::stopMultiAnimation()
-{
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 }  // namespace Components
 }  // namespace GameEngine

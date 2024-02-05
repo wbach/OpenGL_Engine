@@ -5,7 +5,8 @@ namespace GameEngine
 namespace Components
 {
 RunArmedChangeState::RunArmedChangeState(FsmContext &context)
-    : MoveStateBase{context, context.runSpeed, context.animClipNames.disarmed.run.forward,
+    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.runSpeed, context.animClipNames.disarmed.run.forward,
                     context.animClipNames.disarmed.run.backward}
     , context_{context}
 {

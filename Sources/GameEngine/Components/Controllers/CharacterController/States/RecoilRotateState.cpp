@@ -7,40 +7,35 @@ namespace GameEngine
 namespace Components
 {
 RecoilRotateState::RecoilRotateState(FsmContext& context)
-    : RecoilStateBase(context)
-    , RotateStateBase(context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
-                      context.animClipNames.armed.rotateRight)
+    : RecoilStateBase(context, context.upperBodyGroupName)
+    , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.leftRight,
+                      context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight)
     , context_{context}
 {
 }
 
 void RecoilRotateState::onEnter(const RotateLeftEvent& event)
 {
-    context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
 
 void RecoilRotateState::onEnter(const RotateRightEvent& event)
 {
-    context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
 
 void RecoilRotateState::onEnter(const RotateTargetEvent& event)
 {
-    context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
 
 void RecoilRotateState::onEnter(const EndForwardMoveEvent& event)
 {
-    context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
 
 void RecoilRotateState::onEnter(const EndBackwardMoveEvent& event)
 {
-    context_.multiAnimations = true;
     RotateStateBase::onEnter(event);
 }
 

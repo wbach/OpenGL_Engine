@@ -7,16 +7,11 @@ namespace GameEngine
 namespace Components
 {
 RecoilWalkState::RecoilWalkState(FsmContext& context)
-    : RecoilStateBase(context)
-    , MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
+    : RecoilStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
     , context_{context}
 {
-}
-
-void RecoilWalkState::onEnter()
-{
-    context_.multiAnimations = true;
 }
 
 void RecoilWalkState::onEnter(const AttackEvent& event)

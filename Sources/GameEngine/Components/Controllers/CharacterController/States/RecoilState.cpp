@@ -8,7 +8,7 @@ namespace GameEngine
 namespace Components
 {
 RecoilState::RecoilState(FsmContext &contex)
-    : RecoilStateBase(contex)
+    : RecoilStateBase(contex, std::nullopt)
 {
 }
 void RecoilState::onLeave(const AimStopEvent &e)

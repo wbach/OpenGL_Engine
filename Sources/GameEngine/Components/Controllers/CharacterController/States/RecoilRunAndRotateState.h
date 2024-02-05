@@ -48,7 +48,6 @@ class RecoilRunAndRotateState
 public:
     RecoilRunAndRotateState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AttackEvent&);
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);

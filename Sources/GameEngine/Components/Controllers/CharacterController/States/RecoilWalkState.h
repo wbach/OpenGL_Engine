@@ -45,7 +45,6 @@ class RecoilWalkState
 public:
     RecoilWalkState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AttackEvent&);
 
     using MoveStateBase::onEnter;

@@ -43,7 +43,6 @@ public:
     DisarmedIdleState(FsmContext& context);
 
     using IdleStateBase::onEnter;
-    void onEnter(const WeaponStateEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -16,9 +16,10 @@ struct FsmContext;
 class MoveAndRotateStateBase : public MoveStateBase, public RotateStateBase
 {
 public:
-    MoveAndRotateStateBase(FsmContext &, const MoveSpeed &, const MovmentClipNames &, const std::string &,
-                           const std::string &);
-    MoveAndRotateStateBase(FsmContext &, float, const std::string &, float, const std::string &, const std::string &);
+    MoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &,
+                           const MovmentClipNames &, const std::string &, const std::string &);
+    MoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &, float,
+                           const std::string &, const std::string &);
 
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
@@ -40,13 +41,11 @@ public:
     void update(const EndAttackEvent &);
     void update(const RunForwardEvent &);
     void update(const RunBackwardEvent &);
-    void update(const WeaponChangeEndEvent &);
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);
     bool transitionCondition(const SprintStartEvent &);
     bool transitionCondition(const SprintStateChangeEvent &);
-
 };
 }  // namespace Components
 }  // namespace GameEngine

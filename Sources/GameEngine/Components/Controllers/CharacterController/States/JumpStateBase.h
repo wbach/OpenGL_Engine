@@ -11,7 +11,7 @@ namespace Components
 struct JumpStateBase
 {
 public:
-    JumpStateBase(FsmContext&, std::function<void()>);
+    JumpStateBase(FsmContext&, const std::optional<std::string>&, std::function<void()>);
     void onEnter(const JumpEvent&);
     void onEnter(const AttackEvent&);
     void onEnter(const EndAttackEvent&);
@@ -22,6 +22,7 @@ private:
 
 private:
     FsmContext& context_;
+    std::optional<std::string> jointGroupName_;
     std::function<void()> endCallback_;
 };
 }  // namespace Components

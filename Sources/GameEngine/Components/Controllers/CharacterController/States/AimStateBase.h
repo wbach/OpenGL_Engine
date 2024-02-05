@@ -13,7 +13,7 @@ class ThridPersonCameraComponent;
 class AimStateBase
 {
 public:
-    AimStateBase(FsmContext&);
+    AimStateBase(FsmContext&, const std::optional<std::string> &);
     void onEnter(const AimStartEvent&);
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
@@ -27,12 +27,12 @@ public:
 
 protected:
     void setAnim();
-    void stopMultiAnimation();
     void stopAnim();
 
 
 protected:
     FsmContext& context_;
+    std::optional<std::string> jointGroupName_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
 
 

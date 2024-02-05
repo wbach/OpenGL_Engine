@@ -7,17 +7,13 @@ namespace GameEngine
 namespace Components
 {
 RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext& context)
-    : RecoilStateBase(context)
-    , MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
+    : RecoilStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
-    , RotateStateBase(context, context.walkSpeed.leftRight, context.animClipNames.armed.rotateLeft,
+    , RotateStateBase(context, std::nullopt, context.walkSpeed.leftRight, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
     , context_{context}
 {
-}
-void RecoilWalkAndRotateState::onEnter()
-{
-    context_.multiAnimations = true;
 }
 
 void RecoilWalkAndRotateState::onEnter(const WalkChangeStateEvent& event)

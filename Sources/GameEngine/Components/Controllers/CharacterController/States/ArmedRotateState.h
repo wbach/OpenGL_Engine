@@ -48,10 +48,6 @@ public:
     using RotateStateBase::onEnter;
     using RotateStateBase::update;
 
-    void onEnter(const WeaponStateEvent&);
-
-    void onEnter(DisarmedRotateState&, const DrawArrowEvent&);
-    void onEnter(const DrawArrowEvent&);
     void update(const AimStopEvent&);
     void onLeave();
 

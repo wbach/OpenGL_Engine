@@ -42,7 +42,6 @@ class DrawArrowRunState
 public:
     DrawArrowRunState(FsmContext&);
 
-    void onEnter();
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RunForwardEvent&);

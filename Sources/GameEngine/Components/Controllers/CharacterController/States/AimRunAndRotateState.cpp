@@ -7,17 +7,16 @@ namespace GameEngine
 namespace Components
 {
 AimRunAndRotateState::AimRunAndRotateState(FsmContext& context)
-    : AimStateBase(context)
-    , MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run,
-                             context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
+    : AimStateBase(context, context.upperBodyGroupName)
+    , MoveAndRotateStateBase{context,
+                             context.lowerBodyGroupName,
+                             context.runSpeed,
+                             context.animClipNames.armed.run,
+                             context.animClipNames.armed.rotateLeft,
+                             context.animClipNames.armed.rotateRight}
     , context_{context}
 {
 }
-void AimRunAndRotateState::onEnter()
-{
-    context_.multiAnimations = true;
-}
-
 void AimRunAndRotateState::onEnter(const AimStartEvent& event)
 {
     AimStateBase::onEnter(event);

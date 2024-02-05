@@ -195,7 +195,6 @@ void DeathState::onEnter(DrawArrowWalkAndRotateState &, const DeathEvent &)
 
 void DeathState::setAnim(const std::string &animName)
 {
-    context_.multiAnimations = false;
     if (not animName.empty())
     {
         context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,

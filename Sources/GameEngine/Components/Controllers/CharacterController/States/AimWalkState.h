@@ -41,7 +41,6 @@ class AimWalkState
 public:
     AimWalkState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AimStartEvent&);
 
     using MoveStateBase::onEnter;

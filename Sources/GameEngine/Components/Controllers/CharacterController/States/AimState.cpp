@@ -7,7 +7,7 @@ namespace GameEngine
 namespace Components
 {
 AimState::AimState(FsmContext& context)
-    : AimStateBase(context)
+    : AimStateBase(context, std::nullopt)
 {
 }
 

@@ -5,14 +5,14 @@ namespace GameEngine
 namespace Components
 {
 WalkArmedChangeState::WalkArmedChangeState(FsmContext &context)
-    : MoveStateBase{context, context.walkSpeed, context.animClipNames.disarmed.walk.forward,
+    : ArmedChangeStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.disarmed.walk.forward,
                     context.animClipNames.disarmed.walk.backward}
 {
 }
 void WalkArmedChangeState::onEnter(const WeaponStateEvent &)
 {
-    context_.multiAnimations = true;
-    StateBase::disarmWeapon();
+    ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::setCurrentAnim();
 }
 }  // namespace Components

@@ -1,5 +1,4 @@
-
-#include "StateBase.h"
+#include "ArmedChangeStateBase.h"
 
 #include "../CharacterController.h"
 #include "../FsmContext.h"
@@ -11,13 +10,14 @@ namespace GameEngine
 {
 namespace Components
 {
-StateBase::StateBase(FsmContext& context)
+ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optional<std::string>& jointGroupName)
     : context_{context}
+    , jointGroupName_{jointGroupName}
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }
 
-void StateBase::equipWeapon()
+void ArmedChangeStateBase::equipWeapon()
 {
     if (not jointPoseUpdater_)
     {
@@ -29,7 +29,7 @@ void StateBase::equipWeapon()
     triggerChange();
 }
 
-void StateBase::disarmWeapon()
+void ArmedChangeStateBase::disarmWeapon()
 {
     if (not jointPoseUpdater_)
     {
@@ -41,10 +41,8 @@ void StateBase::disarmWeapon()
     triggerChange();
 }
 
-void StateBase::triggerChange()
+void ArmedChangeStateBase::triggerChange()
 {
-    context_.weaponChangeTriggered_ = true;
-
     const auto& animName = armed_ ? context_.animClipNames.equip : context_.animClipNames.disarm;
 
     subscribeForTransitionAnimationFrame_ = context_.animator.SubscribeForAnimationFrame(
@@ -70,16 +68,12 @@ void StateBase::triggerChange()
         {
             context_.characterController.fsm()->handle(WeaponChangeEndEvent{});
             unsubscribe(subscribeForTransitionAnimationEnd_);
-            context_.weaponChangeTriggered_ = false;
         });
 
-    context_.animator.ChangeAnimation(
-        animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-        context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
-
-    context_.weaponChangeTriggered_ = true;
+    context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                      jointGroupName_);
 }
-void StateBase::unsubscribe(std::optional<uint32>& maybeId)
+void ArmedChangeStateBase::unsubscribe(std::optional<uint32>& maybeId)
 {
     if (maybeId)
     {
@@ -88,9 +82,8 @@ void StateBase::unsubscribe(std::optional<uint32>& maybeId)
     }
 }
 
-void StateBase::unsubscribeAll()
+void ArmedChangeStateBase::unsubscribeAll()
 {
-    context_.weaponChangeTriggered_ = false;
     unsubscribe(subscribeForTransitionAnimationEnd_);
     unsubscribe(subscribeForTransitionAnimationFrame_);
 }
