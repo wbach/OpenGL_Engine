@@ -77,7 +77,13 @@ struct DeathEvent
 struct WeaponStateEvent
 {
 };
-struct WeaponChangeEndEvent
+struct WeaponChangeEndEvent // to remove
+{
+};
+struct EquipEndStateEvent
+{
+};
+struct DisarmEndStateEvent
 {
 };
 struct DrawArrowEvent

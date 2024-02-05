@@ -11,7 +11,6 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_DrawArrowEvent)
     expectState<DrawArrowState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow});
 }
-
 TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopDuringDrawArrowEvent)
 {
     expectState<DisarmedIdleState>();
@@ -23,4 +22,15 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_AimStopDuringDrawArrowEvent)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<ArmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
+}
+
+TEST_F(CharacterControllerTests, DisarmedIdleState_WeaponStateEvent)
+{
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    tiggerAndExpect<WeaponStateEvent, IdleArmedChangeState>({sut_.animationClipsNames_.equip},
+                                                            {ADVANCED_TIME_TRANSITION_TIME});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<ArmedIdleState>();
 }
