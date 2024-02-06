@@ -17,13 +17,37 @@ RunArmedChangeState::RunArmedChangeState(FsmContext& context)
 void RunArmedChangeState::onEnter()
 {
     drawArrowEventCalled_ = false;
-    sprintEventCalled_ = false;
+    sprintEventCalled_    = false;
 }
 
 void RunArmedChangeState::onEnter(const SprintStartEvent& event)
 {
     MoveStateBase::onEnter(event);
     sprintEventCalled_ = true;
+}
+void RunArmedChangeState::onEnter(DisarmedWalkState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+void RunArmedChangeState::onEnter(ArmedWalkState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+void RunArmedChangeState::onEnter(DisarmedWalkState&, const DrawArrowEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+void RunArmedChangeState::onEnter(DisarmedRunState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+void RunArmedChangeState::onEnter(ArmedRunState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+void RunArmedChangeState::onEnter(DisarmedRunState&, const DrawArrowEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
 }
 
 void RunArmedChangeState::onEnter(DisarmedIdleState&, const DrawArrowEvent&)

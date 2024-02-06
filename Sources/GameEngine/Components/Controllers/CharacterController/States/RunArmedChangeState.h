@@ -1,5 +1,6 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
+
 #include <optional>
 
 #include "../CharacterControllerEvents.h"
@@ -15,6 +16,7 @@ class DeathState;
 class JumpState;
 class MoveJumpState;
 class ArmedRunState;
+class ArmedWalkState;
 class DisarmedRunState;
 class ArmedIdleState;
 class DisarmedIdleState;
@@ -35,7 +37,7 @@ class RunArmedChangeState
           // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
-         // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -52,11 +54,20 @@ class RunArmedChangeState
 public:
     RunArmedChangeState(FsmContext&);
 
-    using MoveStateBase::update;
     using MoveStateBase::onEnter;
+    using MoveStateBase::update;
 
     void onEnter();
     void onEnter(const SprintStartEvent&);
+
+    void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
+    void onEnter(ArmedWalkState&, const WeaponStateEvent&);
+    void onEnter(DisarmedWalkState&, const DrawArrowEvent&);
+
+    void onEnter(DisarmedRunState&, const WeaponStateEvent&);
+    void onEnter(ArmedRunState&, const WeaponStateEvent&);
+    void onEnter(DisarmedRunState&, const DrawArrowEvent&);
+
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
@@ -71,8 +82,8 @@ public:
 
 private:
     FsmContext& context_;
-    bool drawArrowEventCalled_{ false };
-    bool sprintEventCalled_{ false };
+    bool drawArrowEventCalled_{false};
+    bool sprintEventCalled_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine
