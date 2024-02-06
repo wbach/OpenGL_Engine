@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "DrawArrowStateBase.h"
+#include "ArmedChangeStateBase.h"
 #include "MoveAndRotateStateBase.h"
 
 namespace GameEngine
@@ -23,7 +23,7 @@ class RotateArmedChangeState;
 class WalkArmedChangeState;
 
 class WalkAndRotateArmedChangeState
-    : public DrawArrowStateBase,
+    : public ArmedChangeStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -51,27 +51,7 @@ class WalkAndRotateArmedChangeState
 {
 public:
     WalkAndRotateArmedChangeState(FsmContext&);
-
-    void onEnter();
-    void onEnter(const DrawArrowEvent&);
-    void onEnter(const ReloadArrowEvent&);
-    void onEnter(const RotateLeftEvent&);
-    void onEnter(const RotateRightEvent&);
-    void onEnter(const RotateTargetEvent&);
-    void onEnter(const WalkForwardEvent&);
-    void onEnter(const WalkBackwardEvent&);
-    void onEnter(const WalkChangeStateEvent&);
-
     void update(float);
-    void update(const RotateLeftEvent&);
-    void update(const RotateRightEvent&);
-    void update(const RotateTargetEvent&);
-    void update(const WalkForwardEvent&);
-    void update(const WalkBackwardEvent&);
-
-    void onLeave(const AimStopEvent&);
-    void onLeave(const WeaponStateEvent&);
-    void onLeave(const SprintStateChangeEvent&);
 
 private:
     FsmContext& context_;

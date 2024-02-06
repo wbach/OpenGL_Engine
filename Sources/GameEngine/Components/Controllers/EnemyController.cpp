@@ -48,10 +48,8 @@ void EnemyController::Init()
 }
 void EnemyController::Update()
 {
-    if (not characterController_ or not enemy_ or not characterController_->fsm())
+    if (not characterController_ or not enemy_)
         return;
-
-    auto& fsm = *characterController_->fsm();
 
     auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
         componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
@@ -60,23 +58,23 @@ void EnemyController::Update()
     {
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
-            fsm.handle(EndForwardMoveEvent{});
-            fsm.handle(AttackEvent{});
+            characterController_->handleEvent(EndForwardMoveEvent{});
+            characterController_->handleEvent(AttackEvent{});
         }
         else
         {
-            fsm.handle(EndAttackEvent{});
-            fsm.handle(RunForwardEvent{});
+            characterController_->handleEvent(EndAttackEvent{});
+            characterController_->handleEvent(RunForwardEvent{});
         }
 
-        fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
+        characterController_->handleEvent(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
         return;
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-    fsm.handle(EndAttackEvent{});
-    fsm.handle(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
-    fsm.handle(RunForwardEvent{});
+    characterController_->handleEvent(EndAttackEvent{});
+    characterController_->handleEvent(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
+    characterController_->handleEvent(RunForwardEvent{});
 
     auto distanceToPoint = glm::length(vectorToTarget);
     if (distanceToPoint < 5.f)

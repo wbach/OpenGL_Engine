@@ -20,5 +20,8 @@ void RunAndRotateArmedChangeState::onEnter(const WeaponStateEvent &)
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::setCurrentAnim();
 }
+void RunAndRotateArmedChangeState::update(float)
+{
+}
 }  // namespace Components
 }  // namespace GameEngine

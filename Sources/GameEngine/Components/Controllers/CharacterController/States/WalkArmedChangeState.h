@@ -55,6 +55,8 @@ public:
     WalkArmedChangeState(FsmContext& context);
 
     using MoveStateBase::onEnter;
+    void update(float);
+
     void onEnter(const WeaponStateEvent&);
 };
 }  // namespace Components

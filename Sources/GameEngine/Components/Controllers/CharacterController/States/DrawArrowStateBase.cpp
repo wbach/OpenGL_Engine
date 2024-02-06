@@ -45,7 +45,7 @@ void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
     }
 
     subId_ = context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.drawArrow, [&]() { context_.characterController.fsm()->handle(AimStartEvent{}); });
+        context_.animClipNames.drawArrow, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); });
 }
 
 void DrawArrowStateBase::onEnter(const EndRotationEvent &)

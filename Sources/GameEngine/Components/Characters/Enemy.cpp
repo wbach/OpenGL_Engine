@@ -52,8 +52,7 @@ void Enemy::Init()
 
     if (animator_ and characterController_)
     {
-        auto attackAction = [this]()
-        {
+        auto attackAction = [this]() {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -132,11 +131,7 @@ std::optional<int64> Enemy::hurt(int64 dmg)
         }
         else
         {
-            auto fsm = characterController_->fsm();
-            if (fsm)
-            {
-                characterController_->fsm()->handle(DeathEvent{});
-            }
+            characterController_->handleEvent(DeathEvent{});
             characterController_->Deactivate();
             Deactivate();
         }
@@ -155,8 +150,9 @@ void Enemy::isOnGround()
 }
 void Enemy::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
-    { return std::make_unique<Enemy>(componentContext, gameObject); };
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
+        return std::make_unique<Enemy>(componentContext, gameObject);
+    };
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
 }
 void Enemy::write(TreeNode& node) const

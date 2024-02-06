@@ -1,11 +1,12 @@
 #include "WalkAndRotateArmedChangeState.h"
 
+
 namespace GameEngine
 {
 namespace Components
 {
 WalkAndRotateArmedChangeState::WalkAndRotateArmedChangeState(FsmContext& context)
-    : DrawArrowStateBase(context, context.upperBodyGroupName)
+    : ArmedChangeStateBase(context, context.upperBodyGroupName)
     , MoveAndRotateStateBase{context,
                              context.lowerBodyGroupName,
                              context.walkSpeed,
@@ -14,6 +15,11 @@ WalkAndRotateArmedChangeState::WalkAndRotateArmedChangeState(FsmContext& context
                              context.animClipNames.armed.rotateRight}
     , context_{context}
 {
+}
+
+void WalkAndRotateArmedChangeState::update(float dt)
+{
+    MoveAndRotateStateBase::update(dt);
 }
 
 }  // namespace Components

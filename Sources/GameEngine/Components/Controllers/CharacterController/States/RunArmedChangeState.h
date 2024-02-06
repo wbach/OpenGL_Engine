@@ -50,8 +50,10 @@ class RunArmedChangeState
 public:
     RunArmedChangeState(FsmContext&);
 
+    using MoveStateBase::update;
     using MoveStateBase::onEnter;
     void onEnter(const WeaponStateEvent&);
+    void update(float);
 
 private:
     FsmContext& context_;

@@ -59,6 +59,7 @@ public:
     using MoveAndRotateStateBase::update;
 
     void onEnter(const WeaponStateEvent &);
+    void update(float);
 
 private:
     FsmContext &context_;

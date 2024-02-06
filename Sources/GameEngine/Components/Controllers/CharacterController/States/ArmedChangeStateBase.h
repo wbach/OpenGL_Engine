@@ -1,7 +1,6 @@
 #pragma once
 #include <Types.h>
 #include <Utils/Fsm/Actions.h>
-
 #include <optional>
 
 #include "../CharacterControllerEvents.h"
@@ -34,6 +33,7 @@ protected:
 private:
     bool armed_{false};
     JointPoseUpdater* jointPoseUpdater_{nullptr};
+    std::function<void()> onAnimationEnd_;
 
     std::optional<uint32> subscribeForTransitionAnimationFrame_;
     std::optional<uint32> subscribeForTransitionAnimationEnd_;

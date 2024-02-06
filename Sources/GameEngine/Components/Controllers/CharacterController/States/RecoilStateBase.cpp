@@ -43,7 +43,7 @@ void RecoilStateBase::onEnter(const AttackEvent &)
     setAnim();
 
     context_.animator.SubscribeForAnimationFrame(
-        animName_, [&]() { context_.characterController.fsm()->handle(ReloadArrowEvent{}); });
+        animName_, [&]() { context_.characterController.pushEventToQueue(ReloadArrowEvent{}); });
 }
 void RecoilStateBase::update(float)
 {

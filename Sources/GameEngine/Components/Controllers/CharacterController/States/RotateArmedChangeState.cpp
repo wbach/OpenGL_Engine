@@ -25,5 +25,9 @@ void RotateArmedChangeState::onEnter(const WeaponStateEvent &)
     }
 }
 
+void RotateArmedChangeState::update(float)
+{
+}
+
 }  // namespace Components
 }  // namespace GameEngine

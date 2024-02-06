@@ -3,6 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
+#include "ArmedChangeStateBase.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
@@ -30,7 +31,8 @@ class JumpState;
 class DeathState;
 
 class IdleArmedChangeState
-    : public IdleStateBase,
+    : public ArmedChangeStateBase,
+      public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           /* Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
@@ -47,14 +49,27 @@ class IdleArmedChangeState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>, // queue?
-          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>> // queue?
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>  // queue?
 {
 public:
-    IdleArmedChangeState(FsmContext& context);
+    IdleArmedChangeState(FsmContext&);
 
     using IdleStateBase::onEnter;
-    void onEnter(const WeaponStateEvent&);
+
+    void onEnter();
+    void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
+    void onEnter(ArmedIdleState&, const WeaponStateEvent&);
+    void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
+
+    void update(float);
+    void update(const AimStopEvent&);
+
+    void onLeave(const EquipEndStateEvent&);
+
+private:
+    bool drawArrowEventCalled_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

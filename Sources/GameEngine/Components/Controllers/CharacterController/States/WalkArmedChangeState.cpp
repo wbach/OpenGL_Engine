@@ -10,6 +10,9 @@ WalkArmedChangeState::WalkArmedChangeState(FsmContext &context)
                     context.animClipNames.disarmed.walk.backward}
 {
 }
+void WalkArmedChangeState::update(float)
+{
+}
 void WalkArmedChangeState::onEnter(const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();

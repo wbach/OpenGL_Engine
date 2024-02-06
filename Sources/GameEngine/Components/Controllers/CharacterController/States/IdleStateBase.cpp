@@ -12,7 +12,14 @@ IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimNam
     , idleAnimName_{idleAnimName}
 {
 }
-
+void IdleStateBase::onEnter(const EquipEndStateEvent&)
+{
+    setIdleAnim();
+}
+void IdleStateBase::onEnter(const DisarmEndStateEvent&)
+{
+    setIdleAnim();
+}
 void IdleStateBase::onEnter(const AimStopEvent &)
 {
     setIdleAnim();

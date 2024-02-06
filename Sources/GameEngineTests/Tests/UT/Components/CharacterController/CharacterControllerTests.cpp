@@ -87,7 +87,6 @@ CharacterControllerTests::CharacterControllerTests()
 
 void CharacterControllerTests::SetUp()
 {
-    ASSERT_TRUE(sut_.fsm() != nullptr);
     EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
     EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
 

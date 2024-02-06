@@ -60,13 +60,20 @@ void ArmedChangeStateBase::triggerChange()
 
             unsubscribe(subscribeForTransitionAnimationFrame_);
         },
-        armed_ ? context_.armTimeStamps.disarm : context_.armTimeStamps.disarm);
+        armed_ ? context_.armTimeStamps.arm : context_.armTimeStamps.disarm);
 
     subscribeForTransitionAnimationEnd_ = context_.animator.SubscribeForAnimationFrame(
         animName,
         [this]()
         {
-            context_.characterController.fsm()->handle(WeaponChangeEndEvent{});
+            if (armed_)
+            {
+                context_.characterController.pushEventToQueue(EquipEndStateEvent{});
+            }
+            else
+            {
+                context_.characterController.pushEventToQueue(DisarmEndStateEvent{});
+            }
             unsubscribe(subscribeForTransitionAnimationEnd_);
         });
 

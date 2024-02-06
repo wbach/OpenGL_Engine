@@ -14,5 +14,8 @@ RunArmedChangeState::RunArmedChangeState(FsmContext &context)
 void RunArmedChangeState::onEnter(const WeaponStateEvent &)
 {
 }
+void RunArmedChangeState::update(float)
+{
+}
 }  // namespace Components
 }  // namespace GameEngine
