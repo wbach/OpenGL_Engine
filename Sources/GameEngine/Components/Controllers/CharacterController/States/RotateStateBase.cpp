@@ -19,6 +19,11 @@ RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::s
     , rotateSpeed_{rotateSpeed}
 {
 }
+
+void RotateStateBase::onEnter(const EquipEndStateEvent &)
+{
+    setCurrentAnim();
+}
 void RotateStateBase::onEnter(const RotateLeftEvent &e)
 {
     update(e);
@@ -59,6 +64,11 @@ void RotateStateBase::onEnter(const AimStopEvent &)
     setCurrentAnim();
 }
 
+void RotateStateBase::onEnter(const DisarmEndStateEvent &)
+{
+    setCurrentAnim();
+}
+
 void RotateStateBase::update(const AttackEvent &)
 {
     context_.attackFsm.handle(AttackFsmEvents::Attack{});
@@ -71,11 +81,13 @@ void RotateStateBase::update(const EndAttackEvent &)
 
 void RotateStateBase::update(float deltaTime)
 {
+    DEBUG_LOG("SetRotation rotateSpeed_: " + std::to_string(context_.rotateStateData_.rotateSpeed_));
     if (not context_.rotateToTarget)
     {
         auto rotation =
             context_.rigidbody.GetRotation() *
             glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+        DEBUG_LOG("SetRotation: " + std::to_string(rotation));
         context_.rigidbody.SetRotation(rotation);
     }
     else

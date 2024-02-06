@@ -36,7 +36,7 @@ void IdleArmedChangeState::update(const AimStopEvent &)
 {
     drawArrowEventCalled_ = false;
 }
-void IdleArmedChangeState::onLeave(const EquipEndStateEvent &)
+void IdleArmedChangeState::onLeave(const EquipEndStateEvent & e)
 {
     DEBUG_LOG("onLeave " + std::to_string(drawArrowEventCalled_));
     if (drawArrowEventCalled_)
@@ -44,6 +44,7 @@ void IdleArmedChangeState::onLeave(const EquipEndStateEvent &)
         DEBUG_LOG("pushEventToQueue");
         ArmedChangeStateBase::context_.characterController.pushEventToQueue(DrawArrowEvent{});
     }
+    ArmedChangeStateBase::onLeave(e);
 }
 void IdleArmedChangeState::update(const DrawArrowEvent&)
 {

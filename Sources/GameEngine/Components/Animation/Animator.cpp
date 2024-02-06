@@ -91,6 +91,7 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
         subscribers.push_back({id, function, frame});
         animationClipInfoSubscriptions_.insert({id, &subscribers});
 
+        DEBUG_LOG("SubscribeForAnimationFrame " + animName + " id : " + std::to_string(id));
         return id;
     }
 
@@ -99,12 +100,17 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
 }
 void Animator::UnSubscribeForAnimationFrame(IdType id)
 {
+    DEBUG_LOG("Try UnSubscribeForAnimationFrame " + std::to_string(id));
     auto iter = animationClipInfoSubscriptions_.find(id);
     if (iter != animationClipInfoSubscriptions_.end())
     {
         auto& subscribers = *iter->second;
-        auto subIter =
-            std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& sub) { return sub.id == id; });
+        auto subIter      = std::find_if(subscribers.begin(), subscribers.end(),
+                                         [id](const auto& sub)
+                                         {
+                                        DEBUG_LOG("UnSubscribeForAnimationFrame " + std::to_string(id));
+                                        return sub.id == id;
+                                    });
 
         if (subIter != subscribers.end())
             subscribers.erase(subIter);
@@ -296,14 +302,14 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 
     if (joint.ignoreParentRotation)
     {
-       // auto invertedParentWithoutTranslation = glm::mat4(glm::mat3(glm::inverse(parentTransform)));
+        // auto invertedParentWithoutTranslation = glm::mat4(glm::mat3(glm::inverse(parentTransform)));
         auto invertedParentWithoutTranslation = glm::inverse(parentTransform);
         // remove translation
         invertedParentWithoutTranslation[3][0] = 0;
         invertedParentWithoutTranslation[3][1] = 0;
         invertedParentWithoutTranslation[3][2] = 0;
         // remove rotation from parent
-        parent =parent * invertedParentWithoutTranslation;
+        parent = parent * invertedParentWithoutTranslation;
     }
     auto currentPoseIter = jointData_.pose.data.find(joint.id);
 

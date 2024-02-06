@@ -1,6 +1,7 @@
 #pragma once
 #include <Types.h>
 #include <Utils/Fsm/Actions.h>
+
 #include <optional>
 
 #include "../CharacterControllerEvents.h"
@@ -20,6 +21,8 @@ public:
 protected:
     void equipWeapon();
     void disarmWeapon();
+    void onLeave(const EquipEndStateEvent&);
+    void onLeave(const DisarmEndStateEvent&);
 
 private:
     void triggerChange();

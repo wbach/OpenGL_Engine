@@ -41,6 +41,16 @@ void ArmedChangeStateBase::disarmWeapon()
     triggerChange();
 }
 
+void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
+{
+    unsubscribeAll();
+}
+
+void ArmedChangeStateBase::onLeave(const DisarmEndStateEvent&)
+{
+    unsubscribeAll();
+}
+
 void ArmedChangeStateBase::triggerChange()
 {
     const auto& animName = armed_ ? context_.animClipNames.equip : context_.animClipNames.disarm;
@@ -49,6 +59,7 @@ void ArmedChangeStateBase::triggerChange()
         animName,
         [this, isArmed = armed_]()
         {
+            unsubscribe(subscribeForTransitionAnimationFrame_);
             if (isArmed)
             {
                 jointPoseUpdater_->setEquipJointAsCurrent();
@@ -57,8 +68,6 @@ void ArmedChangeStateBase::triggerChange()
             {
                 jointPoseUpdater_->setDisarmJointAsCurrent();
             }
-
-            unsubscribe(subscribeForTransitionAnimationFrame_);
         },
         armed_ ? context_.armTimeStamps.arm : context_.armTimeStamps.disarm);
 
@@ -66,6 +75,7 @@ void ArmedChangeStateBase::triggerChange()
         animName,
         [this]()
         {
+            unsubscribe(subscribeForTransitionAnimationEnd_);
             if (armed_)
             {
                 context_.characterController.pushEventToQueue(EquipEndStateEvent{});
@@ -74,7 +84,6 @@ void ArmedChangeStateBase::triggerChange()
             {
                 context_.characterController.pushEventToQueue(DisarmEndStateEvent{});
             }
-            unsubscribe(subscribeForTransitionAnimationEnd_);
         });
 
     context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,

@@ -1,4 +1,5 @@
 #include "RotateArmedChangeState.h"
+#include "../CharacterController.h"
 
 namespace GameEngine
 {
@@ -12,22 +13,51 @@ RotateArmedChangeState::RotateArmedChangeState(FsmContext &context)
 {
 }
 
-void RotateArmedChangeState::onEnter(const WeaponStateEvent &)
+void RotateArmedChangeState::onEnter()
+{
+    drawArrowEventCalled_ = false;
+}
+
+void RotateArmedChangeState::onEnter(DisarmedRotateState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+
+void RotateArmedChangeState::onEnter(ArmedRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
-    if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
-    {
-        setRotateLeftAnim();
-    }
-    else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
-    {
-        setRotateRightAnim();
-    }
+}
+
+void RotateArmedChangeState::onEnter(DisarmedRotateState&, const DrawArrowEvent &)
+{
+    ArmedChangeStateBase::equipWeapon();
+    drawArrowEventCalled_ = true;
 }
 
 void RotateArmedChangeState::update(float dt)
 {
     RotateStateBase::update(dt);
+}
+
+void RotateArmedChangeState::update(const DrawArrowEvent &)
+{
+    drawArrowEventCalled_ = true;
+}
+
+void RotateArmedChangeState::update(const AimStopEvent &)
+{
+    drawArrowEventCalled_ = false;
+}
+
+void RotateArmedChangeState::onLeave(const EquipEndStateEvent & e)
+{
+    DEBUG_LOG("onLeave " + std::to_string(drawArrowEventCalled_));
+    if (drawArrowEventCalled_)
+    {
+        DEBUG_LOG("pushEventToQueue");
+        ArmedChangeStateBase::context_.characterController.pushEventToQueue(DrawArrowEvent{});
+    }
+    ArmedChangeStateBase::onLeave(e);
 }
 
 }  // namespace Components

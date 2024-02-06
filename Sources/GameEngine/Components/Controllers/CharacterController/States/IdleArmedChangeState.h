@@ -67,6 +67,7 @@ public:
     void update(const DrawArrowEvent&);
     void update(const AimStopEvent&);
 
+    using ArmedChangeStateBase::onLeave;
     void onLeave(const EquipEndStateEvent&);
 
 private:

@@ -15,6 +15,8 @@ class RotateStateBase
 public:
     RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const std::string&, const std::string&);
 
+    void onEnter(const EquipEndStateEvent&);
+    void onEnter(const DisarmEndStateEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
