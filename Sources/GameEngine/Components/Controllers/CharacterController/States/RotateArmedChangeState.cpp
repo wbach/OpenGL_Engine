@@ -1,4 +1,5 @@
 #include "RotateArmedChangeState.h"
+
 #include "../CharacterController.h"
 
 namespace GameEngine
@@ -28,7 +29,7 @@ void RotateArmedChangeState::onEnter(ArmedRotateState &, const WeaponStateEvent 
     ArmedChangeStateBase::disarmWeapon();
 }
 
-void RotateArmedChangeState::onEnter(DisarmedRotateState&, const DrawArrowEvent &)
+void RotateArmedChangeState::onEnter(DisarmedRotateState &, const DrawArrowEvent &)
 {
     ArmedChangeStateBase::equipWeapon();
     drawArrowEventCalled_ = true;
@@ -49,7 +50,22 @@ void RotateArmedChangeState::update(const AimStopEvent &)
     drawArrowEventCalled_ = false;
 }
 
-void RotateArmedChangeState::onLeave(const EquipEndStateEvent & e)
+void RotateArmedChangeState::update(const RotateRightEvent &e)
+{
+    RotateStateBase::onEnter(e);
+}
+
+void RotateArmedChangeState::update(const RotateLeftEvent &e)
+{
+    RotateStateBase::onEnter(e);
+}
+
+void RotateArmedChangeState::update(const RotateTargetEvent &e)
+{
+    RotateStateBase::onEnter(e);
+}
+
+void RotateArmedChangeState::onLeave(const EquipEndStateEvent &e)
 {
     DEBUG_LOG("onLeave " + std::to_string(drawArrowEventCalled_));
     if (drawArrowEventCalled_)

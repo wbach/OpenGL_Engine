@@ -10,9 +10,9 @@ WalkAndRotateArmedChangeState::WalkAndRotateArmedChangeState(FsmContext& context
     , MoveAndRotateStateBase{context,
                              context.lowerBodyGroupName,
                              context.walkSpeed,
-                             context.animClipNames.armed.walk,
-                             context.animClipNames.armed.rotateLeft,
-                             context.animClipNames.armed.rotateRight}
+                             context.animClipNames.disarmed.walk,
+                             context.animClipNames.disarmed.rotateLeft,
+                             context.animClipNames.disarmed.rotateRight}
     , context_{context}
 {
 }

@@ -21,6 +21,10 @@ class JumpState;
 class DeathState;
 class ArmedRotateState;
 class ArmedSprintAndRotateState;
+class IdleArmedChangeState;
+class RunAndRotateArmedChangeState;
+class WalkAndRotateArmedChangeState;
+class ArmedRunAndRotateState;
 
 class RotateArmedChangeState
     : public ArmedChangeStateBase,
@@ -32,18 +36,19 @@ class RotateArmedChangeState
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
-          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
-          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
+          //Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
+          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>
 {
 public:
     RotateArmedChangeState(FsmContext&);
@@ -59,6 +64,9 @@ public:
     void update(float);
     void update(const DrawArrowEvent&);
     void update(const AimStopEvent&);
+    void update(const RotateRightEvent&);
+    void update(const RotateLeftEvent&);
+    void update(const RotateTargetEvent&);
 
     using ArmedChangeStateBase::onLeave;
     void onLeave(const EquipEndStateEvent&);
