@@ -1,5 +1,6 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
+#include <optional>
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
@@ -52,11 +53,16 @@ public:
 
     using MoveStateBase::update;
     using MoveStateBase::onEnter;
-    void onEnter(const WeaponStateEvent&);
+    void onEnter(const SprintStartEvent&);
+
     void update(float);
+    void update(const SprintStateChangeEvent&);
+
+    void onLeave(const EquipEndStateEvent&);
 
 private:
     FsmContext& context_;
+    std::optional<CharacterControllerEvent> queuedEvent;
 };
 }  // namespace Components
 }  // namespace GameEngine

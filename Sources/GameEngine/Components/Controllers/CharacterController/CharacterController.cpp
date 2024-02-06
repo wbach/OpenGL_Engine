@@ -305,7 +305,12 @@ void CharacterController::processEvent()
         auto tmpEvents = std::move(eventQueue);
         for (auto& event : tmpEvents)
         {
-            std::visit([&](const auto& e) { stateMachine_->handle(e); }, event);
+            std::visit(
+                [&](const auto& e) {
+                    DEBUG_LOG("Process event : " + typeid(e).name());
+                    stateMachine_->handle(e);
+                },
+                event);
         }
     }
 }

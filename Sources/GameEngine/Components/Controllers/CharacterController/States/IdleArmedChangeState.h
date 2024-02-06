@@ -64,6 +64,7 @@ public:
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
 
     void update(float);
+    void update(const DrawArrowEvent&);
     void update(const AimStopEvent&);
 
     void onLeave(const EquipEndStateEvent&);

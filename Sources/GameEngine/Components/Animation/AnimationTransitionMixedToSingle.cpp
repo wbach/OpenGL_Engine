@@ -81,11 +81,11 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
                 v.front().jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, v, event);
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, v, event, event.onTransitionEnd);
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime);
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 

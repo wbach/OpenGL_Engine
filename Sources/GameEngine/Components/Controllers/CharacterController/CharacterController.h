@@ -43,11 +43,6 @@ public:
         eventQueue.push_back(event);
     }
 
-    //void pushEventToQueue(const CharacterControllerEvent& event)
-    //{
-    //    eventQueue.push_back(event);
-    //}
-
 public:
     std::string upperBodyGroupName;
     std::string lowerBodyGroupName;

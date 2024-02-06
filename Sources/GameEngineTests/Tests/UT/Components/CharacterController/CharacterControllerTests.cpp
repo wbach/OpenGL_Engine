@@ -89,6 +89,7 @@ void CharacterControllerTests::SetUp()
 {
     EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
     EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
+    EXPECT_CALL(inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
 
     Update(ADVANCED_TIME_TRANSITION_TIME);  // To set first anim
 }
@@ -160,6 +161,7 @@ void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>
 void CharacterControllerTests::expectForwardVelocity(float speed)
 {
     DEBUG_LOG("Expected speed : " + std::to_string(speed));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed))).Times(AtLeast(1));
 }
@@ -174,6 +176,7 @@ void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpe
     auto rotation = createRotaion(rotateSpeed, deltaTime);
 
     DEBUG_LOG("Expected rotation : " + std::to_string(rotation.value_));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_)))
         .Times(AtLeast(1));
 }

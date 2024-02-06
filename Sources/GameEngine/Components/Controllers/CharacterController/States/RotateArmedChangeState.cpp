@@ -25,8 +25,9 @@ void RotateArmedChangeState::onEnter(const WeaponStateEvent &)
     }
 }
 
-void RotateArmedChangeState::update(float)
+void RotateArmedChangeState::update(float dt)
 {
+    RotateStateBase::update(dt);
 }
 
 }  // namespace Components

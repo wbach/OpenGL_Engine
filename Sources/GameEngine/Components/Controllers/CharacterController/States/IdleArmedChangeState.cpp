@@ -45,7 +45,10 @@ void IdleArmedChangeState::onLeave(const EquipEndStateEvent &)
         ArmedChangeStateBase::context_.characterController.pushEventToQueue(DrawArrowEvent{});
     }
 }
-
+void IdleArmedChangeState::update(const DrawArrowEvent&)
+{
+    drawArrowEventCalled_ = true;
+}
 void IdleArmedChangeState::update(float)
 {
 }

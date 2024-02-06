@@ -36,7 +36,7 @@ public:
 
 protected:
     FsmContext& context_;
-    const std::optional<std::string>& jointGroupName_;
+    std::optional<std::string> jointGroupName_;
     const std::string& rotateLeftAnim_;
     const std::string& rotateRightAnim_;
     float rotateSpeed_;

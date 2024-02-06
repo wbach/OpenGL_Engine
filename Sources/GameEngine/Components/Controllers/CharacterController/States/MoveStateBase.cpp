@@ -29,6 +29,7 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 
 void MoveStateBase::onEnter(const SprintStartEvent &)
 {
+    DEBUG_LOG("onEnter(const SprintStartEvent &)");
     moveForward();
 }
 
@@ -197,8 +198,10 @@ void MoveStateBase::setForwardAnim()
     {
         context_.moveStateData_.animationIsReady_ = false;
         context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, jointGroupName_,
-                                          [this]() { context_.moveStateData_.animationIsReady_ = true; });
+                                          PlayDirection::forward, jointGroupName_, [this]() {
+                                              DEBUG_LOG("animationIsReady_ = true");
+                                              context_.moveStateData_.animationIsReady_ = true;
+                                          });
     }
 }
 
@@ -245,9 +248,9 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
         auto velocity       = rigidbody.GetVelocity();
         auto velocityChange = (targetVelocity - velocity);
         velocityChange.x    = glm::clamp(velocityChange.x, -context_.moveStateData_.currentMoveSpeed_,
-                                         context_.moveStateData_.currentMoveSpeed_);
+                                      context_.moveStateData_.currentMoveSpeed_);
         velocityChange.z    = glm::clamp(velocityChange.z, -context_.moveStateData_.currentMoveSpeed_,
-                                         context_.moveStateData_.currentMoveSpeed_);
+                                      context_.moveStateData_.currentMoveSpeed_);
         velocityChange.y    = 0;
 
         auto newVelocity = velocity + velocityChange;
