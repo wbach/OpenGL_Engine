@@ -35,6 +35,8 @@ public:
     void setRotateLeftAnim();
     void setRotateRightAnim();
     void setCurrentAnim();
+    void setCurrentRotation();
+    void setCurrentAnimAndRotation();
 
 protected:
     FsmContext& context_;

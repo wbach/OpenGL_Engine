@@ -25,6 +25,8 @@ class IdleArmedChangeState;
 class RunAndRotateArmedChangeState;
 class WalkAndRotateArmedChangeState;
 class ArmedRunAndRotateState;
+class RecoilRotateState;
+class AimRotateState;
 
 class RotateArmedChangeState
     : public ArmedChangeStateBase,
@@ -36,7 +38,7 @@ class RotateArmedChangeState
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          //Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
@@ -53,13 +55,17 @@ class RotateArmedChangeState
 public:
     RotateArmedChangeState(FsmContext&);
 
+    using ArmedChangeStateBase::update;
     using RotateStateBase::onEnter;
     using RotateStateBase::update;
-    using ArmedChangeStateBase::update;
 
     void onEnter(DisarmedRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedRotateState&, const DrawArrowEvent&);
+
+    void onEnter(DrawArrowRotateState&, const WeaponStateEvent&);
+    void onEnter(RecoilRotateState&, const WeaponStateEvent&);
+    void onEnter(AimRotateState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const RotateRightEvent&);

@@ -11,6 +11,18 @@ RecoilState::RecoilState(FsmContext &contex)
     : RecoilStateBase(contex, std::nullopt)
 {
 }
+void RecoilState::onEnter(const EndRotationEvent&)
+{
+    // do nothing
+}
+void RecoilState::onEnter(const EndForwardMoveEvent&)
+{
+    // do nothing
+}
+void RecoilState::onEnter(const EndBackwardMoveEvent&)
+{
+    // do nothing
+}
 void RecoilState::onLeave(const AimStopEvent &e)
 {
     RecoilStateBase::onLeave(e);

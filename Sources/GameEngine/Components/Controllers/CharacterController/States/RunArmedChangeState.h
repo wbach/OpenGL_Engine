@@ -27,6 +27,9 @@ class DisarmedRunAndRotateState;
 class IdleArmedChangeState;
 class WalkArmedChangeState;
 class RunAndRotateArmedChangeState;
+class DrawArrowRunState;
+class RecoilRunState;
+class AimRunState;
 
 class RunArmedChangeState
     : public ArmedChangeStateBase,
@@ -55,10 +58,10 @@ class RunArmedChangeState
 public:
     RunArmedChangeState(FsmContext&);
 
+    using ArmedChangeStateBase::onLeave;
+    using ArmedChangeStateBase::update;
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
-    using ArmedChangeStateBase::update;
-    using ArmedChangeStateBase::onLeave;
 
     void onEnter(const SprintStartEvent&);
     void onEnter(const SprintStateChangeEvent&);
@@ -66,6 +69,10 @@ public:
     void onEnter(DisarmedRunState&, const WeaponStateEvent&);
     void onEnter(ArmedRunState&, const WeaponStateEvent&);
     void onEnter(DisarmedRunState&, const DrawArrowEvent&);
+
+    void onEnter(DrawArrowRunState&, const WeaponStateEvent&);
+    void onEnter(RecoilRunState&, const WeaponStateEvent&);
+    void onEnter(AimRunState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const SprintStateChangeEvent&);

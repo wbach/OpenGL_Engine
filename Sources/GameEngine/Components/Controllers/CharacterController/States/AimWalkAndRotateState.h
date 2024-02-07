@@ -20,6 +20,7 @@ class AimWalkAndRotateState;
 class AimRunAndRotateState;
 class DisarmedWalkAndRotateState;
 class DeathState;
+class WalkAndRotateArmedChangeState;
 
 class AimWalkAndRotateState
     : public AimStateBase,
@@ -34,7 +35,7 @@ class AimWalkAndRotateState
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<AimRunAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,

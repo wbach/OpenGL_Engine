@@ -29,7 +29,11 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 
 void MoveStateBase::onEnter(const EquipEndStateEvent &)
 {
-    setCurrentAnim();
+    updateMoveState();
+}
+
+void MoveStateBase::onEnter(const DisarmEndStateEvent&)
+{
     updateMoveState();
 }
 
@@ -69,7 +73,6 @@ void MoveStateBase::onEnter(const EndJumpEvent &)
 
 void MoveStateBase::onEnter(const WalkChangeStateEvent &)
 {
-    setCurrentAnim();
     updateMoveState();
 }
 
@@ -155,14 +158,8 @@ void MoveStateBase::setMoveBackwardData()
 
 void MoveStateBase::updateMoveState()
 {
-    if (context_.moveDirection.z > 0.01f)
-    {
-        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
-    }
-    else if (context_.moveDirection.z < -0.01f)
-    {
-        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
-    }
+    setCurrentAnim();
+    setCurrentMoveSpeed();
 }
 void MoveStateBase::update(const RunForwardEvent &event)
 {
@@ -238,6 +235,17 @@ void MoveStateBase::setCurrentAnim()
     else if (context_.moveDirection.z < -0.01f)
     {
         setBackwardAnim();
+    }
+}
+void MoveStateBase::setCurrentMoveSpeed()
+{
+    if (context_.moveDirection.z > 0.01f)
+    {
+        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+    }
+    else if (context_.moveDirection.z < -0.01f)
+    {
+        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
     }
 }
 void MoveStateBase::moveRigidbody(FsmContext &context)

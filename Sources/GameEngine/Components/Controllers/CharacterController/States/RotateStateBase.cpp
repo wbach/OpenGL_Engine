@@ -172,5 +172,23 @@ void RotateStateBase::setCurrentAnim()
     }
 }
 
+void RotateStateBase::setCurrentRotation()
+{
+    if (context_.rotateStateData_.rotateSpeed_ > 0.f)
+    {
+        update(RotateLeftEvent{});
+    }
+    else
+    {
+        update(RotateRightEvent{});
+    }
+}
+
+void RotateStateBase::setCurrentAnimAndRotation()
+{
+    setCurrentAnim();
+    setCurrentRotation();
+}
+
 }  // namespace Components
 }  // namespace GameEngine

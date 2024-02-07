@@ -76,9 +76,6 @@ struct DeathEvent
 struct WeaponStateEvent
 {
 };
-struct WeaponChangeEndEvent  // to remove
-{
-};
 struct EquipEndStateEvent
 {
 };

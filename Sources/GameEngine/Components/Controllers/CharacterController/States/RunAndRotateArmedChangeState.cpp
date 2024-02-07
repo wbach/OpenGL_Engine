@@ -38,6 +38,22 @@ void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState&, const Dra
 void RunAndRotateArmedChangeState::onEnter(ArmedRunAndRotateState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+void RunAndRotateArmedChangeState::onEnter(DrawArrowRunAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+void RunAndRotateArmedChangeState::onEnter(RecoilRunAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+void RunAndRotateArmedChangeState::onEnter(AimRunAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
 }
 void RunAndRotateArmedChangeState::update(float dt)
 {

@@ -29,6 +29,18 @@ void IdleArmedChangeState::onEnter(DisarmedIdleState &, const DrawArrowEvent &e)
     ArmedChangeStateBase::equipWeapon();
     ArmedChangeStateBase::update(e);
 }
+void IdleArmedChangeState::onEnter(DrawArrowState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+void IdleArmedChangeState::onEnter(RecoilState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+void IdleArmedChangeState::onEnter(AimState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
 void IdleArmedChangeState::update(float)
 {
 }

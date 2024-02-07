@@ -29,6 +29,11 @@ void MoveAndRotateStateBase::onEnter(const EquipEndStateEvent &event)
     MoveStateBase::onEnter(event);
 }
 
+void MoveAndRotateStateBase::onEnter(const DisarmEndStateEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
 void MoveAndRotateStateBase::onEnter(const SprintStartEvent &event)
 {
     MoveStateBase::update(event);

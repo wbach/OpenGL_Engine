@@ -23,6 +23,8 @@ class RotateArmedChangeState;
 class WalkArmedChangeState;
 class DisarmedRunAndRotateState;
 class ArmedRunAndRotateState;
+class RecoilWalkAndRotateState;
+class DrawArrowWalkAndRotateState;
 
 class WalkAndRotateArmedChangeState
     : public ArmedChangeStateBase,
@@ -65,6 +67,10 @@ public:
     void onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent&);
+
+    void onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&);
+    void onEnter(RecoilWalkAndRotateState&, const WeaponStateEvent&);
+    void onEnter(AimWalkAndRotateState&, const WeaponStateEvent&);
 
     void update(float);
 

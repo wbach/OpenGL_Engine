@@ -18,6 +18,7 @@ public:
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
     void onEnter(const EquipEndStateEvent &);
+    void onEnter(const DisarmEndStateEvent&);
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const RunForwardEvent &);
@@ -55,6 +56,7 @@ protected:
     void setForwardAnim();
     void setBackwardAnim();
     void setCurrentAnim();
+    void setCurrentMoveSpeed();
 
 protected:
     FsmContext &context_;

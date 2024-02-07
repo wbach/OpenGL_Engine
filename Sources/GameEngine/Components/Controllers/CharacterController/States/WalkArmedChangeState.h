@@ -25,6 +25,8 @@ class RunArmedChangeState;
 class IdleArmedChangeState;
 class ArmedIdleState;
 class WalkAndRotateArmedChangeState;
+class RecoilWalkState;
+class AimWalkState;
 
 class WalkArmedChangeState
     : public ArmedChangeStateBase,
@@ -33,7 +35,6 @@ class WalkArmedChangeState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
           // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
@@ -64,6 +65,10 @@ public:
     void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkState&, const WeaponStateEvent&);
     void onEnter(DisarmedWalkState&, const DrawArrowEvent&);
+
+    void onEnter(DrawArrowWalkState&, const WeaponStateEvent&);
+    void onEnter(RecoilWalkState&, const WeaponStateEvent&);
+    void onEnter(AimWalkState&, const WeaponStateEvent&);
 
     void update(float);
 };

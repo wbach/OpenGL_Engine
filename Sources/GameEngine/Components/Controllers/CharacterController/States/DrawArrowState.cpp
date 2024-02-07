@@ -12,6 +12,18 @@ DrawArrowState::DrawArrowState(FsmContext &context)
     : DrawArrowStateBase{context, std::nullopt}
 {
 }
+void DrawArrowState::onEnter(const EndRotationEvent&)
+{
+    // do nothing
+}
+void DrawArrowState::onEnter(const EndForwardMoveEvent&)
+{
+    // do nothing
+}
+void DrawArrowState::onEnter(const EndBackwardMoveEvent&)
+{
+    // do nothing
+}
 void DrawArrowState::onLeave(const AimStopEvent &e)
 {
     DrawArrowStateBase::onLeave(e);

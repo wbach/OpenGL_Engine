@@ -17,6 +17,24 @@ WalkAndRotateArmedChangeState::WalkAndRotateArmedChangeState(FsmContext& context
 {
 }
 
+void WalkAndRotateArmedChangeState::onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+
+void WalkAndRotateArmedChangeState::onEnter(RecoilWalkAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+
+void WalkAndRotateArmedChangeState::onEnter(AimWalkAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+
 void WalkAndRotateArmedChangeState::update(float dt)
 {
     MoveAndRotateStateBase::update(dt);
@@ -30,6 +48,7 @@ void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const W
 void WalkAndRotateArmedChangeState::onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
 }
 
 void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent&)

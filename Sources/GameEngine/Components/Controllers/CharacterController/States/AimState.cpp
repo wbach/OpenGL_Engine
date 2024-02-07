@@ -21,6 +21,21 @@ void AimState::onLeave(const SprintStartEvent& event)
     AimStateBase::onLeave(event);
 }
 
+void AimState::onEnter(const EndRotationEvent&)
+{
+    // do nothing
+}
+
+void AimState::onEnter(const EndForwardMoveEvent&)
+{
+    // do nothing
+}
+
+void AimState::onEnter(const EndBackwardMoveEvent&)
+{
+    // do nothing
+}
+
 void AimState::onLeave(const AimStopEvent& event)
 {
     AimStateBase::onLeave(event);

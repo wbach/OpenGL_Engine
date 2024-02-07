@@ -22,6 +22,7 @@ public:
                            const std::string &, const std::string &);
 
     void onEnter(const EquipEndStateEvent &);
+    void onEnter(const DisarmEndStateEvent&);
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const WalkForwardEvent &);
