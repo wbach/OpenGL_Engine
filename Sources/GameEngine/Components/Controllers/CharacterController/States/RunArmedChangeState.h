@@ -61,14 +61,11 @@ public:
     using ArmedChangeStateBase::onLeave;
 
     void onEnter(const SprintStartEvent&);
+    void onEnter(const SprintStateChangeEvent&);
 
     void onEnter(DisarmedRunState&, const WeaponStateEvent&);
     void onEnter(ArmedRunState&, const WeaponStateEvent&);
     void onEnter(DisarmedRunState&, const DrawArrowEvent&);
-
-    void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
-    void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
-    void onEnter(ArmedIdleState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const SprintStateChangeEvent&);

@@ -22,5 +22,20 @@ void WalkAndRotateArmedChangeState::update(float dt)
     MoveAndRotateStateBase::update(dt);
 }
 
+void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+
+void WalkAndRotateArmedChangeState::onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+
+void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+
 }  // namespace Components
 }  // namespace GameEngine

@@ -1,11 +1,12 @@
 #include "RunAndRotateArmedChangeState.h"
+
 #include "../CharacterController.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
+RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
     , MoveAndRotateStateBase{context,
                              context.lowerBodyGroupName,
@@ -17,6 +18,11 @@ RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
 {
 }
 void RunAndRotateArmedChangeState::onEnter(const SprintStartEvent& event)
+{
+    MoveStateBase::onEnter(event);
+    ArmedChangeStateBase::update(event);
+}
+void RunAndRotateArmedChangeState::onEnter(const SprintStateChangeEvent& event)
 {
     MoveStateBase::onEnter(event);
     ArmedChangeStateBase::update(event);

@@ -62,6 +62,7 @@ public:
     using MoveAndRotateStateBase::update;
 
     void onEnter(const SprintStartEvent &);
+    void onEnter(const SprintStateChangeEvent&);
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
     void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
