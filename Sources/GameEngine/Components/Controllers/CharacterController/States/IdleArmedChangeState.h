@@ -57,21 +57,18 @@ public:
     IdleArmedChangeState(FsmContext&);
 
     using IdleStateBase::onEnter;
+    using ArmedChangeStateBase::update;
 
-    void onEnter();
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
 
     void update(float);
-    void update(const DrawArrowEvent&);
-    void update(const AimStopEvent&);
 
     using ArmedChangeStateBase::onLeave;
-    void onLeave(const EquipEndStateEvent&);
 
 private:
-    bool drawArrowEventCalled_{false};
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

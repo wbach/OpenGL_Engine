@@ -57,8 +57,9 @@ public:
 
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
+    using ArmedChangeStateBase::update;
+    using ArmedChangeStateBase::onLeave;
 
-    void onEnter();
     void onEnter(const SprintStartEvent&);
 
     void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
@@ -74,11 +75,7 @@ public:
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
 
     void update(float);
-    void update(const DrawArrowEvent&);
     void update(const SprintStateChangeEvent&);
-    void update(const AimStopEvent&);
-
-    using ArmedChangeStateBase::onLeave;
 
 private:
     FsmContext& context_;

@@ -17,6 +17,10 @@ class ArmedChangeStateBase
 {
 public:
     ArmedChangeStateBase(FsmContext&, const std::optional<std::string>&);
+    void update(const DrawArrowEvent&);
+    void update(const AimStopEvent&);
+    void update(const SprintStartEvent&);
+    void update(const SprintStateChangeEvent&);
 
 protected:
     void equipWeapon();

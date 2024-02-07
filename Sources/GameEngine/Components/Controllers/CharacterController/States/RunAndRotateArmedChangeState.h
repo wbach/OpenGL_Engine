@@ -59,20 +59,14 @@ public:
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
+    using ArmedChangeStateBase::update;
+    using ArmedChangeStateBase::onLeave;
 
-    void onEnter();
     void onEnter(const SprintStartEvent&);
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
     void onEnter(DisarmedRunAndRotateState&, const WeaponStateEvent &);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
     void update(float);
-
-    void update(const DrawArrowEvent &);
-    void update(const SprintStateChangeEvent &);
-    void update(const AimStopEvent &);
-
-    using ArmedChangeStateBase::onLeave;
-    void onLeave(const EquipEndStateEvent &);
 
 private:
     FsmContext &context_;

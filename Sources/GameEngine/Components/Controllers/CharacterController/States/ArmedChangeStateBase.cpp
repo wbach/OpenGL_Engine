@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Animation/JointPoseUpdater.h"
 #include "Logger/Log.h"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -16,7 +17,25 @@ ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optio
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }
+void ArmedChangeStateBase::update(const DrawArrowEvent&)
+{
+    context_.drawArrowEventCalled_ = true;
+}
 
+void ArmedChangeStateBase::update(const AimStopEvent&)
+{
+    context_.drawArrowEventCalled_ = false;
+}
+void ArmedChangeStateBase::update(const SprintStateChangeEvent&)
+{
+    DEBUG_LOG(" update SprintStateChangeEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+    context_.sprintEventCalled_ = not context_.sprintEventCalled_;
+}
+void ArmedChangeStateBase::update(const SprintStartEvent&)
+{
+    DEBUG_LOG(" update SprintStartEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+    context_.sprintEventCalled_ = true;
+}
 void ArmedChangeStateBase::equipWeapon()
 {
     if (not jointPoseUpdater_)
@@ -43,9 +62,11 @@ void ArmedChangeStateBase::disarmWeapon()
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
 {
+    DEBUG_LOG("onLeave context_.drawArrowEventCalled_ = " + Utils::BoolToString(context_.drawArrowEventCalled_));
+    DEBUG_LOG("onLeave context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+
     if (context_.drawArrowEventCalled_)
     {
-        DEBUG_LOG("pushEventToQueue");
         context_.characterController.pushEventToQueue(DrawArrowEvent{});
     }
     else if (context_.sprintEventCalled_)

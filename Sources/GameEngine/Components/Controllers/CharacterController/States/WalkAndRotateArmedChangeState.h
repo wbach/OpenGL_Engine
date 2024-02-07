@@ -51,6 +51,13 @@ class WalkAndRotateArmedChangeState
 {
 public:
     WalkAndRotateArmedChangeState(FsmContext&);
+
+    using MoveAndRotateStateBase::onEnter;
+    using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::update;
+    using ArmedChangeStateBase::update;
+    using ArmedChangeStateBase::onLeave;
+
     void update(float);
 
 private:

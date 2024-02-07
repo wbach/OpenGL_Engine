@@ -55,6 +55,9 @@ public:
     WalkArmedChangeState(FsmContext& context);
 
     using MoveStateBase::onEnter;
+    using MoveStateBase::update;
+    using ArmedChangeStateBase::update;
+    using ArmedChangeStateBase::onLeave;
     void update(float);
 
     void onEnter(const WeaponStateEvent&);

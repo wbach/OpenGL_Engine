@@ -24,25 +24,15 @@ void RotateArmedChangeState::onEnter(ArmedRotateState &, const WeaponStateEvent 
     ArmedChangeStateBase::disarmWeapon();
 }
 
-void RotateArmedChangeState::onEnter(DisarmedRotateState &, const DrawArrowEvent &)
+void RotateArmedChangeState::onEnter(DisarmedRotateState &, const DrawArrowEvent & e)
 {
     ArmedChangeStateBase::equipWeapon();
-    context_.drawArrowEventCalled_ = true;
+    ArmedChangeStateBase::update(e);
 }
 
 void RotateArmedChangeState::update(float dt)
 {
     RotateStateBase::update(dt);
-}
-
-void RotateArmedChangeState::update(const DrawArrowEvent &)
-{
-    context_.drawArrowEventCalled_ = true;
-}
-
-void RotateArmedChangeState::update(const AimStopEvent &)
-{
-    context_.drawArrowEventCalled_ = false;
 }
 
 void RotateArmedChangeState::update(const RotateRightEvent &e)

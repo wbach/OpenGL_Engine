@@ -55,14 +55,13 @@ public:
 
     using RotateStateBase::onEnter;
     using RotateStateBase::update;
+    using ArmedChangeStateBase::update;
 
     void onEnter(DisarmedRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedRotateState&, const DrawArrowEvent&);
 
     void update(float);
-    void update(const DrawArrowEvent&);
-    void update(const AimStopEvent&);
     void update(const RotateRightEvent&);
     void update(const RotateLeftEvent&);
     void update(const RotateTargetEvent&);

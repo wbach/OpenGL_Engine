@@ -11,11 +11,8 @@ namespace Components
 IdleArmedChangeState::IdleArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, std::nullopt)
     , IdleStateBase{context, context.animClipNames.disarmed.idle}
+    , context_{context}
 {
-}
-void IdleArmedChangeState::onEnter()
-{
-    drawArrowEventCalled_ = false;
 }
 void IdleArmedChangeState::onEnter(DisarmedIdleState &, const WeaponStateEvent &)
 {
@@ -27,28 +24,10 @@ void IdleArmedChangeState::onEnter(ArmedIdleState &, const WeaponStateEvent &)
     DEBUG_LOG("onEnter(ArmedIdleState&, const WeaponStateEvent &)");
     ArmedChangeStateBase::disarmWeapon();
 }
-void IdleArmedChangeState::onEnter(DisarmedIdleState &, const DrawArrowEvent &)
+void IdleArmedChangeState::onEnter(DisarmedIdleState &, const DrawArrowEvent &e)
 {
     ArmedChangeStateBase::equipWeapon();
-    drawArrowEventCalled_ = true;
-}
-void IdleArmedChangeState::update(const AimStopEvent &)
-{
-    drawArrowEventCalled_ = false;
-}
-void IdleArmedChangeState::onLeave(const EquipEndStateEvent & e)
-{
-    DEBUG_LOG("onLeave " + std::to_string(drawArrowEventCalled_));
-    if (drawArrowEventCalled_)
-    {
-        DEBUG_LOG("pushEventToQueue");
-        ArmedChangeStateBase::context_.characterController.pushEventToQueue(DrawArrowEvent{});
-    }
-    ArmedChangeStateBase::onLeave(e);
-}
-void IdleArmedChangeState::update(const DrawArrowEvent&)
-{
-    drawArrowEventCalled_ = true;
+    ArmedChangeStateBase::update(e);
 }
 void IdleArmedChangeState::update(float)
 {
