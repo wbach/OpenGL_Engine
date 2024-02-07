@@ -46,32 +46,31 @@ class RunAndRotateArmedChangeState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          //Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // queue
-          Utils::StateMachine::On<SprintStateChangeEvent,
-                                  Utils::StateMachine::Update>,             // queue,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>  // queue,
 {
 public:
     RunAndRotateArmedChangeState(FsmContext &context);
 
+    using ArmedChangeStateBase::onLeave;
+    using ArmedChangeStateBase::update;
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-    using ArmedChangeStateBase::update;
-    using ArmedChangeStateBase::onLeave;
 
-    void onEnter(const SprintStartEvent&);
+    void onEnter(const SprintStartEvent &);
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedRunAndRotateState&, const WeaponStateEvent &);
+    void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
     void update(float);
 
 private:
     FsmContext &context_;
     bool drawArrowEventCalled_{false};
-    bool sprintEventCalled_{ false };
+    bool sprintEventCalled_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine
