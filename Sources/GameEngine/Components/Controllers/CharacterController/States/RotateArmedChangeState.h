@@ -56,7 +56,6 @@ public:
     using RotateStateBase::onEnter;
     using RotateStateBase::update;
 
-    void onEnter();
     void onEnter(DisarmedRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedRotateState&, const DrawArrowEvent&);
@@ -69,11 +68,9 @@ public:
     void update(const RotateTargetEvent&);
 
     using ArmedChangeStateBase::onLeave;
-    void onLeave(const EquipEndStateEvent&);
 
 private:
     FsmContext& context_;
-    bool drawArrowEventCalled_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

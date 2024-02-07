@@ -79,12 +79,9 @@ public:
     void update(const AimStopEvent&);
 
     using ArmedChangeStateBase::onLeave;
-    void onLeave(const EquipEndStateEvent&);
 
 private:
     FsmContext& context_;
-    bool drawArrowEventCalled_{false};
-    bool sprintEventCalled_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

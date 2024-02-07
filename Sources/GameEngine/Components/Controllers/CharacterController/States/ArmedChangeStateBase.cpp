@@ -43,7 +43,19 @@ void ArmedChangeStateBase::disarmWeapon()
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
 {
+    if (context_.drawArrowEventCalled_)
+    {
+        DEBUG_LOG("pushEventToQueue");
+        context_.characterController.pushEventToQueue(DrawArrowEvent{});
+    }
+    else if (context_.sprintEventCalled_)
+    {
+        context_.characterController.pushEventToQueue(SprintStateChangeEvent{});
+    }
+
     unsubscribeAll();
+    context_.drawArrowEventCalled_ = false;
+    context_.sprintEventCalled_    = false;
 }
 
 void ArmedChangeStateBase::onLeave(const DisarmEndStateEvent&)

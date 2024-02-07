@@ -70,6 +70,9 @@ struct FsmContext
     float rotateToTargetProgress{0.f};
     Quaternion startRotation{};
     Quaternion targetRotation{};
+
+    bool drawArrowEventCalled_{false};
+    bool sprintEventCalled_{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

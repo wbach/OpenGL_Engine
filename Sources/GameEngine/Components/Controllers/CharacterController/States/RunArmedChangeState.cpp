@@ -16,14 +16,12 @@ RunArmedChangeState::RunArmedChangeState(FsmContext& context)
 
 void RunArmedChangeState::onEnter()
 {
-    drawArrowEventCalled_ = false;
-    sprintEventCalled_    = false;
 }
 
 void RunArmedChangeState::onEnter(const SprintStartEvent& event)
 {
     MoveStateBase::onEnter(event);
-    sprintEventCalled_ = true;
+    context_.sprintEventCalled_ = true;
 }
 void RunArmedChangeState::onEnter(DisarmedWalkState&, const WeaponStateEvent&)
 {
@@ -71,29 +69,16 @@ void RunArmedChangeState::update(float dt)
 }
 void RunArmedChangeState::update(const DrawArrowEvent& event)
 {
-    drawArrowEventCalled_ = true;
+    context_.drawArrowEventCalled_ = true;
 }
 void RunArmedChangeState::update(const SprintStateChangeEvent& event)
 {
     MoveStateBase::onEnter(event);
-    sprintEventCalled_ = true;
+    context_.sprintEventCalled_ = true;
 }
 void RunArmedChangeState::update(const AimStopEvent&)
 {
-    drawArrowEventCalled_ = false;
-}
-void RunArmedChangeState::onLeave(const EquipEndStateEvent& e)
-{
-    if (drawArrowEventCalled_)
-    {
-        DEBUG_LOG("pushEventToQueue");
-        context_.characterController.pushEventToQueue(DrawArrowEvent{});
-    }
-    else if (sprintEventCalled_)
-    {
-        context_.characterController.pushEventToQueue(SprintStateChangeEvent{});
-    }
-    ArmedChangeStateBase::onLeave(e);
+    context_.drawArrowEventCalled_ = false;
 }
 }  // namespace Components
 }  // namespace GameEngine
