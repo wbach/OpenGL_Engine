@@ -17,6 +17,7 @@ public:
                   const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
+    void onEnter(const EquipEndStateEvent &);
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const RunForwardEvent &);
@@ -48,7 +49,7 @@ protected:
     void moveBackward();
     void setMoveForwardData();
     void setMoveBackwardData();
-    void updateMoveStateData();
+    void updateMoveState();
 
     void moveRigidbody(FsmContext &);
     void setForwardAnim();

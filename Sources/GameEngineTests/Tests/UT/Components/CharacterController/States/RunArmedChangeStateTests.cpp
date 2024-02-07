@@ -59,11 +59,11 @@ TEST_F(CharacterControllerTests, RunArmedChangeState_WalkChangeStateEventt)
     tiggerAndExpect<WalkChangeStateEvent, WalkArmedChangeState>(
         {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.walk.forward});
 }
-TEST_F(CharacterControllerTests, RunArmedChangeState_SprintStartEvent)
+TEST_F(CharacterControllerTests, RunArmedChangeState_SprintStateChangeEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<SprintStartEvent, RunArmedChangeState>(
+    tiggerAndExpect<SprintStateChangeEvent, RunArmedChangeState>(
         {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.run.forward},
         {ADVANCED_TIME_TRANSITION_TIME});
 
