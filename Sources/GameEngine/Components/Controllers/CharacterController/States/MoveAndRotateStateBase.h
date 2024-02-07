@@ -21,6 +21,7 @@ public:
     MoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &, float,
                            const std::string &, const std::string &);
 
+    void onEnter(const EquipEndStateEvent &);
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const WalkForwardEvent &);

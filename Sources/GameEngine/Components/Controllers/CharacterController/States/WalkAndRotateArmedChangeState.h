@@ -46,17 +46,18 @@ class WalkAndRotateArmedChangeState
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // quque?
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>       // queue?
 {
 public:
     WalkAndRotateArmedChangeState(FsmContext&);
 
+    using ArmedChangeStateBase::onLeave;
+    using ArmedChangeStateBase::update;
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-    using ArmedChangeStateBase::update;
-    using ArmedChangeStateBase::onLeave;
 
     void update(float);
 

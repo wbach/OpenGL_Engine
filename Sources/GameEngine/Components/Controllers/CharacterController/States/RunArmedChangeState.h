@@ -62,10 +62,6 @@ public:
 
     void onEnter(const SprintStartEvent&);
 
-    void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
-    void onEnter(ArmedWalkState&, const WeaponStateEvent&);
-    void onEnter(DisarmedWalkState&, const DrawArrowEvent&);
-
     void onEnter(DisarmedRunState&, const WeaponStateEvent&);
     void onEnter(ArmedRunState&, const WeaponStateEvent&);
     void onEnter(DisarmedRunState&, const DrawArrowEvent&);

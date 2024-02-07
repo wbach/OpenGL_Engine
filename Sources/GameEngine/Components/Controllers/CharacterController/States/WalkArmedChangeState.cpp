@@ -10,14 +10,44 @@ WalkArmedChangeState::WalkArmedChangeState(FsmContext &context)
                     context.animClipNames.disarmed.walk.backward}
 {
 }
+void WalkArmedChangeState::onEnter(const SprintStartEvent& event)
+{
+    MoveStateBase::onEnter(event);
+    ArmedChangeStateBase::update(event);
+}
+void WalkArmedChangeState::onEnter(DisarmedWalkState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+void WalkArmedChangeState::onEnter(ArmedWalkState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+void WalkArmedChangeState::onEnter(DisarmedWalkState&, const DrawArrowEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+void WalkArmedChangeState::onEnter(DisarmedIdleState&, const DrawArrowEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+
+void WalkArmedChangeState::onEnter(DisarmedIdleState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+}
+
+void WalkArmedChangeState::onEnter(ArmedIdleState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
 void WalkArmedChangeState::update(float dt)
 {
     MoveStateBase::update(dt);
 }
-void WalkArmedChangeState::onEnter(const WeaponStateEvent &)
+void WalkArmedChangeState::update(const SprintStateChangeEvent& event)
 {
-    ArmedChangeStateBase::disarmWeapon();
-    MoveStateBase::setCurrentAnim();
+    ArmedChangeStateBase::update(event);
 }
 }  // namespace Components
 }  // namespace GameEngine

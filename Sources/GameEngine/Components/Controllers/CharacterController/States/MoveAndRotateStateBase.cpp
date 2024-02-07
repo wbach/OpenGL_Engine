@@ -6,20 +6,27 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const std::optional<std::string> & moveJointGroupName, const MoveSpeed &moveSpeed,
-                                               const MovmentClipNames &clipnames, const std::string &rotateLeft,
-                                               const std::string &rotateRight)
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
+                                               const std::optional<std::string> &moveJointGroupName,
+                                               const MoveSpeed &moveSpeed, const MovmentClipNames &clipnames,
+                                               const std::string &rotateLeft, const std::string &rotateRight)
     : MoveStateBase{context, moveJointGroupName, moveSpeed, clipnames.forward, clipnames.backward}
     , RotateStateBase{context, std::nullopt, moveSpeed.leftRight, rotateLeft, rotateRight}
 {
 }
 
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const std::optional<std::string> & moveJointGroupName, float forwardSpeed,
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
+                                               const std::optional<std::string> &moveJointGroupName, float forwardSpeed,
                                                const std::string &forwardAnimName, float rotateSpeed,
                                                const std::string &rotateLeft, const std::string &rotateRight)
     : MoveStateBase{context, moveJointGroupName, forwardSpeed, forwardAnimName}
     , RotateStateBase{context, std::nullopt, rotateSpeed, rotateLeft, rotateRight}
 {
+}
+
+void MoveAndRotateStateBase::onEnter(const EquipEndStateEvent &event)
+{
+    MoveStateBase::onEnter(event);
 }
 
 void MoveAndRotateStateBase::onEnter(const SprintStartEvent &event)
@@ -44,12 +51,10 @@ void MoveAndRotateStateBase::onEnter(const WalkBackwardEvent &event)
 
 void MoveAndRotateStateBase::update(const AttackEvent &event)
 {
-
 }
 
 void MoveAndRotateStateBase::update(const EndAttackEvent &event)
 {
-
 }
 
 void MoveAndRotateStateBase::update(const RunForwardEvent &e)

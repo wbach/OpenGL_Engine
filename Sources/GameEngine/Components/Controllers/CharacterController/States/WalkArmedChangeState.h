@@ -23,6 +23,7 @@ class DisarmedSprintState;
 class DisarmedWalkAndRotateState;
 class RunArmedChangeState;
 class IdleArmedChangeState;
+class ArmedIdleState;
 class WalkAndRotateArmedChangeState;
 
 class WalkArmedChangeState
@@ -35,7 +36,7 @@ class WalkArmedChangeState
           Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
-         // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -47,20 +48,29 @@ class WalkArmedChangeState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
-          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // quque?
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>       // queue?
 {
 public:
     WalkArmedChangeState(FsmContext& context);
 
+    using ArmedChangeStateBase::onLeave;
+    using ArmedChangeStateBase::update;
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
-    using ArmedChangeStateBase::update;
-    using ArmedChangeStateBase::onLeave;
-    void update(float);
+    void onEnter(const SprintStartEvent&);
+    void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
+    void onEnter(ArmedWalkState&, const WeaponStateEvent&);
+    void onEnter(DisarmedWalkState&, const DrawArrowEvent&);
 
-    void onEnter(const WeaponStateEvent&);
+    void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
+    void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
+    void onEnter(ArmedIdleState&, const WeaponStateEvent&);
+
+    void update(float);
+    void update(const SprintStateChangeEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

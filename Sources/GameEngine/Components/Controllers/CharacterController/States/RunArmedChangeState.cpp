@@ -18,18 +18,6 @@ void RunArmedChangeState::onEnter(const SprintStartEvent& event)
     MoveStateBase::onEnter(event);
     ArmedChangeStateBase::update(event);
 }
-void RunArmedChangeState::onEnter(DisarmedWalkState&, const WeaponStateEvent&)
-{
-    ArmedChangeStateBase::equipWeapon();
-}
-void RunArmedChangeState::onEnter(ArmedWalkState&, const WeaponStateEvent&)
-{
-    ArmedChangeStateBase::disarmWeapon();
-}
-void RunArmedChangeState::onEnter(DisarmedWalkState&, const DrawArrowEvent&)
-{
-    ArmedChangeStateBase::equipWeapon();
-}
 void RunArmedChangeState::onEnter(DisarmedRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::equipWeapon();
