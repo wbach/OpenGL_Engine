@@ -52,8 +52,15 @@ TEST_F(CharacterControllerTests, RecoilRunAndRotate_RotateTargetEvent)
 TEST_F(CharacterControllerTests, RecoilRunAndRotate_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedRunAndRotateState>(
+    tiggerAndExpect<WeaponStateEvent, RunAndRotateArmedChangeState>(
         {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.run.forward});
+
+    expectRotationRight(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationRight(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<DisarmedRunAndRotateState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
 }
 TEST_F(CharacterControllerTests, RecoilRunAndRotate_ReloadArrowEvent)
 {

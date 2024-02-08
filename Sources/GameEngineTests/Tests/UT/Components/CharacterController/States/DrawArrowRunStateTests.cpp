@@ -47,8 +47,13 @@ TEST_F(CharacterControllerTests, DrawArrowRun_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DrawArrowRun_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedRunState>(
+    tiggerAndExpect<WeaponStateEvent, RunArmedChangeState>(
         {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.run.forward});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<DisarmedRunState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowRun_AimStartEvent)
 {
