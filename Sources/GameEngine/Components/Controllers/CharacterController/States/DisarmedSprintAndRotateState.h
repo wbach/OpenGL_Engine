@@ -16,6 +16,7 @@ class DisarmedSprintState;
 class DisarmedWalkAndRotateState;
 class DisarmedRunAndRotateState;
 class RunAndRotateArmedChangeState;
+class WalkAndRotateArmedChangeState;
 class JumpState;
 class DeathState;
 struct FsmContext;
@@ -26,17 +27,17 @@ class DisarmedSprintAndRotateState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkChangeStateEvent,
-                                  Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
+                                  Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedSprintState>>,

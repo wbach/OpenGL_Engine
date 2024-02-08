@@ -25,6 +25,8 @@ class DisarmedRunAndRotateState;
 class ArmedRunAndRotateState;
 class RecoilWalkAndRotateState;
 class DrawArrowWalkAndRotateState;
+class DisarmedSprintAndRotateState;
+class ArmedSprintAndRotateState;
 
 class WalkAndRotateArmedChangeState
     : public ArmedChangeStateBase,
