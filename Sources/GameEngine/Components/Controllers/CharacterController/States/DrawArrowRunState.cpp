@@ -17,6 +17,7 @@ DrawArrowRunState::DrawArrowRunState(FsmContext &context)
 void DrawArrowRunState::onEnter(const DrawArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
+    MoveStateBase::updateMoveState();
 }
 
 void DrawArrowRunState::onEnter(const ReloadArrowEvent &event)
