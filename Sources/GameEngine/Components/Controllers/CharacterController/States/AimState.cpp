@@ -23,17 +23,17 @@ void AimState::onLeave(const SprintStartEvent& event)
 
 void AimState::onEnter(const EndRotationEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
 void AimState::onEnter(const EndForwardMoveEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
 void AimState::onEnter(const EndBackwardMoveEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
 void AimState::onLeave(const AimStopEvent& event)

@@ -38,7 +38,6 @@ public:
     DrawArrowState(FsmContext&);
 
     using DrawArrowStateBase::onEnter;
-
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);

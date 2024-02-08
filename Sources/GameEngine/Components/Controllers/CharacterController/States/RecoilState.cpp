@@ -13,15 +13,15 @@ RecoilState::RecoilState(FsmContext &contex)
 }
 void RecoilState::onEnter(const EndRotationEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void RecoilState::onEnter(const EndForwardMoveEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void RecoilState::onEnter(const EndBackwardMoveEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void RecoilState::onLeave(const AimStopEvent &e)
 {

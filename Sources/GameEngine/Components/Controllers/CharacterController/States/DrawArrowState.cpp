@@ -14,15 +14,15 @@ DrawArrowState::DrawArrowState(FsmContext &context)
 }
 void DrawArrowState::onEnter(const EndRotationEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void DrawArrowState::onEnter(const EndForwardMoveEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void DrawArrowState::onEnter(const EndBackwardMoveEvent&)
 {
-    // do nothing
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void DrawArrowState::onLeave(const AimStopEvent &e)
 {

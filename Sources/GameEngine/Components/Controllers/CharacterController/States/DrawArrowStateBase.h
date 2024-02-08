@@ -33,8 +33,10 @@ private:
     void setAnim();
     void stopAnim();
 
-private:
+protected:
     FsmContext& context_;
+
+private:
     std::optional<std::string> jointGroupName_;
     std::optional<IdType> subId_;
 

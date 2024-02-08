@@ -199,6 +199,7 @@ void MoveStateBase::setForwardAnim()
 {
     if (not forwardAnimName_.empty())
     {
+        DEBUG_LOG("setForwardAnim, jointGroupName_ = " + std::to_string(jointGroupName_));
         context_.moveStateData_.animationIsReady_ = false;
         context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_, [this]() {

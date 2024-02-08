@@ -38,7 +38,7 @@ class AimState
 {
 public:
     AimState(FsmContext&);
-
+    using AimStateBase::onEnter;
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);

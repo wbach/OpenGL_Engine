@@ -39,6 +39,7 @@ class RecoilState
 public:
     RecoilState(FsmContext&);
 
+    using RecoilStateBase::onEnter;
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
