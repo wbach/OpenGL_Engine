@@ -52,7 +52,7 @@ TEST_F(CharacterControllerTests, DrawArowRotate_WeaponStateEvent)
     expectRotationRight(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<DisarmedRotateState>();
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight});
 
 }
 TEST_F(CharacterControllerTests, DrawArowRotate_EndRotationEvent)

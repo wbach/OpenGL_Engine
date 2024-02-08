@@ -41,6 +41,18 @@ void IdleArmedChangeState::onEnter(AimState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
 }
+void IdleArmedChangeState::onEnter(const EndForwardMoveEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+void IdleArmedChangeState::onEnter(const EndBackwardMoveEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+void IdleArmedChangeState::onEnter(const EndRotationEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
 void IdleArmedChangeState::update(float)
 {
 }

@@ -1,6 +1,6 @@
 #include "CharacterControllerTests.h"
 
-TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForward)
+TEST_F(CharacterControllerTests, Mixed_DisarmedState_IdleToRunForward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -18,7 +18,7 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForward)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedState_IdleToRunBackward)
+TEST_F(CharacterControllerTests, Mixed_DisarmedState_IdleToRunBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -36,7 +36,7 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunBackward)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForwardAndBackward)
+TEST_F(CharacterControllerTests, Mixed_DisarmedState_IdleToRunForwardAndBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -72,7 +72,7 @@ TEST_F(CharacterControllerTests, DisarmedState_IdleToRunForwardAndBackward)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
 }
 
-TEST_F(CharacterControllerTests, DisarmedToArmedStateIdle)
+TEST_F(CharacterControllerTests, Mixed_DisarmedToArmedStateIdle)
 {
     sut_.handleEvent(WeaponStateEvent{});
 
@@ -89,7 +89,7 @@ TEST_F(CharacterControllerTests, DisarmedToArmedStateIdle)
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, RunForwardDuringDisarmedToArmedState)
+TEST_F(CharacterControllerTests, Mixed_RunForwardDuringDisarmedToArmedState)
 {
     sut_.handleEvent(WeaponStateEvent{});
 
@@ -102,8 +102,9 @@ TEST_F(CharacterControllerTests, RunForwardDuringDisarmedToArmedState)
 
     sut_.handleEvent(RunForwardEvent{});
 
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(DUMMY_CLIP_LENGTH / 2.f);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -111,7 +112,7 @@ TEST_F(CharacterControllerTests, RunForwardDuringDisarmedToArmedState)
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
 }
 
-TEST_F(CharacterControllerTests, EquipWeaponDuringDisarmedRunForward)
+TEST_F(CharacterControllerTests, Mixed_EquipWeaponDuringDisarmedRunForward)
 {
     vec3 runningVelocity(0.0, 0.0, DEFAULT_RUN_SPEED);
 
@@ -133,7 +134,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringDisarmedRunForward)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     // Animation : Tirgger EquipAnim end, and notify state
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -143,7 +144,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringDisarmedRunForward)
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }
 
-TEST_F(CharacterControllerTests, DisarmWeaponDuringArmedRunForward)
+TEST_F(CharacterControllerTests, Mixed_DisarmWeaponDuringArmedRunForward)
 {
     vec3 runningVelocity(0.0, 0.0, DEFAULT_RUN_SPEED);
 
@@ -180,7 +181,7 @@ TEST_F(CharacterControllerTests, DisarmWeaponDuringArmedRunForward)
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }
 
-TEST_F(CharacterControllerTests, EquipWeaponDuringRotateLeftState)
+TEST_F(CharacterControllerTests, Mixed_EquipWeaponDuringRotateLeftState)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
@@ -196,7 +197,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringRotateLeftState)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateLeft, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -222,7 +223,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringRotateLeftState)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, EquipWeaponDuringRotateRightState)
+TEST_F(CharacterControllerTests, Mixed_EquipWeaponDuringRotateRightState)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
@@ -238,7 +239,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringRotateRightState)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -264,7 +265,7 @@ TEST_F(CharacterControllerTests, EquipWeaponDuringRotateRightState)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateLeft)
+TEST_F(CharacterControllerTests, Mixed_DisarmedStateToArmed_RunForwardAndRotateLeft)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -289,7 +290,7 @@ TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateLeft)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -310,7 +311,7 @@ TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateLeft)
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateRight)
+TEST_F(CharacterControllerTests, Mixed_DisarmedStateToArmed_RunForwardAndRotateRight)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -335,7 +336,7 @@ TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateRight)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -355,7 +356,7 @@ TEST_F(CharacterControllerTests, DisarmedStateToArmed_RunForwardAndRotateRight)
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeaponState)
+TEST_F(CharacterControllerTests, Mixed_ArmedState_RunForwardAndRotateLeftAndChangeWeaponState)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -374,13 +375,13 @@ TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeap
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     sut_.handleEvent(RotateLeftEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     sut_.handleEvent(WeaponStateEvent{});
 
@@ -405,7 +406,7 @@ TEST_F(CharacterControllerTests, ArmedState_RunForwardAndRotateLeftAndChangeWeap
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
-TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRotateLeftAndChangeWeaponState)
+TEST_F(CharacterControllerTests, Mixed_DisamredToArmedState_DuringEquipRunForwardAndRotateLeftAndChangeWeaponState)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -418,7 +419,7 @@ TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRo
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -426,7 +427,7 @@ TEST_F(CharacterControllerTests, DisamredToArmedState_DuringEquipRunForwardAndRo
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
 }
 
-TEST_F(CharacterControllerTests, DisarmedStopMovingDuringEuip)
+TEST_F(CharacterControllerTests, Mixed_DisarmedStopMovingDuringEuip)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -438,11 +439,11 @@ TEST_F(CharacterControllerTests, DisarmedStopMovingDuringEuip)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
     sut_.handleEvent(WeaponStateEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_TRANSITION_TIME);
     sut_.handleEvent(EndForwardMoveEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.idle});
+    expectAnimsToBeSet({sut_.animationClipsNames_.equip});
     sut_.handleEvent(WeaponStateEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -450,7 +451,7 @@ TEST_F(CharacterControllerTests, DisarmedStopMovingDuringEuip)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisamredDuringEquip)
+TEST_F(CharacterControllerTests, Mixed_DisamredDuringEquip)
 {
     sut_.handleEvent(WeaponStateEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -464,20 +465,20 @@ TEST_F(CharacterControllerTests, DisamredDuringEquip)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisamredDuringEquipTransition)
+TEST_F(CharacterControllerTests, Mixed_DisamredDuringEquipTransition)
 {
     expectState<DisarmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
     sut_.handleEvent(WeaponStateEvent{});
 
-    tiggerAndExpect<WeaponStateEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent, IdleArmedChangeState>({sut_.animationClipsNames_.disarm});
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, IdleToWalkToIdleState)
+TEST_F(CharacterControllerTests, Mixed_IdleToWalkToIdleState)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -489,7 +490,7 @@ TEST_F(CharacterControllerTests, IdleToWalkToIdleState)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, IdleChangeWalkEventDoNothing)
+TEST_F(CharacterControllerTests, Mixed_IdleChangeWalkEventDoNothing)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -499,7 +500,7 @@ TEST_F(CharacterControllerTests, IdleChangeWalkEventDoNothing)
     tiggerAndExpect<WalkChangeStateEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, RunToWalkToRunState)
+TEST_F(CharacterControllerTests, Mixed_RunToWalkToRunState)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -518,7 +519,7 @@ TEST_F(CharacterControllerTests, RunToWalkToRunState)
     tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
 }
 
-TEST_F(CharacterControllerTests, WalkAndRotateState)
+TEST_F(CharacterControllerTests, Mixed_WalkAndRotateState)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -534,7 +535,7 @@ TEST_F(CharacterControllerTests, WalkAndRotateState)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateRight});
 }
 
-TEST_F(CharacterControllerTests, RotateAndWalkState)
+TEST_F(CharacterControllerTests, Mixed_RotateAndWalkState)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -550,7 +551,7 @@ TEST_F(CharacterControllerTests, RotateAndWalkState)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateRight});
 }
 
-TEST_F(CharacterControllerTests, RunAndRotateToWalkAndRotate)
+TEST_F(CharacterControllerTests, Mixed_RunAndRotateToWalkAndRotate)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -568,7 +569,7 @@ TEST_F(CharacterControllerTests, RunAndRotateToWalkAndRotate)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateRight});
 }
 
-TEST_F(CharacterControllerTests, RunAndRotateToWalkAndRotateToWalkForward)
+TEST_F(CharacterControllerTests, Mixed_RunAndRotateToWalkAndRotateToWalkForward)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -587,7 +588,7 @@ TEST_F(CharacterControllerTests, RunAndRotateToWalkAndRotateToWalkForward)
     tiggerAndExpect<EndRotationEvent, DisarmedWalkState>({sut_.animationClipsNames_.disarmed.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, DisarmedIdleToWalkForwardBackward)
+TEST_F(CharacterControllerTests, Mixed_DisarmedIdleToWalkForwardBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -604,7 +605,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleToWalkForwardBackward)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedIdleToWalkBackwardForward)
+TEST_F(CharacterControllerTests, Mixed_DisarmedIdleToWalkBackwardForward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -621,7 +622,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleToWalkBackwardForward)
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleToWalkForward)
+TEST_F(CharacterControllerTests, Mixed_ArmedIdleToWalkForward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -636,7 +637,7 @@ TEST_F(CharacterControllerTests, ArmedIdleToWalkForward)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleToWalkBackward)
+TEST_F(CharacterControllerTests, Mixed_ArmedIdleToWalkBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -651,7 +652,7 @@ TEST_F(CharacterControllerTests, ArmedIdleToWalkBackward)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleToWalkForwardBackward)
+TEST_F(CharacterControllerTests, Mixed_ArmedIdleToWalkForwardBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -670,7 +671,7 @@ TEST_F(CharacterControllerTests, ArmedIdleToWalkForwardBackward)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleDoNothingIfWalkChangeEvent)
+TEST_F(CharacterControllerTests, Mixed_ArmedIdleDoNothingIfWalkChangeEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -683,7 +684,7 @@ TEST_F(CharacterControllerTests, ArmedIdleDoNothingIfWalkChangeEvent)
     tiggerAndExpect<WalkChangeStateEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunToWalkForward)
+TEST_F(CharacterControllerTests, Mixed_ArmedRunToWalkForward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -702,7 +703,7 @@ TEST_F(CharacterControllerTests, ArmedRunToWalkForward)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunToWalkForwardToRun)
+TEST_F(CharacterControllerTests, Mixed_ArmedRunToWalkForwardToRun)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -721,7 +722,7 @@ TEST_F(CharacterControllerTests, ArmedRunToWalkForwardToRun)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunToWalkBackwardToRun)
+TEST_F(CharacterControllerTests, Mixed_ArmedRunToWalkBackwardToRun)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -740,7 +741,7 @@ TEST_F(CharacterControllerTests, ArmedRunToWalkBackwardToRun)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunAndRotateForwardToWalkAndRotateForwardAndRotation)
+TEST_F(CharacterControllerTests, Mixed_ArmedRunAndRotateForwardToWalkAndRotateForwardAndRotation)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -772,7 +773,7 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotateForwardToWalkAndRotateForwardA
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunAndRotateForwardToWalkAndRotateBackwardAndRotation)
+TEST_F(CharacterControllerTests, Mixed_ArmedRunAndRotateForwardToWalkAndRotateBackwardAndRotation)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -804,7 +805,7 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotateForwardToWalkAndRotateBackward
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, IdleToWalkChangeDuringEquip)
+TEST_F(CharacterControllerTests, Mixed_IdleToWalkChangeDuringEquip)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -816,14 +817,14 @@ TEST_F(CharacterControllerTests, IdleToWalkChangeDuringEquip)
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkForwardEvent, ArmedWalkState>(
-        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.equip});
+        {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<ArmedWalkState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, RunToWalkChangeDuringEquip)
+TEST_F(CharacterControllerTests, Mixed_RunToWalkChangeDuringEquip)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -833,19 +834,19 @@ TEST_F(CharacterControllerTests, RunToWalkChangeDuringEquip)
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
     tiggerAndExpect<WeaponStateEvent, ArmedRunState>(
-        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip},
+        {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkForwardEvent, ArmedWalkState>(
-        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.equip});
+        {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<ArmedWalkState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunToWalkChangeDuringDisarm)
+TEST_F(CharacterControllerTests, Mixed_ArmedRunToWalkChangeDuringDisarm)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -857,11 +858,11 @@ TEST_F(CharacterControllerTests, ArmedRunToWalkChangeDuringDisarm)
     tiggerAndExpect<WeaponStateEvent, ArmedRunState>(
         {sut_.animationClipsNames_.armed.run.forward},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<WeaponStateEvent, DisarmedRunState>(
+    tiggerAndExpect<WeaponStateEvent, RunArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.disarm},
         {ADVANCED_TIME_TRANSITION_TIME});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<WalkChangeStateEvent, DisarmedWalkState>(
+    tiggerAndExpect<WalkChangeStateEvent, WalkArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -869,7 +870,7 @@ TEST_F(CharacterControllerTests, ArmedRunToWalkChangeDuringDisarm)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkToRunChangeDuringDisarm)
+TEST_F(CharacterControllerTests, Mixed_ArmedWalkToRunChangeDuringDisarm)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -881,10 +882,10 @@ TEST_F(CharacterControllerTests, ArmedWalkToRunChangeDuringDisarm)
     tiggerAndExpect<WeaponStateEvent, ArmedWalkState>(
         {sut_.animationClipsNames_.armed.walk.forward},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
-    tiggerAndExpect<WeaponStateEvent, DisarmedWalkState>(
+    tiggerAndExpect<WeaponStateEvent, WalkArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<WalkChangeStateEvent, DisarmedRunState>(
+    tiggerAndExpect<WalkChangeStateEvent, RunArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.disarm});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -892,7 +893,7 @@ TEST_F(CharacterControllerTests, ArmedWalkToRunChangeDuringDisarm)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeRunBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_DisarmeRunBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -906,7 +907,7 @@ TEST_F(CharacterControllerTests, DisarmeRunBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeRunAndRotateBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_DisarmeRunAndRotateBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -924,7 +925,7 @@ TEST_F(CharacterControllerTests, DisarmeRunAndRotateBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedWalkAndRotateBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_DisarmedWalkAndRotateBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -942,7 +943,7 @@ TEST_F(CharacterControllerTests, DisarmedWalkAndRotateBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeWalkBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_DisarmeWalkBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -956,7 +957,7 @@ TEST_F(CharacterControllerTests, DisarmeWalkBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeIdleToSprint)
+TEST_F(CharacterControllerTests, Mixed_DisarmeIdleToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -968,7 +969,7 @@ TEST_F(CharacterControllerTests, DisarmeIdleToSprint)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeRotateToRotateAndSprint)
+TEST_F(CharacterControllerTests, Mixed_DisarmeRotateToRotateAndSprint)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -984,7 +985,7 @@ TEST_F(CharacterControllerTests, DisarmeRotateToRotateAndSprint)
     tiggerAndExpect<EndRotationEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeWalkToSprint)
+TEST_F(CharacterControllerTests, Mixed_DisarmeWalkToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1000,7 +1001,7 @@ TEST_F(CharacterControllerTests, DisarmeWalkToSprint)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeRunToSprint)
+TEST_F(CharacterControllerTests, Mixed_DisarmeRunToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1022,7 +1023,7 @@ TEST_F(CharacterControllerTests, DisarmeRunToSprint)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeWalkAndRotateToSprint)
+TEST_F(CharacterControllerTests, Mixed_DisarmeWalkAndRotateToSprint)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1042,7 +1043,7 @@ TEST_F(CharacterControllerTests, DisarmeWalkAndRotateToSprint)
     tiggerAndExpect<EndRotationEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmeRunAndRotateToSprint)
+TEST_F(CharacterControllerTests, Mixed_DisarmeRunAndRotateToSprint)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1067,7 +1068,7 @@ TEST_F(CharacterControllerTests, DisarmeRunAndRotateToSprint)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleToSprint)
+TEST_F(CharacterControllerTests, Mixed_ArmedIdleToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1083,7 +1084,7 @@ TEST_F(CharacterControllerTests, ArmedIdleToSprint)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedRotateToRotateAndSprint)
+TEST_F(CharacterControllerTests, Mixed_ArmedRotateToRotateAndSprint)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1102,7 +1103,7 @@ TEST_F(CharacterControllerTests, ArmedRotateToRotateAndSprint)
     tiggerAndExpect<EndRotationEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkToSprint)
+TEST_F(CharacterControllerTests, Mixed_ArmedWalkToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1122,7 +1123,7 @@ TEST_F(CharacterControllerTests, ArmedWalkToSprint)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmeRunToSprint)
+TEST_F(CharacterControllerTests, Mixed_ArmeRunToSprint)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1148,7 +1149,7 @@ TEST_F(CharacterControllerTests, ArmeRunToSprint)
     tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmeWalkAndRotateToSprint)
+TEST_F(CharacterControllerTests, Mixed_ArmeWalkAndRotateToSprint)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1171,7 +1172,7 @@ TEST_F(CharacterControllerTests, ArmeWalkAndRotateToSprint)
     tiggerAndExpect<EndRotationEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmeRunAndRotateToSprint)
+TEST_F(CharacterControllerTests, Mixed_ArmeRunAndRotateToSprint)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1201,7 +1202,7 @@ TEST_F(CharacterControllerTests, ArmeRunAndRotateToSprint)
 
 // TO do
 
-TEST_F(CharacterControllerTests, ArmeRunBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_ArmeRunBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1218,7 +1219,7 @@ TEST_F(CharacterControllerTests, ArmeRunBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmeRunAndRotateBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_ArmeRunAndRotateBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1238,7 +1239,7 @@ TEST_F(CharacterControllerTests, ArmeRunAndRotateBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkAndRotateBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_ArmedWalkAndRotateBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1258,7 +1259,7 @@ TEST_F(CharacterControllerTests, ArmedWalkAndRotateBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmeWalkBackwardIgnoreSprintEvent)
+TEST_F(CharacterControllerTests, Mixed_ArmeWalkBackwardIgnoreSprintEvent)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1275,7 +1276,7 @@ TEST_F(CharacterControllerTests, ArmeWalkBackwardIgnoreSprintEvent)
     tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedWalkAndEquipWeapon)
+TEST_F(CharacterControllerTests, Mixed_DisarmedWalkAndEquipWeapon)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
@@ -1294,7 +1295,7 @@ TEST_F(CharacterControllerTests, DisarmedWalkAndEquipWeapon)
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 
-TEST_F(CharacterControllerTests, ArmdIdleToDrawStateAndBackToIdle)
+TEST_F(CharacterControllerTests, Mixed_ArmdIdleToDrawStateAndBackToIdle)
 {
     expectState<DisarmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
@@ -1306,7 +1307,7 @@ TEST_F(CharacterControllerTests, ArmdIdleToDrawStateAndBackToIdle)
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArmdIdleToAimStateAndBackToIdle)
+TEST_F(CharacterControllerTests, Mixed_ArmdIdleToAimStateAndBackToIdle)
 {
     expectState<DisarmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
@@ -1322,7 +1323,7 @@ TEST_F(CharacterControllerTests, ArmdIdleToAimStateAndBackToIdle)
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, ArrowSimpleShoot)
+TEST_F(CharacterControllerTests, Mixed_ArrowSimpleShoot)
 {
     expectState<DisarmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
@@ -1341,7 +1342,7 @@ TEST_F(CharacterControllerTests, ArrowSimpleShoot)
     tiggerAndExpect<AimStopEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
-TEST_F(CharacterControllerTests, AimIdleToAimRotateLeft)
+TEST_F(CharacterControllerTests, Mixed_AimIdleToAimRotateLeft)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1363,7 +1364,7 @@ TEST_F(CharacterControllerTests, AimIdleToAimRotateLeft)
     tiggerAndExpect<EndRotationEvent, AimState>({sut_.animationClipsNames_.aimIdle});
 }
 
-TEST_F(CharacterControllerTests, DrawArrowToDisarmedState)
+TEST_F(CharacterControllerTests, Mixed_DrawArrowToDisarmedState)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1380,7 +1381,7 @@ TEST_F(CharacterControllerTests, DrawArrowToDisarmedState)
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 
-TEST_F(CharacterControllerTests, AimIdleToDisarmedState)
+TEST_F(CharacterControllerTests, Mixed_AimIdleToDisarmedState)
 {
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(0));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -1402,7 +1403,7 @@ TEST_F(CharacterControllerTests, AimIdleToDisarmedState)
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 
-TEST_F(CharacterControllerTests, ArrowSimpleShootToDisarmedState)
+TEST_F(CharacterControllerTests, Mixed_ArrowSimpleShootToDisarmedState)
 {
     expectState<DisarmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});

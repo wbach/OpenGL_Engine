@@ -55,9 +55,9 @@ TEST_F(CharacterControllerTests, RecoilRunAndRotate_WeaponStateEvent)
     tiggerAndExpect<WeaponStateEvent, RunAndRotateArmedChangeState>(
         {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.run.forward});
 
-    expectRotationRight(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
-    expectRotationRight(ADVANCED_TIME_TRANSITION_TIME);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<DisarmedRunAndRotateState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});

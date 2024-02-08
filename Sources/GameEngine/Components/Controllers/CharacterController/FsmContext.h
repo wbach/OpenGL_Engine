@@ -71,8 +71,15 @@ struct FsmContext
     Quaternion startRotation{};
     Quaternion targetRotation{};
 
+    enum class WeaponArmedChangeState
+    {
+        None,
+        Equip,
+        Disarm
+    };
     bool drawArrowEventCalled_{false};
     bool sprintEventCalled_{false};
+    WeaponArmedChangeState weaponArmedChangeState{WeaponArmedChangeState::None};
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -17,6 +17,18 @@ ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optio
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
 {
 }
+void ArmedChangeStateBase::update(const WeaponStateEvent&)
+{
+    DEBUG_LOG("update(const WeaponStateEvent&)");
+    if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
+    {
+        disarmWeapon();
+    }
+    else
+    {
+        equipWeapon();
+    }
+}
 void ArmedChangeStateBase::update(const DrawArrowEvent&)
 {
     context_.drawArrowEventCalled_ = true;
@@ -46,6 +58,7 @@ void ArmedChangeStateBase::equipWeapon()
 
     armed_ = true;
     triggerChange();
+    context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::Equip;
 }
 
 void ArmedChangeStateBase::disarmWeapon()
@@ -58,6 +71,7 @@ void ArmedChangeStateBase::disarmWeapon()
 
     armed_ = false;
     triggerChange();
+    context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::Disarm;
 }
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
@@ -117,6 +131,7 @@ void ArmedChangeStateBase::triggerChange()
             {
                 context_.characterController.pushEventToQueue(DisarmEndStateEvent{});
             }
+            context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::None;
         });
 
     context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,

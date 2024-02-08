@@ -48,7 +48,7 @@ class RunAndRotateArmedChangeState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          // Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Update>,
@@ -72,6 +72,7 @@ public:
     void onEnter(DrawArrowRunAndRotateState&, const WeaponStateEvent&);
     void onEnter(RecoilRunAndRotateState&, const WeaponStateEvent&);
     void onEnter(AimRunAndRotateState&, const WeaponStateEvent&);
+
     void update(float);
 
 private:
