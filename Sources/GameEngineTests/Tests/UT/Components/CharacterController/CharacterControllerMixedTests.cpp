@@ -812,11 +812,11 @@ TEST_F(CharacterControllerTests, Mixed_IdleToWalkChangeDuringEquip)
 
     expectState<DisarmedIdleState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<WeaponStateEvent, ArmedIdleState>({sut_.animationClipsNames_.equip},
+    tiggerAndExpect<WeaponStateEvent, IdleArmedChangeState>({sut_.animationClipsNames_.equip},
                                                       {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<WalkForwardEvent, ArmedWalkState>(
+    tiggerAndExpect<WalkForwardEvent, WalkArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -833,12 +833,12 @@ TEST_F(CharacterControllerTests, Mixed_RunToWalkChangeDuringEquip)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
-    tiggerAndExpect<WeaponStateEvent, ArmedRunState>(
+    tiggerAndExpect<WeaponStateEvent, RunArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<WalkForwardEvent, ArmedWalkState>(
+    tiggerAndExpect<WalkChangeStateEvent, WalkArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
