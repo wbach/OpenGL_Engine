@@ -45,6 +45,7 @@ public:
     DrawArrowRunAndRotateState(FsmContext&);
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
+    void onEnter(ArmedSprintAndRotateState&, const DrawArrowEvent&);
 
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::update;

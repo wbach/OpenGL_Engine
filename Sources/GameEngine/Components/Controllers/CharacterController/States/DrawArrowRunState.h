@@ -49,6 +49,8 @@ public:
     void onEnter(const RunBackwardEvent&);
     void onEnter(const WalkChangeStateEvent&);
 
+    void onEnter(ArmedSprintState&, const DrawArrowEvent&);
+
     void update(float);
     void update(const RunForwardEvent&);
     void update(const RunBackwardEvent&);

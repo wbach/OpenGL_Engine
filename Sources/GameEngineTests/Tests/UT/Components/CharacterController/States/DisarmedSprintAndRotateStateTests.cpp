@@ -96,6 +96,11 @@ TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_RotateTargetEvent)
     tiggerAndExpect<RotateTargetEvent, DisarmedSprintAndRotateState>(RotateTargetEvent{targetRotation.value_},
                                                                      {sut_.animationClipsNames_.disarmed.sprint});
 }
+TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_EndRotationEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndRotationEvent, DisarmedSprintState>({sut_.animationClipsNames_.disarmed.sprint});
+}
 TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_AimStopEvent)
 {
     prepareState(*this);
