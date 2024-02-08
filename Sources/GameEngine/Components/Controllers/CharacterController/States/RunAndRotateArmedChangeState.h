@@ -21,6 +21,7 @@ class DeathState;
 class ArmedRotateState;
 class ArmedRunAndRotateState;
 class DrawArrowRunAndRotateState;
+class ArmedSprintAndRotateState;
 class WalkAndRotateArmedChangeState;
 class RotateArmedChangeState;
 class RunArmedChangeState;
@@ -65,6 +66,11 @@ public:
 
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent&);
+
+    void onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &);
+    void onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &);
+    void onEnter(DisarmedSprintAndRotateState&, const WeaponStateEvent&);
+
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
     void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);

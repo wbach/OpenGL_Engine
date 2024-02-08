@@ -38,6 +38,13 @@ void RunArmedChangeState::onEnter(DisarmedRunState&, const DrawArrowEvent& e)
     ArmedChangeStateBase::update(e);
 }
 
+void RunArmedChangeState::onEnter(DisarmedSprintState &, const DrawArrowEvent & e)
+{
+    ArmedChangeStateBase::equipWeapon();
+    ArmedChangeStateBase::update(e);
+    MoveStateBase::updateMoveState();
+}
+
 void RunArmedChangeState::onEnter(DrawArrowRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
@@ -51,6 +58,18 @@ void RunArmedChangeState::onEnter(RecoilRunState&, const WeaponStateEvent&)
 }
 
 void RunArmedChangeState::onEnter(AimRunState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::updateMoveState();
+}
+
+void RunArmedChangeState::onEnter(DisarmedSprintState &, const WeaponStateEvent & e)
+{
+    ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::updateMoveState();
+}
+
+void RunArmedChangeState::onEnter(ArmedSprintState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::updateMoveState();

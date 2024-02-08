@@ -17,6 +17,7 @@ class JumpState;
 class MoveJumpState;
 class ArmedRunState;
 class ArmedWalkState;
+class ArmedSprintState;
 class DisarmedRunState;
 class ArmedIdleState;
 class DisarmedIdleState;
@@ -69,6 +70,10 @@ public:
     void onEnter(DisarmedRunState&, const WeaponStateEvent&);
     void onEnter(ArmedRunState&, const WeaponStateEvent&);
     void onEnter(DisarmedRunState&, const DrawArrowEvent&);
+
+    void onEnter(DisarmedSprintState&, const DrawArrowEvent&);
+    void onEnter(DisarmedSprintState&, const WeaponStateEvent&);
+    void onEnter(ArmedSprintState&, const WeaponStateEvent&);
 
     void onEnter(DrawArrowRunState&, const WeaponStateEvent&);
     void onEnter(RecoilRunState&, const WeaponStateEvent&);
