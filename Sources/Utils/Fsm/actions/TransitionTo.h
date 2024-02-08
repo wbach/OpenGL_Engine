@@ -14,17 +14,20 @@ public:
     template <typename Machine, typename State, typename Event>
     void execute(Machine& machine, State& prevState, const Event& event)
     {
-        if (not transitionCondition(prevState, event))
-        {
-            return;
-        }
-        leave(prevState);
-        leave(prevState, event);
-
 #ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("PrevState : " + typeName<State>());
         DEBUG_LOG("Entering : " + typeName<TargetState>());
 #endif
+
+        if (not transitionCondition(prevState, event))
+        {
+#ifdef NOREALTIME_LOG_ENABLED
+            DEBUG_LOG("transitionConditions are not met, return");
+#endif
+            return;
+        }
+        leave(prevState);
+        leave(prevState, event);
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 

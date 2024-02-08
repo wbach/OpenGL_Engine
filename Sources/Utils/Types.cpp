@@ -109,4 +109,14 @@ std::string to_string(const glm::mat4& m)
              std::to_string(m[y][3]) + "\n";
     return s;
 }
+template <>
+string to_string(const std::optional<string> &maybeValue)
+{
+    if (maybeValue)
+    {
+        return *maybeValue;
+    }
+    return "-";
+}
+
 }  // namespace std

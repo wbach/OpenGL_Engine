@@ -13,6 +13,36 @@ void DeathState::update(float)
 {
 }
 
+void DeathState::onEnter(IdleArmedChangeState&, const DeathEvent&)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(RotateArmedChangeState&, const DeathEvent&)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(RunArmedChangeState&, const DeathEvent&)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(RunAndRotateArmedChangeState&, const DeathEvent&)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(WalkArmedChangeState&, const DeathEvent&)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(WalkAndRotateArmedChangeState&, const DeathEvent&)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
 void DeathState::onEnter(DisarmedIdleState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
@@ -195,7 +225,6 @@ void DeathState::onEnter(DrawArrowWalkAndRotateState &, const DeathEvent &)
 
 void DeathState::setAnim(const std::string &animName)
 {
-    context_.multiAnimations = false;
     if (not animName.empty())
     {
         context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,

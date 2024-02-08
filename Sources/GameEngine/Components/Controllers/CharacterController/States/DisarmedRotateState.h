@@ -18,6 +18,7 @@ class DrawArrowRotateState;
 class JumpState;
 class DeathState;
 class ArmedRotateState;
+class RotateArmedChangeState;
 
 class DisarmedRotateState
     : public RotateStateBase,
@@ -26,8 +27,7 @@ class DisarmedRotateState
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
@@ -37,31 +37,17 @@ class DisarmedRotateState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<DisarmedSprintAndRotateState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
     DisarmedRotateState(FsmContext& context)
-        : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.disarmed.rotateLeft,
+        : RotateStateBase{context, std::nullopt, context.runSpeed.leftRight, context.animClipNames.disarmed.rotateLeft,
                           context.animClipNames.disarmed.rotateRight}
     {
     }
 
     using RotateStateBase::onEnter;
-
-    void onEnter(const WeaponStateEvent&)
-    {
-        context_.multiAnimations = true;
-        StateBase::disarmWeapon();
-        if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
-        {
-            setRotateLeftAnim();
-        }
-        else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
-        {
-            setRotateRightAnim();
-        }
-    }
 };
 }  // namespace Components
 }  // namespace GameEngine

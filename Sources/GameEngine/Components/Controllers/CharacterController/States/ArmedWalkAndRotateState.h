@@ -29,10 +29,9 @@ class ArmedWalkAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>, 
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
@@ -43,8 +42,12 @@ class ArmedWalkAndRotateState
 {
 public:
     ArmedWalkAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context, context.walkSpeed, context.animClipNames.armed.walk,
-                                 context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
+        : MoveAndRotateStateBase{context,
+                                 std::nullopt,
+                                 context.walkSpeed,
+                                 context.animClipNames.armed.walk,
+                                 context.animClipNames.armed.rotateLeft,
+                                 context.animClipNames.armed.rotateRight}
         , context_{context}
     {
     }
@@ -52,13 +55,6 @@ public:
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-
-    void onEnter(const WeaponStateEvent &)
-    {
-        context_.multiAnimations = true;
-        MoveStateBase::equipWeapon();
-        MoveStateBase::setCurrentAnim();
-    }
 
 private:
     FsmContext &context_;

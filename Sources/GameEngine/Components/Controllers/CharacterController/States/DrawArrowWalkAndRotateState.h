@@ -18,6 +18,7 @@ class DrawArrowRunAndRotateState;
 class DisarmedWalkAndRotateState;
 class DeathState;
 class ArmedSprintAndRotateState;
+class WalkAndRotateArmedChangeState;
 
 class DrawArrowWalkAndRotateState
     : public DrawArrowStateBase,
@@ -34,7 +35,7 @@ class DrawArrowWalkAndRotateState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
@@ -44,7 +45,6 @@ class DrawArrowWalkAndRotateState
 public:
     DrawArrowWalkAndRotateState(FsmContext&);
 
-    void onEnter();
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RotateLeftEvent&);

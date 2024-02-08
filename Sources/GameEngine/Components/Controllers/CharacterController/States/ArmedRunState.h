@@ -18,6 +18,7 @@ class ArmedWalkState;
 class ArmedSprintState;
 class ArmedRunAndRotateState;
 class DrawArrowRunState;
+class RunArmedChangeState;
 
 class ArmedRunState
     : public MoveStateBase,
@@ -27,13 +28,12 @@ class ArmedRunState
           // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
@@ -50,10 +50,6 @@ public:
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
-    void onEnter(const WeaponStateEvent&);
-
-    void onEnter(DisarmedRunState&, const DrawArrowEvent&);
-    void onEnter(const DrawArrowEvent&);
     void update(const AimStopEvent&);
 
     void onLeave();

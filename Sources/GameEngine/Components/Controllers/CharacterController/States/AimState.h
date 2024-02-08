@@ -17,6 +17,7 @@ class AimRotateState;
 class DisarmedIdleState;
 class DeathState;
 class ArmedSprintState;
+class IdleArmedChangeState;
 
 class AimState
     : public AimStateBase,
@@ -28,7 +29,7 @@ class AimState
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<AimRunState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<AimRunState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
@@ -37,6 +38,10 @@ class AimState
 {
 public:
     AimState(FsmContext&);
+    using AimStateBase::onEnter;
+    void onEnter(const EndRotationEvent&);
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

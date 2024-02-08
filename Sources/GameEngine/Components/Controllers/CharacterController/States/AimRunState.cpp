@@ -7,17 +7,11 @@ namespace GameEngine
 namespace Components
 {
 AimRunState::AimRunState(FsmContext& context)
-    : AimStateBase(context)
-    , MoveStateBase{context, context.runSpeed, context.animClipNames.armed.run.forward,
+    : AimStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.runSpeed, context.animClipNames.armed.run.forward,
                     context.animClipNames.armed.run.backward}
     , context_{context}
 {
-}
-
-void AimRunState::onEnter()
-{
-    DEBUG_LOG("onEnter()");
-    context_.multiAnimations = true;
 }
 
 void AimRunState::onEnter(const AimStartEvent& event)

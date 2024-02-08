@@ -12,21 +12,6 @@ ArmedIdleState::ArmedIdleState(FsmContext &context)
 {
 }
 
-void ArmedIdleState::onEnter(const WeaponStateEvent &)
-{
-    StateBase::equipWeapon();
-}
-
-void ArmedIdleState::onEnter(DisarmedIdleState &, const DrawArrowEvent &)
-{
-    drawArrowEndSub_ = context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.equip, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });
-}
-
-void ArmedIdleState::onEnter(const DrawArrowEvent &)
-{
-    StateBase::equipWeapon();
-}
 
 void ArmedIdleState::update(const AimStopEvent &)
 {

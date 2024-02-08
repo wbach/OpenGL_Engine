@@ -1,4 +1,4 @@
-#include "MoveStateBase.h"
+﻿#include "MoveStateBase.h"
 
 #include <Types.h>
 #include <Utils/Fsm/Actions.h>
@@ -7,24 +7,39 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveStateBase::MoveStateBase(FsmContext &context, const MoveSpeed &moveSpeed, const std::string &forwardAnimName,
+MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
+                             const MoveSpeed &moveSpeed, const std::string &forwardAnimName,
                              const std::string &backwardAnimName)
-    : StateBase(context)
+    : context_{context}
+    , jointGroupName_{jointGroupName}
     , forwardAnimName_{forwardAnimName}
     , backwardAnimName_{backwardAnimName}
     , moveSpeed_{moveSpeed}
 {
 }
 
-MoveStateBase::MoveStateBase(FsmContext &context, float forwardMoveSpeed, const std::string &forwardAnimName)
-    : StateBase(context)
+MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
+                             float forwardMoveSpeed, const std::string &forwardAnimName)
+    : context_{context}
+    , jointGroupName_{jointGroupName}
     , forwardAnimName_{forwardAnimName}
     , moveSpeed_{forwardMoveSpeed, 0.0f, 0.0f}
 {
 }
 
+void MoveStateBase::onEnter(const EquipEndStateEvent &)
+{
+    updateMoveState();
+}
+
+void MoveStateBase::onEnter(const DisarmEndStateEvent&)
+{
+    updateMoveState();
+}
+
 void MoveStateBase::onEnter(const SprintStartEvent &)
 {
+    DEBUG_LOG("onEnter(const SprintStartEvent &)");
     moveForward();
 }
 
@@ -58,16 +73,7 @@ void MoveStateBase::onEnter(const EndJumpEvent &)
 
 void MoveStateBase::onEnter(const WalkChangeStateEvent &)
 {
-    setCurrentAnim();
-
-    if (context_.moveDirection.z > 0.01f)
-    {
-        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
-    }
-    else if (context_.moveDirection.z < -0.01f)
-    {
-        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
-    }
+    updateMoveState();
 }
 
 void MoveStateBase::onEnter(const MoveLeftEvent &)
@@ -86,10 +92,6 @@ void MoveStateBase::onEnter(const MoveRightEvent &)
     // setRightAnim();
 }
 
-void MoveStateBase::update(const WeaponChangeEndEvent &)
-{
-    context_.multiAnimations = false;
-}
 bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
 {
     context_.moveStateData_.isForwardEvent_ = false;
@@ -129,22 +131,12 @@ void MoveStateBase::onLeave()
 
 void MoveStateBase::moveForward()
 {
-    if (context_.weaponChangeTriggered_)
-    {
-        context_.multiAnimations = true;
-    }
-
     setMoveForwardData();
     setForwardAnim();
 }
 
 void MoveStateBase::moveBackward()
 {
-    if (context_.weaponChangeTriggered_)
-    {
-        context_.multiAnimations = true;
-    }
-
     setMoveBackwardData();
     setBackwardAnim();
 }
@@ -163,15 +155,11 @@ void MoveStateBase::setMoveBackwardData()
     context_.moveDirection                    = vec3(0.f, 0.f, -1.f);
     context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
 }
-void MoveStateBase::update(const AttackEvent &)
+
+void MoveStateBase::updateMoveState()
 {
-    context_.multiAnimations = true;
-    context_.attackFsm.handle(AttackFsmEvents::AttackGrouped{context_.upperBodyGroupName});
-}
-void MoveStateBase::update(const EndAttackEvent &)
-{
-    context_.multiAnimations = false;
-    context_.attackFsm.handle(AttackFsmEvents::End{});
+    setCurrentAnim();
+    setCurrentMoveSpeed();
 }
 void MoveStateBase::update(const RunForwardEvent &event)
 {
@@ -211,11 +199,13 @@ void MoveStateBase::setForwardAnim()
 {
     if (not forwardAnimName_.empty())
     {
+        DEBUG_LOG("setForwardAnim, jointGroupName_ = " + std::to_string(jointGroupName_));
         context_.moveStateData_.animationIsReady_ = false;
-        context_.animator.ChangeAnimation(
-            forwardAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
-            [this]() { context_.moveStateData_.animationIsReady_ = true; });
+        context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
+                                          PlayDirection::forward, jointGroupName_, [this]() {
+                                              DEBUG_LOG("animationIsReady_ = true");
+                                              context_.moveStateData_.animationIsReady_ = true;
+                                          });
     }
 }
 
@@ -224,18 +214,16 @@ void MoveStateBase::setBackwardAnim()
     if (not backwardAnimName_.empty())
     {
         context_.moveStateData_.animationIsReady_ = false;
-        context_.animator.ChangeAnimation(
-            backwardAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
-            [this]() { context_.moveStateData_.animationIsReady_ = true; });
+        context_.animator.ChangeAnimation(backwardAnimName_, Animator::AnimationChangeType::smooth,
+                                          PlayDirection::forward, jointGroupName_,
+                                          [this]() { context_.moveStateData_.animationIsReady_ = true; });
     }
     else if (not forwardAnimName_.empty())
     {
         context_.moveStateData_.animationIsReady_ = false;
-        context_.animator.ChangeAnimation(
-            forwardAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::backward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt,
-            [this]() { context_.moveStateData_.animationIsReady_ = true; });
+        context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
+                                          PlayDirection::backward, jointGroupName_,
+                                          [this]() { context_.moveStateData_.animationIsReady_ = true; });
     }
 }
 
@@ -248,6 +236,17 @@ void MoveStateBase::setCurrentAnim()
     else if (context_.moveDirection.z < -0.01f)
     {
         setBackwardAnim();
+    }
+}
+void MoveStateBase::setCurrentMoveSpeed()
+{
+    if (context_.moveDirection.z > 0.01f)
+    {
+        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+    }
+    else if (context_.moveDirection.z < -0.01f)
+    {
+        context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.backward);
     }
 }
 void MoveStateBase::moveRigidbody(FsmContext &context)
@@ -264,9 +263,9 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
         auto velocity       = rigidbody.GetVelocity();
         auto velocityChange = (targetVelocity - velocity);
         velocityChange.x    = glm::clamp(velocityChange.x, -context_.moveStateData_.currentMoveSpeed_,
-                                         context_.moveStateData_.currentMoveSpeed_);
+                                      context_.moveStateData_.currentMoveSpeed_);
         velocityChange.z    = glm::clamp(velocityChange.z, -context_.moveStateData_.currentMoveSpeed_,
-                                         context_.moveStateData_.currentMoveSpeed_);
+                                      context_.moveStateData_.currentMoveSpeed_);
         velocityChange.y    = 0;
 
         auto newVelocity = velocity + velocityChange;

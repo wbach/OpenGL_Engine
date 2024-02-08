@@ -20,6 +20,7 @@ class DisarmedWalkState;
 class AimWalkState;
 class DrawArrowWalkState;
 class DeathState;
+class WalkArmedChangeState;
 
 class RecoilWalkState
     : public RecoilStateBase,
@@ -33,7 +34,7 @@ class RecoilWalkState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilRunState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RecoilRunState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RecoilRunState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
@@ -45,7 +46,6 @@ class RecoilWalkState
 public:
     RecoilWalkState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AttackEvent&);
 
     using MoveStateBase::onEnter;

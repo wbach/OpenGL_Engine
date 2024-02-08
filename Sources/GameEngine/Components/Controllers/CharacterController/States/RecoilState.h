@@ -17,6 +17,7 @@ class RecoilRunState;
 class RecoilWalkState;
 class RecoilRotateState;
 class DeathState;
+class IdleArmedChangeState;
 
 class RecoilState
     : public RecoilStateBase,
@@ -31,12 +32,17 @@ class RecoilState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
 {
 public:
     RecoilState(FsmContext&);
+
+    using RecoilStateBase::onEnter;
+    void onEnter(const EndRotationEvent&);
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

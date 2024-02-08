@@ -51,8 +51,13 @@ TEST_F(CharacterControllerTests, AimWalk_RotateTargetEvent)
 TEST_F(CharacterControllerTests, AimWalk_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedWalkState>(
+    tiggerAndExpect<WeaponStateEvent, WalkArmedChangeState>(
         {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<DisarmedWalkState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
 }
 TEST_F(CharacterControllerTests, AimWalk_AttackEvent)
 {

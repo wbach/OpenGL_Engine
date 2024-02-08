@@ -55,8 +55,7 @@ void Player::Init()
 
     if (animator_ and characterController_)
     {
-        auto attackAction = [this]()
-        {
+        auto attackAction = [this]() {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -132,12 +131,7 @@ void Player::hurt(int64 dmg)
         }
         else
         {
-            auto fsm = characterController_->fsm();
-            if (fsm)
-            {
-                characterController_->fsm()->handle(DeathEvent{});
-            }
-
+            characterController_->handleEvent(DeathEvent{});
             characterController_->Deactivate();
             Deactivate();
         }
@@ -158,8 +152,7 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
     guiManager_.add(GuiAnimation(
         std::move(hitText), GuiAnimation::Duration(1.f),
         [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
-            GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable
-        {
+            GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable {
             if (elapsedTime > 0.5f)
             {
                 const float speed    = 0.05f;
@@ -192,8 +185,9 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
 }
 void Player::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
-    { return std::make_unique<Player>(componentContext, gameObject); };
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
+        return std::make_unique<Player>(componentContext, gameObject);
+    };
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
 }
 void Player::write(TreeNode& node) const

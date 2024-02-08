@@ -19,6 +19,7 @@ class AimRotateState;
 class AimRunAndRotateState;
 class AimWalkAndRotateState;
 class DisarmedRunAndRotateState;
+class RunAndRotateArmedChangeState;
 class DeathState;
 
 class AimRunAndRotateState
@@ -35,7 +36,7 @@ class AimRunAndRotateState
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimRunState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRunAndRotateState>>,
@@ -43,7 +44,6 @@ class AimRunAndRotateState
 {
 public:
     AimRunAndRotateState(FsmContext&);
-    void onEnter();
     void onEnter(const AimStartEvent&);
     void update(float);
 

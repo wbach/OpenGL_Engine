@@ -8,8 +8,9 @@ namespace GameEngine
 {
 namespace Components
 {
-RecoilStateBase::RecoilStateBase(FsmContext &contex)
+RecoilStateBase::RecoilStateBase(FsmContext &contex, const std::optional<std::string> &jointGroupName)
     : context_{contex}
+    , jointGroupName_{jointGroupName}
     , animName_{context_.animClipNames.recoilArrow}
     , thridPersonCameraComponent_{contex.gameObject.GetComponent<ThridPersonCameraComponent>()}
 {
@@ -18,17 +19,17 @@ RecoilStateBase::RecoilStateBase(FsmContext &contex)
 
 void RecoilStateBase::onEnter(const EndRotationEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void RecoilStateBase::onEnter(const EndForwardMoveEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 
 void RecoilStateBase::onEnter(const EndBackwardMoveEvent &)
 {
-    stopMultiAnimation();
+    context_.animator.StopAnimation(jointGroupName_);
 }
 void RecoilStateBase::onEnter(const AttackEvent &)
 {
@@ -42,7 +43,7 @@ void RecoilStateBase::onEnter(const AttackEvent &)
     setAnim();
 
     context_.animator.SubscribeForAnimationFrame(
-        animName_, [&]() { context_.characterController.fsm()->handle(ReloadArrowEvent{}); });
+        animName_, [&]() { context_.characterController.pushEventToQueue(ReloadArrowEvent{}); });
 }
 void RecoilStateBase::update(float)
 {
@@ -51,8 +52,7 @@ void RecoilStateBase::update(float)
 
 void RecoilStateBase::stopAnim()
 {
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.upperBodyGroupName);
+    context_.animator.StopAnimation(jointGroupName_);
 
     if (thridPersonCameraComponent_)
     {
@@ -83,15 +83,9 @@ void RecoilStateBase::onLeave(const SprintStateChangeEvent &)
 }
 void RecoilStateBase::setAnim()
 {
-    context_.animator.ChangeAnimation(
-        animName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-        context_.multiAnimations ? std::make_optional(context_.upperBodyGroupName) : std::nullopt);
+    context_.animator.ChangeAnimation(animName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                      jointGroupName_);
 }
 
-void RecoilStateBase::stopMultiAnimation()
-{
-    context_.multiAnimations = false;
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
-}
 }  // namespace Components
 }  // namespace GameEngine

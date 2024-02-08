@@ -3,6 +3,7 @@
 #include "math.hpp"
 #include "Glm.h"
 #include <vector>
+#include <optional>
 #include <list>
 #include <sstream>
 #include <string>

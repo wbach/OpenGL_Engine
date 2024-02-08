@@ -43,7 +43,12 @@ TEST_F(CharacterControllerTests, DrawArow_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DrawArow_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent, IdleArmedChangeState>({sut_.animationClipsNames_.disarm});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectState<DisarmedIdleState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
 }
 TEST_F(CharacterControllerTests, DrawArow_AimStartEvent)
 {

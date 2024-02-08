@@ -7,15 +7,11 @@ namespace GameEngine
 namespace Components
 {
 DrawArrowRunAndRotateState::DrawArrowRunAndRotateState(FsmContext& context)
-    : DrawArrowStateBase(context)
-    , MoveAndRotateStateBase{context, context.runSpeed, context.animClipNames.armed.run,
+    : DrawArrowStateBase(context, context.upperBodyGroupName)
+    , MoveAndRotateStateBase{context, context.lowerBodyGroupName, context.runSpeed, context.animClipNames.armed.run,
                              context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
     , context_{context}
 {
-}
-void DrawArrowRunAndRotateState::onEnter()
-{
-    context_.multiAnimations = true;
 }
 
 void DrawArrowRunAndRotateState::onEnter(const DrawArrowEvent& event)

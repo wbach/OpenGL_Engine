@@ -20,6 +20,7 @@ class RecoilRunAndRotateState;
 class RecoilWalkAndRotateState;
 class DisarmedRunAndRotateState;
 class DrawArrowRunAndRotateState;
+class RunAndRotateArmedChangeState;
 class DeathState;
 
 class RecoilRunAndRotateState
@@ -38,7 +39,7 @@ class RecoilRunAndRotateState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RecoilRunState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
@@ -48,7 +49,6 @@ class RecoilRunAndRotateState
 public:
     RecoilRunAndRotateState(FsmContext&);
 
-    void onEnter();
     void onEnter(const AttackEvent&);
     void onEnter(const RunForwardEvent&);
     void onEnter(const RunBackwardEvent&);

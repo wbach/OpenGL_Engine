@@ -1,4 +1,5 @@
 #include "ArmedRotateState.h"
+
 #include "../CharacterController.h"
 
 namespace GameEngine
@@ -6,28 +7,9 @@ namespace GameEngine
 namespace Components
 {
 ArmedRotateState::ArmedRotateState(FsmContext &context)
-    : RotateStateBase{context, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
+    : RotateStateBase{context, std::nullopt, context.runSpeed.leftRight, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight}
 {
-}
-
-void ArmedRotateState::onEnter(const WeaponStateEvent &)
-{
-    context_.multiAnimations = true;
-    StateBase::equipWeapon();
-    RotateStateBase::setCurrentAnim();
-}
-void ArmedRotateState::onEnter(DisarmedRotateState &, const DrawArrowEvent &)
-{
-    drawArrowEndSub_ = context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.equip, [&]() { context_.characterController.fsm()->handle(DrawArrowEvent{}); });
-}
-
-void ArmedRotateState::onEnter(const DrawArrowEvent &)
-{
-    context_.multiAnimations = true;
-    StateBase::equipWeapon();
-    RotateStateBase::setCurrentAnim();
 }
 
 void ArmedRotateState::update(const AimStopEvent &)

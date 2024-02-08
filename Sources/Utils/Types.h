@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <string>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -543,6 +544,18 @@ std::string to_string(const vec3&);
 std::string to_string(const vec4&);
 std::string to_string(const Quaternion&);
 std::string to_string(const glm::mat4& m);
+
+template <typename T>
+std::string to_string(const std::optional<T>& maybeValue)
+{
+    if (maybeValue)
+    {
+        return std::to_string(*maybeValue);
+    }
+    return "-";
+}
+template <>
+std::string to_string(const std::optional<std::string>& maybeValue);
 }  // namespace std
 
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;

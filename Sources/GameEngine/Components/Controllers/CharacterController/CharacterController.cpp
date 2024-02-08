@@ -179,8 +179,7 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]()
-        {
+        auto sendEndAtatackCallback = [this]() {
             if (stateMachine_)
                 stateMachine_->handle(EndAttackEvent{});
         };
@@ -188,7 +187,7 @@ void CharacterController::Init()
         attackFsmContext.reset(
             new AttackFsmContext{*animator_, animationClipsNames_, sendEndAtatackCallback, std::nullopt});
 
-        attackFsm_    = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
+        attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
 
         auto aimJoint = animator_->GetJoint("mixamorig:Spine2");
         if (not aimJoint)
@@ -223,6 +222,12 @@ void CharacterController::Init()
             DisarmedWalkAndRotateState(*fsmContext),
             DisarmedSprintState(*fsmContext),
             DisarmedSprintAndRotateState(*fsmContext),
+            IdleArmedChangeState(*fsmContext),
+            RotateArmedChangeState(*fsmContext),
+            RunArmedChangeState(*fsmContext),
+            RunAndRotateArmedChangeState(*fsmContext),
+            WalkArmedChangeState(*fsmContext),
+            WalkAndRotateArmedChangeState(*fsmContext),
             ArmedIdleState(*fsmContext),
             ArmedRunState(*fsmContext),
             ArmedRotateState(*fsmContext),
@@ -293,8 +298,26 @@ void CharacterController::Init()
         WARNING_LOG("Animator or rigidbody_ not exist in object");
     }
 }
+void CharacterController::processEvent()
+{
+    if (not eventQueue.empty())
+    {
+        auto tmpEvents = std::move(eventQueue);
+        for (auto& event : tmpEvents)
+        {
+            std::visit(
+                [&](const auto& e) {
+                    DEBUG_LOG("Process event : " + typeid(e).name());
+                    stateMachine_->handle(e);
+                },
+                event);
+        }
+    }
+}
 void CharacterController::Update()
 {
+    processEvent();
+
     if (stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
         auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
@@ -305,14 +328,14 @@ void CharacterController::SetJumpPower(float v)
 {
     jumpPower_ = v;
 }
-CharacterControllerFsm* CharacterController::fsm()
-{
-    return stateMachine_.get();
-}
 
 float CharacterController::getShapeSize() const
 {
     return shapeSize_;
+}
+CharacterControllerFsm* CharacterController::getFsm()
+{
+    return stateMachine_.get();
 }
 void CharacterController::SetTurnSpeed(float v)
 {
@@ -324,8 +347,7 @@ void CharacterController::SetRunSpeed(float v)
 }
 void CharacterController::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component = std::make_unique<CharacterController>(componentContext, gameObject);
 
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);

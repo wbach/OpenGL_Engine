@@ -1,6 +1,8 @@
 #pragma once
 #include <Types.h>
 
+#include <variant>
+
 namespace GameEngine
 {
 struct WalkForwardEvent
@@ -25,9 +27,6 @@ struct MoveRightEvent
 {
 };
 struct RunEvent
-{
-};
-struct CrouchEvent
 {
 };
 struct SprintStartEvent
@@ -77,7 +76,10 @@ struct DeathEvent
 struct WeaponStateEvent
 {
 };
-struct WeaponChangeEndEvent
+struct EquipEndStateEvent
+{
+};
+struct DisarmEndStateEvent
 {
 };
 struct DrawArrowEvent
@@ -92,4 +94,12 @@ struct AimStartEvent
 struct AimStopEvent
 {
 };
+
+using CharacterControllerEvent =
+    std::variant<WalkForwardEvent, WalkBackwardEvent, WalkChangeStateEvent, RunForwardEvent, RunBackwardEvent,
+                 MoveLeftEvent, MoveRightEvent, RunEvent, SprintStartEvent, SprintStateChangeEvent,
+                 EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent, RotateTargetEvent,
+                 EndRotationEvent, JumpEvent, EndJumpEvent, AttackEvent, NextAttackEvent, EndAttackEvent, DeathEvent,
+                 WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent, ReloadArrowEvent,
+                 AimStartEvent, AimStopEvent>;
 }  // namespace GameEngine

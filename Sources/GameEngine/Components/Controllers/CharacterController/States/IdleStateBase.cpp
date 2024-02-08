@@ -8,11 +8,18 @@ namespace GameEngine
 namespace Components
 {
 IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName)
-    : StateBase(context)
+    : context_{context}
     , idleAnimName_{idleAnimName}
 {
 }
-
+void IdleStateBase::onEnter(const EquipEndStateEvent&)
+{
+    setIdleAnim();
+}
+void IdleStateBase::onEnter(const DisarmEndStateEvent&)
+{
+    setIdleAnim();
+}
 void IdleStateBase::onEnter(const AimStopEvent &)
 {
     setIdleAnim();
@@ -20,14 +27,10 @@ void IdleStateBase::onEnter(const AimStopEvent &)
 
 void IdleStateBase::update(const AttackEvent &)
 {
-    context_.multiAnimations = true;
-    context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
 void IdleStateBase::update(const EndAttackEvent &)
 {
-    context_.attackFsm.handle(AttackFsmEvents::End{});
-    context_.multiAnimations = false;
     setIdleAnim();
 }
 
@@ -39,17 +42,9 @@ void IdleStateBase::setIdleAnim()
 {
     if (not idleAnimName_.empty())
     {
-        context_.animator.ChangeAnimation(
-            idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-            context_.multiAnimations ? std::make_optional(context_.lowerBodyGroupName) : std::nullopt);
+        context_.animator.ChangeAnimation(idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                          std::nullopt);
     }
-}
-
-void IdleStateBase::update(const WeaponChangeEndEvent &)
-{
-    context_.multiAnimations        = false;
-    context_.weaponChangeTriggered_ = false;
-    setIdleAnim();
 }
 
 void IdleStateBase::onEnter(const EndForwardMoveEvent &)

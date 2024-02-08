@@ -36,14 +36,14 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     template <typename State>
     void expectState()
     {
-        EXPECT_TRUE(std::holds_alternative<State*>(sut_.fsm()->currentState));
+        EXPECT_TRUE(std::holds_alternative<State*>(sut_.getFsm()->currentState));
     }
 
     template <typename Event, typename State>
     void tiggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
-        sut_.fsm()->handle(event);
+        sut_.handleEvent(event);
         for (auto updateTime : updateTimes)
             Update(updateTime);
         expectState<State>();

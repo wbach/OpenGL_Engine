@@ -25,7 +25,7 @@ class MoveJumpState : public JumpStateBase,
 {
 public:
     MoveJumpState(FsmContext& context, std::function<void()> endCallback)
-        : JumpStateBase(context, endCallback)
+        : JumpStateBase(context, std::nullopt, endCallback)
     {
     }
 };

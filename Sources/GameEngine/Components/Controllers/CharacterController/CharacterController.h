@@ -29,6 +29,20 @@ public:
     void SetTurnSpeed(float);
     void SetJumpPower(float);
 
+    template <typename Event>
+    void handleEvent(const Event& event)
+    {
+        if (stateMachine_)
+            stateMachine_->handle(event);
+    }
+
+    template <typename Event>
+    void pushEventToQueue(const Event& event)
+    {
+        DEBUG_LOG("pushEventToQueue " + typeid(event).name());
+        eventQueue.push_back(event);
+    }
+
 public:
     std::string upperBodyGroupName;
     std::string lowerBodyGroupName;
@@ -38,15 +52,16 @@ public:
     float equipTimeStamp;
     float disarmTimeStamp;
 
-    CharacterControllerFsm* fsm();
-
     float getShapeSize() const;
+    CharacterControllerFsm* getFsm();
 
 private:
+    void processEvent();
     void isOnGround();
     void clearVelocityIfNotMoving();
 
 private:
+    std::vector<CharacterControllerEvent> eventQueue;
     std::function<void()> jumpCallback_;
     Rigidbody* rigidbody_;
     Animator* animator_;

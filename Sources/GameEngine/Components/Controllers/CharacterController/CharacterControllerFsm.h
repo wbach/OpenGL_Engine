@@ -1,6 +1,12 @@
 #pragma once
 #include <Utils/Fsm/Fsm.h>
 
+#include "States/AimRotateState.h"
+#include "States/AimRunAndRotateState.h"
+#include "States/AimRunState.h"
+#include "States/AimState.h"
+#include "States/AimWalkAndRotateState.h"
+#include "States/AimWalkState.h"
 #include "States/ArmedIdleState.h"
 #include "States/ArmedRotateState.h"
 #include "States/ArmedRunAndRotateState.h"
@@ -18,26 +24,26 @@
 #include "States/DisarmedSprintState.h"
 #include "States/DisarmedWalkAndRotateState.h"
 #include "States/DisarmedWalkState.h"
+#include "States/DrawArrowRotateState.h"
+#include "States/DrawArrowRunAndRotateState.h"
+#include "States/DrawArrowRunState.h"
+#include "States/DrawArrowState.h"
+#include "States/DrawArrowWalkAndRotateState.h"
+#include "States/DrawArrowWalkState.h"
+#include "States/IdleArmedChangeState.h"
 #include "States/JumpState.h"
 #include "States/MoveJumpState.h"
-#include "States/AimState.h"
-#include "States/RecoilState.h"
-#include "States/DrawArrowState.h"
-#include "States/AimRotateState.h"
-#include "States/DrawArrowRotateState.h"
 #include "States/RecoilRotateState.h"
-#include "States/AimRunState.h"
-#include "States/AimRunAndRotateState.h"
-#include "States/AimWalkState.h"
-#include "States/AimWalkAndRotateState.h"
-#include "States/DrawArrowRunState.h"
-#include "States/DrawArrowRunAndRotateState.h"
-#include "States/DrawArrowWalkState.h"
-#include "States/DrawArrowWalkAndRotateState.h"
-#include "States/RecoilRunState.h"
 #include "States/RecoilRunAndRotateState.h"
-#include "States/RecoilWalkState.h"
+#include "States/RecoilRunState.h"
+#include "States/RecoilState.h"
 #include "States/RecoilWalkAndRotateState.h"
+#include "States/RecoilWalkState.h"
+#include "States/RotateArmedChangeState.h"
+#include "States/RunAndRotateArmedChangeState.h"
+#include "States/RunArmedChangeState.h"
+#include "States/WalkAndRotateArmedChangeState.h"
+#include "States/WalkArmedChangeState.h"
 
 namespace GameEngine
 {
@@ -55,6 +61,12 @@ using CharacterControllerFsm =
                             DisarmedWalkAndRotateState,
                             DisarmedSprintState,
                             DisarmedSprintAndRotateState,
+                            IdleArmedChangeState,
+                            RotateArmedChangeState,
+                            RunArmedChangeState,
+                            RunAndRotateArmedChangeState,
+                            WalkArmedChangeState,
+                            WalkAndRotateArmedChangeState,
                             ArmedIdleState,
                             ArmedRunState,
                             ArmedRotateState,

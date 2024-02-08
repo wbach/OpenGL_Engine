@@ -7,15 +7,11 @@ namespace GameEngine
 namespace Components
 {
 DrawArrowWalkState::DrawArrowWalkState(FsmContext &context)
-    : DrawArrowStateBase(context)
-    , MoveStateBase{context, context.walkSpeed, context.animClipNames.armed.walk.forward,
+    : DrawArrowStateBase(context, context.upperBodyGroupName)
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
     , context_{context}
 {
-}
-void DrawArrowWalkState::onEnter()
-{
-    context_.multiAnimations = true;
 }
 
 void DrawArrowWalkState::onEnter(const WalkChangeStateEvent &event)

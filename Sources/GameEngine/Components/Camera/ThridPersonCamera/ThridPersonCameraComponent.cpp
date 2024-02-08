@@ -61,17 +61,11 @@ void ThridPersonCameraComponent::processEvent()
 {
     if (not eventQueue.empty())
     {
-        for (auto& event : eventQueue)
+        auto tmpEvents = std::move(eventQueue);
+        for (auto& event : tmpEvents)
         {
-            std::visit(
-                visitor{
-                    [&](const auto& event) { handleEvent(event); },
-                },
-                event);
-
-            handleEvent(event);
+            std::visit([&](const auto& e) { fsm->handle(e); }, event);
         }
-        eventQueue.clear();
     }
 }
 
