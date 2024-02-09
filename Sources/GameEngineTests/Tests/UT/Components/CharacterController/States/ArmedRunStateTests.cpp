@@ -90,15 +90,20 @@ TEST_F(CharacterControllerTests, ArmedRun_RotateRightEvent)
     expectRotationRight();
     tiggerAndExpect<RotateRightEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
 }
-/*
 
+TEST_F(CharacterControllerTests, ArmedRun_RotateTargetEvent)
+{
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent, ArmedRunAndRotateState>(RotateTargetEvent{targetRotation.value_},
+                                                               {sut_.animationClipsNames_.armed.run.forward});
+}
 
-
-
-          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
- * */
+TEST_F(CharacterControllerTests, ArmedRun_SprintStateChangeEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
+}
