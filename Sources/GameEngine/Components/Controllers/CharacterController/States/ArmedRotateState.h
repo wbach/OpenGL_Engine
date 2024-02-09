@@ -28,7 +28,6 @@ class ArmedRotateState
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
@@ -48,11 +47,6 @@ public:
     using RotateStateBase::onEnter;
     using RotateStateBase::update;
 
-    void update(const AimStopEvent&);
-    void onLeave();
-
-private:
-    std::optional<IdType> drawArrowEndSub_;
 };
 }  // namespace Components
 }  // namespace GameEngine

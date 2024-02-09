@@ -25,28 +25,78 @@ TEST_F(CharacterControllerTests, ArmedRotate_DrawArrowEvent)
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight});
 }
 
+TEST_F(CharacterControllerTests, ArmedRotate_DeathEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+}
 
-//Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-//Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-//Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-//Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
+TEST_F(CharacterControllerTests, ArmedRotate_SprintStartEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<SprintStartEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
+}
 
-////struct SprintStateChangeEvent
-////{
-////};
-//Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<WeaponChangeEndEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
-//Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
-//Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
-//Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-//Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-//Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-//Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-//Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-//Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-//Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
-//Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
+TEST_F(CharacterControllerTests, ArmedRotate_WalkForwardEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<WalkForwardEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
+}
 
-//Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
+TEST_F(CharacterControllerTests, ArmedRotate_WalkBackwardEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
+    tiggerAndExpect<WalkBackwardEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.backward});
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_WeaponStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WeaponStateEvent, RotateArmedChangeState>(
+        {sut_.animationClipsNames_.disarmed.rotateRight, sut_.animationClipsNames_.disarm});
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_RunForwardEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<RunForwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_RunBackwardEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
+    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_RotateLeftEvent)
+{
+    prepareState(*this);
+    expectRotationRight();
+    tiggerAndExpect<RotateRightEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
+    expectRotationLeft();
+    tiggerAndExpect<RotateLeftEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateLeft});
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_RotateTargetEvent)
+{
+    prepareState(*this);
+    expectRotationRight();
+    tiggerAndExpect<RotateRightEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
+
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent, ArmedRotateState>(RotateTargetEvent{targetRotation.value_},
+                                                         {sut_.animationClipsNames_.armed.rotateLeft});
+}
+
+TEST_F(CharacterControllerTests, ArmedRotate_EndRotationEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndRotationEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
+}

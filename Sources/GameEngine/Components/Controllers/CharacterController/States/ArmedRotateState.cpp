@@ -11,19 +11,5 @@ ArmedRotateState::ArmedRotateState(FsmContext &context)
                       context.animClipNames.armed.rotateRight}
 {
 }
-
-void ArmedRotateState::update(const AimStopEvent &)
-{
-    if (drawArrowEndSub_)
-    {
-        context_.animator.UnSubscribeForAnimationFrame(*drawArrowEndSub_);
-        drawArrowEndSub_ = std::nullopt;
-    }
-}
-
-void ArmedRotateState::onLeave()
-{
-    drawArrowEndSub_ = std::nullopt;
-}
 }  // namespace Components
 }  // namespace GameEngine

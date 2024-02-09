@@ -24,9 +24,6 @@ class ArmedIdleState
     : public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
@@ -45,12 +42,6 @@ public:
 
     using IdleStateBase::onEnter;
     using IdleStateBase::update;
-
-    void update(const AimStopEvent&);
-    void onLeave();
-
-private:
-    std::optional<IdType> drawArrowEndSub_;
 };
 }  // namespace Components
 }  // namespace GameEngine
