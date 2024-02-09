@@ -38,9 +38,10 @@ void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState&, const Wea
 {
     ArmedChangeStateBase::equipWeapon();
 }
-void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState&, const DrawArrowEvent&)
+void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
+    ArmedChangeStateBase::update(e);
 }
 void RunAndRotateArmedChangeState::onEnter(ArmedRunAndRotateState&, const WeaponStateEvent&)
 {
