@@ -51,9 +51,10 @@ void WalkAndRotateArmedChangeState::onEnter(ArmedWalkAndRotateState&, const Weap
     MoveStateBase::updateMoveState();
 }
 
-void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent&)
+void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
+    ArmedChangeStateBase::update(e);
 }
 
 }  // namespace Components
