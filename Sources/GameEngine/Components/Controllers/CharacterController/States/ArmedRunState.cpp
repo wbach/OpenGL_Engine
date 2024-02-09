@@ -12,19 +12,5 @@ ArmedRunState::ArmedRunState(FsmContext &context)
                     context.animClipNames.armed.run.backward}
 {
 }
-void ArmedRunState::update(const AimStopEvent &)
-{
-    if (drawArrowEndSub_)
-    {
-        context_.animator.UnSubscribeForAnimationFrame(*drawArrowEndSub_);
-        drawArrowEndSub_ = std::nullopt;
-    }
-}
-
-void ArmedRunState::onLeave()
-{
-    drawArrowEndSub_ = std::nullopt;
-}
-
 }  // namespace Components
 }  // namespace GameEngine
