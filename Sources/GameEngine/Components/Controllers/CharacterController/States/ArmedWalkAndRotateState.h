@@ -15,6 +15,7 @@ class ArmedRunAndRotateState;
 class ArmedSprintAndRotateState;
 class DisarmedWalkAndRotateState;
 class DrawArrowWalkAndRotateState;
+class WalkAndRotateArmedChangeState;
 class JumpState;
 class DeathState;
 
@@ -29,7 +30,11 @@ class ArmedWalkAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>, 
+          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
@@ -41,16 +46,7 @@ class ArmedWalkAndRotateState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedWalkAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context,
-                                 std::nullopt,
-                                 context.walkSpeed,
-                                 context.animClipNames.armed.walk,
-                                 context.animClipNames.armed.rotateLeft,
-                                 context.animClipNames.armed.rotateRight}
-        , context_{context}
-    {
-    }
+    ArmedWalkAndRotateState(FsmContext&);
 
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;

@@ -43,6 +43,8 @@ public:
     void update(const EndAttackEvent &);
     void update(const RunForwardEvent &);
     void update(const RunBackwardEvent &);
+    void update(const WalkForwardEvent&);
+    void update(const WalkBackwardEvent&);
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);

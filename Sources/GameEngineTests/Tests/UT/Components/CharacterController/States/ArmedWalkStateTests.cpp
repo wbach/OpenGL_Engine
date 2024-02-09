@@ -56,7 +56,7 @@ TEST_F(CharacterControllerTests, ArmedWalk_WeaponStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<WeaponStateEvent, WalkArmedChangeState>(
-        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.disarm});
+        {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_EndForwardMoveEvent)

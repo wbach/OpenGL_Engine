@@ -56,6 +56,7 @@ void MoveStateBase::onEnter(const WalkForwardEvent &)
 
 void MoveStateBase::onEnter(const WalkBackwardEvent &)
 {
+    DEBUG_LOG("onEnter(const WalkBackwardEvent &)");
     moveBackward();
 }
 void MoveStateBase::onEnter(const RunForwardEvent &)
