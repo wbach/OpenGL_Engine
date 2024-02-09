@@ -50,6 +50,13 @@ TEST_F(CharacterControllerTests, DisarmedRunState_RunForwardEvent)
     tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
 }
 
+TEST_F(CharacterControllerTests, DisarmedRunState_RunBackwardEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
+    tiggerAndExpect<RunBackwardEvent, DisarmedRunState>({ sut_.animationClipsNames_.disarmed.run.backward });
+}
+
 TEST_F(CharacterControllerTests, DisarmedRunState_DeathEvent)
 {
     prepareState(*this);
@@ -76,7 +83,7 @@ TEST_F(CharacterControllerTests, DisarmedRunState_EndForwardMoveEvent)
     tiggerAndExpect<EndForwardMoveEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
 }
 
-TEST_F(CharacterControllerTests, DisarmedRunState_RunBackwardEvent)
+TEST_F(CharacterControllerTests, DisarmedRunState_EndBackwardMoveEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);

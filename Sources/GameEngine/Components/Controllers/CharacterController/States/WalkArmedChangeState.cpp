@@ -19,9 +19,10 @@ void WalkArmedChangeState::onEnter(ArmedWalkState&, const WeaponStateEvent&)
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::updateMoveState();
 }
-void WalkArmedChangeState::onEnter(DisarmedWalkState&, const DrawArrowEvent&)
+void WalkArmedChangeState::onEnter(DisarmedWalkState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
+    ArmedChangeStateBase::update(e);
 }
 void WalkArmedChangeState::onEnter(DrawArrowWalkState&, const WeaponStateEvent&)
 {

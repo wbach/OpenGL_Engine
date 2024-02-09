@@ -8,6 +8,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Ch
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RotateArmedChangeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RunAndRotateArmedChangeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/WalkAndRotateArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedWalkStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RecoilStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedIdleStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/AimWalkStateTests.cpp
@@ -29,6 +30,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Ch
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DrawArrowWalkAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DrawArrowRunAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedSprintStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedWalkAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DrawArrowRunStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/ArmedRunStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/WalkArmedChangeStateTests.cpp
