@@ -62,6 +62,7 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
     if (event.jointGroupName)
     {
         DEBUG_LOG("StopAnimationEvent not implemented, ignore. Clip : " + info_.clip.name + ", for group " + *event.jointGroupName);
+        context_.machine.transitionTo<EmptyState>(context_);
     }
     else
     {

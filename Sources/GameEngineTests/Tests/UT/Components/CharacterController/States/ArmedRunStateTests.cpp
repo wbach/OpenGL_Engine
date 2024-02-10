@@ -107,3 +107,20 @@ TEST_F(CharacterControllerTests, ArmedRun_SprintStateChangeEvent)
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStateChangeEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
 }
+
+TEST_F(CharacterControllerTests, ArmedRunState_UpdateToDrawArrowAndBackAsMultiTransitionMiexedToSingle)
+{
+    prepareState(*this);
+    float deltaTime = { 0.0001f };
+
+    for (int i = 0; i < 10; i++)
+    {
+        tiggerAndExpect<DrawArrowEvent, DrawArrowRunState>(
+            { sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.drawArrow }, { deltaTime });
+        expectForwardVelocity(DEFAULT_RUN_SPEED);
+        Update(deltaTime);
+        tiggerAndExpect<AimStopEvent, ArmedRunState>({ sut_.animationClipsNames_.armed.run.forward }, { deltaTime });
+        expectForwardVelocity(DEFAULT_RUN_SPEED);
+        Update(deltaTime);
+    }
+}

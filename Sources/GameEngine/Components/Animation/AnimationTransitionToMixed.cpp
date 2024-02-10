@@ -193,15 +193,15 @@ void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
         {
             for (auto &[_, group] : transtionGroups_)
             {
-                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_);
+                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_, group.onTransitionEnd_);
                 return;
             }
         }
         else if (currentGroups_.size() == 1 and transtionGroups_.empty())
         {
-            for (auto &[_, group] : transtionGroups_)
+            for (auto &[_, group] : currentGroups_)
             {
-                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_);
+                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.time_);
                 return;
             }
         }
