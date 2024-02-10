@@ -48,7 +48,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
                 jointGroupNames.jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event);
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event, event.onTransitionEnd);
     }
     else
     {

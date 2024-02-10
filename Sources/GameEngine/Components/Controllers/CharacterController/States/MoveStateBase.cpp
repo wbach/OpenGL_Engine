@@ -254,6 +254,7 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
 {
     if (context_.moveStateData_.animationIsReady_)
     {
+        DEBUG_LOG("context_.moveStateData_.animationIsReady = true");
         const auto &moveDirection = context.moveDirection;
         auto &rigidbody           = context.rigidbody;
 

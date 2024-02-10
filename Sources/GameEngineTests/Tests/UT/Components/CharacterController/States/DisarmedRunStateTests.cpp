@@ -54,7 +54,7 @@ TEST_F(CharacterControllerTests, DisarmedRunState_RunBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, DisarmedRunState>({ sut_.animationClipsNames_.disarmed.run.backward });
+    tiggerAndExpect<RunBackwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.backward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunState_DeathEvent)
@@ -121,5 +121,19 @@ TEST_F(CharacterControllerTests, DisarmedRunState_SprintStateChangeEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintState>({ sut_.animationClipsNames_.disarmed.sprint });
+    tiggerAndExpect<SprintStateChangeEvent, DisarmedSprintState>({sut_.animationClipsNames_.disarmed.sprint});
+}
+
+TEST_F(CharacterControllerTests, DisarmedRunState_UpdateVelocityInNewStateWhenTransitionIsNotFinishedInPreviousOne)
+{
+    prepareState(*this);
+    float deltaTime = {0.0001f};
+    expectRotationLeft(deltaTime);
+    tiggerAndExpect<RotateLeftEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.forward},
+                                                                {deltaTime});
+    // velocity should be updated in new state too like in disarmed run state
+    DEBUG_LOG("XXX expectForwardVelocity");
+    expectRotationLeft();
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
 }
