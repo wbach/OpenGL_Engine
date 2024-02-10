@@ -203,7 +203,7 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::setForwardAnim()
 {
-    if (not forwardAnimName_.empty())
+    if (not forwardAnimName_.empty() and not context_.animator.isAnimationPlaying(forwardAnimName_))
     {
         DEBUG_LOG("setForwardAnim, jointGroupName_ = " + std::to_string(jointGroupName_));
         context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
@@ -213,7 +213,7 @@ void MoveStateBase::setForwardAnim()
 
 void MoveStateBase::setBackwardAnim()
 {
-    if (not backwardAnimName_.empty())
+    if (not backwardAnimName_.empty() and not context_.animator.isAnimationPlaying(backwardAnimName_))
     {
         context_.animator.ChangeAnimation(backwardAnimName_, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
@@ -268,9 +268,9 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
         auto velocity       = rigidbody.GetVelocity();
         auto velocityChange = (targetVelocity - velocity);
         velocityChange.x    = glm::clamp(velocityChange.x, -context_.moveStateData_.currentMoveSpeed_,
-                                      context_.moveStateData_.currentMoveSpeed_);
+                                         context_.moveStateData_.currentMoveSpeed_);
         velocityChange.z    = glm::clamp(velocityChange.z, -context_.moveStateData_.currentMoveSpeed_,
-                                      context_.moveStateData_.currentMoveSpeed_);
+                                         context_.moveStateData_.currentMoveSpeed_);
         velocityChange.y    = 0;
 
         auto newVelocity = velocity + velocityChange;

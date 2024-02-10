@@ -15,10 +15,11 @@ ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optio
     : context_{context}
     , jointGroupName_{jointGroupName}
     , jointPoseUpdater_{context.gameObject.GetComponentInChild<JointPoseUpdater>()}
-{
+{;
 }
 void ArmedChangeStateBase::update(const WeaponStateEvent&)
 {
+    unsubscribeAll();
     DEBUG_LOG("update(const WeaponStateEvent&)");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
