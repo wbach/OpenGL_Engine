@@ -20,11 +20,6 @@ StateMachine::~StateMachine()
 }
 PoseUpdateAction StateMachine::update(float deltaTime)
 {
-    if (transitionState_)
-    {
-        currentState_ = std::move(transitionState_);
-    }
-
     if (currentState_)
     {
         if (currentState_->update(deltaTime))
@@ -40,11 +35,6 @@ void StateMachine::processEvents()
     while (not queueEvents_.empty())
     {
         auto& incomingEvent = queueEvents_.front();
-
-        if (transitionState_)
-        {
-            currentState_ = std::move(transitionState_);
-        }
 
         if (currentState_)
         {

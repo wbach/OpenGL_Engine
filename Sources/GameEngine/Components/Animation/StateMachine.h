@@ -35,11 +35,12 @@ struct StateMachine
 #ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("Animation state transition : " + typeName<State>());
 #endif
-        transitionState_ = std::make_unique<State>(std::forward<Args>(args)...);
+        tmpTransitionState_ = std::move(currentState_);
+        currentState_ = std::make_unique<State>(std::forward<Args>(args)...);
     }
 
     Context context_;
-    std::unique_ptr<IAnimationState> transitionState_;
+    std::unique_ptr<IAnimationState> tmpTransitionState_;
     std::unique_ptr<IAnimationState> currentState_;
 
     std::mutex queueMutex_;

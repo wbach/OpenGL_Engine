@@ -9,7 +9,7 @@ struct KeyFrame;
 }  // namespace Animation
 namespace Components
 {
-class AnimationClipInfo;
+struct AnimationClipInfo;
 
 class AnimationStateBase : public IAnimationState
 {
@@ -40,6 +40,7 @@ protected:
 
     void notifyFrameSubsribers(const AnimationClipInfo&, const Animation::KeyFrame*, float, float&);
     bool increaseAnimationTime(float&, float&, const AnimationClipInfo&, Animation::KeyFrame const*, float);
+    bool isAnimationPlaying(const std::string&) const override;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -105,12 +105,10 @@ void Animator::UnSubscribeForAnimationFrame(IdType id)
     if (iter != animationClipInfoSubscriptions_.end())
     {
         auto& subscribers = *iter->second;
-        auto subIter      = std::find_if(subscribers.begin(), subscribers.end(),
-                                         [id](const auto& sub)
-                                         {
-                                        DEBUG_LOG("UnSubscribeForAnimationFrame " + std::to_string(id));
-                                        return sub.id == id;
-                                    });
+        auto subIter      = std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& sub) {
+            DEBUG_LOG("UnSubscribeForAnimationFrame " + std::to_string(id));
+            return sub.id == id;
+        });
 
         if (subIter != subscribers.end())
             subscribers.erase(subIter);
@@ -187,6 +185,22 @@ void Animator::alignAnimations(const std::string& animName1, const std::string& 
     DEBUG_LOG("Aligned animations: " + animName1 + " and " + animName2);
 }
 
+bool Animator::isAnimationPlaying(const std::string& name) const
+{
+    return machine_.currentState_->isAnimationPlaying(name);
+}
+
+std::optional<IdType> Animator::allocateIdForClip(const std::string& name)
+{
+    auto clipIter = animationClipInfo_.find(name);
+    if (clipIter == animationClipInfo_.end())
+        return std::nullopt;
+
+    auto id = animationClipInfoByIdPool_.getId();
+    animationClipInfoById_.insert({id, &clipIter->second});
+    return id;
+}
+
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
@@ -210,6 +224,24 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
     }
 
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
+}
+void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType, PlayDirection playDirection,
+                               std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
+{
+    auto clipIter = animationClipInfoById_.find(id);
+
+    if (clipIter == animationClipInfoById_.end())
+    {
+        DEBUG_LOG("ChangeAnimation not found animation with id  : " + std::to_string(id));
+        return;
+    }
+
+    if (changeType == AnimationChangeType::direct)
+    {
+        DEBUG_LOG(" AnimationChangeType::direct not implemnted go to smooth");
+    }
+
+    machine_.handle(ChangeAnimationEvent{0.f, *clipIter->second, groupName, onTransitionEnd});
 }
 void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)
 {
@@ -374,8 +406,7 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
 

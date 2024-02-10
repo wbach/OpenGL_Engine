@@ -30,7 +30,8 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
             not compare(currentFrame->timeStamp, previousFrameTimeStamp))
         {
 #ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("notifyFrameSubsribers for clip : " + clipInfo.clip.name + " time : " + std::to_string(currentFrame->timeStamp));
+            DEBUG_LOG("notifyFrameSubsribers for clip : " + clipInfo.clip.name +
+                      " time : " + std::to_string(currentFrame->timeStamp));
 #endif
             sub.callback();
         }
@@ -61,6 +62,10 @@ bool AnimationStateBase::increaseAnimationTime(float& currentTime, float& previo
         currentTime = clipInfo.clip.GetLength() + currentTime;
     }
     return true;
+}
+bool AnimationStateBase::isAnimationPlaying(const std::string&) const
+{
+    return false;
 }
 }  // namespace Components
 }  // namespace GameEngine

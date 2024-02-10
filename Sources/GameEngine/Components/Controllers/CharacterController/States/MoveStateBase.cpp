@@ -27,12 +27,17 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
+void MoveStateBase::onEnter()
+{
+    isAnimationReady = false;
+}
+
 void MoveStateBase::onEnter(const EquipEndStateEvent &)
 {
     updateMoveState();
 }
 
-void MoveStateBase::onEnter(const DisarmEndStateEvent&)
+void MoveStateBase::onEnter(const DisarmEndStateEvent &)
 {
     updateMoveState();
 }
@@ -201,12 +206,8 @@ void MoveStateBase::setForwardAnim()
     if (not forwardAnimName_.empty())
     {
         DEBUG_LOG("setForwardAnim, jointGroupName_ = " + std::to_string(jointGroupName_));
-        context_.moveStateData_.animationIsReady_ = false;
         context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, jointGroupName_, [this]() {
-                                              DEBUG_LOG("animationIsReady_ = true");
-                                              context_.moveStateData_.animationIsReady_ = true;
-                                          });
+                                          PlayDirection::forward, jointGroupName_);
     }
 }
 
@@ -214,17 +215,13 @@ void MoveStateBase::setBackwardAnim()
 {
     if (not backwardAnimName_.empty())
     {
-        context_.moveStateData_.animationIsReady_ = false;
         context_.animator.ChangeAnimation(backwardAnimName_, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, jointGroupName_,
-                                          [this]() { context_.moveStateData_.animationIsReady_ = true; });
+                                          PlayDirection::forward, jointGroupName_);
     }
     else if (not forwardAnimName_.empty())
     {
-        context_.moveStateData_.animationIsReady_ = false;
         context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::backward, jointGroupName_,
-                                          [this]() { context_.moveStateData_.animationIsReady_ = true; });
+                                          PlayDirection::backward, jointGroupName_);
     }
 }
 
@@ -252,7 +249,13 @@ void MoveStateBase::setCurrentMoveSpeed()
 }
 void MoveStateBase::moveRigidbody(FsmContext &context)
 {
-    if (context_.moveStateData_.animationIsReady_)
+    // if (context_.moveStateData_.animationIsReady_)
+    if (not isAnimationReady)
+    {
+        isAnimationReady = context_.animator.isAnimationPlaying(forwardAnimName_) or
+                           context_.animator.isAnimationPlaying(backwardAnimName_);
+    }
+    if (isAnimationReady)
     {
         DEBUG_LOG("context_.moveStateData_.animationIsReady = true");
         const auto &moveDirection = context.moveDirection;

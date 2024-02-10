@@ -21,6 +21,8 @@ public:
 
     std::vector<std::string> getCurrentAnimation() const override;
 
+    bool isAnimationPlaying(const std::string&) const override;
+
 private:
     void increaseAnimationTime(float deltaTime);
     void notifyClipSubscribers();

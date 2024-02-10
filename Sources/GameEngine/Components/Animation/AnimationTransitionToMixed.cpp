@@ -9,6 +9,7 @@
 #include "PlayAnimation.h"
 #include "PlayMixedAnimation.h"
 #include "StateMachine.h"
+#include "AnimationTransitionMixedToSingle.h"
 
 namespace GameEngine
 {
@@ -171,6 +172,8 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
 
 void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
 {
+    DEBUG_LOG("StopAnimationEvent, jointGroupName: " + std::to_string(event.jointGroupName));
+
     if (event.jointGroupName)
     {
         auto iter = transtionGroups_.find(*event.jointGroupName);
@@ -193,6 +196,7 @@ void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
         {
             for (auto &[_, group] : transtionGroups_)
             {
+                DEBUG_LOG("transtionGroups_ AnimationTransition");
                 context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_, group.onTransitionEnd_);
                 return;
             }
@@ -201,7 +205,8 @@ void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
         {
             for (auto &[_, group] : currentGroups_)
             {
-                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.time_);
+                DEBUG_LOG("currentGroups_ AnimationTransitionMixedToSingle");
+                context_.machine.transitionTo<PlayAnimation>(context_, group.clipInfo_, group.time_);
                 return;
             }
         }
@@ -225,6 +230,13 @@ std::vector<std::string> AnimationTransitionToMixed::getCurrentAnimation() const
     for (auto &[_, group] : transtionGroups_)
         r.push_back(group.clipInfo_.clip.name);
     return r;
+}
+
+bool AnimationTransitionToMixed::isAnimationPlaying(const std::string& name) const
+{
+    auto iter = std::find_if(currentGroups_.begin(), currentGroups_.end(),
+        [&name](const auto& pair) { return (pair.second.clipInfo_.clip.name == name); });
+    return iter != currentGroups_.end();
 }
 
 void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)

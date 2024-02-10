@@ -17,8 +17,9 @@ public:
                   const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
+    void onEnter();
     void onEnter(const EquipEndStateEvent &);
-    void onEnter(const DisarmEndStateEvent&);
+    void onEnter(const DisarmEndStateEvent &);
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const RunForwardEvent &);
@@ -64,6 +65,8 @@ protected:
     std::string forwardAnimName_;
     std::string backwardAnimName_;
     MoveSpeed moveSpeed_;
+
+    bool isAnimationReady{false};
 };
 }  // namespace Components
 }  // namespace GameEngine

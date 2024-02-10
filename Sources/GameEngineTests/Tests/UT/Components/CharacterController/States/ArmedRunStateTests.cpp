@@ -111,6 +111,7 @@ TEST_F(CharacterControllerTests, ArmedRun_SprintStateChangeEvent)
 TEST_F(CharacterControllerTests, ArmedRunState_UpdateToDrawArrowAndBackAsMultiTransitionMiexedToSingle)
 {
     prepareState(*this);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     float deltaTime = { 0.0001f };
 
     for (int i = 0; i < 10; i++)

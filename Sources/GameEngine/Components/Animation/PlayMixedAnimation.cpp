@@ -109,6 +109,12 @@ std::vector<std::string> PlayMixedAnimation::getCurrentAnimation() const
         r.push_back(group.clipInfo.clip.name);
     return r;
 }
+bool PlayMixedAnimation::isAnimationPlaying(const std::string& name) const
+{
+    auto iter = std::find_if(groups_.begin(), groups_.end(),
+                             [&name](const auto& pair) { return (pair.second.clipInfo.clip.name == name); });
+    return iter != groups_.end();
+}
 void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
 {
     std::vector<std::string> groupsToRemove_;

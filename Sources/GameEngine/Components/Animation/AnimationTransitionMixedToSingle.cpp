@@ -85,7 +85,8 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
+                                                           event.onTransitionEnd);
     }
 }
 
@@ -106,6 +107,11 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
 std::vector<std::string> AnimationTransitionMixedToSingle::getCurrentAnimation() const
 {
     return {currentClipInfo_.clip.name};
+}
+
+bool AnimationTransitionMixedToSingle::isAnimationPlaying(const std::string &name) const
+{
+    return currentClipInfo_.clip.name == name;
 }
 
 void AnimationTransitionMixedToSingle::increaseAnimationTime(float deltaTime)

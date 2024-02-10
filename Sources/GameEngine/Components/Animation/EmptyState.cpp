@@ -1,8 +1,9 @@
 #include "EmptyState.h"
 
+#include <Logger/Log.h>
+
 #include "AnimationTransition.h"
 #include "StateMachine.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {

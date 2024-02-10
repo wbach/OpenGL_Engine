@@ -19,6 +19,7 @@ public:
     virtual void handle(const ChangeAnimationEvent&)             = 0;
     virtual void handle(const StopAnimationEvent&)               = 0;
     virtual std::vector<std::string> getCurrentAnimation() const = 0;
+    virtual bool isAnimationPlaying(const std::string&) const    = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

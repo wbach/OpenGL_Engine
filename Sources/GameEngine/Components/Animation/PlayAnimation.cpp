@@ -70,6 +70,11 @@ std::vector<std::string> PlayAnimation::getCurrentAnimation() const
     return {clipInfo_.clip.name};
 }
 
+bool PlayAnimation::isAnimationPlaying(const std::string& name) const
+{
+    return clipInfo_.clip.name == name;
+}
+
 void PlayAnimation::increaseAnimationTime(float deltaTime)
 {
     time_ += deltaTime * clipInfo_.playSpeed * direction_;
@@ -81,6 +86,7 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
         {
             DEBUG_LOG("increaseAnimationTime once end : " + clipInfo_.clip.name);
             context_.machine.transitionTo<EmptyState>(context_);
+            return;
         }
 
         time_ = fmodf(time_, clipInfo_.clip.GetLength());

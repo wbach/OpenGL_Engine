@@ -28,6 +28,7 @@ class Animator : public BaseComponent
 {
 public:
     using AnimationInfoClips = std::unordered_map<std::string, AnimationClipInfo>;
+    using AnimationInfoClipsIdMap = std::unordered_map<IdType, AnimationClipInfo*>;
 
     enum class AnimationChangeType
     {
@@ -45,6 +46,8 @@ public:
     Animator& SetAnimation(const std::string&);
     void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
                          std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
+    void ChangeAnimation(const IdType&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
+        std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     void StopAnimation(std::optional<std::string> = std::nullopt);
     GraphicsApi::ID getPerPoseBufferId() const;
@@ -64,6 +67,10 @@ public:
 
     void alignAnimations(const std::string&, const std::string&);
 
+    bool isAnimationPlaying(const std::string&) const;
+
+    std::optional<IdType> allocateIdForClip(const std::string&);
+
 public:
     JointData jointData_;
     float animationSpeed_;
@@ -80,9 +87,14 @@ protected:
 
 protected:
     StateMachine machine_;
+
     AnimationInfoClips animationClipInfo_;
+    AnimationInfoClipsIdMap animationClipInfoById_;
+
     std::unordered_map<IdType, std::vector<AnimationClipInfo::Subscription>*> animationClipInfoSubscriptions_;
+
     Utils::IdPool animationEndIdPool_;
+    Utils::IdPool animationClipInfoByIdPool_;
 
     RendererComponent* rendererComponent_;
     std::vector<GameEngine::File> clipsToRead_;
