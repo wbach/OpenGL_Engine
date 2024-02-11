@@ -29,11 +29,27 @@ public:
 
 private:
     void cameraUpdate();
+    vec2 CalcualteMouseMove();
+    void lockPitch();
+    void updateYaw();
+    void autoFallowCamera();
+    void mouseControlledCamera(const vec2&);
 
 private:
     Context& context;
+    vec4 referenceRelativeCamerePosition;
     vec4 relativeCamerePosition;
     vec4 lookAtLocalPosition;
+    const mat4 yTranslation;
+
+    float mouseSensitivity_;
+    float pitch;
+    float yaw;
+
+    vec2 yawLimit;
+    vec2 pitchLimit;
+
+    float mouseInactiveTime = 0;
 };
 }  // namespace Camera
 }  // namespace Components
