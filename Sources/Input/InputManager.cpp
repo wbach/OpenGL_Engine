@@ -42,25 +42,17 @@ void InputManager::SetDefaultKeys()
     RegisterGameAction(GameAction::TURN_LEFT, KeyCodes::Q);
     RegisterGameAction(GameAction::TURN_RIGHT, KeyCodes::E);
     RegisterGameAction(GameAction::JUMP, KeyCodes::SPACE);
-    RegisterGameAction(GameAction::ATTACK_1, KeyCodes::LMOUSE);
-    RegisterGameAction(GameAction::ATTACK_2, KeyCodes::RMOUSE);
-    RegisterGameAction(GameAction::ATTACK_3, KeyCodes::Z);
-    RegisterGameAction(GameAction::SPELL_1, KeyCodes::W);
-    RegisterGameAction(GameAction::SPELL_2, KeyCodes::W);
-    RegisterGameAction(GameAction::SPELL_3, KeyCodes::W);
-    RegisterGameAction(GameAction::SPELL_4, KeyCodes::W);
-    RegisterGameAction(GameAction::GUI_STATS_WINDOW, KeyCodes::C);
-    RegisterGameAction(GameAction::GUI_INVENTORY_WINDOW, KeyCodes::I);
-    RegisterGameAction(GameAction::GUI_PAUSE_MENU_WINDOW, KeyCodes::ESCAPE);
-    RegisterGameAction(GameAction::ITEM_1, KeyCodes::W);
-    RegisterGameAction(GameAction::ITEM_2, KeyCodes::W);
-    RegisterGameAction(GameAction::ITEM_3, KeyCodes::W);
-    RegisterGameAction(GameAction::ITEM_4, KeyCodes::W);
-    RegisterGameAction(GameAction::ITEM_5, KeyCodes::W);
-    RegisterGameAction(GameAction::ITEM_6, KeyCodes::W);
-    RegisterGameAction(GameAction::WORLD_MAP, KeyCodes::M);
-    RegisterGameAction(GameAction::INCREASE_PITCH_UP, KeyCodes::R);
-    RegisterGameAction(GameAction::INCREASE_PITCH_DOWN, KeyCodes::F);
+    RegisterGameAction(GameAction::WALK, KeyCodes::LCTRL);
+    RegisterGameAction(GameAction::SPRINT, KeyCodes::LSHIFT);
+    RegisterGameAction(GameAction::EQUIP_DISARM, KeyCodes::F);
+    RegisterGameAction(GameAction::AIM, KeyCodes::RMOUSE);
+    RegisterGameAction(GameAction::ATTACK, KeyCodes::LMOUSE);
+    RegisterGameAction(GameAction::CAM_FORWARD, KeyCodes::UARROW);
+    RegisterGameAction(GameAction::CAM_BACKWARD, KeyCodes::DARROW);
+    RegisterGameAction(GameAction::CAM_LEFT, KeyCodes::LARROW);
+    RegisterGameAction(GameAction::CAM_RIGHT, KeyCodes::RARROW);
+    RegisterGameAction(GameAction::CAM_PITCH_UP, KeyCodes::NUM1);
+    RegisterGameAction(GameAction::CAM_PITCH_DOWN, KeyCodes::NUM2);
 }
 
 bool InputManager::GetKey(GameAction action)

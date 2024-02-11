@@ -43,21 +43,21 @@ void FirstPersonCamera::Update()
 vec3 FirstPersonCamera::CalculateInputs()
 {
     vec3 moveVector(0.f);
-    if (inputManager_.GetKey(Input::GameAction::MOVE_FORWARD))
+    if (inputManager_.GetKey(Input::GameAction::CAM_FORWARD))
         moveVector.z = -1;
-    if (inputManager_.GetKey(Input::GameAction::MOVE_BACKWARD))
+    if (inputManager_.GetKey(Input::GameAction::CAM_BACKWARD))
         moveVector.z = 1;
-    if (inputManager_.GetKey(Input::GameAction::MOVE_LEFT))
+    if (inputManager_.GetKey(Input::GameAction::CAM_LEFT))
         moveVector.x = -1;
-    if (inputManager_.GetKey(Input::GameAction::MOVE_RIGHT))
+    if (inputManager_.GetKey(Input::GameAction::CAM_RIGHT))
         moveVector.x = 1;
-    if (inputManager_.GetKey(Input::GameAction::TURN_LEFT))
+    if (inputManager_.GetKey(Input::GameAction::CAM_LEFT))
         IncreaseYaw(-1.f);
-    if (inputManager_.GetKey(Input::GameAction::TURN_RIGHT))
+    if (inputManager_.GetKey(Input::GameAction::CAM_RIGHT))
         IncreaseYaw(1.f);
-    if (inputManager_.GetKey(Input::GameAction::INCREASE_PITCH_UP))
+    if (inputManager_.GetKey(Input::GameAction::CAM_PITCH_UP))
         IncreasePitch(-1.f);
-    if (inputManager_.GetKey(Input::GameAction::INCREASE_PITCH_DOWN))
+    if (inputManager_.GetKey(Input::GameAction::CAM_PITCH_DOWN))
         IncreasePitch(1.f);
     return moveVector;
 }
