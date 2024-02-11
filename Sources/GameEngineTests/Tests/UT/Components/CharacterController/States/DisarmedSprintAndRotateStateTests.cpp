@@ -22,7 +22,7 @@ TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_DrawArrowEvent)
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<DrawArrowEvent, RunAndRotateArmedChangeState>(
-        {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip},
+        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -67,7 +67,7 @@ TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_WeaponStateEvent)
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<WeaponStateEvent, RunAndRotateArmedChangeState>(
-        {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip},
+        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_EndForwardMoveEvent)
@@ -106,7 +106,7 @@ TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_AimStopEvent)
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<DrawArrowEvent, RunAndRotateArmedChangeState>(
-        {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip},
+        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);

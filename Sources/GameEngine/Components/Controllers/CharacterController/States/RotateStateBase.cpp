@@ -144,7 +144,7 @@ void RotateStateBase::update(const AimStartEvent &)
 
 void RotateStateBase::setRotateLeftAnim()
 {
-    if (not rotateLeftAnim_.empty())
+    if (not rotateLeftAnim_.empty() and not context_.animator.isAnimationPlaying(rotateLeftAnim_))
     {
         context_.animator.ChangeAnimation(rotateLeftAnim_, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
@@ -153,7 +153,7 @@ void RotateStateBase::setRotateLeftAnim()
 
 void RotateStateBase::setRotateRightAnim()
 {
-    if (not rotateRightAnim_.empty())
+    if (not rotateRightAnim_.empty() and not context_.animator.isAnimationPlaying(rotateRightAnim_))
     {
         context_.animator.ChangeAnimation(rotateRightAnim_, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
@@ -188,6 +188,16 @@ void RotateStateBase::setCurrentAnimAndRotation()
 {
     setCurrentAnim();
     setCurrentRotation();
+}
+
+void RotateStateBase::updateAnimationClipNames(const std::string &rotateLeftAnim, const std::string &rotateRightAnim)
+{
+    if (rotateLeftAnim_ != rotateLeftAnim or rotateRightAnim_ != rotateRightAnim)
+    {
+        rotateLeftAnim_ = rotateLeftAnim;
+        rotateRightAnim_ = rotateRightAnim;
+        setCurrentAnim();
+    }
 }
 
 }  // namespace Components

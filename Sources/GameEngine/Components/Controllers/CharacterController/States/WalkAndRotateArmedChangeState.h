@@ -59,12 +59,14 @@ class WalkAndRotateArmedChangeState
 public:
     WalkAndRotateArmedChangeState(FsmContext&);
 
-    using ArmedChangeStateBase::update;
     using ArmedChangeStateBase::onLeave;
-    
-    using MoveAndRotateStateBase::update;
+    using ArmedChangeStateBase::update;
+
+    void onEnter();
+
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::update;
 
     void onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&);
@@ -75,6 +77,7 @@ public:
     void onEnter(AimWalkAndRotateState&, const WeaponStateEvent&);
 
     void update(float);
+    void update(const WeaponStateEvent&);
 
 private:
     FsmContext& context_;

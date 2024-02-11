@@ -64,6 +64,8 @@ public:
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
+    void onEnter();
+
     void onEnter(const SprintStartEvent&);
     void onEnter(const SprintStateChangeEvent&);
 
@@ -81,6 +83,7 @@ public:
 
     void update(float);
     void update(const SprintStateChangeEvent&);
+    void update(const WeaponStateEvent&);
 
 private:
     FsmContext& context_;

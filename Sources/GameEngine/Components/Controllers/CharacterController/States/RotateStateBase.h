@@ -38,11 +38,13 @@ public:
     void setCurrentRotation();
     void setCurrentAnimAndRotation();
 
+    void updateAnimationClipNames(const std::string&, const std::string&);
+
 protected:
     FsmContext& context_;
     std::optional<std::string> jointGroupName_;
-    const std::string& rotateLeftAnim_;
-    const std::string& rotateRightAnim_;
+    std::string rotateLeftAnim_;
+    std::string rotateRightAnim_;
     float rotateSpeed_;
 };
 }  // namespace Components

@@ -12,6 +12,18 @@ RunArmedChangeState::RunArmedChangeState(FsmContext& context)
     , context_{context}
 {
 }
+
+void RunArmedChangeState::onEnter()
+{
+    if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
+    {
+        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
+    }
+    else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
+    {
+        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+    }
+}
 void RunArmedChangeState::onEnter(const SprintStartEvent& event)
 {
     MoveStateBase::onEnter(event);
@@ -22,24 +34,29 @@ void RunArmedChangeState::onEnter(const SprintStateChangeEvent& event)
     MoveStateBase::onEnter(event);
     ArmedChangeStateBase::update(event);
 }
+
 void RunArmedChangeState::onEnter(DisarmedRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
 }
 void RunArmedChangeState::onEnter(ArmedRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 void RunArmedChangeState::onEnter(DisarmedRunState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     ArmedChangeStateBase::update(e);
 }
 
 void RunArmedChangeState::onEnter(DisarmedSprintState &, const DrawArrowEvent & e)
 {
     ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     ArmedChangeStateBase::update(e);
     MoveStateBase::updateMoveState();
 }
@@ -47,30 +64,35 @@ void RunArmedChangeState::onEnter(DisarmedSprintState &, const DrawArrowEvent & 
 void RunArmedChangeState::onEnter(DrawArrowRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(RecoilRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(AimRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(DisarmedSprintState &, const WeaponStateEvent & e)
 {
     ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(ArmedSprintState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 
@@ -82,6 +104,12 @@ void RunArmedChangeState::update(float dt)
 void RunArmedChangeState::update(const SprintStateChangeEvent& event)
 {
     ArmedChangeStateBase::update(event);
+}
+
+void RunArmedChangeState::update(const WeaponStateEvent & e)
+{
+    ArmedChangeStateBase::update(e);
+    onEnter();
 }
 }  // namespace Components
 }  // namespace GameEngine

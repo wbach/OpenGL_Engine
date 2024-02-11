@@ -104,7 +104,7 @@ TEST_F(CharacterControllerTests, Mixed_RunForwardDuringDisarmedToArmedState)
 
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(DUMMY_CLIP_LENGTH / 2.f);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -134,7 +134,7 @@ TEST_F(CharacterControllerTests, Mixed_EquipWeaponDuringDisarmedRunForward)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     // Animation : Tirgger EquipAnim end, and notify state
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -197,7 +197,7 @@ TEST_F(CharacterControllerTests, Mixed_EquipWeaponDuringRotateLeftState)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateLeft, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -239,7 +239,7 @@ TEST_F(CharacterControllerTests, Mixed_EquipWeaponDuringRotateRightState)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateRight, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -290,7 +290,7 @@ TEST_F(CharacterControllerTests, Mixed_DisarmedStateToArmed_RunForwardAndRotateL
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -336,7 +336,7 @@ TEST_F(CharacterControllerTests, Mixed_DisarmedStateToArmed_RunForwardAndRotateR
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -375,13 +375,13 @@ TEST_F(CharacterControllerTests, Mixed_ArmedState_RunForwardAndRotateLeftAndChan
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     sut_.handleEvent(RotateLeftEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     sut_.handleEvent(WeaponStateEvent{});
 
@@ -419,7 +419,7 @@ TEST_F(CharacterControllerTests, Mixed_DisamredToArmedState_DuringEquipRunForwar
     Update(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -439,7 +439,7 @@ TEST_F(CharacterControllerTests, Mixed_DisarmedStopMovingDuringEuip)
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
     sut_.handleEvent(WeaponStateEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_TRANSITION_TIME);
     sut_.handleEvent(EndForwardMoveEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);
@@ -817,7 +817,7 @@ TEST_F(CharacterControllerTests, Mixed_IdleToWalkChangeDuringEquip)
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkForwardEvent, WalkArmedChangeState>(
-        {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.equip});
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<ArmedWalkState>();
@@ -834,12 +834,12 @@ TEST_F(CharacterControllerTests, Mixed_RunToWalkChangeDuringEquip)
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
     tiggerAndExpect<WeaponStateEvent, RunArmedChangeState>(
-        {sut_.animationClipsNames_.disarmed.run.forward, sut_.animationClipsNames_.equip},
+        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkChangeStateEvent, WalkArmedChangeState>(
-        {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.equip});
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectState<ArmedWalkState>();

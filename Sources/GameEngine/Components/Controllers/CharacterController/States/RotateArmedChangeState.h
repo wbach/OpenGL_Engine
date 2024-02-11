@@ -59,6 +59,8 @@ public:
     using RotateStateBase::onEnter;
     using RotateStateBase::update;
 
+    void onEnter();
+
     void onEnter(DisarmedRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedRotateState&, const DrawArrowEvent&);

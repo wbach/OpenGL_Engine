@@ -64,6 +64,7 @@ public:
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
 
+    void onEnter();
     void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent&);
 
@@ -80,6 +81,7 @@ public:
     void onEnter(AimRunAndRotateState&, const WeaponStateEvent&);
 
     void update(float);
+    void update(const WeaponStateEvent&);
 
 private:
     FsmContext &context_;

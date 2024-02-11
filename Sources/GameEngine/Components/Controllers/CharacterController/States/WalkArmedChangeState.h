@@ -62,6 +62,8 @@ public:
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
 
+    void onEnter();
+
     void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkState&, const WeaponStateEvent&);
     void onEnter(DisarmedWalkState&, const DrawArrowEvent&);
@@ -71,6 +73,10 @@ public:
     void onEnter(AimWalkState&, const WeaponStateEvent&);
 
     void update(float);
+    void update(const WeaponStateEvent&);
+
+private:
+    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine
