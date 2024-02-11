@@ -8,12 +8,20 @@ namespace GameEngine
 namespace Components
 {
 MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
+                             const MoveSpeed &moveSpeed, const MovmentClipNames &clips)
+    : context_{context}
+    , jointGroupName_{jointGroupName}
+    , animationClips_{clips}
+    , moveSpeed_{moveSpeed}
+{
+}
+
+MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
                              const MoveSpeed &moveSpeed, const std::string &forwardAnimName,
                              const std::string &backwardAnimName)
     : context_{context}
     , jointGroupName_{jointGroupName}
-    , forwardAnimName_{forwardAnimName}
-    , backwardAnimName_{backwardAnimName}
+    , animationClips_{forwardAnimName, backwardAnimName}
     , moveSpeed_{moveSpeed}
 {
 }
@@ -22,7 +30,7 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
                              float forwardMoveSpeed, const std::string &forwardAnimName)
     : context_{context}
     , jointGroupName_{jointGroupName}
-    , forwardAnimName_{forwardAnimName}
+    , animationClips_{forwardAnimName}
     , moveSpeed_{forwardMoveSpeed, 0.0f, 0.0f}
 {
 }
@@ -135,6 +143,15 @@ void MoveStateBase::onLeave()
     //    context_.moveStateData_.isBackwardEvent_ = false;
 }
 
+void MoveStateBase::changeAnimationClips(const MovmentClipNames &clips)
+{
+    if (clips != animationClips_)
+    {
+        animationClips_ = clips;
+        setCurrentAnim();
+    }
+}
+
 void MoveStateBase::moveForward()
 {
     setMoveForwardData();
@@ -203,24 +220,24 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::setForwardAnim()
 {
-    if (not forwardAnimName_.empty() and not context_.animator.isAnimationPlaying(forwardAnimName_))
+    if (not animationClips_.forward.empty() and not context_.animator.isAnimationPlaying(animationClips_.forward))
     {
         DEBUG_LOG("setForwardAnim, jointGroupName_ = " + std::to_string(jointGroupName_));
-        context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(animationClips_.forward, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
     }
 }
 
 void MoveStateBase::setBackwardAnim()
 {
-    if (not backwardAnimName_.empty() and not context_.animator.isAnimationPlaying(backwardAnimName_))
+    if (not animationClips_.backward.empty() and not context_.animator.isAnimationPlaying(animationClips_.backward))
     {
-        context_.animator.ChangeAnimation(backwardAnimName_, Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(animationClips_.backward, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
     }
-    else if (not forwardAnimName_.empty())
+    else if (not animationClips_.forward.empty())
     {
-        context_.animator.ChangeAnimation(forwardAnimName_, Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(animationClips_.forward, Animator::AnimationChangeType::smooth,
                                           PlayDirection::backward, jointGroupName_);
     }
 }
@@ -252,8 +269,8 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
     // if (context_.moveStateData_.animationIsReady_)
     if (not isAnimationReady)
     {
-        isAnimationReady = context_.animator.isAnimationPlaying(forwardAnimName_) or
-                           context_.animator.isAnimationPlaying(backwardAnimName_);
+        isAnimationReady = context_.animator.isAnimationPlaying(animationClips_.forward) or
+                           context_.animator.isAnimationPlaying(animationClips_.backward);
     }
     if (isAnimationReady)
     {

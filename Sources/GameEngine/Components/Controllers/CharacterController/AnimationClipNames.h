@@ -44,5 +44,8 @@ struct AnimationClipsNames
     std::string recoilArrow;
     std::string aimIdle;
 };
+
+bool operator==(const MovmentClipNames&, const MovmentClipNames&);
+bool operator!=(const MovmentClipNames&, const MovmentClipNames&);
 }  // namespace Components
 }  // namespace GameEngine

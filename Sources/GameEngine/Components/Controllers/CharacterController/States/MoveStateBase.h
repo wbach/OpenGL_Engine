@@ -13,6 +13,7 @@ struct FsmContext;
 class MoveStateBase
 {
 public:
+    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames&);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const std::string &,
                   const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
@@ -46,6 +47,8 @@ public:
 
     void onLeave();
 
+    void changeAnimationClips(const MovmentClipNames&);
+
 protected:
     void moveForward();
     void moveBackward();
@@ -62,8 +65,7 @@ protected:
 protected:
     FsmContext &context_;
     std::optional<std::string> jointGroupName_;
-    std::string forwardAnimName_;
-    std::string backwardAnimName_;
+    MovmentClipNames animationClips_;
     MoveSpeed moveSpeed_;
 
     bool isAnimationReady{false};
