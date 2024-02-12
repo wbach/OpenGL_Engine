@@ -61,12 +61,6 @@ void TransitionState::onEnter(const MouseInactivityEvent& event)
     processingEvent = event;
 }
 
-void TransitionState::onEnter(const MouseMoveEvent& event)
-{
-    progress = 2.f;
-    processingEvent = event;
-}
-
 bool TransitionState::transitionCondition(const StopAimEvent& event)
 {
     if (progress > 1.f)

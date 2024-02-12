@@ -13,12 +13,13 @@ class ThridPersonCameraComponent;
 namespace Camera
 {
 class TransitionState;
+class RotateableRunState;
 
 class FollowingState
     : public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<TransitionState>>,
+          Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
           Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<TransitionState>>>
 {
 public:

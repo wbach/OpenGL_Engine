@@ -31,7 +31,6 @@ public:
     void onEnter(const StartAimEvent&);
     void onEnter(const StopAimEvent&);
     void onEnter(const MouseInactivityEvent&);
-    void onEnter(const MouseMoveEvent&);
 
     bool transitionCondition(const StopAimEvent&);
     bool transitionCondition(const StartAimEvent&);

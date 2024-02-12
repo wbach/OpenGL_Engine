@@ -24,6 +24,7 @@ public:
     ~RotateableRunState();
 
     void onEnter();
+    void onEnter(const MouseMoveEvent&);
 
     const vec4& getRelativeCamerePosition() const;
     const vec4& getLookAtPosition() const;
@@ -34,6 +35,7 @@ private:
     void lockPitch();
     void updateYaw();
     void mouseControlledCamera(const vec2&);
+    void updatePitchYaw(const vec2&);
 
 private:
     Context& context;

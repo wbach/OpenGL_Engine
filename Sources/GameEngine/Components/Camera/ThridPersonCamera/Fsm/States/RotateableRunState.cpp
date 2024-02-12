@@ -6,8 +6,8 @@
 #include <Display/DisplayManager.hpp>
 
 #include "GameEngine/Camera/CustomCamera.h"
-#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -42,6 +42,11 @@ void RotateableRunState::onEnter()
     pitch             = 0.f;
     mouseInactiveTime = 0.f;
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
+}
+
+void RotateableRunState::onEnter(const MouseMoveEvent& event)
+{
+    updatePitchYaw(vec2(event.move.x, event.move.y));
 }
 
 void RotateableRunState::cameraUpdate()
@@ -96,11 +101,7 @@ void RotateableRunState::updateYaw()
 
 void RotateableRunState::mouseControlledCamera(const vec2& mouseMove)
 {
-    yaw += mouseMove.x;
-    pitch += mouseMove.y;
-
-    lockPitch();
-    updateYaw();
+    updatePitchYaw(mouseMove);
 
     auto rotX = glm::normalize(glm::angleAxis(glm::radians(pitch), glm::vec3(1.f, 0.f, 0.f)));
     auto rotY = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
@@ -113,6 +114,15 @@ void RotateableRunState::mouseControlledCamera(const vec2& mouseMove)
 
     auto lookAtPosition = parentWorldTransform * lookAtLocalPosition;
     context.camera.LookAt(lookAtPosition);
+}
+
+void RotateableRunState::updatePitchYaw(const vec2& mouseMove)
+{
+    yaw += mouseMove.x;
+    pitch += mouseMove.y;
+
+    lockPitch();
+    updateYaw();
 }
 }  // namespace Camera
 }  // namespace Components
