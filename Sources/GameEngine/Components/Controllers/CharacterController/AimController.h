@@ -13,10 +13,12 @@ struct Joint;
 } // namespace Animation
 namespace Components
 {
+class ThridPersonCameraComponent;
+
 class AimController
 {
 public:
-    AimController(Input::InputManager&, Animation::Joint&);
+    AimController(Input::InputManager&, Animation::Joint&,  ThridPersonCameraComponent*);
     void enter();
     void update();
     void reset();
@@ -30,6 +32,7 @@ private:
 private:
     Input::InputManager& inputManager;
     Animation::Joint& joint;
+    ThridPersonCameraComponent* thridPersonCameraComponent;
     float camSensitive;
     vec2 yawLimit;
     vec2 pitchLimit;

@@ -3,6 +3,7 @@
 
 #include "../Context.h"
 #include "../ThridPersonCameraEvents.h"
+#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -16,34 +17,23 @@ class TransitionState;
 class RotateableRunState;
 
 class FollowingState
-    : public Utils::StateMachine::Will<
+    : public StateBase,
+      public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
           Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<TransitionState>>>
 {
 public:
-    FollowingState(Context&, const vec3& = {-0.5f, 1.0f, -1.5f});
+    FollowingState(Context&);
     ~FollowingState();
 
     void onEnter();
     void update(const InitEvent&);
 
-    const vec4& getRelativeCamerePosition() const;
-    const vec4& getLookAtPosition() const;
-
 private:
-    void cameraUpdate();
+    void update() override;
     bool triggerEventIfMouseMoveDetect();
-    void lockPitch();
-    void updateYaw();
-    void autoFallowCamera();
-
-private:
-    Context& context;
-    ThridPersonCameraComponent* thridPersonCameraComponent;
-    vec4 referenceRelativeCamerePosition;
-    vec4 lookAtLocalPosition;
 };
 }  // namespace Camera
 }  // namespace Components

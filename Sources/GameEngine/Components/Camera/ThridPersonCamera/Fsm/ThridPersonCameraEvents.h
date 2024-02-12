@@ -16,11 +16,11 @@ struct InitEvent
 struct StartAimEvent
 {
     Animation::JointId jointId;
-    float transitionLength{0.5f};
+    float transitionLength{0.75f};
 };
 struct StopAimEvent
 {
-    float transitionLength{0.5f};
+    float transitionLength{0.75f};
 };
 struct MouseMoveEvent
 {
@@ -28,12 +28,7 @@ struct MouseMoveEvent
 };
 struct MouseInactivityEvent
 {
-    mat4 yTranslation{mat4(1.f)};
-    float pitch{0};
-    float yaw{0};
-    float transitionLength{0.5f};
-    vec4 relativeCamerePosition;
-    vec4 lookAtLocalPosition;
+    float transitionLength{1.5f};
 };
 
 using Event =

@@ -1,14 +1,13 @@
 #include "ThridPersonCameraComponent.h"
 
 #include <Input/InputManager.h>
+#include <Utils/Fsm/Fsm.h>
+#include <Utils/Variant.h>
 
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
-
-#include <Utils/Fsm/Fsm.h>
-#include <Utils/Variant.h>
 
 namespace GameEngine
 {
@@ -37,6 +36,11 @@ void ThridPersonCameraComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Update, [this]() { processEvent(); });
 }
 
+bool ThridPersonCameraComponent::isAimReady() const
+{
+    return std::holds_alternative<Camera::AimState*>(fsm->currentState);
+}
+
 void ThridPersonCameraComponent::init()
 {
     DEBUG_LOG("init");
@@ -46,12 +50,16 @@ void ThridPersonCameraComponent::init()
         return;
     }
     auto camera = std::make_unique<CustomCamera>();
-    fsmContext.reset(new Context{componentContext_.inputManager_, *componentContext_.scene_.getDisplayManager(),
-                                 thisObject_, *camera});
+    fsmContext.reset(new Context{componentContext_.inputManager_,
+                                 *componentContext_.scene_.getDisplayManager(),
+                                 thisObject_,
+                                 *camera,
+                                 {},
+                                 {vec3{-0.5f, 1.0f, -1.5f}, vec3{-0.25f, 1.f, -0.75f}}});
     componentContext_.camera_.addAndSet(std::move(camera));
 
-    fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext),  RotateableRunState(*fsmContext), AimState(*fsmContext),
-                                                 TransitionState(*fsmContext));
+    fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
+                                                 AimState(*fsmContext), TransitionState(*fsmContext));
 
     // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
     fsm->handle(InitEvent{});
@@ -72,9 +80,8 @@ void ThridPersonCameraComponent::processEvent()
 void ThridPersonCameraComponent::registerReadFunctions()
 {
     ReadFunctions::instance().componentsReadFunctions.insert(
-        {COMPONENT_STR, [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
-             return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject);
-         }});
+        {COMPONENT_STR, [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
+         { return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject); }});
 }
 
 void ThridPersonCameraComponent::write(TreeNode& node) const

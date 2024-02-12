@@ -37,6 +37,8 @@ public:
         eventQueue.push_back(event);
     }
 
+    bool isAimReady() const;
+
 private:
     void init();
     void processEvent();

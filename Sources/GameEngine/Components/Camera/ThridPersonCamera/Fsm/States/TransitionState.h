@@ -3,6 +3,7 @@
 
 #include "../Context.h"
 #include "../ThridPersonCameraEvents.h"
+#include "StateBase.h"
 
 namespace GameEngine
 {
@@ -16,10 +17,12 @@ class FollowingState;
 class RotateableRunState;
 
 class TransitionState
-    : public Utils::StateMachine::Will<
+    : public StateBase,
+      public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MouseInactivityEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
+          Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
           Utils::StateMachine::On<StopAimEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
           Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
 {
@@ -35,21 +38,17 @@ public:
     bool transitionCondition(const StartAimEvent&);
 
 private:
-    void cameraUpdate();
-    void cameraUpdateWithAditionalRotation(const MouseInactivityEvent&);
-    void calculateLookAts();
+    void update() override;
 
 private:
-    Context& context;
-    ThridPersonCameraComponent* thridPersonCameraComponent;
     float progress;
     float transitionLength;
     Camera::Event processingEvent;
 
-    vec4 sourcePosition;
-    vec4 sourceLookAt;
-    vec4 targetPosition;
-    vec4 targetLookAt;
+    std::optional<vec4> sourcePosition;
+    std::optional<vec4> targetPosition;
+
+    float pitchConversion = 1.f;
 };
 }  // namespace Camera
 }  // namespace Components

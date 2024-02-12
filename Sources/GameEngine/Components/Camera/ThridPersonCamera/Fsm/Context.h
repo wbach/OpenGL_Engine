@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include <Types.h>
 
 namespace Input
 {
@@ -23,6 +23,17 @@ struct Context
     GameObject& gameObject;
     CustomCamera& camera;
     std::string jointName;
+
+    struct LocalCameraPosition
+    {
+        vec3 run;
+        vec3 aim;
+    };
+
+    LocalCameraPosition cameraPositions;
+
+    float pitch{0};
+    float yaw{0};
 };
 }  // namespace Camera
 }  // namespace Components

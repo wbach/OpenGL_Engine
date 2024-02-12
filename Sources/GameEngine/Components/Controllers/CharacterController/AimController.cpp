@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 
 #include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 
 namespace GameEngine
 {
@@ -13,9 +14,11 @@ namespace
 const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::vec3(0.f, 1.f, 0.f)));
 }  // namespace
 
-AimController::AimController(Input::InputManager& inputManager, Animation::Joint& joint)
+AimController::AimController(Input::InputManager& inputManager, Animation::Joint& joint,
+                             ThridPersonCameraComponent* thridPersonCameraComponent)
     : inputManager{inputManager}
     , joint{joint}
+    , thridPersonCameraComponent{thridPersonCameraComponent}
     , camSensitive{0.2f}
     , yawLimit{-75.f, 45.f}
     , pitchLimit{-40.f, 50.f}
@@ -37,6 +40,10 @@ void AimController::update()
     auto& pitch = joint.additionalUserMofiyTransform.pitch;
 
     auto mouseMove = calculateMouseMove();
+
+    if (not thridPersonCameraComponent->isAimReady())
+        return;
+
     yaw -= mouseMove.x;
     pitch -= mouseMove.y;
 
