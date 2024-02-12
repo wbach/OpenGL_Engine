@@ -49,10 +49,14 @@ void AimState::cameraUpdate()
         ERROR_LOG("Joint not set !");
         return;
     }
+    pitch = joint->additionalUserMofiyTransform.pitch;
+    yaw   = joint->additionalUserMofiyTransform.yaw;
 
-    auto jointMatrix          = joint->additionalRotations.y.value_ * joint->additionalRotations.x.value_;
+    auto rotY = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+    auto rotX = glm::normalize(glm::angleAxis(glm::radians(-pitch), glm::vec3(1.f, 0.f, 0.f)));
+
     auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
-    parentWorldTransform      = parentWorldTransform * yTranslation * glm::mat4_cast(jointMatrix);
+    parentWorldTransform      = parentWorldTransform * yTranslation * glm::mat4_cast(rotY * rotX);
 
     auto worldCameraPosition = parentWorldTransform * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);

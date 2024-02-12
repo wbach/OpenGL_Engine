@@ -349,7 +349,7 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
     {
         currentTransform = parent * currentPoseIter->second.matrix;
     }
-    currentTransform        = currentTransform * joint.additionalUserMofiyTransform;
+    currentTransform        = currentTransform * joint.additionalUserMofiyTransform.getMatrix();
     joint.animatedTransform = currentTransform * joint.offset;
 
     for (Joint& childJoint : joint.children)

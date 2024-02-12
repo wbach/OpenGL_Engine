@@ -38,6 +38,9 @@ private:
     vec4 relativeCamerePosition;
     vec4 lookAtLocalPosition;
     const mat4 yTranslation;
+
+    float pitch{0.f};
+    float yaw{0.f};
 };
 }  // namespace Camera
 }  // namespace Components

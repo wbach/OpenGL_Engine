@@ -18,20 +18,43 @@ struct Joint
     uint32 size      = 1;
     std::string name = "";
 
-    struct AdditionalRotations
+    class AdditionalUserMofiyTransform
     {
-        Rotation x{DegreesVec3()};
-        Rotation y{DegreesVec3()};
-        Rotation z{DegreesVec3()};
+    public:
+        float pitch{0.f};
+        float yaw{0.f};
+
+        void set(const mat4& t)
+        {
+            transform = t;
+            finalTransform = offset * transform;
+        }
+
+        void set(const mat4& o, const mat4& t)
+        {
+            transform      = t;
+            offset         = o;
+            finalTransform = offset * transform;
+        }
+
+        const mat4& getMatrix() const
+        {
+            return finalTransform;
+        }
+
+    private:
+        mat4 offset         = glm::mat4(1.f);
+        mat4 transform      = glm::mat4(1.f);
+        mat4 finalTransform = glm::mat4(1.f);
     };
-    AdditionalRotations additionalRotations;
-    mat4 additionalUserMofiyTransform = glm::mat4(1.f);
+    AdditionalUserMofiyTransform additionalUserMofiyTransform;
+
     bool ignoreParentRotation{false};
 
-    mat4 transform                    = glm::mat4(1.f);
-    mat4 offset                       = glm::mat4(1.f);
-    mat4 invtransform                 = glm::mat4(1.f);
-    mat4 animatedTransform            = glm::mat4(1.f);
+    mat4 transform         = glm::mat4(1.f);
+    mat4 offset            = glm::mat4(1.f);
+    mat4 invtransform      = glm::mat4(1.f);
+    mat4 animatedTransform = glm::mat4(1.f);
 
     std::vector<Joint> children;
 

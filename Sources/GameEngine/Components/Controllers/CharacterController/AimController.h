@@ -24,14 +24,12 @@ public:
 
 private:
     vec2 calculateMouseMove();
-    void LockPitch();
-    void LockYaw();
+    void LockPitch(float&);
+    void LockYaw(float&);
 
 private:
     Input::InputManager& inputManager;
     Animation::Joint& joint;
-    float pitch;
-    float yaw;
     float camSensitive;
     vec2 yawLimit;
     vec2 pitchLimit;
