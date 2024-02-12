@@ -81,18 +81,15 @@ void RotateStateBase::update(const EndAttackEvent &)
 
 void RotateStateBase::update(float deltaTime)
 {
-    DEBUG_LOG("SetRotation rotateSpeed_: " + std::to_string(context_.rotateStateData_.rotateSpeed_));
     if (not context_.rotateToTarget)
     {
         auto rotation =
             context_.rigidbody.GetRotation() *
             glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
-        DEBUG_LOG("SetRotation: " + std::to_string(rotation));
         context_.rigidbody.SetRotation(rotation);
     }
     else
     {
-        DEBUG_LOG("context_.rotateToTargetProgress : " + std::to_string(context_.rotateToTargetProgress));
         if (context_.rotateToTargetProgress < 1.f)
         {
             context_.rotateToTargetProgress += (context_.rotateStateData_.rotateSpeed_ * deltaTime);
@@ -122,7 +119,6 @@ void RotateStateBase::update(const RotateTargetEvent &event)
 {
     if (not context_.rotateToTarget or context_.targetRotation != event.target)
     {
-        DEBUG_LOG("rotateToTarget");
         context_.startRotation          = context_.rigidbody.GetRotation();
         context_.targetRotation         = event.target;
         context_.rotateToTarget         = true;

@@ -7,6 +7,7 @@
 
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 
 namespace GameEngine
 {
@@ -16,6 +17,7 @@ namespace Camera
 {
 RotateableRunState::RotateableRunState(Context& context, const vec3& rcp)
     : context{context}
+    , thridPersonCameraComponent{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
     , referenceRelativeCamerePosition{rcp, 1.f}
     , relativeCamerePosition{rcp.x, 0.f, rcp.z, 1.f}
     , lookAtLocalPosition(relativeCamerePosition)
@@ -25,6 +27,7 @@ RotateableRunState::RotateableRunState(Context& context, const vec3& rcp)
     , yaw{0.f}
     , yawLimit{-75.f, 45.f}
     , pitchLimit{-40.f, 50.f}
+    , mouseInactivityTimer{2.f}
 {
     lookAtLocalPosition.z = 0;
 }
@@ -33,9 +36,12 @@ RotateableRunState::~RotateableRunState()
 {
 }
 
-void RotateableRunState::onEnter(const StopAimEvent&)
+void RotateableRunState::onEnter()
 {
-    update(InitEvent{});
+    yaw               = 0.f;
+    pitch             = 0.f;
+    mouseInactiveTime = 0.f;
+    context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }
 
 void RotateableRunState::cameraUpdate()
@@ -43,23 +49,13 @@ void RotateableRunState::cameraUpdate()
     const vec2 mouseMove = CalcualteMouseMove() * mouseSensitivity_;
     mouseInactiveTime += context.displayManager.GetTime().deltaTime;
 
-    if (mouseInactiveTime < 2.f)
+    if (mouseInactiveTime > mouseInactivityTimer)
     {
-        mouseControlledCamera(mouseMove);
+        if (thridPersonCameraComponent)
+            thridPersonCameraComponent->pushEventToQueue(MouseInactivityEvent{});
+        return;
     }
-    else
-    {
-        autoFallowCamera();
-    }
-}
-
-void RotateableRunState::update(const InitEvent&)
-{
-    DEBUG_LOG("init tp camera");
-    yaw               = 0.f;
-    pitch             = 0.f;
-    mouseInactiveTime = 0.f;
-    context.camera.setOnUpdate([this]() { cameraUpdate(); });
+    mouseControlledCamera(mouseMove);
 }
 
 const vec4& RotateableRunState::getRelativeCamerePosition() const
@@ -96,21 +92,6 @@ void RotateableRunState::updateYaw()
     {
         yaw -= 360.f;
     }
-}
-
-void RotateableRunState::autoFallowCamera()
-{
-    yaw               = 0.f;
-    pitch             = 0.f;
-
-    auto lookAt = referenceRelativeCamerePosition;
-    lookAt.z *= -1.f;
-
-    auto worldCameraPosition = context.gameObject.GetWorldTransform().GetMatrix() * referenceRelativeCamerePosition;
-    context.camera.SetPosition(worldCameraPosition);
-
-    auto lookAtPosition = context.gameObject.GetWorldTransform().GetMatrix() * lookAt;
-    context.camera.LookAt(lookAtPosition);
 }
 
 void RotateableRunState::mouseControlledCamera(const vec2& mouseMove)

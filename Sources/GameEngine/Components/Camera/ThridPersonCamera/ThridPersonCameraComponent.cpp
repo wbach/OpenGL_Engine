@@ -50,7 +50,7 @@ void ThridPersonCameraComponent::init()
                                  thisObject_, *camera});
     componentContext_.camera_.addAndSet(std::move(camera));
 
-    fsm = std::make_unique<ThridPersonCameraFsm>(RotateableRunState(*fsmContext), AimState(*fsmContext),
+    fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext),  RotateableRunState(*fsmContext), AimState(*fsmContext),
                                                  TransitionState(*fsmContext));
 
     // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <variant>
 #include <GameEngine/Animations/JointId.h>
 
 namespace GameEngine
@@ -18,6 +19,16 @@ struct StartAimEvent
 struct StopAimEvent
 {
 };
+struct MouseMoveEvent
+{
+    vec2ui move;
+};
+struct MouseInactivityEvent
+{
+};
+
+using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent, Camera::MouseMoveEvent, Camera::MouseInactivityEvent>;
+
 }  // namespace Camera
 }  // namespace Components
 }  // namespace GameEngine

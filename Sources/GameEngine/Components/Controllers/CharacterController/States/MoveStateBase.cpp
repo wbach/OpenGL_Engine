@@ -266,7 +266,6 @@ void MoveStateBase::setCurrentMoveSpeed()
 }
 void MoveStateBase::moveRigidbody(FsmContext &context)
 {
-    // if (context_.moveStateData_.animationIsReady_)
     if (not isAnimationReady)
     {
         isAnimationReady = context_.animator.isAnimationPlaying(animationClips_.forward) or
@@ -274,7 +273,6 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
     }
     if (isAnimationReady)
     {
-        DEBUG_LOG("context_.moveStateData_.animationIsReady = true");
         const auto &moveDirection = context.moveDirection;
         auto &rigidbody           = context.rigidbody;
 
@@ -291,13 +289,7 @@ void MoveStateBase::moveRigidbody(FsmContext &context)
         velocityChange.y    = 0;
 
         auto newVelocity = velocity + velocityChange;
-        DEBUG_LOG("Set speed: " + std::to_string(context_.moveStateData_.currentMoveSpeed_));
-        DEBUG_LOG("SetVelocity: " + std::to_string(newVelocity));
         rigidbody.SetVelocity(newVelocity);
-    }
-    else
-    {
-        DEBUG_LOG("not context_.moveStateData_.animationIsReady_!");
     }
 }
 

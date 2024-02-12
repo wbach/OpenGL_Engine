@@ -15,8 +15,6 @@ namespace Components
 class ThridPersonCameraComponent : public BaseComponent
 {
 public:
-    using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent>;
-
     ThridPersonCameraComponent(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -34,7 +32,7 @@ public:
         eventQueue.push_back(event);
     }
 
-    void pushEventToQueue(const Event& event)
+    void pushEventToQueue(const Camera::Event& event)
     {
         eventQueue.push_back(event);
     }
@@ -48,7 +46,7 @@ public:
     std::unique_ptr<Camera::Context> fsmContext;
 
 private:
-    std::vector<Event> eventQueue;
+    std::vector<Camera::Event> eventQueue;
 
 public:
     static void registerReadFunctions();

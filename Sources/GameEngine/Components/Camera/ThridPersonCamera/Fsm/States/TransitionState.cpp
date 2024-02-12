@@ -31,7 +31,7 @@ void TransitionState::onEnter(const StartAimEvent& event)
     if (thridPersonCameraComponent)
     {
         auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
-        auto aimState = std::get<AimState>(thridPersonCameraComponent->fsm->states);
+        auto aimState           = std::get<AimState>(thridPersonCameraComponent->fsm->states);
 
         sourcePosition = rotateableRunState.getRelativeCamerePosition();
         targetPosition = aimState.getRelativeCamerePosition();
@@ -45,7 +45,7 @@ void TransitionState::onEnter(const StopAimEvent& event)
     if (thridPersonCameraComponent)
     {
         auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
-        auto aimState = std::get<AimState>(thridPersonCameraComponent->fsm->states);
+        auto aimState           = std::get<AimState>(thridPersonCameraComponent->fsm->states);
 
         sourcePosition = aimState.getRelativeCamerePosition();
         targetPosition = rotateableRunState.getRelativeCamerePosition();
@@ -55,7 +55,19 @@ void TransitionState::onEnter(const StopAimEvent& event)
     processingEvent = event;
 }
 
-bool TransitionState::transitionCondition(const StopAimEvent & event)
+void TransitionState::onEnter(const MouseInactivityEvent& event)
+{
+    progress = 2.f;
+    processingEvent = event;
+}
+
+void TransitionState::onEnter(const MouseMoveEvent& event)
+{
+    progress = 2.f;
+    processingEvent = event;
+}
+
+bool TransitionState::transitionCondition(const StopAimEvent& event)
 {
     if (progress > 1.f)
         return true;
@@ -65,7 +77,7 @@ bool TransitionState::transitionCondition(const StopAimEvent & event)
     return false;
 }
 
-bool TransitionState::transitionCondition(const StartAimEvent & event)
+bool TransitionState::transitionCondition(const StartAimEvent& event)
 {
     if (progress > 1.f)
         return true;

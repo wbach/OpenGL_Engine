@@ -3,6 +3,7 @@
 #include "States/AimState.h"
 #include "States/RotateableRunState.h"
 #include "States/TransitionState.h"
+#include "States/FollowingState.h"
 
 namespace GameEngine
 {
@@ -10,7 +11,7 @@ namespace Components
 {
 namespace Camera
 {
-using ThridPersonCameraFsm = Utils::StateMachine::Fsm<RotateableRunState, AimState, TransitionState>;
+using ThridPersonCameraFsm = Utils::StateMachine::Fsm<FollowingState, RotateableRunState, AimState, TransitionState>;
 }
 }  // namespace Components
 }  // namespace GameEngine
