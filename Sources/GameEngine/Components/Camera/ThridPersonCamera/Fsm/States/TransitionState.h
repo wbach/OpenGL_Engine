@@ -20,7 +20,6 @@ class TransitionState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<InitEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MouseInactivityEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
-          Utils::StateMachine::On<MouseMoveEvent, Utils::StateMachine::TransitionTo<RotateableRunState>>,
           Utils::StateMachine::On<StopAimEvent, Utils::StateMachine::TransitionTo<FollowingState>>,
           Utils::StateMachine::On<StartAimEvent, Utils::StateMachine::TransitionTo<AimState>>>
 {
@@ -37,6 +36,7 @@ public:
 
 private:
     void cameraUpdate();
+    void cameraUpdateWithAditionalRotation(const MouseInactivityEvent&);
     void calculateLookAts();
 
 private:

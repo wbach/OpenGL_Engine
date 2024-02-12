@@ -57,7 +57,7 @@ void RotateableRunState::cameraUpdate()
     if (mouseInactiveTime > mouseInactivityTimer)
     {
         if (thridPersonCameraComponent)
-            thridPersonCameraComponent->pushEventToQueue(MouseInactivityEvent{});
+            thridPersonCameraComponent->pushEventToQueue(MouseInactivityEvent{yTranslation, pitch, yaw, 2.f, relativeCamerePosition, lookAtLocalPosition});
         return;
     }
     mouseControlledCamera(mouseMove);

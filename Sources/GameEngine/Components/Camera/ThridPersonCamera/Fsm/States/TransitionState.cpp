@@ -24,41 +24,55 @@ TransitionState::TransitionState(Context& context)
 void TransitionState::onEnter()
 {
     progress = 0;
-    context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }
 void TransitionState::onEnter(const StartAimEvent& event)
 {
     if (thridPersonCameraComponent)
     {
-        auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
-        auto aimState           = std::get<AimState>(thridPersonCameraComponent->fsm->states);
+        auto followingState = std::get<FollowingState>(thridPersonCameraComponent->fsm->states);
+        auto aimState       = std::get<AimState>(thridPersonCameraComponent->fsm->states);
 
-        sourcePosition = rotateableRunState.getRelativeCamerePosition();
+        sourcePosition = followingState.getRelativeCamerePosition();
         targetPosition = aimState.getRelativeCamerePosition();
         calculateLookAts();
     }
 
-    processingEvent = event;
+    transitionLength = event.transitionLength;
+    processingEvent  = event;
+    context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }
 void TransitionState::onEnter(const StopAimEvent& event)
 {
     if (thridPersonCameraComponent)
     {
-        auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
-        auto aimState           = std::get<AimState>(thridPersonCameraComponent->fsm->states);
+        auto followingState = std::get<FollowingState>(thridPersonCameraComponent->fsm->states);
+        auto aimState       = std::get<AimState>(thridPersonCameraComponent->fsm->states);
 
         sourcePosition = aimState.getRelativeCamerePosition();
-        targetPosition = rotateableRunState.getRelativeCamerePosition();
+        targetPosition = followingState.getRelativeCamerePosition();
         calculateLookAts();
     }
-
-    processingEvent = event;
+    transitionLength = event.transitionLength;
+    processingEvent  = event;
+    context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }
 
 void TransitionState::onEnter(const MouseInactivityEvent& event)
 {
-    progress = 2.f;
-    processingEvent = event;
+    if (thridPersonCameraComponent)
+    {
+        auto rotateableRunState = std::get<RotateableRunState>(thridPersonCameraComponent->fsm->states);
+        auto followingState     = std::get<FollowingState>(thridPersonCameraComponent->fsm->states);
+
+        sourcePosition = rotateableRunState.getRelativeCamerePosition();
+        targetPosition = followingState.getRelativeCamerePosition();
+        calculateLookAts();
+    }
+
+    // progress        = 2.f;
+    transitionLength = event.transitionLength;
+    processingEvent  = event;
+    context.camera.setOnUpdate([this, event]() { cameraUpdateWithAditionalRotation(event); });
 }
 
 bool TransitionState::transitionCondition(const StopAimEvent& event)
@@ -91,13 +105,43 @@ void TransitionState::cameraUpdate()
         return;
     }
 
-    auto relativeCamerePosition = glm::mix(sourcePosition, targetPosition, progress);
-    auto lookAtLocalPosition    = glm::mix(sourceLookAt, targetLookAt, progress);
+    float smoothProgress = glm::smoothstep(0.f, 1.f, progress);
+    auto relativeCamerePosition = glm::mix(sourcePosition, targetPosition, smoothProgress);
+    auto lookAtLocalPosition    = glm::mix(sourceLookAt, targetLookAt, smoothProgress);
 
     auto worldCameraPosition = context.gameObject.GetWorldTransform().GetMatrix() * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);
 
     auto lookAtPosition = context.gameObject.GetWorldTransform().GetMatrix() * lookAtLocalPosition;
+    context.camera.LookAt(lookAtPosition);
+}
+
+void TransitionState::cameraUpdateWithAditionalRotation(const MouseInactivityEvent& event)
+{
+    progress += context.displayManager.GetTime().deltaTime / transitionLength;
+
+    if (progress > 1.0f)
+    {
+        if (thridPersonCameraComponent)
+            thridPersonCameraComponent->pushEventToQueue(processingEvent);
+        return;
+    }
+
+    float smoothProgress = glm::smoothstep(0.f, 1.f, progress);
+
+    auto pitch = glm::mix(event.pitch, 0.f, smoothProgress);
+    auto yaw   = glm::mix(event.yaw, 0.f, smoothProgress);
+
+    auto rotX = glm::normalize(glm::angleAxis(glm::radians(pitch), glm::vec3(1.f, 0.f, 0.f)));
+    auto rotY = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+
+    auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
+    parentWorldTransform      = parentWorldTransform * event.yTranslation * mat4_cast(rotY * rotX);
+
+    auto worldCameraPosition = parentWorldTransform * event.relativeCamerePosition;
+    context.camera.SetPosition(worldCameraPosition);
+
+    auto lookAtPosition = parentWorldTransform * event.lookAtLocalPosition;
     context.camera.LookAt(lookAtPosition);
 }
 
