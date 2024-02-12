@@ -39,7 +39,6 @@ private:
     Context& context;
     ThridPersonCameraComponent* thridPersonCameraComponent;
     float progress;
-    float currentTime;
     float transitionLength;
     using Event = std::variant<Camera::StartAimEvent, Camera::StopAimEvent>;
     Event processingEvent;

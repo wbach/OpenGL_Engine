@@ -16,14 +16,14 @@ namespace Camera
 TransitionState::TransitionState(Context& context)
     : context{context}
     , thridPersonCameraComponent{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
-    , currentTime{0}
-    , transitionLength{0.1f}
+    , progress{0}
+    , transitionLength{0.5f}
 {
 }
 
 void TransitionState::onEnter()
 {
-    currentTime = 0;
+    progress = 0;
     context.camera.setOnUpdate([this]() { cameraUpdate(); });
 }
 void TransitionState::onEnter(const StartAimEvent& event)
@@ -60,6 +60,7 @@ bool TransitionState::transitionCondition(const StopAimEvent & event)
     if (progress > 1.f)
         return true;
 
+    progress = 1.f - progress;
     onEnter(event);
     return false;
 }
@@ -69,13 +70,13 @@ bool TransitionState::transitionCondition(const StartAimEvent & event)
     if (progress > 1.f)
         return true;
 
+    progress = 1.f - progress;
     onEnter(event);
     return false;
 }
 void TransitionState::cameraUpdate()
 {
-    currentTime += context.displayManager.GetTime().deltaTime;
-    progress = currentTime / transitionLength;
+    progress += context.displayManager.GetTime().deltaTime / transitionLength;
 
     if (progress > 1.0f)
     {

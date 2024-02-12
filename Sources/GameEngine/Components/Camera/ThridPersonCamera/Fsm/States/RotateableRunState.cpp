@@ -64,7 +64,7 @@ void RotateableRunState::update(const InitEvent&)
 
 const vec4& RotateableRunState::getRelativeCamerePosition() const
 {
-    return relativeCamerePosition;
+    return referenceRelativeCamerePosition;
 }
 
 const vec4& RotateableRunState::getLookAtPosition() const
