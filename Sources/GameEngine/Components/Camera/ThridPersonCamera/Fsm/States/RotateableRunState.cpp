@@ -76,9 +76,13 @@ void RotateableRunState::lockPitch()
 
 void RotateableRunState::updateYaw()
 {
-    if (context.yaw > 360.f)
+    if (context.yaw > 180.f)
     {
         context.yaw  -= 360.f;
+    }
+    if (context.yaw < -180.f)
+    {
+        context.yaw  += 360.f;
     }
 }
 
