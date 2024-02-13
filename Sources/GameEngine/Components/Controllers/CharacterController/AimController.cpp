@@ -4,6 +4,8 @@
 
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -14,11 +16,12 @@ namespace
 const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::vec3(0.f, 1.f, 0.f)));
 }  // namespace
 
-AimController::AimController(Input::InputManager& inputManager, Animation::Joint& joint,
-                             ThridPersonCameraComponent* thridPersonCameraComponent)
-    : inputManager{inputManager}
+AimController::AimController(GameObject& gameObject, Input::InputManager& inputManager, Animation::Joint& joint)
+    : gameObject{gameObject}
+    , inputManager{inputManager}
     , joint{joint}
-    , thridPersonCameraComponent{thridPersonCameraComponent}
+    , thridPersonCameraComponent{gameObject.GetComponent<ThridPersonCameraComponent>()}
+    , rigidbody{gameObject.GetComponent<Rigidbody>()}
     , camSensitive{0.2f}
     , yawLimit{-75.f, 45.f}
     , pitchLimit{-40.f, 50.f}
@@ -77,9 +80,22 @@ void AimController::LockPitch(float& pitch)
 void AimController::LockYaw(float& yaw)
 {
     if (yaw < yawLimit.x)
+    {
+        rotateCharacter(yaw - yawLimit.x);
         yaw = yawLimit.x;
+    }
+
     if (yaw > yawLimit.y)
+    {
+        rotateCharacter(yaw - yawLimit.y);
         yaw = yawLimit.y;
+    }
+}
+
+void AimController::rotateCharacter(float yaw)
+{
+    auto rotation = rigidbody->GetRotation() * glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f));
+    rigidbody->SetRotation(rotation);
 }
 
 vec2 AimController::calculateMouseMove()

@@ -180,8 +180,7 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]()
-        {
+        auto sendEndAtatackCallback = [this]() {
             if (stateMachine_)
                 stateMachine_->handle(EndAttackEvent{});
         };
@@ -195,9 +194,8 @@ void CharacterController::Init()
         if (not aimJoint)
             ERROR_LOG("Aim joint not found");
 
-        aimController_ =
-            std::make_unique<AimController>(componentContext_.inputManager_, aimJoint ? *aimJoint : dummyJoint,
-                                            thisObject_.GetComponent<ThridPersonCameraComponent>());
+        aimController_ = std::make_unique<AimController>(thisObject_, componentContext_.inputManager_,
+                                                         aimJoint ? *aimJoint : dummyJoint);
 
         fsmContext.reset(new FsmContext{
             *attackFsm_,
@@ -309,8 +307,7 @@ void CharacterController::processEvent()
         for (auto& event : tmpEvents)
         {
             std::visit(
-                [&](const auto& e)
-                {
+                [&](const auto& e) {
                     DEBUG_LOG("Process event : " + typeid(e).name());
                     stateMachine_->handle(e);
                 },
@@ -351,8 +348,7 @@ void CharacterController::SetRunSpeed(float v)
 }
 void CharacterController::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component = std::make_unique<CharacterController>(componentContext, gameObject);
 
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);

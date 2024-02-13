@@ -3,7 +3,7 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
-#include <Display/DisplayManager.hpp>
+#include "GameEngine/Display/DisplayManager.hpp"
 
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
