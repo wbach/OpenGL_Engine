@@ -23,7 +23,7 @@ AimController::AimController(GameObject& gameObject, Input::InputManager& inputM
     , thridPersonCameraComponent{gameObject.GetComponent<ThridPersonCameraComponent>()}
     , rigidbody{gameObject.GetComponent<Rigidbody>()}
     , camSensitive{0.2f}
-    , yawLimit{-75.f, 45.f}
+    , yawLimit{0, 0} // {-75.f, 45.f}
     , pitchLimit{-40.f, 50.f}
 {
 }
