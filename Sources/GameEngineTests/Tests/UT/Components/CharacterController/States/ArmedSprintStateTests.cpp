@@ -20,9 +20,9 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, ArmedSprintState_DrawArrowEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<DrawArrowEvent, DrawArrowRunState>(
-        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.drawArrow});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<DrawArrowEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, ArmedSprintState_RunForwardEvent)
 {

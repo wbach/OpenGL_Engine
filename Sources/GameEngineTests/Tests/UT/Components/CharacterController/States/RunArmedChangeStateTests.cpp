@@ -104,8 +104,9 @@ TEST_F(CharacterControllerTests, RunArmedChangeState_DrawArrowEvent)
     tiggerAndExpect<DrawArrowEvent, RunArmedChangeState>(
         {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectState<DrawArrowRunState>();
+    expectState<DrawArrowWalkState>();
 }
 TEST_F(CharacterControllerTests, RunArmedChangeState_AimStopEvent)
 {

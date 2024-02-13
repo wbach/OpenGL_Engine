@@ -14,7 +14,6 @@ class AimWalkAndRotateState;
 class ArmedWalkAndRotateState;
 class DrawArrowWalkState;
 class DrawArrowRotateState;
-class DrawArrowRunAndRotateState;
 class DisarmedWalkAndRotateState;
 class DeathState;
 class ArmedSprintAndRotateState;
@@ -30,11 +29,11 @@ class DrawArrowWalkAndRotateState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
@@ -52,6 +51,8 @@ public:
     void onEnter(const RotateTargetEvent&);
     void onEnter(const WalkForwardEvent&);
     void onEnter(const WalkBackwardEvent&);
+    void onEnter(const RunForwardEvent&);
+    void onEnter(const RunBackwardEvent&);
     void onEnter(const WalkChangeStateEvent&);
 
     void update(float);
@@ -60,6 +61,8 @@ public:
     void update(const RotateTargetEvent&);
     void update(const WalkForwardEvent&);
     void update(const WalkBackwardEvent&);
+    void update(const RunForwardEvent&);
+    void update(const RunBackwardEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

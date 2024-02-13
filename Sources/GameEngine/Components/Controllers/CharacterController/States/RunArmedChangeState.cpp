@@ -61,21 +61,21 @@ void RunArmedChangeState::onEnter(DisarmedSprintState &, const DrawArrowEvent & 
     MoveStateBase::updateMoveState();
 }
 
-void RunArmedChangeState::onEnter(DrawArrowRunState&, const WeaponStateEvent&)
+void RunArmedChangeState::onEnter(DrawArrowWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 
-void RunArmedChangeState::onEnter(RecoilRunState&, const WeaponStateEvent&)
+void RunArmedChangeState::onEnter(RecoilWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     MoveStateBase::updateMoveState();
 }
 
-void RunArmedChangeState::onEnter(AimRunState&, const WeaponStateEvent&)
+void RunArmedChangeState::onEnter(AimWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);

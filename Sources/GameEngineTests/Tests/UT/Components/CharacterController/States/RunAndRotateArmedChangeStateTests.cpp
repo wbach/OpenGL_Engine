@@ -113,8 +113,9 @@ TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_DrawArrowEvent)
     expectRotationRight(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationRight();
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectState<DrawArrowRunAndRotateState>();
+    expectState<DrawArrowWalkAndRotateState>();
 }
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_AimStopEvent)
 {

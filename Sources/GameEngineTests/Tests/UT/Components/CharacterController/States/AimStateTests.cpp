@@ -67,17 +67,17 @@ TEST_F(CharacterControllerTests, Aim_RunForwardEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<RunForwardEvent, AimRunState>(
-        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.forward});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<RunForwardEvent, AimWalkState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, Aim_RunBackwardEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, AimRunState>(
-        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.run.backward});
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
+    tiggerAndExpect<RunBackwardEvent, AimWalkState>(
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.backward});
 }
 TEST_F(CharacterControllerTests, Aim_WalkForwardEvent)
 {

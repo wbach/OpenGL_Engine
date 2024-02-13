@@ -29,6 +29,16 @@ void DrawArrowWalkState::onEnter(const WalkBackwardEvent &event)
     MoveStateBase::onEnter(event);
 }
 
+void DrawArrowWalkState::onEnter(const RunForwardEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::onEnter(const RunBackwardEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
 void DrawArrowWalkState::onEnter(const WalkForwardEvent &event)
 {
     MoveStateBase::onEnter(event);
@@ -37,6 +47,7 @@ void DrawArrowWalkState::onEnter(const WalkForwardEvent &event)
 void DrawArrowWalkState::onEnter(const DrawArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
+    MoveStateBase::updateMoveState();
 }
 
 void DrawArrowWalkState::onEnter(const ReloadArrowEvent &event)
@@ -51,6 +62,16 @@ void DrawArrowWalkState::update(float dt)
 }
 
 void DrawArrowWalkState::update(const WalkBackwardEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::update(const RunForwardEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void DrawArrowWalkState::update(const RunBackwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }

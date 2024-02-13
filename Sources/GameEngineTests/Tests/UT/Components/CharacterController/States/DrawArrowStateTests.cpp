@@ -88,14 +88,14 @@ TEST_F(CharacterControllerTests, DrawArow_WalkBackwardEvent)
 TEST_F(CharacterControllerTests, DrawArow_RunForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<RunForwardEvent, DrawArrowRunState>(
-        {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.drawArrow});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<RunForwardEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, DrawArow_RunBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, DrawArrowRunState>(
-        {sut_.animationClipsNames_.armed.run.backward, sut_.animationClipsNames_.drawArrow});
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
+    tiggerAndExpect<RunBackwardEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.drawArrow});
 }

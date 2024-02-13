@@ -17,7 +17,7 @@ class ArmedIdleState;
 class ArmedWalkState;
 class ArmedSprintState;
 class ArmedRunAndRotateState;
-class DrawArrowRunState;
+class DrawArrowWalkState;
 class RunArmedChangeState;
 
 class ArmedRunState
@@ -37,7 +37,7 @@ class ArmedRunState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:

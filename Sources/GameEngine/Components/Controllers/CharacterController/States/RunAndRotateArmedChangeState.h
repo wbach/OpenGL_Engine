@@ -20,13 +20,14 @@ class JumpState;
 class DeathState;
 class ArmedRotateState;
 class ArmedRunAndRotateState;
-class DrawArrowRunAndRotateState;
+class DisarmedWalkAndRotateState;
 class ArmedSprintAndRotateState;
 class WalkAndRotateArmedChangeState;
 class RotateArmedChangeState;
 class RunArmedChangeState;
-class RecoilRunAndRotateState;
-class AimRunAndRotateState;
+class RecoilWalkAndRotateState;
+class AimWalkAndRotateState;
+class DrawArrowWalkAndRotateState;
 
 struct FsmContext;
 class RunAndRotateArmedChangeState
@@ -73,12 +74,12 @@ public:
     void onEnter(DisarmedSprintAndRotateState&, const WeaponStateEvent&);
 
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
+    void onEnter(DisarmedRunAndRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
 
-    void onEnter(DrawArrowRunAndRotateState&, const WeaponStateEvent&);
-    void onEnter(RecoilRunAndRotateState&, const WeaponStateEvent&);
-    void onEnter(AimRunAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&);
+    void onEnter(RecoilWalkAndRotateState&, const WeaponStateEvent&);
+    void onEnter(AimWalkAndRotateState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const WeaponStateEvent&);

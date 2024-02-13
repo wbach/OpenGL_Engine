@@ -18,7 +18,7 @@ class DisarmedRunAndRotateState;
 class JumpState;
 class DeathState;
 class RunArmedChangeState;
-class DrawArrowRunAndRotateState;
+class DrawArrowWalkAndRotateState;
 class RunAndRotateArmedChangeState;
 
 struct FsmContext;
@@ -42,7 +42,7 @@ class ArmedSprintAndRotateState
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRunAndRotateState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

@@ -14,7 +14,7 @@ class RecoilWalkState;
 class ArmedWalkState;
 class ArmedSprintState;
 class DrawArrowState;
-class DrawArrowRunState;
+class DrawArrowWalkState;
 class DrawArrowWalkAndRotateState;
 class DisarmedWalkState;
 class AimWalkState;
@@ -29,9 +29,9 @@ class DrawArrowWalkState
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowRunState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
@@ -48,10 +48,14 @@ public:
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const WalkForwardEvent&);
     void onEnter(const WalkBackwardEvent&);
+    void onEnter(const RunForwardEvent&);
+    void onEnter(const RunBackwardEvent&);
     void onEnter(const WalkChangeStateEvent&);
 
     void update(const WalkForwardEvent&);
     void update(const WalkBackwardEvent&);
+    void update(const RunForwardEvent&);
+    void update(const RunBackwardEvent&);
 
     void update(float);
 

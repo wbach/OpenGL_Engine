@@ -28,9 +28,9 @@ class DisarmedRunAndRotateState;
 class IdleArmedChangeState;
 class WalkArmedChangeState;
 class RunAndRotateArmedChangeState;
-class DrawArrowRunState;
-class RecoilRunState;
-class AimRunState;
+class DrawArrowWalkState;
+class RecoilWalkState;
+class AimWalkState;
 
 class RunArmedChangeState
     : public ArmedChangeStateBase,
@@ -77,9 +77,9 @@ public:
     void onEnter(DisarmedSprintState&, const WeaponStateEvent&);
     void onEnter(ArmedSprintState&, const WeaponStateEvent&);
 
-    void onEnter(DrawArrowRunState&, const WeaponStateEvent&);
-    void onEnter(RecoilRunState&, const WeaponStateEvent&);
-    void onEnter(AimRunState&, const WeaponStateEvent&);
+    void onEnter(DrawArrowWalkState&, const WeaponStateEvent&);
+    void onEnter(RecoilWalkState&, const WeaponStateEvent&);
+    void onEnter(AimWalkState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const SprintStateChangeEvent&);

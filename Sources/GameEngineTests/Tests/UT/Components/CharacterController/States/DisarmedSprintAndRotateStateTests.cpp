@@ -27,9 +27,10 @@ TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_DrawArrowEvent)
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft();
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectState<DrawArrowRunAndRotateState>();
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.drawArrow});
+    expectState<DrawArrowWalkAndRotateState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_RunForwardEvent)
 {

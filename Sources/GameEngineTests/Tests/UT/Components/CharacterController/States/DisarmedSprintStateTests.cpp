@@ -22,9 +22,10 @@ TEST_F(CharacterControllerTests, DisarmedSprintState_DrawArrowEvent)
         {sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.equip},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectState<DrawArrowRunState>();
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward, sut_.animationClipsNames_.drawArrow});
+    expectState<DrawArrowWalkState>();
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, DisarmedSprintState_RunForwardEvent)
 {

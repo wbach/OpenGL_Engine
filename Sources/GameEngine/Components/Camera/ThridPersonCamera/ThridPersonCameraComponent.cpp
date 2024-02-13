@@ -38,7 +38,7 @@ void ThridPersonCameraComponent::ReqisterFunctions()
 
 bool ThridPersonCameraComponent::isAimReady() const
 {
-    return std::holds_alternative<Camera::AimState*>(fsm->currentState);
+    return fsm ? std::holds_alternative<Camera::AimState*>(fsm->currentState) : false;
 }
 
 void ThridPersonCameraComponent::init()

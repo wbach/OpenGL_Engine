@@ -44,7 +44,7 @@ void AimController::update()
 
     auto mouseMove = calculateMouseMove();
 
-    if (not thridPersonCameraComponent->isAimReady())
+    if (not thridPersonCameraComponent or not thridPersonCameraComponent->isAimReady())
         return;
 
     yaw -= mouseMove.x;

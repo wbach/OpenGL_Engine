@@ -14,7 +14,6 @@ class AimWalkAndRotateState;
 class ArmedWalkAndRotateState;
 class DrawArrowWalkState;
 class DrawArrowRotateState;
-class DrawArrowRunAndRotateState;
 class DisarmedWalkAndRotateState;
 class DeathState;
 class ArmedSprintAndRotateState;

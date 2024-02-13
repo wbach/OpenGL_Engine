@@ -2,8 +2,6 @@
 #include <Utils/Fsm/Fsm.h>
 
 #include "States/AimRotateState.h"
-#include "States/AimRunAndRotateState.h"
-#include "States/AimRunState.h"
 #include "States/AimState.h"
 #include "States/AimWalkAndRotateState.h"
 #include "States/AimWalkState.h"
@@ -25,8 +23,6 @@
 #include "States/DisarmedWalkAndRotateState.h"
 #include "States/DisarmedWalkState.h"
 #include "States/DrawArrowRotateState.h"
-#include "States/DrawArrowRunAndRotateState.h"
-#include "States/DrawArrowRunState.h"
 #include "States/DrawArrowState.h"
 #include "States/DrawArrowWalkAndRotateState.h"
 #include "States/DrawArrowWalkState.h"
@@ -34,8 +30,6 @@
 #include "States/JumpState.h"
 #include "States/MoveJumpState.h"
 #include "States/RecoilRotateState.h"
-#include "States/RecoilRunAndRotateState.h"
-#include "States/RecoilRunState.h"
 #include "States/RecoilState.h"
 #include "States/RecoilWalkAndRotateState.h"
 #include "States/RecoilWalkState.h"
@@ -79,20 +73,14 @@ using CharacterControllerFsm =
                             MoveJumpState,
                             AimState,
                             AimRotateState,
-                            AimRunState,
-                            AimRunAndRotateState,
                             AimWalkState,
                             AimWalkAndRotateState,
                             RecoilState,
                             RecoilRotateState,
-                            RecoilRunState,
-                            RecoilRunAndRotateState,
                             RecoilWalkState,
                             RecoilWalkAndRotateState,
                             DrawArrowState,
                             DrawArrowRotateState,
-                            DrawArrowRunState,
-                            DrawArrowRunAndRotateState,
                             DrawArrowWalkState,
                             DrawArrowWalkAndRotateState,
                             DeathState
