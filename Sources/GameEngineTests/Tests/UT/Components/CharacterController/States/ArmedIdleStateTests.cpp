@@ -97,7 +97,7 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_SprintStartEvent)
 }
 
 TEST_F(CharacterControllerTests,
-       DISABLED_ArmedIdleStateTests_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
+       ArmedIdleStateTests_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
 {
     prepareState(*this);
     float deltaTime = {0.0001f};
@@ -106,7 +106,7 @@ TEST_F(CharacterControllerTests,
     // Run anim not ready
     tiggerAndExpect<DrawArrowEvent, DrawArrowWalkState>(
         {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow}, {deltaTime});
-    tiggerAndExpect<AimStopEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.forward}, {deltaTime});
+    tiggerAndExpect<AimStopEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.forward}, {deltaTime, deltaTime});
     // Make run animation ready
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);

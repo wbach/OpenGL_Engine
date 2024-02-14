@@ -222,7 +222,8 @@ void MoveStateBase::setForwardAnim()
 {
     if (not animationClips_.forward.empty() and not context_.animator.isAnimationPlaying(animationClips_.forward))
     {
-        DEBUG_LOG("setForwardAnim, jointGroupName_ = " + std::to_string(jointGroupName_));
+        DEBUG_LOG("setForwardAnim : " + animationClips_.forward +
+                  ", jointGroupName_ = " + std::to_string(jointGroupName_));
         context_.animator.ChangeAnimation(animationClips_.forward, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
     }
