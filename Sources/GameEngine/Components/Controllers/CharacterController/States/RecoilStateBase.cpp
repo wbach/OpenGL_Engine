@@ -65,6 +65,12 @@ void RecoilStateBase::stopAnim()
 void RecoilStateBase::onLeave(const AimStopEvent &)
 {
     stopAnim();
+
+    if (context_.aimEnteringState == FsmContext::AimEnteringState::Run or
+        context_.aimEnteringState == FsmContext::AimEnteringState::Sprint)
+    {
+        context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
+    }
 }
 
 void RecoilStateBase::onLeave(const WeaponStateEvent &)

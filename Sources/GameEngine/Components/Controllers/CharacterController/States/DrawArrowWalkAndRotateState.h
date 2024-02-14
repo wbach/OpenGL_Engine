@@ -18,6 +18,8 @@ class DisarmedWalkAndRotateState;
 class DeathState;
 class ArmedSprintAndRotateState;
 class WalkAndRotateArmedChangeState;
+class ArmedRunAndRotateState;
+class ArmedWalkAndRotateState;
 
 class DrawArrowWalkAndRotateState
     : public DrawArrowStateBase,
@@ -43,6 +45,10 @@ class DrawArrowWalkAndRotateState
 {
 public:
     DrawArrowWalkAndRotateState(FsmContext&);
+
+    void onEnter(ArmedSprintAndRotateState&, const DrawArrowEvent&);
+    void onEnter(ArmedRunAndRotateState&, const DrawArrowEvent&);
+    void onEnter(ArmedWalkAndRotateState&, const DrawArrowEvent&);
 
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);

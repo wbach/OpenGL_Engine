@@ -7,6 +7,8 @@
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Input/InputManager.h"
 #include "Logger/Log.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+
 
 namespace GameEngine
 {
@@ -68,6 +70,12 @@ void AimStateBase::onLeave(const AimStopEvent &)
 {
     DEBUG_LOG("onLeave(AimStopEvent)");
     stopAnim();
+
+    if (context_.aimEnteringState == FsmContext::AimEnteringState::Run or
+        context_.aimEnteringState == FsmContext::AimEnteringState::Sprint)
+    {
+        context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
+    }
 }
 
 void AimStateBase::onLeave(const SprintStartEvent &)

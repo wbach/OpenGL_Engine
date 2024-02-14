@@ -89,6 +89,12 @@ void DrawArrowStateBase::update(float)
 void DrawArrowStateBase::onLeave(const AimStopEvent &)
 {
     stopAnim();
+
+    if (context_.aimEnteringState == FsmContext::AimEnteringState::Run or
+        context_.aimEnteringState == FsmContext::AimEnteringState::Sprint)
+    {
+        context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
+    }
 }
 
 void DrawArrowStateBase::onLeave(const WeaponStateEvent &)

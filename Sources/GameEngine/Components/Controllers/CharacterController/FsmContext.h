@@ -80,6 +80,14 @@ struct FsmContext
     bool drawArrowEventCalled_{false};
     bool sprintEventCalled_{false};
     WeaponArmedChangeState weaponArmedChangeState{WeaponArmedChangeState::None};
+
+    enum class AimEnteringState
+    {
+        Walk,
+        Run,
+        Sprint
+    };
+    AimEnteringState aimEnteringState;
 };
 }  // namespace Components
 }  // namespace GameEngine

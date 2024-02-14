@@ -18,6 +18,21 @@ DrawArrowWalkAndRotateState::DrawArrowWalkAndRotateState(FsmContext& context)
 {
 }
 
+void DrawArrowWalkAndRotateState::onEnter(ArmedSprintAndRotateState &, const DrawArrowEvent &)
+{
+    context_.aimEnteringState = FsmContext::AimEnteringState::Sprint;
+}
+
+void DrawArrowWalkAndRotateState::onEnter(ArmedRunAndRotateState &, const DrawArrowEvent &)
+{
+    context_.aimEnteringState = FsmContext::AimEnteringState::Walk;
+}
+
+void DrawArrowWalkAndRotateState::onEnter(ArmedWalkAndRotateState &, const DrawArrowEvent &)
+{
+    context_.aimEnteringState = FsmContext::AimEnteringState::Run;
+}
+
 void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
