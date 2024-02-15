@@ -56,6 +56,7 @@ public:
     IdType SubscribeForAnimationFrame(const std::string&, std::function<void()>, float = -1);
     void UnSubscribeForAnimationFrame(IdType);
 
+    Animation::Joint* GetRootJoint();
     Animation::Joint* GetJoint(const std::string&);
     Animation::Joint* GetJoint(const Animation::JointId&);
 

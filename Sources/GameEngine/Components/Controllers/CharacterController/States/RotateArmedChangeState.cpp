@@ -8,7 +8,7 @@ namespace Components
 {
 RotateArmedChangeState::RotateArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.leftRight,
+    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
     , context_{context}
 {

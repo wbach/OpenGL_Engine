@@ -15,7 +15,8 @@ class AimWalkAndRotateState;
 class ArmedWalkAndRotateState;
 class ArmedSprintAndRotateState;
 class RecoilWalkState;
-class RecoilRotateState;class DisarmedWalkAndRotateState;
+class RecoilRotateState;
+class DisarmedWalkAndRotateState;
 class DrawArrowWalkAndRotateState;
 class WalkAndRotateArmedChangeState;
 class DeathState;
@@ -34,6 +35,12 @@ class RecoilWalkAndRotateState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
@@ -45,6 +52,10 @@ class RecoilWalkAndRotateState
 {
 public:
     RecoilWalkAndRotateState(FsmContext&);
+
+    using MoveStateBase::onEnter;
+    using MoveStateBase::transitionCondition;
+    using MoveStateBase::update;
 
     void onEnter(const AttackEvent&);
     void onEnter(const RotateLeftEvent&);

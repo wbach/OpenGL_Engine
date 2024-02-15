@@ -61,5 +61,15 @@ void IdleStateBase::onEnter(const EndRotationEvent &)
 {
     setIdleAnim();
 }
+
+void IdleStateBase::onEnter(const EndMoveLeftEvent &)
+{
+    setIdleAnim();
+}
+
+void IdleStateBase::onEnter(const EndMoveRightEvent &)
+{
+    setIdleAnim();
+}
 }  // namespace Components
 }  // namespace GameEngine

@@ -31,6 +31,12 @@ class RecoilWalkState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
@@ -45,10 +51,11 @@ class RecoilWalkState
 public:
     RecoilWalkState(FsmContext&);
 
-    void onEnter(const AttackEvent&);
-
     using MoveStateBase::onEnter;
+    using MoveStateBase::transitionCondition;
     using MoveStateBase::update;
+
+    void onEnter(const AttackEvent&);
 
     void update(float);
 

@@ -10,7 +10,7 @@ RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext& context)
     : RecoilStateBase(context, context.upperBodyGroupName)
     , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
                     context.animClipNames.armed.walk.backward}
-    , RotateStateBase(context, std::nullopt, context.walkSpeed.leftRight, context.animClipNames.armed.rotateLeft,
+    , RotateStateBase(context, std::nullopt, context.walkSpeed.rotate, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
     , context_{context}
 {

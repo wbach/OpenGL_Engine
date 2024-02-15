@@ -20,10 +20,16 @@ struct RunForwardEvent
 struct RunBackwardEvent
 {
 };
-struct MoveLeftEvent
+struct RunLeftEvent
 {
 };
-struct MoveRightEvent
+struct RunRightEvent
+{
+};
+struct WalkLeftEvent
+{
+};
+struct WalkRightEvent
 {
 };
 struct RunEvent
@@ -39,6 +45,12 @@ struct EndForwardMoveEvent
 {
 };
 struct EndBackwardMoveEvent
+{
+};
+struct EndMoveLeftEvent
+{
+};
+struct EndMoveRightEvent
 {
 };
 struct RotateLeftEvent
@@ -97,9 +109,9 @@ struct AimStopEvent
 
 using CharacterControllerEvent =
     std::variant<WalkForwardEvent, WalkBackwardEvent, WalkChangeStateEvent, RunForwardEvent, RunBackwardEvent,
-                 MoveLeftEvent, MoveRightEvent, RunEvent, SprintStartEvent, SprintStateChangeEvent,
-                 EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent, RotateTargetEvent,
-                 EndRotationEvent, JumpEvent, EndJumpEvent, AttackEvent, NextAttackEvent, EndAttackEvent, DeathEvent,
-                 WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent, ReloadArrowEvent,
-                 AimStartEvent, AimStopEvent>;
+                 RunLeftEvent, RunRightEvent, WalkLeftEvent, WalkRightEvent, RunEvent, SprintStartEvent,
+                 SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
+                 RotateTargetEvent, EndRotationEvent, JumpEvent, EndJumpEvent, AttackEvent, NextAttackEvent,
+                 EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,
+                 ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent>;
 }  // namespace GameEngine

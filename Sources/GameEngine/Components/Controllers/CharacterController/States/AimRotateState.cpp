@@ -8,7 +8,7 @@ namespace Components
 {
 AimRotateState::AimRotateState(FsmContext &context)
     : AimStateBase(context, context.upperBodyGroupName)
-    , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.leftRight,
+    , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight)
     , context_{context}
 {

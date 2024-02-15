@@ -4,7 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(test.inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
     test.expectState<DisarmedIdleState>();
@@ -40,7 +40,8 @@ TEST_F(CharacterControllerTests, Aim_RotateTargetEvent)
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<RotateTargetEvent, AimRotateState>(RotateTargetEvent{targetRotation.value_},
+    tiggerAndExpect<RotateTargetEvent, AimRotateState>(
+        RotateTargetEvent{targetRotation.value_},
         {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, Aim_WeaponStateEvent)
@@ -106,4 +107,32 @@ TEST_F(CharacterControllerTests, Aim_SprintStartEvent)
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     tiggerAndExpect<SprintStartEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint});
+}
+TEST_F(CharacterControllerTests, Aim_RunLeftEvent)
+{
+    prepareState(*this);
+    expectLeftVelocity(DEFAULT_WALK_LEFT_RIGHT_SPEED);
+    tiggerAndExpect<RunLeftEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
+}
+TEST_F(CharacterControllerTests, Aim_RunRightEvent)
+{
+    prepareState(*this);
+    expectLeftVelocity(-DEFAULT_WALK_LEFT_RIGHT_SPEED);
+    tiggerAndExpect<RunRightEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveRight, sut_.animationClipsNames_.aimIdle});
+}
+TEST_F(CharacterControllerTests, Aim_WalkLeftEvent)
+{
+    prepareState(*this);
+    expectLeftVelocity(DEFAULT_WALK_LEFT_RIGHT_SPEED);
+    tiggerAndExpect<WalkLeftEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
+}
+TEST_F(CharacterControllerTests, Aim_WalkRightEvent)
+{
+    prepareState(*this);
+    expectLeftVelocity(-DEFAULT_WALK_LEFT_RIGHT_SPEED);
+    tiggerAndExpect<WalkRightEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveRight, sut_.animationClipsNames_.aimIdle});
 }

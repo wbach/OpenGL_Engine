@@ -36,6 +36,16 @@ void AimState::onEnter(const EndBackwardMoveEvent&)
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
+void AimState::onEnter(const EndMoveLeftEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+
+void AimState::onEnter(const EndMoveRightEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+
 void AimState::onLeave(const AimStopEvent& event)
 {
     AimStateBase::onLeave(event);

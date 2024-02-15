@@ -29,35 +29,35 @@ void DrawArrowWalkState::onEnter(ArmedRunState &, const DrawArrowEvent &)
     context_.aimEnteringState = FsmContext::AimEnteringState::Run;
 }
 
-void DrawArrowWalkState::onEnter(const WalkChangeStateEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::onEnter(const WalkChangeStateEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::update(const WalkForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::update(const WalkForwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::onEnter(const WalkBackwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::onEnter(const WalkBackwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::onEnter(const RunForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::onEnter(const RunForwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::onEnter(const RunBackwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::onEnter(const RunBackwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::onEnter(const WalkForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::onEnter(const WalkForwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
 void DrawArrowWalkState::onEnter(const DrawArrowEvent &event)
 {
@@ -76,20 +76,20 @@ void DrawArrowWalkState::update(float dt)
     DrawArrowStateBase::update(dt);
 }
 
-void DrawArrowWalkState::update(const WalkBackwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::update(const WalkBackwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::update(const RunForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::update(const RunForwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
-void DrawArrowWalkState::update(const RunBackwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
+//void DrawArrowWalkState::update(const RunBackwardEvent &event)
+//{
+//    MoveStateBase::onEnter(event);
+//}
 
 void DrawArrowWalkState::onLeave(const AimStopEvent &e)
 {

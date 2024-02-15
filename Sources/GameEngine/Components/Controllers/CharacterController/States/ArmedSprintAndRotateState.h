@@ -51,7 +51,7 @@ public:
                                  std::nullopt,
                                  context.sprintSpeed,
                                  context.animClipNames.armed.sprint,
-                                 context.runSpeed.leftRight,
+                                 context.runSpeed.rotate,
                                  context.animClipNames.armed.rotateLeft,
                                  context.animClipNames.armed.rotateRight}
         , context_{context}

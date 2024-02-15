@@ -42,7 +42,7 @@ class DisarmedRotateState
 {
 public:
     DisarmedRotateState(FsmContext& context)
-        : RotateStateBase{context, std::nullopt, context.runSpeed.leftRight, context.animClipNames.disarmed.rotateLeft,
+        : RotateStateBase{context, std::nullopt, context.runSpeed.rotate, context.animClipNames.disarmed.rotateLeft,
                           context.animClipNames.disarmed.rotateRight}
     {
     }

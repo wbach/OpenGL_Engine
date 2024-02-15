@@ -116,6 +116,11 @@ void Animator::UnSubscribeForAnimationFrame(IdType id)
         animationClipInfoSubscriptions_.erase(id);
     }
 }
+
+Joint *Animator::GetRootJoint()
+{
+    return &jointData_.rootJoint;
+}
 Animation::Joint* Animator::GetJoint(const std::string& name)
 {
     return jointData_.rootJoint.getJoint(name);

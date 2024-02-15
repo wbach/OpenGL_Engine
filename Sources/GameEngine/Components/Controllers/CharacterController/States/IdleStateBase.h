@@ -32,6 +32,8 @@ public:
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndRotationEvent&);
+    void onEnter(const EndMoveLeftEvent&);
+    void onEnter(const EndMoveRightEvent&);
 
     void update(const AttackEvent&);
     void update(const EndAttackEvent&);

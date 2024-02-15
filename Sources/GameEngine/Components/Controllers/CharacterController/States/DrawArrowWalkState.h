@@ -33,6 +33,12 @@ class DrawArrowWalkState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DrawArrowState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
@@ -45,22 +51,27 @@ class DrawArrowWalkState
 {
 public:
     DrawArrowWalkState(FsmContext&);
+
+    using MoveStateBase::onEnter;
+    using MoveStateBase::transitionCondition;
+    using MoveStateBase::update;
+
     void onEnter(ArmedSprintState&, const DrawArrowEvent&);
     void onEnter(ArmedRunState&, const DrawArrowEvent&);
     void onEnter(ArmedWalkState&, const DrawArrowEvent&);
 
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
-    void onEnter(const WalkForwardEvent&);
-    void onEnter(const WalkBackwardEvent&);
-    void onEnter(const RunForwardEvent&);
-    void onEnter(const RunBackwardEvent&);
-    void onEnter(const WalkChangeStateEvent&);
+//    void onEnter(const WalkForwardEvent&);
+//    void onEnter(const WalkBackwardEvent&);
+//    void onEnter(const RunForwardEvent&);
+//    void onEnter(const RunBackwardEvent&);
+//    void onEnter(const WalkChangeStateEvent&);
 
-    void update(const WalkForwardEvent&);
-    void update(const WalkBackwardEvent&);
-    void update(const RunForwardEvent&);
-    void update(const RunBackwardEvent&);
+//    void update(const WalkForwardEvent&);
+//    void update(const WalkBackwardEvent&);
+//    void update(const RunForwardEvent&);
+//    void update(const RunBackwardEvent&);
 
     void update(float);
 

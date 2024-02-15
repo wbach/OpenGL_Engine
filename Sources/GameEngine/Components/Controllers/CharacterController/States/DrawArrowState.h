@@ -21,6 +21,10 @@ class DrawArrowState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,

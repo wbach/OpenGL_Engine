@@ -137,3 +137,29 @@ TEST_F(CharacterControllerTests, DisarmedRunState_UpdateVelocityInNewStateWhenTr
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }
+
+TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_EndMoveLeftEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndMoveLeftEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_EndMoveRightEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndMoveRightEvent, DisarmedIdleState>({sut_.animationClipsNames_.disarmed.idle});
+}
+
+TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_MoveLeftEvent)
+{
+    prepareState(*this);
+    expectLeftVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<RunLeftEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+}
+
+TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_MoveRightEvent)
+{
+    prepareState(*this);
+    expectLeftVelocity(-DEFAULT_RUN_SPEED);
+    tiggerAndExpect<RunRightEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.run.forward});
+}

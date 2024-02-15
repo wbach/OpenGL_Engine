@@ -25,30 +25,38 @@ CharacterControllerTests::CharacterControllerTests()
     componentController_.CallFunctions(FunctionType::Awake);
     componentController_.CallFunctions(FunctionType::OnStart);
 
-    auto& clips                  = sut_.animationClipsNames_;
-    clips.disarmed.idle          = "DI";
-    clips.disarmed.sprint        = "DS";
-    clips.disarmed.run.forward   = "DRF";
-    clips.disarmed.run.backward  = "DRB";
-    clips.disarmed.walk.forward  = "DWF";
-    clips.disarmed.walk.backward = "DWB";
-    clips.armed.idle             = "AI";
-    clips.armed.sprint           = "AS";
-    clips.armed.run.forward      = "ARF";
-    clips.armed.run.backward     = "ARB";
-    clips.armed.walk.forward     = "AWF";
-    clips.armed.walk.backward    = "AWB";
-    clips.equip                  = "equip";
-    clips.disarm                 = "disarm";
-    clips.disarmed.rotateLeft    = "DRL";
-    clips.disarmed.rotateRight   = "DRR";
-    clips.armed.rotateLeft       = "ARL";
-    clips.armed.rotateRight      = "ARR";
-    clips.drawArrow              = "drawArrow";
-    clips.recoilArrow            = "recoilArrow";
-    clips.aimIdle                = "aimIdle";
-    clips.armed.death            = "armedDeath";
-    clips.disarmed.death         = "disarmedDeath";
+    auto& clips                   = sut_.animationClipsNames_;
+    clips.disarmed.idle           = "DI";
+    clips.disarmed.sprint         = "DS";
+    clips.disarmed.run.forward    = "DRF";
+    clips.disarmed.run.backward   = "DRB";
+    clips.disarmed.walk.forward   = "DWF";
+    clips.disarmed.walk.backward  = "DWB";
+    clips.armed.idle              = "AI";
+    clips.armed.sprint            = "AS";
+    clips.armed.run.forward       = "ARF";
+    clips.armed.run.backward      = "ARB";
+    clips.armed.walk.forward      = "AWF";
+    clips.armed.walk.backward     = "AWB";
+    clips.equip                   = "equip";
+    clips.disarm                  = "disarm";
+    clips.disarmed.rotateLeft     = "DRL";
+    clips.disarmed.rotateRight    = "DRR";
+    clips.armed.rotateLeft        = "ARL";
+    clips.armed.rotateRight       = "ARR";
+    clips.drawArrow               = "drawArrow";
+    clips.recoilArrow             = "recoilArrow";
+    clips.aimIdle                 = "aimIdle";
+    clips.armed.death             = "armedDeath";
+    clips.disarmed.death          = "disarmedDeath";
+    clips.disarmed.run.moveleft   = "DMRL";
+    clips.disarmed.run.moveRight  = "DMRR";
+    clips.disarmed.walk.moveleft  = "DMRL";
+    clips.disarmed.walk.moveRight = "DMRR";
+    clips.armed.run.moveleft      = "DMRL";
+    clips.armed.run.moveRight     = "DMRR";
+    clips.armed.walk.moveleft     = "DMRL";
+    clips.armed.walk.moveRight    = "DMRR";
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);
@@ -73,6 +81,14 @@ CharacterControllerTests::CharacterControllerTests()
     addDummyClip(clips.drawArrow);
     addDummyClip(clips.recoilArrow);
     addDummyClip(clips.aimIdle);
+    addDummyClip(clips.armed.run.moveleft);
+    addDummyClip(clips.armed.run.moveRight);
+    addDummyClip(clips.armed.walk.moveleft);
+    addDummyClip(clips.armed.walk.moveRight);
+    addDummyClip(clips.disarmed.run.moveleft);
+    addDummyClip(clips.disarmed.run.moveRight);
+    addDummyClip(clips.disarmed.walk.moveleft);
+    addDummyClip(clips.disarmed.walk.moveRight);
 
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
     sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
@@ -89,7 +105,7 @@ void CharacterControllerTests::SetUp()
 {
     EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
     EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
-    EXPECT_CALL(inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{ 0, 0 }));
+    EXPECT_CALL(inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
 
     Update(ADVANCED_TIME_TRANSITION_TIME);  // To set first anim
 }
@@ -164,6 +180,13 @@ void CharacterControllerTests::expectForwardVelocity(float speed)
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed))).Times(AtLeast(1));
+}
+
+void CharacterControllerTests::expectLeftVelocity(float speed)
+{
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(speed, 0.0, 0.0))).Times(AtLeast(1));
 }
 
 Rotation CharacterControllerTests::createRotaion(float deltaTime, float rotateSpeed)
