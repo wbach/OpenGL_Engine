@@ -57,6 +57,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
         tiggerAndExpect<Event, State>(Event{}, clipNames, updateTimes);
     }
 
+    void expectNoMove();
     void expectForwardVelocity(float speed);
     void expectLeftVelocity(float);
     Rotation createRotaion(float deltaTime, float rotateSpeed);

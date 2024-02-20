@@ -196,6 +196,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/CharacterControllerEvents.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/FsmContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/CharacterController.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/MoveController.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/AimController.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/CharacterControllerFsm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedRunAndRotateState.h

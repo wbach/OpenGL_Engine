@@ -174,6 +174,11 @@ void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>
     }
 }
 
+void CharacterControllerTests::expectNoMove()
+{
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, _)).Times(0);
+}
+
 void CharacterControllerTests::expectForwardVelocity(float speed)
 {
     DEBUG_LOG("Expected speed : " + std::to_string(speed));

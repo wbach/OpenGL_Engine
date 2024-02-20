@@ -36,7 +36,6 @@ void DrawArrowWalkAndRotateState::onEnter(ArmedWalkAndRotateState &, const DrawA
 void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
-    MoveAndRotateStateBase::updateMoveState();
 }
 
 void DrawArrowWalkAndRotateState::onEnter(const RotateLeftEvent& event)
@@ -124,6 +123,17 @@ void DrawArrowWalkAndRotateState::update(const RunForwardEvent& event)
 void DrawArrowWalkAndRotateState::update(const RunBackwardEvent& event)
 {
     MoveStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::update(const MoveInactivityEvent &)
+{
+    DEBUG_LOG("MoveInactivityEvent");
+    RotateStateBase::setCurrentAnim();
+}
+
+void DrawArrowWalkAndRotateState::update(const RotateInactivityEvent &)
+{
+
 }
 
 void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent& e)

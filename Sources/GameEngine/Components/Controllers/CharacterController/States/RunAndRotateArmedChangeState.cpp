@@ -44,28 +44,27 @@ void RunAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     ArmedChangeStateBase::update(e);
-    MoveStateBase::updateMoveState();
+
 }
 
 void RunAndRotateArmedChangeState::onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunAndRotateArmedChangeState::onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
+
 }
 
 void RunAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
-    MoveStateBase::updateMoveState();
+
 }
 
 void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &e)
@@ -84,13 +83,13 @@ void RunAndRotateArmedChangeState::onEnter(RecoilWalkAndRotateState &, const Wea
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
+
 }
 void RunAndRotateArmedChangeState::onEnter(AimWalkAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
+
 }
 void RunAndRotateArmedChangeState::update(float dt)
 {

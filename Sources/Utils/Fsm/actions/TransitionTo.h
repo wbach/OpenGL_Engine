@@ -34,6 +34,7 @@ public:
         enter(newState);
         enter(newState, event);
         enter(newState, prevState, event);
+        post(newState);
     }
 
 private:
@@ -59,6 +60,12 @@ private:
     {
     }
 
+    template <typename State>
+    auto enter(State& state) -> decltype(state.onEnter())
+    {
+        return state.onEnter();
+    }
+
     template <typename State, typename Event>
     auto enter(State& state, const Event& event) -> decltype(state.onEnter(event))
     {
@@ -72,10 +79,15 @@ private:
         return newState.onEnter(prevState, event);
     }
 
-    template <typename State>
-    auto enter(State& state) -> decltype(state.onEnter())
+    template <typename... Args>
+    void post(Args&...)
     {
-        return state.onEnter();
+    }
+
+    template <typename State>
+    auto post(State& state) -> decltype(state.postEnter())
+    {
+        return state.postEnter();
     }
 
     template <typename... Args>

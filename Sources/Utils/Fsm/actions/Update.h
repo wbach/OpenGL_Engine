@@ -12,6 +12,7 @@ public:
     void execute(Machine& machine, State& state, const Event& event)
     {
         update(state, event);
+        post(state);
     }
 
 private:
@@ -24,6 +25,18 @@ private:
     {
         return state.update(event);
     }
+
+    template <typename... Args>
+    void post(Args&...)
+    {
+    }
+
+    template <typename State>
+    auto post(State& state) -> decltype(state.postUpdate())
+    {
+        return state.postUpdate();
+    }
+
 };
 }  // namespace StateMachine
 }  // namespace Utils

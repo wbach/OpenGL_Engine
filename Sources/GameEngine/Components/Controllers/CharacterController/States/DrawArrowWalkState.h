@@ -62,16 +62,6 @@ public:
 
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
-//    void onEnter(const WalkForwardEvent&);
-//    void onEnter(const WalkBackwardEvent&);
-//    void onEnter(const RunForwardEvent&);
-//    void onEnter(const RunBackwardEvent&);
-//    void onEnter(const WalkChangeStateEvent&);
-
-//    void update(const WalkForwardEvent&);
-//    void update(const WalkBackwardEvent&);
-//    void update(const RunForwardEvent&);
-//    void update(const RunBackwardEvent&);
 
     void update(float);
 

@@ -79,8 +79,12 @@ TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_WalkForwardEvent)
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_WalkBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
+    expectNoMove();
     tiggerAndExpect<WalkBackwardEvent, DrawArrowWalkAndRotateState>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
+    tiggerAndExpect<EndForwardMoveEvent, DrawArrowWalkAndRotateState>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_DeathEvent)

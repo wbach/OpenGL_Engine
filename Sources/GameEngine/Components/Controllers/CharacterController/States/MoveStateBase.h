@@ -13,7 +13,7 @@ struct FsmContext;
 class MoveStateBase
 {
 public:
-    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &);
+    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &, const std::string& = "");
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const std::string &,
                   const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
@@ -33,6 +33,7 @@ public:
     void onEnter(const WalkRightEvent &);
     void onEnter(const EndJumpEvent &);
     void onEnter(const WalkChangeStateEvent &);
+    void postEnter();
 
     void update(const RunForwardEvent &);
     void update(const RunBackwardEvent &);
@@ -45,6 +46,7 @@ public:
     void update(const SprintStateChangeEvent &);
     void update(const SprintStartEvent &);
     void update(float);
+    void postUpdate();
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);
@@ -59,23 +61,9 @@ public:
     void changeAnimationClips(const MovmentClipNames &);
 
 protected:
-    void moveForward();
-    void moveBackward();
-    void moveLeft();
-    void moveRight();
-    void setMoveForwardData();
-    void setMoveBackwardData();
-    void setMoveLeftData();
-    void setMoveRightData();
-    void updateMoveState();
-
-    void moveRigidbody(FsmContext &);
-    void setForwardAnim();
-    void setBackwardAnim();
-    void setLeftAnim();
-    void setRightAnim();
-    void setCurrentAnim();
-    void setCurrentMoveSpeed();
+    bool shouldLeaveAndSetCurrAnimIfNot();
+    void moveRigidbody();
+    void setCurrentAnimIfNeeded();
     void setAnim(const std::string &);
 
 protected:
@@ -83,8 +71,8 @@ protected:
     std::optional<std::string> jointGroupName_;
     MovmentClipNames animationClips_;
     MoveSpeed moveSpeed_;
-
-    bool isAnimationReady{false};
+    std::string currentAnimName_;
+    std::string idlename_;
 };
 }  // namespace Components
 }  // namespace GameEngine

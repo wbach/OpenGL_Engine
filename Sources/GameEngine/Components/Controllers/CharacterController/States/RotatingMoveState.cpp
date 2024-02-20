@@ -20,37 +20,37 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
 
 void RotatingMoveState::onEnter(const RunForwardEvent &)
 {
-    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, 1.f);
-    context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+//    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, 1.f);
+//    context_.moveStateData_.currentMoveSpeed_.z = fabsf(moveSpeed_.forward);
 
-    setForwardAnim();
+//    setForwardAnim();
     setCharacterRotation(matrixRotationForward);
 }
 
 void RotatingMoveState::onEnter(const RunBackwardEvent &)
 {
-    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, -1.f);
-    context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+//    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, -1.f);
+//    context_.moveStateData_.currentMoveSpeed_.z = fabsf(moveSpeed_.forward);
 
-    setForwardAnim();
+//    setForwardAnim();
     setCharacterRotation(matrixRotationBackward);
 }
 
 void RotatingMoveState::onEnter(const RunLeftEvent &)
 {
-    context_.moveStateData_.moveDirection     = vec3(1.f, 0.f, 0.f);
-    context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+//    context_.moveStateData_.moveDirection     = vec3(1.f, 0.f, 0.f);
+//    context_.moveStateData_.currentMoveSpeed_.x = fabsf(moveSpeed_.forward);
 
-    setForwardAnim();
+//    setForwardAnim();
     setCharacterRotation(matrixRotationLeft);
 }
 
 void RotatingMoveState::onEnter(const RunRightEvent &)
 {
-    context_.moveStateData_.moveDirection     = vec3(-1.f, 0.f, 0.f);
-    context_.moveStateData_.currentMoveSpeed_ = fabsf(moveSpeed_.forward);
+//    context_.moveStateData_.moveDirection     = vec3(-1.f, 0.f, 0.f);
+//    context_.moveStateData_.currentMoveSpeed_.x = fabsf(moveSpeed_.forward);
 
-    setForwardAnim();
+//    setForwardAnim();
     setCharacterRotation(matrixRotationRight);
 }
 

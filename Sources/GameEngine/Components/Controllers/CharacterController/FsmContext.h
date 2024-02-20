@@ -9,6 +9,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "MoveController.h"
 #include "MoveSpeed.h"
 
 namespace GameEngine
@@ -20,42 +21,6 @@ class CharacterController;
 
 struct FsmContext
 {
-    struct MoveStateData
-    {
-        enum class DirectionEvents
-        {
-            Left,
-            Right,
-            Forward,
-            Backward
-        };
-
-        vec3 moveDirection{0.f};
-        float currentMoveSpeed_{0.0};
-        std::set<DirectionEvents> currentEvents_;
-
-        bool isMovingInDirection(DirectionEvents dir)
-        {
-            switch (dir)
-            {
-                case DirectionEvents::Left:
-                    return moveDirection.x > 0.5f;
-                case DirectionEvents::Right:
-                    return moveDirection.x < -0.5f;
-                case DirectionEvents::Forward:
-                    return moveDirection.z > 0.5f;
-                case DirectionEvents::Backward:
-                    return moveDirection.z < -0.5f;
-            }
-            return false;
-        }
-
-        bool isEventActive(DirectionEvents dir)
-        {
-            return currentEvents_.find(dir) != currentEvents_.end();
-        }
-    };
-
     struct RotateStateData
     {
         float rotateSpeed_;
@@ -75,8 +40,8 @@ struct FsmContext
     CharacterController& characterController;
     Input::InputManager& inputManager;
     AimController& aimController;
+    MoveController moveController;
 
-    MoveStateData moveStateData_;
     RotateStateData rotateStateData_;
 
     const AnimationClipsNames& animClipNames;

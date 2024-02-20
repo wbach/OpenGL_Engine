@@ -133,6 +133,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPers
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/BaseComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/EnemyController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/Attack/AttackState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/MoveController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/CharacterController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/AimController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/AimState.cpp

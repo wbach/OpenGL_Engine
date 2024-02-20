@@ -97,6 +97,11 @@ void RecoilWalkAndRotateState::update(const RunBackwardEvent& event)
     MoveStateBase::update(event);
 }
 
+void RecoilWalkAndRotateState::update(const MoveInactivityEvent&)
+{
+    RotateStateBase::setCurrentAnim();
+}
+
 void RecoilWalkAndRotateState::onLeave(const AimStopEvent& e)
 {
     RecoilStateBase::onLeave(e);

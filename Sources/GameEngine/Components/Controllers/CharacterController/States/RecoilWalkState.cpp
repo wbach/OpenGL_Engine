@@ -8,8 +8,7 @@ namespace Components
 {
 RecoilWalkState::RecoilWalkState(FsmContext& context)
     : RecoilStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
-                    context.animClipNames.armed.walk.backward}
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk}
     , context_{context}
 {
 }
@@ -22,6 +21,11 @@ void RecoilWalkState::update(float dt)
 {
     MoveStateBase::update(dt);
     RecoilStateBase::update(dt);
+}
+
+void RecoilWalkState::update(const MoveInactivityEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 void RecoilWalkState::onLeave(const AimStopEvent& e)
 {

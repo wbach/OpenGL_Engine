@@ -80,9 +80,8 @@ TEST_F(CharacterControllerTests, RecoilWalk_WalkForwardEvent)
 TEST_F(CharacterControllerTests, RecoilWalk_WalkBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, RecoilWalkState>(
-        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
+    expectNoMove();
+    tiggerAndExpect<WalkBackwardEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_DeathEvent)
 {
@@ -112,8 +111,10 @@ TEST_F(CharacterControllerTests, RecoilWalk_RunForwardEvent)
 TEST_F(CharacterControllerTests, RecoilWalk_RunBackwardEvent)
 {
     prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<RunBackwardEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<RunBackwardEvent, RecoilWalkState>(
+    tiggerAndExpect<EndForwardMoveEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_EndForwardMoveEvent)
