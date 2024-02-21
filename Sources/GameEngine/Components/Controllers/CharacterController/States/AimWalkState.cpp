@@ -34,6 +34,11 @@ void AimWalkState::onLeave(const SprintStateChangeEvent &e)
     AimStateBase::onLeave(e);
 }
 
+void AimWalkState::onMoveInactivity()
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+
 void AimWalkState::onLeave(const WeaponStateEvent &e)
 {
     AimStateBase::onLeave(e);

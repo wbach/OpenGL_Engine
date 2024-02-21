@@ -62,6 +62,8 @@ public:
     void onLeave(const WeaponStateEvent&);
     void onLeave(const SprintStateChangeEvent&);
 
+    void onMoveInactivity() override;
+
 private:
     FsmContext& context_;
 };

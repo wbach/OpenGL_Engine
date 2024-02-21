@@ -11,7 +11,7 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
                                                const MoveSpeed &moveSpeed, const MovmentClipNames &clipnames,
                                                const std::string &rotateLeft, const std::string &rotateRight)
     : MoveStateBase{context, moveJointGroupName, moveSpeed, clipnames.forward, clipnames.backward}
-    , RotateStateBase{context, std::nullopt, moveSpeed.rotate, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateLeft, rotateRight}
 {
 }
 
@@ -20,7 +20,7 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
                                                const std::string &forwardAnimName, float rotateSpeed,
                                                const std::string &rotateLeft, const std::string &rotateRight)
     : MoveStateBase{context, moveJointGroupName, forwardSpeed, forwardAnimName}
-    , RotateStateBase{context, std::nullopt, rotateSpeed, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateLeft, rotateRight}
 {
 }
 

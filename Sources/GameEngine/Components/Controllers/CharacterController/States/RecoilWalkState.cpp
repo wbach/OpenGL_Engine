@@ -23,7 +23,7 @@ void RecoilWalkState::update(float dt)
     RecoilStateBase::update(dt);
 }
 
-void RecoilWalkState::update(const MoveInactivityEvent&)
+void RecoilWalkState::onMoveInactivity()
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }

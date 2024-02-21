@@ -58,6 +58,8 @@ public:
     void onLeave(const AimStopEvent&);
     void onLeave(const SprintStateChangeEvent&);
 
+    void onMoveInactivity() override;
+
 private:
     FsmContext& context_;
 };

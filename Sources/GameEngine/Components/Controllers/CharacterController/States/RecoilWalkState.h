@@ -35,8 +35,6 @@ class RecoilWalkState
           Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MoveInactivityEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
@@ -59,7 +57,7 @@ public:
     void onEnter(const AttackEvent&);
 
     void update(float);
-    void update(const MoveInactivityEvent&);
+    void onMoveInactivity() override;
 
     void onLeave(const WeaponStateEvent&);
     void onLeave(const AimStopEvent&);

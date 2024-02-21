@@ -160,6 +160,11 @@ void MoveStateBase::changeAnimationClips(const MovmentClipNames &clips)
     }
 }
 
+void MoveStateBase::onMoveInactivity()
+{
+
+}
+
 bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
 {
     if (context_.moveController.isMoveActive())
@@ -249,7 +254,7 @@ void MoveStateBase::setCurrentAnimIfNeeded()
     }
     else
     {
-        context_.characterController.pushEventToQueue(MoveInactivityEvent{});
+        onMoveInactivity();
     }
 }
 

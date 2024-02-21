@@ -97,7 +97,7 @@ void RecoilWalkAndRotateState::update(const RunBackwardEvent& event)
     MoveStateBase::update(event);
 }
 
-void RecoilWalkAndRotateState::update(const MoveInactivityEvent&)
+void RecoilWalkAndRotateState::onMoveInactivity()
 {
     RotateStateBase::setCurrentAnim();
 }

@@ -45,6 +45,11 @@ void DrawArrowWalkState::update(float dt)
     DrawArrowStateBase::update(dt);
 }
 
+void DrawArrowWalkState::onMoveInactivity()
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+
 void DrawArrowWalkState::onLeave(const AimStopEvent &e)
 {
     DrawArrowStateBase::onLeave(e);

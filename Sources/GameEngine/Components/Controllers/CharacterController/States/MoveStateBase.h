@@ -60,6 +60,8 @@ public:
 
     void changeAnimationClips(const MovmentClipNames &);
 
+    virtual void onMoveInactivity();
+
 protected:
     bool shouldLeaveAndSetCurrAnimIfNot();
     void moveRigidbody();

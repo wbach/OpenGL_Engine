@@ -44,5 +44,10 @@ void AimWalkAndRotateState::onLeave(const SprintStateChangeEvent &e)
 {
     AimStateBase::onLeave(e);
 }
+
+void AimWalkAndRotateState::onMoveInactivity()
+{
+    RotateStateBase::setCurrentAnim();
+}
 }  // namespace Components
 }  // namespace GameEngine

@@ -39,7 +39,7 @@ public:
     template <typename Event>
     void pushEventToQueue(const Event& event)
     {
-        DEBUG_LOG("pushEventToQueue " + typeid(event).name());
+        DEBUG_LOG("pushEventToQueue " + typeName<Event>());
         eventQueue.push_back(event);
     }
 

@@ -37,8 +37,6 @@ class DrawArrowWalkAndRotateState
           Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MoveInactivityEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RotateInactivityEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -82,12 +80,11 @@ public:
     void update(const RunForwardEvent&);
     void update(const RunBackwardEvent&);
 
-    void update(const MoveInactivityEvent&);
-    void update(const RotateInactivityEvent&);
-
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
     void onLeave(const SprintStateChangeEvent&);
+
+    void onMoveInactivity() override;
 
 private:
     FsmContext& context_;

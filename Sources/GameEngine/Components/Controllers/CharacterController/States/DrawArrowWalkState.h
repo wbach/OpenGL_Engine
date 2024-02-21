@@ -65,6 +65,8 @@ public:
 
     void update(float);
 
+    void onMoveInactivity() override;
+
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
     void onLeave(const SprintStateChangeEvent&);

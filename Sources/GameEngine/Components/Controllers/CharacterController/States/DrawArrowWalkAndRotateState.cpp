@@ -125,15 +125,9 @@ void DrawArrowWalkAndRotateState::update(const RunBackwardEvent& event)
     MoveStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::update(const MoveInactivityEvent &)
+void DrawArrowWalkAndRotateState::onMoveInactivity()
 {
-    DEBUG_LOG("MoveInactivityEvent");
     RotateStateBase::setCurrentAnim();
-}
-
-void DrawArrowWalkAndRotateState::update(const RotateInactivityEvent &)
-{
-
 }
 
 void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent& e)

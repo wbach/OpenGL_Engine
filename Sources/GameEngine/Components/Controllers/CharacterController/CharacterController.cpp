@@ -180,7 +180,8 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]() {
+        auto sendEndAtatackCallback = [this]()
+        {
             if (stateMachine_)
                 stateMachine_->handle(EndAttackEvent{});
         };
@@ -301,8 +302,9 @@ void CharacterController::processEvent()
         for (auto& event : tmpEvents)
         {
             std::visit(
-                [&](const auto& e) {
-                    DEBUG_LOG("Process event : " + typeid(e).name());
+                [&](const auto& e)
+                {
+                    DEBUG_LOG("Process event : " + typeName(e));
                     stateMachine_->handle(e);
                 },
                 event);
@@ -315,7 +317,11 @@ void CharacterController::Update()
 
     if (stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
-        auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
+        auto passEventToState = [&](auto statePtr)
+        {
+            DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " + std::to_string(componentContext_.time_.deltaTime));
+            statePtr->update(componentContext_.time_.deltaTime);
+        };
         std::visit(passEventToState, stateMachine_->currentState);
     }
 }
@@ -342,7 +348,8 @@ void CharacterController::SetRunSpeed(float v)
 }
 void CharacterController::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<CharacterController>(componentContext, gameObject);
 
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
