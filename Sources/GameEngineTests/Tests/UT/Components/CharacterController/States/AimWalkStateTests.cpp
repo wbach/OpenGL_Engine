@@ -200,3 +200,27 @@ TEST_F(CharacterControllerTests, AimWalk_EndMoveMixed)
     expectNoMove();
     tiggerAndExpect<EndMoveRightEvent, AimState>({sut_.animationClipsNames_.aimIdle});
 }
+TEST_F(CharacterControllerTests, AimWalk_RunEndMoveLeft)
+{
+    prepareState(*this);
+    expectVelocity(VECTOR_LEFT + VECTOR_FORWARD, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<RunLeftEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<EndMoveLeftEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
+    expectNoMove();
+    tiggerAndExpect<EndForwardMoveEvent, AimState>({sut_.animationClipsNames_.aimIdle});
+}
+TEST_F(CharacterControllerTests, AimWalk_RunEndForwardWhenMoveLeft)
+{
+    prepareState(*this);
+    expectVelocity(VECTOR_LEFT + VECTOR_FORWARD, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<RunLeftEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
+    expectLeftVelocity(DEFAULT_WALK_LEFT_RIGHT_SPEED);
+    tiggerAndExpect<EndForwardMoveEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
+    expectNoMove();
+    tiggerAndExpect<EndMoveLeftEvent, AimState>({sut_.animationClipsNames_.aimIdle});
+}
