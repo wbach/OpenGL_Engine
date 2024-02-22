@@ -51,8 +51,6 @@ TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_AimStopDuringDrawArro
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_RunForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.forward});
 }
@@ -60,8 +58,10 @@ TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_RunForwardEvent)
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_RunBackwardEvent)
 {
     prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<RunBackwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.rotateLeft});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
+    tiggerAndExpect<EndForwardMoveEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_DeathEvent)
@@ -93,11 +93,11 @@ TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_EndForwardMoveEvent)
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_EndBackwardMoveEvent)
 {
     prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<RunBackwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.rotateLeft});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<EndBackwardMoveEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.forward});
-    tiggerAndExpect<EndForwardMoveEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateLeft});
+    tiggerAndExpect<EndForwardMoveEvent, DisarmedRunAndRotateState>({sut_.animationClipsNames_.disarmed.run.backward});
+    tiggerAndExpect<EndBackwardMoveEvent, DisarmedRotateState>({sut_.animationClipsNames_.disarmed.rotateLeft});
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_RotateLeftEvent)

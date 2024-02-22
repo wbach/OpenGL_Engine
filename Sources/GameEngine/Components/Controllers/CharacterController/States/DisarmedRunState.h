@@ -52,6 +52,9 @@ public:
     DisarmedRunState(FsmContext& context);
 
     using MoveStateBase::onEnter;
+    using MoveStateBase::update;
+
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine

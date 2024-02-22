@@ -12,5 +12,11 @@ ArmedRunState::ArmedRunState(FsmContext &context)
                     context.animClipNames.armed.run.backward}
 {
 }
+
+void ArmedRunState::onMoveInactivity()
+{
+    context_.animator.ChangeAnimation(context_.animClipNames.armed.idle, Animator::AnimationChangeType::smooth,
+                                      PlayDirection::forward, jointGroupName_);
+}
 }  // namespace Components
 }  // namespace GameEngine

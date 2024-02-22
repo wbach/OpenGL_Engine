@@ -29,8 +29,6 @@ TEST_F(CharacterControllerTests, ArmedRun_DrawArrowEvent)
 TEST_F(CharacterControllerTests, ArmedRun_RunForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.backward});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<RunForwardEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.forward});
 }
@@ -38,8 +36,10 @@ TEST_F(CharacterControllerTests, ArmedRun_RunForwardEvent)
 TEST_F(CharacterControllerTests, ArmedRun_RunBackwardEvent)
 {
     prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<RunBackwardEvent, ArmedRunState>({sut_.animationClipsNames_.armed.idle});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.backward});
+    tiggerAndExpect<EndForwardMoveEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.backward});
 }
 
 TEST_F(CharacterControllerTests, ArmedRun_DeathEvent)
@@ -72,10 +72,10 @@ TEST_F(CharacterControllerTests, ArmedRun_EndForwardMoveEvent)
 TEST_F(CharacterControllerTests, ArmedRun_EndBackwardMoveEvent)
 {
     prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.backward});
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<EndBackwardMoveEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<EndBackwardMoveEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
 }
 
 TEST_F(CharacterControllerTests, ArmedRun_RotateLeftEvent)
@@ -113,14 +113,15 @@ TEST_F(CharacterControllerTests, ArmedRunState_UpdateToDrawArrowAndBackAsMultiTr
 {
     prepareState(*this);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    float deltaTime = { 0.0001f };
+    float deltaTime = {0.0001f};
 
     for (int i = 0; i < 10; i++)
     {
         tiggerAndExpect<DrawArrowEvent, DrawArrowWalkState>(
-            { sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow }, { deltaTime });
+            {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow}, {deltaTime});
         Update(deltaTime);
-        tiggerAndExpect<AimStopEvent, ArmedRunState>({ sut_.animationClipsNames_.armed.run.forward }, { deltaTime, deltaTime });
+        tiggerAndExpect<AimStopEvent, ArmedRunState>({sut_.animationClipsNames_.armed.run.forward},
+                                                     {deltaTime, deltaTime});
         expectForwardVelocity(DEFAULT_RUN_SPEED);
         Update(ADVANCED_TIME_TRANSITION_TIME);
     }

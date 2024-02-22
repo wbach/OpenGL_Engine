@@ -50,6 +50,8 @@ public:
     bool transitionCondition(const EndBackwardMoveEvent &);
     bool transitionCondition(const SprintStartEvent &);
     bool transitionCondition(const SprintStateChangeEvent &);
+
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine

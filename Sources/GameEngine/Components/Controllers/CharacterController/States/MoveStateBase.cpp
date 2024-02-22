@@ -139,7 +139,7 @@ bool MoveStateBase::transitionCondition(const EndMoveRightEvent &)
 
 bool MoveStateBase::transitionCondition(const SprintStartEvent &)
 {
-    return shouldLeaveAndSetCurrAnimIfNot();
+    return context_.moveController.isMoving(MoveController::Direction::Forward);
 }
 
 bool MoveStateBase::transitionCondition(const SprintStateChangeEvent &)
@@ -162,7 +162,6 @@ void MoveStateBase::changeAnimationClips(const MovmentClipNames &clips)
 
 void MoveStateBase::onMoveInactivity()
 {
-
 }
 
 bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
@@ -295,7 +294,7 @@ void MoveStateBase::moveRigidbody()
     vec3 moveSpeed(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward);
 
     auto &rigidbody     = context_.rigidbody;
-    auto targetVelocity = (rigidbody.GetRotation() * moveDirection) * moveSpeed;
+    auto targetVelocity = glm::normalize(rigidbody.GetRotation() * moveDirection) * moveSpeed;
     DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
     DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
     DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));

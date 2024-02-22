@@ -45,6 +45,8 @@ public:
 
     using MoveStateBase::onEnter;
     using MoveStateBase::update;
+
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -102,6 +102,11 @@ bool MoveAndRotateStateBase::transitionCondition(const SprintStateChangeEvent &e
     return MoveStateBase::transitionCondition(e);
 }
 
+void MoveAndRotateStateBase::onMoveInactivity()
+{
+    RotateStateBase::setCurrentAnim();
+}
+
 void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
 {
     MoveStateBase::onEnter(event);

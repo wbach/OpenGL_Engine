@@ -179,6 +179,17 @@ void CharacterControllerTests::expectNoMove()
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, _)).Times(0);
 }
 
+void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed)
+{
+    auto velocity = glm::normalize(dir) * moveSpeed;
+    DEBUG_LOG("Expected dir : " + std::to_string(dir));
+    DEBUG_LOG("Expected speed : " + std::to_string(moveSpeed));
+    DEBUG_LOG("Expected velocity : " + std::to_string(velocity));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, velocity)).Times(AtLeast(1));
+}
+
 void CharacterControllerTests::expectForwardVelocity(float speed)
 {
     DEBUG_LOG("Expected speed : " + std::to_string(speed));
