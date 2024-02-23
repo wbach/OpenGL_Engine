@@ -77,6 +77,8 @@ public:
     void update(float);
     void update(const WeaponStateEvent&);
 
+    void onMoveInactivity() override;
+
 private:
     FsmContext& context_;
 };

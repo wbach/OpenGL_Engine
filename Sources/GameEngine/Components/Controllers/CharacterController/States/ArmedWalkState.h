@@ -51,6 +51,11 @@ public:
     }
 
     using MoveStateBase::onEnter;
+
+    void onMoveInactivity() override
+    {
+        setAnim(context_.animClipNames.armed.idle);
+    }
 };
 }  // namespace Components
 }  // namespace GameEngine

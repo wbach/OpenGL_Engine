@@ -27,14 +27,20 @@ public:
         DEBUG_LOG("Entering : " + typeName<TargetState>());
 #endif
 
+        DEBUG_LOG("leave(prevState);");
         leave(prevState);
+        DEBUG_LOG("leave(prevState, event);");
         leave(prevState, event);
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
+        DEBUG_LOG("enter(newState);");
         enter(newState);
+        DEBUG_LOG("enter(newState,event);");
         enter(newState, event);
+        DEBUG_LOG("enter(newState,prevState,event);");
         enter(newState, prevState, event);
+        DEBUG_LOG("post(newState);");
         post(newState);
     }
 

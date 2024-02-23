@@ -87,6 +87,8 @@ public:
     void update(const SprintStateChangeEvent&);
     void update(const WeaponStateEvent&);
 
+    void onMoveInactivity() override;
+
 private:
     FsmContext& context_;
 };

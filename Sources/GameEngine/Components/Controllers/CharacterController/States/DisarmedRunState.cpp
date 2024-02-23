@@ -11,7 +11,7 @@ DisarmedRunState::DisarmedRunState(FsmContext &context)
 
 void DisarmedRunState::onMoveInactivity()
 {
-    context_.animator.ChangeAnimation(context_.animClipNames.armed.idle, Animator::AnimationChangeType::smooth,
+    context_.animator.ChangeAnimation(context_.animClipNames.disarmed.idle, Animator::AnimationChangeType::smooth,
                                       PlayDirection::forward, jointGroupName_);
 }
 }  // namespace Components

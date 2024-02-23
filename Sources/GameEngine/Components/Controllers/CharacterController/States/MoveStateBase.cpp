@@ -38,18 +38,6 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
-void MoveStateBase::onEnter()
-{
-}
-
-void MoveStateBase::onEnter(const EquipEndStateEvent &)
-{
-}
-
-void MoveStateBase::onEnter(const DisarmEndStateEvent &)
-{
-}
-
 void MoveStateBase::onEnter(const SprintStartEvent &)
 {
     DEBUG_LOG("onEnter(const SprintStartEvent &)");
@@ -270,7 +258,7 @@ void MoveStateBase::setAnim(const std::string &clipName)
     if (iter != currentAnimations.end())
         return;
 
-    DEBUG_LOG("SetAnim : " + clipName);
+    DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
     context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                       jointGroupName_);
 }

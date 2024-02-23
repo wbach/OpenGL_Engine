@@ -15,14 +15,15 @@ RunArmedChangeState::RunArmedChangeState(FsmContext& context)
 
 void RunArmedChangeState::onEnter()
 {
-    if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
-    {
-        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
-    }
-    else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
-    {
-        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    }
+    DEBUG_LOG("RunArmedChangeState onEnter");
+//    if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
+//    {
+//        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
+//    }
+//    else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
+//    {
+//        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+//    }
 }
 void RunArmedChangeState::onEnter(const SprintStartEvent& event)
 {
@@ -110,6 +111,11 @@ void RunArmedChangeState::update(const WeaponStateEvent & e)
 {
     ArmedChangeStateBase::update(e);
     onEnter();
+}
+
+void RunArmedChangeState::onMoveInactivity()
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 }  // namespace Components
 }  // namespace GameEngine
