@@ -44,6 +44,8 @@ class RunAndRotateArmedChangeState
                                   Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
@@ -67,22 +69,22 @@ public:
 
     void onEnter();
     void onEnter(const SprintStartEvent &);
-    void onEnter(const SprintStateChangeEvent&);
+    void onEnter(const SprintStateChangeEvent &);
 
     void onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedSprintAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &);
 
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedRunAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
 
-    void onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&);
-    void onEnter(RecoilWalkAndRotateState&, const WeaponStateEvent&);
-    void onEnter(AimWalkAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DrawArrowWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(RecoilWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(AimWalkAndRotateState &, const WeaponStateEvent &);
 
     void update(float);
-    void update(const WeaponStateEvent&);
+    void update(const WeaponStateEvent &);
 
 private:
     FsmContext &context_;

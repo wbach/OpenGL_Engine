@@ -35,6 +35,8 @@ class ArmedWalkState
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>,
@@ -44,8 +46,7 @@ class ArmedWalkState
 {
 public:
     ArmedWalkState(FsmContext& context)
-        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.armed.walk.forward,
-                        context.animClipNames.armed.walk.backward}
+        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.armed.walk}
     {
     }
 

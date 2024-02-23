@@ -51,6 +51,8 @@ class WalkAndRotateArmedChangeState
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // quque?
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>       // queue?

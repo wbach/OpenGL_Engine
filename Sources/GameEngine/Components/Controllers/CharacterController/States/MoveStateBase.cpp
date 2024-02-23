@@ -11,12 +11,11 @@ namespace GameEngine
 namespace Components
 {
 MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
-                             const MoveSpeed &moveSpeed, const MovmentClipNames &clips, const std::string &idlename)
+                             const MoveSpeed &moveSpeed, const MovmentClipNames &clips)
     : context_{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{clips}
     , moveSpeed_{moveSpeed}
-    , idlename_{idlename}
 {
 }
 

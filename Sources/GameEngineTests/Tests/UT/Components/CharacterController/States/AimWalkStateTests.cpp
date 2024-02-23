@@ -224,3 +224,14 @@ TEST_F(CharacterControllerTests, AimWalk_RunEndForwardWhenMoveLeft)
     expectNoMove();
     tiggerAndExpect<EndMoveLeftEvent, AimState>({sut_.animationClipsNames_.aimIdle});
 }
+TEST_F(CharacterControllerTests, AimWalk_AimStopEventWhenMoveLeft)
+{
+    prepareAimState(*this);
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
+    tiggerAndExpect<WalkLeftEvent, AimWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
+    tiggerAndExpect<AimStopEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.moveleft});
+    expectNoMove();
+    tiggerAndExpect<EndMoveLeftEvent, ArmedIdleState>({sut_.animationClipsNames_.armed.idle});
+}

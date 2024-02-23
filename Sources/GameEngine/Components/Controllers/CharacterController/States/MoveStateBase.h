@@ -13,7 +13,7 @@ struct FsmContext;
 class MoveStateBase
 {
 public:
-    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &, const std::string& = "");
+    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const std::string &,
                   const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
@@ -74,7 +74,6 @@ protected:
     MovmentClipNames animationClips_;
     MoveSpeed moveSpeed_;
     std::string currentAnimName_;
-    std::string idlename_;
 };
 }  // namespace Components
 }  // namespace GameEngine
