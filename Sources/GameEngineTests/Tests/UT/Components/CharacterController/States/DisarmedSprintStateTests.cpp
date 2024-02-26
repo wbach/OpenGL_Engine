@@ -37,7 +37,7 @@ TEST_F(CharacterControllerTests, DisarmedSprintState_RunBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<RunBackwardEvent, DisarmedRunState>({sut_.animationClipsNames_.armed.idle});
+    tiggerAndExpect<RunBackwardEvent, DisarmedRunState>({sut_.animationClipsNames_.disarmed.idle});
 }
 TEST_F(CharacterControllerTests, DisarmedSprintState_DeathEvent)
 {

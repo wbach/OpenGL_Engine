@@ -92,17 +92,20 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotate_EndBackwardMoveEvent)
 TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
+    expectNoMove();
+    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
 TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunForwardEvent)
 {
     prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
     tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
+    expectNoMove();
+    tiggerAndExpect<RunForwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<RunForwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<EndBackwardMoveEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedRunAndRotate_EndRotationEvent)

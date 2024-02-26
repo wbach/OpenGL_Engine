@@ -16,14 +16,15 @@ RunArmedChangeState::RunArmedChangeState(FsmContext& context)
 void RunArmedChangeState::onEnter()
 {
     DEBUG_LOG("RunArmedChangeState onEnter");
-//    if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
-//    {
-//        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
-//    }
-//    else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
-//    {
-//        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-//    }
+    if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
+    {
+        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
+    }
+    else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
+    {
+        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+    }
+    DEBUG_LOG("End on enter");
 }
 void RunArmedChangeState::onEnter(const SprintStartEvent& event)
 {

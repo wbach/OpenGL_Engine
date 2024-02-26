@@ -19,13 +19,20 @@ RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
 }
 void RunAndRotateArmedChangeState::onEnter()
 {
+    DEBUG_LOG("onEnter ");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
+        DEBUG_LOG("onEnter 1");
         MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.rotateLeft,
+                                                  context_.animClipNames.armed.rotateRight);
     }
     else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
     {
+        DEBUG_LOG("onEnter 2");
         MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                                  context_.animClipNames.disarmed.rotateRight);
     }
 }
 void RunAndRotateArmedChangeState::onEnter(const SprintStartEvent &event)
@@ -44,7 +51,6 @@ void RunAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     ArmedChangeStateBase::update(e);
-
 }
 
 void RunAndRotateArmedChangeState::onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &)
@@ -57,14 +63,12 @@ void RunAndRotateArmedChangeState::onEnter(ArmedSprintAndRotateState &, const We
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-
 }
 
 void RunAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
-
 }
 
 void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &e)
@@ -83,13 +87,11 @@ void RunAndRotateArmedChangeState::onEnter(RecoilWalkAndRotateState &, const Wea
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-
 }
 void RunAndRotateArmedChangeState::onEnter(AimWalkAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-
 }
 void RunAndRotateArmedChangeState::update(float dt)
 {

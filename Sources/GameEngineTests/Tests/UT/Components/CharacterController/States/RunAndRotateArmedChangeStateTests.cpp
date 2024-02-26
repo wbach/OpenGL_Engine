@@ -53,9 +53,9 @@ TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_RunForwardEvent)
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_RunBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
+    expectNoMove();
     tiggerAndExpect<RunBackwardEvent, RunAndRotateArmedChangeState>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.backward});
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.rotateRight});
 }
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_WalkChangeStateEventt)
 {

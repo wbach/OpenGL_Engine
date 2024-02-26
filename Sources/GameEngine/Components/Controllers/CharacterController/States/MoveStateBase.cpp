@@ -143,7 +143,6 @@ void MoveStateBase::changeAnimationClips(const MovmentClipNames &clips)
     if (clips != animationClips_)
     {
         animationClips_ = clips;
-        setCurrentAnimIfNeeded();
     }
 }
 
@@ -240,6 +239,7 @@ void MoveStateBase::setCurrentAnimIfNeeded()
     }
     else
     {
+        DEBUG_LOG("onMoveInactivity()");
         onMoveInactivity();
     }
 }

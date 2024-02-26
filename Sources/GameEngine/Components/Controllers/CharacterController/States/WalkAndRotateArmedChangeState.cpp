@@ -21,10 +21,15 @@ void WalkAndRotateArmedChangeState::onEnter()
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
         MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.rotateLeft,
+                                                  context_.animClipNames.armed.rotateRight);
     }
     else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
     {
         MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                                  context_.animClipNames.disarmed.rotateRight);
     }
 }
 void WalkAndRotateArmedChangeState::onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&)
