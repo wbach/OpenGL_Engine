@@ -1,0 +1,24 @@
+newmtl G3_Architecture_Iron_01_A
+map_Kd G3_Architecture_Iron_01_Diffuse_01.png
+map_bump G3_Architecture_Iron_01_Normal_01.png
+map_Ks G3_Architecture_Iron_01_Diffuse_01.png
+
+newmtl G3_Architecture_Rope_01_01_A
+map_Kd G3_Architecture_Rope_01_Diffuse_02.png
+map_bump G3_Architecture_Rope_01_Normal_01.png
+map_Ks G3_Architecture_Rope_01_Diffuse_02.png
+
+newmtl G3_Architecture_Wood_04_C
+map_Kd G3_Architecture_Wood_04_Diffuse_03.png
+map_bump G3_Architecture_Wood_04_Normal_02.png
+map_Ks G3_Architecture_Wood_04_Diffuse_03.png
+
+newmtl G3_Architecture_Wood_Burned_01_A
+map_Kd G3_Architecture_Wood_Burned_01_Diffuse_01.png
+map_Ks G3_Architecture_Wood_Burned_01_Specular_01.png
+
+newmtl G3_Nature_Wall_Stone_01_B
+map_Kd G3_Nature_Wall_Stone_01_Diffuse_01.png
+map_bump G3_Nature_Wall_Stone_07_Normal_02.png
+map_Ks G3_Nature_Wall_Stone_01_Diffuse_01.png
+

@@ -1,0 +1,15 @@
+newmtl G3_Objects_Barrelmetal_01_B
+map_Kd G3_Objects_Barrelmetal_01_Diffuse_02.png
+map_bump G3_Architecture_Iron_01_Normal_01.png
+map_Ks G3_Objects_Barrelmetal_01_Diffuse_02.png
+
+newmtl G3_Objects_Wood_01_C
+map_Kd G3_Objects_Wood_01_Diffuse_03.png
+map_bump G3_Objects_Wood_01_Normal_01.png
+map_Ks G3_Objects_Wood_01_Diffuse_03.png
+
+newmtl G3_Object_Snow_01_B
+map_Kd G3_Nature_Ground_Snow_01_Diffuse_01.png
+map_bump G3_Desert_Sand_07_Normal_05.png
+map_Ks G3_Nature_Ground_Snow_01_Diffuse_01.png
+

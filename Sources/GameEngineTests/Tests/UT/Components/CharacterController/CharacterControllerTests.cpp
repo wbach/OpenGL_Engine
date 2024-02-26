@@ -181,7 +181,8 @@ void CharacterControllerTests::expectNoMove()
 
 void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed)
 {
-    auto velocity = glm::normalize(dir) * moveSpeed;
+    auto normalizedDir = glm::normalize(dir);
+    auto velocity      = normalizedDir * glm::length(moveSpeed * normalizedDir);
     DEBUG_LOG("Expected dir : " + std::to_string(dir));
     DEBUG_LOG("Expected speed : " + std::to_string(moveSpeed));
     DEBUG_LOG("Expected velocity : " + std::to_string(velocity));

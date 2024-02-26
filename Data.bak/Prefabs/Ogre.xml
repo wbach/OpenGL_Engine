@@ -1,0 +1,54 @@
+<prefab name="Ogre" id="35">
+	<localTransform>
+		<position x="55.725933" y="75.829414" z="-4.415530"/>
+		<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+		<scale x="5.000000" y="5.000000" z="5.000000"/>
+	</localTransform>
+	<components count="7">
+		<component type="Renderer">
+			<textureIndex>0</textureIndex>
+			<modelFileNames>
+				<modelFileName>
+					<fileName>Meshes/DungeonDefenders/Ogre/Ogre.md5mesh</fileName>
+					<lvlOfDetail>0</lvlOfDetail>
+				</modelFileName>
+			</modelFileNames>
+		</component>
+		<component type="Animator">
+			<startupAnimationClip>Idle</startupAnimationClip>
+			<animationClips>
+				<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Idle.xml</animationClip>
+				<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Punch.xml</animationClip>
+				<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Walk.xml</animationClip>
+				<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Hurt.xml</animationClip>
+				<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Pound.xml</animationClip>
+				<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Death.xml</animationClip>
+			</animationClips>
+		</component>
+		<component type="Rigidbody">
+			<mass>100.000000</mass>
+			<isStatic>false</isStatic>
+			<collisionShape>CapsuleShape</collisionShape>
+			<angularFactor x="0.000000" y="0.000000" z="0.000000"/>
+		</component>
+		<component type="CapsuleShape">
+			<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+			<height>1.000000</height>
+			<radius>0.250000</radius>
+		</component>
+		<component type="Enemy"/>
+		<component type="EnemyController"/>
+		<component type="CharacterController">
+			<animationClips>
+				<idle>Idle</idle>
+				<hurt>Hurt</hurt>
+				<run>Walk</run>
+				<moveBackward/>
+				<death>Death</death>
+				<attack>Pound</attack>
+				<jump/>
+			</animationClips>
+		</component>
+	</components>
+</prefab>
+

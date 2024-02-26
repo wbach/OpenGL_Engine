@@ -1,0 +1,38 @@
+# Blender MTL File: 'CastleTower1.blend'
+# Material Count: 4
+
+newmtl None
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 2.0 2.0 2.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Nature_Wall_Stone_12_Diffuse_06.png
+
+newmtl None_G3_Architecture_Bricks_03_Diffuse_01.tga
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 2.0 2.0 2.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_Bricks_03_Diffuse_01.png
+
+newmtl None_G3_Architecture_Bricks_04_Diffuse_01.tga
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 2.0 2.0 2.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_Bricks_04_Diffuse_01.png
+
+newmtl None_G3_Architecture_Wood_07_Diffuse_01.tga
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 2.0 2.0 2.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_Wood_07_Diffuse_01.png

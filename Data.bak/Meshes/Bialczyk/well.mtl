@@ -1,0 +1,82 @@
+# Blender MTL File: 'None'
+# Material Count: 7
+
+newmtl Mat_0.002_G3_Architecture_Roofshingle_01_Diffuse_01.png.002
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl Mat_0.002_G3_Architecture_Wood_04_Diffuse_01.png.002
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Wood_04_Diffuse_01.png
+
+newmtl Mat_0.002_G3_Architecture_Wood_09_Diffuse_01.png.002
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Wood_09_Diffuse_01.png
+
+newmtl Mat_1.001
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Bricks_01_Diffuse_03.png
+
+newmtl Mat_2.001
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Wood_09_Diffuse_01.png
+map_Ka C:\\maps\\th.bmp
+
+newmtl Mat_2.002_G3_Architecture_Wood_07_Diffuse_01.png.002
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Wood_07_Diffuse_01.png
+map_Ka C:\\maps\\th.bmp
+
+newmtl Mat_3.001
+Ns 1000.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Objects/G3_Architecture_Wood_04_Diffuse_01.png
+map_Ka C:\\maps\\armr.jpg

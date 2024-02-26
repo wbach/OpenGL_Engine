@@ -1,0 +1,338 @@
+# Blender MTL File: 'geralt.blend'
+# Material Count: 28
+
+newmtl 24_+Scab_Silver_0.25_
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\scabbard3_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\scabbard3_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\scabbard3_s.tga.png
+
+newmtl 24_+Scab_Steel_0.25_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\scabbard_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\scabbard_d.tga.png
+
+newmtl 24_+Steel_back_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\exwitch_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\exwitch_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\exwitch_s.tga.png
+
+newmtl 24_+hook_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hook_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hook_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hook_s.tga.png
+
+newmtl 24_-Silver_hand_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\wolfsilver_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\wolfsilver_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\wolfsilver_s.tga.png
+
+newmtl 24_armmet_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_d.tga.png
+
+newmtl 24_armor1_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.724138 0.724138 0.724138
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_s.tga.png
+
+newmtl 24_boot_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\boot_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\boot_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\boot_s.tga.png
+
+newmtl 24_cord_0.75_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\cordel_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\cordel_s.tga.png
+
+newmtl 24_eye2_0.1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl 24_eye_0.75_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl 24_glove_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\glove_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\glove_s.tga.png
+
+newmtl 24_harness_0.75_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\harness_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\harness_s.tga.png
+
+newmtl 24_head_0.1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump -bm 0.477179 C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\Geralt_head_NM.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\Geralt_head_BM-2.tga.png
+
+newmtl 24_metal_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\boot_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\boot_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\boot_s.tga.png
+
+newmtl 24_mouth_0.1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl 24_pant1_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pendant_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pant1_d.tga.png
+
+newmtl 24_pant2_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pant1_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pant1_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pant1_s.tga.png
+
+newmtl 24_pantm_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl 24_sleeve_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\armor_s.tga.png
+
+newmtl 25_+Default_a_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_s.tga.png
+
+newmtl 25_-Default_b_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\hair_s.tga.png
+
+newmtl 25_-beard_a_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl 25_-beard_b_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\beard_d.tga.png
+
+newmtl 25_-beard_c_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\beard_d.tga.png
+
+newmtl 25_pendant_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pendant_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pendant_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\pendant_s.tga.png
+
+newmtl 7_lash_0_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.002
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\chain_n.tga.png
+map_Kd C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\chain_d.tga.png
+map_Ks C:\\Users\\bach\\Downloads\\witcher-3-geralt\\textures\\chain_s.tga.png

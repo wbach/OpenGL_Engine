@@ -1,0 +1,25 @@
+
+worldPosition = parentMatrix * parenMeshMatrix * jointMatrix * position
+
+worldPosition = parentMatrix * parenMeshMatrix * jointMatrix * inverse(jointOffset) * point
+
+
+worldMatrix = parentMatrix * localMatrix * meshMatrix;
+
+
+
+
+
+parentMatrix * parenMeshMatrix * jointMatrix = parentMatrix * localMatrix * meshMatrix;
+
+
+
+
+
+
+
+parenMeshMatrix * jointMatrix = localMatrix * meshMatrix;
+
+localMatrix   = (parenMeshMatrix * jointMatrix) * glm::inverse(meshMatrix)  * jointOffset
+
+, vec3(-1.5, 4, 0), Rotation(DegreesVec3(90, 0, 0))

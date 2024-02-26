@@ -1,0 +1,5 @@
+newmtl G3_Architecture_Wood_08_A
+map_Kd G3_Architecture_Wood_08_Diffuse_01.png
+map_bump G3_Architecture_Wood_08_Normal_01.png
+map_Ks G3_Architecture_Wood_08_Diffuse_01.png
+

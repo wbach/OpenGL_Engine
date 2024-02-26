@@ -1,0 +1,1655 @@
+<AnimationClip name="MeleeAttack3" length="0.539499">
+	<KeyFrames count="15">
+		<KeyFrame>
+			<timeStamp>0.000000</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.130296" y="-0.023495" z="0.467726" w="-0.873901"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.347991" y="6.584404" z="1.990160"/>
+					<Rotation x="-0.006532" y="-0.040925" z="-0.018503" w="-0.998970"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.237695" y="0.032149" z="0.379559" w="-0.893534"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="0.052770" y="-0.505570" z="0.033944" w="-0.860501"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.134590" y="0.326377" z="0.085033" w="-0.931737"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.311234" y="0.194368" z="-0.153016" w="-0.917573"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.218668" z="-0.000000" w="-0.975799"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.959830" y="-0.005093" z="-0.110157" w="-0.258002"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000000" y="0.024569" z="-0.000000" w="-0.999698"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.033479" y="-0.097707" z="-0.166768" w="-0.980572"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.038536</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.138996" y="-0.017286" z="0.467122" w="-0.873028"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.350427" y="6.555809" z="2.029099"/>
+					<Rotation x="-0.006789" y="-0.038035" z="-0.018319" w="-0.999085"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.232879" y="0.083677" z="0.397601" w="-0.883561"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="0.034410" y="-0.474634" z="0.044108" w="-0.878404"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.129535" y="0.275922" z="0.080154" w="-0.949033"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.312755" y="0.196601" z="-0.164705" w="-0.914552"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.196021" z="-0.000000" w="-0.980600"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.965409" y="0.046721" z="-0.182074" w="-0.180696"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000000" y="0.121352" z="-0.000000" w="-0.992610"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.079715" y="-0.064327" z="-0.189809" w="-0.976463"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.077071</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.145702" y="-0.012292" z="0.466509" w="-0.872347"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.352253" y="6.534363" z="2.058304"/>
+					<Rotation x="-0.006981" y="-0.035868" z="-0.018185" w="-0.999167"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.206289" y="0.188475" z="0.412811" w="-0.866896"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="0.009923" y="-0.425039" z="0.053118" w="-0.903560"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.121233" y="0.201711" z="0.068835" w="-0.969473"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.313542" y="0.198728" z="-0.173716" w="-0.912152"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.178081" z="-0.000000" w="-0.984016"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.953294" y="0.101253" z="-0.268764" w="-0.093512"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.141153" z="-0.000000" w="-0.989988"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.112220" y="0.009582" z="-0.187906" w="-0.975708"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.115607</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.143448" y="-0.013992" z="0.466730" w="-0.872577"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.351645" y="6.541512" z="2.048569"/>
+					<Rotation x="-0.006917" y="-0.036590" z="-0.018229" w="-0.999140"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.166555" y="0.289813" z="0.412794" w="-0.847271"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.014677" y="-0.358753" z="0.055570" w="-0.931661"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.111659" y="0.112643" z="0.051191" w="-0.986014"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.313315" y="0.197972" z="-0.170688" w="-0.912966"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.184160" z="-0.000000" w="-0.982896"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.929515" y="0.143400" z="-0.338247" w="-0.032040"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000000" y="0.121312" z="-0.000000" w="-0.992614"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.071691" y="0.123300" z="-0.092529" w="-0.985442"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.154143</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.126038" y="-0.026431" z="0.467943" w="-0.874326"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.346774" y="6.598701" z="1.970691"/>
+					<Rotation x="-0.006404" y="-0.042370" z="-0.018598" w="-0.998908"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.137195" y="0.326678" z="0.409174" w="-0.840854"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.030797" y="-0.278124" z="0.049690" w="-0.958765"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.106577" y="0.018218" z="0.032103" w="-0.993619"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.310286" y="0.193479" z="-0.147301" w="-0.919016"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.229509" z="-0.000000" w="-0.973306"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.918563" y="0.171371" z="-0.355317" w="-0.024962"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.170051" z="-0.000000" w="-0.985435"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.046983" y="0.126861" z="0.016780" w="-0.990665"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.192678</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.087271" y="-0.050546" z="0.467649" w="-0.878142"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.335001" y="6.736929" z="1.782459"/>
+					<Rotation x="-0.005157" y="-0.056329" z="-0.019597" w="-0.998207"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.122590" y="0.289904" z="0.424641" w="-0.848886"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.031671" y="-0.169160" z="0.036506" w="-0.984403"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.111970" y="-0.090925" z="0.016434" w="-0.989407"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.295643" y="0.190865" z="-0.096077" w="-0.931093"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.321776" z="-0.000000" w="-0.946816"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.934976" y="0.186871" z="-0.286931" w="-0.092567"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.256905" z="-0.000001" w="-0.966437"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.067176" y="-0.071151" z="0.044146" w="-0.994221"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.231214</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="0.034467" y="-0.077815" z="0.460938" w="-0.883342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.317283" y="6.944969" z="1.499161"/>
+					<Rotation x="-0.003264" y="-0.077303" z="-0.021389" w="-0.996773"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.107404" y="0.203841" z="0.442747" w="-0.866538"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.022917" y="-0.027416" z="0.019446" w="-0.999172"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.120549" y="-0.220568" z="0.006561" w="-0.967871"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.259021" y="0.200611" z="-0.031367" w="-0.944288"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.432369" z="-0.000000" w="-0.901697"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.949765" y="0.178978" z="-0.145644" w="-0.211425"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.295273" z="-0.000001" w="-0.955413"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.069362" y="-0.297989" z="0.032183" w="-0.951502"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.269750</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.020128" y="-0.101871" z="0.446401" w="-0.888787"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.297187" y="7.180933" z="1.177836"/>
+					<Rotation x="-0.001099" y="-0.101024" z="-0.023838" w="-0.994598"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.078093" y="0.108737" z="0.430852" w="-0.892437"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.012650" y="0.127419" z="0.003530" w="-0.991762"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.122437" y="-0.354482" z="0.005196" w="-0.926998"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.202409" y="0.224256" z="0.024898" w="-0.952953"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.532900" z="-0.000000" w="-0.846179"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.932096" y="0.135133" z="0.028380" w="-0.334859"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.257203" z="-0.000001" w="-0.966357"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.054032" y="-0.465268" z="-0.015105" w="-0.883390"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.308285</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.067493" y="-0.121114" z="0.427148" w="-0.893488"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.037246" y="0.067905" z="0.375981" w="-0.923385"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.008886" y="0.273456" z="-0.009878" w="-0.961793"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.111131" y="-0.476827" z="0.010250" w="-0.871883"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.139287" y="0.255288" z="0.061331" w="-0.954812"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.611248" z="-0.000000" w="-0.791439"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000000" y="0.106604" z="-0.000000" w="-0.994301"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.052914" y="-0.522109" z="-0.067445" w="-0.848560"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.346821</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.068344" y="-0.100605" z="0.435237" w="-0.892063"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.065120" y="0.001132" z="0.392843" w="-0.917296"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.004761" y="0.250299" z="0.003743" w="-0.968150"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.108811" y="-0.453951" z="0.008930" w="-0.884312"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.125818" y="0.253653" z="0.054552" w="-0.957525"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.622595" z="-0.000000" w="-0.782544"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.275556" z="-0.000001" w="-0.961285"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.043764" y="-0.576585" z="-0.058751" w="-0.813746"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.385356</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.068337" y="-0.087540" z="0.440212" w="-0.891000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.078471" y="-0.027673" z="0.404304" w="-0.910832"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.002590" y="0.236306" z="0.011983" w="-0.971601"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.107036" y="-0.440051" z="0.008506" w="-0.891530"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.118457" y="0.253070" z="0.049709" w="-0.958881"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.628349" z="-0.000000" w="-0.777932"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.349553" z="-0.000001" w="-0.936917"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.041219" y="-0.596435" z="-0.054205" w="-0.799767"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.423892</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.068349" y="-0.100227" z="0.435383" w="-0.892034"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.065537" y="0.000197" z="0.393166" w="-0.917129"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.004694" y="0.249888" z="0.003985" w="-0.968255"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.108763" y="-0.453543" z="0.008914" w="-0.884528"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.125593" y="0.253631" z="0.054417" w="-0.957568"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.622776" z="-0.000000" w="-0.782400"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.277945" z="-0.000001" w="-0.960597"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.043663" y="-0.577265" z="-0.058603" w="-0.813280"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.462428</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.067846" y="-0.115425" z="0.429432" w="-0.893120"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.046420" y="0.045150" z="0.380542" w="-0.922494"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.007644" y="0.266865" z="-0.006004" w="-0.963685"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.110550" y="-0.470333" z="0.009795" w="-0.875482"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.135293" y="0.254743" z="0.059568" w="-0.955643"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.614715" z="-0.000000" w="-0.788749"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000001" y="0.163850" z="-0.000000" w="-0.986485"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.049481" y="-0.541971" z="-0.065025" w="-0.836416"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.500963</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.067566" y="-0.120051" z="0.427578" w="-0.893420"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.039098" y="0.063264" z="0.376828" w="-0.923293"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.008648" y="0.272214" z="-0.009147" w="-0.962155"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.111026" y="-0.475604" z="0.010159" w="-0.872566"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.138524" y="0.255181" z="0.061009" w="-0.954972"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.611916" z="-0.000000" w="-0.790923"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000000" y="0.118255" z="-0.000000" w="-0.992983"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.052201" y="-0.526269" z="-0.067008" w="-0.846065"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.539499</timeStamp>
+			<Transforms>
+				<Transform jointName="b_ShoulderL">
+					<Position x="3.137690" y="0.807021" z="-2.380402"/>
+					<Rotation x="-0.067493" y="-0.121114" z="0.427148" w="-0.893488"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavL">
+					<Position x="2.278280" y="7.402935" z="0.875525"/>
+					<Rotation x="0.000948" y="-0.123256" z="-0.026545" w="-0.992019"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position x="-0.179817" y="23.399500" z="-1.049874"/>
+					<Rotation x="-0.050369" y="0.223828" z="-0.013198" w="-0.973237"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ShoulderR">
+					<Position x="-3.137690" y="-0.807000" z="2.380398"/>
+					<Rotation x="-0.037246" y="0.067905" z="0.375981" w="-0.923385"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position x="0.000000" y="2.811805" z="0.632179"/>
+					<Rotation x="-0.008886" y="0.273456" z="-0.009878" w="-0.961793"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine1">
+					<Position x="0.000000" y="0.852080" z="0.000000"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Spine2">
+					<Position x="-0.000000" y="4.205648" z="-0.243545"/>
+					<Rotation x="-0.111131" y="-0.476827" z="0.010250" w="-0.871883"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Neck">
+					<Position x="0.000000" y="8.328740" z="-0.380579"/>
+					<Rotation x="-0.000000" y="-0.000000" z="-0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandL">
+					<Position x="6.126489" y="-0.000000" z="2.520714"/>
+					<Rotation x="-0.139287" y="0.255288" z="0.061331" w="-0.954812"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowL">
+					<Position x="8.305390" y="0.000000" z="0.000000"/>
+					<Rotation x="-0.000000" y="0.611248" z="-0.000000" w="-0.791439"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ClavR">
+					<Position x="-2.117214" y="8.967701" z="0.394069"/>
+					<Rotation x="-0.884351" y="0.069258" z="0.186881" w="-0.422139"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ElbowR">
+					<Position x="-8.305359" y="-0.000028" z="0.000008"/>
+					<Rotation x="-0.000000" y="0.106604" z="-0.000000" w="-0.994301"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HandR">
+					<Position x="-6.126514" y="-0.000025" z="-2.520719"/>
+					<Rotation x="0.052914" y="-0.522109" z="-0.067445" w="-0.848560"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipL">
+					<Position x="3.099360" y="-1.257528" z="-0.251333"/>
+					<Rotation x="0.224804" y="0.018662" z="-0.131127" w="-0.965360"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeL">
+					<Position x="0.000000" y="-10.805376" z="1.294836"/>
+					<Rotation x="-0.157398" y="-0.000000" z="-0.000000" w="-0.987535"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallR">
+					<Position x="-0.000000" y="6.363110" z="-3.832090"/>
+					<Rotation x="0.000001" y="0.000000" z="0.000000" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleL">
+					<Position x="0.000000" y="-6.661532" z="-1.670722"/>
+					<Rotation x="0.447881" y="-0.724409" z="0.175527" w="-0.493786"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_AnkleR">
+					<Position x="0.000000" y="6.661490" z="1.670725"/>
+					<Rotation x="0.181784" y="-0.034867" z="0.081589" w="-0.979327"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_BallL">
+					<Position x="3.513336" y="-5.566468" z="-3.441648"/>
+					<Rotation x="-0.000000" y="-0.000001" z="0.000001" w="-1.000000"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_HipR">
+					<Position x="-3.099360" y="-1.257541" z="-0.251333"/>
+					<Rotation x="-0.963616" y="0.087309" z="-0.234754" w="-0.093342"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+				<Transform jointName="b_KneeR">
+					<Position x="-0.000000" y="10.805400" z="-1.294835"/>
+					<Rotation x="-0.261500" y="-0.000000" z="-0.000000" w="-0.965203"/>
+					<Scale x="1.000000" y="1.000000" z="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+	</KeyFrames>
+</AnimationClip>
+

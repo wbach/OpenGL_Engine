@@ -1,0 +1,44 @@
+<gui>
+	<window>
+		<color z="1.000000" x="1.000000" y="1.000000"/>
+		<inBackground>false</inBackground>
+		<position y="0.000000" x="0.000000"/>
+		<show>true</show>
+		<scale y="0.350000" x="0.300000"/>
+		<label>chooseComponentTypeWindow</label>
+		<startupFunction/>
+		<verticalLayout>
+			<color z="1.000000" x="1.000000" y="1.000000"/>
+			<inBackground>false</inBackground>
+			<position y="0.000000" x="0.000000"/>
+			<show>true</show>
+			<scale y="0.350000" x="0.300000"/>
+			<label/>
+			<startupFunction/>
+			<algin>CENTER</algin>
+			<text>
+				<color z="1.000000" x="1.000000" y="1.000000"/>
+				<inBackground>false</inBackground>
+				<position y="0.321250" x="0.000000"/>
+				<show>true</show>
+				<scale y="0.028750" x="0.146875"/>
+				<label/>
+				<startupFunction/>
+				<font>GUI/Ubuntu-M.ttf</font>
+				<fontSize>40</fontSize>
+				<outline>0</outline>
+				<value>Select element type:</value>
+			</text>
+			<verticalLayout>
+				<color z="1.000000" x="1.000000" y="1.000000"/>
+				<inBackground>false</inBackground>
+				<position y="-0.007500" x="0.000000"/>
+				<show>true</show>
+				<scale y="0.300000" x="0.300000"/>
+				<label>GuiElementsList</label>
+				<startupFunction>FillGuiElementTypes()</startupFunction>
+				<algin>CENTER</algin>
+			</verticalLayout>
+		</verticalLayout>
+	</window>
+</gui>

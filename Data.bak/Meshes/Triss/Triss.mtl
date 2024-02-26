@@ -1,0 +1,142 @@
+# Blender MTL File: 'None'
+# Material Count: 12
+
+newmtl Model001_Material001
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material002
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material003
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material004
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material005
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Hair_Diff.png
+
+newmtl Model001_Material006
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material007
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Eyes_Diff.png
+
+newmtl Model001_Material008
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Eyelashes_Diff.png
+
+newmtl Model001_Material009
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Mouth_Diff.png
+
+newmtl Model001_Material010
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material011
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png
+
+newmtl Model001_Material012
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.0 1.0 1.0
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Triss_Diff.png
+map_bump Triss_Norm.png

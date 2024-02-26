@@ -1,0 +1,52 @@
+# Blender MTL File: 'None'
+# Material Count: 4
+
+newmtl G3_Architecture_Cutwater_01_A.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Gothic/G3_Architecture_Cutwater_01_Diffuse_01.png
+
+newmtl G3_Architecture_Roofshingle_01_A.006
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+#map_Bump G3_Architecture_Roofshingle_01_Normal_01.png
+map_Kd Gothic/G3_Architecture_Roofshingle_01_Diffuse_01.png
+#map_Ks G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl G3_Architecture_Wood_04_C.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+#map_Bump G3_Architecture_Wood_04_Normal_02.png
+map_Kd Gothic/G3_Architecture_Wood_04_Diffuse_03.png
+#map_Ks G3_Architecture_Wood_04_Diffuse_03.png
+
+newmtl G3_Architecture_Woodwall_01_A.002
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+#map_Bump G3_Architecture_woodwall_01_Normal_01.png
+map_Kd Gothic/G3_Architecture_woodwall_01_Diffuse_01.png
+#map_Ks G3_Architecture_woodwall_01_Diffuse_01.png

@@ -1,0 +1,1618 @@
+# Blender MTL File: 'g3lorencia.blend'
+# Material Count: 135
+
+newmtl 06___Default.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 0.470560 0.470560 0.470560
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\G3_Nature_Plant_Grass_06_Diffuse_01.png
+map_Ka  C:\\G3_Nature_Plant_Grass_06_Diffuse_01.png
+
+newmtl 14___Default.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 0.470560 0.470560 0.470560
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\G3_Nature_Plant_Grass_06_Diffuse_01.png
+
+newmtl 15___Default.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 0.470560 0.470560 0.470560
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\G3_Nature_Plant_Grass_06_Diffuse_01.png
+
+newmtl 17___Default.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 0.470560 0.470560 0.470560
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\G3_Architecture_GroundStone_02_Diffuse_01.png
+
+newmtl 19___Default.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 0.470560 0.470560 0.470560
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\desk_big.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\desk_big.jpg
+
+newmtl Ground
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Ground_City_03_Diffuse_01.png
+
+newmtl Material
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Wood_06_Diffuse_01.png
+
+newmtl Material.001
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Wood_06_Diffuse_01.png
+
+newmtl Material.002
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl Material.003
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Bricks_01_Diffuse_03.png
+
+newmtl Material.004
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Bricks_04_Diffuse_01.png
+
+newmtl Material.005
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bridge_01.jpg
+
+newmtl Material.005_bridge_shadow01.tga.004
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bridge_shadow01.tga
+
+newmtl Material__0.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 0.470560 0.470560 0.470560
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Wood_07_Diffuse_01.png
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\TileGround03.jpg
+
+newmtl Material__292.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\joint.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\joint.jpg
+
+newmtl Material__303.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\joint.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\joint.jpg
+
+newmtl Material__35.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood01.jpg
+
+newmtl Material__36.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood02.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood02.jpg
+
+newmtl Material__361.001_c_wall04.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__361.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__362.001_c_wall05.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\c_wall05.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\c_wall05.jpg
+
+newmtl Material__362.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\c_wall05.jpg
+
+newmtl Material__363.001_c_wall06.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__363.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__364.001_tile_02.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_02.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_02.jpg
+
+newmtl Material__364.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_02.jpg
+
+newmtl Material__365.001_bridge_01.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bridge_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bridge_01.jpg
+
+newmtl Material__365.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bridge_01.jpg
+
+newmtl Material__37.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston04.jpg
+
+newmtl Material__38.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\ston02.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\ston02.jpg
+
+newmtl Material__388.001_c_wall04.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__388.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__389.001_c_wall04.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__389.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__400.001_c_wall06.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__400.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__401.001_c_wall05.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\c_wall05.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\c_wall05.jpg
+
+newmtl Material__401.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\c_wall05.jpg
+
+newmtl Material__402.001_c_wall04.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__402.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__413.001_tile_ston01.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\tile_ston01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bridge_01.jpg
+
+newmtl Material__413.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bridge_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bridge_01.jpg
+
+newmtl Material__414.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bridge_shadow01.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bridge_shadow01.tga
+
+newmtl Material__425.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\drum.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\drum.jpg
+
+newmtl Material__436.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__437.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\grass_01.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\grass_01.tga
+
+newmtl Material__448.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Wood_09_Diffuse_01.png
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\desk_big.jpg
+
+newmtl Material__459.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bookshelf.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bookshelf.jpg
+
+newmtl Material__470.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\pot.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\pot.jpg
+
+newmtl Material__471.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\pot2.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\pot2.jpg
+
+newmtl Material__472.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bookshelf.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bookshelf.jpg
+
+newmtl Material__473.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bottle.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bottle.tga
+
+newmtl Material__484.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bottle.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bottle.tga
+
+newmtl Material__485.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bookshelf.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bookshelf.jpg
+
+newmtl Material__496.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\steel_barred_b.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\steel_barred_b.jpg
+
+newmtl Material__497.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\steel_barred_a.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+
+newmtl Material__508.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\steel_barred_b.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\steel_barred_b.jpg
+
+newmtl Material__509.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\steel_barred_a.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+
+newmtl Material__520.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\steel_barred_b.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\steel_barred_b.jpg
+
+newmtl Material__521.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\steel_barred_a.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+
+newmtl Material__532.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\steel_barred_b.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\steel_barred_b.jpg
+
+newmtl Material__533.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\steel_barred_door.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_door.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_door.tga
+
+newmtl Material__544.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_02.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_02.jpg
+
+newmtl Material__545.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood01.jpg
+
+newmtl Material__546.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_house01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_house01.jpg
+
+newmtl Material__547.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston04.jpg
+
+newmtl Material__548.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood03.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood03.jpg
+
+newmtl Material__549.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood02.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood02.jpg
+
+newmtl Material__550.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_windows01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_windows01.jpg
+
+newmtl Material__551.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bridge_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bridge_01.jpg
+
+newmtl Material__552.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_space01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_space01.jpg
+
+newmtl Material__563.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\steel_barred_a.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_a.tga
+
+newmtl Material__564.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\steel_barred_door.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_door.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\steel_barred_door.tga
+
+newmtl Material__575.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_house01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_house01.jpg
+
+newmtl Material__576.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston06.jpg
+
+newmtl Material__587.001_c_wall04.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__587.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__588.001_c_wall06.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__588.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__589.001_horse_drawn_01.jpg.001
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__589.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__600.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\tile_ston05.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\tile_ston05.jpg
+
+newmtl Material__601.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston04.jpg
+
+newmtl Material__602.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston06.jpg
+
+newmtl Material__603.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\tile_ston07.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\tile_ston07.tga
+
+newmtl Material__61.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__615.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__616.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__62.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall06.jpg
+
+newmtl Material__627.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\drum.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\drum.jpg
+
+newmtl Material__628.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\steel.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\steel.jpg
+
+newmtl Material__639.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\tile_ston05.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\tile_ston05.jpg
+
+newmtl Material__640.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston04.jpg
+
+newmtl Material__641.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_house01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_house01.jpg
+
+newmtl Material__642.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston06.jpg
+
+newmtl Material__665.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood02.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood02.jpg
+
+newmtl Material__666.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston04.jpg
+
+newmtl Material__667.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\c_wall04.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\c_wall04.jpg
+
+newmtl Material__668.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood03.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood03.jpg
+
+newmtl Material__669.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tile_house01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tile_house01.jpg
+
+newmtl Material__670.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\tile_ston01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\tile_ston01.jpg
+
+newmtl Material__671.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__672.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_ston06.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_ston06.jpg
+
+newmtl Material__684.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tree_02.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tree_02.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tree_02.tga
+
+newmtl Material__708.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\tree_02.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tree_02.tga
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\tree_02.tga
+
+newmtl Material__719.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\grass_01.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\grass_01.tga
+
+newmtl Material__743.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__754.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__755.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_02.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_02.tga
+
+newmtl Material__756.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_03.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_03.jpg
+
+newmtl Material__767.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__778.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\horse_drawn_01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\horse_drawn_01.jpg
+
+newmtl Material__789.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\grass_01.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\grass_01.tga
+
+newmtl Material__800.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\well.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\well.jpg
+
+newmtl Material__811.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\desk_big.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\desk_big.jpg
+
+newmtl Material__822.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bookshelf.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bookshelf.jpg
+
+newmtl Material__823.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\chair2.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\chair2.tga
+
+newmtl Material__834.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\desk_big.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\desk_big.jpg
+
+newmtl Material__845.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\candle.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\candle.jpg
+
+newmtl Material__846.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\candle2.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\candle2.jpg
+map_d  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\candle2.jpg
+
+newmtl Material__857.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bottle.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bottle.tga
+
+newmtl Material__858.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\winecup.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\winecup.jpg
+
+newmtl Material__869.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\plate.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\plate.jpg
+
+newmtl Material__870.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\winecup.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\winecup.jpg
+
+newmtl Material__871.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\plate2.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\plate2.jpg
+
+newmtl Material__872.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\pot3.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\pot3.tga
+
+newmtl Material__873.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bottle.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bottle.tga
+
+newmtl Material__884.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\pot3.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\pot3.tga
+
+newmtl Material__885.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\apple.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\apple.jpg
+
+newmtl Material__886.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\bottle.tga
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\bottle.tga
+
+newmtl Material__887.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\plate.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\plate.jpg
+
+newmtl Material__888.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Lorencia_Objects\winecup.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Lorencia_Objects\\winecup.jpg
+
+newmtl Material__899.002
+Ns 5.882353
+Ka 0.000000 0.000000 0.000000
+Kd 1.470400 1.470400 1.470400
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd F:\Projects\Unity3d\GotaUnityProject_1\Assets\Sceny\KrainaWygnancow\Budowle\Lorencia\Textures\Bar\tile_wood01.jpg
+map_Ka  F:\\Projects\\Unity3d\\GotaUnityProject_1\\Assets\\Sceny\\KrainaWygnancow\\Budowle\\Lorencia\\Textures\\Bar\\tile_wood01.jpg
+
+newmtl Roof
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl Roof_G3_Architecture_Wood_06_Diffuse_01.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd F:\Projects\Git\GLGame\Data\Textures\G3_Architecture_Wood_06_Diffuse_01.png

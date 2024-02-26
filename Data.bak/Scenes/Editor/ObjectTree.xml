@@ -1,0 +1,11 @@
+<gui>
+    <treeView>
+        <position y="-0.00000" x="-0.950000"/>
+        <show>true</show>
+        <scale y="0.050000" x="0.050000"/>
+        <label/>
+        <startupFunction>FillObjectTree()</startupFunction>
+        <action/>
+    </treeView>
+</gui>
+

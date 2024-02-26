@@ -1,0 +1,89 @@
+<gui>
+    <window>
+        <label>PauseMenuMainWindow</label>
+        <position x="0.25000" y="0.50000"/>
+        <scale x="0.20000" y="1.000000"/>
+        <show>false</show>
+        <background>GUI/darkGrayButton.png</background>
+        <texture>
+            <label>Logo</label>
+            <position x="0.5000" y="0.75000"/>
+            <scale x="1.00000" y="0.15000"/>
+            <file>Gui/1200px-Avatar_The_Last_Airbender_logo.svg.png</file>
+            <color x="1.000000" y="1.000000" z="1.000000"/>
+        </texture>
+        <verticalLayout>
+            <position x="0.5000" y="0.25000"/>
+            <scale x="1.00000" y="0.500000"/>
+            <algin>CENTER</algin>
+            <button>
+                <label>BackGamePauseMenuButton</label>
+                <scale x="1.0000" y="0.07500"/>
+                <action>Resume()</action>
+                <text>
+                    <label>BackGamePauseMenuButtonText</label>
+                    <value>Resume</value>
+                    <font>GUI/herculanum.ttf</font>
+                    <fontSize>50</fontSize>
+                    <outline>0</outline>
+                </text>
+                <texture>
+                    <label>backgroundTexture</label>
+                    <file>none</file>
+                    <color x="1.000000" y="1.000000" z="1.000000"/>
+                </texture>
+            </button>
+            <button>
+                <label>SettingPauseMenuButton</label>
+                <scale x="1.0000" y="0.07500"/>
+                <action>Settings()</action>
+                <text>
+                    <label>SettingPauseMenuButtonText</label>
+                    <value>Settings</value>
+                    <font>GUI/herculanum.ttf</font>
+                    <fontSize>50</fontSize>
+                    <outline>0</outline>
+                </text>
+                <texture>
+                    <label>backgroundTexture</label>
+                    <file>none</file>
+                    <color x="1.000000" y="1.000000" z="1.000000"/>
+                </texture>
+            </button>
+            <button>
+                <label>BackToMainMenuPauseMenu</label>
+                <scale x="1.0000" y="0.07500"/>
+                <action>BackToMainMenu()</action>
+                <text>
+                    <label>BackToMainMenuPauseMenuText</label>
+                    <value>Back to main menu</value>
+                    <font>GUI/herculanum.ttf</font>
+                    <fontSize>50</fontSize>
+                    <outline>0</outline>
+                </text>
+                <texture>
+                    <label>backgroundTexture</label>
+                    <file>none</file>
+                    <color x="1.000000" y="1.000000" z="1.000000"/>
+                </texture>
+            </button>
+            <button>
+                <label>ExitGamePauseMenuButton</label>
+                <scale x="1.0000" y="0.07500"/>
+                <action>ExitGame()</action>
+                <text>
+                    <label>ExitGamePauseMenuButtonText</label>
+                    <value>Exit game</value>
+                    <font>GUI/herculanum.ttf</font>
+                    <fontSize>50</fontSize>
+                    <outline>0</outline>
+                </text>
+                <texture>
+                    <label>backgroundTexture</label>
+                    <file>none</file>
+                    <color x="1.000000" y="1.000000" z="1.000000"/>
+                </texture>
+            </button>
+        </verticalLayout>
+    </window>
+</gui>

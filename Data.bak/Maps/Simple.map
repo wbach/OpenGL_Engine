@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Map>
+<Camera>
+	<Position>
+			<x>0</x>
+			<y>0</y>
+			<z>0</z>
+		</Position>
+		<Pitch>90</Pitch>
+		<Yaw>0</Yaw>
+	</Camera>
+	<SkyBox>
+		<DayTextures>
+			<RightTexture>Data/Skybox/Calm/left.jpg</RightTexture>
+			<LeftTexture>Data/Skybox/Calm/right.jpg</LeftTexture>
+			<TopTexture>Data/Skybox/Calm/top.jpg</TopTexture>
+			<BottomTexture>Data/Skybox/Calm/bottom.jpg</BottomTexture>
+			<BackTexture>Data/Skybox/Calm/front.jpg</BackTexture>
+			<FrontTexture>Data/Skybox/Calm/back.jpg</FrontTexture>
+		</DayTextures>
+		<NightTextures>
+			<RightTexture>Data/Skybox/Calm/left.jpg</RightTexture>
+			<LeftTexture>Data/Skybox/Calm/right.jpg</LeftTexture>
+			<TopTexture>Data/Skybox/Calm/top.jpg</TopTexture>
+			<BottomTexture>Data/Skybox/Calm/bottom.jpg</BottomTexture>
+			<BackTexture>Data/Skybox/Calm/front.jpg</BackTexture>
+			<FrontTexture>Data/Skybox/Calm/back.jpg</FrontTexture>
+		</NightTextures>
+	</SkyBox>
+
+</Map>
+

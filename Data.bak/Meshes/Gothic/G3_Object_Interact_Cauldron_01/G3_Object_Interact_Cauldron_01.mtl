@@ -1,0 +1,5 @@
+newmtl G3_Objects_Interact_Cauldron_01_A
+map_Kd G3_Objects_Interact_Cauldron_01_Diffuse_01.png
+map_bump G3_Objects_Interact_Cauldron_01_Normal_01.png
+map_Ks G3_Objects_Interact_Cauldron_01_Specular_01.png
+

@@ -1,0 +1,11 @@
+Scale 513 20 513
+# Tesselation terrain parameters
+DisplacmentStrength 0.3 0.3 0.3 0.3
+SetLod 0 1750
+SetLod 1 874
+SetLod 2 386
+SetLod 3 192
+SetLod 4 100
+SetLod 5 50
+SetLod 6 0
+SetLod 7 0

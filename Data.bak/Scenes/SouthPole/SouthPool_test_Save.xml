@@ -1,0 +1,206 @@
+<scene name="SouthPool">
+	<gameObjects count="6">
+		<gameObject name="aang">
+			<worldTransform>
+				<position z="-123.677788" x="-16.741982" y="3.207610"/>
+				<rotation z="0.000000" x="0.000000" y="-0.000000"/>
+				<scale z="1.800000" x="1.800000" y="1.800000"/>
+			</worldTransform>
+			<components count="7">
+				<component type="ThridPersonCamera"/>
+				<component type="Animator">
+					<currentAnimationClip>Idle</currentAnimationClip>
+				</component>
+				<component type="CharacterController"/>
+				<component type="PlayerInputController"/>
+				<component type="Renderer">
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/DaeAnimationExample/CharacterMultiple.dae</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+					<textureIndex>0</textureIndex>
+				</component>
+				<component type="CapsuleShape">
+					<positionOffset z="0.000000" x="0.000000" y="-0.850000"/>
+					<height>1.000000</height>
+					<radius>0.500000</radius>
+				</component>
+				<component type="Rigidbody">
+					<mass>50.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>5</collisionShape>
+					<angularFactor z="0.000000" x="0.000000" y="0.000000"/>
+					<velocity z="-2.372479" x="2.372292" y="-1.272707"/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="WaterTile">
+			<worldTransform>
+				<position z="0.000000" x="0.000000" y="1.000000"/>
+				<rotation z="0.000000" x="0.000000" y="-0.000000"/>
+				<scale z="1.000000" x="1.000000" y="1.000000"/>
+			</worldTransform>
+			<components count="1">
+				<component type="Water">
+					<position z="0.000000" x="0.000000" y="0.000000"/>
+					<scale z="1.000000" x="4000.000000" y="4000.000000"/>
+					<color z="0.328000" w="1.000000" x="0.000000" y="0.172500"/>
+					<waveSpeed>10.000000</waveSpeed>
+					<dudv>Textures/Water/waterDUDV.png</dudv>
+					<normalMap>Textures/Water/waternormal.png</normalMap>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Terrain">
+			<worldTransform>
+				<position z="0.000000" x="0.000000" y="0.000000"/>
+				<rotation z="0.000000" x="0.000000" y="-0.000000"/>
+				<scale z="1.000000" x="1.000000" y="1.000000"/>
+			</worldTransform>
+			<components count="3">
+				<component type="TerrainRenderer">
+					<textureFileNames>
+						<texture>
+							<textureType>15</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>14</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>13</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>12</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>11</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>10</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>9</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_18_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>8</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_18_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>1</textureType>
+							<textureFileName>Textures/Terrain/HeightMaps/output.terrain</textureFileName>
+						</texture>
+						<texture>
+							<textureType>2</textureType>
+							<textureFileName>Textures/Terrain/BlendMaps/BlendMap.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>4</textureType>
+							<textureFileName>Textures/Terrain/Ground/snow512.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>5</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/grass0_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>6</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/grass0_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>7</textureType>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_18_DIF.jpg</textureFileName>
+						</texture>
+					</textureFileNames>
+				</component>
+				<component type="TerrainShape">
+					<positionOffset z="0.000000" x="0.000000" y="0.000000"/>
+					<heightMapFileName>Textures/Terrain/HeightMaps/output.terrain</heightMapFileName>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>true</isStatic>
+					<collisionShape>4</collisionShape>
+					<velocity z="0.000000" x="0.000000" y="0.000000"/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="skydome">
+			<worldTransform>
+				<position z="0.000000" x="0.000000" y="0.000000"/>
+				<rotation z="0.000000" x="0.000000" y="-0.000000"/>
+				<scale z="1.000000" x="1.000000" y="1.000000"/>
+			</worldTransform>
+			<components count="1">
+				<component type="Skydome"/>
+			</components>
+		</gameObject>
+		<gameObject name="crate1">
+			<worldTransform>
+				<position z="-109.113716" x="-13.255521" y="2.175049"/>
+				<rotation z="0.000000" x="0.000000" y="-0.000000"/>
+				<scale z="1.800000" x="1.800000" y="1.800000"/>
+			</worldTransform>
+			<components count="3">
+				<component type="Renderer">
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/Crate/crate.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+					<textureIndex>0</textureIndex>
+				</component>
+				<component type="BoxShape">
+					<size z="2.000000" x="2.000000" y="2.000000"/>
+					<positionOffset z="0.000000" x="0.000000" y="-0.850000"/>
+				</component>
+				<component type="Rigidbody">
+					<mass>25.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>1</collisionShape>
+					<angularFactor z="0.000000" x="0.000000" y="0.000000"/>
+					<velocity z="0.000000" x="0.000000" y="0.000183"/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="garenIdle">
+			<worldTransform>
+				<position z="-106.920624" x="-12.582314" y="1.753153"/>
+				<rotation z="0.000000" x="0.000000" y="-0.000000"/>
+				<scale z="1.800000" x="1.800000" y="1.800000"/>
+			</worldTransform>
+			<components count="3">
+				<component type="Renderer">
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/Garen/garen_idle_b.fbx</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+					<textureIndex>0</textureIndex>
+				</component>
+				<component type="CapsuleShape">
+					<positionOffset z="0.000000" x="0.000000" y="-0.850000"/>
+					<height>1.000000</height>
+					<radius>0.500000</radius>
+				</component>
+				<component type="Rigidbody">
+					<mass>10025.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>5</collisionShape>
+					<angularFactor z="0.000000" x="0.000000" y="0.000000"/>
+					<velocity z="0.000000" x="0.000000" y="0.000092"/>
+				</component>
+			</components>
+		</gameObject>
+	</gameObjects>
+</scene>
+

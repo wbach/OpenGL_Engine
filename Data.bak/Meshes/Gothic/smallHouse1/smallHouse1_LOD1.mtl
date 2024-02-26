@@ -1,0 +1,50 @@
+# Blender MTL File: 'None'
+# Material Count: 4
+
+newmtl None
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump Objects/G3_Architecture_Wood_09_Diffuse_01_NRM.png
+map_Kd Objects/G3_Architecture_Wood_09_Diffuse_01.png
+
+newmtl None_G3_Architecture_Bricks_01_Diffuse_04.tga
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump Objects/G3_Architecture_Bricks_01_Diffuse_04_NRM.png
+map_Kd Objects/G3_Architecture_Bricks_01_Diffuse_04.png
+
+newmtl None_G3_Architecture_Roofshingle_01_Diffuse_01.tga.001
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump Objects/G3_Architecture_Roofshingle_01_Diffuse_01_NRM.png
+map_Kd Objects/G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl None_G3_Architecture_Wood_06_Diffuse_01.tga
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump Objects/G3_Architecture_Wood_06_Diffuse_01_NRM.png
+map_Kd Objects/G3_Architecture_Wood_06_Diffuse_01.png

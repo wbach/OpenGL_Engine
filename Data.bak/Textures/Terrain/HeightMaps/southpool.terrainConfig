@@ -1,0 +1,13 @@
+Scale 1024 20 1024
+PartsCount 8
+# Tesselation workinng default params in code
+# Tesselation terrain parameters
+DisplacmentStrength 0.3 0.3 0.3 0.3
+SetLod 0 350
+SetLod 1 225
+SetLod 2 150
+SetLod 3 100
+SetLod 4 75
+SetLod 5 25
+SetLod 6 0
+SetLod 7 0

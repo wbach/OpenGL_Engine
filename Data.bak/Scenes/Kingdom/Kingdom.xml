@@ -1,0 +1,669 @@
+<scene name="Kingdom">
+	<gameObjects count="15">
+		<gameObject name="Skybox" id="1">
+			<localTransform>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1.600000" y="1.600000" z="1.600000"/>
+			</localTransform>
+			<components count="1">
+				<component type="SkyBox">
+					<dayTextures>
+						<textureFileName>Skybox/TropicalSunnyDay/right.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/left.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/top.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/bottom.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/back.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/front.png</textureFileName>
+					</dayTextures>
+					<nightTextures>
+						<textureFileName>Skybox/TropicalSunnyDay/right.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/left.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/top.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/bottom.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/back.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/front.png</textureFileName>
+					</nightTextures>
+					<modelFileName>Meshes/SkyBox/cube.obj</modelFileName>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Player" id="32">
+			<localTransform>
+				<position x="-0.258648" y="-2.390088" z="0.089288"/>
+				<rotation x="0.000014" y="-0.000000" z="0.000014"/>
+				<scale x="1.600000" y="1.600000" z="1.600000"/>
+			</localTransform>
+			<components count="8">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>mixamo.com/Archer/ErikaArcher.fbx</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="Animator">
+					<startupAnimationClip>Idle</startupAnimationClip>
+					<animationClips>
+						<animationClip>mixamo.com/Archer/AnimationClips/Idle.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/ArmedSprintForward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/Death.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/DisarmBow.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/Disarm.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/CatWalkForward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/LeftTurn.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/EquipBow.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/MeleAttackKick.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/StandingDrawArrow.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/DisarmWalkingBackward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/Hurt.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/ArmedRunBackward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/AimRecoil.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/DisarmedSprintForward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/ArmedWalkBackward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/ArmedWalkForward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/ArmedIdleJump.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/DisarmrdIdleJumpInPlace.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/DisarmedRunning.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/StandingMeleeAttack360High.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/StandingIdle.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/RunForward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/MeleAttack2.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/StandingAimIdle.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/DisarmedRunningBackward.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/RightTurn.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/RunForwardForAimLowGroup.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/RunBackArimForLowGroup.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/SlowRun.xml</animationClip>
+						<animationClip>mixamo.com/Archer/AnimationClips/SlowJogBackwards.xml</animationClip>
+					</animationClips>
+					<jointGroups>
+						<lowerBody>mixamorig:Hips mixamorig:LeftUpLeg mixamorig:LeftLeg mixamorig:LeftFoot mixamorig:LeftToeBase mixamorig:LeftToe_End mixamorig:LeftToe_End_end mixamorig:RightUpLeg mixamorig:RightLeg mixamorig:RightFoot mixamorig:RightToeBase mixamorig:RightToe_End mixamorig:RightToe_End_end mixamorig:arrow mixamorig:arrow_end</lowerBody>
+						<upperBody>mixamorig:Spine mixamorig:Spine1 mixamorig:Spine2 mixamorig:Neck mixamorig:Head mixamorig:HeadTop_End mixamorig:HeadTop_End_end mixamorig:LeftEye mixamorig:LeftEye_end mixamorig:RightEye mixamorig:RightEye_end mixamorig:LeftShoulder mixamorig:LeftArm mixamorig:LeftForeArm mixamorig:LeftHand mixamorig:LeftHandThumb1 mixamorig:LeftHandThumb2 mixamorig:LeftHandThumb3 mixamorig:LeftHandThumb4 mixamorig:LeftHandThumb4_end mixamorig:LeftHandIndex1 mixamorig:LeftHandIndex2 mixamorig:LeftHandIndex3 mixamorig:LeftHandIndex4 mixamorig:LeftHandIndex4_end mixamorig:LeftHandMiddle1 mixamorig:LeftHandMiddle2 mixamorig:LeftHandMiddle3 mixamorig:LeftHandMiddle4 mixamorig:LeftHandMiddle4_end mixamorig:LeftHandRing1 mixamorig:LeftHandRing2 mixamorig:LeftHandRing3 mixamorig:LeftHandRing4 mixamorig:LeftHandRing4_end mixamorig:LeftHandPinky1 mixamorig:LeftHandPinky2 mixamorig:LeftHandPinky3 mixamorig:LeftHandPinky4 mixamorig:LeftHandPinky4_end mixamorig:Left_arch1 mixamorig:Left_arch2 mixamorig:Left_arch2_end mixamorig:RightShoulder mixamorig:RightArm mixamorig:RightForeArm mixamorig:RightHand mixamorig:RightHandThumb1 mixamorig:RightHandThumb2 mixamorig:RightHandThumb3 mixamorig:RightHandThumb4 mixamorig:RightHandThumb4_end mixamorig:RightHandIndex1 mixamorig:RightHandIndex2 mixamorig:RightHandIndex3 mixamorig:RightHandIndex4 mixamorig:RightHandIndex4_end mixamorig:RightHandMiddle1 mixamorig:RightHandMiddle2 mixamorig:RightHandMiddle3 mixamorig:RightHandMiddle4 mixamorig:RightHandMiddle4_end mixamorig:RightHandRing1 mixamorig:RightHandRing2 mixamorig:RightHandRing3 mixamorig:RightHandRing4 mixamorig:RightHandRing4_end mixamorig:RightHandPinky1 mixamorig:RightHandPinky2 mixamorig:RightHandPinky3 mixamorig:RightHandPinky4 mixamorig:RightHandPinky4_end</upperBody>
+					</jointGroups>
+				</component>
+				<component type="ThridPersonCamera"/>
+				<component type="CharacterController">
+					<animationClips>
+						<armedAnimations>
+							<walk>
+								<forward>ArmedWalkForward</forward>
+								<backward>ArmedWalkBackward</backward>
+								<moveLeft>RunForwardForAimLowGroup</moveLeft>
+								<moveRight/>
+							</walk>
+							<run>
+								<forward>RunForward</forward>
+								<backward>ArmedRunBackward</backward>
+								<moveLeft/>
+								<moveRight/>
+							</run>
+							<crouchMovement>
+								<forward/>
+								<backward/>
+								<moveLeft/>
+								<moveRight/>
+							</crouchMovement>
+							<jump>ArmedIdleJump</jump>
+							<mainIdle>StandingIdle</mainIdle>
+							<hurt>Hurt</hurt>
+							<death>Death</death>
+							<attackAnimations>
+								<animation>MeleAttackKick</animation>
+								<animation>MeleAttack2</animation>
+								<animation>StandingMeleeAttack360High</animation>
+							</attackAnimations>
+							<rotateLeft>LeftTurn</rotateLeft>
+							<rotateRight>RightTurn</rotateRight>
+							<sprint>ArmedSprintForward</sprint>
+						</armedAnimations>
+						<disarmedAnimations>
+							<walk>
+								<forward>CatWalkForward</forward>
+								<backward>DisarmWalkingBackward</backward>
+								<moveLeft/>
+								<moveRight/>
+							</walk>
+							<run>
+								<forward>SlowRun</forward>
+								<backward>SlowJogBackwards</backward>
+								<moveLeft/>
+								<moveRight/>
+							</run>
+							<crouchMovement>
+								<forward/>
+								<backward/>
+								<moveLeft/>
+								<moveRight/>
+							</crouchMovement>
+							<jump>DisarmrdIdleJumpInPlace</jump>
+							<mainIdle>Idle</mainIdle>
+							<hurt>Hurt</hurt>
+							<death>Death</death>
+							<attackAnimations/>
+							<rotateLeft>LeftTurn</rotateLeft>
+							<rotateRight>RightTurn</rotateRight>
+							<sprint>DisarmedSprintForward</sprint>
+						</disarmedAnimations>
+						<doge/>
+						<dogeJump/>
+						<equipAnimation>EquipBow</equipAnimation>
+						<disarmAnimation>Disarm</disarmAnimation>
+						<drawArrow>StandingDrawArrow</drawArrow>
+						<recoilArrow>AimRecoil</recoilArrow>
+						<aimIdle>StandingAimIdle</aimIdle>
+						<aimRunLowerBody>
+								<forward>RunForwardForAimLowGroup</forward>
+								<backward>RunBackArimForLowGroup</backward>
+								<moveLeft/>
+								<moveRight/>
+						</aimRunLowerBody>
+					</animationClips>
+					<equipTimeStamp>0.333333</equipTimeStamp>
+					<disarmTimeStamp>0.366667</disarmTimeStamp>
+				</component>
+				<component type="PlayerInputController"/>
+				<component type="CapsuleShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<height>1.000000</height>
+					<radius>0.250000</radius>
+				</component>
+				<component type="Rigidbody">
+					<mass>50.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>CapsuleShape</collisionShape>
+					<angularFactor x="0.000000" y="0.000000" z="0.000000"/>
+				</component>
+				<component type="Player"/>
+			</components>
+			<children>
+				<gameObject name="Weapon" id="2">
+					<localTransform>
+						<position x="0.660000" y="1.200000" z="-0.050000"/>
+						<rotation x="-11.999953" y="-2.000004" z="-3.999999"/>
+						<scale x="1.000000" y="1.000000" z="1.000000"/>
+					</localTransform>
+					<components count="2">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>mixamo.com/Archer/Bow.fbx</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+						<component type="JointPoseUpdater">
+							<equipJointName>mixamorig:LeftHand</equipJointName>
+							<disarmJointName>mixamorig:Spine1</disarmJointName>
+							<offsetDisarmReference>
+								<position x="0.000000" y="1.230000" z="-0.150000"/>
+								<rotation x="89.999992" y="-2.000000" z="-4.000000"/>
+							</offsetDisarmReference>
+							<offsetEquipReference>
+								<position x="0.630000" y="1.340000" z="-0.010000"/>
+								<rotation x="-11.999953" y="-2.000004" z="-3.999999"/>
+							</offsetEquipReference>
+						</component>
+					</components>
+				</gameObject>
+			</children>
+		</gameObject>
+		<gameObject name="Terrain" id="4">
+			<localTransform>
+				<position x="0.000000" y="-30.400043" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1024.000000" y="100.000000" z="1024.000000"/>
+			</localTransform>
+			<components count="4">
+				<component type="TerrainRenderer">
+					<textureFileNames>
+						<texture>
+							<textureType>heightmap</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>heightmap_Kingdom_4.terrain</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blendMap</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/BlendMaps/KingdomBlendmap.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>backgorundTexture</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/grass0_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>backgorundTextureNormal</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/grass0_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>backgorundTextureDisplacement</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/grass0_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>redTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Gravel_05_Diffuse_01.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>redTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Gravel_05_Diffuse_01_NRM.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>redTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_18_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>greenTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>greenTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>greenTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blueTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blueTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blueTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>alphaTexture</textureType>
+							<scale>0.500000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>alphaTextureNormal</textureType>
+							<scale>0.500000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>alphaTextureDisplacement</textureType>
+							<scale>0.500000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>rockTexture</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>rockTextureNormal</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/G3_Nature_Ground_Grass_01_Diffuse_01_NRM.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>rockTextureDisplacement</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_18_DISP.jpg</textureFileName>
+						</texture>
+					</textureFileNames>
+				</component>
+				<component type="TerrainShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<heightMapFileName>heightmap_Kingdom_4.terrain</heightMapFileName>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>true</isStatic>
+					<collisionShape>TerrainShape</collisionShape>
+				</component>
+				<component type="GrassRenderer">
+					<fileName>Generated/grassMeshData_4.bin</fileName>
+					<textureFileName>Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png</textureFileName>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="MainHause" id="33">
+			<localTransform>
+				<position x="2.252985" y="-2.531684" z="0.083765"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="10.000000" y="10.000000" z="10.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/MainHause.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Tower" id="5">
+			<localTransform>
+				<position x="-0.820768" y="-3.209626" z="0.557649"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="10.000000" y="10.000000" z="10.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Tower.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="WallWithGate" id="6">
+			<localTransform>
+				<position x="0.803088" y="-2.482184" z="1.993855"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="20.000000" y="20.000000" z="20.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/WallWithGate.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="gameObject" id="7">
+			<localTransform>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1.000000" y="1.000000" z="1.000000"/>
+			</localTransform>
+			<components count="0"/>
+		</gameObject>
+		<gameObject name="Stairs" id="8">
+			<localTransform>
+				<position x="3.493062" y="-2.576586" z="3.850294"/>
+				<rotation x="0.000014" y="93.999985" z="0.000014"/>
+				<scale x="5.000000" y="5.699999" z="5.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Stairs.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName>Kingdom/Stairs_collider.obj</modelFileName>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="clone_of_Tower" id="9">
+			<localTransform>
+				<position x="-0.620768" y="-3.009626" z="-22.242365"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="10.000000" y="10.000000" z="10.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Tower.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="clone_of_clone_of_Tower" id="10">
+			<localTransform>
+				<position x="-23.020784" y="-3.009626" z="-21.442362"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="10.000000" y="10.000000" z="10.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Tower.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Wall" id="11">
+			<localTransform>
+				<position x="0.826451" y="-2.697528" z="0.887106"/>
+				<rotation x="0.000010" y="-0.000000" z="0.000010"/>
+				<scale x="20.000000" y="20.000000" z="20.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Wall.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="clone_of_Wall" id="12">
+			<localTransform>
+				<position x="1.222463" y="-2.897528" z="3.487167"/>
+				<rotation x="0.000014" y="182.000137" z="0.000014"/>
+				<scale x="20.000000" y="20.000000" z="20.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Wall.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="clone_of_Tower" id="13">
+			<localTransform>
+				<position x="-23.220785" y="-3.209626" z="0.557649"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="10.000000" y="10.000000" z="10.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Tower.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="clone_of_Wall" id="14">
+			<localTransform>
+				<position x="-0.411229" y="-2.809630" z="2.108099"/>
+				<rotation x="0.000014" y="269.980194" z="0.000014"/>
+				<scale x="20.000000" y="20.000000" z="20.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Wall.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Bridge" id="15">
+			<localTransform>
+				<position x="4.245259" y="-2.103590" z="1.758591"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="10.000000" y="10.000000" z="10.000000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Kingdom/Bridge.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="MeshShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<size>1.000000</size>
+					<modelFileName/>
+					<autoOptimize>false</autoOptimize>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape/>
+				</component>
+			</components>
+		</gameObject>
+	</gameObjects>
+</scene>
+

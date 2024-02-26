@@ -1,0 +1,14 @@
+newmtl G3_Architecture_Chandelier_01_A
+map_Kd G3_Architecture_Chandelier_01_Diffuse_01.png
+map_bump G3_Architecture_Iron_01_Normal_01.png
+map_Ks G3_Architecture_Chandelier_01_Diffuse_01.png
+
+newmtl G3_Architecture_GlassChain_01_A
+map_Kd G3_Architecture_GlassChain_01_Diffuse_01.png
+map_Ks G3_Architecture_GlassChain_01_Diffuse_01.png
+
+newmtl G3_Special_Window_Glass_01
+map_Kd G3_Objects_Window_Glass_01_Diffuse_01.png
+map_bump G3_Objects_Window_Glass_01_Normal_01.png
+map_Ks G3_Objects_Window_Glass_01_Diffuse_01.png
+

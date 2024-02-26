@@ -1,0 +1,175 @@
+<gui>
+    <horizontalLayout>
+        <label>CommonMenuLayout</label>
+        <scale x="0.20000  " y="1.00000"></scale>
+        <position x="-1.00000  " y="0.95000"></position>
+        <button>
+            <label>ReadFileButton</label>
+            <position x="0.5000" y="-0.27500"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>ReadFile()</action>
+            <text>
+                <label>ReadFileButtonText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>Read file</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>SaveFileButton</label>
+            <position x="-0.5000" y="-0.0000"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>SaveToFile()</action>
+            <text>
+                <label>SaveFileButtonText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>Save to file</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>QuickSaveButton</label>
+            <position x="-0.5000" y="-0.0000"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>QuickSave()</action>
+            <text>
+                <label>QuickSaveButtonText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>QuickSave</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>ReloadButton</label>
+            <position x="-0.5000" y="-0.0000"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>Reload()</action>
+            <text>
+                <label>ReloadButtonText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>Reload</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>ClearButton</label>
+            <position x="-0.5000" y="-0.0000"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>Clear()</action>
+            <text>
+                <label>ClearButtonText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>Clear</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>AddElement</label>
+            <position x="-0.5000" y="-0.0000"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>AddElement()</action>
+            <text>
+                <label>AddElementText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>Add element</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+        <button>
+            <label>DeleteElement</label>
+            <position x="-0.5000" y="-0.0000"></position>
+            <scale x="0.142857" y="0.05000"></scale>
+            <action>DeleteElement()</action>
+            <text>
+                <label>DeleteElementText</label>
+                <color x="0.800000" y="0.800000" z="0.800000"></color>
+                <value>Delete element</value>
+                <font>GUI/monaco.ttf</font>
+                <fontSize>35</fontSize>
+                <outline>0</outline>
+            </text>
+            <texture>
+                <label>hoverTexture</label>
+                <file>GUI/button_yellow.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+            <texture>
+                <label>activeTexture</label>
+                <file>GUI/button_green.png</file>
+                <color x="1.000000" y="1.000000" z="1.000000"></color>
+            </texture>
+        </button>
+    </horizontalLayout>
+</gui>

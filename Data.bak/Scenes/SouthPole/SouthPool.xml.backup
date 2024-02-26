@@ -1,0 +1,844 @@
+<scene name="SouthPool">
+	<gameObjects count="9">
+		<gameObject name="Aang" id="32">
+			<localTransform>
+				<position x="136.596512" y="-61.956242" z="417.818176"/>
+				<rotation x="0.000014" y="-0.000000" z="0.000014"/>
+				<scale x="1.600000" y="1.600000" z="1.600000"/>
+			</localTransform>
+			<components count="8">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/DungeonDefenders/Monk/Monk.md5mesh</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="Animator">
+					<startupAnimationClip>Idle</startupAnimationClip>
+					<animationClips>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/MeleeAttack1.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/MeleeAttack2.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Heal.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Idle.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/MeleeAttack3.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Spawn.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Run.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Jump.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Death.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Monk/AnimationClips/Hurt.xml</animationClip>
+					</animationClips>
+				</component>
+				<component type="ThridPersonCamera"/>
+				<component type="CharacterController">
+					<animationClips>
+						<idle>Idle</idle>
+						<hurt>Hurt</hurt>
+						<run>Run</run>
+						<moveBackward/>
+						<death>Death</death>
+						<attack>MeleeAttack3</attack>
+						<jump>Jump</jump>
+					</animationClips>
+				</component>
+				<component type="PlayerInputController">
+					<weaponChildName>Weapon</weaponChildName>
+					<weaponBoneName>b_HandR</weaponBoneName>
+					<weaponBonePositionOffset x="-1.500000" y="4.000000" z="0.000000"/>
+					<weaponBoneRotationOffset x="90.000000" y="0.000000" z="0.000000"/>
+				</component>
+				<component type="CapsuleShape">
+					<positionOffset x="0.000000" y="-1.000000" z="0.000000"/>
+					<height>1.000000</height>
+					<radius>0.500000</radius>
+				</component>
+				<component type="Rigidbody">
+					<mass>50.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>CapsuleShape</collisionShape>
+					<angularFactor x="0.000000" y="0.000000" z="0.000000"/>
+				</component>
+				<component type="Player"/>
+			</components>
+			<children>
+				<gameObject name="Weapon" id="1">
+					<localTransform>
+						<position x="-0.389999" y="0.590145" z="0.001343"/>
+						<rotation x="90.000000" y="-0.000000" z="0.000000"/>
+						<scale x="1.000000" y="1.000000" z="1.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Avatar/Weapons/AangWeapon.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+			</children>
+		</gameObject>
+		<gameObject name="WaterTile" id="4">
+			<localTransform>
+				<position x="0.000000" y="-75.000000" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1700.000000" y="1700.000000" z="1.000000"/>
+			</localTransform>
+			<components count="1">
+				<component type="Water">
+					<color x="0.000000" y="0.172500" z="0.328000" w="1.000000"/>
+					<waveSpeed>10.000000</waveSpeed>
+					<dudv>Textures/Water/waterDUDV.png</dudv>
+					<normalMap>Textures/Water/waternormal.png</normalMap>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Terrain" id="5">
+			<localTransform>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1024.000000" y="20.000000" z="1024.000000"/>
+			</localTransform>
+			<components count="4">
+				<component type="TerrainRenderer">
+					<textureFileNames>
+						<texture>
+							<textureType>heightmap</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/HeightMaps/southpool.terrain</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blendMap</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/BlendMaps/output_generatedBlendmap.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>backgorundTexture</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>../../../Tmp/dd/SnowBase.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>backgorundTextureNormal</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>../../../Tmp/dd/SnowBase_NRM.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>backgorundTextureDisplacement</textureType>
+							<scale>0.200000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/grass0_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>redTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>../../../Tmp/dd/Tiling Ice Texture, Tyler Agte.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>redTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/snowIceNormalMap.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>redTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_18_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>greenTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>greenTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>greenTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_17_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blueTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>../../../Tmp/dd/Tiling Ice Texture, Tyler Agte.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blueTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>blueTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>alphaTexture</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DIF.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>alphaTextureNormal</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_NRM.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>alphaTextureDisplacement</textureType>
+							<scale>1.000000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DISP.jpg</textureFileName>
+						</texture>
+						<texture>
+							<textureType>rockTexture</textureType>
+							<scale>0.050000</scale>
+							<textureFileName>Tmp/ice.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>rockTextureNormal</textureType>
+							<scale>0.050000</scale>
+							<textureFileName>../../../Tmp/dd/SnowBase_NRM.png</textureFileName>
+						</texture>
+						<texture>
+							<textureType>rockTextureDisplacement</textureType>
+							<scale>0.050000</scale>
+							<textureFileName>Textures/Terrain/Ground/oreon/Ground_11_DISP.jpg</textureFileName>
+						</texture>
+					</textureFileNames>
+				</component>
+				<component type="TerrainShape">
+					<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+					<heightMapFileName>Textures/Terrain/HeightMaps/southpool.terrain</heightMapFileName>
+				</component>
+				<component type="Rigidbody">
+					<mass>0.000000</mass>
+					<isStatic>true</isStatic>
+					<collisionShape>TerrainShape</collisionShape>
+				</component>
+				<component type="GrassRenderer">
+					<fileName>grassMeshData.bin</fileName>
+					<textureFileName>Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png</textureFileName>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="ZukoShip" id="9">
+			<localTransform>
+				<position x="-429.818176" y="-77.770111" z="841.561096"/>
+				<rotation x="0.000027" y="232.000153" z="0.000027"/>
+				<scale x="75.000000" y="75.000000" z="75.000000"/>
+			</localTransform>
+			<components count="1">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/Avatar/FireNationWarShip.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="FireNationWarShip" id="16">
+			<localTransform>
+				<position x="191.964722" y="-61.775993" z="271.797607"/>
+				<rotation x="8.000077" y="128.000092" z="14.049753"/>
+				<scale x="75.000000" y="75.000000" z="75.000000"/>
+			</localTransform>
+			<components count="1">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/Avatar/FireNationWarShip.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Skybox" id="12">
+			<localTransform>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1.600000" y="1.600000" z="1.600000"/>
+			</localTransform>
+			<components count="1">
+				<component type="SkyBox">
+					<dayTextures>
+						<textureFileName>Skybox/TropicalSunnyDay/right.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/left.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/top.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/bottom.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/back.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/front.png</textureFileName>
+					</dayTextures>
+					<nightTextures>
+						<textureFileName>Skybox/TropicalSunnyDay/right.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/left.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/top.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/bottom.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/back.png</textureFileName>
+						<textureFileName>Skybox/TropicalSunnyDay/front.png</textureFileName>
+					</nightTextures>
+					<modelFileName>Meshes/SkyBox/cube.obj</modelFileName>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Village" id="23">
+			<localTransform>
+				<position x="126.587524" y="-63.416279" z="403.220734"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1.000000" y="1.000000" z="1.000000"/>
+			</localTransform>
+			<components count="0"/>
+			<children>
+				<gameObject name="G3_Object_Interact_Cauldron_01" id="2">
+					<localTransform>
+						<position x="-3.350094" y="0.218708" z="14.955351"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="2.000000" y="2.000000" z="2.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Gothic/G3_Object_Interact_Cauldron_01/G3_Object_Interact_Cauldron_01_colored.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="sokkaBoat" id="3">
+					<localTransform>
+						<position x="15.682541" y="1.240337" z="23.614624"/>
+						<rotation x="0.000000" y="-26.000006" z="0.000000"/>
+						<scale x="5.000000" y="5.000000" z="5.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Avatar/sokkaBoat.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="lowPolyAang" id="6">
+					<localTransform>
+						<position x="2.548309" y="1.464142" z="9.487976"/>
+						<rotation x="270.000183" y="237.999817" z="359.999969"/>
+						<scale x="1.500000" y="1.500000" z="1.500000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Avatar/LowPoly/lowPolyAang.dae</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="G3_Object_Interact_Animated_BBQ_01" id="7">
+					<localTransform>
+						<position x="-4.136452" y="0.112644" z="11.869965"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="3.000000" y="3.000000" z="3.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Gothic/G3_Object_Interact_Animated_BBQ_01/G3_Object_Interact_Animated_BBQ_01_colored.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="G3_Object_Interact_Campfire_01" id="8">
+					<localTransform>
+						<position x="0.930847" y="0.197594" z="12.622101"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="2.000000" y="2.000000" z="2.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Gothic/G3_Object_Interact_Campfire_01/G3_Object_Interact_Campfire_01_colored.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="Hut1" id="10">
+					<localTransform>
+						<position x="-13.815475" y="1.729641" z="2.747620"/>
+						<rotation x="0.000014" y="228.000244" z="0.000014"/>
+						<scale x="10.000000" y="10.000000" z="10.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Gothic/Hut1/Hut1.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="CrateSquere" id="11">
+					<localTransform>
+						<position x="8.544052" y="1.837967" z="-5.605896"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="1.000000" y="1.000000" z="1.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>../../../Tmp/dd/CrateSquere.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="footbridge" id="13">
+					<localTransform>
+						<position x="1.570969" y="0.052284" z="32.609314"/>
+						<rotation x="0.000014" y="196.000092" z="0.000014"/>
+						<scale x="5.000000" y="5.000000" z="5.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Avatar/LowPoly/footbridge.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="iglo" id="14">
+					<localTransform>
+						<position x="-2.441757" y="0.099140" z="-1.802368"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="12.000000" y="12.000000" z="12.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Avatar/iglo.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+					<children>
+						<gameObject name="G3_Object_Interact_Stool_01" id="15">
+							<localTransform>
+								<position x="-4.016060" y="0.187748" z="-1.063232"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.050000" y="0.050000" z="0.050000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Interact_Stool_01/G3_Object_Interact_Stool_01.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="G3_Object_Varant_Interact_Animation_ChestPod_02" id="17">
+							<localTransform>
+								<position x="-2.984131" y="0.158157" z="-2.449371"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.050000" y="0.050000" z="0.050000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Varant_Interact_Animation_ChestPod_02/G3_Object_Varant_Interact_Animation_ChestPod_02.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="G3_Object_Interact_Animated_Waterpipe_01" id="18">
+							<localTransform>
+								<position x="-2.992989" y="0.211422" z="-4.322937"/>
+								<rotation x="0.000014" y="188.000275" z="0.000014"/>
+								<scale x="0.050000" y="0.050000" z="0.050000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Interact_Animated_Waterpipe_01/G3_Object_Interact_Animated_Waterpipe_01.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="bench" id="19">
+							<localTransform>
+								<position x="-0.942154" y="0.089073" z="6.565613"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.150000" y="0.150000" z="0.150000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/bench/bench.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="crate" id="20">
+							<localTransform>
+								<position x="3.339333" y="0.250587" z="7.776031"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.050000" y="0.050000" z="0.050000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Crate/crate.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="G3_Object_Interact_Animated_Chest_01" id="21">
+							<localTransform>
+								<position x="3.779121" y="0.248558" z="-3.537659"/>
+								<rotation x="0.000000" y="-50.000019" z="0.000000"/>
+								<scale x="0.100000" y="0.100000" z="0.100000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Interact_Animated_Chest_01/G3_Object_Interact_Animated_Chest_01.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="bed2" id="22">
+							<localTransform>
+								<position x="-1.283417" y="0.143105" z="-3.879944"/>
+								<rotation x="0.000000" y="-74.000031" z="0.000000"/>
+								<scale x="0.200000" y="0.200000" z="0.200000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/bed1/bed1.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="bed1" id="24">
+							<localTransform>
+								<position x="1.024185" y="0.147709" z="-3.998077"/>
+								<rotation x="0.000000" y="-84.000015" z="0.000000"/>
+								<scale x="0.200000" y="0.200000" z="0.200000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/bed1/bed1.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="stove" id="25">
+							<localTransform>
+								<position x="4.454933" y="0.193344" z="3.459869"/>
+								<rotation x="0.000014" y="132.000351" z="0.000014"/>
+								<scale x="0.100000" y="0.100000" z="0.100000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Avatar/stove.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="alchemTable" id="26">
+							<localTransform>
+								<position x="5.276711" y="0.141552" z="-0.576508"/>
+								<rotation x="0.000000" y="-80.000008" z="0.000000"/>
+								<scale x="0.200000" y="0.200000" z="0.200000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/alchemTable/alchemTable.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="G3_Object_Table_01" id="27">
+							<localTransform>
+								<position x="-3.871941" y="0.215187" z="1.042328"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.200000" y="0.200000" z="0.200000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Table_01.obj/G3_Object_Table_01_colored.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="G3_Object_Interact_Stool_01" id="28">
+							<localTransform>
+								<position x="-2.712791" y="0.323238" z="0.458496"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.050000" y="0.050000" z="0.050000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Interact_Stool_01/G3_Object_Interact_Stool_01.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+						<gameObject name="G3_Object_Interact_Stool_01" id="29">
+							<localTransform>
+								<position x="-2.927116" y="0.214226" z="1.488281"/>
+								<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+								<scale x="0.050000" y="0.050000" z="0.050000"/>
+							</localTransform>
+							<components count="1">
+								<component type="Renderer">
+									<textureIndex>0</textureIndex>
+									<modelFileNames>
+										<modelFileName>
+											<fileName>Meshes/Gothic/G3_Object_Interact_Stool_01/G3_Object_Interact_Stool_01.obj</fileName>
+											<lvlOfDetail>0</lvlOfDetail>
+										</modelFileName>
+									</modelFileNames>
+								</component>
+							</components>
+						</gameObject>
+					</children>
+				</gameObject>
+				<gameObject name="G3_Object_Interact_Stool_01" id="30">
+					<localTransform>
+						<position x="-5.990944" y="0.219879" z="2.532776"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="0.600000" y="0.600000" z="0.600000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Gothic/G3_Object_Interact_Stool_01/G3_Object_Interact_Stool_01.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="G3_Varant_City_Tent_Ork_01_colored" id="31">
+					<localTransform>
+						<position x="-14.646545" y="0.296013" z="17.313019"/>
+						<rotation x="0.000000" y="70.000015" z="0.000000"/>
+						<scale x="10.000000" y="10.000000" z="10.000000"/>
+					</localTransform>
+					<components count="1">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Gothic/G3_Varant_City_Tent_Ork_01/G3_Varant_City_Tent_Ork_01_colored.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+					</components>
+				</gameObject>
+				<gameObject name="namiot" id="33">
+					<localTransform>
+						<position x="-1.370834" y="1.985786" z="23.117798"/>
+						<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+						<scale x="7.000000" y="7.000000" z="7.000000"/>
+					</localTransform>
+					<components count="3">
+						<component type="Renderer">
+							<textureIndex>0</textureIndex>
+							<modelFileNames>
+								<modelFileName>
+									<fileName>Meshes/Avatar/namiot.obj</fileName>
+									<lvlOfDetail>0</lvlOfDetail>
+								</modelFileName>
+							</modelFileNames>
+						</component>
+						<component type="BoxShape">
+							<positionOffset x="0.000000" y="0.000000" z="0.000000"/>
+							<size x="1.000000" y="1.000000" z="1.000000"/>
+						</component>
+						<component type="Rigidbody">
+							<mass>1.000000</mass>
+							<isStatic>false</isStatic>
+							<collisionShape>BoxShape</collisionShape>
+						</component>
+					</components>
+				</gameObject>
+			</children>
+		</gameObject>
+		<gameObject name="crate11" id="34">
+			<localTransform>
+				<position x="137.130768" y="-62.535233" z="406.603333"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1.800000" y="1.800000" z="1.800000"/>
+			</localTransform>
+			<components count="3">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/Crate/crate.obj</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="BoxShape">
+					<positionOffset x="0.000000" y="-0.850000" z="0.000000"/>
+					<size x="2.000000" y="2.000000" z="2.000000"/>
+				</component>
+				<component type="Rigidbody">
+					<mass>25.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>BoxShape</collisionShape>
+				</component>
+			</components>
+		</gameObject>
+		<gameObject name="Ogre" id="35">
+			<localTransform>
+				<position x="94.813416" y="-62.374058" z="413.036255"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="5.000000" y="5.000000" z="5.000000"/>
+			</localTransform>
+			<components count="7">
+				<component type="Renderer">
+					<textureIndex>0</textureIndex>
+					<modelFileNames>
+						<modelFileName>
+							<fileName>Meshes/DungeonDefenders/Ogre/Ogre.md5mesh</fileName>
+							<lvlOfDetail>0</lvlOfDetail>
+						</modelFileName>
+					</modelFileNames>
+				</component>
+				<component type="Animator">
+					<startupAnimationClip>Idle</startupAnimationClip>
+					<animationClips>
+						<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Idle.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Punch.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Walk.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Hurt.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Pound.xml</animationClip>
+						<animationClip>Meshes/DungeonDefenders/Ogre/AnimationClips/Death.xml</animationClip>
+					</animationClips>
+				</component>
+				<component type="Rigidbody">
+					<mass>100.000000</mass>
+					<isStatic>false</isStatic>
+					<collisionShape>CapsuleShape</collisionShape>
+					<angularFactor x="0.000000" y="0.000000" z="0.000000"/>
+				</component>
+				<component type="CapsuleShape">
+					<positionOffset x="0.000000" y="-1.000000" z="0.000000"/>
+					<height>1.000000</height>
+					<radius>0.500000</radius>
+				</component>
+				<component type="Enemy"/>
+				<component type="EnemyController"/>
+				<component type="CharacterController">
+					<animationClips>
+						<idle>Idle</idle>
+						<hurt>Hurt</hurt>
+						<run>Walk</run>
+						<moveBackward/>
+						<death>Death</death>
+						<attack>Pound</attack>
+						<jump/>
+					</animationClips>
+				</component>
+			</components>
+		</gameObject>
+	</gameObjects>
+</scene>
+

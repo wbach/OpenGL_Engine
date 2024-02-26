@@ -1,0 +1,13 @@
+<scene name="Kingdom">
+	<gameObjects count="5">
+		<gameObject name="SkyBox" id="2">
+			<localTransform>
+				<position x="0.000000" y="0.000000" z="0.000000"/>
+				<rotation x="0.000000" y="-0.000000" z="0.000000"/>
+				<scale x="1.000000" y="1.000000" z="1.000000"/>
+			</localTransform>
+			<components count="0"/>
+		</gameObject>
+	</gameObjects>
+</scene>
+

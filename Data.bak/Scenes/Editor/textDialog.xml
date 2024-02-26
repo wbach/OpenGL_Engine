@@ -1,0 +1,139 @@
+<gui>
+	<verticalLayout>
+		<color x="1.000000" y="1.000000" z="1.000000"/>
+		<inBackground>false</inBackground>
+		<position x="-1.000000" y="-0.950000"/>
+		<show>true</show>
+		<scale x="1.000000" y="0.050000"/>
+		<label/>
+		<startupFunction/>
+		<algin>CENTER</algin>
+		<horizontalLayout>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+			<inBackground>false</inBackground>
+			<position x="-1.000000" y="-0.925000"/>
+			<show>true</show>
+			<scale x="1.000000" y="0.025000"/>
+			<label/>
+			<startupFunction/>
+			<algin>LEFT</algin>
+			<button>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+				<inBackground>false</inBackground>
+				<position x="0.000000" y="-0.925000"/>
+				<show>true</show>
+				<scale x="1.000000" y="0.025000"/>
+				<label/>
+				<startupFunction/>
+				<action/>
+				<text>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.925000"/>
+					<show>true</show>
+					<scale x="0.087500" y="0.024167"/>
+					<label/>
+					<startupFunction/>
+					<font>GUI/Ubuntu-M.ttf</font>
+					<fontSize>35</fontSize>
+					<outline>0</outline>
+					<value>new GuiButton</value>
+				</text>
+				<texture>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.925000"/>
+					<show>true</show>
+					<scale x="1.000000" y="0.025000"/>
+					<label/>
+					<startupFunction/>
+					<file>GUI/darkGrayButton.png</file>
+				</texture>
+				<texture>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.925000"/>
+					<show>false</show>
+					<scale x="1.000000" y="0.025000"/>
+					<label/>
+					<startupFunction/>
+					<file>GUI/darkGrayButtonActive.png</file>
+				</texture>
+				<texture>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.925000"/>
+					<show>false</show>
+					<scale x="1.000000" y="0.025000"/>
+					<label/>
+					<startupFunction/>
+					<file>GUI/darkGrayButtonHover.png</file>
+				</texture>
+			</button>
+		</horizontalLayout>
+		<horizontalLayout>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+			<inBackground>false</inBackground>
+			<position x="-1.000000" y="-0.975000"/>
+			<show>true</show>
+			<scale x="1.000000" y="0.025000"/>
+			<label/>
+			<startupFunction/>
+			<algin>LEFT</algin>
+			<button>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+				<inBackground>false</inBackground>
+				<position x="0.000000" y="-0.975000"/>
+				<show>true</show>
+				<scale x="1.000000" y="0.025000"/>
+				<label/>
+				<startupFunction/>
+				<action/>
+				<text>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.975000"/>
+					<show>true</show>
+					<scale x="0.087500" y="0.024167"/>
+					<label/>
+					<startupFunction/>
+					<font>GUI/Ubuntu-M.ttf</font>
+					<fontSize>35</fontSize>
+					<outline>0</outline>
+					<value>new GuiButton</value>
+				</text>
+				<texture>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.975000"/>
+					<show>true</show>
+					<scale x="1.000000" y="0.025000"/>
+					<label/>
+					<startupFunction/>
+					<file>GUI/darkGrayButton.png</file>
+				</texture>
+				<texture>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.975000"/>
+					<show>false</show>
+					<scale x="1.000000" y="0.025000"/>
+					<label/>
+					<startupFunction/>
+					<file>GUI/darkGrayButtonActive.png</file>
+				</texture>
+				<texture>
+					<color x="1.000000" y="1.000000" z="1.000000"/>
+					<inBackground>false</inBackground>
+					<position x="0.000000" y="-0.975000"/>
+					<show>false</show>
+					<scale x="1.000000" y="0.025000"/>
+					<label/>
+					<startupFunction/>
+					<file>GUI/darkGrayButtonHover.png</file>
+				</texture>
+			</button>
+		</horizontalLayout>
+	</verticalLayout>
+</gui>
+

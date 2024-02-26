@@ -1,0 +1,20 @@
+newmtl G3_Architecture_Bricks_01_C
+map_Kd G3_Architecture_Bricks_01_Diffuse_03.png
+#map_bump G3_Architecture_Bricks_01_Normal_01.png
+#map_Ks G3_Architecture_Bricks_01_Diffuse_03.png
+
+newmtl G3_Architecture_Roofshingle_01_A
+map_Kd G3_Architecture_Roofshingle_01_Diffuse_01.png
+#map_bump G3_Architecture_Roofshingle_01_Normal_01.png
+#map_Ks G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl G3_Architecture_Wood_07_A
+map_Kd G3_Architecture_Wood_07_Diffuse_01.png
+#map_bump G3_Architecture_Wood_07_Normal_01.png
+#map_Ks G3_Architecture_Wood_07_Diffuse_01.png
+
+newmtl G3_Architecture_Wood_09_A
+map_Kd G3_Architecture_Wood_09_Diffuse_01.png
+#map_bump G3_Architecture_Wood_09_Normal_01.png
+#map_Ks G3_Architecture_Wood_09_Diffuse_01.png
+

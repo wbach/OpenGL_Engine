@@ -1,0 +1,2480 @@
+<AnimationClip length="0.466667">
+	<KeyFrames count="15">
+		<KeyFrame>
+			<timeStamp>0.000000</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995585" z="-0.093869" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995298" z="-0.096859" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.030682" z="0.097062" y="-0.076852" x="-0.991832"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999514" z="-0.031177" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999482" z="-0.032173" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.973955" z="0.084735" y="0.210299" x="-0.002527"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988190" z="-0.153232" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988198" z="-0.153185" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982988" z="0.183431" y="0.004190" x="0.008390"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991922" z="-0.126852" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991953" z="-0.126606" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.962759" z="0.168174" y="-0.208576" x="-0.036178"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999997" z="-0.002343" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999997" z="-0.002344" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.935538" z="0.087874" y="-0.333373" x="-0.076865"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.914223" y="3.401114" x="0.036064"/>
+					<Rotation w="-0.999412" z="-0.027779" y="-0.019859" x="0.003041"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.468240" y="4.708039" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.367505" y="0.119681" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.018489" y="2.650250" x="2.990463"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.302117" y="3.430109" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.018492" y="2.650251" x="-2.990460"/>
+					<Rotation w="-0.000345" z="0.000000" y="0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.998681" z="0.026520" y="0.013416" x="-0.041863"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.068855" z="0.417051" y="0.094495" x="0.901331"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.998027" z="-0.062785" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.998030" z="-0.062745" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.057217" z="-0.208232" y="-0.074748" x="-0.973539"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993679" z="-0.112260" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993654" z="-0.112478" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.014807" z="-0.067199" y="-0.022996" x="-0.997365"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999257" z="-0.038535" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999257" z="-0.038547" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.033333</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995169" z="-0.098172" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.994856" z="-0.101299" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.045822" z="0.142587" y="-0.056853" x="-0.987085"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999317" z="-0.036957" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999273" z="-0.038138" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.964075" z="0.057922" y="0.258521" x="0.019259"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.989720" z="-0.143017" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.989727" z="-0.142973" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.986484" z="0.154760" y="0.048843" x="0.022644"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.995482" z="-0.094947" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.995500" z="-0.094763" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.977535" z="0.125139" y="-0.167108" x="-0.028991"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999134" z="0.041604" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999513" z="0.031218" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.953201" z="0.048459" y="-0.289546" x="-0.072264"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.223457" y="3.090830" x="0.045450"/>
+					<Rotation w="-0.999282" z="-0.027387" y="-0.020395" x="-0.016410"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999931" z="0.000202" y="0.003014" x="-0.011363"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-1.990578" y="4.774327" x="0.000000"/>
+					<Rotation w="-0.999999" z="-0.000000" y="-0.000000" x="-0.001407"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-3.963821" y="-0.103412" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-2.610509" y="2.610685" x="3.145056"/>
+					<Rotation w="-0.999982" z="-0.000000" y="0.005933" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-7.574348" y="3.129423" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-2.610512" y="2.610686" x="-3.147006"/>
+					<Rotation w="-0.000334" z="-0.003203" y="0.000000" x="0.999995"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.999550" z="0.023584" y="0.011832" x="0.014266"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.076935" z="0.382848" y="0.048961" x="0.919299"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999822" z="-0.018857" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999822" z="-0.018845" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.063166" z="-0.166970" y="-0.041048" x="-0.983080"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.996085" z="-0.088397" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.996070" z="-0.088570" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.028645" z="-0.015542" y="0.008776" x="-0.999430"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999636" z="-0.026974" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999636" z="-0.026983" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.066667</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.993640" z="-0.112601" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993228" z="-0.116184" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.058835" z="0.193157" y="-0.046192" x="-0.978312"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.998543" z="-0.053960" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.998448" z="-0.055684" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.949257" z="0.041063" y="0.309434" x="0.038419"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.990173" z="-0.139847" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.990179" z="-0.139804" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.985561" z="0.130850" y="0.100722" x="0.037466"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.997896" z="-0.064841" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997904" z="-0.064714" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.989986" z="0.080012" y="-0.115000" x="-0.017364"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.996226" z="0.086794" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997875" z="0.065154" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.971513" z="0.004532" y="-0.228993" x="-0.060866"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="0.394148" y="2.792843" x="0.054790"/>
+					<Rotation w="-0.998783" z="-0.026990" y="-0.020917" x="-0.035584"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999846" z="0.000343" y="0.005559" x="-0.016637"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-1.695659" y="4.806665" x="0.000000"/>
+					<Rotation w="-0.999999" z="-0.000000" y="-0.000000" x="-0.001686"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-3.714611" y="-0.236482" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-2.365984" y="2.591922" x="3.237482"/>
+					<Rotation w="-0.999975" z="-0.000000" y="0.007111" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-7.141119" y="2.950430" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-2.365987" y="2.591923" x="-3.237214"/>
+					<Rotation w="-0.000408" z="-0.003839" y="0.000000" x="0.999993"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.998145" z="0.026247" y="0.013140" x="0.053342"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.080278" z="0.335789" y="-0.000566" x="0.938510"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999730" z="0.023247" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999520" z="0.030983" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.071579" z="-0.114550" y="-0.007950" x="-0.990803"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.997689" z="-0.067950" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997680" z="-0.068082" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.044766" z="0.045457" y="0.036592" x="-0.997292"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999748" z="-0.022447" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999748" z="-0.022454" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.100000</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.992189" z="-0.124742" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.991683" z="-0.128706" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.063945" z="0.212577" y="-0.057608" x="-0.973346"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.997673" z="-0.068178" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997522" z="-0.070354" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.942128" z="0.051107" y="0.328519" x="0.043096"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.989275" z="-0.146062" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.989282" z="-0.146017" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.981883" z="0.137896" y="0.121856" x="0.045192"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.998162" z="-0.060598" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.998169" z="-0.060480" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.992475" z="0.080576" y="-0.092015" x="-0.005878"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.995498" z="0.094783" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997465" z="0.071159" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.978636" z="0.008579" y="-0.200329" x="-0.045449"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="0.059980" y="2.854700" x="0.052701"/>
+					<Rotation w="-0.998326" z="-0.026756" y="-0.021216" x="-0.046689"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999961" z="0.000462" y="0.006378" x="-0.006063"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-1.768034" y="4.799199" x="0.000000"/>
+					<Rotation w="-0.999999" z="-0.000000" y="-0.000000" x="-0.001649"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-3.775767" y="-0.204082" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-2.425589" y="2.596217" x="3.214965"/>
+					<Rotation w="-0.999976" z="-0.000000" y="0.006957" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-7.246567" y="2.993997" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-2.425592" y="2.596218" x="-3.215429"/>
+					<Rotation w="-0.000280" z="-0.003756" y="0.000000" x="0.999993"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.998294" z="0.045195" y="0.023895" x="-0.028218"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.069387" z="0.313216" y="-0.000356" x="0.947144"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999467" z="0.032651" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999053" z="0.043513" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.081112" z="-0.092373" y="-0.012679" x="-0.992334"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.997780" z="-0.066593" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997772" z="-0.066723" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.054124" z="0.069746" y="0.029269" x="-0.995665"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999616" z="-0.027701" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999616" z="-0.027710" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.133333</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.992055" z="-0.125807" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.991540" z="-0.129804" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.066225" z="0.211259" y="-0.062748" x="-0.973163"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.997578" z="-0.069556" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997421" z="-0.071776" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.942190" z="0.056466" y="0.327328" x="0.044112"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988936" z="-0.148344" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988943" z="-0.148298" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.980909" z="0.144692" y="0.120823" x="0.047780"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.997939" z="-0.064175" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997947" z="-0.064050" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.991564" z="0.090241" y="-0.093033" x="-0.001758"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.995984" z="0.089532" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997739" z="0.067212" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.978386" z="0.020554" y="-0.201827" x="-0.040046"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="0.087215" y="2.940617" x="0.049721"/>
+					<Rotation w="-0.998166" z="-0.026686" y="-0.021304" x="-0.049984"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999937" z="0.000593" y="0.006779" x="0.008935"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-1.944403" y="4.779747" x="0.000000"/>
+					<Rotation w="-0.999999" z="-0.000000" y="-0.000000" x="-0.001475"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-3.924802" y="-0.124441" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-2.571918" y="2.607512" x="3.159653"/>
+					<Rotation w="-0.999981" z="-0.000000" y="0.006221" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-7.505855" y="3.101125" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-2.571921" y="2.607513" x="-3.161397"/>
+					<Rotation w="-0.000407" z="-0.003358" y="0.000000" x="0.999994"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.986180" z="0.066133" y="0.042406" x="-0.145866"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.062867" z="0.314239" y="0.010995" x="0.947196"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999579" z="0.029016" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999252" z="0.038670" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.085407" z="-0.094012" y="-0.021476" x="-0.991668"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.997594" z="-0.069327" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997585" z="-0.069463" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.056994" z="0.067877" y="0.021445" x="-0.995834"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999557" z="-0.029755" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999557" z="-0.029765" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.166667</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.992840" z="-0.119454" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.992375" z="-0.123253" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.064069" z="0.195269" y="-0.064841" x="-0.976504"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.998055" z="-0.062340" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997929" z="-0.064330" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.947379" z="0.060336" y="0.311805" x="0.040141"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988987" z="-0.147999" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988994" z="-0.147954" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.981911" z="0.151846" y="0.103994" x="0.044474"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.997329" z="-0.073037" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.997340" z="-0.072895" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.988212" z="0.105413" y="-0.110899" x="-0.005082"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.997137" z="0.075611" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.998388" z="0.056751" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.972867" z="0.036150" y="-0.224268" x="-0.043897"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="0.365409" y="3.040729" x="0.046448"/>
+					<Rotation w="-0.998397" z="-0.026789" y="-0.021175" x="-0.045142"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999696" z="0.000698" y="0.006815" x="0.023680"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.166778" y="4.752208" x="0.000000"/>
+					<Rotation w="-0.999999" z="-0.000000" y="-0.000000" x="-0.001048"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.112724" y="-0.022387" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-2.759002" y="2.623741" x="3.088851"/>
+					<Rotation w="-0.999990" z="-0.000000" y="0.004420" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-7.838407" y="3.238522" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-2.759005" y="2.623742" x="-3.091011"/>
+					<Rotation w="-0.000384" z="-0.002386" y="0.000000" x="0.999997"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.973017" z="0.074691" y="0.053849" x="-0.211565"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.061991" z="0.331604" y="0.027925" x="0.940966"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999861" z="0.016663" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999753" z="0.022208" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.083710" z="-0.112190" y="-0.032457" x="-0.989622"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.997194" z="-0.074862" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997183" z="-0.075008" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.053099" z="0.047834" y="0.012830" x="-0.997360"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999558" z="-0.029737" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999557" z="-0.029747" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.200000</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.993910" z="-0.110198" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993515" z="-0.113704" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.056694" z="0.169689" y="-0.066750" x="-0.981599"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.998671" z="-0.051531" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.998585" z="-0.053177" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.955398" z="0.065335" y="0.286388" x="0.030449"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.989077" z="-0.147400" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.989084" z="-0.147355" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.983452" z="0.159975" y="0.077221" x="0.035605"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.996291" z="-0.086044" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.996306" z="-0.085877" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.982575" z="0.123274" y="-0.138402" x="-0.013961"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.998448" z="0.055695" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999126" z="0.041796" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.963474" z="0.052092" y="-0.257103" x="-0.053874"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="0.790783" y="3.145711" x="0.043304"/>
+					<Rotation w="-0.998861" z="-0.027038" y="-0.020856" x="-0.033317"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999376" z="0.000745" y="0.006560" x="0.034707"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.375187" y="4.722639" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000390"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.288858" y="0.075303" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-2.937564" y="2.641430" x="3.021173"/>
+					<Rotation w="-0.999999" z="-0.000000" y="0.001644" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.157155" y="3.370216" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-2.937566" y="2.641431" x="-3.022223"/>
+					<Rotation w="-0.000407" z="-0.000888" y="0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.975015" z="0.070831" y="0.050107" x="-0.204494"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.065220" z="0.357075" y="0.046446" x="0.930638"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999999" z="-0.001623" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999999" z="-0.001622" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.076826" z="-0.139581" y="-0.044395" x="-0.986227"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.996532" z="-0.083212" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.996518" z="-0.083374" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.043293" z="0.016658" y="0.003180" x="-0.998918"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999552" z="-0.029924" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999552" z="-0.029933" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.233333</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.994812" z="-0.101732" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.994475" z="-0.104972" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.045949" z="0.140146" y="-0.069685" x="-0.986606"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999147" z="-0.041305" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999091" z="-0.042625" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.963801" z="0.072034" y="0.256142" x="0.017048"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988954" z="-0.148223" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988961" z="-0.148177" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.984254" z="0.168754" y="0.046887" x="0.023835"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.994827" z="-0.101583" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.994847" z="-0.101386" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.975232" z="0.141295" y="-0.168369" x="-0.024684"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999461" z="0.032839" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999696" z="0.024639" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.952208" z="0.066502" y="-0.290858" x="-0.065424"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.260466" y="3.246901" x="0.040472"/>
+					<Rotation w="-0.999255" z="-0.027355" y="-0.020438" x="-0.017974"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999200" z="0.000718" y="0.006067" x="0.039518"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.511861" y="4.700675" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="0.000218"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.404376" y="0.140767" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.056870" y="2.654727" x="2.975884"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000921" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.371062" y="3.458594" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.056873" y="2.654728" x="-2.975181"/>
+					<Rotation w="-0.000332" z="0.000497" y="-0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.982765" z="0.061471" y="0.040379" x="-0.169599"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.068609" z="0.383533" y="0.066137" x="0.918598"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.999662" z="-0.025996" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.999662" z="-0.025980" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.067641" z="-0.169026" y="-0.056199" x="-0.981681"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995589" z="-0.093817" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.995572" z="-0.094000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.030707" z="-0.018257" y="-0.006858" x="-0.999338"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999493" z="-0.031825" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999493" z="-0.031836" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.266667</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995371" z="-0.096102" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995071" z="-0.099163" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.035990" z="0.113410" y="-0.073313" x="-0.990186"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999415" z="-0.034189" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999377" z="-0.035282" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.970448" z="0.079094" y="0.227933" x="0.004551"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988594" z="-0.150608" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988601" z="-0.150561" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.983901" z="0.177061" y="0.020123" x="0.013560"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.993172" z="-0.116656" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.993199" z="-0.116430" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.967800" z="0.157155" y="-0.193859" x="-0.032932"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999934" z="0.011444" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999963" z="0.008586" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.941880" z="0.078688" y="-0.318125" x="-0.073935"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.669951" y="3.335359" x="0.038006"/>
+					<Rotation w="-0.999408" z="-0.027632" y="-0.020062" x="-0.004311"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999374" z="0.000566" y="0.004973" x="0.035024"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.550317" y="4.693694" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="0.000444"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.436882" y="0.159623" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.091129" y="2.658997" x="2.962858"/>
+					<Rotation w="-0.999998" z="-0.000000" y="-0.001875" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.432785" y="3.484095" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.091131" y="2.658998" x="-2.961343"/>
+					<Rotation w="-0.000410" z="0.001012" y="-0.000000" x="0.999999"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.991018" z="0.048794" y="0.028955" x="-0.121099"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.070061" z="0.405034" y="0.082899" x="0.907836"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.998828" z="-0.048393" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.998830" z="-0.048362" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.060195" z="-0.193863" y="-0.066824" x="-0.976897"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.994509" z="-0.104654" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.994487" z="-0.104858" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.020004" z="-0.048901" y="-0.016046" x="-0.998474"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999378" z="-0.035273" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999377" z="-0.035284" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.300000</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995585" z="-0.093869" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995298" z="-0.096859" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.030682" z="0.097062" y="-0.076852" x="-0.991832"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999514" z="-0.031177" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999482" z="-0.032173" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.973955" z="0.084735" y="0.210299" x="-0.002527"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988190" z="-0.153232" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988198" z="-0.153185" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982988" z="0.183431" y="0.004190" x="0.008390"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991922" z="-0.126852" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991953" z="-0.126606" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.962759" z="0.168174" y="-0.208576" x="-0.036178"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999997" z="-0.002343" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999997" z="-0.002344" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.935538" z="0.087874" y="-0.333373" x="-0.076865"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.914223" y="3.401114" x="0.036064"/>
+					<Rotation w="-0.999412" z="-0.027779" y="-0.019859" x="0.003041"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999724" z="0.000330" y="0.003235" x="0.023275"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.530114" y="4.697419" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="0.000322"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.419805" y="0.149686" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.073082" y="2.656716" x="2.969721"/>
+					<Rotation w="-0.999999" z="-0.000000" y="-0.001357" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.400249" y="3.470653" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.073085" y="2.656717" x="-2.968656"/>
+					<Rotation w="-0.000423" z="0.000733" y="-0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.996459" z="0.035819" y="0.019274" x="-0.073587"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.068855" z="0.417051" y="0.094495" x="0.901331"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.998027" z="-0.062785" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.998030" z="-0.062745" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.057217" z="-0.208232" y="-0.074748" x="-0.973539"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993679" z="-0.112260" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993654" z="-0.112478" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.014807" z="-0.067199" y="-0.022996" x="-0.997365"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999257" z="-0.038535" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999257" z="-0.038547" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.333333</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995612" z="-0.093579" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995327" z="-0.096560" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.029224" z="0.091555" y="-0.079008" x="-0.992230"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999529" z="-0.030704" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999498" z="-0.031685" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.974965" z="0.087651" y="0.204300" x="-0.004728"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.987974" z="-0.154622" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.987981" z="-0.154575" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982414" z="0.186577" y="-0.001059" x="0.007095"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991413" z="-0.130771" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991446" z="-0.130518" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.960858" z="0.172967" y="-0.213304" x="-0.036555"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999975" z="-0.007070" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999975" z="-0.007074" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.933342" z="0.092600" y="-0.338233" x="-0.076788"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.995315" y="3.433717" x="0.035057"/>
+					<Rotation w="-0.999404" z="-0.027819" y="-0.019801" x="0.005102"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999952" z="0.000121" y="0.001372" x="0.009676"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.491016" y="4.704268" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="0.000109"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.386756" y="0.130651" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.038466" y="2.652539" x="2.982877"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000459" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.337976" y="3.444924" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.038469" y="2.652540" x="-2.982538"/>
+					<Rotation w="-0.000544" z="0.000248" y="-0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.998681" z="0.026520" y="0.013416" x="-0.041863"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.067525" z="0.420823" y="0.099528" x="0.899134"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.997682" z="-0.068049" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997685" z="-0.068005" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.056907" z="-0.212907" y="-0.078492" x="-0.972251"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993335" z="-0.115259" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993309" z="-0.115483" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.013615" z="-0.073278" y="-0.026428" x="-0.996868"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999195" z="-0.040109" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999195" z="-0.040122" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.366667</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995615" z="-0.093548" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995330" z="-0.096528" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.029040" z="0.090865" y="-0.079281" x="-0.992278"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999530" z="-0.030650" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999500" z="-0.031630" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.975088" z="0.088019" y="0.203545" x="-0.005003"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.987946" z="-0.154801" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.987953" z="-0.154753" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982339" z="0.186972" y="-0.001715" x="0.006936"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991347" z="-0.131265" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991381" z="-0.131011" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.960617" z="0.173567" y="-0.213893" x="-0.036598"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999971" z="-0.007664" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999971" z="-0.007669" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.933066" z="0.093189" y="-0.338835" x="-0.076773"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="2.005451" y="3.437793" x="0.034931"/>
+					<Rotation w="-0.999402" z="-0.027825" y="-0.019794" x="0.005359"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.468240" y="4.708039" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.367505" y="0.119681" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.018489" y="2.650250" x="2.990463"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.302117" y="3.430109" x="-0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.018492" y="2.650251" x="-2.990460"/>
+					<Rotation w="-0.000345" z="0.000000" y="0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.999179" z="0.023124" y="0.011470" x="-0.031226"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.067355" z="0.421290" y="0.100157" x="0.898858"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.997637" z="-0.068710" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997640" z="-0.068666" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.056872" z="-0.213489" y="-0.078961" x="-0.972087"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993291" z="-0.115638" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993265" z="-0.115863" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.013464" z="-0.074038" y="-0.026858" x="-0.996803"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999187" z="-0.040310" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999187" z="-0.040323" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.400000</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995606" z="-0.093645" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995321" z="-0.096628" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.029584" z="0.092935" y="-0.078465" x="-0.992135"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999525" z="-0.030815" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999494" z="-0.031800" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.974716" z="0.086918" y="0.205806" x="-0.004179"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988029" z="-0.154268" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988036" z="-0.154221" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982562" z="0.185788" y="0.000253" x="0.007416"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991542" z="-0.129785" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991575" z="-0.129534" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.961337" z="0.171768" y="-0.212125" x="-0.036467"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999983" z="-0.005884" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999983" z="-0.005888" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.933893" z="0.091420" y="-0.337025" x="-0.076814"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.975042" y="3.425565" x="0.035309"/>
+					<Rotation w="-0.999406" z="-0.027809" y="-0.019816" x="0.004587"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999997" z="-0.000030" y="-0.000400" x="-0.002528"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.466598" y="4.708304" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000007"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.366118" y="0.118894" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.017055" y="2.650089" x="2.991007"/>
+					<Rotation w="-1.000000" z="-0.000000" y="0.000031" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.299545" y="3.429046" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.017057" y="2.650090" x="-2.991026"/>
+					<Rotation w="-0.000345" z="-0.000017" y="0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.999130" z="0.023503" y="0.011683" x="-0.032408"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.067863" z="0.419885" y="0.098271" x="0.899686"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.997771" z="-0.066728" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997774" z="-0.066686" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.056980" z="-0.211742" y="-0.077554" x="-0.972576"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993423" z="-0.114503" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993397" z="-0.114726" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.013907" z="-0.071759" y="-0.025568" x="-0.996997"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999211" z="-0.039709" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999211" z="-0.039721" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.433333</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995592" z="-0.093789" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995306" z="-0.096777" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.030315" z="0.095689" y="-0.077386" x="-0.991935"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999518" z="-0.031051" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999486" z="-0.032044" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.974211" z="0.085459" y="0.208806" x="-0.003079"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988137" z="-0.153573" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988145" z="-0.153526" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982849" z="0.184215" y="0.002878" x="0.008063"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991797" z="-0.127826" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991829" z="-0.127578" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.962288" z="0.169371" y="-0.209761" x="-0.036278"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999994" z="-0.003520" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999994" z="-0.003523" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.934991" z="0.089057" y="-0.334595" x="-0.076853"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.934495" y="3.409263" x="0.035813"/>
+					<Rotation w="-0.999411" z="-0.027789" y="-0.019844" x="0.003556"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-0.999999" z="-0.000015" y="-0.000200" x="-0.001264"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.467402" y="4.708174" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000004"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.366797" y="0.119279" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.017757" y="2.650168" x="2.990741"/>
+					<Rotation w="-1.000000" z="-0.000000" y="0.000016" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.300804" y="3.429566" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.017759" y="2.650169" x="-2.990749"/>
+					<Rotation w="-0.000345" z="-0.000009" y="0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.998861" z="0.025392" y="0.012759" x="-0.038317"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.068527" z="0.417999" y="0.095754" x="0.900784"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.997944" z="-0.064097" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.997946" z="-0.064056" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.057135" z="-0.209404" y="-0.075682" x="-0.973220"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993595" z="-0.113003" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993570" z="-0.113223" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.014506" z="-0.068719" y="-0.023852" x="-0.997245"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999242" z="-0.038922" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999242" z="-0.038934" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+		<KeyFrame>
+			<timeStamp>0.466667</timeStamp>
+			<Transforms>
+				<Transform jointName="b_LegR1_3">
+					<Position z="-0.000000" y="1.384180" x="-4.448380"/>
+					<Rotation w="-0.995585" z="-0.093869" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.995298" z="-0.096859" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR1_1">
+					<Position z="0.917518" y="0.301269" x="-1.019600"/>
+					<Rotation w="-0.030682" z="0.097062" y="-0.076852" x="-0.991832"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_3">
+					<Position z="0.000000" y="-1.384187" x="4.448378"/>
+					<Rotation w="-0.999514" z="-0.031177" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999482" z="-0.032173" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL1_1">
+					<Position z="0.917517" y="0.301268" x="1.019598"/>
+					<Rotation w="-0.973955" z="0.084735" y="0.210299" x="-0.002527"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.988190" z="-0.153232" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.988198" z="-0.153185" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL2_1">
+					<Position z="0.172823" y="0.301268" x="1.164621"/>
+					<Rotation w="-0.982988" z="0.183431" y="0.004190" x="0.008390"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.991922" z="-0.126852" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.991953" z="-0.126606" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL3_1">
+					<Position z="-0.509035" y="0.301268" x="1.217305"/>
+					<Rotation w="-0.962759" z="0.168174" y="-0.208576" x="-0.036178"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_3">
+					<Position z="0.000000" y="-1.282374" x="4.448378"/>
+					<Rotation w="-0.999997" z="-0.002343" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_2">
+					<Position z="0.000000" y="2.495784" x="1.640045"/>
+					<Rotation w="-0.999997" z="-0.002344" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegL4_1">
+					<Position z="-0.997596" y="0.301268" x="0.853136"/>
+					<Rotation w="-0.935538" z="0.087874" y="-0.333373" x="-0.076865"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Root">
+					<Position z="1.914223" y="3.401114" x="0.036064"/>
+					<Rotation w="-0.999412" z="-0.027779" y="-0.019859" x="0.003041"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing">
+					<Position z="-1.329611" y="1.277518" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingT">
+					<Position z="-2.468240" y="4.708039" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingB">
+					<Position z="-4.367505" y="0.119681" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingL">
+					<Position z="-3.018489" y="2.650250" x="2.990463"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Thing2">
+					<Position z="-8.302117" y="3.430109" x="0.000000"/>
+					<Rotation w="-1.000000" z="-0.000000" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_ThingR">
+					<Position z="-3.018492" y="2.650251" x="-2.990460"/>
+					<Rotation w="-0.000345" z="0.000000" y="0.000000" x="1.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_Head">
+					<Position z="1.668977" y="0.999136" x="-0.000000"/>
+					<Rotation w="-0.998681" z="0.026520" y="0.013416" x="-0.041863"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_1">
+					<Position z="-0.997592" y="0.301269" x="-0.853136"/>
+					<Rotation w="-0.068855" z="0.417051" y="0.094495" x="0.901331"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640044"/>
+					<Rotation w="-0.998027" z="-0.062785" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR4_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.998030" z="-0.062745" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_1">
+					<Position z="-0.509032" y="0.301269" x="-1.217310"/>
+					<Rotation w="-0.057217" z="-0.208232" y="-0.074748" x="-0.973539"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640040"/>
+					<Rotation w="-0.993679" z="-0.112260" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR3_3">
+					<Position z="0.000000" y="1.282370" x="-4.448380"/>
+					<Rotation w="-0.993654" z="-0.112478" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_1">
+					<Position z="0.172828" y="0.301269" x="-1.164620"/>
+					<Rotation w="-0.014807" z="-0.067199" y="-0.022996" x="-0.997365"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_2">
+					<Position z="0.000000" y="-2.495780" x="-1.640050"/>
+					<Rotation w="-0.999257" z="-0.038535" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+				<Transform jointName="b_LegR2_3">
+					<Position z="-0.000000" y="1.282370" x="-4.448370"/>
+					<Rotation w="-0.999257" z="-0.038547" y="-0.000000" x="-0.000000"/>
+					<Scale z="1.000000" y="1.000000" x="1.000000"/>
+				</Transform>
+			</Transforms>
+		</KeyFrame>
+	</KeyFrames>
+</AnimationClip>
+

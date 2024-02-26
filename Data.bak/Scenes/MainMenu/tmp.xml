@@ -1,0 +1,390 @@
+<gui>
+	<texture>
+		<position x="0.000000" y="0.000000"/>
+		<show>true</show>
+		<scale x="1.000000" y="1.000000"/>
+		<label>background</label>
+		<startupFunction/>
+		<file>Textures/Backgrounds/aang_main_menu.jpg</file>
+		<color x="1.000000" y="1.000000" z="1.000000"/>
+	</texture>
+	<text>
+		<position x="-0.500000" y="0.700000"/>
+		<show>true</show>
+		<scale x="0.431000" y="0.048333"/>
+		<label>Title</label>
+		<startupFunction/>
+		<font>GUI/herculanum.ttf</font>
+		<fontSize>75</fontSize>
+		<outline>0</outline>
+		<value>Avatar : The last airbender</value>
+		<color x="1.000000" y="1.000000" z="1.000000"/>
+	</text>
+	<window>
+		<position x="0.000000" y="0.000000"/>
+		<show>false</show>
+		<scale x="1.000000" y="1.000000"/>
+		<label>LoadGameWindow</label>
+		<startupFunction/>
+		<style>FULL</style>
+		<text>
+			<position x="-0.500000" y="0.400000"/>
+			<show>false</show>
+			<scale x="0.164000" y="0.048333"/>
+			<label>LoadGameTitle</label>
+			<startupFunction/>
+			<font>GUI/herculanum.ttf</font>
+			<fontSize>75</fontSize>
+			<outline>0</outline>
+			<value>Load Game</value>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+		</text>
+		<text>
+			<position x="-0.500000" y="0.100000"/>
+			<show>false</show>
+			<scale x="0.136000" y="0.048333"/>
+			<label>savelocation1</label>
+			<startupFunction/>
+			<font>GUI/herculanum.ttf</font>
+			<fontSize>75</fontSize>
+			<outline>0</outline>
+			<value>.................</value>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+		</text>
+		<text>
+			<position x="-0.500000" y="-0.025000"/>
+			<show>false</show>
+			<scale x="0.136000" y="0.048333"/>
+			<label>savelocation2</label>
+			<startupFunction/>
+			<font>GUI/herculanum.ttf</font>
+			<fontSize>75</fontSize>
+			<outline>0</outline>
+			<value>.................</value>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+		</text>
+		<text>
+			<position x="-0.500000" y="-0.150000"/>
+			<show>false</show>
+			<scale x="0.136000" y="0.048333"/>
+			<label>savelocation3</label>
+			<startupFunction/>
+			<font>GUI/herculanum.ttf</font>
+			<fontSize>75</fontSize>
+			<outline>0</outline>
+			<value>.................</value>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+		</text>
+		<button>
+			<position x="-0.500000" y="-0.275000"/>
+			<show>false</show>
+			<scale x="0.125000" y="0.050000"/>
+			<label>BackToMainMenuLoadGame</label>
+			<startupFunction/>
+			<action>BackToMainMenu()</action>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label/>
+				<startupFunction/>
+				<file>GUI/darkGrayButton.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>hoverTexture</label>
+				<startupFunction/>
+				<file>GUI/button_yellow.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>activeTexture</label>
+				<startupFunction/>
+				<file>GUI/button_green.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<text>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.048500" y="0.032500"/>
+				<label>BackToMainMenuTextLoadGame</label>
+				<startupFunction/>
+				<font>GUI/herculanum.ttf</font>
+				<fontSize>50</fontSize>
+				<outline>0</outline>
+				<value>Back</value>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</text>
+		</button>
+	</window>
+	<window>
+		<position x="0.000000" y="0.000000"/>
+		<show>false</show>
+		<scale x="1.000000" y="1.000000"/>
+		<label>SettingsWindow</label>
+		<startupFunction/>
+		<style>FULL</style>
+		<text>
+			<position x="-0.500000" y="0.400000"/>
+			<show>false</show>
+			<scale x="0.115500" y="0.048333"/>
+			<label>SettingsTitle</label>
+			<startupFunction/>
+			<font>GUI/herculanum.ttf</font>
+			<fontSize>75</fontSize>
+			<outline>0</outline>
+			<value>Settings</value>
+			<color x="1.000000" y="1.000000" z="1.000000"/>
+		</text>
+		<button>
+			<position x="-0.500000" y="-0.275000"/>
+			<show>false</show>
+			<scale x="0.125000" y="0.050000"/>
+			<label>BackToMainMenu</label>
+			<startupFunction/>
+			<action>BackToMainMenu()</action>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label/>
+				<startupFunction/>
+				<file>GUI/darkGrayButton.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>hoverTexture</label>
+				<startupFunction/>
+				<file>GUI/button_yellow.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>activeTexture</label>
+				<startupFunction/>
+				<file>GUI/button_green.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<text>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.048500" y="0.032500"/>
+				<label>BackToMainMenuText</label>
+				<startupFunction/>
+				<font>GUI/herculanum.ttf</font>
+				<fontSize>50</fontSize>
+				<outline>0</outline>
+				<value>Back</value>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</text>
+		</button>
+	</window>
+	<window>
+		<position x="0.000000" y="0.000000"/>
+		<show>true</show>
+		<scale x="1.000000" y="1.000000"/>
+		<label>StartWindow</label>
+		<startupFunction/>
+		<style>EMPTY</style>
+		<button>
+			<position x="-0.498000" y="0.100000"/>
+			<show>true</show>
+			<scale x="0.125000" y="0.050000"/>
+			<label>StartGameButton</label>
+			<startupFunction/>
+			<action>StartGame()</action>
+			<texture>
+				<position x="-0.498000" y="0.100000"/>
+				<show>true</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label/>
+				<startupFunction/>
+				<file>GUI/darkGrayButton.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.498000" y="0.100000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>hoverTexture</label>
+				<startupFunction/>
+				<file>GUI/button_yellow.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.498000" y="0.100000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>activeTexture</label>
+				<startupFunction/>
+				<file>GUI/button_green.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<text>
+				<position x="-0.498000" y="0.100000"/>
+				<show>true</show>
+				<scale x="0.118500" y="0.032500"/>
+				<label>text</label>
+				<startupFunction/>
+				<font>GUI/herculanum.ttf</font>
+				<fontSize>50</fontSize>
+				<outline>0</outline>
+				<value>Start Game</value>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</text>
+		</button>
+		<button>
+			<position x="-0.500000" y="-0.025000"/>
+			<show>true</show>
+			<scale x="0.125000" y="0.050000"/>
+			<label>LoadGameButton</label>
+			<startupFunction/>
+			<action>LoadGame()</action>
+			<texture>
+				<position x="-0.500000" y="-0.025000"/>
+				<show>true</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label/>
+				<startupFunction/>
+				<file>GUI/darkGrayButton.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.025000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>hoverTexture</label>
+				<startupFunction/>
+				<file>GUI/button_yellow.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.025000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>activeTexture</label>
+				<startupFunction/>
+				<file>GUI/button_green.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<text>
+				<position x="-0.500000" y="-0.025000"/>
+				<show>true</show>
+				<scale x="0.110500" y="0.032500"/>
+				<label>LoadGameText</label>
+				<startupFunction/>
+				<font>GUI/herculanum.ttf</font>
+				<fontSize>50</fontSize>
+				<outline>0</outline>
+				<value>Load Game</value>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</text>
+		</button>
+		<button>
+			<position x="-0.500000" y="-0.150000"/>
+			<show>true</show>
+			<scale x="0.125000" y="0.050000"/>
+			<label>SettingsButton</label>
+			<startupFunction/>
+			<action>Settings()</action>
+			<texture>
+				<position x="-0.500000" y="-0.150000"/>
+				<show>true</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label/>
+				<startupFunction/>
+				<file>GUI/darkGrayButton.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.150000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>hoverTexture</label>
+				<startupFunction/>
+				<file>GUI/button_yellow.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.150000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>activeTexture</label>
+				<startupFunction/>
+				<file>GUI/button_green.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<text>
+				<position x="-0.500000" y="-0.150000"/>
+				<show>true</show>
+				<scale x="0.078000" y="0.032500"/>
+				<label>SettingsText</label>
+				<startupFunction/>
+				<font>GUI/herculanum.ttf</font>
+				<fontSize>50</fontSize>
+				<outline>0</outline>
+				<value>Settings</value>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</text>
+		</button>
+		<button>
+			<position x="-0.500000" y="-0.275000"/>
+			<show>true</show>
+			<scale x="0.125000" y="0.050000"/>
+			<label>ExitButton</label>
+			<startupFunction/>
+			<action>Exit()</action>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>true</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label/>
+				<startupFunction/>
+				<file>GUI/darkGrayButton.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>hoverTexture</label>
+				<startupFunction/>
+				<file>GUI/button_yellow.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<texture>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>false</show>
+				<scale x="0.125000" y="0.050000"/>
+				<label>activeTexture</label>
+				<startupFunction/>
+				<file>GUI/button_green.png</file>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</texture>
+			<text>
+				<position x="-0.500000" y="-0.275000"/>
+				<show>true</show>
+				<scale x="0.038500" y="0.032500"/>
+				<label>ExitText</label>
+				<startupFunction/>
+				<font>GUI/herculanum.ttf</font>
+				<fontSize>50</fontSize>
+				<outline>0</outline>
+				<value>Exit</value>
+				<color x="1.000000" y="1.000000" z="1.000000"/>
+			</text>
+		</button>
+	</window>
+</gui>
+

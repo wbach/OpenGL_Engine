@@ -1,0 +1,57 @@
+<gui>
+    <texture>
+        <label>background</label>
+        <file>GUI/darkGrayButton.png</file>
+        <color x="1.000000" y="1.000000" z="1.000000"></color>
+        <scale x="1.00000  " y="1.00000"></scale>
+        <inBackground>true</inBackground>
+    </texture>
+    <button>
+        <label>GuiEditorButton</label>
+        <position x="-0.5000" y="-0.27500"></position>
+        <scale x="0.12500  " y="0.05000"></scale>
+        <action>StartGuiEditor()</action>
+        <text>
+            <color x="1.000000" y="1.000000" z="1.000000"/>
+            <label>GuiEditorButtonText</label>
+            <value>Gui editor</value>
+            <font>GUI/monaco.ttf</font>
+            <fontSize>50</fontSize>
+            <outline>0</outline>
+        </text>
+        <texture>
+            <label>hoverTexture</label>
+            <file>GUI/button_yellow.png</file>
+            <color x="1.000000" y="1.000000" z="1.000000"></color>
+        </texture>
+        <texture>
+            <label>activeTexture</label>
+            <file>GUI/button_green.png</file>
+            <color x="1.000000" y="1.000000" z="1.000000"></color>
+        </texture>
+    </button>
+        <button>
+        <label>SceneEditorButton</label>
+        <position x="0.5000" y="-0.27500"></position>
+        <scale x="0.12500  " y="0.05000"></scale>
+        <action>StartSceneEditor()</action>
+        <text>
+            <color x="1.000000" y="1.000000" z="1.000000"/>
+            <label>SceneEditorButtonText</label>
+            <value>Scene editor</value>
+            <font>GUI/monaco.ttf</font>
+            <fontSize>50</fontSize>
+            <outline>0</outline>
+        </text>
+        <texture>
+            <label>hoverTexture</label>
+            <file>GUI/button_yellow.png</file>
+            <color x="1.000000" y="1.000000" z="1.000000"></color>
+        </texture>
+        <texture>
+            <label>activeTexture</label>
+            <file>GUI/button_green.png</file>
+            <color x="1.000000" y="1.000000" z="1.000000"></color>
+        </texture>
+    </button>
+</gui>

@@ -1,0 +1,39 @@
+# Blender MTL File: 'fishinghouse.blend'
+# Material Count: 4
+
+newmtl None
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 1.0 1.0 1.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_woodwall_01_Diffuse_01.png
+
+newmtl None_G3_Architecture_Cutwater_01_Diffuse_01.tga
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 1.0 1.0 1.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_Cutwater_01_Diffuse_01.png
+
+newmtl None_G3_Architecture_Roofshingle_01_Diffuse_01.tga
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 1.0 1.0 1.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_Roofshingle_01_Diffuse_01.png
+
+newmtl None_G3_Architecture_Wood_04_Diffuse_03.tga
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 1.0 1.0 1.0
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd G3_Architecture_Wood_04_Diffuse_03.png
+//map_Bump G3_Architecture_Wood_04_Normal_02.tga

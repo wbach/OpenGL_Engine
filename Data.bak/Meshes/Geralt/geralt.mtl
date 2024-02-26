@@ -1,0 +1,353 @@
+# Blender MTL File: 'geralt.blend'
+# Material Count: 28
+
+newmtl 24_+Scab_Silver_0.25_
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/scabbard3_n.tga.png
+map_Kd Objects/geralt/scabbard3_d.tga.png
+map_Ks Objects/geralt/scabbard3_s.tga.png
+
+newmtl 24_+Scab_Steel_0.25_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Bump Objects/geralt/scabbard_n.tga.png
+map_Kd Objects/geralt/scabbard_d.tga.png
+
+newmtl 24_+Steel_back_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/exwitch_n.tga.png
+map_Kd Objects/geralt/exwitch_d.tga.png
+map_Ks Objects/geralt/exwitch_s.tga.png
+
+newmtl 24_+hook_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/hook_n.tga.png
+map_Kd Objects/geralt/hook_d.tga.png
+map_Ks Objects/geralt/hook_s.tga.png
+
+newmtl 24_-Silver_hand_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/wolfsilver_n.tga.png
+map_Kd Objects/geralt/wolfsilver_d.tga.png
+map_Ks Objects/geralt/wolfsilver_s.tga.png
+
+newmtl 24_armmet_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/armor_d.tga.png
+map_Ks Objects/geralt/armor_s.tga.png
+map_Bump Objects/geralt/armor_n.tga.png
+
+newmtl 24_armor1_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.724138 0.724138 0.724138
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/armor_n.tga.png
+map_Kd Objects/geralt/armor_d.tga.png
+map_Ks Objects/geralt/armor_s.tga.png
+
+newmtl 24_boot_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/boot_n.tga.png
+map_Kd Objects/geralt/boot_d.tga.png
+map_Ks Objects/geralt/boot_s.tga.png
+
+newmtl 24_cord_0.75_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/cordel_d.tga.png
+map_Ks Objects/geralt/cordel_s.tga.png
+
+newmtl 24_eye2_0.1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/Eyes_BM.tga.png
+
+newmtl 24_eye_0.75_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/Eyes_BM.tga.png
+
+newmtl 24_glove_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/glove_n.tga.png
+map_Kd Objects/geralt/glove_d.tga.png
+map_Ks Objects/geralt/glove_s.tga.png
+
+newmtl 24_harness_0.75_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/hair_n.tga.png
+map_Kd Objects/geralt/harness_d.tga.png
+map_Ks Objects/geralt/harness_s.tga.png
+
+newmtl 24_head_0.1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/Geralt_head_NM.tga.png
+map_Kd Objects/geralt/Geralt_head_BM-2.tga.png
+
+newmtl 24_metal_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/boot_n.tga.png
+map_Kd Objects/geralt/boot_d.tga.png
+map_Ks Objects/geralt/boot_s.tga.png
+
+newmtl 24_mouth_0.1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/Geralt_head_NM.tga.png
+map_Kd Objects/geralt/Geralt_head_BM-2.tga.png
+
+newmtl 24_pant1_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/pant1_n.tga.png
+map_Kd Objects/geralt/pant1_d.tga.png
+map_Ks Objects/geralt/pant1_s.tga.png
+
+newmtl 24_pant2_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/pant1_n.tga.png
+map_Kd Objects/geralt/pant1_d.tga.png
+map_Ks Objects/geralt/pant1_s.tga.png
+
+newmtl 24_pantm_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/pant1_n.tga.png
+map_Kd Objects/geralt/pant1_d.tga.png
+map_Ks Objects/geralt/pant1_s.tga.png
+
+newmtl 24_sleeve_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/armor_n.tga.png
+map_Kd Objects/geralt/armor_d.tga.png
+map_Ks Objects/geralt/armor_s.tga.png
+
+newmtl 25_+Default_a_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/hair_n.tga.png
+map_Kd Objects/geralt/hair_d.tga.png
+map_Ks Objects/geralt/hair_s.tga.png
+
+newmtl 25_-Default_b_0.5_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/hair_n.tga.png
+map_Kd Objects/geralt/hair_d.tga.png
+map_Ks Objects/geralt/hair_s.tga.png
+
+newmtl 25_-beard_a_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/beard_d.tga.png
+map_Ks Objects/geralt/beard_s.tga.png
+
+newmtl 25_-beard_b_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/beard_d.tga.png
+map_Ks Objects/geralt/beard_s.tga.png
+
+newmtl 25_-beard_c_0.25_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/beard_d.tga.png
+map_Ks Objects/geralt/beard_s.tga.png
+
+newmtl 25_pendant_1_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/pendant_n.tga.png
+map_Kd Objects/geralt/pendant_d.tga.png
+map_Ks Objects/geralt/pendant_s.tga.png
+
+newmtl 7_lash_0_0_0
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Objects/geralt/eyelashes.tga.png
+
+newmtl Material.002
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Bump Objects/geralt/chain_n.tga.png
+map_Kd Objects/geralt/chain_d.tga.png
+map_Ks Objects/geralt/chain_s.tga.png

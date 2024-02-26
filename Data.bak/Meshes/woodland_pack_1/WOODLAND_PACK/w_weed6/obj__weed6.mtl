@@ -1,0 +1,14 @@
+# Wavefront MTL file
+# Creator: Ultimate Unwrap3D v2.24
+# Time: Fri Dec 30 11:06:13 2005
+# num_materials: 1
+newmtl weed6.tga
+Ka 0.000000 0.000000 0.000000
+Kd 0.752941 0.752941 0.752941
+Ks 0.000000 0.000000 0.000000
+d 1.000000
+illum 2
+Ns 0.312500
+map_Kd weed6.tga
+
+# num_materials: 1

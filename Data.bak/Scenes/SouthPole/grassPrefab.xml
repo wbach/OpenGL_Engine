@@ -1,0 +1,14 @@
+<prefab>
+	<localTransform>
+	<position x="0.000000" y="0.000000" z="10.000000"/>
+   <rotation x="0.000000" y="0.000000" z="0.000000"/>
+	<scale x="1.800000" y="1.800000" z="1.800000"/>
+	<isDynamic>false</isDynamic>
+   </localTransform>
+   <components count="1">
+	    <component type="12">
+			<textureFileName>Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png</textureFileName>
+	        <positions> 4095.964 3112.3567 89.5882352941 </positions>
+	    </components>
+   </component>
+</prefab>

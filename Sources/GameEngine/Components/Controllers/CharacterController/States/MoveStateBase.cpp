@@ -277,11 +277,12 @@ void MoveStateBase::moveRigidbody()
         return;
     }
 
-    const auto &moveDirection = context_.moveController.getCurrentDir();
-    vec3 moveSpeed(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward);
+    const auto &moveDirection = glm::normalize(context_.moveController.getCurrentDir());
+    auto moveSpeed = glm::length(vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 
     auto &rigidbody     = context_.rigidbody;
-    auto targetVelocity = glm::normalize(rigidbody.GetRotation() * moveDirection) * moveSpeed;
+    auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
+    targetVelocity.y = rigidbody.GetVelocity().y;
     DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
     DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
     DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
