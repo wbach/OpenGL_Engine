@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveStateBase.h"
+#include "RotatingMoveState.h"
 
 namespace GameEngine
 {
@@ -20,7 +20,7 @@ class DisarmedRunAndRotateState;
 class RunArmedChangeState;
 
 class DisarmedRunState
-    : public MoveStateBase,
+    : public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
@@ -51,8 +51,8 @@ class DisarmedRunState
 public:
     DisarmedRunState(FsmContext& context);
 
-    using MoveStateBase::onEnter;
-    using MoveStateBase::update;
+    using RotatingMoveState::onEnter;
+    using RotatingMoveState::update;
 
     void onMoveInactivity() override;
 };

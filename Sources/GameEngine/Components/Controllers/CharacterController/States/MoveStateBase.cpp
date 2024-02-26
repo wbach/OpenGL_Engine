@@ -247,7 +247,7 @@ void MoveStateBase::setAnim(const std::string &clipName)
     if (iter != currentAnimations.end())
         return;
 
-    DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
+    //DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
     context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                       jointGroupName_);
 }
@@ -256,13 +256,13 @@ void MoveStateBase::moveRigidbody()
 {
     if (not context_.moveController.isMoving())
     {
-        DEBUG_LOG("Not moving, return");
+        //DEBUG_LOG("Not moving, return");
         return;
     }
 
     if (not context_.animator.isAnimationPlaying(currentAnimName_))
     {
-        DEBUG_LOG("Forward not ready");
+        //DEBUG_LOG("Forward not ready");
         return;
     }
 
@@ -272,9 +272,9 @@ void MoveStateBase::moveRigidbody()
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y = rigidbody.GetVelocity().y;
-    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+//    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+//    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+//    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 

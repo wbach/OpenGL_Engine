@@ -319,7 +319,7 @@ void CharacterController::Update()
     {
         auto passEventToState = [&](auto statePtr)
         {
-            DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " + std::to_string(componentContext_.time_.deltaTime));
+            //DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " + std::to_string(componentContext_.time_.deltaTime));
             statePtr->update(componentContext_.time_.deltaTime);
         };
         std::visit(passEventToState, stateMachine_->currentState);

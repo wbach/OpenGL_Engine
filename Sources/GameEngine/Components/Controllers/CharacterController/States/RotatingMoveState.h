@@ -39,6 +39,8 @@ public:
 //    void update(const WalkBackwardEvent &);
     void update(const RunLeftEvent &);
     void update(const RunRightEvent &);
+
+    void postEnter();
 //    void update(const SprintStateChangeEvent &);
 //    void update(const SprintStartEvent &);
 
@@ -47,7 +49,7 @@ public:
 //    bool transitionCondition(const SprintStartEvent &);
 //    bool transitionCondition(const SprintStateChangeEvent &);
 
-    void onLeave();
+    //void onLeave();
 
 //    void changeAnimationClips(const MovmentClipNames &);
 

@@ -16,41 +16,46 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
                                      const std::string &forwardAnimName)
     : MoveStateBase(context, jointGroup, moveSpeed, forwardAnimName)
 {
+    moveSpeed_.leftRight = moveSpeed;
+    moveSpeed_.backward = moveSpeed;
 }
 
-void RotatingMoveState::onEnter(const RunForwardEvent &)
+void RotatingMoveState::onEnter(const RunForwardEvent & event)
 {
 //    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, 1.f);
 //    context_.moveStateData_.currentMoveSpeed_.z = fabsf(moveSpeed_.forward);
 
 //    setForwardAnim();
+    MoveStateBase::onEnter(event);
     setCharacterRotation(matrixRotationForward);
 }
 
-void RotatingMoveState::onEnter(const RunBackwardEvent &)
+void RotatingMoveState::onEnter(const RunBackwardEvent & event)
 {
 //    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, -1.f);
 //    context_.moveStateData_.currentMoveSpeed_.z = fabsf(moveSpeed_.forward);
 
 //    setForwardAnim();
+    MoveStateBase::onEnter(event);
     setCharacterRotation(matrixRotationBackward);
 }
 
-void RotatingMoveState::onEnter(const RunLeftEvent &)
+void RotatingMoveState::onEnter(const RunLeftEvent & event)
 {
 //    context_.moveStateData_.moveDirection     = vec3(1.f, 0.f, 0.f);
 //    context_.moveStateData_.currentMoveSpeed_.x = fabsf(moveSpeed_.forward);
 
-//    setForwardAnim();
+    MoveStateBase::onEnter(event);
     setCharacterRotation(matrixRotationLeft);
 }
 
-void RotatingMoveState::onEnter(const RunRightEvent &)
+void RotatingMoveState::onEnter(const RunRightEvent & event)
 {
 //    context_.moveStateData_.moveDirection     = vec3(-1.f, 0.f, 0.f);
 //    context_.moveStateData_.currentMoveSpeed_.x = fabsf(moveSpeed_.forward);
 
 //    setForwardAnim();
+    MoveStateBase::onEnter(event);
     setCharacterRotation(matrixRotationRight);
 }
 
@@ -74,12 +79,22 @@ void RotatingMoveState::update(const RunRightEvent &event)
     onEnter(event);
 }
 
+void RotatingMoveState::postEnter()
+{
+    // prevent to call postEnter from MoveStateBase
+    setAnim(animationClips_.forward);
+}
+
 void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
 {
     auto rj = context_.animator.GetRootJoint();
     if (rj)
     {
         rj->additionalUserMofiyTransform.set(matrixRotation);
+    }
+    else
+    {
+        DEBUG_LOG("not setCharacterRotation");
     }
 }
 
