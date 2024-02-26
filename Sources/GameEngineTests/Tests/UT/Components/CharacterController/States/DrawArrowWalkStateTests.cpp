@@ -130,3 +130,11 @@ TEST_F(CharacterControllerTests, DrawArrowWalk_EndBackwardMoveEvent)
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent, DrawArrowState>({sut_.animationClipsNames_.drawArrow});
 }
+TEST_F(CharacterControllerTests, DrawArrowWalk_RunLeftEvent)
+{
+    prepareState(*this);
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<RunLeftEvent, DrawArrowWalkState>(
+        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
+}
+

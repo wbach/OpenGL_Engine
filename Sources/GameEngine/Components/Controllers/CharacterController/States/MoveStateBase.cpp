@@ -20,16 +20,6 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 }
 
 MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
-                             const MoveSpeed &moveSpeed, const std::string &forwardAnimName,
-                             const std::string &backwardAnimName)
-    : context_{context}
-    , jointGroupName_{jointGroupName}
-    , animationClips_{forwardAnimName, backwardAnimName}
-    , moveSpeed_{moveSpeed}
-{
-}
-
-MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
                              float forwardMoveSpeed, const std::string &forwardAnimName)
     : context_{context}
     , jointGroupName_{jointGroupName}
@@ -239,7 +229,6 @@ void MoveStateBase::setCurrentAnimIfNeeded()
     }
     else
     {
-        DEBUG_LOG("onMoveInactivity()");
         onMoveInactivity();
     }
 }

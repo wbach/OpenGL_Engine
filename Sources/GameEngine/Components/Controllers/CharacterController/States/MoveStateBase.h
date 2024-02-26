@@ -14,8 +14,6 @@ class MoveStateBase
 {
 public:
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &);
-    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const std::string &,
-                  const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
     void onEnter(const SprintStartEvent &);

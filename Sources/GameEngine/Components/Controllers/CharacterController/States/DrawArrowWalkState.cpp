@@ -8,8 +8,7 @@ namespace Components
 {
 DrawArrowWalkState::DrawArrowWalkState(FsmContext &context)
     : DrawArrowStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
-                    context.animClipNames.armed.walk.backward}
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk}
     , context_{context}
 {
 }

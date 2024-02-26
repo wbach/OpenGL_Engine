@@ -48,8 +48,7 @@ class DisarmedWalkState
 {
 public:
     DisarmedWalkState(FsmContext& context)
-        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.disarmed.walk.forward,
-                        context.animClipNames.disarmed.walk.backward}
+        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.disarmed.walk}
     {
     }
 
