@@ -181,15 +181,9 @@ void MoveStateBase::update(const SprintStartEvent &event)
 
 void MoveStateBase::update(float)
 {
-    if (not context_.moveController.isMoving())
-    {
-        //DEBUG_LOG("Not moving, return");
-        return;
-    }
-
     if (not context_.animator.isAnimationPlaying(currentAnimName_))
     {
-        //DEBUG_LOG("Forward not ready");
+        // DEBUG_LOG("Forward not ready");
         return;
     }
 
@@ -259,22 +253,34 @@ void MoveStateBase::setAnim(const std::string &clipName)
     if (iter != currentAnimations.end())
         return;
 
-    //DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
+    // DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
     context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                       jointGroupName_);
 }
 
 void MoveStateBase::moveRigidbody()
 {
-    const auto &moveDirection = glm::normalize(context_.moveController.getCurrentDir());
-    auto moveSpeed = glm::length(vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
+    if (not context_.moveController.isMoving())
+    {
+        // DEBUG_LOG("Not moving, return");
+        return;
+    }
 
+    auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
+    auto moveSpeed =
+        glm::length(vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) *
+                    moveDirection);
+
+    if (moveSpeed < 0.00001f)
+    {
+        return;
+    }
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
-    targetVelocity.y = rigidbody.GetVelocity().y;
-//    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-//    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-//    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+    targetVelocity.y    = rigidbody.GetVelocity().y;
+    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 

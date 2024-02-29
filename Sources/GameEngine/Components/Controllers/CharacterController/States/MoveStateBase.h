@@ -58,7 +58,7 @@ public:
     virtual void onMoveInactivity();
 
 protected:
-    bool shouldLeaveAndSetCurrAnimIfNot();
+    virtual bool shouldLeaveAndSetCurrAnimIfNot();
     void moveRigidbody();
     void setCurrentAnimIfNeeded();
     void setAnim(const std::string &);

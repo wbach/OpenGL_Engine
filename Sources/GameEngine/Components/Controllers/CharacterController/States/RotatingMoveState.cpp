@@ -79,8 +79,31 @@ void RotatingMoveState::postEnter()
     setAnim(animationClips_.forward);
 }
 
+void RotatingMoveState::postUpdate()
+{
+    applyCurrentRotation();
+}
+
 void RotatingMoveState::onLeave()
 {
+}
+
+bool RotatingMoveState::shouldLeaveAndSetCurrAnimIfNot()
+{
+    if (context_.moveController.isMoveActive())
+    {
+        if (context_.moveController.isMoving())
+        {
+            applyCurrentRotation();
+            setAnim(animationClips_.forward);
+        }
+        else
+        {
+            onMoveInactivity();
+        }
+        return false;
+    }
+    return true;
 }
 
 void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
@@ -98,12 +121,14 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
 
 float RotatingMoveState::getCurrentAngle() const
 {
+    DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
     return glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP);
 }
 
 void RotatingMoveState::applyCurrentRotation()
 {
-    setCharacterRotation(glm::rotate(mat4(1.0f), getCurrentAngle(), glm::vec3(0.f, 1.f, 0.f)));
+    if (context_.moveController.isMoving())
+        setCharacterRotation(glm::rotate(mat4(1.0f), getCurrentAngle(), glm::vec3(0.f, 1.f, 0.f)));
 }
 
 }  // namespace Components
