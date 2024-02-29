@@ -53,11 +53,14 @@ public:
 protected:
     bool shouldLeaveAndSetCurrAnimIfNot() override;
     void setCharacterRotation(const mat4 &);
-    float getCurrentAngle() const;
+    void setTargetAngle();
     void applyCurrentRotation();
 
 protected:
     bool isAnimationReady{false};
+    float targetAngle;
+    float currentAngle;
+    float rotateSpeed;
 };
 }  // namespace Components
 }  // namespace GameEngine

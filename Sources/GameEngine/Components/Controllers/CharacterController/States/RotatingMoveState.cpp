@@ -7,6 +7,9 @@ namespace Components
 RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<std::string> &jointGroup, float moveSpeed,
                                      const std::string &forwardAnimName)
     : MoveStateBase(context, jointGroup, moveSpeed, forwardAnimName)
+    , targetAngle{0.f}
+    , currentAngle{0.f}
+    , rotateSpeed{10.f}
 {
     moveSpeed_.leftRight = moveSpeed;
     moveSpeed_.backward  = moveSpeed;
@@ -14,42 +17,40 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
 
 void RotatingMoveState::onEnter(const RunForwardEvent &event)
 {
-    //    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, 1.f);
-    //    context_.moveStateData_.currentMoveSpeed_.z = fabsf(moveSpeed_.forward);
-
-    //    setForwardAnim();
     MoveStateBase::onEnter(event);
 }
 
 void RotatingMoveState::onEnter(const RunBackwardEvent &event)
 {
-    //    context_.moveStateData_.moveDirection     = vec3(0.f, 0.f, -1.f);
-    //    context_.moveStateData_.currentMoveSpeed_.z = fabsf(moveSpeed_.forward);
-
-    //    setForwardAnim();
     MoveStateBase::onEnter(event);
 }
 
 void RotatingMoveState::onEnter(const RunLeftEvent &event)
 {
-    //    context_.moveStateData_.moveDirection     = vec3(1.f, 0.f, 0.f);
-    //    context_.moveStateData_.currentMoveSpeed_.x = fabsf(moveSpeed_.forward);
-
     MoveStateBase::onEnter(event);
 }
 
 void RotatingMoveState::onEnter(const RunRightEvent &event)
 {
-    //    context_.moveStateData_.moveDirection     = vec3(-1.f, 0.f, 0.f);
-    //    context_.moveStateData_.currentMoveSpeed_.x = fabsf(moveSpeed_.forward);
-
-    //    setForwardAnim();
     MoveStateBase::onEnter(event);
 }
 
-void RotatingMoveState::update(float)
+void RotatingMoveState::update(float dt)
 {
     moveRigidbody();
+    if (not compare(currentAngle, targetAngle, 0.1f))
+    {
+        if (targetAngle > currentAngle)
+        {
+            currentAngle += dt * rotateSpeed;
+        }
+        else
+        {
+            currentAngle -= dt * rotateSpeed;
+        }
+
+        applyCurrentRotation();
+    }
 }
 
 void RotatingMoveState::update(const RunForwardEvent &event)
@@ -75,13 +76,13 @@ void RotatingMoveState::update(const RunRightEvent &event)
 void RotatingMoveState::postEnter()
 {
     // prevent to call postEnter from MoveStateBase
-    applyCurrentRotation();
+    setTargetAngle();
     setAnim(animationClips_.forward);
 }
 
 void RotatingMoveState::postUpdate()
 {
-    applyCurrentRotation();
+    setTargetAngle();
 }
 
 void RotatingMoveState::onLeave()
@@ -94,7 +95,7 @@ bool RotatingMoveState::shouldLeaveAndSetCurrAnimIfNot()
     {
         if (context_.moveController.isMoving())
         {
-            applyCurrentRotation();
+            setTargetAngle();
             setAnim(animationClips_.forward);
         }
         else
@@ -119,16 +120,30 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
     }
 }
 
-float RotatingMoveState::getCurrentAngle() const
+void RotatingMoveState::setTargetAngle()
 {
     DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
-    return glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP);
+    targetAngle =
+        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP);
+
+    DEBUG_LOG("targetAngle degrees : " + std::to_string(glm::degrees(targetAngle)));
+    DEBUG_LOG("targetAngle radians : " + std::to_string((targetAngle)));
 }
 
 void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
-        setCharacterRotation(glm::rotate(mat4(1.0f), getCurrentAngle(), glm::vec3(0.f, 1.f, 0.f)));
+    {
+        if (currentAngle < -180.f)
+        {
+            currentAngle += 180.f;
+        }
+        if (currentAngle > 180.f)
+        {
+            currentAngle -= 180.f;
+        }
+        setCharacterRotation(glm::rotate(mat4(1.0f), currentAngle, glm::vec3(0.f, 1.f, 0.f)));
+    }
 }
 
 }  // namespace Components
