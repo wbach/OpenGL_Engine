@@ -181,6 +181,18 @@ void MoveStateBase::update(const SprintStartEvent &event)
 
 void MoveStateBase::update(float)
 {
+    if (not context_.moveController.isMoving())
+    {
+        //DEBUG_LOG("Not moving, return");
+        return;
+    }
+
+    if (not context_.animator.isAnimationPlaying(currentAnimName_))
+    {
+        //DEBUG_LOG("Forward not ready");
+        return;
+    }
+
     moveRigidbody();
 }
 
@@ -254,18 +266,6 @@ void MoveStateBase::setAnim(const std::string &clipName)
 
 void MoveStateBase::moveRigidbody()
 {
-    if (not context_.moveController.isMoving())
-    {
-        //DEBUG_LOG("Not moving, return");
-        return;
-    }
-
-    if (not context_.animator.isAnimationPlaying(currentAnimName_))
-    {
-        //DEBUG_LOG("Forward not ready");
-        return;
-    }
-
     const auto &moveDirection = glm::normalize(context_.moveController.getCurrentDir());
     auto moveSpeed = glm::length(vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 

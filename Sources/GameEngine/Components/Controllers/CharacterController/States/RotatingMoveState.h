@@ -33,6 +33,7 @@ public:
 //    void onEnter(const EndJumpEvent &);
 //    void onEnter(const WalkChangeStateEvent &);
 
+    void update(float);
     void update(const RunForwardEvent &);
     void update(const RunBackwardEvent &);
 //    void update(const WalkForwardEvent &);
@@ -49,12 +50,14 @@ public:
 //    bool transitionCondition(const SprintStartEvent &);
 //    bool transitionCondition(const SprintStateChangeEvent &);
 
-    //void onLeave();
+    void onLeave();
 
 //    void changeAnimationClips(const MovmentClipNames &);
 
 protected:
     void setCharacterRotation(const mat4 &);
+    float getCurrentAngle() const;
+    void applyCurrentRotation();
 
 protected:
     bool isAnimationReady{false};

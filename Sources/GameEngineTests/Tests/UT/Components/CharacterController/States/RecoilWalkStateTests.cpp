@@ -131,3 +131,15 @@ TEST_F(CharacterControllerTests, RecoilWalk_EndBackwardMoveEvent)
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
 }
+TEST_F(CharacterControllerTests, RecoilWalk_ReloadArrowEventWhenRunLeftAndRight)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.f, 0.f));
+    tiggerAndExpect<RunLeftEvent, RecoilWalkState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.moveleft});
+    expectNoMove();
+    tiggerAndExpect<RunRightEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
+    expectNoMove();
+    tiggerAndExpect<ReloadArrowEvent, DrawArrowWalkState>({sut_.animationClipsNames_.drawArrow});
+}
