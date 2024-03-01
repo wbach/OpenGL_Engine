@@ -58,13 +58,6 @@ protected:
 
 protected:
     bool isAnimationReady{false};
-    Quaternion targetAngle;
-    Quaternion currentAngle;
-    Quaternion sourceAngle;
-    float progress = 0.f;
-
-//    Quaternion sourceRotation;
-//    Quaternion targetRotation;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -80,6 +80,12 @@ struct FsmContext
         Sprint
     };
     AimEnteringState aimEnteringState;
+
+    // RotatingMoveState
+    Quaternion targetAngle{vec3(0.f)};
+    Quaternion currentAngle{vec3(0.f)};
+    Quaternion sourceAngle{vec3(0.f)};
+    float progress = 1.f;
 };
 }  // namespace Components
 }  // namespace GameEngine

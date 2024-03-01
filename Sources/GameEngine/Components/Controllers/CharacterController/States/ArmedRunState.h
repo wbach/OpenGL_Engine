@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveStateBase.h"
+#include "RotatingMoveState.h"
 
 namespace GameEngine
 {
@@ -21,13 +21,17 @@ class DrawArrowWalkState;
 class RunArmedChangeState;
 
 class ArmedRunState
-    : public MoveStateBase,
+    : public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
@@ -45,8 +49,8 @@ class ArmedRunState
 public:
     ArmedRunState(FsmContext& context);
 
-    using MoveStateBase::onEnter;
-    using MoveStateBase::update;
+    using RotatingMoveState::onEnter;
+    using RotatingMoveState::update;
 
     void onMoveInactivity() override;
 };

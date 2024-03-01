@@ -7,10 +7,6 @@ namespace Components
 RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<std::string> &jointGroup, float moveSpeed,
                                      const std::string &forwardAnimName)
     : MoveStateBase(context, jointGroup, moveSpeed, forwardAnimName)
-    , targetAngle(vec3(0.f))
-    , currentAngle(vec3(0.f))
-    , sourceAngle(vec3(0.f))
-    , progress{1.f}
 {
     moveSpeed_.leftRight = moveSpeed;
     moveSpeed_.backward  = moveSpeed;
@@ -40,15 +36,15 @@ void RotatingMoveState::update(float dt)
 {
     moveRigidbody();
 
-    if (progress < 1.f)
+    if (context_.progress < 1.f)
     {
         const float rotateTime{0.5f};
-        progress += dt/rotateTime;
+        context_.progress += dt / rotateTime;
         applyCurrentRotation();
     }
     else
     {
-        progress = 1.f;
+        context_.progress = 1.f;
     }
 }
 
@@ -126,9 +122,9 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
 void RotatingMoveState::setTargetAngle()
 {
     DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
-    progress = 0.f;
-    sourceAngle = currentAngle;
-    targetAngle = glm::angleAxis(
+    context_.progress = 0.f;
+    context_.sourceAngle = context_.currentAngle;
+    context_.targetAngle = glm::angleAxis(
         glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP), VECTOR_UP);
 
 }
@@ -137,8 +133,8 @@ void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
-        currentAngle = glm::slerp(currentAngle, targetAngle, progress);
-        setCharacterRotation(glm::mat4_cast(currentAngle));
+        context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, context_.progress);
+        setCharacterRotation(glm::mat4_cast(context_.currentAngle));
     }
 }
 
