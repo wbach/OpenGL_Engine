@@ -7,9 +7,10 @@ namespace Components
 RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<std::string> &jointGroup, float moveSpeed,
                                      const std::string &forwardAnimName)
     : MoveStateBase(context, jointGroup, moveSpeed, forwardAnimName)
-    , targetAngle{0.f}
-    , currentAngle{0.f}
-    , rotateSpeed{10.f}
+    , targetAngle(vec3(0.f))
+    , currentAngle(vec3(0.f))
+    , sourceAngle(vec3(0.f))
+    , progress{1.f}
 {
     moveSpeed_.leftRight = moveSpeed;
     moveSpeed_.backward  = moveSpeed;
@@ -38,18 +39,16 @@ void RotatingMoveState::onEnter(const RunRightEvent &event)
 void RotatingMoveState::update(float dt)
 {
     moveRigidbody();
-    if (not compare(currentAngle, targetAngle, 0.1f))
-    {
-        if (targetAngle > currentAngle)
-        {
-            currentAngle += dt * rotateSpeed;
-        }
-        else
-        {
-            currentAngle -= dt * rotateSpeed;
-        }
 
+    if (progress < 1.f)
+    {
+        const float rotateTime{0.5f};
+        progress += dt/rotateTime;
         applyCurrentRotation();
+    }
+    else
+    {
+        progress = 1.f;
     }
 }
 
@@ -83,6 +82,10 @@ void RotatingMoveState::postEnter()
 void RotatingMoveState::postUpdate()
 {
     setTargetAngle();
+    if (not context_.moveController.isMoving())
+    {
+         onMoveInactivity();
+    }
 }
 
 void RotatingMoveState::onLeave()
@@ -123,26 +126,19 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
 void RotatingMoveState::setTargetAngle()
 {
     DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
-    targetAngle =
-        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP);
+    progress = 0.f;
+    sourceAngle = currentAngle;
+    targetAngle = glm::angleAxis(
+        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP), VECTOR_UP);
 
-    DEBUG_LOG("targetAngle degrees : " + std::to_string(glm::degrees(targetAngle)));
-    DEBUG_LOG("targetAngle radians : " + std::to_string((targetAngle)));
 }
 
 void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
-        if (currentAngle < -180.f)
-        {
-            currentAngle += 180.f;
-        }
-        if (currentAngle > 180.f)
-        {
-            currentAngle -= 180.f;
-        }
-        setCharacterRotation(glm::rotate(mat4(1.0f), currentAngle, glm::vec3(0.f, 1.f, 0.f)));
+        currentAngle = glm::slerp(currentAngle, targetAngle, progress);
+        setCharacterRotation(glm::mat4_cast(currentAngle));
     }
 }
 
