@@ -38,6 +38,7 @@ public:
     }
 
     bool isAimReady() const;
+    std::tuple<float, float> getRotation() const;
 
 private:
     void init();

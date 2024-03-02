@@ -55,6 +55,7 @@ protected:
     void setCharacterRotation(const mat4 &);
     void setTargetAngle();
     void applyCurrentRotation();
+    void moveCameraRotateRigidbody();
 
 protected:
     bool isAnimationReady{false};

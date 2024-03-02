@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
@@ -26,7 +27,7 @@ void FollowingState::update()
 {
     if (not triggerEventIfMouseMoveDetect())
     {
-        StateBase::cameraUpdate(0, 0);
+        StateBase::cameraUpdate(context.gameObject.GetWorldTransform().GetMatrix(), 0, 0);
     }
 }
 void FollowingState::update(const InitEvent&)

@@ -33,7 +33,6 @@ private:
     vec2 CalcualteMouseMove();
     void lockPitch();
     void updateYaw();
-    void mouseControlledCamera(const vec2&);
     void updatePitchYaw(const vec2&);
 
 private:

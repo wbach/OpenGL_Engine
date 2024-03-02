@@ -91,7 +91,7 @@ void TransitionState::update()
     if (sourcePosition and targetPosition)
         relativeCamerePosition = glm::mix(*sourcePosition, *targetPosition, smoothProgress);
 
-    StateBase::cameraUpdate(pitch * pitchConversion, yaw);
+    StateBase::cameraUpdate(context.gameObject.GetWorldTransform().GetMatrix(), pitch * pitchConversion, yaw);
 }
 
 }  // namespace Camera

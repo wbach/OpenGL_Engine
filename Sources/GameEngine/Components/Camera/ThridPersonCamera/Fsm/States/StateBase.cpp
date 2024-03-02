@@ -42,20 +42,19 @@ void StateBase::pushEventToQueue(const Event& event) const
     }
 }
 
-void StateBase::cameraUpdate(float pitch, float yaw)
+void StateBase::cameraUpdate(const mat4& parentWorldTransform, float pitch, float yaw)
 {
     auto [relativeCamerePosition, lookAtLocalPosition, yTranslation] = calculateLocalPosition();
 
     auto rotX = glm::normalize(glm::angleAxis(glm::radians(pitch), glm::vec3(1.f, 0.f, 0.f)));
     auto rotY = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
 
-    auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
-    parentWorldTransform      = parentWorldTransform * yTranslation * mat4_cast(rotY * rotX);
+    auto pwt = parentWorldTransform * yTranslation * mat4_cast(rotY * rotX);
 
-    auto worldCameraPosition = parentWorldTransform * relativeCamerePosition;
+    auto worldCameraPosition = pwt * relativeCamerePosition;
     context.camera.SetPosition(worldCameraPosition);
 
-    auto lookAtPosition = parentWorldTransform * lookAtLocalPosition;
+    auto lookAtPosition = pwt * lookAtLocalPosition;
     context.camera.LookAt(lookAtPosition);
 }
 

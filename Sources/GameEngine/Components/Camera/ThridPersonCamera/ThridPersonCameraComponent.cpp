@@ -41,6 +41,15 @@ bool ThridPersonCameraComponent::isAimReady() const
     return fsm ? std::holds_alternative<Camera::AimState*>(fsm->currentState) : false;
 }
 
+std::tuple<float, float> ThridPersonCameraComponent::getRotation() const
+{
+    if (fsmContext)
+    {
+        return std::make_tuple(fsmContext->pitch, fsmContext->yaw);
+    }
+    return {};
+}
+
 void ThridPersonCameraComponent::init()
 {
     DEBUG_LOG("init");

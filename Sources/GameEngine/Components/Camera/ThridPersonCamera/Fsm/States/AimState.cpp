@@ -39,7 +39,7 @@ void AimState::update()
         context.yaw   = joint->additionalUserMofiyTransform.yaw;
     }
 
-    StateBase::cameraUpdate(-context.pitch, context.yaw);
+    StateBase::cameraUpdate(context.gameObject.GetWorldTransform().GetMatrix(), -context.pitch, context.yaw);
 }
 
 void AimState::setJointIfNeeded(const StartAimEvent& event)

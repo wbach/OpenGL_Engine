@@ -23,7 +23,7 @@ public:
     void pushEventToQueue(const Camera::Event&) const;
 
 protected:
-    void cameraUpdate(float, float);
+    void cameraUpdate(const mat4&, float, float);
     std::tuple<vec4, vec4, mat4> calculateLocalPosition() const;
 
 protected:

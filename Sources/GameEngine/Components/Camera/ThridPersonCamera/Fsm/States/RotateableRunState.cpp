@@ -3,10 +3,9 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
-#include "GameEngine/Display/DisplayManager.hpp"
-
 #include "GameEngine/Camera/CustomCamera.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -21,7 +20,7 @@ RotateableRunState::RotateableRunState(Context& context)
     , mouseSensitivity_(.4f)
     , yawLimit{-75.f, 45.f}
     , pitchLimit{-40.f, 50.f}
-    , mouseInactivityTimer{2.f}
+    , mouseInactivityTimer{5.f}
 {
 }
 
@@ -52,7 +51,11 @@ void RotateableRunState::update()
     }
 
     updatePitchYaw(mouseMove);
-    StateBase::cameraUpdate(context.pitch, context.yaw);
+
+    StateBase::cameraUpdate(glm::translate(context.gameObject.GetWorldTransform().GetPosition()) *
+                                glm::scale(context.gameObject.GetWorldTransform().GetScale()),
+                            context.pitch,
+                            -context.yaw);
 }
 
 vec2 RotateableRunState::CalcualteMouseMove()
@@ -78,17 +81,17 @@ void RotateableRunState::updateYaw()
 {
     if (context.yaw > 180.f)
     {
-        context.yaw  -= 360.f;
+        context.yaw -= 360.f;
     }
     if (context.yaw < -180.f)
     {
-        context.yaw  += 360.f;
+        context.yaw += 360.f;
     }
 }
 
 void RotateableRunState::updatePitchYaw(const vec2& mouseMove)
 {
-    context.yaw  += mouseMove.x;
+    context.yaw += mouseMove.x;
     context.pitch += mouseMove.y;
 
     lockPitch();
