@@ -29,8 +29,8 @@ std::vector<vec4> ShadowBox::calculateFrustumPoints(float near, float far)
     float yn = near * tanHalfFov_.y;
     float yf = far * tanHalfFov_.y;
 
-    near *= VECTOR_FORWARD.z;
-    far *= VECTOR_FORWARD.z;
+    near *= VECTOR_BACKWARD.z;
+    far *= VECTOR_BACKWARD.z;
 
     // clang-format off
     return
