@@ -37,7 +37,6 @@ public:
         eventQueue.push_back(event);
     }
 
-    bool isAimReady() const;
     std::tuple<float, float> getRotation() const;
 
 private:

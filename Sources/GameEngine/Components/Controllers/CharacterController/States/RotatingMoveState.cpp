@@ -1,6 +1,7 @@
 #include "RotatingMoveState.h"
 
 #include <GLM/GLMUtils.h>
+
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 
 namespace GameEngine
@@ -83,7 +84,7 @@ void RotatingMoveState::postUpdate()
     setTargetAngle();
     if (not context_.moveController.isMoving())
     {
-         onMoveInactivity();
+        onMoveInactivity();
     }
 }
 
@@ -125,11 +126,11 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
 void RotatingMoveState::setTargetAngle()
 {
     DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
-    context_.progress = 0.f;
+    context_.progress    = 0.f;
     context_.sourceAngle = context_.currentAngle;
     context_.targetAngle = glm::angleAxis(
-        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP), VECTOR_UP);
-
+        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP),
+        VECTOR_UP);
 }
 
 void RotatingMoveState::applyCurrentRotation()
@@ -141,7 +142,7 @@ void RotatingMoveState::applyCurrentRotation()
     }
 }
 
-void RotatingMoveState::moveCameraRotateRigidbody() // TO DO: refactor with moveStateBase
+void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with moveStateBase
 {
     if (not context_.moveController.isMoving())
     {
@@ -162,7 +163,7 @@ void RotatingMoveState::moveCameraRotateRigidbody() // TO DO: refactor with move
     if (auto tcc = context_.gameObject.GetComponent<ThridPersonCameraComponent>())
     {
         auto [_, yaw] = tcc->getRotation();
-        auto rotY     = glm::normalize(glm::angleAxis(glm::radians(-yaw), glm::vec3(0.f, 1.f, 0.f)));
+        auto rotY = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
         context_.rigidbody.SetRotation(rotY);
     }
 

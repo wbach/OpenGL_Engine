@@ -26,22 +26,9 @@ public:
     ~RotateableRunState();
 
     void onEnter();
-    void onEnter(const MouseMoveEvent&);
-
-private:
-    void update() override;
-    vec2 CalcualteMouseMove();
-    void lockPitch();
-    void updateYaw();
-    void updatePitchYaw(const vec2&);
 
 private:
     vec4 referenceRelativeCamerePosition;
-
-    float mouseSensitivity_;
-
-    vec2 yawLimit;
-    vec2 pitchLimit;
 
     float mouseInactiveTime = 0;
     float mouseInactivityTimer;

@@ -23,39 +23,29 @@ AimController::AimController(GameObject& gameObject, Input::InputManager& inputM
     , thridPersonCameraComponent{gameObject.GetComponent<ThridPersonCameraComponent>()}
     , rigidbody{gameObject.GetComponent<Rigidbody>()}
     , camSensitive{0.2f}
-    , yawLimit{0, 0} // {-75.f, 45.f}
-    , pitchLimit{-40.f, 50.f}
+    , boneRotatationLimit{0, 0}  // {-75.f, 45.f}
 {
 }
 
 void AimController::enter()
 {
-    joint.ignoreParentRotation               = true;
-    joint.additionalUserMofiyTransform.pitch = 0.f;
-    joint.additionalUserMofiyTransform.yaw   = 0.f;
+    joint.ignoreParentRotation = true;
     joint.additionalUserMofiyTransform.set(matrixRotationOffset, mat4(1.0f));
     inputManager.CalcualteMouseMove();
 }
 
 void AimController::update()
 {
-    auto& yaw   = joint.additionalUserMofiyTransform.yaw;
-    auto& pitch = joint.additionalUserMofiyTransform.pitch;
+    if (thridPersonCameraComponent)
+    {
+        auto [pitch, yaw] = thridPersonCameraComponent->getRotation();
 
-    auto mouseMove = calculateMouseMove();
+        rotateCharacterIfBoneRotationExceeded(yaw);
 
-    if (not thridPersonCameraComponent or not thridPersonCameraComponent->isAimReady())
-        return;
-
-    yaw -= mouseMove.x;
-    pitch -= mouseMove.y;
-
-    LockYaw(yaw);
-    LockPitch(pitch);
-
-    auto z = glm::normalize(glm::angleAxis(glm::radians(pitch), glm::vec3(0.f, 0.f, 1.f)));
-    auto y = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
-    joint.additionalUserMofiyTransform.set(glm::mat4_cast(y * z));
+        auto z = glm::normalize(glm::angleAxis(glm::radians(-pitch), glm::vec3(0.f, 0.f, 1.f)));
+        auto y = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+        joint.additionalUserMofiyTransform.set(glm::mat4_cast(y * z));
+    }
 }
 
 void AimController::reset()
@@ -69,27 +59,29 @@ const Animation::Joint& AimController::getJoint() const
     return joint;
 }
 
-void AimController::LockPitch(float& pitch)
+void AimController::rotateCharacterIfBoneRotationExceeded(float& yaw)
 {
-    if (pitch < pitchLimit.x)
-        pitch = pitchLimit.x;
-    if (pitch > pitchLimit.y)
-        pitch = pitchLimit.y;
-}
+    //rotateCharacter(yaw);
+    rigidbody->SetRotation(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+    yaw = 0.f;
+    return;
 
-void AimController::LockYaw(float& yaw)
-{
-    if (yaw < yawLimit.x)
-    {
-        rotateCharacter(yaw - yawLimit.x);
-        yaw = yawLimit.x;
-    }
+    //    // TO DO
+    //    if (yaw < boneRotatationLimit.x)
+    //    {
+    //        //rotateCharacter(yaw - boneRotatationLimit.x);
+    //        //rotateCharacter(90.f);
+    //        // updateRotationOffset
+    //        yaw = boneRotatationLimit.x;
+    //    }
 
-    if (yaw > yawLimit.y)
-    {
-        rotateCharacter(yaw - yawLimit.y);
-        yaw = yawLimit.y;
-    }
+    //    if (yaw > boneRotatationLimit.y)
+    //    {
+    //       // rotateCharacter(yaw - boneRotatationLimit.y);
+    //        // rotateCharacter(-90.f);
+    //        // updateRotationOffset
+    //        yaw = boneRotatationLimit.y;
+    //    }
 }
 
 void AimController::rotateCharacter(float yaw)

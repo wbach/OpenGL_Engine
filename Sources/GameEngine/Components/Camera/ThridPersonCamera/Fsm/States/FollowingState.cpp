@@ -27,7 +27,7 @@ void FollowingState::update()
 {
     if (not triggerEventIfMouseMoveDetect())
     {
-        StateBase::cameraUpdate(context.gameObject.GetWorldTransform().GetMatrix(), 0, 0);
+        StateBase::cameraUpdate();
     }
 }
 void FollowingState::update(const InitEvent&)

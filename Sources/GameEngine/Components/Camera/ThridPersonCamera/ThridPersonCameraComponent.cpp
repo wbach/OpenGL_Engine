@@ -36,11 +36,6 @@ void ThridPersonCameraComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Update, [this]() { processEvent(); });
 }
 
-bool ThridPersonCameraComponent::isAimReady() const
-{
-    return fsm ? std::holds_alternative<Camera::AimState*>(fsm->currentState) : false;
-}
-
 std::tuple<float, float> ThridPersonCameraComponent::getRotation() const
 {
     if (fsmContext)
