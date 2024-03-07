@@ -21,7 +21,7 @@ public:
 
     void onEnter();
     void setUpdateFunc();
-    void update();
+    virtual void update();
     void pushEventToQueue(const Camera::Event&) const;
 
 protected:

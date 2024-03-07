@@ -32,7 +32,6 @@ public:
     void update(const InitEvent&);
 
 private:
-    void update() override;
     bool triggerEventIfMouseMoveDetect();
 };
 }  // namespace Camera

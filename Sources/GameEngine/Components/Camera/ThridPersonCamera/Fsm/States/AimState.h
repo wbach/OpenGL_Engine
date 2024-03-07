@@ -27,7 +27,6 @@ public:
     void onEnter(const StartAimEvent&);
 
 private:
-    void update() override;
     void setJointIfNeeded(const StartAimEvent&);
 
 private:

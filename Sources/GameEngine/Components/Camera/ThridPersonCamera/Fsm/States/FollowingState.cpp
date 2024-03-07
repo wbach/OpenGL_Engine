@@ -23,13 +23,13 @@ void FollowingState::onEnter()
 {
     StateBase::onEnter();
 }
-void FollowingState::update()
-{
-    if (not triggerEventIfMouseMoveDetect())
-    {
-        StateBase::cameraUpdate();
-    }
-}
+//void FollowingState::update()
+//{
+//    if (not triggerEventIfMouseMoveDetect())
+//    {
+//        StateBase::cameraUpdate();
+//    }
+//}
 void FollowingState::update(const InitEvent&)
 {
     StateBase::onEnter();
