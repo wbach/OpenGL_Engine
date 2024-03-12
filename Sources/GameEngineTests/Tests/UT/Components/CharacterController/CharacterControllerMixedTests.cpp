@@ -22,14 +22,15 @@ TEST_F(CharacterControllerTests, Mixed_DisarmedState_IdleToRunBackward)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, -DEFAULT_BACKWARD_RUN_SPEED)))
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, -DEFAULT_RUN_SPEED)))
         .Times(AtLeast(1));
 
     sut_.handleEvent(RunBackwardEvent{});
 
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.backward});
+    expectRootboneRotation(VECTOR_BACKWARD);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
 
     sut_.handleEvent(EndBackwardMoveEvent{});
     Update(ADVANCED_TIME_TRANSITION_TIME);

@@ -65,6 +65,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     void expectRotatation(float deltaTime, float rotateSpeed);
     void expectRotationLeft(float dt = ADVANCED_TIME_TRANSITION_TIME);
     void expectRotationRight(float dt = ADVANCED_TIME_TRANSITION_TIME);
+    void expectRootboneRotation(const vec3&);
 
     CharacterController sut_;
     Animator* animator_{nullptr};
