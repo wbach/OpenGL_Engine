@@ -207,7 +207,7 @@ void Vertex::RemoveIfNonNeighbor(Vertex* n)
     // removes n from neighbor list if n isn't a neighbor.
     if (!contains(neighbor, n))
         return;
-    for (int i = 0; i < face.size(); i++)
+    for (size_t i = 0; i < face.size(); i++)
     {
         if (face[i]->HasVertex(n))
             return;
@@ -228,7 +228,7 @@ float ComputeEdgeCollapseCost(Vertex* u, Vertex* v)
     // would be generated.  i.e. normal of a remaining face gets
     // flipped.  I never seemed to run into this problem and
     // therefore never added code to detect this case.
-    int i;
+    size_t i{0};
     float edgelength = glm::length(v->position - u->position);
     float curvature  = 0;
 
@@ -246,7 +246,7 @@ float ComputeEdgeCollapseCost(Vertex* u, Vertex* v)
     for (i = 0; i < u->face.size(); i++)
     {
         float mincurv = 1;  // curve for face i and closer side to it
-        for (int j = 0; j < sides.size(); j++)
+        for (size_t j = 0; j < sides.size(); j++)
         {
             // use dot product of face normals. '^' defined in vector
             float dotprod = glm::dot(u->face[i]->normal, sides[j]->normal);
@@ -269,17 +269,16 @@ void ComputeEdgeCostAtVertex(Vertex* v)
     if (v->neighbor.size() == 0)
     {
         // v doesn't have neighbors so it costs nothing to collapse
-        v->collapse = NULL;
+        v->collapse = nullptr;
         v->objdist  = -0.01f;
         return;
     }
     v->objdist  = 1000000;
-    v->collapse = NULL;
+    v->collapse = nullptr;
     // search all neighboring edges for "least cost" edge
-    for (int i = 0; i < v->neighbor.size(); i++)
+    for (size_t i = 0; i < v->neighbor.size(); i++)
     {
-        float dist;
-        dist = ComputeEdgeCollapseCost(v, v->neighbor[i]);
+        float dist = ComputeEdgeCollapseCost(v, v->neighbor[i]);
         if (dist < v->objdist)
         {
             v->collapse = v->neighbor[i];  // candidate for edge collapse
@@ -292,7 +291,7 @@ void ComputeAllEdgeCollapseCosts()
     // For all the edges, compute the difference it would make
     // to the model if it was collapsed.  The least of these
     // per vertex is cached in each vertex object.
-    for (int i = 0; i < vertices.size(); i++)
+    for (size_t i = 0; i < vertices.size(); i++)
     {
         ComputeEdgeCostAtVertex(vertices[i]);
     }
@@ -309,7 +308,7 @@ void Collapse(Vertex* u, Vertex* v)
         delete u;
         return;
     }
-    int i;
+    size_t i{0};
     std::vector<Vertex*> tmp;
     // make tmp a list of all the neighbors of u
     for (i = 0; i < u->neighbor.size(); i++)
@@ -317,7 +316,7 @@ void Collapse(Vertex* u, Vertex* v)
         tmp.push_back(u->neighbor[i]);
     }
     // delete triangles on edge uv:
-    for (i = u->face.size() - 1; i >= 0; i--)
+    for (i = u->face.size() - 1; i == 0; i--)
     {
         if (u->face[i]->HasVertex(v))
         {
@@ -325,7 +324,7 @@ void Collapse(Vertex* u, Vertex* v)
         }
     }
     // update remaining triangles to have v instead of u
-    for (i = u->face.size() - 1; i >= 0; i--)
+    for (i = u->face.size() - 1; i == 0; i--)
     {
         u->face[i]->ReplaceVertex(u, v);
     }
@@ -339,16 +338,16 @@ void Collapse(Vertex* u, Vertex* v)
 
 void AddVertex(const std::vector<vec3>& vert)
 {
-    for (int i = 0; i < vert.size(); i++)
+    for (size_t i = 0; i < vert.size(); i++)
     {
-        Vertex* v = new Vertex(vert[i], i);
+       // Vertex* v = new Vertex(vert[i], i);
     }
 }
 void AddFaces(std::vector<tridata>& tri)
 {
-    for (int i = 0; i < tri.size(); i++)
+    for (size_t i = 0; i < tri.size(); i++)
     {
-        Triangle* t = new Triangle(vertices[tri[i].v[0]], vertices[tri[i].v[1]], vertices[tri[i].v[2]]);
+       // Triangle* t = new Triangle(vertices[tri[i].v[0]], vertices[tri[i].v[1]], vertices[tri[i].v[2]]);
     }
 }
 
@@ -361,7 +360,7 @@ Vertex* MinimumCostEdge()
     // does a sequential search through an unsorted list :-(
     // Our algorithm could be O(n*lg(n)) instead of O(n*n)
     Vertex* mn = vertices[0];
-    for (int i = 0; i < vertices.size(); i++)
+    for (size_t i = 0; i < vertices.size(); i++)
     {
         if (vertices[i]->objdist < mn->objdist)
         {
@@ -392,7 +391,7 @@ void ProgressiveMesh(std::vector<vec3>& vert, std::vector<tridata>& tri, std::ve
         Collapse(mn, mn->collapse);
     }
     // reorder the map list based on the collapse ordering
-    for (int i = 0; i < map.size(); i++)
+    for (size_t i = 0; i < map.size(); i++)
     {
         map[i] = (map[i] == -1) ? 0 : permutation[map[i]];
     }

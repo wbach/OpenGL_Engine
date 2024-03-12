@@ -9,9 +9,9 @@ public:
     VerticalLayout(Input::InputManager&);
     ~VerticalLayout() override;
     virtual void SetScale(const vec2& scale);
-    virtual void ResetView() override;
-    virtual void Activate();
-    virtual void Deactivate();
+    void ResetView() override;
+    void Activate() override;
+    void Deactivate() override;
     float GetXOffset() const;
     void SetXOffset(float value);
     void EnableFixedSize();

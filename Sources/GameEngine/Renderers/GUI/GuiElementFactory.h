@@ -94,12 +94,8 @@ private:
     GUIRenderer& guiRenderer_;
     Input::InputManager& inputManager_;
     IResourceManager& resourceManager_;
-    Renderer::RenderersManager& renderersManager_;
     FontManager fontManger_;
     std::function<bool(const GuiElement&)> isOnTop_;
     GuiTheme theme_;
-
-private:
-    uint32 guiElementCounter_;
 };
 }  // namespace GameEngine

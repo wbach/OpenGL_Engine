@@ -6,7 +6,7 @@ namespace GameEngine
 class HorizontalLayout : public Layout
 {
 public:
-    HorizontalLayout(Input::InputManager&);
+    HorizontalLayout();
     void AddChild(std::unique_ptr<GuiElement>) override;
     void autoResize();
 
@@ -16,7 +16,6 @@ private:
     void calculateTotalChildrenScaleX();
 
 private:
-    Input::InputManager& inputManager_;
     float totalChildrenScaleX_;
     bool resizeAble_;
 

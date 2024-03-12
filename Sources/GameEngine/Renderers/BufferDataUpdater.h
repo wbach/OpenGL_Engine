@@ -25,9 +25,6 @@ typedef std::vector<std::pair<uint32, std::unique_ptr<IBufferDataUpdaterEvent>>>
 class BufferDataUpdater
 {
 public:
-    BufferDataUpdater(GraphicsApi::IGraphicsApi&);
-    ~BufferDataUpdater();
-
     void Subscribe(GameObject*);
     void UnSubscribe(GameObject*);
     void Update();
@@ -38,7 +35,6 @@ public:
 private:
     BufferDataUpdaterSubcribers subscribers_;
     BufferDataUpdaterEvents events_;
-    GraphicsApi::IGraphicsApi& graphicsApi_;
     std::mutex eventMutex_;
     std::mutex subsribtionMutex_;
 };

@@ -52,9 +52,6 @@ private:
     GraphicsApi::RenderType renderType_;
     Material material_;
 
-    bool isInit              = false;
-    bool transformVboCreated = false;
-
     // local transform in mesh
     mat4 transform_;
     vec3 normalizedScale_;

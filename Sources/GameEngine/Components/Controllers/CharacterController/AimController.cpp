@@ -17,8 +17,7 @@ const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::v
 }  // namespace
 
 AimController::AimController(GameObject& gameObject, Input::InputManager& inputManager, Animation::Joint& joint)
-    : gameObject{gameObject}
-    , inputManager{inputManager}
+    : inputManager{inputManager}
     , joint{joint}
     , thridPersonCameraComponent{gameObject.GetComponent<ThridPersonCameraComponent>()}
     , rigidbody{gameObject.GetComponent<Rigidbody>()}

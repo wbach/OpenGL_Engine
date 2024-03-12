@@ -26,9 +26,10 @@ class FollowingState
 {
 public:
     FollowingState(Context&);
-    ~FollowingState();
 
     void onEnter();
+
+    using StateBase::update;
     void update(const InitEvent&);
 
 private:

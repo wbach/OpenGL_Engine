@@ -20,7 +20,7 @@ class TerrainShape : public CollisionShape
 {
 public:
     TerrainShape(ComponentContext&, GameObject&);
-    void setScale(const vec3&);
+    void setScale(const vec3&) override;
     void CleanUp() override;
     void ReqisterFunctions() override;
 

@@ -45,7 +45,6 @@ private:
 private:
     const CameraWrapper& camera_;
     const Projection& projection_;
-    const vec2ui& windowSize_;
     const Components::ComponentController& componentController_;
 
     std::vector<Components::TerrainRendererComponent*> terrains_;

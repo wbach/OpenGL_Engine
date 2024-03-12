@@ -27,6 +27,12 @@ void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
         thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{context_.aimController.getJoint().id});
     }
 
+    auto rj = context_.animator.GetRootJoint();
+    if (rj)
+    {
+        rj->additionalUserMofiyTransform.set(mat4{1.f});
+    }
+
     context_.aimController.enter();
 }
 

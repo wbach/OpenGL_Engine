@@ -52,7 +52,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
     , viewProjectionMatrix_(1.f)
-    , bufferDataUpdater_(graphicsApi)
+    , bufferDataUpdater_()
     , rendererContext_(projection_, frustrum_, graphicsApi_, gpuLoader_, measurmentHandler_, renderThreadTime)
     , debugRenderer_(rendererContext_, threadSync)
 {

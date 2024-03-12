@@ -27,7 +27,6 @@ private:
 
 private:
     Components::GrassRendererComponent& grassComponent_;
-    TextureBrushType brushType_;
     bool eraseMode_;
 };
 }  // namespace GameEngine

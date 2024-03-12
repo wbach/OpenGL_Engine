@@ -16,21 +16,8 @@ namespace Camera
 {
 RotateableRunState::RotateableRunState(Context& context)
     : StateBase(context, context.cameraPositions.run)
-    , referenceRelativeCamerePosition{context.cameraPositions.run, 1.f}
-    , mouseInactivityTimer{5.f}
 {
 }
-
-RotateableRunState::~RotateableRunState()
-{
-}
-
-void RotateableRunState::onEnter()
-{
-    mouseInactiveTime = 0.f;
-    StateBase::onEnter();
-}
-
 }  // namespace Camera
 }  // namespace Components
 }  // namespace GameEngine

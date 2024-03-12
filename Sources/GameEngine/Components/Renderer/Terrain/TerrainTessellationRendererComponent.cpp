@@ -14,7 +14,6 @@ TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(Compo
                                                                            GameObject& gameObject)
     : TerrainComponentBase(componentContext, gameObject)
     , terrainQuadTree_(config_)
-    , normalStrength_(12.f)
 {
 }
 TerrainTessellationRendererComponent::~TerrainTessellationRendererComponent()

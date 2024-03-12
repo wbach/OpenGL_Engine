@@ -42,7 +42,6 @@ private:
     Utils::Time::CTimeMeasurer timeMeasurer_;
 
     Time time_;
-    bool sync_;
     bool isFullScreen_;
     vec2ui windowsSize_;
 

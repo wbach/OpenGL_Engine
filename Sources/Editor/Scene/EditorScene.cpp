@@ -55,9 +55,8 @@ std::vector<std::string> exportAnimationClips(
     return result;
 }
 
-EditorScene::EditorScene(Context& context)
+EditorScene::EditorScene()
     : GameEngine::Scene("EditorScene")
-    , context_(context)
     , gameObject(nullptr)
 {
 }

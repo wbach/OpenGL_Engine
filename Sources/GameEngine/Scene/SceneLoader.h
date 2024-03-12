@@ -35,7 +35,6 @@ private:
     std::atomic_bool isLoading_;
 
     size_t objectCount_;
-    size_t objectLoaded_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
     ResourceManager resorceManager_;
     IGpuResourceLoader& gpuLoader_;

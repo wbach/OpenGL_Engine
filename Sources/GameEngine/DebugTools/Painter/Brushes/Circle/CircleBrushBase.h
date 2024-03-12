@@ -12,6 +12,7 @@ class CircleBrushBase
 {
 public:
     CircleBrushBase(PaintContext&);
+    virtual ~CircleBrushBase() = default;
     virtual bool paint();
 
 protected:

@@ -16,9 +16,6 @@ FollowingState::FollowingState(Context& context)
     : StateBase(context, context.cameraPositions.run)
 {
 }
-FollowingState::~FollowingState()
-{
-}
 void FollowingState::onEnter()
 {
     StateBase::onEnter();

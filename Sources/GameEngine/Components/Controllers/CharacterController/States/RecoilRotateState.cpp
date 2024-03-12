@@ -10,7 +10,6 @@ RecoilRotateState::RecoilRotateState(FsmContext& context)
     : RecoilStateBase(context, context.upperBodyGroupName)
     , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight)
-    , context_{context}
 {
 }
 

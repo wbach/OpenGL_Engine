@@ -17,7 +17,6 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     : graphicsApi_(api)
     , measurementHandler_(measurementHandler)
     , timeMeasurer_(static_cast<uint32>(EngineConf.renderer.fpsLimt))
-    , sync_(true)
     , isFullScreen_(EngineConf.window.fullScreen)
     , windowsSize_(EngineConf.window.size)
 {

@@ -17,7 +17,6 @@ public:
 private:
     vec3 position_;
     vec3 direction_;
-    float t_;
     int x_;
     int y_;
 };

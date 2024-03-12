@@ -22,8 +22,6 @@ public:
     void Print(const int& x, const int& y, const std::string& fmt) const;
 
 private:
-    mat4 transformationMatrix = mat4(1);
-
     SCharacter characters[m_MaxCharacters];
 
     int quadIndicesSize;

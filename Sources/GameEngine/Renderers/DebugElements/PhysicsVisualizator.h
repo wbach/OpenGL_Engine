@@ -40,7 +40,6 @@ private:
     uint32 refreshRateStepDown_;
     GraphicsApi::ID lineMeshId_;
     std::atomic_bool physicsLineMeshReady_;
-    uint32 updatePhycisLineMesh_;
 
     uint32 frameRefreshNumber_;
     Utils::Thread::Worker* worker_;

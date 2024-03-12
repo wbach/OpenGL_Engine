@@ -122,9 +122,7 @@ private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
 
-    uint32 activeBuffer_;
     std::unique_ptr<GraphicsApi::IWindowApi> windowApi_;
-    uint32 usedShader;
     Color bgColor_;
     uint32 bindedShaderBuffers_[MAX_SHADER_BUFFER_SIZE];
 

@@ -16,7 +16,6 @@
 namespace GameEngine
 {
 LoaderManager::LoaderManager(ITextureLoader& textureloader)
-    : textureloader(textureloader)
 {
     loaders_.emplace_back(new WBLoader::BEngineLoader(textureloader));
     // loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
@@ -60,9 +59,6 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file)
     return result;
 }
 
-LoaderManager::~LoaderManager()
-{
-}
 
 WBLoader::AbstractLoader* LoaderManager::GetLoader(const File& file)
 {

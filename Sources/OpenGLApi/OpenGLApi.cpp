@@ -147,9 +147,7 @@ OpenGLApi::OpenGLApi()
 {
 }
 OpenGLApi::OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi)
-    : activeBuffer_(0)
-    , windowApi_(std::move(windowApi))
-    , usedShader(0)
+    : windowApi_(std::move(windowApi))
     , bgColor_(0)
     , quad_()
     , quadTs_(true)
@@ -612,7 +610,7 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
 void OpenGLApi::DeleteMesh(uint32 id)
 {
-   // DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+    // DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
 
     auto iter = openGlMeshes_.find(id);
     if (iter == openGlMeshes_.end())
@@ -631,7 +629,7 @@ void OpenGLApi::DeleteMesh(uint32 id)
 
     openGlMeshes_.erase(id);
     DeleteDebugNormalMesh(id);
-    //DEBUG_LOG("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+    // DEBUG_LOG("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
 }
 
 void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
@@ -737,45 +735,48 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
     uint32 dataTypeSize = 0;
     auto channels       = image.getChannelsCount();
-    std::visit(visitor{
-                   [&](const std::vector<uint8>&) {
-                       switch (channels)
-                       {
-                           case 4:
-                               type         = GraphicsApi::TextureType::U8_RGBA;
-                               dataTypeSize = sizeof(uint8) * 4;
-                               break;
-                           default:
-                               DEBUG_LOG("Not implmented.");
-                       }
-                   },
-                   [&](const std::vector<float>&) {
-                       switch (channels)
-                       {
-                           case 1:
-                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
-                               dataTypeSize = sizeof(float);
-                               break;
-                           case 2:
-                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
-                               dataTypeSize = sizeof(float) * 2;
-                               break;
-                           case 3:
-                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
-                               dataTypeSize = sizeof(float) * 3;
-                               break;
-                           case 4:
-                               type         = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
-                               dataTypeSize = sizeof(float) * 4;
-                               break;
-                           default:
-                               DEBUG_LOG("Not implmented.");
-                       }
-                       dataTypeSize = sizeof(float);
-                   },
-                   [](std::monostate) { ERROR_LOG("Image data not set!"); },
-               },
-               image.getImageData());
+    std::visit(
+        visitor{
+            [&](const std::vector<uint8>&)
+            {
+                switch (channels)
+                {
+                    case 4:
+                        type         = GraphicsApi::TextureType::U8_RGBA;
+                        dataTypeSize = sizeof(uint8) * 4;
+                        break;
+                    default:
+                        DEBUG_LOG("Not implmented.");
+                }
+            },
+            [&](const std::vector<float>&)
+            {
+                switch (channels)
+                {
+                    case 1:
+                        type         = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                        dataTypeSize = sizeof(float);
+                        break;
+                    case 2:
+                        type         = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                        dataTypeSize = sizeof(float) * 2;
+                        break;
+                    case 3:
+                        type         = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                        dataTypeSize = sizeof(float) * 3;
+                        break;
+                    case 4:
+                        type         = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                        dataTypeSize = sizeof(float) * 4;
+                        break;
+                    default:
+                        DEBUG_LOG("Not implmented.");
+                }
+                dataTypeSize = sizeof(float);
+            },
+            [](std::monostate) { ERROR_LOG("Image data not set!"); },
+        },
+        image.getImageData());
 
     CreateGlTexture(texture, type, filter, mipmap, image.size(), image.getRawDataPtr());
 
@@ -1001,7 +1002,7 @@ void OpenGLApi::DeleteObject(uint32 id)
             break;
     }
 
-    //DEBUG_LOG("Delete object :" + std::to_string(id));
+    // DEBUG_LOG("Delete object :" + std::to_string(id));
     createdObjectIds.erase(id);
 }
 
@@ -1478,7 +1479,7 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
 void OpenGLApi::allocatedBytes(int64 bytes)
 {
     allocatedBytes_ += bytes;
-   // DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
-     //         std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
+    // DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
+    //         std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
 }
 }  // namespace OpenGLApi

@@ -49,8 +49,5 @@ private:
     std::vector<GraphicsApi::FrameBuffer::Attachment> input_;
     std::vector<GlAttachment> attachments_;
     GLuint glId_;
-
-    bool isColorAttachment_;
-    bool isDepthAttachment_;
 };
 }  // namespace OpenGLApi

@@ -12,9 +12,6 @@ ChooseEditor::ChooseEditor()
     : GameEngine::Scene("ChooseEditor")
 {
 }
-ChooseEditor::~ChooseEditor()
-{
-}
 int ChooseEditor::Initialize()
 {
     inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
@@ -36,10 +33,6 @@ int ChooseEditor::Initialize()
         DEBUG_LOG(element.GetLabel());
     });
 
-    return 0;
-}
-int ChooseEditor::Update()
-{
     return 0;
 }
 }  // namespace Editor

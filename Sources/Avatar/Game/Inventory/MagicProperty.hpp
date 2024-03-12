@@ -3,7 +3,7 @@
 
 namespace AvatarGame
 {
-class Character;
+struct Character;
 class MagicProperty
 {
 public:

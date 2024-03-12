@@ -63,9 +63,6 @@ public:
     void onLeave(const SprintStateChangeEvent&);
 
     void onMoveInactivity() override;
-
-private:
-    FsmContext& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

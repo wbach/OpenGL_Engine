@@ -33,17 +33,17 @@ const SDL_MessageBoxButtonData buttons[] = {
     //   {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "cancel"},
 };
 #endif
-const SDL_MessageBoxColorScheme colorScheme = {{/* .colors (.r, .g, .b) */
-                                                /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
-                                                {200, 200, 200},
-                                                /* [SDL_MESSAGEBOX_COLOR_TEXT] */
-                                                {20, 20, 20},
-                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
-                                                {255, 255, 250},
-                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
-                                                {150, 150, 150},
-                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
-                                                {100, 100, 100}}};
+//const SDL_MessageBoxColorScheme colorScheme = {{/* .colors (.r, .g, .b) */
+//                                                /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+//                                                {200, 200, 200},
+//                                                /* [SDL_MESSAGEBOX_COLOR_TEXT] */
+//                                                {20, 20, 20},
+//                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+//                                                {255, 255, 250},
+//                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+//                                                {150, 150, 150},
+//                                                /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+//                                                {100, 100, 100}}};
 
 struct SdlOpenGlApi::Pimpl
 {

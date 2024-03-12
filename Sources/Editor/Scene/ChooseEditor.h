@@ -7,14 +7,6 @@ class ChooseEditor : public GameEngine::Scene
 {
 public:
     ChooseEditor();
-    virtual ~ChooseEditor() override;
-    virtual int Initialize();
-    virtual void PostInitialize()
-    {
-    }
-    virtual int Update();
-
-private:
-    double timeClock = 0;
+    int Initialize() override;
 };
 }  // namespace Editor

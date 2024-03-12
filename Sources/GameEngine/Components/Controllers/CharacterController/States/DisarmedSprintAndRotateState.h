@@ -52,16 +52,12 @@ public:
                                  context.runSpeed.rotate,
                                  context.animClipNames.disarmed.rotateLeft,
                                  context.animClipNames.disarmed.rotateRight}
-        , context_{context}
     {
     }
 
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
-
-private:
-    FsmContext &context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -116,11 +116,15 @@ uint32 GameObject::GetId() const
 template <class T>
 inline T* GameObject::GetComponent()
 {
-    for (auto& component : components_)
+    for (auto& componentPtr : components_)
     {
-        if (typeid(*component) == typeid(T))
+        if (componentPtr.get())
         {
-            return static_cast<T*>(component.get());
+            auto& component = *componentPtr.get();
+            if (typeid(component) == typeid(T))
+            {
+                return static_cast<T*>(componentPtr.get());
+            }
         }
     }
     return nullptr;
@@ -131,11 +135,15 @@ inline T* GameObject::GetComponentInChild()
 {
     for (auto& child : children_)
     {
-        for (auto& component : child->GetComponents())
+        for (auto& componentPtr : child->GetComponents())
         {
-            if (typeid(*component) == typeid(T))
+            if (componentPtr.get())
             {
-                return static_cast<T*>(component.get());
+                auto& component = *componentPtr.get();
+                if (typeid(component) == typeid(T))
+                {
+                    return static_cast<T*>(componentPtr.get());
+                }
             }
         }
         return child->GetComponentInChild<T>();
@@ -155,9 +163,11 @@ void GameObject::RemoveComponent()
 {
     for (auto iter = components_.begin(); iter != components_.end(); ++iter)
     {
-        if (typeid(**iter) == typeid(T))
+        auto& component = **iter;
+
+        if (typeid(component) == typeid(T))
         {
-            (**iter).CleanUp();
+            component.CleanUp();
             components_.erase(iter);
             return;
         }

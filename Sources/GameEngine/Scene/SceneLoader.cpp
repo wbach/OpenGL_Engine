@@ -19,7 +19,6 @@ SceneLoader::SceneLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoa
     , displayManager_(displayManager)
     , isLoading_(true)
     , objectCount_(0)
-    , objectLoaded_(0)
     , loadingScreenRenderer(nullptr)
     , resorceManager_(graphicsApi, gpuResourceLoader)
     , gpuLoader_(gpuResourceLoader)

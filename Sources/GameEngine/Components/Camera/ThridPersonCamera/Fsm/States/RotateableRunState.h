@@ -23,15 +23,6 @@ class RotateableRunState
 {
 public:
     RotateableRunState(Context&);
-    ~RotateableRunState();
-
-    void onEnter();
-
-private:
-    vec4 referenceRelativeCamerePosition;
-
-    float mouseInactiveTime = 0;
-    float mouseInactivityTimer;
 };
 }  // namespace Camera
 }  // namespace Components

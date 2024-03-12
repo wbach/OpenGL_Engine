@@ -55,9 +55,9 @@ void SSAORenderer::GenKernel()
     {
         float scale = (float)i / (float)(KERNEL_SIZE);
         vec3 v;
-        v.x = 2.0f * (float)rand() / RAND_MAX - 1.0f;
-        v.y = 2.0f * (float)rand() / RAND_MAX - 1.0f;
-        v.z = 2.0f * (float)rand() / RAND_MAX - 1.0f;
+        v.x = 2.0f * (float)rand() / static_cast<float>(RAND_MAX) - 1.0f;
+        v.y = 2.0f * (float)rand() / static_cast<float>(RAND_MAX) - 1.0f;
+        v.z = 2.0f * (float)rand() / static_cast<float>(RAND_MAX) - 1.0f;
         // Use an acceleration function so more points are
         // located closer to the origin
         v *= (0.1f + 0.9f * scale * scale);

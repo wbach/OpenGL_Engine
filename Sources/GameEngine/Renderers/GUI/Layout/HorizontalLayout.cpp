@@ -6,9 +6,8 @@ namespace GameEngine
 {
 GuiElementTypes HorizontalLayout::type = GuiElementTypes::HorizontalLayout;
 
-HorizontalLayout::HorizontalLayout(Input::InputManager &inputManager)
+HorizontalLayout::HorizontalLayout()
     : Layout(type)
-    , inputManager_(inputManager)
     , totalChildrenScaleX_{0}
     , resizeAble_{false}
 {

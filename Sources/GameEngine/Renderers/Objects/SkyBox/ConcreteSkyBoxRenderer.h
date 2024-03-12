@@ -20,10 +20,9 @@ public:
     void unSubscribe(GameObject&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
-    void render();
+    void render() override;
 
 private:
-    RendererContext& context_;
     SkyBoxRenderer skyBoxRenderer_;
     ShaderProgram shader_;
 };

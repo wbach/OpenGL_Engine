@@ -52,7 +52,6 @@ public:
                                  context.animClipNames.disarmed.walk,
                                  context.animClipNames.disarmed.rotateLeft,
                                  context.animClipNames.disarmed.rotateRight}
-        , context_{context}
     {
     }
 
@@ -60,8 +59,6 @@ public:
     using MoveAndRotateStateBase::transitionCondition;
     using MoveAndRotateStateBase::update;
 
-private:
-    FsmContext &context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

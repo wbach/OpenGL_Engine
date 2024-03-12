@@ -11,7 +11,6 @@ RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext& context)
     , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk}
     , RotateStateBase(context, context.lowerBodyGroupName, context.walkSpeed.rotate, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
-    , context_{context}
 {
 }
 

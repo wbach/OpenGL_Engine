@@ -22,7 +22,7 @@ public:
     void RecalculateNormals() override;
     void CleanUp() override;
     const TerrainQuadTree& GetTree() const;
-    void HeightMapChanged();
+    void HeightMapChanged() override;
 
 private:
     void LoadHeightMap(const File&) override;
@@ -31,7 +31,6 @@ private:
 
 private:
     TerrainQuadTree terrainQuadTree_;
-    float normalStrength_;
 };
 
 }  // namespace Components

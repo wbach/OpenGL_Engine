@@ -33,7 +33,6 @@ private:
     void rotateCharacter(float);
 
 private:
-    GameObject& gameObject;
     Input::InputManager& inputManager;
     Animation::Joint& joint;
     ThridPersonCameraComponent* thridPersonCameraComponent;

@@ -8,7 +8,6 @@ namespace GameEngine
 {
 PostProcessingManager::PostProcessingManager(RendererContext& context)
     : context_(context)
-    , first_(false)
 {
     factory_ = std::make_unique<PostprocessingRenderersFactory>(context_);
     AddEffects();

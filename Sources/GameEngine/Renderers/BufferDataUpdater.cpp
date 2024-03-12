@@ -8,13 +8,6 @@
 
 namespace GameEngine
 {
-BufferDataUpdater::BufferDataUpdater(GraphicsApi::IGraphicsApi& graphicsApi)
-    : graphicsApi_(graphicsApi)
-{
-}
-BufferDataUpdater::~BufferDataUpdater()
-{
-}
 void BufferDataUpdater::Subscribe(GameObject* gameObject)
 {
     if (not gameObject)

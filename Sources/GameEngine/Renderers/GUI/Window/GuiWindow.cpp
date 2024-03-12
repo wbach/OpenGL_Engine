@@ -9,7 +9,6 @@ GuiElementTypes GuiWindowElement::type = GuiElementTypes::Window;
 GuiWindowElement::GuiWindowElement(GuiWindowStyle style, Input::InputManager& inputManager)
     : GuiElement(GuiWindowElement::type)
     , inputManager_(inputManager)
-    , titleBarSize_(0.43f)
     , style_(style)
 {
     //inputSubscribtionKeyUp_ = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE, [&]() { collisionPoint_ = {}; });

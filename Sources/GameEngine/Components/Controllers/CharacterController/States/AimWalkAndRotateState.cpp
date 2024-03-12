@@ -14,7 +14,6 @@ AimWalkAndRotateState::AimWalkAndRotateState(FsmContext &context)
                              context.animClipNames.armed.walk,
                              context.animClipNames.armed.rotateLeft,
                              context.animClipNames.armed.rotateRight}
-    , context_{context}
 {
 }
 

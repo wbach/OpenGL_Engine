@@ -15,8 +15,7 @@
 namespace GameEngine
 {
 ConcreteSkyBoxRenderer::ConcreteSkyBoxRenderer(RendererContext& context)
-    : context_(context)
-    , skyBoxRenderer_(context)
+    : skyBoxRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SkyBox)
 {
 }

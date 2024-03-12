@@ -16,7 +16,8 @@ public:
     }
 
 private:
-    void update(...)
+    template <typename... Args>
+    void update(Args&...)
     {
     }
 

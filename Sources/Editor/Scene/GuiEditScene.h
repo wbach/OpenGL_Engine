@@ -16,10 +16,10 @@ class GuiEditScene : public GameEngine::Scene
 {
 public:
     GuiEditScene(Context& context);
-    virtual ~GuiEditScene() override;
-    virtual int Initialize();
-    virtual void PostInitialize();
-    virtual int Update(float) override;
+    ~GuiEditScene() override;
+    int Initialize() override;
+    void PostInitialize() override;
+    int Update(float) override;
 
 private:
     void KeyOperations();

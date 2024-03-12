@@ -26,7 +26,6 @@ TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projec
                                        const Components::ComponentController& componentController)
     : camera_(camera)
     , projection_(projection)
-    , windowSize_(windowSize)
     , componentController_(componentController)
 {
 }
@@ -83,7 +82,7 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
 {
     const auto& terrain = GetTerrain(testPoint.x, testPoint.z);
 
-    if (not terrain and not terrain->GetHeightMap())
+    if (not terrain or not terrain->GetHeightMap())
     {
         ERROR_LOG("No terrain or height map in terrain.");
         return false;

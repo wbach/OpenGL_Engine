@@ -11,7 +11,6 @@ TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const Utils::Im
     : heightMapImage_(heightMapImage)
     , terrainScaleVec3_(terrainScale)
     , terrainScale_(terrainScale.x, terrainScale.z)
-    , heightFactor_(terrainScale.y)
 {
 }
 const vec3& TerrainHeightTools::getTerrainScale() const

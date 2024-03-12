@@ -23,7 +23,7 @@ public:
     virtual void SetKeyToBuffer(int, bool) override;
     virtual void ClearKeyBuffer() override;
     virtual void GetPressedKeys() override;
-    virtual void ShowCursor(bool);
+    virtual void ShowCursor(bool) override;
 
 protected:
     virtual KeyCodes::Type ConvertCode(uint32) const override;

@@ -10,7 +10,8 @@ Network::IMessageType Convert(MessageTypes type)
 }
 std::optional<MessageTypes> Convert(Network::IMessageType type)
 {
-    return (type >= MIN_VALUE and MIN_VALUE <= MAX_VALUE) ? static_cast<MessageTypes>(type) : std::optional<MessageTypes>();
+    //return (type >= MIN_VALUE and type <= MAX_VALUE) ? static_cast<MessageTypes>(type) : std::optional<MessageTypes>();
+    return type <= MAX_VALUE ? static_cast<MessageTypes>(type) : std::optional<MessageTypes>();
 }
 GameEngine::DebugNetworkInterface::MessageTypes CreateFromString(const std::string& type)
 {

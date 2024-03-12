@@ -85,13 +85,10 @@ void ColladaDae::FillAnimationData()
                     std::vector<JointInfo> joints;
                     for (uint32 x = 0; x < vc; ++x)
                     {
-                        uint32 sumOffsets = 0;
-
                         joints.push_back({0, 0});
                         for (const auto& in : skin.vertexWeights_.inputs_)
                         {
                             auto offset = in.offset;
-                            sumOffsets += offset;
                             auto value = skin.vertexWeights_.v_[i + offset];
 
                             if (in.semantic == "JOINT")
@@ -172,11 +169,9 @@ void ColladaDae::NewMesh(const Collada::Mesh& mesh, const std::string& geometryN
             for (uint32 x = 0; x < vc; ++x)
             {
                 WBLoader::VertexBuffer vb;
-                uint32 sumOffsets = 0;
                 for (const auto& input : polyList.inputs_)
                 {
                     auto offset = input.offset;
-                    sumOffsets += offset;
                     auto value = polyList.p_[i + offset];
 
                     if (input.semantic == "VERTEX")
@@ -361,7 +356,7 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
         std::vector<Animation::KeyFrame> frames;
         for (const auto& anim_pair : animationClipPair.second.animations_)
         {
-            auto& anim     = anim_pair.second;
+            auto& anim      = anim_pair.second;
             auto& jointName = anim_pair.first;
 
             for (const auto& joint : joints)
@@ -409,7 +404,7 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
                                     if (jointInSkeleton)
                                     {
                                         auto jointId = jointInSkeleton->id;
-                                        frames[frameId].transforms.insert({ jointId, {position, rotation} });
+                                        frames[frameId].transforms.insert({jointId, {position, rotation}});
                                     }
                                     ++frameId;
                                 }

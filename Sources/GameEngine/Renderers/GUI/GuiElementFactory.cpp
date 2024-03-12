@@ -27,8 +27,6 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
     , guiRenderer_(entryParameters.renderersManager_.GetGuiRenderer())
     , inputManager_(entryParameters.inputManager_)
     , resourceManager_(entryParameters.resourceManager_)
-    , renderersManager_(entryParameters.renderersManager_)
-    , guiElementCounter_(0)
 {
     isOnTop_ = [this](const GuiElement &checkingElement) {
         auto mousePosition = inputManager_.GetMousePosition();
@@ -243,7 +241,7 @@ std::unique_ptr<VerticalLayout> GuiElementFactory::CreateVerticalLayout()
 
 std::unique_ptr<HorizontalLayout> GuiElementFactory::CreateHorizontalLayout()
 {
-    return std::make_unique<HorizontalLayout>(inputManager_);
+    return std::make_unique<HorizontalLayout>();
 }
 
 std::unique_ptr<TreeView> GuiElementFactory::CreateTreeView(std::function<void(GuiElement &)> action)

@@ -11,7 +11,6 @@ ArmedWalkAndRotateState::ArmedWalkAndRotateState(FsmContext& context)
                              context.animClipNames.armed.walk,
                              context.animClipNames.armed.rotateLeft,
                              context.animClipNames.armed.rotateRight}
-    , context_{context}
 {
 }
 }  // namespace Components

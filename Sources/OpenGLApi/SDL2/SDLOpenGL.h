@@ -54,7 +54,6 @@ private:
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
     uint32 startTime;
-    bool fullScreenActive;
     vec2ui windowSize_;
 
     std::function<void(uint32, uint32)> addKeyEvent_;
