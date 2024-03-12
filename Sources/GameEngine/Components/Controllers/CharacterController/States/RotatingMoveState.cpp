@@ -137,7 +137,8 @@ void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
-        context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, context_.progress);
+        auto progress = context_.progress > 1.f ? 1.f : context_.progress;
+        context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, progress);
         setCharacterRotation(glm::mat4_cast(context_.currentAngle));
     }
 }
