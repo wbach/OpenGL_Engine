@@ -16,26 +16,6 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
     moveSpeed_.backward  = moveSpeed;
 }
 
-void RotatingMoveState::onEnter(const RunForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void RotatingMoveState::onEnter(const RunBackwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void RotatingMoveState::onEnter(const RunLeftEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void RotatingMoveState::onEnter(const RunRightEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
 void RotatingMoveState::update(float dt)
 {
     moveCameraRotateRigidbody();
@@ -137,7 +117,7 @@ void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
-        auto progress = context_.progress > 1.f ? 1.f : context_.progress;
+        auto progress         = context_.progress > 1.f ? 1.f : context_.progress;
         context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, progress);
         setCharacterRotation(glm::mat4_cast(context_.currentAngle));
     }
@@ -164,7 +144,7 @@ void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with mov
     if (auto tcc = context_.gameObject.GetComponent<ThridPersonCameraComponent>())
     {
         auto [_, yaw] = tcc->getRotation();
-        auto rotY = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+        auto rotY     = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
         context_.rigidbody.SetRotation(rotY);
     }
 

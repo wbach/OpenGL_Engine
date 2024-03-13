@@ -24,12 +24,7 @@ public:
     //    void onEnter(const DisarmEndStateEvent &);
     //    void onEnter(const SprintStartEvent &);
     //    void onEnter(const SprintStateChangeEvent &);
-    void onEnter(const RunForwardEvent &);
-    void onEnter(const RunBackwardEvent &);
-    //    void onEnter(const WalkForwardEvent &);
-    //    void onEnter(const WalkBackwardEvent &);
-    void onEnter(const RunLeftEvent &);
-    void onEnter(const RunRightEvent &);
+
     //    void onEnter(const EndJumpEvent &);
     //    void onEnter(const WalkChangeStateEvent &);
 

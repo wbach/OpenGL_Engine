@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveStateBase.h"
+#include "RotatingMoveState.h"
 
 namespace GameEngine
 {
@@ -22,13 +22,17 @@ class DisarmedWalkAndRotateState;
 class WalkArmedChangeState;
 
 class DisarmedWalkState
-    : public MoveStateBase,
+    : public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
@@ -48,7 +52,8 @@ class DisarmedWalkState
 {
 public:
     DisarmedWalkState(FsmContext& context)
-        : MoveStateBase{context, std::nullopt, context.walkSpeed, context.animClipNames.disarmed.walk}
+        : RotatingMoveState{context, std::nullopt, context.walkSpeed.forward,
+                            context.animClipNames.disarmed.walk.forward}
     {
     }
 
