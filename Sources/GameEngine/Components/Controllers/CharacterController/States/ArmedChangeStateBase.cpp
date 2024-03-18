@@ -44,11 +44,6 @@ void ArmedChangeStateBase::update(const SprintStateChangeEvent&)
     DEBUG_LOG(" update SprintStateChangeEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
     context_.sprintEventCalled_ = not context_.sprintEventCalled_;
 }
-void ArmedChangeStateBase::update(const SprintStartEvent&)
-{
-    DEBUG_LOG(" update SprintStartEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
-    context_.sprintEventCalled_ = true;
-}
 void ArmedChangeStateBase::equipWeapon()
 {
     if (not jointPoseUpdater_)

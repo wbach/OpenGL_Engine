@@ -78,11 +78,6 @@ void RecoilStateBase::onLeave(const WeaponStateEvent &)
     stopAnim();
 }
 
-void RecoilStateBase::onLeave(const SprintStartEvent &)
-{
-    stopAnim();
-}
-
 void RecoilStateBase::onLeave(const SprintStateChangeEvent &)
 {
     stopAnim();

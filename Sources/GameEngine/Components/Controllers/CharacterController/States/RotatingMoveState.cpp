@@ -32,22 +32,22 @@ void RotatingMoveState::update(float dt)
     }
 }
 
-void RotatingMoveState::update(const RunForwardEvent &event)
+void RotatingMoveState::update(const MoveForwardEvent &event)
 {
     onEnter(event);
 }
 
-void RotatingMoveState::update(const RunBackwardEvent &event)
+void RotatingMoveState::update(const MoveBackwardEvent &event)
 {
     onEnter(event);
 }
 
-void RotatingMoveState::update(const RunLeftEvent &event)
+void RotatingMoveState::update(const MoveLeftEvent &event)
 {
     onEnter(event);
 }
 
-void RotatingMoveState::update(const RunRightEvent &event)
+void RotatingMoveState::update(const MoveRightEvent &event)
 {
     onEnter(event);
 }

@@ -21,15 +21,10 @@ class DrawArrowState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
@@ -47,7 +42,6 @@ public:
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
-    void onLeave(const SprintStartEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

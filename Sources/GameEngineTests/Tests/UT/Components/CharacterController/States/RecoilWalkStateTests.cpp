@@ -20,7 +20,7 @@ void prepareState(CharacterControllerTests& test)
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
     test.expectState<AimState>();
     test.tiggerAndExpect<AttackEvent, RecoilState>({test.sut_.animationClipsNames_.recoilArrow});
-    test.tiggerAndExpect<WalkForwardEvent, RecoilWalkState>(
+    test.tiggerAndExpect<MoveForwardEvent, RecoilWalkState>(
         {test.sut_.animationClipsNames_.recoilArrow, test.sut_.animationClipsNames_.armed.walk.forward});
 }
 }  // namespace
@@ -71,17 +71,17 @@ TEST_F(CharacterControllerTests, RecoilWalk_AimStopEvent)
     prepareState(*this);
     tiggerAndExpect<AimStopEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, RecoilWalk_WalkForwardEvent)
+TEST_F(CharacterControllerTests, RecoilWalk_MoveForwardEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WalkForwardEvent, RecoilWalkState>(
+    tiggerAndExpect<MoveForwardEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, RecoilWalk_WalkBackwardEvent)
+TEST_F(CharacterControllerTests, RecoilWalk_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<WalkBackwardEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
+    tiggerAndExpect<MoveBackwardEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_DeathEvent)
 {
@@ -101,21 +101,19 @@ TEST_F(CharacterControllerTests, RecoilWalk_WalkChangeStateEvent)
     tiggerAndExpect<WalkChangeStateEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, RecoilWalk_RunForwardEvent)
+TEST_F(CharacterControllerTests, RecoilWalk_MoveLeftEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<RunForwardEvent, RecoilWalkState>(
-        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveLeftEvent, RecoilWalkState>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.moveleft});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_RunBackwardEvent)
 {
     prepareState(*this);
-    expectNoMove();
-    tiggerAndExpect<RunBackwardEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
+    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
     tiggerAndExpect<EndForwardMoveEvent, RecoilWalkState>(
-        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.moveRight});
 }
 TEST_F(CharacterControllerTests, RecoilWalk_EndForwardMoveEvent)
 {
@@ -127,7 +125,7 @@ TEST_F(CharacterControllerTests, RecoilWalk_EndBackwardMoveEvent)
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, RecoilWalkState>(
+    tiggerAndExpect<MoveBackwardEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
     tiggerAndExpect<EndBackwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
 }
@@ -136,10 +134,10 @@ TEST_F(CharacterControllerTests, RecoilWalk_ReloadArrowEventWhenRunLeftAndRight)
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.f, 0.f));
-    tiggerAndExpect<RunLeftEvent, RecoilWalkState>(
+    tiggerAndExpect<MoveLeftEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.moveleft});
     expectNoMove();
-    tiggerAndExpect<RunRightEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
+    tiggerAndExpect<MoveRightEvent, RecoilWalkState>({sut_.animationClipsNames_.recoilArrow});
     expectNoMove();
     tiggerAndExpect<ReloadArrowEvent, DrawArrowWalkState>({sut_.animationClipsNames_.drawArrow});
 }

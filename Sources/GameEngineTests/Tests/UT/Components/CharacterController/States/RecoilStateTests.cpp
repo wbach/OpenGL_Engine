@@ -74,38 +74,31 @@ TEST_F(CharacterControllerTests, Recoil_DeathEvent)
     prepareState(*this);
     tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
 }
-TEST_F(CharacterControllerTests, Recoil_SprintStartEvent)
-{
-    prepareState(*this);
-    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<SprintStartEvent, ArmedSprintState>({sut_.animationClipsNames_.armed.sprint},
-                                                        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
-}
-TEST_F(CharacterControllerTests, Recoil_RunForwardEvent)
+TEST_F(CharacterControllerTests, Recoil_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<RunForwardEvent, RecoilWalkState>(
+    tiggerAndExpect<MoveForwardEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, Recoil_RunBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<RunBackwardEvent, RecoilWalkState>(
+    tiggerAndExpect<MoveBackwardEvent, RecoilWalkState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, Recoil_WalkForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<WalkForwardEvent, RecoilWalkState>(
-        {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.recoilArrow});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveLeftEvent, RecoilWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.recoilArrow});
 }
-TEST_F(CharacterControllerTests, Recoil_WalkBackwardEvent)
+TEST_F(CharacterControllerTests, Recoil_MoveRightEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, RecoilWalkState>(
-        {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.recoilArrow});
+    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveRightEvent, RecoilWalkState>(
+        {sut_.animationClipsNames_.armed.walk.moveRight, sut_.animationClipsNames_.recoilArrow});
 }

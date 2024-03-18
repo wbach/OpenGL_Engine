@@ -78,12 +78,6 @@ void AimStateBase::onLeave(const AimStopEvent &)
     }
 }
 
-void AimStateBase::onLeave(const SprintStartEvent &)
-{
-    DEBUG_LOG("onLeave(AimStopEvent)");
-    stopAnim();
-}
-
 void AimStateBase::onLeave(const WeaponStateEvent &)
 {
     DEBUG_LOG("onLeave(WeaponStateEvent)");

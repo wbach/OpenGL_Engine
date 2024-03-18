@@ -20,7 +20,7 @@ void prepareState(CharacterControllerTests& test)
     test.Update(ADVANCED_TIME_CLIP_TIME);
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
     test.expectState<AimState>();
-    test.tiggerAndExpect<WalkForwardEvent, AimWalkState>(
+    test.tiggerAndExpect<MoveForwardEvent, AimWalkState>(
         {test.sut_.animationClipsNames_.aimIdle, test.sut_.animationClipsNames_.armed.walk.forward});
     test.tiggerAndExpect<RotateRightEvent, AimWalkAndRotateState>(
         {test.sut_.animationClipsNames_.aimIdle, test.sut_.animationClipsNames_.armed.walk.forward});
@@ -80,18 +80,18 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_EndRotationEvent)
     tiggerAndExpect<EndRotationEvent, AimWalkState>(
         {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_RunForwardEvent)
+TEST_F(CharacterControllerTests, AimWalkAndRotate_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<RunForwardEvent, AimWalkAndRotateState>(
+    tiggerAndExpect<MoveForwardEvent, AimWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_RunBackwardEvent)
+TEST_F(CharacterControllerTests, AimWalkAndRotate_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<RunBackwardEvent, AimWalkAndRotateState>(
+    tiggerAndExpect<MoveBackwardEvent, AimWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle});
 }
 TEST_F(CharacterControllerTests, AimWalkAndRotate_WalkChangeStateEvent)
@@ -114,7 +114,7 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_EndBackwardMoveEvent)
         {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle},
         {ADVANCED_TIME_CLIP_TIME / 4.f});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, AimWalkAndRotateState>(
+    tiggerAndExpect<MoveBackwardEvent, AimWalkAndRotateState>(
         {sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.aimIdle});
     tiggerAndExpect<EndBackwardMoveEvent, AimRotateState>(
         {sut_.animationClipsNames_.armed.rotateRight, sut_.animationClipsNames_.aimIdle},

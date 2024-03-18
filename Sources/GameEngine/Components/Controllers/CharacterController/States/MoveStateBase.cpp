@@ -28,35 +28,30 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
-void MoveStateBase::onEnter(const SprintStartEvent &)
-{
-    DEBUG_LOG("onEnter(const SprintStartEvent &)");
-    context_.moveController.moveForwad();
-}
-
 void MoveStateBase::onEnter(const SprintStateChangeEvent &)
 {
     // Sprint is only for forward move
     context_.moveController.moveForwad();
 }
 
-void MoveStateBase::onEnter(const WalkForwardEvent &)
+void MoveStateBase::onEnter(const MoveForwardEvent &)
 {
     context_.moveController.moveForwad();
+}
+void MoveStateBase::onEnter(const MoveBackwardEvent &)
+{
+    context_.moveController.moveBackward();
+}
+void MoveStateBase::onEnter(const MoveLeftEvent &)
+{
+    context_.moveController.moveLeft();
 }
 
-void MoveStateBase::onEnter(const WalkBackwardEvent &)
+void MoveStateBase::onEnter(const MoveRightEvent &)
 {
-    context_.moveController.moveBackward();
+    context_.moveController.moveRight();
 }
-void MoveStateBase::onEnter(const RunForwardEvent &)
-{
-    context_.moveController.moveForwad();
-}
-void MoveStateBase::onEnter(const RunBackwardEvent &)
-{
-    context_.moveController.moveBackward();
-}
+
 void MoveStateBase::onEnter(const EndJumpEvent &)
 {
 }
@@ -69,26 +64,6 @@ void MoveStateBase::postEnter()
 {
     DEBUG_LOG("postEnter");
     setCurrentAnimIfNeeded();
-}
-
-void MoveStateBase::onEnter(const RunLeftEvent &)
-{
-    context_.moveController.moveLeft();
-}
-
-void MoveStateBase::onEnter(const RunRightEvent &)
-{
-    context_.moveController.moveRight();
-}
-
-void MoveStateBase::onEnter(const WalkLeftEvent &)
-{
-    context_.moveController.moveLeft();
-}
-
-void MoveStateBase::onEnter(const WalkRightEvent &)
-{
-    context_.moveController.moveRight();
 }
 
 bool MoveStateBase::transitionCondition(const EndForwardMoveEvent &)
@@ -112,11 +87,6 @@ bool MoveStateBase::transitionCondition(const EndMoveRightEvent &)
 {
     context_.moveController.endMoveRight();
     return shouldLeaveAndSetCurrAnimIfNot();
-}
-
-bool MoveStateBase::transitionCondition(const SprintStartEvent &)
-{
-    return context_.moveController.isMoving(MoveController::Direction::Forward);
 }
 
 bool MoveStateBase::transitionCondition(const SprintStateChangeEvent &)
@@ -150,31 +120,26 @@ bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
     return true;
 }
 
-void MoveStateBase::update(const RunForwardEvent &event)
+void MoveStateBase::update(const MoveForwardEvent &event)
 {
     onEnter(event);
 }
-void MoveStateBase::update(const RunBackwardEvent &event)
-{
-    onEnter(event);
-}
-
-void MoveStateBase::update(const WalkForwardEvent &event)
+void MoveStateBase::update(const MoveBackwardEvent &event)
 {
     onEnter(event);
 }
 
-void MoveStateBase::update(const WalkBackwardEvent &event)
+void MoveStateBase::update(const MoveLeftEvent &event)
+{
+    onEnter(event);
+}
+
+void MoveStateBase::update(const MoveRightEvent &event)
 {
     onEnter(event);
 }
 
 void MoveStateBase::update(const SprintStateChangeEvent &event)
-{
-    onEnter(event);
-}
-
-void MoveStateBase::update(const SprintStartEvent &event)
 {
     onEnter(event);
 }
@@ -193,26 +158,6 @@ void MoveStateBase::update(float)
 void MoveStateBase::postUpdate()
 {
     setCurrentAnimIfNeeded();
-}
-
-void MoveStateBase::update(const RunLeftEvent &event)
-{
-    onEnter(event);
-}
-
-void MoveStateBase::update(const RunRightEvent &event)
-{
-    onEnter(event);
-}
-
-void MoveStateBase::update(const WalkRightEvent &event)
-{
-    onEnter(event);
-}
-
-void MoveStateBase::update(const WalkLeftEvent &event)
-{
-    onEnter(event);
 }
 
 void MoveStateBase::setCurrentAnimIfNeeded()

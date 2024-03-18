@@ -26,11 +26,7 @@ void RunArmedChangeState::onEnter()
     }
     DEBUG_LOG("End on enter");
 }
-void RunArmedChangeState::onEnter(const SprintStartEvent& event)
-{
-    MoveStateBase::onEnter(event);
-    ArmedChangeStateBase::update(event);
-}
+
 void RunArmedChangeState::onEnter(const SprintStateChangeEvent& event)
 {
     MoveStateBase::onEnter(event);

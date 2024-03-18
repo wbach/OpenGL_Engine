@@ -24,24 +24,29 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
 {
 }
 
-void MoveAndRotateStateBase::onEnter(const SprintStartEvent &event)
-{
-    MoveStateBase::update(event);
-}
-
 void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
 {
     MoveStateBase::update(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const WalkForwardEvent &event)
+void MoveAndRotateStateBase::onEnter(const MoveForwardEvent &event)
 {
     MoveStateBase::update(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const WalkBackwardEvent &event)
+void MoveAndRotateStateBase::onEnter(const MoveBackwardEvent &event)
 {
     MoveStateBase::update(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const MoveLeftEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const MoveRightEvent &event)
+{
+    MoveStateBase::onEnter(event);
 }
 
 void MoveAndRotateStateBase::update(const AttackEvent &event)
@@ -52,22 +57,22 @@ void MoveAndRotateStateBase::update(const EndAttackEvent &event)
 {
 }
 
-void MoveAndRotateStateBase::update(const RunForwardEvent &e)
+void MoveAndRotateStateBase::update(const MoveLeftEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const RunBackwardEvent &e)
+void MoveAndRotateStateBase::update(const MoveRightEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const WalkForwardEvent& e)
+void MoveAndRotateStateBase::update(const MoveForwardEvent& e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const WalkBackwardEvent& e)
+void MoveAndRotateStateBase::update(const MoveBackwardEvent& e)
 {
     MoveStateBase::update(e);
 }
@@ -78,11 +83,6 @@ bool MoveAndRotateStateBase::transitionCondition(const EndForwardMoveEvent &e)
 }
 
 bool MoveAndRotateStateBase::transitionCondition(const EndBackwardMoveEvent &e)
-{
-    return MoveStateBase::transitionCondition(e);
-}
-
-bool MoveAndRotateStateBase::transitionCondition(const SprintStartEvent &e)
 {
     return MoveStateBase::transitionCondition(e);
 }
@@ -98,16 +98,6 @@ void MoveAndRotateStateBase::onMoveInactivity()
 }
 
 void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void MoveAndRotateStateBase::onEnter(const RunForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void MoveAndRotateStateBase::onEnter(const RunBackwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }

@@ -67,10 +67,5 @@ void RecoilRotateState::onLeave(const WeaponStateEvent& e)
 {
     RecoilStateBase::onLeave(e);
 }
-
-void RecoilRotateState::onLeave(const SprintStartEvent& e)
-{
-    RecoilStateBase::onLeave(e);
-}
 }  // namespace Components
 }  // namespace GameEngine

@@ -16,11 +16,6 @@ void AimState::onLeave(const WeaponStateEvent& event)
     AimStateBase::onLeave(event);
 }
 
-void AimState::onLeave(const SprintStartEvent& event)
-{
-    AimStateBase::onLeave(event);
-}
-
 void AimState::onEnter(const EndRotationEvent&)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);

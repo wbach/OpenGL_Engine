@@ -23,15 +23,10 @@ class RecoilState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
@@ -49,7 +44,6 @@ public:
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
-    void onLeave(const SprintStartEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

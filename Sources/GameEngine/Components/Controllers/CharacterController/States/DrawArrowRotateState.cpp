@@ -65,9 +65,5 @@ void DrawArrowRotateState::onLeave(const WeaponStateEvent& e)
 {
     DrawArrowStateBase::onLeave(e);
 }
-void DrawArrowRotateState::onLeave(const SprintStartEvent& e)
-{
-    DrawArrowStateBase::onLeave(e);
-}
 }  // namespace Components
 }  // namespace GameEngine

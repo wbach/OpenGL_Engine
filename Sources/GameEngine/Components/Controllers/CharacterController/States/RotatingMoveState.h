@@ -20,26 +20,15 @@ public:
     using MoveStateBase::transitionCondition;
     using MoveStateBase::update;
 
-    //    void onEnter(const EquipEndStateEvent &);
-    //    void onEnter(const DisarmEndStateEvent &);
-    //    void onEnter(const SprintStartEvent &);
-    //    void onEnter(const SprintStateChangeEvent &);
-
-    //    void onEnter(const EndJumpEvent &);
-    //    void onEnter(const WalkChangeStateEvent &);
-
     void update(float);
-    void update(const RunForwardEvent &);
-    void update(const RunBackwardEvent &);
-    //    void update(const WalkForwardEvent &);
-    //    void update(const WalkBackwardEvent &);
-    void update(const RunLeftEvent &);
-    void update(const RunRightEvent &);
+    void update(const MoveForwardEvent &);
+    void update(const MoveBackwardEvent &);
+    void update(const MoveLeftEvent &);
+    void update(const MoveRightEvent &);
 
     void postEnter();
     void postUpdate();
     //    void update(const SprintStateChangeEvent &);
-    //    void update(const SprintStartEvent &);
 
     void onLeave();
 

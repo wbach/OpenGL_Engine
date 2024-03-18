@@ -14,7 +14,7 @@ void prepareState(CharacterControllerTests& test)
         {test.sut_.animationClipsNames_.armed.idle},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 
-    test.tiggerAndExpect<RunForwardEvent, ArmedRunState>({test.sut_.animationClipsNames_.armed.run.forward});
+    test.tiggerAndExpect<MoveForwardEvent, ArmedRunState>({test.sut_.animationClipsNames_.armed.run.forward});
     test.expectRotationRight();
     test.tiggerAndExpect<RotateRightEvent, ArmedRunAndRotateState>({test.sut_.animationClipsNames_.armed.run.forward});
 }
@@ -85,7 +85,7 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotate_EndBackwardMoveEvent)
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
+    tiggerAndExpect<MoveBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
     tiggerAndExpect<EndBackwardMoveEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
@@ -93,7 +93,7 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.rotateRight});
+    tiggerAndExpect<MoveBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
 TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunForwardEvent)
@@ -101,9 +101,9 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunForwardEvent)
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
+    tiggerAndExpect<MoveBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
     expectNoMove();
-    tiggerAndExpect<RunForwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.rotateRight});
+    tiggerAndExpect<MoveForwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<EndBackwardMoveEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
 }

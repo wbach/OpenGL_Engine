@@ -35,11 +35,7 @@ void RunAndRotateArmedChangeState::onEnter()
                                                   context_.animClipNames.disarmed.rotateRight);
     }
 }
-void RunAndRotateArmedChangeState::onEnter(const SprintStartEvent &event)
-{
-    MoveStateBase::onEnter(event);
-    ArmedChangeStateBase::update(event);
-}
+
 void RunAndRotateArmedChangeState::onEnter(const SprintStateChangeEvent &event)
 {
     MoveStateBase::onEnter(event);

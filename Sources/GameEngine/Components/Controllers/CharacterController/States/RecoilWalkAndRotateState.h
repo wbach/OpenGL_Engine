@@ -30,15 +30,11 @@ class RecoilWalkAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -61,20 +57,20 @@ public:
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
-    void onEnter(const WalkForwardEvent&);
-    void onEnter(const WalkBackwardEvent&);
-    void onEnter(const RunForwardEvent&);
-    void onEnter(const RunBackwardEvent&);
+    void onEnter(const MoveForwardEvent&);
+    void onEnter(const MoveBackwardEvent&);
+    void onEnter(const MoveLeftEvent&);
+    void onEnter(const MoveRightEvent&);
     void onEnter(const WalkChangeStateEvent&);
 
     void update(float);
     void update(const RotateLeftEvent&);
     void update(const RotateRightEvent&);
     void update(const RotateTargetEvent&);
-    void update(const WalkForwardEvent&);
-    void update(const WalkBackwardEvent&);
-    void update(const RunForwardEvent&);
-    void update(const RunBackwardEvent&);
+    void update(const MoveForwardEvent&);
+    void update(const MoveBackwardEvent&);
+    void update(const MoveLeftEvent&);
+    void update(const MoveRightEvent&);
 
     void onMoveInactivity() override;
 

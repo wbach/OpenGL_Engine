@@ -71,11 +71,6 @@ void AimRotateState::onLeave(const AimStopEvent &event)
     AimStateBase::onLeave(event);
 }
 
-void AimRotateState::onLeave(const SprintStartEvent &event)
-{
-    AimStateBase::onLeave(event);
-}
-
 void AimRotateState::onLeave(const WeaponStateEvent &event)
 {
     AimStateBase::onLeave(event);

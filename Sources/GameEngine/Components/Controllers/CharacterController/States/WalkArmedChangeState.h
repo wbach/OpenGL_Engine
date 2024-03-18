@@ -4,7 +4,7 @@
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
 #include "ArmedChangeStateBase.h"
-#include "MoveStateBase.h"
+#include "RotatingMoveState.h"
 
 namespace GameEngine
 {
@@ -30,19 +30,19 @@ class AimWalkState;
 
 class WalkArmedChangeState
     : public ArmedChangeStateBase,
-      public MoveStateBase,
+      public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
@@ -61,8 +61,8 @@ public:
 
     using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;
-    using MoveStateBase::onEnter;
-    using MoveStateBase::update;
+    using RotatingMoveState::onEnter;
+    using RotatingMoveState::update;
 
     void onEnter();
 

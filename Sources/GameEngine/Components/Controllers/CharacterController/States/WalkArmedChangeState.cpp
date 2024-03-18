@@ -6,7 +6,7 @@ namespace Components
 {
 WalkArmedChangeState::WalkArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.disarmed.walk}
+    , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward, context.animClipNames.disarmed.walk.forward}
     , context_{context}
 {
 }
