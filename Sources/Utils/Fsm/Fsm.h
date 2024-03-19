@@ -18,6 +18,12 @@ class Fsm
 public:
     Fsm() = default;
 
+    template <typename... Args>
+    Fsm(Args... args)
+        : states(States(args...)...)
+    {
+    }
+
     Fsm(States... states)
         : states(std::move(states)...)
     {

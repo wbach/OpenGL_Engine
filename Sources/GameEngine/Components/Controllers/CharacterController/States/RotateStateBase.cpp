@@ -71,12 +71,12 @@ void RotateStateBase::onEnter(const DisarmEndStateEvent &)
 
 void RotateStateBase::update(const AttackEvent &)
 {
-    context_.attackFsm.handle(AttackFsmEvents::Attack{});
+    //context_.attackFsm.handle(AttackFsmEvents::Attack{});
 }
 
 void RotateStateBase::update(const EndAttackEvent &)
 {
-    context_.attackFsm.handle(AttackFsmEvents::End{});
+    //context_.attackFsm.handle(AttackFsmEvents::End{});
 }
 
 void RotateStateBase::update(float deltaTime)
