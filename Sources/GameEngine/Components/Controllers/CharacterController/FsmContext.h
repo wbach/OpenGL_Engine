@@ -32,11 +32,13 @@ struct FsmContext
         float disarm;
     };
 
+    AttackFsm& attackFsm;
     GameObject& gameObject;
     Physics::IPhysicsApi& physicsApi;
     Rigidbody& rigidbody;
     Animator& animator;
     CharacterController& characterController;
+    Input::InputManager& inputManager;
     AimController& aimController;
     MoveController moveController;
 

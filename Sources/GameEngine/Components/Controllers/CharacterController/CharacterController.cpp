@@ -199,11 +199,13 @@ void CharacterController::Init()
                                                          aimJoint ? *aimJoint : dummyJoint);
 
         fsmContext.reset(new FsmContext{
+            *attackFsm_,
             thisObject_,
             componentContext_.physicsApi_,
             *rigidbody_,
             *animator_,
             *this,
+            componentContext_.inputManager_,
             *aimController_,
             {},
             {},
@@ -213,7 +215,45 @@ void CharacterController::Init()
             {equipTimeStamp, disarmTimeStamp},
         });
         // clang-format off
-        stateMachine_ = std::make_unique<CharacterControllerFsm>(*fsmContext);
+        stateMachine_ = std::make_unique<CharacterControllerFsm>(
+            DisarmedIdleState(*fsmContext),
+            DisarmedRunState(*fsmContext),
+            DisarmedRotateState(*fsmContext),
+            DisarmedRunAndRotateState(*fsmContext),
+            DisarmedWalkState(*fsmContext),
+            DisarmedWalkAndRotateState(*fsmContext),
+            DisarmedSprintState(*fsmContext),
+            DisarmedSprintAndRotateState(*fsmContext),
+            IdleArmedChangeState(*fsmContext),
+            RotateArmedChangeState(*fsmContext),
+            RunArmedChangeState(*fsmContext),
+            RunAndRotateArmedChangeState(*fsmContext),
+            WalkArmedChangeState(*fsmContext),
+            WalkAndRotateArmedChangeState(*fsmContext),
+            ArmedIdleState(*fsmContext),
+            ArmedRunState(*fsmContext),
+            ArmedRotateState(*fsmContext),
+            ArmedRunAndRotateState(*fsmContext),
+            ArmedWalkState(*fsmContext),
+            ArmedWalkAndRotateState(*fsmContext),
+            ArmedSprintState(*fsmContext),
+            ArmedSprintAndRotateState(*fsmContext),
+            JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
+            MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
+            AimState(*fsmContext),
+            AimRotateState(*fsmContext),
+            AimWalkState(*fsmContext),
+            AimWalkAndRotateState(*fsmContext),
+            RecoilState(*fsmContext),
+            RecoilRotateState(*fsmContext),
+            RecoilWalkState(*fsmContext),
+            RecoilWalkAndRotateState(*fsmContext),
+            DrawArrowState(*fsmContext),
+            DrawArrowRotateState(*fsmContext),
+            DrawArrowWalkState(*fsmContext),
+            DrawArrowWalkAndRotateState(*fsmContext),
+            DeathState(*fsmContext));
+        // clang-format on
 
         rigidbody_->InputParams().angularFactor_ = vec3(0);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);

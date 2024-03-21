@@ -24,8 +24,8 @@ class MoveJumpState : public JumpStateBase,
                           Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>>
 {
 public:
-    MoveJumpState(FsmContext& context)
-        : JumpStateBase(context, std::nullopt, nullptr)
+    MoveJumpState(FsmContext& context, std::function<void()> endCallback)
+        : JumpStateBase(context, std::nullopt, endCallback)
     {
     }
 };
