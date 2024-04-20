@@ -10,7 +10,9 @@
 #include "GameEngine/Display/DisplayManager.hpp"
 
 #ifndef USE_GNU
-#include <DirectXApi/DirectXApi.h>
+    #ifndef USE_MINGW // TO DO
+    #include <DirectXApi/DirectXApi.h>
+    #endif
 #include <Windows.h>
 #include <shlobj.h>
 #else
@@ -58,7 +60,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 {
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-#ifndef USE_GNU
+#if !defined(USE_GNU) && !defined (USE_MINGW)
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();

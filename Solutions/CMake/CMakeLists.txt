@@ -83,12 +83,13 @@ message(STATUS "Build editor: ${BUILD_EDITOR}")
 SET(GCC_COVERAGE_LINK_FLAGS "-static-libgcc")
 #CMAKE_CXX_FLAGS
 SET(EngineCompileFlags "-std=c++17 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined -Wno-deprecated")
-SET(CMAKE_CXX_FLAGS "-g -O0")
+SET(CMAKE_CXX_FLAGS "-g -O0 ")
 set(CMAKE_C_FLAGS "-g -O0")
 SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
 add_compile_options(
     -O3
+    -Wa,-mbig-obj
 )
 
 if(BUILD_I386)
