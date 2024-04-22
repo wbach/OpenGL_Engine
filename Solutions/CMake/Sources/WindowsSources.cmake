@@ -19,8 +19,8 @@ if(MINGW)
         ../../Tools/Windows/freeImage
         ../../Tools/Windows/freetype/include
         ../../Tools/Windows/GLFW3/include
-        ../../Tools/Windows/gtest/include
-        ../../Tools/Windows/gmock/include
+#        ../../Tools/Windows/gtest/include
+ #       ../../Tools/Windows/gmock/include
         ../../Tools/Windows/Directx/Include
         )
 
@@ -36,8 +36,8 @@ if(MINGW)
         ../../Tools/Windows/freeImage/x64
         ../../Tools/Windows/freetype/win64
         ../../Tools/Windows/GLFW3/lib-vc2015
-        ../../Tools/Windows/gtest/lib/x64/Release
-        ../../Tools/Windows/gmock/lib/x64/Release
+  #      ../../Tools/Windows/gtest/lib/x64/Release
+  #      ../../Tools/Windows/gmock/lib/x64/Release
         ../../Tools/Windows/Directx/Lib/x64
         ../../Tools/Windows/bullet/x64/Release
         )

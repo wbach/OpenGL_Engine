@@ -1,14 +1,6 @@
 if(BUILD_UTILS_NETWORK_TESTS)
 
-    if(NOT DEFINED GTEST_INLCUDED)
-        set(GTEST_INLCUDED true)
-        
-        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/gtest ${CMAKE_CURRENT_BINARY_DIR}/googletest)
-        include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-        message(STATUS "gtest: ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/gtest ${CMAKE_CURRENT_BINARY_DIR}/googletest}")
-        message(STATUS "gtest: ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR}")
-    endif()
 
     include(./Sources/UtilsNetworkTestsSources.cmake)
     set_source_files_properties(

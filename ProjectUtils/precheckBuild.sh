@@ -2,15 +2,19 @@
 
 sshTarget=$1'@'$2
 
+branch=`git rev-parse --abbrev-ref HEAD`
 revision=`git rev-parse HEAD`
 
-remoteApplyScript='/home/'$1'/Projects/prebuild/OpenGL_Engine/ProjectUtils/applyPreckbuild.sh'
+location="/srv/dev-disk-by-uuid-523ce0f3-9a7d-48d5-81ce-f8860be8f8f8/fpwork/prebuild/"
+remoteApplyScript=$location'OpenGL_Engine/ProjectUtils/applyPreckbuild.sh'
 
 mkdir ../tmp
 echo $revision > ../tmp/toCommit.revision
+echo $branch > ../tmp/toCommit.branch
 
 git add .
-git diff master > ../tmp/toCommit.diff
-scp ../tmp/toCommit.diff $sshTarget:/home/$1/Projects/prebuild/
-scp ../tmp/toCommit.revision $sshTarget:/home/$1/Projects/prebuild/
+git diff $branch > ../tmp/toCommit.diff
+scp ../tmp/toCommit.diff $sshTarget:$location
+scp ../tmp/toCommit.branch $sshTarget:$location
+scp ../tmp/toCommit.revision $sshTarget:$location
 ssh -t $sshTarget $remoteApplyScript
