@@ -1,14 +1,28 @@
 from ftplib import FTP
 from zipfile import ZipFile
 import os
+import sys
 ftp = FTP('wbach.ddns.net', 'GameData', 'OpenGL@GameData&Tools')
 
 remoteDir = './gameData'
 localDir = '../'
 filenames = {"Tools.zip", "Data.zip"}
+minimumPrints = False
+
+argv = len(sys.argv)
+if argv > 1:
+   tmpFiles = set()
+   for i in range(1, argv):
+      if (sys.argv[i] == "silent"):
+         minimumPrints = True
+      else:
+         tmpFiles.add(sys.argv[i])
+   if len(tmpFiles) > 0:
+      filenames = tmpFiles
+
 
 ftp.cwd(remoteDir)
-ftp.dir()
+#ftp.dir()
 
 ftp.sendcmd("TYPE i")
 
@@ -20,11 +34,15 @@ def getFile(filename):
    fileSize = ftp.size(filename)
 
    file = open(localDir + filename, 'wb')
+   if minimumPrints:
+      print("Downloading {fname}...".format(fname=filename))
+
    def fileWrite(data):
       global progress
       file.write(data)
       progress += len(data)
-      print("Downloading {fname} : {p:.2f}%\r".format(fname=filename, p=progress/fileSize * 100), end="")
+      if not minimumPrints:
+         print("Downloading {fname} : {p:.2f}%\r".format(fname=filename, p=progress/fileSize * 100), end="")
 
    ftp.retrbinary(f"RETR {filename}", fileWrite)
    file.close()
