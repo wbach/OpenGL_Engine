@@ -8,18 +8,16 @@ void prepareState(CharacterControllerTests& test)
     EXPECT_CALL(test.physicsApiMock_, SetRotation(test.rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
 
-    test.expectState<DisarmedIdleState>();
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.idle});
-    test.tiggerAndExpect<WeaponStateEvent, ArmedIdleState>(
+    test.tiggerAndExpect<WeaponStateEvent>(
         {test.sut_.animationClipsNames_.armed.idle},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 
-    test.tiggerAndExpect<DrawArrowEvent, DrawArrowState>({test.sut_.animationClipsNames_.drawArrow});
+    test.tiggerAndExpect<DrawArrowEvent>({test.sut_.animationClipsNames_.drawArrow});
     test.Update(ADVANCED_TIME_CLIP_TIME);
     test.Update(ADVANCED_TIME_TRANSITION_TIME);
-    test.expectState<AimState>();
-    test.tiggerAndExpect<AttackEvent, RecoilState>({test.sut_.animationClipsNames_.recoilArrow});
-    test.tiggerAndExpect<RotateLeftEvent, RecoilRotateState>(
+    test.tiggerAndExpect<AttackEvent>({test.sut_.animationClipsNames_.recoilArrow});
+    test.tiggerAndExpect<RotateLeftEvent>(
         {test.sut_.animationClipsNames_.recoilArrow, test.sut_.animationClipsNames_.armed.rotateLeft});
 }
 }  // namespace
@@ -27,13 +25,13 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, RecoilRotate_RotateLeft)
 {
     prepareState(*this);
-    tiggerAndExpect<RotateLeftEvent, RecoilRotateState>(
+    tiggerAndExpect<RotateLeftEvent>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_RotateRight)
 {
     prepareState(*this);
-    tiggerAndExpect<RotateRightEvent, RecoilRotateState>(
+    tiggerAndExpect<RotateRightEvent>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateRight});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_RotateTargetEvent)
@@ -42,75 +40,73 @@ TEST_F(CharacterControllerTests, RecoilRotate_RotateTargetEvent)
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<RotateTargetEvent, RecoilRotateState>(
+    tiggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, RotateArmedChangeState>(
+    tiggerAndExpect<WeaponStateEvent>(
         {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.rotateLeft});
 
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectState<DisarmedRotateState>();
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_AttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AttackEvent, RecoilRotateState>(
-        {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_EndRotationEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndRotationEvent, RecoilState>({sut_.animationClipsNames_.recoilArrow});
+    tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.recoilArrow});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_AimStopEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AimStopEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateLeft});
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_ReloadArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<ReloadArrowEvent, DrawArrowRotateState>(
+    tiggerAndExpect<ReloadArrowEvent>(
         {sut_.animationClipsNames_.armed.rotateLeft, sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_DeathEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.armed.death});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<MoveForwardEvent, RecoilWalkAndRotateState>(
+    tiggerAndExpect<MoveForwardEvent>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_MoveBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<MoveBackwardEvent, RecoilWalkAndRotateState>(
+    tiggerAndExpect<MoveBackwardEvent>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.backward});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent, RecoilWalkAndRotateState>(
+    tiggerAndExpect<MoveLeftEvent>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.moveleft});
 }
 TEST_F(CharacterControllerTests, RecoilRotate_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent, RecoilWalkAndRotateState>(
+    tiggerAndExpect<MoveRightEvent>(
         {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.walk.moveRight});
 }

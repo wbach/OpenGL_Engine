@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Controllers/CharacterController/MoveSpeed.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
 
 using namespace GameEngine;
@@ -32,29 +33,21 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     void addDummyClip(const std::string& name);
     void Update(float time);
     void expectAnimsToBeSet(const std::vector<std::string>& names);
-
-    template <typename State>
-    void expectState()
-    {
-        EXPECT_TRUE(std::holds_alternative<State*>(sut_.getFsm()->currentState));
-    }
-
-    template <typename Event, typename State>
+    template <typename Event>
     void tiggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
         sut_.handleEvent(event);
         for (auto updateTime : updateTimes)
             Update(updateTime);
-        expectState<State>();
         expectAnimsToBeSet(clipNames);
     }
 
-    template <typename Event, typename State>
+    template <typename Event>
     void tiggerAndExpect(const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
-        tiggerAndExpect<Event, State>(Event{}, clipNames, updateTimes);
+        tiggerAndExpect<Event>(Event{}, clipNames, updateTimes);
     }
 
     void expectNoMove();

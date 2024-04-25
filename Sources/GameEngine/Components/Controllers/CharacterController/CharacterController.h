@@ -5,8 +5,8 @@
 
 #include <unordered_map>
 
-#include "Attack/AttackFsm.h"
-#include "CharacterControllerFsm.h"
+#include "AnimationClipNames.h"
+#include "CharacterControllerEvents.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 
@@ -18,6 +18,7 @@ class CharacterController : public BaseComponent
 {
 public:
     CharacterController(ComponentContext&, GameObject&);
+    ~CharacterController();
 
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -29,12 +30,14 @@ public:
     void SetTurnSpeed(float);
     void SetJumpPower(float);
 
-    template <typename Event>
-    void handleEvent(const Event& event)
-    {
-        if (stateMachine_)
-            stateMachine_->handle(event);
-    }
+    //    template <typename Event>
+    //    void handleEvent(const Event& event)
+    //    {
+    //        if (stateMachine_)
+    //            stateMachine_->handle(event);
+    //    }
+
+    void handleEvent(const CharacterControllerEvent&);
 
     template <typename Event>
     void pushEventToQueue(const Event& event)
@@ -42,6 +45,8 @@ public:
         DEBUG_LOG("pushEventToQueue " + typeName<Event>());
         eventQueue.push_back(event);
     }
+
+    float getShapeSize() const;
 
 public:
     std::string upperBodyGroupName;
@@ -51,9 +56,6 @@ public:
 
     float equipTimeStamp;
     float disarmTimeStamp;
-
-    float getShapeSize() const;
-    CharacterControllerFsm* getFsm();
 
 private:
     void processEvent();
@@ -72,11 +74,8 @@ private:
     float shapeSize_;
 
 private:
-    std::unique_ptr<FsmContext> fsmContext;
-    std::unique_ptr<AttackFsmContext> attackFsmContext;
-    std::unique_ptr<AttackFsm> attackFsm_;
-    std::unique_ptr<CharacterControllerFsm> stateMachine_;
-    std::unique_ptr<AimController> aimController_;
+    struct Impl;
+    std::unique_ptr<Impl> impl;
 
 public:
     static void registerReadFunctions();
