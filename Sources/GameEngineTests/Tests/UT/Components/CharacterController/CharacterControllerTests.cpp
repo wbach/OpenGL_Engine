@@ -238,5 +238,14 @@ void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
     auto currentBoneRotation = glm::quat_cast(animator_->GetRootJoint()->additionalUserMofiyTransform.getMatrix());
     auto expectedBoneRotation =
         glm::angleAxis(glm::orientedAngle(VECTOR_FORWARD, glm::normalize(dir), VECTOR_UP), VECTOR_UP);
-    EXPECT_EQ(currentBoneRotation, expectedBoneRotation);
+
+    EXPECT_NEAR(currentBoneRotation.x, expectedBoneRotation.x, std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(currentBoneRotation.y, expectedBoneRotation.y, std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(currentBoneRotation.z, expectedBoneRotation.z, std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(currentBoneRotation.w, expectedBoneRotation.w, std::numeric_limits<float>::epsilon());
+
+    DEBUG_LOG("Expected bone rotation : " + std::to_string(expectedBoneRotation) + ", eurler " +
+              std::to_string(Rotation(expectedBoneRotation).GetEulerDegrees().value));
+    DEBUG_LOG("Current bone rotation : " + std::to_string(currentBoneRotation) + ", eurler " +
+              std::to_string(Rotation(currentBoneRotation).GetEulerDegrees().value));
 }
