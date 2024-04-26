@@ -86,6 +86,7 @@ void RotateStateBase::update(float deltaTime)
         auto rotation =
             context_.rigidbody.GetRotation() *
             glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
+                    DEBUG_LOG("newRotation " + std::to_string(rotation));
         context_.rigidbody.SetRotation(rotation);
     }
     else
