@@ -45,7 +45,6 @@ public:
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);
-    bool transitionCondition(const SprintStateChangeEvent &);
 
     void onMoveInactivity() override;
 };

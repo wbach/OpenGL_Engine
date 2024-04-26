@@ -233,8 +233,7 @@ void CharacterControllerTests::expectRotationRight(float dt)
 
 void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
 {
-    const float rotateTime{0.5f};
-    Update(rotateTime);
+    Update(DEFAULT_MOVING_CHANGE_DIR_SPEED);
 
     auto currentBoneRotation = glm::quat_cast(animator_->GetRootJoint()->additionalUserMofiyTransform.getMatrix());
     auto expectedBoneRotation =

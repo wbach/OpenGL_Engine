@@ -18,17 +18,13 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
 
 void RotatingMoveState::update(float dt)
 {
+    DEBUG_LOG("Update");
     moveCameraRotateRigidbody();
 
     if (context_.progress < 1.f)
     {
-        const float rotateTime{0.5f};
-        context_.progress += dt / rotateTime;
+        context_.progress += dt / DEFAULT_MOVING_CHANGE_DIR_SPEED;
         applyCurrentRotation();
-    }
-    else
-    {
-        context_.progress = 1.f;
     }
 }
 
@@ -54,6 +50,7 @@ void RotatingMoveState::update(const MoveRightEvent &event)
 
 void RotatingMoveState::postEnter()
 {
+    DEBUG_LOG("postEnter");
     // prevent to call postEnter from MoveStateBase
     setTargetAngle();
     setAnim(animationClips_.forward);
@@ -61,9 +58,11 @@ void RotatingMoveState::postEnter()
 
 void RotatingMoveState::postUpdate()
 {
+    DEBUG_LOG("postUpdate");
     setTargetAngle();
     if (not context_.moveController.isMoving())
     {
+        DEBUG_LOG("onMoveInactivity");
         onMoveInactivity();
     }
 }
@@ -117,9 +116,16 @@ void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
+        DEBUG_LOG("Progress " + std::to_string(context_.progress));
         auto progress         = context_.progress > 1.f ? 1.f : context_.progress;
+        DEBUG_LOG("Progress2 " + std::to_string(progress));
         context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, progress);
         setCharacterRotation(glm::mat4_cast(context_.currentAngle));
+
+        if (context_.progress >= 1.f)
+        {
+            context_.progress = 2.f;
+        }
     }
 }
 
@@ -151,6 +157,9 @@ void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with mov
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y    = rigidbody.GetVelocity().y;
+    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 

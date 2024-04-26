@@ -30,8 +30,7 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 
 void MoveStateBase::onEnter(const SprintStateChangeEvent &)
 {
-    // Sprint is only for forward move
-    context_.moveController.moveForwad();
+    DEBUG_LOG("SprintStateChangeEvent");
 }
 
 void MoveStateBase::onEnter(const MoveForwardEvent &)
@@ -89,11 +88,6 @@ bool MoveStateBase::transitionCondition(const EndMoveRightEvent &)
     return shouldLeaveAndSetCurrAnimIfNot();
 }
 
-bool MoveStateBase::transitionCondition(const SprintStateChangeEvent &)
-{
-    return context_.moveController.isMoving(MoveController::Direction::Forward);
-}
-
 void MoveStateBase::onLeave()
 {
 }
@@ -114,6 +108,7 @@ bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
 {
     if (context_.moveController.isMoveActive())
     {
+        DEBUG_LOG("shouldLeaveAndSetCurrAnimIfNot");
         setCurrentAnimIfNeeded();
         return false;
     }
@@ -157,6 +152,7 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::postUpdate()
 {
+    DEBUG_LOG("postUpdate");
     setCurrentAnimIfNeeded();
 }
 
@@ -224,9 +220,9 @@ void MoveStateBase::moveRigidbody()
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y    = rigidbody.GetVelocity().y;
-    // DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-    // DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-    // DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+     DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+     DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+     DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 
