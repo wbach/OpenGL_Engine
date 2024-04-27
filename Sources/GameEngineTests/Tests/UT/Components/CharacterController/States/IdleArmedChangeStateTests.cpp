@@ -44,20 +44,23 @@ TEST_F(CharacterControllerTests, IdleArmedChangeState_MoveForwardEvent)
 TEST_F(CharacterControllerTests, IdleArmedChangeState_MoveBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.backward});
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.forward});
+    expectRootboneRotation(VECTOR_BACKWARD);
 }
 TEST_F(CharacterControllerTests, IdleArmedChangeState_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.walk.moveleft});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.forward});
+    expectRootboneRotation(VECTOR_LEFT);
 }
 TEST_F(CharacterControllerTests, IdleArmedChangeState_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.walk.moveRight});
+    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.forward});
+    expectRootboneRotation(VECTOR_RIGHT);
 }
 TEST_F(CharacterControllerTests, IdleArmedChangeState_RotateLeftEvent)
 {
@@ -87,7 +90,7 @@ TEST_F(CharacterControllerTests, IdleArmedChangeState_DrawArrowEvent)
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.aimIdle});
+    expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow});
 }
 TEST_F(CharacterControllerTests, IdleArmedChangeState_AimStopEvent)
 {
