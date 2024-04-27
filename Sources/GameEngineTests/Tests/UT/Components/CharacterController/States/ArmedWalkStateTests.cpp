@@ -43,7 +43,7 @@ TEST_F(CharacterControllerTests, ArmedWalk_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.walk.forward});
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
@@ -53,24 +53,24 @@ TEST_F(CharacterControllerTests, ArmedWalk_MoveBackwardEvent)
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.idle});
     expectForwardVelocity(-DEFAULT_WALK_SPEED);
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.walk.forward});
     expectRootboneRotation(VECTOR_BACKWARD);
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, 0));
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
     tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.walk.forward});
-    expectRootboneRotation(VECTOR_LEFT);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_LEFT);
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, 0));
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
     tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.walk.forward});
-    expectRootboneRotation(VECTOR_RIGHT);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 
 TEST_F(CharacterControllerTests, ArmedWalk_WeaponStateEvent)
@@ -90,8 +90,11 @@ TEST_F(CharacterControllerTests, ArmedWalk_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.idle});
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.walk.backward});
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.run.forward});
+    expectForwardVelocity(-DEFAULT_WALK_SPEED);
+    tiggerAndExpect<WalkChangeStateEvent>({sut_.animationClipsNames_.armed.walk.forward});
+    expectRootboneRotation(VECTOR_BACKWARD);
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.idle});
 }
 

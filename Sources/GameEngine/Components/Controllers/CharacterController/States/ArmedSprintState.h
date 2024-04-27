@@ -45,12 +45,12 @@ class ArmedSprintState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:
-    ArmedSprintState(FsmContext& context)
-        : RotatingMoveState{context, std::nullopt, context.sprintSpeed, context.animClipNames.armed.sprint}
-    {
-    }
+    ArmedSprintState(FsmContext& context);
 
     using RotatingMoveState::onEnter;
+    using RotatingMoveState::update;
+
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine

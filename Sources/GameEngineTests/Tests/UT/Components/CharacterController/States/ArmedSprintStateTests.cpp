@@ -62,9 +62,9 @@ TEST_F(CharacterControllerTests, ArmedSprintState_MoveLeftEvent)
 TEST_F(CharacterControllerTests, ArmedSprintState_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_SPRINT_SPEED, 0.0, 0));
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_SPRINT_SPEED, 0.0, DEFAULT_SPRINT_SPEED));
     tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.sprint});
-    expectRootboneRotation(VECTOR_RIGHT);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 TEST_F(CharacterControllerTests, ArmedSprintState_DeathEvent)
 {
