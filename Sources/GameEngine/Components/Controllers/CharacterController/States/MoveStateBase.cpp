@@ -141,6 +141,7 @@ void MoveStateBase::update(const SprintStateChangeEvent &event)
 
 void MoveStateBase::update(float)
 {
+    DEBUG_LOG("Update");
     if (not context_.animator.isAnimationPlaying(currentAnimName_))
     {
         // DEBUG_LOG("Forward not ready");

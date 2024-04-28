@@ -213,10 +213,11 @@ TEST_F(CharacterControllerTests, AimWalk_MoveEndForwardWhenMoveLeft)
 TEST_F(CharacterControllerTests, AimWalk_AimStopEventWhenMoveLeft)
 {
     prepareAimState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0.0));
     tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.walk.moveleft});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, 0.0));
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.walk.forward});
+    expectRootboneRotation(VECTOR_LEFT);
     expectNoMove();
     tiggerAndExpect<EndMoveLeftEvent>({sut_.animationClipsNames_.armed.idle});
 }

@@ -54,7 +54,7 @@ void WalkArmedChangeState::onEnter(AimWalkState&, const WeaponStateEvent&)
 }
 void WalkArmedChangeState::update(float dt)
 {
-    MoveStateBase::update(dt);
+    RotatingMoveState::update(dt);
 }
 void WalkArmedChangeState::update(const WeaponStateEvent& e)
 {
