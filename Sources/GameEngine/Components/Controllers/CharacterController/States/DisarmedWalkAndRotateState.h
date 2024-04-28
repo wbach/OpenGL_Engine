@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -22,7 +22,7 @@ class DeathState;
 struct FsmContext;
 
 class DisarmedWalkAndRotateState
-    : public MoveAndRotateStateBase,
+    : public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -46,19 +46,11 @@ class DisarmedWalkAndRotateState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    DisarmedWalkAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context,
-                                 std::nullopt,
-                                 context.walkSpeed,
-                                 context.animClipNames.disarmed.walk,
-                                 context.animClipNames.disarmed.rotateLeft,
-                                 context.animClipNames.disarmed.rotateRight}
-    {
-    }
+    DisarmedWalkAndRotateState(FsmContext&);
 
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components
 }  // namespace GameEngine

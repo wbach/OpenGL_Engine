@@ -5,7 +5,7 @@ namespace GameEngine
 namespace Components
 {
 ArmedWalkAndRotateState::ArmedWalkAndRotateState(FsmContext& context)
-    : MoveAndRotateStateBase{context,
+    : RotatingMoveAndRotateStateBase{context,
                              std::nullopt,
                              context.walkSpeed,
                              context.animClipNames.armed.walk,
