@@ -89,13 +89,13 @@ TEST_F(CharacterControllerTests, AimRotate_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.f, 0.f));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
 }
 TEST_F(CharacterControllerTests, AimRotate_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.f, 0.f));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.walk.backward, sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.walk.moveRight, sut_.animationClipsNames_.aimIdle});
 }
 TEST_F(CharacterControllerTests, AimRotate_DeathEvent)
 {

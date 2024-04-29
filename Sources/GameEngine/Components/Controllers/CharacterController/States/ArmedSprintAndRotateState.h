@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -24,7 +24,7 @@ class RunAndRotateArmedChangeState;
 struct FsmContext;
 
 class ArmedSprintAndRotateState
-    : public MoveAndRotateStateBase,
+    : public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
@@ -41,6 +41,8 @@ class ArmedSprintAndRotateState
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
@@ -48,19 +50,19 @@ class ArmedSprintAndRotateState
 {
 public:
     ArmedSprintAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context,
-                                 std::nullopt,
-                                 context.sprintSpeed,
-                                 context.animClipNames.armed.sprint,
-                                 context.runSpeed.rotate,
-                                 context.animClipNames.armed.rotateLeft,
-                                 context.animClipNames.armed.rotateRight}
+        : RotatingMoveAndRotateStateBase{context,
+                                         std::nullopt,
+                                         context.sprintSpeed,
+                                         context.animClipNames.armed.sprint,
+                                         context.runSpeed.rotate,
+                                         context.animClipNames.armed.rotateLeft,
+                                         context.animClipNames.armed.rotateRight}
     {
     }
 
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components
 }  // namespace GameEngine

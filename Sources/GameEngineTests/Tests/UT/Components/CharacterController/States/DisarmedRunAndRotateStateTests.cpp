@@ -56,23 +56,26 @@ TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_MoveBackwardEvent)
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.run.forward});
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_BACKWARD);
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.run.forward});
-    expectRootboneRotation(VECTOR_LEFT);
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, DEFAULT_RUN_SPEED));
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.disarmed.run.forward});
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_LEFT);
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.run.forward});
-    expectRootboneRotation(VECTOR_RIGHT);
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, DEFAULT_RUN_SPEED));
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.disarmed.run.forward});
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_DeathEvent)
@@ -105,8 +108,10 @@ TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_EndBackwardMoveEvent)
     prepareState(*this);
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.run.backward});
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.run.forward});
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_BACKWARD);
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
 }
 

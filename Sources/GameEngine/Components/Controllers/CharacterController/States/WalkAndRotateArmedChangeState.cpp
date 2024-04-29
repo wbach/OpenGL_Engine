@@ -83,7 +83,6 @@ void WalkAndRotateArmedChangeState::setEquipAnimations()
 void WalkAndRotateArmedChangeState::setDisarmAnimations()
 {
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
-    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
                                               context_.animClipNames.disarmed.rotateRight);
 }

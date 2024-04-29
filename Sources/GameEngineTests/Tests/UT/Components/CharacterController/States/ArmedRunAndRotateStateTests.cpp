@@ -83,28 +83,35 @@ TEST_F(CharacterControllerTests, ArmedRunAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.rotateRight});
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.run.backward});
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.run.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_BACKWARD);
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunBackwardEvent)
+TEST_F(CharacterControllerTests, ArmedRunAndRotate_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
-TEST_F(CharacterControllerTests, ArmedRunAndRotate_RunForwardEvent)
+TEST_F(CharacterControllerTests, ArmedRunAndRotate_MoveForwardEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.rotateRight});
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.run.backward});
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.run.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_BACKWARD);
+
     expectNoMove();
     tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(DEFAULT_RUN_SPEED);
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.run.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD);
 }
 
 TEST_F(CharacterControllerTests, ArmedRunAndRotate_EndRotationEvent)

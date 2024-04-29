@@ -30,32 +30,35 @@ TEST_F(CharacterControllerTests, ArmedSprintAndRotateState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, ArmedSprintAndRotateState_MoveForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.run.forward});
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.sprint});
 }
 TEST_F(CharacterControllerTests, ArmedSprintAndRotateState_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.rotateLeft});
-    expectForwardVelocity(-DEFAULT_RUN_SPEED);
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.run.forward});
+    expectForwardVelocity(-DEFAULT_SPRINT_SPEED);
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.sprint});
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_BACKWARD);
 }
 TEST_F(CharacterControllerTests, ArmedSprintAndRotateState_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_SPRINT_SPEED, 0.0, 0));
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_SPRINT_SPEED, 0.0, DEFAULT_SPRINT_SPEED));
     tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.sprint});
-    expectRootboneRotation(VECTOR_LEFT);
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_LEFT);
 }
 
 TEST_F(CharacterControllerTests, ArmedSprintAndRotateState_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_SPRINT_SPEED, 0.0, 0));
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_SPRINT_SPEED, 0.0, DEFAULT_SPRINT_SPEED));
     tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.sprint});
-    expectRootboneRotation(VECTOR_RIGHT);
+    expectRotationLeft(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 TEST_F(CharacterControllerTests, ArmedSprintAndRotateState_DeathEvent)
 {
