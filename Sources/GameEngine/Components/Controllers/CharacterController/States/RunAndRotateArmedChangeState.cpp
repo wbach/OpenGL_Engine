@@ -8,7 +8,7 @@ namespace Components
 {
 RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , MoveAndRotateStateBase{context,
+    , RotatingMoveAndRotateStateBase{context,
                              context.lowerBodyGroupName,
                              context.runSpeed,
                              context.animClipNames.disarmed.run,
@@ -91,7 +91,7 @@ void RunAndRotateArmedChangeState::onEnter(AimWalkAndRotateState &, const Weapon
 }
 void RunAndRotateArmedChangeState::update(float dt)
 {
-    MoveAndRotateStateBase::update(dt);
+    RotatingMoveAndRotateStateBase::update(dt);
 }
 
 void RunAndRotateArmedChangeState::update(const WeaponStateEvent &e)

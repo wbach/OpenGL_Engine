@@ -1,18 +1,17 @@
 #include "WalkAndRotateArmedChangeState.h"
 
-
 namespace GameEngine
 {
 namespace Components
 {
 WalkAndRotateArmedChangeState::WalkAndRotateArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , MoveAndRotateStateBase{context,
-                             context.lowerBodyGroupName,
-                             context.walkSpeed,
-                             context.animClipNames.disarmed.walk,
-                             context.animClipNames.disarmed.rotateLeft,
-                             context.animClipNames.disarmed.rotateRight}
+    , RotatingMoveAndRotateStateBase{context,
+                                     context.lowerBodyGroupName,
+                                     context.walkSpeed,
+                                     context.animClipNames.disarmed.walk,
+                                     context.animClipNames.disarmed.rotateLeft,
+                                     context.animClipNames.disarmed.rotateRight}
     , context_{context}
 {
 }
@@ -20,16 +19,11 @@ void WalkAndRotateArmedChangeState::onEnter()
 {
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
-        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
-        RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.rotateLeft,
-                                                  context_.animClipNames.armed.rotateRight);
+        setEquipAnimations();
     }
     else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
     {
-        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
-        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-        RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
-                                                  context_.animClipNames.disarmed.rotateRight);
+        setDisarmAnimations();
     }
 }
 void WalkAndRotateArmedChangeState::onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&)
@@ -52,30 +46,46 @@ void WalkAndRotateArmedChangeState::onEnter(AimWalkAndRotateState&, const Weapon
 
 void WalkAndRotateArmedChangeState::update(float dt)
 {
-    MoveAndRotateStateBase::update(dt);
+    RotatingMoveAndRotateStateBase::update(dt);
 }
 
 void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+    setEquipAnimations();
 }
 
 void WalkAndRotateArmedChangeState::onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
+    setDisarmAnimations();
 }
 
 void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+    setEquipAnimations();
     ArmedChangeStateBase::update(e);
 }
-void WalkAndRotateArmedChangeState::update(const WeaponStateEvent & e)
+void WalkAndRotateArmedChangeState::update(const WeaponStateEvent& e)
 {
     ArmedChangeStateBase::update(e);
     onEnter();
+}
+
+void WalkAndRotateArmedChangeState::setEquipAnimations()
+{
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.rotateLeft,
+                                              context_.animClipNames.armed.rotateRight);
+}
+
+void WalkAndRotateArmedChangeState::setDisarmAnimations()
+{
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                              context_.animClipNames.disarmed.rotateRight);
 }
 }  // namespace Components
 }  // namespace GameEngine

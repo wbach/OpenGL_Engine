@@ -47,10 +47,10 @@ TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_DisarmEndStateEve
 TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_MoveForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.forward});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.walk.forward});
 }
-TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_RunBackwardEvent)
+TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
@@ -59,15 +59,18 @@ TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_RunBackwardEvent)
 TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.run.moveleft});
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.walk.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_LEFT);
 }
 TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.run.moveRight});
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.walk.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_WalkChangeStateEventt)
 {

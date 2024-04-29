@@ -4,7 +4,7 @@
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
 #include "ArmedChangeStateBase.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -32,7 +32,7 @@ class DrawArrowWalkAndRotateState;
 struct FsmContext;
 class RunAndRotateArmedChangeState
     : public ArmedChangeStateBase,
-      public MoveAndRotateStateBase,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -65,9 +65,9 @@ public:
 
     using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 
     void onEnter();
     void onEnter(const SprintStateChangeEvent &);

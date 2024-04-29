@@ -4,7 +4,7 @@
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
 #include "ArmedChangeStateBase.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -29,7 +29,7 @@ class ArmedSprintAndRotateState;
 
 class WalkAndRotateArmedChangeState
     : public ArmedChangeStateBase,
-      public MoveAndRotateStateBase,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
@@ -63,9 +63,9 @@ public:
 
     void onEnter();
 
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 
     void onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&);
@@ -77,6 +77,10 @@ public:
 
     void update(float);
     void update(const WeaponStateEvent&);
+
+private:
+    void setEquipAnimations();
+    void setDisarmAnimations();
 
 private:
     FsmContext& context_;
