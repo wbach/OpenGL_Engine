@@ -29,12 +29,10 @@ class AimWalkAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::Update>,
@@ -62,8 +60,7 @@ public:
     void onLeave(const WeaponStateEvent&);
     void onLeave(const SprintStateChangeEvent&);
 
-private:
-    FsmContext& context_;
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine

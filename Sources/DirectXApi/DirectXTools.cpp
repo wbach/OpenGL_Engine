@@ -1,5 +1,6 @@
 #include "DirectXTools.h"
 #include "Logger/Log.h"
+#include <d3dx11.h>
 
 namespace DirectX
 {

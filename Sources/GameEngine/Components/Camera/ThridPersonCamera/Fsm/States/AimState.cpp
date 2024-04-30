@@ -25,23 +25,6 @@ void AimState::onEnter(const StartAimEvent& event)
     setJointIfNeeded(event);
 }
 
-void AimState::update()
-{
-    if (not joint)
-    {
-        ERROR_LOG("Joint not set !");
-        return;
-    }
-
-    if (joint->ignoreParentRotation)
-    {
-        context.pitch = joint->additionalUserMofiyTransform.pitch;
-        context.yaw   = joint->additionalUserMofiyTransform.yaw;
-    }
-
-    StateBase::cameraUpdate(-context.pitch, context.yaw);
-}
-
 void AimState::setJointIfNeeded(const StartAimEvent& event)
 {
     if (joint and joint->id == event.jointId)

@@ -8,11 +8,9 @@ namespace Components
 {
 RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext& context)
     : RecoilStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
-                    context.animClipNames.armed.walk.backward}
-    , RotateStateBase(context, std::nullopt, context.walkSpeed.rotate, context.animClipNames.armed.rotateLeft,
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk}
+    , RotateStateBase(context, context.lowerBodyGroupName, context.walkSpeed.rotate, context.animClipNames.armed.rotateLeft,
                       context.animClipNames.armed.rotateRight)
-    , context_{context}
 {
 }
 
@@ -21,17 +19,22 @@ void RecoilWalkAndRotateState::onEnter(const WalkChangeStateEvent& event)
     MoveStateBase::onEnter(event);
 }
 
-void RecoilWalkAndRotateState::onEnter(const WalkBackwardEvent& event)
+void RecoilWalkAndRotateState::onEnter(const MoveBackwardEvent& event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void RecoilWalkAndRotateState::onEnter(const RunForwardEvent& event)
+void RecoilWalkAndRotateState::onEnter(const MoveForwardEvent& event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void RecoilWalkAndRotateState::onEnter(const WalkForwardEvent& event)
+void RecoilWalkAndRotateState::onEnter(const MoveLeftEvent& event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void RecoilWalkAndRotateState::onEnter(const MoveRightEvent& event)
 {
     MoveStateBase::onEnter(event);
 }
@@ -56,11 +59,6 @@ void RecoilWalkAndRotateState::onEnter(const RotateLeftEvent& event)
     RotateStateBase::update(event);
 }
 
-void RecoilWalkAndRotateState::onEnter(const RunBackwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
 void RecoilWalkAndRotateState::update(float dt)
 {
     MoveStateBase::update(dt);
@@ -78,23 +76,28 @@ void RecoilWalkAndRotateState::update(const RotateTargetEvent& event)
 {
     RotateStateBase::update(event);
 }
-void RecoilWalkAndRotateState::update(const WalkForwardEvent& event)
+void RecoilWalkAndRotateState::update(const MoveForwardEvent& event)
 {
     MoveStateBase::update(event);
 }
-void RecoilWalkAndRotateState::update(const WalkBackwardEvent& event)
-{
-    MoveStateBase::update(event);
-}
-
-void RecoilWalkAndRotateState::update(const RunForwardEvent& event)
+void RecoilWalkAndRotateState::update(const MoveBackwardEvent& event)
 {
     MoveStateBase::update(event);
 }
 
-void RecoilWalkAndRotateState::update(const RunBackwardEvent& event)
+void RecoilWalkAndRotateState::update(const MoveLeftEvent& event)
 {
     MoveStateBase::update(event);
+}
+
+void RecoilWalkAndRotateState::update(const MoveRightEvent& event)
+{
+    MoveStateBase::update(event);
+}
+
+void RecoilWalkAndRotateState::onMoveInactivity()
+{
+    RotateStateBase::setCurrentAnim();
 }
 
 void RecoilWalkAndRotateState::onLeave(const AimStopEvent& e)

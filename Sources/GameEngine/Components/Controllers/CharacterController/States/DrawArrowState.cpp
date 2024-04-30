@@ -33,10 +33,5 @@ void DrawArrowState::onLeave(const WeaponStateEvent &e)
 {
     DrawArrowStateBase::onLeave(e);
 }
-
-void DrawArrowState::onLeave(const SprintStartEvent &e)
-{
-    DrawArrowStateBase::onLeave(e);
-}
 }  // namespace Components
 }  // namespace GameEngine

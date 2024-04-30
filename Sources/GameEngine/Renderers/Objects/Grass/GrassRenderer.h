@@ -25,7 +25,7 @@ public:
     ~GrassRenderer();
     void init() override;
     void subscribe(GameObject&) override;
-    void unSubscribe(GameObject&);
+    void unSubscribe(GameObject&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
     void render() override;
@@ -46,7 +46,6 @@ private:
     GraphicsApi::ID grassShaderBufferId_;
 
     std::vector<std::pair<uint32_t, Components::GrassRendererComponent*>> subscribes_;
-    float viewDistance = 30.f;
     std::mutex subscriberMutex_;
     IdType viewDistanceChangeSubscription_;
 };

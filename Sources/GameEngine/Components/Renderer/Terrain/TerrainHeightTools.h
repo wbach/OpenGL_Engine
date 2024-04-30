@@ -27,6 +27,5 @@ private:
     const Utils::Image& heightMapImage_;
     vec3 terrainScaleVec3_;
     vec2 terrainScale_;
-    float heightFactor_;
 };
 }  // namespace GameEngine

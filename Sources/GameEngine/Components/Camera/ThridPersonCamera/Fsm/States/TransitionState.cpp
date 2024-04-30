@@ -84,14 +84,10 @@ void TransitionState::update()
     }
 
     float smoothProgress = glm::smoothstep(0.f, 1.f, progress);
-
-    auto pitch = glm::mix(context.pitch, 0.f, smoothProgress);
-    auto yaw   = glm::mix(context.yaw, 0.f, smoothProgress);
-
     if (sourcePosition and targetPosition)
         relativeCamerePosition = glm::mix(*sourcePosition, *targetPosition, smoothProgress);
 
-    StateBase::cameraUpdate(pitch * pitchConversion, yaw);
+    StateBase::cameraUpdate();
 }
 
 }  // namespace Camera

@@ -14,26 +14,34 @@ public:
     template <typename Machine, typename State, typename Event>
     void execute(Machine& machine, State& prevState, const Event& event)
     {
+        if (not transitionCondition(prevState, event))
+        {
+#ifdef NOREALTIME_LOG_ENABLED
+            DEBUG_LOG("transitionConditions from " + typeName<State>() + " to " + typeName<TargetState>() + " are not met, return");
+#endif
+            return;
+        }
+
 #ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("PrevState : " + typeName<State>());
         DEBUG_LOG("Entering : " + typeName<TargetState>());
 #endif
 
-        if (not transitionCondition(prevState, event))
-        {
-#ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("transitionConditions are not met, return");
-#endif
-            return;
-        }
+        DEBUG_LOG("leave(prevState);");
         leave(prevState);
+        DEBUG_LOG("leave(prevState, event);");
         leave(prevState, event);
 
         TargetState& newState = machine.template transitionTo<TargetState>();
 
+        DEBUG_LOG("enter(newState);");
         enter(newState);
+        DEBUG_LOG("enter(newState,event);");
         enter(newState, event);
+        DEBUG_LOG("enter(newState,prevState,event);");
         enter(newState, prevState, event);
+        DEBUG_LOG("post(newState);");
+        post(newState);
     }
 
 private:
@@ -59,6 +67,12 @@ private:
     {
     }
 
+    template <typename State>
+    auto enter(State& state) -> decltype(state.onEnter())
+    {
+        return state.onEnter();
+    }
+
     template <typename State, typename Event>
     auto enter(State& state, const Event& event) -> decltype(state.onEnter(event))
     {
@@ -72,10 +86,15 @@ private:
         return newState.onEnter(prevState, event);
     }
 
-    template <typename State>
-    auto enter(State& state) -> decltype(state.onEnter())
+    template <typename... Args>
+    void post(Args&...)
     {
-        return state.onEnter();
+    }
+
+    template <typename State>
+    auto post(State& state) -> decltype(state.postEnter())
+    {
+        return state.postEnter();
     }
 
     template <typename... Args>

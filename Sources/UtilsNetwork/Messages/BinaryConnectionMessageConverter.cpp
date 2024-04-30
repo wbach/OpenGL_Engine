@@ -12,16 +12,6 @@
 
 namespace Network
 {
-namespace
-{
-std::string Convert(const std::vector<int8>& message)
-{
-    std::string result;
-    std::copy(message.begin(), message.end(), std::back_inserter(result));
-    return result;
-}
-}  // namespace
-
 BinaryConnectionMessageConverter::BinaryConnectionMessageConverter()
 {
     DEBUG_LOG("");

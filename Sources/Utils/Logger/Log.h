@@ -89,6 +89,10 @@ std::string typeName()
 #else
     return typeid(T).name();
 #endif
+}
 
-
+template <typename T>
+std::string typeName(const T&)
+{
+    return typeName<T>();
 }

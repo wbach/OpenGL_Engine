@@ -17,42 +17,29 @@ public:
     RotatingMoveState(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
     using MoveStateBase::onEnter;
-    using MoveStateBase::update;
     using MoveStateBase::transitionCondition;
+    using MoveStateBase::update;
 
-//    void onEnter(const EquipEndStateEvent &);
-//    void onEnter(const DisarmEndStateEvent &);
-//    void onEnter(const SprintStartEvent &);
-//    void onEnter(const SprintStateChangeEvent &);
-    void onEnter(const RunForwardEvent &);
-    void onEnter(const RunBackwardEvent &);
-//    void onEnter(const WalkForwardEvent &);
-//    void onEnter(const WalkBackwardEvent &);
-    void onEnter(const RunLeftEvent &);
-    void onEnter(const RunRightEvent &);
-//    void onEnter(const EndJumpEvent &);
-//    void onEnter(const WalkChangeStateEvent &);
+    void update(float);
+    void update(const MoveForwardEvent &);
+    void update(const MoveBackwardEvent &);
+    void update(const MoveLeftEvent &);
+    void update(const MoveRightEvent &);
 
-    void update(const RunForwardEvent &);
-    void update(const RunBackwardEvent &);
-//    void update(const WalkForwardEvent &);
-//    void update(const WalkBackwardEvent &);
-    void update(const RunLeftEvent &);
-    void update(const RunRightEvent &);
-//    void update(const SprintStateChangeEvent &);
-//    void update(const SprintStartEvent &);
-
-//    bool transitionCondition(const EndForwardMoveEvent &);
-//    bool transitionCondition(const EndBackwardMoveEvent &);
-//    bool transitionCondition(const SprintStartEvent &);
-//    bool transitionCondition(const SprintStateChangeEvent &);
+    void postEnter();
+    void postUpdate();
+    //    void update(const SprintStateChangeEvent &);
 
     void onLeave();
 
-//    void changeAnimationClips(const MovmentClipNames &);
+    //    void changeAnimationClips(const MovmentClipNames &);
 
 protected:
+    bool shouldLeaveAndSetCurrAnimIfNot() override;
     void setCharacterRotation(const mat4 &);
+    void setTargetAngle();
+    void applyCurrentRotation();
+    void moveCameraRotateRigidbody();
 
 protected:
     bool isAnimationReady{false};

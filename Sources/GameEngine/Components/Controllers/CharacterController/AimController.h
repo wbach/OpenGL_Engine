@@ -29,19 +29,16 @@ public:
 
 private:
     vec2 calculateMouseMove();
-    void LockPitch(float&);
-    void LockYaw(float&);
+    void rotateCharacterIfBoneRotationExceeded(float&);
     void rotateCharacter(float);
 
 private:
-    GameObject& gameObject;
     Input::InputManager& inputManager;
     Animation::Joint& joint;
     ThridPersonCameraComponent* thridPersonCameraComponent;
     Rigidbody* rigidbody;
     float camSensitive;
-    vec2 yawLimit;
-    vec2 pitchLimit;
+    vec2 boneRotatationLimit;
 };
 }  // namespace Components
 }  // namespace GameEngine

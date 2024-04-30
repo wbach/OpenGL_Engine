@@ -16,7 +16,6 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
                                      const vec3& lookAtOffset)
     : inputManager_(inputManager)
     , lookAtTransform_(lookAt)
-    , angleAroundPlayer_(0.f)
     , distanceFromPlayer_(3.f)
     , offset_(0, 0, 1.f)
     , lookAtOffset_(lookAtOffset)

@@ -14,68 +14,40 @@ class MoveStateBase
 {
 public:
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &);
-    MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const std::string &,
-                  const std::string &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
-    void onEnter();
-    void onEnter(const EquipEndStateEvent &);
-    void onEnter(const DisarmEndStateEvent &);
-    void onEnter(const SprintStartEvent &);
     void onEnter(const SprintStateChangeEvent &);
-    void onEnter(const RunForwardEvent &);
-    void onEnter(const RunBackwardEvent &);
-    void onEnter(const WalkForwardEvent &);
-    void onEnter(const WalkBackwardEvent &);
-    void onEnter(const RunLeftEvent &);
-    void onEnter(const RunRightEvent &);
-    void onEnter(const WalkLeftEvent &);
-    void onEnter(const WalkRightEvent &);
+    void onEnter(const MoveForwardEvent &);
+    void onEnter(const MoveBackwardEvent &);
+    void onEnter(const MoveLeftEvent &);
+    void onEnter(const MoveRightEvent &);
     void onEnter(const EndJumpEvent &);
     void onEnter(const WalkChangeStateEvent &);
+    void postEnter();
 
-    void update(const RunForwardEvent &);
-    void update(const RunBackwardEvent &);
-    void update(const WalkForwardEvent &);
-    void update(const WalkBackwardEvent &);
-    void update(const WalkLeftEvent &);
-    void update(const WalkRightEvent &);
-    void update(const RunLeftEvent &);
-    void update(const RunRightEvent &);
+    void update(const MoveForwardEvent &);
+    void update(const MoveBackwardEvent &);
+    void update(const MoveLeftEvent &);
+    void update(const MoveRightEvent &);
     void update(const SprintStateChangeEvent &);
-    void update(const SprintStartEvent &);
     void update(float);
+    void postUpdate();
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);
     bool transitionCondition(const EndMoveLeftEvent &);
     bool transitionCondition(const EndMoveRightEvent &);
 
-    bool transitionCondition(const SprintStartEvent &);
-    bool transitionCondition(const SprintStateChangeEvent &);
-
     void onLeave();
 
     void changeAnimationClips(const MovmentClipNames &);
 
-protected:
-    void moveForward();
-    void moveBackward();
-    void moveLeft();
-    void moveRight();
-    void setMoveForwardData();
-    void setMoveBackwardData();
-    void setMoveLeftData();
-    void setMoveRightData();
-    void updateMoveState();
+    virtual void onMoveInactivity();
 
-    void moveRigidbody(FsmContext &);
-    void setForwardAnim();
-    void setBackwardAnim();
-    void setLeftAnim();
-    void setRightAnim();
-    void setCurrentAnim();
-    void setCurrentMoveSpeed();
+protected:
+    virtual bool shouldLeaveAndSetCurrAnimIfNot();
+    void moveRigidbody();
+    void setCurrentAnimIfNeeded();
     void setAnim(const std::string &);
 
 protected:
@@ -83,8 +55,7 @@ protected:
     std::optional<std::string> jointGroupName_;
     MovmentClipNames animationClips_;
     MoveSpeed moveSpeed_;
-
-    bool isAnimationReady{false};
+    std::string currentAnimName_;
 };
 }  // namespace Components
 }  // namespace GameEngine

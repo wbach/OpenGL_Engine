@@ -28,9 +28,6 @@ public:
 
 private:
     Input::InputManager& inputManager_;
-    float titleBarSize_;
-    uint32 inputSubscribtionKeyDown_;
-    uint32 inputSubscribtionKeyUp_;
     GuiWindowStyle style_;
 
     std::unique_ptr<GuiElement> background_;

@@ -10,8 +10,8 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
                                                const std::optional<std::string> &moveJointGroupName,
                                                const MoveSpeed &moveSpeed, const MovmentClipNames &clipnames,
                                                const std::string &rotateLeft, const std::string &rotateRight)
-    : MoveStateBase{context, moveJointGroupName, moveSpeed, clipnames.forward, clipnames.backward}
-    , RotateStateBase{context, std::nullopt, moveSpeed.rotate, rotateLeft, rotateRight}
+    : MoveStateBase{context, moveJointGroupName, moveSpeed, clipnames}
+    , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateLeft, rotateRight}
 {
 }
 
@@ -20,23 +20,8 @@ MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
                                                const std::string &forwardAnimName, float rotateSpeed,
                                                const std::string &rotateLeft, const std::string &rotateRight)
     : MoveStateBase{context, moveJointGroupName, forwardSpeed, forwardAnimName}
-    , RotateStateBase{context, std::nullopt, rotateSpeed, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateLeft, rotateRight}
 {
-}
-
-void MoveAndRotateStateBase::onEnter(const EquipEndStateEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void MoveAndRotateStateBase::onEnter(const DisarmEndStateEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void MoveAndRotateStateBase::onEnter(const SprintStartEvent &event)
-{
-    MoveStateBase::update(event);
 }
 
 void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
@@ -44,14 +29,24 @@ void MoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
     MoveStateBase::update(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const WalkForwardEvent &event)
+void MoveAndRotateStateBase::onEnter(const MoveForwardEvent &event)
 {
     MoveStateBase::update(event);
 }
 
-void MoveAndRotateStateBase::onEnter(const WalkBackwardEvent &event)
+void MoveAndRotateStateBase::onEnter(const MoveBackwardEvent &event)
 {
     MoveStateBase::update(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const MoveLeftEvent &event)
+{
+    MoveStateBase::onEnter(event);
+}
+
+void MoveAndRotateStateBase::onEnter(const MoveRightEvent &event)
+{
+    MoveStateBase::onEnter(event);
 }
 
 void MoveAndRotateStateBase::update(const AttackEvent &event)
@@ -62,22 +57,22 @@ void MoveAndRotateStateBase::update(const EndAttackEvent &event)
 {
 }
 
-void MoveAndRotateStateBase::update(const RunForwardEvent &e)
+void MoveAndRotateStateBase::update(const MoveLeftEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const RunBackwardEvent &e)
+void MoveAndRotateStateBase::update(const MoveRightEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const WalkForwardEvent& e)
+void MoveAndRotateStateBase::update(const MoveForwardEvent& e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const WalkBackwardEvent& e)
+void MoveAndRotateStateBase::update(const MoveBackwardEvent& e)
 {
     MoveStateBase::update(e);
 }
@@ -92,27 +87,12 @@ bool MoveAndRotateStateBase::transitionCondition(const EndBackwardMoveEvent &e)
     return MoveStateBase::transitionCondition(e);
 }
 
-bool MoveAndRotateStateBase::transitionCondition(const SprintStartEvent &e)
+void MoveAndRotateStateBase::onMoveInactivity()
 {
-    return MoveStateBase::transitionCondition(e);
-}
-
-bool MoveAndRotateStateBase::transitionCondition(const SprintStateChangeEvent &e)
-{
-    return MoveStateBase::transitionCondition(e);
+    RotateStateBase::setCurrentAnim();
 }
 
 void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void MoveAndRotateStateBase::onEnter(const RunForwardEvent &event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void MoveAndRotateStateBase::onEnter(const RunBackwardEvent &event)
 {
     MoveStateBase::onEnter(event);
 }

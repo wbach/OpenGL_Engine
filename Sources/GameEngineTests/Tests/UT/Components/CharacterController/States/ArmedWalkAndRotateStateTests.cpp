@@ -6,25 +6,25 @@ void prepareState(CharacterControllerTests& test)
 {
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
-    test.expectForwardVelocity(DEFAULT_WALK_SPEED);
 
-    test.expectState<DisarmedIdleState>();
     test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.idle});
-    test.tiggerAndExpect<WeaponStateEvent, ArmedIdleState>(
+    test.tiggerAndExpect<WeaponStateEvent>(
         {test.sut_.animationClipsNames_.armed.idle},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 
-    test.tiggerAndExpect<WalkForwardEvent, ArmedWalkState>({test.sut_.animationClipsNames_.armed.walk.forward});
+    test.expectForwardVelocity(DEFAULT_RUN_SPEED);
+    test.tiggerAndExpect<MoveForwardEvent>({test.sut_.animationClipsNames_.armed.run.forward});
+    test.expectForwardVelocity(DEFAULT_WALK_SPEED);
+    test.tiggerAndExpect<WalkChangeStateEvent>({test.sut_.animationClipsNames_.armed.walk.forward});
     test.expectRotationRight();
-    test.tiggerAndExpect<RotateRightEvent, ArmedWalkAndRotateState>(
-        {test.sut_.animationClipsNames_.armed.walk.forward});
+    test.tiggerAndExpect<RotateRightEvent>({test.sut_.animationClipsNames_.armed.walk.forward});
 }
 }  // namespace
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent, DrawArrowWalkAndRotateState>(
+    tiggerAndExpect<DrawArrowEvent>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
 
@@ -32,16 +32,16 @@ TEST_F(CharacterControllerTests, ArmedWalkAndRotate_RotateLeftEvent)
 {
     prepareState(*this);
     expectRotationLeft();
-    tiggerAndExpect<RotateLeftEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.walk.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_RotateRightEvent)
 {
     prepareState(*this);
     expectRotationLeft();
-    tiggerAndExpect<RotateLeftEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.walk.forward});
     expectRotationRight();
-    tiggerAndExpect<RotateRightEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.walk.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_RotateTargetEvent)
@@ -50,91 +50,97 @@ TEST_F(CharacterControllerTests, ArmedWalkAndRotate_RotateTargetEvent)
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<RotateTargetEvent, ArmedWalkAndRotateState>(RotateTargetEvent{targetRotation.value_},
-                                                                {sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+                                       {sut_.animationClipsNames_.armed.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkAndRotate_WalkForwardEvent)
+TEST_F(CharacterControllerTests, ArmedWalkAndRotate_MoveForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.backward});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<WalkForwardEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.walk.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkAndRotate_WalkBackwardEvent)
+TEST_F(CharacterControllerTests, ArmedWalkAndRotate_MoveBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.backward});
+    expectNoMove();
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.rotateRight});
+    expectForwardVelocity(-DEFAULT_WALK_SPEED);
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.walk.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_BACKWARD);
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkAndRotate_RunForwardEvent)
+TEST_F(CharacterControllerTests, ArmedWalkAndRotate_MoveLeftEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<RunForwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.walk.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_LEFT);
 }
 
-TEST_F(CharacterControllerTests, ArmedWalkAndRotate_RunBackwardEvent)
+TEST_F(CharacterControllerTests, ArmedWalkAndRotate_MoveRightEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_RUN_SPEED);
-    tiggerAndExpect<RunBackwardEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.backward});
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.walk.forward});
+    expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+    expectRootboneRotation(VECTOR_FORWARD + VECTOR_RIGHT);
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_DeathEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DeathEvent, DeathState>({sut_.animationClipsNames_.armed.death});
+    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.armed.death});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_WalkChangeStateEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<WalkChangeStateEvent, ArmedRunAndRotateState>({sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<WalkChangeStateEvent>({sut_.animationClipsNames_.armed.run.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent, WalkAndRotateArmedChangeState>(
+    tiggerAndExpect<WeaponStateEvent>(
         {sut_.animationClipsNames_.disarmed.walk.forward, sut_.animationClipsNames_.disarm});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_EndForwardMoveEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndForwardMoveEvent, ArmedRotateState>({sut_.animationClipsNames_.armed.rotateRight});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
-    tiggerAndExpect<WalkBackwardEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.backward});
+    expectNoMove();
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.rotateRight});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<EndBackwardMoveEvent, ArmedWalkAndRotateState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.walk.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_EndRotationEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndRotationEvent, ArmedWalkState>({sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.armed.walk.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_SprintStateChangeEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<SprintStateChangeEvent, ArmedSprintAndRotateState>({sut_.animationClipsNames_.armed.sprint});
+    tiggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.armed.sprint});
 }
 
 TEST_F(CharacterControllerTests, ArmedWalkAndRotate_SprintStartEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);
-    tiggerAndExpect<SprintStartEvent, ArmedSprintAndRotateState>({ sut_.animationClipsNames_.armed.sprint });
+    tiggerAndExpect<SprintStateChangeEvent>({sut_.animationClipsNames_.armed.sprint});
 }

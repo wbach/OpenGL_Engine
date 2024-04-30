@@ -18,13 +18,19 @@ DrawArrowStateBase::DrawArrowStateBase(FsmContext &context, const std::optional<
 
 void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
 {
-    DEBUG_LOG("On enter DrawArrowEvent clip: " + context_.animClipNames.drawArrow);
+    // /*DISABLED*/ DEBUG_LOG("On enter DrawArrowEvent clip: " + context_.animClipNames.drawArrow);
 
     onEnter(ReloadArrowEvent{});
 
     if (thridPersonCameraComponent_)
     {
         thridPersonCameraComponent_->handleEvent(Camera::StartAimEvent{context_.aimController.getJoint().id});
+    }
+
+    auto rj = context_.animator.GetRootJoint();
+    if (rj)
+    {
+        rj->additionalUserMofiyTransform.set(mat4{1.f});
     }
 
     context_.aimController.enter();
@@ -98,11 +104,6 @@ void DrawArrowStateBase::onLeave(const AimStopEvent &)
 }
 
 void DrawArrowStateBase::onLeave(const WeaponStateEvent &)
-{
-    stopAnim();
-}
-
-void DrawArrowStateBase::onLeave(const SprintStartEvent &)
 {
     stopAnim();
 }

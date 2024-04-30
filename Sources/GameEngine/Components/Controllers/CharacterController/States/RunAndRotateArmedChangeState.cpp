@@ -8,31 +8,31 @@ namespace Components
 {
 RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , MoveAndRotateStateBase{context,
-                             context.lowerBodyGroupName,
-                             context.runSpeed,
-                             context.animClipNames.disarmed.run,
-                             context.animClipNames.disarmed.rotateLeft,
-                             context.animClipNames.disarmed.rotateRight}
+    , RotatingMoveAndRotateStateBase{context,
+                                     context.lowerBodyGroupName,
+                                     context.runSpeed,
+                                     context.animClipNames.disarmed.run,
+                                     context.animClipNames.disarmed.rotateLeft,
+                                     context.animClipNames.disarmed.rotateRight}
     , context_{context}
 {
 }
 void RunAndRotateArmedChangeState::onEnter()
 {
+    // /*DISABLED*/ DEBUG_LOG("onEnter ");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
+        // /*DISABLED*/ DEBUG_LOG("onEnter 1");
         MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
+        MoveStateBase::setCurrentAnimIfNeeded();
     }
     else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
     {
         MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
+        MoveStateBase::setCurrentAnimIfNeeded();
     }
 }
-void RunAndRotateArmedChangeState::onEnter(const SprintStartEvent &event)
-{
-    MoveStateBase::onEnter(event);
-    ArmedChangeStateBase::update(event);
-}
+
 void RunAndRotateArmedChangeState::onEnter(const SprintStateChangeEvent &event)
 {
     MoveStateBase::onEnter(event);
@@ -44,28 +44,24 @@ void RunAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     ArmedChangeStateBase::update(e);
-    MoveStateBase::updateMoveState();
 }
 
 void RunAndRotateArmedChangeState::onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunAndRotateArmedChangeState::onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &e)
@@ -84,17 +80,15 @@ void RunAndRotateArmedChangeState::onEnter(RecoilWalkAndRotateState &, const Wea
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 void RunAndRotateArmedChangeState::onEnter(AimWalkAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 void RunAndRotateArmedChangeState::update(float dt)
 {
-    MoveAndRotateStateBase::update(dt);
+    RotatingMoveAndRotateStateBase::update(dt);
 }
 
 void RunAndRotateArmedChangeState::update(const WeaponStateEvent &e)

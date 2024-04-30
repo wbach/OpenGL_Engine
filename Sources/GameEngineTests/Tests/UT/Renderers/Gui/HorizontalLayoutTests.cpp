@@ -8,15 +8,8 @@ namespace GameEngine
 {
 namespace UT
 {
-const float BIAS = 0.001f;
-
 struct GuiHorizontalLayoutTests : public ::testing::Test
 {
-    GuiHorizontalLayoutTests()
-        : sut_(inputManager_)
-    {
-    }
-
     void createElement(const vec2& scale)
     {
         auto element = std::make_unique<GuiElement>(GuiElementTypes::Button);

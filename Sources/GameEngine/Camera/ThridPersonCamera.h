@@ -34,13 +34,11 @@ private:
 private:
     Input::InputManager& inputManager_;
     const common::Transform& lookAtTransform_;
-    float angleAroundPlayer_;
     float distanceFromPlayer_;
     
     vec3 offset_;
     vec3 lookAtOffset_;
     float mouseSensitivity_;
-    bool captureMouse_;
     bool isRelativeModeEnabled_;
     bool lockInputs_;
 

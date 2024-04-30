@@ -17,10 +17,6 @@
 
 namespace GameEngine
 {
-namespace
-{
-std::mutex rendererSubscriberMutex;
-}
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
     , entityRenderer_(context)

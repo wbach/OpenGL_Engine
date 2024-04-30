@@ -61,6 +61,7 @@ Animator& Animator::SetAnimation(const std::string& name)
 }
 void Animator::StopAnimation(std::optional<std::string> maybeJoingGroupName)
 {
+    DEBUG_LOG("StopAnimationEvent " + std::to_string(maybeJoingGroupName));
     machine_.handle(StopAnimationEvent{maybeJoingGroupName});
 }
 GraphicsApi::ID Animator::getPerPoseBufferId() const

@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -22,7 +22,7 @@ class DeathState;
 struct FsmContext;
 
 class DisarmedSprintAndRotateState
-    : public MoveAndRotateStateBase,
+    : public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
@@ -30,11 +30,12 @@ class DisarmedSprintAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<WalkChangeStateEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
@@ -45,23 +46,19 @@ class DisarmedSprintAndRotateState
 {
 public:
     DisarmedSprintAndRotateState(FsmContext &context)
-        : MoveAndRotateStateBase{context,
-                                 std::nullopt,
-                                 context.sprintSpeed,
-                                 context.animClipNames.disarmed.sprint,
-                                 context.runSpeed.rotate,
-                                 context.animClipNames.disarmed.rotateLeft,
-                                 context.animClipNames.disarmed.rotateRight}
-        , context_{context}
+        : RotatingMoveAndRotateStateBase{context,
+                                         std::nullopt,
+                                         context.sprintSpeed,
+                                         context.animClipNames.disarmed.sprint,
+                                         context.runSpeed.rotate,
+                                         context.animClipNames.disarmed.rotateLeft,
+                                         context.animClipNames.disarmed.rotateRight}
     {
     }
 
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
-
-private:
-    FsmContext &context_;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components
 }  // namespace GameEngine

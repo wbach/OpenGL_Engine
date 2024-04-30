@@ -68,8 +68,6 @@ FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuf
     : idPool_(idPool)
     , input_(attachments)
     , glId_(0)
-    , isColorAttachment_(false)
-    , isDepthAttachment_(false)
 {
 }
 

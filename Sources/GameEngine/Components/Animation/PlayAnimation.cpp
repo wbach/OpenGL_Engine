@@ -40,6 +40,7 @@ bool PlayAnimation::update(float deltaTime)
 }
 void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
+    DEBUG_LOG("ChangeAnimationEvent " + std::to_string(event.jointGroupName) + " name : " + event.info.clip.name);
     if (event.jointGroupName)
     {
         std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, {}}};
@@ -60,8 +61,9 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
     }
 }
 
-void PlayAnimation::handle(const StopAnimationEvent&)
+void PlayAnimation::handle(const StopAnimationEvent& e)
 {
+    DEBUG_LOG("StopAnimationEvent " + std::to_string(e.jointGroupName));
     context_.machine.transitionTo<EmptyState>(context_);
 }
 

@@ -22,15 +22,10 @@ class AimState : public AimStateBase,
                  public Utils::StateMachine::Will<
                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
                      Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-                     Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<RunLeftEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<RunRightEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<WalkLeftEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<WalkRightEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-                     Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
+                     Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
+                     Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
+                     Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
+                     Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
                      Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
                      Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
                      Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
@@ -49,7 +44,6 @@ public:
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
-    void onLeave(const SprintStartEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

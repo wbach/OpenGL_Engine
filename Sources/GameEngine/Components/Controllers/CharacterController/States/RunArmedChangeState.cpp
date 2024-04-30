@@ -8,13 +8,14 @@ namespace Components
 {
 RunArmedChangeState::RunArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.runSpeed, context.animClipNames.disarmed.run}
+    , RotatingMoveState{context, context.lowerBodyGroupName, context.runSpeed.forward, context.animClipNames.disarmed.run.forward}
     , context_{context}
 {
 }
 
 void RunArmedChangeState::onEnter()
 {
+    // /*DISABLED*/ DEBUG_LOG("RunArmedChangeState onEnter");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
         MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
@@ -23,12 +24,9 @@ void RunArmedChangeState::onEnter()
     {
         MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
     }
+    // /*DISABLED*/ DEBUG_LOG("End on enter");
 }
-void RunArmedChangeState::onEnter(const SprintStartEvent& event)
-{
-    MoveStateBase::onEnter(event);
-    ArmedChangeStateBase::update(event);
-}
+
 void RunArmedChangeState::onEnter(const SprintStateChangeEvent& event)
 {
     MoveStateBase::onEnter(event);
@@ -44,7 +42,6 @@ void RunArmedChangeState::onEnter(ArmedRunState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 void RunArmedChangeState::onEnter(DisarmedRunState&, const DrawArrowEvent& e)
 {
@@ -53,52 +50,46 @@ void RunArmedChangeState::onEnter(DisarmedRunState&, const DrawArrowEvent& e)
     ArmedChangeStateBase::update(e);
 }
 
-void RunArmedChangeState::onEnter(DisarmedSprintState &, const DrawArrowEvent & e)
+void RunArmedChangeState::onEnter(DisarmedSprintState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
     ArmedChangeStateBase::update(e);
-    MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(DrawArrowWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(RecoilWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::onEnter(AimWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
-void RunArmedChangeState::onEnter(DisarmedSprintState &, const WeaponStateEvent & e)
+void RunArmedChangeState::onEnter(DisarmedSprintState&, const WeaponStateEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
-    MoveStateBase::updateMoveState();
 }
 
-void RunArmedChangeState::onEnter(ArmedSprintState &, const WeaponStateEvent &)
+void RunArmedChangeState::onEnter(ArmedSprintState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.run);
-    MoveStateBase::updateMoveState();
 }
 
 void RunArmedChangeState::update(float dt)
 {
-    MoveStateBase::update(dt);
+    RotatingMoveState::update(dt);
 }
 
 void RunArmedChangeState::update(const SprintStateChangeEvent& event)
@@ -106,10 +97,15 @@ void RunArmedChangeState::update(const SprintStateChangeEvent& event)
     ArmedChangeStateBase::update(event);
 }
 
-void RunArmedChangeState::update(const WeaponStateEvent & e)
+void RunArmedChangeState::update(const WeaponStateEvent& e)
 {
     ArmedChangeStateBase::update(e);
     onEnter();
+}
+
+void RunArmedChangeState::onMoveInactivity()
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 }  // namespace Components
 }  // namespace GameEngine

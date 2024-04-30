@@ -51,27 +51,29 @@ void PlayerInputController::Init()
 void PlayerInputController::SubscribeForPushActions()
 {
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::MOVE_FORWARD, [&]() {
+
+        characterController_->handleEvent(MoveForwardEvent{});
+
         if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
         {
-            characterController_->handleEvent(WalkForwardEvent{});
+            characterController_->handleEvent(WalkChangeStateEvent{});
         }
         else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
         {
-            characterController_->handleEvent(SprintStartEvent{});
-        }
-        else
-        {
-            characterController_->handleEvent(RunForwardEvent{});
+            characterController_->handleEvent(SprintStateChangeEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::MOVE_BACKWARD, [&]() {
+
+        characterController_->handleEvent(MoveBackwardEvent{});
+
         if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
         {
-            characterController_->handleEvent(WalkBackwardEvent{});
+            characterController_->handleEvent(WalkChangeStateEvent{});
         }
-        else
+        else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
         {
-            characterController_->handleEvent(RunBackwardEvent{});
+            characterController_->handleEvent(SprintStateChangeEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::TURN_LEFT, [&]() {
@@ -84,23 +86,28 @@ void PlayerInputController::SubscribeForPushActions()
     });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::MOVE_LEFT, [&]() {
+
+        characterController_->handleEvent(MoveLeftEvent{});
+
         if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
         {
-            characterController_->handleEvent(WalkLeftEvent{});
+            characterController_->handleEvent(WalkChangeStateEvent{});
         }
-        else
+        else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
         {
-            characterController_->handleEvent(RunLeftEvent{});
+            characterController_->handleEvent(SprintStateChangeEvent{});
         }
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::MOVE_RIGHT, [&]() {
+        characterController_->handleEvent(MoveRightEvent{});
+
         if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
         {
-            characterController_->handleEvent(WalkRightEvent{});
+            characterController_->handleEvent(WalkChangeStateEvent{});
         }
-        else
+        else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
         {
-            characterController_->handleEvent(RunRightEvent{});
+            characterController_->handleEvent(SprintStateChangeEvent{});
         }
     });
 

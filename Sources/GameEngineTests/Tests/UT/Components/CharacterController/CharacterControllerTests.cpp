@@ -174,6 +174,23 @@ void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>
     }
 }
 
+void CharacterControllerTests::expectNoMove()
+{
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, _)).Times(0);
+}
+
+void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed)
+{
+    auto normalizedDir = glm::normalize(dir);
+    auto velocity      = normalizedDir * glm::length(moveSpeed * normalizedDir);
+    DEBUG_LOG("Expected dir : " + std::to_string(dir));
+    DEBUG_LOG("Expected speed : " + std::to_string(moveSpeed));
+    DEBUG_LOG("Expected velocity : " + std::to_string(velocity));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, velocity)).Times(AtLeast(1));
+}
+
 void CharacterControllerTests::expectForwardVelocity(float speed)
 {
     DEBUG_LOG("Expected speed : " + std::to_string(speed));
@@ -212,4 +229,23 @@ void CharacterControllerTests::expectRotationLeft(float dt)
 void CharacterControllerTests::expectRotationRight(float dt)
 {
     expectRotatation(dt, -DEFAULT_TURN_SPEED);
+}
+
+void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
+{
+    Update(DEFAULT_MOVING_CHANGE_DIR_SPEED);
+
+    auto currentBoneRotation = glm::quat_cast(animator_->GetRootJoint()->additionalUserMofiyTransform.getMatrix());
+    auto expectedBoneRotation =
+        glm::angleAxis(glm::orientedAngle(VECTOR_FORWARD, glm::normalize(dir), VECTOR_UP), VECTOR_UP);
+
+    EXPECT_NEAR(currentBoneRotation.x, expectedBoneRotation.x, std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(currentBoneRotation.y, expectedBoneRotation.y, std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(currentBoneRotation.z, expectedBoneRotation.z, std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(currentBoneRotation.w, expectedBoneRotation.w, std::numeric_limits<float>::epsilon());
+
+    DEBUG_LOG("Expected bone rotation : " + std::to_string(expectedBoneRotation) + ", eurler " +
+              std::to_string(Rotation(expectedBoneRotation).GetEulerDegrees().value));
+    DEBUG_LOG("Current bone rotation : " + std::to_string(currentBoneRotation) + ", eurler " +
+              std::to_string(Rotation(currentBoneRotation).GetEulerDegrees().value));
 }

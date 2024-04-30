@@ -8,8 +8,7 @@ namespace Components
 {
 DrawArrowWalkState::DrawArrowWalkState(FsmContext &context)
     : DrawArrowStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk.forward,
-                    context.animClipNames.armed.walk.backward}
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.walk}
     , context_{context}
 {
 }
@@ -29,40 +28,9 @@ void DrawArrowWalkState::onEnter(ArmedRunState &, const DrawArrowEvent &)
     context_.aimEnteringState = FsmContext::AimEnteringState::Run;
 }
 
-//void DrawArrowWalkState::onEnter(const WalkChangeStateEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::update(const WalkForwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::onEnter(const WalkBackwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::onEnter(const RunForwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::onEnter(const RunBackwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::onEnter(const WalkForwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
 void DrawArrowWalkState::onEnter(const DrawArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
-    MoveStateBase::updateMoveState();
 }
 
 void DrawArrowWalkState::onEnter(const ReloadArrowEvent &event)
@@ -76,20 +44,10 @@ void DrawArrowWalkState::update(float dt)
     DrawArrowStateBase::update(dt);
 }
 
-//void DrawArrowWalkState::update(const WalkBackwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::update(const RunForwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
-
-//void DrawArrowWalkState::update(const RunBackwardEvent &event)
-//{
-//    MoveStateBase::onEnter(event);
-//}
+void DrawArrowWalkState::onMoveInactivity()
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
 
 void DrawArrowWalkState::onLeave(const AimStopEvent &e)
 {

@@ -39,7 +39,7 @@ typedef uint32_t IdType;
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
 // clang-format off
-#ifdef USE_GNU
+#if defined(USE_GNU) || defined(USE_MINGW)
 typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
 #define not !

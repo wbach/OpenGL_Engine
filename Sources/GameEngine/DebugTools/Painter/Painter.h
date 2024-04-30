@@ -43,7 +43,7 @@ public:
     };
     Painter(const EntryParamters&, PaintType);
     Painter(const EntryParamters&, PaintType, float, int32);
-    ~Painter();
+    virtual ~Painter();
     virtual void setBrush(const std::string&) = 0;
     virtual std::string selectedBrush() const = 0;
     virtual std::vector<std::string> avaiableBrushTypes() const = 0;

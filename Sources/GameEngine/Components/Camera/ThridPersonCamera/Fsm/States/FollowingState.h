@@ -26,13 +26,13 @@ class FollowingState
 {
 public:
     FollowingState(Context&);
-    ~FollowingState();
 
     void onEnter();
+
+    using StateBase::update;
     void update(const InitEvent&);
 
 private:
-    void update() override;
     bool triggerEventIfMouseMoveDetect();
 };
 }  // namespace Camera

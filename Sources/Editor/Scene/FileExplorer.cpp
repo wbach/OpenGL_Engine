@@ -16,7 +16,6 @@ const std::string FONT_NAME = "GUI/monaco.ttf";
 const float CURRENT_DIR_PERCENT_SIZE = 0.1f;
 const float FILE_LIST_PERCENT_SIZE = 0.7f;
 const float SELECTED_FILE_PERCENT_SIZE = 0.1f;
-const float BUTTON_ACTIONS_PERCENT_SIZE = 0.1f;
 }  // namespace
 FileExplorer::FileExplorer(GameEngine::GuiManager &manager, GameEngine::GuiElementFactory &factory)
     : guiManager_(manager)

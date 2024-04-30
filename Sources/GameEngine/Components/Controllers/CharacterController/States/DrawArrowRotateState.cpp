@@ -10,7 +10,6 @@ DrawArrowRotateState::DrawArrowRotateState(FsmContext& context)
     : DrawArrowStateBase{context, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
-    , context_{context}
 {
 }
 void DrawArrowRotateState::onEnter(const DrawArrowEvent& event)
@@ -63,10 +62,6 @@ void DrawArrowRotateState::onLeave(const AimStopEvent& e)
     DrawArrowStateBase::onLeave(e);
 }
 void DrawArrowRotateState::onLeave(const WeaponStateEvent& e)
-{
-    DrawArrowStateBase::onLeave(e);
-}
-void DrawArrowRotateState::onLeave(const SprintStartEvent& e)
 {
     DrawArrowStateBase::onLeave(e);
 }

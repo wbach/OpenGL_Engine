@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "Attack/AttackFsm.h"
+#include "CharacterControllerFsm.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -142,6 +144,24 @@ namespace
 {
 Animation::Joint dummyJoint;
 }
+
+struct CharacterController::Impl
+{
+    std::unique_ptr<FsmContext> fsmContext;
+    std::unique_ptr<AttackFsmContext> attackFsmContext;
+    std::unique_ptr<AttackFsm> attackFsm_;
+    std::unique_ptr<CharacterControllerFsm> stateMachine_;
+    std::unique_ptr<AimController> aimController_;
+
+    void CleanUp()
+    {
+        attackFsm_.reset();
+        stateMachine_.reset();
+        attackFsmContext.reset();
+        fsmContext.reset();
+    }
+};
+
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
     , upperBodyGroupName{"upperBody"}
@@ -154,13 +174,15 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , runSpeed_(DEFAULT_RUN_SPEED)
     , shapeSize_(1.f)
 {
+    impl = std::make_unique<CharacterController::Impl>();
+}
+
+CharacterController::~CharacterController()
+{
 }
 void CharacterController::CleanUp()
 {
-    attackFsm_.reset();
-    stateMachine_.reset();
-    attackFsmContext.reset();
-    fsmContext.reset();
+    impl->CleanUp();
 }
 void CharacterController::ReqisterFunctions()
 {
@@ -180,32 +202,33 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]() {
-            if (stateMachine_)
-                stateMachine_->handle(EndAttackEvent{});
+        auto sendEndAtatackCallback = [this]()
+        {
+            if (impl->stateMachine_)
+                impl->stateMachine_->handle(EndAttackEvent{});
         };
 
-        attackFsmContext.reset(
+        impl->attackFsmContext.reset(
             new AttackFsmContext{*animator_, animationClipsNames_, sendEndAtatackCallback, std::nullopt});
 
-        attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*attackFsmContext));
+        impl->attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*impl->attackFsmContext));
 
         auto aimJoint = animator_->GetJoint("mixamorig:Spine2");
         if (not aimJoint)
             ERROR_LOG("Aim joint not found");
 
-        aimController_ = std::make_unique<AimController>(thisObject_, componentContext_.inputManager_,
-                                                         aimJoint ? *aimJoint : dummyJoint);
+        impl->aimController_ = std::make_unique<AimController>(thisObject_, componentContext_.inputManager_,
+                                                               aimJoint ? *aimJoint : dummyJoint);
 
-        fsmContext.reset(new FsmContext{
-            *attackFsm_,
+        impl->fsmContext.reset(new FsmContext{
+            *impl->attackFsm_,
             thisObject_,
             componentContext_.physicsApi_,
             *rigidbody_,
             *animator_,
             *this,
             componentContext_.inputManager_,
-            *aimController_,
+            *impl->aimController_,
             {},
             {},
             animationClipsNames_,
@@ -213,45 +236,46 @@ void CharacterController::Init()
             lowerBodyGroupName,
             {equipTimeStamp, disarmTimeStamp},
         });
+        auto& context = *impl->fsmContext;
         // clang-format off
-        stateMachine_ = std::make_unique<CharacterControllerFsm>(
-            DisarmedIdleState(*fsmContext),
-            DisarmedRunState(*fsmContext),
-            DisarmedRotateState(*fsmContext),
-            DisarmedRunAndRotateState(*fsmContext),
-            DisarmedWalkState(*fsmContext),
-            DisarmedWalkAndRotateState(*fsmContext),
-            DisarmedSprintState(*fsmContext),
-            DisarmedSprintAndRotateState(*fsmContext),
-            IdleArmedChangeState(*fsmContext),
-            RotateArmedChangeState(*fsmContext),
-            RunArmedChangeState(*fsmContext),
-            RunAndRotateArmedChangeState(*fsmContext),
-            WalkArmedChangeState(*fsmContext),
-            WalkAndRotateArmedChangeState(*fsmContext),
-            ArmedIdleState(*fsmContext),
-            ArmedRunState(*fsmContext),
-            ArmedRotateState(*fsmContext),
-            ArmedRunAndRotateState(*fsmContext),
-            ArmedWalkState(*fsmContext),
-            ArmedWalkAndRotateState(*fsmContext),
-            ArmedSprintState(*fsmContext),
-            ArmedSprintAndRotateState(*fsmContext),
-            JumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
-            MoveJumpState(*fsmContext, [&]() { stateMachine_->handle(EndJumpEvent{}); }),
-            AimState(*fsmContext),
-            AimRotateState(*fsmContext),
-            AimWalkState(*fsmContext),
-            AimWalkAndRotateState(*fsmContext),
-            RecoilState(*fsmContext),
-            RecoilRotateState(*fsmContext),
-            RecoilWalkState(*fsmContext),
-            RecoilWalkAndRotateState(*fsmContext),
-            DrawArrowState(*fsmContext),
-            DrawArrowRotateState(*fsmContext),
-            DrawArrowWalkState(*fsmContext),
-            DrawArrowWalkAndRotateState(*fsmContext),
-            DeathState(*fsmContext));
+        impl->stateMachine_ = std::make_unique<CharacterControllerFsm>(
+            DisarmedIdleState(context),
+            DisarmedRunState(context),
+            DisarmedRotateState(context),
+            DisarmedRunAndRotateState(context),
+            DisarmedWalkState(context),
+            DisarmedWalkAndRotateState(context),
+            DisarmedSprintState(context),
+            DisarmedSprintAndRotateState(context),
+            IdleArmedChangeState(context),
+            RotateArmedChangeState(context),
+            RunArmedChangeState(context),
+            RunAndRotateArmedChangeState(context),
+            WalkArmedChangeState(context),
+            WalkAndRotateArmedChangeState(context),
+            ArmedIdleState(context),
+            ArmedRunState(context),
+            ArmedRotateState(context),
+            ArmedRunAndRotateState(context),
+            ArmedWalkState(context),
+            ArmedWalkAndRotateState(context),
+            ArmedSprintState(context),
+            ArmedSprintAndRotateState(context),
+            JumpState(context, [&]() { impl->stateMachine_->handle(EndJumpEvent{}); }),
+            MoveJumpState(context, [&]() { impl->stateMachine_->handle(EndJumpEvent{}); }),
+            AimState(context),
+            AimRotateState(context),
+            AimWalkState(context),
+            AimWalkAndRotateState(context),
+            RecoilState(context),
+            RecoilRotateState(context),
+            RecoilWalkState(context),
+            RecoilWalkAndRotateState(context),
+            DrawArrowState(context),
+            DrawArrowRotateState(context),
+            DrawArrowWalkState(context),
+            DrawArrowWalkAndRotateState(context),
+            DeathState(context));
         // clang-format on
 
         rigidbody_->InputParams().angularFactor_ = vec3(0);
@@ -277,14 +301,14 @@ void CharacterController::Init()
         auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
         if (lowerBodyGroupIter == animator_->jointGroups_.end())
         {
-            DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
+            // /*DISABLED*/ DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
             animator_->jointGroups_.insert({lowerBodyGroupName, {}});
         }
 
         auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
         if (upperBodyGroupIter == animator_->jointGroups_.end())
         {
-            DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
+            // /*DISABLED*/ DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
             animator_->jointGroups_.insert({upperBodyGroupName, {}});
         }
     }
@@ -301,9 +325,10 @@ void CharacterController::processEvent()
         for (auto& event : tmpEvents)
         {
             std::visit(
-                [&](const auto& e) {
-                    DEBUG_LOG("Process event : " + typeid(e).name());
-                    stateMachine_->handle(e);
+                [&](const auto& e)
+                {
+                    // /*DISABLED*/ DEBUG_LOG("Process event : " + typeName(e));
+                    impl->stateMachine_->handle(e);
                 },
                 event);
         }
@@ -313,10 +338,15 @@ void CharacterController::Update()
 {
     processEvent();
 
-    if (stateMachine_ and rigidbody_ and rigidbody_->IsReady())
+    if (impl->stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
-        auto passEventToState = [&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); };
-        std::visit(passEventToState, stateMachine_->currentState);
+        auto passEventToState = [&](auto statePtr)
+        {
+            // // /*DISABLED*/ DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " +
+            // std::to_string(componentContext_.time_.deltaTime));
+            statePtr->update(componentContext_.time_.deltaTime);
+        };
+        std::visit(passEventToState, impl->stateMachine_->currentState);
     }
 }
 void CharacterController::SetJumpPower(float v)
@@ -324,13 +354,15 @@ void CharacterController::SetJumpPower(float v)
     jumpPower_ = v;
 }
 
+void CharacterController::handleEvent(const CharacterControllerEvent& event)
+{
+    auto passEventToMachine = [&](const auto& e) { impl->stateMachine_->handle(e); };
+    std::visit(passEventToMachine, event);
+}
+
 float CharacterController::getShapeSize() const
 {
     return shapeSize_;
-}
-CharacterControllerFsm* CharacterController::getFsm()
-{
-    return stateMachine_.get();
 }
 void CharacterController::SetTurnSpeed(float v)
 {
@@ -342,7 +374,8 @@ void CharacterController::SetRunSpeed(float v)
 }
 void CharacterController::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<CharacterController>(componentContext, gameObject);
 
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);

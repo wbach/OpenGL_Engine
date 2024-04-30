@@ -147,7 +147,7 @@ void PlantPainter::generatePositions()
         auto position  = terrainComponent->GetParentGameObject().GetWorldTransform().GetPosition();
 
         vec2 start = position - halfScale;
-        vec3 end   = position + halfScale;
+        vec2 end   = position + halfScale;
 
         auto range             = static_cast<float>(paintContext_.brushSize / 2);
         auto numberOfInstances = getNumberOfInstances();

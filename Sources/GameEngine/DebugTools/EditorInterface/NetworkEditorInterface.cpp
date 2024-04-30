@@ -1562,7 +1562,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
 void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterface::EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_ and terrainPainter_->getPaintType() == PaintType::HeightMap)
+    if (not terrainPainter_ or terrainPainter_->getPaintType() == PaintType::HeightMap)
         return;
 
     static_cast<TerrainHeightPainter *>(terrainPainter_.get())->recalculateTerrainNormals();

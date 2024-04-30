@@ -21,9 +21,6 @@ struct Joint
     class AdditionalUserMofiyTransform
     {
     public:
-        float pitch{0.f};
-        float yaw{0.f};
-
         void set(const mat4& t)
         {
             transform = t;

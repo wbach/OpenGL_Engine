@@ -76,7 +76,6 @@ private:
 
 private:
     RendererContext& context_;
-    bool first_;
     std::unique_ptr<FrameBuffersManager> fboManager_;
     PostprocessingRenderers postProcessingRenderers_;
     std::unique_ptr<IPostprocessingRenderersFactory> factory_;

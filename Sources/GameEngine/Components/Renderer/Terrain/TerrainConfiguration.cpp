@@ -154,7 +154,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
 
 TerrainConfiguration::TerrainConfiguration()
     : scale_(513, 20, 513)
-    , perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec4(scale_, 0.f)}
+    , perTerrainBuffer{{vec4{.3f}}, {vec4i{0}}, {vec4i{0}}, {vec4{scale_, 0.f}}}
     , terrainRootNodesCount_{8.f}
 {
     SetLods();
@@ -162,7 +162,7 @@ TerrainConfiguration::TerrainConfiguration()
 
 TerrainConfiguration::TerrainConfiguration(const vec3& scale)
     : scale_(scale)
-    , perTerrainBuffer{vec4(.3f), vec4i(0), vec4i(0), vec4(scale, 0.f)}
+    , perTerrainBuffer{{vec4(.3f)}, {vec4i(0)}, {vec4i(0)}, {vec4(scale, 0.f)}}
 {
     SetLods();
 }

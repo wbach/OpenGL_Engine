@@ -36,7 +36,6 @@ void DrawArrowWalkAndRotateState::onEnter(ArmedWalkAndRotateState &, const DrawA
 void DrawArrowWalkAndRotateState::onEnter(const DrawArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
-    MoveAndRotateStateBase::updateMoveState();
 }
 
 void DrawArrowWalkAndRotateState::onEnter(const RotateLeftEvent& event)
@@ -59,27 +58,17 @@ void DrawArrowWalkAndRotateState::onEnter(const RotateTargetEvent& event)
     RotateStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::onEnter(const WalkForwardEvent& event)
+void DrawArrowWalkAndRotateState::onEnter(const MoveForwardEvent& event)
 {
     MoveStateBase::onEnter(event);
 }
 
-void DrawArrowWalkAndRotateState::onEnter(const WalkBackwardEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void DrawArrowWalkAndRotateState::onEnter(const RunForwardEvent & event)
+void DrawArrowWalkAndRotateState::onEnter(const MoveBackwardEvent& event)
 {
     MoveStateBase::onEnter(event);
 }
 
 void DrawArrowWalkAndRotateState::onEnter(const WalkChangeStateEvent& event)
-{
-    MoveStateBase::onEnter(event);
-}
-
-void DrawArrowWalkAndRotateState::onEnter(const RunBackwardEvent & event)
 {
     MoveStateBase::onEnter(event);
 }
@@ -106,24 +95,29 @@ void DrawArrowWalkAndRotateState::update(const RotateTargetEvent& event)
     RotateStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::update(const WalkForwardEvent& event)
+void DrawArrowWalkAndRotateState::update(const MoveForwardEvent& event)
 {
     MoveStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::update(const WalkBackwardEvent& event)
+void DrawArrowWalkAndRotateState::update(const MoveBackwardEvent& event)
 {
     MoveStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::update(const RunForwardEvent& event)
+void DrawArrowWalkAndRotateState::update(const MoveLeftEvent& event)
 {
     MoveStateBase::update(event);
 }
 
-void DrawArrowWalkAndRotateState::update(const RunBackwardEvent& event)
+void DrawArrowWalkAndRotateState::update(const MoveRightEvent& event)
 {
     MoveStateBase::update(event);
+}
+
+void DrawArrowWalkAndRotateState::onMoveInactivity()
+{
+    RotateStateBase::setCurrentAnim();
 }
 
 void DrawArrowWalkAndRotateState::onLeave(const AimStopEvent& e)

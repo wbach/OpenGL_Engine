@@ -28,11 +28,10 @@ class AimRotateState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimState>>,
@@ -54,7 +53,6 @@ public:
     void update(float);
 
     void onLeave(const AimStopEvent&);
-    void onLeave(const SprintStartEvent&);
     void onLeave(const WeaponStateEvent&);
 
 private:

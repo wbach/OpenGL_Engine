@@ -51,8 +51,6 @@ private:
     RendererContext& context_;
     ShaderProgram shader_;
 
-    vec4 clipPlane;
-
     Subscribers subscribes_;
 };
 }  // namespace GameEngine

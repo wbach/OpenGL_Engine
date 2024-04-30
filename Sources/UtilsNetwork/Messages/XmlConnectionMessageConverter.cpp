@@ -1,5 +1,9 @@
 #include "XmlConnectionMessageConverter.h"
+
 #include <Logger/Log.h>
+
+#include <algorithm>
+
 #include "MessageTypes.h"
 #include "Utils/XML/XmlReader.h"
 #include "Utils/XML/XmlWriter.h"
@@ -9,7 +13,6 @@
 #include "UtilsNetwork/Messages/Connection/ConnectionMessage.h"
 #include "UtilsNetwork/Messages/TextMessage.h"
 #include "XmlConverterUtils.h"
-#include <algorithm>
 
 namespace Network
 {
@@ -20,7 +23,8 @@ XmlConnectionMessageConverter::XmlConnectionMessageConverter()
 
 bool XmlConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= MESSAGE_TYPES_RANGE_LOW and type <= MESSAGE_TYPES_RANGE_HIGH;
+    return format == Network::ConvertFormat(Network::MessageFormat::Xml) and type >= MESSAGE_TYPES_RANGE_LOW and
+           type <= MESSAGE_TYPES_RANGE_HIGH;
 }
 
 std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType type, const IMessageData& message)
@@ -52,16 +56,14 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
         {
             auto msg = reader.Get("AuthenticationMessage");
 
-            if (not msg and (not msg->isAttributePresent("username") or not msg->isAttributePresent("password")))
+            if (msg and msg->isAttributePresent("username") and msg->isAttributePresent("password"))
             {
-                DEBUG_LOG("AuthenticationMessage : format error");
-                break;
+                auto userName = msg->attributes_.at("username");
+                auto password = msg->attributes_.at("password");
+
+                return std::make_unique<AuthenticationMessage>(userName, password);
             }
-
-            auto userName = msg->attributes_.at("username");
-            auto password = msg->attributes_.at("password");
-
-            return std::make_unique<AuthenticationMessage>(userName, password);
+            break;
         }
         case Network::MessageTypes::Text:
         {
@@ -125,7 +127,7 @@ IMessageData XmlConnectionMessageConverter::ConvertTextMessage(const IMessage& m
 {
     auto msg = castMessageAs<TextMessage>(message);
 
-    DEBUG_LOG("testShortMessage_ : " +  msg->GetText());
+    DEBUG_LOG("testShortMessage_ : " + msg->GetText());
 
     TreeNode root("TextMessage");
     root.attributes_.insert({"text", msg->GetText()});

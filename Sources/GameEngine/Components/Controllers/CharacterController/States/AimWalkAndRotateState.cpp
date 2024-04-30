@@ -14,7 +14,6 @@ AimWalkAndRotateState::AimWalkAndRotateState(FsmContext &context)
                              context.animClipNames.armed.walk,
                              context.animClipNames.armed.rotateLeft,
                              context.animClipNames.armed.rotateRight}
-    , context_{context}
 {
 }
 
@@ -43,6 +42,11 @@ void AimWalkAndRotateState::onLeave(const WeaponStateEvent &e)
 void AimWalkAndRotateState::onLeave(const SprintStateChangeEvent &e)
 {
     AimStateBase::onLeave(e);
+}
+
+void AimWalkAndRotateState::onMoveInactivity()
+{
+    RotateStateBase::setCurrentAnim();
 }
 }  // namespace Components
 }  // namespace GameEngine

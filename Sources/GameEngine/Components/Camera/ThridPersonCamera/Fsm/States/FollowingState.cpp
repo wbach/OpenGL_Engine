@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
@@ -15,20 +16,17 @@ FollowingState::FollowingState(Context& context)
     : StateBase(context, context.cameraPositions.run)
 {
 }
-FollowingState::~FollowingState()
-{
-}
 void FollowingState::onEnter()
 {
     StateBase::onEnter();
 }
-void FollowingState::update()
-{
-    if (not triggerEventIfMouseMoveDetect())
-    {
-        StateBase::cameraUpdate(0, 0);
-    }
-}
+//void FollowingState::update()
+//{
+//    if (not triggerEventIfMouseMoveDetect())
+//    {
+//        StateBase::cameraUpdate();
+//    }
+//}
 void FollowingState::update(const InitEvent&)
 {
     StateBase::onEnter();

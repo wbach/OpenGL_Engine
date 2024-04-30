@@ -3,7 +3,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -22,7 +22,7 @@ class DeathState;
 struct FsmContext;
 
 class ArmedWalkAndRotateState
-    : public MoveAndRotateStateBase,
+    : public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
@@ -30,30 +30,28 @@ class ArmedWalkAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WalkBackwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-          Utils::StateMachine::On<SprintStartEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedWalkAndRotateState(FsmContext&);
+    ArmedWalkAndRotateState(FsmContext &);
 
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
-
-private:
-    FsmContext &context_;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 };
 }  // namespace Components
 }  // namespace GameEngine

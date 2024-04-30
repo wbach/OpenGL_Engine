@@ -21,7 +21,6 @@ public:
     void update(const WeaponStateEvent&);
     void update(const DrawArrowEvent&);
     void update(const AimStopEvent&);
-    void update(const SprintStartEvent&);
     void update(const SprintStateChangeEvent&);
 
 protected:

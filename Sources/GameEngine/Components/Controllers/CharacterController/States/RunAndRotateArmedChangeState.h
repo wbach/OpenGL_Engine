@@ -4,7 +4,7 @@
 #include "../CharacterControllerEvents.h"
 #include "../FsmContext.h"
 #include "ArmedChangeStateBase.h"
-#include "MoveAndRotateStateBase.h"
+#include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
@@ -32,7 +32,7 @@ class DrawArrowWalkAndRotateState;
 struct FsmContext;
 class RunAndRotateArmedChangeState
     : public ArmedChangeStateBase,
-      public MoveAndRotateStateBase,
+      public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
@@ -44,9 +44,13 @@ class RunAndRotateArmedChangeState
                                   Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
-          Utils::StateMachine::On<RunForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RunBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
@@ -61,28 +65,27 @@ public:
 
     using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;
-    using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::transitionCondition;
-    using MoveAndRotateStateBase::update;
+    using RotatingMoveAndRotateStateBase::onEnter;
+    using RotatingMoveAndRotateStateBase::transitionCondition;
+    using RotatingMoveAndRotateStateBase::update;
 
     void onEnter();
-    void onEnter(const SprintStartEvent &);
-    void onEnter(const SprintStateChangeEvent&);
+    void onEnter(const SprintStateChangeEvent &);
 
     void onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedSprintAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &);
 
     void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedRunAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
     void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
 
-    void onEnter(DrawArrowWalkAndRotateState&, const WeaponStateEvent&);
-    void onEnter(RecoilWalkAndRotateState&, const WeaponStateEvent&);
-    void onEnter(AimWalkAndRotateState&, const WeaponStateEvent&);
+    void onEnter(DrawArrowWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(RecoilWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(AimWalkAndRotateState &, const WeaponStateEvent &);
 
     void update(float);
-    void update(const WeaponStateEvent&);
+    void update(const WeaponStateEvent &);
 
 private:
     FsmContext &context_;

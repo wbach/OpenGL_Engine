@@ -29,7 +29,9 @@ std::vector<std::string> avaiablesApis()
 {
     std::vector<std::string> result{{"OpenGL"}};
 #ifndef USE_GNU
-    result.push_back({"DirectX11"});
+    #ifndef USE_MINGW // TO DO
+        result.push_back({"DirectX11"});
+    #endif
 #endif
     return result;
 }

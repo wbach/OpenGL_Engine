@@ -54,7 +54,7 @@ namespace DebugNetworkInterface
 bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
     return format == Network::ConvertFormat(Network::MessageFormat::Xml) and
-        type >= GameEngine::DebugNetworkInterface::MIN_VALUE and
+        //type >= GameEngine::DebugNetworkInterface::MIN_VALUE and
         type <= GameEngine::DebugNetworkInterface::MAX_VALUE;
 }
 std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType messageType, const Network::IMessageData& message)
