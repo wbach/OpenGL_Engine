@@ -97,7 +97,8 @@ TEST_F(ColladaLoaderShould, DISABLED_ReadSimpleCube)
 
     std::cout << std::endl;
 }
-TEST_F(ColladaLoaderShould, ReadAnimations)
+// Disabled because of data needed
+TEST_F(ColladaLoaderShould, DISABLED_ReadAnimations)
 {
  //   EXPECT_CALL(textureLoaderMock_, LoadTexture(_, _)).WillOnce(Return(nullptr));
 

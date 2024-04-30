@@ -32,7 +32,8 @@ struct TextureLoaderTest : public ::testing::Test
     std::unique_ptr<TextureLoader> sut_;
 };
 
-TEST_F(TextureLoaderTest, FreeImageForValgrind)
+// Disabled because of data needed
+TEST_F(TextureLoaderTest, DISABLED_FreeImageForValgrind)
 {
     Utils::Timer timer;
     EngineConf.renderer.textures.maxSize = vec2ui(2048, 2048);
@@ -41,7 +42,8 @@ TEST_F(TextureLoaderTest, FreeImageForValgrind)
     GameEngine::ReadFile(textureFile, TextureParameters());
     DEBUG_LOG("Time : " + std::to_string(timer.GetTimeNanoseconds()));
 }
-TEST_F(TextureLoaderTest, FreeImageResizedForValgrind)
+// Disabled because of data needed
+TEST_F(TextureLoaderTest, DISABLED_FreeImageResizedForValgrind)
 {
     Utils::Timer timer;
     EngineConf.renderer.textures.maxSize = vec2ui(320, 240);

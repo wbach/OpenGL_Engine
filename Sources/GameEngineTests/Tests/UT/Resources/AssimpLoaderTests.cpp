@@ -82,7 +82,8 @@ TEST_F(AssimpLoaderShould, DISABLED_ReadSimpleCube)
     std::cout << std::endl;
 }
 
-TEST_F(AssimpLoaderShould, ReadGarenAnimations)
+// Disabled because of data needed
+TEST_F(AssimpLoaderShould, DISABLED_ReadGarenAnimations)
 {
     EXPECT_CALL(textureLoaderMock_, LoadTexture(_, _)).WillOnce(Return(nullptr));
 
