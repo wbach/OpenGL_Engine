@@ -87,15 +87,3 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
                                        {sut_.animationClipsNames_.disarmed.rotateLeft});
 }
-
-TEST_F(CharacterControllerTests, DISABLED_DisarmedIdleState_MoveLeftEvent)
-{
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.disarmed.run.forward});
-}
-
-TEST_F(CharacterControllerTests, DISABLED_DisarmedIdleState_MoveRightEvent)
-{
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.disarmed.run.forward});
-}
