@@ -33,7 +33,7 @@ void RecoilStateBase::onEnter(const EndBackwardMoveEvent &)
 }
 void RecoilStateBase::onEnter(const AttackEvent &)
 {
-    DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
+    // /*DISABLED*/ DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
 
     if (animName_.empty())
     {

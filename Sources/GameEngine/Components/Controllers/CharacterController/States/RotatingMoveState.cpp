@@ -18,7 +18,7 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
 
 void RotatingMoveState::update(float dt)
 {
-    DEBUG_LOG("Update");
+    // /*DISABLED*/ DEBUG_LOG("Update");
     moveCameraRotateRigidbody();
 
     if (context_.progress < 1.f)
@@ -50,7 +50,7 @@ void RotatingMoveState::update(const MoveRightEvent &event)
 
 void RotatingMoveState::postEnter()
 {
-    DEBUG_LOG("postEnter");
+    // /*DISABLED*/ DEBUG_LOG("postEnter");
     // prevent to call postEnter from MoveStateBase
     setTargetAngle();
     setAnim(animationClips_.forward);
@@ -58,11 +58,11 @@ void RotatingMoveState::postEnter()
 
 void RotatingMoveState::postUpdate()
 {
-    DEBUG_LOG("postUpdate");
+    // /*DISABLED*/ DEBUG_LOG("postUpdate");
     setTargetAngle();
     if (not context_.moveController.isMoving())
     {
-        DEBUG_LOG("onMoveInactivity");
+        // /*DISABLED*/ DEBUG_LOG("onMoveInactivity");
         onMoveInactivity();
     }
 }
@@ -98,13 +98,13 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
     }
     else
     {
-        DEBUG_LOG("not setCharacterRotation");
+        // /*DISABLED*/ DEBUG_LOG("not setCharacterRotation");
     }
 }
 
 void RotatingMoveState::setTargetAngle()
 {
-    DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
+    // /*DISABLED*/ DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
     context_.progress    = 0.f;
     context_.sourceAngle = context_.currentAngle;
     context_.targetAngle = glm::angleAxis(
@@ -116,9 +116,9 @@ void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
-        DEBUG_LOG("Progress " + std::to_string(context_.progress));
+        // /*DISABLED*/ DEBUG_LOG("Progress " + std::to_string(context_.progress));
         auto progress         = context_.progress > 1.f ? 1.f : context_.progress;
-        DEBUG_LOG("Progress2 " + std::to_string(progress));
+        // /*DISABLED*/ DEBUG_LOG("Progress2 " + std::to_string(progress));
         context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, progress);
         setCharacterRotation(glm::mat4_cast(context_.currentAngle));
 
@@ -133,7 +133,7 @@ void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with mov
 {
     if (not context_.moveController.isMoving())
     {
-        // DEBUG_LOG("Not moving, return");
+        // // /*DISABLED*/ DEBUG_LOG("Not moving, return");
         return;
     }
 
@@ -157,9 +157,9 @@ void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with mov
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y    = rigidbody.GetVelocity().y;
-    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+    // /*DISABLED*/ DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+    // /*DISABLED*/ DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+    // /*DISABLED*/ DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 

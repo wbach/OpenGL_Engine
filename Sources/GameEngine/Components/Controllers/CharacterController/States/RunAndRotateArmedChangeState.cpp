@@ -19,10 +19,10 @@ RunAndRotateArmedChangeState::RunAndRotateArmedChangeState(FsmContext &context)
 }
 void RunAndRotateArmedChangeState::onEnter()
 {
-    DEBUG_LOG("onEnter ");
+    // /*DISABLED*/ DEBUG_LOG("onEnter ");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
-        DEBUG_LOG("onEnter 1");
+        // /*DISABLED*/ DEBUG_LOG("onEnter 1");
         MoveStateBase::changeAnimationClips(context_.animClipNames.armed.run);
         MoveStateBase::setCurrentAnimIfNeeded();
     }

@@ -20,7 +20,7 @@ ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optio
 void ArmedChangeStateBase::update(const WeaponStateEvent&)
 {
     unsubscribeAll();
-    DEBUG_LOG("update(const WeaponStateEvent&)");
+    // /*DISABLED*/ DEBUG_LOG("update(const WeaponStateEvent&)");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
         disarmWeapon();
@@ -41,14 +41,14 @@ void ArmedChangeStateBase::update(const AimStopEvent&)
 }
 void ArmedChangeStateBase::update(const SprintStateChangeEvent&)
 {
-    DEBUG_LOG(" update SprintStateChangeEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+    // /*DISABLED*/ DEBUG_LOG(" update SprintStateChangeEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
     context_.sprintEventCalled_ = not context_.sprintEventCalled_;
 }
 void ArmedChangeStateBase::equipWeapon()
 {
     if (not jointPoseUpdater_)
     {
-        DEBUG_LOG("not jointPoseUpdater_");
+        // /*DISABLED*/ DEBUG_LOG("not jointPoseUpdater_");
         return;
     }
 
@@ -61,7 +61,7 @@ void ArmedChangeStateBase::disarmWeapon()
 {
     if (not jointPoseUpdater_)
     {
-        DEBUG_LOG("not jointPoseUpdater_");
+        // /*DISABLED*/ DEBUG_LOG("not jointPoseUpdater_");
         return;
     }
 
@@ -72,8 +72,8 @@ void ArmedChangeStateBase::disarmWeapon()
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
 {
-    DEBUG_LOG("onLeave context_.drawArrowEventCalled_ = " + Utils::BoolToString(context_.drawArrowEventCalled_));
-    DEBUG_LOG("onLeave context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+    // /*DISABLED*/ DEBUG_LOG("onLeave context_.drawArrowEventCalled_ = " + Utils::BoolToString(context_.drawArrowEventCalled_));
+    // /*DISABLED*/ DEBUG_LOG("onLeave context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
 
     if (context_.drawArrowEventCalled_)
     {

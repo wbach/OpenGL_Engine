@@ -301,14 +301,14 @@ void CharacterController::Init()
         auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
         if (lowerBodyGroupIter == animator_->jointGroups_.end())
         {
-            DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
+            // /*DISABLED*/ DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
             animator_->jointGroups_.insert({lowerBodyGroupName, {}});
         }
 
         auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
         if (upperBodyGroupIter == animator_->jointGroups_.end())
         {
-            DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
+            // /*DISABLED*/ DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
             animator_->jointGroups_.insert({upperBodyGroupName, {}});
         }
     }
@@ -327,7 +327,7 @@ void CharacterController::processEvent()
             std::visit(
                 [&](const auto& e)
                 {
-                    DEBUG_LOG("Process event : " + typeName(e));
+                    // /*DISABLED*/ DEBUG_LOG("Process event : " + typeName(e));
                     impl->stateMachine_->handle(e);
                 },
                 event);
@@ -342,7 +342,7 @@ void CharacterController::Update()
     {
         auto passEventToState = [&](auto statePtr)
         {
-            // DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " +
+            // // /*DISABLED*/ DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " +
             // std::to_string(componentContext_.time_.deltaTime));
             statePtr->update(componentContext_.time_.deltaTime);
         };

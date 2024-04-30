@@ -76,10 +76,10 @@ bool MoveController::isMoving(Direction dir) const
 
 bool MoveController::isMoveActive() const
 {
-    DEBUG_LOG(std::to_string(leftDir));
-    DEBUG_LOG(std::to_string(rightDir));
-    DEBUG_LOG(std::to_string(forwardDir));
-    DEBUG_LOG(std::to_string(backwardDir));
+    // /*DISABLED*/ DEBUG_LOG(std::to_string(leftDir));
+    // /*DISABLED*/ DEBUG_LOG(std::to_string(rightDir));
+    // /*DISABLED*/ DEBUG_LOG(std::to_string(forwardDir));
+    // /*DISABLED*/ DEBUG_LOG(std::to_string(backwardDir));
     return leftDir > 0.5f or rightDir > 0.5f or forwardDir > 0.5f or backwardDir > 0.5f;
 }
 

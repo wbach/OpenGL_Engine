@@ -42,7 +42,7 @@ public:
     template <typename Event>
     void pushEventToQueue(const Event& event)
     {
-        DEBUG_LOG("pushEventToQueue " + typeName<Event>());
+        // /*DISABLED*/ DEBUG_LOG("pushEventToQueue " + typeName<Event>());
         eventQueue.push_back(event);
     }
 

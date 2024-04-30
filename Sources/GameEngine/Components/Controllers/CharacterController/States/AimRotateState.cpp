@@ -16,7 +16,7 @@ AimRotateState::AimRotateState(FsmContext &context)
 
 void AimRotateState::onEnter(const AimStartEvent &event)
 {
-    DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
+    // /*DISABLED*/ DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
     AimStateBase::onEnter(event);
     RotateStateBase::update(event);
 }
@@ -33,7 +33,7 @@ void AimRotateState::onEnter(const RotateRightEvent &event)
 
 void AimRotateState::onEnter(const RotateTargetEvent &event)
 {
-    DEBUG_LOG("AimRotateState::onEnter(const RotateTargetEvent& event)");
+    // /*DISABLED*/ DEBUG_LOG("AimRotateState::onEnter(const RotateTargetEvent& event)");
     RotateStateBase::onEnter(event);
 }
 
@@ -67,7 +67,7 @@ void AimRotateState::update(float dt)
 
 void AimRotateState::onLeave(const AimStopEvent &event)
 {
-    DEBUG_LOG("onLeave(AimStopEvent)");
+    // /*DISABLED*/ DEBUG_LOG("onLeave(AimStopEvent)");
     AimStateBase::onLeave(event);
 }
 

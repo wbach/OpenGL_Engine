@@ -30,7 +30,7 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 
 void MoveStateBase::onEnter(const SprintStateChangeEvent &)
 {
-    DEBUG_LOG("SprintStateChangeEvent");
+    // /*DISABLED*/ DEBUG_LOG("SprintStateChangeEvent");
 }
 
 void MoveStateBase::onEnter(const MoveForwardEvent &)
@@ -61,7 +61,7 @@ void MoveStateBase::onEnter(const WalkChangeStateEvent &)
 
 void MoveStateBase::postEnter()
 {
-    DEBUG_LOG("postEnter");
+    // /*DISABLED*/ DEBUG_LOG("postEnter");
     setCurrentAnimIfNeeded();
 }
 
@@ -108,7 +108,7 @@ bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
 {
     if (context_.moveController.isMoveActive())
     {
-        DEBUG_LOG("shouldLeaveAndSetCurrAnimIfNot");
+        // /*DISABLED*/ DEBUG_LOG("shouldLeaveAndSetCurrAnimIfNot");
         setCurrentAnimIfNeeded();
         return false;
     }
@@ -141,10 +141,10 @@ void MoveStateBase::update(const SprintStateChangeEvent &event)
 
 void MoveStateBase::update(float)
 {
-    DEBUG_LOG("Update");
+    // /*DISABLED*/ DEBUG_LOG("Update");
     if (not context_.animator.isAnimationPlaying(currentAnimName_))
     {
-        // DEBUG_LOG("Forward not ready");
+        // // /*DISABLED*/ DEBUG_LOG("Forward not ready");
         return;
     }
 
@@ -153,7 +153,7 @@ void MoveStateBase::update(float)
 
 void MoveStateBase::postUpdate()
 {
-    DEBUG_LOG("postUpdate");
+    // /*DISABLED*/ DEBUG_LOG("postUpdate");
     setCurrentAnimIfNeeded();
 }
 
@@ -195,7 +195,7 @@ void MoveStateBase::setAnim(const std::string &clipName)
     if (iter != currentAnimations.end())
         return;
 
-    // DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
+    // // /*DISABLED*/ DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
     context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                       jointGroupName_);
 }
@@ -204,7 +204,7 @@ void MoveStateBase::moveRigidbody()
 {
     if (not context_.moveController.isMoving())
     {
-        // DEBUG_LOG("Not moving, return");
+        // // /*DISABLED*/ DEBUG_LOG("Not moving, return");
         return;
     }
 
@@ -221,9 +221,9 @@ void MoveStateBase::moveRigidbody()
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y    = rigidbody.GetVelocity().y;
-    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+    // /*DISABLED*/ DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+    // /*DISABLED*/ DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+    // /*DISABLED*/ DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 

@@ -25,7 +25,7 @@ AimStateBase::AimStateBase(FsmContext &context, const std::optional<std::string>
 
 void AimStateBase::onEnter(const AimStartEvent &)
 {
-    DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
+    // /*DISABLED*/ DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
     setAnim();
 }
 
@@ -68,7 +68,7 @@ void AimStateBase::onEnter(const EndBackwardMoveEvent &)
 
 void AimStateBase::onLeave(const AimStopEvent &)
 {
-    DEBUG_LOG("onLeave(AimStopEvent)");
+    // /*DISABLED*/ DEBUG_LOG("onLeave(AimStopEvent)");
     stopAnim();
 
     if (context_.aimEnteringState == FsmContext::AimEnteringState::Run or
@@ -80,13 +80,13 @@ void AimStateBase::onLeave(const AimStopEvent &)
 
 void AimStateBase::onLeave(const WeaponStateEvent &)
 {
-    DEBUG_LOG("onLeave(WeaponStateEvent)");
+    // /*DISABLED*/ DEBUG_LOG("onLeave(WeaponStateEvent)");
     stopAnim();
 }
 
 void AimStateBase::onLeave(const SprintStateChangeEvent &)
 {
-    DEBUG_LOG("onLeave(WeaponStateEvent)");
+    // /*DISABLED*/ DEBUG_LOG("onLeave(WeaponStateEvent)");
     stopAnim();
 }
 }  // namespace Components
