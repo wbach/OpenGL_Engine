@@ -106,18 +106,16 @@ TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_WalkChangeStateEvent)
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
+    expectVelocity(VECTOR_FORWARD + VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_MoveRightEvent)
 {
     prepareState(*this);
-    expectNoMove();
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.rotateRight},
-                                    {0, 0});
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<EndForwardMoveEvent>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
+    expectVelocity(VECTOR_FORWARD + VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, DEFAULT_WALK_SPEED));
+    tiggerAndExpect<MoveRightEvent>(
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
 TEST_F(CharacterControllerTests, DrawArrowWalkAndRotate_EndRotationEvent)
 {

@@ -90,12 +90,12 @@ TEST_F(CharacterControllerTests, DrawArowRotate_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.moveleft});
 }
 TEST_F(CharacterControllerTests, DrawArowRotate_RunBackwardEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_LEFT_RIGHT_SPEED, 0.0, 0));
     tiggerAndExpect<MoveRightEvent>(
-        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.backward});
+        {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.moveRight});
 }

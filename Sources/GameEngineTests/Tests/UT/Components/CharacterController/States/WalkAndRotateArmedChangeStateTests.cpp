@@ -87,9 +87,9 @@ TEST_F(CharacterControllerTests, WalkAndRotateArmedChangeState_SprintStateChange
         {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.run.forward},
         {ADVANCED_TIME_TRANSITION_TIME});
 
+    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     expectRotationRight(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
-    expectForwardVelocity(DEFAULT_SPRINT_SPEED);
     expectRotationRight();
     Update(ADVANCED_TIME_TRANSITION_TIME);
 

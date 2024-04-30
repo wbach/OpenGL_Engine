@@ -221,9 +221,9 @@ void MoveStateBase::moveRigidbody()
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y    = rigidbody.GetVelocity().y;
-     DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-     DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-     DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+    DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
+    DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
+    DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 
