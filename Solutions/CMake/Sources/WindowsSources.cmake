@@ -55,7 +55,7 @@ if(MINGW)
             opengl32
             assimp
             pthread
-            freeimage
+            FreeImage
             freetype
         )
 

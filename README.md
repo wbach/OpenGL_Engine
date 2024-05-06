@@ -1,7 +1,3 @@
-# Not all project have to build in one moment on all platforms, I'm working at this.
-# Wroking on linux using GCC 6.3 and Windows using MINGW32, VisualStudio 2017
-# OpenGL_Engine
-
 1) Dependencies:
     - Data, Tools:
         https://1drv.ms/f/s!At5fZiiUvIVSpHooSe4C5BqBECsS
@@ -22,14 +18,16 @@
 
     Linux:
         Examples:
-            - cmake ../Solutions/CMake/ -DBUILD_TEST_GAME=ON
-            - cmake ../../Solutions/CMake/ -DBUILD_TEST_GAME=ON -DBUILD_UTILS_NETWORK=ON -DBUILD_COMMON=ON -DBUILD_RPG_GAME_SERVER=ON
-
+            - cmake -G Ninja ../Solutions/CMake -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON 
+            - cmake -G Ninja ../Solutions/CMake -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_C_COMPILER_LAUNCHER="distcc" -DCMAKE_CXX_COMPILER_LAUNCHER="distcc"
+            - cmake -G Ninja ../Solutions/CMake -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE=../Solutions/CMake/mingw-w64-x86_64.cmake
+        
+        Mingw example dll location:
+        /usr/lib/gcc/x86_64-w64-mingw32/10-posix/*.dll  or -static-libgcc -static-libstdc++
         MESA_GLSL_VERSION_OVERRIDE=450 MESA_GL_VERSION_OVERRIDE=4.5 ./TestGlGame
-
     Windows:
         - MinGW
-            - Download mingw and install packages.
+            - Download mingw and install packages. (https://winlibs.com/)
             - Set environment variables for example :
                 - CMAKE_C_COMPILER = C:\MinGW\bin\mingw32-c++.exe
                 - CMAKE_CXX_COMPILER = C:\MinGW\bin\mingw32-g++.exe
@@ -38,9 +36,7 @@
                 - C:\Program Files\CMake\bin
                 - C:\MinGW\bin
             - Examples :
-            - cmake -G"MinGW Makefiles" ../Solutions/CMake/ -DBUILD_TEST_GAME=ON && mingw32-make
-            - cmake -G"MinGW Makefiles" -DBUILD_TEST_GAME=ON -DBUILD_UTILS_NETWORK=ON -DBUILD_COMMON=ON -DBUILD_RPG_GAME_SERVER=ON && mingw32-make
-
+            - cmake -G"MinGW Makefiles" -DBUILD_AVATAR_GAME=ON -DBUILD_EDITOR=ON -DBUILD_TESTS=ON && cmake --build . -j16
         - Visual Studio 2017
             - run ./ProjectUtils/prepareAllProjects.sh  script using for example git bash to generate VisualStudio Solution.
             - build in vs selected projects.

@@ -13,7 +13,7 @@
     #ifndef USE_MINGW // TO DO
     #include <DirectXApi/DirectXApi.h>
     #endif
-#include <Windows.h>
+#include <windows.h>
 #include <shlobj.h>
 #else
 #include <pwd.h>

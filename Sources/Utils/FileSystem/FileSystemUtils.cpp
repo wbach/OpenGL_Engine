@@ -7,7 +7,7 @@
 #include <iostream>
 
 #ifndef USE_GNU
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <filesystem>
