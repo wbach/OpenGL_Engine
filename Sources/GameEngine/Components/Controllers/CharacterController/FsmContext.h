@@ -32,6 +32,7 @@ struct FsmContext
         float disarm;
     };
 
+    Scene& scene;
     AttackFsm& attackFsm;
     GameObject& gameObject;
     Physics::IPhysicsApi& physicsApi;

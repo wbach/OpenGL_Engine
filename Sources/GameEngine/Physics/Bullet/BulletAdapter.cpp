@@ -63,9 +63,9 @@ void BulletAdapter::EnableSimulation()
 }
 void BulletAdapter::Simulate()
 {
-    std::lock_guard<std::mutex> lk(impl_->worldMutex_);
     if (simualtePhysics_)
     {
+        std::lock_guard<std::mutex> lk(impl_->worldMutex_);
         btDynamicWorld->stepSimulation(simulationStep_);
 
         for (auto& [id, rigidbody] : rigidBodies)
@@ -136,20 +136,23 @@ ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset
 
     auto width  = static_cast<int>(heightMap.GetImage().width);
     auto height = static_cast<int>(heightMap.GetImage().height);
-    std::visit(visitor{
-                   [&](const std::vector<uint8>& data) {
-                       shape.btShape_.reset(
-                           new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
-                                                         heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
-                   },
-                   [&](const std::vector<float>& data) {
-                       shape.btShape_.reset(
-                           new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
-                                                         heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
-                   },
-                   [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
-               },
-               heightMap.GetImage().getImageData());
+    std::visit(
+        visitor{
+            [&](const std::vector<uint8>& data)
+            {
+                shape.btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f,
+                                                                   heightMap.GetMinimumHeight(),
+                                                                   heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
+            },
+            [&](const std::vector<float>& data)
+            {
+                shape.btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f,
+                                                                   heightMap.GetMinimumHeight(),
+                                                                   heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
+            },
+            [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
+        },
+        heightMap.GetImage().getImageData());
 
     float scaleX = scale.x / static_cast<float>(heightMap.GetImage().width - 1);
     float scaleY = scale.z / static_cast<float>(heightMap.GetImage().height - 1);

@@ -221,6 +221,7 @@ void CharacterController::Init()
                                                                aimJoint ? *aimJoint : dummyJoint);
 
         impl->fsmContext.reset(new FsmContext{
+            componentContext_.scene_,
             *impl->attackFsm_,
             thisObject_,
             componentContext_.physicsApi_,
