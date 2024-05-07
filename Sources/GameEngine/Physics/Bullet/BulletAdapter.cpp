@@ -80,6 +80,8 @@ void BulletAdapter::Simulate()
 
             if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
             {
+//                 DEBUG_LOG("Simulate getLinearVelocity=" +
+//                 std::to_string(Convert(rigidbody.btRigidbody_->getLinearVelocity())));
                 rigidbody.isUpdating_ = true;
                 rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
                 rigidbody.isUpdating_ = false;

@@ -4,11 +4,12 @@
 
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
-#include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Components/Controllers/CharacterController/ArrowController.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -89,8 +90,12 @@ void RecoilStateBase::shoot()
     gameObject->AddComponent<Components::RendererComponent>().AddModel(path);
     gameObject->GetTransform().SetMatrix(worldMatrix);
 
-    gameObject->AddComponent<Components::MeshShape>();
-    gameObject->AddComponent<Components::Rigidbody>().SetMass(0);
+    gameObject->AddComponent<Components::CapsuleShape>().SetHeight(0.5f).SetRadius(0.01f);
+    gameObject->AddComponent<Components::Rigidbody>();//.SetMass(1);
+
+    auto camera = context_.gameObject.GetComponent<ThridPersonCameraComponent>();
+
+    gameObject->AddComponent<Components::ArrowController>().setDirection(camera->getDirection());
 
     context_.scene.AddGameObject(std::move(gameObject));
 }

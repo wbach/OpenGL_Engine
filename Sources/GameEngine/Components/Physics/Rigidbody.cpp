@@ -76,6 +76,7 @@ void Rigidbody::OnStart()
         return;
     }
 
+    DEBUG_LOG("isStatic_ " + std::to_string(isStatic_));
     auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_,
                                                                      updateRigidbodyOnTransformChange_);
     if (not rigidBodyId)
@@ -135,6 +136,7 @@ Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
     if (not rigidBodyId_)
         return *this;
 
+   // DEBUG_LOG("SetVelocityRigidbody " + std::to_string(velocity));
     componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, velocity);
     return *this;
 }

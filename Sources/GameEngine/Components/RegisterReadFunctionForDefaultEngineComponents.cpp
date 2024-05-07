@@ -7,6 +7,7 @@
 #include "Characters/Player.h"
 #include "Controllers/CharacterController/CharacterController.h"
 #include "Controllers/EnemyController.h"
+#include "Controllers/CharacterController/ArrowController.h"
 #include "Input/PlayerInputController.h"
 #include "Physics/BoxShape.h"
 #include "Physics/CapsuleShape.h"
@@ -40,6 +41,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<Enemy>();
     registerReadFunction<Player>();
     registerReadFunction<CharacterController>();
+    registerReadFunction<ArrowController>();
     registerReadFunction<EnemyController>();
     registerReadFunction<PlayerInputController>();
     registerReadFunction<BoxShape>();

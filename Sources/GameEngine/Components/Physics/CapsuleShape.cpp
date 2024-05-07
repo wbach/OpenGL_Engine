@@ -19,6 +19,8 @@ const std::string CapsuleShape::name = "CapsuleShape";
 
 CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(CapsuleShape).hash_code(), componentContext, gameObject)
+    , height_{1.f}
+    , radius_{0.5f}
 {
 }
 void CapsuleShape::ReqisterFunctions()

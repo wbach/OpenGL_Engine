@@ -38,6 +38,7 @@ public:
     }
 
     std::tuple<float, float> getRotation() const;
+    vec3 getDirection() const;
 
 private:
     void init();
