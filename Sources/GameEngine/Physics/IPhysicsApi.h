@@ -26,11 +26,10 @@ using Radius         = float;
 struct IPhysicsApi
 {
     virtual ~IPhysicsApi()                                                                          = default;
-    virtual void Simulate()                                                                         = 0;
+    virtual void Simulate(float)                                                                    = 0;
     virtual const GraphicsApi::LineMesh& DebugDraw()                                                = 0;
     virtual void EnableSimulation()                                                                 = 0;
     virtual void DisableSimulation()                                                                = 0;
-    virtual void SetSimulationStep(float step)                                                      = 0;
     virtual ShapeId CreateBoxColider(const PositionOffset&, const Scale&, const Size&)              = 0;
     virtual ShapeId CreateSphereColider(const PositionOffset&, const Scale&, Radius)                = 0;
     virtual ShapeId CreateCapsuleColider(const PositionOffset&, const Scale&, Radius, float height) = 0;

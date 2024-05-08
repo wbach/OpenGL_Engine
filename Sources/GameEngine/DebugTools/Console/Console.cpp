@@ -93,6 +93,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"editorinterface", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
     commandsActions_.insert({"editor", [this](const auto &params) { EnableEditorNetworkInterface(params); }});
     commandsActions_.insert({"help", [this](const auto &params) { Help(params); }});
+    commandsActions_.insert({"timespeed", [this](const auto &params) { SetTimeMulitplayer(params); }});
     commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
     commandsActions_.insert({"exit", [this](const auto &params) { Exit(params); }});
     commandsActions_.insert({"quit", [this](const auto &params) { Exit(params); }});
@@ -488,6 +489,25 @@ void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
     auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
     scene_.physicsApi_->enableVisualizationForAllRigidbodys();
+}
+
+void Console::SetTimeMulitplayer(const std::vector<std::string> &params)
+{
+    if (params.empty())
+    {
+        return;
+    }
+
+    try
+    {
+        float timeMultiplayer = std::stof(params[0]);
+        scene_.getDisplayManager()->ChangeTimeMultiplayer(timeMultiplayer);
+        scene_.threadSync_->setTimeMultiplayer(timeMultiplayer);
+    }
+    catch (...)
+    {
+        WARNING_LOG("Set time multiplayer error");
+    }
 }
 
 void Console::Help(const std::vector<std::string> &)

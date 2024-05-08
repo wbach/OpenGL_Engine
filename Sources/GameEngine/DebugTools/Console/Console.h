@@ -67,6 +67,7 @@ private:
     void SwapRenderMode(const std::vector<std::string>&);
     void EnableEditorNetworkInterface(const std::vector<std::string>&);
     void SetPhysicsVisualization(const std::vector<std::string>&);
+    void SetTimeMulitplayer(const std::vector<std::string>&);
     void Help(const std::vector<std::string>&);
     void Exit(const std::vector<std::string>&);
 

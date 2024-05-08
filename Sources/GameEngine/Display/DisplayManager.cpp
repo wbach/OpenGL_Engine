@@ -17,6 +17,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     : graphicsApi_(api)
     , measurementHandler_(measurementHandler)
     , timeMeasurer_(static_cast<uint32>(EngineConf.renderer.fpsLimt))
+    , timeMultiplayer_{1.f}
     , isFullScreen_(EngineConf.window.fullScreen)
     , windowsSize_(EngineConf.window.size)
 {
@@ -84,7 +85,7 @@ void DisplayManager::ProcessEvents()
 void DisplayManager::UpdateWindow()
 {
     graphicsApi_.GetWindowApi().UpdateWindow();
-    time_.deltaTime = static_cast<float>(timeMeasurer_.GetDeltaTime());
+    time_.deltaTime = static_cast<float>(timeMeasurer_.GetDeltaTime()) * timeMultiplayer_;
 }
 
 void DisplayManager::SetRefreshRate(uint32 rate)
@@ -97,6 +98,17 @@ void DisplayManager::SetFullScreen(bool state)
 {
     isFullScreen_ = state;
     graphicsApi_.GetWindowApi().SetFullScreen(state);
+}
+
+void DisplayManager::ChangeTimeMultiplayer(float value)
+{
+    DEBUG_LOG("Change time multiplayer = " + std::to_string(value));
+    timeMultiplayer_ = value;
+}
+
+float DisplayManager::GetTimeMultiplayer() const
+{
+    return timeMultiplayer_;
 }
 
 int DisplayManager::GetFps() const

@@ -26,9 +26,8 @@ public:
     BulletAdapter();
     ~BulletAdapter() override;
 
-    void Simulate() override;
+    void Simulate(float) override;
     const GraphicsApi::LineMesh& DebugDraw() override;
-    void SetSimulationStep(float) override;
     void EnableSimulation() override;
     void DisableSimulation() override;
     ShapeId CreateBoxColider(const PositionOffset&, const Scale&, const Size&) override;

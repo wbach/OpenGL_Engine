@@ -126,8 +126,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
         [this](float deltaTime)
         {
-            engineContext_.GetPhysicsApi().SetSimulationStep(deltaTime);
-            engineContext_.GetPhysicsApi().Simulate();
+            auto tm = engineContext_.GetDisplayManager().GetTimeMultiplayer();
+            engineContext_.GetPhysicsApi().Simulate(deltaTime * tm);
         },
         "Physics", EngineConf.renderer.fpsLimt);
 }

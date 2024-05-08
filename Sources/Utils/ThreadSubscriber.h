@@ -1,9 +1,10 @@
 #pragma once
 #include <atomic>
 #include <functional>
+
+#include "MeasurementHandler.h"
 #include "Thread.hpp"
 #include "Time/TimeMeasurer.h"
-#include "MeasurementHandler.h"
 #include "Types.h"
 
 namespace Utils
@@ -25,6 +26,7 @@ public:
     void PrintFps();
     bool IsStarted() const;
     void SetFpsLimit(uint32);
+    void setTimeMultiplayer(float);
 
 private:
     MeasurementValue& measurementValue_;
@@ -33,6 +35,7 @@ private:
     std::atomic_bool isRunning;
     Time::CTimeMeasurer timeMeasurer;
     std::string label_;
+    float timeMultiplayer_;
 };
 }  // namespace Thread
 }  // namespace Utils

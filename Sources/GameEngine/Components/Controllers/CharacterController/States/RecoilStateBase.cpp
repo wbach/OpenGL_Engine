@@ -80,6 +80,11 @@ void RecoilStateBase::shoot()
         return;
     }
 
+    if (not thridPersonCameraComponent_)
+    {
+        return;
+    }
+
     auto id = arrowIds.getId();
 
     auto gameObject  = context_.scene.CreateGameObject("Arrow" + context_.gameObject.GetName() + std::to_string(id));
@@ -91,11 +96,9 @@ void RecoilStateBase::shoot()
     gameObject->GetTransform().SetMatrix(worldMatrix);
 
     gameObject->AddComponent<Components::CapsuleShape>().SetHeight(0.5f).SetRadius(0.01f);
-    gameObject->AddComponent<Components::Rigidbody>();//.SetMass(1);
+    gameObject->AddComponent<Components::Rigidbody>();
 
-    auto camera = context_.gameObject.GetComponent<ThridPersonCameraComponent>();
-
-    gameObject->AddComponent<Components::ArrowController>().setDirection(camera->getDirection());
+    gameObject->AddComponent<Components::ArrowController>().setDirection(thridPersonCameraComponent_->getDirection());
 
     context_.scene.AddGameObject(std::move(gameObject));
 }

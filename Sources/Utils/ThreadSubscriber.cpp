@@ -1,16 +1,19 @@
 #include "ThreadSubscriber.h"
+
 #include <Logger/Log.h>
 
 namespace Utils
 {
 namespace Thread
 {
-ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler & measurementHandler, uint32 fpsLimit)
+ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, MeasurementHandler& measurementHandler,
+                                   uint32 fpsLimit)
     : measurementValue_(measurementHandler.AddNewMeasurment(label + "Fps"))
     , func(func)
     , isRunning(false)
     , timeMeasurer(fpsLimit)
     , label_(label)
+    , timeMultiplayer_{1.f}
 {
     Start();
 }
@@ -46,7 +49,7 @@ void ThreadSubscriber::Update()
     {
         timeMeasurer.StartFrame();
         float deltaTime = static_cast<float>(timeMeasurer.GetDeltaTime());
-        func(deltaTime);
+        func(deltaTime * timeMultiplayer_);
         timeMeasurer.EndFrame();
     }
 
@@ -66,6 +69,11 @@ bool ThreadSubscriber::IsStarted() const
 void ThreadSubscriber::SetFpsLimit(uint32 fps)
 {
     timeMeasurer.setLockFps(fps);
+}
+
+void ThreadSubscriber::setTimeMultiplayer(float value)
+{
+    timeMultiplayer_ = value;
 }
 }  // namespace Thread
 }  // namespace Utils

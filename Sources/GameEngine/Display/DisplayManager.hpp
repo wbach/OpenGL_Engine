@@ -33,6 +33,9 @@ public:
 
     inline const Time& GetTime() const;
 
+    void ChangeTimeMultiplayer(float);
+    float GetTimeMultiplayer() const;
+
     int GetFps() const;
     const vec2ui& GetWindowSize();
 
@@ -42,6 +45,7 @@ private:
     Utils::Time::CTimeMeasurer timeMeasurer_;
 
     Time time_;
+    float timeMultiplayer_;
     bool isFullScreen_;
     vec2ui windowsSize_;
 

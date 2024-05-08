@@ -11,9 +11,8 @@ class BachPhysicsAdapter : public IPhysicsApi
 public:
     BachPhysicsAdapter();
     ~BachPhysicsAdapter();
-    void Simulate() override;
+    void Simulate(float) override;
     const GraphicsApi::LineMesh& DebugDraw() override;
-    void SetSimulationStep(float) override;
     void EnableSimulation() override;
     void DisableSimulation() override;
     ShapeId CreateBoxColider(const vec3& positionOffset, const Scale&, const Size&) override;

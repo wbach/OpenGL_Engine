@@ -138,7 +138,7 @@ BachPhysicsAdapter::~BachPhysicsAdapter()
 {
     DEBUG_LOG("destructor");
 }
-void BachPhysicsAdapter::Simulate()
+void BachPhysicsAdapter::Simulate(float)
 {
     if (not impl_->enableSimulation_)
     {
@@ -161,10 +161,6 @@ void BachPhysicsAdapter::Simulate()
 const GraphicsApi::LineMesh& BachPhysicsAdapter::DebugDraw()
 {
     return lineMesh_;
-}
-void BachPhysicsAdapter::SetSimulationStep(float)
-{
-    impl_->enableSimulation_ = 1.f;
 }
 void BachPhysicsAdapter::EnableSimulation()
 {

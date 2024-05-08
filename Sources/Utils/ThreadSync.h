@@ -30,6 +30,7 @@ public:
     void Start();
     void Stop();
     size_t SubscribersCount() const;
+    void setTimeMultiplayer(float);
 
     Worker& AddWorker();
     void RemoveWorker(Worker&);
@@ -44,6 +45,7 @@ private:
     std::list<Worker> workers_;
     uint32 idPool_         = 0;
     uint32 processorCount_ = 0;
+    float timeMultiplayer_;
 };
 
 }  // namespace Thread

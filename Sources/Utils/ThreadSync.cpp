@@ -8,6 +8,7 @@ namespace Thread
 ThreadSync::ThreadSync(MeasurementHandler & measurementHandler)
     : measurementHandler_(measurementHandler)
     , measurementValue_(measurementHandler_.AddNewMeasurment("Threads count"))
+    , timeMultiplayer_{1.f}
 {
     measurementValue_ = "1";
 
@@ -24,6 +25,7 @@ uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label, uint32 fp
 {
     auto id = idPool_++;
     subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, measurementHandler_, fpsLimit));
+   // subscribers.end()->second.setTimeMultiplayer(timeMultiplayer_);
     UpdateThreadsCountText();
     return id;
 }
@@ -69,6 +71,13 @@ void ThreadSync::Stop()
 size_t ThreadSync::SubscribersCount() const
 {
     return subscribers.size();
+}
+
+void ThreadSync::setTimeMultiplayer(float value)
+{
+    timeMultiplayer_ = value;
+    for (auto& [_, timeSub] : subscribers)
+        timeSub.setTimeMultiplayer(value);
 }
 
 Worker& ThreadSync::AddWorker()

@@ -39,8 +39,7 @@ struct BulletAdapter::Pimpl
 };
 
 BulletAdapter::BulletAdapter()
-    : simulationStep_(1.f / 60.f)
-    , simualtePhysics_(true)
+    : simualtePhysics_(true)
 {
     createWorld();
     impl_ = std::make_unique<BulletAdapter::Pimpl>();
@@ -53,20 +52,16 @@ BulletAdapter::~BulletAdapter()
     for (const auto& [id, body] : staticRigidBodies)
         btDynamicWorld->removeRigidBody(body.btRigidbody_.get());
 }
-void BulletAdapter::SetSimulationStep(float step)
-{
-    simulationStep_ = step;
-}
 void BulletAdapter::EnableSimulation()
 {
     simualtePhysics_ = true;
 }
-void BulletAdapter::Simulate()
+void BulletAdapter::Simulate(float deltaTime)
 {
     if (simualtePhysics_)
     {
         std::lock_guard<std::mutex> lk(impl_->worldMutex_);
-        btDynamicWorld->stepSimulation(simulationStep_);
+        btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
 
         for (auto& [id, rigidbody] : rigidBodies)
         {
@@ -80,8 +75,6 @@ void BulletAdapter::Simulate()
 
             if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
             {
-//                 DEBUG_LOG("Simulate getLinearVelocity=" +
-//                 std::to_string(Convert(rigidbody.btRigidbody_->getLinearVelocity())));
                 rigidbody.isUpdating_ = true;
                 rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
                 rigidbody.isUpdating_ = false;
