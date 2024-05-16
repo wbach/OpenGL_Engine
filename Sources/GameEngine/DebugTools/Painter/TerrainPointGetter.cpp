@@ -1,16 +1,13 @@
 #include "TerrainPointGetter.h"
 
 #include <Common/Transform.h>
+#include <Logger/Log.h>
 
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
-
-#include <Logger/Log.h>
-
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -32,25 +29,12 @@ TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projec
 
 std::vector<Components::TerrainRendererComponent*> TerrainPointGetter::GetSceneTerrains() const
 {
-    const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
-
-    std::vector<Components::TerrainRendererComponent*> terrains;
-    for (auto& terrain : components)
-    {
-        terrains.push_back(static_cast<Components::TerrainRendererComponent*>(terrain.second));
-    }
-
-    return terrains;
-}
-
-void TerrainPointGetter::GetAllSceneTerrains()
-{
-    terrains_ = GetSceneTerrains();
+    return componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 }
 
 std::optional<TerrainPoint> TerrainPointGetter::GetMousePointOnTerrain(const vec2& mousePosition)
 {
-    GetAllSceneTerrains();
+    terrains_ = GetSceneTerrains();
 
     if (not terrains_.empty())
     {
@@ -87,7 +71,8 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
         ERROR_LOG("No terrain or height map in terrain.");
         return false;
     }
-    TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(), *terrain->GetHeightMap(),
+    TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(),
+                                            *terrain->GetHeightMap(),
                                             terrain->GetParentGameObject().GetTransform().GetPosition());
 
     auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);

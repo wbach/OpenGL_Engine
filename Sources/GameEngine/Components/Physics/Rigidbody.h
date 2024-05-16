@@ -22,7 +22,7 @@ public:
     };
 
 public:
-    Rigidbody(ComponentContext& componentContext, GameObject& gameObject);
+    Rigidbody(ComponentContext&, GameObject&);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -56,6 +56,8 @@ public:
 
     Params& InputParams();
     const Params& InputParams() const;
+
+     const std::optional<uint32>& GetId() const;
 
 private:
     void OnStart();

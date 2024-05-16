@@ -1,8 +1,14 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
+#include "Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
+namespace Physics
+{
+struct CollisionContactInfo;
+}
+
 namespace Components
 {
 class Rigidbody;
@@ -16,10 +22,14 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
-private:
-    void update();
+    void shoot();
 
 private:
+    void update();
+    void onCollisionDetect(const Physics::CollisionContactInfo&);
+
+private:
+    Physics::CollisionSubId collisionSubId;
     Rigidbody* rigidbody;
     vec3 direction;
 

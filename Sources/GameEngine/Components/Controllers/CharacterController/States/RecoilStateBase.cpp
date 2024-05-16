@@ -4,13 +4,6 @@
 
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
-#include "GameEngine/Components/Physics/CapsuleShape.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Components/Controllers/CharacterController/ArrowController.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -48,7 +41,7 @@ void RecoilStateBase::onEnter(const AttackEvent &)
         return;
     }
 
-    shoot();
+    context_.aimController.shoot();
     setAnim();
 
     context_.animator.SubscribeForAnimationFrame(
@@ -69,38 +62,6 @@ void RecoilStateBase::stopAnim()
     }
 
     context_.aimController.reset();
-}
-
-void RecoilStateBase::shoot()
-{
-    auto path = Utils::GetAbsolutePath(EngineConf.files.data) + "/mixamo.com/arrow.obj";
-    if (not Utils::CheckFileExist(path))
-    {
-        WARNING_LOG("arrow model path not found. Path: \"" + path + "\"");
-        return;
-    }
-
-    if (not thridPersonCameraComponent_)
-    {
-        return;
-    }
-
-    auto id = arrowIds.getId();
-
-    auto gameObject  = context_.scene.CreateGameObject("Arrow" + context_.gameObject.GetName() + std::to_string(id));
-    auto worldMatrix = context_.gameObject.GetWorldTransform().GetMatrix() *
-                       Utils::CreateTransformationMatrix(vec3(-0.25, 0.75f, 0), DegreesVec3(90.0, 0, 0),
-                                                         1.f / context_.gameObject.GetWorldTransform().GetScale());
-
-    gameObject->AddComponent<Components::RendererComponent>().AddModel(path);
-    gameObject->GetTransform().SetMatrix(worldMatrix);
-
-    gameObject->AddComponent<Components::CapsuleShape>().SetHeight(0.5f).SetRadius(0.01f);
-    gameObject->AddComponent<Components::Rigidbody>();
-
-    gameObject->AddComponent<Components::ArrowController>().setDirection(thridPersonCameraComponent_->getDirection());
-
-    context_.scene.AddGameObject(std::move(gameObject));
 }
 
 void RecoilStateBase::onLeave(const AimStopEvent &)

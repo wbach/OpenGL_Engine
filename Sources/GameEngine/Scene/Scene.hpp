@@ -74,9 +74,10 @@ public:
     Light& AddLight(const Light& light);
 
     // Add Entities
-    void AddGameObject(std::unique_ptr<GameObject> object);
+    void AddGameObject(std::unique_ptr<GameObject>);
+    void ChangeParent(GameObject&, GameObject&);
     bool RemoveGameObject(IdType);
-    bool RemoveGameObject(GameObject& object);
+    bool RemoveGameObject(GameObject&);
     void ClearGameObjects();
     void SetAddSceneEventCallback(AddEvent func);
     GameObject* CloneGameObject(GameObject&);
@@ -86,6 +87,7 @@ public:
     const std::unordered_map<uint32, GameObject*> GetAllGameObjectsPtrs() const;
     GameObject* GetGameObject(uint32) const;
     GameObject* GetGameObject(const std::string&) const;
+    GameObject& GetRootGameObject();
 
     // Cameras
     void UpdateCamera();

@@ -288,19 +288,22 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL),
                                                                          [this]() { ObjectControlAction(-1.f); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(MOVE_OBJECT), [this]() {
-        UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); });
-    });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        editorActions.at(MOVE_OBJECT),
+        [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
 
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(MOVE_OBJECT), [this]() { ReleaseDragObject(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(SELECT_OBJECT), [this]() {
-        MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        editorActions.at(SELECT_OBJECT),
+        [this]()
+        {
+            MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
 
-        SetSelectedGameObject(
-            mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
-    });
+            SetSelectedGameObject(
+                mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
+        });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         editorActions.at(EXIT), [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
@@ -314,12 +317,14 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT), [this]() {
-        if (selectedGameObject_)
-        {
-            DeleteGameObject(*selectedGameObject_);
-        }
-    });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT),
+                                                                         [this]()
+                                                                         {
+                                                                             if (selectedGameObject_)
+                                                                             {
+                                                                                 DeleteGameObject(*selectedGameObject_);
+                                                                             }
+                                                                         });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -582,13 +587,15 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     auto &transform                = gameObject->GetTransform();
     transformChangeSubscription_   = &transform;
     auto gameObjectId              = gameObject->GetId();
-    transformChangeSubscriptionId_ = transform.SubscribeOnChange([gameObjectId](const auto &) {
-        if (not transformChangedToSend_)
+    transformChangeSubscriptionId_ = transform.SubscribeOnChange(
+        [gameObjectId](const auto &)
         {
-            std::lock_guard<std::mutex> lk(transformChangedMutex_);
-            transformChangedToSend_ = gameObjectId;
-        }
-    });
+            if (not transformChangedToSend_)
+            {
+                std::lock_guard<std::mutex> lk(transformChangedMutex_);
+                transformChangedToSend_ = gameObjectId;
+            }
+        });
 
     DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
                                          transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
@@ -977,14 +984,16 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
 void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed,
                                                  float scaleSpeed)
 {
-    UseSelectedGameObject([this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject) {
-        IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
-        IncreseGameObjectScale(gameObject, GetScaleChangeValueBasedOnKeys(direction, scaleSpeed));
-        auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
-        moveVector      = gameObject.GetTransform().GetRotation().value_ * moveVector;
-        moveVector      = moveVector + gameObject.GetTransform().GetPosition();
-        gameObject.GetTransform().SetPosition(moveVector);
-    });
+    UseSelectedGameObject(
+        [this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject)
+        {
+            IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
+            IncreseGameObjectScale(gameObject, GetScaleChangeValueBasedOnKeys(direction, scaleSpeed));
+            auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
+            moveVector      = gameObject.GetTransform().GetRotation().value_ * moveVector;
+            moveVector      = moveVector + gameObject.GetTransform().GetPosition();
+            gameObject.GetTransform().SetPosition(moveVector);
+        });
 }
 
 void NetworkEditorInterface::CreateDragObject(GameObject &gameObject)
@@ -1091,10 +1100,12 @@ void NetworkEditorInterface::PaintTerrain()
 
 void NetworkEditorInterface::UpdateArrowsIndicatorPosition()
 {
-    UseSelectedGameObject([this](auto &gameObject) {
-        arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
-                                                         gameObject.GetWorldTransform().GetRotation());
-    });
+    UseSelectedGameObject(
+        [this](auto &gameObject)
+        {
+            arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
+                                                             gameObject.GetWorldTransform().GetRotation());
+        });
 }
 
 void NetworkEditorInterface::SendObjectCreatedNotf(const GameObject &gameObject)
@@ -1244,7 +1255,8 @@ void NetworkEditorInterface::SetPhysicsVisualizationAllObjcts(const EntryParamet
         else
         {
             UseSelectedGameObject(
-                [&](GameObject &go) {
+                [&](GameObject &go)
+                {
                     auto rigidBody = go.GetComponent<Components::Rigidbody>();
                     if (rigidBody)
                     {
@@ -1573,15 +1585,10 @@ void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 
     for (auto &terrain : terrains)
     {
-        auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
-
-        if (not tc)
-            continue;
-
         auto image    = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
-        auto blendMap = static_cast<GeneralTexture *>(tc->GetTexture(TerrainTextureType::blendMap));
+        auto blendMap = static_cast<GeneralTexture *>(terrain->GetTexture(TerrainTextureType::blendMap));
         blendMap->SetImage(std::move(image));
-        tc->BlendMapChanged();
+        terrain->BlendMapChanged();
     }
 }
 
@@ -1703,20 +1710,15 @@ void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 
     for (auto &terrain : terrains)
     {
-        auto tc = static_cast<Components::TerrainRendererComponent *>(terrain.second);
+        const auto &heightMap = *terrain->GetHeightMap();
 
-        if (not tc)
-            continue;
-
-        const auto &heightMap = *tc->GetHeightMap();
-
-        auto heightMapFile = *tc->GetTexture(TerrainTextureType::heightmap)->GetFile();
+        auto heightMapFile = *terrain->GetTexture(TerrainTextureType::heightmap)->GetFile();
 
         if (not generetedBlendMaps.count(heightMapFile.GetAbsoultePath()))
         {
             heightMapFile.AddSuffixToBaseName("_generatedBlendmap");
 
-            GenerateBlendMap(tc->GetTerrainConfiguration().GetScale(), heightMap, heightMapFile);
+            GenerateBlendMap(terrain->GetTerrainConfiguration().GetScale(), heightMap, heightMapFile);
             generetedBlendMaps.insert(heightMapFile.GetAbsoultePath());
         }
     }

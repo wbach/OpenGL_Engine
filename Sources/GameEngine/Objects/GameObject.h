@@ -30,6 +30,8 @@ public:
     void SetParent(GameObject*);
     GameObject* GetParent() const;
     GameObject* GetChild(IdType id) const;
+    void RemoveParent();
+    void ChangeParent(GameObject&);
     void MoveChild(std::unique_ptr<GameObject>);
     std::unique_ptr<GameObject> MoveChild(IdType);
     // return first child with name
@@ -75,6 +77,7 @@ public:
     void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
 
 private:
+    GameObject &getRootGameObject();
     void CalculateWorldTransform();
     vec3 ConvertWorldToLocalPosition(const vec3&);
     vec3 ConvertWorldToLocalScale(const vec3&);
@@ -90,6 +93,8 @@ protected:
     std::optional<uint32> parentIdTransfromSubscribtion_;
     std::optional<uint32> localTransfromSubscribtion_;
     GameObjects children_;
+    bool isStarted;
+    IdType isStartedSub;
 
 private:
     IdType id_;
@@ -156,6 +161,11 @@ inline T& GameObject::AddComponent()
 {
     auto component = componentFactory_.Create<T>(*this);
     components_.push_back(std::move(component));
+    if (isStarted)
+    {
+        components_.back()->ReqisterFunctions();
+        componentController_.OnObjectCreated(id_);
+    }
     return *static_cast<T*>(components_.back().get());
 }
 template <class T>

@@ -44,6 +44,7 @@ Transform::Transform(const Transform& t)
 
 uint32 Transform::SubscribeOnChange(std::function<void(const Transform&)> callback)
 {
+    std::lock_guard<std::mutex> lk(subscribeMutex_);
     subscribers_.push_back({idPool_, callback});
     ++idPool_;
     return idPool_ - 1;
@@ -53,14 +54,22 @@ void Transform::UnsubscribeOnChange(uint32 id)
 {
     if (not subscribers_.empty())
     {
+        std::lock_guard<std::mutex> lk(subscribeMutex_);
         auto iter =
             std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto& pair) { return pair.first == id; });
 
         if (iter != subscribers_.end())
         {
-            std::lock_guard<std::mutex> lk(subscribeMutex_);
             subscribers_.erase(iter);
         }
+        else
+        {
+            DEBUG_LOG("Subsribtion not found");
+        }
+    }
+    else
+    {
+        DEBUG_LOG("Subsribtion not found");
     }
 }
 

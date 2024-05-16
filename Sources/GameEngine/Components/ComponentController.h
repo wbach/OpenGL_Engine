@@ -5,9 +5,9 @@
 #include <set>
 #include <unordered_map>
 
+#include "FunctionType.h"
 #include "IComponent.h"
 #include "Types.h"
-#include "FunctionType.h"
 
 namespace GameEngine
 {
@@ -36,16 +36,20 @@ public:
     ~ComponentController();
 
     template <class T>
-    const RegistredComponentsMap& GetAllComonentsOfType() const
+    std::vector<T*> GetAllComonentsOfType() const
     {
+        std::vector<T*> result;
+
         auto iter = registredComponents_.find(typeid(T).hash_code());
 
         if (iter != registredComponents_.end())
         {
-            return iter->second;
+            for (const auto& [_, component] : iter->second)
+            {
+                result.push_back(static_cast<T*>(component));
+            }
         }
-
-        return DEFAULT_COMPONETNS_MAP;
+        return result;
     }
 
     FunctionId RegisterFunction(GameObjectId, FunctionType, std::function<void()>);

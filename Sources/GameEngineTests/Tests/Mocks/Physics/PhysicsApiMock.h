@@ -1,8 +1,8 @@
 #pragma once
 #include <gmock/gmock.h>
+
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-
 #include "Types.h"
 
 namespace GameEngine
@@ -40,5 +40,9 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD1(setVisualizatedRigidbody, void(const Physics::RigidbodyId&));
     MOCK_METHOD0(enableVisualizationForAllRigidbodys, void());
     MOCK_METHOD0(disableVisualizationForAllRigidbodys, void());
+    MOCK_METHOD2(setCollisionCallback,
+                 Physics::CollisionSubId(const Physics::RigidbodyId&,
+                                         std::function<void(const Physics::CollisionContactInfo&)>));
+    MOCK_METHOD1(celarCollisionCallback, void(const Physics::CollisionSubId&));
 };
 }  // namespace GameEngine

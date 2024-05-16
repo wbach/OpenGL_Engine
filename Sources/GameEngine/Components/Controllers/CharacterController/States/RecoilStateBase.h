@@ -30,14 +30,12 @@ public:
 protected:
     void setAnim();
     void stopAnim();
-    void shoot();
 
 protected:
     FsmContext& context_;
     std::optional<std::string> jointGroupName_;
     std::string animName_;
     ThridPersonCameraComponent* thridPersonCameraComponent_;
-    Utils::IdPool arrowIds;
 };
 }  // namespace Components
 }  // namespace GameEngine

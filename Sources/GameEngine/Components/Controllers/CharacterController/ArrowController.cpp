@@ -4,6 +4,8 @@
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Physics/CollisionContactInfo.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
@@ -11,11 +13,12 @@ namespace Components
 {
 ArrowController::ArrowController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(ArrowController).hash_code(), componentContext, gameObject)
+    , rigidbody{nullptr}
     , direction(VECTOR_FORWARD)
 {
 }
 
-ArrowController &ArrowController::setDirection(const vec3 & dir)
+ArrowController& ArrowController::setDirection(const vec3& dir)
 {
     direction = dir;
     return *this;
@@ -27,17 +30,32 @@ void ArrowController::CleanUp()
 
 void ArrowController::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart,
-                     [this]()
-                     {
-                         rigidbody = thisObject_.GetComponent<Rigidbody>();
-                         if (rigidbody)
-                         {
-                             rigidbody->InputParams().angularFactor_ = vec3(0);
-                             rigidbody->ApplyImpulse(direction * 10.f);
-                         }
-                     });
+    //    RegisterFunction(FunctionType::OnStart,
+    //                     [this]()
+    //                     {
+    //                         rigidbody = thisObject_.GetComponent<Rigidbody>();
+
+    //                     });
     RegisterFunction(FunctionType::Update, std::bind(&ArrowController::update, this));
+}
+
+void ArrowController::shoot()
+{
+    if (not rigidbody)
+    {
+        rigidbody = thisObject_.GetComponent<Rigidbody>();
+        if (rigidbody)
+        {
+            DEBUG_LOG("setCollisionCallback");
+            collisionSubId = componentContext_.physicsApi_.setCollisionCallback(
+                rigidbody->GetId(), [this](const auto& info) { onCollisionDetect(info); });
+        }
+    }
+    if (rigidbody)
+    {
+        rigidbody->InputParams().angularFactor_ = vec3(0);
+        rigidbody->ApplyImpulse(direction * 10.f);
+    }
 }
 
 void ArrowController::update()
@@ -46,11 +64,40 @@ void ArrowController::update()
     if (not rigidbody)
         return;
 
-//    const auto moveSpeed = vec3(1.0f);
+    //    const auto moveSpeed = vec3(1.0f);
 
-//    auto targetVelocity = rigidbody->GetRotation() * vec3(VECTOR_UP) * moveSpeed;
-//    rigidbody->SetVelocity(targetVelocity);
-//    //DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+    //    auto targetVelocity = rigidbody->GetRotation() * vec3(VECTOR_UP) * moveSpeed;
+    //    rigidbody->SetVelocity(targetVelocity);
+    //    //DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+}
+
+void ArrowController::onCollisionDetect(const Physics::CollisionContactInfo& info)
+{
+    if (not rigidbody)
+    {
+        WARNING_LOG("Something went wrong");
+        return;
+    }
+
+    DEBUG_LOG("Collision detected rigidbodyId=" + std::to_string(rigidbody->GetId()) + "(" +
+              std::to_string(info.rigidbodyId1) + ") with rigidbodyId=" + std::to_string(info.rigidbodyId2) +
+              ", Oncollision p1 : " + std::to_string(info.pos1) + ", p2 : " + std::to_string(info.pos2));
+
+    auto rigidbodies = componentContext_.componentController_.GetAllComonentsOfType<Rigidbody>();
+
+    auto iter = std::find_if(rigidbodies.begin(), rigidbodies.end(),
+                             [id = info.rigidbodyId2](const auto& rigidbody) { return id == rigidbody->GetId(); });
+
+    if (iter != rigidbodies.end())
+    {
+        if ((*iter)->GetParentGameObject().GetName() != "Player") // TO DO : check tag
+        {
+            thisObject_.RemoveComponent<Rigidbody>();
+            rigidbody = nullptr;
+
+            componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
+        }
+    }
 }
 
 void ArrowController::registerReadFunctions()

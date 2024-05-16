@@ -50,6 +50,7 @@ void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
         context_.animator.UnSubscribeForAnimationFrame(*subId_);
     }
 
+    context_.aimController.reload();
     subId_ = context_.animator.SubscribeForAnimationFrame(
         context_.animClipNames.drawArrow, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); });
 }

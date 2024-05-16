@@ -217,11 +217,11 @@ void CharacterController::Init()
         if (not aimJoint)
             ERROR_LOG("Aim joint not found");
 
-        impl->aimController_ = std::make_unique<AimController>(thisObject_, componentContext_.inputManager_,
+        impl->aimController_ = std::make_unique<AimController>(
+            componentContext_.scene_, thisObject_, componentContext_.inputManager_,
                                                                aimJoint ? *aimJoint : dummyJoint);
 
         impl->fsmContext.reset(new FsmContext{
-            componentContext_.scene_,
             *impl->attackFsm_,
             thisObject_,
             componentContext_.physicsApi_,

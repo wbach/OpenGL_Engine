@@ -103,6 +103,8 @@ void Rigidbody::OnStart()
                 SetScale(transform.GetScale());
             }
         });
+
+    DEBUG_LOG("[" + thisObject_.GetName() + "] Rigidbody created. Id : " + std::to_string(rigidBodyId_));
 }
 void Rigidbody::ReqisterFunctions()
 {
@@ -136,7 +138,7 @@ Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
     if (not rigidBodyId_)
         return *this;
 
-   // DEBUG_LOG("SetVelocityRigidbody " + std::to_string(velocity));
+    // DEBUG_LOG("SetVelocityRigidbody " + std::to_string(velocity));
     componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, velocity);
     return *this;
 }
@@ -276,6 +278,11 @@ Rigidbody::Params& Rigidbody::InputParams()
 const Rigidbody::Params& Rigidbody::InputParams() const
 {
     return inputParams_;
+}
+
+const std::optional<uint32>& Rigidbody::GetId() const
+{
+    return rigidBodyId_;
 }
 
 template <class T>

@@ -14,11 +14,14 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
                        Components::ComponentFactory& componentFactory, IdType id)
     : parent_(nullptr)
     , name_(name)
+    , isStarted{false}
     , id_(id)
     , componentFactory_(componentFactory)
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
+    isStartedSub =
+        componentController_.RegisterFunction(id_, Components::FunctionType::OnStart, [this]() { isStarted = true; });
 }
 
 GameObject::~GameObject()
@@ -37,6 +40,8 @@ GameObject::~GameObject()
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 
     DEBUG_LOG(name_);
+    if (isStartedSub)
+        componentController_.UnRegisterFunction(id_, Components::FunctionType::OnStart, isStartedSub);
 }
 Components::IComponent* GameObject::InitComponent(const TreeNode& node)
 {
@@ -99,6 +104,7 @@ void GameObject::SetParent(GameObject* parent)
     {
         if (parent_ and parentIdTransfromSubscribtion_)
         {
+            DEBUG_LOG("UnsubscribeOnWorldTransfromChange");
             parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
             parent_                        = nullptr;
             parentIdTransfromSubscribtion_ = std::nullopt;
@@ -132,6 +138,37 @@ GameObject* GameObject::GetChild(IdType id) const
             return result;
     }
     return nullptr;
+}
+
+void GameObject::RemoveParent()
+{
+    ChangeParent(getRootGameObject());
+}
+
+void GameObject::ChangeParent(GameObject& newParent)
+{
+    if (not parent_)
+    {
+        DEBUG_LOG("Root gameObject can not be moved");
+        return;
+    }
+
+    auto worldPosition = GetWorldTransform().GetPosition();
+    auto worldRotation = GetWorldTransform().GetRotation();
+    auto worldScale    = GetWorldTransform().GetScale();
+
+    auto freeGameObject = parent_->MoveChild(GetId());
+
+    if (freeGameObject)
+    {
+        auto go = freeGameObject.get();
+        newParent.MoveChild(std::move(freeGameObject));
+        go->SetWorldPosition(worldPosition);
+        go->SetWorldRotation(worldRotation);
+        go->SetWorldScale(worldScale);
+    }
+
+
 }
 
 void GameObject::MoveChild(std::unique_ptr<GameObject> object)
@@ -257,6 +294,17 @@ void GameObject::SetWorldPositionRotationScale(const vec3& position, const Quate
     auto localScale    = ConvertWorldToLocalScale(scale);
 
     localTransform_.SetPositionAndRotationAndScale(localPosition, localRotation, localScale);
+}
+
+GameObject& GameObject::getRootGameObject()
+{
+    GameObject* go = GetParent();
+    while (go->GetParent() != nullptr)
+    {
+        go = go->GetParent();
+    }
+    DEBUG_LOG(go->GetName());
+    return *go;
 }
 
 void GameObject::CalculateWorldTransform()

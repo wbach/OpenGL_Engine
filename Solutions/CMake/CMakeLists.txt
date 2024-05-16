@@ -1,7 +1,7 @@
 project(GameEngineCM)
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(DEFINED ENV{USERROOT})
@@ -85,7 +85,7 @@ message(STATUS "Build editor: ${BUILD_EDITOR}")
 
 SET(GCC_COVERAGE_LINK_FLAGS "-static-libgcc")
 #CMAKE_CXX_FLAGS
-SET(EngineCompileFlags "-std=c++17 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined -Wno-deprecated")
+SET(EngineCompileFlags "-std=c++20 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined -Wno-deprecated")
 SET(CMAKE_CXX_FLAGS "-g -O0 ")
 set(CMAKE_C_FLAGS "-g -O0")
 SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")

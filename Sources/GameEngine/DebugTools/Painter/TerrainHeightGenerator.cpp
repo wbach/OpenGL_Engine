@@ -218,21 +218,16 @@ void TerrainHeightGenerator::getTerrain()
 {
     const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
-    for (auto& [_, terrain] : components)
+    for (auto& terrain : components)
     {
         if (terrain->getParentGameObject().GetId() == *gameObjectId_)
-            terrains_.push_back(static_cast<Components::TerrainRendererComponent*>(terrain));
+            terrains_.push_back(terrain);
     }
 }
 
 void TerrainHeightGenerator::getAllSceneTerrains()
 {
-    const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
-
-    for (auto& [_, terrain] : components)
-    {
-        terrains_.push_back(static_cast<Components::TerrainRendererComponent*>(terrain));
-    }
+    terrains_= componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 }
 
 float linearInterpolation(float a, float b, float blend)

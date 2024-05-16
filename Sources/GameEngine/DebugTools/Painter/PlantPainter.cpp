@@ -134,17 +134,15 @@ void PlantPainter::generatePositions()
     DEBUG_LOG("generatePositions");
     auto terrainRendererComponents = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 
-    for (auto& [_, terrainComponent] : terrainRendererComponents)
+    for (auto& terrainRendererComponent : terrainRendererComponents)
     {
-        auto& terrainRendererComponent = *static_cast<Components::TerrainRendererComponent*>(terrainComponent);
-
         TerrainHeightGetter terrainHeightGetter(
-            terrainComponent->getParentGameObject().GetWorldTransform().GetScale(),
-            *terrainRendererComponent.GetHeightMap(),
-            terrainComponent->GetParentGameObject().GetWorldTransform().GetPosition());
+            terrainRendererComponent->getParentGameObject().GetWorldTransform().GetScale(),
+            *terrainRendererComponent->GetHeightMap(),
+            terrainRendererComponent->GetParentGameObject().GetWorldTransform().GetPosition());
 
-        auto halfScale = terrainComponent->getParentGameObject().GetWorldTransform().GetScale() / 2.f;
-        auto position  = terrainComponent->GetParentGameObject().GetWorldTransform().GetPosition();
+        auto halfScale = terrainRendererComponent->getParentGameObject().GetWorldTransform().GetScale() / 2.f;
+        auto position  = terrainRendererComponent->GetParentGameObject().GetWorldTransform().GetPosition();
 
         vec2 start = position - halfScale;
         vec2 end   = position + halfScale;
@@ -165,7 +163,7 @@ void PlantPainter::generatePositions()
         }
     }
 }
-float PlantPainter::getWorldScaleBrushSize() 
+float PlantPainter::getWorldScaleBrushSize()
 {
     return static_cast<float>(paintContext_.brushSize);
 }

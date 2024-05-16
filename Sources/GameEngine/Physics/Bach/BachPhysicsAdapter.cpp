@@ -43,7 +43,7 @@ struct overloaded : Ts...
     using Ts::operator()...;
 };
 template <class... Ts>
-overloaded(Ts...)->overloaded<Ts...>;
+overloaded(Ts...) -> overloaded<Ts...>;
 
 typedef std::variant<TerrainShape, SphehreShape, MeshShape, BoxShape> Shape;
 
@@ -74,13 +74,14 @@ void collision(const BoxShape&, const TerrainShape&)
 template <typename T>
 void collision(const Shape& collisionShape, const T& shape)
 {
-    std::visit(overloaded{
-                   [&shape](const SphehreShape& arg) { collision(arg, shape); },
-                   [&shape](const TerrainShape& arg) { collision(arg, shape); },
-                   [&shape](const MeshShape& arg) { collision(arg, shape); },
-                   [&shape](const BoxShape& arg) { collision(arg, shape); },
-               },
-               collisionShape);
+    std::visit(
+        overloaded{
+            [&shape](const SphehreShape& arg) { collision(arg, shape); },
+            [&shape](const TerrainShape& arg) { collision(arg, shape); },
+            [&shape](const MeshShape& arg) { collision(arg, shape); },
+            [&shape](const BoxShape& arg) { collision(arg, shape); },
+        },
+        collisionShape);
 }
 
 class Rigidbody
@@ -188,11 +189,13 @@ ShapeId BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec3&, const
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
-ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool)
+ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&,
+                                               const vec3&, bool)
 {
     return impl_->id_++;
 }
-RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, float mass, bool isStatic, bool&)
+RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, float mass,
+                                                bool isStatic, bool&)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, isStatic, *shapeId)});
     return impl_->id_++;
@@ -267,6 +270,16 @@ void BachPhysicsAdapter::enableVisualizationForAllRigidbodys()
 }
 void BachPhysicsAdapter::disableVisualizationForAllRigidbodys()
 {
+}
+
+Physics::CollisionSubId BachPhysicsAdapter::setCollisionCallback(const RigidbodyId&, std::function<void(const CollisionContactInfo&)>)
+{
+    return {};
+}
+
+void BachPhysicsAdapter::celarCollisionCallback(const CollisionSubId &)
+{
+
 }
 }  // namespace Physics
 }  // namespace GameEngine

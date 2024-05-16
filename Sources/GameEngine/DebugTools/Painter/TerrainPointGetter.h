@@ -34,7 +34,6 @@ public:
     std::vector<Components::TerrainRendererComponent*> GetSceneTerrains() const;
 
 private:
-    void GetAllSceneTerrains();
     bool IntersectionInRange(float start, float finish, const vec3& ray);
     vec3 GetPointOnRay(const vec3& ray, float distance);
     bool IsUnderGround(const vec3& testPoint);

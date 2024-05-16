@@ -197,6 +197,32 @@ void Scene::AddGameObject(std::unique_ptr<GameObject> object)
     rootGameObject_->AddChild(std::move(object));
 }
 
+void Scene::ChangeParent(GameObject& gameObject, GameObject& newParent)
+{
+    auto currentParent = gameObject.GetParent();
+
+    if (not currentParent)
+    {
+        DEBUG_LOG("Root gameObject can not be moved");
+        return;
+    }
+
+    auto worldPosition = gameObject.GetWorldTransform().GetPosition();
+    auto worldRotation = gameObject.GetWorldTransform().GetRotation();
+    auto worldScale    = gameObject.GetWorldTransform().GetScale();
+
+    auto freeGameObject = currentParent->MoveChild(gameObject.GetId());
+
+    if (freeGameObject)
+    {
+        auto go = freeGameObject.get();
+        newParent.MoveChild(std::move(freeGameObject));
+        go->SetWorldPosition(worldPosition);
+        go->SetWorldRotation(worldRotation);
+        go->SetWorldScale(worldScale);
+    }
+}
+
 bool Scene::RemoveGameObject(IdType id)
 {
     gameObjectIdPool_.releaseId(id);
@@ -239,6 +265,15 @@ GameObject* Scene::GetGameObject(uint32 id) const
 GameObject* Scene::GetGameObject(const std::string& name) const
 {
     return rootGameObject_->GetChild(name);
+}
+
+GameObject &Scene::GetRootGameObject()
+{
+    if (not rootGameObject_)
+    {
+        ERROR_LOG("Something went wrong. Not initilized scene?");
+    }
+    return *rootGameObject_;
 }
 
 void Scene::UpdateCamera()
@@ -342,12 +377,12 @@ void Scene::SendEvent(EngineEvent& event)
     addEngineEvent(event);
 }
 
-DisplayManager *Scene::getDisplayManager()
+DisplayManager* Scene::getDisplayManager()
 {
     return displayManager_;
 }
 
-Input::InputManager *Scene::getInputManager()
+Input::InputManager* Scene::getInputManager()
 {
     return inputManager_;
 }

@@ -22,16 +22,8 @@ namespace Bullet
 namespace
 {
 const float TRANSFROM_CHANGED_EPSILON = std::numeric_limits<float>::epsilon();
-}  // namespace
 
-// bool colissionCallbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* , int partId0, int index0,
-//                           const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1)
-//{
-//    //  ((bulletObject*)obj1->getUserPointer())->hit=true;
-//    //  ((bulletObject*)obj2->getUserPointer())->hit=true;
-//    DEBUG_LOG("collision");
-//    return false;
-//}
+}  // namespace
 
 struct BulletAdapter::Pimpl
 {
@@ -56,8 +48,12 @@ void BulletAdapter::EnableSimulation()
 {
     simualtePhysics_ = true;
 }
+
 void BulletAdapter::Simulate(float deltaTime)
 {
+    RemoveQueuedRigidbodies();
+    RemoveQueuedCollisionCallbacks();
+
     if (simualtePhysics_)
     {
         std::lock_guard<std::mutex> lk(impl_->worldMutex_);
@@ -78,6 +74,18 @@ void BulletAdapter::Simulate(float deltaTime)
                 rigidbody.isUpdating_ = true;
                 rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
                 rigidbody.isUpdating_ = false;
+            }
+        }
+
+        for (auto& [_, pair] : collisionContactInfoSub)
+        {
+            auto& [rigidbodyId, callback] = pair;
+            if (auto rigidbody = getRigidbody(rigidbodyId))
+            {
+                if (rigidbody)
+                {
+                    btDynamicWorld->contactTest(&*rigidbody->btRigidbody_, callback);
+                }
             }
         }
     }
@@ -331,7 +339,7 @@ std::optional<vec3> BulletAdapter::GetAngularFactor(const RigidbodyId& rigidBody
     }
     return std::nullopt;
 }
-void BulletAdapter::RemoveRigidBody(const RigidbodyId& rigidBodyId)
+void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 {
     if (not rigidBodyId)
     {
@@ -341,6 +349,15 @@ void BulletAdapter::RemoveRigidBody(const RigidbodyId& rigidBodyId)
 
     std::lock_guard<std::mutex> lk(impl_->worldMutex_);
     auto dynamicRigidBodiesIter = rigidBodies.find(*rigidBodyId);
+
+    auto collisionContactInfoSubIter =
+        std::find_if(collisionContactInfoSub.begin(), collisionContactInfoSub.end(),
+                     [rigidBodyId](const auto& p) { return rigidBodyId == p.second.first; });
+
+    if (collisionContactInfoSubIter != collisionContactInfoSub.end())
+    {
+        collisionContactInfoSub.erase(collisionContactInfoSubIter);
+    }
 
     if (dynamicRigidBodiesIter != rigidBodies.end())
     {
@@ -360,6 +377,12 @@ void BulletAdapter::RemoveRigidBody(const RigidbodyId& rigidBodyId)
     }
 
     ERROR_LOG("Rigidbody not found " + std::to_string(*rigidBodyId));
+}
+
+void BulletAdapter::RemoveRigidBody(const RigidbodyId& id)
+{
+    std::lock_guard<std::mutex> lk(rigidbodyToRemoveMutex);
+    rigidbodyToRemove.push_back(id);
 }
 void BulletAdapter::RemoveShape(const ShapeId& shapeId)
 {
@@ -527,6 +550,30 @@ void BulletAdapter::disableVisualizationForAllRigidbodys()
         body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
     }
 }
+
+CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyId,
+                                                   std::function<void(const CollisionContactInfo&)> callback)
+{
+    if (getRigidbody(rigidBodyId))
+    {
+        std::lock_guard<std::mutex> lk(impl_->worldMutex_);
+        auto id = collisionContactInfoSubIdPool_.getId();
+        collisionContactInfoSub.insert({id, {*rigidBodyId, CollisionResultCallback(callback)}});
+        return id;
+    }
+
+    WARNING_LOG("rigidBodyId not found : " + std::to_string(rigidBodyId));
+    return {};
+}
+
+void BulletAdapter::celarCollisionCallback(const CollisionSubId& id)
+{
+    if (id)
+    {
+        std::lock_guard<std::mutex> lk(collisionCallbacksToRemoveMutex);
+        collisionCallbacksToRemove.push_back(id);
+    }
+}
 void BulletAdapter::createWorld()
 {
     collisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
@@ -546,7 +593,7 @@ RigidbodyId BulletAdapter::addRigidbody(std::unordered_map<uint32, Rigidbody>& t
     auto rigidBodyId = idPool_.getId();
     target.insert({rigidBodyId, std::move(newBody)});
     auto& body = target.at(rigidBodyId).btRigidbody_;
-    body->setUserIndex(-1);
+    body->setUserIndex(static_cast<int>(rigidBodyId));
 
     btDynamicWorld->addRigidBody(body.get());
     btDynamicWorld->updateSingleAabb(body.get());
@@ -616,6 +663,27 @@ void BulletAdapter::clearRigidbody(const Rigidbody& rigidbody)
             idPool_.releaseId(shapeId);
         }
     }
+}
+
+void BulletAdapter::RemoveQueuedRigidbodies()
+{
+    std::lock_guard<std::mutex> lk(rigidbodyToRemoveMutex);
+    for (const auto& id : rigidbodyToRemove)
+    {
+        RemoveRigidBodyImpl(id);
+    }
+    rigidbodyToRemove.clear();
+}
+
+void BulletAdapter::RemoveQueuedCollisionCallbacks()
+{
+    std::lock_guard<std::mutex> lk(collisionCallbacksToRemoveMutex);
+
+    for (const auto& id : collisionCallbacksToRemove)
+    {
+        collisionContactInfoSub.erase(*id);
+    }
+    collisionCallbacksToRemove.clear();
 }
 }  // namespace Bullet
 

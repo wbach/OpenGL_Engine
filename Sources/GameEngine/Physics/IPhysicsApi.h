@@ -16,12 +16,15 @@ namespace GameEngine
 class HeightMap;
 namespace Physics
 {
-using RigidbodyId    = std::optional<uint32>;
-using ShapeId        = std::optional<uint32>;
+using RigidbodyId    = std::optional<IdType>;
+using ShapeId        = std::optional<IdType>;
+using CollisionSubId = std::optional<IdType>;
 using PositionOffset = vec3;
 using Scale          = vec3;
 using Size           = vec3;
 using Radius         = float;
+
+struct CollisionContactInfo;
 
 struct IPhysicsApi
 {
@@ -57,6 +60,9 @@ struct IPhysicsApi
     virtual void setVisualizatedRigidbody(const RigidbodyId&)                                                     = 0;
     virtual void enableVisualizationForAllRigidbodys()                                                            = 0;
     virtual void disableVisualizationForAllRigidbodys()                                                           = 0;
+    virtual CollisionSubId setCollisionCallback(const RigidbodyId&,
+                                                std::function<void(const CollisionContactInfo&)>)                 = 0;
+    virtual void celarCollisionCallback(const CollisionSubId&)                                                    = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

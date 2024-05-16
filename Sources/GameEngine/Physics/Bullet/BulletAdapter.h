@@ -8,6 +8,7 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "Rigidbody.h"
 #include "Shape.h"
+#include "CollisionResultCallback.h"
 
 namespace GraphicsApi
 {
@@ -38,6 +39,7 @@ public:
                                const vec3&, bool) override;
     RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, float, bool, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
+    void RemoveRigidBodyImpl(const RigidbodyId&);
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
     void ApplyImpulse(const RigidbodyId&, const vec3& impulse) override;
@@ -57,6 +59,8 @@ public:
     void setVisualizatedRigidbody(const RigidbodyId&) override;
     void enableVisualizationForAllRigidbodys() override;
     void disableVisualizationForAllRigidbodys() override;
+    CollisionSubId setCollisionCallback(const RigidbodyId&, std::function<void(const CollisionContactInfo&)>) override;
+    void celarCollisionCallback(const CollisionSubId&) override;
 
 private:
     void createWorld();
@@ -64,6 +68,8 @@ private:
     Rigidbody* getRigidbody(const RigidbodyId&);
     const Rigidbody* getRigidbody(const RigidbodyId&) const;
     void clearRigidbody(const Rigidbody&);
+    void RemoveQueuedRigidbodies();
+    void RemoveQueuedCollisionCallbacks();
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;
@@ -75,7 +81,14 @@ private:
     std::unordered_map<uint32, Rigidbody> rigidBodies;
     std::unordered_map<uint32, Rigidbody> staticRigidBodies;
     std::unordered_map<uint32, std::unique_ptr<Shape>> shapes_;
+    std::unordered_map<uint32, std::pair<RigidbodyId, CollisionResultCallback>> collisionContactInfoSub;
+    std::vector<RigidbodyId> rigidbodyToRemove;
+    std::vector<RigidbodyId> collisionCallbacksToRemove;
 
+    std::mutex rigidbodyToRemoveMutex;
+    std::mutex collisionCallbacksToRemoveMutex;
+
+    Utils::IdPool collisionContactInfoSubIdPool_;
     float simulationStep_;
     bool simualtePhysics_;
     Utils::IdPool idPool_;
