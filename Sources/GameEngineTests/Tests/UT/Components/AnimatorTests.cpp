@@ -95,8 +95,8 @@ TEST_F(AnimatorTestSchould, GetLastNextFrame)
     sut_.setDeltaTime(currentTime);
     const auto& anim  = sut_.getAnimationClips().at(CLIP_NAME).clip;
     auto [prevFrame, nextFrame] = getPreviousAndNextFrames(anim, currentTime);
-    ASSERT_FLOAT_EQ(prevFrame->timeStamp, 0.33f);
-    ASSERT_FLOAT_EQ(nextFrame->timeStamp, 0.6f);
+    ASSERT_FLOAT_EQ(prevFrame->timeStamp.value, 0.33f);
+    ASSERT_FLOAT_EQ(nextFrame->timeStamp.value, 0.6f);
 }
 
 TEST_F(AnimatorTestSchould, FullUpdateOneCycle)

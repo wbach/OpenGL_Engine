@@ -26,14 +26,14 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
     auto tmpSubscirbers = clipInfo.subscribers;
     for (const auto& sub : tmpSubscirbers)
     {
-        if (compare(sub.timeStamp, currentFrame->timeStamp) and
-            not compare(currentFrame->timeStamp, previousFrameTimeStamp))
+        if (compare(sub.timeStamp, currentFrame->timeStamp.value) and
+            not compare(currentFrame->timeStamp.value, previousFrameTimeStamp))
         {
             sub.callback();
         }
     }
 
-    previousFrameTimeStamp = currentFrame->timeStamp;
+    previousFrameTimeStamp = currentFrame->timeStamp.value;
 }
 
 bool AnimationStateBase::increaseAnimationTime(float& currentTime, float& previousFrameTimeStamp,

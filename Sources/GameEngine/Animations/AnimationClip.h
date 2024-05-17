@@ -1,11 +1,43 @@
 #pragma once
-#include "KeyFrame.h"
 #include <optional>
+
+#include "KeyFrame.h"
 
 namespace GameEngine
 {
 namespace Animation
 {
+struct FrameIndex
+{
+    size_t value;
+
+    FrameIndex& operator=(size_t b)
+    {
+        value = b;
+        return *this;
+    }
+    FrameIndex& operator=(FrameIndex b)
+    {
+        value = b.value;
+        return *this;
+    }
+    bool operator==(const FrameIndex& v) const
+    {
+        return value == v.value;
+    }
+    bool operator!=(const FrameIndex& v) const
+    {
+        return value != v.value;
+    }
+    bool operator<(const FrameIndex& a)
+    {
+        return value < a.value;
+    }
+    bool operator>(const FrameIndex& a)
+    {
+        return value > a.value;
+    }
+};
 class AnimationClip
 {
 public:
@@ -18,11 +50,11 @@ public:
     AnimationClip();
     AnimationClip(const std::string&);
     float GetLength() const;
-    KeyFrame &AddFrame(const KeyFrame&);
+    KeyFrame& AddFrame(const KeyFrame&);
     const std::vector<KeyFrame>& GetFrames() const;
     void SetLength(float l);
-    KeyFrame* getFrame(float);
-    KeyFrame* getFrame(size_t);
+    KeyFrame* getFrame(TimeStamp);
+    KeyFrame* getFrame(FrameIndex);
     std::optional<uint32> getFrameId(float);
 
 public:
@@ -40,4 +72,4 @@ private:
 namespace std
 {
 string to_string(const GameEngine::Animation::AnimationClip&);
-} // namespace std
+}  // namespace std

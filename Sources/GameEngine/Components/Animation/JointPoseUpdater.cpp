@@ -1,5 +1,6 @@
 #include "JointPoseUpdater.h"
 
+#include <Logger/Log.h>
 #include <Utils/TreeNode.h>
 
 #include "GameEngine/Objects/GameObject.h"
@@ -28,12 +29,14 @@ JointPoseUpdater::JointPoseUpdater(GameObject& go, Animation::Joint* j, const ve
 
 void JointPoseUpdater::fillOffsets()
 {
-    if (not joint)
+    auto parent = owner.GetParent();
+    if (not joint or not parent)
     {
+        ERROR_LOG("Joint or parent not set!");
         return;
     }
 
-    auto currentParentWorldMatrix = owner.GetParent()->GetWorldTransform().CalculateCurrentMatrix();
+    auto currentParentWorldMatrix = parent->GetWorldTransform().CalculateCurrentMatrix();
 
     auto worldBoneMatrix = currentParentWorldMatrix * meshTransform * glm::inverse(joint->offset);
     auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);

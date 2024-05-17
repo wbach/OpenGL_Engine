@@ -2,8 +2,8 @@
 
 #include <Logger/Log.h>
 
-#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -20,7 +20,7 @@ ArrowController::ArrowController(ComponentContext& componentContext, GameObject&
 {
 }
 
-ArrowController &ArrowController::setCameraComponent(ThridPersonCameraComponent * cameraComponent)
+ArrowController& ArrowController::setCameraComponent(ThridPersonCameraComponent* cameraComponent)
 {
     thridPersonCameraComponent = cameraComponent;
     return *this;
@@ -28,6 +28,11 @@ ArrowController &ArrowController::setCameraComponent(ThridPersonCameraComponent 
 
 void ArrowController::CleanUp()
 {
+    if (collisionSubId)
+    {
+        componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
+        collisionSubId.reset();
+    }
 }
 
 void ArrowController::ReqisterFunctions()
@@ -92,12 +97,13 @@ void ArrowController::onCollisionDetect(const Physics::CollisionContactInfo& inf
 
     if (iter != rigidbodies.end())
     {
-        if ((*iter)->GetParentGameObject().GetName() != "Player") // TO DO : check tag
+        if ((*iter)->GetParentGameObject().GetName() != "Player")  // TO DO : check tag
         {
             thisObject_.RemoveComponent<Rigidbody>();
             rigidbody = nullptr;
 
             componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
+            collisionSubId.reset();
         }
     }
 }

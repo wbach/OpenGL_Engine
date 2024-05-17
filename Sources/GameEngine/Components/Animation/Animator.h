@@ -53,6 +53,7 @@ public:
     GraphicsApi::ID getPerPoseBufferId() const;
     void setPlayOnceForAnimationClip(const std::string&);
 
+    IdType SubscribeForAnimationFrame(const std::string&, std::function<void()>, Animation::FrameIndex);
     IdType SubscribeForAnimationFrame(const std::string&, std::function<void()>, float = -1);
     void UnSubscribeForAnimationFrame(IdType);
 

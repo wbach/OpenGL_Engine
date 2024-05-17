@@ -76,20 +76,47 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
         iter->second.clip.playType = Animation::AnimationClip::PlayType::once;
     }
 }
-IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frame)
+
+IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
+                                            Animation::FrameIndex index)
+{
+    auto iter = animationClipInfo_.find(animName);
+    if (iter != animationClipInfo_.end())
+    {
+        const auto& frames = iter->second.clip.GetFrames();
+
+        if (not frames.empty() and index.value < frames.size())
+        {
+            auto id = animationEndIdPool_.getId();
+            float frameTimeStamp = frames[static_cast<size_t>(index.value)].timeStamp.value;
+
+            auto& subscribers = iter->second.subscribers;
+            subscribers.push_back({id, function, frameTimeStamp});
+            animationClipInfoSubscriptions_.insert({id, &subscribers});
+
+            DEBUG_LOG("SubscribeForAnimationFrame " + animName + " id : " + std::to_string(id));
+            return id;
+        }
+    }
+
+    WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found or frames are empty!");
+    return 0;
+}
+IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
+                                            float frameTimeStamp)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
     {
         auto id = animationEndIdPool_.getId();
 
-        if (frame < 0.0f)
+        if (frameTimeStamp < 0.0f)
         {
-            frame = iter->second.clip.GetFrames().back().timeStamp;
+            frameTimeStamp = iter->second.clip.GetFrames().back().timeStamp.value;
         }
 
         auto& subscribers = iter->second.subscribers;
-        subscribers.push_back({id, function, frame});
+        subscribers.push_back({id, function, frameTimeStamp});
         animationClipInfoSubscriptions_.insert({id, &subscribers});
 
         DEBUG_LOG("SubscribeForAnimationFrame " + animName + " id : " + std::to_string(id));
@@ -106,10 +133,12 @@ void Animator::UnSubscribeForAnimationFrame(IdType id)
     if (iter != animationClipInfoSubscriptions_.end())
     {
         auto& subscribers = *iter->second;
-        auto subIter      = std::find_if(subscribers.begin(), subscribers.end(), [id](const auto& sub) {
-            DEBUG_LOG("UnSubscribeForAnimationFrame " + std::to_string(id));
-            return sub.id == id;
-        });
+        auto subIter      = std::find_if(subscribers.begin(), subscribers.end(),
+                                         [id](const auto& sub)
+                                         {
+                                        DEBUG_LOG("UnSubscribeForAnimationFrame " + std::to_string(id));
+                                        return sub.id == id;
+                                    });
 
         if (subIter != subscribers.end())
             subscribers.erase(subIter);
@@ -118,7 +147,7 @@ void Animator::UnSubscribeForAnimationFrame(IdType id)
     }
 }
 
-Joint *Animator::GetRootJoint()
+Joint* Animator::GetRootJoint()
 {
     return &jointData_.rootJoint;
 }
@@ -412,7 +441,8 @@ void Animator::initAnimationClips(const Model& model)
 
 void Animator::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
 

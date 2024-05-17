@@ -57,8 +57,8 @@ void interpolatePoses(Pose& currentPose, const Animation::KeyFrame& previousFram
 
 float calculateProgression(const Animation::KeyFrame& previousFrame, const Animation::KeyFrame& nextFrame, float time)
 {
-    float totalTime   = nextFrame.timeStamp - previousFrame.timeStamp;
-    float currentTime = time - previousFrame.timeStamp;
+    float totalTime   = nextFrame.timeStamp.value - previousFrame.timeStamp.value;
+    float currentTime = time - previousFrame.timeStamp.value;
     return glm::clamp(currentTime / totalTime, 0.f, 1.f);
 }
 
@@ -72,7 +72,7 @@ CurrentFrames getPreviousAndNextFrames(const Animation::AnimationClip& clip, flo
     for (uint32 i = 1; i < allFrames.size(); i++)
     {
         nextFrame = &allFrames[i];
-        if (nextFrame->timeStamp > time)
+        if (nextFrame->timeStamp.value > time)
             break;
 
         previousFrame = &allFrames[i];
@@ -102,7 +102,7 @@ void calculateCurrentAnimationPose(Pose& currentPose, const Animation::Animation
 Animation::KeyFrame convert(const Pose& pose, float timestamp)
 {
     Animation::KeyFrame result;
-    result.timeStamp = timestamp;
+    result.timeStamp.value = timestamp;
 
     for (const auto& pair : pose.data)
     {

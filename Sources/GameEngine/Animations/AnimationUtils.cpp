@@ -124,7 +124,7 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
     for (const auto& frame : animationClip.GetFrames())
     {
         auto& keyFrame = keyFramesNode.addChild("KeyFrame");
-        keyFrame.addChild("timeStamp", std::to_string(frame.timeStamp));
+        keyFrame.addChild("timeStamp", std::to_string(frame.timeStamp.value));
         auto& jontTransformsNode = keyFrame.addChild("Transforms");
 
         for (const auto& [jointId, transform] : frame.transforms)

@@ -378,7 +378,7 @@ void ColladaDae::FillAnimator(std::unordered_map<std::string, Animation::Animati
                                 {
                                     if (frames.size() <= frameId)
                                         frames.emplace_back();
-                                    frames[frameId++].timeStamp = frameTime;
+                                    frames[frameId++].timeStamp.value = frameTime;
                                 }
                                 isSetTimeStamp = true;
                             }

@@ -546,7 +546,7 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
 
 Animation::KeyFrame& AssimpLoader::getFrameByTimeStamp(Animation::AnimationClip& clip, float time)
 {
-    auto frame = clip.getFrame(time);
+    auto frame = clip.getFrame(Animation::TimeStamp{time});
 
     if (not frame)
     {

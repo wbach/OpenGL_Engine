@@ -1,6 +1,7 @@
 #pragma once
 #include <Types.h>
 #include <Utils/IdPool.h>
+#include <memory>
 
 namespace Input
 {
@@ -17,13 +18,16 @@ struct Joint;
 }  // namespace Animation
 namespace Components
 {
+class Animator;
 class Rigidbody;
 class ThridPersonCameraComponent;
+class JointPoseUpdater;
 
 class AimController
 {
 public:
     AimController(Scene&, GameObject&, Input::InputManager&, Animation::Joint&);
+    ~AimController();
     void enter();
     void reload();
     void update();
@@ -47,8 +51,13 @@ private:
 
     ThridPersonCameraComponent* thridPersonCameraComponent;
     Rigidbody* rigidbody;
+    Animator* animator;
     float camSensitive;
     vec2 boneRotatationLimit;
+
+    std::unique_ptr<Components::JointPoseUpdater> jointPoseUpdater;
+    std::optional<uint32> updateJointBufferSubId_;
+    std::optional<IdType> subscribeForDrawArrowAnimationFrame;
 };
 }  // namespace Components
 }  // namespace GameEngine

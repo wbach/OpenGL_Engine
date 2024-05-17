@@ -31,7 +31,7 @@ KeyFrame& AnimationClip::AddFrame(const KeyFrame& frame)
     auto insertedFrameIter = frames.insert(it, frame);
 
     if (frame.timeStamp > length)
-        length = frame.timeStamp;
+        length = frame.timeStamp.value;
 
     return *insertedFrameIter;
 }
@@ -46,17 +46,17 @@ void AnimationClip::SetLength(float l)
     length = l;
 }
 
-KeyFrame* AnimationClip::getFrame(float time)
+KeyFrame* AnimationClip::getFrame(TimeStamp time)
 {
     auto iter = std::find_if(frames.begin(), frames.end(),
-    [time](const auto& frame) { return compare(frame.timeStamp, time); });
+    [time](const auto& frame) { return compare(frame.timeStamp.value, time.value); });
 
     return iter != frames.end() ? &*iter : nullptr;
 }
 
-KeyFrame* AnimationClip::getFrame(size_t i)
+KeyFrame* AnimationClip::getFrame(FrameIndex i)
 {
-    return i < frames.size() ? &frames[i] : nullptr;
+    return i.value < frames.size() ? &frames[i.value] : nullptr;
 }
 
 std::optional<uint32> AnimationClip::getFrameId(float time)
@@ -76,7 +76,7 @@ string to_string(const GameEngine::Animation::AnimationClip& clip)
     ss << "Animation clip : " << clip.name << '\n';
     for (const auto& frame : clip.GetFrames())
     {
-        ss << "frame time : " << std::to_string(frame.timeStamp) << '\n';
+        ss << "frame time : " << std::to_string(frame.timeStamp.value) << '\n';
         for (auto& transform : frame.transforms)
         {
             ss << "name : " << transform.first << " position : " << std::to_string(transform.second.position)

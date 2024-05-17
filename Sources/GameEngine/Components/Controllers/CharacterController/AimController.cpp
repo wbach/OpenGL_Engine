@@ -5,7 +5,8 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Animations/Joint.h"
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Animation/JointPoseUpdater.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/ArrowController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
@@ -31,8 +32,13 @@ AimController::AimController(Scene& scene, GameObject& gameObject, Input::InputM
     , gameObject{gameObject}
     , thridPersonCameraComponent{gameObject.GetComponent<ThridPersonCameraComponent>()}
     , rigidbody{gameObject.GetComponent<Rigidbody>()}
+    , animator{gameObject.GetComponent<Animator>()}
     , camSensitive{0.2f}
     , boneRotatationLimit{0, 0}  // {-75.f, 45.f}
+{
+}
+
+AimController::~AimController()
 {
 }
 
@@ -41,12 +47,17 @@ void AimController::enter()
     joint.ignoreParentRotation = true;
     joint.additionalUserMofiyTransform.set(matrixRotationOffset, mat4(1.0f));
     inputManager.CalcualteMouseMove();
-    createArrowObject();
+
+    if (not subscribeForDrawArrowAnimationFrame)
+    {
+        subscribeForDrawArrowAnimationFrame = animator->SubscribeForAnimationFrame(
+            "StandingDrawArrow", [this]() { createArrowObject(); }, Animation::FrameIndex{10});
+    }
 }
 
 void AimController::reload()
 {
-    createArrowObject();
+    // createArrowObject();
 }
 
 void AimController::update()
@@ -73,6 +84,12 @@ void AimController::reset()
         scene.RemoveGameObject(*arrowGameObject);
         arrowGameObject = nullptr;
     }
+
+    if (subscribeForDrawArrowAnimationFrame)
+    {
+        animator->UnSubscribeForAnimationFrame(*subscribeForDrawArrowAnimationFrame);
+        subscribeForDrawArrowAnimationFrame.reset();
+    }
 }
 
 void AimController::shoot()
@@ -84,6 +101,10 @@ void AimController::shoot()
         arrowGameObject->AddComponent<Components::Rigidbody>();
         arrowGameObject->GetComponent<Components::ArrowController>()->shoot();
         arrowGameObject = nullptr;
+        if (updateJointBufferSubId_)
+            animator->unSubscribeForPoseUpdateBuffer(*updateJointBufferSubId_);
+        updateJointBufferSubId_.reset();
+        jointPoseUpdater.reset();
     }
 }
 
@@ -128,7 +149,7 @@ void AimController::createArrowObject()
     if (arrowGameObject)
         return;
 
-    auto path = Utils::GetAbsolutePath(EngineConf.files.data) + "/mixamo.com/arrow.obj";
+    auto path = Utils::GetAbsolutePath(EngineConf.files.data) + "/mixamo.com/arrow2.obj";
     if (not Utils::CheckFileExist(path))
     {
         WARNING_LOG("arrow model path not found. Path: \"" + path + "\"");
@@ -144,19 +165,40 @@ void AimController::createArrowObject()
 
     auto arrowObject = scene.CreateGameObject(gameObject.GetName() + "_Arrow_" + std::to_string(id));
     arrowObject->AddComponent<Components::RendererComponent>().AddModel(path);
-
     arrowObject->AddComponent<Components::CapsuleShape>().SetHeight(1.0f).SetRadius(0.05f);
-    arrowObject->GetTransform().SetPositionAndRotationAndScale(vec3(-0.15f, 1.25f, 0), DegreesVec3(90.0, 0, 0),
-                                                               1.f / gameObject.GetWorldTransform().GetScale());
-
     arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
-    //    auto& poseUpdater = arrowObject->AddComponent<Components::JointPoseUpdater>();
-    //    // TO DO remove duplicated
-    //    poseUpdater.disarmJointName_ = "mixamorig:LeftHand";
-    //    poseUpdater.equipJointName_  = "mixamorig:LeftHand";
-
     arrowGameObject = arrowObject.get();
     gameObject.AddChild(std::move(arrowObject));
+
+    arrowGameObject->SetWorldScale(vec3(0.75f));
+    auto joint = animator->GetJoint("mixamorig:RightHand");
+    if (joint)
+    {
+        auto rendererCopmponent = gameObject.GetComponent<RendererComponent>();
+
+        if (not rendererCopmponent)
+        {
+            WARNING_LOG("RendererComponent not found");
+            return;
+        }
+
+        auto model = rendererCopmponent->GetModelWrapper().Get();
+
+        if (not model or model->GetMeshes().empty())
+        {
+            WARNING_LOG("Mesh not found");
+            return;
+        }
+        auto meshTransform = model->GetMeshes().front().GetMeshTransform();
+
+        jointPoseUpdater = std::make_unique<Components::JointPoseUpdater>(*arrowGameObject, joint, meshTransform);
+        updateJointBufferSubId_ = animator->subscribeForPoseBufferUpdate(
+            [this]()
+            {
+                if (jointPoseUpdater)
+                    jointPoseUpdater->updateGameObjectTransform();
+            });
+    }
     DEBUG_LOG("Add to gameobject: " + gameObject.GetName());
 }
 
