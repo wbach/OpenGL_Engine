@@ -85,7 +85,8 @@ void DisplayManager::ProcessEvents()
 void DisplayManager::UpdateWindow()
 {
     graphicsApi_.GetWindowApi().UpdateWindow();
-    time_.deltaTime = static_cast<float>(timeMeasurer_.GetDeltaTime()) * timeMultiplayer_;
+    time_.deltaTimeNoModified = static_cast<float>(timeMeasurer_.GetDeltaTime());
+    time_.deltaTime           = time_.deltaTimeNoModified * timeMultiplayer_;
 }
 
 void DisplayManager::SetRefreshRate(uint32 rate)

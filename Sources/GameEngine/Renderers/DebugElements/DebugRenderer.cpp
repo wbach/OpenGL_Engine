@@ -3,17 +3,18 @@
 #include <Common/Transform.h>
 #include <Logger/Log.h>
 
+#include <algorithm>
+
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include <algorithm>
 
 namespace GameEngine
 {
@@ -47,10 +48,12 @@ void DebugObject::CreateBuffer()
     UpdateBuffer();
     toUpdate_ = false;
 
-    transform_.SubscribeOnChange([&](const common::Transform&) {
-        buffer.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(transform_.CalculateCurrentMatrix());
-        toUpdate_                   = true;
-    });
+    transform_.SubscribeOnChange(
+        [&](const common::Transform&)
+        {
+            buffer.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(transform_.CalculateCurrentMatrix());
+            toUpdate_                   = true;
+        });
 }
 void DebugObject::UpdateBuffer()
 {
@@ -81,6 +84,8 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::Th
 DebugRenderer::~DebugRenderer()
 {
     DEBUG_LOG("");
+    if (showPhycicsVisualizationSubId)
+        EngineConf.debugParams.showPhycicsVisualization.unsubscribe(*showPhycicsVisualizationSubId);
 }
 
 void DebugRenderer::init()
@@ -131,6 +136,19 @@ void DebugRenderer::init()
 
     meshDebugPerObjectBufferId_ =
         rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+
+    showPhycicsVisualizationSubId = EngineConf.debugParams.showPhycicsVisualization.subscribeForChange(
+        [this]()
+        {
+            if (EngineConf.debugParams.showPhycicsVisualization)
+            {
+                AddState(DebugRenderer::RenderState::Physics);
+            }
+            else
+            {
+                RemoveState(DebugRenderer::RenderState::Physics);
+            }
+        });
 }
 
 void DebugRenderer::reloadShaders()
@@ -183,14 +201,14 @@ void DebugRenderer::subscribe(GameObject& gameObject)
         auto terrainMeshComponent = terrain->GetMeshTerrain();
         if (terrainMeshComponent)
         {
-            meshDebugInfoSubscribers_.insert({ gameObject.GetId(), {gameObject, terrainMeshComponent->GetModel()} });
+            meshDebugInfoSubscribers_.insert({gameObject.GetId(), {gameObject, terrainMeshComponent->GetModel()}});
         }
     }
     auto rc = gameObject.GetComponent<Components::RendererComponent>();
 
     if (rc)
     {
-        meshDebugInfoSubscribers_.insert({ gameObject.GetId(), {gameObject, rc->GetModelWrapper()} });
+        meshDebugInfoSubscribers_.insert({gameObject.GetId(), {gameObject, rc->GetModelWrapper()}});
     }
 }
 
@@ -390,7 +408,8 @@ void DebugRenderer::DrawNormals()
                     if (meshId)
                     {
                         PerObjectUpdate update{rendererContext_.graphicsApi_.PrepareMatrixToLoad(
-                            debugInfoMesh.gameObject.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform())};
+                            debugInfoMesh.gameObject.GetWorldTransform().CalculateCurrentMatrix() *
+                            mesh.GetMeshTransform())};
 
                         rendererContext_.graphicsApi_.UpdateShaderBuffer(*meshDebugPerObjectBufferId_, &update);
                         rendererContext_.graphicsApi_.BindShaderBuffer(*meshDebugPerObjectBufferId_);

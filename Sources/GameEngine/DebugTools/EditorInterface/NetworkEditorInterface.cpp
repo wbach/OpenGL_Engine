@@ -1250,6 +1250,7 @@ void NetworkEditorInterface::SetPhysicsVisualizationAllObjcts(const EntryParamet
         auto isEabled = Utils::StringToBool(enabledPram->second);
         if (isEabled)
         {
+            SetDeubgRendererState(DebugRenderer::RenderState::Physics, params);
             scene_.physicsApi_->enableVisualizationForAllRigidbodys();
         }
         else

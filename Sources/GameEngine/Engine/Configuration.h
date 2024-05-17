@@ -40,6 +40,7 @@ struct DebugParams
     PhysicsVisualizatorParams physicsVisualizator;
     Params::ConfigurationParam<LogginLvl> logLvl;
     Params::ConfigurationParam<bool> showRenderInfo;
+    Params::ConfigurationParam<bool> showPhycicsVisualization;
 };
 }  // namespace Params
 

@@ -122,6 +122,8 @@ private:
     GraphicsApi::ID gridPerObjectUpdateBufferId_;
     GraphicsApi::ID texturePerObjectUpdateBufferId_;
     GraphicsApi::ID textureColorBufferId_;
+    std::optional<IdType> showPhycicsVisualizationSubId;
+
     std::mutex meshInfoDebugObjectsMutex_;
     std::mutex debugObjectsMutex_;
 

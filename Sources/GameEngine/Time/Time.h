@@ -7,5 +7,6 @@ struct Time
     float deltaTime;
     float startTime;
     float fps;
+    float deltaTimeNoModified;
 };
 }  // namespace GameEngine

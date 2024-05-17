@@ -130,10 +130,24 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
             engineContext_.GetPhysicsApi().Simulate(deltaTime * tm);
         },
         "Physics", EngineConf.renderer.fpsLimt);
+
+      showPhycicsVisualizationSub_ = EngineConf.debugParams.showPhycicsVisualization.subscribeForChange(
+        [this]()
+        {
+            if (EngineConf.debugParams.showPhycicsVisualization)
+            {
+                engineContext_.GetPhysicsApi().enableVisualizationForAllRigidbodys();
+            }
+            else
+            {
+                engineContext_.GetPhysicsApi().disableVisualizationForAllRigidbodys();
+            }
+        });
 }
 
 Engine::~Engine()
 {
+    EngineConf.debugParams.showPhycicsVisualization.unsubscribe(showPhycicsVisualizationSub_);
     engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);

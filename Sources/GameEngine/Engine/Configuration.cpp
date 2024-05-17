@@ -158,6 +158,7 @@ Params::DebugParams::DebugParams()
              {LogginLvl::None, LogginLvl::Error, LogginLvl::ErrorWarning, LogginLvl::ErrorWarningInfo,
               LogginLvl::ErrorWarningInfoDebug}}
     , showRenderInfo{false, {false, true}}
+    , showPhycicsVisualization{false, {false, true}}
 {
 }
 

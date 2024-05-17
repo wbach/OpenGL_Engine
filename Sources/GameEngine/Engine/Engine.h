@@ -44,6 +44,7 @@ private:
     IntroRenderer introRenderer_;
     IdType loggingLvlParamSub_;
     IdType fpsLimitParamSub_;
+    IdType showPhycicsVisualizationSub_;
     IdType physicsThreadId_;
     bool isRunning_;
 };

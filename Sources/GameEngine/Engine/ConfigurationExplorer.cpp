@@ -66,7 +66,8 @@ ConfigurationExplorer::ConfigurationExplorer()
         {"Debug",
           {
              {"Logger lvl", EngineConf.debugParams.logLvl, ApplyPolicy::RestartNotNeeded},
-             {"Show render info", EngineConf.debugParams.showRenderInfo, ApplyPolicy::RestartNotNeeded}
+             {"Show render info", EngineConf.debugParams.showRenderInfo, ApplyPolicy::RestartNotNeeded},
+             {"Enable physics visualization", EngineConf.debugParams.showPhycicsVisualization, ApplyPolicy::RestartNotNeeded}
           }
         });
 

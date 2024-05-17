@@ -9,7 +9,7 @@ namespace GameEngine
 namespace
 {
 const float defaultCamRotationSpeed = 0.2f;
-const float defaultCamSpeed         = Utils::KmToMs<float>(135);
+const float defaultCamSpeed         = Utils::KmToMs<float>(60);
 }  // namespace
 
 FirstPersonCamera::FirstPersonCamera(Input::InputManager& inputManager, GameEngine::DisplayManager& displayManager)
@@ -34,7 +34,7 @@ void FirstPersonCamera::Update()
         if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
         {
             moveVector = moveVector * glm::normalize(GetRotation().value_);
-            moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTime;
+            moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTimeNoModified; // for freecam
             IncreasePosition(moveVector);
         }
     }
