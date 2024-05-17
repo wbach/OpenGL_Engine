@@ -38,18 +38,19 @@ public:
     template <class T>
     std::vector<T*> GetAllComonentsOfType() const
     {
-        std::vector<T*> result;
-
         auto iter = registredComponents_.find(typeid(T).hash_code());
 
         if (iter != registredComponents_.end())
         {
+            std::vector<T*> result;
+            result.reserve(iter->second.size());
             for (const auto& [_, component] : iter->second)
             {
                 result.push_back(static_cast<T*>(component));
             }
+            return result;
         }
-        return result;
+        return {};
     }
 
     FunctionId RegisterFunction(GameObjectId, FunctionType, std::function<void()>);

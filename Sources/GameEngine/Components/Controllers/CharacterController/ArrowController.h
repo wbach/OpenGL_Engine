@@ -12,13 +12,14 @@ struct CollisionContactInfo;
 namespace Components
 {
 class Rigidbody;
+class ThridPersonCameraComponent;
 
 class ArrowController : public BaseComponent
 {
 public:
     ArrowController(ComponentContext&, GameObject&);
 
-    ArrowController& setDirection(const vec3&);
+    ArrowController& setCameraComponent(ThridPersonCameraComponent*);
     void CleanUp() override;
     void ReqisterFunctions() override;
 
@@ -30,6 +31,7 @@ private:
 
 private:
     Physics::CollisionSubId collisionSubId;
+    ThridPersonCameraComponent* thridPersonCameraComponent;
     Rigidbody* rigidbody;
     vec3 direction;
 

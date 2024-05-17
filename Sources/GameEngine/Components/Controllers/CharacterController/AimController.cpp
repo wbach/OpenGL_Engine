@@ -67,6 +67,12 @@ void AimController::reset()
 {
     joint.additionalUserMofiyTransform = Animation::Joint::AdditionalUserMofiyTransform{};
     joint.ignoreParentRotation         = false;
+
+    if (arrowGameObject)
+    {
+        scene.RemoveGameObject(*arrowGameObject);
+        arrowGameObject = nullptr;
+    }
 }
 
 void AimController::shoot()
@@ -143,11 +149,11 @@ void AimController::createArrowObject()
     arrowObject->GetTransform().SetPositionAndRotationAndScale(vec3(-0.15f, 1.25f, 0), DegreesVec3(90.0, 0, 0),
                                                                1.f / gameObject.GetWorldTransform().GetScale());
 
-    arrowObject->AddComponent<Components::ArrowController>().setDirection(thridPersonCameraComponent->getDirection());
-//    auto& poseUpdater = arrowObject->AddComponent<Components::JointPoseUpdater>();
-//    // TO DO remove duplicated
-//    poseUpdater.disarmJointName_ = "mixamorig:LeftHand";
-//    poseUpdater.equipJointName_  = "mixamorig:LeftHand";
+    arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
+    //    auto& poseUpdater = arrowObject->AddComponent<Components::JointPoseUpdater>();
+    //    // TO DO remove duplicated
+    //    poseUpdater.disarmJointName_ = "mixamorig:LeftHand";
+    //    poseUpdater.equipJointName_  = "mixamorig:LeftHand";
 
     arrowGameObject = arrowObject.get();
     gameObject.AddChild(std::move(arrowObject));

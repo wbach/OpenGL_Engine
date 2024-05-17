@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -13,14 +14,15 @@ namespace Components
 {
 ArrowController::ArrowController(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(ArrowController).hash_code(), componentContext, gameObject)
+    , thridPersonCameraComponent{nullptr}
     , rigidbody{nullptr}
     , direction(VECTOR_FORWARD)
 {
 }
 
-ArrowController& ArrowController::setDirection(const vec3& dir)
+ArrowController &ArrowController::setCameraComponent(ThridPersonCameraComponent * cameraComponent)
 {
-    direction = dir;
+    thridPersonCameraComponent = cameraComponent;
     return *this;
 }
 
@@ -51,10 +53,10 @@ void ArrowController::shoot()
                 rigidbody->GetId(), [this](const auto& info) { onCollisionDetect(info); });
         }
     }
-    if (rigidbody)
+    if (rigidbody and thridPersonCameraComponent)
     {
         rigidbody->InputParams().angularFactor_ = vec3(0);
-        rigidbody->ApplyImpulse(direction * 10.f);
+        rigidbody->ApplyImpulse(thridPersonCameraComponent->getDirection() * 10.f);
     }
 }
 

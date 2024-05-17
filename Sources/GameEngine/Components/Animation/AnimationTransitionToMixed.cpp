@@ -5,11 +5,11 @@
 #include <algorithm>
 
 #include "AnimationTransition.h"
+#include "AnimationTransitionMixedToSingle.h"
 #include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "PlayMixedAnimation.h"
 #include "StateMachine.h"
-#include "AnimationTransitionMixedToSingle.h"
 
 namespace GameEngine
 {
@@ -44,9 +44,6 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(
 
             if (iter != context_.jointGroups.end())
             {
-#ifdef NOREALTIME_LOG_ENABLED
-                DEBUG_LOG("Add Crrent group : " + groupName + " for clip : " + info.info.clip.name);
-#endif
                 currentGroups_.insert({groupName, {info.info, info.currentTime, iter->second}});
             }
         }
@@ -60,9 +57,6 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(
 
             if (iter != context_.jointGroups.end())
             {
-#ifdef NOREALTIME_LOG_ENABLED
-                DEBUG_LOG("Add  transition group : " + groupName + " for clip : " + info.info.clip.name);
-#endif
                 transtionGroups_.insert({groupName, TransitionGroup{0.f, info.info, iter->second, info.onTransitionEnd,
                                                                     convert(context_.currentPose),
                                                                     context_.transitionTime, info.currentTime}});
@@ -77,9 +71,6 @@ bool AnimationTransitionToMixed::update(float deltaTime)
 {
     for (auto &[name, group] : currentGroups_)
     {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Current group : " + name + "for clip : " + group.clipInfo_.clip.name);
-#endif
         if (not group.jointGroup_.empty())
         {
             calculateCurrentAnimationPose(context_.currentPose, group.clipInfo_.clip, group.time_, group.jointGroup_);
@@ -89,9 +80,6 @@ bool AnimationTransitionToMixed::update(float deltaTime)
 
     for (const auto &[name, group] : transtionGroups_)
     {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Transition group : " + name + "for clip : " + group.clipInfo_.clip.name);
-#endif
         const auto &endChangeAnimKeyFrame = group.clipInfo_.clip.GetFrames().front();
         interpolatePoses(context_.currentPose, group.startKeyFrame_, endChangeAnimKeyFrame, group.progress_,
                          group.jointGroup_);
@@ -104,22 +92,12 @@ bool AnimationTransitionToMixed::update(float deltaTime)
 
 void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
 {
-#ifdef NOREALTIME_LOG_ENABLED
-    DEBUG_LOG("handle ChangeAnimationEvent : " + event.info.clip.name);
-#endif
-
     if (event.jointGroupName)
     {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("ChangeAnimationEvent for group : " + *event.jointGroupName + " and clip : " + event.info.clip.name);
-#endif
         auto iter = transtionGroups_.find(*event.jointGroupName);
 
         if (iter != transtionGroups_.end())
         {
-#ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("Group found in transtionGroups_");
-#endif
             TransitionGroup newGroup{event.startTime,
                                      event.info,
                                      iter->second.jointGroup_,
@@ -137,9 +115,6 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
 
             if (currentGroupsIter != currentGroups_.end())
             {
-#ifdef NOREALTIME_LOG_ENABLED
-                DEBUG_LOG("Group found in current playing groups");
-#endif
                 TransitionGroup newGroup{event.startTime,
                                          event.info,
                                          currentGroupsIter->second.jointGroup_,
@@ -153,18 +128,12 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
             }
             else
             {
-#ifdef NOREALTIME_LOG_ENABLED
-                DEBUG_LOG("Add new group");
-#endif
                 addTransitionBasedOnEvent(event);
             }
         }
     }
     else
     {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Group empty, trigger AnimationTransition");
-#endif
         context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
                                                            event.onTransitionEnd);
     }
@@ -172,8 +141,6 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
 
 void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
 {
-    DEBUG_LOG("StopAnimationEvent, jointGroupName: " + std::to_string(event.jointGroupName));
-
     if (event.jointGroupName)
     {
         auto iter = transtionGroups_.find(*event.jointGroupName);
@@ -196,8 +163,8 @@ void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
         {
             for (auto &[_, group] : transtionGroups_)
             {
-                DEBUG_LOG("transtionGroups_ AnimationTransition");
-                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_, group.onTransitionEnd_);
+                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_,
+                                                                   group.onTransitionEnd_);
                 return;
             }
         }
@@ -205,7 +172,6 @@ void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
         {
             for (auto &[_, group] : currentGroups_)
             {
-                DEBUG_LOG("currentGroups_ AnimationTransitionMixedToSingle");
                 context_.machine.transitionTo<PlayAnimation>(context_, group.clipInfo_, group.time_);
                 return;
             }
@@ -232,10 +198,10 @@ std::vector<std::string> AnimationTransitionToMixed::getCurrentAnimation() const
     return r;
 }
 
-bool AnimationTransitionToMixed::isAnimationPlaying(const std::string& name) const
+bool AnimationTransitionToMixed::isAnimationPlaying(const std::string &name) const
 {
     auto iter = std::find_if(currentGroups_.begin(), currentGroups_.end(),
-        [&name](const auto& pair) { return (pair.second.clipInfo_.clip.name == name); });
+                             [&name](const auto &pair) { return (pair.second.clipInfo_.clip.name == name); });
     return iter != currentGroups_.end();
 }
 
@@ -256,9 +222,6 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
             {
-#ifdef NOREALTIME_LOG_ENABLED
-                DEBUG_LOG("Clip played once , end : " + group.clipInfo_.clip.name);
-#endif
                 iter = currentGroups_.erase(iter);
                 continue;
             }
@@ -295,9 +258,6 @@ void AnimationTransitionToMixed::increaseTransitionTime(float deltaTime)
             Group newGroup{group.clipInfo_, 0.f, group.jointGroup_};
             currentGroups_.insert({iter->first, newGroup});
 
-#ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("Transition end for clip : " + group.clipInfo_.clip.name);
-#endif
             if (group.onTransitionEnd_)
             {
                 group.onTransitionEnd_();
@@ -328,19 +288,10 @@ void AnimationTransitionToMixed::addTransitionBasedOnEvent(const ChangeAnimation
         auto iter = context_.jointGroups.find(*event.jointGroupName);
         if (iter != context_.jointGroups.end())
         {
-#ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("addTransitionBasedOnEvent : " + (*event.jointGroupName) + " for clip : " + event.info.clip.name);
-#endif
             transtionGroups_.insert({*event.jointGroupName,
                                      TransitionGroup{event.startTime, event.info, iter->second, event.onTransitionEnd,
                                                      convert(context_.currentPose), context_.transitionTime, 0.f}});
         }
-    }
-    else
-    {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Group not specyfied for clip : " + event.info.clip.name);
-#endif
     }
 }
 }  // namespace Components

@@ -20,9 +20,6 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
     for (auto& [name, pair] : animationPlayingInfoPerGroup)
     {
         auto iter = context.jointGroups.find(name);
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Group name : " + name + " Clip name : " + pair.first.clip.name);
-#endif
         if (iter != context.jointGroups.end())
         {
             auto& info     = pair.first;
@@ -36,9 +33,6 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
 }
 bool PlayMixedAnimation::update(float deltaTime)
 {
-#ifdef NOREALTIME_LOG_ENABLED
-    DEBUG_LOG("update dt = " + std::to_string(deltaTime));
-#endif
     for (auto& [name, group] : groups_)
     {
         calculateCurrentAnimationPose(context_.currentPose, group.clipInfo.clip, group.time, group.jointIds);
@@ -50,9 +44,6 @@ bool PlayMixedAnimation::update(float deltaTime)
 }
 void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
 {
-#ifdef NOREALTIME_LOG_ENABLED
-    DEBUG_LOG("ChangeAnimationEvent anim name : " + event.info.clip.name);
-#endif
     if (event.jointGroupName)
     {
         std::vector<CurrentGroupsPlayingInfo> infos{};
@@ -129,9 +120,6 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
         {
             if (group.clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
             {
-#ifdef NOREALTIME_LOG_ENABLED
-                DEBUG_LOG("To remove : " + name);
-#endif
                 groupsToRemove_.push_back(name);
                 continue;
             }

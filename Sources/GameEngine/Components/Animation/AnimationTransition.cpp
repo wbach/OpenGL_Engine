@@ -24,9 +24,6 @@ AnimationTransition::AnimationTransition(Context& context, const AnimationClipIn
     , startTime_{0.f}
     , onTransitionEnd_{onTransitionEnd}
 {
-#ifdef NOREALTIME_LOG_ENABLED
-    DEBUG_LOG("Clip : " + infoClip.clip.name);
-#endif
 }
 bool AnimationTransition::update(float deltaTime)
 {
@@ -61,7 +58,6 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        DEBUG_LOG("StopAnimationEvent not implemented, ignore. Clip : " + info_.clip.name + ", for group " + *event.jointGroupName);
         context_.machine.transitionTo<EmptyState>(context_);
     }
     else

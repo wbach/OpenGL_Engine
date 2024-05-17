@@ -95,10 +95,8 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
                 }
                 else
                 {
-                    ERROR_LOG(
-                        "Joint \""
-                        "\" not found in skeleton. Skeleton root joint name : " +
-                        rootJoint.name);
+                    ERROR_LOG("Joint \"" + jointName +
+                              "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
                 }
             }
             animationClip.AddFrame(keyFrame);
@@ -176,7 +174,7 @@ std::optional<std::string> IsAnimationClip(const File& file)
             }
         }
     }
-	return std::nullopt;
+    return std::nullopt;
 }
 }  // namespace Animation
 }  // namespace GameEngine

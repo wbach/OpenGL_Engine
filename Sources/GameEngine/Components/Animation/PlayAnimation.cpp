@@ -18,15 +18,9 @@ PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, fl
     , clipInfo_{info}
     , previousFrameTimeStamp{-1.0f}
 {
-#ifdef TESTS_ENABLED
-    DEBUG_LOG("AnimationClip : " + info.clip.name);
-#endif
 }
 bool PlayAnimation::update(float deltaTime)
 {
-#ifdef TESTS_ENABLED
-    DEBUG_LOG("AnimationClip : " + clipInfo_.clip.name);
-#endif
     calculateCurrentAnimationPose(context_.currentPose, clipInfo_.clip, time_);
     // increaseAnimationTime(deltaTime);
 
@@ -40,7 +34,6 @@ bool PlayAnimation::update(float deltaTime)
 }
 void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
-    DEBUG_LOG("ChangeAnimationEvent " + std::to_string(event.jointGroupName) + " name : " + event.info.clip.name);
     if (event.jointGroupName)
     {
         std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, {}}};
@@ -63,7 +56,6 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
 
 void PlayAnimation::handle(const StopAnimationEvent& e)
 {
-    DEBUG_LOG("StopAnimationEvent " + std::to_string(e.jointGroupName));
     context_.machine.transitionTo<EmptyState>(context_);
 }
 
@@ -86,7 +78,6 @@ void PlayAnimation::increaseAnimationTime(float deltaTime)
     {
         if (clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
         {
-            DEBUG_LOG("increaseAnimationTime once end : " + clipInfo_.clip.name);
             context_.machine.transitionTo<EmptyState>(context_);
             return;
         }
@@ -111,7 +102,6 @@ void PlayAnimation::notifyClipSubscribers()
     // TO DO: Remove workaround
     if (time_ > clipInfo_.clip.GetLength())
     {
-        DEBUG_LOG("Workaround set last frame if over time");
         currentFrame = &clipInfo_.clip.GetFrames().back();
     }
 

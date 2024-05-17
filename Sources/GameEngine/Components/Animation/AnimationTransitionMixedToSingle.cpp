@@ -94,9 +94,7 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
-        DEBUG_LOG("not implemented");
         context_.machine.transitionTo<EmptyState>(context_);
-        // context_.machine.transitionTo(std::make_unique<PlayAnimation>(context_));
     }
     else
     {

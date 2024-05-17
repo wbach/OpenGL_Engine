@@ -29,10 +29,6 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
         if (compare(sub.timeStamp, currentFrame->timeStamp) and
             not compare(currentFrame->timeStamp, previousFrameTimeStamp))
         {
-#ifdef NOREALTIME_LOG_ENABLED
-            DEBUG_LOG("notifyFrameSubsribers for clip : " + clipInfo.clip.name +
-                      " time : " + std::to_string(currentFrame->timeStamp));
-#endif
             sub.callback();
         }
     }
