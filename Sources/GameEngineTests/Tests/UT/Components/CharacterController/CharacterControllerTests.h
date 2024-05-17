@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
+#include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"

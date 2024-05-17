@@ -1,56 +1,36 @@
 #pragma once
-#include <unordered_map>
-
-#include "GameEngine/Components/BaseComponent.h"
 #include "JointData.h"
+#include "Types.h"
 
 namespace GameEngine
 {
+class GameObject;
 namespace Components
 {
-class JointPoseUpdater : public BaseComponent
+class JointPoseUpdater
 {
-public:
-    JointPoseUpdater(ComponentContext&, GameObject&);
-    void CleanUp() override;
-    void ReqisterFunctions() override;
-
-    void updateGameObjectTransform();  // Call on rendering thread
-    void setEquipJointAsCurrent();
-    void setDisarmJointAsCurrent();
-
-private:
     struct Offset
     {
         vec3 position{0.f};
         Rotation rotation{RadiansVec3(0.f)};
-
     };
-    struct Joint
-    {
-        Offset offset;
-        vec3 localPosition{0.f};
-        Rotation localRotation{RadiansVec3(0.f)};
-        Animation::Joint* joint{nullptr};
-    };
-
-    void fillOffsetsForJoint(Joint&);
 
 public:
-    std::string equipJointName_;
-    std::string disarmJointName_;
+    JointPoseUpdater(GameObject&, Animation::Joint*, const mat4& = mat4(1.f));
+    JointPoseUpdater(GameObject&, Animation::Joint*, const vec3&, const Rotation&, const mat4& = mat4(1.f));
+
+    void updateGameObjectTransform();  // Call on rendering thread
 
 private:
-    Joint equipJoint_;
-    Joint disarmJoint_;
-    Joint* currentJoint_;
+    void fillOffsets();
 
-    std::optional<mat4> meshTransform_;
-    std::optional<uint32> updateJointBufferSubId_;
-
-public:
-    static void registerReadFunctions();
-    void write(TreeNode&) const override;
+private:
+    GameObject& owner;
+    Offset offset;
+    vec3 localPosition{0.f};
+    Rotation localRotation{RadiansVec3(0.f)};
+    Animation::Joint* joint{nullptr};
+    mat4 meshTransform{1.f};
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -11,7 +11,7 @@ namespace GameEngine
 namespace Components
 {
 struct FsmContext;
-class JointPoseUpdater;
+class BowPoseUpdater;
 
 class ArmedChangeStateBase
 {
@@ -40,7 +40,7 @@ protected:
 
 private:
     bool armed_{false};
-    JointPoseUpdater* jointPoseUpdater_{nullptr};
+    BowPoseUpdater* bowPoseUpdater_{nullptr};
     std::function<void()> onAnimationEnd_;
 
     std::optional<uint32> subscribeForTransitionAnimationFrame_;

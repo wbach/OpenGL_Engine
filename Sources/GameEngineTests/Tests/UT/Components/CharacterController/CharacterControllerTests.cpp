@@ -94,7 +94,7 @@ CharacterControllerTests::CharacterControllerTests()
     sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
 
     auto weaponPtr = std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, IdType(1));
-    weaponPtr->AddComponent<JointPoseUpdater>();
+    weaponPtr->AddComponent<BowPoseUpdater>();
     obj_.AddChild(std::move(weaponPtr));
 
     sut_.Init();

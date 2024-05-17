@@ -2,7 +2,7 @@
 
 #include <Common/Transform.h>
 
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
+#include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 
 namespace GameEngine

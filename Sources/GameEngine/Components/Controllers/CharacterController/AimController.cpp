@@ -5,7 +5,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Animations/Joint.h"
-#include "GameEngine/Components/Animation/JointPoseUpdater.h"
+#include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/ArrowController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
