@@ -141,11 +141,6 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
                 {
                     transformNode.attributes_.insert({"jointName", joint->name});
                 }
-                else
-                {
-                    ERROR_LOG("Joint id=\"" + std::to_string(jointId) +
-                              "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
-                }
             }
 
             transformNode.addChild(Convert("Position", transform.position));
