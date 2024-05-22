@@ -96,15 +96,16 @@ void AimController::shoot()
 {
     if (arrowGameObject)
     {
-        // scene.ChangeParent(*arrowGameObject, scene.GetRootGameObject());
-        arrowGameObject->RemoveParent();
-        arrowGameObject->AddComponent<Components::Rigidbody>();
-        arrowGameObject->GetComponent<Components::ArrowController>()->shoot();
-        arrowGameObject = nullptr;
         if (updateJointBufferSubId_)
             animator->unSubscribeForPoseUpdateBuffer(*updateJointBufferSubId_);
         updateJointBufferSubId_.reset();
         jointPoseUpdater.reset();
+
+        arrowGameObject->RemoveParent();
+        arrowGameObject->AddComponent<Components::CapsuleShape>().SetHeight(1.75f).SetRadius(0.05f);
+        arrowGameObject->AddComponent<Components::Rigidbody>().SetIsStatic(false).SetMass(0);
+        arrowGameObject->GetComponent<Components::ArrowController>()->shoot();
+        arrowGameObject = nullptr;
     }
 }
 
@@ -165,11 +166,9 @@ void AimController::createArrowObject()
 
     auto arrowObject = scene.CreateGameObject(gameObject.GetName() + "_Arrow_" + std::to_string(id));
     arrowObject->AddComponent<Components::RendererComponent>().AddModel(path);
-    arrowObject->AddComponent<Components::CapsuleShape>().SetHeight(1.0f).SetRadius(0.05f);
     arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
     arrowGameObject = arrowObject.get();
     gameObject.AddChild(std::move(arrowObject));
-
     arrowGameObject->SetWorldScale(vec3(0.75f));
     auto joint = animator->GetJoint("mixamorig:RightHand");
     if (joint)

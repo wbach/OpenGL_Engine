@@ -61,8 +61,10 @@ void BulletAdapter::Simulate(float deltaTime)
 
         for (auto& [id, rigidbody] : rigidBodies)
         {
+            auto rotatedOffset = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
+
             auto newPosition =
-                Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() - rigidbody.positionOffset_);
+                Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() - Convert(rotatedOffset));
 
             Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
 
