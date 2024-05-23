@@ -28,6 +28,7 @@ const float TRANSFROM_CHANGED_EPSILON = std::numeric_limits<float>::epsilon();
 struct BulletAdapter::Pimpl
 {
     std::mutex worldMutex_;
+    bool visualizationForAllObjectEnabled{false};
 };
 
 BulletAdapter::BulletAdapter()
@@ -247,7 +248,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     btVector3 localInertia(0, 0, 0);
     btDefaultMotionState* myMotionState{nullptr};
 
-    int flags = btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
+    int flags = impl_->visualizationForAllObjectEnabled ? 0 : btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
 
     if (isStatic or not shape.dynamicShapeAllowed_)
     {
@@ -256,6 +257,11 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     else
     {
         btShape->calculateLocalInertia(mass, localInertia);
+    }
+
+    if (gameObject.GetName() == "_Arrow_")
+    {
+        flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE; // TO DO
     }
 
     myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
@@ -528,6 +534,8 @@ void BulletAdapter::setVisualizatedRigidbody(const RigidbodyId& rigidBodyId)
 }
 void BulletAdapter::enableVisualizationForAllRigidbodys()
 {
+    impl_->visualizationForAllObjectEnabled = true;
+
     for (auto& rigidbody : rigidBodies)
     {
         auto& body = *rigidbody.second.btRigidbody_;
@@ -541,6 +549,8 @@ void BulletAdapter::enableVisualizationForAllRigidbodys()
 }
 void BulletAdapter::disableVisualizationForAllRigidbodys()
 {
+    impl_->visualizationForAllObjectEnabled = false;
+
     for (auto& rigidbody : rigidBodies)
     {
         auto& body = *rigidbody.second.btRigidbody_;

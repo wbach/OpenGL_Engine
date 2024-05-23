@@ -162,9 +162,9 @@ void AimController::createArrowObject()
         return;
     }
 
-    auto id = arrowIds.getId();
-
-    auto arrowObject = scene.CreateGameObject(gameObject.GetName() + "_Arrow_" + std::to_string(id));
+    //auto id = arrowIds.getId();
+    // auto arrowObject = scene.CreateGameObject(gameObject.GetName() + "_Arrow_" + std::to_string(id));
+    auto arrowObject = scene.CreateGameObject("_Arrow_");
     arrowObject->AddComponent<Components::RendererComponent>().AddModel(path);
     arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
     arrowGameObject = arrowObject.get();
