@@ -4,11 +4,11 @@
 
 #include <memory>
 
+#include "CollisionResultCallback.h"
 #include "DebugDrawer.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "Rigidbody.h"
 #include "Shape.h"
-#include "CollisionResultCallback.h"
 
 namespace GraphicsApi
 {
@@ -37,7 +37,7 @@ public:
     ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap& heightMap) override;
     ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector& indicies,
                                const vec3&, bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, float, bool, bool&) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveRigidBodyImpl(const RigidbodyId&);
     void RemoveShape(const ShapeId&) override;

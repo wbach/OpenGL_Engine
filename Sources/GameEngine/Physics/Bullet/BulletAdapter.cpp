@@ -62,7 +62,8 @@ void BulletAdapter::Simulate(float deltaTime)
 
         for (auto& [id, rigidbody] : rigidBodies)
         {
-            auto rotatedOffset = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
+            auto rotatedOffset =
+                Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
 
             auto newPosition =
                 Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() - Convert(rotatedOffset));
@@ -223,8 +224,8 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
     return id;
 }
 
-RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject, float mass, bool isStatic,
-                                           bool& isUpdating)
+RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject,
+                                           const RigidbodyProperties &properties, float mass, bool& isUpdating)
 {
     if (not shapeId)
     {
@@ -249,19 +250,28 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     btDefaultMotionState* myMotionState{nullptr};
 
     int flags = impl_->visualizationForAllObjectEnabled ? 0 : btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
-
-    if (isStatic or not shape.dynamicShapeAllowed_)
+    bool isStatic{false};
+    if (not shape.dynamicShapeAllowed_)
     {
         flags |= btCollisionObject::CF_STATIC_OBJECT;
+        isStatic = true;
     }
-    else
+    for (const auto property : properties)
+    {
+        switch (property)
+        {
+            case RigidbodyProperty::Static:
+                flags |= btCollisionObject::CF_STATIC_OBJECT;
+                isStatic = true;
+                break;
+            case RigidbodyProperty::NoContactResponse:
+                flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
+                break;
+        }
+    }
+    if (not isStatic)
     {
         btShape->calculateLocalInertia(mass, localInertia);
-    }
-
-    if (gameObject.GetName() == "_Arrow_")
-    {
-        flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE; // TO DO
     }
 
     myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));

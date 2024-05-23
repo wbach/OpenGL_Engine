@@ -30,7 +30,6 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(Rigidbody).hash_code(), componentContext, gameObject)
     , collisionShape_(nullptr)
     , mass_(1.0f)
-    , isStatic_(false)
     , updateRigidbodyOnTransformChange_(false)
 {
     // clang-format off
@@ -76,9 +75,8 @@ void Rigidbody::OnStart()
         return;
     }
 
-    DEBUG_LOG("isStatic_ " + std::to_string(isStatic_));
-    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, mass_, isStatic_,
-                                                                     updateRigidbodyOnTransformChange_);
+    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties,
+                                                                     mass_, updateRigidbodyOnTransformChange_);
     if (not rigidBodyId)
     {
         ERROR_LOG("create rigidbody error.");
@@ -121,10 +119,14 @@ Rigidbody& Rigidbody::SetMass(float mass)
 }
 Rigidbody& Rigidbody::SetIsStatic(bool is)
 {
-    isStatic_ = is;
     if (is)
     {
         SetMass(0.f);
+        rigidbodyPropierties.insert(Physics::RigidbodyProperty::Static);
+    }
+    else
+    {
+        rigidbodyPropierties.erase(Physics::RigidbodyProperty::Static);
     }
     return *this;
 }
@@ -157,6 +159,19 @@ Rigidbody& Rigidbody::SetAngularFactor(const vec3& angularFactor)
         return *this;
 
     componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, angularFactor);
+    return *this;
+}
+
+Rigidbody& Rigidbody::SetNoContactResponse(bool is)
+{
+    if (is)
+    {
+        rigidbodyPropierties.insert(Physics::RigidbodyProperty::NoContactResponse);
+    }
+    else
+    {
+        rigidbodyPropierties.erase(Physics::RigidbodyProperty::NoContactResponse);
+    }
     return *this;
 }
 Rigidbody& Rigidbody::SetRotation(const DegreesVec3& rotation)
@@ -234,7 +249,7 @@ float Rigidbody::GetMass() const
 }
 bool Rigidbody::IsStatic() const
 {
-    return isStatic_;
+    return rigidbodyPropierties.contains(Physics::RigidbodyProperty::Static);
 }
 const std::string& Rigidbody::GetCollisionShapeType() const
 {

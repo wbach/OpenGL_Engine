@@ -5,6 +5,7 @@
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Physics/ShapeType.h"
+#include <Physics/IPhysicsApi.h>
 
 namespace GameEngine
 {
@@ -35,6 +36,7 @@ public:
     Rigidbody& SetVelocity(const vec3& velocity);
     Rigidbody& SetAngularFactor(float);
     Rigidbody& SetAngularFactor(const vec3&);
+    Rigidbody &SetNoContactResponse(bool);
     Rigidbody& SetRotation(const DegreesVec3&);
     Rigidbody& SetRotation(const RadiansVec3&);
     Rigidbody& SetRotation(const Quaternion&);
@@ -69,8 +71,6 @@ private:
     CollisionShape* collisionShape_;
 
     float mass_    = 1.f;
-    bool isStatic_ = false;
-
     Params inputParams_;
 
     template <class T>
@@ -80,6 +80,8 @@ private:
 
     bool updateRigidbodyOnTransformChange_;
     std::optional<IdType> worldTransformSubscriptionId_;
+
+    Physics::RigidbodyProperties rigidbodyPropierties;
 
 public:
     static void registerReadFunctions();

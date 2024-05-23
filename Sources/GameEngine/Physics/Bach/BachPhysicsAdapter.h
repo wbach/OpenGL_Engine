@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+
 #include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
@@ -20,9 +21,9 @@ public:
     ShapeId CreateCapsuleColider(const vec3& positionOffset, const Scale&, Radius, float) override;
     // void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     ShapeId CreateTerrainColider(const vec3& positionOffset, const Scale&, const HeightMap&) override;
-    ShapeId CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
-        const vec3&, bool) override;
-    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, float mass, bool isStatic, bool&) override;
+    ShapeId CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
+                               const IndicesVector& indicies, const vec3&, bool) override;
+    RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float mass, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
@@ -43,7 +44,8 @@ public:
     void setVisualizatedRigidbody(const RigidbodyId&) override;
     void enableVisualizationForAllRigidbodys() override;
     void disableVisualizationForAllRigidbodys() override;
-    Physics::CollisionSubId setCollisionCallback(const RigidbodyId&, std::function<void(const CollisionContactInfo&)>) override;
+    Physics::CollisionSubId setCollisionCallback(const RigidbodyId&,
+                                                 std::function<void(const CollisionContactInfo&)>) override;
     void celarCollisionCallback(const CollisionSubId&) override;
 
 private:
