@@ -17,6 +17,7 @@ public:
     void EnableSimulation() override;
     void DisableSimulation() override;
     ShapeId CreateBoxColider(const vec3& positionOffset, const Scale&, const Size&) override;
+    ShapeId CreateCylinderColider(const PositionOffset&, const Scale&, const Size&) override;
     ShapeId CreateSphereColider(const vec3& positionOffset, const Scale&, Radius) override;
     ShapeId CreateCapsuleColider(const vec3& positionOffset, const Scale&, Radius, float) override;
     // void CreateMeshColider(vec3 positionOffset, std::vect) = 0;

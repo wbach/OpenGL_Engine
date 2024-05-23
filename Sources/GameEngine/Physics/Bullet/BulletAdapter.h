@@ -32,6 +32,7 @@ public:
     void EnableSimulation() override;
     void DisableSimulation() override;
     ShapeId CreateBoxColider(const PositionOffset&, const Scale&, const Size&) override;
+    ShapeId CreateCylinderColider(const PositionOffset&, const Scale&, const Size&) override;
     ShapeId CreateSphereColider(const PositionOffset&, const Scale&, Radius) override;
     ShapeId CreateCapsuleColider(const PositionOffset&, const Scale&, Radius, float height) override;
     ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap& heightMap) override;

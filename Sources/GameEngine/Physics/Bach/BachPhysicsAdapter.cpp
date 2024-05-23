@@ -175,6 +175,11 @@ ShapeId BachPhysicsAdapter::CreateBoxColider(const vec3&, const vec3&, const vec
 {
     return impl_->id_++;
 }
+
+ShapeId BachPhysicsAdapter::CreateCylinderColider(const PositionOffset&, const Scale&, const Size&)
+{
+    return impl_->id_++;
+}
 ShapeId BachPhysicsAdapter::CreateSphereColider(const vec3& positionOffset, const vec3&, float radius)
 {
     impl_->shapes_.insert({impl_->id_, {positionOffset, radius}});
@@ -195,7 +200,7 @@ ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<fl
     return impl_->id_++;
 }
 RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform,
-                                                const RigidbodyProperties &, float mass, bool&)
+                                                const RigidbodyProperties&, float mass, bool&)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, false, *shapeId)});
     return impl_->id_++;

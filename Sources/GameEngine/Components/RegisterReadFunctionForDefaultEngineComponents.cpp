@@ -11,6 +11,7 @@
 #include "Input/PlayerInputController.h"
 #include "Physics/BoxShape.h"
 #include "Physics/CapsuleShape.h"
+#include "Physics/CylinderShape.h"
 #include "Physics/MeshShape.h"
 #include "Physics/Rigidbody.h"
 #include "Physics/SphereShape.h"
@@ -45,6 +46,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<EnemyController>();
     registerReadFunction<PlayerInputController>();
     registerReadFunction<BoxShape>();
+    registerReadFunction<CylinderShape>();
     registerReadFunction<CapsuleShape>();
     registerReadFunction<MeshShape>();
     registerReadFunction<Rigidbody>();

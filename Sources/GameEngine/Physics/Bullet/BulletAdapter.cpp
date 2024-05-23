@@ -116,6 +116,14 @@ ShapeId BulletAdapter::CreateBoxColider(const PositionOffset& positionOffset, co
                                                 Convert(positionOffset + vec3(0.f, scale.y / 2.f, 0.f)))});
     return id;
 }
+
+ShapeId BulletAdapter::CreateCylinderColider(const PositionOffset & positionOffset, const Scale & scale, const Size & size)
+{
+    auto id = idPool_.getId();
+    shapes_.insert({id, std::make_unique<Shape>(std::make_unique<btCylinderShape>(Convert(size)),
+                                                Convert(positionOffset + vec3(0.f, scale.y / 2.f, 0.f)))});
+    return id;
+}
 ShapeId BulletAdapter::CreateSphereColider(const PositionOffset& positionOffset, const Scale&, Radius radius)
 {
     auto id = idPool_.getId();
@@ -280,6 +288,11 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, isUpdating, *shapeId};
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
     body.btRigidbody_->setFriction(1);
+
+//    if (gameObject.GetName() == "_Arrow_")
+//    {
+//        body.btRigidbody_->setCenterOfMassTransform();
+//    }
 
     return addRigidbody(isStatic ? staticRigidBodies : rigidBodies, std::move(body));
 }

@@ -3,6 +3,7 @@
 #include "BoxShape.h"
 #include "CapsuleShape.h"
 #include "CollisionShape.h"
+#include "CylinderShape.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -40,6 +41,7 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
         {MeshShape::name,    typeid(MeshShape).hash_code()},
         {SphereShape::name,  typeid(SphereShape).hash_code()},
         {CapsuleShape::name, typeid(CapsuleShape).hash_code()},
+        {CylinderShape::name, typeid(CylinderShape).hash_code()},
     };
     // clang-format on
 }
@@ -318,6 +320,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
     detectShape<MeshShape>();
     detectShape<SphereShape>();
     detectShape<CapsuleShape>();
+    detectShape<CylinderShape>();
 
     if (shapeName_.empty())
     {

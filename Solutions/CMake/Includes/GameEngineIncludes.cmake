@@ -181,6 +181,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/Collisio
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/BoxShape.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/MeshShape.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/SphereShape.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/CylinderShape.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/Terrain/TerrainShape.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/CapsuleShape.h

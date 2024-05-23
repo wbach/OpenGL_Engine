@@ -14,12 +14,14 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD0(EnableSimulation, void());
     MOCK_METHOD0(DisableSimulation, void());
     MOCK_METHOD3(CreateBoxColider, Physics::ShapeId(const vec3&, const vec3&, const vec3&));
+    MOCK_METHOD3(CreateCylinderColider, Physics::ShapeId(const vec3&, const vec3&, const vec3&));
     MOCK_METHOD3(CreateSphereColider, Physics::ShapeId(const vec3&, const vec3&, float));
     MOCK_METHOD4(CreateCapsuleColider, Physics::ShapeId(const vec3&, const vec3&, float, float));
     MOCK_METHOD3(CreateTerrainColider, Physics::ShapeId(const vec3&, const vec3&, const HeightMap&));
     MOCK_METHOD5(CreateMeshCollider,
                  Physics::ShapeId(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool));
-    MOCK_METHOD5(CreateRigidbody, Physics::RigidbodyId(const Physics::ShapeId&, GameObject&, const Physics::RigidbodyProperties&, float, bool&));
+    MOCK_METHOD5(CreateRigidbody, Physics::RigidbodyId(const Physics::ShapeId&, GameObject&,
+                                                       const Physics::RigidbodyProperties&, float, bool&));
     MOCK_METHOD1(RemoveRigidBody, void(const Physics::RigidbodyId&));
     MOCK_METHOD1(RemoveShape, void(const Physics::ShapeId&));
     MOCK_METHOD2(SetVelocityRigidbody, void(const Physics::RigidbodyId&, const vec3&));
