@@ -255,7 +255,6 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     btAssert((!btShape || btShape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
     btVector3 localInertia(0, 0, 0);
-    btDefaultMotionState* myMotionState{nullptr};
 
     int flags = impl_->visualizationForAllObjectEnabled ? 0 : btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT;
     bool isStatic{false};
@@ -273,6 +272,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
                 isStatic = true;
                 break;
             case RigidbodyProperty::NoContactResponse:
+                DEBUG_LOG("nameToTypeMap_ " + gameObject.GetName());
                 flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
                 break;
         }
@@ -282,17 +282,28 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
         btShape->calculateLocalInertia(mass, localInertia);
     }
 
-    myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
+        if (gameObject.GetName() == "_Arrow_")
+        {
+            flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
+        }
+
+    auto myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
 
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, isUpdating, *shapeId};
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
     body.btRigidbody_->setFriction(1);
 
-//    if (gameObject.GetName() == "_Arrow_")
-//    {
-//        body.btRigidbody_->setCenterOfMassTransform();
-//    }
+
+    if (gameObject.GetName() == "_Arrow_")
+    {
+        //gameObject.GetWorldTransform() * glm::translate
+        btTransform rbTransform;// body.btRigidbody_->getWorldTransform();
+        rbTransform.setIdentity();
+        rbTransform.setOrigin(body.btRigidbody_->getWorldTransform().getOrigin() - shape.positionOffset_);
+        body.btRigidbody_->setCenterOfMassTransform(body.btRigidbody_->getWorldTransform());
+
+    }
 
     return addRigidbody(isStatic ? staticRigidBodies : rigidBodies, std::move(body));
 }

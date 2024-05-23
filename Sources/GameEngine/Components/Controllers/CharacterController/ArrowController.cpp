@@ -60,9 +60,9 @@ void ArrowController::shoot()
     }
     if (rigidbody and thridPersonCameraComponent)
     {
-       // rigidbody->InputParams().angularFactor_ = vec3(0);
-        //rigidbody->ApplyImpulse(thridPersonCameraComponent->getDirection() * 10.f);
-        rigidbody->SetVelocity(thridPersonCameraComponent->getDirection() * 10.f);
+       //rigidbody->InputParams().angularFactor_ = vec3(1);
+        rigidbody->ApplyImpulse(thridPersonCameraComponent->getDirection() * 10.f);
+        //rigidbody->SetVelocity(thridPersonCameraComponent->getDirection() * 10.f);
     }
 }
 
