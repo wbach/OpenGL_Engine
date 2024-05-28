@@ -9,6 +9,7 @@ struct RayHit
 {
     vec3 pointWorld;
     vec3 normalWorld;
+    uint32 rigidbodyId;
 };
 }  // namespace Physics
 }  // namespace GameEngine

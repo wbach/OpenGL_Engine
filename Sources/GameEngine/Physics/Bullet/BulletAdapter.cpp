@@ -117,7 +117,7 @@ ShapeId BulletAdapter::CreateBoxColider(const PositionOffset& positionOffset, co
     return id;
 }
 
-ShapeId BulletAdapter::CreateCylinderColider(const PositionOffset & positionOffset, const Scale & scale, const Size & size)
+ShapeId BulletAdapter::CreateCylinderColider(const PositionOffset& positionOffset, const Scale& scale, const Size& size)
 {
     auto id = idPool_.getId();
     shapes_.insert({id, std::make_unique<Shape>(std::make_unique<btCylinderShape>(Convert(size)),
@@ -233,7 +233,7 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
 }
 
 RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& gameObject,
-                                           const RigidbodyProperties &properties, float mass, bool& isUpdating)
+                                           const RigidbodyProperties& properties, float mass, bool& isUpdating)
 {
     if (not shapeId)
     {
@@ -282,28 +282,13 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
         btShape->calculateLocalInertia(mass, localInertia);
     }
 
-        if (gameObject.GetName() == "_Arrow_")
-        {
-            flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
-        }
-
-    auto myMotionState = new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
+    auto myMotionState =
+        new btDefaultMotionState(Convert(gameObject.GetWorldTransform(), Convert(shape.positionOffset_)));
     btRigidBody::btRigidBodyConstructionInfo cInfo(mass, myMotionState, shape.btShape_.get(), localInertia);
 
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, isUpdating, *shapeId};
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
     body.btRigidbody_->setFriction(1);
-
-
-    if (gameObject.GetName() == "_Arrow_")
-    {
-        //gameObject.GetWorldTransform() * glm::translate
-        btTransform rbTransform;// body.btRigidbody_->getWorldTransform();
-        rbTransform.setIdentity();
-        rbTransform.setOrigin(body.btRigidbody_->getWorldTransform().getOrigin() - shape.positionOffset_);
-        body.btRigidbody_->setCenterOfMassTransform(body.btRigidbody_->getWorldTransform());
-
-    }
 
     return addRigidbody(isStatic ? staticRigidBodies : rigidBodies, std::move(body));
 }
@@ -551,7 +536,11 @@ std::optional<RayHit> BulletAdapter::RayTest(const vec3& from, const vec3& to) c
 
     if (res.hasHit())
     {
-        return RayHit{Convert(res.m_hitPointWorld), Convert(res.m_hitNormalWorld)};
+        auto rId = static_cast<uint32>(res.m_collisionObject->getUserIndex());
+
+        return RayHit{.pointWorld  = Convert(res.m_hitPointWorld),
+                      .normalWorld = Convert(res.m_hitNormalWorld),
+                      .rigidbodyId = rId};
     }
 
     return std::nullopt;

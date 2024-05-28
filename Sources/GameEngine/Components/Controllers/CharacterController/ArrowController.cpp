@@ -3,8 +3,8 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
-#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -40,12 +40,6 @@ void ArrowController::CleanUp()
 
 void ArrowController::ReqisterFunctions()
 {
-    //    RegisterFunction(FunctionType::OnStart,
-    //                     [this]()
-    //                     {
-    //                         rigidbody = thisObject_.GetComponent<Rigidbody>();
-
-    //                     });
     RegisterFunction(FunctionType::Update, std::bind(&ArrowController::update, this));
 }
 
@@ -55,7 +49,7 @@ void ArrowController::shoot()
         return;
 
     createPhysicsObject();
-    subscribeForCollisionDetection();
+    //  subscribeForCollisionDetection(); To remove if all will be ok
 
     rigidbody->ApplyImpulse(thridPersonCameraComponent->getDirection() * 10.f);
     // rigidbody->SetVelocity(thridPersonCameraComponent->getDirection() * 10.f);
@@ -90,47 +84,54 @@ Quaternion generateRotationFromDirection(const vec3& direction)
 
 void ArrowController::update()
 {
-    if (not rigidbody or not physicArrowGameObject)
+    if (not physicArrowGameObject)
         return;
 
     auto currentPos = thisObject_.GetWorldTransform().GetPosition();
-    auto direction  = glm::normalize(currentPos - lastPosition);
+    auto direction  = generateRotationFromDirection(glm::normalize(currentPos - lastPosition));
 
-    thisObject_.SetWorldPositionRotation(physicArrowGameObject->GetWorldTransform().GetPosition(),
-                                         generateRotationFromDirection(direction));
+    thisObject_.SetWorldPositionRotation(physicArrowGameObject->GetWorldTransform().GetPosition(), direction);
+
+    auto rayTestResult = componentContext_.physicsApi_.RayTest(lastPosition, currentPos);
+
+    if (rayTestResult)
+    {
+        performCollision(rayTestResult->rigidbodyId);
+
+        vec3 offset(0, 0.6f, 0);
+        auto rotatedOffset = direction * offset;
+        thisObject_.SetWorldPosition( rayTestResult->pointWorld - rotatedOffset);  // lastPosition, rayTestResult->pointWorld but last make better result?
+    }
     lastPosition = currentPos;
 }
 
 void ArrowController::onCollisionDetect(const Physics::CollisionContactInfo& info)
 {
+    //    DEBUG_LOG("Collision detected rigidbodyId=" + std::to_string(rigidbody->GetId()) + "(" +
+    //              std::to_string(info.rigidbodyId1) + ") with rigidbodyId=" + std::to_string(info.rigidbodyId2) +
+    //              ", Oncollision p1 : " + std::to_string(info.pos1) + ", p2 : " + std::to_string(info.pos2));
+
+    performCollision(info.rigidbodyId2);
+}
+
+void ArrowController::performCollision(uint32 rigidbodyId)
+{
+    auto rigidbody = findCollidedRigidbody(rigidbodyId);
     if (not rigidbody)
     {
-        WARNING_LOG("Something went wrong");
+        WARNING_LOG("Rigidbody not found : " + std::to_string(rigidbodyId));
         return;
     }
 
-    DEBUG_LOG("Collision detected rigidbodyId=" + std::to_string(rigidbody->GetId()) + "(" +
-              std::to_string(info.rigidbodyId1) + ") with rigidbodyId=" + std::to_string(info.rigidbodyId2) +
-              ", Oncollision p1 : " + std::to_string(info.pos1) + ", p2 : " + std::to_string(info.pos2));
-
-    auto rigidbodies = componentContext_.componentController_.GetAllComonentsOfType<Rigidbody>();
-
-    auto iter = std::find_if(rigidbodies.begin(), rigidbodies.end(),
-                             [id = info.rigidbodyId2](const auto& rigidbody) { return id == rigidbody->GetId(); });
-
-    if (iter != rigidbodies.end())
+    if (rigidbody->GetParentGameObject().GetName() != "Player")  // TO DO : check tag
     {
-        if ((*iter)->GetParentGameObject().GetName() != "Player")  // TO DO : check tag
-        {
-            componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
-            collisionSubId.reset();
+        DEBUG_LOG("Collision detected with " + rigidbody->GetParentGameObject().GetName());
+        componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
+        collisionSubId.reset();
 
-            physicArrowGameObject->RemoveComponent<Rigidbody>();
-
-            // componentContext_.scene_.RemoveGameObject(physicArrowGameObject->GetId());
-            rigidbody             = nullptr;
-            physicArrowGameObject = nullptr;
-        }
+        physicArrowGameObject->RemoveComponent<Rigidbody>();
+        // componentContext_.scene_.RemoveGameObject(physicArrowGameObject->GetId());
+        physicArrowGameObject = nullptr;
     }
 }
 
@@ -138,9 +139,9 @@ void ArrowController::createPhysicsObject()
 {
     auto p = componentContext_.scene_.CreateGameObject(thisObject_.GetName() + "_Rigidbody");
 
-    p->AddComponent<Components::CapsuleShape>().SetHeight(1.75f).SetRadius(0.05f);
+    p->AddComponent<Components::SphereShape>().SetRadius(0.1f);
     rigidbody = &p->AddComponent<Rigidbody>();
-    rigidbody->SetMass(1.f);
+    rigidbody->SetMass(0.5f);
     rigidbody->SetNoContactResponse(true);
     p->SetWorldMatrix(thisObject_.GetWorldTransform().GetMatrix());
     physicArrowGameObject = p.get();
@@ -151,6 +152,16 @@ void ArrowController::subscribeForCollisionDetection()
 {
     collisionSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody->GetId(), [this](const auto& info) { onCollisionDetect(info); });
+}
+
+Rigidbody* ArrowController::findCollidedRigidbody(uint32 rigidbodyId)
+{
+    auto rigidbodies = componentContext_.componentController_.GetAllComonentsOfType<Rigidbody>();
+
+    auto iter = std::find_if(rigidbodies.begin(), rigidbodies.end(),
+                             [id = rigidbodyId](const auto& rigidbody) { return id == rigidbody->GetId(); });
+
+    return (iter != rigidbodies.end()) ? *iter : nullptr;
 }
 
 void ArrowController::registerReadFunctions()

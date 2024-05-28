@@ -27,7 +27,9 @@ public:
 
 private:
     void update();
+    Rigidbody* findCollidedRigidbody(uint32);
     void onCollisionDetect(const Physics::CollisionContactInfo&);
+    void performCollision(uint32);
     void createPhysicsObject();
     void subscribeForCollisionDetection();
 
