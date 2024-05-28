@@ -576,6 +576,8 @@ void Console::SubscribeKeys()
             if (commandsHistory_.empty())
                 return;
 
+            ++commandHistoryIndex_;
+
             if (commandHistoryIndex_ < 0)
             {
                 commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
@@ -586,7 +588,6 @@ void Console::SubscribeKeys()
             }
 
             currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-            ++commandHistoryIndex_;
         });
 
     scene_.inputManager_->SubscribeOnKeyDown(
@@ -596,6 +597,8 @@ void Console::SubscribeKeys()
             if (commandsHistory_.empty())
                 return;
 
+            --commandHistoryIndex_;
+
             if (commandHistoryIndex_ < 0)
             {
                 commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
@@ -606,7 +609,6 @@ void Console::SubscribeKeys()
             }
 
             currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-            --commandHistoryIndex_;
         });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
@@ -679,7 +681,7 @@ void Console::PrepareConsoleWindow()
             window_->Show();
             DEBUG_LOG("f2");
             if (not commandsHistory_.empty())
-                commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+                commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
 
             if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
                 currentCommand_ = AddOrUpdateGuiText("");
