@@ -3,10 +3,12 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
@@ -16,7 +18,8 @@ ArrowController::ArrowController(ComponentContext& componentContext, GameObject&
     : BaseComponent(typeid(ArrowController).hash_code(), componentContext, gameObject)
     , thridPersonCameraComponent{nullptr}
     , rigidbody{nullptr}
-    , direction(VECTOR_FORWARD)
+    , physicArrowGameObject{nullptr}
+    , lastPosition{thisObject_.GetWorldTransform().GetPosition()}
 {
 }
 
@@ -48,35 +51,54 @@ void ArrowController::ReqisterFunctions()
 
 void ArrowController::shoot()
 {
-    if (not rigidbody)
+    if (not thridPersonCameraComponent)
+        return;
+
+    createPhysicsObject();
+    subscribeForCollisionDetection();
+
+    rigidbody->ApplyImpulse(thridPersonCameraComponent->getDirection() * 10.f);
+    // rigidbody->SetVelocity(thridPersonCameraComponent->getDirection() * 10.f);
+
+    lastPosition = thisObject_.GetWorldTransform().GetPosition();
+}
+
+Quaternion generateRotationFromDirection(const vec3& direction)
+{
+    // Calculate change-of-basis matrix
+    glm::mat3 transform(1.f);
+
+    if (direction.x == 0 && direction.z == 0)
     {
-        rigidbody = thisObject_.GetComponent<Rigidbody>();
-        if (rigidbody)
+        if (direction.y < 0)  // rotate 180 degrees
         {
-            DEBUG_LOG("setCollisionCallback");
-            collisionSubId = componentContext_.physicsApi_.setCollisionCallback(
-                rigidbody->GetId(), [this](const auto& info) { onCollisionDetect(info); });
+            transform =
+                glm::mat3(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         }
+        // else if direction.y >= 0, leave transform as the identity matrix.
     }
-    if (rigidbody and thridPersonCameraComponent)
+    else
     {
-       //rigidbody->InputParams().angularFactor_ = vec3(1);
-        rigidbody->ApplyImpulse(thridPersonCameraComponent->getDirection() * 10.f);
-        //rigidbody->SetVelocity(thridPersonCameraComponent->getDirection() * 10.f);
+        vec3 new_y = glm::normalize(direction);
+        vec3 new_z = glm::normalize(glm::cross(new_y, vec3(0, 1, 0)));
+        vec3 new_x = glm::normalize(glm::cross(new_y, new_z));
+
+        transform = mat3(new_x, new_y, new_z);
     }
+    return glm::quat_cast(transform);
 }
 
 void ArrowController::update()
 {
-    // DEBUG_LOG("update");
-    if (not rigidbody)
+    if (not rigidbody or not physicArrowGameObject)
         return;
 
-    //    const auto moveSpeed = vec3(1.0f);
+    auto currentPos = thisObject_.GetWorldTransform().GetPosition();
+    auto direction  = glm::normalize(currentPos - lastPosition);
 
-    //    auto targetVelocity = rigidbody->GetRotation() * vec3(VECTOR_UP) * moveSpeed;
-    //    rigidbody->SetVelocity(targetVelocity);
-    //    //DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
+    thisObject_.SetWorldPositionRotation(physicArrowGameObject->GetWorldTransform().GetPosition(),
+                                         generateRotationFromDirection(direction));
+    lastPosition = currentPos;
 }
 
 void ArrowController::onCollisionDetect(const Physics::CollisionContactInfo& info)
@@ -100,13 +122,35 @@ void ArrowController::onCollisionDetect(const Physics::CollisionContactInfo& inf
     {
         if ((*iter)->GetParentGameObject().GetName() != "Player")  // TO DO : check tag
         {
-            thisObject_.RemoveComponent<Rigidbody>();
-            rigidbody = nullptr;
-
             componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
             collisionSubId.reset();
+
+            physicArrowGameObject->RemoveComponent<Rigidbody>();
+
+            // componentContext_.scene_.RemoveGameObject(physicArrowGameObject->GetId());
+            rigidbody             = nullptr;
+            physicArrowGameObject = nullptr;
         }
     }
+}
+
+void ArrowController::createPhysicsObject()
+{
+    auto p = componentContext_.scene_.CreateGameObject(thisObject_.GetName() + "_Rigidbody");
+
+    p->AddComponent<Components::CapsuleShape>().SetHeight(1.75f).SetRadius(0.05f);
+    rigidbody = &p->AddComponent<Rigidbody>();
+    rigidbody->SetMass(1.f);
+    rigidbody->SetNoContactResponse(true);
+    p->SetWorldMatrix(thisObject_.GetWorldTransform().GetMatrix());
+    physicArrowGameObject = p.get();
+    componentContext_.scene_.AddGameObject(std::move(p));
+}
+
+void ArrowController::subscribeForCollisionDetection()
+{
+    collisionSubId = componentContext_.physicsApi_.setCollisionCallback(
+        rigidbody->GetId(), [this](const auto& info) { onCollisionDetect(info); });
 }
 
 void ArrowController::registerReadFunctions()

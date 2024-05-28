@@ -102,8 +102,8 @@ void AimController::shoot()
         jointPoseUpdater.reset();
 
         arrowGameObject->RemoveParent();
-        arrowGameObject->AddComponent<Components::CapsuleShape>().SetHeight(1.75f).SetRadius(0.05f);
-        arrowGameObject->AddComponent<Components::Rigidbody>().SetIsStatic(false).SetMass(0.1f).SetNoContactResponse(true);
+//        arrowGameObject->AddComponent<Components::CapsuleShape>().SetHeight(1.75f).SetRadius(0.05f);
+//        arrowGameObject->AddComponent<Components::Rigidbody>().SetIsStatic(false).SetMass(0.1f).SetNoContactResponse(true);
         arrowGameObject->GetComponent<Components::ArrowController>()->shoot();
         arrowGameObject = nullptr;
     }

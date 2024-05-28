@@ -161,11 +161,11 @@ inline T& GameObject::AddComponent()
 {
     auto component = componentFactory_.Create<T>(*this);
     components_.push_back(std::move(component));
-    if (isStarted)
-    {
-        components_.back()->ReqisterFunctions();
-        componentController_.OnObjectCreated(id_);
-    }
+//    if (isStarted)
+//    {
+//        components_.back()->ReqisterFunctions();
+//        componentController_.OnObjectCreated(id_);
+//    }
     return *static_cast<T*>(components_.back().get());
 }
 template <class T>

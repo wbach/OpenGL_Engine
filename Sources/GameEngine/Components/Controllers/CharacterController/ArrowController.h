@@ -28,12 +28,16 @@ public:
 private:
     void update();
     void onCollisionDetect(const Physics::CollisionContactInfo&);
+    void createPhysicsObject();
+    void subscribeForCollisionDetection();
 
 private:
     Physics::CollisionSubId collisionSubId;
     ThridPersonCameraComponent* thridPersonCameraComponent;
     Rigidbody* rigidbody;
-    vec3 direction;
+    GameObject* physicArrowGameObject;
+
+    vec3 lastPosition;
 
 public:
     static void registerReadFunctions();
