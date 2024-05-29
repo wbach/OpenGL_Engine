@@ -10,7 +10,7 @@ namespace GameEngine
 class ResourceManagerMock : public IResourceManager
 {
 public:
-    MOCK_METHOD1(LoadModel, Model*(const File&));
+    MOCK_METHOD2(LoadModel, Model*(const File&, ModelNormalization));
     MOCK_METHOD1(AddModelImpl, Model*(Model*));
     MOCK_METHOD1(ReleaseModel, void(Model&));
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());

@@ -17,6 +17,7 @@ namespace
 const std::string COMPONENT_STR{"Renderer"};
 const std::string CSTR_TEXTURE_INDEX    = "textureIndex";
 const std::string CSTR_MODEL_FILE_NAMES = "modelFileNames";
+const std::string MODEL_NORMALIZATION   = "modelNormalization";
 const std::string MODEL_L1              = "model_l1";
 const std::string MODEL_L2              = "model_l2";
 const std::string MODEL_L3              = "model_l3";
@@ -28,6 +29,7 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
     : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
     , isSubscribed_(false)
     , textureIndex_(0)
+    , modelNormalization_{ModelNormalization::normalized}
 {
 }
 
@@ -93,7 +95,7 @@ std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
     return result;
 }
 
-RendererComponent &RendererComponent::AddModel(Model *model, LevelOfDetail i)
+RendererComponent& RendererComponent::AddModel(Model* model, LevelOfDetail i)
 {
     model_.Add(model, i);
     return *this;
@@ -117,7 +119,7 @@ void RendererComponent::init()
     bool atLeastOneModelIsCreated{false};
     for (auto& [filename, lvl] : filenames_)
     {
-        auto model = componentContext_.resourceManager_.LoadModel(filename);
+        auto model = componentContext_.resourceManager_.LoadModel(filename, modelNormalization_);
 
         if (model)
         {
@@ -330,6 +332,14 @@ void RendererComponent::registerReadFunctions()
             }
         }
 
+        auto modelNormalization = node.getChild(MODEL_NORMALIZATION);
+        if (modelNormalization)
+        {
+            component->modelNormalization_ = Utils::StringToBool(modelNormalization->value_)
+                                                 ? ModelNormalization::normalized
+                                                 : ModelNormalization::none;
+        }
+
         auto modelFileNamesNode = node.getChild(CSTR_MODEL_FILE_NAMES);
         if (modelFileNamesNode)
         {
@@ -362,6 +372,7 @@ void RendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex_));
+    node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization_ == ModelNormalization::normalized));
     create(node.addChild(CSTR_MODEL_FILE_NAMES), filenames_);
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId) const

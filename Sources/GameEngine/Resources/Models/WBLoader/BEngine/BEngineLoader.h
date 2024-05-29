@@ -17,7 +17,7 @@ public:
     ~BEngineLoader();
     void ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
-    std::unique_ptr<Model> Create() override;
+    std::unique_ptr<Model> Create(ModelNormalization) override;
 
 private:
     std::unique_ptr<Model> model_;

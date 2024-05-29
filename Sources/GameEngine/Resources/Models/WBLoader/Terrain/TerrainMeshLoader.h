@@ -17,7 +17,7 @@ public:
     TerrainMeshLoader(ITextureLoader& textureLodaer);
     void ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
-    std::unique_ptr<Model> Create() override;
+    std::unique_ptr<Model> Create(ModelNormalization) override;
     std::unique_ptr<Model> createModel(const HeightMap&, std::optional<uint32>);
 
 private:

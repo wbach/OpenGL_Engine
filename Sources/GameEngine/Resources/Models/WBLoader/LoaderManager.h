@@ -4,6 +4,7 @@
 #include "../Model.h"
 #include "GameEngine/Resources/File.h"
 #include "AbstractLoader.h"
+#include "ModelNormalization.h"
 
 namespace GameEngine
 {
@@ -13,7 +14,7 @@ class LoaderManager
 {
 public:
     LoaderManager(ITextureLoader&);
-    std::unique_ptr<Model> Load(const File&);
+    std::unique_ptr<Model> Load(const File&, ModelNormalization);
 
 private:
     WBLoader::AbstractLoader* GetLoader(const File&);

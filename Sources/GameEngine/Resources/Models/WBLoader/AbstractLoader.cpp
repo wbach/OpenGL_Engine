@@ -38,11 +38,11 @@ void AbstractLoader::Parse(const File& file)
         ParseFile(file);
     }
 }
-std::unique_ptr<Model> AbstractLoader::Create()
+std::unique_ptr<Model> AbstractLoader::Create(ModelNormalization modelNormalization)
 {
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    std::unique_ptr<Model> newModel = CreateModel();
+    std::unique_ptr<Model> newModel = CreateModel(modelNormalization);
 
     //   if (loadedFromBin_)
     //   {
@@ -61,11 +61,16 @@ std::unique_ptr<Model> AbstractLoader::Create()
               "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()));
     return newModel;
 }
-std::unique_ptr<Model> AbstractLoader::CreateModel()
+std::unique_ptr<Model> AbstractLoader::CreateModel(ModelNormalization modelNormalization)
 {
-    auto boundingBox     = getModelBoundingBox();
-    auto normalizeFactor = 1.f / boundingBox.maxScale();
-    boundingBox.scale(vec3(normalizeFactor));
+    auto boundingBox = getModelBoundingBox();
+
+    float normalizeFactor{1.f};
+    if (modelNormalization == ModelNormalization::normalized)
+    {
+        normalizeFactor = 1.f / boundingBox.maxScale();
+        boundingBox.scale(vec3(normalizeFactor));
+    }
 
     auto newModel = std::make_unique<Model>(boundingBox);
 

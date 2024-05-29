@@ -68,7 +68,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
         EXPECT_CALL(resourceManagerMock_, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock_));
         CreateModel();
         EXPECT_CALL(gpuResourceLoaderMock_, AddObjectToGpuLoadingPass(_)).Times(2);
-        EXPECT_CALL(resourceManagerMock_, LoadModel(_)).WillOnce(Return(&model_));
+        EXPECT_CALL(resourceManagerMock_, LoadModel(_, _)).WillOnce(Return(&model_));
 
         auto entity = scene_.CreateGameObject();
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");

@@ -4,6 +4,7 @@
 #include "../Model.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "MeshData.h"
+#include "ModelNormalization.h"
 
 namespace GameEngine
 {
@@ -14,16 +15,16 @@ namespace WBLoader
 class AbstractLoader
 {
 public:
-    AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader& textureLoader);
+    AbstractLoader(GraphicsApi::IGraphicsApi&, ITextureLoader&);
     virtual ~AbstractLoader() = default;
     void Parse(const File&);
     virtual bool CheckExtension(const File&) = 0;
-    virtual std::unique_ptr<Model> Create();
+    virtual std::unique_ptr<Model> Create(ModelNormalization = ModelNormalization::normalized);
 
 protected:
     virtual void ParseFile(const File&) = 0;
     std::list<WBLoader::Object> objects;
-    std::unique_ptr<Model> CreateModel();
+    std::unique_ptr<Model> CreateModel(ModelNormalization);
     std::unique_ptr<Model> CreateModelFromBin();
 
 protected:

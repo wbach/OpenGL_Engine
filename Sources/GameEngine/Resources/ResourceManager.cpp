@@ -31,7 +31,7 @@ ResourceManager::~ResourceManager()
     textureLoader_.reset();
 }
 
-Model* ResourceManager::LoadModel(const File& file)
+Model* ResourceManager::LoadModel(const File& file, ModelNormalization modelNormalization)
 {
     auto absoultePath = file.GetAbsoultePath();
     std::lock_guard<std::mutex> lk(modelMutex_);
@@ -52,7 +52,7 @@ Model* ResourceManager::LoadModel(const File& file)
     }
 
     ResourceInfo<Model> modelInfo;
-    modelInfo.resource_ = loaderManager_.Load(file);
+    modelInfo.resource_ = loaderManager_.Load(file, modelNormalization);
 
     if (not modelInfo.resource_)
         return nullptr;

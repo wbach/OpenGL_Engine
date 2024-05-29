@@ -24,7 +24,7 @@ LoaderManager::LoaderManager(ITextureLoader& textureloader)
     loaders_.emplace_back(new WBLoader::AssimpLoader(textureloader));
 }
 
-std::unique_ptr<Model> LoaderManager::Load(const File& file)
+std::unique_ptr<Model> LoaderManager::Load(const File& file, ModelNormalization modelNormalization)
 {
     auto loaderPtr = GetLoader(file);
 
@@ -35,7 +35,7 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file)
     }
 
     loaderPtr->Parse(file);
-    auto result = loaderPtr->Create();
+    auto result = loaderPtr->Create(modelNormalization);
     if (result)
     {
         result->SetFile(file);
