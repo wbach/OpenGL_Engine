@@ -167,7 +167,7 @@ bool BEngineLoader::CheckExtension(const File& file)
     return file.IsExtension("bengine");
 }
 
-std::unique_ptr<Model> BEngineLoader::Create(ModelNormalization)
+std::unique_ptr<Model> BEngineLoader::Create()
 {
     return std::move(model_);
 }

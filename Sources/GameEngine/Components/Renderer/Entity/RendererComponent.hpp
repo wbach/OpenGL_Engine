@@ -2,7 +2,7 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/WBLoader/ModelNormalization.h"
+#include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 
@@ -53,7 +53,7 @@ private:
     ModelWrapper model_;
     bool isSubscribed_;
     uint32_t textureIndex_;
-    ModelNormalization modelNormalization_;
+    LoadingParameters loadingParameters_;
     std::optional<uint32> worldTransformSub_;
 
 private:

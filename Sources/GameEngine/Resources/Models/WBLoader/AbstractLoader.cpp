@@ -20,8 +20,9 @@ AbstractLoader::AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureL
     , loadedFromBin_(false)
 {
 }
-void AbstractLoader::Parse(const File& file)
+void AbstractLoader::Parse(const File& file, const LoadingParameters& loadingParameters)
 {
+    loadingParameters_ = loadingParameters;
     fileName_ = file.GetFilename();
     filePath_ = file.GetParentDir();
 
@@ -38,11 +39,11 @@ void AbstractLoader::Parse(const File& file)
         ParseFile(file);
     }
 }
-std::unique_ptr<Model> AbstractLoader::Create(ModelNormalization modelNormalization)
+std::unique_ptr<Model> AbstractLoader::Create()
 {
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    std::unique_ptr<Model> newModel = CreateModel(modelNormalization);
+    std::unique_ptr<Model> newModel = CreateModel();
 
     //   if (loadedFromBin_)
     //   {
@@ -61,12 +62,12 @@ std::unique_ptr<Model> AbstractLoader::Create(ModelNormalization modelNormalizat
               "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()));
     return newModel;
 }
-std::unique_ptr<Model> AbstractLoader::CreateModel(ModelNormalization modelNormalization)
+std::unique_ptr<Model> AbstractLoader::CreateModel()
 {
     auto boundingBox = getModelBoundingBox();
 
     float normalizeFactor{1.f};
-    if (modelNormalization == ModelNormalization::normalized)
+    if (loadingParameters_.modelNormalization == ModelNormalization::normalized)
     {
         normalizeFactor = 1.f / boundingBox.maxScale();
         boundingBox.scale(vec3(normalizeFactor));

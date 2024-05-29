@@ -4,7 +4,7 @@
 #include "../Model.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "MeshData.h"
-#include "ModelNormalization.h"
+#include "LoadingParameters.h"
 
 namespace GameEngine
 {
@@ -17,14 +17,15 @@ class AbstractLoader
 public:
     AbstractLoader(GraphicsApi::IGraphicsApi&, ITextureLoader&);
     virtual ~AbstractLoader() = default;
-    void Parse(const File&);
     virtual bool CheckExtension(const File&) = 0;
-    virtual std::unique_ptr<Model> Create(ModelNormalization = ModelNormalization::normalized);
+
+    void Parse(const File&, const LoadingParameters& = DEFAULT_LOADING_PARAMETERS);
+    virtual std::unique_ptr<Model> Create();
 
 protected:
     virtual void ParseFile(const File&) = 0;
     std::list<WBLoader::Object> objects;
-    std::unique_ptr<Model> CreateModel(ModelNormalization);
+    std::unique_ptr<Model> CreateModel();
     std::unique_ptr<Model> CreateModelFromBin();
 
 protected:
@@ -36,6 +37,7 @@ private:
 
 protected:
     GraphicsApi::IGraphicsApi& graphicsApi_;
+    LoadingParameters loadingParameters_;
     std::string fileName_;
     std::string filePath_;
     bool loadedFromBin_;

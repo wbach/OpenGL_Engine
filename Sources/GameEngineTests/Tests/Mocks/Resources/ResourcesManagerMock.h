@@ -1,5 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
+
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/TextureLoader.h"
@@ -10,7 +11,7 @@ namespace GameEngine
 class ResourceManagerMock : public IResourceManager
 {
 public:
-    MOCK_METHOD2(LoadModel, Model*(const File&, ModelNormalization));
+    MOCK_METHOD2(LoadModel, Model*(const File&, const LoadingParameters&));
     MOCK_METHOD1(AddModelImpl, Model*(Model*));
     MOCK_METHOD1(ReleaseModel, void(Model&));
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());

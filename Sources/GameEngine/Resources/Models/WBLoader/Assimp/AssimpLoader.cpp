@@ -183,11 +183,10 @@ void AssimpLoader::ParseFile(const File& file)
     uint32 flags =
         aiProcess_Triangulate | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
 
-    // TO DO : Make parametr from this
-   // flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
-
-    //    aiProcess_RemoveRedundantMaterials      |  \
-    aiProcess_SplitLargeMeshes              |  \
+    if (loadingParameters_.meshOptimize == MeshOptimize::optimized)
+    {
+        flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes; // aiProcess_RemoveRedundantMaterials | aiProcess_SplitLargeMeshes
+    }
 
     Assimp::Importer importer;
     auto scene = importer.ReadFile(file.GetAbsoultePath().c_str(), flags);
@@ -226,8 +225,8 @@ bool AssimpLoader::CheckExtension(const File& file)
                              "Q3BSP",   "RAW",     "SIB",  "SMD",     "STL",    "TERRAGEN", "3D",  "X",       "X3D",
                              "GLTF",    "3MF",     "MMD",  "STEP"});
 
-    // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ OGRE
-    // OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
+    // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ
+    // OGRE OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
 }
 
 void AssimpLoader::recursiveProcess(const aiScene& scene, const aiNode& node)

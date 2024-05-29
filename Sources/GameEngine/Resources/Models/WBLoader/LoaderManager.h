@@ -4,7 +4,7 @@
 #include "../Model.h"
 #include "GameEngine/Resources/File.h"
 #include "AbstractLoader.h"
-#include "ModelNormalization.h"
+#include "LoadingParameters.h"
 
 namespace GameEngine
 {
@@ -14,7 +14,7 @@ class LoaderManager
 {
 public:
     LoaderManager(ITextureLoader&);
-    std::unique_ptr<Model> Load(const File&, ModelNormalization);
+    std::unique_ptr<Model> Load(const File&, const LoadingParameters& = DEFAULT_LOADING_PARAMETERS);
 
 private:
     WBLoader::AbstractLoader* GetLoader(const File&);

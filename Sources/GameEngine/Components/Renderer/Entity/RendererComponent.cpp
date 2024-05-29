@@ -18,6 +18,7 @@ const std::string COMPONENT_STR{"Renderer"};
 const std::string CSTR_TEXTURE_INDEX    = "textureIndex";
 const std::string CSTR_MODEL_FILE_NAMES = "modelFileNames";
 const std::string MODEL_NORMALIZATION   = "modelNormalization";
+const std::string MESH_OPTIMIZE         = "meshOptimize";
 const std::string MODEL_L1              = "model_l1";
 const std::string MODEL_L2              = "model_l2";
 const std::string MODEL_L3              = "model_l3";
@@ -29,7 +30,7 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
     : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
     , isSubscribed_(false)
     , textureIndex_(0)
-    , modelNormalization_{ModelNormalization::normalized}
+    , loadingParameters_{DEFAULT_LOADING_PARAMETERS}
 {
 }
 
@@ -119,7 +120,7 @@ void RendererComponent::init()
     bool atLeastOneModelIsCreated{false};
     for (auto& [filename, lvl] : filenames_)
     {
-        auto model = componentContext_.resourceManager_.LoadModel(filename, modelNormalization_);
+        auto model = componentContext_.resourceManager_.LoadModel(filename, loadingParameters_);
 
         if (model)
         {
@@ -335,9 +336,15 @@ void RendererComponent::registerReadFunctions()
         auto modelNormalization = node.getChild(MODEL_NORMALIZATION);
         if (modelNormalization)
         {
-            component->modelNormalization_ = Utils::StringToBool(modelNormalization->value_)
-                                                 ? ModelNormalization::normalized
-                                                 : ModelNormalization::none;
+            component->loadingParameters_.modelNormalization = Utils::StringToBool(modelNormalization->value_)
+                                                                   ? ModelNormalization::normalized
+                                                                   : ModelNormalization::none;
+        }
+        auto meshOptimize = node.getChild(MESH_OPTIMIZE);
+        if (meshOptimize)
+        {
+            component->loadingParameters_.meshOptimize =
+                Utils::StringToBool(meshOptimize->value_) ? MeshOptimize::optimized : MeshOptimize::none;
         }
 
         auto modelFileNamesNode = node.getChild(CSTR_MODEL_FILE_NAMES);
@@ -372,7 +379,9 @@ void RendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex_));
-    node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization_ == ModelNormalization::normalized));
+    node.addChild(MODEL_NORMALIZATION,
+                  Utils::BoolToString(loadingParameters_.modelNormalization == ModelNormalization::normalized));
+    node.addChild(MESH_OPTIMIZE, Utils::BoolToString(loadingParameters_.meshOptimize == MeshOptimize::optimized));
     create(node.addChild(CSTR_MODEL_FILE_NAMES), filenames_);
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId) const

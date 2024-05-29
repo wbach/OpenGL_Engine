@@ -38,11 +38,13 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
     {
         for (const auto& sub : subscribes_)
         {
-            const auto& objectTransform = sub.gameObject->GetWorldTransform();
-            auto radius                 = glm::compMax(objectTransform.GetScale());
-            auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(), radius);
+            // TO DO : fix
+            // const auto& objectTransform = sub.gameObject->GetWorldTransform();
+            // auto radius                 = glm::compMax(objectTransform.GetScale());
+            // auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(),
+            // radius);
 
-            if (isVisible or true)  // TO DO : fix
+            // if (isVisible )
             {
                 auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
                 if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
@@ -203,31 +205,31 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
     return renderedMeshes_;
 }
 
-BoundingBox translateBoundingBox(const BoundingBox& modelBB, const mat4& transform)
-{
-    auto newMin = transform * vec4(modelBB.min(), 1.f);
-    auto newMax = transform * vec4(modelBB.max(), 1.f);
-    return BoundingBox();
-}
-
 EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
 {
     GroupedEntities result;
 
     for (const auto& sub : subscribes_)
     {
-        const auto& objectTransform = sub.gameObject->GetWorldTransform();
-        //auto radius                 = glm::compMax(objectTransform.GetScale());
-
         auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
 
         if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
-            auto isVisible = context_.frustrum_.intersection(translateBoundingBox(model->getBoundingBox(), objectTransform.GetMatrix()));
+            // TO DO : fix
+            // const auto& objectTransform = sub.gameObject->GetWorldTransform();
+            // auto radius                 = glm::compMax(objectTransform.GetScale());
 
-            //if (not isVisible)  // TO DO : fix
+            // BoundingBox translateBoundingBox(const BoundingBox& modelBB, const mat4& transform)
+            //{
+            //     auto newMin = transform * vec4(modelBB.min(), 1.f);
+            //     auto newMax = transform * vec4(modelBB.max(), 1.f);
+            //     return BoundingBox();
+            // }
+
+            // auto isVisible = context_.frustrum_.intersection(translateBoundingBox(model->getBoundingBox(),
+            // objectTransform.GetMatrix()));
+            // if (not isVisible)
             //    continue;
-
 
             if ((sub.animator and model->getRootJoint()))
             {

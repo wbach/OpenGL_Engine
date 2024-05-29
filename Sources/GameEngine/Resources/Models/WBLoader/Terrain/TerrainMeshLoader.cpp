@@ -41,7 +41,7 @@ bool TerrainMeshLoader::CheckExtension(const File& file)
 {
     return file.IsExtension("terrain");
 }
-std::unique_ptr<Model> TerrainMeshLoader::Create(ModelNormalization)
+std::unique_ptr<Model> TerrainMeshLoader::Create()
 {
     if (not model_)
     {
