@@ -42,7 +42,7 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
             auto radius                 = glm::compMax(objectTransform.GetScale());
             auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(), radius);
 
-            if (isVisible or true) // TO DO : fix
+            if (isVisible or true)  // TO DO : fix
             {
                 auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
                 if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
@@ -125,7 +125,7 @@ void EntityRenderer::unSubscribe(GameObject& gameObject)
 
 void EntityRenderer::unSubscribeAll()
 {
-    DEBUG_LOG("subscribes_ size: " + std::to_string(subscribes_.size()) +  " subscribes_ clear");
+    DEBUG_LOG("subscribes_ size: " + std::to_string(subscribes_.size()) + " subscribes_ clear");
     subscribes_.clear();
 }
 
@@ -203,6 +203,13 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
     return renderedMeshes_;
 }
 
+BoundingBox translateBoundingBox(const BoundingBox& modelBB, const mat4& transform)
+{
+    auto newMin = transform * vec4(modelBB.min(), 1.f);
+    auto newMax = transform * vec4(modelBB.max(), 1.f);
+    return BoundingBox();
+}
+
 EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
 {
     GroupedEntities result;
@@ -210,16 +217,18 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
     for (const auto& sub : subscribes_)
     {
         const auto& objectTransform = sub.gameObject->GetWorldTransform();
-        auto radius                 = glm::compMax(objectTransform.GetScale());
-        auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(), radius);
-
-        if (not isVisible)
-            continue;
+        //auto radius                 = glm::compMax(objectTransform.GetScale());
 
         auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
 
         if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
+            auto isVisible = context_.frustrum_.intersection(translateBoundingBox(model->getBoundingBox(), objectTransform.GetMatrix()));
+
+            //if (not isVisible)  // TO DO : fix
+            //    continue;
+
+
             if ((sub.animator and model->getRootJoint()))
             {
                 auto classificatedToSingleIter = result.singleEntitiesToRender_.find(model);

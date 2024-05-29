@@ -199,10 +199,17 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
             auto i2 = 3 * static_cast<size_t>(indicies[i + 1]);
             auto i3 = 3 * static_cast<size_t>(indicies[i + 2]);
 
-            btVector3 v0(data[i1], data[i1 + 1], data[i1 + 2]);
-            btVector3 v1(data[i2], data[i2 + 1], data[i2 + 2]);
-            btVector3 v2(data[i3], data[i3 + 1], data[i3 + 2]);
-            btMesh->addTriangle(v0, v1, v2);
+            if (i1 + 2 < data.size() and i2 + 2 < data.size() and i3 + 2 < data.size())
+            {
+                btVector3 v0(data[i1], data[i1 + 1], data[i1 + 2]);
+                btVector3 v1(data[i2], data[i2 + 1], data[i2 + 2]);
+                btVector3 v2(data[i3], data[i3 + 1], data[i3 + 2]);
+                btMesh->addTriangle(v0, v1, v2);
+            }
+            else
+            {
+                WARNING_LOG("Out of range");
+            }
         }
 
         meshShape->btShape_ = std::make_unique<btBvhTriangleMeshShape>(btMesh, true, true);

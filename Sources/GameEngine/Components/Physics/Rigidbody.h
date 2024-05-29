@@ -5,7 +5,7 @@
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Physics/ShapeType.h"
-#include <Physics/IPhysicsApi.h>
+#include <GameEngine/Physics/IPhysicsApi.h>
 
 namespace GameEngine
 {

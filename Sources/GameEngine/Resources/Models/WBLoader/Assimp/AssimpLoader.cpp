@@ -183,7 +183,11 @@ void AssimpLoader::ParseFile(const File& file)
     uint32 flags =
         aiProcess_Triangulate | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
 
-    flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
+    // TO DO : Make parametr from this
+   // flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes;
+
+    //    aiProcess_RemoveRedundantMaterials      |  \
+    aiProcess_SplitLargeMeshes              |  \
 
     Assimp::Importer importer;
     auto scene = importer.ReadFile(file.GetAbsoultePath().c_str(), flags);
