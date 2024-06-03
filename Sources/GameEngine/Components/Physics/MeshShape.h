@@ -1,6 +1,7 @@
 #pragma once
 #include "CollisionShape.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 
 namespace GameEngine
 {
@@ -34,6 +35,7 @@ private:
     Model* model_;
     bool autoOptimize_;
     std::string requstedModelFileName_;
+    LoadingParameters loadingParameters_;
 
 public:
     static void registerReadFunctions();
