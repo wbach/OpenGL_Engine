@@ -3,11 +3,12 @@
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
@@ -51,7 +52,8 @@ void GrassRendererComponent::UpdateModel()
             auto& meshData = mesh.GetMeshDataRef();
 
             componentContext_.gpuResourceLoader_.AddFunctionToCall(
-                [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
+                [&graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]()
+                {
                     graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
                                            {VertexBufferObjects::POSITION, VertexBufferObjects::TEXT_COORD,
                                             VertexBufferObjects::NORMAL, VertexBufferObjects::TANGENT});
@@ -147,25 +149,26 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
     {
         std::unordered_map<int32, std::unordered_map<int32, std::unordered_map<int32, Mesh>>> meshBoxes_;
         size_t sizeAndRotationIndex = 0;
-        for(size_t i = 0; i< meshData_.positions.size(); i += 3)
+        for (size_t i = 0; i < meshData_.positions.size(); i += 3)
         {
-            vec3 position(meshData_.positions[i], meshData_.positions[i +1], meshData_.positions[i+2]);
+            vec3 position(meshData_.positions[i], meshData_.positions[i + 1], meshData_.positions[i + 2]);
 
             auto xIndex = static_cast<int32>(position.x) / BOX_SIZE;
             auto yIndex = static_cast<int32>(position.y) / BOX_SIZE;
             auto zIndex = static_cast<int32>(position.z) / BOX_SIZE;
 
             auto& yMeshBox = meshBoxes_[xIndex][yIndex];
-            auto iter = yMeshBox.find(zIndex);
+            auto iter      = yMeshBox.find(zIndex);
 
             Mesh* mesh{nullptr};
             if (iter == yMeshBox.end())
             {
-                Mesh m(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
-                yMeshBox.insert({zIndex, std::move(m) });
+                Mesh m(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(),
+                       material);
+                yMeshBox.insert({zIndex, std::move(m)});
                 mesh = &yMeshBox.at(zIndex);
                 vec3 bbMin(xIndex * BOX_SIZE, yIndex * BOX_SIZE, zIndex * BOX_SIZE);
-                vec3 bbMax((xIndex+1) * BOX_SIZE, (yIndex+1) * BOX_SIZE, (zIndex+1) * BOX_SIZE);
+                vec3 bbMax((xIndex + 1) * BOX_SIZE, (yIndex + 1) * BOX_SIZE, (zIndex + 1) * BOX_SIZE);
                 DEBUG_LOG("bbMin : " + std::to_string(bbMin));
                 DEBUG_LOG("bbMax : " + std::to_string(bbMax));
                 BoundingBox boundingBox(bbMin * 1.1f, bbMax * 1.1f);
@@ -185,19 +188,19 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
             meshData.textCoords_.push_back(meshData_.sizesAndRotations[sizeAndRotationIndex++]);
 
             meshData.normals_.push_back(meshData_.normals[i]);
-            meshData.normals_.push_back(meshData_.normals[i+1]);
-            meshData.normals_.push_back(meshData_.normals[i+2]);
+            meshData.normals_.push_back(meshData_.normals[i + 1]);
+            meshData.normals_.push_back(meshData_.normals[i + 2]);
 
             meshData.tangents_.push_back(meshData_.colors[i]);
-            meshData.tangents_.push_back(meshData_.colors[i+1]);
-            meshData.tangents_.push_back(meshData_.colors[i+2]);
+            meshData.tangents_.push_back(meshData_.colors[i + 1]);
+            meshData.tangents_.push_back(meshData_.colors[i + 2]);
         }
 
-        for(auto& [_, yIndexMap] : meshBoxes_)
+        for (auto& [_, yIndexMap] : meshBoxes_)
         {
-            for(auto& [_, zIndexMap] : yIndexMap)
+            for (auto& [_, zIndexMap] : yIndexMap)
             {
-                for(auto& [_, mesh] : zIndexMap)
+                for (auto& [_, mesh] : zIndexMap)
                 {
                     DEBUG_LOG("Mesh positions size : " + std::to_string(mesh.GetMeshDataRef().positions_.size() / 3));
                     result.push_back(std::move(mesh));
@@ -208,7 +211,8 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
     }
     else
     {
-        Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
+        Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(),
+                  material);
         CopyDataToMesh(mesh);
         result.push_back(std::move(mesh));
     }
@@ -231,7 +235,7 @@ bool GrassRendererComponent::CreateGrassModel()
     auto model    = std::make_unique<Model>();
     auto material = CreateGrassMaterial();
     auto meshes   = CreateGrassMeshes(material);
-    for(auto& mesh : meshes)
+    for (auto& mesh : meshes)
         model->AddMesh(mesh);
 
     model_.Add(model.get(), LevelOfDetail::L1);
@@ -248,7 +252,8 @@ Material GrassRendererComponent::CreateGrassMaterial() const
 }
 void GrassRendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<GrassRendererComponent>(componentContext, gameObject);
 
         if (auto textureFileNameNode = node.getChild(CSTR_TEXTURE_FILENAME))
@@ -289,7 +294,25 @@ void GrassRendererComponent::write(TreeNode& node) const
 
     auto file = getDataFile();
     if (file.empty())
-        file.DataRelative("Generated/grassMeshData_" + std::to_string(thisObject_.GetId()) + ".bin");
+    {
+        std::string newFileName = "Generated/grassMeshData_" + std::to_string(thisObject_.GetId()) + ".bin";
+
+        auto terrainComponent = thisObject_.GetComponent<TerrainRendererComponent>();
+
+        if (terrainComponent)
+        {
+            auto heightMap = terrainComponent->GetHeightMap();
+            if (heightMap)
+            {
+                auto filename = heightMap->GetFile();
+                if (filename)
+                {
+                    newFileName = "Generated/grassMeshData_" + filename->GetBaseName() + ".bin";
+                }
+            }
+        }
+        file.DataRelative(newFileName);
+    }
 
     auto opened = file.openToWrite();
     if (opened)
