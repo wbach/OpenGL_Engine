@@ -22,6 +22,7 @@ void PrintMatrix(const std::string& text, const glm::mat4& m);
 bool Compare(const glm::vec2& v1, const glm::vec2& v2);
 bool Compare(const glm::vec3& v1, const glm::vec3& v2);
 
+glm::vec2 xz(const vec3&);
 glm::vec2 toScreenSpace(glm::vec2& position, glm::vec2& window_size);
 glm::vec3 Vec4ToVec3(const glm::vec4& v);
 glm::vec3 ColorLerpRGB(const glm::vec3& c1, const glm::vec3& c2, const float& blend);

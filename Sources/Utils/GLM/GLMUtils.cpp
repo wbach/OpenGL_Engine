@@ -1,6 +1,7 @@
 #include "GLMUtils.h"
 
 #include <Logger/Log.h>
+
 #include "../math.hpp"
 
 namespace Utils
@@ -241,6 +242,11 @@ glm::mat4 CreateBiasNdcToTextureCoordinates()
     auto translate = glm::translate(vec3(0.5f, 0.5f, 0.5f));
     auto scale     = glm::scale(vec3(0.5f, 0.5f, 0.5f));
     return translate * scale;
+}
+
+glm::vec2 xz(const vec3& v)
+{
+    return glm::vec2(v.x, v.z);
 }
 
 glm::vec2 toScreenSpace(glm::vec2& position, glm::vec2& window_size)

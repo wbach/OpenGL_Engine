@@ -61,10 +61,10 @@ bool InputManager::GetKey(GameAction action)
     {
         return GetKey(keyGameActions_.at(action));
     }
-    else
-    {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
-    }
+    //else
+    //{
+    //    ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    //}
     return false;
 }
 

@@ -28,5 +28,6 @@ private:
 private:
     Components::GrassRendererComponent& grassComponent_;
     bool eraseMode_;
+    std::vector<vec3> tmpPositions_;
 };
 }  // namespace GameEngine

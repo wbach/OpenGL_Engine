@@ -15,6 +15,13 @@ PlantPainter::PlantPainter(const EntryParamters& entryParamters, Components::Gra
     , grassComponent_(component)
     , eraseMode_(false)
 {
+    const auto& data = component.GetGrassMeshesData();
+    tmpPositions_.reserve(data.positions.size() / 3);
+
+    for (int i = 0; i < data.positions.size(); i += 3)
+    {
+        tmpPositions_.push_back(vec3(data.positions[i], data.positions[i + 1], data.positions[i + 2]));
+    }
 }
 void PlantPainter::eraseMode()
 {
@@ -110,9 +117,17 @@ void PlantPainter::createRandomPositions(const vec3& pointOnTerrain, const Terra
         {
             vec2 sizeAndRotation(ySizeDist(mt), rotationDist(mt));
             Color color(255, colorGreenDist(mt), colorBlueDist(mt));
-            Components::GrassRendererComponent::GrassMeshData grassMesh{*position, sizeAndRotation, normal, color};
-            grassComponent_.AddGrassMesh(grassMesh);
-            positionAdded = true;
+
+            auto iter = std::find_if(tmpPositions_.begin(), tmpPositions_.end(),
+                                     [p = *position](const vec3& tmpPos) { return glm::length(p - tmpPos) < 0.5f; });
+
+            if (iter == tmpPositions_.end())
+            {
+                Components::GrassRendererComponent::GrassMeshData grassMesh{*position, sizeAndRotation, normal, color};
+                grassComponent_.AddGrassMesh(grassMesh);
+                positionAdded = true;
+                tmpPositions_.push_back(*position);
+            }
         }
     }
     if (positionAdded)
@@ -131,24 +146,26 @@ std::vector<std::string> PlantPainter::avaiableBrushTypes() const
 }
 void PlantPainter::generatePositions()
 {
-    DEBUG_LOG("generatePositions");
     auto terrainRendererComponents = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    const auto range               = static_cast<float>(paintContext_.brushSize / 2);
+    const auto numberOfInstances   = getNumberOfInstances();
 
+    DEBUG_LOG("generatePositions terrains count: " + std::to_string(terrainRendererComponents.size()));
     for (auto& terrainRendererComponent : terrainRendererComponents)
     {
-        TerrainHeightGetter terrainHeightGetter(
-            terrainRendererComponent->getParentGameObject().GetWorldTransform().GetScale(),
-            *terrainRendererComponent->GetHeightMap(),
-            terrainRendererComponent->GetParentGameObject().GetWorldTransform().GetPosition());
+        const auto& gameObjectWorldTransform = terrainRendererComponent->getParentGameObject().GetWorldTransform();
 
-        auto halfScale = terrainRendererComponent->getParentGameObject().GetWorldTransform().GetScale() / 2.f;
-        auto position  = terrainRendererComponent->GetParentGameObject().GetWorldTransform().GetPosition();
+        TerrainHeightGetter terrainHeightGetter(gameObjectWorldTransform.GetScale(),
+                                                *terrainRendererComponent->GetHeightMap(),
+                                                gameObjectWorldTransform.GetPosition());
 
-        vec2 start = position - halfScale;
-        vec2 end   = position + halfScale;
+        auto halfScale = Utils::xz(gameObjectWorldTransform.GetScale() / 2.f);
+        auto position  = Utils::xz(gameObjectWorldTransform.GetPosition());
 
-        auto range             = static_cast<float>(paintContext_.brushSize / 2);
-        auto numberOfInstances = getNumberOfInstances();
+        vec2 start = position - halfScale + vec2(range);
+        vec2 end   = position + halfScale - vec2(range);
+
+        DEBUG_LOG("generatePositions start : " + std::to_string(start) + ", end : " + std::to_string(end));
 
         for (float y = start.y; y < end.y; y += range)
         {

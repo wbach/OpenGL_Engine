@@ -122,7 +122,7 @@ float TerrainHeightGetter::GetHeightInTerrainQuad(const vec2ui& gridCoord, const
         p2 = vec3(gridSquereSize_.x, tools_.GetHeight(gridCoord.x + 1, gridCoord.y + 1), gridSquereSize_.z);
     }
 
-    return Utils::BarryCentric(p1, p2, p3, positionInQuad);
+    return Utils::BarryCentric(p1, p2, p3, positionInQuad) * terrainScale_.y;
 }
 
 vec3 TerrainHeightGetter::GetNormalInTerrainQuad(const vec2ui& gridCoord, const vec2& localPosition) const

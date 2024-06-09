@@ -4,13 +4,14 @@
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include <GLM/GLMUtils.h>
 
 namespace GameEngine
 {
 TerrainHeightTools::TerrainHeightTools(const vec3& terrainScale, const Utils::Image& heightMapImage)
     : heightMapImage_(heightMapImage)
     , terrainScaleVec3_(terrainScale)
-    , terrainScale_(terrainScale.x, terrainScale.z)
+    , terrainScale_(terrainScale)
 {
 }
 const vec3& TerrainHeightTools::getTerrainScale() const
@@ -32,7 +33,7 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 
     if (heightMapImage_.getChannelsCount() == 1)
     {
-        return (maybeColor->value.x);
+        return (maybeColor->value.x) * terrainScale_.y;
     }
     else
     {
@@ -65,7 +66,7 @@ vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
     float heightDownLeft  = GetHeight(Left(x), Down(z));
     float heightDownRight = GetHeight(Right(x), Down(z));
 
-    auto gridSquereSize = terrainScale_ / (static_cast<float>(heightMapImage_.width) - 1.f);
+    auto gridSquereSize = Utils::xz(terrainScale_) / (static_cast<float>(heightMapImage_.width) - 1.f);
 
     auto vh = vec3(0, GetHeight(x, z), 0);
 
