@@ -18,9 +18,13 @@ namespace Components
 namespace
 {
 const float playerDetectionRange{10.f};
-const auto moveSpeed   = Utils::KmToMs(8.f);
+const auto moveSpeed = Utils::KmToMs(8.f);
 
-const std::string COMPONENT_STR = "EnemyController";
+const std::string COMPONENT_STR                    = "EnemyController";
+const std::string CSTR_GENERATE_MOVING_PATH        = "generateMovingPath";
+const std::string CSTR_GENERATE_MOVING_PATH_RANGE  = "range";
+const std::string CSTR_GENERATE_MOVING_PATH_OFFSET = "ofsset";
+const std::string CSTR_GENERATE_MOVING_PATH_ACTIVE = "active";
 }  // namespace
 
 EnemyController::EnemyController(ComponentContext& componentContext, GameObject& gameObject)
@@ -44,7 +48,8 @@ void EnemyController::Init()
     characterController_ = thisObject_.GetComponent<CharacterController>();
     enemy_               = thisObject_.GetComponent<Enemy>();
 
-    calculateMovingPoints();
+    if (generatePathParams.isActive)
+        calculateMovingPoints();
 }
 void EnemyController::Update()
 {
@@ -71,12 +76,19 @@ void EnemyController::Update()
         return;
     }
 
+    if (movingPoints_.empty())
+        return;
+
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
     characterController_->handleEvent(EndAttackEvent{});
     characterController_->handleEvent(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
     characterController_->handleEvent(MoveForwardEvent{});
 
     auto distanceToPoint = glm::length(vectorToTarget);
+    //DEBUG_LOG("Enemy pos: " + std::to_string(thisObject_.GetWorldTransform().GetPosition()) +
+    //          ", freeWalkingTargetPoint=" + std::to_string(freeWalkingTargetPoint) +
+    //          ", distance: " + std::to_string(distanceToPoint));
+
     if (distanceToPoint < 5.f)
     {
         freeWalkingTargetPoint = movingPoints_[freeWalkingTargetPointIndex];
@@ -103,27 +115,70 @@ void EnemyController::calculateMovingPoints()
 {
     auto position = thisObject_.GetWorldTransform().GetPosition();
 
-    const float range  = 10.f;
-    const float offset = 5;
+    const float range  = generatePathParams.range;
+    const float offset = generatePathParams.offset;
 
+    movingPoints_.resize(4);
     movingPoints_[0] = position + vec3(getRandomFloat() * range + offset, 0, getRandomFloat() * range + offset);
     movingPoints_[1] = position + vec3(getRandomFloat() * range + offset, 0, -getRandomFloat() * range - offset);
     movingPoints_[2] = position + vec3(-getRandomFloat() * range - offset, 0, -getRandomFloat() * range - offset);
     movingPoints_[3] = position + vec3(-getRandomFloat() * range - offset, 0, getRandomFloat() * range + offset);
+
+    // To do : // get height of neigbour moving points?
+    //for (auto& point : movingPoints_)
+    //{
+    //    auto h = componentContext_.physicsApi_.RayTest(vec3(point.x, 10000, point.z), vec3(point.x, -10000, point.z));
+    //    if (h)
+    //    {
+    //        point.y = h->pointWorld.y;
+    //    }
+    //}
 
     freeWalkingTargetPointIndex = 0;
     freeWalkingTargetPoint      = movingPoints_[freeWalkingTargetPointIndex];
 }
 void EnemyController::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
-        return std::make_unique<EnemyController>(componentContext, gameObject);
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
+        auto component = std::make_unique<EnemyController>(componentContext, gameObject);
+        bool generateMovingPath_{1.f};
+
+        EnemyController::GeneratePathParams generatePathParams;
+        const auto& gmn = node.getChild(CSTR_GENERATE_MOVING_PATH);
+        if (gmn)
+        {
+            const auto& activeNode = gmn->getChild(CSTR_GENERATE_MOVING_PATH_ACTIVE);
+            if (activeNode)
+            {
+                ::Read(activeNode, generatePathParams.isActive);
+            }
+
+            const auto& rangeNode = gmn->getChild(CSTR_GENERATE_MOVING_PATH_RANGE);
+            if (rangeNode)
+            {
+                ::Read(rangeNode, generatePathParams.range);
+            }
+
+            const auto& offsetNode = gmn->getChild(CSTR_GENERATE_MOVING_PATH_OFFSET);
+            if (offsetNode)
+            {
+                ::Read(offsetNode, generatePathParams.offset);
+            }
+            component->generatePathParams = generatePathParams;
+        }
+        return component;
     };
     regsiterComponentReadFunction(COMPONENT_STR, readFunc);
 }
 void EnemyController::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+
+    auto& n = node.addChild(CSTR_GENERATE_MOVING_PATH);
+    ::write(n.addChild(CSTR_GENERATE_MOVING_PATH_ACTIVE), generatePathParams.isActive);
+    ::write(n.addChild(CSTR_GENERATE_MOVING_PATH_RANGE), generatePathParams.range);
+    ::write(n.addChild(CSTR_GENERATE_MOVING_PATH_OFFSET), generatePathParams.offset);
 }
 }  // namespace Components
 }  // namespace GameEngine

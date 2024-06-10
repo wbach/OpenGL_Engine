@@ -89,9 +89,13 @@ void Rigidbody::OnStart()
 
     if (inputParams_.velocity_)
         componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId, *inputParams_.velocity_);
+    else if (tmpParams_.velocity_)
+        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId, *tmpParams_.velocity_);
 
     if (inputParams_.angularFactor_)
         componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *inputParams_.angularFactor_);
+    else if (tmpParams_.angularFactor_)
+        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *tmpParams_.angularFactor_);
 
     worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange(
         [this](const auto& transform)
@@ -140,16 +144,21 @@ Rigidbody& Rigidbody::SetCollisionShape(const std::string& shapeName)
 Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
 {
     if (not rigidBodyId_)
+    {
+        tmpParams_.velocity_ = velocity;
         return *this;
+    }
 
-    // DEBUG_LOG("SetVelocityRigidbody " + std::to_string(velocity));
     componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, velocity);
     return *this;
 }
 Rigidbody& Rigidbody::SetAngularFactor(float v)
 {
     if (not rigidBodyId_)
+    {
+        tmpParams_.angularFactor_ = vec3(v);
         return *this;
+    }
 
     componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, v);
     return *this;
@@ -158,7 +167,10 @@ Rigidbody& Rigidbody::SetAngularFactor(float v)
 Rigidbody& Rigidbody::SetAngularFactor(const vec3& angularFactor)
 {
     if (not rigidBodyId_)
+    {
+        tmpParams_.angularFactor_ = angularFactor;
         return *this;
+    }
 
     componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, angularFactor);
     return *this;

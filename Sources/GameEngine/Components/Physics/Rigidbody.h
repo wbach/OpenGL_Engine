@@ -72,6 +72,7 @@ private:
 
     float mass_    = 1.f;
     Params inputParams_;
+    Params tmpParams_;
 
     template <class T>
     void detectShape();

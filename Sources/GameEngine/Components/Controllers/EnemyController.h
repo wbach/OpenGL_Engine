@@ -14,6 +14,13 @@ namespace Components
 class Enemy;
 class EnemyController : public BaseComponent
 {
+    struct GeneratePathParams
+    {
+        bool isActive{false};
+        float range{10.f};
+        float offset{5.0f};
+    };
+
 public:
     EnemyController(ComponentContext&, GameObject&);
 
@@ -31,6 +38,7 @@ private:
     Enemy* enemy_;
     Animator* animator_;
     CharacterController* characterController_;
+    GeneratePathParams generatePathParams;
 
 public:
     static void registerReadFunctions();
@@ -38,7 +46,7 @@ public:
 
     vec3 freeWalkingTargetPoint;
     size_t freeWalkingTargetPointIndex;
-    std::array<vec3, 4> movingPoints_;
+    std::vector<vec3> movingPoints_;
 };
 }  // namespace Components
 }  // namespace GameEngine

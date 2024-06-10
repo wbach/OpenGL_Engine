@@ -279,7 +279,8 @@ void CharacterController::Init()
             DeathState(context));
         // clang-format on
 
-        rigidbody_->InputParams().angularFactor_ = vec3(0);
+        rigidbody_->SetAngularFactor(0.f);
+
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarm);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
