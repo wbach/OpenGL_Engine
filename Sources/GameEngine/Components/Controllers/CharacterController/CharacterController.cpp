@@ -169,9 +169,6 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , equipTimeStamp{-1.0}
     , disarmTimeStamp{-1.0}
     , rigidbody_{nullptr}
-    , jumpPower_(DEFAULT_JUMP_POWER)
-    , turnSpeed_(DEFAULT_TURN_SPEED)
-    , runSpeed_(DEFAULT_RUN_SPEED)
     , shapeSize_(1.f)
 {
     impl = std::make_unique<CharacterController::Impl>();
@@ -218,25 +215,26 @@ void CharacterController::Init()
             ERROR_LOG("Aim joint not found");
 
         impl->aimController_ = std::make_unique<AimController>(
-            componentContext_.scene_, thisObject_, componentContext_.inputManager_,
-                                                               aimJoint ? *aimJoint : dummyJoint);
+            componentContext_.scene_, thisObject_, componentContext_.inputManager_, aimJoint ? *aimJoint : dummyJoint);
 
-        impl->fsmContext.reset(new FsmContext{
-            *impl->attackFsm_,
-            thisObject_,
-            componentContext_.physicsApi_,
-            *rigidbody_,
-            *animator_,
-            *this,
-            componentContext_.inputManager_,
-            *impl->aimController_,
-            {},
-            {},
-            animationClipsNames_,
-            upperBodyGroupName,
-            lowerBodyGroupName,
-            {equipTimeStamp, disarmTimeStamp},
-        });
+        impl->fsmContext.reset(new FsmContext{*impl->attackFsm_,
+                                              thisObject_,
+                                              componentContext_.physicsApi_,
+                                              *rigidbody_,
+                                              *animator_,
+                                              *this,
+                                              componentContext_.inputManager_,
+                                              *impl->aimController_,
+                                              {},
+                                              {},
+                                              animationClipsNames_,
+                                              upperBodyGroupName,
+                                              lowerBodyGroupName,
+                                              {equipTimeStamp, disarmTimeStamp},
+                                              moveSpeeds_.walkSpeed,
+                                              moveSpeeds_.runSpeed,
+                                              moveSpeeds_.crouchSpeed,
+                                              moveSpeeds_.sprintSpeed});
         auto& context = *impl->fsmContext;
         // clang-format off
         impl->stateMachine_ = std::make_unique<CharacterControllerFsm>(
@@ -303,14 +301,16 @@ void CharacterController::Init()
         auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
         if (lowerBodyGroupIter == animator_->jointGroups_.end())
         {
-            // /*DISABLED*/ DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator, create empty.");
+            // /*DISABLED*/ DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator,
+            // create empty.");
             animator_->jointGroups_.insert({lowerBodyGroupName, {}});
         }
 
         auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
         if (upperBodyGroupIter == animator_->jointGroups_.end())
         {
-            // /*DISABLED*/ DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator, create empty");
+            // /*DISABLED*/ DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator,
+            // create empty");
             animator_->jointGroups_.insert({upperBodyGroupName, {}});
         }
     }
@@ -351,28 +351,14 @@ void CharacterController::Update()
         std::visit(passEventToState, impl->stateMachine_->currentState);
     }
 }
-void CharacterController::SetJumpPower(float v)
-{
-    jumpPower_ = v;
-}
-
 void CharacterController::handleEvent(const CharacterControllerEvent& event)
 {
     auto passEventToMachine = [&](const auto& e) { impl->stateMachine_->handle(e); };
     std::visit(passEventToMachine, event);
 }
-
 float CharacterController::getShapeSize() const
 {
     return shapeSize_;
-}
-void CharacterController::SetTurnSpeed(float v)
-{
-    turnSpeed_ = v;
-}
-void CharacterController::SetRunSpeed(float v)
-{
-    runSpeed_ = v;
 }
 void CharacterController::registerReadFunctions()
 {

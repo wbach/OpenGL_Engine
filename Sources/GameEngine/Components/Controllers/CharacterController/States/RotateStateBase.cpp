@@ -93,7 +93,7 @@ void RotateStateBase::update(float deltaTime)
     {
         if (context_.rotateToTargetProgress < 1.f)
         {
-            context_.rotateToTargetProgress += (context_.rotateStateData_.rotateSpeed_ * deltaTime);
+            context_.rotateToTargetProgress += (rotateSpeed_ * deltaTime);
             context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
 
             auto newRotation =

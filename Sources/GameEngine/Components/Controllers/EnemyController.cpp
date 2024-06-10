@@ -50,6 +50,11 @@ void EnemyController::Init()
 
     if (generatePathParams.isActive)
         calculateMovingPoints();
+
+    if (characterController_)
+    {
+        characterController_->moveSpeeds_.runSpeed.rotate = 3.f;
+    }
 }
 void EnemyController::Update()
 {
@@ -64,11 +69,11 @@ void EnemyController::Update()
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
             characterController_->handleEvent(EndForwardMoveEvent{});
-            characterController_->handleEvent(AttackEvent{});
+            //characterController_->handleEvent(AttackEvent{});
         }
         else
         {
-            characterController_->handleEvent(EndAttackEvent{});
+            //characterController_->handleEvent(EndAttackEvent{});
             characterController_->handleEvent(MoveForwardEvent{});
         }
 
@@ -77,10 +82,14 @@ void EnemyController::Update()
     }
 
     if (movingPoints_.empty())
+    {
+        characterController_->handleEvent(EndRotationEvent{});
+        characterController_->handleEvent(EndForwardMoveEvent{});
         return;
+    }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-    characterController_->handleEvent(EndAttackEvent{});
+   // characterController_->handleEvent(EndAttackEvent{});
     characterController_->handleEvent(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
     characterController_->handleEvent(MoveForwardEvent{});
 
@@ -142,7 +151,6 @@ void EnemyController::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<EnemyController>(componentContext, gameObject);
-        bool generateMovingPath_{1.f};
 
         EnemyController::GeneratePathParams generatePathParams;
         const auto& gmn = node.getChild(CSTR_GENERATE_MOVING_PATH);
