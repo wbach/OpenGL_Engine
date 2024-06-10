@@ -154,7 +154,7 @@ void Camera::SetYaw(float angle)
 }
 void Camera::CalculateDirection()
 {
-    direction_ = glm::normalize(VECTOR_FORWARD * rotation_.value_);
+    direction_ = glm::normalize(VECTOR_BACKWARD * rotation_.value_);
 }
 void Camera::UpdateViewMatrix()
 {
