@@ -23,6 +23,7 @@ class RunAndRotateArmedChangeState;
 class WalkArmedChangeState;
 class WalkAndRotateArmedChangeState;
 class RotateArmedChangeState;
+class DisarmedAttackState;
 
 class DrawArrowState;
 class ArmedIdleState;
@@ -60,8 +61,10 @@ public:
     using IdleStateBase::onEnter;
 
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
+    void onEnter(DisarmedAttackState&, const WeaponStateEvent&);
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
+    void onEnter(DisarmedAttackState&, const DrawArrowEvent&);
 
     void onEnter(DrawArrowState&, const WeaponStateEvent&);
     void onEnter(RecoilState&, const WeaponStateEvent&);

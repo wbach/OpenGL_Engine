@@ -10,24 +10,24 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedAttackState;
 class DisarmedRunState;
 class DisarmedRotateState;
 class DisarmedWalkState;
 class DisarmedSprintState;
 class DisarmedCrouchState;
+class DisarmedIdleState;
 class JumpState;
 class DeathState;
 class IdleArmedChangeState;
 
-class DisarmedIdleState
-    : public IdleStateBase,
-      public Utils::StateMachine::Will<
+class DisarmedAttackState
+    : public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,*/
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          // TO DO: Check and update transitions below if needed
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
@@ -39,9 +39,16 @@ class DisarmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    DisarmedIdleState(FsmContext& context);
+    DisarmedAttackState(FsmContext&);
 
-    using IdleStateBase::onEnter;
+    void onEnter(const AttackEvent&);
+    void update(float);
+    void onLeave();
+
+private:
+    FsmContext& context;
+
+    std::vector<IdType> subIds;
 };
 }  // namespace Components
 }  // namespace GameEngine

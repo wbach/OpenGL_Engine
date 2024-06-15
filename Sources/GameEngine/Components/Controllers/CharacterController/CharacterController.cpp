@@ -239,6 +239,7 @@ void CharacterController::Init()
         // clang-format off
         impl->stateMachine_ = std::make_unique<CharacterControllerFsm>(
             DisarmedIdleState(context),
+            DisarmedAttackState(context),
             DisarmedRunState(context),
             DisarmedRotateState(context),
             DisarmedRunAndRotateState(context),

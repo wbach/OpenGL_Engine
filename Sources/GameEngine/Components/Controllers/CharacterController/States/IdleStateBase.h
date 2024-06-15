@@ -34,9 +34,8 @@ public:
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndMoveLeftEvent&);
     void onEnter(const EndMoveRightEvent&);
+    void onEnter(const EndAttackEvent&);
 
-    void update(const AttackEvent&);
-    void update(const EndAttackEvent&);
     void update(float);
 
 private:

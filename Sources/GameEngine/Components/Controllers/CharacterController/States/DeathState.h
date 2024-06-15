@@ -45,6 +45,7 @@ class RunArmedChangeState;
 class RunAndRotateArmedChangeState;
 class WalkArmedChangeState;
 class WalkAndRotateArmedChangeState;
+class DisarmedAttackState;
 
 class DeathState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
@@ -52,6 +53,7 @@ public:
     DeathState(FsmContext&);
     void update(float);
 
+    void onEnter(DisarmedAttackState&, const DeathEvent&);
     void onEnter(IdleArmedChangeState&, const DeathEvent&);
     void onEnter(RotateArmedChangeState&, const DeathEvent&);
     void onEnter(RunArmedChangeState&, const DeathEvent&);

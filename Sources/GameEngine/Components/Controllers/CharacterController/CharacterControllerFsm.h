@@ -38,6 +38,7 @@
 #include "States/RunArmedChangeState.h"
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
+#include "States/DisarmedAttackState.h"
 
 namespace GameEngine
 {
@@ -48,6 +49,7 @@ struct FsmContext;
 using CharacterControllerFsm =
     Utils::StateMachine::Fsm<
                             DisarmedIdleState,
+                            DisarmedAttackState,
                             DisarmedRunState,
                             DisarmedRotateState,
                             DisarmedRunAndRotateState,

@@ -13,7 +13,12 @@ void DeathState::update(float)
 {
 }
 
-void DeathState::onEnter(IdleArmedChangeState&, const DeathEvent&)
+void DeathState::onEnter(DisarmedAttackState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(IdleArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }

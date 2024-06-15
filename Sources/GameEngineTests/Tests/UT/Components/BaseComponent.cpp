@@ -17,6 +17,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                         resourcesManager_, renderersManager_, cameraWrapper_, physicsApiMock_, guiElementFactory_, timerService_)
     , obj_("Test GameObject", componentController_, componentFactory_, IdType(0))
 {
+    EXPECT_CALL(frameBufferMock_, Init()).WillRepeatedly(Return(false));
     EXPECT_CALL(graphicsApiMock_, GetSupportedRenderers())
         .WillOnce(Return(std::vector<GraphicsApi::RendererType>{GraphicsApi::RendererType::SIMPLE}));
     EXPECT_CALL(graphicsApiMock_, CreateFrameBuffer(_)).WillRepeatedly(ReturnRef(frameBufferMock_));

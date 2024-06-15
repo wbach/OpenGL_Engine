@@ -14,9 +14,18 @@ IdleArmedChangeState::IdleArmedChangeState(FsmContext &context)
     , context_{context}
 {
 }
+void IdleArmedChangeState::onEnter(DisarmedAttackState &, const DrawArrowEvent &e)
+{
+    ArmedChangeStateBase::equipWeapon();
+    ArmedChangeStateBase::update(e);
+}
 void IdleArmedChangeState::onEnter(DisarmedIdleState &, const WeaponStateEvent &)
 {
     // /*DISABLED*/ DEBUG_LOG("onEnter(DisarmedIdleState&, const WeaponStateEvent &)");
+    ArmedChangeStateBase::equipWeapon();
+}
+void IdleArmedChangeState::onEnter(DisarmedAttackState &, const WeaponStateEvent &)
+{
     ArmedChangeStateBase::equipWeapon();
 }
 void IdleArmedChangeState::onEnter(ArmedIdleState &, const WeaponStateEvent &)
@@ -41,15 +50,15 @@ void IdleArmedChangeState::onEnter(AimState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
 }
-void IdleArmedChangeState::onEnter(const EndForwardMoveEvent&)
+void IdleArmedChangeState::onEnter(const EndForwardMoveEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
-void IdleArmedChangeState::onEnter(const EndBackwardMoveEvent&)
+void IdleArmedChangeState::onEnter(const EndBackwardMoveEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
-void IdleArmedChangeState::onEnter(const EndRotationEvent&)
+void IdleArmedChangeState::onEnter(const EndRotationEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }

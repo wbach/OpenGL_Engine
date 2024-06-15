@@ -4,6 +4,9 @@ CharacterControllerTests::CharacterControllerTests()
     : BaseComponentTestSchould()
     , sut_(context_, obj_)
 {
+    DEBUG_LOG("CharacterControllerTests::CharacterControllerTests");
+
+    EXPECT_CALL(physicsApiMock_, SetAngularFactor(_, Matcher<float>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, CreateSphereColider(_, _, _)).WillOnce(Return(shapeId));
     EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _)).WillOnce(Return(rigidbodyid));
 
@@ -57,6 +60,8 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.run.moveRight     = "DMRR";
     clips.armed.walk.moveleft     = "DMRL";
     clips.armed.walk.moveRight    = "DMRR";
+    clips.disarmed.attack.push_back("DA1");
+    clips.armed.attack.push_back("A1");
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);
@@ -89,6 +94,15 @@ CharacterControllerTests::CharacterControllerTests()
     addDummyClip(clips.disarmed.run.moveRight);
     addDummyClip(clips.disarmed.walk.moveleft);
     addDummyClip(clips.disarmed.walk.moveRight);
+
+    for (const auto& attackClip : clips.disarmed.attack)
+    {
+        addDummyClip(attackClip);
+    }
+    for (const auto& attackClip : clips.armed.attack)
+    {
+        addDummyClip(attackClip);
+    }
 
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
     sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;

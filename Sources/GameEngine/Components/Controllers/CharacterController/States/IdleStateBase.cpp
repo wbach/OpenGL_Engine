@@ -1,6 +1,5 @@
 #include "IdleStateBase.h"
 
-#include "../Attack/AttackEvents.h"
 #include "GameEngine/Components/Animation/Animator.h"
 
 namespace GameEngine
@@ -25,11 +24,7 @@ void IdleStateBase::onEnter(const AimStopEvent &)
     setIdleAnim();
 }
 
-void IdleStateBase::update(const AttackEvent &)
-{
-}
-
-void IdleStateBase::update(const EndAttackEvent &)
+void IdleStateBase::onEnter(const EndAttackEvent &)
 {
     setIdleAnim();
 }
