@@ -1,10 +1,5 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
-#include "GameEngine/Components/Animation/Animator.h"
-#include "IdleStateBase.h"
+#include "AttackStateBase.h"
 
 namespace GameEngine
 {
@@ -21,7 +16,8 @@ class DeathState;
 class IdleArmedChangeState;
 
 class DisarmedAttackState
-    : public Utils::StateMachine::Will<
+    : public AttackStateBase
+    , public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
@@ -40,15 +36,6 @@ class DisarmedAttackState
 {
 public:
     DisarmedAttackState(FsmContext&);
-
-    void onEnter(const AttackEvent&);
-    void update(float);
-    void onLeave();
-
-private:
-    FsmContext& context;
-
-    std::vector<IdType> subIds;
 };
 }  // namespace Components
 }  // namespace GameEngine
