@@ -31,6 +31,7 @@ class AimState;
 class RecoilState;
 class JumpState;
 class DeathState;
+class ArmedAttackState;
 
 class IdleArmedChangeState
     : public ArmedChangeStateBase,
@@ -63,6 +64,7 @@ public:
     void onEnter(DisarmedIdleState&, const WeaponStateEvent&);
     void onEnter(DisarmedAttackState&, const WeaponStateEvent&);
     void onEnter(ArmedIdleState&, const WeaponStateEvent&);
+    void onEnter(ArmedAttackState&, const WeaponStateEvent&);
     void onEnter(DisarmedIdleState&, const DrawArrowEvent&);
     void onEnter(DisarmedAttackState&, const DrawArrowEvent&);
 

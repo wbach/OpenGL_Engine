@@ -33,6 +33,10 @@ void IdleArmedChangeState::onEnter(ArmedIdleState &, const WeaponStateEvent &)
     // /*DISABLED*/ DEBUG_LOG("onEnter(ArmedIdleState&, const WeaponStateEvent &)");
     ArmedChangeStateBase::disarmWeapon();
 }
+void IdleArmedChangeState::onEnter(ArmedAttackState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
 void IdleArmedChangeState::onEnter(DisarmedIdleState &, const DrawArrowEvent &e)
 {
     ArmedChangeStateBase::equipWeapon();

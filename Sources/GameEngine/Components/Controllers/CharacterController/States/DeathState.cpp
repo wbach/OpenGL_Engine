@@ -13,6 +13,11 @@ void DeathState::update(float)
 {
 }
 
+void DeathState::onEnter(ArmedAttackState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
 void DeathState::onEnter(DisarmedAttackState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
@@ -23,27 +28,27 @@ void DeathState::onEnter(IdleArmedChangeState &, const DeathEvent &)
     setAnim(context_.animClipNames.disarmed.death);
 }
 
-void DeathState::onEnter(RotateArmedChangeState&, const DeathEvent&)
+void DeathState::onEnter(RotateArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }
 
-void DeathState::onEnter(RunArmedChangeState&, const DeathEvent&)
+void DeathState::onEnter(RunArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }
 
-void DeathState::onEnter(RunAndRotateArmedChangeState&, const DeathEvent&)
+void DeathState::onEnter(RunAndRotateArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }
 
-void DeathState::onEnter(WalkArmedChangeState&, const DeathEvent&)
+void DeathState::onEnter(WalkArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }
 
-void DeathState::onEnter(WalkAndRotateArmedChangeState&, const DeathEvent&)
+void DeathState::onEnter(WalkAndRotateArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }

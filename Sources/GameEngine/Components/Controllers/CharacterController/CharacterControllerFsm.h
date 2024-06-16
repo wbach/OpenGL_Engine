@@ -39,6 +39,7 @@
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
 #include "States/DisarmedAttackState.h"
+#include "States/ArmedAttackState.h"
 
 namespace GameEngine
 {
@@ -64,6 +65,7 @@ using CharacterControllerFsm =
                             WalkArmedChangeState,
                             WalkAndRotateArmedChangeState,
                             ArmedIdleState,
+                            ArmedAttackState,
                             ArmedRunState,
                             ArmedRotateState,
                             ArmedRunAndRotateState,

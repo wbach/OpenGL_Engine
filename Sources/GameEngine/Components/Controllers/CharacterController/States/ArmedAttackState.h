@@ -11,22 +11,20 @@ namespace GameEngine
 namespace Components
 {
 class ArmedRunState;
-class ArmedWalkState;
-class ArmedSprintState;
 class ArmedRotateState;
+class DrawArrowState;
+class DisarmedCrouchState;
 class DisarmedIdleState;
 class JumpState;
 class DeathState;
-class DrawArrowState;
 class IdleArmedChangeState;
-class ArmedAttackState;
 
-class ArmedIdleState
-    : public IdleStateBase,
-      public Utils::StateMachine::Will<
+class ArmedAttackState
+    : public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
@@ -39,10 +37,16 @@ class ArmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedIdleState(FsmContext&);
+    ArmedAttackState(FsmContext&);
 
-    using IdleStateBase::onEnter;
-    using IdleStateBase::update;
+    void onEnter(const AttackEvent&);
+    void update(float);
+    void onLeave();
+
+private:
+    FsmContext& context;
+
+    std::vector<IdType> subIds;
 };
 }  // namespace Components
 }  // namespace GameEngine

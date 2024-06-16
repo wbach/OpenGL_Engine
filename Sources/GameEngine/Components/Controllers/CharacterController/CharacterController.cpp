@@ -254,6 +254,7 @@ void CharacterController::Init()
             WalkArmedChangeState(context),
             WalkAndRotateArmedChangeState(context),
             ArmedIdleState(context),
+            ArmedAttackState(context),
             ArmedRunState(context),
             ArmedRotateState(context),
             ArmedRunAndRotateState(context),
