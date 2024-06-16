@@ -121,6 +121,7 @@ public:
 
 public:
     uint32 objectCount;
+    std::function<void(EngineEvent)> addEngineEvent;
 
 protected:
     virtual int Initialize();
@@ -151,7 +152,7 @@ protected:
     std::string name;
     File file_;
     AddEvent addSceneEvent;
-    std::function<void(EngineEvent)> addEngineEvent;
+
 
     // Minimum one light on scene only (night - decrease strength)
     Time time_;

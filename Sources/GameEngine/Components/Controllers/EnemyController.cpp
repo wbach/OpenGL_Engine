@@ -68,6 +68,7 @@ void EnemyController::Update()
     {
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
+            DEBUG_LOG("In attack range");
             characterController_->handleEvent(EndForwardMoveEvent{});
             //characterController_->handleEvent(AttackEvent{});
         }

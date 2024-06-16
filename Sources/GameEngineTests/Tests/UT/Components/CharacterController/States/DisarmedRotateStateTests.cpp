@@ -123,3 +123,52 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_EndRotationEvent)
     prepareState(*this);
     tiggerAndExpect<EndRotationEvent>({sut_.animationClipsNames_.disarmed.idle});
 }
+
+Quaternion caclulateTargetRotation(const vec3& toPlayer)
+{
+    auto angle2 = atan2f(toPlayer.x, toPlayer.z);
+    Quaternion targertRotation;
+    targertRotation.x = 0.f;
+    targertRotation.y = 1.f * sinf(angle2 / 2.f);
+    targertRotation.z = 0.f;
+    targertRotation.w = cosf(angle2 / 2.f);
+
+    return targertRotation;
+}
+
+TEST_F(CharacterControllerTests, DisarmedRotateState_XXX)
+{
+    //    context_.rotateToTargetProgress += (rotateSpeed_ * deltaTime);
+    //    context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
+
+    //    auto newRotation =
+    //        glm::slerp(context_.startRotation, context_.targetRotation, context_.rotateToTargetProgress);
+
+    //    context_.rigidbody.SetRotation(newRotation);
+
+    vec3 position(0);
+    vec3 target(0, 0, -1);
+    auto rotationRef = caclulateTargetRotation(target - position);
+
+    for (int i = 0; i < 10; i++)
+    {
+        auto rotation = caclulateTargetRotation(target - position);
+
+        auto d = glm::dot(rotation, rotationRef);
+        DEBUG_LOG(std::to_string(d));
+        DEBUG_LOG(std::to_string(ToDegrees(acosf(d))));
+
+        target.x += 0.1f;
+    }
+
+    target = vec3(0, 0, -1);
+    for (int i = 0; i < 10; i++)
+    {
+        auto rotation = caclulateTargetRotation(target - position);
+
+        auto d = glm::dot(rotation, rotationRef);
+        DEBUG_LOG(std::to_string(d));
+        DEBUG_LOG(std::to_string(ToDegrees(acosf(d))));
+        target.x -= 0.1f;
+    }
+}

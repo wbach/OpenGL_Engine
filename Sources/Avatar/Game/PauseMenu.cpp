@@ -4,6 +4,7 @@
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Engine/ConfigurationExplorer.h>
 #include <GameEngine/Engine/ConfigurationWriter.h>
+#include <GameEngine/Engine/EngineEvent.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
 #include <GameEngine/Renderers/GUI/Layer/DefaultLayers.h>
@@ -35,17 +36,111 @@ PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& fa
     , guiManager_{guiManager}
     , messageBox_{nullptr}
     , mainWindow_{nullptr}
-    , settingsLayout_{nullptr}
-    , pauseMenuLayout_{nullptr}
-    , mainMenuLayout_{nullptr}
-    , sceneLoaderLayout_{nullptr}
     , currentView_{nullptr}
     , menuButtonSize_{1.f, 0.075f}
     , avaiableScenes_{avaiableSscenes}
+    , keysSubscriptionsManager{*scene_.getInputManager()}
 {
     init();
 }
 
+void PauseMenu::subscribeKeys()
+{
+    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
+        KeyCodes::DARROW,
+        [&]()
+        {
+            if (not isShow())
+            {
+                return;
+            }
+            if (currentView_)
+            {
+                currentView_->second.getActiveButtons().updateSelectedRow(1);
+            }
+        }));
+    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
+        KeyCodes::UARROW,
+        [&]()
+        {
+            if (not isShow())
+            {
+                return;
+            }
+            if (currentView_)
+            {
+                currentView_->second.getActiveButtons().updateSelectedRow(-1);
+            }
+        }));
+    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
+        KeyCodes::RARROW,
+        [&]()
+        {
+            if (not isShow())
+            {
+                return;
+            }
+            if (currentView_)
+            {
+                currentView_->second.getActiveButtons().updateSelectedColumn(1);
+            }
+        }));
+    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
+        KeyCodes::LARROW,
+        [&]()
+        {
+            if (not isShow())
+            {
+                return;
+            }
+            if (currentView_)
+            {
+                currentView_->second.getActiveButtons().updateSelectedColumn(-1);
+            }
+        }));
+
+    keysSubscriptionsManager.AddSubscribtion(
+        scene_.getInputManager()->SubscribeOnKeyDown(KeyCodes::ENTER,
+                                                     [&]()
+                                                     {
+                                                         if (not isShow())
+                                                         {
+                                                             return;
+                                                         }
+                                                         if (currentView_)
+                                                         {
+                                                             currentView_->second.getActiveButtons().exectuteAction();
+                                                         }
+                                                     }));
+    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
+        KeyCodes::ESCAPE,
+        [&]()
+        {
+            if (not isShow())
+            {
+                return;
+            }
+
+            if (currentView_)
+            {
+                if (currentView_->second.isFocusToChild())
+                {
+                    currentView_->second.getActiveButtons().toneDownCurrent();
+                    currentView_->second.resetFocus();
+                    currentView_->second.getActiveButtons().highLightCurrent();
+                    return;
+                }
+
+                if (currentView_->first == State::MainMenu)
+                {
+                    scene_.addEngineEvent(GameEngine::EngineEvent::ASK_QUIT);
+                    return;
+                }
+            }
+
+            backToStartState();
+        }));
+}
 PauseMenu::~PauseMenu()
 {
     for (auto& [subid, configParam] : paramChangeSubs_)
@@ -56,8 +151,13 @@ PauseMenu::~PauseMenu()
 
     if (mainWindow_)
         guiManager_.Remove(*mainWindow_);
-    for (auto& pair : settingWindows_)
-        guiManager_.Remove(*pair.second);
+
+    for (auto& [_, view] : views_)
+    {
+        for (auto& [_, child] : view.children)
+            guiManager_.Remove(*child.window);
+    }
+    keysSubscriptionsManager.UnsubscribeKeys();
 }
 
 void PauseMenu::show(State state)
@@ -83,7 +183,14 @@ void PauseMenu::hide()
     scene_.getInputManager()->ShowCursor(false);
 
     scene_.GetCamera().Unlock();
-    hideSettingWindows();
+
+    for (auto& [_, view] : views_)
+    {
+        for (auto& [_, child] : view.children)
+        {
+            child.window->Hide();
+        }
+    }
     mainWindow_->Hide();
     onePramaterNeedRestart_ = false;
 
@@ -120,27 +227,29 @@ void PauseMenu::enableState(State state)
 
 void PauseMenu::backToStartState()
 {
+    if (currentView_)
+        currentView_->second.getActiveButtons().toneDownCurrent();
     enableState(startState_);
 }
 
 void PauseMenu::enableMainMenuState()
 {
-    guiManager_.AddTask([this]() { setLayoutAsActive(mainMenuLayout_); });
+    guiManager_.AddTask([this]() { setViewAsActive(State::MainMenu); });
 }
 
 void PauseMenu::enablePauseMenuState()
 {
-    guiManager_.AddTask([this]() { setLayoutAsActive(pauseMenuLayout_); });
+    guiManager_.AddTask([this]() { setViewAsActive(State::PauseMenu); });
 }
 
 void PauseMenu::enableSettingsViewState()
 {
-    guiManager_.AddTask([this]() { setLayoutAsActive(settingsLayout_); });
+    guiManager_.AddTask([this]() { setViewAsActive(State::SettingsView); });
 }
 
 void PauseMenu::enableSceneLoaderViewState()
 {
-    guiManager_.AddTask([this]() { setLayoutAsActive(sceneLoaderLayout_); });
+    guiManager_.AddTask([this]() { setViewAsActive(State::SceneLoader); });
 }
 
 void PauseMenu::init()
@@ -155,31 +264,13 @@ void PauseMenu::init()
     logo->SetLocalPostion({0.5f, 0.75f});
     mainWindow_->AddChild(std::move(logo));
 
-    auto mainMenuLayout = createMainMenuLayout();
-    mainMenuLayout_     = mainMenuLayout.get();
-    mainMenuLayout_->Hide();
-    setMainWindowVerticalLayoutTransform(*mainMenuLayout);
-    mainWindow_->AddChild(std::move(mainMenuLayout));
-
-    auto pauseLayout = createPauseMenuLayout();
-    pauseMenuLayout_ = pauseLayout.get();
-    pauseMenuLayout_->Hide();
-    setMainWindowVerticalLayoutTransform(*pauseLayout);
-    mainWindow_->AddChild(std::move(pauseLayout));
-
-    auto settingsLayout = createSettingsLayout();
-    settingsLayout_     = settingsLayout.get();
-    settingsLayout_->Hide();
-    setMainWindowVerticalLayoutTransform(*settingsLayout);
-    mainWindow_->AddChild(std::move(settingsLayout));
-
-    auto sceneLoaderLayout = createSceneLoaderLayout();
-    sceneLoaderLayout_     = sceneLoaderLayout.get();
-    sceneLoaderLayout_->Hide();
-    setMainWindowVerticalLayoutTransform(*sceneLoaderLayout);
-    mainWindow_->AddChild(std::move(sceneLoaderLayout));
+    createMainMenuLayout();
+    createPauseMenuLayout();
+    createSettingsView();
+    createSceneLoaderLayout();
 
     guiManager_.Add(std::move(mainWindow));
+    subscribeKeys();
 }
 
 void PauseMenu::setMainWindowVerticalLayoutTransform(GameEngine::VerticalLayout& layout)
@@ -189,72 +280,47 @@ void PauseMenu::setMainWindowVerticalLayoutTransform(GameEngine::VerticalLayout&
     layout.SetAlgin(GameEngine::Layout::Algin::CENTER);
 }
 
-std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createMainMenuLayout()
+void PauseMenu::createMainMenuLayout()
 {
+    auto& view          = views_[State::MainMenu];
     auto verticalLayout = factory_.CreateVerticalLayout();
-    {
-        auto guiButton = factory_.CreateGuiButton("New game", guiManager_.GetActionFunction("StartGame()"));
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton =
-            factory_.CreateGuiButton("Load game", [this](auto&) { createMessageBox("Not implemented yet"); });
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton =
-            factory_.CreateGuiButton("Start specyfic scene", [this](auto&) { enableSceneLoaderViewState(); });
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton = factory_.CreateGuiButton("Settings", [this](auto&) { enableSettingsViewState(); });
+    view.layout         = verticalLayout.get();
 
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton = factory_.CreateGuiButton("Exit game", guiManager_.GetActionFunction("ExitGame()"));
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    return verticalLayout;
+    createButtonForLayout(view, "New game", guiManager_.GetActionFunction("StartGame()"));
+    createButtonForLayout(view, "Load game", [this](auto&) { createMessageBox("Not implemented yet"); });
+    createButtonForLayout(view, "Start specyfic scene", [this](auto&) { enableSceneLoaderViewState(); });
+    createButtonForLayout(view, "Settings", [this](auto&) { enableSettingsViewState(); });
+    createButtonForLayout(view, "Exit game", guiManager_.GetActionFunction("ExitGame()"));
+
+    verticalLayout->Hide();
+    setMainWindowVerticalLayoutTransform(*verticalLayout);
+    mainWindow_->AddChild(std::move(verticalLayout));
 }
 
-std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createPauseMenuLayout()
+void PauseMenu::createPauseMenuLayout()
 {
+    auto& view          = views_[State::PauseMenu];
     auto verticalLayout = factory_.CreateVerticalLayout();
-    {
-        auto guiButton = factory_.CreateGuiButton("Resume", [this](auto&) { hide(); });
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton = factory_.CreateGuiButton("Settings", [this](auto&) { enableSettingsViewState(); });
+    view.layout         = verticalLayout.get();
 
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton =
-            factory_.CreateGuiButton("Back to main menu", guiManager_.GetActionFunction("BackToMainMenu()"));
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
-    {
-        auto guiButton = factory_.CreateGuiButton("Exit game", guiManager_.GetActionFunction("ExitGame()"));
-        guiButton->SetLocalScale(menuButtonSize_);
-        verticalLayout->AddChild(std::move(guiButton));
-    }
+    createButtonForLayout(view, "Resume", [this](auto&) { hide(); });
+    createButtonForLayout(view, "Load game", [this](auto&) { createMessageBox("Not implemented yet"); });
+    createButtonForLayout(view, "Save game", [this](auto&) { createMessageBox("Not implemented yet"); });
+    createButtonForLayout(view, "Settings", [this](auto&) { enableSettingsViewState(); });
+    createButtonForLayout(view, "Back to main menu", guiManager_.GetActionFunction("BackToMainMenu()"));
+    createButtonForLayout(view, "Exit game", guiManager_.GetActionFunction("ExitGame()"));
 
-    return verticalLayout;
+    verticalLayout->Hide();
+    setMainWindowVerticalLayoutTransform(*verticalLayout);
+    mainWindow_->AddChild(std::move(verticalLayout));
 }
 
-std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSettingsLayout()
+void PauseMenu::createSettingsView()
 {
+    auto& view = views_[State::SettingsView];
+
     auto verticalLayout = factory_.CreateVerticalLayout();
+    view.layout         = verticalLayout.get();
 
     auto categories = configurationExplorer_.getCatogiresList();
     for (auto& category : categories)
@@ -262,17 +328,16 @@ std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSettingsLayout()
         auto paramsWindow =
             factory_.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, vec2(0.675, 0.5f), vec2(0.64f, 1.0f));
         paramsWindow->Hide();
-        settingWindows_.insert({category, paramsWindow.get()});
-        auto paramsVerticalLayout = factory_.CreateVerticalLayout();
-        fillSettingsParamWindow(*paramsVerticalLayout, category);
-        paramsWindow->AddChild(std::move(paramsVerticalLayout));
+        auto& subWidnow  = view.children[category];
+        subWidnow.window = paramsWindow.get();
+
+        fillSettingsParamWindow(subWidnow, category);
         guiManager_.Add(std::move(paramsWindow));
 
         auto categoryText = factory_.CreateGuiText(category);
         auto categoryButton =
-            factory_.CreateGuiButton([&, categoryName = category, categoryTextPtr = categoryText.get()](auto&) {
-                showSettingWindow(categoryName);
-            });
+            factory_.CreateGuiButton([&, categoryName = category](auto&) { showSettingWindow(view, categoryName); });
+        view.getActiveButtons().array.push_back({categoryButton.get()});
 
         categoryButton->SetLocalScale(menuButtonSize_);
         categoryButton->SetText(std::move(categoryText));
@@ -280,40 +345,58 @@ std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSettingsLayout()
     }
 
     auto backButton = factory_.CreateGuiButton("Back", [&](auto&) { backToStartState(); });
-
+    view.getActiveButtons().array.push_back({backButton.get()});
     backButton->SetLocalScale(menuButtonSize_);
     verticalLayout->AddChild(std::move(backButton));
 
-    return verticalLayout;
+    verticalLayout->Hide();
+    setMainWindowVerticalLayoutTransform(*verticalLayout);
+
+    mainWindow_->AddChild(std::move(verticalLayout));
 }
 
-std::unique_ptr<GameEngine::VerticalLayout> PauseMenu::createSceneLoaderLayout()
+void PauseMenu::createSceneLoaderLayout()
 {
+    auto& view = views_[State::SceneLoader];
+
     auto verticalLayout = factory_.CreateVerticalLayout();
     for (const auto& sceneName : avaiableScenes_)
     {
-        auto guiButton = factory_.CreateGuiButton(sceneName, [this, sceneName](auto&) {
-            GameEngine::SceneEvent sceneEvent(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
-            scene_.SendEvent(sceneEvent);
-        });
+        auto guiButton = factory_.CreateGuiButton(sceneName,
+                                                  [this, sceneName](auto&)
+                                                  {
+                                                      GameEngine::SceneEvent sceneEvent(
+                                                          GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
+                                                      scene_.SendEvent(sceneEvent);
+                                                  });
         guiButton->SetLocalScale(menuButtonSize_);
+        view.getActiveButtons().array.push_back({guiButton.get()});
         verticalLayout->AddChild(std::move(guiButton));
     }
     {
         auto guiButton = factory_.CreateGuiButton("Back to main menu", [this](const auto&) { enableMainMenuState(); });
         guiButton->SetLocalScale(menuButtonSize_);
+        view.getActiveButtons().array.push_back({guiButton.get()});
         verticalLayout->AddChild(std::move(guiButton));
     }
-    return verticalLayout;
+
+    verticalLayout->Hide();
+    setMainWindowVerticalLayoutTransform(*verticalLayout);
+    view.layout = verticalLayout.get();
+    mainWindow_->AddChild(std::move(verticalLayout));
 }
 
-void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVerticalLayout,
-                                        const std::string& categoryName)
+void PauseMenu::fillSettingsParamWindow(View::Child& view, const std::string& categoryName)
 {
+    auto paramsVerticalLayout = factory_.CreateVerticalLayout();
+    // view.buttons.array.resize(3);
+
     const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
 
     for (auto& param : params)
     {
+        auto& row = view.buttons.createRow();
+
         auto horizontalLayout = factory_.CreateHorizontalLayout();
         horizontalLayout->SetAlgin(GameEngine::Layout::Algin::CENTER);
         horizontalLayout->SetLocalScale({1.f, 0.0375f});
@@ -326,12 +409,12 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
 
         auto id = param.configurationParam.subscribeForChange(
             [guiText = paramText.get(), &param]() { guiText->SetText(param.configurationParam.toString()); });
-
-        DEBUG_LOG("subscribeForChange " + std::to_string(id));
         paramChangeSubs_.push_back({id, &param.configurationParam});
 
-        auto previousValueButton =
-            factory_.CreateGuiButton(" < ", [this, &param, paramTextPtr = paramText.get()](auto&) {
+        auto previousValueButton = factory_.CreateGuiButton(
+            " < ",
+            [this, &param, paramTextPtr = paramText.get()](auto&)
+            {
                 auto str = param.configurationParam.previous();
                 paramTextPtr->SetText(str);
 
@@ -341,26 +424,35 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
                 }
             });
         previousValueButton->SetLocalScale({0.05f, 1.f});
+        row.push_back(previousValueButton.get());
 
-        auto nextValueButton = factory_.CreateGuiButton(" > ", [this, &param, paramTextPtr = paramText.get()](auto&) {
-            auto str = param.configurationParam.next();
-            paramTextPtr->SetText(str);
-
-            if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+        auto nextValueButton = factory_.CreateGuiButton(
+            " > ",
+            [this, &param, paramTextPtr = paramText.get()](auto&)
             {
-                onePramaterNeedRestart_ = true;
-            }
-        });
+                auto str = param.configurationParam.next();
+                paramTextPtr->SetText(str);
+
+                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+                {
+                    onePramaterNeedRestart_ = true;
+                }
+            });
         nextValueButton->SetLocalScale({0.05f, 1.f});
+        row.push_back(nextValueButton.get());
 
-        auto apllyButton = factory_.CreateGuiButton("apply", [this, &param](auto&) {
-            param.configurationParam.apply();
-            if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+        auto apllyButton = factory_.CreateGuiButton(
+            "apply",
+            [this, &param](auto&)
             {
-                createMessageBox("Change will be visible after game restart");
-            }
-            WriteConfigurationToFile(EngineConf);
-        });
+                param.configurationParam.apply();
+                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+                {
+                    createMessageBox("Change will be visible after game restart");
+                }
+                WriteConfigurationToFile(EngineConf);
+            });
+        row.push_back(apllyButton.get());
 
         if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
         {
@@ -373,53 +465,52 @@ void PauseMenu::fillSettingsParamWindow(GameEngine::VerticalLayout& paramsVertic
         horizontalLayout->AddChild(std::move(paramText));
         horizontalLayout->AddChild(std::move(nextValueButton));
         horizontalLayout->AddChild(std::move(apllyButton));
-        paramsVerticalLayout.AddChild(std::move(horizontalLayout));
+        paramsVerticalLayout->AddChild(std::move(horizontalLayout));
     }
 
     auto horizontalLayout = factory_.CreateHorizontalLayout();
     horizontalLayout->SetAlgin(GameEngine::Layout::Algin::CENTER);
     horizontalLayout->SetLocalScale({1.f, 0.0375f});
-    auto apllyButton = factory_.CreateGuiButton(" apply all ", [this, categoryName](auto&) {
-        const auto& params = configurationExplorer_.getParamsFromCategory(categoryName);
-        for (auto& param : params)
-        {
-            param.configurationParam.apply();
-        }
+    auto apllyButton = factory_.CreateGuiButton(" apply all ",
+                                                [this, categoryName](auto&)
+                                                {
+                                                    const auto& params =
+                                                        configurationExplorer_.getParamsFromCategory(categoryName);
+                                                    for (auto& param : params)
+                                                    {
+                                                        param.configurationParam.apply();
+                                                    }
 
-        if (onePramaterNeedRestart_)
-        {
-            createMessageBox("One from changed param need restart game");
-            onePramaterNeedRestart_ = false;
-        }
-        WriteConfigurationToFile(EngineConf);
-    });
-
+                                                    if (onePramaterNeedRestart_)
+                                                    {
+                                                        createMessageBox("One from changed param need restart game");
+                                                        onePramaterNeedRestart_ = false;
+                                                    }
+                                                    WriteConfigurationToFile(EngineConf);
+                                                });
+    view.buttons.array.push_back({apllyButton.get()});
     // to do : button without horizontal layout position issue
 
     horizontalLayout->SetLocalScale({1.f, 0.0375f});
     horizontalLayout->AddChild(std::move(apllyButton));
-    paramsVerticalLayout.AddChild(std::move(horizontalLayout));
+    paramsVerticalLayout->AddChild(std::move(horizontalLayout));
+    view.window->AddChild(std::move(paramsVerticalLayout));
 }
 
-void PauseMenu::hideSettingWindows()
+void PauseMenu::showSettingWindow(View& view, const std::string& name)
 {
-    for (auto& pair : settingWindows_)
+    for (auto& [childName, child] : view.children)
     {
-        pair.second->Hide();
-    }
-}
-
-void PauseMenu::showSettingWindow(const std::string& name)
-{
-    for (auto& pair : settingWindows_)
-    {
-        if (pair.first == name)
+        if (childName == name)
         {
-            pair.second->Show();
+            child.window->Show();
+            child.buttons.highLightCurrent();
+            view.getActiveButtons().toneDownCurrent();
+            view.setFocusToChildrenArray(child);
         }
         else
         {
-            pair.second->Hide();
+            child.window->Hide();
         }
     }
 }
@@ -447,13 +538,15 @@ void PauseMenu::createMessageBox(const std::string& messageText)
     text->SetLocalPostion({0.5f, 0.5f});
     messageBoxWindow->AddChild(std::move(text));
 
-    auto okbutton = factory_.CreateGuiButton("ok", [this](auto&) {
-        if (messageBox_)
-        {
-            guiManager_.AddRemoveTask(messageBox_);
-            messageBox_ = nullptr;
-        }
-    });
+    auto okbutton = factory_.CreateGuiButton("ok",
+                                             [this](auto&)
+                                             {
+                                                 if (messageBox_)
+                                                 {
+                                                     guiManager_.AddRemoveTask(messageBox_);
+                                                     messageBox_ = nullptr;
+                                                 }
+                                             });
 
     okbutton->SetLocalScale(buttonSize);
     okbutton->SetLocalPostion({0.5f, 0.2f});
@@ -464,18 +557,123 @@ void PauseMenu::createMessageBox(const std::string& messageText)
     factory_.SetTheme(orginalTheme);
 }
 
-void PauseMenu::setLayoutAsActive(GameEngine::VerticalLayout* layout)
+void PauseMenu::setViewAsActive(State state)
 {
-    if (not layout)
+    auto iter = views_.find(state);
+    if (iter == views_.end())
         return;
 
-    hideSettingWindows();
-    if (currentView_)
-        currentView_->Hide();
+    View* view = &iter->second;
+    if (not view->layout)
+        return;
 
-    currentView_ = layout;
-    currentView_->Show();
+    if (currentView_)
+    {
+        if (currentView_->second.layout)
+            currentView_->second.layout->Hide();
+
+        for (auto& [_, child] : currentView_->second.children)
+        {
+            child.window->Hide();
+        }
+    }
+    view->layout->Show();
+    view->getActiveButtons().highLightCurrent();
+
+    currentView_ = &(*iter);
     mainWindow_->Show();
+}
+
+void PauseMenu::View::Buttons::updateSelectedRow(int v)
+{
+    if (not array.empty())
+    {
+        if (isInRange())
+            get().ToneDown();
+
+        selectedRow += v;
+
+        if (selectedRow < 0)
+            selectedRow = static_cast<int>(array.size() - 1);
+        if (selectedRow >= static_cast<int>(array.size()))
+            selectedRow = 0;
+
+        if (selectedColumn >= static_cast<int>(array[selectedRow].size()))
+            selectedColumn = static_cast<int>(array[selectedRow].size() - 1);
+
+        highLightCurrent();
+    }
+}
+
+void PauseMenu::View::Buttons::updateSelectedColumn(int v)
+{
+    if (not array.empty())
+    {
+        if (isInRange())
+            get().ToneDown();
+
+        selectedColumn += v;
+
+        if (selectedColumn < 0)
+            selectedColumn = static_cast<int>(array[selectedRow].size() - 1);
+        if (selectedColumn >= static_cast<int>(array[selectedRow].size()))
+            selectedColumn = 0;
+
+        highLightCurrent();
+    }
+}
+
+void PauseMenu::View::Buttons::exectuteAction()
+{
+    if (isInRange())
+        get().ExecuteAction();
+}
+
+bool PauseMenu::View::Buttons::isInRange() const
+{
+    return (selectedRow >= 0 and selectedRow < array.size()) and
+           (selectedColumn >= 0 and selectedColumn < array[selectedRow].size());
+}
+
+GameEngine::GuiButtonElement& PauseMenu::View::Buttons::get()
+{
+    return *array[selectedRow][selectedColumn];
+}
+
+void PauseMenu::createButtonForLayout(View& view, const std::string& text,
+                                      std::function<void(GameEngine::GuiElement&)> action)
+{
+    auto guiButton = factory_.CreateGuiButton(text, action);
+    guiButton->SetLocalScale(menuButtonSize_);
+    view.getActiveButtons().array.push_back({guiButton.get()});
+    view.layout->AddChild(std::move(guiButton));
+}
+
+PauseMenu::State PauseMenu::getCurrentState() const
+{
+    return currentView_ ? currentView_->first : startState_;
+}
+
+std::vector<GameEngine::GuiButtonElement*>& PauseMenu::View::Buttons::createRow()
+{
+    array.push_back({});
+    return array.back();
+}
+
+void PauseMenu::View::Buttons::highLightCurrent()
+{
+    for (auto& column : array)
+        for (auto& b : column)
+            b->ToneDown();
+
+    if (isInRange())
+        get().Highlight();
+}
+
+void PauseMenu::View::Buttons::toneDownCurrent()
+{
+    if (isInRange())
+        get().ToneDown();
 }
 
 }  // namespace AvatarGame

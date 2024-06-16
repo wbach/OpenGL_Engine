@@ -29,6 +29,9 @@ public:
     void Show(bool) override;
     GuiElement* GetCollisonElement(const vec2& mousePosition) override;
 
+    void ExecuteAction();
+    void Highlight();
+    void ToneDown();
     void SetText(std::unique_ptr<GuiTextElement>);
     void SetBackgroundTexture(std::unique_ptr<GuiTextureElement>);
     void SetOnHoverTexture(std::unique_ptr<GuiTextureElement>);

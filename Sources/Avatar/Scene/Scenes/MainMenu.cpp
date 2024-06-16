@@ -29,7 +29,6 @@ MainMenu::~MainMenu()
 
 int MainMenu::Initialize()
 {
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { addEngineEvent(EngineEvent::QUIT); });
     prepareMenu();
     return 0;
 }

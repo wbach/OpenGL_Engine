@@ -1,6 +1,9 @@
 #include "GuiButton.h"
+
 #include <Logger/Log.h>
+
 #include <algorithm>
+
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h"
 
@@ -42,6 +45,7 @@ void GuiButtonElement::Update()
     if (currentState_ != state)
     {
         ApplyState(state);
+        currentState_ = state;
     }
 }
 
@@ -74,6 +78,22 @@ void GuiButtonElement::Show(bool b)
 GuiElement *GuiButtonElement::GetCollisonElement(const vec2 &mousePosition)
 {
     return IsCollision(mousePosition) ? this : nullptr;
+}
+
+void GuiButtonElement::ExecuteAction()
+{
+    if (onClick_)
+        onClick_(*this);
+}
+
+void GuiButtonElement::Highlight()
+{
+    ApplyHoverState();
+}
+
+void GuiButtonElement::ToneDown()
+{
+    ApplyState(currentState_);
 }
 
 void GuiButtonElement::SetText(std::unique_ptr<GuiTextElement> text)
@@ -201,17 +221,20 @@ void GuiButtonElement::SubscribeInputAction()
 {
     if (not subscribtion_)
     {
-        subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE, [this]() {
-            if (IsShow() and isOnTop_(*this))
-            {
-                auto position = inputManager_.GetMousePosition();
-                if (IsCollision(position))
-                {
-                    onClick_(*this);
-                    activeTimer_.Reset();
-                }
-            }
-        });
+        subscribtion_ = inputManager_.SubscribeOnKeyDown(KeyCodes::LMOUSE,
+                                                         [this]()
+                                                         {
+                                                             if (IsShow() and isOnTop_(*this))
+                                                             {
+                                                                 auto position = inputManager_.GetMousePosition();
+                                                                 if (IsCollision(position))
+                                                                 {
+                                                                     if (onClick_)
+                                                                         onClick_(*this);
+                                                                     activeTimer_.Reset();
+                                                                 }
+                                                             }
+                                                         });
     }
 }
 
@@ -256,10 +279,9 @@ void GuiButtonElement::ApplyState(State state)
             ApplyHoverState();
             break;
         case State::Active:
+            ApplyActiveState();
             break;
     }
-
-    currentState_ = state;
 }
 
 void GuiButtonElement::ApplyNormalState()

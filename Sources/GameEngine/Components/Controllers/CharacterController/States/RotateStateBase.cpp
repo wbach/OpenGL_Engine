@@ -86,7 +86,7 @@ void RotateStateBase::update(float deltaTime)
         auto rotation =
             context_.rigidbody.GetRotation() *
             glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
-                    // /*DISABLED*/ DEBUG_LOG("newRotation " + std::to_string(rotation));
+        // /*DISABLED*/ DEBUG_LOG("newRotation " + std::to_string(rotation));
         context_.rigidbody.SetRotation(rotation);
     }
     else
@@ -159,13 +159,24 @@ void RotateStateBase::setRotateRightAnim()
 
 void RotateStateBase::setCurrentAnim()
 {
-    if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
+    if (not context_.rotateToTarget)
     {
-        setRotateLeftAnim();
+        if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
+        {
+            setRotateLeftAnim();
+        }
+        else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
+        {
+            setRotateRightAnim();
+        }
     }
-    else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
+    else
     {
-        setRotateRightAnim();
+        auto d = glm::dot(context_.targetRotation, context_.startRotation);
+        if (d > 0)
+            setRotateLeftAnim();
+        else
+            setRotateRightAnim();
     }
 }
 
@@ -191,7 +202,7 @@ void RotateStateBase::updateAnimationClipNames(const std::string &rotateLeftAnim
 {
     if (rotateLeftAnim_ != rotateLeftAnim or rotateRightAnim_ != rotateRightAnim)
     {
-        rotateLeftAnim_ = rotateLeftAnim;
+        rotateLeftAnim_  = rotateLeftAnim;
         rotateRightAnim_ = rotateRightAnim;
         setCurrentAnim();
     }
