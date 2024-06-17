@@ -5,7 +5,6 @@
 
 #include "AimController.h"
 #include "AnimationClipNames.h"
-#include "Attack/AttackFsm.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -32,7 +31,6 @@ struct FsmContext
         float disarm;
     };
 
-    AttackFsm& attackFsm;
     GameObject& gameObject;
     Physics::IPhysicsApi& physicsApi;
     Rigidbody& rigidbody;

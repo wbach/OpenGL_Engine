@@ -20,20 +20,48 @@ void AttackStateBase::onEnter(const AttackEvent &)
 
     if (not attackClipNames.empty())
     {
-        const auto &clipName = attackClipNames.front();
-        DEBUG_LOG(clipName);
+        const auto &clipName = attackClipNames[currentAnimation];
         context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                          std::nullopt);
 
-        auto subId = context.animator.SubscribeForAnimationFrame(
-            clipName, [&]() { context.characterController.pushEventToQueue(EndAttackEvent{}); });
-        subIds.push_back(subId);
+        for (const auto &clipName : attackClipNames)
+        {
+            auto subId = context.animator.SubscribeForAnimationFrame(clipName, [&]() { onClipEnd(); });
+            subIds.push_back(subId);
+        }
     }
+}
+
+void AttackStateBase::update(const AttackEvent &)
+{
+    if (sequenceSize < attackClipNames.size() - 1 and sequenceSize == currentAnimation)
+        ++sequenceSize;
 }
 void AttackStateBase::update(float)
 {
 }
 void AttackStateBase::onLeave()
+{
+    unsubscribe();
+    sequenceSize = 0;
+    currentAnimation = 0;
+}
+
+void AttackStateBase::onClipEnd()
+{
+    if (sequenceSize == currentAnimation)
+    {
+        context.characterController.pushEventToQueue(EndAttackEvent{});
+        return;
+    }
+
+    currentAnimation     = sequenceSize;
+    const auto &clipName = attackClipNames[currentAnimation];
+    context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                     std::nullopt);
+}
+
+void AttackStateBase::unsubscribe()
 {
     if (not subIds.empty())
     {

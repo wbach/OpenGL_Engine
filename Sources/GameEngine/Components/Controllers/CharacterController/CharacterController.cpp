@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "Attack/AttackFsm.h"
 #include "CharacterControllerFsm.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/CommonReadDef.h"
@@ -148,16 +147,12 @@ Animation::Joint dummyJoint;
 struct CharacterController::Impl
 {
     std::unique_ptr<FsmContext> fsmContext;
-    std::unique_ptr<AttackFsmContext> attackFsmContext;
-    std::unique_ptr<AttackFsm> attackFsm_;
     std::unique_ptr<CharacterControllerFsm> stateMachine_;
     std::unique_ptr<AimController> aimController_;
 
     void CleanUp()
     {
-        attackFsm_.reset();
         stateMachine_.reset();
-        attackFsmContext.reset();
         fsmContext.reset();
     }
 };
@@ -199,17 +194,6 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto sendEndAtatackCallback = [this]()
-        {
-            if (impl->stateMachine_)
-                impl->stateMachine_->handle(EndAttackEvent{});
-        };
-
-        impl->attackFsmContext.reset(
-            new AttackFsmContext{*animator_, animationClipsNames_, sendEndAtatackCallback, std::nullopt});
-
-        impl->attackFsm_ = std::make_unique<AttackFsm>(EmptyState(), AttackState(*impl->attackFsmContext));
-
         auto aimJoint = animator_->GetJoint("mixamorig:Spine2");
         if (not aimJoint)
             ERROR_LOG("Aim joint not found");
@@ -217,8 +201,7 @@ void CharacterController::Init()
         impl->aimController_ = std::make_unique<AimController>(
             componentContext_.scene_, thisObject_, componentContext_.inputManager_, aimJoint ? *aimJoint : dummyJoint);
 
-        impl->fsmContext.reset(new FsmContext{*impl->attackFsm_,
-                                              thisObject_,
+        impl->fsmContext.reset(new FsmContext{thisObject_,
                                               componentContext_.physicsApi_,
                                               *rigidbody_,
                                               *animator_,

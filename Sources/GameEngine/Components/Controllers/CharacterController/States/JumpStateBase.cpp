@@ -24,15 +24,6 @@ void JumpStateBase::onEnter(const JumpEvent &event)
     context_.rigidbody.SetVelocity(velocity);
 }
 
-void JumpStateBase::onEnter(const AttackEvent &)
-{
-    context_.attackFsm.handle(AttackFsmEvents::Attack{});
-}
-
-void JumpStateBase::onEnter(const EndAttackEvent &)
-{
-    context_.attackFsm.handle(AttackFsmEvents::End{});
-}
 void JumpStateBase::update(float)
 {
     if (isGrounded())

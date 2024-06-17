@@ -23,8 +23,6 @@ public:
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const AimStopEvent&);
-    void update(const AttackEvent&);
-    void update(const EndAttackEvent&);
     void update(float);
 
     void update(const RotateLeftEvent&);

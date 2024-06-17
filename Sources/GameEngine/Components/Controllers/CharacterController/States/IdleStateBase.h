@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "../FsmContext.h"
+#include "../CharacterControllerEvents.h"
 
 namespace GameEngine
 {

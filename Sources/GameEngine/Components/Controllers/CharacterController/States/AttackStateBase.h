@@ -25,14 +25,22 @@ public:
     AttackStateBase(FsmContext&, const std::vector<std::string>&);
 
     void onEnter(const AttackEvent&);
+    void update(const AttackEvent&);
     void update(float);
     void onLeave();
+
+private:
+    void onClipEnd();
+    void unsubscribe();
 
 private:
     FsmContext& context;
 
     std::vector<IdType> subIds;
     const std::vector<std::string>& attackClipNames;
+
+    uint32 sequenceSize = 0;
+    uint32 currentAnimation = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine
