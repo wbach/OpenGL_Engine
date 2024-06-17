@@ -6,6 +6,7 @@
 #include <GameEngine/Engine/ConfigurationWriter.h>
 #include <GameEngine/Renderers/GUI/Button/GuiButton.h>
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
+#include <GameEngine/Renderers/GUI/Layer/DefaultLayers.h>
 #include <GameEngine/Renderers/GUI/Layout/HorizontalLayout.h>
 #include <GameEngine/Renderers/GUI/Layout/VerticalLayout.h>
 #include <GameEngine/Renderers/GUI/Texutre/GuiTextureElement.h>
@@ -13,11 +14,12 @@
 #include <GameEngine/Renderers/RenderersManager.h>
 #include <GameEngine/Resources/ResourceManager.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
-#include <GameEngine/Renderers/GUI/Layer/DefaultLayers.h>
 #include <Logger/Log.h>
+
+#include <Thread.hpp>
+
 #include "Avatar/Game/PauseMenu.h"
 #include "PauseMenuTheme.h"
-#include <Thread.hpp>
 
 using namespace GameEngine;
 
@@ -60,13 +62,15 @@ void GreenIsland::prepareMenu()
 {
     guiElementFactory_->SetTheme(getGuiTheme());
 
-    guiManager_->RegisterAction("BackToMainMenu()", [&](auto&) {
-        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
-        addSceneEvent(sceneEvent);
-    });
+    guiManager_->RegisterAction("BackToMainMenu()",
+                                [&](auto&)
+                                {
+                                    SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
+                                    addSceneEvent(sceneEvent);
+                                });
     guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
-    menu_ = std::make_unique<PauseMenu>(*this, *guiElementFactory_, *guiManager_);
+    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::PauseMenu, *this, *guiElementFactory_, *guiManager_);
 }
 
 void GreenIsland::keyOperations()
@@ -74,7 +78,5 @@ void GreenIsland::keyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE, [&]() { DEBUG_LOG("Escape pressed"); menu_->isShow() ? menu_->hide() : menu_->show(PauseMenu::State::PauseMenu); });
-
 }
 }  // namespace AvatarGame

@@ -115,12 +115,17 @@ void GuiManager::Update(float deltaTime)
         }
     }
 
-    std::lock_guard<std::mutex> lk(taskMutex_);
-    for (auto& task : tasks_)
+    std::vector<std::function<void()>> tmpTasks;
+
+    {
+        std::lock_guard<std::mutex> lk(taskMutex_);
+        tmpTasks = std::move(tasks_);
+    }
+
+    for (auto& task : tmpTasks)
     {
         task();
     }
-    tasks_.clear();
 }
 
 ActionFunction GuiManager::GetActionFunction(const std::string& name)

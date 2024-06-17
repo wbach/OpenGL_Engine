@@ -62,7 +62,7 @@ void MainMenu::prepareMenu()
     for(const auto&[name, _] : avaiableScenes_)
         scenes.push_back(name);
 
-    menu_ = std::make_unique<PauseMenu>(*this, *guiElementFactory_, *guiManager_, scenes);
-    menu_->show(PauseMenu::State::MainMenu);
+    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::MainMenu, *this, *guiElementFactory_, *guiManager_, scenes);
+    menu_->show();
 }
 }  // namespace AvatarGame

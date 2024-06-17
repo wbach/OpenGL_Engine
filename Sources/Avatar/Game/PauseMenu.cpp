@@ -23,15 +23,16 @@
 
 namespace AvatarGame
 {
-PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
+PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
                      GameEngine::GuiManager& guiManager)
-    : PauseMenu(scene, factory, guiManager, {})
+    : PauseMenu(startState, scene, factory, guiManager, {})
 {
 }
 
-PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
+PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
                      GameEngine::GuiManager& guiManager, const std::vector<std::string>& avaiableSscenes)
-    : scene_{scene}
+    : startState_{startState}
+    , scene_{scene}
     , factory_{factory}
     , guiManager_{guiManager}
     , messageBox_{nullptr}
@@ -42,6 +43,15 @@ PauseMenu::PauseMenu(GameEngine::Scene& scene, GameEngine::GuiElementFactory& fa
     , keysSubscriptionsManager{*scene_.getInputManager()}
 {
     init();
+
+    escapeSub = scene_.getInputManager()->SubscribeOnKeyDown(KeyCodes::ESCAPE,
+                                                             [this]()
+                                                             {
+                                                                 if (not isShow())
+                                                                 {
+                                                                     show();
+                                                                 }
+                                                             });
 }
 
 void PauseMenu::subscribeKeys()
@@ -50,95 +60,98 @@ void PauseMenu::subscribeKeys()
         KeyCodes::DARROW,
         [&]()
         {
-            if (not isShow())
-            {
-                return;
-            }
-            if (currentView_)
-            {
-                currentView_->second.getActiveButtons().updateSelectedRow(1);
-            }
+            guiManager_.AddTask(
+                [&]()
+                {
+                    if (currentView_)
+                    {
+                        currentView_->second.getActiveButtons().updateSelectedRow(1);
+                    }
+                });
         }));
     keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
         KeyCodes::UARROW,
         [&]()
         {
-            if (not isShow())
-            {
-                return;
-            }
-            if (currentView_)
-            {
-                currentView_->second.getActiveButtons().updateSelectedRow(-1);
-            }
+            guiManager_.AddTask(
+                [&]()
+                {
+                    if (currentView_)
+                    {
+                        currentView_->second.getActiveButtons().updateSelectedRow(-1);
+                    }
+                });
         }));
     keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
         KeyCodes::RARROW,
         [&]()
         {
-            if (not isShow())
-            {
-                return;
-            }
-            if (currentView_)
-            {
-                currentView_->second.getActiveButtons().updateSelectedColumn(1);
-            }
+            guiManager_.AddTask(
+                [&]()
+                {
+                    if (currentView_)
+                    {
+                        currentView_->second.getActiveButtons().updateSelectedColumn(1);
+                    }
+                });
         }));
     keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
         KeyCodes::LARROW,
         [&]()
         {
-            if (not isShow())
-            {
-                return;
-            }
-            if (currentView_)
-            {
-                currentView_->second.getActiveButtons().updateSelectedColumn(-1);
-            }
+            guiManager_.AddTask(
+                [&]()
+                {
+                    if (currentView_)
+                    {
+                        currentView_->second.getActiveButtons().updateSelectedColumn(-1);
+                    }
+                });
         }));
 
-    keysSubscriptionsManager.AddSubscribtion(
-        scene_.getInputManager()->SubscribeOnKeyDown(KeyCodes::ENTER,
-                                                     [&]()
-                                                     {
-                                                         if (not isShow())
-                                                         {
-                                                             return;
-                                                         }
-                                                         if (currentView_)
-                                                         {
-                                                             currentView_->second.getActiveButtons().exectuteAction();
-                                                         }
-                                                     }));
+    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
+        KeyCodes::ENTER,
+        [&]()
+        {
+            guiManager_.AddTask(
+                [&]()
+                {
+                    if (currentView_)
+                    {
+                        currentView_->second.getActiveButtons().exectuteAction();
+                    }
+                });
+        }));
     keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
         KeyCodes::ESCAPE,
         [&]()
         {
-            if (not isShow())
-            {
-                return;
-            }
-
-            if (currentView_)
-            {
-                if (currentView_->second.isFocusToChild())
+            guiManager_.AddTask(
+                [&]()
                 {
-                    currentView_->second.getActiveButtons().toneDownCurrent();
-                    currentView_->second.resetFocus();
-                    currentView_->second.getActiveButtons().highLightCurrent();
-                    return;
-                }
+                    if (currentView_)
+                    {
+                        if (currentView_->second.isFocusToChild())
+                        {
+                            currentView_->second.getActiveButtons().toneDownCurrent();
+                            currentView_->second.resetFocus();
+                            currentView_->second.getActiveButtons().highLightCurrent();
+                            return;
+                        }
 
-                if (currentView_->first == State::MainMenu)
-                {
-                    scene_.addEngineEvent(GameEngine::EngineEvent::ASK_QUIT);
-                    return;
-                }
-            }
-
-            backToStartState();
+                        if (currentView_->first == State::MainMenu)
+                        {
+                            scene_.addEngineEvent(GameEngine::EngineEvent::ASK_QUIT);
+                            return;
+                        }
+                        if (currentView_->first == State::PauseMenu)
+                        {
+                            hide();
+                            return;
+                        }
+                        backToStartState();
+                    }
+                });
         }));
 }
 PauseMenu::~PauseMenu()
@@ -157,17 +170,15 @@ PauseMenu::~PauseMenu()
         for (auto& [_, child] : view.children)
             guiManager_.Remove(*child.window);
     }
-    keysSubscriptionsManager.UnsubscribeKeys();
 }
 
-void PauseMenu::show(State state)
+void PauseMenu::show()
 {
     scene_.getInputManager()->SetReleativeMouseMode(false);
     scene_.getInputManager()->ShowCursor(true);
 
     scene_.GetCamera().Lock();
-    startState_ = state;
-    enableState(state);
+    enableState(startState_);
 
     onePramaterNeedRestart_ = false;
     auto hudLayer           = guiManager_.GetLayer(GameEngine::DefaultGuiLayers::hud);
@@ -175,10 +186,12 @@ void PauseMenu::show(State state)
     {
         hudLayer->Hide();
     }
+    subscribeKeys();
 }
 
 void PauseMenu::hide()
 {
+    keysSubscriptionsManager.UnsubscribeKeys();
     scene_.getInputManager()->SetReleativeMouseMode(true);
     scene_.getInputManager()->ShowCursor(false);
 
@@ -270,7 +283,6 @@ void PauseMenu::init()
     createSceneLoaderLayout();
 
     guiManager_.Add(std::move(mainWindow));
-    subscribeKeys();
 }
 
 void PauseMenu::setMainWindowVerticalLayoutTransform(GameEngine::VerticalLayout& layout)
@@ -631,8 +643,8 @@ void PauseMenu::View::Buttons::exectuteAction()
 
 bool PauseMenu::View::Buttons::isInRange() const
 {
-    return (selectedRow >= 0 and selectedRow < array.size()) and
-           (selectedColumn >= 0 and selectedColumn < array[selectedRow].size());
+    return (selectedRow >= 0 and selectedRow < static_cast<int>(array.size())) and
+           (selectedColumn >= 0 and selectedColumn < static_cast<int>(array[selectedRow].size()));
 }
 
 GameEngine::GuiButtonElement& PauseMenu::View::Buttons::get()

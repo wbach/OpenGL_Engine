@@ -40,8 +40,8 @@ public:
         struct Buttons
         {
             ButtonsArray array;
-            int32 selectedRow{-1};
-            int32 selectedColumn{0};
+            int selectedRow{-1};
+            int selectedColumn{0};
 
             void updateSelectedRow(int);
             void updateSelectedColumn(int);
@@ -96,12 +96,12 @@ public:
         bool focusToChild{false};
     };
 
-    PauseMenu(GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&);
-    PauseMenu(GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&,
+    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&);
+    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&,
               const std::vector<std::string>&);
     ~PauseMenu();
 
-    void show(State);
+    void show();
     void hide();
     bool isShow() const;
     State getCurrentState() const;
@@ -154,5 +154,6 @@ private:
     std::vector<std::pair<uint32, GameEngine::Params::IConfigurationParam*>> paramChangeSubs_;
 
     Input::KeysSubscriptionsManager keysSubscriptionsManager;
+    uint32 escapeSub;
 };
 }  // namespace AvatarGame

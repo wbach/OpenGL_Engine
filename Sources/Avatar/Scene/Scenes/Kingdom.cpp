@@ -84,7 +84,7 @@ void Kingdom::prepareMenu()
                                 });
     guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
-    menu_ = std::make_unique<PauseMenu>(*this, *guiElementFactory_, *guiManager_);
+    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::PauseMenu, *this, *guiElementFactory_, *guiManager_);
 }
 
 void Kingdom::keyOperations()
@@ -92,20 +92,5 @@ void Kingdom::keyOperations()
     inputManager_->SubscribeOnKeyDown(KeyCodes::F1, [&]() { addEngineEvent(EngineEvent::QUIT); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::P, [this]() { renderersManager_->GetDebugRenderer().Enable(); });
     inputManager_->SubscribeOnKeyDown(KeyCodes::O, [this]() { renderersManager_->GetDebugRenderer().Disable(); });
-    inputManager_->SubscribeOnKeyDown(KeyCodes::ESCAPE,
-                                      [&]()
-                                      {
-                                          if (menu_->isShow())
-                                          {
-                                              if (menu_->getCurrentState() == PauseMenu::State::PauseMenu)
-                                              {
-                                                  menu_->hide();
-                                              }
-                                          }
-                                          else
-                                          {
-                                              menu_->show(PauseMenu::State::PauseMenu);
-                                          }
-                                      });
 }
 }  // namespace AvatarGame
