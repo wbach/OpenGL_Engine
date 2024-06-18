@@ -1,42 +1,23 @@
 #include "RecoilStateBase.h"
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
-
-#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-RecoilStateBase::RecoilStateBase(FsmContext &contex, const std::optional<std::string> &jointGroupName)
-    : context_{contex}
-    , jointGroupName_{jointGroupName}
-    , animName_{context_.animClipNames.recoilArrow}
-    , thridPersonCameraComponent_{contex.gameObject.GetComponent<ThridPersonCameraComponent>()}
+RecoilStateBase::RecoilStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
+    : AimingStateBase{context, jointGroupName, context.animClipNames.recoilArrow}
 {
-    context_.animator.setPlayOnceForAnimationClip(animName_);
+    context.animator.setPlayOnceForAnimationClip(animationClip);
 }
 
-void RecoilStateBase::onEnter(const EndRotationEvent &)
-{
-    context_.animator.StopAnimation(jointGroupName_);
-}
-
-void RecoilStateBase::onEnter(const EndForwardMoveEvent &)
-{
-    context_.animator.StopAnimation(jointGroupName_);
-}
-
-void RecoilStateBase::onEnter(const EndBackwardMoveEvent &)
-{
-    context_.animator.StopAnimation(jointGroupName_);
-}
 void RecoilStateBase::onEnter(const AttackEvent &)
 {
     // /*DISABLED*/ DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
 
-    if (animName_.empty())
+    if (animationClip.empty())
     {
         return;
     }
@@ -44,51 +25,8 @@ void RecoilStateBase::onEnter(const AttackEvent &)
     context_.aimController.shoot();
     setAnim();
 
-    context_.animator.SubscribeForAnimationFrame(
-        animName_, [&]() { context_.characterController.pushEventToQueue(ReloadArrowEvent{}); });
+    animationSubIds_.push_back(context_.animator.SubscribeForAnimationFrame(
+        animationClip, [&]() { context_.characterController.pushEventToQueue(ReloadArrowEvent{}); }));
 }
-void RecoilStateBase::update(float)
-{
-    context_.aimController.update();
-}
-
-void RecoilStateBase::stopAnim()
-{
-    context_.animator.StopAnimation(jointGroupName_);
-
-    if (thridPersonCameraComponent_)
-    {
-        thridPersonCameraComponent_->handleEvent(Camera::StopAimEvent{});
-    }
-
-    context_.aimController.reset();
-}
-
-void RecoilStateBase::onLeave(const AimStopEvent &)
-{
-    stopAnim();
-
-    if (context_.aimEnteringState == FsmContext::AimEnteringState::Run or
-        context_.aimEnteringState == FsmContext::AimEnteringState::Sprint)
-    {
-        context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
-    }
-}
-
-void RecoilStateBase::onLeave(const WeaponStateEvent &)
-{
-    stopAnim();
-}
-
-void RecoilStateBase::onLeave(const SprintStateChangeEvent &)
-{
-    stopAnim();
-}
-void RecoilStateBase::setAnim()
-{
-    context_.animator.ChangeAnimation(animName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                      jointGroupName_);
-}
-
 }  // namespace Components
 }  // namespace GameEngine
