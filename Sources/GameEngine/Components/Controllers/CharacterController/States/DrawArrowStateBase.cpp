@@ -9,11 +9,9 @@ namespace GameEngine
 namespace Components
 {
 DrawArrowStateBase::DrawArrowStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
-    : context_{context}
-    , jointGroupName_{jointGroupName}
-    , thridPersonCameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
+    : AimingStateBase{context, jointGroupName, context.animClipNames.drawArrow}
 {
-    context.animator.setPlayOnceForAnimationClip(context.animClipNames.drawArrow);
+    context.animator.setPlayOnceForAnimationClip(animationClip);
 }
 
 void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
@@ -45,74 +43,11 @@ void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
 
     setAnim();
 
-    if (subId_)
-    {
-        context_.animator.UnSubscribeForAnimationFrame(*subId_);
-    }
+    unsubscribeAll();
 
     context_.aimController.reload();
-    subId_ = context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.drawArrow, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); });
+    animationSubIds_.push_back(context_.animator.SubscribeForAnimationFrame(
+        context_.animClipNames.drawArrow, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); }));
 }
-
-void DrawArrowStateBase::onEnter(const EndRotationEvent &)
-{
-    context_.animator.StopAnimation(jointGroupName_);
-}
-
-void DrawArrowStateBase::onEnter(const EndForwardMoveEvent &)
-{
-    context_.animator.StopAnimation(jointGroupName_);
-}
-
-void DrawArrowStateBase::onEnter(const EndBackwardMoveEvent &)
-{
-    context_.animator.StopAnimation(jointGroupName_);
-}
-
-void DrawArrowStateBase::setAnim()
-{
-    context_.animator.ChangeAnimation(context_.animClipNames.drawArrow, Animator::AnimationChangeType::smooth,
-                                      PlayDirection::forward, jointGroupName_);
-}
-
-void DrawArrowStateBase::stopAnim()
-{
-    context_.animator.StopAnimation(jointGroupName_);
-
-    if (thridPersonCameraComponent_)
-    {
-        thridPersonCameraComponent_->handleEvent(Camera::StopAimEvent{});
-    }
-
-    context_.aimController.reset();
-}
-
-void DrawArrowStateBase::update(float)
-{
-    context_.aimController.update();
-}
-
-void DrawArrowStateBase::onLeave(const AimStopEvent &)
-{
-    stopAnim();
-
-    if (context_.aimEnteringState == FsmContext::AimEnteringState::Run or
-        context_.aimEnteringState == FsmContext::AimEnteringState::Sprint)
-    {
-        context_.characterController.pushEventToQueue(WalkChangeStateEvent{});
-    }
-}
-
-void DrawArrowStateBase::onLeave(const WeaponStateEvent &)
-{
-    stopAnim();
-}
-
-void DrawArrowStateBase::onLeave(const SprintStateChangeEvent &)
-{
-    stopAnim();
-}
-
 }  // namespace Components
 }  // namespace GameEngine
