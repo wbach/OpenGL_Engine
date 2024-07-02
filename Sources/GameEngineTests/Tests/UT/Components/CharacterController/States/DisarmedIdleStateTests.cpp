@@ -91,5 +91,5 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
 TEST_F(CharacterControllerTests, DisarmedIdleState_AttackEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front()}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 }

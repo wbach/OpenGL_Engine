@@ -9,7 +9,7 @@ namespace GameEngine
 {
 namespace Components
 {
-AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<std::string> &clipnames)
+AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames)
     : context{context}
     , attackClipNames{clipnames}
 {
@@ -20,13 +20,13 @@ void AttackStateBase::onEnter(const AttackEvent &)
 
     if (not attackClipNames.empty())
     {
-        const auto &clipName = attackClipNames[currentAnimation];
+        const auto &clipName = attackClipNames[currentAnimation].name;
         context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                          std::nullopt);
 
-        for (const auto &clipName : attackClipNames)
+        for (const auto &clip : attackClipNames)
         {
-            auto subId = context.animator.SubscribeForAnimationFrame(clipName, [&]() { onClipEnd(); });
+            auto subId = context.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); });
             subIds.push_back(subId);
         }
     }
@@ -43,7 +43,7 @@ void AttackStateBase::update(float)
 void AttackStateBase::onLeave()
 {
     unsubscribe();
-    sequenceSize = 0;
+    sequenceSize     = 0;
     currentAnimation = 0;
 }
 
@@ -56,7 +56,7 @@ void AttackStateBase::onClipEnd()
     }
 
     currentAnimation     = sequenceSize;
-    const auto &clipName = attackClipNames[currentAnimation];
+    const auto &clipName = attackClipNames[currentAnimation].name;
     context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                      std::nullopt);
 }

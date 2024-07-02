@@ -60,8 +60,8 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.run.moveRight     = "DMRR";
     clips.armed.walk.moveleft     = "DMRL";
     clips.armed.walk.moveRight    = "DMRR";
-    clips.disarmed.attack.push_back("DA1");
-    clips.armed.attack.push_back("A1");
+    clips.disarmed.attack.push_back({"DA1", AttackAnimation::PlayStateType::idle});
+    clips.armed.attack.push_back({"A1", AttackAnimation::PlayStateType::idle});
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);
@@ -97,11 +97,11 @@ CharacterControllerTests::CharacterControllerTests()
 
     for (const auto& attackClip : clips.disarmed.attack)
     {
-        addDummyClip(attackClip);
+        addDummyClip(attackClip.name);
     }
     for (const auto& attackClip : clips.armed.attack)
     {
-        addDummyClip(attackClip);
+        addDummyClip(attackClip.name);
     }
 
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;

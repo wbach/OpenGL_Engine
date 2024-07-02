@@ -10,6 +10,8 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
+using namespace GameEngine::Components;
+
 namespace
 {
 const std::string COMPONENT_STR = "CharacterController";
@@ -19,6 +21,7 @@ const std::string CSTR_DISARM_TIMESTAMP = "disarmTimeStamp";
 
 const std::string CSTR_ATTACK_ANIMATIONS         = "attackAnimations";
 const std::string CSTR_ANIMATION                 = "animation";
+const std::string CSTR_ANIMATION_STATE_TYPE      = "stateType";
 const std::string CSTR_ANIMATION_ARMED           = "armedAnimations";
 const std::string CSTR_ANIMATION_DISARMED        = "disarmedAnimations";
 const std::string CSTR_ANIMATION_CROUCH          = "crouchAnimations";
@@ -46,22 +49,44 @@ const std::string CSTR_AIM_IDLE_ANIMATION        = "aimIdle";
 
 }  // namespace
 
-void write(TreeNode& node, const GameEngine::Components::MovmentClipNames& names)
+void write(TreeNode& node, const MovmentClipNames& names)
 {
     ::write(node.addChild(CSTR_ANIMATION_FORWARD), names.forward);
     ::write(node.addChild(CSTR_ANIMATION_BACKWARD), names.backward);
     ::write(node.addChild(CSTR_ANIMATION_MOVE_LEFT), names.moveleft);
     ::write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.moveRight);
 }
-void write(TreeNode& node, const std::vector<std::string>& names)
+
+void write(TreeNode& node, const AttackAnimation::PlayStateType& stateType)
 {
-    for (const auto& name : names)
+    std::string s{"unknown"};
+    switch (stateType)
     {
-        ::write(node.addChild(CSTR_ANIMATION), name);
+        case AttackAnimation::PlayStateType::idle:
+            s = "idle";
+            break;
+        case AttackAnimation::PlayStateType::walk:
+            s = "walk";
+            break;
+        case AttackAnimation::PlayStateType::run:
+            s = "run";
+            break;
+    }
+    ::write(node, s);
+}
+
+void write(TreeNode& node, const std::vector<AttackAnimation>& names)
+{
+    for (const auto& anim : names)
+    {
+        auto& n = node.addChild(CSTR_ANIMATION);
+
+        ::write(n.addChild(CSTR_NAME), anim.name);
+        ::write(n.addChild(CSTR_ANIMATION_STATE_TYPE), anim.stateType);
     }
 }
 
-void write(TreeNode& node, const GameEngine::Components::StateClipsNames& names)
+void write(TreeNode& node, const StateClipsNames& names)
 {
     ::write(node.addChild(CSTR_ANIMATION_WALK), names.walk);
     ::write(node.addChild(CSTR_ANIMATION_RUN), names.run);
@@ -76,7 +101,7 @@ void write(TreeNode& node, const GameEngine::Components::StateClipsNames& names)
     ::write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
 }
 
-void write(TreeNode& node, const GameEngine::Components::AnimationClipsNames& names)
+void write(TreeNode& node, const AnimationClipsNames& names)
 {
     ::write(node.addChild(CSTR_ANIMATION_ARMED), names.armed);
     ::write(node.addChild(CSTR_ANIMATION_DISARMED), names.disarmed);
@@ -89,7 +114,7 @@ void write(TreeNode& node, const GameEngine::Components::AnimationClipsNames& na
     ::write(node.addChild(CSTR_AIM_IDLE_ANIMATION), names.aimIdle);
 }
 
-void Read(const TreeNode& node, GameEngine::Components::MovmentClipNames& result)
+void Read(const TreeNode& node, MovmentClipNames& result)
 {
     Read(node.getChild(CSTR_ANIMATION_FORWARD), result.forward);
     Read(node.getChild(CSTR_ANIMATION_BACKWARD), result.backward);
@@ -107,7 +132,40 @@ void Read(const TreeNode& node, std::vector<std::string>& result)
     }
 }
 
-void Read(const TreeNode& node, GameEngine::Components::StateClipsNames& result)
+void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
+{
+    for (const auto& node : node.getChildren())
+    {
+        if (!node->value_.empty())
+        {
+            result.push_back({node->value_, AttackAnimation::PlayStateType::idle});
+        }
+        else
+        {
+            AttackAnimation aa{"", AttackAnimation::PlayStateType::idle};
+            auto maybeNameNode = node->getChild(CSTR_NAME);
+            if (maybeNameNode)
+            {
+                Read(*maybeNameNode, aa.name);
+            }
+            auto maybePlayStateTypeNode = node->getChild(CSTR_ANIMATION_STATE_TYPE);
+            if (maybePlayStateTypeNode)
+            {
+                if (maybePlayStateTypeNode->value_ == "walk")
+                {
+                    aa.stateType = AttackAnimation::PlayStateType::walk;
+                }
+                if (maybePlayStateTypeNode->value_ == "run")
+                {
+                    aa.stateType = AttackAnimation::PlayStateType::run;
+                }
+            }
+            result.push_back(aa);
+        }
+    }
+}
+
+void Read(const TreeNode& node, StateClipsNames& result)
 {
     Read(node.getChild(CSTR_ANIMATION_WALK), result.walk);
     Read(node.getChild(CSTR_ANIMATION_RUN), result.run);
@@ -122,7 +180,7 @@ void Read(const TreeNode& node, GameEngine::Components::StateClipsNames& result)
     Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
 }
 
-void Read(const TreeNode& node, GameEngine::Components::AnimationClipsNames& result)
+void Read(const TreeNode& node, AnimationClipsNames& result)
 {
     Read(node.getChild(CSTR_ANIMATION_ARMED), result.armed);
     Read(node.getChild(CSTR_ANIMATION_DISARMED), result.disarmed);
@@ -274,11 +332,11 @@ void CharacterController::Init()
 
         for (const auto& attack : animationClipsNames_.armed.attack)
         {
-            animator_->setPlayOnceForAnimationClip(attack);
+            animator_->setPlayOnceForAnimationClip(attack.name);
         }
         for (const auto& attack : animationClipsNames_.disarmed.attack)
         {
-            animator_->setPlayOnceForAnimationClip(attack);
+            animator_->setPlayOnceForAnimationClip(attack.name);
         }
 
         animator_->SetAnimation(animationClipsNames_.disarmed.idle);

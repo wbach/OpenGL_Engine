@@ -12,7 +12,7 @@ void prepareState(CharacterControllerTests& test)
         {test.sut_.animationClipsNames_.armed.idle},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
     test.tiggerAndExpect<AttackEvent>(
-        {test.sut_.animationClipsNames_.armed.attack.front()},
+        {test.sut_.animationClipsNames_.armed.attack.front().name},
         {ADVANCED_TIME_TRANSITION_TIME});
 }
 }  // namespace

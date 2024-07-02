@@ -174,6 +174,7 @@ PauseMenu::~PauseMenu()
 
 void PauseMenu::show()
 {
+    //scene_.getInputManager()->StashSubscribers();
     scene_.getInputManager()->SetReleativeMouseMode(false);
     scene_.getInputManager()->ShowCursor(true);
 
@@ -192,6 +193,7 @@ void PauseMenu::show()
 void PauseMenu::hide()
 {
     keysSubscriptionsManager.UnsubscribeKeys();
+    //scene_.getInputManager()->StashPopSubscribers();
     scene_.getInputManager()->SetReleativeMouseMode(true);
     scene_.getInputManager()->ShowCursor(false);
 

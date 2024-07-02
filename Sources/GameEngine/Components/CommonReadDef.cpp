@@ -5,6 +5,7 @@ namespace GameEngine
 namespace Components
 {
 const std::string CSTR_FILE_NAME           = "fileName";
+const std::string CSTR_NAME                = "name";
 const std::string CSTR_TEXTURE_FILENAME    = "textureFileName";
 const std::string CSTR_ANIMATION_CLIPS     = "animationClips";
 const std::string CSTR_ANIMATION_CLIP      = "animationClip";

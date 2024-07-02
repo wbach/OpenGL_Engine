@@ -5,6 +5,18 @@ namespace GameEngine
 {
 namespace Components
 {
+struct AttackAnimation
+{
+    enum class PlayStateType
+    {
+        idle,
+        walk,
+        run
+    };
+    std::string name;
+    PlayStateType stateType;
+};
+
 struct MovmentClipNames
 {
     std::string forward;
@@ -27,7 +39,7 @@ struct StateClipsNames
     std::string death;
     std::string sprint;
 
-    std::vector<std::string> attack;
+    std::vector<AttackAnimation> attack;
 };
 
 struct AnimationClipsNames

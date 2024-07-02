@@ -6,6 +6,7 @@ namespace GameEngine
 namespace Components
 {
 extern const std::string CSTR_FILE_NAME;
+extern const std::string CSTR_NAME;
 extern const std::string CSTR_TEXTURE_FILENAME;
 extern const std::string CSTR_ANIMATION_CLIPS;
 extern const std::string CSTR_ANIMATION_CLIP;

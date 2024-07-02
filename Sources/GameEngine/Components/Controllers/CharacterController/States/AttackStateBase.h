@@ -22,7 +22,7 @@ class IdleArmedChangeState;
 class AttackStateBase
 {
 public:
-    AttackStateBase(FsmContext&, const std::vector<std::string>&);
+    AttackStateBase(FsmContext&, const std::vector<AttackAnimation>&);
 
     void onEnter(const AttackEvent&);
     void update(const AttackEvent&);
@@ -37,7 +37,7 @@ private:
     FsmContext& context;
 
     std::vector<IdType> subIds;
-    const std::vector<std::string>& attackClipNames;
+    const std::vector<AttackAnimation>& attackClipNames;
 
     uint32 sequenceSize = 0;
     uint32 currentAnimation = 0;
