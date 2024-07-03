@@ -1,7 +1,6 @@
 #include "ArmedIdleState.h"
 
-#include "../CharacterController.h"
-#include "DisarmedIdleState.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {

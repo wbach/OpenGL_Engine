@@ -1,8 +1,5 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
@@ -10,17 +7,6 @@ namespace GameEngine
 {
 namespace Components
 {
-class ArmedRunState;
-class ArmedWalkState;
-class ArmedSprintState;
-class ArmedRotateState;
-class DisarmedIdleState;
-class JumpState;
-class DeathState;
-class DrawArrowState;
-class IdleArmedChangeState;
-class ArmedAttackState;
-
 class ArmedIdleState
     : public IdleStateBase,
       public Utils::StateMachine::Will<

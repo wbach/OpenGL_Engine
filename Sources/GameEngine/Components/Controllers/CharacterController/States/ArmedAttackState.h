@@ -1,21 +1,11 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
 #include "AttackStateBase.h"
+#include "CharacterControllerCommonDefs.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ArmedRunState;
-class ArmedRotateState;
-class DrawArrowState;
-class DisarmedCrouchState;
-class DisarmedIdleState;
-class JumpState;
-class DeathState;
-class IdleArmedChangeState;
-
 class ArmedAttackState
     : public AttackStateBase,
       public Utils::StateMachine::Will<

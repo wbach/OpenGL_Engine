@@ -2,6 +2,7 @@
 
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "Logger/Log.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {

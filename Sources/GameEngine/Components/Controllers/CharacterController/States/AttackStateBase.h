@@ -1,8 +1,5 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "../AnimationClipNames.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
@@ -10,15 +7,6 @@ namespace GameEngine
 {
 namespace Components
 {
-class ArmedRunState;
-class ArmedRotateState;
-class DrawArrowState;
-class DisarmedCrouchState;
-class DisarmedIdleState;
-class JumpState;
-class DeathState;
-class IdleArmedChangeState;
-
 class AttackStateBase
 {
 public:
@@ -26,6 +14,10 @@ public:
 
     void onEnter(const AttackEvent&);
     void update(const AttackEvent&);
+    void update(const EndForwardMoveEvent&);
+    void update(const EndBackwardMoveEvent&);
+    void update(const EndMoveLeftEvent&);
+    void update(const EndMoveRightEvent&);
     void update(float);
     void onLeave();
 
@@ -39,8 +31,10 @@ private:
     std::vector<IdType> subIds;
     const std::vector<AttackAnimation>& attackClipNames;
 
-    uint32 sequenceSize = 0;
+    uint32 sequenceSize     = 0;
     uint32 currentAnimation = 0;
+
+    std::vector<CharacterControllerEvent> queue;
 };
 }  // namespace Components
 }  // namespace GameEngine

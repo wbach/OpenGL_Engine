@@ -1,26 +1,12 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 #include "AimStateBase.h"
+#include "CharacterControllerCommonDefs.h"
 #include "MoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class RecoilWalkState;
-class RecoilWalkAndRotateState;
-class ArmedWalkAndRotateState;
-class ArmedSprintAndRotateState;
-class AimWalkState;
-class AimRotateState;
-class AimWalkAndRotateState;
-class DisarmedWalkAndRotateState;
-class DeathState;
-class WalkAndRotateArmedChangeState;
-
 class AimWalkAndRotateState
     : public AimStateBase,
       public MoveAndRotateStateBase,
@@ -51,8 +37,8 @@ public:
     void onEnter(const AimStartEvent&);
 
     using MoveAndRotateStateBase::onEnter;
-    using MoveAndRotateStateBase::update;
     using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::update;
 
     void update(float);
 

@@ -15,7 +15,7 @@ ArmedChangeStateBase::ArmedChangeStateBase(FsmContext& context, const std::optio
     : context_{context}
     , jointGroupName_{jointGroupName}
     , bowPoseUpdater_{context.gameObject.GetComponentInChild<BowPoseUpdater>()}
-{;
+{
 }
 void ArmedChangeStateBase::update(const WeaponStateEvent&)
 {
@@ -41,7 +41,8 @@ void ArmedChangeStateBase::update(const AimStopEvent&)
 }
 void ArmedChangeStateBase::update(const SprintStateChangeEvent&)
 {
-    // /*DISABLED*/ DEBUG_LOG(" update SprintStateChangeEvent context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+    // /*DISABLED*/ DEBUG_LOG(" update SprintStateChangeEvent context_.sprintEventCalled_ = " +
+    // Utils::BoolToString(context_.sprintEventCalled_));
     context_.sprintEventCalled_ = not context_.sprintEventCalled_;
 }
 void ArmedChangeStateBase::equipWeapon()
@@ -72,8 +73,10 @@ void ArmedChangeStateBase::disarmWeapon()
 
 void ArmedChangeStateBase::onLeave(const EquipEndStateEvent&)
 {
-    // /*DISABLED*/ DEBUG_LOG("onLeave context_.drawArrowEventCalled_ = " + Utils::BoolToString(context_.drawArrowEventCalled_));
-    // /*DISABLED*/ DEBUG_LOG("onLeave context_.sprintEventCalled_ = " + Utils::BoolToString(context_.sprintEventCalled_));
+    // /*DISABLED*/ DEBUG_LOG("onLeave context_.drawArrowEventCalled_ = " +
+    // Utils::BoolToString(context_.drawArrowEventCalled_));
+    // /*DISABLED*/ DEBUG_LOG("onLeave context_.sprintEventCalled_ = " +
+    // Utils::BoolToString(context_.sprintEventCalled_));
 
     if (context_.drawArrowEventCalled_)
     {

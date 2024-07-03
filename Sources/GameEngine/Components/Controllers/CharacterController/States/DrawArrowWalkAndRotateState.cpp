@@ -1,5 +1,6 @@
 #include "DrawArrowWalkAndRotateState.h"
 
+#include "../FsmContext.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -18,17 +19,17 @@ DrawArrowWalkAndRotateState::DrawArrowWalkAndRotateState(FsmContext& context)
 {
 }
 
-void DrawArrowWalkAndRotateState::onEnter(ArmedSprintAndRotateState &, const DrawArrowEvent &)
+void DrawArrowWalkAndRotateState::onEnter(ArmedSprintAndRotateState&, const DrawArrowEvent&)
 {
     context_.aimEnteringState = FsmContext::AimEnteringState::Sprint;
 }
 
-void DrawArrowWalkAndRotateState::onEnter(ArmedRunAndRotateState &, const DrawArrowEvent &)
+void DrawArrowWalkAndRotateState::onEnter(ArmedRunAndRotateState&, const DrawArrowEvent&)
 {
     context_.aimEnteringState = FsmContext::AimEnteringState::Walk;
 }
 
-void DrawArrowWalkAndRotateState::onEnter(ArmedWalkAndRotateState &, const DrawArrowEvent &)
+void DrawArrowWalkAndRotateState::onEnter(ArmedWalkAndRotateState&, const DrawArrowEvent&)
 {
     context_.aimEnteringState = FsmContext::AimEnteringState::Run;
 }

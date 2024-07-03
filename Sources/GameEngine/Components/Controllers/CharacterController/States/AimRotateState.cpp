@@ -1,5 +1,6 @@
 #include "AimRotateState.h"
 
+#include "../FsmContext.h"
 #include "Logger/Log.h"
 
 namespace GameEngine

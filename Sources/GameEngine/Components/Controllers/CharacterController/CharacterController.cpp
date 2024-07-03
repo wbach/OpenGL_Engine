@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "FsmContext.h"
 #include "CharacterControllerFsm.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/CommonReadDef.h"
@@ -9,6 +10,7 @@
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Components/Controllers/CharacterController/AimController.h"
 
 using namespace GameEngine::Components;
 
@@ -266,6 +268,7 @@ void CharacterController::Init()
                                               *this,
                                               componentContext_.inputManager_,
                                               *impl->aimController_,
+                                              impl->stateMachine_,
                                               {},
                                               {},
                                               animationClipsNames_,

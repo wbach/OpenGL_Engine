@@ -1,8 +1,6 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
+#include "CharacterControllerCommonDefs.h"
 
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 #include "AimingStateBase.h"
 
 namespace GameEngine

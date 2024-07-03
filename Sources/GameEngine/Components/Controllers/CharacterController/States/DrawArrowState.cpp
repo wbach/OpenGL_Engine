@@ -1,5 +1,6 @@
 #include "DrawArrowState.h"
 
+#include "../FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "Logger/Log.h"
@@ -12,15 +13,15 @@ DrawArrowState::DrawArrowState(FsmContext &context)
     : DrawArrowStateBase{context, std::nullopt}
 {
 }
-void DrawArrowState::onEnter(const EndRotationEvent&)
+void DrawArrowState::onEnter(const EndRotationEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
-void DrawArrowState::onEnter(const EndForwardMoveEvent&)
+void DrawArrowState::onEnter(const EndForwardMoveEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
-void DrawArrowState::onEnter(const EndBackwardMoveEvent&)
+void DrawArrowState::onEnter(const EndBackwardMoveEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }

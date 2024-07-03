@@ -1,33 +1,19 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
-#include "GameEngine/Components/Animation/Animator.h"
+#include "CharacterControllerCommonDefs.h"
 #include "IdleStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DisarmedAttackState;
-class DisarmedRunState;
-class DisarmedRotateState;
-class DisarmedWalkState;
-class DisarmedSprintState;
-class DisarmedCrouchState;
-class JumpState;
-class DeathState;
-class IdleArmedChangeState;
-
 class DisarmedIdleState
     : public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,*/
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,

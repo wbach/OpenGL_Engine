@@ -1,5 +1,7 @@
 #include "JumpStateBase.h"
 
+#include "../FsmContext.h"
+
 namespace GameEngine
 {
 namespace Components

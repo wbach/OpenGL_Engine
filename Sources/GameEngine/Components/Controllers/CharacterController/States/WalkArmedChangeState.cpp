@@ -1,5 +1,7 @@
 #include "WalkArmedChangeState.h"
 
+#include "../FsmContext.h"
+
 namespace GameEngine
 {
 namespace Components

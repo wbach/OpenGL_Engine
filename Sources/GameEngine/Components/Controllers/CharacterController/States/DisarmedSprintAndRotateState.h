@@ -1,26 +1,10 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 #include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ArmedRunAndRotateState;
-class DisarmedRunState;
-class DisarmedRotateState;
-class DisarmedSprintState;
-class DisarmedWalkAndRotateState;
-class DisarmedRunAndRotateState;
-class RunAndRotateArmedChangeState;
-class WalkAndRotateArmedChangeState;
-class JumpState;
-class DeathState;
-struct FsmContext;
-
 class DisarmedSprintAndRotateState
     : public RotatingMoveAndRotateStateBase,
       public Utils::StateMachine::Will<
@@ -45,16 +29,7 @@ class DisarmedSprintAndRotateState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    DisarmedSprintAndRotateState(FsmContext &context)
-        : RotatingMoveAndRotateStateBase{context,
-                                         std::nullopt,
-                                         context.sprintSpeed,
-                                         context.animClipNames.disarmed.sprint,
-                                         context.runSpeed.rotate,
-                                         context.animClipNames.disarmed.rotateLeft,
-                                         context.animClipNames.disarmed.rotateRight}
-    {
-    }
+    DisarmedSprintAndRotateState(FsmContext &context);
 
     using RotatingMoveAndRotateStateBase::onEnter;
     using RotatingMoveAndRotateStateBase::transitionCondition;

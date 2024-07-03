@@ -1,53 +1,10 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
-#include "GameEngine/Components/Animation/Animator.h"
+#include "CharacterControllerCommonDefs.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DisarmedIdleState;
-class DisarmedRunState;
-class DisarmedRotateState;
-class DisarmedRunAndRotateState;
-class DisarmedWalkState;
-class DisarmedWalkAndRotateState;
-class DisarmedSprintState;
-class DisarmedSprintAndRotateState;
-class ArmedIdleState;
-class ArmedRunState;
-class ArmedRotateState;
-class ArmedRunAndRotateState;
-class ArmedWalkState;
-class ArmedWalkAndRotateState;
-class ArmedSprintState;
-class ArmedSprintAndRotateState;
-class JumpState;
-class MoveJumpState;
-class AimState;
-class AimRotateState;
-class AimWalkState;
-class AimWalkAndRotateState;
-class RecoilState;
-class RecoilRotateState;
-class RecoilWalkState;
-class RecoilWalkAndRotateState;
-class DrawArrowState;
-class DrawArrowRotateState;
-class DrawArrowWalkState;
-class DrawArrowWalkAndRotateState;
-class IdleArmedChangeState;
-class RotateArmedChangeState;
-class RunArmedChangeState;
-class RunAndRotateArmedChangeState;
-class WalkArmedChangeState;
-class WalkAndRotateArmedChangeState;
-class DisarmedAttackState;
-class ArmedAttackState;
-
 class DeathState : public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>>
 {
 public:

@@ -1,26 +1,11 @@
 #pragma once
-#include <Logger/Log.h>
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ArmedIdleState;
-class ArmedRunAndRotateState;
-class ArmedWalkAndRotateState;
-class ArmedSprintAndRotateState;
-class JumpState;
-class DeathState;
-class DisarmedRotateState;
-class DrawArrowRotateState;
-class DisarmedRunState;
-class RotateArmedChangeState;
-
 class ArmedRotateState
     : public RotateStateBase,
       public Utils::StateMachine::Will<

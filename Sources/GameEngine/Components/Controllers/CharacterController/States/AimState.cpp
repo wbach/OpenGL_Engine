@@ -1,5 +1,6 @@
 #include "AimState.h"
 
+#include "../FsmContext.h"
 #include "Logger/Log.h"
 
 namespace GameEngine

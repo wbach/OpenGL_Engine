@@ -1,6 +1,4 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
 #include "../AnimationClipNames.h"
 #include "../CharacterControllerEvents.h"
 #include "../MoveSpeed.h"
@@ -40,8 +38,8 @@ public:
     void update(const EndAttackEvent &);
     void update(const MoveForwardEvent &);
     void update(const MoveBackwardEvent &);
-    void update(const MoveLeftEvent&);
-    void update(const MoveRightEvent&);
+    void update(const MoveLeftEvent &);
+    void update(const MoveRightEvent &);
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);

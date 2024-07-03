@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 
@@ -37,6 +38,26 @@ void AttackStateBase::update(const AttackEvent &)
     if (sequenceSize < attackClipNames.size() - 1 and sequenceSize == currentAnimation)
         ++sequenceSize;
 }
+
+void AttackStateBase::update(const EndForwardMoveEvent &e)
+{
+    queue.push_back(e);
+}
+
+void AttackStateBase::update(const EndBackwardMoveEvent &e)
+{
+    queue.push_back(e);
+}
+
+void AttackStateBase::update(const EndMoveLeftEvent &e)
+{
+    queue.push_back(e);
+}
+
+void AttackStateBase::update(const EndMoveRightEvent &e)
+{
+    queue.push_back(e);
+}
 void AttackStateBase::update(float)
 {
 }
@@ -45,8 +66,17 @@ void AttackStateBase::onLeave()
     unsubscribe();
     sequenceSize     = 0;
     currentAnimation = 0;
-}
 
+    if (context.fsm->isPreviousStateOfType<DisarmedRunState>())
+    {
+        context.characterController.pushEventToQueue(MoveEvent{});
+        for(const auto& e : queue)
+        {
+            context.characterController.pushEventToQueue(e);
+        }
+        queue.clear();
+    }
+}
 void AttackStateBase::onClipEnd()
 {
     if (sequenceSize == currentAnimation)

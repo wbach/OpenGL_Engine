@@ -1,26 +1,13 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include <functional>
-
-#include "../FsmContext.h"
 #include "../CharacterControllerEvents.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DisarmedRunState;
-class DisarmedRotateState;
-class DisarmedWalkState;
-class DisarmedSprintState;
-class DisarmedCrouchState;
-
-class ArmedIdleState;
-
-class JumpState;
-class DeathState;
 class JointPoseUpdater;
+
+struct FsmContext;
 
 class IdleStateBase
 {

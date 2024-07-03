@@ -2,9 +2,9 @@
 
 #include <GLM/GLMUtils.h>
 #include <Types.h>
-#include <Utils/Fsm/Actions.h>
 
 #include "../CharacterController.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {
@@ -31,6 +31,11 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 void MoveStateBase::onEnter(const SprintStateChangeEvent &)
 {
     // /*DISABLED*/ DEBUG_LOG("SprintStateChangeEvent");
+}
+
+void MoveStateBase::onEnter(const MoveEvent &)
+{
+    setCurrentAnimIfNeeded();
 }
 
 void MoveStateBase::onEnter(const MoveForwardEvent &)

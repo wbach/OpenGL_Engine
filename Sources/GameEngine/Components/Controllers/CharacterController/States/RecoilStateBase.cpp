@@ -1,6 +1,8 @@
 #include "RecoilStateBase.h"
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+
+#include "../FsmContext.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 
 namespace GameEngine

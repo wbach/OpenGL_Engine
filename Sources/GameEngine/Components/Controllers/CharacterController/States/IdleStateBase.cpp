@@ -1,5 +1,6 @@
 #include "IdleStateBase.h"
 
+#include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
 
 namespace GameEngine
@@ -11,11 +12,11 @@ IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimNam
     , idleAnimName_{idleAnimName}
 {
 }
-void IdleStateBase::onEnter(const EquipEndStateEvent&)
+void IdleStateBase::onEnter(const EquipEndStateEvent &)
 {
     setIdleAnim();
 }
-void IdleStateBase::onEnter(const DisarmEndStateEvent&)
+void IdleStateBase::onEnter(const DisarmEndStateEvent &)
 {
     setIdleAnim();
 }

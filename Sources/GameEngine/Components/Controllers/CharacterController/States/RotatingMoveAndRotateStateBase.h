@@ -1,8 +1,8 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
+#include "CharacterControllerCommonDefs.h"
 
 #include "../AnimationClipNames.h"
-#include "../CharacterControllerEvents.h"
+
 #include "../MoveSpeed.h"
 #include "RotatingMoveState.h"
 #include "RotateStateBase.h"
@@ -11,8 +11,6 @@ namespace GameEngine
 {
 namespace Components
 {
-struct FsmContext;
-
 class RotatingMoveAndRotateStateBase : public RotatingMoveState, public RotateStateBase
 {
 public:

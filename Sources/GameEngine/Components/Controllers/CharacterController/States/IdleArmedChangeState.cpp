@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "../CharacterController.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {

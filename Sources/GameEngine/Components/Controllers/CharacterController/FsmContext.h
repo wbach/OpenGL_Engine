@@ -11,6 +11,8 @@
 #include "MoveController.h"
 #include "MoveSpeed.h"
 
+#include "CharacterControllerFsm.h"
+
 namespace GameEngine
 {
 namespace Components
@@ -38,6 +40,7 @@ struct FsmContext
     CharacterController& characterController;
     Input::InputManager& inputManager;
     AimController& aimController;
+    std::unique_ptr<CharacterControllerFsm>& fsm;
 
     MoveController moveController;
 

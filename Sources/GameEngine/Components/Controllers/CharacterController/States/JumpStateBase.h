@@ -1,13 +1,13 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
+#include <functional>
 
 #include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+struct FsmContext;
 struct JumpStateBase
 {
 public:

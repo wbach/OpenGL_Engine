@@ -37,13 +37,6 @@ public:
     void Init();
     void Update();
 
-    //    template <typename Event>
-    //    void handleEvent(const Event& event)
-    //    {
-    //        if (stateMachine_)
-    //            stateMachine_->handle(event);
-    //    }
-
     void handleEvent(const CharacterControllerEvent&);
 
     template <typename Event>

@@ -1,8 +1,5 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "MoveStateBase.h"
 #include "RecoilStateBase.h"
 
@@ -10,17 +7,6 @@ namespace GameEngine
 {
 namespace Components
 {
-class RecoilState;
-class RecoilWalkState;
-class ArmedWalkState;
-class ArmedSprintState;
-class RecoilWalkAndRotateState;
-class DisarmedWalkState;
-class AimWalkState;
-class DrawArrowWalkState;
-class DeathState;
-class WalkArmedChangeState;
-
 class RecoilWalkState
     : public RecoilStateBase,
       public MoveStateBase,

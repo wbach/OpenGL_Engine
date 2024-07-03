@@ -1,7 +1,7 @@
 #include "RotatingMoveState.h"
 
 #include <GLM/GLMUtils.h>
-
+#include "../FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 
 namespace GameEngine

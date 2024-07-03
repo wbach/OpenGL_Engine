@@ -1,5 +1,7 @@
 #include "DisarmedRunAndRotateState.h"
 
+#include "../FsmContext.h"
+
 namespace GameEngine
 {
 namespace Components

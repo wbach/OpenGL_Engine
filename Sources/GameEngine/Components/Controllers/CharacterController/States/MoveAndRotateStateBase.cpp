@@ -67,12 +67,12 @@ void MoveAndRotateStateBase::update(const MoveRightEvent &e)
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const MoveForwardEvent& e)
+void MoveAndRotateStateBase::update(const MoveForwardEvent &e)
 {
     MoveStateBase::update(e);
 }
 
-void MoveAndRotateStateBase::update(const MoveBackwardEvent& e)
+void MoveAndRotateStateBase::update(const MoveBackwardEvent &e)
 {
     MoveStateBase::update(e);
 }

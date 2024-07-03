@@ -1,14 +1,15 @@
 #include "RunArmedChangeState.h"
 
 #include "../CharacterController.h"
-
+#include "../FsmContext.h"
 namespace GameEngine
 {
 namespace Components
 {
 RunArmedChangeState::RunArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , RotatingMoveState{context, context.lowerBodyGroupName, context.runSpeed.forward, context.animClipNames.disarmed.run.forward}
+    , RotatingMoveState{context, context.lowerBodyGroupName, context.runSpeed.forward,
+                        context.animClipNames.disarmed.run.forward}
     , context_{context}
 {
 }

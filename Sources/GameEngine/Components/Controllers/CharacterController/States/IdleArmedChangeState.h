@@ -1,9 +1,6 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 #include "ArmedChangeStateBase.h"
+#include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
@@ -11,35 +8,11 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedIdleState;
-class DisarmedRunState;
-class DisarmedRotateState;
-class DisarmedWalkState;
-class DisarmedSprintState;
-class DisarmedCrouchState;
-
-class RunArmedChangeState;
-class RunAndRotateArmedChangeState;
-class WalkArmedChangeState;
-class WalkAndRotateArmedChangeState;
-class RotateArmedChangeState;
-class DisarmedAttackState;
-
-class DrawArrowState;
-class ArmedIdleState;
-class AimState;
-class RecoilState;
-class JumpState;
-class DeathState;
-class ArmedAttackState;
-
 class IdleArmedChangeState
     : public ArmedChangeStateBase,
       public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          /* Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,*/
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,

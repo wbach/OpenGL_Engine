@@ -1,34 +1,12 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 #include "ArmedChangeStateBase.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DisarmedRunState;
-class DisarmedRotateState;
-class DisarmedWalkAndRotateState;
-class DisarmedSprintAndRotateState;
-class DisarmedRunAndRotateState;
-
-class JumpState;
-class DeathState;
-class ArmedRotateState;
-class ArmedRunAndRotateState;
-class DisarmedWalkAndRotateState;
-class ArmedSprintAndRotateState;
-class WalkAndRotateArmedChangeState;
-class RotateArmedChangeState;
-class RunArmedChangeState;
-class RecoilWalkAndRotateState;
-class AimWalkAndRotateState;
-class DrawArrowWalkAndRotateState;
-
 struct FsmContext;
 class RunAndRotateArmedChangeState
     : public ArmedChangeStateBase,
@@ -36,8 +14,6 @@ class RunAndRotateArmedChangeState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<WalkChangeStateEvent,
@@ -61,7 +37,7 @@ class RunAndRotateArmedChangeState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>  // queue,
 {
 public:
-    RunAndRotateArmedChangeState(FsmContext &context);
+    RunAndRotateArmedChangeState(FsmContext &);
 
     using ArmedChangeStateBase::onLeave;
     using ArmedChangeStateBase::update;

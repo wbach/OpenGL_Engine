@@ -26,6 +26,8 @@ public:
     template <typename State>
     State& transitionTo()
     {
+        previousState = currentState;
+
         State& state = std::get<State>(states);
         currentState = &state;
         return state;
@@ -51,8 +53,31 @@ public:
         std::visit(passEventToState, currentState);
     }
 
+    template <class T>
+    bool isCurrentStateOfType()
+    {
+        return isStateOfType<T>(currentState);
+    }
+
+    template <class T>
+    bool isPreviousStateOfType()
+    {
+        return isStateOfType<T>(previousState);
+    }
+
     std::tuple<States...> states;
+    std::variant<States*...> previousState{&std::get<0>(states)};
     std::variant<States*...> currentState{&std::get<0>(states)};
+
+private:
+    template <class T>
+    bool isStateOfType(std::variant<States*...>& variant)
+    {
+        bool result{false};
+        auto passEventToState = [&](auto statePtr) { result = (typeid(*statePtr) == typeid(T)); };
+        std::visit(passEventToState, variant);
+        return result;
+    }
 };
 }  // namespace StateMachine
 }  // namespace Utils

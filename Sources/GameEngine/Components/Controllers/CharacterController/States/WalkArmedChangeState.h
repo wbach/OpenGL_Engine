@@ -2,7 +2,7 @@
 #include <Utils/Fsm/Actions.h>
 
 #include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+
 #include "ArmedChangeStateBase.h"
 #include "RotatingMoveState.h"
 
@@ -10,31 +10,11 @@ namespace GameEngine
 {
 namespace Components
 {
-class JumpState;
-class MoveJumpState;
-class DeathState;
-class ArmedRunState;
-class ArmedWalkState;
-class DrawArrowWalkState;
-class DisarmedRunState;
-class DisarmedWalkState;
-class DisarmedIdleState;
-class DisarmedSprintState;
-class DisarmedWalkAndRotateState;
-class RunArmedChangeState;
-class IdleArmedChangeState;
-class ArmedIdleState;
-class WalkAndRotateArmedChangeState;
-class RecoilWalkState;
-class AimWalkState;
-
 class WalkArmedChangeState
     : public ArmedChangeStateBase,
       public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,

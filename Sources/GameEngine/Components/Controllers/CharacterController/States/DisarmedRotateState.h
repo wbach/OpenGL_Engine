@@ -1,25 +1,11 @@
 #pragma once
-#include <Logger/Log.h>
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DisarmedIdleState;
-class DisarmedRunAndRotateState;
-class DisarmedWalkAndRotateState;
-class DisarmedSprintAndRotateState;
-class DrawArrowRotateState;
-class JumpState;
-class DeathState;
-class ArmedRotateState;
-class RotateArmedChangeState;
-
 class DisarmedRotateState
     : public RotateStateBase,
       public Utils::StateMachine::Will<
@@ -40,11 +26,7 @@ class DisarmedRotateState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    DisarmedRotateState(FsmContext& context)
-        : RotateStateBase{context, std::nullopt, context.runSpeed.rotate, context.animClipNames.disarmed.rotateLeft,
-                          context.animClipNames.disarmed.rotateRight}
-    {
-    }
+    DisarmedRotateState(FsmContext& context);
 
     using RotateStateBase::onEnter;
 };

@@ -1,16 +1,14 @@
 #pragma once
 #include <Types.h>
-#include <Utils/Fsm/Actions.h>
 
 #include <optional>
 
-#include "../CharacterControllerEvents.h"
+#include "CharacterControllerCommonDefs.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-struct FsmContext;
 class BowPoseUpdater;
 
 class ArmedChangeStateBase

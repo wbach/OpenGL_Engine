@@ -1,16 +1,11 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
 #include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class AimState;
-class ArmedIdleState;
-class DisarmedIdleState;
+struct FsmContext;
 class ThridPersonCameraComponent;
 
 class AimingStateBase
@@ -42,7 +37,7 @@ protected:
 
     ThridPersonCameraComponent* thridPersonCameraComponent_;
 
-     std::string animationClip;
+    std::string animationClip;
 };
 }  // namespace Components
 }  // namespace GameEngine

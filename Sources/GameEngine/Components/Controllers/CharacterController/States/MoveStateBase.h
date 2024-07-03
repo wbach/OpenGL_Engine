@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
 
+#include "../AnimationClipNames.h"
 #include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "../MoveSpeed.h"
 
 namespace GameEngine
 {
@@ -17,6 +18,7 @@ public:
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
     void onEnter(const SprintStateChangeEvent &);
+    void onEnter(const MoveEvent &);
     void onEnter(const MoveForwardEvent &);
     void onEnter(const MoveBackwardEvent &);
     void onEnter(const MoveLeftEvent &);

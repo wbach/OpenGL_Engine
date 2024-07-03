@@ -1,4 +1,5 @@
 #include "ArmedAttackState.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {

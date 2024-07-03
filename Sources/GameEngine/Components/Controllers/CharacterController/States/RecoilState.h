@@ -1,23 +1,11 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RecoilStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DrawArrowState;
-class ArmedIdleState;
-class ArmedSprintState;
-class DisarmedIdleState;
-class RecoilWalkState;
-class RecoilRotateState;
-class DeathState;
-class IdleArmedChangeState;
-
 class RecoilState
     : public RecoilStateBase,
       public Utils::StateMachine::Will<

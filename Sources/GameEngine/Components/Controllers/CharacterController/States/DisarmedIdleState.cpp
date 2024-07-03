@@ -1,4 +1,5 @@
 #include "DisarmedIdleState.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {

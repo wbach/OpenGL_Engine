@@ -1,31 +1,15 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class ArmedRunState;
-class ArmedIdleState;
-class ArmedSprintState;
-class ArmedWalkAndRotateState;
-class JumpState;
-class MoveJumpState;
-class DeathState;
-class DisarmedWalkState;
-class DrawArrowWalkState;
-class WalkArmedChangeState;
-
 class ArmedWalkState
     : public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
@@ -45,17 +29,11 @@ class ArmedWalkState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>>
 {
 public:
-    ArmedWalkState(FsmContext& context)
-        : RotatingMoveState{context, std::nullopt, context.walkSpeed.forward, context.animClipNames.armed.walk.forward}
-    {
-    }
+    ArmedWalkState(FsmContext& context);
 
     using MoveStateBase::onEnter;
 
-    void onMoveInactivity() override
-    {
-        setAnim(context_.animClipNames.armed.idle);
-    }
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine

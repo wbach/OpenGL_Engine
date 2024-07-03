@@ -5,6 +5,9 @@
 
 namespace GameEngine
 {
+struct MoveEvent
+{
+};
 struct MoveForwardEvent
 {
 };
@@ -92,7 +95,7 @@ struct AimStopEvent
 {
 };
 using CharacterControllerEvent =
-    std::variant<MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent, RunEvent,
+    std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent, RunEvent,
                  SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
                  RotateTargetEvent, EndRotationEvent, JumpEvent, EndJumpEvent, AttackEvent, NextAttackEvent,
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,

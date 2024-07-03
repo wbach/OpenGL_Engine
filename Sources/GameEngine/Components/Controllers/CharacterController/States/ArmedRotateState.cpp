@@ -1,6 +1,7 @@
 #include "ArmedRotateState.h"
 
 #include "../CharacterController.h"
+#include "../FsmContext.h"
 
 namespace GameEngine
 {

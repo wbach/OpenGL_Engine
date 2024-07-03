@@ -1,31 +1,15 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class JumpState;
-class MoveJumpState;
-class DeathState;
-class DisarmedRunState;
-class ArmedIdleState;
-class ArmedRunState;
-class ArmedWalkState;
-class ArmedSprintAndRotateState;
-class RunArmedChangeState;
-class DrawArrowWalkState;
-
 class ArmedSprintState
     : public RotatingMoveState,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          // Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          // Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,

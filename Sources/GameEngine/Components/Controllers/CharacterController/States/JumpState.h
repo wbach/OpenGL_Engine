@@ -1,18 +1,11 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "JumpStateBase.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DisarmedIdleState;
-class MoveJumpState;
-class DeathState;
-
 class JumpState : public JumpStateBase,
                   public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
@@ -27,10 +20,7 @@ class JumpState : public JumpStateBase,
 
 {
 public:
-    JumpState(FsmContext& context, std::function<void()> endCallback)
-        : JumpStateBase(context, std::nullopt, endCallback)
-    {
-    }
+    JumpState(FsmContext&, std::function<void()>);
 };
 }  // namespace Components
 }  // namespace GameEngine

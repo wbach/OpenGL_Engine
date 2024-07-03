@@ -1,24 +1,11 @@
 #pragma once
-#include <Utils/Fsm/Actions.h>
-
-#include "../CharacterControllerEvents.h"
-#include "../FsmContext.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-class DeathState;
-class JumpState;
-class MoveJumpState;
-class ArmedRunState;
-class DisarmedIdleState;
-class DisarmedWalkState;
-class DisarmedSprintState;
-class DisarmedRunAndRotateState;
-class RunArmedChangeState;
-
 class DisarmedRunState
     : public RotatingMoveState,
       public Utils::StateMachine::Will<
@@ -28,6 +15,7 @@ class DisarmedRunState
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
