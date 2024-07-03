@@ -67,7 +67,7 @@ void AttackStateBase::onLeave()
     sequenceSize     = 0;
     currentAnimation = 0;
 
-    if (context.fsm->isPreviousStateOfType<DisarmedRunState>())
+    if (context.fsm->isPreviousStateOfType<DisarmedRunState>() or context.fsm->isPreviousStateOfType<ArmedRunState>())
     {
         context.characterController.pushEventToQueue(MoveEvent{});
         for(const auto& e : queue)

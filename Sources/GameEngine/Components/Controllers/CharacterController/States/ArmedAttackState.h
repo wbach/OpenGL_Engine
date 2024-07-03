@@ -12,6 +12,10 @@ class ArmedAttackState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
@@ -26,6 +30,10 @@ class ArmedAttackState
 {
 public:
     ArmedAttackState(FsmContext&);
+
+    using AttackStateBase::onEnter;
+    using AttackStateBase::onLeave;
+    using AttackStateBase::update;
 };
 }  // namespace Components
 }  // namespace GameEngine

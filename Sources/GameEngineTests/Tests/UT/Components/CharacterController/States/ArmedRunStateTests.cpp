@@ -142,3 +142,42 @@ TEST_F(CharacterControllerTests, ArmedRunState_UpdateToDrawArrowAndBackAsMultiTr
         Update(ADVANCED_TIME_TRANSITION_TIME);
     }
 }
+TEST_F(CharacterControllerTests, ArmedRunState_AttackEvent)
+{
+    prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, ArmedRunState_AttackEventWhenRunBackward)
+{
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    tiggerAndExpect<WeaponStateEvent>(
+        {sut_.animationClipsNames_.armed.idle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.run.forward});
+
+    expectNoMove();
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    expectForwardVelocity(-DEFAULT_RUN_SPEED);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
+}
+TEST_F(CharacterControllerTests, ArmedRunState_EndMoveEventWhenAttackEventIsProcessing)
+{
+    prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
+}
