@@ -10,9 +10,11 @@ namespace GameEngine
 {
 namespace Components
 {
-AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames)
+AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames,
+                                 const std::optional<std::string> jointGroupName)
     : context{context}
     , attackClipNames{clipnames}
+    , jointGroupName{jointGroupName}
 {
 }
 void AttackStateBase::onEnter(const AttackEvent &)
@@ -23,14 +25,34 @@ void AttackStateBase::onEnter(const AttackEvent &)
     {
         const auto &clipName = attackClipNames[currentAnimation].name;
         context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                         std::nullopt);
+                                         jointGroupName);
 
-        for (const auto &clip : attackClipNames)
-        {
-            auto subId = context.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); });
-            subIds.push_back(subId);
-        }
+        subscribe();
     }
+}
+
+void AttackStateBase::onEnter(const EndForwardMoveEvent &)
+{
+    context.animator.StopAnimation(context.lowerBodyGroupName);
+    subscribe();
+}
+
+void AttackStateBase::onEnter(const EndBackwardMoveEvent &)
+{
+    context.animator.StopAnimation(context.lowerBodyGroupName);
+    subscribe();
+}
+
+void AttackStateBase::onEnter(const EndMoveLeftEvent &)
+{
+    context.animator.StopAnimation(context.lowerBodyGroupName);
+    subscribe();
+}
+
+void AttackStateBase::onEnter(const EndMoveRightEvent &)
+{
+    context.animator.StopAnimation(context.lowerBodyGroupName);
+    subscribe();
 }
 
 void AttackStateBase::update(const AttackEvent &)
@@ -39,43 +61,44 @@ void AttackStateBase::update(const AttackEvent &)
         ++sequenceSize;
 }
 
-void AttackStateBase::update(const EndForwardMoveEvent &e)
-{
-    queue.push_back(e);
-}
-
-void AttackStateBase::update(const EndBackwardMoveEvent &e)
-{
-    queue.push_back(e);
-}
-
-void AttackStateBase::update(const EndMoveLeftEvent &e)
-{
-    queue.push_back(e);
-}
-
-void AttackStateBase::update(const EndMoveRightEvent &e)
-{
-    queue.push_back(e);
-}
 void AttackStateBase::update(float)
 {
 }
+
+template<typename ...States>
+bool AttackStateBase::isAnyOfStateQueued()
+{
+    auto iter = std::find_if(queue.begin(), queue.end(), [](const auto& event)
+    {
+        return (std::holds_alternative<States>(event) or ...);
+    });
+
+    return iter!= queue.end();
+}
+
+void AttackStateBase::onLeave(const EndAttackEvent &)
+{
+    if (context.fsm->isPreviousStateOfType<DisarmedRunState>() or context.fsm->isPreviousStateOfType<ArmedRunState>())
+    {
+        if (not context.characterController.isAnyOfStateQueued<EndForwardMoveEvent, EndBackwardMoveEvent, EndMoveLeftEvent, EndMoveRightEvent>())
+        {
+            DEBUG_LOG("not isAnyOfStateQueued, queue.size=" + std::to_string(queue.size()));
+            context.characterController.pushEventToQueue(MoveEvent{});
+        }
+    }
+}
+
 void AttackStateBase::onLeave()
 {
     unsubscribe();
     sequenceSize     = 0;
     currentAnimation = 0;
 
-    if (context.fsm->isPreviousStateOfType<DisarmedRunState>() or context.fsm->isPreviousStateOfType<ArmedRunState>())
+    for (const auto &e : queue)
     {
-        context.characterController.pushEventToQueue(MoveEvent{});
-        for(const auto& e : queue)
-        {
-            context.characterController.pushEventToQueue(e);
-        }
-        queue.clear();
+        context.characterController.pushEventToQueue(e);
     }
+    queue.clear();
 }
 void AttackStateBase::onClipEnd()
 {
@@ -88,7 +111,16 @@ void AttackStateBase::onClipEnd()
     currentAnimation     = sequenceSize;
     const auto &clipName = attackClipNames[currentAnimation].name;
     context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                     std::nullopt);
+                                     jointGroupName);
+}
+
+void AttackStateBase::subscribe()
+{
+    for (const auto &clip : attackClipNames)
+    {
+        auto subId = context.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); });
+        subIds.push_back(subId);
+    }
 }
 
 void AttackStateBase::unsubscribe()

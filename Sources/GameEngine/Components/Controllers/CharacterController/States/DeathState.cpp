@@ -1,4 +1,5 @@
 #include "DeathState.h"
+
 #include "../FsmContext.h"
 
 namespace GameEngine
@@ -20,6 +21,16 @@ void DeathState::onEnter(ArmedAttackState &, const DeathEvent &)
 }
 
 void DeathState::onEnter(DisarmedAttackState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(DisarmedAttackAndRunState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(DisarmedAttackAndWalkState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
 }

@@ -7,10 +7,10 @@ namespace Utils
 {
 namespace StateMachine
 {
-template <typename Action>
-struct Maybe : public OneOf<Action, Nothing>
+template <typename... Action>
+struct Maybe : public OneOf<Action..., Nothing>
 {
-    using OneOf<Action, Nothing>::OneOf;
+    using OneOf<Action..., Nothing>::OneOf;
 };
 }  // namespace StateMachine
 }  // namespace Utils

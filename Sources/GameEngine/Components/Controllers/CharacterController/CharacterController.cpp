@@ -284,6 +284,10 @@ void CharacterController::Init()
         impl->stateMachine_ = std::make_unique<CharacterControllerFsm>(
             DisarmedIdleState(context),
             DisarmedAttackState(context),
+            DisarmedAttackAndRunState(context),
+            DisarmedAttackAndWalkState(context),
+            DisarmedAttackAndRotateState(context),
+            DisarmedAttackAndRunAndRotateState(context),
             DisarmedRunState(context),
             DisarmedRotateState(context),
             DisarmedRunAndRotateState(context),

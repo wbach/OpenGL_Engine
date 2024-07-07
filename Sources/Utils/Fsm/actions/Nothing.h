@@ -1,4 +1,5 @@
 #pragma once
+
 namespace Utils
 {
 namespace StateMachine

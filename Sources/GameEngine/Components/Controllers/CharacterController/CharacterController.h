@@ -46,6 +46,16 @@ public:
         eventQueue.push_back(event);
     }
 
+    template<typename ...States>
+    bool isAnyOfStateQueued()
+    {
+        auto iter = std::find_if(eventQueue.begin(), eventQueue.end(), [](const auto& event)
+        {
+            return (std::holds_alternative<States>(event) or ...);
+        });
+        return iter!= eventQueue.end();
+    }
+
     float getShapeSize() const;
 
 public:

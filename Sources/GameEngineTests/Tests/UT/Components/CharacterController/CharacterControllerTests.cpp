@@ -62,6 +62,8 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.walk.moveRight    = "DMRR";
     clips.disarmed.attack.push_back({"DA1", AttackAnimation::PlayStateType::idle});
     clips.armed.attack.push_back({"A1", AttackAnimation::PlayStateType::idle});
+    clips.disarmed.attack.push_back({"DA2", AttackAnimation::PlayStateType::idle});
+    clips.armed.attack.push_back({"A2", AttackAnimation::PlayStateType::idle});
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);

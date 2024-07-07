@@ -26,6 +26,7 @@ void RotateStateBase::onEnter(const EquipEndStateEvent &)
 }
 void RotateStateBase::onEnter(const RotateLeftEvent &e)
 {
+    DEBUG_LOG("RotateLeftEvent");
     update(e);
     setRotateLeftAnim();
 }

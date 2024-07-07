@@ -10,31 +10,54 @@ namespace Components
 class AttackStateBase
 {
 public:
-    AttackStateBase(FsmContext&, const std::vector<AttackAnimation>&);
+    AttackStateBase(FsmContext&, const std::vector<AttackAnimation>&, const std::optional<std::string> = std::nullopt);
 
     void onEnter(const AttackEvent&);
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
+    void onEnter(const EndMoveLeftEvent&);
+    void onEnter(const EndMoveRightEvent&);
+
     void update(const AttackEvent&);
-    void update(const EndForwardMoveEvent&);
-    void update(const EndBackwardMoveEvent&);
-    void update(const EndMoveLeftEvent&);
-    void update(const EndMoveRightEvent&);
     void update(float);
+    void onLeave(const EndAttackEvent&);
     void onLeave();
+
+    template <typename Event>
+    void pushEventToQueue(const Event& event)
+    {
+        DEBUG_LOG("pushEventToQueue: " + typeName<Event>());
+        queue.push_back(event);
+    }
+    template <typename Event>
+    void removeEventFromQueue(const Event& event)
+    {
+        DEBUG_LOG("removeEventFromQueue: " + typeName<Event>());
+
+        queue.erase(std::remove_if(queue.begin(), queue.end(),
+                                   [](const auto& event) { return std::holds_alternative<Event>(event); }));
+    }
 
 private:
     void onClipEnd();
+    void subscribe();
     void unsubscribe();
 
-private:
-    FsmContext& context;
+    template <typename... States>
+    bool isAnyOfStateQueued();
 
+protected:
+    FsmContext& context;
+    std::vector<CharacterControllerEvent> queue;
+
+private:
     std::vector<IdType> subIds;
     const std::vector<AttackAnimation>& attackClipNames;
 
     uint32 sequenceSize     = 0;
     uint32 currentAnimation = 0;
 
-    std::vector<CharacterControllerEvent> queue;
+    std::optional<std::string> jointGroupName;
 };
 }  // namespace Components
 }  // namespace GameEngine

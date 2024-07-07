@@ -5,6 +5,7 @@
 #include "States/AimState.h"
 #include "States/AimWalkAndRotateState.h"
 #include "States/AimWalkState.h"
+#include "States/ArmedAttackState.h"
 #include "States/ArmedIdleState.h"
 #include "States/ArmedRotateState.h"
 #include "States/ArmedRunAndRotateState.h"
@@ -14,6 +15,9 @@
 #include "States/ArmedWalkAndRotateState.h"
 #include "States/ArmedWalkState.h"
 #include "States/DeathState.h"
+#include "States/DisarmedAttackAndRunState.h"
+#include "States/DisarmedAttackAndWalkState.h"
+#include "States/DisarmedAttackState.h"
 #include "States/DisarmedIdleState.h"
 #include "States/DisarmedRotateState.h"
 #include "States/DisarmedRunAndRotateState.h"
@@ -38,8 +42,8 @@
 #include "States/RunArmedChangeState.h"
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
-#include "States/DisarmedAttackState.h"
-#include "States/ArmedAttackState.h"
+#include "States/DisarmedAttackAndRotateState.h"
+#include "States/DisarmedAttackAndRunAndRotateState.h"
 
 namespace GameEngine
 {
@@ -50,6 +54,10 @@ using CharacterControllerFsm =
     Utils::StateMachine::Fsm<
                             DisarmedIdleState,
                             DisarmedAttackState,
+                            DisarmedAttackAndRunState,
+                            DisarmedAttackAndWalkState,
+                            DisarmedAttackAndRotateState,
+                            DisarmedAttackAndRunAndRotateState,
                             DisarmedRunState,
                             DisarmedRotateState,
                             DisarmedRunAndRotateState,

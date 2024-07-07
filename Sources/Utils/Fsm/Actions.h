@@ -2,6 +2,7 @@
 
 #include "actions/ByDefault.h"
 #include "actions/Maybe.h"
+#include "actions/Queue.h"
 #include "actions/Nothing.h"
 #include "actions/On.h"
 #include "actions/OneOf.h"
