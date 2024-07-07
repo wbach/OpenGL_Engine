@@ -33,6 +33,17 @@ class DisarmedAttackAndRunAndRotateState
 public:
     DisarmedAttackAndRunAndRotateState(FsmContext&);
 
+    using AttackStateBase::onEnter;
+    using AttackStateBase::update;
+    using AttackStateBase::onLeave;
+
+    using RotatingMoveState::onEnter;
+    using RotatingMoveState::update;
+    using RotatingMoveState::onLeave;
+
+    using RotateStateBase::onEnter;
+    using RotateStateBase::update;
+
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
