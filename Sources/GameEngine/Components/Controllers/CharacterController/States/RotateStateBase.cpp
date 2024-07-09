@@ -20,6 +20,11 @@ RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::s
 {
 }
 
+void RotateStateBase::onEnter(const EndAttackEvent &)
+{
+    context_.animator.StopAnimation(context_.upperBodyGroupName);
+}
+
 void RotateStateBase::onEnter(const EquipEndStateEvent &)
 {
     setCurrentAnim();
@@ -60,12 +65,22 @@ void RotateStateBase::onEnter(const EndBackwardMoveEvent &)
     setCurrentAnim();
 }
 
+void RotateStateBase::onEnter(const EndMoveLeftEvent &)
+{
+    setCurrentAnim();
+}
+
 void RotateStateBase::onEnter(const AimStopEvent &)
 {
     setCurrentAnim();
 }
 
 void RotateStateBase::onEnter(const DisarmEndStateEvent &)
+{
+    setCurrentAnim();
+}
+
+void RotateStateBase::onEnter(const EndMoveRightEvent &)
 {
     setCurrentAnim();
 }
@@ -150,10 +165,12 @@ void RotateStateBase::setRotateRightAnim()
 
 void RotateStateBase::setCurrentAnim()
 {
+    DEBUG_LOG("setCurrentAnim");
     if (not context_.rotateToTarget)
     {
         if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
         {
+            DEBUG_LOG("setCurrentAnim xxx");
             setRotateLeftAnim();
         }
         else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)

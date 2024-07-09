@@ -15,6 +15,8 @@ public:
     void onEnter(DisarmedAttackState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndRunState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndWalkState&, const DeathEvent&);
+    void onEnter(DisarmedAttackAndRunAndRotateState&, const DeathEvent&);
+    void onEnter(DisarmedAttackAndRotateState&, const DeathEvent&);
     void onEnter(IdleArmedChangeState&, const DeathEvent&);
     void onEnter(RotateArmedChangeState&, const DeathEvent&);
     void onEnter(RunArmedChangeState&, const DeathEvent&);

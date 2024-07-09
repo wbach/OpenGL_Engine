@@ -24,6 +24,11 @@ RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext &conte
 {
 }
 
+void RotatingMoveAndRotateStateBase::onEnter(const EndAttackEvent & e)
+{
+    RotateStateBase::onEnter(e);
+}
+
 void RotatingMoveAndRotateStateBase::onEnter(const SprintStateChangeEvent &event)
 {
     RotatingMoveState::update(event);

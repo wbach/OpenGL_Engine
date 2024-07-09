@@ -195,6 +195,11 @@ void CharacterControllerTests::expectNoMove()
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, _)).Times(0);
 }
 
+void CharacterControllerTests::expectNoRotation()
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(0);
+}
+
 void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed)
 {
     auto normalizedDir = glm::normalize(dir);

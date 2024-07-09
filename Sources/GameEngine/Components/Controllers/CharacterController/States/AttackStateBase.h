@@ -38,7 +38,7 @@ public:
                                    [](const auto& event) { return std::holds_alternative<Event>(event); }));
     }
 
-private:
+protected:
     void onClipEnd();
     void subscribe();
     void unsubscribe();

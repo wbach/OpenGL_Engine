@@ -51,6 +51,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     }
 
     void expectNoMove();
+    void expectNoRotation();
     void expectVelocity(const vec3& dir, const vec3& moveSpeed);
     void expectForwardVelocity(float speed);
     void expectLeftVelocity(float);

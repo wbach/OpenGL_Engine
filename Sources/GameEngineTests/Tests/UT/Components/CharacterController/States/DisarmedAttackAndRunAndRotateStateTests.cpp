@@ -23,4 +23,27 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndRotationEvent)
 {
     prepareState(*this);
+    expectNoRotation();
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    tiggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.run.forward});
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DeathEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.death});
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndAttackEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.run.forward});
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndMoveForwardEvent)
+{
+    prepareState(*this);
+    expectNoMove();
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.rotateLeft, clipName});
 }

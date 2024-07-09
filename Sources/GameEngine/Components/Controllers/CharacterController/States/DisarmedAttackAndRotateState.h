@@ -29,6 +29,18 @@ class DisarmedAttackAndRotateState
 public:
     DisarmedAttackAndRotateState(FsmContext&);
 
+    void onEnter(const EndForwardMoveEvent&);
+    void onEnter(const EndBackwardMoveEvent&);
+    void onEnter(const EndMoveLeftEvent&);
+    void onEnter(const EndMoveRightEvent&);
+
+    using RotateStateBase::onEnter;
+    using RotateStateBase::update;
+
+    using AttackStateBase::onEnter;
+    using AttackStateBase::update;
+    using AttackStateBase::onLeave;
+
     void update(float);
 };
 }  // namespace Components
