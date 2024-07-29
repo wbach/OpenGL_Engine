@@ -1,7 +1,7 @@
 #include <Utils/Time/Timer.h>
 #include <gtest/gtest.h>
 
-#include "BaseComponent.h"
+#include "../BaseComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
 
 using namespace GameEngine;

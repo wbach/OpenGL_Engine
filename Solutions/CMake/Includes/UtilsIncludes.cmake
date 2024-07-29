@@ -6,6 +6,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/Actions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/OneOf.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/Update.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/Nothing.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/Queue.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/Maybe.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/ByDefault.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/actions/TransitionTo.h

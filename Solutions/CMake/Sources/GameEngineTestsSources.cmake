@@ -2,7 +2,6 @@ set(GameEngineTestsSources
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/MT/GUI/GuiTextTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/TerrainTransitionTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Utils/utilsTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/AnimatorTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/BaseComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/CharacterControllerMixedTests.cpp
@@ -47,6 +46,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Ch
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedAttackAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedAttackAndWalkStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedRotateStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Animations/AnimatorTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Animations/AnimationTransitionTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Resources/AssimpLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Resources/ColladaLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Resources/TextureLoaderTests.cpp
