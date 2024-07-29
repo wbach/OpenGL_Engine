@@ -167,7 +167,7 @@ void CharacterControllerTests::addDummyClip(const std::string& name)
 
 void CharacterControllerTests::Update(float time)
 {
-    DEBUG_LOG("Update");
+    DEBUG_LOG("Update deltaTime: " + std::to_string(time));
     context_.time_.deltaTime = time;
     componentController_.CallFunctions(FunctionType::Update);
     sut_.Update();

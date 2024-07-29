@@ -19,14 +19,18 @@ AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAn
 }
 void AttackStateBase::onEnter(const AttackEvent &)
 {
-    DEBUG_LOG("DisarmedAttackState::onEnter(const AttackEvent &)");
-
     if (not attackClipNames.empty())
     {
         const auto &clipName = attackClipNames[currentAnimation].name;
         context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                          jointGroupName);
+    }
+}
 
+void AttackStateBase::onEnter()
+{
+    if (not attackClipNames.empty())
+    {
         subscribe();
     }
 }
@@ -34,25 +38,21 @@ void AttackStateBase::onEnter(const AttackEvent &)
 void AttackStateBase::onEnter(const EndForwardMoveEvent &)
 {
     context.animator.StopAnimation(context.lowerBodyGroupName);
-    subscribe();
 }
 
 void AttackStateBase::onEnter(const EndBackwardMoveEvent &)
 {
     context.animator.StopAnimation(context.lowerBodyGroupName);
-    subscribe();
 }
 
 void AttackStateBase::onEnter(const EndMoveLeftEvent &)
 {
     context.animator.StopAnimation(context.lowerBodyGroupName);
-    subscribe();
 }
 
 void AttackStateBase::onEnter(const EndMoveRightEvent &)
 {
     context.animator.StopAnimation(context.lowerBodyGroupName);
-    subscribe();
 }
 
 void AttackStateBase::update(const AttackEvent &)
@@ -65,24 +65,22 @@ void AttackStateBase::update(float)
 {
 }
 
-template<typename ...States>
+template <typename... States>
 bool AttackStateBase::isAnyOfStateQueued()
 {
-    auto iter = std::find_if(queue.begin(), queue.end(), [](const auto& event)
-    {
-        return (std::holds_alternative<States>(event) or ...);
-    });
+    auto iter = std::find_if(queue.begin(), queue.end(),
+                             [](const auto &event) { return (std::holds_alternative<States>(event) or ...); });
 
-    return iter!= queue.end();
+    return iter != queue.end();
 }
 
 void AttackStateBase::onLeave(const EndAttackEvent &)
 {
     if (context.fsm->isPreviousStateOfType<DisarmedRunState>() or context.fsm->isPreviousStateOfType<ArmedRunState>())
     {
-        if (not context.characterController.isAnyOfStateQueued<EndForwardMoveEvent, EndBackwardMoveEvent, EndMoveLeftEvent, EndMoveRightEvent>())
+        if (not context.characterController.isAnyOfStateQueued<EndForwardMoveEvent, EndBackwardMoveEvent,
+                                                               EndMoveLeftEvent, EndMoveRightEvent>())
         {
-            DEBUG_LOG("not isAnyOfStateQueued, queue.size=" + std::to_string(queue.size()));
             context.characterController.pushEventToQueue(MoveEvent{});
         }
     }
@@ -118,7 +116,11 @@ void AttackStateBase::subscribe()
 {
     for (const auto &clip : attackClipNames)
     {
-        auto subId = context.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); });
+        auto subId = context.animator.SubscribeForAnimationFrame(clip.name,
+                                                                 [&]()
+                                                                 {
+                                                                     onClipEnd();
+                                                                 });
         subIds.push_back(subId);
     }
 }

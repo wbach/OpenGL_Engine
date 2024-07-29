@@ -229,3 +229,13 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_MoveForwardAndLeftEve
     tiggerAndExpect<EndForwardMoveEvent>({clip.name, sut_.animationClipsNames_.disarmed.run.forward}, {0});
     tiggerAndExpect<EndMoveLeftEvent>({clip.name}, {0});
 }
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_PR_MoveStopAndGoDuringAttack)
+{
+    const auto& attackClip = sut_.animationClipsNames_.disarmed.attack.front();
+    prepareState(*this);
+    tiggerAndExpect<EndForwardMoveEvent>({attackClip.name}, {1});
+    tiggerAndExpect<MoveForwardEvent>({attackClip.name, sut_.animationClipsNames_.disarmed.run.forward}, {1});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.idle}, {1});
+}

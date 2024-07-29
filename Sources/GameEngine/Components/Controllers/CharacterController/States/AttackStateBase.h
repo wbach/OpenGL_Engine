@@ -13,6 +13,8 @@ public:
     AttackStateBase(FsmContext&, const std::vector<AttackAnimation>&, const std::optional<std::string> = std::nullopt);
 
     void onEnter(const AttackEvent&);
+    void onEnter();
+
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndMoveLeftEvent&);

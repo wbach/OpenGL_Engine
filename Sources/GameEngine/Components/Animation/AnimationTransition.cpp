@@ -45,7 +45,8 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
                 jointGroupNames.jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event, event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event,
+                                                                  event.onTransitionEnd);
     }
     else
     {
@@ -80,6 +81,7 @@ void AnimationTransition::calculateTime(float deltaTime)
         {
             onTransitionEnd_();
         }
+
         context_.machine.transitionTo<PlayAnimation>(context_, info_, startTime_);
         return;
     }

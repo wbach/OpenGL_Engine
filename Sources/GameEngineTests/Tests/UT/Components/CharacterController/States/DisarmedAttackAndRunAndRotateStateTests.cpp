@@ -20,14 +20,6 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndRotationEvent)
-{
-    prepareState(*this);
-    expectNoRotation();
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
-    tiggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.run.forward});
-}
-
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_DeathEvent)
 {
     prepareState(*this);
@@ -46,4 +38,12 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndMoveForwa
     expectNoMove();
     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.rotateLeft, clipName});
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunAndRotateState_EndRotationEvent)
+{
+    prepareState(*this);
+    expectNoRotation();
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    tiggerAndExpect<EndRotationEvent>({clipName, sut_.animationClipsNames_.disarmed.run.forward});
 }
