@@ -19,8 +19,9 @@ struct AnimationTransitionTests : public ::testing::Test
         , machine{currentPose, jointGroups}
         , context{currentPose, machine, jointGroups}
         , animationClipInfo{createClip("DummyAnimationClipName")}
-        , sut{context, animationClipInfo, 0.f, [&]() { isMainTransitionEnd = true; }}
+        //, sut{context, animationClipInfo, 0.f, [&]() { isMainTransitionEnd = true; }}
     {
+        machine.transitionTo<AnimationTransition>(context, animationClipInfo, 0.f, [&]() { isMainTransitionEnd = true; });
     }
 
     Pose currentPose;
@@ -29,7 +30,7 @@ struct AnimationTransitionTests : public ::testing::Test
 
     Context context;
     AnimationClipInfo animationClipInfo;
-    AnimationTransition sut;
+   // AnimationTransition sut;
     bool isMainTransitionEnd{false};
 
     AnimationClipInfo createClip(const std::string& name, float duration = CLIP_LENGTH)
@@ -40,20 +41,26 @@ struct AnimationTransitionTests : public ::testing::Test
         clipInfo.clip.AddFrame(Animation::KeyFrame{{duration}, {}});
         return clipInfo;
     }
+
+    template <typename State>
+    State* getStateIfActive()
+    {
+        return dynamic_cast<State*>(machine.currentState_.get());
+    }
 };
 
 TEST_F(AnimationTransitionTests, transitionSuccess)
 {
-    sut.update(DEFAULT_ANIMATION_TRANSITION_TIME + EPSILON);
-    auto result = dynamic_cast<PlayAnimation*>(machine.currentState_.get());
+    machine.currentState_->update(DEFAULT_ANIMATION_TRANSITION_TIME + EPSILON);
+    auto result = getStateIfActive<PlayAnimation>();
     EXPECT_TRUE(result);
     EXPECT_TRUE(isMainTransitionEnd);
 }
 
 TEST_F(AnimationTransitionTests, StopAnimationEvent)
 {
-    sut.handle(StopAnimationEvent{});
-    auto result = dynamic_cast<EmptyState*>(machine.currentState_.get());
+    machine.currentState_->handle(StopAnimationEvent{});
+    auto result = getStateIfActive<EmptyState>();
     EXPECT_TRUE(result);
     EXPECT_FALSE(isMainTransitionEnd);
 }
@@ -62,9 +69,9 @@ TEST_F(AnimationTransitionTests, ChangeAnimationEventWithoutGroup)
 {
     auto newAnimationClipInfo = createClip("DummyAnimationClipName2");
     bool isTransitionEnd{false};
-    sut.handle(ChangeAnimationEvent{0.f, newAnimationClipInfo, std::nullopt, [&]() { isTransitionEnd = true; }});
+    machine.currentState_->handle(ChangeAnimationEvent{0.f, newAnimationClipInfo, std::nullopt, [&]() { isTransitionEnd = true; }});
 
-    auto result = dynamic_cast<AnimationTransition*>(machine.currentState_.get());
+    auto result = getStateIfActive<AnimationTransition>();
     EXPECT_TRUE(result);
     EXPECT_EQ(newAnimationClipInfo.clip.name, result->getCurrentAnimation().front());
     result->update(DEFAULT_ANIMATION_TRANSITION_TIME + EPSILON);
@@ -76,9 +83,9 @@ TEST_F(AnimationTransitionTests, ChangeAnimationEventWithGroup)
 {
     auto newAnimationClipInfo = createClip("DummyAnimationClipName2");
     bool isTransitionEnd{false};
-    sut.handle(ChangeAnimationEvent{0.f, newAnimationClipInfo, "lower", [&]() { isTransitionEnd = true; }});
+    machine.currentState_->handle(ChangeAnimationEvent{0.f, newAnimationClipInfo, "lower", [&]() { isTransitionEnd = true; }});
 
-    auto result = dynamic_cast<AnimationTransitionToMixed*>(machine.currentState_.get());
+    auto result = getStateIfActive<AnimationTransitionToMixed>();
     EXPECT_TRUE(result);
     const auto& resultAnims = result->getCurrentAnimation();
     auto it                 = std::find(resultAnims.begin(), resultAnims.end(), newAnimationClipInfo.clip.name);
@@ -88,5 +95,24 @@ TEST_F(AnimationTransitionTests, ChangeAnimationEventWithGroup)
 
     result->update(DEFAULT_ANIMATION_TRANSITION_TIME + EPSILON);
     EXPECT_TRUE(isTransitionEnd);
+    EXPECT_TRUE(isMainTransitionEnd);
+}
+
+
+TEST_F(AnimationTransitionTests, ChangeAnimationEventWithNonExistingGroup)
+{
+    auto newAnimationClipInfo = createClip("DummyAnimationClipName2");
+    bool isTransitionEnd{false};
+    machine.currentState_->handle(ChangeAnimationEvent{0.f, newAnimationClipInfo, "notExistingJointGroup", [&]() { isTransitionEnd = true; }});
+
+    auto result = getStateIfActive<AnimationTransition>();
+    EXPECT_TRUE(result);
+    const auto& resultAnims = result->getCurrentAnimation();
+
+    auto it = std::find(resultAnims.begin(), resultAnims.end(), animationClipInfo.clip.name);
+    EXPECT_TRUE(it != resultAnims.end());
+
+    result->update(DEFAULT_ANIMATION_TRANSITION_TIME + EPSILON);
+    EXPECT_FALSE(isTransitionEnd);
     EXPECT_TRUE(isMainTransitionEnd);
 }

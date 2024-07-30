@@ -38,15 +38,28 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
         std::vector<TransitionGroupsPlaying> currentAnimtionTransitionInfo{{info_, currentTime_, {}, onTransitionEnd_}};
         auto& jointGroupNames = currentAnimtionTransitionInfo.front();
 
+        bool groupFound{false};
         for (auto& [name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
                 jointGroupNames.jointGroupNames.push_back(name);
             }
+            else
+            {
+                groupFound = true;
+            }
         }
-        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event,
-                                                                  event.onTransitionEnd);
+
+        if (groupFound)
+        {
+            context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event,
+                                                                      event.onTransitionEnd);
+        }
+        else
+        {
+            WARNING_LOG("Try change animation for non exisitng group: " + *event.jointGroupName);
+        }
     }
     else
     {
