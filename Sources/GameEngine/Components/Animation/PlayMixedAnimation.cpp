@@ -17,13 +17,12 @@ namespace Components
 PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfoPerGroup& animationPlayingInfoPerGroup)
     : context_{context}
 {
-    for (auto& [name, pair] : animationPlayingInfoPerGroup)
+    for (auto& [name, clipInfoPair] : animationPlayingInfoPerGroup)
     {
         auto iter = context.jointGroups.find(name);
         if (iter != context.jointGroups.end())
         {
-            auto& info     = pair.first;
-            auto startTime = pair.second;
+            const auto& [info, startTime] = clipInfoPair;
 
             const auto& jointGroups = iter->second;
             float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
@@ -81,7 +80,8 @@ void PlayMixedAnimation::handle(const StopAnimationEvent& event)
             {
                 if (name != *event.jointGroupName)
                 {
-                    context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo, group.time);
+                    CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
+                    context_.machine.transitionTo<AnimationTransitionMixedToSingle>(context_, info);
                     return;
                 }
             }
