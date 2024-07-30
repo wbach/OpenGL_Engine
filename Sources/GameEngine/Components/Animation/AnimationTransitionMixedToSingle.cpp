@@ -81,7 +81,7 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
                 v.front().jointGroupNames.push_back(name);
             }
         }
-        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, v, event, event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransitionToMixed>(context_, v, event);
     }
     else
     {

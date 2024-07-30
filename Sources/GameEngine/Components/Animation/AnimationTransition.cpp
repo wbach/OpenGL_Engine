@@ -53,8 +53,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 
         if (groupFound)
         {
-            context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event,
-                                                                      event.onTransitionEnd);
+            context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event);
         }
         else
         {

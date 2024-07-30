@@ -4,7 +4,6 @@
 
 #include "GameEngine/Animations/AnimationClip.h"
 #include "PlayDirection.h"
-#include "PlayPolicy.h"
 
 namespace GameEngine
 {
@@ -20,7 +19,6 @@ struct AnimationClipInfo
     };
     float playSpeed{1.f};
     Animation::AnimationClip clip;
-    PlayPolicy policy{PlayPolicy::PlayInLoop};
     PlayDirection playDirection{PlayDirection::forward};
     std::vector<Subscription> subscribers;
 };

@@ -87,7 +87,7 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
 
         if (not frames.empty() and index.value < frames.size())
         {
-            auto id = animationEndIdPool_.getId();
+            auto id              = animationEndIdPool_.getId();
             float frameTimeStamp = frames[static_cast<size_t>(index.value)].timeStamp.value;
 
             auto& subscribers = iter->second.subscribers;
@@ -354,7 +354,7 @@ void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
 {
     if (not animationClipInfo_.count(clip.name))
     {
-        animationClipInfo_.insert({clip.name, {1.f, clip, PlayPolicy::PlayInLoop, PlayDirection::forward}});
+        animationClipInfo_.insert({clip.name, {1.f, clip, PlayDirection::forward}});
     }
     else
     {
@@ -421,7 +421,7 @@ void Animator::initAnimationClips(const Model& model)
         auto iter = animationClipInfo_.find(name);
         if (iter == animationClipInfo_.end())
         {
-            animationClipInfo_.insert({name, {1.f, clip, PlayPolicy::PlayInLoop, PlayDirection::forward}});
+            animationClipInfo_.insert({name, {1.f, clip, PlayDirection::forward}});
         }
     }
 

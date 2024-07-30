@@ -14,13 +14,14 @@ struct ChangeAnimationEvent;
 class AnimationTransitionToMixed : public AnimationStateBase
 {
 public:
-    AnimationTransitionToMixed(Context&, const std::vector<CurrentGroupsPlayingInfo>&, const ChangeAnimationEvent&,
-                               std::function<void()> = nullptr);
-    AnimationTransitionToMixed(Context&, const std::vector<TransitionGroupsPlaying>&, const ChangeAnimationEvent&,
-                               std::function<void()> = nullptr);
-    AnimationTransitionToMixed(Context&, const std::vector<CurrentGroupsPlayingInfo>&,
-                               const std::vector<TransitionGroupsPlaying>&, const ChangeAnimationEvent&,
-                               std::function<void()> = nullptr);
+    using CurrentGroupsPlayingInfos = std::vector<CurrentGroupsPlayingInfo>;
+    using TransitionGroupsPlayings  = std::vector<TransitionGroupsPlaying>;
+
+    AnimationTransitionToMixed(Context&, const CurrentGroupsPlayingInfos&, const ChangeAnimationEvent&);
+    AnimationTransitionToMixed(Context&, const TransitionGroupsPlayings&, const ChangeAnimationEvent&);
+    AnimationTransitionToMixed(Context&, const CurrentGroupsPlayingInfos&, const TransitionGroupsPlayings&,
+                               const ChangeAnimationEvent&);
+
     bool update(float) override;
 
     void handle(const ChangeAnimationEvent&) override;

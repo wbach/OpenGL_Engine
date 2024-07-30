@@ -15,25 +15,23 @@ namespace GameEngine
 {
 namespace Components
 {
+AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context, const CurrentGroupsPlayingInfos &current,
+                                                       const ChangeAnimationEvent &event)
+    : AnimationTransitionToMixed(context, current, {}, event)
+{
+}
+
 AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
-                                                       const std::vector<CurrentGroupsPlayingInfo> &current,
-                                                       const ChangeAnimationEvent &event,
-                                                       std::function<void()> onTransitionEnd)
-    : AnimationTransitionToMixed(context, current, {}, event, onTransitionEnd)
+                                                       const TransitionGroupsPlayings &transitionGroupsPlaying,
+                                                       const ChangeAnimationEvent &event)
+    : AnimationTransitionToMixed(context, {}, transitionGroupsPlaying, event)
 {
 }
 
-AnimationTransitionToMixed::AnimationTransitionToMixed(
-    Context &context, const std::vector<TransitionGroupsPlaying> &transitionGroupsPlaying,
-    const ChangeAnimationEvent &event, std::function<void()> onTransitionEnd)
-    : AnimationTransitionToMixed(context, {}, transitionGroupsPlaying, event, onTransitionEnd)
-{
-}
-
-AnimationTransitionToMixed::AnimationTransitionToMixed(
-    Context &context, const std::vector<CurrentGroupsPlayingInfo> &currentGroupsPlayingInfos,
-    const std::vector<TransitionGroupsPlaying> &transitionGroupsPlaying, const ChangeAnimationEvent &event,
-    std::function<void()> onTransitionEnd)
+AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
+                                                       const CurrentGroupsPlayingInfos &currentGroupsPlayingInfos,
+                                                       const TransitionGroupsPlayings &transitionGroupsPlaying,
+                                                       const ChangeAnimationEvent &event)
     : context_{context}
 {
     for (auto &info : currentGroupsPlayingInfos)
