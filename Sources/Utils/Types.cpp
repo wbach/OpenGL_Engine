@@ -8,7 +8,7 @@ const std::string DEFAULT_STRING{};
 const vec2 DEFAULT_VEC2{0.f};
 const vec3 VECTOR_ZERO{0.f};
 const vec3 VECTOR_UP{0.f, 1.f, 0.f};
-const vec3 VECTOR_DOWN{0.f, 1.f, 0.f};
+const vec3 VECTOR_DOWN{0.f, -1.f, 0.f};
 const vec3 VECTOR_LEFT{1.f, 0.f, 0.f};
 const vec3 VECTOR_RIGHT{-1.f, 0.f, 0.f};
 const vec3 VECTOR_FORWARD{0.f, 0.f, 1.f};

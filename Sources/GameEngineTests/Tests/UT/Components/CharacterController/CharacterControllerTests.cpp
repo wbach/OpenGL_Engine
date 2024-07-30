@@ -30,12 +30,14 @@ CharacterControllerTests::CharacterControllerTests()
 
     auto& clips                   = sut_.animationClipsNames_;
     clips.disarmed.idle           = "DI";
+    clips.disarmed.crouchIdle     = "DCI";
     clips.disarmed.sprint         = "DS";
     clips.disarmed.run.forward    = "DRF";
     clips.disarmed.run.backward   = "DRB";
     clips.disarmed.walk.forward   = "DWF";
     clips.disarmed.walk.backward  = "DWB";
     clips.armed.idle              = "AI";
+    clips.armed.crouchIdle        = "ACI";
     clips.armed.sprint            = "AS";
     clips.armed.run.forward       = "ARF";
     clips.armed.run.backward      = "ARB";
@@ -70,12 +72,14 @@ CharacterControllerTests::CharacterControllerTests()
     addDummyClip(clips.disarmed.death);
     addDummyClip(clips.armed.death);
     addDummyClip(clips.disarmed.idle);
+    addDummyClip(clips.disarmed.crouchIdle);
     addDummyClip(clips.disarmed.sprint);
     addDummyClip(clips.disarmed.run.forward);
     addDummyClip(clips.disarmed.run.backward);
     addDummyClip(clips.disarmed.walk.forward);
     addDummyClip(clips.disarmed.walk.backward);
     addDummyClip(clips.armed.idle);
+    addDummyClip(clips.armed.crouchIdle);
     addDummyClip(clips.armed.sprint);
     addDummyClip(clips.armed.run.forward);
     addDummyClip(clips.armed.run.backward);

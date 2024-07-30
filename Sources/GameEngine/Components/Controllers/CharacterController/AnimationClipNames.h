@@ -35,6 +35,7 @@ struct StateClipsNames
     std::string rotateRight;
     std::string jump;
     std::string idle;
+    std::string crouchIdle;
     std::string hurt;
     std::string death;
     std::string sprint;

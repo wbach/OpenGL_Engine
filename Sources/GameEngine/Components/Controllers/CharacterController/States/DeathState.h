@@ -13,6 +13,7 @@ public:
 
     void onEnter(ArmedAttackState&, const DeathEvent&);
     void onEnter(DisarmedAttackState&, const DeathEvent&);
+    void onEnter(DisarmedIdleCrouchState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndRunState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndWalkState&, const DeathEvent&);
     void onEnter(DisarmedAttackAndRunAndRotateState&, const DeathEvent&);

@@ -12,6 +12,7 @@ struct FsmContext;
 
 class DisarmedIdleState;
 class DisarmedAttackState;
+class DisarmedIdleCrouchState;
 class DisarmedAttackAndWalkState;
 class DisarmedAttackAndRunState;
 class DisarmedAttackAndRotateState;

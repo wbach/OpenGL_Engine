@@ -128,6 +128,9 @@ void PlayerInputController::SubscribeForPushActions()
     });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::EQUIP_DISARM, [&]() { characterController_->handleEvent(WeaponStateEvent{}); });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        Input::GameAction::CROUCH, [&]() { characterController_->handleEvent(CrouchChangeStateEvent{}); });
 }
 
 void PlayerInputController::SubscribeForPopActions()

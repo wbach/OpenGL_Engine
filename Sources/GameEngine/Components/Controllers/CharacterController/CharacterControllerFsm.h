@@ -44,6 +44,7 @@
 #include "States/WalkArmedChangeState.h"
 #include "States/DisarmedAttackAndRotateState.h"
 #include "States/DisarmedAttackAndRunAndRotateState.h"
+#include "States/DisarmedIdleCrouchState.h"
 
 namespace GameEngine
 {
@@ -53,6 +54,7 @@ namespace Components
 using CharacterControllerFsm =
     Utils::StateMachine::Fsm<
                             DisarmedIdleState,
+                            DisarmedIdleCrouchState,
                             DisarmedAttackState,
                             DisarmedAttackAndRunState,
                             DisarmedAttackAndWalkState,

@@ -2,15 +2,15 @@
 
 #include <algorithm>
 
-#include "FsmContext.h"
 #include "CharacterControllerFsm.h"
+#include "FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/CharacterController/AimController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "GameEngine/Components/Controllers/CharacterController/AimController.h"
 
 using namespace GameEngine::Components;
 
@@ -32,6 +32,7 @@ const std::string CSTR_ANIMATION_DISARM          = "disarmAnimation";
 const std::string CSTR_ANIMATION_WALK            = "walk";
 const std::string CSTR_ANIMATION_RUN             = "run";
 const std::string CSTR_ANIMATION_SPRINT          = "sprint";
+const std::string CSTR_ANIMATION_CROUCH_IDLE     = "crouchIdle";
 const std::string CSTR_ANIMATION_DOGE            = "doge";
 const std::string CSTR_ANIMATION_DOGE_JUMP       = "dogeJump";
 const std::string CSTR_ANIMATION_CROUCH_MOVEMENT = "crouchMovement";
@@ -95,6 +96,7 @@ void write(TreeNode& node, const StateClipsNames& names)
     ::write(node.addChild(CSTR_ANIMATION_CROUCH_MOVEMENT), names.crouch);
     ::write(node.addChild(CSTR_JUMP_ANIMATION), names.jump);
     ::write(node.addChild(CSTR_IDLE_MAIN), names.idle);
+    ::write(node.addChild(CSTR_ANIMATION_CROUCH_IDLE), names.crouchIdle);
     ::write(node.addChild(CSTR_HURT_ANIMATION), names.hurt);
     ::write(node.addChild(CSTR_DEATH_ANIMATION), names.death);
     ::write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);
@@ -174,6 +176,7 @@ void Read(const TreeNode& node, StateClipsNames& result)
     Read(node.getChild(CSTR_ANIMATION_CROUCH_MOVEMENT), result.crouch);
     Read(node.getChild(CSTR_JUMP_ANIMATION), result.jump);
     Read(node.getChild(CSTR_IDLE_MAIN), result.idle);
+    Read(node.getChild(CSTR_ANIMATION_CROUCH_IDLE), result.crouchIdle);
     Read(node.getChild(CSTR_HURT_ANIMATION), result.hurt);
     Read(node.getChild(CSTR_DEATH_ANIMATION), result.death);
     Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
@@ -283,6 +286,7 @@ void CharacterController::Init()
         // clang-format off
         impl->stateMachine_ = std::make_unique<CharacterControllerFsm>(
             DisarmedIdleState(context),
+            DisarmedIdleCrouchState(context),
             DisarmedAttackState(context),
             DisarmedAttackAndRunState(context),
             DisarmedAttackAndWalkState(context),

@@ -11,6 +11,7 @@ enum class GameAction
     TURN_LEFT,
     TURN_RIGHT,
     EQUIP_DISARM,
+    CROUCH,
     WALK,
     SPRINT,
     JUMP,

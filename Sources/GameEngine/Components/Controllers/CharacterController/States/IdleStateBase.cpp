@@ -12,6 +12,11 @@ IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimNam
     , idleAnimName_{idleAnimName}
 {
 }
+
+void IdleStateBase::onEnter(const CrouchChangeStateEvent &)
+{
+    setIdleAnim();
+}
 void IdleStateBase::onEnter(const EquipEndStateEvent &)
 {
     setIdleAnim();

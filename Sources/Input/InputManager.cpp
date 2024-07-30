@@ -45,6 +45,7 @@ void InputManager::SetDefaultKeys()
     RegisterGameAction(GameAction::WALK, KeyCodes::LCTRL);
     RegisterGameAction(GameAction::SPRINT, KeyCodes::LSHIFT);
     RegisterGameAction(GameAction::EQUIP_DISARM, KeyCodes::F);
+    RegisterGameAction(GameAction::CROUCH, KeyCodes::C);
     RegisterGameAction(GameAction::AIM, KeyCodes::RMOUSE);
     RegisterGameAction(GameAction::ATTACK, KeyCodes::LMOUSE);
     RegisterGameAction(GameAction::CAM_FORWARD, KeyCodes::UARROW);
@@ -61,10 +62,10 @@ bool InputManager::GetKey(GameAction action)
     {
         return GetKey(keyGameActions_.at(action));
     }
-    //else
+    // else
     //{
-    //    ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
-    //}
+    //     ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    // }
     return false;
 }
 
@@ -445,9 +446,9 @@ bool InputManager::FindEvent(uint32 eventType, uint32 key)
 {
     std::lock_guard<std::mutex> lk(keyEventMutex);
 
-    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent) {
-        return keyEvent.first == eventType and key == keyEvent.second;
-    });
+    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(),
+                             [eventType, key](const KeyEvent& keyEvent)
+                             { return keyEvent.first == eventType and key == keyEvent.second; });
 
     return iter != keyEvents_.end();
 }
