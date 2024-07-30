@@ -233,9 +233,9 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_PR_MoveStopAndGoDurin
 {
     const auto& attackClip = sut_.animationClipsNames_.disarmed.attack.front();
     prepareState(*this);
-    tiggerAndExpect<EndForwardMoveEvent>({attackClip.name}, {1});
-    tiggerAndExpect<MoveForwardEvent>({attackClip.name, sut_.animationClipsNames_.disarmed.run.forward}, {1});
+    tiggerAndExpect<EndForwardMoveEvent>({attackClip.name}, {0});
+    tiggerAndExpect<MoveForwardEvent>({attackClip.name, sut_.animationClipsNames_.disarmed.run.forward}, {0});
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.idle}, {1});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.disarmed.idle}, {0});
 }
