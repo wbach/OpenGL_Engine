@@ -11,28 +11,32 @@ void prepareState(CharacterControllerTests& test)
     test.tiggerAndExpect<WeaponStateEvent>(
         {test.sut_.animationClipsNames_.armed.idle},
         {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    test.tiggerAndExpect<CrouchChangeStateEvent>(
+        {test.sut_.animationClipsNames_.armed.crouchIdle},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_DrawArrowEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.drawArrow});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_WeaponStateEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_WeaponStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.disarm});
+    tiggerAndExpect<WeaponStateEvent>(
+        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.crouchIdle});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_DeathEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_DeathEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.armed.death});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveForwardEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_RUN_SPEED);
@@ -40,7 +44,7 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveForwardEvent)
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveBackwardEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_MoveBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
@@ -48,7 +52,7 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveBackwardEvent)
     expectRootboneRotation(VECTOR_BACKWARD);
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveLeftEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
@@ -56,7 +60,7 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveLeftEvent)
     expectRootboneRotation(VECTOR_LEFT);
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveRightEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
@@ -64,21 +68,21 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_MoveRightEvent)
     expectRootboneRotation(VECTOR_RIGHT);
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_RotateLeftEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateLeftEvent)
 {
     prepareState(*this);
     expectRotationLeft();
     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.rotateLeft});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_RotateRightEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateRightEvent)
 {
     prepareState(*this);
     expectRotationRight();
     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.rotateRight});
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_RotateTargetEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateTargetEvent)
 {
     prepareState(*this);
 
@@ -90,7 +94,7 @@ TEST_F(CharacterControllerTests, ArmedIdleStateTests_RotateTargetEvent)
 }
 
 TEST_F(CharacterControllerTests,
-       ArmedIdleStateTests_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
+       ArmedIdleCrouchState_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
 {
     prepareState(*this);
     float deltaTime = {0.0001f};
@@ -105,9 +109,8 @@ TEST_F(CharacterControllerTests,
     Update(ADVANCED_TIME_TRANSITION_TIME);
 }
 
-TEST_F(CharacterControllerTests, ArmedIdleStateTests_CrouchChangeStateEvent)
+TEST_F(CharacterControllerTests, ArmedIdleCrouchState_CrouchChangeStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.crouchIdle},
-                                            {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }

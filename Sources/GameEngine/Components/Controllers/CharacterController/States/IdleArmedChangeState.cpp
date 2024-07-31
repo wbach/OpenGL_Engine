@@ -15,6 +15,15 @@ IdleArmedChangeState::IdleArmedChangeState(FsmContext &context)
     , context_{context}
 {
 }
+
+void IdleArmedChangeState::onEnter(const CrouchChangeStateEvent &)
+{
+}
+
+void IdleArmedChangeState::onEnter(IdleCrouchArmedChangeState &, const CrouchChangeStateEvent &)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
 void IdleArmedChangeState::onEnter(DisarmedAttackState &, const DrawArrowEvent &e)
 {
     ArmedChangeStateBase::equipWeapon();

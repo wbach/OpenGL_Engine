@@ -126,11 +126,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedIdleState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RotatingMoveAndRotateStateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RecoilState.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedIdleCrouchState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RotateArmedChangeState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DrawArrowStateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedSprintState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/AimingStateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedSprintAndRotateState.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/IdleCrouchArmedChangeState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/MoveStateBase.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/AimWalkState.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/AttackStateBase.h

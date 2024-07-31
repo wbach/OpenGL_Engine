@@ -12,7 +12,7 @@ struct FsmContext;
 class IdleStateBase
 {
 public:
-    IdleStateBase(FsmContext&, const std::string&);
+    IdleStateBase(FsmContext&, const std::string&, std::optional<std::string> = std::nullopt);
 
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const EquipEndStateEvent&);
@@ -27,12 +27,13 @@ public:
 
     void update(float);
 
-private:
+protected:
     void setIdleAnim();
 
 protected:
     FsmContext& context_;
     std::string idleAnimName_;
+    std::optional<std::string> jointGroupName_;
 };
 }  // namespace Components
 }  // namespace GameEngine

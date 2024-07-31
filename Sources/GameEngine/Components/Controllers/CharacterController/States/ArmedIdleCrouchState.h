@@ -7,14 +7,14 @@ namespace GameEngine
 {
 namespace Components
 {
-class ArmedIdleState
+class ArmedIdleCrouchState
     : public IdleStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedIdleCrouchState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
@@ -27,7 +27,7 @@ class ArmedIdleState
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    ArmedIdleState(FsmContext&);
+    ArmedIdleCrouchState(FsmContext&);
 
     using IdleStateBase::onEnter;
     using IdleStateBase::update;

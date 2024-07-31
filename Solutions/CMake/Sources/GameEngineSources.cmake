@@ -117,8 +117,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/Char
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedRunAndRotateState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/JumpStateBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RotateArmedChangeState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedIdleCrouchState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedWalkAndRotateState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/WalkArmedChangeState.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/IdleCrouchArmedChangeState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/ArmedAttackState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/DisarmedAttackState.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/States/RecoilWalkState.cpp

@@ -24,10 +24,6 @@ public:
     bool isAnimationPlaying(const std::string&) const override;
 
 private:
-    void increaseAnimationTime(float deltaTime);
-    void notifyClipSubscribers();
-
-private:
     Context& context_;
 
     float time_;

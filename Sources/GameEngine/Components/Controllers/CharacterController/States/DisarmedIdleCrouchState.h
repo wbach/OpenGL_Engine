@@ -11,7 +11,7 @@ class DisarmedIdleCrouchState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
-          // TO DO: Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
@@ -21,7 +21,7 @@ class DisarmedIdleCrouchState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
-          // TO DO: Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {

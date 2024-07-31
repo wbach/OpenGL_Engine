@@ -7,9 +7,11 @@ namespace GameEngine
 {
 namespace Components
 {
-IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName)
+IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName,
+                             std::optional<std::string> jointGroupName)
     : context_{context}
     , idleAnimName_{idleAnimName}
+    , jointGroupName_{jointGroupName}
 {
 }
 
@@ -44,7 +46,7 @@ void IdleStateBase::setIdleAnim()
     if (not idleAnimName_.empty())
     {
         context_.animator.ChangeAnimation(idleAnimName_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          std::nullopt);
+                                          jointGroupName_);
     }
 }
 

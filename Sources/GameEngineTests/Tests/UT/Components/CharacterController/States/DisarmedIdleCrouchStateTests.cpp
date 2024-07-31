@@ -9,19 +9,19 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-//TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DrawArrowEvent) TO DO
+// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DrawArrowEvent) TO DO
 //{
-//    prepareState(*this);
-//    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
-//    Update(ADVANCED_TIME_CLIP_TIME);
-//    Update(ADVANCED_TIME_TRANSITION_TIME);
-//    expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow});
-//}
+//     prepareState(*this);
+//     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
+//     Update(ADVANCED_TIME_CLIP_TIME);
+//     Update(ADVANCED_TIME_TRANSITION_TIME);
+//     expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow});
+// }
 
-//TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AimStopDuringDrawArrowEvent) TO DO
+// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AimStopDuringDrawArrowEvent) TO DO
 //{
-//    prepareState(*this);
-//    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
+//     prepareState(*this);
+//     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
 
 //    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip});
 //    Update(ADVANCED_TIME_CLIP_TIME);
@@ -29,13 +29,14 @@ void prepareState(CharacterControllerTests& test)
 //    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
 //}
 
-//TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_WeaponStateEvent) TO DO
-//{
-//    prepareState(*this);
-//    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
-//    Update(ADVANCED_TIME_CLIP_TIME);
-//    Update(ADVANCED_TIME_TRANSITION_TIME);
-//}
+TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_WeaponStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.crouchIdle},
+                                      {ADVANCED_TIME_TRANSITION_TIME});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+}
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DeathEvent)
 {

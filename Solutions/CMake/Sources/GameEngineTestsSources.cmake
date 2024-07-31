@@ -22,6 +22,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Ch
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DrawArrowWalkAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/ArmedRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RotateArmedChangeStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/IdleCrouchArmedChangeStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/RecoilRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedWalkStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedSprintStateTests.cpp
@@ -46,6 +47,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Ch
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedAttackAndRotateStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedAttackAndWalkStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedRotateStateTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/ArmedIdleCrouchStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/CharacterController/States/DisarmedIdleCrouchStateTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Animations/AnimatorTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Animations/PlayMixedAnimationTests.cpp
