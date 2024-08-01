@@ -16,6 +16,13 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, DisarmedWalkState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.crouch.forward},
+                                            {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+}
+
 TEST_F(CharacterControllerTests, DisarmedWalkState_DrawArrowEvent)
 {
     prepareState(*this);

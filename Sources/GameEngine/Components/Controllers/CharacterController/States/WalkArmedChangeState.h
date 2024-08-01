@@ -32,6 +32,7 @@ class WalkArmedChangeState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<CrouchWalkArmedChangeState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // quque?
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>       // queue?
@@ -46,6 +47,7 @@ public:
 
     void onEnter();
 
+    void onEnter(CrouchWalkArmedChangeState&, const CrouchChangeStateEvent&);
     void onEnter(DisarmedWalkState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkState&, const WeaponStateEvent&);
     void onEnter(DisarmedWalkState&, const DrawArrowEvent&);

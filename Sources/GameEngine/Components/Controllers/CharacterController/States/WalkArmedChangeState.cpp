@@ -8,7 +8,8 @@ namespace Components
 {
 WalkArmedChangeState::WalkArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward, context.animClipNames.disarmed.walk.forward}
+    , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward,
+                        context.animClipNames.disarmed.walk.forward}
     , context_{context}
 {
 }
@@ -22,6 +23,12 @@ void WalkArmedChangeState::onEnter()
     {
         MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
     }
+}
+
+void WalkArmedChangeState::onEnter(CrouchWalkArmedChangeState&, const CrouchChangeStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
 }
 void WalkArmedChangeState::onEnter(DisarmedWalkState&, const WeaponStateEvent&)
 {
