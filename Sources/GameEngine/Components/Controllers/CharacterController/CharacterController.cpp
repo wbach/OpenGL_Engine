@@ -49,7 +49,7 @@ const std::string CSTR_DEATH_ANIMATION           = "death";
 const std::string CSTR_DRAW_ARROW_ANIMATION      = "drawArrow";
 const std::string CSTR_RECOIL_ARROW_ANIMATION    = "recoilArrow";
 const std::string CSTR_AIM_IDLE_ANIMATION        = "aimIdle";
-
+const std::string CSTR_AIM_JOINT_NAME            = "aimJointName";
 }  // namespace
 
 void write(TreeNode& node, const MovmentClipNames& names)
@@ -228,6 +228,7 @@ CharacterController::CharacterController(ComponentContext& componentContext, Gam
     , disarmTimeStamp{-1.0}
     , rigidbody_{nullptr}
     , shapeSize_(1.f)
+    , aimJointName_{"mixamorig:Spine2"}
 {
     impl = std::make_unique<CharacterController::Impl>();
 }
@@ -257,12 +258,13 @@ void CharacterController::Init()
 
     if (animator_ and rigidbody_)
     {
-        auto aimJoint = animator_->GetJoint("mixamorig:Spine2");
+        auto aimJoint = animator_->GetJoint(aimJointName_);
         if (not aimJoint)
-            ERROR_LOG("Aim joint not found");
+            ERROR_LOG("Aim joint not found : " + aimJointName_);
 
-        impl->aimController_ = std::make_unique<AimController>(
-            componentContext_.scene_, thisObject_, componentContext_.inputManager_, aimJoint ? *aimJoint : dummyJoint, animationClipsNames_.drawArrow);
+        impl->aimController_ =
+            std::make_unique<AimController>(componentContext_.scene_, thisObject_, componentContext_.inputManager_,
+                                            aimJoint ? *aimJoint : dummyJoint, animationClipsNames_.drawArrow);
 
         impl->fsmContext.reset(new FsmContext{thisObject_,
                                               componentContext_.physicsApi_,
@@ -427,15 +429,10 @@ void CharacterController::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<CharacterController>(componentContext, gameObject);
-
-        auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
-        if (animationClipsNode)
-        {
-            ::Read(*animationClipsNode, component->animationClipsNames_);
-        }
-
+        ::Read(node.getChild(CSTR_ANIMATION_CLIPS), component->animationClipsNames_);
         ::Read(node.getChild(CSTR_EQUIP_TIMESTAMP), component->equipTimeStamp);
         ::Read(node.getChild(CSTR_DISARM_TIMESTAMP), component->disarmTimeStamp);
+        ::Read(node.getChild(CSTR_AIM_JOINT_NAME), component->aimJointName_);
 
         return component;
     };
@@ -450,6 +447,7 @@ void CharacterController::write(TreeNode& node) const
     ::write(node.addChild(CSTR_ANIMATION_CLIPS), animationClipsNames_);
     ::write(node.addChild(CSTR_EQUIP_TIMESTAMP), equipTimeStamp);
     ::write(node.addChild(CSTR_DISARM_TIMESTAMP), disarmTimeStamp);
+    ::write(node.addChild(CSTR_AIM_JOINT_NAME), aimJointName_);
 }
 }  // namespace Components
 }  // namespace GameEngine

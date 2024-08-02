@@ -79,6 +79,7 @@ private:
     Rigidbody* rigidbody_;
     Animator* animator_;
     float shapeSize_;
+    std::string aimJointName_;
 
 private:
     struct Impl;
