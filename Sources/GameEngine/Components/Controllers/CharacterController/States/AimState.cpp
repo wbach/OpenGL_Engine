@@ -42,6 +42,11 @@ void AimState::onEnter(const EndMoveRightEvent&)
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
+void AimState::onEnter(const CrouchChangeStateEvent&)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+
 void AimState::onLeave(const AimStopEvent& event)
 {
     AimStateBase::onLeave(event);

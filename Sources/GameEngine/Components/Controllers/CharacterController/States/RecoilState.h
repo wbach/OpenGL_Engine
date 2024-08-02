@@ -20,6 +20,7 @@ class RecoilState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilCrouchState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
 {
 public:
@@ -29,6 +30,7 @@ public:
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
+    void onEnter(const CrouchChangeStateEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

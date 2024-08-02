@@ -19,7 +19,7 @@ class AimState : public AimStateBase,
                      Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
                      Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
-                     //Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
+                     Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
                      Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
 {
 public:
@@ -30,6 +30,7 @@ public:
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndMoveLeftEvent&);
     void onEnter(const EndMoveRightEvent&);
+    void onEnter(const CrouchChangeStateEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

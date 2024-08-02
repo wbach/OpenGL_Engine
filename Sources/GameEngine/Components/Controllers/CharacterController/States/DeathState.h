@@ -11,7 +11,6 @@ public:
     DeathState(FsmContext&);
     void update(float);
 
-    void onEnter(AimCrouchWalkState&, const DeathEvent&);
     void onEnter(CrouchWalkArmedChangeState&, const DeathEvent&);
     void onEnter(ArmedAttackState&, const DeathEvent&);
     void onEnter(DisarmedAttackState&, const DeathEvent&);
@@ -49,14 +48,18 @@ public:
     void onEnter(JumpState&, const DeathEvent&);
     void onEnter(MoveJumpState&, const DeathEvent&);
     void onEnter(AimState&, const DeathEvent&);
+    void onEnter(AimCrouchState&, const DeathEvent&);
     void onEnter(AimRotateState&, const DeathEvent&);
     void onEnter(AimWalkState&, const DeathEvent&);
     void onEnter(AimWalkAndRotateState&, const DeathEvent&);
+    void onEnter(AimCrouchWalkState&, const DeathEvent&);
     void onEnter(RecoilState&, const DeathEvent&);
+    void onEnter(RecoilCrouchState&, const DeathEvent&);
     void onEnter(RecoilRotateState&, const DeathEvent&);
     void onEnter(RecoilWalkState&, const DeathEvent&);
     void onEnter(RecoilWalkAndRotateState&, const DeathEvent&);
     void onEnter(DrawArrowState&, const DeathEvent&);
+    void onEnter(DrawArrowCrouchState&, const DeathEvent&);
     void onEnter(DrawArrowRotateState&, const DeathEvent&);
     void onEnter(DrawArrowWalkState&, const DeathEvent&);
     void onEnter(DrawArrowWalkAndRotateState&, const DeathEvent&);

@@ -39,10 +39,26 @@ void IdleCrouchArmedChangeState::onEnter(ArmedIdleCrouchState &, const WeaponSta
     setAnim();
     ArmedChangeStateBase::disarmWeapon();
 }
+
 void IdleCrouchArmedChangeState::onEnter(DisarmedIdleCrouchState &, const DrawArrowEvent &e)
 {
     ArmedChangeStateBase::equipWeapon();
     ArmedChangeStateBase::update(e);
+}
+
+void IdleCrouchArmedChangeState::onEnter(AimCrouchState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+
+void IdleCrouchArmedChangeState::onEnter(DrawArrowCrouchState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
+}
+
+void IdleCrouchArmedChangeState::onEnter(RecoilCrouchState &, const WeaponStateEvent &)
+{
+    ArmedChangeStateBase::disarmWeapon();
 }
 
 void IdleCrouchArmedChangeState::update(float)

@@ -47,11 +47,13 @@ class ArmedSprintAndRotateState;
 class JumpState;
 class MoveJumpState;
 class AimState;
+class AimCrouchState;
 class AimCrouchWalkState;
 class AimRotateState;
 class AimWalkState;
 class AimWalkAndRotateState;
 class RecoilState;
+class RecoilCrouchState;
 class RecoilRotateState;
 class RecoilWalkState;
 class RecoilWalkAndRotateState;
@@ -59,6 +61,7 @@ class DrawArrowState;
 class DrawArrowRotateState;
 class DrawArrowWalkState;
 class DrawArrowWalkAndRotateState;
+class DrawArrowCrouchState;
 class DeathState;
 }  // namespace Components
 }  // namespace GameEngine

@@ -20,6 +20,7 @@ class DrawArrowState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
 {
 public:
@@ -29,6 +30,7 @@ public:
     void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
+    void onEnter(const CrouchChangeStateEvent&);
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);

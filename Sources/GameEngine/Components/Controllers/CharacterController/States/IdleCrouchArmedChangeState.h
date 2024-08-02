@@ -42,6 +42,10 @@ public:
     void onEnter(DisarmedIdleCrouchState&, const DrawArrowEvent&);
     void onEnter(ArmedIdleCrouchState&, const WeaponStateEvent&);
 
+    void onEnter(AimCrouchState&, const WeaponStateEvent&);
+    void onEnter(DrawArrowCrouchState&, const WeaponStateEvent&);
+    void onEnter(RecoilCrouchState&, const WeaponStateEvent&);
+
     void update(float);
 
     using ArmedChangeStateBase::onLeave;
