@@ -31,6 +31,16 @@ void DrawArrowCrouchState::onEnter(const EndBackwardMoveEvent &)
 {
     IdleStateBase::setIdleAnim();
 }
+
+void DrawArrowCrouchState::onEnter(const EndMoveLeftEvent &)
+{
+    IdleStateBase::setIdleAnim();
+}
+
+void DrawArrowCrouchState::onEnter(const EndMoveRightEvent &)
+{
+    IdleStateBase::setIdleAnim();
+}
 void DrawArrowCrouchState::onLeave(const AimStopEvent &e)
 {
     DrawArrowStateBase::onLeave(e);

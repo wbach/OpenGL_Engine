@@ -331,6 +331,7 @@ void CharacterController::Init()
             AimWalkAndRotateState(context),
             RecoilState(context),
             RecoilCrouchState(context),
+            RecoilCrouchWalkState(context),
             RecoilRotateState(context),
             RecoilWalkState(context),
             RecoilWalkAndRotateState(context),

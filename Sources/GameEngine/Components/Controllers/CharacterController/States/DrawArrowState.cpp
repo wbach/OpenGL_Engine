@@ -29,6 +29,16 @@ void DrawArrowState::onEnter(const CrouchChangeStateEvent &)
 {
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
+
+void DrawArrowState::onEnter(const EndMoveLeftEvent &)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
+
+void DrawArrowState::onEnter(const EndMoveRightEvent &)
+{
+    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+}
 void DrawArrowState::onLeave(const AimStopEvent &e)
 {
     DrawArrowStateBase::onLeave(e);

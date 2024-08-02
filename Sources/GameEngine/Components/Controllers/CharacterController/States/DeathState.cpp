@@ -230,6 +230,11 @@ void DeathState::onEnter(RecoilCrouchState &, const DeathEvent &)
     setAnim(context_.animClipNames.armed.death);
 }
 
+void DeathState::onEnter(RecoilCrouchWalkState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
 void DeathState::onEnter(RecoilRotateState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.armed.death);

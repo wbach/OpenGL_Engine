@@ -56,6 +56,7 @@ class RecoilState;
 class RecoilCrouchState;
 class RecoilRotateState;
 class RecoilWalkState;
+class RecoilCrouchWalkState;
 class RecoilWalkAndRotateState;
 class DrawArrowState;
 class DrawArrowRotateState;

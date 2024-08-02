@@ -78,12 +78,12 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_WeaponStateEvent)
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.crouch.forward});
 }
-//TEST_F(CharacterControllerTests, AimCrouchWalkState_AttackEvent)
-//{
-//    prepareState(*this);
-//    tiggerAndExpect<AttackEvent>(
-//        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.crouch.forward});
-//}
+TEST_F(CharacterControllerTests, AimCrouchWalkState_AttackEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<AttackEvent>(
+        {sut_.animationClipsNames_.recoilArrow, sut_.animationClipsNames_.armed.crouch.forward});
+}
 TEST_F(CharacterControllerTests, AimCrouchWalkState_AimStopEvent)
 {
     prepareState(*this);

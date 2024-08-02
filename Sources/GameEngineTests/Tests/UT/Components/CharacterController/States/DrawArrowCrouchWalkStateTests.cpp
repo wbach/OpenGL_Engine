@@ -81,7 +81,7 @@ TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_WalkBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.drawArrow}, {0, 0});
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.crouchIdle}, {0, 0});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<EndForwardMoveEvent>(
         {sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.crouch.backward});

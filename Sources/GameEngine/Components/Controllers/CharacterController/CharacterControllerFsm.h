@@ -55,6 +55,7 @@
 #include "States/RecoilCrouchState.h"
 #include "States/DrawArrowCrouchWalkState.h"
 #include "States/AimCrouchWalkState.h"
+#include "States/RecoilCrouchWalkState.h"
 
 namespace GameEngine
 {
@@ -107,6 +108,7 @@ using CharacterControllerFsm =
                             AimWalkAndRotateState,
                             RecoilState,
                             RecoilCrouchState,
+                            RecoilCrouchWalkState,
                             RecoilRotateState,
                             RecoilWalkState,
                             RecoilWalkAndRotateState,

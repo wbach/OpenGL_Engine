@@ -16,15 +16,25 @@ RecoilCrouchState::RecoilCrouchState(FsmContext &context)
 }
 void RecoilCrouchState::onEnter(const EndRotationEvent &)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 void RecoilCrouchState::onEnter(const EndForwardMoveEvent &)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 void RecoilCrouchState::onEnter(const EndBackwardMoveEvent &)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
+}
+
+void RecoilCrouchState::onEnter(const EndMoveLeftEvent &)
+{
+    IdleStateBase::setIdleAnim();
+}
+
+void RecoilCrouchState::onEnter(const EndMoveRightEvent &)
+{
+    IdleStateBase::setIdleAnim();
 }
 void RecoilCrouchState::onLeave(const AimStopEvent &e)
 {

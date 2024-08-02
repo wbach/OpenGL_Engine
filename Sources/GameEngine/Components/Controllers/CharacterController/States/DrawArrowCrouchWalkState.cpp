@@ -37,6 +37,7 @@ void DrawArrowCrouchWalkState::onEnter(const DrawArrowEvent &event)
 void DrawArrowCrouchWalkState::onEnter(const ReloadArrowEvent &event)
 {
     DrawArrowStateBase::onEnter(event);
+    MoveStateBase::setCurrentAnimIfNeeded();
 }
 
 void DrawArrowCrouchWalkState::update(float dt)
@@ -47,7 +48,7 @@ void DrawArrowCrouchWalkState::update(float dt)
 
 void DrawArrowCrouchWalkState::onMoveInactivity()
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    MoveStateBase::setAnim(context_.animClipNames.armed.crouchIdle);
 }
 
 void DrawArrowCrouchWalkState::onLeave(const AimStopEvent &e)
