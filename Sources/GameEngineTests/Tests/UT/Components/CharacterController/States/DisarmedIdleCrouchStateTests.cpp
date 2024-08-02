@@ -9,25 +9,27 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DrawArrowEvent) TO DO
-//{
-//     prepareState(*this);
-//     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
-//     Update(ADVANCED_TIME_CLIP_TIME);
-//     Update(ADVANCED_TIME_TRANSITION_TIME);
-//     expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow});
-// }
+TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_DrawArrowEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.crouchIdle},
+                                    {ADVANCED_TIME_TRANSITION_TIME});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.crouchIdle});
+}
 
-// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AimStopDuringDrawArrowEvent) TO DO
-//{
-//     prepareState(*this);
-//     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
+TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_AimStopDuringDrawArrowEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.crouchIdle},
+                                    {ADVANCED_TIME_TRANSITION_TIME});
 
-//    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip});
-//    Update(ADVANCED_TIME_CLIP_TIME);
-//    Update(ADVANCED_TIME_TRANSITION_TIME);
-//    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
-//}
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.disarmed.crouchIdle});
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.crouchIdle});
+}
 
 TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_WeaponStateEvent)
 {
@@ -76,23 +78,23 @@ TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_MoveRightEvent)
     expectRootboneRotation(VECTOR_RIGHT);
 }
 
-//TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateLeftEvent)
+// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateLeftEvent)
 //{
-//    prepareState(*this);
-//    expectRotationLeft();
-//    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
-//}
+//     prepareState(*this);
+//     expectRotationLeft();
+//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
+// }
 
-//TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateRightEvent)
+// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateRightEvent)
 //{
-//    prepareState(*this);
-//    expectRotationRight();
-//    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.rotateRight});
-//}
+//     prepareState(*this);
+//     expectRotationRight();
+//     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.rotateRight});
+// }
 
-//TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateTargetEvent)
+// TEST_F(CharacterControllerTests, DisarmedIdleCrouchState_RotateTargetEvent)
 //{
-//    prepareState(*this);
+//     prepareState(*this);
 
 //    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 

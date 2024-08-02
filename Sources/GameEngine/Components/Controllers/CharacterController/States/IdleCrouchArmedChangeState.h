@@ -25,10 +25,9 @@ class IdleCrouchArmedChangeState
 //          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
 //          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
 //          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
-//          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
-//          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
-//          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>  // queue?
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>
 {
 public:
     IdleCrouchArmedChangeState(FsmContext&);
