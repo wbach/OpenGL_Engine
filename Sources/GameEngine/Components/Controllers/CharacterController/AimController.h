@@ -26,7 +26,7 @@ class JointPoseUpdater;
 class AimController
 {
 public:
-    AimController(Scene&, GameObject&, Input::InputManager&, Animation::Joint&);
+    AimController(Scene&, GameObject&, Input::InputManager&, Animation::Joint&, const std::string&);
     ~AimController();
     void enter();
     void reload();
@@ -58,6 +58,7 @@ private:
     std::unique_ptr<Components::JointPoseUpdater> jointPoseUpdater;
     std::optional<uint32> updateJointBufferSubId_;
     std::optional<IdType> subscribeForDrawArrowAnimationFrame;
+    std::string drawArrowAnimName;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -25,7 +25,7 @@ const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::v
 }  // namespace
 
 AimController::AimController(Scene& scene, GameObject& gameObject, Input::InputManager& inputManager,
-                             Animation::Joint& joint)
+                             Animation::Joint& joint, const std::string& drawArrowAnimName)
     : inputManager{inputManager}
     , joint{joint}
     , scene{scene}
@@ -35,6 +35,7 @@ AimController::AimController(Scene& scene, GameObject& gameObject, Input::InputM
     , animator{gameObject.GetComponent<Animator>()}
     , camSensitive{0.2f}
     , boneRotatationLimit{0, 0}  // {-75.f, 45.f}
+    , drawArrowAnimName{drawArrowAnimName}
 {
 }
 
@@ -51,7 +52,7 @@ void AimController::enter()
     if (not subscribeForDrawArrowAnimationFrame)
     {
         subscribeForDrawArrowAnimationFrame = animator->SubscribeForAnimationFrame(
-            "StandingDrawArrow", [this]() { createArrowObject(); }, Animation::FrameIndex{10});
+            drawArrowAnimName, [this]() { createArrowObject(); }, Animation::FrameIndex{10});
     }
 }
 

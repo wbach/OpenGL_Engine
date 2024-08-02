@@ -93,20 +93,19 @@ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_MoveRightEvent)
 //                                       {sut_.animationClipsNames_.armed.rotateLeft});
 //}
 
-// TEST_F(CharacterControllerTests,
-//        ArmedIdleCrouchState_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
+//TEST_F(CharacterControllerTests,
+//       ArmedIdleCrouchState_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
 //{
-//     prepareState(*this);
-//     float deltaTime = {0.0001f};
-
+//    prepareState(*this);
+//    float deltaTime = {0.0001f};
+//    expectForwardVelocity(DEFAULT_WALK_SPEED);
 //    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.crouch.forward}, {deltaTime});
 //    // Run anim not ready
-//    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.walk.forward,
-//    sut_.animationClipsNames_.drawArrow},
-//                                    {deltaTime});
-//    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.run.forward}, {deltaTime, deltaTime});
+//    tiggerAndExpect<DrawArrowEvent>(
+//        {sut_.animationClipsNames_.armed.crouch.forward, sut_.animationClipsNames_.drawArrow}, {deltaTime});
+//    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.crouch.forward}, {deltaTime, deltaTime});
 //    // Make run animation ready
-//    expectForwardVelocity(DEFAULT_RUN_SPEED);
+//    expectForwardVelocity(DEFAULT_WALK_SPEED);
 //    Update(ADVANCED_TIME_TRANSITION_TIME);
 //}
 
