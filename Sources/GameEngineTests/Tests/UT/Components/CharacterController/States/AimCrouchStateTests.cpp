@@ -26,26 +26,29 @@ TEST_F(CharacterControllerTests, AimCrouchState_CrouchChangeStateEvent)
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.aimIdle});
 }
 
-//TEST_F(CharacterControllerTests, AimCrouchState_RotateLeft)
+// TEST_F(CharacterControllerTests, AimCrouchState_RotateLeft)
 //{
-//    prepareState(*this);
-//    expectRotationLeft();
-//    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateLeft});
-//}
-//TEST_F(CharacterControllerTests, AimCrouchState_RotateRight)
+//     prepareState(*this);
+//     expectRotationLeft();
+//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.aimIdle,
+//     sut_.animationClipsNames_.armed.rotateLeft});
+// }
+// TEST_F(CharacterControllerTests, AimCrouchState_RotateRight)
 //{
-//    prepareState(*this);
-//    expectRotationRight();
-//    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateRight});
-//}
-//TEST_F(CharacterControllerTests, AimCrouchState_RotateTargetEvent)
+//     prepareState(*this);
+//     expectRotationRight();
+//     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.aimIdle,
+//     sut_.animationClipsNames_.armed.rotateRight});
+// }
+// TEST_F(CharacterControllerTests, AimCrouchState_RotateTargetEvent)
 //{
-//    prepareState(*this);
-//    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+//     prepareState(*this);
+//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
 //    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
 //    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-//                                       {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.rotateLeft});
+//                                       {sut_.animationClipsNames_.aimIdle,
+//                                       sut_.animationClipsNames_.armed.rotateLeft});
 //}
 TEST_F(CharacterControllerTests, AimCrouchState_WeaponStateEvent)
 {
@@ -73,15 +76,15 @@ TEST_F(CharacterControllerTests, AimCrouchState_MoveForwardEvent)
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<MoveForwardEvent>(
-        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.forward});
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimCrouchState_RunBackwardEvent)
+TEST_F(CharacterControllerTests, AimCrouchState_MoveBackwardEvent)
 {
     prepareState(*this);
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<MoveBackwardEvent>(
-        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.walk.backward});
+        {sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.crouch.backward});
 }
 TEST_F(CharacterControllerTests, AimCrouchState_DeathEvent)
 {
@@ -92,12 +95,13 @@ TEST_F(CharacterControllerTests, AimCrouchState_MoveLeftEvent)
 {
     prepareState(*this);
     expectLeftVelocity(DEFAULT_WALK_LEFT_RIGHT_SPEED);
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.walk.moveleft, sut_.animationClipsNames_.aimIdle});
+    tiggerAndExpect<MoveLeftEvent>(
+        {sut_.animationClipsNames_.armed.crouch.moveleft, sut_.animationClipsNames_.aimIdle});
 }
 TEST_F(CharacterControllerTests, AimCrouchState_MoveRightEvent)
 {
     prepareState(*this);
     expectLeftVelocity(-DEFAULT_WALK_LEFT_RIGHT_SPEED);
     tiggerAndExpect<MoveRightEvent>(
-        {sut_.animationClipsNames_.armed.walk.moveRight, sut_.animationClipsNames_.aimIdle});
+        {sut_.animationClipsNames_.armed.crouch.moveRight, sut_.animationClipsNames_.aimIdle});
 }

@@ -17,18 +17,18 @@ class AimCrouchWalkState
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
-          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<CrouchWalkArmedChangeState>>,
+//          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+//          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+//          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<AimState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>>
 {
 public:
     AimCrouchWalkState(FsmContext&);

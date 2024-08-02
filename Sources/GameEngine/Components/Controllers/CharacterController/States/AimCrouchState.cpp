@@ -26,27 +26,27 @@ void AimCrouchState::update(float dt)
 
 void AimCrouchState::onEnter(const EndRotationEvent&)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 
 void AimCrouchState::onEnter(const EndForwardMoveEvent&)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 
 void AimCrouchState::onEnter(const EndBackwardMoveEvent&)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 
 void AimCrouchState::onEnter(const EndMoveLeftEvent&)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 
 void AimCrouchState::onEnter(const EndMoveRightEvent&)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 
 void AimCrouchState::onLeave(const AimStopEvent& event)

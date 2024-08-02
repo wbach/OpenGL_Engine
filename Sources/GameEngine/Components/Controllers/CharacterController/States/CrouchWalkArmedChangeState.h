@@ -2,7 +2,6 @@
 #include <Utils/Fsm/Actions.h>
 
 #include "../CharacterControllerEvents.h"
-
 #include "ArmedChangeStateBase.h"
 #include "RotatingMoveState.h"
 
@@ -29,9 +28,12 @@ class CrouchWalkArmedChangeState
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
-//          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
-//          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
-//          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          //          Utils::StateMachine::On<RotateLeftEvent,
+          //          Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          //          Utils::StateMachine::On<RotateRightEvent,
+          //          Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          //          Utils::StateMachine::On<RotateTargetEvent,
+          //          Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
@@ -52,8 +54,8 @@ public:
     void onEnter(DisarmedCrouchWalkState&, const DrawArrowEvent&);
 
     void onEnter(DrawArrowCrouchWalkState&, const WeaponStateEvent&);
-//    void onEnter(RecoilCrouchWalkState&, const WeaponStateEvent&);
-//    void onEnter(AimCrouchWalkState&, const WeaponStateEvent&);
+    //    void onEnter(RecoilCrouchWalkState&, const WeaponStateEvent&);
+    void onEnter(AimCrouchWalkState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const WeaponStateEvent&);

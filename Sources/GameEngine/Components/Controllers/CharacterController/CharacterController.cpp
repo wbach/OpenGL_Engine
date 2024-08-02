@@ -325,6 +325,7 @@ void CharacterController::Init()
             MoveJumpState(context, [&]() { impl->stateMachine_->handle(EndJumpEvent{}); }),
             AimState(context),
             AimCrouchState(context),
+            AimCrouchWalkState(context),
             AimRotateState(context),
             AimWalkState(context),
             AimWalkAndRotateState(context),

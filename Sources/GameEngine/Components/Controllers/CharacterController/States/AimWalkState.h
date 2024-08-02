@@ -27,6 +27,7 @@ class AimWalkState
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<AimState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<AimState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
 {
 public:

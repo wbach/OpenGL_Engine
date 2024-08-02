@@ -31,7 +31,7 @@ class DrawArrowCrouchWalkState
           //          Utils::StateMachine::On<RotateTargetEvent,
           //          Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          //Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
+          Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
 {
 public:

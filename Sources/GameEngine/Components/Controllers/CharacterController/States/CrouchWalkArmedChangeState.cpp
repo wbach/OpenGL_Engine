@@ -8,7 +8,8 @@ namespace Components
 {
 CrouchWalkArmedChangeState::CrouchWalkArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward, context.animClipNames.disarmed.crouch.forward}
+    , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward,
+                        context.animClipNames.disarmed.crouch.forward}
     , context_{context}
 {
 }
@@ -42,18 +43,18 @@ void CrouchWalkArmedChangeState::onEnter(DisarmedCrouchWalkState&, const DrawArr
 void CrouchWalkArmedChangeState::onEnter(DrawArrowCrouchWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.crouch);
 }
-//void CrouchWalkArmedChangeState::onEnter(RecoilWalkState&, const WeaponStateEvent&)
+// void CrouchWalkArmedChangeState::onEnter(RecoilWalkState&, const WeaponStateEvent&)
 //{
-//    ArmedChangeStateBase::disarmWeapon();
-//    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
-//}
-//void CrouchWalkArmedChangeState::onEnter(AimWalkState&, const WeaponStateEvent&)
-//{
-//    ArmedChangeStateBase::disarmWeapon();
-//    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
-//}
+//     ArmedChangeStateBase::disarmWeapon();
+//     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.crouch);
+// }
+void CrouchWalkArmedChangeState::onEnter(AimCrouchWalkState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::disarmWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.crouch);
+}
 void CrouchWalkArmedChangeState::update(float dt)
 {
     RotatingMoveState::update(dt);
