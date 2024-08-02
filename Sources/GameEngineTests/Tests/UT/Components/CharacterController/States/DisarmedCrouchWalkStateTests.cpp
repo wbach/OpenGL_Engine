@@ -16,28 +16,28 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-// TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DrawArrowEvent)
-//{
-//     prepareState(*this);
-//     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.equip},
-//                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
-//     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
-//     Update(ADVANCED_TIME_TRANSITION_TIME);
-//     expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.drawArrow});
-// }
+ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_DrawArrowEvent)
+{
+     prepareState(*this);
+     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.crouch.forward, sut_.animationClipsNames_.equip},
+                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
+     Update(ADVANCED_TIME_TRANSITION_TIME);
+     expectAnimsToBeSet({sut_.animationClipsNames_.armed.crouch.forward, sut_.animationClipsNames_.drawArrow});
+ }
 
-// TEST_F(CharacterControllerTests, DisarmedCruchWalkState_AimStopDuringDrawArrowEvent)
-//{
-//     prepareState(*this);
-//     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.walk.forward, sut_.animationClipsNames_.equip},
-//                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
-//     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.walk.forward},
-//                                   {ADVANCED_TIME_CLIP_TIME / 2.f, ADVANCED_TIME_TRANSITION_TIME});
+ TEST_F(CharacterControllerTests, DisarmedCruchWalkState_AimStopDuringDrawArrowEvent)
+{
+     prepareState(*this);
+     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.crouch.forward, sut_.animationClipsNames_.equip},
+                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
+     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.crouch.forward},
+                                   {ADVANCED_TIME_CLIP_TIME / 2.f, ADVANCED_TIME_TRANSITION_TIME});
 
-//    // Extra check
-//    Update(ADVANCED_TIME_CLIP_TIME);
-//    expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward});
-//}
+    // Extra check
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.crouch.forward});
+}
 
 TEST_F(CharacterControllerTests, DisarmedCruchWalkState_CrouchChangeStateEvent)
 {

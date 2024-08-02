@@ -21,15 +21,15 @@ void DrawArrowCrouchState::onEnter()
 }
 void DrawArrowCrouchState::onEnter(const EndRotationEvent &)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 void DrawArrowCrouchState::onEnter(const EndForwardMoveEvent &)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 void DrawArrowCrouchState::onEnter(const EndBackwardMoveEvent &)
 {
-    context_.animator.StopAnimation(context_.lowerBodyGroupName);
+    IdleStateBase::setIdleAnim();
 }
 void DrawArrowCrouchState::onLeave(const AimStopEvent &e)
 {

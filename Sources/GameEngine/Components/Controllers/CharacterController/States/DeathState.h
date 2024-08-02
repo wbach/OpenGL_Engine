@@ -59,6 +59,7 @@ public:
     void onEnter(RecoilWalkState&, const DeathEvent&);
     void onEnter(RecoilWalkAndRotateState&, const DeathEvent&);
     void onEnter(DrawArrowState&, const DeathEvent&);
+    void onEnter(DrawArrowCrouchWalkState&, const DeathEvent&);
     void onEnter(DrawArrowCrouchState&, const DeathEvent&);
     void onEnter(DrawArrowRotateState&, const DeathEvent&);
     void onEnter(DrawArrowWalkState&, const DeathEvent&);

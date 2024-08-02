@@ -250,6 +250,11 @@ void DeathState::onEnter(DrawArrowState &, const DeathEvent &)
     setAnim(context_.animClipNames.armed.death);
 }
 
+void DeathState::onEnter(DrawArrowCrouchWalkState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
 void DeathState::onEnter(DrawArrowCrouchState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.armed.death);

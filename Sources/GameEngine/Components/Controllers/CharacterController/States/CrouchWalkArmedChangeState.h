@@ -51,9 +51,9 @@ public:
     void onEnter(ArmedCrouchWalkState&, const WeaponStateEvent&);
     void onEnter(DisarmedCrouchWalkState&, const DrawArrowEvent&);
 
-//    void onEnter(DrawArrowWalkState&, const WeaponStateEvent&);
-//    void onEnter(RecoilWalkState&, const WeaponStateEvent&);
-//    void onEnter(AimWalkState&, const WeaponStateEvent&);
+    void onEnter(DrawArrowCrouchWalkState&, const WeaponStateEvent&);
+//    void onEnter(RecoilCrouchWalkState&, const WeaponStateEvent&);
+//    void onEnter(AimCrouchWalkState&, const WeaponStateEvent&);
 
     void update(float);
     void update(const WeaponStateEvent&);
