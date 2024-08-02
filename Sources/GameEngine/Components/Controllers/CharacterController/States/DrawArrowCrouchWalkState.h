@@ -32,7 +32,7 @@ class DrawArrowCrouchWalkState
           //          Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
           Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>>
 {
 public:
     DrawArrowCrouchWalkState(FsmContext&);

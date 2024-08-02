@@ -61,16 +61,16 @@ TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_CrouchChangeStateEvent
     prepareState(*this);
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.drawArrow, sut_.animationClipsNames_.armed.walk.forward});
 }
-//TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_AimStartEvent)
-//{
-//    prepareState(*this);
-//    tiggerAndExpect<AimStartEvent>({sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.crouch.forward});
-//}
-//TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_AimStopEvent)
-//{
-//    prepareState(*this);
-//    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.crouch.forward});
-//}
+TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_AimStartEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<AimStartEvent>({sut_.animationClipsNames_.aimIdle, sut_.animationClipsNames_.armed.crouch.forward});
+}
+TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_AimStopEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.crouch.forward});
+}
 TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_MoveForwardEvent)
 {
     prepareState(*this);
