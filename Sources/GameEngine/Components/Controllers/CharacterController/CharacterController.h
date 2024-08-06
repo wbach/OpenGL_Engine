@@ -10,6 +10,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "MoveSpeed.h"
+#include <queue>
 
 namespace GameEngine
 {
@@ -46,6 +47,13 @@ public:
         eventQueue.push_back(event);
     }
 
+    template <typename Event>
+    void pushEventToFrontQueue(const Event& event)
+    {
+        // /*DISABLED*/ DEBUG_LOG("pushEventToQueue " + typeName<Event>());
+        eventQueue.push_front(event);
+    }
+
     template<typename ...States>
     bool isAnyOfStateQueued()
     {
@@ -74,7 +82,7 @@ private:
     void clearVelocityIfNotMoving();
 
 private:
-    std::vector<CharacterControllerEvent> eventQueue;
+    std::deque<CharacterControllerEvent> eventQueue;
     std::function<void()> jumpCallback_;
     Rigidbody* rigidbody_;
     Animator* animator_;

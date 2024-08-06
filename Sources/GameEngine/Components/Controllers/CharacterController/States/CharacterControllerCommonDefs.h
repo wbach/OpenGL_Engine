@@ -39,6 +39,8 @@ class ArmedAttackState;
 class ArmedRunState;
 class ArmedRotateState;
 class ArmedRunAndRotateState;
+class ArmedAttackAndWalkState;
+class ArmedAttackAndRunState;
 class ArmedWalkState;
 class ArmedWalkAndRotateState;
 class ArmedCrouchWalkState;

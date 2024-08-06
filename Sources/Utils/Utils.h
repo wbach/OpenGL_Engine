@@ -47,7 +47,7 @@ private:
     vec2i size;
     vec2i offset;
 };
-
+std::string MergeString(const std::vector<std::string>&, const std::string& = "");
 std::vector<std::string> SplitString(char* s, int size, char split_char);
 std::vector<std::string> SplitString(const std::string& s, char split_char);
 std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char);

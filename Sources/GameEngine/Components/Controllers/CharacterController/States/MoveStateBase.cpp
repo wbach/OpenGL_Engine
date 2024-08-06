@@ -198,7 +198,10 @@ void MoveStateBase::setAnim(const std::string &clipName)
     auto currentAnimations = context_.animator.getCurrentAnimationName();
     auto iter              = std::find(currentAnimations.begin(), currentAnimations.end(), clipName);
     if (iter != currentAnimations.end())
+    {
+        DEBUG_LOG("current is playing");
         return;
+    }
 
     // // /*DISABLED*/ DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
     context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,

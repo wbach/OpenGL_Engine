@@ -1,8 +1,8 @@
 #pragma once
-#include <Variant.h>
 #include <Logger/Log.h>
+#include <Utils/Utils.h>
+#include <Variant.h>
 
-#include <Mutex.hpp>
 #include <memory>
 #include <optional>
 #include <queue>
@@ -27,24 +27,25 @@ struct StateMachine
     ~StateMachine();
 
     PoseUpdateAction update(float);
-    void processEvents();
     void handle(const IncomingEvent&);
+
     template <typename State, typename... Args>
     void transitionTo(Args&&... args)
     {
-#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Animation state transition : " + typeName<State>());
-#endif
         tmpTransitionState_ = std::move(currentState_);
-        currentState_ = std::make_unique<State>(std::forward<Args>(args)...);
+        currentState_       = std::make_unique<State>(std::forward<Args>(args)...);
+
+#ifdef NOREALTIME_LOG_ENABLED
+        auto previousAnims = tmpTransitionState_->getCurrentAnimation();
+        auto nextAnims     = currentState_->getCurrentAnimation();
+        DEBUG_LOG("Animation state transition : " + typeName<State>() + ", Prev anims: " +
+                  Utils::MergeString(previousAnims, " ") + " New anims: " + Utils::MergeString(nextAnims, " "));
+#endif
     }
 
     Context context_;
     std::unique_ptr<IAnimationState> tmpTransitionState_;
     std::unique_ptr<IAnimationState> currentState_;
-
-    std::mutex queueMutex_;
-    std::queue<IncomingEvent> queueEvents_;
 };
 }  // namespace Components
 }  // namespace GameEngine

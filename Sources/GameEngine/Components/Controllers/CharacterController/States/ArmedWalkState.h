@@ -34,6 +34,12 @@ public:
 
     using MoveStateBase::onEnter;
 
+    Utils::StateMachine::Maybe<Utils::StateMachine::TransitionTo<ArmedAttackState>,
+                               Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>>
+    handle(const AttackEvent&);
+
+    using Will::handle;
+
     void onMoveInactivity() override;
 };
 }  // namespace Components

@@ -21,6 +21,7 @@ public:
     void onEnter(const EndMoveRightEvent&);
 
     void update(const AttackEvent&);
+    void update(const ChangeAnimEvent&);
     void update(float);
     void onLeave(const EndAttackEvent&);
     void onLeave();

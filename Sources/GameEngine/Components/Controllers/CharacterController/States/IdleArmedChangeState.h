@@ -17,6 +17,7 @@ class IdleArmedChangeState
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<EquipEndStateEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<DisarmEndStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<MoveEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
@@ -24,7 +25,8 @@ class IdleArmedChangeState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent,
+                                  Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>  // queue?

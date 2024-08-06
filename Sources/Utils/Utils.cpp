@@ -309,4 +309,15 @@ std::string BoolToString(bool b)
 {
     return b ? "true" : "false";
 }
+
+std::string MergeString(const std::vector<std::string> & input, const std::string& separator)
+{
+    std::string result;
+    for(const auto& s : input)
+    {
+        result += s + separator;
+    }
+    return result;
+}
+
 }  // namespace Utils

@@ -338,7 +338,6 @@ void Animator::updateShaderBuffers()
 }
 void Animator::Update()
 {
-    machine_.processEvents();
     auto status = machine_.update(componentContext_.time_.deltaTime);
 
     if (status == PoseUpdateAction::update)

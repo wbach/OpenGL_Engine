@@ -29,28 +29,16 @@ PoseUpdateAction StateMachine::update(float deltaTime)
     return PoseUpdateAction::nothingToDo;
 }
 
-void StateMachine::processEvents()
-{
-    // for(auto& event : queueEvents_)
-    while (not queueEvents_.empty())
-    {
-        auto& incomingEvent = queueEvents_.front();
-
-        if (currentState_)
-        {
-            std::visit(visitor{[&](const auto& event) {
-                           currentState_->handle(event);
-                       }},
-                       incomingEvent);
-        }
-
-        queueEvents_.pop();
-    }
-}
 void StateMachine::handle(const IncomingEvent& event)
 {
-    std::lock_guard<std::mutex> lk(queueMutex_);
-    queueEvents_.emplace(event);
+    DEBUG_LOG("handle event");
+    if (currentState_)
+    {
+        std::visit(visitor{[&](const auto& event) {
+                       currentState_->handle(event);
+                   }},
+                   event);
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

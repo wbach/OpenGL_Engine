@@ -55,6 +55,7 @@ CharacterControllerTests::CharacterControllerTests()
     clips.disarmed.death            = "disarmedDeath";
     clips.disarmed.attack.push_back({"DA1", AttackAnimation::PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA2", AttackAnimation::PlayStateType::idle});
+    clips.disarmed.attack.push_back({"DA3", AttackAnimation::PlayStateType::idle});
 
     clips.armed.idle             = "AI";
     clips.armed.crouchIdle       = "ACI";
@@ -76,6 +77,7 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.death            = "armedDeath";
     clips.armed.attack.push_back({"A1", AttackAnimation::PlayStateType::idle});
     clips.armed.attack.push_back({"A2", AttackAnimation::PlayStateType::idle});
+    clips.armed.attack.push_back({"A3", AttackAnimation::PlayStateType::idle});
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);

@@ -321,6 +321,8 @@ void CharacterController::Init()
             ArmedCrouchWalkState(context),
             ArmedSprintState(context),
             ArmedSprintAndRotateState(context),
+            ArmedAttackAndRunState(context),
+            ArmedAttackAndWalkState(context),
             JumpState(context, [&]() { impl->stateMachine_->handle(EndJumpEvent{}); }),
             MoveJumpState(context, [&]() { impl->stateMachine_->handle(EndJumpEvent{}); }),
             AimState(context),

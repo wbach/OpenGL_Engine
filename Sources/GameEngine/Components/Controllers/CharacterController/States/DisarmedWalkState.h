@@ -32,7 +32,14 @@ class DisarmedWalkState
 public:
     DisarmedWalkState(FsmContext& context);
 
-    using MoveStateBase::onEnter;
+    using RotatingMoveState::onEnter;
+    using RotatingMoveState::update;
+
+    Utils::StateMachine::Maybe<Utils::StateMachine::TransitionTo<DisarmedAttackState>,
+                               Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>>
+    handle(const AttackEvent&);
+
+    using Will::handle;
 
     void onMoveInactivity() override;
 };

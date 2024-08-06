@@ -185,6 +185,11 @@ void DeathState::onEnter(ArmedSprintAndRotateState &, const DeathEvent &)
     setAnim(context_.animClipNames.armed.death);
 }
 
+void DeathState::onEnter(ArmedAttackAndRunState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
 void DeathState::onEnter(JumpState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.armed.death);
@@ -283,6 +288,11 @@ void DeathState::onEnter(DrawArrowWalkAndRotateState &, const DeathEvent &)
 void DeathState::onEnter(DisarmedAttackAndRotateState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
+}
+
+void DeathState::onEnter(ArmedAttackAndWalkState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
 }
 
 void DeathState::setAnim(const std::string &animName)

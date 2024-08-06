@@ -16,6 +16,17 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, DisarmedWalkState_AttackEventWithoutMove)
+{
+    prepareState(*this);
+    expectNoMove();
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.walk.forward});
+}
+
 TEST_F(CharacterControllerTests, DisarmedWalkState_CrouchChangeStateEvent)
 {
     prepareState(*this);

@@ -50,7 +50,8 @@ void RotatingMoveState::update(const MoveRightEvent &event)
 
 void RotatingMoveState::postEnter()
 {
-    // /*DISABLED*/ DEBUG_LOG("postEnter");
+    // /*DISABLED*/
+    DEBUG_LOG("postEnter set: " + animationClips_.forward);
     // prevent to call postEnter from MoveStateBase
     setTargetAngle();
     setAnim(animationClips_.forward);

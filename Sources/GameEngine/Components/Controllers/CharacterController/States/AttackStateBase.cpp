@@ -57,8 +57,19 @@ void AttackStateBase::onEnter(const EndMoveRightEvent &)
 
 void AttackStateBase::update(const AttackEvent &)
 {
-    if (sequenceSize < attackClipNames.size() - 1 and sequenceSize == currentAnimation)
-        ++sequenceSize;
+    if (sequenceSize == currentAnimation)
+    {
+        if (sequenceSize < attackClipNames.size() - 1)
+            ++sequenceSize;
+        else
+            sequenceSize = 0;
+    }
+}
+
+void AttackStateBase::update(const ChangeAnimEvent &event)
+{
+    context.animator.ChangeAnimation(event.name, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                     jointGroupName);
 }
 
 void AttackStateBase::update(float)
@@ -76,12 +87,19 @@ bool AttackStateBase::isAnyOfStateQueued()
 
 void AttackStateBase::onLeave(const EndAttackEvent &)
 {
-    if (context.fsm->isPreviousStateOfType<DisarmedRunState>() or context.fsm->isPreviousStateOfType<ArmedRunState>())
+    auto wasRunState  = context.fsm->isPreviousStateOfType<DisarmedRunState, ArmedRunState>();
+    auto wasWalkState = context.fsm->isPreviousStateOfType<DisarmedWalkState, ArmedWalkState>();
+
+    if (wasRunState or wasWalkState)
     {
         if (not context.characterController.isAnyOfStateQueued<EndForwardMoveEvent, EndBackwardMoveEvent,
                                                                EndMoveLeftEvent, EndMoveRightEvent>())
         {
-            context.characterController.pushEventToQueue(MoveEvent{});
+            if (wasWalkState)
+            {
+                context.characterController.pushEventToFrontQueue(WalkChangeStateEvent{});
+            }
+            context.characterController.pushEventToFrontQueue(MoveEvent{});
         }
     }
 }
@@ -100,6 +118,7 @@ void AttackStateBase::onLeave()
 }
 void AttackStateBase::onClipEnd()
 {
+    DEBUG_LOG("onClipEnd sequenceSize=" + std::to_string(sequenceSize));
     if (sequenceSize == currentAnimation)
     {
         context.characterController.pushEventToQueue(EndAttackEvent{});
@@ -108,19 +127,14 @@ void AttackStateBase::onClipEnd()
 
     currentAnimation     = sequenceSize;
     const auto &clipName = attackClipNames[currentAnimation].name;
-    context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                     jointGroupName);
+    context.characterController.pushEventToQueue(ChangeAnimEvent{clipName});
 }
 
 void AttackStateBase::subscribe()
 {
     for (const auto &clip : attackClipNames)
     {
-        auto subId = context.animator.SubscribeForAnimationFrame(clip.name,
-                                                                 [&]()
-                                                                 {
-                                                                     onClipEnd();
-                                                                 });
+        auto subId = context.animator.SubscribeForAnimationFrame(clip.name, [&]() { onClipEnd(); });
         subIds.push_back(subId);
     }
 }

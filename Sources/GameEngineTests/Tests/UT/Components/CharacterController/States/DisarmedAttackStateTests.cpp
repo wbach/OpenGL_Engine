@@ -181,3 +181,30 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_EndAttackEvent)
                                  {ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
+TEST_F(CharacterControllerTests, DisarmedAttackState_AttackEvent)
+{
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+    tiggerAndExpect<AttackEvent>({clipName}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({clipName}, {0});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.attack[1].name});
+
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack[1].name}, {0});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.attack[2].name});
+
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack[2].name}, {0});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.attack[0].name});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
+}

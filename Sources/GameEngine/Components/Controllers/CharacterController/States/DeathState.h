@@ -45,6 +45,8 @@ public:
     void onEnter(ArmedCrouchWalkState&, const DeathEvent&);
     void onEnter(ArmedSprintState&, const DeathEvent&);
     void onEnter(ArmedSprintAndRotateState&, const DeathEvent&);
+    void onEnter(ArmedAttackAndRunState&, const DeathEvent&);
+    void onEnter(ArmedAttackAndWalkState&, const DeathEvent&);
     void onEnter(JumpState&, const DeathEvent&);
     void onEnter(MoveJumpState&, const DeathEvent&);
     void onEnter(AimState&, const DeathEvent&);
