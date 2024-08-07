@@ -4,6 +4,9 @@ CharacterControllerTests::CharacterControllerTests()
     : BaseComponentTestSchould()
     , sut_(context_, obj_)
 {
+    CLogger::Instance().EnableLogs();
+    CLogger::Instance().ImmeditalyLog();
+
     DEBUG_LOG("CharacterControllerTests::CharacterControllerTests");
 
     EXPECT_CALL(physicsApiMock_, SetAngularFactor(_, Matcher<float>(_))).Times(AtLeast(1));
@@ -53,9 +56,9 @@ CharacterControllerTests::CharacterControllerTests()
     clips.disarmed.rotateLeft       = "DRL";
     clips.disarmed.rotateRight      = "DRR";
     clips.disarmed.death            = "disarmedDeath";
-    clips.disarmed.attack.push_back({"DA1", AttackAnimation::PlayStateType::idle});
-    clips.disarmed.attack.push_back({"DA2", AttackAnimation::PlayStateType::idle});
-    clips.disarmed.attack.push_back({"DA3", AttackAnimation::PlayStateType::idle});
+    clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
+    clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
+    clips.disarmed.attack.push_back({"DA3", PlayStateType::idle});
 
     clips.armed.idle             = "AI";
     clips.armed.crouchIdle       = "ACI";
@@ -75,9 +78,9 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.rotateLeft       = "ARL";
     clips.armed.rotateRight      = "ARR";
     clips.armed.death            = "armedDeath";
-    clips.armed.attack.push_back({"A1", AttackAnimation::PlayStateType::idle});
-    clips.armed.attack.push_back({"A2", AttackAnimation::PlayStateType::idle});
-    clips.armed.attack.push_back({"A3", AttackAnimation::PlayStateType::idle});
+    clips.armed.attack.push_back({"A1", PlayStateType::idle});
+    clips.armed.attack.push_back({"A2", PlayStateType::idle});
+    clips.armed.attack.push_back({"A3", PlayStateType::idle});
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);

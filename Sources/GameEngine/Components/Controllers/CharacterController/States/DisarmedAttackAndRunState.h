@@ -17,7 +17,7 @@ class DisarmedAttackAndRunState
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
+          //Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Queue>,
@@ -46,6 +46,14 @@ public:
 
     using RotatingMoveState::onEnter;
     using RotatingMoveState::update;
+
+    using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
+                                                         Utils::StateMachine::TransitionTo<DisarmedAttackState>,
+                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>>;
+
+    MaybeAttackStates handle(const ChangeAnimEvent&);
+
+    using Will::handle;
 
     void update(float);
 

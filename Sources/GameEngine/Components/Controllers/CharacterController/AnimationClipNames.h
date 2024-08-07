@@ -1,5 +1,6 @@
 #pragma once
 #include <Types.h>
+#include "PlayStateType.h"
 
 namespace GameEngine
 {
@@ -7,12 +8,6 @@ namespace Components
 {
 struct AttackAnimation
 {
-    enum class PlayStateType
-    {
-        idle,
-        walk,
-        run
-    };
     std::string name;
     PlayStateType stateType;
 };

@@ -24,17 +24,17 @@ ArmedRunState::handle(const AttackEvent &)
         return Utils::StateMachine::Nothing{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::idle)
+    if (clips.front().stateType == PlayStateType::idle)
     {
         return Utils::StateMachine::TransitionTo<ArmedAttackState>{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::walk)
+    if (clips.front().stateType == PlayStateType::walk)
     {
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::run)
+    if (clips.front().stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>{};
     }

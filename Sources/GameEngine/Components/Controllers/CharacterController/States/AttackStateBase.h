@@ -19,6 +19,7 @@ public:
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndMoveLeftEvent&);
     void onEnter(const EndMoveRightEvent&);
+    void onEnter(const ChangeAnimEvent&);
 
     void update(const AttackEvent&);
     void update(const ChangeAnimEvent&);
@@ -45,6 +46,7 @@ protected:
     void onClipEnd();
     void subscribe();
     void unsubscribe();
+    const AttackAnimation& getCurrentAttackAnimation() const;
 
     template <typename... States>
     bool isAnyOfStateQueued();

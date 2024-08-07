@@ -5,7 +5,7 @@ namespace
 void prepareState(CharacterControllerTests& test)
 {
     test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::AttackAnimation::PlayStateType::run;
+        GameEngine::Components::PlayStateType::run;
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -208,7 +208,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_AttackEventWhenWalkBack
 //TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_EndMoveEventWhenAttackEventIsProcessing) // TO DO : should stop if anim needed
 //    prepareState(*this);
 //    sut_.animationClipsNames_.disarmed.attack.front().stateType =
-//        GameEngine::Components::AttackAnimation::PlayStateType::idle;
+//        GameEngine::Components::PlayStateType::idle;
 //    expectNoMove();
 //    tiggerAndExpect<AttackEvent>(
 //        {sut_.animationClipsNames_.armed.attack.front().name});

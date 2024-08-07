@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <variant>
+#include "PlayStateType.h"
 
 namespace GameEngine
 {
@@ -70,6 +71,7 @@ struct NextAttackEvent
 struct ChangeAnimEvent
 {
     std::string name;
+    Components::PlayStateType stateType;
 };
 struct EndAttackEvent
 {

@@ -5,7 +5,7 @@ namespace
 void prepareState(CharacterControllerTests& test)
 {
     test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::AttackAnimation::PlayStateType::run;
+        GameEngine::Components::PlayStateType::run;
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));

@@ -68,7 +68,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent_walk)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
     auto& clip     = sut_.animationClipsNames_.disarmed.attack.front();
-    clip.stateType = GameEngine::Components::AttackAnimation::PlayStateType::walk;
+    clip.stateType = GameEngine::Components::PlayStateType::walk;
     tiggerAndExpect<AttackEvent>({clip.name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_WALK_SPEED);
@@ -80,7 +80,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveForwardEvent_run)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
     auto& clip     = sut_.animationClipsNames_.disarmed.attack.front();
-    clip.stateType = GameEngine::Components::AttackAnimation::PlayStateType::run;
+    clip.stateType = GameEngine::Components::PlayStateType::run;
     tiggerAndExpect<AttackEvent>({clip.name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectForwardVelocity(DEFAULT_RUN_SPEED);

@@ -22,13 +22,13 @@ DisarmedWalkState::handle(const AttackEvent &)
         return Utils::StateMachine::Nothing{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::idle)
+    if (clips.front().stateType == PlayStateType::idle)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackState>{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::walk or
-        clips.front().stateType == AttackAnimation::PlayStateType::run)
+    if (clips.front().stateType == PlayStateType::walk or
+        clips.front().stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>{};
     }

@@ -10,6 +10,10 @@ namespace GameEngine
 {
 namespace Components
 {
+namespace
+{
+const AttackAnimation dummyAttackAnimation{};
+}
 AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames,
                                  const std::optional<std::string> jointGroupName)
     : context{context}
@@ -55,6 +59,11 @@ void AttackStateBase::onEnter(const EndMoveRightEvent &)
     context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 
+void AttackStateBase::onEnter(const ChangeAnimEvent &event)
+{
+    update(event);
+}
+
 void AttackStateBase::update(const AttackEvent &)
 {
     if (sequenceSize == currentAnimation)
@@ -87,8 +96,10 @@ bool AttackStateBase::isAnyOfStateQueued()
 
 void AttackStateBase::onLeave(const EndAttackEvent &)
 {
-    auto wasRunState  = context.fsm->isPreviousStateOfType<DisarmedRunState, ArmedRunState>();
-    auto wasWalkState = context.fsm->isPreviousStateOfType<DisarmedWalkState, ArmedWalkState>();
+    auto wasRunState  = context.fsm->isPreviousStateOfType<DisarmedRunState, DisarmedAttackAndRunState, ArmedRunState,
+                                                          ArmedAttackAndRunState>();
+    auto wasWalkState = context.fsm->isPreviousStateOfType<DisarmedWalkState, DisarmedAttackAndWalkState,
+                                                           ArmedWalkState, ArmedAttackAndWalkState>();
 
     if (wasRunState or wasWalkState)
     {
@@ -125,9 +136,9 @@ void AttackStateBase::onClipEnd()
         return;
     }
 
-    currentAnimation     = sequenceSize;
-    const auto &clipName = attackClipNames[currentAnimation].name;
-    context.characterController.pushEventToQueue(ChangeAnimEvent{clipName});
+    currentAnimation = sequenceSize;
+    const auto &clip = attackClipNames[currentAnimation];
+    context.characterController.pushEventToQueue(ChangeAnimEvent{clip.name, clip.stateType});
 }
 
 void AttackStateBase::subscribe()
@@ -147,6 +158,13 @@ void AttackStateBase::unsubscribe()
             context.animator.UnSubscribeForAnimationFrame(id);
         subIds.clear();
     }
+}
+const AttackAnimation &AttackStateBase::getCurrentAttackAnimation() const
+{
+    if (sequenceSize > 0 and sequenceSize < attackClipNames.size())
+        return attackClipNames[sequenceSize];
+    else
+        return dummyAttackAnimation;
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -60,18 +60,18 @@ void write(TreeNode& node, const MovmentClipNames& names)
     ::write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.moveRight);
 }
 
-void write(TreeNode& node, const AttackAnimation::PlayStateType& stateType)
+void write(TreeNode& node, const PlayStateType& stateType)
 {
     std::string s{"unknown"};
     switch (stateType)
     {
-        case AttackAnimation::PlayStateType::idle:
+        case PlayStateType::idle:
             s = "idle";
             break;
-        case AttackAnimation::PlayStateType::walk:
+        case PlayStateType::walk:
             s = "walk";
             break;
-        case AttackAnimation::PlayStateType::run:
+        case PlayStateType::run:
             s = "run";
             break;
     }
@@ -142,11 +142,11 @@ void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
     {
         if (!node->value_.empty())
         {
-            result.push_back({node->value_, AttackAnimation::PlayStateType::idle});
+            result.push_back({node->value_, PlayStateType::idle});
         }
         else
         {
-            AttackAnimation aa{"", AttackAnimation::PlayStateType::idle};
+            AttackAnimation aa{"", PlayStateType::idle};
             auto maybeNameNode = node->getChild(CSTR_NAME);
             if (maybeNameNode)
             {
@@ -157,11 +157,11 @@ void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
             {
                 if (maybePlayStateTypeNode->value_ == "walk")
                 {
-                    aa.stateType = AttackAnimation::PlayStateType::walk;
+                    aa.stateType = PlayStateType::walk;
                 }
                 if (maybePlayStateTypeNode->value_ == "run")
                 {
-                    aa.stateType = AttackAnimation::PlayStateType::run;
+                    aa.stateType = PlayStateType::run;
                 }
             }
             result.push_back(aa);

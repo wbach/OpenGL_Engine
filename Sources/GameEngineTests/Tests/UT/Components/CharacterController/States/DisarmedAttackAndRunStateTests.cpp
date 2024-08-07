@@ -5,7 +5,7 @@ namespace
 void prepareState(CharacterControllerTests& test)
 {
     test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::AttackAnimation::PlayStateType::run;
+        GameEngine::Components::PlayStateType::run;
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -190,6 +190,27 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_SprintStateChangeEven
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.sprint});
+}
+
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_AttackEventSecondClipIsIdleOnly)
+{
+    auto& clip1     = sut_.animationClipsNames_.disarmed.attack[0];
+    clip1.stateType = GameEngine::Components::PlayStateType::run;
+    auto& clip2     = sut_.animationClipsNames_.disarmed.attack[1];
+    clip2.stateType = GameEngine::Components::PlayStateType::idle;
+
+    prepareState(*this);
+    tiggerAndExpect<AttackEvent>({clip1.name, sut_.animationClipsNames_.disarmed.run.forward});
+
+    // Wait for attack anim 1 finished, and second started
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({clip2.name});
+
+    // back to run after second idleOnly clip finished
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_AttackEvent)

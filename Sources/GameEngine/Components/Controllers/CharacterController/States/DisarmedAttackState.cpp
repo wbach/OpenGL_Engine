@@ -42,18 +42,18 @@ DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handleMoveEvents(con
         return Utils::StateMachine::Update{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::idle)
+    if (clips.front().stateType == PlayStateType::idle)
     {
         queue.push_back(event);
         return Utils::StateMachine::Update{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::walk)
+    if (clips.front().stateType == PlayStateType::walk)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>{};
     }
 
-    if (clips.front().stateType == AttackAnimation::PlayStateType::run)
+    if (clips.front().stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>{};
     }
