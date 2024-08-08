@@ -4,8 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::PlayStateType::run;
+    test.sut_.animationClipsNames_.disarmed.attack.front().stateType = GameEngine::Components::PlayStateType::run;
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -43,6 +42,12 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_MoveForwardEvent)
 {
     prepareState(*this);
+
+    for (auto& state : sut_.animationClipsNames_.armed.attack)
+    {
+        state.stateType = GameEngine::Components::PlayStateType::run;
+    }
+
     const auto& attackClipName = sut_.animationClipsNames_.armed.attack.front().name;
 
     tiggerAndExpect<EndForwardMoveEvent>({attackClipName});
@@ -205,15 +210,16 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_AttackEventWhenWalkBack
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.walk.forward});
 }
-//TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_EndMoveEventWhenAttackEventIsProcessing) // TO DO : should stop if anim needed
-//    prepareState(*this);
-//    sut_.animationClipsNames_.disarmed.attack.front().stateType =
-//        GameEngine::Components::PlayStateType::idle;
-//    expectNoMove();
-//    tiggerAndExpect<AttackEvent>(
-//        {sut_.animationClipsNames_.armed.attack.front().name});
-//    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.attack.front().name});
-//    Update(ADVANCED_TIME_CLIP_TIME);
-//    Update(ADVANCED_TIME_TRANSITION_TIME);
-//    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
-//}
+// TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_EndMoveEventWhenAttackEventIsProcessing) // TO DO : should
+// stop if anim needed
+//     prepareState(*this);
+//     sut_.animationClipsNames_.disarmed.attack.front().stateType =
+//         GameEngine::Components::PlayStateType::idle;
+//     expectNoMove();
+//     tiggerAndExpect<AttackEvent>(
+//         {sut_.animationClipsNames_.armed.attack.front().name});
+//     tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+//     Update(ADVANCED_TIME_CLIP_TIME);
+//     Update(ADVANCED_TIME_TRANSITION_TIME);
+//     expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
+// }

@@ -4,8 +4,10 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::PlayStateType::run;
+    for (auto& state : test.sut_.animationClipsNames_.disarmed.attack)
+    {
+        state.stateType = GameEngine::Components::PlayStateType::run;
+    }
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -194,12 +196,12 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_SprintStateChangeEven
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_AttackEventSecondClipIsIdleOnly)
 {
+    prepareState(*this);
     auto& clip1     = sut_.animationClipsNames_.disarmed.attack[0];
     clip1.stateType = GameEngine::Components::PlayStateType::run;
     auto& clip2     = sut_.animationClipsNames_.disarmed.attack[1];
     clip2.stateType = GameEngine::Components::PlayStateType::idle;
 
-    prepareState(*this);
     tiggerAndExpect<AttackEvent>({clip1.name, sut_.animationClipsNames_.disarmed.run.forward});
 
     // Wait for attack anim 1 finished, and second started

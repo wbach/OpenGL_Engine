@@ -4,8 +4,10 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::PlayStateType::run;
+    for (auto& state : test.sut_.animationClipsNames_.disarmed.attack)
+    {
+        state.stateType = GameEngine::Components::PlayStateType::run;
+    }
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -159,27 +161,27 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_EndBackwardMoveEvent
     tiggerAndExpect<EndForwardMoveEvent>({clipName}, {0});
 }
 
-//TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateLeftEvent)
+// TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateLeftEvent)
 //{
-//    prepareState(*this);
-//    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
-//    expectRotationLeft();
-//    tiggerAndExpect<RotateLeftEvent>({clipName, sut_.animationClipsNames_.disarmed.walk.forward});
-//}
+//     prepareState(*this);
+//     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+//     expectRotationLeft();
+//     tiggerAndExpect<RotateLeftEvent>({clipName, sut_.animationClipsNames_.disarmed.walk.forward});
+// }
 
-//TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateRightEvent)
+// TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateRightEvent)
 //{
-//    prepareState(*this);
-//    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
-//    expectRotationRight();
-//    tiggerAndExpect<RotateRightEvent>({clipName, sut_.animationClipsNames_.disarmed.walk.forward});
-//}
+//     prepareState(*this);
+//     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+//     expectRotationRight();
+//     tiggerAndExpect<RotateRightEvent>({clipName, sut_.animationClipsNames_.disarmed.walk.forward});
+// }
 
-//TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateTargetEvent)
+// TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_RotateTargetEvent)
 //{
-//    prepareState(*this);
-//    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
-//    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+//     prepareState(*this);
+//     const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
+//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
 //    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
 //    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
@@ -207,6 +209,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_AttackEvent)
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
+
     expectAnimsToBeSet(
         {sut_.animationClipsNames_.disarmed.attack[1].name, sut_.animationClipsNames_.disarmed.walk.forward});
 }

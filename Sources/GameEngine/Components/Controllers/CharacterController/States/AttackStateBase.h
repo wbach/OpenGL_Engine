@@ -7,11 +7,21 @@ namespace GameEngine
 {
 namespace Components
 {
+struct AttackStatesContext;
+class DisarmedRunState;
+class DisarmedWalkState;
+class ArmedRunState;
+class ArmedWalkState;
+
 class AttackStateBase
 {
 public:
     AttackStateBase(FsmContext&, const std::vector<AttackAnimation>&, const std::optional<std::string> = std::nullopt);
 
+    void onEnter(DisarmedRunState&);
+    void onEnter(DisarmedWalkState&);
+    void onEnter(ArmedRunState&);
+    void onEnter(ArmedWalkState&);
     void onEnter(const AttackEvent&);
     void onEnter();
 
@@ -48,19 +58,13 @@ protected:
     void unsubscribe();
     const AttackAnimation& getCurrentAttackAnimation() const;
 
-    template <typename... States>
-    bool isAnyOfStateQueued();
-
 protected:
     FsmContext& context;
-    std::vector<CharacterControllerEvent> queue;
+    std::vector<CharacterControllerEvent>& queue;
 
 private:
     std::vector<IdType> subIds;
     const std::vector<AttackAnimation>& attackClipNames;
-
-    uint32 sequenceSize     = 0;
-    uint32 currentAnimation = 0;
 
     std::optional<std::string> jointGroupName;
 };

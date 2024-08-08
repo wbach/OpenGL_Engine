@@ -36,57 +36,63 @@ TEST_F(CharacterControllerTests, ArmedAttackStateTests_DeathEvent)
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_MoveForwardEvent)
 {
+    auto& clip1     = sut_.animationClipsNames_.armed.attack[0];
+    clip1.stateType = GameEngine::Components::PlayStateType::run;
+
     prepareState(*this);
+
     expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveForwardEvent>(
-        {sut_.animationClipsNames_.armed.attack.front().name, sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<MoveForwardEvent>({clip1.name, sut_.animationClipsNames_.armed.run.forward});
     expectRootboneRotation(VECTOR_FORWARD);
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_MoveBackwardEvent)
 {
+    auto& clip1     = sut_.animationClipsNames_.armed.attack[0];
+    clip1.stateType = GameEngine::Components::PlayStateType::run;
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>(
-        {sut_.animationClipsNames_.armed.attack.front().name, sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<MoveBackwardEvent>({clip1.name, sut_.animationClipsNames_.armed.run.forward});
     expectRootboneRotation(VECTOR_BACKWARD);
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_MoveLeftEvent)
 {
+    auto& clip1     = sut_.animationClipsNames_.armed.attack[0];
+    clip1.stateType = GameEngine::Components::PlayStateType::run;
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>(
-        {sut_.animationClipsNames_.armed.attack.front().name, sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<MoveLeftEvent>({clip1.name, sut_.animationClipsNames_.armed.run.forward});
     expectRootboneRotation(VECTOR_LEFT);
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_MoveRightEvent)
 {
+    auto& clip1     = sut_.animationClipsNames_.armed.attack[0];
+    clip1.stateType = GameEngine::Components::PlayStateType::run;
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent>(
-        {sut_.animationClipsNames_.armed.attack.front().name, sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<MoveRightEvent>({clip1.name, sut_.animationClipsNames_.armed.run.forward});
     expectRootboneRotation(VECTOR_RIGHT);
 }
 
-//TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateLeftEvent)
+// TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateLeftEvent)
 //{
-//    prepareState(*this);
-//    expectRotationLeft();
-//    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.rotateLeft});
-//}
+//     prepareState(*this);
+//     expectRotationLeft();
+//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.rotateLeft});
+// }
 
-//TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateRightEvent)
+// TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateRightEvent)
 //{
-//    prepareState(*this);
-//    expectRotationRight();
-//    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.rotateRight});
-//}
+//     prepareState(*this);
+//     expectRotationRight();
+//     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.rotateRight});
+// }
 
-//TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateTargetEvent)
+// TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateTargetEvent)
 //{
-//    prepareState(*this);
+//     prepareState(*this);
 
 //    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 

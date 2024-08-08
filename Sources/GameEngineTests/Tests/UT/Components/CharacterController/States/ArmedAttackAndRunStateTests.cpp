@@ -4,8 +4,7 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.sut_.animationClipsNames_.disarmed.attack.front().stateType =
-        GameEngine::Components::PlayStateType::run;
+    test.sut_.animationClipsNames_.disarmed.attack.front().stateType = GameEngine::Components::PlayStateType::run;
 
     EXPECT_CALL(test.physicsApiMock_, GetVelocity(test.rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(test.physicsApiMock_, GetRotation(test.rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
@@ -41,6 +40,11 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, ArmedAttackAndRunState_MoveForwardEvent)
 {
     prepareState(*this);
+    for (auto& state : sut_.animationClipsNames_.armed.attack)
+    {
+        state.stateType = GameEngine::Components::PlayStateType::run;
+    }
+
     const auto& attackClipName = sut_.animationClipsNames_.armed.attack.front().name;
 
     tiggerAndExpect<EndForwardMoveEvent>({attackClipName});
@@ -216,6 +220,10 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_MoveForwardAndLeftEvent)
 }
 TEST_F(CharacterControllerTests, ArmedAttackAndRunState_PR_MoveStopAndGoDuringAttack)
 {
+    for (auto& state : sut_.animationClipsNames_.armed.attack)
+    {
+        state.stateType = GameEngine::Components::PlayStateType::run;
+    }
     const auto& attackClip = sut_.animationClipsNames_.armed.attack.front();
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>({attackClip.name}, {0});

@@ -17,15 +17,32 @@ const AttackAnimation dummyAttackAnimation{};
 AttackStateBase::AttackStateBase(FsmContext &context, const std::vector<AttackAnimation> &clipnames,
                                  const std::optional<std::string> jointGroupName)
     : context{context}
+    , queue{context.attackStatesContext.queue}
     , attackClipNames{clipnames}
     , jointGroupName{jointGroupName}
 {
+}
+void AttackStateBase::onEnter(DisarmedRunState &)
+{
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
+}
+void AttackStateBase::onEnter(DisarmedWalkState &)
+{
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
+}
+void AttackStateBase::onEnter(ArmedRunState &)
+{
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::run;
+}
+void AttackStateBase::onEnter(ArmedWalkState &)
+{
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::walk;
 }
 void AttackStateBase::onEnter(const AttackEvent &)
 {
     if (not attackClipNames.empty())
     {
-        const auto &clipName = attackClipNames[currentAnimation].name;
+        const auto &clipName = attackClipNames[context.attackStatesContext.currentAnimation].name;
         context.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
                                          jointGroupName);
     }
@@ -41,21 +58,25 @@ void AttackStateBase::onEnter()
 
 void AttackStateBase::onEnter(const EndForwardMoveEvent &)
 {
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 
 void AttackStateBase::onEnter(const EndBackwardMoveEvent &)
 {
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 
 void AttackStateBase::onEnter(const EndMoveLeftEvent &)
 {
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 
 void AttackStateBase::onEnter(const EndMoveRightEvent &)
 {
+    context.attackStatesContext.nextMoveState = AttackStatesContext::NextMoveState::idle;
     context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 
@@ -66,12 +87,12 @@ void AttackStateBase::onEnter(const ChangeAnimEvent &event)
 
 void AttackStateBase::update(const AttackEvent &)
 {
-    if (sequenceSize == currentAnimation)
+    if (context.attackStatesContext.sequenceSize == context.attackStatesContext.currentAnimation)
     {
-        if (sequenceSize < attackClipNames.size() - 1)
-            ++sequenceSize;
+        if (context.attackStatesContext.sequenceSize < attackClipNames.size() - 1)
+            ++context.attackStatesContext.sequenceSize;
         else
-            sequenceSize = 0;
+            context.attackStatesContext.sequenceSize = 0;
     }
 }
 
@@ -85,59 +106,45 @@ void AttackStateBase::update(float)
 {
 }
 
-template <typename... States>
-bool AttackStateBase::isAnyOfStateQueued()
-{
-    auto iter = std::find_if(queue.begin(), queue.end(),
-                             [](const auto &event) { return (std::holds_alternative<States>(event) or ...); });
-
-    return iter != queue.end();
-}
-
 void AttackStateBase::onLeave(const EndAttackEvent &)
 {
-    auto wasRunState  = context.fsm->isPreviousStateOfType<DisarmedRunState, DisarmedAttackAndRunState, ArmedRunState,
-                                                          ArmedAttackAndRunState>();
-    auto wasWalkState = context.fsm->isPreviousStateOfType<DisarmedWalkState, DisarmedAttackAndWalkState,
-                                                           ArmedWalkState, ArmedAttackAndWalkState>();
-
-    if (wasRunState or wasWalkState)
+    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::run or
+        context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
     {
-        if (not context.characterController.isAnyOfStateQueued<EndForwardMoveEvent, EndBackwardMoveEvent,
-                                                               EndMoveLeftEvent, EndMoveRightEvent>())
-        {
-            if (wasWalkState)
-            {
-                context.characterController.pushEventToFrontQueue(WalkChangeStateEvent{});
-            }
-            context.characterController.pushEventToFrontQueue(MoveEvent{});
-        }
+        context.characterController.pushEventToQueue(MoveEvent{});
     }
-}
 
-void AttackStateBase::onLeave()
-{
-    unsubscribe();
-    sequenceSize     = 0;
-    currentAnimation = 0;
+    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::walk)
+    {
+        context.characterController.pushEventToQueue(WalkChangeStateEvent{});
+    }
 
     for (const auto &e : queue)
     {
         context.characterController.pushEventToQueue(e);
     }
     queue.clear();
+
+    context.attackStatesContext.nextMoveState    = AttackStatesContext::NextMoveState::idle;
+    context.attackStatesContext.sequenceSize     = 0;
+    context.attackStatesContext.currentAnimation = 0;
+}
+
+void AttackStateBase::onLeave()
+{
+    unsubscribe();
 }
 void AttackStateBase::onClipEnd()
 {
-    DEBUG_LOG("onClipEnd sequenceSize=" + std::to_string(sequenceSize));
-    if (sequenceSize == currentAnimation)
+    DEBUG_LOG("onClipEnd sequenceSize=" + std::to_string(context.attackStatesContext.sequenceSize));
+    if (context.attackStatesContext.sequenceSize == context.attackStatesContext.currentAnimation)
     {
         context.characterController.pushEventToQueue(EndAttackEvent{});
         return;
     }
 
-    currentAnimation = sequenceSize;
-    const auto &clip = attackClipNames[currentAnimation];
+    context.attackStatesContext.currentAnimation = context.attackStatesContext.sequenceSize;
+    const auto &clip                             = attackClipNames[context.attackStatesContext.currentAnimation];
     context.characterController.pushEventToQueue(ChangeAnimEvent{clip.name, clip.stateType});
 }
 
@@ -161,8 +168,9 @@ void AttackStateBase::unsubscribe()
 }
 const AttackAnimation &AttackStateBase::getCurrentAttackAnimation() const
 {
-    if (sequenceSize > 0 and sequenceSize < attackClipNames.size())
-        return attackClipNames[sequenceSize];
+    if (context.attackStatesContext.sequenceSize > 0 and
+        context.attackStatesContext.sequenceSize < attackClipNames.size())
+        return attackClipNames[context.attackStatesContext.sequenceSize];
     else
         return dummyAttackAnimation;
 }

@@ -5,13 +5,13 @@
 
 #include "AimController.h"
 #include "AnimationClipNames.h"
+#include "CharacterControllerFsm.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "MoveController.h"
 #include "MoveSpeed.h"
 
-#include "CharacterControllerFsm.h"
 
 namespace GameEngine
 {
@@ -19,6 +19,32 @@ namespace Components
 {
 class JointPoseUpdater;
 class CharacterController;
+
+struct AttackStatesContext
+{
+    template <typename... States>
+    bool isAnyOfStateQueued()
+    {
+        auto iter = std::find_if(queue.begin(), queue.end(),
+                                 [](const auto& event) { return (std::holds_alternative<States>(event) or ...); });
+
+        return iter != queue.end();
+    }
+
+    uint32 sequenceSize     = 0;
+    uint32 currentAnimation = 0;
+    std::vector<CharacterControllerEvent> queue;
+
+    enum NextMoveState
+    {
+        idle,
+        walk,
+        run,
+        sprint
+    };
+
+    NextMoveState nextMoveState{NextMoveState::idle};
+};
 
 struct FsmContext
 {
@@ -86,6 +112,8 @@ struct FsmContext
     Quaternion currentAngle{vec3(0.f)};
     Quaternion sourceAngle{vec3(0.f)};
     float progress = 1.f;
+
+    AttackStatesContext attackStatesContext;
 };
 }  // namespace Components
 }  // namespace GameEngine
