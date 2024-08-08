@@ -15,7 +15,7 @@ Utils::StateMachine::Maybe<Utils::StateMachine::TransitionTo<ArmedAttackState>,
                            Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState> >
 ArmedWalkState::handle(const AttackEvent &)
 {
-    const auto &clips = context_.animClipNames.disarmed.attack;
+    const auto &clips = context_.animClipNames.armed.attack;
 
     if (clips.empty())
     {
@@ -27,8 +27,7 @@ ArmedWalkState::handle(const AttackEvent &)
         return Utils::StateMachine::TransitionTo<ArmedAttackState>{};
     }
 
-    if (clips.front().stateType == PlayStateType::walk or
-        clips.front().stateType == PlayStateType::run)
+    if (clips.front().stateType == PlayStateType::walk or clips.front().stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>{};
     }

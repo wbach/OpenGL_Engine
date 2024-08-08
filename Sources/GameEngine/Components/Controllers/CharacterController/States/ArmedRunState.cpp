@@ -2,6 +2,7 @@
 
 #include "../CharacterController.h"
 #include "../FsmContext.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -17,25 +18,29 @@ Utils::StateMachine::Maybe<Utils::StateMachine::TransitionTo<ArmedAttackState>,
                            Utils::StateMachine::TransitionTo<ArmedAttackAndRunState> >
 ArmedRunState::handle(const AttackEvent &)
 {
-    const auto &clips = context_.animClipNames.disarmed.attack;
+    const auto &clips = context_.animClipNames.armed.attack;
 
     if (clips.empty())
     {
+        DEBUG_LOG("x");
         return Utils::StateMachine::Nothing{};
     }
 
     if (clips.front().stateType == PlayStateType::idle)
     {
+        DEBUG_LOG("idle");
         return Utils::StateMachine::TransitionTo<ArmedAttackState>{};
     }
 
     if (clips.front().stateType == PlayStateType::walk)
     {
+        DEBUG_LOG("walk");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>{};
     }
 
     if (clips.front().stateType == PlayStateType::run)
     {
+        DEBUG_LOG("run");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>{};
     }
 

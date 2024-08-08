@@ -22,5 +22,19 @@ void ArmedAttackAndWalkState::onMoveInactivity()
 {
     context_.animator.StopAnimation(context.lowerBodyGroupName);
 }
+ArmedAttackAndWalkState::MaybeAttackStates ArmedAttackAndWalkState::handle(const ChangeAnimEvent& event)
+{
+    if (event.stateType == PlayStateType::idle)
+    {
+        return Utils::StateMachine::TransitionTo<ArmedAttackState>{};
+    }
+
+    if (event.stateType == PlayStateType::run or event.stateType == PlayStateType::walk)
+    {
+        return Utils::StateMachine::Update{};
+    }
+
+    return Utils::StateMachine::Nothing{};
+}
 }  // namespace Components
 }  // namespace GameEngine

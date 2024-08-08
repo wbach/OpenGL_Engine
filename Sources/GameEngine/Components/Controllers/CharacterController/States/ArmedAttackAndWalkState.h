@@ -21,7 +21,6 @@ class ArmedAttackAndWalkState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Queue>,
-          Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
@@ -45,6 +44,14 @@ public:
     using RotatingMoveState::update;
 
     void update(float);
+
+    using MaybeAttackStates =
+        Utils::StateMachine::Maybe<Utils::StateMachine::Update, Utils::StateMachine::TransitionTo<ArmedAttackState>,
+                                   Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>>;
+
+    MaybeAttackStates handle(const ChangeAnimEvent&);
+
+    using Will::handle;
 
     void onMoveInactivity() override;
 };
