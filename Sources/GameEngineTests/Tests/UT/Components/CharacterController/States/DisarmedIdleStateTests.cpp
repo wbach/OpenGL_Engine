@@ -85,19 +85,17 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.rotateLeft});
+                                       {sut_.animationClipsNames_.disarmed.rotateRight});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_AttackEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 
 TEST_F(CharacterControllerTests, DisarmedIdleState_CrouchChangeStateEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.crouchIdle},
-                                            {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.crouchIdle}, {ADVANCED_TIME_TRANSITION_TIME});
 }

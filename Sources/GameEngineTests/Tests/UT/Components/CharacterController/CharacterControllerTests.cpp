@@ -59,6 +59,9 @@ CharacterControllerTests::CharacterControllerTests()
     clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA3", PlayStateType::idle});
+    disarmedAttackClip1 = &clips.disarmed.attack[0];
+    disarmedAttackClip2 = &clips.disarmed.attack[1];
+    disarmedAttackClip3 = &clips.disarmed.attack[2];
 
     clips.armed.idle             = "AI";
     clips.armed.crouchIdle       = "ACI";
@@ -81,6 +84,10 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.attack.push_back({"A1", PlayStateType::idle});
     clips.armed.attack.push_back({"A2", PlayStateType::idle});
     clips.armed.attack.push_back({"A3", PlayStateType::idle});
+
+    armedAttackClip1 = &clips.armed.attack[0];
+    armedAttackClip2 = &clips.armed.attack[1];
+    armedAttackClip3 = &clips.armed.attack[2];
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);
@@ -267,8 +274,7 @@ void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpe
 
     DEBUG_LOG("Expected rotation : " + std::to_string(rotation.value_));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
-    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_)))
-        .Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_))).Times(AtLeast(1));
 }
 
 void CharacterControllerTests::expectRotationLeft(float dt)
@@ -285,9 +291,8 @@ void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
 {
     Update(DEFAULT_MOVING_CHANGE_DIR_SPEED);
 
-    auto currentBoneRotation = glm::quat_cast(animator_->GetRootJoint()->additionalUserMofiyTransform.getMatrix());
-    auto expectedBoneRotation =
-        glm::angleAxis(glm::orientedAngle(VECTOR_FORWARD, glm::normalize(dir), VECTOR_UP), VECTOR_UP);
+    auto currentBoneRotation  = glm::quat_cast(animator_->GetRootJoint()->additionalUserMofiyTransform.getMatrix());
+    auto expectedBoneRotation = glm::angleAxis(glm::orientedAngle(VECTOR_FORWARD, glm::normalize(dir), VECTOR_UP), VECTOR_UP);
 
     EXPECT_NEAR(currentBoneRotation.x, expectedBoneRotation.x, std::numeric_limits<float>::epsilon());
     EXPECT_NEAR(currentBoneRotation.y, expectedBoneRotation.y, std::numeric_limits<float>::epsilon());

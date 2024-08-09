@@ -1,6 +1,6 @@
 BasedOnStyle: Google
 BreakBeforeBraces: Allman
-ColumnLimit: '120'
+ColumnLimit: '130'
 Language: Cpp
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'

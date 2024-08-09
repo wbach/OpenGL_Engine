@@ -17,13 +17,10 @@ class DisarmedAttackAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
-          Utils::StateMachine::On<MoveForwardEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<MoveBackwardEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<MoveRightEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>>
 {
@@ -44,9 +41,8 @@ public:
 
     void update(float);
 
-    using MaybeAttackStates =
-        Utils::StateMachine::Maybe<Utils::StateMachine::Update,
-                                   Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>;
+    using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
+                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>;
     // Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>>;
 
     MaybeAttackStates handle(const ChangeAnimEvent&);

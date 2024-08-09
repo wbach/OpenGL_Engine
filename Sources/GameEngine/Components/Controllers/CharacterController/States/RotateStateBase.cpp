@@ -9,9 +9,8 @@ namespace GameEngine
 {
 namespace Components
 {
-RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName,
-                                 float rotateSpeed, const std::string &rotateLeftAnim,
-                                 const std::string &rotateRightAnim)
+RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName, float rotateSpeed,
+                                 const std::string &rotateLeftAnim, const std::string &rotateRightAnim)
     : context_{context}
     , jointGroupName_{jointGourpName}
     , rotateLeftAnim_{rotateLeftAnim}
@@ -51,7 +50,7 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
         context_.rotateToTarget         = true;
         context_.rotateToTargetProgress = 0.f;
 
-        setRotateLeftAnim();
+        setCurrentAnim();
     }
 }
 
@@ -102,8 +101,7 @@ void RotateStateBase::update(float deltaTime)
             context_.rotateToTargetProgress += (rotateSpeed_ * deltaTime);
             context_.rotateToTargetProgress = glm::clamp(context_.rotateToTargetProgress, 0.f, 1.f);
 
-            auto newRotation =
-                glm::slerp(context_.startRotation, context_.targetRotation, context_.rotateToTargetProgress);
+            auto newRotation = glm::slerp(context_.startRotation, context_.targetRotation, context_.rotateToTargetProgress);
 
             context_.rigidbody.SetRotation(newRotation);
         }
@@ -149,8 +147,8 @@ void RotateStateBase::setRotateLeftAnim()
 {
     if (not rotateLeftAnim_.empty() and not context_.animator.isAnimationPlaying(rotateLeftAnim_))
     {
-        context_.animator.ChangeAnimation(rotateLeftAnim_, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, jointGroupName_);
+        context_.animator.ChangeAnimation(rotateLeftAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                          jointGroupName_);
     }
 }
 
@@ -158,8 +156,8 @@ void RotateStateBase::setRotateRightAnim()
 {
     if (not rotateRightAnim_.empty() and not context_.animator.isAnimationPlaying(rotateRightAnim_))
     {
-        context_.animator.ChangeAnimation(rotateRightAnim_, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, jointGroupName_);
+        context_.animator.ChangeAnimation(rotateRightAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                          jointGroupName_);
     }
 }
 

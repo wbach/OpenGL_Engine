@@ -3,8 +3,7 @@
 TEST_F(CharacterControllerTests, DisarmedAttackState_DrawArrowEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -14,8 +13,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_DrawArrowEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopDuringDrawArrowEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
 
@@ -28,8 +26,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_AimStopDuringDrawArrowEvent
 TEST_F(CharacterControllerTests, DisarmedAttackState_WeaponStateEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     tiggerAndExpect<WeaponStateEvent>({sut_.animationClipsNames_.equip}, {ADVANCED_TIME_TRANSITION_TIME});
     Update(ADVANCED_TIME_CLIP_TIME);
@@ -39,8 +36,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_WeaponStateEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_DeathEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.death});
 }
@@ -127,8 +123,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveLeftEvent_idle)
 TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent_idle)
 {
     auto& clip = sut_.animationClipsNames_.disarmed.attack.front();
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<MoveRightEvent>({clip.name}, {ADVANCED_TIME_TRANSITION_TIME});
     expectNoMove();
     expectAnimsToBeSet({clip.name});
@@ -145,8 +140,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent_idle)
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateLeftEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationLeft();
     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
@@ -155,8 +149,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateLeftEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateRightEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationRight();
     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.rotateRight});
@@ -165,20 +158,18 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_RotateRightEvent)
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateTargetEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.rotateLeft});
+                                       {sut_.animationClipsNames_.disarmed.rotateRight});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_EndAttackEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name},
-                                 {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<EndAttackEvent>({sut_.animationClipsNames_.disarmed.idle}, {ADVANCED_TIME_TRANSITION_TIME});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_AttackEvent)

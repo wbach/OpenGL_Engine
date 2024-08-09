@@ -2,6 +2,7 @@
 #include <Utils/Time/Timer.h>
 #include <gtest/gtest.h>
 
+#include "Components/Controllers/CharacterController/AnimationClipNames.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
@@ -10,7 +11,6 @@
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
-
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -46,8 +46,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     template <typename Event>
     void tiggerAndExpect(const std::vector<std::string>& clipNames,
-                         const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME},
-                         const Event& event                    = Event{})
+                         const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME}, const Event& event = Event{})
     {
         tiggerAndExpect<Event>(event, clipNames, updateTimes);
     }
@@ -70,4 +69,11 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     GameEngine::Model model_;
     GameEngine::Physics::ShapeId shapeId{1};
     GameEngine::Physics::RigidbodyId rigidbodyid{1};
+
+    AttackAnimation* armedAttackClip1;
+    AttackAnimation* armedAttackClip2;
+    AttackAnimation* armedAttackClip3;
+    AttackAnimation* disarmedAttackClip1;
+    AttackAnimation* disarmedAttackClip2;
+    AttackAnimation* disarmedAttackClip3;
 };
