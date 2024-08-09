@@ -1,7 +1,8 @@
 #include "DisarmedAttackState.h"
 
-#include "../FsmContext.h"
 #include <Logger/Log.h>
+
+#include "../FsmContext.h"
 
 namespace GameEngine
 {
@@ -45,20 +46,36 @@ DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handleMoveEvents(con
     if (clips.front().stateType == PlayStateType::idle)
     {
         queue.push_back(event);
+    }
+
+    return getCorrespodingState(clips.front().stateType);
+}
+DisarmedAttackState::MaybeAttackStates DisarmedAttackState::getCorrespodingState(PlayStateType stateType)
+{
+    if (stateType == PlayStateType::idle)
+    {
         return Utils::StateMachine::Update{};
     }
 
-    if (clips.front().stateType == PlayStateType::walk)
+    if (stateType == PlayStateType::walk)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>{};
     }
 
-    if (clips.front().stateType == PlayStateType::run)
+    if (stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>{};
     }
 
     return Utils::StateMachine::Nothing{};
+}
+
+DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handle(const ChangeAnimEvent &event)
+{
+    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle)
+        return Utils::StateMachine::Update{};
+
+    return getCorrespodingState(event.stateType);
 }
 }  // namespace Components
 }  // namespace GameEngine

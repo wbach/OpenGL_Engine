@@ -218,13 +218,24 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_AttackEventSecondClip
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_AttackEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.disarmed.attack.front().name;
-    tiggerAndExpect<AttackEvent>({clipName, sut_.animationClipsNames_.disarmed.run.forward});
+    const auto& clip1 = sut_.animationClipsNames_.disarmed.attack[0];
+    const auto& clip3 = sut_.animationClipsNames_.disarmed.attack[2];
+    auto& clip2       = sut_.animationClipsNames_.disarmed.attack[1];
+    clip2.stateType   = GameEngine::Components::PlayStateType::idle;
+
+    tiggerAndExpect<AttackEvent>({clip1.name, sut_.animationClipsNames_.disarmed.run.forward});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet(
-        {sut_.animationClipsNames_.disarmed.attack[1].name, sut_.animationClipsNames_.disarmed.run.forward});
+    tiggerAndExpect<AttackEvent>({clip2.name});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({clip3.name, sut_.animationClipsNames_.disarmed.run.forward});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.run.forward});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_AttackEventWhenRunBackward)
 {
