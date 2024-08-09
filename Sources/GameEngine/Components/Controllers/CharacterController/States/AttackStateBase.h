@@ -1,5 +1,6 @@
 #pragma once
 #include "../AnimationClipNames.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
@@ -25,6 +26,7 @@ public:
     void onEnter(const AttackEvent&);
     void onEnter();
 
+    void onEnter(const EndRotationEvent&);
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
     void onEnter(const EndMoveLeftEvent&);

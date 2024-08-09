@@ -13,6 +13,7 @@ class DisarmedAttackAndRotateState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
@@ -38,10 +39,19 @@ public:
     using RotateStateBase::update;
 
     using AttackStateBase::onEnter;
-    using AttackStateBase::update;
     using AttackStateBase::onLeave;
+    using AttackStateBase::update;
 
     void update(float);
+
+    using MaybeAttackStates =
+        Utils::StateMachine::Maybe<Utils::StateMachine::Update,
+                                   Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>;
+    // Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>>;
+
+    MaybeAttackStates handle(const ChangeAnimEvent&);
+
+    using Will::handle;
 };
 }  // namespace Components
 }  // namespace GameEngine

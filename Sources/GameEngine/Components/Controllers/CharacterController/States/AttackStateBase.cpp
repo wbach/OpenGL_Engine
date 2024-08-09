@@ -80,6 +80,12 @@ void AttackStateBase::onEnter(const EndMoveRightEvent &)
     context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 
+void AttackStateBase::onEnter(const EndRotationEvent &)
+{
+    DEBUG_LOG("EndRotationEvent");
+    context.animator.StopAnimation(context.lowerBodyGroupName);
+}
+
 void AttackStateBase::onEnter(const ChangeAnimEvent &event)
 {
     update(event);

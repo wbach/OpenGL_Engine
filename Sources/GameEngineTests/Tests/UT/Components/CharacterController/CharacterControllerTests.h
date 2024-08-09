@@ -5,11 +5,12 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
+#include "GameEngine/Components/Controllers/CharacterController/MoveSpeed.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Components/Controllers/CharacterController/MoveSpeed.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
+
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -45,9 +46,10 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     template <typename Event>
     void tiggerAndExpect(const std::vector<std::string>& clipNames,
-                         const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
+                         const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME},
+                         const Event& event                    = Event{})
     {
-        tiggerAndExpect<Event>(Event{}, clipNames, updateTimes);
+        tiggerAndExpect<Event>(event, clipNames, updateTimes);
     }
 
     void expectNoMove();

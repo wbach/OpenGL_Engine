@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
 #include <optional>
+#include <string>
 
 #include "../CharacterControllerEvents.h"
 

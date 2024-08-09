@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <variant>
+
 #include "PlayStateType.h"
 
 namespace GameEngine
@@ -22,9 +23,6 @@ struct MoveRightEvent
 {
 };
 struct WalkChangeStateEvent
-{
-};
-struct RunEvent
 {
 };
 struct SprintStateChangeEvent
@@ -65,9 +63,6 @@ struct EndJumpEvent
 struct AttackEvent
 {
 };
-struct NextAttackEvent
-{
-};
 struct ChangeAnimEvent
 {
     std::string name;
@@ -105,9 +100,9 @@ struct CrouchChangeStateEvent
 };
 using CharacterControllerEvent =
     std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
-                 RunEvent, SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent,
-                 RotateRightEvent, RotateTargetEvent, EndRotationEvent, JumpEvent, EndJumpEvent, AttackEvent,
-                 NextAttackEvent, EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent,
-                 DrawArrowEvent, ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent,
-                 CrouchChangeStateEvent, ChangeAnimEvent>;
+                 SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
+                 RotateTargetEvent, EndRotationEvent, JumpEvent, EndJumpEvent, AttackEvent, EndAttackEvent, DeathEvent,
+                 WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent, ReloadArrowEvent,
+                 AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent,
+                 ChangeAnimEvent>;
 }  // namespace GameEngine

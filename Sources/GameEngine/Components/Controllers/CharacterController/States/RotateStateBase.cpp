@@ -22,7 +22,7 @@ RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::s
 
 void RotateStateBase::onEnter(const EndAttackEvent &)
 {
-    context_.animator.StopAnimation(context_.upperBodyGroupName);
+    setCurrentAnim();
 }
 
 void RotateStateBase::onEnter(const EquipEndStateEvent &)

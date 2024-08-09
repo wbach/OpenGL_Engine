@@ -41,5 +41,28 @@ void DisarmedAttackAndRotateState::update(float v)
     AttackStateBase::update(v);
     RotateStateBase::update(v);
 }
+
+DisarmedAttackAndRotateState::MaybeAttackStates DisarmedAttackAndRotateState::handle(const ChangeAnimEvent &event)
+{
+    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle or
+        event.stateType == PlayStateType::idle)
+    {
+        return Utils::StateMachine::Update{};
+    }
+
+    // if (event.stateType == PlayStateType::walk)
+    // {
+    //     DEBUG_LOG("PlayStateType::walk");
+    //     return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>{};
+    // }
+
+    if (event.stateType == PlayStateType::run)
+    {
+        DEBUG_LOG("PlayStateType::run");
+        return Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>{};
+    }
+
+    return Utils::StateMachine::Nothing{};
+}
 }  // namespace Components
 }  // namespace GameEngine

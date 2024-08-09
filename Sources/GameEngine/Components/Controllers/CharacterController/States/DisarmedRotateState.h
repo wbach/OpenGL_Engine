@@ -1,5 +1,6 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
+#include "Fsm/actions/TransitionTo.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
@@ -11,8 +12,7 @@ class DisarmedRotateState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
