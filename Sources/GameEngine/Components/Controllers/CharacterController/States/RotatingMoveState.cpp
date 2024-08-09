@@ -1,8 +1,10 @@
 #include "RotatingMoveState.h"
 
 #include <GLM/GLMUtils.h>
+
 #include "../FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+
 
 namespace GameEngine
 {
@@ -63,7 +65,8 @@ void RotatingMoveState::postUpdate()
     setTargetAngle();
     if (not context_.moveController.isMoving())
     {
-        // /*DISABLED*/ DEBUG_LOG("onMoveInactivity");
+        // /*DISABLED*/
+        DEBUG_LOG("onMoveInactivity");
         onMoveInactivity();
     }
 }
@@ -118,7 +121,7 @@ void RotatingMoveState::applyCurrentRotation()
     if (context_.moveController.isMoving())
     {
         // /*DISABLED*/ DEBUG_LOG("Progress " + std::to_string(context_.progress));
-        auto progress         = context_.progress > 1.f ? 1.f : context_.progress;
+        auto progress = context_.progress > 1.f ? 1.f : context_.progress;
         // /*DISABLED*/ DEBUG_LOG("Progress2 " + std::to_string(progress));
         context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, progress);
         setCharacterRotation(glm::mat4_cast(context_.currentAngle));

@@ -1,6 +1,7 @@
 #pragma once
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Components/Controllers/CharacterController/PlayStateType.h"
 
 namespace GameEngine
 {
@@ -16,7 +17,7 @@ class ArmedAttackState
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::Queue>,
-          Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
+          // Utils::StateMachine::On<ChangeAnimEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           //           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
@@ -41,11 +42,14 @@ public:
     MaybeAttackStates handle(const MoveLeftEvent&);
     MaybeAttackStates handle(const MoveRightEvent&);
 
+    MaybeAttackStates handle(const ChangeAnimEvent&);
+
     using Will::handle;
 
 private:
     template <typename Event>
     MaybeAttackStates handleMoveEvents(const Event&);
+    MaybeAttackStates getCorrespodingState(PlayStateType);
 };
 }  // namespace Components
 }  // namespace GameEngine

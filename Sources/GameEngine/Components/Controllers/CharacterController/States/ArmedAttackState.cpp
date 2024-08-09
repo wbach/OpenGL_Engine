@@ -1,6 +1,8 @@
 #include "ArmedAttackState.h"
 
 #include "../FsmContext.h"
+#include "Components/Controllers/CharacterController/FsmContext.h"
+#include "Fsm/actions/Nothing.h"
 
 namespace GameEngine
 {
@@ -37,26 +39,44 @@ ArmedAttackState::MaybeAttackStates ArmedAttackState::handleMoveEvents(const Eve
 
     if (clips.empty())
     {
-        return Utils::StateMachine::Update{};
+        return Utils::StateMachine::Nothing{};
     }
 
     if (clips.front().stateType == PlayStateType::idle)
     {
         queue.push_back(event);
+    }
+
+    return getCorrespodingState(clips.front().stateType);
+}
+
+ArmedAttackState::MaybeAttackStates ArmedAttackState::getCorrespodingState(PlayStateType stateType)
+{
+    if (stateType == PlayStateType::idle)
+    {
         return Utils::StateMachine::Update{};
     }
 
-    if (clips.front().stateType == PlayStateType::walk)
+    if (stateType == PlayStateType::walk)
     {
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>{};
     }
 
-    if (clips.front().stateType == PlayStateType::run)
+    if (stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>{};
     }
 
     return Utils::StateMachine::Nothing{};
 }
+
+ArmedAttackState::MaybeAttackStates ArmedAttackState::handle(const ChangeAnimEvent &event)
+{
+    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle)
+        return Utils::StateMachine::Update{};
+
+    return getCorrespodingState(event.stateType);
+}
+
 }  // namespace Components
 }  // namespace GameEngine

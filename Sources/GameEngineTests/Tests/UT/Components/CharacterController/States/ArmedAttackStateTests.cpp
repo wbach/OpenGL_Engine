@@ -1,4 +1,5 @@
 #include "../CharacterControllerTests.h"
+#include "Components/Controllers/CharacterController/PlayStateType.h"
 
 namespace
 {
@@ -100,6 +101,30 @@ TEST_F(CharacterControllerTests, ArmedAttackStateTests_MoveRightEvent)
 //    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
 //                                       {sut_.animationClipsNames_.armed.rotateLeft});
 //}
+
+TEST_F(CharacterControllerTests, ArmedAttackStateTests_AttackEvent)
+{
+    prepareState(*this);
+    auto& clip     = sut_.animationClipsNames_.armed.attack[1];
+    clip.stateType = GameEngine::Components::PlayStateType::run;
+
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.armed.attack.front().name}, {0});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    tiggerAndExpect<AttackEvent>({clip.name}, {0});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.attack[2].name});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
+}
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_EndAttackEvent)
 {

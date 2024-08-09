@@ -184,12 +184,24 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_SprintStateChangeEvent)
 TEST_F(CharacterControllerTests, ArmedAttackAndRunState_AttackEvent)
 {
     prepareState(*this);
-    const auto& clipName = sut_.animationClipsNames_.armed.attack.front().name;
-    tiggerAndExpect<AttackEvent>({clipName, sut_.animationClipsNames_.armed.run.forward});
+    const auto& clip1 = sut_.animationClipsNames_.armed.attack[0];
+    auto& clip2       = sut_.animationClipsNames_.armed.attack[1];
+    const auto& clip3 = sut_.animationClipsNames_.armed.attack[2];
+    clip2.stateType   = GameEngine::Components::PlayStateType::idle;
+
+    tiggerAndExpect<AttackEvent>({clip1.name, sut_.animationClipsNames_.armed.run.forward});
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.attack[1].name, sut_.animationClipsNames_.armed.run.forward});
+    tiggerAndExpect<AttackEvent>({clip2.name});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({clip3.name, sut_.animationClipsNames_.armed.run.forward});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.run.forward});
 }
 TEST_F(CharacterControllerTests, ArmedAttackAndRunState_AttackEventWhenRunBackwardAnimOnly)
 {

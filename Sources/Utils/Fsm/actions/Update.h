@@ -24,6 +24,9 @@ private:
     template <typename State, typename Event>
     auto update(State& state, const Event& event) -> decltype(state.update(event))
     {
+#ifdef NOREALTIME_LOG_ENABLED
+        DEBUG_LOG("Update state: " + typeName<State>() + ", event: " + typeName<Event>());
+#endif
         return state.update(event);
     }
 
@@ -35,9 +38,11 @@ private:
     template <typename State>
     auto post(State& state) -> decltype(state.postUpdate())
     {
+#ifdef NOREALTIME_LOG_ENABLED
+        DEBUG_LOG("Post update state: " + typeName<State>());
+#endif
         return state.postUpdate();
     }
-
 };
 }  // namespace StateMachine
 }  // namespace Utils
