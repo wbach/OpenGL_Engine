@@ -1,6 +1,7 @@
 #pragma once
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
 #include "RotateStateBase.h"
 #include "RotatingMoveState.h"
 
@@ -25,7 +26,10 @@ class DisarmedAttackAndRunAndRotateState
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
+          // Utils::StateMachine::On<WalkChangeStateEvent,
+          // Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
