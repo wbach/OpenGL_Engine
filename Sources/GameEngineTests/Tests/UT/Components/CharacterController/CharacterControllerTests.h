@@ -57,6 +57,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     void expectForwardVelocity(float speed);
     void expectLeftVelocity(float);
     Rotation createRotaion(float deltaTime, float rotateSpeed);
+    void expectAnyRotation();
     void expectRotatation(float deltaTime, float rotateSpeed);
     void expectRotationLeft(float dt = ADVANCED_TIME_TRANSITION_TIME);
     void expectRotationRight(float dt = ADVANCED_TIME_TRANSITION_TIME);

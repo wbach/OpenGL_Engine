@@ -209,6 +209,11 @@ void CharacterControllerTests::Update(float time)
     sut_.Update();
 }
 
+void CharacterControllerTests::expectAnyRotation()
+{
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+}
+
 void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>& names)
 {
     EXPECT_EQ(animator_->getCurrentAnimationName().size(), names.size());
