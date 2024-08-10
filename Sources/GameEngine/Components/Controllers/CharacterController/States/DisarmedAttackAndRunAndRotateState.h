@@ -22,9 +22,12 @@ class DisarmedAttackAndRunAndRotateState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
-          Utils::StateMachine::On<EndBackwardMoveEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>>,
@@ -34,12 +37,12 @@ public:
     DisarmedAttackAndRunAndRotateState(FsmContext&);
 
     using AttackStateBase::onEnter;
-    using AttackStateBase::update;
     using AttackStateBase::onLeave;
+    using AttackStateBase::update;
 
     using RotatingMoveState::onEnter;
-    using RotatingMoveState::update;
     using RotatingMoveState::onLeave;
+    using RotatingMoveState::update;
 
     using RotateStateBase::onEnter;
     using RotateStateBase::update;

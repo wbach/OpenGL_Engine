@@ -1,6 +1,8 @@
 #pragma once
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "Fsm/actions/Queue.h"
 #include "RotateStateBase.h"
 
 namespace GameEngine
@@ -14,6 +16,9 @@ class DisarmedAttackAndRotateState
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,

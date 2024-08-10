@@ -18,6 +18,44 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_DrawArrowEvent)
+{
+    prepareState(*this);
+    expectRotationLeft();
+    tiggerAndExpect<GameEngine::DrawArrowEvent>({disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateLeft});
+
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.rotateLeft});
+}
+TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_AimStop)
+{
+    prepareState(*this);
+    expectRotationLeft();
+    tiggerAndExpect<GameEngine::DrawArrowEvent>({disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateLeft});
+    expectAnyRotation();
+    tiggerAndExpect<GameEngine::AimStopEvent>({disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateLeft}, {0});
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.rotateLeft});
+}
+TEST_F(CharacterControllerTests, DISABLED_DisarmedAttackAndRotateState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<GameEngine::CrouchChangeStateEvent>(
+        {disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateLeft});
+
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    // expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.crouch.rotateLeft});
+}
 TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_MoveForwardEvent)
 {
     prepareState(*this);
