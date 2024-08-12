@@ -9,7 +9,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedAttackAndRunAndRotateState
+class DisarmedAttackAndWalkAndRotateState
     : public AttackStateBase,
       public RotateStateBase,
       public RotatingMoveState,
@@ -28,16 +28,16 @@ class DisarmedAttackAndRunAndRotateState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
-          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>>
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>>
 {
 public:
-    DisarmedAttackAndRunAndRotateState(FsmContext&);
+    DisarmedAttackAndWalkAndRotateState(FsmContext&);
 
     using AttackStateBase::onEnter;
     using AttackStateBase::onLeave;

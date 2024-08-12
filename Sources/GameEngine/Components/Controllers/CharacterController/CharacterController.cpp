@@ -294,6 +294,7 @@ void CharacterController::Init()
             DisarmedAttackAndWalkState(context),
             DisarmedAttackAndRotateState(context),
             DisarmedAttackAndRunAndRotateState(context),
+            DisarmedAttackAndWalkAndRotateState(context),
             DisarmedRunState(context),
             DisarmedRotateState(context),
             DisarmedRunAndRotateState(context),

@@ -18,6 +18,7 @@ class DisarmedAttackAndWalkState;
 class DisarmedAttackAndRunState;
 class DisarmedAttackAndRotateState;
 class DisarmedAttackAndRunAndRotateState;
+class DisarmedAttackAndWalkAndRotateState;
 class DisarmedRunState;
 class DisarmedRotateState;
 class DisarmedRunAndRotateState;

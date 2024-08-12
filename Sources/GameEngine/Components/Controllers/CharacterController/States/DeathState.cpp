@@ -55,6 +55,11 @@ void DeathState::onEnter(DisarmedAttackAndRunAndRotateState &, const DeathEvent 
     setAnim(context_.animClipNames.disarmed.death);
 }
 
+void DeathState::onEnter(DisarmedAttackAndWalkAndRotateState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.disarmed.death);
+}
+
 void DeathState::onEnter(IdleArmedChangeState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.disarmed.death);
@@ -299,8 +304,7 @@ void DeathState::setAnim(const std::string &animName)
 {
     if (not animName.empty())
     {
-        context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          std::nullopt);
+        context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward, std::nullopt);
     }
 }
 
