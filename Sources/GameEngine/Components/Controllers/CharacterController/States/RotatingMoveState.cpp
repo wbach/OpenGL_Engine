@@ -5,7 +5,6 @@
 #include "../FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 
-
 namespace GameEngine
 {
 namespace Components
@@ -13,6 +12,7 @@ namespace Components
 RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<std::string> &jointGroup, float moveSpeed,
                                      const std::string &forwardAnimName)
     : MoveStateBase(context, jointGroup, moveSpeed, forwardAnimName)
+    , cameraComponent_{context_.gameObject.GetComponent<ThridPersonCameraComponent>()}
 {
     moveSpeed_.leftRight = moveSpeed;
     moveSpeed_.backward  = moveSpeed;
@@ -112,8 +112,7 @@ void RotatingMoveState::setTargetAngle()
     context_.progress    = 0.f;
     context_.sourceAngle = context_.currentAngle;
     context_.targetAngle = glm::angleAxis(
-        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP),
-        VECTOR_UP);
+        glm::orientedAngle(VECTOR_FORWARD, glm::normalize(context_.moveController.getCurrentDir()), VECTOR_UP), VECTOR_UP);
 }
 
 void RotatingMoveState::applyCurrentRotation()
@@ -142,18 +141,17 @@ void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with mov
     }
 
     auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
-    auto moveSpeed =
-        glm::length(vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) *
-                    moveDirection);
+    auto moveSpeed     = glm::length(
+        vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 
     if (moveSpeed < 0.00001f)
     {
         return;
     }
 
-    if (auto tcc = context_.gameObject.GetComponent<ThridPersonCameraComponent>())
+    if (cameraComponent_)
     {
-        auto [_, yaw] = tcc->getRotation();
+        auto [_, yaw] = cameraComponent_->getRotation();
         auto rotY     = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
         context_.rigidbody.SetRotation(rotY);
     }
