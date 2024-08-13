@@ -9,11 +9,18 @@ namespace GameEngine
 namespace Components
 {
 struct FsmContext;
+class ThridPersonCameraComponent;
 
 class RotateStateBase
 {
 public:
-    RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const std::string&, const std::string&);
+    enum class CameraRotationPolicy
+    {
+        none,
+        rotateOnlyCameraIfAvaiable
+    };
+    RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const std::string&, const std::string&,
+                    CameraRotationPolicy = CameraRotationPolicy::rotateOnlyCameraIfAvaiable);
 
     void onEnter(const EndAttackEvent&);
     void onEnter(const EquipEndStateEvent&);
@@ -47,6 +54,8 @@ protected:
     std::string rotateLeftAnim_;
     std::string rotateRightAnim_;
     float rotateSpeed_;
+    ThridPersonCameraComponent* cameraComponent_;
+    CameraRotationPolicy cameraRotationPolicy_;
 };
 }  // namespace Components
 }  // namespace GameEngine

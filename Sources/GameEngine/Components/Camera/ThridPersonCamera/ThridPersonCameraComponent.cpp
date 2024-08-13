@@ -48,7 +48,7 @@ std::tuple<float, float> ThridPersonCameraComponent::getRotation() const
 vec3 ThridPersonCameraComponent::getDirection() const
 {
     vec3 dir(1.f);
-    auto yaw = ToRadians(fsmContext->yaw - 90);
+    auto yaw   = ToRadians(fsmContext->yaw - 90);
     auto pitch = -ToRadians(fsmContext->pitch);
     DEBUG_LOG("Yaw :" + std::to_string(fsmContext->yaw) + " Pitch: " + std::to_string(fsmContext->pitch));
     DEBUG_LOG("Yaw :" + std::to_string(yaw) + " Pitch: " + std::to_string(pitch));

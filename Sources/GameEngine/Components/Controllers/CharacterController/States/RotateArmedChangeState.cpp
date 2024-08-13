@@ -9,8 +9,12 @@ namespace Components
 {
 RotateArmedChangeState::RotateArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
-                      context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
+    , RotateStateBase{context,
+                      context.lowerBodyGroupName,
+                      context.runSpeed.rotate,
+                      context.animClipNames.disarmed.rotateLeft,
+                      context.animClipNames.disarmed.rotateRight,
+                      RotateStateBase::CameraRotationPolicy::none}
     , context_{context}
 {
 }
@@ -18,11 +22,13 @@ void RotateArmedChangeState::onEnter()
 {
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
-        RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.rotateLeft, context_.animClipNames.armed.rotateRight);
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.rotateLeft,
+                                                  context_.animClipNames.armed.rotateRight);
     }
     else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
     {
-        RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft, context_.animClipNames.disarmed.rotateRight);
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                                  context_.animClipNames.disarmed.rotateRight);
     }
 }
 void RotateArmedChangeState::onEnter(DisarmedRotateState &, const WeaponStateEvent &)
@@ -35,11 +41,12 @@ void RotateArmedChangeState::onEnter(DisarmedRotateState &, const WeaponStateEve
 void RotateArmedChangeState::onEnter(ArmedRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
-    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft, context_.animClipNames.disarmed.rotateRight);
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                              context_.animClipNames.disarmed.rotateRight);
     RotateStateBase::setCurrentAnimAndRotation();
 }
 
-void RotateArmedChangeState::onEnter(DisarmedRotateState &, const DrawArrowEvent & e)
+void RotateArmedChangeState::onEnter(DisarmedRotateState &, const DrawArrowEvent &e)
 {
     ArmedChangeStateBase::equipWeapon();
     ArmedChangeStateBase::update(e);
@@ -47,24 +54,27 @@ void RotateArmedChangeState::onEnter(DisarmedRotateState &, const DrawArrowEvent
     RotateStateBase::setCurrentAnim();
 }
 
-void RotateArmedChangeState::onEnter(DrawArrowRotateState&, const WeaponStateEvent&)
+void RotateArmedChangeState::onEnter(DrawArrowRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
-    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft, context_.animClipNames.disarmed.rotateRight);
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                              context_.animClipNames.disarmed.rotateRight);
     RotateStateBase::setCurrentAnimAndRotation();
 }
 
-void RotateArmedChangeState::onEnter(RecoilRotateState&, const WeaponStateEvent&)
+void RotateArmedChangeState::onEnter(RecoilRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
-    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft, context_.animClipNames.disarmed.rotateRight);
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                              context_.animClipNames.disarmed.rotateRight);
     RotateStateBase::setCurrentAnimAndRotation();
 }
 
-void RotateArmedChangeState::onEnter(AimRotateState&, const WeaponStateEvent&)
+void RotateArmedChangeState::onEnter(AimRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
-    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft, context_.animClipNames.disarmed.rotateRight);
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.rotateLeft,
+                                              context_.animClipNames.disarmed.rotateRight);
     RotateStateBase::setCurrentAnimAndRotation();
 }
 

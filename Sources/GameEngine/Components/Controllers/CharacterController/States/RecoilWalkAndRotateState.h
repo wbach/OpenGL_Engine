@@ -1,8 +1,8 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
-#include "MoveStateBase.h"
+#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "MoveAndRotateStateBase.h"
 #include "RecoilStateBase.h"
-#include "RotateStateBase.h"
 
 namespace GameEngine
 {
@@ -10,8 +10,7 @@ namespace Components
 {
 class RecoilWalkAndRotateState
     : public RecoilStateBase,
-      public MoveStateBase,
-      public RotateStateBase,
+      public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
@@ -36,34 +35,19 @@ class RecoilWalkAndRotateState
 public:
     RecoilWalkAndRotateState(FsmContext&);
 
-    using MoveStateBase::onEnter;
-    using MoveStateBase::transitionCondition;
-    using MoveStateBase::update;
-
     void onEnter(const AttackEvent&);
-    void onEnter(const RotateLeftEvent&);
-    void onEnter(const RotateRightEvent&);
-    void onEnter(const RotateTargetEvent&);
-    void onEnter(const MoveForwardEvent&);
-    void onEnter(const MoveBackwardEvent&);
-    void onEnter(const MoveLeftEvent&);
-    void onEnter(const MoveRightEvent&);
-    void onEnter(const WalkChangeStateEvent&);
+
+    using MoveAndRotateStateBase::onEnter;
+    using MoveAndRotateStateBase::transitionCondition;
+    using MoveAndRotateStateBase::update;
 
     void update(float);
-    void update(const RotateLeftEvent&);
-    void update(const RotateRightEvent&);
-    void update(const RotateTargetEvent&);
-    void update(const MoveForwardEvent&);
-    void update(const MoveBackwardEvent&);
-    void update(const MoveLeftEvent&);
-    void update(const MoveRightEvent&);
-
-    void onMoveInactivity() override;
 
     void onLeave(const AimStopEvent&);
     void onLeave(const WeaponStateEvent&);
     void onLeave(const SprintStateChangeEvent&);
+
+    void onMoveInactivity() override;
 };
 }  // namespace Components
 }  // namespace GameEngine
