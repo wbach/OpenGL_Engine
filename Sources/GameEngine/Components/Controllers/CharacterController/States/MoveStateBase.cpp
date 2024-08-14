@@ -3,15 +3,14 @@
 #include <GLM/GLMUtils.h>
 #include <Types.h>
 
-#include "../CharacterController.h"
 #include "../FsmContext.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
-                             const MoveSpeed &moveSpeed, const MovmentClipNames &clips)
+MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName, const MoveSpeed &moveSpeed,
+                             const MovmentClipNames &clips)
     : context_{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{clips}
@@ -19,8 +18,8 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
-MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
-                             float forwardMoveSpeed, const std::string &forwardAnimName)
+MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName, float forwardMoveSpeed,
+                             const std::string &forwardAnimName)
     : context_{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{forwardAnimName}
@@ -204,8 +203,7 @@ void MoveStateBase::setAnim(const std::string &clipName)
     }
 
     // // /*DISABLED*/ DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
-    context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                      jointGroupName_);
+    context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName_);
 }
 
 void MoveStateBase::moveRigidbody()
@@ -217,9 +215,8 @@ void MoveStateBase::moveRigidbody()
     }
 
     auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
-    auto moveSpeed =
-        glm::length(vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) *
-                    moveDirection);
+    auto moveSpeed     = glm::length(
+        vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 
     if (moveSpeed < 0.00001f)
     {

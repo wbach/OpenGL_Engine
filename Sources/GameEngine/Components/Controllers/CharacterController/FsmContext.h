@@ -12,7 +12,6 @@
 #include "MoveController.h"
 #include "MoveSpeed.h"
 
-
 namespace GameEngine
 {
 namespace Components
@@ -86,6 +85,7 @@ struct FsmContext
 
     bool rotateToTarget{false};
     float rotateToTargetProgress{0.f};
+
     Quaternion startRotation{};
     Quaternion targetRotation{};
 

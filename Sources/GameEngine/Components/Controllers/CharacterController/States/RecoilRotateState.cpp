@@ -9,8 +9,8 @@ namespace Components
 {
 RecoilRotateState::RecoilRotateState(FsmContext& context)
     : RecoilStateBase(context, context.upperBodyGroupName)
-    , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.rotate,
-                      context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight)
+    , RotateStateBase(context, context.lowerBodyGroupName, context.runSpeed.rotate, context.animClipNames.armed.rotateLeft,
+                      context.animClipNames.armed.rotateRight, RotateStateBase::CameraRotationPolicy::none)
 {
 }
 

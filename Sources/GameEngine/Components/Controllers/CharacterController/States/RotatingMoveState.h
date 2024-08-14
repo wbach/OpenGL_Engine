@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+
 #include "MoveStateBase.h"
 
 namespace GameEngine
@@ -7,6 +8,7 @@ namespace GameEngine
 namespace Components
 {
 struct FsmContext;
+class ThridPersonCameraComponent;
 
 class RotatingMoveState : public MoveStateBase
 {
@@ -37,6 +39,7 @@ protected:
 
 protected:
     bool isAnimationReady{false};
+    ThridPersonCameraComponent* cameraComponent_;
 };
 }  // namespace Components
 }  // namespace GameEngine

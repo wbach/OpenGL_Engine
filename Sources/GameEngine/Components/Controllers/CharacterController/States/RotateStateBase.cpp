@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "../FsmContext.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine
@@ -10,12 +11,15 @@ namespace GameEngine
 namespace Components
 {
 RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName, float rotateSpeed,
-                                 const std::string &rotateLeftAnim, const std::string &rotateRightAnim)
+                                 const std::string &rotateLeftAnim, const std::string &rotateRightAnim,
+                                 CameraRotationPolicy cameraRotationPolicy)
     : context_{context}
     , jointGroupName_{jointGourpName}
     , rotateLeftAnim_{rotateLeftAnim}
     , rotateRightAnim_{rotateRightAnim}
     , rotateSpeed_{rotateSpeed}
+    , cameraComponent_{context_.gameObject.GetComponent<ThridPersonCameraComponent>()}
+    , cameraRotationPolicy_{cameraRotationPolicy}
 {
 }
 
@@ -30,7 +34,6 @@ void RotateStateBase::onEnter(const EquipEndStateEvent &)
 }
 void RotateStateBase::onEnter(const RotateLeftEvent &e)
 {
-    DEBUG_LOG("RotateLeftEvent");
     update(e);
     setRotateLeftAnim();
 }
@@ -86,13 +89,19 @@ void RotateStateBase::onEnter(const EndMoveRightEvent &)
 
 void RotateStateBase::update(float deltaTime)
 {
+    if (cameraComponent_ and cameraComponent_->fsmContext)
+    {
+        cameraComponent_->fsmContext->yaw += context_.rotateStateData_.rotateSpeed_ * deltaTime;
+        if (cameraRotationPolicy_ == CameraRotationPolicy::rotateOnlyCameraIfAvaiable)
+            return;
+    }
+
     if (not context_.rotateToTarget)
     {
         auto rotation =
             context_.rigidbody.GetRotation() *
             glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
-        // /*DISABLED*/
-        DEBUG_LOG("newRotation " + std::to_string(rotation));
+        // /*DISABLED*/  DEBUG_LOG("newRotation " + std::to_string(rotation));
         context_.rigidbody.SetRotation(rotation);
     }
     else
@@ -164,12 +173,10 @@ void RotateStateBase::setRotateRightAnim()
 
 void RotateStateBase::setCurrentAnim()
 {
-    DEBUG_LOG("setCurrentAnim");
     if (not context_.rotateToTarget)
     {
         if (context_.rotateStateData_.rotateSpeed_ > 0.01f)
         {
-            DEBUG_LOG("setCurrentAnim xxx");
             setRotateLeftAnim();
         }
         else if (context_.rotateStateData_.rotateSpeed_ < -0.01f)
