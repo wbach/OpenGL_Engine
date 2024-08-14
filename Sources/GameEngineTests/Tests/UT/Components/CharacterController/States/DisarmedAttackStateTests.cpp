@@ -139,32 +139,35 @@ TEST_F(CharacterControllerTests, DisarmedAttackState_MoveRightEvent_idle)
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateLeftEvent)
 {
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({disarmedAttackClip1->name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationLeft();
-    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.disarmed.rotateLeft});
+    tiggerAndExpect<RotateLeftEvent>({disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateLeft});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateRightEvent)
 {
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({disarmedAttackClip1->name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     expectRotationRight();
-    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.rotateRight});
+    tiggerAndExpect<RotateRightEvent>({disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateRight});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackState_RotateTargetEvent)
 {
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.idle});
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.disarmed.attack.front().name}, {ADVANCED_TIME_TRANSITION_TIME});
+    tiggerAndExpect<AttackEvent>({disarmedAttackClip1->name}, {ADVANCED_TIME_TRANSITION_TIME});
 
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.disarmed.rotateRight});
+                                       {disarmedAttackClip1->name, sut_.animationClipsNames_.disarmed.rotateLeft});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackState_EndAttackEvent)
 {

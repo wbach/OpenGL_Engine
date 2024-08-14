@@ -1,4 +1,4 @@
-#include "DisarmedAttackAndRotateState.h"
+#include "ArmedAttackAndRotateState.h"
 
 #include "../FsmContext.h"
 
@@ -6,43 +6,43 @@ namespace GameEngine
 {
 namespace Components
 {
-DisarmedAttackAndRotateState::DisarmedAttackAndRotateState(FsmContext &context)
-    : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
+ArmedAttackAndRotateState::ArmedAttackAndRotateState(FsmContext &context)
+    : AttackStateBase{context, context.animClipNames.armed.attack, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
-                      context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
+                      context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
 {
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndForwardMoveEvent &e)
+void ArmedAttackAndRotateState::onEnter(const EndForwardMoveEvent &e)
 {
     RotateStateBase::onEnter(e);
     subscribe();
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndMoveRightEvent &e)
+void ArmedAttackAndRotateState::onEnter(const EndMoveRightEvent &e)
 {
     RotateStateBase::onEnter(e);
     subscribe();
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndMoveLeftEvent &e)
+void ArmedAttackAndRotateState::onEnter(const EndMoveLeftEvent &e)
 {
     RotateStateBase::onEnter(e);
     subscribe();
 }
 
-void DisarmedAttackAndRotateState::onEnter(const EndBackwardMoveEvent &e)
+void ArmedAttackAndRotateState::onEnter(const EndBackwardMoveEvent &e)
 {
     RotateStateBase::onEnter(e);
     subscribe();
 }
-void DisarmedAttackAndRotateState::update(float v)
+void ArmedAttackAndRotateState::update(float v)
 {
     AttackStateBase::update(v);
     RotateStateBase::update(v);
 }
 
-DisarmedAttackAndRotateState::MaybeAttackStates DisarmedAttackAndRotateState::handle(const ChangeAnimEvent &event)
+ArmedAttackAndRotateState::MaybeAttackStates ArmedAttackAndRotateState::handle(const ChangeAnimEvent &event)
 {
     if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle or
         event.stateType == PlayStateType::idle)
@@ -53,13 +53,13 @@ DisarmedAttackAndRotateState::MaybeAttackStates DisarmedAttackAndRotateState::ha
      if (event.stateType == PlayStateType::walk)
      {
          DEBUG_LOG("PlayStateType::walk");
-         return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>{};
+         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>{};
      }
 
     if (event.stateType == PlayStateType::run)
     {
         DEBUG_LOG("PlayStateType::run");
-        return Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>{};
+        return Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>{};
     }
 
     return Utils::StateMachine::Nothing{};

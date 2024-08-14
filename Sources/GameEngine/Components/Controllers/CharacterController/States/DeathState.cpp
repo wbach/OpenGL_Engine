@@ -300,6 +300,21 @@ void DeathState::onEnter(ArmedAttackAndWalkState &, const DeathEvent &)
     setAnim(context_.animClipNames.armed.death);
 }
 
+void DeathState::onEnter(ArmedAttackAndRotateState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
+void DeathState::onEnter(ArmedAttackAndRunAndRotateState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
+void DeathState::onEnter(ArmedAttackAndWalkAndRotateState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.death);
+}
+
 void DeathState::setAnim(const std::string &animName)
 {
     if (not animName.empty())

@@ -9,7 +9,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class DisarmedAttackAndRotateState
+class ArmedAttackAndRotateState
     : public AttackStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<
@@ -20,18 +20,18 @@ class DisarmedAttackAndRotateState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
-          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
-          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
-          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
-          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>>
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
+          Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
 {
 public:
-    DisarmedAttackAndRotateState(FsmContext&);
+    ArmedAttackAndRotateState(FsmContext&);
 
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
@@ -48,8 +48,8 @@ public:
     void update(float);
 
     using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
-                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>,
-                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>>;
+                                                         Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>,
+                                                         Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>>;
 
     MaybeAttackStates handle(const ChangeAnimEvent&);
 

@@ -19,9 +19,9 @@ class ArmedAttackState
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
-          //           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-          //           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-          //           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
@@ -32,9 +32,9 @@ public:
     using AttackStateBase::onLeave;
     using AttackStateBase::update;
 
-    using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
-                                                         Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>,
-                                                         Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>>;
+    using MaybeAttackStates =
+        Utils::StateMachine::Maybe<Utils::StateMachine::Update, Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>,
+                                   Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>>;
 
     MaybeAttackStates handle(const MoveForwardEvent&);
     MaybeAttackStates handle(const MoveBackwardEvent&);

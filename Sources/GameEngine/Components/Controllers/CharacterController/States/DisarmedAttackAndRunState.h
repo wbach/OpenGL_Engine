@@ -29,12 +29,9 @@ class DisarmedAttackAndRunState
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedRunState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<RotateLeftEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<RotateRightEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent,
-                                  Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>>
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>>>
 {
 public:
     DisarmedAttackAndRunState(FsmContext&);
@@ -46,9 +43,9 @@ public:
     using RotatingMoveState::onEnter;
     using RotatingMoveState::update;
 
-    using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
-                                                         Utils::StateMachine::TransitionTo<DisarmedAttackState>,
-                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>>;
+    using MaybeAttackStates =
+        Utils::StateMachine::Maybe<Utils::StateMachine::Update, Utils::StateMachine::TransitionTo<DisarmedAttackState>,
+                                   Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>>;
 
     MaybeAttackStates handle(const ChangeAnimEvent&);
 

@@ -77,30 +77,30 @@ TEST_F(CharacterControllerTests, ArmedAttackStateTests_MoveRightEvent)
     expectRootboneRotation(VECTOR_RIGHT);
 }
 
-// TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateLeftEvent)
-//{
-//     prepareState(*this);
-//     expectRotationLeft();
-//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.rotateLeft});
-// }
+TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateLeftEvent)
+{
+    prepareState(*this);
+    expectRotationLeft();
+    tiggerAndExpect<RotateLeftEvent>({armedAttackClip1->name, sut_.animationClipsNames_.armed.rotateLeft});
+}
 
-// TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateRightEvent)
-//{
-//     prepareState(*this);
-//     expectRotationRight();
-//     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.rotateRight});
-// }
+TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateRightEvent)
+{
+    prepareState(*this);
+    expectRotationRight();
+    tiggerAndExpect<RotateRightEvent>({armedAttackClip1->name, sut_.animationClipsNames_.armed.rotateRight});
+}
 
-// TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateTargetEvent)
-//{
-//     prepareState(*this);
+TEST_F(CharacterControllerTests, ArmedAttackStateTests_RotateTargetEvent)
+{
+    prepareState(*this);
 
-//    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-//    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-//                                       {sut_.animationClipsNames_.armed.rotateLeft});
-//}
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+                                       {armedAttackClip1->name, sut_.animationClipsNames_.armed.rotateLeft});
+}
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_AttackEvent)
 {

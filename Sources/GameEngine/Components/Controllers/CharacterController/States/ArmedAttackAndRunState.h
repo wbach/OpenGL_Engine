@@ -28,13 +28,10 @@ class ArmedAttackAndRunState
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedRunState>>,
-          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>>
-//          Utils::StateMachine::On<RotateLeftEvent,
-//                                  Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
-//          Utils::StateMachine::On<RotateRightEvent,
-//                                  Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
-//          Utils::StateMachine::On<RotateTargetEvent,
-//                                  Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>>
+          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>>
 {
 public:
     ArmedAttackAndRunState(FsmContext&);
