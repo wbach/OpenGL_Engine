@@ -12,8 +12,7 @@ DisarmedSprintAndRotateState::DisarmedSprintAndRotateState(FsmContext &context)
                                      context.sprintSpeed,
                                      context.animClipNames.disarmed.sprint,
                                      context.runSpeed.rotate,
-                                     context.animClipNames.disarmed.rotateLeft,
-                                     context.animClipNames.disarmed.rotateRight}
+                                     context.animClipNames.disarmed.posture.stand.rotate}
 {
 }
 }  // namespace Components

@@ -12,8 +12,7 @@ ArmedSprintAndRotateState::ArmedSprintAndRotateState(FsmContext &context)
                                      context.sprintSpeed,
                                      context.animClipNames.armed.sprint,
                                      context.runSpeed.rotate,
-                                     context.animClipNames.armed.rotateLeft,
-                                     context.animClipNames.armed.rotateRight}
+                                     context.animClipNames.armed.posture.stand.rotate}
 {
 }
 }  // namespace Components

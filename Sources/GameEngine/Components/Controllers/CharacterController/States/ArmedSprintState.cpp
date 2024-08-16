@@ -13,7 +13,7 @@ ArmedSprintState::ArmedSprintState(FsmContext &context)
 
 void ArmedSprintState::onMoveInactivity()
 {
-    setAnim(context_.animClipNames.armed.idle);
+    setAnim(context_.animClipNames.armed.posture.stand.idle);
 }
 }  // namespace Components
 }  // namespace GameEngine

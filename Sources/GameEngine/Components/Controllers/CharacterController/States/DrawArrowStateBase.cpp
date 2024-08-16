@@ -10,7 +10,7 @@ namespace GameEngine
 namespace Components
 {
 DrawArrowStateBase::DrawArrowStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
-    : AimingStateBase{context, jointGroupName, context.animClipNames.drawArrow}
+    : AimingStateBase{context, jointGroupName, context.animClipNames.aim.draw}
 {
     context.animator.setPlayOnceForAnimationClip(animationClip);
 }
@@ -37,7 +37,7 @@ void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
 
 void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
 {
-    if (context_.animClipNames.drawArrow.empty())
+    if (context_.animClipNames.aim.draw.empty())
     {
         return;
     }
@@ -48,7 +48,7 @@ void DrawArrowStateBase::onEnter(const ReloadArrowEvent &)
 
     context_.aimController.reload();
     animationSubIds_.push_back(context_.animator.SubscribeForAnimationFrame(
-        context_.animClipNames.drawArrow, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); }));
+        context_.animClipNames.aim.draw, [&]() { context_.characterController.pushEventToQueue(AimStartEvent{}); }));
 }
 }  // namespace Components
 }  // namespace GameEngine

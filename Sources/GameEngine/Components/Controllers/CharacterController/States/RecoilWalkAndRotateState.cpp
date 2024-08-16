@@ -1,7 +1,7 @@
 #include "RecoilWalkAndRotateState.h"
 
 #include "../FsmContext.h"
-#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "../CharacterControllerEvents.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -10,12 +10,8 @@ namespace Components
 {
 RecoilWalkAndRotateState::RecoilWalkAndRotateState(FsmContext &context)
     : RecoilStateBase(context, context.upperBodyGroupName)
-    , MoveAndRotateStateBase{context,
-                             context.lowerBodyGroupName,
-                             context.walkSpeed,
-                             context.animClipNames.armed.walk,
-                             context.animClipNames.armed.rotateLeft,
-                             context.animClipNames.armed.rotateRight}
+    , MoveAndRotateStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.movement.walk,
+                             context.animClipNames.armed.posture.stand.rotate}
 {
 }
 

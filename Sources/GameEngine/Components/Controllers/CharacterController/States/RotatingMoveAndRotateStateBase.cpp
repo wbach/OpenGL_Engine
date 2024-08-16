@@ -6,25 +6,25 @@ namespace GameEngine
 {
 namespace Components
 {
-RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(
-    FsmContext &context, const std::optional<std::string> &moveJointGroupName, const MoveSpeed &moveSpeed,
-    const MovmentClipNames &clipnames, const std::string &rotateLeft, const std::string &rotateRight)
+RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext &context,
+                                                               const std::optional<std::string> &moveJointGroupName,
+                                                               const MoveSpeed &moveSpeed, const MovmentClipNames &clipnames,
+                                                               const RotateAnimationClips &rotateClips)
     : RotatingMoveState{context, moveJointGroupName, moveSpeed.forward, clipnames.forward}
-    , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateClips}
 {
 }
 
 RotatingMoveAndRotateStateBase::RotatingMoveAndRotateStateBase(FsmContext &context,
                                                                const std::optional<std::string> &moveJointGroupName,
                                                                float forwardSpeed, const std::string &forwardAnimName,
-                                                               float rotateSpeed, const std::string &rotateLeft,
-                                                               const std::string &rotateRight)
+                                                               float rotateSpeed, const RotateAnimationClips &rotateClips)
     : RotatingMoveState{context, moveJointGroupName, forwardSpeed, forwardAnimName}
-    , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateClips}
 {
 }
 
-void RotatingMoveAndRotateStateBase::onEnter(const EndAttackEvent & e)
+void RotatingMoveAndRotateStateBase::onEnter(const EndAttackEvent &e)
 {
     RotateStateBase::onEnter(e);
 }

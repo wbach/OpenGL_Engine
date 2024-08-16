@@ -10,7 +10,7 @@ namespace Components
 DisarmedAttackAndRunState::DisarmedAttackAndRunState(FsmContext& context)
     : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.runSpeed.forward,
-                        context.animClipNames.disarmed.run.forward)
+                        context.animClipNames.disarmed.movement.run.forward)
 {
 }
 DisarmedAttackAndRunState::MaybeAttackStates DisarmedAttackAndRunState::handle(const ChangeAnimEvent& event)

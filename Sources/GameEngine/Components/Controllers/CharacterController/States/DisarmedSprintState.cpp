@@ -12,7 +12,7 @@ DisarmedSprintState::DisarmedSprintState(FsmContext &context)
 }
 void DisarmedSprintState::onMoveInactivity()
 {
-    setAnim(context_.animClipNames.disarmed.idle);
+    setAnim(context_.animClipNames.disarmed.posture.stand.idle);
 }
 }  // namespace Components
 }  // namespace GameEngine

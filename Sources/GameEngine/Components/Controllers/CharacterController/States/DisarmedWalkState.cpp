@@ -7,7 +7,7 @@ namespace GameEngine
 namespace Components
 {
 DisarmedWalkState::DisarmedWalkState(FsmContext &context)
-    : RotatingMoveState{context, std::nullopt, context.walkSpeed.forward, context.animClipNames.disarmed.walk.forward}
+    : RotatingMoveState{context, std::nullopt, context.walkSpeed.forward, context.animClipNames.disarmed.movement.walk.forward}
 {
 }
 
@@ -27,8 +27,7 @@ DisarmedWalkState::handle(const AttackEvent &)
         return Utils::StateMachine::TransitionTo<DisarmedAttackState>{};
     }
 
-    if (clips.front().stateType == PlayStateType::walk or
-        clips.front().stateType == PlayStateType::run)
+    if (clips.front().stateType == PlayStateType::walk or clips.front().stateType == PlayStateType::run)
     {
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>{};
     }
@@ -38,7 +37,7 @@ DisarmedWalkState::handle(const AttackEvent &)
 
 void DisarmedWalkState::onMoveInactivity()
 {
-    setAnim(context_.animClipNames.disarmed.idle);
+    setAnim(context_.animClipNames.disarmed.posture.stand.idle);
 }
 }  // namespace Components
 }  // namespace GameEngine

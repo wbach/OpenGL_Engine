@@ -9,7 +9,7 @@ namespace GameEngine
 namespace Components
 {
 ArmedRunState::ArmedRunState(FsmContext &context)
-    : RotatingMoveState{context, std::nullopt, context.runSpeed.forward, context.animClipNames.armed.run.forward}
+    : RotatingMoveState{context, std::nullopt, context.runSpeed.forward, context.animClipNames.armed.movement.run.forward}
 {
 }
 
@@ -49,7 +49,7 @@ ArmedRunState::handle(const AttackEvent &)
 
 void ArmedRunState::onMoveInactivity()
 {
-    context_.animator.ChangeAnimation(context_.animClipNames.armed.idle, Animator::AnimationChangeType::smooth,
+    context_.animator.ChangeAnimation(context_.animClipNames.armed.posture.stand.idle, Animator::AnimationChangeType::smooth,
                                       PlayDirection::forward, jointGroupName_);
 }
 }  // namespace Components

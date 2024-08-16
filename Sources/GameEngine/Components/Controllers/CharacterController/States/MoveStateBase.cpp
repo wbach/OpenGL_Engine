@@ -173,11 +173,11 @@ void MoveStateBase::setCurrentAnimIfNeeded()
     }
     else if (context_.moveController.isMoving(MoveController::Direction::Left))
     {
-        setAnim(animationClips_.moveleft);
+        setAnim(animationClips_.left);
     }
     else if (context_.moveController.isMoving(MoveController::Direction::Right))
     {
-        setAnim(animationClips_.moveRight);
+        setAnim(animationClips_.right);
     }
     else
     {

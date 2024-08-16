@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "AnimationClipNames.h"
 #include "CharacterControllerFsm.h"
 #include "FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
@@ -50,14 +51,21 @@ const std::string CSTR_DRAW_ARROW_ANIMATION      = "drawArrow";
 const std::string CSTR_RECOIL_ARROW_ANIMATION    = "recoilArrow";
 const std::string CSTR_AIM_IDLE_ANIMATION        = "aimIdle";
 const std::string CSTR_AIM_JOINT_NAME            = "aimJointName";
+const std::string CSTR_POSTURE                   = "posture";
+const std::string CSTR_MOVEMENT                  = "movement";
+const std::string CSTR_POSTURE_STAND             = "stand";
+const std::string CSTR_POSTURE_CROUCHED          = "crouched";
+const std::string CSTR_ROTATE                    = "rotate";
+const std::string CSTR_AIM                       = "aim";
+
 }  // namespace
 
 void write(TreeNode& node, const MovmentClipNames& names)
 {
     ::write(node.addChild(CSTR_ANIMATION_FORWARD), names.forward);
     ::write(node.addChild(CSTR_ANIMATION_BACKWARD), names.backward);
-    ::write(node.addChild(CSTR_ANIMATION_MOVE_LEFT), names.moveleft);
-    ::write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.moveRight);
+    ::write(node.addChild(CSTR_ANIMATION_MOVE_LEFT), names.left);
+    ::write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.right);
 }
 
 void write(TreeNode& node, const PlayStateType& stateType)
@@ -89,41 +97,67 @@ void write(TreeNode& node, const std::vector<AttackAnimation>& names)
     }
 }
 
+void write(TreeNode& node, const Movement& movement)
+{
+    ::write(node.addChild(CSTR_ANIMATION_WALK), movement.walk);
+    ::write(node.addChild(CSTR_ANIMATION_RUN), movement.run);
+    ::write(node.addChild(CSTR_ANIMATION_CROUCH_MOVEMENT), movement.crouch);
+}
+
+void write(TreeNode& node, const RotateAnimationClips& rotateClips)
+{
+    ::write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), rotateClips.left);
+    ::write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), rotateClips.right);
+}
+
+void write(TreeNode& node, const PostureClipNames& postureClips)
+{
+    ::write(node.addChild(CSTR_IDLE_MAIN), postureClips.idle);
+    ::write(node.addChild(CSTR_DEATH_ANIMATION), postureClips.death);
+    ::write(node.addChild(CSTR_HURT_ANIMATION), postureClips.hurt);
+    ::write(node.addChild(CSTR_ROTATE), postureClips.rotate);
+}
+
+void write(TreeNode& node, const Posture& posture)
+{
+    ::write(node.addChild(CSTR_POSTURE_STAND), posture.stand);
+    ::write(node.addChild(CSTR_POSTURE_CROUCHED), posture.crouched);
+}
+
 void write(TreeNode& node, const StateClipsNames& names)
 {
-    ::write(node.addChild(CSTR_ANIMATION_WALK), names.walk);
-    ::write(node.addChild(CSTR_ANIMATION_RUN), names.run);
-    ::write(node.addChild(CSTR_ANIMATION_CROUCH_MOVEMENT), names.crouch);
+    ::write(node.addChild(CSTR_MOVEMENT), names.movement);
+    ::write(node.addChild(CSTR_POSTURE), names.posture);
     ::write(node.addChild(CSTR_JUMP_ANIMATION), names.jump);
-    ::write(node.addChild(CSTR_IDLE_MAIN), names.idle);
-    ::write(node.addChild(CSTR_ANIMATION_CROUCH_IDLE), names.crouchIdle);
-    ::write(node.addChild(CSTR_HURT_ANIMATION), names.hurt);
-    ::write(node.addChild(CSTR_DEATH_ANIMATION), names.death);
     ::write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);
-    ::write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), names.rotateLeft);
-    ::write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), names.rotateRight);
     ::write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
+    ::write(node.addChild(CSTR_ANIMATION_DOGE), names.doge);
+    ::write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
+}
+
+void write(TreeNode& node, const AimClips& names)
+{
+    ::write(node.addChild(CSTR_DRAW_ARROW_ANIMATION), names.draw);
+    ::write(node.addChild(CSTR_RECOIL_ARROW_ANIMATION), names.recoil);
+    ::write(node.addChild(CSTR_AIM_IDLE_ANIMATION), names.idle);
 }
 
 void write(TreeNode& node, const AnimationClipsNames& names)
 {
     ::write(node.addChild(CSTR_ANIMATION_ARMED), names.armed);
     ::write(node.addChild(CSTR_ANIMATION_DISARMED), names.disarmed);
-    ::write(node.addChild(CSTR_ANIMATION_DOGE), names.doge);
-    ::write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
+
     ::write(node.addChild(CSTR_ANIMATION_EQUIP), names.equip);
     ::write(node.addChild(CSTR_ANIMATION_DISARM), names.disarm);
-    ::write(node.addChild(CSTR_DRAW_ARROW_ANIMATION), names.drawArrow);
-    ::write(node.addChild(CSTR_RECOIL_ARROW_ANIMATION), names.recoilArrow);
-    ::write(node.addChild(CSTR_AIM_IDLE_ANIMATION), names.aimIdle);
+    ::write(node.addChild(CSTR_AIM), names.aim);
 }
 
 void Read(const TreeNode& node, MovmentClipNames& result)
 {
     Read(node.getChild(CSTR_ANIMATION_FORWARD), result.forward);
     Read(node.getChild(CSTR_ANIMATION_BACKWARD), result.backward);
-    Read(node.getChild(CSTR_ANIMATION_MOVE_LEFT), result.moveleft);
-    Read(node.getChild(CSTR_ANIMATION_MOVE_RIGHT), result.moveRight);
+    Read(node.getChild(CSTR_ANIMATION_MOVE_LEFT), result.left);
+    Read(node.getChild(CSTR_ANIMATION_MOVE_RIGHT), result.right);
 }
 
 void Read(const TreeNode& node, std::vector<std::string>& result)
@@ -168,34 +202,61 @@ void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
         }
     }
 }
+void Read(const TreeNode& node, RotateAnimationClips& result)
+{
+    Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.left);
+    Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.right);
+}
 
-void Read(const TreeNode& node, StateClipsNames& result)
+void Read(const TreeNode& node, PostureClipNames& result)
+{
+    Read(node.getChild(CSTR_IDLE_MAIN), result.idle);
+    Read(node.getChild(CSTR_ANIMATION_CROUCH_IDLE), result.idle);
+    Read(node.getChild(CSTR_HURT_ANIMATION), result.hurt);
+    Read(node.getChild(CSTR_DEATH_ANIMATION), result.death);
+    Read(node.getChild(CSTR_ROTATE), result.rotate);
+}
+
+void Read(const TreeNode& node, Posture& result)
+{
+    Read(node.getChild(CSTR_POSTURE_STAND), result.stand);
+    Read(node.getChild(CSTR_POSTURE_CROUCHED), result.crouched);
+}
+
+void Read(const TreeNode& node, Movement& result)
 {
     Read(node.getChild(CSTR_ANIMATION_WALK), result.walk);
     Read(node.getChild(CSTR_ANIMATION_RUN), result.run);
     Read(node.getChild(CSTR_ANIMATION_CROUCH_MOVEMENT), result.crouch);
+}
+
+void Read(const TreeNode& node, StateClipsNames& result)
+{
+    Read(node.getChild(CSTR_MOVEMENT), result.movement);
+    Read(node.getChild(CSTR_POSTURE), result.posture);
     Read(node.getChild(CSTR_JUMP_ANIMATION), result.jump);
-    Read(node.getChild(CSTR_IDLE_MAIN), result.idle);
-    Read(node.getChild(CSTR_ANIMATION_CROUCH_IDLE), result.crouchIdle);
-    Read(node.getChild(CSTR_HURT_ANIMATION), result.hurt);
-    Read(node.getChild(CSTR_DEATH_ANIMATION), result.death);
     Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
-    Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.rotateLeft);
-    Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.rotateRight);
     Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
+    Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
+    Read(node.getChild(CSTR_ANIMATION_DOGE), result.doge);
+}
+
+void Read(const TreeNode& node, AimClips& result)
+{
+    Read(node.getChild(CSTR_DRAW_ARROW_ANIMATION), result.draw);
+    Read(node.getChild(CSTR_RECOIL_ARROW_ANIMATION), result.recoil);
+    Read(node.getChild(CSTR_AIM_IDLE_ANIMATION), result.idle);
 }
 
 void Read(const TreeNode& node, AnimationClipsNames& result)
 {
     Read(node.getChild(CSTR_ANIMATION_ARMED), result.armed);
     Read(node.getChild(CSTR_ANIMATION_DISARMED), result.disarmed);
-    Read(node.getChild(CSTR_ANIMATION_DOGE), result.doge);
-    Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
+
     Read(node.getChild(CSTR_ANIMATION_EQUIP), result.equip);
     Read(node.getChild(CSTR_ANIMATION_DISARM), result.disarm);
-    Read(node.getChild(CSTR_DRAW_ARROW_ANIMATION), result.drawArrow);
-    Read(node.getChild(CSTR_RECOIL_ARROW_ANIMATION), result.recoilArrow);
-    Read(node.getChild(CSTR_AIM_IDLE_ANIMATION), result.aimIdle);
+
+    Read(node.getChild(CSTR_AIM), result.aim);
 }
 
 namespace GameEngine
@@ -264,7 +325,7 @@ void CharacterController::Init()
 
         impl->aimController_ =
             std::make_unique<AimController>(componentContext_.scene_, thisObject_, componentContext_.inputManager_,
-                                            aimJoint ? *aimJoint : dummyJoint, animationClipsNames_.drawArrow);
+                                            aimJoint ? *aimJoint : dummyJoint, animationClipsNames_.aim.draw);
 
         impl->fsmContext.reset(new FsmContext{thisObject_,
                                               componentContext_.physicsApi_,
@@ -355,8 +416,8 @@ void CharacterController::Init()
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.equip);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarm);
         animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.jump);
-        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.hurt);
-        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.death);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.posture.stand.hurt);
+        animator_->setPlayOnceForAnimationClip(animationClipsNames_.disarmed.posture.stand.death);
 
         // animator_->alignAnimations(animationClipsNames_.disarm, animationClipsNames_.disarmed.idle);
 
@@ -369,7 +430,7 @@ void CharacterController::Init()
             animator_->setPlayOnceForAnimationClip(attack.name);
         }
 
-        animator_->SetAnimation(animationClipsNames_.disarmed.idle);
+        animator_->SetAnimation(animationClipsNames_.disarmed.posture.stand.idle);
 
         auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
         if (lowerBodyGroupIter == animator_->jointGroups_.end())

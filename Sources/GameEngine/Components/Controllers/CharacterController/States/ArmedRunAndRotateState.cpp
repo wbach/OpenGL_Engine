@@ -7,12 +7,8 @@ namespace GameEngine
 namespace Components
 {
 ArmedRunAndRotateState::ArmedRunAndRotateState(FsmContext &context)
-    : RotatingMoveAndRotateStateBase{context,
-                                     std::nullopt,
-                                     context.runSpeed,
-                                     context.animClipNames.armed.run,
-                                     context.animClipNames.armed.rotateLeft,
-                                     context.animClipNames.armed.rotateRight}
+    : RotatingMoveAndRotateStateBase{context, std::nullopt, context.runSpeed, context.animClipNames.armed.movement.run,
+                                     context.animClipNames.armed.posture.stand.rotate}
 {
 }
 }  // namespace Components

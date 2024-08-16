@@ -2,6 +2,7 @@
 #include <optional>
 #include <string>
 
+#include "../AnimationClipNames.h"
 #include "../CharacterControllerEvents.h"
 
 namespace GameEngine
@@ -19,7 +20,7 @@ public:
         none,
         rotateOnlyCameraIfAvaiable
     };
-    RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const std::string&, const std::string&,
+    RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const RotateAnimationClips&,
                     CameraRotationPolicy = CameraRotationPolicy::rotateOnlyCameraIfAvaiable);
 
     void onEnter(const EndAttackEvent&);
@@ -46,13 +47,12 @@ public:
     void setCurrentRotation();
     void setCurrentAnimAndRotation();
 
-    void updateAnimationClipNames(const std::string&, const std::string&);
+    void updateAnimationClipNames(const RotateAnimationClips&);
 
 protected:
     FsmContext& context_;
     std::optional<std::string> jointGroupName_;
-    std::string rotateLeftAnim_;
-    std::string rotateRightAnim_;
+    RotateAnimationClips rotateAnimationClips_;
     float rotateSpeed_;
     ThridPersonCameraComponent* cameraComponent_;
     CameraRotationPolicy cameraRotationPolicy_;

@@ -9,7 +9,7 @@ namespace Components
 WalkArmedChangeState::WalkArmedChangeState(FsmContext& context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
     , RotatingMoveState{context, context.lowerBodyGroupName, context.walkSpeed.forward,
-                        context.animClipNames.disarmed.walk.forward}
+                        context.animClipNames.disarmed.movement.walk.forward}
     , context_{context}
 {
 }
@@ -17,49 +17,49 @@ void WalkArmedChangeState::onEnter()
 {
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
-        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+        MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.walk);
     }
     else if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Disarm)
     {
-        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+        MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.walk);
     }
 }
 
 void WalkArmedChangeState::onEnter(CrouchWalkArmedChangeState&, const CrouchChangeStateEvent&)
 {
     ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.walk);
 }
 void WalkArmedChangeState::onEnter(DisarmedWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.walk);
 }
 void WalkArmedChangeState::onEnter(ArmedWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.walk);
 }
 void WalkArmedChangeState::onEnter(DisarmedWalkState&, const DrawArrowEvent& e)
 {
     ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.walk);
     ArmedChangeStateBase::update(e);
 }
 void WalkArmedChangeState::onEnter(DrawArrowWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.walk);
 }
 void WalkArmedChangeState::onEnter(RecoilWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.walk);
 }
 void WalkArmedChangeState::onEnter(AimWalkState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::disarmWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.walk);
+    MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.walk);
 }
 void WalkArmedChangeState::update(float dt)
 {

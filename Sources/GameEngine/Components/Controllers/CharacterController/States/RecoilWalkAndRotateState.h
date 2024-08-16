@@ -1,6 +1,6 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
-#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "../CharacterControllerEvents.h"
 #include "MoveAndRotateStateBase.h"
 #include "RecoilStateBase.h"
 

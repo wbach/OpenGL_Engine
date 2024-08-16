@@ -10,7 +10,7 @@ namespace Components
 {
 RecoilCrouchState::RecoilCrouchState(FsmContext &context)
     : RecoilStateBase(context, context.upperBodyGroupName)
-    , IdleStateBase(context, context.animClipNames.armed.crouchIdle, context.lowerBodyGroupName)
+    , IdleStateBase(context, context.animClipNames.armed.posture.crouched.idle, context.lowerBodyGroupName)
     , context_{context}
 {
 }

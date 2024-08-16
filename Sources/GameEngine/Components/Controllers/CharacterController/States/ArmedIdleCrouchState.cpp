@@ -7,7 +7,7 @@ namespace GameEngine
 namespace Components
 {
 ArmedIdleCrouchState::ArmedIdleCrouchState(FsmContext &context)
-    : IdleStateBase(context, context.animClipNames.armed.crouchIdle)
+    : IdleStateBase(context, context.animClipNames.armed.posture.crouched.idle)
 {
 }
 }  // namespace Components

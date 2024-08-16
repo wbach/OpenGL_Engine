@@ -11,12 +11,10 @@ namespace GameEngine
 namespace Components
 {
 RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName, float rotateSpeed,
-                                 const std::string &rotateLeftAnim, const std::string &rotateRightAnim,
-                                 CameraRotationPolicy cameraRotationPolicy)
+                                 const RotateAnimationClips &rotateAnimationClips, CameraRotationPolicy cameraRotationPolicy)
     : context_{context}
     , jointGroupName_{jointGourpName}
-    , rotateLeftAnim_{rotateLeftAnim}
-    , rotateRightAnim_{rotateRightAnim}
+    , rotateAnimationClips_{rotateAnimationClips}
     , rotateSpeed_{rotateSpeed}
     , cameraComponent_{context_.gameObject.GetComponent<ThridPersonCameraComponent>()}
     , cameraRotationPolicy_{cameraRotationPolicy}
@@ -155,19 +153,19 @@ void RotateStateBase::update(const AimStartEvent &)
 
 void RotateStateBase::setRotateLeftAnim()
 {
-    if (not rotateLeftAnim_.empty() and not context_.animator.isAnimationPlaying(rotateLeftAnim_))
+    if (not rotateAnimationClips_.left.empty() and not context_.animator.isAnimationPlaying(rotateAnimationClips_.left))
     {
-        context_.animator.ChangeAnimation(rotateLeftAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          jointGroupName_);
+        context_.animator.ChangeAnimation(rotateAnimationClips_.left, Animator::AnimationChangeType::smooth,
+                                          PlayDirection::forward, jointGroupName_);
     }
 }
 
 void RotateStateBase::setRotateRightAnim()
 {
-    if (not rotateRightAnim_.empty() and not context_.animator.isAnimationPlaying(rotateRightAnim_))
+    if (not rotateAnimationClips_.right.empty() and not context_.animator.isAnimationPlaying(rotateAnimationClips_.right))
     {
-        context_.animator.ChangeAnimation(rotateRightAnim_, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                          jointGroupName_);
+        context_.animator.ChangeAnimation(rotateAnimationClips_.right, Animator::AnimationChangeType::smooth,
+                                          PlayDirection::forward, jointGroupName_);
     }
 }
 
@@ -212,12 +210,11 @@ void RotateStateBase::setCurrentAnimAndRotation()
     setCurrentRotation();
 }
 
-void RotateStateBase::updateAnimationClipNames(const std::string &rotateLeftAnim, const std::string &rotateRightAnim)
+void RotateStateBase::updateAnimationClipNames(const RotateAnimationClips &rotateAnimationClips)
 {
-    if (rotateLeftAnim_ != rotateLeftAnim or rotateRightAnim_ != rotateRightAnim)
+    if (rotateAnimationClips_ != rotateAnimationClips)
     {
-        rotateLeftAnim_  = rotateLeftAnim;
-        rotateRightAnim_ = rotateRightAnim;
+        rotateAnimationClips_ = rotateAnimationClips;
         setCurrentAnim();
     }
 }

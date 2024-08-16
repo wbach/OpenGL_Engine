@@ -1,6 +1,6 @@
 #pragma once
 #include "../AnimationClipNames.h"
-#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "../CharacterControllerEvents.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 

@@ -10,7 +10,7 @@ namespace GameEngine
 namespace Components
 {
 RecoilStateBase::RecoilStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
-    : AimingStateBase{context, jointGroupName, context.animClipNames.recoilArrow}
+    : AimingStateBase{context, jointGroupName, context.animClipNames.aim.recoil}
 {
     context.animator.setPlayOnceForAnimationClip(animationClip);
 }

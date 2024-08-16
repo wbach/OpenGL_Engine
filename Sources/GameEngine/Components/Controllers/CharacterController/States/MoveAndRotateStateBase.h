@@ -14,10 +14,10 @@ struct FsmContext;
 class MoveAndRotateStateBase : public MoveStateBase, public RotateStateBase
 {
 public:
-    MoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &,
-                           const MovmentClipNames &, const std::string &, const std::string &);
+    MoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &,
+                           const RotateAnimationClips &);
     MoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &, float,
-                           const std::string &, const std::string &);
+                           const RotateAnimationClips &);
 
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const EndJumpEvent &);

@@ -8,10 +8,10 @@ namespace Components
 {
 DisarmedAttackAndWalkAndRotateState::DisarmedAttackAndWalkAndRotateState(FsmContext& context)
     : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
-    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate, context.animClipNames.disarmed.rotateLeft,
-                      context.animClipNames.disarmed.rotateRight}
+    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
+                      context.animClipNames.disarmed.posture.stand.rotate}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.runSpeed.forward,
-                        context.animClipNames.disarmed.walk.forward)
+                        context.animClipNames.disarmed.movement.walk.forward)
 {
 }
 

@@ -9,7 +9,7 @@ namespace Components
 ArmedAttackAndWalkState::ArmedAttackAndWalkState(FsmContext& context)
     : AttackStateBase{context, context.animClipNames.armed.attack, context.upperBodyGroupName}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.walkSpeed.forward,
-                        context.animClipNames.armed.walk.forward)
+                        context.animClipNames.armed.movement.walk.forward)
 {
 }
 

@@ -4,10 +4,10 @@ namespace
 {
 void prepareState(CharacterControllerTests& test)
 {
-    test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.idle});
-    test.tiggerAndExpect<CrouchChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.crouchIdle});
+    test.expectAnimsToBeSet({test.sut_.animationClipsNames_.disarmed.posture.stand.idle});
+    test.tiggerAndExpect<CrouchChangeStateEvent>({test.sut_.animationClipsNames_.disarmed.posture.crouched.idle});
     test.tiggerAndExpect<WeaponStateEvent>(
-        {test.sut_.animationClipsNames_.equip, test.sut_.animationClipsNames_.armed.crouchIdle});
+        {test.sut_.animationClipsNames_.equip, test.sut_.animationClipsNames_.armed.posture.crouched.idle});
 }
 }  // namespace
 
@@ -18,52 +18,51 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_CrouchChangeStateEve
 
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(0);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.idle});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.stand.idle});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_DeathEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.death});
+    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.death});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_EquipEndStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EquipEndStateEvent>({sut_.animationClipsNames_.armed.crouchIdle},
+    tiggerAndExpect<EquipEndStateEvent>({sut_.animationClipsNames_.armed.posture.crouched.idle},
                                         {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_DisarmEndStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DisarmEndStateEvent>({sut_.animationClipsNames_.disarmed.crouchIdle},
+    tiggerAndExpect<DisarmEndStateEvent>({sut_.animationClipsNames_.disarmed.posture.crouched.idle},
                                          {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_TRANSITION_TIME});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    tiggerAndExpect<MoveForwardEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.crouch.forward});
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_WALK_SPEED);
     tiggerAndExpect<MoveBackwardEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.crouch.forward});
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRootboneRotation(VECTOR_BACKWARD);
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveLeftEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.crouch.forward});
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRootboneRotation(VECTOR_LEFT);
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveRightEvent)
 {
     prepareState(*this);
     expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.crouch.forward});
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRootboneRotation(VECTOR_RIGHT);
 }
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateLeftEvent)
@@ -71,14 +70,14 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveRightEvent)
 //    prepareState(*this);
 //    expectRotationLeft();
 //    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.rotateLeft});
+//    sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 //}
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateRightEvent)
 //{
 //    prepareState(*this);
 //    expectRotationRight();
 //    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.rotateRight});
+//    sut_.animationClipsNames_.armed.posture.stand.rotate.right});
 //}
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateTargetEvent)
 //{
@@ -89,22 +88,22 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveRightEvent)
 //    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
 //    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
 //                                       {sut_.animationClipsNames_.equip,
-//                                       sut_.animationClipsNames_.armed.rotateLeft});
+//                                       sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 //}
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_DrawArrowEvent)
 //{
 //    prepareState(*this);
 //    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.crouchIdle}); Update(ADVANCED_TIME_CLIP_TIME);
+//    sut_.animationClipsNames_.armed.posture.crouched.idle}); Update(ADVANCED_TIME_CLIP_TIME);
 //    Update(ADVANCED_TIME_TRANSITION_TIME);
-//    expectAnimsToBeSet({sut_.animationClipsNames_.drawArrow});
+//    expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
 //}
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_AimStopEvent)
 //{
 //    prepareState(*this);
 //    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.crouchIdle}); tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.crouchIdle}); Update(ADVANCED_TIME_CLIP_TIME);
+//    sut_.animationClipsNames_.armed.posture.crouched.idle}); tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.equip,
+//    sut_.animationClipsNames_.armed.posture.crouched.idle}); Update(ADVANCED_TIME_CLIP_TIME);
 //    Update(ADVANCED_TIME_TRANSITION_TIME);
-//    expectAnimsToBeSet({sut_.animationClipsNames_.armed.crouchIdle});
+//    expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.crouched.idle});
 //}

@@ -1,7 +1,6 @@
 #include "ArmedAttackState.h"
 
 #include "../FsmContext.h"
-#include "Components/Controllers/CharacterController/FsmContext.h"
 #include "Fsm/actions/Nothing.h"
 
 namespace GameEngine

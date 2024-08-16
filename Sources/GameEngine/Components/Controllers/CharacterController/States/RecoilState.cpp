@@ -1,8 +1,6 @@
 #include "RecoilState.h"
 
 #include "../FsmContext.h"
-#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {

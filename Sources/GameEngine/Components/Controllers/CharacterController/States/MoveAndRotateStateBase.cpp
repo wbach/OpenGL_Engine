@@ -6,21 +6,19 @@ namespace GameEngine
 {
 namespace Components
 {
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
-                                               const std::optional<std::string> &moveJointGroupName,
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const std::optional<std::string> &moveJointGroupName,
                                                const MoveSpeed &moveSpeed, const MovmentClipNames &clipnames,
-                                               const std::string &rotateLeft, const std::string &rotateRight)
+                                               const RotateAnimationClips &rotateAnimationClips)
     : MoveStateBase{context, moveJointGroupName, moveSpeed, clipnames}
-    , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, moveSpeed.rotate, rotateAnimationClips}
 {
 }
 
-MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context,
-                                               const std::optional<std::string> &moveJointGroupName, float forwardSpeed,
-                                               const std::string &forwardAnimName, float rotateSpeed,
-                                               const std::string &rotateLeft, const std::string &rotateRight)
+MoveAndRotateStateBase::MoveAndRotateStateBase(FsmContext &context, const std::optional<std::string> &moveJointGroupName,
+                                               float forwardSpeed, const std::string &forwardAnimName, float rotateSpeed,
+                                               const RotateAnimationClips &rotateAnimationClips)
     : MoveStateBase{context, moveJointGroupName, forwardSpeed, forwardAnimName}
-    , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateLeft, rotateRight}
+    , RotateStateBase{context, moveJointGroupName, rotateSpeed, rotateAnimationClips}
 {
 }
 

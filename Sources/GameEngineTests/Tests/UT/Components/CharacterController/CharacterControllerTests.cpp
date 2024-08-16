@@ -31,56 +31,78 @@ CharacterControllerTests::CharacterControllerTests()
     componentController_.CallFunctions(FunctionType::Awake);
     componentController_.CallFunctions(FunctionType::OnStart);
 
-    auto& clips       = sut_.animationClipsNames_;
-    clips.equip       = "equip";
-    clips.disarm      = "disarm";
-    clips.aimIdle     = "aimIdle";
-    clips.drawArrow   = "drawArrow";
-    clips.recoilArrow = "recoilArrow";
+    auto& clips  = sut_.animationClipsNames_;
+    clips.equip  = "equip";
+    clips.disarm = "disarm";
 
-    clips.disarmed.idle             = "DI";
-    clips.disarmed.crouchIdle       = "DCI";
-    clips.disarmed.sprint           = "DS";
-    clips.disarmed.run.forward      = "DRF";
-    clips.disarmed.run.backward     = "DRB";
-    clips.disarmed.run.moveleft     = "DMRL";
-    clips.disarmed.run.moveRight    = "DMRR";
-    clips.disarmed.walk.forward     = "DWF";
-    clips.disarmed.walk.backward    = "DWB";
-    clips.disarmed.walk.moveleft    = "DMRL";
-    clips.disarmed.walk.moveRight   = "DMRR";
-    clips.disarmed.crouch.forward   = "DCWF";
-    clips.disarmed.crouch.backward  = "DCWB";
-    clips.disarmed.crouch.moveleft  = "DCMRL";
-    clips.disarmed.crouch.moveRight = "DCMRR";
-    clips.disarmed.rotateLeft       = "DRL";
-    clips.disarmed.rotateRight      = "DRR";
-    clips.disarmed.death            = "disarmedDeath";
+    clips.aim.idle   = "aimIdle";
+    clips.aim.draw   = "drawArrow";
+    clips.aim.recoil = "recoilArrow";
+
+    clips.disarmed.posture.crouched.idle         = "DCI";
+    clips.disarmed.posture.crouched.death        = "DCD";
+    clips.disarmed.posture.crouched.hurt         = "DCH";
+    clips.disarmed.posture.crouched.rotate.left  = "DCRL";
+    clips.disarmed.posture.crouched.rotate.right = "DCRR";
+
+    clips.disarmed.posture.stand.idle         = "DI";
+    clips.disarmed.posture.stand.death        = "DD";
+    clips.disarmed.posture.stand.hurt         = "DH";
+    clips.disarmed.posture.stand.rotate.left  = "DRL";
+    clips.disarmed.posture.stand.rotate.right = "DRR";
+
+    clips.disarmed.movement.run.forward  = "DRF";
+    clips.disarmed.movement.run.backward = "DRB";
+    clips.disarmed.movement.run.left     = "DMRL";
+    clips.disarmed.movement.run.right    = "DMRR";
+
+    clips.disarmed.movement.walk.forward  = "DWF";
+    clips.disarmed.movement.walk.backward = "DWB";
+    clips.disarmed.movement.walk.left     = "DMRL";
+    clips.disarmed.movement.walk.right    = "DMRR";
+
+    clips.disarmed.movement.crouch.forward  = "DCWF";
+    clips.disarmed.movement.crouch.backward = "DCWB";
+    clips.disarmed.movement.crouch.left     = "DCMRL";
+    clips.disarmed.movement.crouch.right    = "DCMRR";
+
+    clips.disarmed.sprint = "DS";
     clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA3", PlayStateType::idle});
+
     disarmedAttackClip1 = &clips.disarmed.attack[0];
     disarmedAttackClip2 = &clips.disarmed.attack[1];
     disarmedAttackClip3 = &clips.disarmed.attack[2];
 
-    clips.armed.idle             = "AI";
-    clips.armed.crouchIdle       = "ACI";
-    clips.armed.sprint           = "AS";
-    clips.armed.run.forward      = "ARF";
-    clips.armed.run.backward     = "ARB";
-    clips.armed.run.moveleft     = "AMRL";
-    clips.armed.run.moveRight    = "AMRR";
-    clips.armed.walk.forward     = "AWF";
-    clips.armed.walk.backward    = "AWB";
-    clips.armed.walk.moveleft    = "AMRL";
-    clips.armed.walk.moveRight   = "AMRR";
-    clips.armed.crouch.forward   = "ACWF";
-    clips.armed.crouch.backward  = "ACWB";
-    clips.armed.crouch.moveleft  = "ACMRL";
-    clips.armed.crouch.moveRight = "ACMRR";
-    clips.armed.rotateLeft       = "ARL";
-    clips.armed.rotateRight      = "ARR";
-    clips.armed.death            = "armedDeath";
+    clips.armed.posture.crouched.idle         = "ACI";
+    clips.armed.posture.crouched.death        = "ACD";
+    clips.armed.posture.crouched.hurt         = "ACH";
+    clips.armed.posture.crouched.rotate.left  = "ACRL";
+    clips.armed.posture.crouched.rotate.right = "ACRR";
+
+    clips.armed.posture.stand.idle         = "AI";
+    clips.armed.posture.stand.death        = "AD";
+    clips.armed.posture.stand.hurt         = "AH";
+    clips.armed.posture.stand.rotate.left  = "ARL";
+    clips.armed.posture.stand.rotate.right = "ARR";
+
+    clips.armed.movement.run.forward  = "ARF";
+    clips.armed.movement.run.backward = "ARB";
+    clips.armed.movement.run.left     = "AMRL";
+    clips.armed.movement.run.right    = "AMRR";
+
+    clips.armed.movement.walk.forward  = "AWF";
+    clips.armed.movement.walk.backward = "AWB";
+    clips.armed.movement.walk.left     = "AMRL";
+    clips.armed.movement.walk.right    = "AMRR";
+
+    clips.armed.movement.crouch.forward  = "ACWF";
+    clips.armed.movement.crouch.backward = "ACWB";
+    clips.armed.movement.crouch.left     = "ACMRL";
+    clips.armed.movement.crouch.right    = "ACMRR";
+
+    clips.armed.sprint = "AS";
     clips.armed.attack.push_back({"A1", PlayStateType::idle});
     clips.armed.attack.push_back({"A2", PlayStateType::idle});
     clips.armed.attack.push_back({"A3", PlayStateType::idle});
@@ -91,52 +113,70 @@ CharacterControllerTests::CharacterControllerTests()
 
     addDummyClip(clips.equip);
     addDummyClip(clips.disarm);
-    addDummyClip(clips.aimIdle);
-    addDummyClip(clips.drawArrow);
-    addDummyClip(clips.recoilArrow);
-
-    addDummyClip(clips.disarmed.death);
-    addDummyClip(clips.disarmed.idle);
-    addDummyClip(clips.disarmed.crouchIdle);
-    addDummyClip(clips.disarmed.sprint);
-    addDummyClip(clips.disarmed.run.forward);
-    addDummyClip(clips.disarmed.run.backward);
-    addDummyClip(clips.disarmed.run.moveleft);
-    addDummyClip(clips.disarmed.run.moveRight);
-    addDummyClip(clips.disarmed.walk.forward);
-    addDummyClip(clips.disarmed.walk.backward);
-    addDummyClip(clips.disarmed.walk.moveleft);
-    addDummyClip(clips.disarmed.walk.moveRight);
-    addDummyClip(clips.disarmed.crouch.forward);
-    addDummyClip(clips.disarmed.crouch.backward);
-    addDummyClip(clips.disarmed.crouch.moveleft);
-    addDummyClip(clips.disarmed.crouch.moveRight);
-    addDummyClip(clips.disarmed.rotateLeft);
-    addDummyClip(clips.disarmed.rotateRight);
-
-    addDummyClip(clips.armed.idle);
-    addDummyClip(clips.armed.death);
-    addDummyClip(clips.armed.crouchIdle);
-    addDummyClip(clips.armed.sprint);
-    addDummyClip(clips.armed.run.forward);
-    addDummyClip(clips.armed.run.backward);
-    addDummyClip(clips.armed.run.moveleft);
-    addDummyClip(clips.armed.run.moveRight);
-    addDummyClip(clips.armed.walk.forward);
-    addDummyClip(clips.armed.walk.backward);
-    addDummyClip(clips.armed.walk.moveleft);
-    addDummyClip(clips.armed.walk.moveRight);
-    addDummyClip(clips.armed.crouch.forward);
-    addDummyClip(clips.armed.crouch.backward);
-    addDummyClip(clips.armed.crouch.moveleft);
-    addDummyClip(clips.armed.crouch.moveRight);
-    addDummyClip(clips.armed.rotateLeft);
-    addDummyClip(clips.armed.rotateRight);
+    addDummyClip(clips.aim.idle);
+    addDummyClip(clips.aim.draw);
+    addDummyClip(clips.aim.recoil);
 
     for (const auto& attackClip : clips.disarmed.attack)
     {
         addDummyClip(attackClip.name);
     }
+    addDummyClip(clips.disarmed.sprint);
+    addDummyClip(clips.disarmed.posture.crouched.death);
+    addDummyClip(clips.disarmed.posture.crouched.idle);
+    addDummyClip(clips.disarmed.posture.crouched.hurt);
+    addDummyClip(clips.disarmed.posture.crouched.rotate.left);
+    addDummyClip(clips.disarmed.posture.crouched.rotate.right);
+
+    addDummyClip(clips.disarmed.posture.stand.death);
+    addDummyClip(clips.disarmed.posture.stand.idle);
+    addDummyClip(clips.disarmed.posture.stand.hurt);
+    addDummyClip(clips.disarmed.posture.stand.rotate.left);
+    addDummyClip(clips.disarmed.posture.stand.rotate.right);
+
+    addDummyClip(clips.disarmed.movement.run.forward);
+    addDummyClip(clips.disarmed.movement.run.backward);
+    addDummyClip(clips.disarmed.movement.run.left);
+    addDummyClip(clips.disarmed.movement.run.right);
+
+    addDummyClip(clips.disarmed.movement.walk.forward);
+    addDummyClip(clips.disarmed.movement.walk.backward);
+    addDummyClip(clips.disarmed.movement.walk.left);
+    addDummyClip(clips.disarmed.movement.walk.right);
+
+    addDummyClip(clips.disarmed.movement.crouch.forward);
+    addDummyClip(clips.disarmed.movement.crouch.backward);
+    addDummyClip(clips.disarmed.movement.crouch.left);
+    addDummyClip(clips.disarmed.movement.crouch.right);
+
+    addDummyClip(clips.armed.posture.crouched.death);
+    addDummyClip(clips.armed.posture.crouched.idle);
+    addDummyClip(clips.armed.posture.crouched.hurt);
+    addDummyClip(clips.armed.posture.crouched.rotate.left);
+    addDummyClip(clips.armed.posture.crouched.rotate.right);
+
+    addDummyClip(clips.armed.posture.stand.death);
+    addDummyClip(clips.armed.posture.stand.idle);
+    addDummyClip(clips.armed.posture.stand.hurt);
+    addDummyClip(clips.armed.posture.stand.rotate.left);
+    addDummyClip(clips.armed.posture.stand.rotate.right);
+
+    addDummyClip(clips.armed.movement.run.forward);
+    addDummyClip(clips.armed.movement.run.backward);
+    addDummyClip(clips.armed.movement.run.left);
+    addDummyClip(clips.armed.movement.run.right);
+
+    addDummyClip(clips.armed.movement.walk.forward);
+    addDummyClip(clips.armed.movement.walk.backward);
+    addDummyClip(clips.armed.movement.walk.left);
+    addDummyClip(clips.armed.movement.walk.right);
+
+    addDummyClip(clips.armed.movement.crouch.forward);
+    addDummyClip(clips.armed.movement.crouch.backward);
+    addDummyClip(clips.armed.movement.crouch.left);
+    addDummyClip(clips.armed.movement.crouch.right);
+
+    addDummyClip(clips.armed.sprint);
     for (const auto& attackClip : clips.armed.attack)
     {
         addDummyClip(attackClip.name);

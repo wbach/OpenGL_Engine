@@ -1,7 +1,7 @@
 #pragma once
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "Components/Controllers/CharacterController/PlayStateType.h"
+#include "../PlayStateType.h"
 
 namespace GameEngine
 {

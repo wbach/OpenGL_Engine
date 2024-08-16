@@ -11,7 +11,7 @@ namespace Components
 {
 IdleArmedChangeState::IdleArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, std::nullopt)
-    , IdleStateBase{context, context.animClipNames.disarmed.idle}
+    , IdleStateBase{context, context.animClipNames.disarmed.posture.stand.idle}
     , context_{context}
 {
 }

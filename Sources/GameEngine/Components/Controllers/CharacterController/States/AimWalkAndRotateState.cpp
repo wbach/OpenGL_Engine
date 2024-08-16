@@ -9,12 +9,8 @@ namespace Components
 {
 AimWalkAndRotateState::AimWalkAndRotateState(FsmContext &context)
     : AimStateBase(context, context.upperBodyGroupName)
-    , MoveAndRotateStateBase{context,
-                             context.lowerBodyGroupName,
-                             context.walkSpeed,
-                             context.animClipNames.armed.walk,
-                             context.animClipNames.armed.rotateLeft,
-                             context.animClipNames.armed.rotateRight}
+    , MoveAndRotateStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.movement.walk,
+                             context.animClipNames.armed.posture.stand.rotate}
 {
 }
 

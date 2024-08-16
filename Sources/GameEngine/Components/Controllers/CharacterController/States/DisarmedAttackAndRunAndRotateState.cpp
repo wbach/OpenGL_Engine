@@ -9,9 +9,9 @@ namespace Components
 DisarmedAttackAndRunAndRotateState::DisarmedAttackAndRunAndRotateState(FsmContext& context)
     : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
-                      context.animClipNames.disarmed.rotateLeft, context.animClipNames.disarmed.rotateRight}
+                      context.animClipNames.disarmed.posture.stand.rotate}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.runSpeed.forward,
-                        context.animClipNames.disarmed.run.forward)
+                        context.animClipNames.disarmed.movement.run.forward)
 {
 }
 

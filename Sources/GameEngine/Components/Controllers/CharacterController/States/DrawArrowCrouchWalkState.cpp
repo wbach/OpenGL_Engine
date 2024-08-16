@@ -9,7 +9,7 @@ namespace Components
 {
 DrawArrowCrouchWalkState::DrawArrowCrouchWalkState(FsmContext &context)
     : DrawArrowStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.crouch}
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.movement.crouch}
     , context_{context}
 {
 }
@@ -48,7 +48,7 @@ void DrawArrowCrouchWalkState::update(float dt)
 
 void DrawArrowCrouchWalkState::onMoveInactivity()
 {
-    MoveStateBase::setAnim(context_.animClipNames.armed.crouchIdle);
+    MoveStateBase::setAnim(context_.animClipNames.armed.posture.crouched.idle);
 }
 
 void DrawArrowCrouchWalkState::onLeave(const AimStopEvent &e)

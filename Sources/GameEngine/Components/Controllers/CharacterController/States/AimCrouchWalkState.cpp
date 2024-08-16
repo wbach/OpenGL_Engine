@@ -9,7 +9,7 @@ namespace Components
 {
 AimCrouchWalkState::AimCrouchWalkState(FsmContext &context)
     : AimStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.crouch}
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.movement.crouch}
     , context_{context}
 {
 }
@@ -37,7 +37,7 @@ void AimCrouchWalkState::onLeave(const SprintStateChangeEvent &e)
 
 void AimCrouchWalkState::onMoveInactivity()
 {
-    MoveStateBase::setAnim(context_.animClipNames.armed.crouchIdle);
+    MoveStateBase::setAnim(context_.animClipNames.armed.posture.crouched.idle);
 }
 
 void AimCrouchWalkState::onLeave(const WeaponStateEvent &e)

@@ -1,7 +1,7 @@
 #pragma once
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "Components/Controllers/CharacterController/CharacterControllerEvents.h"
+#include "../CharacterControllerEvents.h"
 #include "RotateStateBase.h"
 #include "RotatingMoveState.h"
 

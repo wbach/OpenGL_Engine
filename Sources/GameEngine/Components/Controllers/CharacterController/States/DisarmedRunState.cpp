@@ -7,12 +7,12 @@ namespace GameEngine
 namespace Components
 {
 DisarmedRunState::DisarmedRunState(FsmContext &context)
-    : RotatingMoveState{context, std::nullopt, context.runSpeed.forward, context.animClipNames.disarmed.run.forward}
+    : RotatingMoveState{context, std::nullopt, context.runSpeed.forward, context.animClipNames.disarmed.movement.run.forward}
 {
 }
 void DisarmedRunState::onMoveInactivity()
 {
-    context_.animator.ChangeAnimation(context_.animClipNames.disarmed.idle, Animator::AnimationChangeType::smooth,
+    context_.animator.ChangeAnimation(context_.animClipNames.disarmed.posture.stand.idle, Animator::AnimationChangeType::smooth,
                                       PlayDirection::forward, jointGroupName_);
 }
 

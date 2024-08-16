@@ -1,5 +1,6 @@
 #pragma once
 #include <Types.h>
+
 #include "PlayStateType.h"
 
 namespace GameEngine
@@ -16,43 +17,70 @@ struct MovmentClipNames
 {
     std::string forward;
     std::string backward;
-    std::string moveleft;
-    std::string moveRight;
+    std::string left;
+    std::string right;
 };
 
-struct StateClipsNames
+struct RotateAnimationClips
+{
+    std::string left;
+    std::string right;
+};
+
+struct PostureClipNames
+{
+    RotateAnimationClips rotate;
+    std::string idle;
+    std::string hurt;
+    std::string death;
+};
+
+struct Movement
 {
     MovmentClipNames walk;
     MovmentClipNames run;
     MovmentClipNames crouch;
+};
 
-    std::string rotateLeft;
-    std::string rotateRight;
+struct Posture
+{
+    PostureClipNames crouched;
+    PostureClipNames stand;
+};
+
+struct StateClipsNames
+{
+    Movement movement;
+    Posture posture;
+
     std::string jump;
-    std::string idle;
-    std::string crouchIdle;
-    std::string hurt;
-    std::string death;
     std::string sprint;
+    std::string doge;
+    std::string dogeJump;
 
     std::vector<AttackAnimation> attack;
+};
+
+struct AimClips
+{
+    std::string draw;
+    std::string recoil;
+    std::string idle;
 };
 
 struct AnimationClipsNames
 {
     StateClipsNames armed;
     StateClipsNames disarmed;
+    AimClips aim;
 
-    std::string doge;
-    std::string dogeJump;
     std::string equip;
     std::string disarm;
-    std::string drawArrow;
-    std::string recoilArrow;
-    std::string aimIdle;
 };
 
 bool operator==(const MovmentClipNames&, const MovmentClipNames&);
 bool operator!=(const MovmentClipNames&, const MovmentClipNames&);
+bool operator==(const RotateAnimationClips&, const RotateAnimationClips&);
+bool operator!=(const RotateAnimationClips&, const RotateAnimationClips&);
 }  // namespace Components
 }  // namespace GameEngine

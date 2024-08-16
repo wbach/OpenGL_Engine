@@ -9,12 +9,8 @@ namespace Components
 {
 DrawArrowRotateState::DrawArrowRotateState(FsmContext& context)
     : DrawArrowStateBase{context, context.upperBodyGroupName}
-    , RotateStateBase{context,
-                      context.lowerBodyGroupName,
-                      context.runSpeed.rotate,
-                      context.animClipNames.armed.rotateLeft,
-                      context.animClipNames.armed.rotateRight,
-                      RotateStateBase::CameraRotationPolicy::none}
+    , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
+                      context.animClipNames.armed.posture.stand.rotate, RotateStateBase::CameraRotationPolicy::none}
 {
 }
 void DrawArrowRotateState::onEnter(const DrawArrowEvent& event)

@@ -1,7 +1,7 @@
 #include "RecoilCrouchWalkState.h"
 
-#include "Logger/Log.h"
 #include "../FsmContext.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -9,7 +9,7 @@ namespace Components
 {
 RecoilCrouchWalkState::RecoilCrouchWalkState(FsmContext& context)
     : RecoilStateBase(context, context.upperBodyGroupName)
-    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.crouch}
+    , MoveStateBase{context, context.lowerBodyGroupName, context.walkSpeed, context.animClipNames.armed.movement.crouch}
     , context_{context}
 {
 }
@@ -26,7 +26,7 @@ void RecoilCrouchWalkState::update(float dt)
 
 void RecoilCrouchWalkState::onMoveInactivity()
 {
-    MoveStateBase::setAnim(context_.animClipNames.armed.crouchIdle);
+    MoveStateBase::setAnim(context_.animClipNames.armed.posture.crouched.idle);
 }
 void RecoilCrouchWalkState::onLeave(const AimStopEvent& e)
 {

@@ -9,7 +9,7 @@ namespace Components
 ArmedAttackAndRotateState::ArmedAttackAndRotateState(FsmContext &context)
     : AttackStateBase{context, context.animClipNames.armed.attack, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
-                      context.animClipNames.armed.rotateLeft, context.animClipNames.armed.rotateRight}
+                      context.animClipNames.armed.posture.stand.rotate}
 {
 }
 
@@ -50,11 +50,11 @@ ArmedAttackAndRotateState::MaybeAttackStates ArmedAttackAndRotateState::handle(c
         return Utils::StateMachine::Update{};
     }
 
-     if (event.stateType == PlayStateType::walk)
-     {
-         DEBUG_LOG("PlayStateType::walk");
-         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>{};
-     }
+    if (event.stateType == PlayStateType::walk)
+    {
+        DEBUG_LOG("PlayStateType::walk");
+        return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>{};
+    }
 
     if (event.stateType == PlayStateType::run)
     {

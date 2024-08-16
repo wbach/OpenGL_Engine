@@ -11,7 +11,7 @@ namespace Components
 {
 IdleCrouchArmedChangeState::IdleCrouchArmedChangeState(FsmContext &context)
     : ArmedChangeStateBase(context, context.upperBodyGroupName)
-    , IdleStateBase{context, context.animClipNames.armed.crouchIdle}
+    , IdleStateBase{context, context.animClipNames.armed.posture.crouched.idle}
     , context_{context}
 {
 }
@@ -22,20 +22,20 @@ void IdleCrouchArmedChangeState::onEnter(const CrouchChangeStateEvent &)
 
 void IdleCrouchArmedChangeState::onEnter(IdleArmedChangeState &, const CrouchChangeStateEvent &)
 {
-    idleAnimName_ = context_.animClipNames.armed.crouchIdle;
+    idleAnimName_ = context_.animClipNames.armed.posture.crouched.idle;
     setAnim();
 }
 void IdleCrouchArmedChangeState::onEnter(DisarmedIdleCrouchState &, const WeaponStateEvent &)
 {
     // /*DISABLED*/ DEBUG_LOG("onEnter(DisarmedIdleCrouchState&, const WeaponStateEvent &)");
-    idleAnimName_ = context_.animClipNames.armed.crouchIdle;
+    idleAnimName_ = context_.animClipNames.armed.posture.crouched.idle;
     setAnim();
     ArmedChangeStateBase::equipWeapon();
 }
 void IdleCrouchArmedChangeState::onEnter(ArmedIdleCrouchState &, const WeaponStateEvent &)
 {
     // /*DISABLED*/ DEBUG_LOG("onEnter(ArmedIdleCrouchState&, const WeaponStateEvent &)");
-    idleAnimName_ = context_.animClipNames.disarmed.crouchIdle;
+    idleAnimName_ = context_.animClipNames.disarmed.posture.crouched.idle;
     setAnim();
     ArmedChangeStateBase::disarmWeapon();
 }

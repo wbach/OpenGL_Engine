@@ -1,11 +1,9 @@
 #pragma once
-#include "CharacterControllerCommonDefs.h"
-
 #include "../AnimationClipNames.h"
-
 #include "../MoveSpeed.h"
-#include "RotatingMoveState.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotateStateBase.h"
+#include "RotatingMoveState.h"
 
 namespace GameEngine
 {
@@ -14,10 +12,10 @@ namespace Components
 class RotatingMoveAndRotateStateBase : public RotatingMoveState, public RotateStateBase
 {
 public:
-    RotatingMoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &,
-                           const MovmentClipNames &, const std::string &, const std::string &);
+    RotatingMoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &,
+                                   const RotateAnimationClips &);
     RotatingMoveAndRotateStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &, float,
-                           const std::string &, const std::string &);
+                                   const RotateAnimationClips &);
 
     void onEnter(const EndAttackEvent &);
     void onEnter(const SprintStateChangeEvent &);
@@ -39,8 +37,8 @@ public:
     void update(const EndAttackEvent &);
     void update(const MoveForwardEvent &);
     void update(const MoveBackwardEvent &);
-    void update(const MoveLeftEvent&);
-    void update(const MoveRightEvent&);
+    void update(const MoveLeftEvent &);
+    void update(const MoveRightEvent &);
 
     bool transitionCondition(const EndForwardMoveEvent &);
     bool transitionCondition(const EndBackwardMoveEvent &);

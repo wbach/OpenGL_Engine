@@ -7,7 +7,7 @@ namespace GameEngine
 namespace Components
 {
 ArmedIdleState::ArmedIdleState(FsmContext &context)
-    : IdleStateBase(context, context.animClipNames.armed.idle)
+    : IdleStateBase(context, context.animClipNames.armed.posture.stand.idle)
 {
 }
 }  // namespace Components
