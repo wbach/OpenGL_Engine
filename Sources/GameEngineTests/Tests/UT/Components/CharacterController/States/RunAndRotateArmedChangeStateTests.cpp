@@ -23,6 +23,12 @@ void prepareState(CharacterControllerTests& test)
 //     Update(ADVANCED_TIME_TRANSITION_TIME);
 //     expectState<DisarmedIdleState>();
 // }
+TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip});
+}
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_DeathEvent)
 {
     prepareState(*this);

@@ -18,6 +18,20 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    expectForwardVelocity(DEFAULT_RUN_SPEED);
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
+        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft();
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 TEST_F(CharacterControllerTests, DisarmedSprintAndRotateState_DrawArrowEvent)
 {
     prepareState(*this);

@@ -15,6 +15,7 @@ class DisarmedAttackState
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
@@ -31,9 +32,9 @@ public:
     using AttackStateBase::onLeave;
     using AttackStateBase::update;
 
-    using MaybeAttackStates = Utils::StateMachine::Maybe<Utils::StateMachine::Update,
-                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>,
-                                                         Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>>;
+    using MaybeAttackStates =
+        Utils::StateMachine::Maybe<Utils::StateMachine::Update, Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkState>,
+                                   Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>>;
 
     MaybeAttackStates handle(const MoveForwardEvent&);
     MaybeAttackStates handle(const MoveBackwardEvent&);

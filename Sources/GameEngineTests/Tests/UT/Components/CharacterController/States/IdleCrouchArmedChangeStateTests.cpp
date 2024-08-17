@@ -65,31 +65,31 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_MoveRightEvent)
     tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRootboneRotation(VECTOR_RIGHT);
 }
-// TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateLeftEvent)
-//{
-//    prepareState(*this);
-//    expectRotationLeft();
-//    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-//}
-// TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateRightEvent)
-//{
-//    prepareState(*this);
-//    expectRotationRight();
-//    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.equip,
-//    sut_.animationClipsNames_.armed.posture.stand.rotate.right});
-//}
-// TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateTargetEvent)
-//{
-//    prepareState(*this);
-//    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
-//    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateLeftEvent)
+{
+    prepareState(*this);
+    expectRotationLeft();
+    tiggerAndExpect<RotateLeftEvent>(
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+}
+TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateRightEvent)
+{
+    prepareState(*this);
+    expectRotationRight();
+    tiggerAndExpect<RotateRightEvent>(
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.right});
+}
+TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateTargetEvent)
+{
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-//    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-//                                       {sut_.animationClipsNames_.equip,
-//                                       sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-//}
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(
+        RotateTargetEvent{targetRotation.value_},
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+}
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_DrawArrowEvent)
 //{
 //    prepareState(*this);

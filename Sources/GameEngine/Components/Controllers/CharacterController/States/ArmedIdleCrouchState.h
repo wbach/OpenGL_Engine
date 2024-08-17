@@ -20,9 +20,9 @@ class ArmedIdleCrouchState
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>,
-//          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-//          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
-//          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedCrouchRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedCrouchRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedCrouchRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {

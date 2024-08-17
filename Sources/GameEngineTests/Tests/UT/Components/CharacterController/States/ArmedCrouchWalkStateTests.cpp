@@ -101,29 +101,29 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_EndBackwardMoveEvent)
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.posture.crouched.idle});
 }
 
-// TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateLeftEvent)
-//{
-//     prepareState(*this);
-//     expectRotationLeft();
-//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
-// }
+ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateLeftEvent)
+{
+     prepareState(*this);
+     expectRotationLeft();
+     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+ }
 
-// TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateRightEvent)
-//{
-//     prepareState(*this);
-//     expectRotationRight();
-//     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
-// }
+ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateRightEvent)
+{
+     prepareState(*this);
+     expectRotationRight();
+     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+ }
 
-// TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateTargetEvent)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateTargetEvent)
+{
+     prepareState(*this);
+     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-//    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-//                                       {sut_.animationClipsNames_.armed.movement.walk.forward});
-//}
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+                                       {sut_.animationClipsNames_.armed.movement.walk.forward});
+}
 
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_SprintStateChangeEvent)
 {

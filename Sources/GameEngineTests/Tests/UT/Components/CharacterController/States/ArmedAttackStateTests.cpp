@@ -17,10 +17,27 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, ArmedAttackStateTests_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.crouched.idle});
+}
+
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.aim.draw});
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.attack.front().name});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.aim.draw});
 }
 
 TEST_F(CharacterControllerTests, ArmedAttackStateTests_WeaponStateEvent)

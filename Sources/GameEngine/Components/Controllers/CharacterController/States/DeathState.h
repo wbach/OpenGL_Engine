@@ -12,6 +12,11 @@ public:
     void update(float);
 
     void onEnter(CrouchWalkArmedChangeState&, const DeathEvent&);
+    void onEnter(CrouchRotateArmedChangeState&, const DeathEvent&);
+    void onEnter(CrouchWalkAndRotateArmedChangeState&, const DeathEvent&);
+    void onEnter(DisarmedCrouchWalkAndRotateState&, const DeathEvent&);
+    void onEnter(ArmedCrouchWalkAndRotateState&, const DeathEvent&);
+    void onEnter(ArmedCrouchRotateState&, const DeathEvent&);
     void onEnter(ArmedAttackState&, const DeathEvent&);
     void onEnter(DisarmedAttackState&, const DeathEvent&);
     void onEnter(DisarmedIdleCrouchState&, const DeathEvent&);
@@ -30,6 +35,7 @@ public:
     void onEnter(DisarmedIdleState&, const DeathEvent&);
     void onEnter(DisarmedRunState&, const DeathEvent&);
     void onEnter(DisarmedRotateState&, const DeathEvent&);
+    void onEnter(DisarmedCrouchRotateState&, const DeathEvent&);
     void onEnter(DisarmedRunAndRotateState&, const DeathEvent&);
     void onEnter(DisarmedWalkState&, const DeathEvent&);
     void onEnter(DisarmedCrouchWalkState&, const DeathEvent&);

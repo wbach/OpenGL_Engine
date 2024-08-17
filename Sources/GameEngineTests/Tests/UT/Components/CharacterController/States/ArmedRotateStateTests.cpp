@@ -17,6 +17,12 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, ArmedRotate_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
+}
+
 TEST_F(CharacterControllerTests, ArmedRotate_DrawArrowEvent)
 {
     prepareState(*this);

@@ -20,6 +20,20 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    // queue DrawArrowEvent
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.disarmed.attack.front().name, sut_.animationClipsNames_.disarmed.movement.run.forward});
+
+    // wait until attack finish
+    Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
+
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_DrawArrowEvent)
 {
     prepareState(*this);

@@ -1,5 +1,7 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
+#include "../CharacterControllerEvents.h"
+#include "DisarmedCrouchRotateState.h"
 #include "Fsm/actions/TransitionTo.h"
 #include "RotateStateBase.h"
 
@@ -12,6 +14,7 @@ class DisarmedRotateState
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchRotateState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRotateState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,

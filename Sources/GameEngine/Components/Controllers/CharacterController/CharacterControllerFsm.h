@@ -7,9 +7,14 @@
 #include "States/AimState.h"
 #include "States/AimWalkAndRotateState.h"
 #include "States/AimWalkState.h"
+#include "States/ArmedAttackAndRotateState.h"
+#include "States/ArmedAttackAndRunAndRotateState.h"
 #include "States/ArmedAttackAndRunState.h"
+#include "States/ArmedAttackAndWalkAndRotateState.h"
 #include "States/ArmedAttackAndWalkState.h"
 #include "States/ArmedAttackState.h"
+#include "States/ArmedCrouchRotateState.h"
+#include "States/ArmedCrouchWalkAndRotateState.h"
 #include "States/ArmedCrouchWalkState.h"
 #include "States/ArmedIdleCrouchState.h"
 #include "States/ArmedIdleState.h"
@@ -20,6 +25,8 @@
 #include "States/ArmedSprintState.h"
 #include "States/ArmedWalkAndRotateState.h"
 #include "States/ArmedWalkState.h"
+#include "States/CrouchRotateArmedChangeState.h"
+#include "States/CrouchWalkAndRotateArmedChangeState.h"
 #include "States/CrouchWalkArmedChangeState.h"
 #include "States/DeathState.h"
 #include "States/DisarmedAttackAndRotateState.h"
@@ -28,6 +35,8 @@
 #include "States/DisarmedAttackAndWalkAndRotateState.h"
 #include "States/DisarmedAttackAndWalkState.h"
 #include "States/DisarmedAttackState.h"
+#include "States/DisarmedCrouchRotateState.h"
+#include "States/DisarmedCrouchWalkAndRotateState.h"
 #include "States/DisarmedCrouchWalkState.h"
 #include "States/DisarmedIdleCrouchState.h"
 #include "States/DisarmedIdleState.h"
@@ -59,9 +68,6 @@
 #include "States/RunArmedChangeState.h"
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
-#include "States/ArmedAttackAndRotateState.h"
-#include "States/ArmedAttackAndRunAndRotateState.h"
-#include "States/ArmedAttackAndWalkAndRotateState.h"
 
 namespace GameEngine
 {
@@ -80,19 +86,23 @@ using CharacterControllerFsm =
                             DisarmedAttackAndWalkAndRotateState,
                             DisarmedRunState,
                             DisarmedRotateState,
+                            DisarmedCrouchRotateState,
                             DisarmedRunAndRotateState,
                             DisarmedWalkState,
                             DisarmedWalkAndRotateState,
+                            DisarmedCrouchWalkAndRotateState,
                             DisarmedCrouchWalkState,
                             DisarmedSprintState,
                             DisarmedSprintAndRotateState,
                             IdleArmedChangeState,
                             IdleCrouchArmedChangeState,
                             RotateArmedChangeState,
+                            CrouchRotateArmedChangeState,
                             RunArmedChangeState,
                             RunAndRotateArmedChangeState,
                             WalkArmedChangeState,
                             WalkAndRotateArmedChangeState,
+                            CrouchWalkAndRotateArmedChangeState,
                             CrouchWalkArmedChangeState,
                             ArmedIdleState,
                             ArmedIdleCrouchState,
@@ -102,9 +112,11 @@ using CharacterControllerFsm =
                             ArmedAttackAndWalkAndRotateState,
                             ArmedRunState,
                             ArmedRotateState,
+                            ArmedCrouchRotateState,
                             ArmedRunAndRotateState,
                             ArmedWalkState,
                             ArmedWalkAndRotateState,
+                            ArmedCrouchWalkAndRotateState,
                             ArmedCrouchWalkState,
                             ArmedSprintState,
                             ArmedSprintAndRotateState,

@@ -1,7 +1,6 @@
 #pragma once
 #include "ArmedChangeStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
 
 namespace GameEngine
@@ -25,8 +24,7 @@ class IdleArmedChangeState
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent,
-                                  Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>  // queue?

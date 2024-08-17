@@ -48,6 +48,12 @@ void WalkAndRotateArmedChangeState::update(float dt)
     RotatingMoveAndRotateStateBase::update(dt);
 }
 
+void WalkAndRotateArmedChangeState::onEnter(DisarmedCrouchWalkAndRotateState&, const WeaponStateEvent&)
+{
+    ArmedChangeStateBase::equipWeapon();
+    setEquipAnimations();
+}
+
 void WalkAndRotateArmedChangeState::onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&)
 {
     ArmedChangeStateBase::equipWeapon();

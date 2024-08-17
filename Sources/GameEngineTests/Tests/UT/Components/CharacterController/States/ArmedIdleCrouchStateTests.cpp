@@ -68,30 +68,30 @@ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_MoveRightEvent)
     expectRootboneRotation(VECTOR_RIGHT);
 }
 
-// TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateLeftEvent)
-//{
-//     prepareState(*this);
-//     expectRotationLeft();
-//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-// }
+ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateLeftEvent)
+{
+     prepareState(*this);
+     expectRotationLeft();
+     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+ }
 
-// TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateRightEvent)
-//{
-//     prepareState(*this);
-//     expectRotationRight();
-//     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.right});
-// }
+ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateRightEvent)
+{
+     prepareState(*this);
+     expectRotationRight();
+     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.right});
+ }
 
-// TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateTargetEvent)
-//{
-//     prepareState(*this);
+ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateTargetEvent)
+{
+     prepareState(*this);
 
-//    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-//    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-//                                       {sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-//}
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
+                                       {sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+}
 
 // TEST_F(CharacterControllerTests,
 //        ArmedIdleCrouchState_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)

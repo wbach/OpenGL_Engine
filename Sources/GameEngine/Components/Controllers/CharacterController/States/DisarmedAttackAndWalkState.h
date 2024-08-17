@@ -21,6 +21,7 @@ class DisarmedAttackAndWalkState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::RemoveFromQueue<DrawArrowEvent>>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedAttackAndRunState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedAttackState>>,

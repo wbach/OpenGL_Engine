@@ -25,6 +25,21 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, ArmedAttackAndRunState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    // queue DrawArrowEvent
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.armed.attack.front().name, sut_.animationClipsNames_.armed.movement.run.forward});
+
+    // wait until attack finish
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
+
 TEST_F(CharacterControllerTests, ArmedAttackAndRunState_DrawArrowEvent)
 {
     prepareState(*this);

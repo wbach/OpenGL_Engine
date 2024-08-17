@@ -1,7 +1,7 @@
 #pragma once
+#include "../PlayStateType.h"
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "../PlayStateType.h"
 
 namespace GameEngine
 {
@@ -17,12 +17,13 @@ class ArmedAttackState
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::Queue>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Queue>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRotateState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

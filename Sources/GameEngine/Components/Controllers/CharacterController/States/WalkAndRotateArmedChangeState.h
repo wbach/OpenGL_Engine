@@ -1,6 +1,6 @@
 #pragma once
-#include "CharacterControllerCommonDefs.h"
 #include "ArmedChangeStateBase.h"
+#include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveAndRotateStateBase.h"
 
 namespace GameEngine
@@ -23,17 +23,16 @@ class WalkAndRotateArmedChangeState
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<SprintStateChangeEvent,
-                                  Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
-          Utils::StateMachine::On<WalkChangeStateEvent,
-                                  Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<CrouchWalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // quque?
-          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>       // queue?
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>
 {
 public:
     WalkAndRotateArmedChangeState(FsmContext&);
@@ -47,6 +46,7 @@ public:
     using RotatingMoveAndRotateStateBase::transitionCondition;
     using RotatingMoveAndRotateStateBase::update;
 
+    void onEnter(DisarmedCrouchWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(ArmedWalkAndRotateState&, const WeaponStateEvent&);
     void onEnter(DisarmedWalkAndRotateState&, const DrawArrowEvent&);
