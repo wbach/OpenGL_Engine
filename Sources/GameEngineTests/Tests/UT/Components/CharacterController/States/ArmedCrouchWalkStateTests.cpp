@@ -101,28 +101,28 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkState_EndBackwardMoveEvent)
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.posture.crouched.idle});
 }
 
- TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateLeftEvent)
+TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateLeftEvent)
 {
-     prepareState(*this);
-     expectRotationLeft();
-     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
- }
+    prepareState(*this);
+    expectRotationLeft();
+    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 
- TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateRightEvent)
+TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateRightEvent)
 {
-     prepareState(*this);
-     expectRotationRight();
-     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
- }
+    prepareState(*this);
+    expectRotationRight();
+    tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 
- TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateTargetEvent)
+TEST_F(CharacterControllerTests, ArmedCrouchWalkState_RotateTargetEvent)
 {
-     prepareState(*this);
-     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
 
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(RotateTargetEvent{targetRotation.value_},
-                                       {sut_.animationClipsNames_.armed.movement.walk.forward});
+                                       {sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchWalkState_SprintStateChangeEvent)

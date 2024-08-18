@@ -49,6 +49,7 @@ public:
     void setCurrentAnimAndRotation();
 
     void updateAnimationClipNames(const RotateAnimationClips&);
+    const RotateAnimationClips& getCurrentAnimationClips() const;
 
 protected:
     FsmContext& context_;

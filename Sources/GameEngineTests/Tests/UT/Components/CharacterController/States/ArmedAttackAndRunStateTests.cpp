@@ -33,6 +33,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_CrouchChangeStateEvent)
         {sut_.animationClipsNames_.armed.attack.front().name, sut_.animationClipsNames_.armed.movement.run.forward});
 
     // wait until attack finish
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);

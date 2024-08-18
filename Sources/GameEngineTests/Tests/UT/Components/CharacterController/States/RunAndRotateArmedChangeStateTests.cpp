@@ -26,6 +26,7 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, RunAndRotateArmedChangeState_CrouchChangeStateEvent)
 {
     prepareState(*this);
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<CrouchChangeStateEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip});
 }

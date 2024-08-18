@@ -224,5 +224,9 @@ void RotateStateBase::updateAnimationClipNames(const RotateAnimationClips &rotat
     }
 }
 
+const RotateAnimationClips &RotateStateBase::getCurrentAnimationClips() const
+{
+    return rotateAnimationClips_;
+}
 }  // namespace Components
 }  // namespace GameEngine

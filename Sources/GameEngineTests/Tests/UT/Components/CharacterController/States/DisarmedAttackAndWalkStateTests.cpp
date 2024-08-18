@@ -33,7 +33,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_CrouchChangeStateEve
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndWalkState_DrawArrowEvent)

@@ -1,6 +1,7 @@
 #include "CrouchWalkAndRotateArmedChangeState.h"
 
 #include "../FsmContext.h"
+#include "RotateStateBase.h"
 
 namespace GameEngine
 {
@@ -36,9 +37,18 @@ void CrouchWalkAndRotateArmedChangeState::onEnter(const SprintStateChangeEvent &
     ArmedChangeStateBase::update(event);
 }
 
+void CrouchWalkAndRotateArmedChangeState::onEnter(WalkAndRotateArmedChangeState &prevState, const CrouchChangeStateEvent &)
+{
+    if (prevState.getCurrentAnimationClips().left == context_.animClipNames.armed.posture.stand.rotate.left)
+    {
+        RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.posture.crouched.rotate);
+    }
+}
+
 void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedCrouchWalkAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::equipWeapon();
+    RotateStateBase::updateAnimationClipNames(context_.animClipNames.armed.posture.crouched.rotate);
 }
 
 void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &e)
@@ -48,7 +58,7 @@ void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &
     ArmedChangeStateBase::update(e);
 }
 
-void CrouchWalkAndRotateArmedChangeState::onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &)
+void CrouchWalkAndRotateArmedChangeState::onEnter(ArmedCrouchWalkAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.crouch);
@@ -66,18 +76,6 @@ void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedSprintAndRotateState &
     MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.crouch);
 }
 
-void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &e)
-{
-    ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.crouch);
-    ArmedChangeStateBase::update(e);
-}
-
-void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &e)
-{
-    ArmedChangeStateBase::equipWeapon();
-    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.crouch);
-}
 void CrouchWalkAndRotateArmedChangeState::onEnter(RecoilWalkAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();

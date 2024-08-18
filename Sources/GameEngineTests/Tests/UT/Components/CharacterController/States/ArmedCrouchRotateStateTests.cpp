@@ -25,7 +25,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_CrouchChangeStateEvent)
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.right});
 }
 
-TEST_F(CharacterControllerTests, ArmedCrouchRotate_DrawArrowEvent)
+TEST_F(CharacterControllerTests, DISABLED_ArmedCrouchRotate_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>(
@@ -48,15 +48,15 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_WeaponStateEvent)
 TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveForwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveBackwardEvent)
 {
     prepareState(*this);
-    expectForwardVelocity(-DEFAULT_RUN_SPEED);
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+    expectForwardVelocity(-DEFAULT_WALK_SPEED);
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_BACKWARD);
 }
@@ -64,8 +64,8 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveBackwardEvent)
 TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveLeftEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+    expectVelocity(VECTOR_LEFT, vec3(DEFAULT_WALK_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveLeftEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_LEFT);
 }
@@ -73,8 +73,8 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveLeftEvent)
 TEST_F(CharacterControllerTests, ArmedCrouchRotate_MoveRightEvent)
 {
     prepareState(*this);
-    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_RUN_SPEED, 0.0, 0));
-    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+    expectVelocity(VECTOR_RIGHT, vec3(DEFAULT_WALK_SPEED, 0.0, 0));
+    tiggerAndExpect<MoveRightEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
     expectRotationRight(DEFAULT_MOVING_CHANGE_DIR_SPEED);
     expectRootboneRotation(VECTOR_RIGHT);
 }

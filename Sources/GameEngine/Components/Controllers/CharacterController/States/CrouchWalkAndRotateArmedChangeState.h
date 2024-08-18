@@ -21,7 +21,7 @@ class CrouchWalkAndRotateArmedChangeState
           Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<CrouchRotateArmedChangeState>>,
           Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<CrouchRotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<CrouchWalkArmedChangeState>>,
-          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<RunAndRotateArmedChangeState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
@@ -48,15 +48,13 @@ public:
     void onEnter();
     void onEnter(const SprintStateChangeEvent &);
 
+    void onEnter(WalkAndRotateArmedChangeState &, const CrouchChangeStateEvent &);
     void onEnter(DisarmedCrouchWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(ArmedCrouchWalkAndRotateState &, const WeaponStateEvent &);
 
     void onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &);
-
-    void onEnter(DisarmedRunAndRotateState &, const DrawArrowEvent &);
-    void onEnter(DisarmedRunAndRotateState &, const WeaponStateEvent &);
-    void onEnter(ArmedRunAndRotateState &, const WeaponStateEvent &);
 
     void onEnter(DrawArrowWalkAndRotateState &, const WeaponStateEvent &);
     void onEnter(RecoilWalkAndRotateState &, const WeaponStateEvent &);

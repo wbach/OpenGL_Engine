@@ -40,9 +40,9 @@ public:
 
     void onEnter();
 
-    void onEnter(DisarmedRotateState&, const WeaponStateEvent&);
-    void onEnter(ArmedRotateState&, const WeaponStateEvent&);
-    void onEnter(DisarmedRotateState&, const DrawArrowEvent&);
+    void onEnter(DisarmedCrouchRotateState&, const WeaponStateEvent&);
+    void onEnter(DisarmedCrouchRotateState&, const DrawArrowEvent&);
+    void onEnter(ArmedCrouchRotateState&, const WeaponStateEvent&);
 
     void onEnter(DrawArrowRotateState&, const WeaponStateEvent&);
     void onEnter(RecoilRotateState&, const WeaponStateEvent&);

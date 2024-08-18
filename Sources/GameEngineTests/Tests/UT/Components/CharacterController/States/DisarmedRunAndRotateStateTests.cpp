@@ -18,15 +18,8 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_CrouchChangeStateEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<CrouchChangeStateEvent>(
-        {sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
-        {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
-    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
-    Update(ADVANCED_TIME_CLIP_TIME);
-    expectRotationLeft();
     expectForwardVelocity(DEFAULT_WALK_SPEED);
-    Update(ADVANCED_TIME_TRANSITION_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 TEST_F(CharacterControllerTests, DisarmedRunAndRotateState_DrawArrowEvent)
 {

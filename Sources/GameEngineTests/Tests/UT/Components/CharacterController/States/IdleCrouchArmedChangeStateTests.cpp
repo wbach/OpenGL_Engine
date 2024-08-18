@@ -70,14 +70,14 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateLeftEvent)
     prepareState(*this);
     expectRotationLeft();
     tiggerAndExpect<RotateLeftEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateRightEvent)
 {
     prepareState(*this);
     expectRotationRight();
     tiggerAndExpect<RotateRightEvent>(
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.right});
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
 }
 TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateTargetEvent)
 {
@@ -88,7 +88,7 @@ TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_RotateTargetEvent)
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
-        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+        {sut_.animationClipsNames_.equip, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
 }
 // TEST_F(CharacterControllerTests, IdleCrouchArmedChangeState_DrawArrowEvent)
 //{

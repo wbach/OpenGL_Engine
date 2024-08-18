@@ -28,10 +28,11 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_CrouchChangeStateEven
         {sut_.animationClipsNames_.disarmed.attack.front().name, sut_.animationClipsNames_.disarmed.movement.run.forward});
 
     // wait until attack finish
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
 
 TEST_F(CharacterControllerTests, DisarmedAttackAndRunState_DrawArrowEvent)

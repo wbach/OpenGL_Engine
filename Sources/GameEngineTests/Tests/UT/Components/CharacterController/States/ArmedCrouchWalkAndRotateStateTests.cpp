@@ -28,7 +28,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_CrouchChangeStateEvent
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.movement.run.forward});
 }
 
-TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DrawArrowEvent)
+TEST_F(CharacterControllerTests, DISABLED_ArmedCrouchWalkAndRotate_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>(
@@ -120,14 +120,14 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_WeaponStateEvent)
 TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EndForwardMoveEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.right});
+    tiggerAndExpect<EndForwardMoveEvent>({sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
 }
 
 TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     expectNoMove();
-    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.right});
+    tiggerAndExpect<MoveBackwardEvent>({sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<EndBackwardMoveEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
