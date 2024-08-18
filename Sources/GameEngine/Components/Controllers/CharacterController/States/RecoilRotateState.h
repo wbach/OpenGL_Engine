@@ -23,7 +23,7 @@ class RecoilRotateState
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RecoilState>>,
           Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
-          // Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
 {
 public:

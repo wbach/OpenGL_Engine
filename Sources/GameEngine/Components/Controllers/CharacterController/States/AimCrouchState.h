@@ -18,9 +18,9 @@ class AimCrouchState
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleCrouchArmedChangeState>>,
-//          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
-//          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
-//          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimCrouchRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimCrouchRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimCrouchRotateState>>,
           Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilCrouchState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleCrouchState>>>

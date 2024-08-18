@@ -93,22 +93,6 @@ TEST_F(CharacterControllerTests, ArmedIdleCrouchState_RotateTargetEvent)
                                        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
 }
 
-// TEST_F(CharacterControllerTests,
-//        ArmedIdleCrouchState_UpdateRunForwardEventAndCloseDrawArrowAndBackAsMultiTransitionMiexedToSingle)
-//{
-//     prepareState(*this);
-//     float deltaTime = {0.0001f};
-//     expectForwardVelocity(DEFAULT_WALK_SPEED);
-//     tiggerAndExpect<MoveForwardEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward}, {deltaTime});
-//     // Run anim not ready
-//     tiggerAndExpect<DrawArrowEvent>(
-//         {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.draw}, {deltaTime});
-//     tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward}, {deltaTime, deltaTime});
-//     // Make run animation ready
-//     expectForwardVelocity(DEFAULT_WALK_SPEED);
-//     Update(ADVANCED_TIME_TRANSITION_TIME);
-// }
-
 TEST_F(CharacterControllerTests, ArmedIdleCrouchState_CrouchChangeStateEvent)
 {
     prepareState(*this);

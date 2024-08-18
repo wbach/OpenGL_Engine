@@ -7,7 +7,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class AimRotateState
+class AimCrouchRotateState
     : public AimStateBase,
       public RotateStateBase,
       public Utils::StateMachine::Will<
@@ -16,19 +16,19 @@ class AimRotateState
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RotateArmedChangeState>>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchRotateState>>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
+          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<CrouchRotateArmedChangeState>>,
+          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimCrouchState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedCrouchRotateState>>>
 
 {
 public:
-    AimRotateState(FsmContext&);
+    AimCrouchRotateState(FsmContext&);
     void onEnter(const AimStartEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);

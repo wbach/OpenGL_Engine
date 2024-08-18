@@ -4,12 +4,11 @@
 #include "MoveAndRotateStateBase.h"
 #include "RecoilStateBase.h"
 
-
 namespace GameEngine
 {
 namespace Components
 {
-class RecoilWalkAndRotateState
+class RecoilCrouchWalkAndRotateState
     : public RecoilStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
@@ -22,20 +21,20 @@ class RecoilWalkAndRotateState
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
-          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
-          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilRotateState>>,
-          Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilCrouchWalkAndRotateState>>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>>
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<CrouchWalkAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<RecoilCrouchWalkState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<RecoilCrouchRotateState>>,
+          Utils::StateMachine::On<ReloadArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<RecoilWalkAndRotateState>>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkAndRotateState>>>
 {
 public:
-    RecoilWalkAndRotateState(FsmContext&);
+    RecoilCrouchWalkAndRotateState(FsmContext&);
 
     void onEnter(const AttackEvent&);
 

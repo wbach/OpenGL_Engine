@@ -28,7 +28,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_CrouchChangeStateEvent
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.movement.run.forward});
 }
 
-TEST_F(CharacterControllerTests, DISABLED_ArmedCrouchWalkAndRotate_DrawArrowEvent)
+TEST_F(CharacterControllerTests, ArmedCrouchWalkAndRotate_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>(

@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace Components
 {
-class DrawArrowWalkAndRotateState
+class DrawArrowCrouchWalkAndRotateState
     : public DrawArrowStateBase,
       public MoveAndRotateStateBase,
       public Utils::StateMachine::Will<
@@ -20,21 +20,21 @@ class DrawArrowWalkAndRotateState
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
-          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchRotateState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchRotateState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
-          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
-          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkState>>,
-          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
-          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchWalkAndRotateState>>,
-          Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>>
+          Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<CrouchWalkAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchWalkState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchRotateState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchRotateState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
+          Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkAndRotateState>>>
 {
 public:
-    DrawArrowWalkAndRotateState(FsmContext&);
+    DrawArrowCrouchWalkAndRotateState(FsmContext&);
 
     using MoveAndRotateStateBase::onEnter;
     using MoveAndRotateStateBase::transitionCondition;

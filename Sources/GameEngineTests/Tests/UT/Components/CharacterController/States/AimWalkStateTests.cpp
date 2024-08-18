@@ -38,6 +38,13 @@ void prepareAimState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, AimWalk_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 TEST_F(CharacterControllerTests, AimWalk_RotateLeft)
 {
     prepareState(*this);

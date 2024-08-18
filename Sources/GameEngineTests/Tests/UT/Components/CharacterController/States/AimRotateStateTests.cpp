@@ -24,6 +24,12 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, AimRotate_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+}
 TEST_F(CharacterControllerTests, AimRotate_RotateLeft)
 {
     prepareState(*this);
@@ -82,7 +88,7 @@ TEST_F(CharacterControllerTests, AimRotate_MoveForwardEvent)
     tiggerAndExpect<MoveForwardEvent>(
         {sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.idle});
 }
-TEST_F(CharacterControllerTests, AimRotateMoveBackwardEvent)
+TEST_F(CharacterControllerTests, AimRotate_MoveBackwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);

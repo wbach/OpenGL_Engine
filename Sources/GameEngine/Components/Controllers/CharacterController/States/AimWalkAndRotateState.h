@@ -29,7 +29,7 @@ class AimWalkAndRotateState
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<AimWalkState>>,
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimRotateState>>,
-          // Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkAndRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>>
 {
 public:

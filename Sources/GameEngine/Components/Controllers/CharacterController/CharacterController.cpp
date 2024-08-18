@@ -12,6 +12,7 @@
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "States/AimCrouchRotateState.h"
 
 using namespace GameEngine::Components;
 
@@ -399,6 +400,8 @@ void CharacterController::Init()
             AimState(context),
             AimCrouchState(context),
             AimCrouchWalkState(context),
+            AimCrouchRotateState(context),
+            AimCrouchWalkAndRotateState(context),
             AimRotateState(context),
             AimWalkState(context),
             AimWalkAndRotateState(context),
@@ -408,12 +411,16 @@ void CharacterController::Init()
             RecoilRotateState(context),
             RecoilWalkState(context),
             RecoilWalkAndRotateState(context),
+            RecoilCrouchRotateState(context),
+            RecoilCrouchWalkAndRotateState(context),
             DrawArrowState(context),
             DrawArrowCrouchState(context),
             DrawArrowRotateState(context),
             DrawArrowWalkState(context),
             DrawArrowWalkAndRotateState(context),
             DrawArrowCrouchWalkState(context),
+            DrawArrowCrouchRotateState(context),
+            DrawArrowCrouchWalkAndRotateState(context),
             DeathState(context));
         // clang-format on
 

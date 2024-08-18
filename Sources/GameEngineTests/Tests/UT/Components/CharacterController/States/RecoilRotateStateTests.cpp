@@ -22,6 +22,12 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
+TEST_F(CharacterControllerTests, RecoilRotate_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+}
 TEST_F(CharacterControllerTests, RecoilRotate_RotateLeft)
 {
     prepareState(*this);

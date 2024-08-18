@@ -22,7 +22,7 @@ TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_CrouchChangeStateEven
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
 }
 
-TEST_F(CharacterControllerTests, DISABLED_DisarmedCrouchRotateState_DrawArrowEvent)
+TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_DrawArrowEvent)
 {
     prepareState(*this);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
@@ -36,7 +36,7 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedCrouchRotateState_DrawArrowEve
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.aim.draw});
 }
 
-TEST_F(CharacterControllerTests, DISABLED_DisarmedCrouchRotateState_AimStopDuringDrawArrowEvent)
+TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);

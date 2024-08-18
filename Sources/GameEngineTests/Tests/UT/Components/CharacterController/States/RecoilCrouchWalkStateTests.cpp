@@ -26,30 +26,30 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-// TEST_F(CharacterControllerTests, RecoilCrouchWalk_RotateLeft)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//     tiggerAndExpect<RotateLeftEvent>(
-//         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.walk.forward});
-// }
-// TEST_F(CharacterControllerTests, RecoilCrouchWalk_RotateRight)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//     tiggerAndExpect<RotateRightEvent>(
-//         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.walk.forward});
-// }
-// TEST_F(CharacterControllerTests, RecoilCrouchWalk_RotateTargetEvent)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+TEST_F(CharacterControllerTests, RecoilCrouchWalk_RotateLeft)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<RotateLeftEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
+TEST_F(CharacterControllerTests, RecoilCrouchWalk_RotateRight)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<RotateRightEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
+TEST_F(CharacterControllerTests, RecoilCrouchWalk_RotateTargetEvent)
+{
+    prepareState(*this);
+    expectAnyRotation();
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-//    tiggerAndExpect<RotateTargetEvent>(
-//        RotateTargetEvent{targetRotation.value_},
-//        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.walk.forward});
-//}
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(
+        RotateTargetEvent{targetRotation.value_},
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 TEST_F(CharacterControllerTests, RecoilCrouchWalk_CrouchChangeStateEvent)
 {
     prepareState(*this);

@@ -28,30 +28,30 @@ TEST_F(CharacterControllerTests, RecoilCrouchState_CrouchChangeStateEvent)
     prepareState(*this);
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.aim.recoil});
 }
-// TEST_F(CharacterControllerTests, RecoilCrouchState_RotateLeft)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//     tiggerAndExpect<RotateLeftEvent>(
-//         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-// }
-// TEST_F(CharacterControllerTests, RecoilCrouchState_RotateRight)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//     tiggerAndExpect<RotateRightEvent>(
-//         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.stand.rotate.right});
-// }
-// TEST_F(CharacterControllerTests, RecoilCrouchState_RotateTargetEvent)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+TEST_F(CharacterControllerTests, RecoilCrouchState_RotateLeft)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<RotateLeftEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+}
+TEST_F(CharacterControllerTests, RecoilCrouchState_RotateRight)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<RotateRightEvent>(
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
+}
+TEST_F(CharacterControllerTests, RecoilCrouchState_RotateTargetEvent)
+{
+    prepareState(*this);
+    expectAnyRotation();
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
-//    tiggerAndExpect<RotateTargetEvent>(
-//        RotateTargetEvent{targetRotation.value_},
-//        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
-//}
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    tiggerAndExpect<RotateTargetEvent>(
+        RotateTargetEvent{targetRotation.value_},
+        {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+}
 TEST_F(CharacterControllerTests, RecoilCrouchState_WeaponStateEvent)
 {
     prepareState(*this);

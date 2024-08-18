@@ -21,7 +21,7 @@ void prepareState(CharacterControllerTests& test)
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, DISABLED_DisarmedCrouchWalkAndRotateState_DrawArrowEvent)
+TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.equip},
@@ -34,7 +34,7 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedCrouchWalkAndRotateState_DrawA
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.draw});
 }
 
-TEST_F(CharacterControllerTests, DISABLED_DisarmedCrouchWalkAndRotateState_AimStopDuringDrawArrowEvent)
+TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.equip},

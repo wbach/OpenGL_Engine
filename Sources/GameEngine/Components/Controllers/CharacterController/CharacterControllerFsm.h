@@ -1,7 +1,9 @@
 #pragma once
 #include <Utils/Fsm/Fsm.h>
 
+#include "States/AimCrouchRotateState.h"
 #include "States/AimCrouchState.h"
+#include "States/AimCrouchWalkAndRotateState.h"
 #include "States/AimCrouchWalkState.h"
 #include "States/AimRotateState.h"
 #include "States/AimState.h"
@@ -47,7 +49,9 @@
 #include "States/DisarmedSprintState.h"
 #include "States/DisarmedWalkAndRotateState.h"
 #include "States/DisarmedWalkState.h"
+#include "States/DrawArrowCrouchRotateState.h"
 #include "States/DrawArrowCrouchState.h"
+#include "States/DrawArrowCrouchWalkAndRotateState.h"
 #include "States/DrawArrowCrouchWalkState.h"
 #include "States/DrawArrowRotateState.h"
 #include "States/DrawArrowState.h"
@@ -57,7 +61,9 @@
 #include "States/IdleCrouchArmedChangeState.h"
 #include "States/JumpState.h"
 #include "States/MoveJumpState.h"
+#include "States/RecoilCrouchRotateState.h"
 #include "States/RecoilCrouchState.h"
+#include "States/RecoilCrouchWalkAndRotateState.h"
 #include "States/RecoilCrouchWalkState.h"
 #include "States/RecoilRotateState.h"
 #include "States/RecoilState.h"
@@ -68,6 +74,7 @@
 #include "States/RunArmedChangeState.h"
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
+
 
 namespace GameEngine
 {
@@ -127,6 +134,8 @@ using CharacterControllerFsm =
                             AimState,
                             AimCrouchState,
                             AimCrouchWalkState,
+                            AimCrouchRotateState,
+                            AimCrouchWalkAndRotateState,
                             AimRotateState,
                             AimWalkState,
                             AimWalkAndRotateState,
@@ -136,12 +145,16 @@ using CharacterControllerFsm =
                             RecoilRotateState,
                             RecoilWalkState,
                             RecoilWalkAndRotateState,
+                            RecoilCrouchRotateState,
+                            RecoilCrouchWalkAndRotateState,
                             DrawArrowState,
                             DrawArrowCrouchState,
                             DrawArrowRotateState,
                             DrawArrowWalkState,
                             DrawArrowWalkAndRotateState,
                             DrawArrowCrouchWalkState,
+                            DrawArrowCrouchRotateState,
+                            DrawArrowCrouchWalkAndRotateState,
                             DeathState
                             >;
 }

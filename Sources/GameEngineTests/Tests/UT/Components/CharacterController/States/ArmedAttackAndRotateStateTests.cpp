@@ -50,19 +50,19 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_AimStop)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 }
-// TEST_F(CharacterControllerTests, DISABLED_ArmedAttackAndRotateState_CrouchChangeStateEvent)
-//{
-//     prepareState(*this);
-//     tiggerAndExpect<GameEngine::CrouchChangeStateEvent>(
-//         {armedAttackClip1->name, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+ TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_CrouchChangeStateEvent)
+{
+     prepareState(*this);
+     tiggerAndExpect<GameEngine::CrouchChangeStateEvent>(
+         {armedAttackClip1->name, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 
-//    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
-//    Update(ADVANCED_TIME_CLIP_TIME);
-//    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
-//    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_CLIP_TIME);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
 
-//    // expectAnimsToBeSet({sut_.animationClipsNames_.armed.crouch.rotateLeft});
-//}
+    expectAnimsToBeSet({ sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+}
 TEST_F(CharacterControllerTests, ArmedAttackAndRotateState_MoveForwardEvent)
 {
     prepareState(*this);

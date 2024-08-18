@@ -23,27 +23,31 @@ void prepareState(CharacterControllerTests& test)
         {test.sut_.animationClipsNames_.aim.idle, test.sut_.animationClipsNames_.armed.movement.walk.forward});
     test.tiggerAndExpect<RotateRightEvent>(
         {test.sut_.animationClipsNames_.aim.idle, test.sut_.animationClipsNames_.armed.movement.walk.forward});
+    test.tiggerAndExpect<CrouchChangeStateEvent>(
+        {test.sut_.animationClipsNames_.aim.idle, test.sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
 }  // namespace
 
-TEST_F(CharacterControllerTests, AimWalkAndRotate_CrouchChangeStateEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_CrouchChangeStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<CrouchChangeStateEvent>(
-        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_RotateLeft)
+
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_RotateLeft)
 {
     prepareState(*this);
-    tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
+    tiggerAndExpect<RotateLeftEvent>(
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_RotateRight)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_RotateRight)
 {
     prepareState(*this);
     tiggerAndExpect<RotateRightEvent>(
-        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_RotateTargetEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_RotateTargetEvent)
 {
     prepareState(*this);
 
@@ -52,83 +56,83 @@ TEST_F(CharacterControllerTests, AimWalkAndRotate_RotateTargetEvent)
     auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
     tiggerAndExpect<RotateTargetEvent>(
         RotateTargetEvent{targetRotation.value_},
-        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_WeaponStateEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_WeaponStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<WeaponStateEvent>(
-        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.movement.walk.forward});
+        {sut_.animationClipsNames_.disarm, sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 
     expectRotationRight(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationRight(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.walk.forward});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_AttackEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_AttackEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.walk.forward});
+    tiggerAndExpect<AttackEvent>({sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_AimStopEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_AimStopEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.walk.forward});
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_EndRotationEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_EndRotationEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndRotationEvent>(
-        {sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.idle});
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_MoveForwardEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_MoveForwardEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<MoveForwardEvent>(
-        {sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.idle});
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_MoveBackwardEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_MoveBackwardEvent)
 {
     prepareState(*this);
     expectNoMove();
     tiggerAndExpect<MoveBackwardEvent>(
-        {sut_.animationClipsNames_.armed.posture.stand.rotate.right, sut_.animationClipsNames_.aim.idle});
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.right, sut_.animationClipsNames_.aim.idle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_WalkChangeStateEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_WalkChangeStateEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     tiggerAndExpect<WalkChangeStateEvent>(
-        {sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.idle});
+        {sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.idle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_EndForwardMoveEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_EndForwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>(
-        {sut_.animationClipsNames_.armed.posture.stand.rotate.right, sut_.animationClipsNames_.aim.idle});
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.right, sut_.animationClipsNames_.aim.idle});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_EndBackwardMoveEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>(
-        {sut_.animationClipsNames_.armed.posture.stand.rotate.right, sut_.animationClipsNames_.aim.idle},
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.right, sut_.animationClipsNames_.aim.idle},
         {ADVANCED_TIME_CLIP_TIME / 4.f});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<MoveBackwardEvent>(
-        {sut_.animationClipsNames_.armed.movement.walk.backward, sut_.animationClipsNames_.aim.idle});
+        {sut_.animationClipsNames_.armed.movement.crouch.backward, sut_.animationClipsNames_.aim.idle});
     tiggerAndExpect<EndBackwardMoveEvent>(
-        {sut_.animationClipsNames_.armed.posture.stand.rotate.right, sut_.animationClipsNames_.aim.idle},
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.right, sut_.animationClipsNames_.aim.idle},
         {ADVANCED_TIME_CLIP_TIME / 4.f});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_DeathEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_DeathEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.armed.posture.stand.death});
+    tiggerAndExpect<DeathEvent>({sut_.animationClipsNames_.armed.posture.crouched.death});
 }
-TEST_F(CharacterControllerTests, AimWalkAndRotate_SprintStateChangeEvent)
+TEST_F(CharacterControllerTests, AimCrouchWalkAndRotate_SprintStateChangeEvent)
 {
     prepareState(*this);
     expectForwardVelocity(DEFAULT_SPRINT_SPEED);

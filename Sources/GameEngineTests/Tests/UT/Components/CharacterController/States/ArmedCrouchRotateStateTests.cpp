@@ -25,7 +25,7 @@ TEST_F(CharacterControllerTests, ArmedCrouchRotate_CrouchChangeStateEvent)
     tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.armed.posture.stand.rotate.right});
 }
 
-TEST_F(CharacterControllerTests, DISABLED_ArmedCrouchRotate_DrawArrowEvent)
+TEST_F(CharacterControllerTests, ArmedCrouchRotate_DrawArrowEvent)
 {
     prepareState(*this);
     tiggerAndExpect<DrawArrowEvent>(

@@ -65,18 +65,24 @@ public:
     void onEnter(AimWalkState&, const DeathEvent&);
     void onEnter(AimWalkAndRotateState&, const DeathEvent&);
     void onEnter(AimCrouchWalkState&, const DeathEvent&);
+    void onEnter(AimCrouchRotateState&, const DeathEvent&);
+    void onEnter(AimCrouchWalkAndRotateState&, const DeathEvent&);
     void onEnter(RecoilState&, const DeathEvent&);
     void onEnter(RecoilCrouchState&, const DeathEvent&);
     void onEnter(RecoilCrouchWalkState&, const DeathEvent&);
     void onEnter(RecoilRotateState&, const DeathEvent&);
     void onEnter(RecoilWalkState&, const DeathEvent&);
     void onEnter(RecoilWalkAndRotateState&, const DeathEvent&);
+    void onEnter(RecoilCrouchRotateState&, const DeathEvent&);
+    void onEnter(RecoilCrouchWalkAndRotateState&, const DeathEvent&);
     void onEnter(DrawArrowState&, const DeathEvent&);
     void onEnter(DrawArrowCrouchWalkState&, const DeathEvent&);
     void onEnter(DrawArrowCrouchState&, const DeathEvent&);
     void onEnter(DrawArrowRotateState&, const DeathEvent&);
     void onEnter(DrawArrowWalkState&, const DeathEvent&);
     void onEnter(DrawArrowWalkAndRotateState&, const DeathEvent&);
+    void onEnter(DrawArrowCrouchRotateState&, const DeathEvent&);
+    void onEnter(DrawArrowCrouchWalkAndRotateState&, const DeathEvent&);
 
 private:
     void setAnim(const std::string&);

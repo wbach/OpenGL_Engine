@@ -47,7 +47,7 @@ TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_AimStop)
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.rotate.left});
 }
-TEST_F(CharacterControllerTests, DISABLED_DisarmedAttackAndRotateState_CrouchChangeStateEvent)
+TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_CrouchChangeStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<GameEngine::CrouchChangeStateEvent>(
@@ -58,7 +58,7 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedAttackAndRotateState_CrouchCha
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    // expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.crouch.rotateLeft});
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.crouched.rotate.left});
 }
 TEST_F(CharacterControllerTests, DisarmedAttackAndRotateState_MoveForwardEvent)
 {

@@ -19,7 +19,13 @@ void prepareState(CharacterControllerTests& test)
         {test.sut_.animationClipsNames_.aim.draw, test.sut_.animationClipsNames_.armed.movement.walk.forward});
 }
 }  // namespace
-
+TEST_F(CharacterControllerTests, DrawArrowWalk_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 TEST_F(CharacterControllerTests, DrawArrowWalk_RotateLeft)
 {
     prepareState(*this);

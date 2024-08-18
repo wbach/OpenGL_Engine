@@ -42,31 +42,37 @@ void prepareAimState(CharacterControllerTests& test)
 }
 }  // namespace
 
-// TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateLeft)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//     tiggerAndExpect<RotateLeftEvent>({sut_.animationClipsNames_.aim.idle,
-//     sut_.animationClipsNames_.armed.movement.walk.forward});
-// }
-// TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateRight)
-//{
-//     prepareState(*this);
-//     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//     tiggerAndExpect<RotateRightEvent>(
-//         {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
-// }
-// TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateTargetEvent)
-//{
-//     prepareState(*this);
+TEST_F(CharacterControllerTests, AimCrouchWalkState_CrouchChangeStateEvent)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.aim.draw});
+}
+TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateLeft)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<RotateLeftEvent>(
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
+TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateRight)
+{
+    prepareState(*this);
+    expectAnyRotation();
+    tiggerAndExpect<RotateRightEvent>(
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
+TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateTargetEvent)
+{
+    prepareState(*this);
 
-//    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
+    auto targetRotation = createRotaion(DEFAULT_TURN_SPEED, ADVANCED_TIME_TRANSITION_TIME);
 
-//    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
-//    tiggerAndExpect<RotateTargetEvent>(
-//        RotateTargetEvent{targetRotation.value_},
-//        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
-//}
+    expectAnyRotation();
+    tiggerAndExpect<RotateTargetEvent>(
+        RotateTargetEvent{targetRotation.value_},
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.crouch.forward});
+}
 TEST_F(CharacterControllerTests, AimCrouchWalkState_WeaponStateEvent)
 {
     prepareState(*this);
