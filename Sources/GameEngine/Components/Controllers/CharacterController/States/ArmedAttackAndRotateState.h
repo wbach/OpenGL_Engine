@@ -1,7 +1,6 @@
 #pragma once
 #include "AttackStateBase.h"
 #include "CharacterControllerCommonDefs.h"
-#include "../CharacterControllerEvents.h"
 #include "Fsm/actions/Queue.h"
 #include "RotateStateBase.h"
 

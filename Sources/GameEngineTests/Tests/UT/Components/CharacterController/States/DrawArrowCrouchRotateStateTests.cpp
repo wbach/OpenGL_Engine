@@ -17,7 +17,7 @@ void prepareState(CharacterControllerTests& test)
     test.tiggerAndExpect<RotateRightEvent>(
         {test.sut_.animationClipsNames_.aim.draw, test.sut_.animationClipsNames_.armed.posture.stand.rotate.right});
     test.tiggerAndExpect<CrouchChangeStateEvent>(
-        {test.sut_.animationClipsNames_.aim.draw, test.sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+        {test.sut_.animationClipsNames_.aim.draw, test.sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
 }
 }  // namespace
 
@@ -25,7 +25,7 @@ TEST_F(CharacterControllerTests, DrawArowCrouchRotate_CrouchChangeStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<CrouchChangeStateEvent>(
-        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.stand.rotate.right});
 }
 TEST_F(CharacterControllerTests, DrawArowCrouchRotate_RotateLeft)
 {
@@ -65,7 +65,7 @@ TEST_F(CharacterControllerTests, DrawArowCrouchRotate_EndRotationEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndRotationEvent>(
-        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.disarmed.posture.crouched.idle});
+        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.idle});
 }
 TEST_F(CharacterControllerTests, DrawArowCrouchRotate_AimStopEvent)
 {

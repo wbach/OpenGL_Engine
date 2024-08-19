@@ -1,10 +1,9 @@
 #pragma once
 #include <Utils/Fsm/Actions.h>
 
-#include "../CharacterControllerEvents.h"
-
 #include "ArmedChangeStateBase.h"
 #include "RotatingMoveState.h"
+
 
 namespace GameEngine
 {

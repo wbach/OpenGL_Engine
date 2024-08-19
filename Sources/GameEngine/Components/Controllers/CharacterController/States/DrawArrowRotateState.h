@@ -3,6 +3,7 @@
 #include "DrawArrowStateBase.h"
 #include "RotateStateBase.h"
 
+
 namespace GameEngine
 {
 namespace Components
@@ -28,6 +29,8 @@ class DrawArrowRotateState
 {
 public:
     DrawArrowRotateState(FsmContext&);
+
+    void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RotateLeftEvent&);

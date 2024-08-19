@@ -27,6 +27,7 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, RecoilCrouchRotate_CrouchChangeStateEvent)
 {
     prepareState(*this);
+    expectAnyRotation();
     tiggerAndExpect<CrouchChangeStateEvent>(
         {sut_.animationClipsNames_.aim.recoil, sut_.animationClipsNames_.armed.posture.stand.rotate.left});
 }

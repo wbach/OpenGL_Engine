@@ -41,6 +41,10 @@ void DrawArrowCrouchRotateState::onEnter(const EndBackwardMoveEvent& event)
 {
     RotateStateBase::onEnter(event);
 }
+void DrawArrowCrouchRotateState::onEnter(const CrouchChangeStateEvent& event)
+{
+    RotateStateBase::onEnter(event);
+}
 void DrawArrowCrouchRotateState::update(const RotateLeftEvent& event)
 {
     onEnter(event);

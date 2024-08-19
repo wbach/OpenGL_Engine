@@ -1,6 +1,6 @@
 #pragma once
+
 #include "CharacterControllerCommonDefs.h"
-#include "../CharacterControllerEvents.h"
 #include "DrawArrowStateBase.h"
 #include "RotateStateBase.h"
 
@@ -29,9 +29,11 @@ class DrawArrowCrouchRotateState
 {
 public:
     DrawArrowCrouchRotateState(FsmContext&);
+
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
     void onEnter(const RotateLeftEvent&);
+    void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);
     void onEnter(const EndForwardMoveEvent&);

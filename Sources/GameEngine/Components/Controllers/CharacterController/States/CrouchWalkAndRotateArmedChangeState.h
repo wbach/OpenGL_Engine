@@ -56,9 +56,9 @@ public:
     void onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &);
 
-    void onEnter(DrawArrowWalkAndRotateState &, const WeaponStateEvent &);
-    void onEnter(RecoilWalkAndRotateState &, const WeaponStateEvent &);
-    void onEnter(AimWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(DrawArrowCrouchWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(RecoilCrouchWalkAndRotateState &, const WeaponStateEvent &);
+    void onEnter(AimCrouchWalkAndRotateState &, const WeaponStateEvent &);
 
     void update(float);
     void update(const WeaponStateEvent &);

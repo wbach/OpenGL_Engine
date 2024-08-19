@@ -23,7 +23,7 @@ TEST_F(CharacterControllerTests, DrawArowRotate_CrouchChangeStateEvent)
 {
     prepareState(*this);
     tiggerAndExpect<CrouchChangeStateEvent>(
-        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
+        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.rotate.right});
 }
 TEST_F(CharacterControllerTests, DrawArowRotate_RotateLeft)
 {

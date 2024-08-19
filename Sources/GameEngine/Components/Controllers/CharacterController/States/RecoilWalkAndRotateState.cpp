@@ -1,8 +1,8 @@
 #include "RecoilWalkAndRotateState.h"
 
 #include "../FsmContext.h"
-#include "../CharacterControllerEvents.h"
 #include "Logger/Log.h"
+
 
 namespace GameEngine
 {

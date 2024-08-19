@@ -1,9 +1,8 @@
 #pragma once
-#include "../CharacterControllerEvents.h"
+
 #include "CharacterControllerCommonDefs.h"
 #include "MoveAndRotateStateBase.h"
 #include "RecoilStateBase.h"
-
 
 namespace GameEngine
 {

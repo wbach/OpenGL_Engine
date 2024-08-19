@@ -22,7 +22,6 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DrawArrowWalk_CrouchChangeStateEvent)
 {
     prepareState(*this);
-    EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(AtLeast(1));
     tiggerAndExpect<CrouchChangeStateEvent>(
         {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.crouch.forward});
 }

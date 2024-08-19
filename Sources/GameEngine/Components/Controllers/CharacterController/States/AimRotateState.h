@@ -29,6 +29,7 @@ class AimRotateState
 {
 public:
     AimRotateState(FsmContext&);
+    void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const AimStartEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);

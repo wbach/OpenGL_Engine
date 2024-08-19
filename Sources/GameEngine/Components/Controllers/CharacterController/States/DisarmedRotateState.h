@@ -1,9 +1,9 @@
 #pragma once
 #include "CharacterControllerCommonDefs.h"
-#include "../CharacterControllerEvents.h"
 #include "DisarmedCrouchRotateState.h"
 #include "Fsm/actions/TransitionTo.h"
 #include "RotateStateBase.h"
+
 
 namespace GameEngine
 {

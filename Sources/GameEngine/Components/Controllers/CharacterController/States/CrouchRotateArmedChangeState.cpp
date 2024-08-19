@@ -48,21 +48,21 @@ void CrouchRotateArmedChangeState::onEnter(ArmedCrouchRotateState &, const Weapo
     RotateStateBase::setCurrentAnimAndRotation();
 }
 
-void CrouchRotateArmedChangeState::onEnter(DrawArrowRotateState &, const WeaponStateEvent &)
+void CrouchRotateArmedChangeState::onEnter(DrawArrowCrouchRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.posture.crouched.rotate);
     RotateStateBase::setCurrentAnimAndRotation();
 }
 
-void CrouchRotateArmedChangeState::onEnter(RecoilRotateState &, const WeaponStateEvent &)
+void CrouchRotateArmedChangeState::onEnter(RecoilCrouchRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.posture.crouched.rotate);
     RotateStateBase::setCurrentAnimAndRotation();
 }
 
-void CrouchRotateArmedChangeState::onEnter(AimRotateState &, const WeaponStateEvent &)
+void CrouchRotateArmedChangeState::onEnter(AimCrouchRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();
     RotateStateBase::updateAnimationClipNames(context_.animClipNames.disarmed.posture.crouched.rotate);

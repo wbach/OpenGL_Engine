@@ -22,6 +22,11 @@ void AimCrouchRotateState::onEnter(const AimStartEvent &event)
     RotateStateBase::update(event);
 }
 
+void AimCrouchRotateState::onEnter(const CrouchChangeStateEvent &event)
+{
+    RotateStateBase::onEnter(event);
+}
+
 void AimCrouchRotateState::onEnter(const RotateLeftEvent &event)
 {
     RotateStateBase::onEnter(event);

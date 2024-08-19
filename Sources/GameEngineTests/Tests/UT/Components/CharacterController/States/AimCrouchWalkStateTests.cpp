@@ -45,8 +45,8 @@ void prepareAimState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, AimCrouchWalkState_CrouchChangeStateEvent)
 {
     prepareState(*this);
-    expectAnyRotation();
-    tiggerAndExpect<CrouchChangeStateEvent>({sut_.animationClipsNames_.aim.draw});
+    tiggerAndExpect<CrouchChangeStateEvent>(
+        {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.movement.walk.forward});
 }
 TEST_F(CharacterControllerTests, AimCrouchWalkState_RotateLeft)
 {
@@ -118,6 +118,7 @@ TEST_F(CharacterControllerTests, AimCrouchWalkState_WalkChangeStateEvent)
 TEST_F(CharacterControllerTests, AimCrouchWalkState_EndForwardMoveEvent)
 {
     prepareState(*this);
+    expectNoMove();
     tiggerAndExpect<EndForwardMoveEvent>(
         {sut_.animationClipsNames_.aim.idle, sut_.animationClipsNames_.armed.posture.crouched.idle});
 }

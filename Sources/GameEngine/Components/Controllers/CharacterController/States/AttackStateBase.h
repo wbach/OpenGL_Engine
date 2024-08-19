@@ -1,8 +1,8 @@
 #pragma once
 #include "../AnimationClipNames.h"
-#include "../CharacterControllerEvents.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "IdleStateBase.h"
+
 
 namespace GameEngine
 {
@@ -50,8 +50,8 @@ public:
     {
         DEBUG_LOG("removeEventFromQueue: " + typeName<Event>());
 
-        queue.erase(std::remove_if(queue.begin(), queue.end(),
-                                   [](const auto& event) { return std::holds_alternative<Event>(event); }));
+        queue.erase(
+            std::remove_if(queue.begin(), queue.end(), [](const auto& event) { return std::holds_alternative<Event>(event); }));
     }
 
 protected:

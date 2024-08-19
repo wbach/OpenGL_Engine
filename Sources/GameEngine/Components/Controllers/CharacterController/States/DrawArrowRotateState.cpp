@@ -13,6 +13,10 @@ DrawArrowRotateState::DrawArrowRotateState(FsmContext& context)
                       context.animClipNames.armed.posture.stand.rotate, RotateStateBase::CameraRotationPolicy::none}
 {
 }
+void DrawArrowRotateState::onEnter(const CrouchChangeStateEvent& event)
+{
+    RotateStateBase::onEnter(event);
+}
 void DrawArrowRotateState::onEnter(const DrawArrowEvent& event)
 {
     DrawArrowStateBase::onEnter(event);
