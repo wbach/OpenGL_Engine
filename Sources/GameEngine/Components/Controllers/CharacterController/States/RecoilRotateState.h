@@ -31,6 +31,7 @@ public:
 
     using RecoilStateBase::onEnter;
 
+    void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const RotateLeftEvent&);
     void onEnter(const RotateRightEvent&);
     void onEnter(const RotateTargetEvent&);

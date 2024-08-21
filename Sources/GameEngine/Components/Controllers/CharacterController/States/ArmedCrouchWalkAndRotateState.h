@@ -27,7 +27,7 @@ class ArmedCrouchWalkAndRotateState
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedCrouchWalkState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintAndRotateState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<ArmedRunAndRotateState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchWalkAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

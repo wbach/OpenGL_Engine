@@ -26,7 +26,7 @@ class DisarmedCrouchWalkAndRotateState
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchRotateState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchWalkState>>,
-          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
+          Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<CrouchWalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<DisarmedSprintAndRotateState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkAndRotateState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>

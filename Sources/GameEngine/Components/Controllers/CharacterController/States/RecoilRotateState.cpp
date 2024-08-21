@@ -14,6 +14,11 @@ RecoilRotateState::RecoilRotateState(FsmContext& context)
 {
 }
 
+void RecoilRotateState::onEnter(const CrouchChangeStateEvent& event)
+{
+    RotateStateBase::onEnter(event);
+}
+
 void RecoilRotateState::onEnter(const RotateLeftEvent& event)
 {
     RotateStateBase::onEnter(event);

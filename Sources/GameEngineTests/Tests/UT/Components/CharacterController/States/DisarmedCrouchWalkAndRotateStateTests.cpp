@@ -24,23 +24,23 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_DrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.equip},
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip},
                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
     expectRotationLeft();
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.draw});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.aim.draw});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCrouchWalkAndRotateState_AimStopDuringDrawArrowEvent)
 {
     prepareState(*this);
-    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.equip},
+    tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward, sut_.animationClipsNames_.equip},
                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_TRANSITION_TIME});
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
-    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.walk.forward},
+    tiggerAndExpect<AimStopEvent>({sut_.animationClipsNames_.armed.movement.crouch.forward},
                                   {ADVANCED_TIME_CLIP_TIME, ADVANCED_TIME_CLIP_TIME});
 
     // Extra check

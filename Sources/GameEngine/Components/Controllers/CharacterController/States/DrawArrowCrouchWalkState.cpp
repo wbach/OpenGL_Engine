@@ -19,12 +19,7 @@ void DrawArrowCrouchWalkState::onEnter(ArmedSprintState &, const DrawArrowEvent 
     context_.aimEnteringState = FsmContext::AimEnteringState::Sprint;
 }
 
-void DrawArrowCrouchWalkState::onEnter(ArmedWalkState &, const DrawArrowEvent &)
-{
-    context_.aimEnteringState = FsmContext::AimEnteringState::Walk;
-}
-
-void DrawArrowCrouchWalkState::onEnter(ArmedRunState &, const DrawArrowEvent &)
+void DrawArrowCrouchWalkState::onEnter(ArmedCrouchWalkState &, const DrawArrowEvent &)
 {
     context_.aimEnteringState = FsmContext::AimEnteringState::Run;
 }

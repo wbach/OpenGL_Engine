@@ -25,7 +25,6 @@ void prepareState(CharacterControllerTests& test)
 TEST_F(CharacterControllerTests, DrawArrowCrouchWalkState_CrouchChangeStateEvent)
 {
     prepareState(*this);
-    expectAnyRotation();
     tiggerAndExpect<CrouchChangeStateEvent>(
         {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.walk.forward});
 }

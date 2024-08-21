@@ -142,13 +142,11 @@ TEST_F(CharacterControllerTests, RecoilCrouchWalkAndRotate_EndBackwardMoveEvent)
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>(
-        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.aim.recoil},
-        {ADVANCED_TIME_TRANSITION_TIME / 8.f});
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.aim.recoil}, {0});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<MoveBackwardEvent>(
         {sut_.animationClipsNames_.armed.movement.crouch.backward, sut_.animationClipsNames_.aim.recoil},
-        {ADVANCED_TIME_TRANSITION_TIME / 8.f});
+        {ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<EndBackwardMoveEvent>(
-        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.aim.recoil},
-        {ADVANCED_TIME_TRANSITION_TIME / 8.f});
+        {sut_.animationClipsNames_.armed.posture.crouched.rotate.left, sut_.animationClipsNames_.aim.recoil}, {0});
 }

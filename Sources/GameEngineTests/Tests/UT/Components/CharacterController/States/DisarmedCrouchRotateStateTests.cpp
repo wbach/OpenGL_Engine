@@ -51,7 +51,7 @@ TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_AimStopDuringDrawArro
     // Extra check
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
-    expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.stand.rotate.left});
+    expectAnimsToBeSet({sut_.animationClipsNames_.armed.posture.crouched.rotate.left});
 }
 
 TEST_F(CharacterControllerTests, DisarmedCrouchRotateState_DeathEvent)

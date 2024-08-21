@@ -27,6 +27,11 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 {
 }
 
+void MoveStateBase::onEnter(const CrouchChangeStateEvent &)
+{
+    setCurrentAnimIfNeeded();
+}
+
 void MoveStateBase::onEnter(const SprintStateChangeEvent &)
 {
     // /*DISABLED*/ DEBUG_LOG("SprintStateChangeEvent");
@@ -216,7 +221,7 @@ void MoveStateBase::moveRigidbody()
 
     auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
     auto moveSpeed     = glm::length(
-        vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
+            vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
 
     if (moveSpeed < 0.00001f)
     {

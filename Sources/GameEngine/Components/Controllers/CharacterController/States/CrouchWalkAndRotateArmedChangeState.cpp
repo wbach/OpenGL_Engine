@@ -64,6 +64,13 @@ void CrouchWalkAndRotateArmedChangeState::onEnter(ArmedCrouchWalkAndRotateState 
     MoveStateBase::changeAnimationClips(context_.animClipNames.disarmed.movement.crouch);
 }
 
+void CrouchWalkAndRotateArmedChangeState::onEnter(DisarmedCrouchWalkAndRotateState &, const DrawArrowEvent & e)
+{
+    ArmedChangeStateBase::equipWeapon();
+    MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.crouch);
+    ArmedChangeStateBase::update(e);
+}
+
 void CrouchWalkAndRotateArmedChangeState::onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &)
 {
     ArmedChangeStateBase::disarmWeapon();

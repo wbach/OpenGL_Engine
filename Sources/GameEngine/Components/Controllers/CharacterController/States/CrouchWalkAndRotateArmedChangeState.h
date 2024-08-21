@@ -52,6 +52,8 @@ public:
     void onEnter(DisarmedCrouchWalkAndRotateState &, const WeaponStateEvent &);
     void onEnter(ArmedCrouchWalkAndRotateState &, const WeaponStateEvent &);
 
+    void onEnter(DisarmedCrouchWalkAndRotateState &, const DrawArrowEvent &);
+
     void onEnter(ArmedSprintAndRotateState &, const WeaponStateEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const DrawArrowEvent &);
     void onEnter(DisarmedSprintAndRotateState &, const WeaponStateEvent &);

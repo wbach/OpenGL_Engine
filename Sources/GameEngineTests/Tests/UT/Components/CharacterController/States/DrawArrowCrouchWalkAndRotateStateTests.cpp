@@ -141,13 +141,11 @@ TEST_F(CharacterControllerTests, DrawArrowCrouchWalkAndRotate_EndBackwardMoveEve
 {
     prepareState(*this);
     tiggerAndExpect<EndForwardMoveEvent>(
-        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.rotate.right},
-        {ADVANCED_TIME_TRANSITION_TIME / 4.f});
+        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.rotate.right}, {0});
     expectForwardVelocity(-DEFAULT_BACKWARD_WALK_SPEED);
     tiggerAndExpect<MoveBackwardEvent>(
         {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.movement.crouch.backward},
         {ADVANCED_TIME_TRANSITION_TIME});
     tiggerAndExpect<EndBackwardMoveEvent>(
-        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.rotate.right},
-        {ADVANCED_TIME_TRANSITION_TIME / 4.f});
+        {sut_.animationClipsNames_.aim.draw, sut_.animationClipsNames_.armed.posture.crouched.rotate.right}, {0});
 }

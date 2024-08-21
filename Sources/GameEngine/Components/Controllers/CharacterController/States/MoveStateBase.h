@@ -17,6 +17,7 @@ public:
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
 
+    void onEnter(const CrouchChangeStateEvent &);
     void onEnter(const SprintStateChangeEvent &);
     void onEnter(const MoveEvent &);
     void onEnter(const MoveForwardEvent &);

@@ -39,8 +39,7 @@ public:
     using MoveStateBase::update;
 
     void onEnter(ArmedSprintState&, const DrawArrowEvent&);
-    void onEnter(ArmedRunState&, const DrawArrowEvent&);
-    void onEnter(ArmedWalkState&, const DrawArrowEvent&);
+    void onEnter(ArmedCrouchWalkState&, const DrawArrowEvent&);
 
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);
