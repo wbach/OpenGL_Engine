@@ -13,9 +13,9 @@ class DrawArrowRotateState
       public RotateStateBase,
       public Utils::StateMachine::Will<
           Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::Update>,
+          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
+          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
+          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<DrawArrowWalkAndRotateState>>,
@@ -30,12 +30,9 @@ class DrawArrowRotateState
 public:
     DrawArrowRotateState(FsmContext&);
 
-    void onEnter(const CrouchChangeStateEvent&);
-    void onEnter(const DrawArrowEvent&);
-    void onEnter(const ReloadArrowEvent&);
-    void onEnter(const RotateLeftEvent&);
-    void onEnter(const RotateRightEvent&);
-    void onEnter(const RotateTargetEvent&);
+    using DrawArrowStateBase::onEnter;
+    using RotateStateBase::onEnter;
+
     void onEnter(const EndForwardMoveEvent&);
     void onEnter(const EndBackwardMoveEvent&);
 

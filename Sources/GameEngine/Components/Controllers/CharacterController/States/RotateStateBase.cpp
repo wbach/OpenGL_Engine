@@ -62,6 +62,7 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
 
 void RotateStateBase::onEnter(const EndForwardMoveEvent &)
 {
+    DEBUG_LOG("EndForwardMoveEvent");
     setCurrentAnim();
 }
 
