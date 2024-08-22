@@ -22,7 +22,7 @@ public:
         leave(prevState);
         leave(prevState, event);
 
-        machine.template backToPrevious();
+        machine.backToPrevious();
 
         std::visit(
             [&](const auto& state)
