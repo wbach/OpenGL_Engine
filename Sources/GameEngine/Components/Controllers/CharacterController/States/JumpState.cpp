@@ -5,8 +5,8 @@ namespace GameEngine
 {
 namespace Components
 {
-JumpState::JumpState(FsmContext &context, std::function<void()> endCallback)
-    : JumpStateBase(context, std::nullopt, endCallback)
+JumpState::JumpState(FsmContext &context)
+    : JumpStateBase(context, std::nullopt)
 {
 }
 }  // namespace Components

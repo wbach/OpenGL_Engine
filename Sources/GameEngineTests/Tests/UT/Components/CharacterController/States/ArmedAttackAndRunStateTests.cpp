@@ -35,7 +35,6 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_CrouchChangeStateEvent)
     // wait until attack finish
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_CLIP_TIME);
-    expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.crouch.forward});
@@ -50,6 +49,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunState_DrawArrowEvent)
 
     // wait until attack finish
     Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 

@@ -86,12 +86,16 @@ TEST_F(CharacterControllerTests, ArmedAttackAndRunAndRotateState_DrawArrowEvent)
     const auto& clipName = sut_.animationClipsNames_.armed.attack.front().name;
     tiggerAndExpect<GameEngine::DrawArrowEvent>({clipName, sut_.animationClipsNames_.armed.movement.run.forward});
 
-    expectForwardVelocity(DEFAULT_WALK_SPEED);
     expectRotationLeft(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_CLIP_TIME);
 
     expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
+
+    expectForwardVelocity(DEFAULT_WALK_SPEED);
+    expectRotationLeft(ADVANCED_TIME_TRANSITION_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+
     expectAnimsToBeSet({sut_.animationClipsNames_.armed.movement.walk.forward, sut_.animationClipsNames_.aim.draw});
 }
 

@@ -1,16 +1,16 @@
-#include "JumpStateBase.h"
+﻿#include "JumpStateBase.h"
 
+#include "../CharacterController.h"
 #include "../FsmContext.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-JumpStateBase::JumpStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName,
-                             std::function<void()> endCallback)
+JumpStateBase::JumpStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
     : context_{context}
     , jointGroupName_{jointGroupName}
-    , endCallback_{endCallback}
+    , isGrounded_{true}
 {
 }
 void JumpStateBase::onEnter(const JumpEvent &event)
@@ -28,23 +28,40 @@ void JumpStateBase::onEnter(const JumpEvent &event)
 
 void JumpStateBase::update(float)
 {
-    if (isGrounded())
+    if (checkIsGrounded())
     {
-        if (endCallback_)
-            endCallback_();
+        context_.characterController.pushEventToQueue(EndJumpEvent{});
     }
 }
 
-bool JumpStateBase::isGrounded()
+void JumpStateBase::onLeave(const EndJumpEvent &)
+{
+    for (const auto &e : queue)
+    {
+        context_.characterController.pushEventToQueue(e);
+    }
+    queue.clear();
+}
+
+bool JumpStateBase::checkIsGrounded()
 {
     const auto &position = context_.gameObject.GetWorldTransform().GetPosition();
     auto hitTest         = context_.physicsApi.RayTest(position, vec3(position.x, -10000.f, position.z));
 
     if (hitTest)
     {
-        if (glm::length(position - hitTest->pointWorld) < .1f)
+        auto l = glm::length(position - hitTest->pointWorld);
+
+        const float threshold{0.1f};
+        if (not isGrounded_ and l < threshold - std::numeric_limits<float>::epsilon())
         {
+            isGrounded_ = true;
             return true;
+        }
+
+        if (isGrounded_ and l > threshold + std::numeric_limits<float>::epsilon())
+        {
+            isGrounded_ = false;
         }
     }
     return false;
@@ -82,8 +99,7 @@ bool JumpStateBase::isGrounded()
     //                    return true;
     //            }
     //        }
-
-    return false;
+    // return false;
 }
 
 }  // namespace Components

@@ -60,7 +60,6 @@
 #include "States/IdleArmedChangeState.h"
 #include "States/IdleCrouchArmedChangeState.h"
 #include "States/JumpState.h"
-#include "States/MoveJumpState.h"
 #include "States/RecoilCrouchRotateState.h"
 #include "States/RecoilCrouchState.h"
 #include "States/RecoilCrouchWalkAndRotateState.h"
@@ -130,7 +129,6 @@ using CharacterControllerFsm =
                             ArmedAttackAndRunState,
                             ArmedAttackAndWalkState,
                             JumpState,
-                            MoveJumpState,
                             AimState,
                             AimCrouchState,
                             AimCrouchWalkState,

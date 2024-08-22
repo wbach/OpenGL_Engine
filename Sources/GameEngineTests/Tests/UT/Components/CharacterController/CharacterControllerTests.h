@@ -53,7 +53,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     void expectNoMove();
     void expectNoRotation();
-    void expectVelocity(const vec3& dir, const vec3& moveSpeed);
+    void expectVelocity(const vec3& dir, const vec3& moveSpeed, const vec3& currentVelocity = vec3(0));
     void expectForwardVelocity(float speed);
     void expectLeftVelocity(float);
     Rotation createRotaion(float deltaTime, float rotateSpeed);
@@ -77,4 +77,6 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     AttackAnimation* disarmedAttackClip1;
     AttackAnimation* disarmedAttackClip2;
     AttackAnimation* disarmedAttackClip3;
+
+    vec3 lastSetVelocity = vec3(0);
 };

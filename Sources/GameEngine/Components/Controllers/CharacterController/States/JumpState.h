@@ -6,21 +6,14 @@ namespace GameEngine
 {
 namespace Components
 {
-class JumpState : public JumpStateBase,
-                  public Utils::StateMachine::Will<
-                      Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-                      Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<JumpState>>,
-                      Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<JumpState>>,
-                      Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-                      Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<MoveJumpState>>,
-                      Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>>
-
+class JumpState
+    : public JumpStateBase,
+      public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Queue>,
+                                       Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+                                       Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::BackToPreviousState>>
 {
 public:
-    JumpState(FsmContext&, std::function<void()>);
+    JumpState(FsmContext&);
 };
 }  // namespace Components
 }  // namespace GameEngine

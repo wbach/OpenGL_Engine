@@ -27,6 +27,8 @@ TEST_F(CharacterControllerTests, DisarmedRunState_DrawArrowEvent)
     tiggerAndExpect<DrawArrowEvent>({sut_.animationClipsNames_.armed.movement.run.forward, sut_.animationClipsNames_.equip},
                                     {ADVANCED_TIME_TRANSITION_TIME, ADVANCED_TIME_CLIP_TIME / 2.f});
     Update(ADVANCED_TIME_CLIP_TIME / 2.f);
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 
@@ -200,4 +202,39 @@ TEST_F(CharacterControllerTests, DisarmedRunState_EndMoveEventWhenAttackEventIsP
     Update(ADVANCED_TIME_CLIP_TIME);
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
+}
+TEST_F(CharacterControllerTests, DisarmedRunState_JumpEvent)
+{
+    prepareState(*this);
+    const float jumpPower{1.f};
+    DEBUG_LOG("lastSetVelocity=" + std::to_string(lastSetVelocity));
+
+    // expectVelocity(VECTOR_FORWARD + VECTOR_UP, vec3(0, jumpPower, DEFAULT_RUN_SPEED), lastSetVelocity);
+    EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(lastSetVelocity));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, lastSetVelocity + vec3(0, jumpPower, 0)))
+        .Times(AtLeast(1))
+        .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
+
+    EXPECT_CALL(physicsApiMock_, RayTest(_, _)).WillRepeatedly(Return(std::nullopt));
+
+    tiggerAndExpect<JumpEvent>({sut_.animationClipsNames_.disarmed.jump}, {ADVANCED_TIME_TRANSITION_TIME}, {jumpPower});
+
+    Update(ADVANCED_TIME_CLIP_TIME);
+
+    {
+        GameEngine::Physics::RayHit rayHit{
+            .pointWorld = vec3(0, -1, 0), .normalWorld = vec3(0, -1, 0), .rigidbodyId = rigidbodyid.value()};
+        EXPECT_CALL(physicsApiMock_, RayTest(_, _)).WillOnce(Return(rayHit));
+        Update(ADVANCED_TIME_TRANSITION_TIME);
+    }
+    {
+        GameEngine::Physics::RayHit rayHit{
+            .pointWorld = vec3(0, 0, 0), .normalWorld = vec3(0, -1, 0), .rigidbodyId = rigidbodyid.value()};
+        EXPECT_CALL(physicsApiMock_, RayTest(_, _)).WillOnce(Return(rayHit));
+        Update(ADVANCED_TIME_TRANSITION_TIME);
+    }
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);
+    expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.movement.run.forward});
 }

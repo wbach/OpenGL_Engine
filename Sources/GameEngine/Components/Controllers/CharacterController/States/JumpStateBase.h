@@ -1,4 +1,6 @@
 #pragma once
+#include <Logger/Log.h>
+
 #include <functional>
 #include <optional>
 #include <string>
@@ -13,17 +15,34 @@ struct FsmContext;
 struct JumpStateBase
 {
 public:
-    JumpStateBase(FsmContext&, const std::optional<std::string>&, std::function<void()>);
+    JumpStateBase(FsmContext&, const std::optional<std::string>&);
     void onEnter(const JumpEvent&);
     void update(float);
+    void onLeave(const EndJumpEvent&);
+
+    template <typename Event>
+    void pushEventToQueue(const Event& event)
+    {
+        DEBUG_LOG("pushEventToQueue: " + typeName<Event>());
+        queue.push_back(event);
+    }
+    template <typename Event>
+    void removeEventFromQueue(const Event& event)
+    {
+        DEBUG_LOG("removeEventFromQueue: " + typeName<Event>());
+
+        queue.erase(
+            std::remove_if(queue.begin(), queue.end(), [](const auto& event) { return std::holds_alternative<Event>(event); }));
+    }
 
 private:
-    bool isGrounded();
+    bool checkIsGrounded();
 
 private:
     FsmContext& context_;
     std::optional<std::string> jointGroupName_;
-    std::function<void()> endCallback_;
+    bool isGrounded_;
+    std::vector<CharacterControllerEvent> queue;
 };
 }  // namespace Components
 }  // namespace GameEngine

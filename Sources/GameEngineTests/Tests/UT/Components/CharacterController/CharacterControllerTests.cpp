@@ -67,6 +67,8 @@ CharacterControllerTests::CharacterControllerTests()
     clips.disarmed.movement.crouch.right    = "DCMRR";
 
     clips.disarmed.sprint = "DS";
+    clips.disarmed.jump   = "DJ";
+
     clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA3", PlayStateType::idle});
@@ -103,6 +105,7 @@ CharacterControllerTests::CharacterControllerTests()
     clips.armed.movement.crouch.right    = "ACMRR";
 
     clips.armed.sprint = "AS";
+    clips.armed.jump   = "AJ";
     clips.armed.attack.push_back({"A1", PlayStateType::idle});
     clips.armed.attack.push_back({"A2", PlayStateType::idle});
     clips.armed.attack.push_back({"A3", PlayStateType::idle});
@@ -121,6 +124,7 @@ CharacterControllerTests::CharacterControllerTests()
     {
         addDummyClip(attackClip.name);
     }
+    addDummyClip(clips.disarmed.jump);
     addDummyClip(clips.disarmed.sprint);
     addDummyClip(clips.disarmed.posture.crouched.death);
     addDummyClip(clips.disarmed.posture.crouched.idle);
@@ -176,6 +180,7 @@ CharacterControllerTests::CharacterControllerTests()
     addDummyClip(clips.armed.movement.crouch.left);
     addDummyClip(clips.armed.movement.crouch.right);
 
+    addDummyClip(clips.armed.jump);
     addDummyClip(clips.armed.sprint);
     for (const auto& attackClip : clips.armed.attack)
     {
@@ -246,7 +251,6 @@ void CharacterControllerTests::Update(float time)
     DEBUG_LOG("Update deltaTime: " + std::to_string(time));
     context_.time_.deltaTime = time;
     componentController_.CallFunctions(FunctionType::Update);
-    sut_.Update();
 }
 
 void CharacterControllerTests::expectAnyRotation()
@@ -281,7 +285,7 @@ void CharacterControllerTests::expectNoRotation()
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(_))).Times(0);
 }
 
-void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed)
+void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveSpeed, const vec3& currentVelocity)
 {
     auto normalizedDir = glm::normalize(dir);
     auto velocity      = normalizedDir * glm::length(moveSpeed * normalizedDir);
@@ -289,8 +293,10 @@ void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveS
     DEBUG_LOG("Expected speed : " + std::to_string(moveSpeed));
     DEBUG_LOG("Expected velocity : " + std::to_string(velocity));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
-    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, velocity)).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(currentVelocity));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, velocity))
+        .Times(AtLeast(1))
+        .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
 }
 
 void CharacterControllerTests::expectForwardVelocity(float speed)
@@ -298,14 +304,18 @@ void CharacterControllerTests::expectForwardVelocity(float speed)
     DEBUG_LOG("Expected speed : " + std::to_string(speed));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed)))
+        .Times(AtLeast(1))
+        .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
 }
 
 void CharacterControllerTests::expectLeftVelocity(float speed)
 {
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
-    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(speed, 0.0, 0.0))).Times(AtLeast(1));
+    EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(speed, 0.0, 0.0)))
+        .Times(AtLeast(1))
+        .WillRepeatedly(SaveArg<1>(&lastSetVelocity));
 }
 
 Rotation CharacterControllerTests::createRotaion(float deltaTime, float rotateSpeed)

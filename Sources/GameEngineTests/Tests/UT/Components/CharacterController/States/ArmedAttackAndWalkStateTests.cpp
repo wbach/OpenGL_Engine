@@ -51,6 +51,7 @@ TEST_F(CharacterControllerTests, ArmedAttackAndWalkState_DrawArrowEvent)
 
     // wait until attack finish
     Update(ADVANCED_TIME_CLIP_TIME);
+    Update(ADVANCED_TIME_TRANSITION_TIME);
     expectForwardVelocity(DEFAULT_WALK_SPEED);
     Update(ADVANCED_TIME_TRANSITION_TIME);
 

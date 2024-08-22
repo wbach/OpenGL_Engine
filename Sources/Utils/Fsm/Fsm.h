@@ -33,6 +33,14 @@ public:
         return state;
     }
 
+    void backToPrevious()
+    {
+        auto tmpState = currentState;
+
+        currentState  = previousState;
+        previousState = tmpState;
+    }
+
     template <typename Event>
     void handle(const Event& event)
     {
@@ -53,13 +61,13 @@ public:
         std::visit(passEventToState, currentState);
     }
 
-    template <class ...T>
+    template <class... T>
     bool isCurrentStateOfType()
     {
         return (std::holds_alternative<T*>(currentState) or ...);
     }
 
-    template <class ...T>
+    template <class... T>
     bool isPreviousStateOfType()
     {
         return (std::holds_alternative<T*>(previousState) or ...);
