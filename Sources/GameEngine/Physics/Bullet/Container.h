@@ -1,8 +1,9 @@
 #pragma once
-#include <Utils/IdPool.h>
-#include <mutex>
-#include <functional>
 #include <Logger/Log.h>
+#include <Utils/IdPool.h>
+
+#include <functional>
+#include <mutex>
 #include <unordered_map>
 
 namespace GameEngine
@@ -15,6 +16,8 @@ template <class Type>
 class Container
 {
 public:
+    using Values = std::unordered_map<IdType, Type>;
+
     Container(Utils::IdPool& idPool)
         : idPool_{idPool}
     {
@@ -43,6 +46,18 @@ public:
         }
         return nullptr;
     }
+
+    typename Values::value_type* get(std::function<bool(const typename Values::value_type&)> predicate)
+    {
+        std::lock_guard<std::mutex> lk(mutex);
+        auto it = std::find_if(values.begin(), values.end(), predicate);
+        if (it != values.end())
+        {
+            return &(*it);
+        }
+        return nullptr;
+    }
+
     void clear()
     {
         std::lock_guard<std::mutex> lk(mutex);
@@ -58,7 +73,7 @@ public:
     }
 
 private:
-    std::unordered_map<IdType, Type> values;
+    Values values;
     std::mutex mutex;
     Utils::IdPool& idPool_;
 };

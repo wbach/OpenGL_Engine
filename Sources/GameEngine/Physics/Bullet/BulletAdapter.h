@@ -80,9 +80,6 @@ private:
     std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
     std::unique_ptr<btDispatcher> btDispacher;
 
-    std::unordered_map<uint32, std::pair<RigidbodyId, CollisionResultCallback>> collisionContactInfoSub;
-    Utils::IdPool collisionContactInfoSubIdPool_;
-
     float simulationStep_;
     bool simualtePhysics_;
 

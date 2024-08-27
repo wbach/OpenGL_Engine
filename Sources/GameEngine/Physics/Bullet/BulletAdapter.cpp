@@ -30,12 +30,16 @@ struct BulletAdapter::Pimpl
 {
     Pimpl()
         : shapes_{shapesIdPool}
+        , collisionContactInfoSub_{collisionContactInfoSubIdPool_}
     {
     }
     Rigidbodies rigidbodies;
 
     Utils::IdPool shapesIdPool;
     Container<std::unique_ptr<Shape>> shapes_;
+
+    Utils::IdPool collisionContactInfoSubIdPool_;
+    Container<std::pair<RigidbodyId, CollisionResultCallback>> collisionContactInfoSub_;
 
     bool visualizationForAllObjectEnabled{false};
 };
@@ -86,17 +90,18 @@ void BulletAdapter::Simulate(float deltaTime)
                 }
             });
 
-        for (auto& [_, pair] : collisionContactInfoSub)
-        {
-            auto& [rigidbodyId, callback] = pair;
-            if (auto rigidbody = impl_->rigidbodies.get(rigidbodyId))
+        impl_->collisionContactInfoSub_.foreach (
+            [this](auto& sub)
             {
-                if (rigidbody)
+                auto& [rigidbodyId, callback] = sub;
+                if (auto rigidbody = impl_->rigidbodies.get(rigidbodyId))
                 {
-                    btDynamicWorld->contactTest(&*rigidbody->btRigidbody_, callback);
+                    if (rigidbody)
+                    {
+                        btDynamicWorld->contactTest(&*rigidbody->btRigidbody_, callback);
+                    }
                 }
-            }
-        }
+            });
     }
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
@@ -362,12 +367,17 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
         return;
     }
 
-    auto collisionContactInfoSubIter = std::find_if(collisionContactInfoSub.begin(), collisionContactInfoSub.end(),
-                                                    [rigidBodyId](const auto& p) { return rigidBodyId == p.second.first; });
+    auto collisionContactInfoSub = impl_->collisionContactInfoSub_.get(
+        [rigidBodyId](const auto& p)
+        {
+            const auto& [id, _] = p;
+            return rigidBodyId == id;
+        });
 
-    if (collisionContactInfoSubIter != collisionContactInfoSub.end())
+    if (collisionContactInfoSub)
     {
-        collisionContactInfoSub.erase(collisionContactInfoSubIter);
+         const auto& [id, _] = (*collisionContactInfoSub);
+         impl_->collisionContactInfoSub_.erase(id);
     }
 
     if (auto rigidBody = impl_->rigidbodies.get(*rigidBodyId))
@@ -539,9 +549,7 @@ CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyI
 {
     if (impl_->rigidbodies.get(rigidBodyId))
     {
-        auto id = collisionContactInfoSubIdPool_.getId();
-        collisionContactInfoSub.insert({id, {*rigidBodyId, CollisionResultCallback(callback)}});
-        return id;
+        return impl_->collisionContactInfoSub_.insert({*rigidBodyId, CollisionResultCallback(callback)});
     }
 
     WARNING_LOG("rigidBodyId not found : " + std::to_string(rigidBodyId));
@@ -554,7 +562,9 @@ void BulletAdapter::celarCollisionCallback(const CollisionSubId& id)
         [this, id]()
         {
             if (id)
-                collisionContactInfoSub.erase(*id);
+            {
+                impl_->collisionContactInfoSub_.erase(*id);
+            }
         });
 }
 void BulletAdapter::createWorld()
