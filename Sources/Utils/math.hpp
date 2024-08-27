@@ -1,5 +1,4 @@
 #pragma once
-#include "Types.h"
 #include <algorithm>
 
 namespace Utils
@@ -15,4 +14,4 @@ type KmToMs(type a)
 {
     return a * 0.277777778f;
 }
-}
+}  // namespace Utils

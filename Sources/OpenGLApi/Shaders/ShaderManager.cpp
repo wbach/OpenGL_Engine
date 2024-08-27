@@ -1,8 +1,8 @@
 #include "ShaderManager.h"
 
-#include <iostream>
-#include <unordered_map>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
+#include <unordered_map>
 
 #include "FullDefferedShaderFiles.h"
 #include "Logger/Log.h"
@@ -10,8 +10,6 @@
 #include "OpenGLApi/OpenGLUtils.h"
 #include "SimpleDeprecetedShaders.h"
 #include "SimpleForwardShaderFiles.h"
-#include "Utils.h"
-#include "glm/gtc/type_ptr.hpp"
 
 namespace OpenGLApi
 {
@@ -109,8 +107,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     return uId;
 }
 
-bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename,
-                              GraphicsApi::ShaderType mode)
+bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode)
 {
     if (not shadersFileLocation_.empty() and shadersFileLocation_.back() != '/')
     {

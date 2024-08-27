@@ -12,7 +12,30 @@ namespace GameEngine
 {
 static Collada::Node staticNode;
 static mat4 correction_matrix = Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(1));
+namespace
+{
+std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char)
+{
+    std::unordered_map<std::string, uint32> out;
+    std::string token;
 
+    uint32 id = 0;
+    for (const auto& c : s)
+    {
+        if (c == split_char)
+        {
+            out[token] = id++;
+            token.clear();
+            continue;
+        }
+        token += c;
+    }
+    if (!token.empty())
+        out[token] = id++;
+
+    return out;
+}
+}  // namespace
 namespace WBLoader
 {
 ColladaDae::ColladaDae(ITextureLoader& textureLodaer)
@@ -89,7 +112,7 @@ void ColladaDae::FillAnimationData()
                         for (const auto& in : skin.vertexWeights_.inputs_)
                         {
                             auto offset = in.offset;
-                            auto value = skin.vertexWeights_.v_[i + offset];
+                            auto value  = skin.vertexWeights_.v_[i + offset];
 
                             if (in.semantic == "JOINT")
                             {
@@ -125,7 +148,7 @@ void ColladaDae::FillAnimationData()
                         const auto& data = skin.sources_[Collada::GetSource(input.sourceId)].dataArray;
                         if (data.type == "Name_array")
                         {
-                            joints = Utils::SplitStringWithId(data.data, ' ');
+                            joints = SplitStringWithId(data.data, ' ');
                         }
                         break;
                     }
@@ -172,7 +195,7 @@ void ColladaDae::NewMesh(const Collada::Mesh& mesh, const std::string& geometryN
                 for (const auto& input : polyList.inputs_)
                 {
                     auto offset = input.offset;
-                    auto value = polyList.p_[i + offset];
+                    auto value  = polyList.p_[i + offset];
 
                     if (input.semantic == "VERTEX")
                     {
@@ -201,8 +224,7 @@ void ColladaDae::NewMesh(const Collada::Mesh& mesh, const std::string& geometryN
         }
     }
 }
-void ColladaDae::GetVec2ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId,
-                                            std::vector<vec2>& v)
+void ColladaDae::GetVec2ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId, std::vector<vec2>& v)
 {
     if (mesh.sources_.count(sourceId) == 0)
         return;
@@ -216,8 +238,7 @@ void ColladaDae::GetVec2ArrayFromDataSource(const Collada::Mesh& mesh, const std
     v.reserve(datasource.dataArray.count);
     Collada::GetVectors2dFromString(datasource.dataArray.data, v);
 }
-void ColladaDae::GetVec3ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId,
-                                            std::vector<vec3>& v)
+void ColladaDae::GetVec3ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId, std::vector<vec3>& v)
 {
     if (mesh.sources_.count(sourceId) == 0)
         return;

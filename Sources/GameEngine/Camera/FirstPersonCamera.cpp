@@ -2,6 +2,8 @@
 
 #include <Input/InputManager.h>
 
+#include <Utils/math.hpp>
+
 #include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
@@ -34,7 +36,7 @@ void FirstPersonCamera::Update()
         if (glm::length(moveVector) > std::numeric_limits<float>::epsilon())
         {
             moveVector = moveVector * glm::normalize(GetRotation().value_);
-            moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTimeNoModified; // for freecam
+            moveVector = moveVector * defaultCamSpeed * displayManager_.GetTime().deltaTimeNoModified;  // for freecam
             IncreasePosition(moveVector);
         }
     }

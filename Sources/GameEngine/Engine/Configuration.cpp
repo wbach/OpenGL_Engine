@@ -1,6 +1,7 @@
 #include "Configuration.h"
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
 #include <fstream>
 
 #include "ConfigurationReader.h"

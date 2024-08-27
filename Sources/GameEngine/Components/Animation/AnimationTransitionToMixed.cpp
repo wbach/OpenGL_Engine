@@ -1,6 +1,7 @@
 #include "AnimationTransitionToMixed.h"
 
 #include <Logger/Log.h>
+#include <Utils/Container.h>
 
 #include <algorithm>
 
@@ -21,8 +22,7 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context, const C
 {
 }
 
-AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
-                                                       const TransitionGroupsPlayings &transitionGroupsPlaying,
+AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context, const TransitionGroupsPlayings &transitionGroupsPlaying,
                                                        const ChangeAnimationEvent &event)
     : AnimationTransitionToMixed(context, {}, transitionGroupsPlaying, event)
 {
@@ -55,9 +55,9 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
 
             if (iter != context_.jointGroups.end())
             {
-                transtionGroups_.insert({groupName, TransitionGroup{0.f, info.info, iter->second, info.onTransitionEnd,
-                                                                    convert(context_.currentPose),
-                                                                    context_.transitionTime, info.currentTime}});
+                transtionGroups_.insert(
+                    {groupName, TransitionGroup{0.f, info.info, iter->second, info.onTransitionEnd, convert(context_.currentPose),
+                                                context_.transitionTime, info.currentTime}});
             }
         }
     }
@@ -79,8 +79,7 @@ bool AnimationTransitionToMixed::update(float deltaTime)
     for (const auto &[name, group] : transtionGroups_)
     {
         const auto &endChangeAnimKeyFrame = group.clipInfo_.clip.GetFrames().front();
-        interpolatePoses(context_.currentPose, group.startKeyFrame_, endChangeAnimKeyFrame, group.progress_,
-                         group.jointGroup_);
+        interpolatePoses(context_.currentPose, group.startKeyFrame_, endChangeAnimKeyFrame, group.progress_, group.jointGroup_);
     }
 
     increaseAnimationTime(deltaTime);
@@ -132,8 +131,7 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
-                                                           event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 
@@ -198,9 +196,7 @@ std::vector<std::string> AnimationTransitionToMixed::getCurrentAnimation() const
 
 bool AnimationTransitionToMixed::isAnimationPlaying(const std::string &name) const
 {
-    auto iter = std::find_if(currentGroups_.begin(), currentGroups_.end(),
-                             [&name](const auto &pair) { return (pair.second.clipInfo_.clip.name == name); });
-    return iter != currentGroups_.end();
+    return Utils::contains(currentGroups_, [&name](const auto &pair) { return (pair.second.clipInfo_.clip.name == name); });
 }
 
 void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
@@ -286,9 +282,9 @@ void AnimationTransitionToMixed::addTransitionBasedOnEvent(const ChangeAnimation
         auto iter = context_.jointGroups.find(*event.jointGroupName);
         if (iter != context_.jointGroups.end())
         {
-            transtionGroups_.insert({*event.jointGroupName,
-                                     TransitionGroup{event.startTime, event.info, iter->second, event.onTransitionEnd,
-                                                     convert(context_.currentPose), context_.transitionTime, 0.f}});
+            transtionGroups_.insert(
+                {*event.jointGroupName, TransitionGroup{event.startTime, event.info, iter->second, event.onTransitionEnd,
+                                                        convert(context_.currentPose), context_.transitionTime, 0.f}});
         }
     }
 }

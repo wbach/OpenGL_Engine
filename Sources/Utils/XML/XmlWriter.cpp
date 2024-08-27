@@ -1,9 +1,9 @@
 #include "XmlWriter.h"
 
+#include <filesystem>
 #include <fstream>
 
 #include "Logger/Log.h"
-#include "Utils/Utils.h"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
 
@@ -32,8 +32,8 @@ public:
     }
     XmlNodeWrapper& AddAtributte(const std::string& name, const std::string& value)
     {
-        node_->append_attribute(document_->allocate_attribute(document_->allocate_string(name.c_str()),
-                                                              document_->allocate_string(value.c_str())));
+        node_->append_attribute(
+            document_->allocate_attribute(document_->allocate_string(name.c_str()), document_->allocate_string(value.c_str())));
 
         return *this;
     }

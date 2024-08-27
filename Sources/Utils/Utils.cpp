@@ -1,10 +1,13 @@
 #include "Utils.h"
+
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <stdexcept>
-#include <cctype>
-#include "Logger/Log.h"
+
 #include "FileSystem/FileSystemUtils.hpp"
+#include "Logger/Log.h"
+
 
 namespace Utils
 {
@@ -50,28 +53,6 @@ std::vector<std::string> SplitString(const std::string& s, char split_char)
         tokens.push_back(token);
 
     return tokens;
-}
-
-std::unordered_map<std::string, uint32> SplitStringWithId(const std::string& s, char split_char)
-{
-    std::unordered_map<std::string, uint32> out;
-    std::string token;
-
-    uint32 id = 0;
-    for (const auto& c : s)
-    {
-        if (c == split_char)
-        {
-            out[token] = id++;
-            token.clear();
-            continue;
-        }
-        token += c;
-    }
-    if (!token.empty())
-        out[token] = id++;
-
-    return out;
 }
 
 std::string ReadFileBinary(const std::string& file_name)
@@ -300,8 +281,7 @@ bool StringToBool(const std::string& str)
 std::string toLower(const std::string& input)
 {
     std::string result{input};
-    std::transform(result.begin(), result.end(), result.begin(),
-    [](unsigned char c){ return std::tolower(c); });
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
     return result;
 }
 
@@ -310,10 +290,10 @@ std::string BoolToString(bool b)
     return b ? "true" : "false";
 }
 
-std::string MergeString(const std::vector<std::string> & input, const std::string& separator)
+std::string MergeString(const std::vector<std::string>& input, const std::string& separator)
 {
     std::string result;
-    for(const auto& s : input)
+    for (const auto& s : input)
     {
         result += s + separator;
     }

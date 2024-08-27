@@ -1,6 +1,7 @@
 #include "AnimationClip.h"
 #include <algorithm>
 #include <sstream>
+#include <Utils/Container.h>
 
 namespace GameEngine
 {
@@ -48,10 +49,7 @@ void AnimationClip::SetLength(float l)
 
 KeyFrame* AnimationClip::getFrame(TimeStamp time)
 {
-    auto iter = std::find_if(frames.begin(), frames.end(),
-    [time](const auto& frame) { return compare(frame.timeStamp.value, time.value); });
-
-    return iter != frames.end() ? &*iter : nullptr;
+    return Utils::get(frames, [time](const auto& frame) { return compare(frame.timeStamp.value, time.value); });
 }
 
 KeyFrame* AnimationClip::getFrame(FrameIndex i)

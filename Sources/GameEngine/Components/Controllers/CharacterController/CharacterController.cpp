@@ -1,17 +1,13 @@
 #include "CharacterController.h"
 
-#include <algorithm>
-
 #include "AnimationClipNames.h"
 #include "CharacterControllerFsm.h"
 #include "FsmContext.h"
-#include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/AimController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "States/AimCrouchRotateState.h"
 
 using namespace GameEngine::Components;

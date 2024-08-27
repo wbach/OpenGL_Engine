@@ -1,5 +1,6 @@
 #pragma once
 #include <Logger/Log.h>
+#include <Utils/Container.h>
 #include <Utils/IdPool.h>
 
 #include <functional>
@@ -50,12 +51,7 @@ public:
     typename Values::value_type* get(std::function<bool(const typename Values::value_type&)> predicate)
     {
         std::lock_guard<std::mutex> lk(mutex);
-        auto it = std::find_if(values.begin(), values.end(), predicate);
-        if (it != values.end())
-        {
-            return &(*it);
-        }
-        return nullptr;
+        return Utils::get(values, predicate);
     }
 
     void clear()
