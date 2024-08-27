@@ -36,8 +36,8 @@ public:
     ShapeId CreateSphereColider(const PositionOffset&, const Scale&, Radius) override;
     ShapeId CreateCapsuleColider(const PositionOffset&, const Scale&, Radius, float height) override;
     ShapeId CreateTerrainColider(const PositionOffset&, const Scale&, const HeightMap& heightMap) override;
-    ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector& indicies,
-                               const vec3&, bool) override;
+    ShapeId CreateMeshCollider(const PositionOffset&, const std::vector<float>& data, const IndicesVector& indicies, const vec3&,
+                               bool) override;
     RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveRigidBodyImpl(const RigidbodyId&);
@@ -65,12 +65,9 @@ public:
 
 private:
     void createWorld();
-    RigidbodyId addRigidbody(std::unordered_map<uint32, Rigidbody>&, Rigidbody);
-    Rigidbody* getRigidbody(const RigidbodyId&);
-    const Rigidbody* getRigidbody(const RigidbodyId&) const;
-    void clearRigidbody(const Rigidbody&);
     void RemoveQueuedRigidbodies();
     void RemoveQueuedCollisionCallbacks();
+    void clearRigidbody(const Rigidbody&);
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;
@@ -79,9 +76,7 @@ private:
     std::unique_ptr<btConstraintSolver> btSolver;
     std::unique_ptr<btCollisionConfiguration> collisionConfiguration;
     std::unique_ptr<btDispatcher> btDispacher;
-    std::unordered_map<uint32, Rigidbody> rigidBodies;
-    std::unordered_map<uint32, Rigidbody> staticRigidBodies;
-    std::unordered_map<uint32, std::unique_ptr<Shape>> shapes_;
+
     std::unordered_map<uint32, std::pair<RigidbodyId, CollisionResultCallback>> collisionContactInfoSub;
     std::vector<RigidbodyId> rigidbodyToRemove;
     std::vector<RigidbodyId> collisionCallbacksToRemove;
@@ -92,7 +87,6 @@ private:
     Utils::IdPool collisionContactInfoSubIdPool_;
     float simulationStep_;
     bool simualtePhysics_;
-    Utils::IdPool idPool_;
 
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;

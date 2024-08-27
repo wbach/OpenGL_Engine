@@ -9,6 +9,7 @@ namespace Components
 class JumpState
     : public JumpStateBase,
       public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Queue>,
+                                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Nothing>,
                                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
                                        Utils::StateMachine::On<EndJumpEvent, Utils::StateMachine::BackToPreviousState>>
 {

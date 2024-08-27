@@ -48,11 +48,11 @@ public:
         eventQueue.push_front(event);
     }
 
-    template <typename... States>
-    bool isAnyOfStateQueued()
+    template <typename... Event>
+    bool isAnyOfEventsQueued()
     {
         auto iter = std::find_if(eventQueue.begin(), eventQueue.end(),
-                                 [](const auto& event) { return (std::holds_alternative<States>(event) or ...); });
+                                 [](const auto& event) { return (std::holds_alternative<Event>(event) or ...); });
         return iter != eventQueue.end();
     }
 
