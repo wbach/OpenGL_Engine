@@ -7,8 +7,8 @@
 #include "CollisionResultCallback.h"
 #include "DebugDrawer.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "Rigidbody.h"
 #include "Shape.h"
+#include "Task.h"
 
 namespace GraphicsApi
 {
@@ -21,6 +21,9 @@ namespace Physics
 {
 namespace Bullet
 {
+struct Rigidbody;
+struct Task;
+
 class BulletAdapter : public IPhysicsApi
 {
 public:
@@ -40,7 +43,6 @@ public:
                                bool) override;
     RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
-    void RemoveRigidBodyImpl(const RigidbodyId&);
     void RemoveShape(const ShapeId&) override;
     void SetVelocityRigidbody(const RigidbodyId&, const vec3& velocity) override;
     void ApplyImpulse(const RigidbodyId&, const vec3& impulse) override;
@@ -65,9 +67,10 @@ public:
 
 private:
     void createWorld();
-    void RemoveQueuedRigidbodies();
-    void RemoveQueuedCollisionCallbacks();
     void clearRigidbody(const Rigidbody&);
+    void RemoveRigidBodyImpl(const RigidbodyId&);
+    void addTask(Task::Action);
+    void executeTasks();
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;
@@ -78,15 +81,14 @@ private:
     std::unique_ptr<btDispatcher> btDispacher;
 
     std::unordered_map<uint32, std::pair<RigidbodyId, CollisionResultCallback>> collisionContactInfoSub;
-    std::vector<RigidbodyId> rigidbodyToRemove;
-    std::vector<RigidbodyId> collisionCallbacksToRemove;
-
-    std::mutex rigidbodyToRemoveMutex;
-    std::mutex collisionCallbacksToRemoveMutex;
-
     Utils::IdPool collisionContactInfoSubIdPool_;
+
     float simulationStep_;
     bool simualtePhysics_;
+
+    using Tasks = std::vector<Task>;
+    std::mutex tasksMutex;
+    Tasks tasks;
 
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
