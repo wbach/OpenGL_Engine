@@ -6,9 +6,12 @@
 #include <string>
 
 #include "../CharacterControllerEvents.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
+class GameObject;
+
 namespace Components
 {
 struct FsmContext;
@@ -36,13 +39,22 @@ public:
     }
 
 private:
-    bool checkIsGrounded();
+    void getRigidbodyIdsWhenReady();
+    void createGroundChecker();
+    void subscribeForGroundCollision();
+    void unsubscribeCollisionCallback();
+    void subscribeForGroundCollisionWhenIsOnAir();
 
 private:
     FsmContext& context_;
     std::optional<std::string> jointGroupName_;
-    bool isGrounded_;
     std::vector<CharacterControllerEvent> queue;
+    GameObject* groundChecker;
+    
+    Physics::CollisionSubId collisionSubId;
+    float collisionSphereRadius{0.3f};
+    Physics::RigidbodyId groundCheckerRigidbodyId;
+    Physics::RigidbodyId playerRigidbodyId;
 };
 }  // namespace Components
 }  // namespace GameEngine

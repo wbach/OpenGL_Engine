@@ -42,7 +42,8 @@ public:
     std::optional<Quaternion> GetRotation(const RigidbodyId&) const override;
     std::optional<common::Transform> GetTransfrom(const RigidbodyId&) const override;
     std::optional<RayHit> RayTest(const vec3&, const vec3&) const override;
-    void setVisualizatedRigidbody(const RigidbodyId&) override;
+    void enableVisualizatedRigidbody(const RigidbodyId&) override;
+    void disableVisualizatedRigidbody(const RigidbodyId&) override;
     void enableVisualizationForAllRigidbodys() override;
     void disableVisualizationForAllRigidbodys() override;
     Physics::CollisionSubId setCollisionCallback(const RigidbodyId&,

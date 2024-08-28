@@ -33,6 +33,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    Utils::IdPool gameObjectIdPool;
     ::testing::NiceMock<GpuResourceLoaderMock> gpuResourceLoader_;
     Utils::MeasurementHandler measurementHandler_;
     Input::InputManagerMock inputManagerMock_;

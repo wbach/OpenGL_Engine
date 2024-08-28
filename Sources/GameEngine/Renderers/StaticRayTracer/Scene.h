@@ -1,10 +1,12 @@
 #pragma once
-#include <vector>
-#include <memory>
 #include <Types.h>
+
+#include <memory>
+#include <vector>
+
 #include "Camera.h"
-#include "Objects/IObject.h"
 #include "GameEngine/Lights/Light.h"
+#include "Objects/IObject.h"
 
 namespace GameEngine
 {

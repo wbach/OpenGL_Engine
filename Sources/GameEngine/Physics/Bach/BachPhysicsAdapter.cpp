@@ -267,7 +267,10 @@ std::optional<RayHit> BachPhysicsAdapter::RayTest(const vec3&, const vec3&) cons
 {
     return std::optional<RayHit>();
 }
-void BachPhysicsAdapter::setVisualizatedRigidbody(const RigidbodyId&)
+void BachPhysicsAdapter::enableVisualizatedRigidbody(const RigidbodyId&)
+{
+}
+void BachPhysicsAdapter::disableVisualizatedRigidbody(const RigidbodyId&)
 {
 }
 void BachPhysicsAdapter::enableVisualizationForAllRigidbodys()

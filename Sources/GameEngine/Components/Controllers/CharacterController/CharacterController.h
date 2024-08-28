@@ -70,8 +70,6 @@ public:
 
 private:
     void processEvent();
-    void isOnGround();
-    void clearVelocityIfNotMoving();
 
 private:
     std::deque<CharacterControllerEvent> eventQueue;

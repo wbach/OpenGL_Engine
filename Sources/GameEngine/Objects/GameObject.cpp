@@ -11,17 +11,18 @@
 namespace GameEngine
 {
 GameObject::GameObject(const std::string& name, Components::ComponentController& componentController,
-                       Components::ComponentFactory& componentFactory, IdType id)
-    : parent_(nullptr)
+                       Components::ComponentFactory& componentFactory, Utils::IdPool& idPool,
+                       const std::optional<uint32>& maybeId)
+    : idPool_{idPool}
+    , parent_(nullptr)
     , name_(name)
     , isStarted{false}
-    , id_(id)
+    , id_(idPool.getId(maybeId))
     , componentFactory_(componentFactory)
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
-    isStartedSub =
-        componentController_.RegisterFunction(id_, Components::FunctionType::OnStart, [this]() { isStarted = true; });
+    isStartedSub = componentController_.RegisterFunction(id_, Components::FunctionType::OnStart, [this]() { isStarted = true; });
 }
 
 GameObject::~GameObject()
@@ -53,6 +54,12 @@ Components::IComponent* GameObject::InitComponent(const TreeNode& node)
     }
     return nullptr;
 }
+
+std::unique_ptr<GameObject> GameObject::CreateChild(const std::string& name, const std::optional<uint32>& maybeId)
+{
+    return std::make_unique<GameObject>(name, componentController_, componentFactory_, idPool_, maybeId);
+}
+
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
     object->SetParent(this);
@@ -68,8 +75,8 @@ bool GameObject::RemoveChild(GameObject& gameObject)
 
 bool GameObject::RemoveChild(IdType id)
 {
-    auto iter = std::find_if(children_.begin(), children_.end(),
-                             [id](const auto& gameObject) { return id == gameObject->GetId(); });
+    auto iter =
+        std::find_if(children_.begin(), children_.end(), [id](const auto& gameObject) { return id == gameObject->GetId(); });
 
     if (iter != children_.end())
     {
@@ -122,8 +129,7 @@ void GameObject::RemoveAllChildren()
 }
 GameObject* GameObject::GetChild(IdType id) const
 {
-    auto iter =
-        std::find_if(children_.begin(), children_.end(), [id](const auto& object) { return object->GetId() == id; });
+    auto iter = std::find_if(children_.begin(), children_.end(), [id](const auto& object) { return object->GetId() == id; });
 
     if (iter != children_.end())
     {
@@ -167,8 +173,6 @@ void GameObject::ChangeParent(GameObject& newParent)
         go->SetWorldRotation(worldRotation);
         go->SetWorldScale(worldScale);
     }
-
-
 }
 
 void GameObject::MoveChild(std::unique_ptr<GameObject> object)
@@ -179,8 +183,7 @@ void GameObject::MoveChild(std::unique_ptr<GameObject> object)
 
 std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
 {
-    auto iter =
-        std::find_if(children_.begin(), children_.end(), [id](const auto& object) { return object->GetId() == id; });
+    auto iter = std::find_if(children_.begin(), children_.end(), [id](const auto& object) { return object->GetId() == id; });
 
     if (iter != children_.end())
     {
@@ -203,8 +206,8 @@ std::unique_ptr<GameObject> GameObject::MoveChild(IdType id)
 
 GameObject* GameObject::GetChild(const std::string& name) const
 {
-    auto iter = std::find_if(children_.begin(), children_.end(),
-                             [&name](const auto& object) { return object->GetName() == name; });
+    auto iter =
+        std::find_if(children_.begin(), children_.end(), [&name](const auto& object) { return object->GetName() == name; });
 
     if (iter != children_.end())
     {

@@ -21,7 +21,6 @@ btScalar CollisionResultCallback::addSingleResult(btManifoldPoint &cp, const btC
                                                   int partId1, int index1)
 
 {
-    DEBUG_LOG("on collision");
     CollisionContactInfo collisionContactInfo{
         .pos1         = Convert(cp.getPositionWorldOnA()),
         .pos2         = Convert(cp.getPositionWorldOnB()),

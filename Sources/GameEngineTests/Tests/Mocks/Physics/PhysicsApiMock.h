@@ -39,7 +39,8 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_CONST_METHOD1(GetRotation, std::optional<Quaternion>(const Physics::RigidbodyId&));
     MOCK_CONST_METHOD1(GetTransfrom, std::optional<common::Transform>(const Physics::RigidbodyId&));
     MOCK_CONST_METHOD2(RayTest, std::optional<Physics::RayHit>(const vec3&, const vec3&));
-    MOCK_METHOD1(setVisualizatedRigidbody, void(const Physics::RigidbodyId&));
+    MOCK_METHOD1(enableVisualizatedRigidbody, void(const Physics::RigidbodyId&));
+    MOCK_METHOD1(disableVisualizatedRigidbody, void(const Physics::RigidbodyId&));
     MOCK_METHOD0(enableVisualizationForAllRigidbodys, void());
     MOCK_METHOD0(disableVisualizationForAllRigidbodys, void());
     MOCK_METHOD2(setCollisionCallback,

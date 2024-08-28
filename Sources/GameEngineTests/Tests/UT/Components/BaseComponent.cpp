@@ -15,7 +15,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                resourcesManager_, renderersManager_, componentController_, guiElementFactory_, timerService_)
     , componentFactory_(scene, componentController_, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_,
                         resourcesManager_, renderersManager_, cameraWrapper_, physicsApiMock_, guiElementFactory_, timerService_)
-    , obj_("Test GameObject", componentController_, componentFactory_, IdType(0))
+    , obj_("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)
 {
     EXPECT_CALL(frameBufferMock_, Init()).WillRepeatedly(Return(false));
     EXPECT_CALL(graphicsApiMock_, GetSupportedRenderers())

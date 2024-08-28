@@ -1,4 +1,5 @@
 #include "Rigidbodies.h"
+
 #include <Logger/Log.h>
 
 namespace GameEngine
@@ -42,6 +43,16 @@ void Rigidbodies::erase(IdType rigidbodyId)
     {
         ERROR_LOG("Rigidbody not found id=" + std::to_string(rigidbodyId));
     }
+}
+std::optional<Rigidbodies::IsStatic> Rigidbodies::isStatic(IdType rigidbodyId) const
+{
+    if (auto pairPtr = Utils::get(rigidbodiesStatic, rigidbodyId))
+    {
+        auto [_, is] = *pairPtr;
+        return is;
+    }
+    
+    return std::nullopt;
 }
 Rigidbody* Rigidbodies::get(const RigidbodyId& rigidbodyId)
 {

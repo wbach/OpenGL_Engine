@@ -357,10 +357,8 @@ void Console::PrintPosition(const std::vector<std::string> &args)
 
     if (auto gameObject = GetGameObject(args[0]))
     {
-        PrintMsgInConsole("Local Position of " + args[0] + " : " +
-                          std::to_string(gameObject->GetTransform().GetPosition()));
-        PrintMsgInConsole("World Position of " + args[0] + " : " +
-                          std::to_string(gameObject->GetWorldTransform().GetPosition()));
+        PrintMsgInConsole("Local Position of " + args[0] + " : " + std::to_string(gameObject->GetTransform().GetPosition()));
+        PrintMsgInConsole("World Position of " + args[0] + " : " + std::to_string(gameObject->GetWorldTransform().GetPosition()));
     }
     else
     {
@@ -488,7 +486,35 @@ void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
 
     auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
-    scene_.physicsApi_->enableVisualizationForAllRigidbodys();
+
+    if (params.size() <= 1)
+    {
+        if (set)
+            scene_.physicsApi_->enableVisualizationForAllRigidbodys();
+        else
+            scene_.physicsApi_->disableVisualizationForAllRigidbodys();
+    }
+    else
+    {
+        for (size_t i = 1; i < params.size(); i++)
+        {
+            if (auto go = scene_.GetGameObject(params[i]))
+            {
+                if (auto rigidbody = go->GetComponent<Components::Rigidbody>())
+                {
+                    DEBUG_LOG("VisualizatedRigidbody id : " + std::to_string(rigidbody->GetId()) + ", value: " + Utils::BoolToString(set));
+                    if (set)
+                    {
+                        scene_.physicsApi_->enableVisualizatedRigidbody(rigidbody->GetId());
+                    }
+                    else
+                    {
+                        scene_.physicsApi_->disableVisualizatedRigidbody(rigidbody->GetId());
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Console::SetTimeMulitplayer(const std::vector<std::string> &params)
@@ -660,8 +686,7 @@ void Console::PrepareConsoleWindow()
     DEBUG_LOG("");
     scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
 
-    auto window =
-        scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.5, 0.75), vec2(1, 0.5f));
+    auto window = scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.5, 0.75), vec2(1, 0.5f));
 
     window_ = window.get();
     window_->Hide();
@@ -674,28 +699,28 @@ void Console::PrepareConsoleWindow()
 
     scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
 
-    keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        KeyCodes::F2,
-        [this]()
-        {
-            window_->Show();
-            DEBUG_LOG("f2");
-            if (not commandsHistory_.empty())
-                commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
+    keysSubscribtionManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2,
+                                                 [this]()
+                                                 {
+                                                     window_->Show();
+                                                     DEBUG_LOG("f2");
+                                                     if (not commandsHistory_.empty())
+                                                         commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
 
-            if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
-                currentCommand_ = AddOrUpdateGuiText("");
+                                                     if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+                                                         currentCommand_ = AddOrUpdateGuiText("");
 
-            currentCommand_->Show();
+                                                     currentCommand_->Show();
 
-            scene_.camera.Lock();
-            scene_.inputManager_->AddEvent(
-                [&]()
-                {
-                    scene_.inputManager_->StashSubscribers();
-                    SubscribeKeys();
-                });
-        });
+                                                     scene_.camera.Lock();
+                                                     scene_.inputManager_->AddEvent(
+                                                         [&]()
+                                                         {
+                                                             scene_.inputManager_->StashSubscribers();
+                                                             SubscribeKeys();
+                                                         });
+                                                 });
 }
 }  // namespace Debug
 }  // namespace GameEngine

@@ -254,7 +254,7 @@ void Rigidbody::SetAsVisualizatedObject()
 {
     if (rigidBodyId_)
     {
-        componentContext_.physicsApi_.setVisualizatedRigidbody(*rigidBodyId_);
+        componentContext_.physicsApi_.enableVisualizatedRigidbody(*rigidBodyId_);
     }
 }
 float Rigidbody::GetMass() const

@@ -103,6 +103,7 @@ void CharacterController::Init()
                                               moveSpeeds_.crouchSpeed,
                                               moveSpeeds_.sprintSpeed});
         auto& context = *impl->fsmContext;
+
         // clang-format off
         impl->stateMachine_ = std::make_unique<CharacterControllerFsm>(
             DisarmedIdleState(context),

@@ -190,7 +190,8 @@ CharacterControllerTests::CharacterControllerTests()
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
     sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
 
-    auto weaponPtr = std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, IdType(1));
+    auto weaponPtr =
+        std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
     weaponPtr->AddComponent<BowPoseUpdater>();
     obj_.AddChild(std::move(weaponPtr));
 

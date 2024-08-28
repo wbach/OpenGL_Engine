@@ -2,6 +2,9 @@
 
 #include "../CharacterController.h"
 #include "../FsmContext.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
+#include "GameEngine/Physics/CollisionContactInfo.h"
+#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
@@ -10,11 +13,15 @@ namespace Components
 JumpStateBase::JumpStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
     : context_{context}
     , jointGroupName_{jointGroupName}
-    , isGrounded_{true}
+    , groundChecker{nullptr}
 {
+    createGroundChecker();
 }
 void JumpStateBase::onEnter(const JumpEvent &event)
 {
+    DEBUG_LOG("OnEnter");
+    getRigidbodyIdsWhenReady();
+
     if (not context_.animClipNames.disarmed.jump.empty())
     {
         context_.animator.ChangeAnimation(context_.animClipNames.disarmed.jump, Animator::AnimationChangeType::smooth,
@@ -28,10 +35,7 @@ void JumpStateBase::onEnter(const JumpEvent &event)
 
 void JumpStateBase::update(float)
 {
-    if (checkIsGrounded())
-    {
-        context_.characterController.pushEventToQueue(EndJumpEvent{});
-    }
+    subscribeForGroundCollisionWhenIsOnAir();
 }
 
 void JumpStateBase::onLeave(const EndJumpEvent &)
@@ -41,66 +45,84 @@ void JumpStateBase::onLeave(const EndJumpEvent &)
         context_.characterController.pushEventToQueue(e);
     }
     queue.clear();
+
+    if (collisionSubId)
+    {
+        unsubscribeCollisionCallback();
+    }
 }
 
-bool JumpStateBase::checkIsGrounded()
+void JumpStateBase::subscribeForGroundCollisionWhenIsOnAir()
 {
+    if (collisionSubId)
+        return;
+
     const auto &position = context_.gameObject.GetWorldTransform().GetPosition();
     auto hitTest         = context_.physicsApi.RayTest(position, vec3(position.x, -10000.f, position.z));
 
     if (hitTest)
     {
         auto l = glm::length(position - hitTest->pointWorld);
-
-        const float threshold{0.1f};
-        if (not isGrounded_ and l < threshold - std::numeric_limits<float>::epsilon())
+        DEBUG_LOG("L=" + std::to_string(l));
+        if (not collisionSubId and l > collisionSphereRadius + std::numeric_limits<float>::epsilon())
         {
-            isGrounded_ = true;
-            return true;
-        }
-
-        if (isGrounded_ and l > threshold + std::numeric_limits<float>::epsilon())
-        {
-            isGrounded_ = false;
+            subscribeForGroundCollision();
         }
     }
-    return false;
-
-    // https://www.immersivelimit.com/tutorials/simple-character-controller-for-unity
-
-    // float capsuleRadius = 1.f;
-    // float capsuleHeight = 1.5f;
-
-    // float capsuleHeight = glm::max(capsuleRadius * 2.f, capsuleHeight);
-    // vec3 capsuleBottom  = transform.TransformPoint(capsuleCollider.center - VECTOR_UP * capsuleHeight / 2.f);
-    // float radius        = transform.TransformVector(capsuleCollider.radius, 0f, 0f).magnitude;
-
-    // Ray ray = new Ray(capsuleBottom + transform.up * .01f, -transform.up);
-    // RaycastHit hit;
-    // if (Physics.Raycast(ray, out hit, radius * 5f))
-    //{
-    //    float normalAngle = glm::angle(hit.normal, transform.up);
-    //    if (normalAngle < slopeLimit)
-    //    {
-    //        float maxDist = radius / Mathf.Cos(Mathf.Deg2Rad * normalAngle) - radius + .02f;
-    //        if (hit.distance < maxDist)
-    //            return true;
-    //    }
-    //}
-    //        Ray ray = new Ray(capsuleBottom + transform.up * .01f, -transform.up);
-    //        RaycastHit hit;
-    //        if (Physics.Raycast(ray, out hit, radius * 5f))
-    //        {
-    //            float normalAngle =  glm::angle(hit.normal, transform.up);
-    //            if (normalAngle < slopeLimit)
-    //            {
-    //                float maxDist = radius / Mathf.Cos(Mathf.Deg2Rad * normalAngle) - radius + .02f;
-    //                if (hit.distance < maxDist)
-    //                    return true;
-    //            }
-    //        }
-    // return false;
 }
+void JumpStateBase::getRigidbodyIdsWhenReady()
+{
+    if (not groundCheckerRigidbodyId)
+    {
+        if (auto r = groundChecker->GetComponent<Rigidbody>())
+        {
+            groundCheckerRigidbodyId = r->GetId();
+        }
+    }
+    if (not playerRigidbodyId)
+    {
+        if (auto r = context_.gameObject.GetComponent<Rigidbody>())
+        {
+            playerRigidbodyId = r->GetId();
+        }
+    }
+}
+void JumpStateBase::createGroundChecker()
+{
+    if (not groundChecker)
+    {
+        auto gc = context_.gameObject.CreateChild(context_.gameObject.GetName() + "_groundChecker");
+        gc->AddComponent<SphereShape>().SetRadius(collisionSphereRadius);
+        gc->AddComponent<Rigidbody>().SetIsStatic(true).SetNoContactResponse(true);
+        groundChecker = gc.get();
+        context_.gameObject.AddChild(std::move(gc));
+    }
+}
+void JumpStateBase::subscribeForGroundCollision()
+{
+    if (groundCheckerRigidbodyId and playerRigidbodyId)
+    {
+        DEBUG_LOG("setCollisionCallback");
+        collisionSubId = context_.physicsApi.setCollisionCallback(
+            groundCheckerRigidbodyId,
+            [&](const auto &collisionInfo)
+            {
+                if (collisionInfo.rigidbodyId1 == *playerRigidbodyId or collisionInfo.rigidbodyId2 == *playerRigidbodyId)
+                    return;
 
+                if (collisionSubId)
+                {
+                    DEBUG_LOG("GroundChcker collision detect");
+                    context_.characterController.pushEventToQueue(EndJumpEvent{});
+                    unsubscribeCollisionCallback();
+                }
+            });
+    }
+}
+void JumpStateBase::unsubscribeCollisionCallback()
+{
+    context_.physicsApi.celarCollisionCallback(collisionSubId);
+    collisionSubId.reset();
+}
 }  // namespace Components
 }  // namespace GameEngine

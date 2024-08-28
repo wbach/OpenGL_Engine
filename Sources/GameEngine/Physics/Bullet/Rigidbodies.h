@@ -21,6 +21,7 @@ public:
     void clear();
     void foreach (std::function<void(Rigidbody&)>);
     void erase(IdType);
+    std::optional<IsStatic> isStatic(IdType) const;
 
 private:
     Utils::IdPool idPool;

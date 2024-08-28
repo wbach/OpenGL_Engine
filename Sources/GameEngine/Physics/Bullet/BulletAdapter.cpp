@@ -272,7 +272,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
                 isStatic = true;
                 break;
             case RigidbodyProperty::NoContactResponse:
-                DEBUG_LOG("nameToTypeMap_ " + gameObject.GetName());
+                DEBUG_LOG("NoContactResponse for: " + gameObject.GetName());
                 flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
                 break;
         }
@@ -376,8 +376,8 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 
     if (collisionContactInfoSub)
     {
-         const auto& [id, _] = (*collisionContactInfoSub);
-         impl_->collisionContactInfoSub_.erase(id);
+        const auto& [id, _] = (*collisionContactInfoSub);
+        impl_->collisionContactInfoSub_.erase(id);
     }
 
     if (auto rigidBody = impl_->rigidbodies.get(*rigidBodyId))
@@ -417,32 +417,36 @@ void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rota
     btQuaternion qt;
     qt.setEuler(rotation.y, rotation.x, rotation.z);
 
-    if (auto rigidbody = impl_->rigidbodies.get(*rigidBodyId))
-    {
-        rigidbody->btRigidbody_->getWorldTransform().setRotation(qt);
-    }
+    addTask(
+        [this, rigidBodyId, qt]()
+        {
+            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
+            {
+                rigidbody->btRigidbody_->getWorldTransform().setRotation(qt);
+            }
+        });
 }
 void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const Quaternion& rotation)
 {
-    if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-    {
-        rigidbody->btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
-    }
+    addTask(
+        [this, rigidBodyId, rotation]()
+        {
+            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
+            {
+                rigidbody->btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
+            }
+        });
 }
 void BulletAdapter::SetPosition(const RigidbodyId& rigidBodyId, const vec3& position)
 {
-    if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-    {
-        rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
-    }
-    // addTask(
-    //     [this, rigidBodyId, position]()
-    //     {
-    //         if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-    //         {
-    //             rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
-    //         }
-    //     });
+    addTask(
+        [this, rigidBodyId, position]()
+        {
+            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
+            {
+                rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
+            }
+        });
 }
 
 void BulletAdapter::SetRigidbodyScale(const RigidbodyId& rigidBodyId, const vec3& position)
@@ -509,14 +513,20 @@ std::optional<RayHit> BulletAdapter::RayTest(const vec3& from, const vec3& to) c
 
     return std::nullopt;
 }
-void BulletAdapter::setVisualizatedRigidbody(const RigidbodyId& rigidBodyId)
+void BulletAdapter::enableVisualizatedRigidbody(const RigidbodyId& rigidBodyId)
 {
-    disableVisualizationForAllRigidbodys();
-
     if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
     {
         auto& body = *rigidbody->btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
+    }
+}
+void BulletAdapter::disableVisualizatedRigidbody(const RigidbodyId& rigidBodyId)
+{
+    if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
+    {
+        auto& body = *rigidbody->btRigidbody_;
+        body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
     }
 }
 void BulletAdapter::enableVisualizationForAllRigidbodys()
@@ -574,7 +584,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                               collisionConfiguration.get());
+                                                                       collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();

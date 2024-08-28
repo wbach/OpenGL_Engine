@@ -176,8 +176,7 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    return std::make_unique<GameObject>(name, componentController_, *componentFactory_,
-                                        gameObjectIdPool_.getId(maybeId));
+    return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)

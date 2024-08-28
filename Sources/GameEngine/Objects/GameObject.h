@@ -19,11 +19,13 @@ typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
 class GameObject
 {
 public:
-    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, IdType);
+    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
+               const std::optional<uint32>& = std::nullopt);
     GameObject(const GameObject&)  = delete;
     GameObject(const GameObject&&) = delete;
     virtual ~GameObject();
 
+    std::unique_ptr<GameObject> CreateChild(const std::string&, const std::optional<uint32>& = std::nullopt);
     void AddChild(std::unique_ptr<GameObject>);
     bool RemoveChild(IdType);
     bool RemoveChild(GameObject&);
@@ -77,7 +79,7 @@ public:
     void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
 
 private:
-    GameObject &getRootGameObject();
+    GameObject& getRootGameObject();
     void CalculateWorldTransform();
     vec3 ConvertWorldToLocalPosition(const vec3&);
     vec3 ConvertWorldToLocalScale(const vec3&);
@@ -85,6 +87,7 @@ private:
     Quaternion ConvertWorldToLocalRotation(const Quaternion&);
 
 protected:
+    Utils::IdPool& idPool_;
     common::Transform localTransform_;
     common::Transform worldTransform_;
     GameObject* parent_;
