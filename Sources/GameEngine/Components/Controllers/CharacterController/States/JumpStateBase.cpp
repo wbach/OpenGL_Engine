@@ -31,6 +31,7 @@ void JumpStateBase::onEnter(const JumpEvent &event)
     auto velocity = context_.rigidbody.GetVelocity();
     velocity.y += event.power;
     context_.rigidbody.SetVelocity(velocity);
+    lastL = -1.f;
 }
 
 void JumpStateBase::update(float)
@@ -64,10 +65,13 @@ void JumpStateBase::subscribeForGroundCollisionWhenIsOnAir()
     {
         auto l = glm::length(position - hitTest->pointWorld);
         DEBUG_LOG("L=" + std::to_string(l));
-        if (not collisionSubId and l > collisionSphereRadius + std::numeric_limits<float>::epsilon())
+
+        if ((lastL > l or compare(lastL, l)) or
+            (not collisionSubId and l > collisionSphereRadius + std::numeric_limits<float>::epsilon()))
         {
             subscribeForGroundCollision();
         }
+        lastL = l;
     }
 }
 void JumpStateBase::getRigidbodyIdsWhenReady()

@@ -55,6 +55,7 @@ private:
     float collisionSphereRadius{0.3f};
     Physics::RigidbodyId groundCheckerRigidbodyId;
     Physics::RigidbodyId playerRigidbodyId;
+    float lastL{0.f};
 };
 }  // namespace Components
 }  // namespace GameEngine
