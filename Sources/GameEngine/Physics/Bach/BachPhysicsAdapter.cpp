@@ -194,13 +194,12 @@ ShapeId BachPhysicsAdapter::CreateTerrainColider(const vec3&, const vec3&, const
     // impl_->terrains_.emplace_back(size, data, vec3(0), hightFactor);
     return impl_->id_++;
 }
-ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&,
-                                               const vec3&, bool)
+ShapeId BachPhysicsAdapter::CreateMeshCollider(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool)
 {
     return impl_->id_++;
 }
-RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform,
-                                                const RigidbodyProperties&, float mass, bool&)
+RigidbodyId BachPhysicsAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& transform, const RigidbodyProperties&,
+                                                float mass, bool&)
 {
     impl_->rigidbodies_.insert({impl_->id_, Rigidbody(transform, mass, false, *shapeId)});
     return impl_->id_++;
@@ -288,6 +287,21 @@ Physics::CollisionSubId BachPhysicsAdapter::setCollisionCallback(const Rigidbody
 
 void BachPhysicsAdapter::celarCollisionCallback(const CollisionSubId&)
 {
+}
+
+CollisionSubId BachPhysicsAdapter::contactTest(const RigidbodyId&, std::function<void(const std::vector<CollisionContactInfo>&)>)
+{
+    return {};
+}
+void BachPhysicsAdapter::cancelContactTest(const CollisionSubId&)
+{
+}
+void BachPhysicsAdapter::unsubscribeForCollisionExit(const CollisionSubId&)
+{
+}
+CollisionSubId BachPhysicsAdapter::subscribeForCollisionExit(const RigidbodyId&, std::function<void()>)
+{
+    return CollisionSubId();
 }
 }  // namespace Physics
 }  // namespace GameEngine

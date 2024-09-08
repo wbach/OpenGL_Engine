@@ -20,8 +20,8 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD3(CreateTerrainColider, Physics::ShapeId(const vec3&, const vec3&, const HeightMap&));
     MOCK_METHOD5(CreateMeshCollider,
                  Physics::ShapeId(const vec3&, const std::vector<float>&, const IndicesVector&, const vec3&, bool));
-    MOCK_METHOD5(CreateRigidbody, Physics::RigidbodyId(const Physics::ShapeId&, GameObject&,
-                                                       const Physics::RigidbodyProperties&, float, bool&));
+    MOCK_METHOD5(CreateRigidbody,
+                 Physics::RigidbodyId(const Physics::ShapeId&, GameObject&, const Physics::RigidbodyProperties&, float, bool&));
     MOCK_METHOD1(RemoveRigidBody, void(const Physics::RigidbodyId&));
     MOCK_METHOD1(RemoveShape, void(const Physics::ShapeId&));
     MOCK_METHOD2(SetVelocityRigidbody, void(const Physics::RigidbodyId&, const vec3&));
@@ -44,8 +44,14 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD0(enableVisualizationForAllRigidbodys, void());
     MOCK_METHOD0(disableVisualizationForAllRigidbodys, void());
     MOCK_METHOD2(setCollisionCallback,
-                 Physics::CollisionSubId(const Physics::RigidbodyId&,
-                                         std::function<void(const Physics::CollisionContactInfo&)>));
+                 Physics::CollisionSubId(const Physics::RigidbodyId&, std::function<void(const Physics::CollisionContactInfo&)>));
     MOCK_METHOD1(celarCollisionCallback, void(const Physics::CollisionSubId&));
+    MOCK_METHOD(Physics::CollisionSubId, contactTest,
+                (const Physics::RigidbodyId&, std::function<void(const std::vector<Physics::CollisionContactInfo>&)>),
+                (override));
+    MOCK_METHOD(void, cancelContactTest, (const Physics::CollisionSubId&), (override));
+    MOCK_METHOD(Physics::CollisionSubId, subscribeForCollisionExit, (const Physics::RigidbodyId&, std::function<void()>),
+                (override));
+    MOCK_METHOD(void, unsubscribeForCollisionExit, (const Physics::CollisionSubId&), (override));
 };
 }  // namespace GameEngine

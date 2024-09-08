@@ -1,5 +1,6 @@
 #pragma once
 #include "../CharacterControllerEvents.h"
+#include "BaseState.h"
 
 namespace GameEngine
 {
@@ -9,10 +10,12 @@ class JointPoseUpdater;
 
 struct FsmContext;
 
-class IdleStateBase
+class IdleStateBase : public BaseState
 {
 public:
     IdleStateBase(FsmContext&, const std::string&, std::optional<std::string> = std::nullopt);
+
+    using BaseState::update;
 
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const EquipEndStateEvent&);
@@ -31,7 +34,6 @@ protected:
     void setIdleAnim();
 
 protected:
-    FsmContext& context_;
     std::string idleAnimName_;
     std::optional<std::string> jointGroupName_;
 };

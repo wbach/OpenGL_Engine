@@ -65,13 +65,20 @@ public:
     void disableVisualizationForAllRigidbodys() override;
     CollisionSubId setCollisionCallback(const RigidbodyId&, std::function<void(const CollisionContactInfo&)>) override;
     void celarCollisionCallback(const CollisionSubId&) override;
+    CollisionSubId contactTest(const RigidbodyId&, CollisionsCallback) override;
+    void cancelContactTest(const CollisionSubId&) override;
+    CollisionSubId subscribeForCollisionExit(const RigidbodyId&, std::function<void()>) override;
+    void unsubscribeForCollisionExit(const CollisionSubId&) override;
 
 private:
     void createWorld();
     void clearRigidbody(const Rigidbody&);
     void RemoveRigidBodyImpl(const RigidbodyId&);
-    void addTask(Task::Action);
+    IdType addTask(Task::Action, std::optional<IdType> = std::nullopt);
+    void removeTask(IdType);
     void executeTasks();
+    void contactTestImpl(const RigidbodyId&, CollisionsCallback);
+    void checkCollisionExit(const RigidbodyId&, std::function<void()>, IdType, int& maxDepth);
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;
@@ -84,12 +91,14 @@ private:
     float simulationStep_;
     bool simualtePhysics_;
 
-    using Tasks = std::vector<Task>;
+    using Tasks = std::unordered_map<IdType, Task>;
     std::mutex tasksMutex;
     Tasks tasks;
 
     struct Pimpl;
     std::unique_ptr<Pimpl> impl_;
+
+    Utils::IdPool taskIdPool_;
 };
 }  // namespace Bullet
 }  // namespace Physics

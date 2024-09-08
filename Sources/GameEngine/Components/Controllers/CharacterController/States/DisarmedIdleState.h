@@ -23,12 +23,11 @@ class DisarmedIdleState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRotateState>>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleCrouchState>>,
+          Utils::StateMachine::On<TriggerJumpEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:
-    DisarmedIdleState(FsmContext& context);
-
-    using IdleStateBase::onEnter;
+    DisarmedIdleState(FsmContext&);
 };
 }  // namespace Components
 }  // namespace GameEngine

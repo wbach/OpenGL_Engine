@@ -4,6 +4,7 @@
 #include "../AnimationClipNames.h"
 #include "../CharacterControllerEvents.h"
 #include "../MoveSpeed.h"
+#include "BaseState.h"
 
 namespace GameEngine
 {
@@ -11,11 +12,13 @@ namespace Components
 {
 struct FsmContext;
 
-class MoveStateBase
+class MoveStateBase : public BaseState
 {
 public:
     MoveStateBase(FsmContext &, const std::optional<std::string> &, const MoveSpeed &, const MovmentClipNames &);
     MoveStateBase(FsmContext &, const std::optional<std::string> &, float, const std::string &);
+
+    using BaseState::update;
 
     void onEnter(const CrouchChangeStateEvent &);
     void onEnter(const SprintStateChangeEvent &);
@@ -54,7 +57,6 @@ protected:
     void setAnim(const std::string &);
 
 protected:
-    FsmContext &context_;
     std::optional<std::string> jointGroupName_;
     MovmentClipNames animationClips_;
     MoveSpeed moveSpeed_;

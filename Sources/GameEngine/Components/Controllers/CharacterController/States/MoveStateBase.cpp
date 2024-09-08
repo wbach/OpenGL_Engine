@@ -11,7 +11,7 @@ namespace Components
 {
 MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName, const MoveSpeed &moveSpeed,
                              const MovmentClipNames &clips)
-    : context_{context}
+    : BaseState{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{clips}
     , moveSpeed_{moveSpeed}
@@ -20,7 +20,7 @@ MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::strin
 
 MoveStateBase::MoveStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName, float forwardMoveSpeed,
                              const std::string &forwardAnimName)
-    : context_{context}
+    : BaseState{context}
     , jointGroupName_{jointGroupName}
     , animationClips_{forwardAnimName}
     , moveSpeed_{forwardMoveSpeed, 0.0f, 0.0f}

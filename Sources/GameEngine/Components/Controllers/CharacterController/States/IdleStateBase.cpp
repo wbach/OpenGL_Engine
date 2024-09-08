@@ -9,7 +9,7 @@ namespace Components
 {
 IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName,
                              std::optional<std::string> jointGroupName)
-    : context_{context}
+    : BaseState{context}
     , idleAnimName_{idleAnimName}
     , jointGroupName_{jointGroupName}
 {

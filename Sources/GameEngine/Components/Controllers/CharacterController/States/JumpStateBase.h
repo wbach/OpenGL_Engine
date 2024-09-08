@@ -15,6 +15,8 @@ class GameObject;
 namespace Components
 {
 struct FsmContext;
+class Rigidbody;
+
 struct JumpStateBase
 {
 public:
@@ -39,23 +41,16 @@ public:
     }
 
 private:
-    void getRigidbodyIdsWhenReady();
-    void createGroundChecker();
     void subscribeForGroundCollision();
     void unsubscribeCollisionCallback();
-    void subscribeForGroundCollisionWhenIsOnAir();
+    void sendEndJumptEvent();
 
 private:
     FsmContext& context_;
     std::optional<std::string> jointGroupName_;
     std::vector<CharacterControllerEvent> queue;
-    GameObject* groundChecker;
     
     Physics::CollisionSubId collisionSubId;
-    float collisionSphereRadius{0.3f};
-    Physics::RigidbodyId groundCheckerRigidbodyId;
-    Physics::RigidbodyId playerRigidbodyId;
-    float lastL{0.f};
 };
 }  // namespace Components
 }  // namespace GameEngine

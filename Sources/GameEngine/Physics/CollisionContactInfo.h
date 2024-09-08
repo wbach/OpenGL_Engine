@@ -11,6 +11,7 @@ struct CollisionContactInfo
     vec3 pos2;
     uint32 rigidbodyId1;
     uint32 rigidbodyId2;
+    vec3 normal;
 };
 }  // namespace Physics
 }  // namespace GameEngine

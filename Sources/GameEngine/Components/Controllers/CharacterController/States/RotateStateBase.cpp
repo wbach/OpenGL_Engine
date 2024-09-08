@@ -12,11 +12,11 @@ namespace Components
 {
 RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName, float rotateSpeed,
                                  const RotateAnimationClips &rotateAnimationClips, CameraRotationPolicy cameraRotationPolicy)
-    : context_{context}
+    : BaseState{context}
     , jointGroupName_{jointGourpName}
     , rotateAnimationClips_{rotateAnimationClips}
     , rotateSpeed_{rotateSpeed}
-    , cameraComponent_{context_.gameObject.GetComponent<ThridPersonCameraComponent>()}
+    , cameraComponent_{context.gameObject.GetComponent<ThridPersonCameraComponent>()}
     , cameraRotationPolicy_{cameraRotationPolicy}
 {
 }

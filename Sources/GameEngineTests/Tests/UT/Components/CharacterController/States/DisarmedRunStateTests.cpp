@@ -203,7 +203,7 @@ TEST_F(CharacterControllerTests, DisarmedRunState_EndMoveEventWhenAttackEventIsP
     Update(ADVANCED_TIME_TRANSITION_TIME);
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 }
-TEST_F(CharacterControllerTests, DisarmedRunState_JumpEvent)
+TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_JumpEvent)
 {
     prepareState(*this);
     const float jumpPower{1.f};

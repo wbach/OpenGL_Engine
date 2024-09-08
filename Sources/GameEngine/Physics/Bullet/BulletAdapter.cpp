@@ -9,6 +9,7 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "Container.h"
 #include "Converter.h"
+#include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "MeshShape.h"
 #include "Rigidbodies.h"
@@ -568,14 +569,63 @@ CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyI
 
 void BulletAdapter::celarCollisionCallback(const CollisionSubId& id)
 {
-    addTask(
-        [this, id]()
+    addTask([this, id]() { impl_->collisionContactInfoSub_.erase(*id); });
+}
+
+CollisionSubId BulletAdapter::contactTest(const RigidbodyId& id, CollisionsCallback resultCallback)
+{
+    return addTask([this, id, resultCallback]() { contactTestImpl(id, resultCallback); });
+}
+void BulletAdapter::contactTestImpl(const RigidbodyId& id, CollisionsCallback resultCallback)
+{
+    if (not id)
+        return;
+
+    if (auto rigidbody = impl_->rigidbodies.get(id))
+    {
+        std::vector<CollisionContactInfo> resultCallbackData;
+        CollisionResultCallback singleCollisionCallback([&resultCallbackData](const auto& info)
+                                                        { resultCallbackData.push_back(info); });
+        btDynamicWorld->contactTest(&*rigidbody->btRigidbody_, singleCollisionCallback);
+        DEBUG_LOG("Call contact test callback");
+        resultCallback(resultCallbackData);
+    }
+}
+
+void BulletAdapter::checkCollisionExit(const RigidbodyId & rigidbodyId, std::function<void ()> callback, IdType taskId, int &maxDepth)
+{
+    auto check2 = [this, rigidbodyId, callback, taskId, maxDepth](const auto& collisions) mutable
+    {
+        if (collisions.empty())
         {
-            if (id)
-            {
-                impl_->collisionContactInfoSub_.erase(*id);
-            }
-        });
+            callback();
+        }
+        else if (maxDepth > 0)
+        {
+            --maxDepth;
+            addTask([this, rigidbodyId, callback, taskId, maxDepth]() mutable { checkCollisionExit(rigidbodyId, callback, taskId, maxDepth); }, taskId);
+        }
+    };
+
+    contactTestImpl(rigidbodyId, check2);
+}
+void BulletAdapter::cancelContactTest(const CollisionSubId& id)
+{
+    if (id)
+        removeTask(*id);
+}
+CollisionSubId BulletAdapter::subscribeForCollisionExit(const RigidbodyId& rigidbodyId, std::function<void()> callback)
+{
+    auto id = taskIdPool_.getId();
+    return addTask([this, rigidbodyId, callback, id]()
+    {
+        int maxDepth = 3;
+        checkCollisionExit(rigidbodyId, callback, id, maxDepth);
+    },
+    id);
+}
+void BulletAdapter::unsubscribeForCollisionExit(const CollisionSubId&)
+{
 }
 void BulletAdapter::createWorld()
 {
@@ -584,7 +634,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                                       collisionConfiguration.get());
+                                                               collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
@@ -602,10 +652,18 @@ void BulletAdapter::clearRigidbody(const Rigidbody& rigidbody)
     }
 }
 
-void BulletAdapter::addTask(Task::Action action)
+IdType BulletAdapter::addTask(Task::Action action, std::optional<IdType> reusedId)
 {
     std::lock_guard<std::mutex> lk(tasksMutex);
-    tasks.emplace_back(action);
+    auto id = reusedId ? *reusedId : taskIdPool_.getId();
+    tasks.insert({id, action});
+    return id;
+}
+
+void BulletAdapter::removeTask(IdType id)
+{
+    std::lock_guard<std::mutex> lk(tasksMutex);
+    tasks.erase(id);
 }
 
 void BulletAdapter::executeTasks()
@@ -616,11 +674,12 @@ void BulletAdapter::executeTasks()
         tmp = std::move(tasks);
     }
 
-    for (auto& task : tmp)
+    for (auto& [_, task] : tmp)
     {
         task.execute();
     }
 }
+
 }  // namespace Bullet
 
 }  // namespace Physics

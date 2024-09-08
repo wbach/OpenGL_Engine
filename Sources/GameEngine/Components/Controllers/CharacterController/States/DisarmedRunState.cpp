@@ -45,6 +45,5 @@ DisarmedRunState::handle(const AttackEvent &e)
 
     return Utils::StateMachine::Nothing{};
 }
-
 }  // namespace Components
 }  // namespace GameEngine
