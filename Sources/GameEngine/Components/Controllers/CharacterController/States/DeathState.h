@@ -81,6 +81,8 @@ public:
     void onEnter(DrawArrowWalkState&, const DeathEvent&);
     void onEnter(DrawArrowWalkAndRotateState&, const DeathEvent&);
     void onEnter(DrawArrowCrouchRotateState&, const DeathEvent&);
+    void onEnter(DisarmedFallingState&, const DeathEvent&);
+    void onEnter(ArmedFallingState&, const DeathEvent&);
     void onEnter(DrawArrowCrouchWalkAndRotateState&, const DeathEvent&);
 
 private:

@@ -18,6 +18,7 @@
 #include "States/ArmedCrouchRotateState.h"
 #include "States/ArmedCrouchWalkAndRotateState.h"
 #include "States/ArmedCrouchWalkState.h"
+#include "States/ArmedFallingState.h"
 #include "States/ArmedIdleCrouchState.h"
 #include "States/ArmedIdleState.h"
 #include "States/ArmedRotateState.h"
@@ -40,6 +41,7 @@
 #include "States/DisarmedCrouchRotateState.h"
 #include "States/DisarmedCrouchWalkAndRotateState.h"
 #include "States/DisarmedCrouchWalkState.h"
+#include "States/DisarmedFallingState.h"
 #include "States/DisarmedIdleCrouchState.h"
 #include "States/DisarmedIdleState.h"
 #include "States/DisarmedRotateState.h"
@@ -73,7 +75,6 @@
 #include "States/RunArmedChangeState.h"
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
-
 
 namespace GameEngine
 {
@@ -153,6 +154,8 @@ using CharacterControllerFsm =
                             DrawArrowCrouchWalkState,
                             DrawArrowCrouchRotateState,
                             DrawArrowCrouchWalkAndRotateState,
+                            DisarmedFallingState,
+                            ArmedFallingState,
                             DeathState
                             >;
 }

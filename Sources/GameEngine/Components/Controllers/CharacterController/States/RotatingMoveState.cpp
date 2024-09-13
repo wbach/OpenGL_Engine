@@ -20,6 +20,7 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
 
 void RotatingMoveState::update(float dt)
 {
+    BaseState::update(dt);
     // /*DISABLED*/ DEBUG_LOG("Update");
     moveCameraRotateRigidbody();
 

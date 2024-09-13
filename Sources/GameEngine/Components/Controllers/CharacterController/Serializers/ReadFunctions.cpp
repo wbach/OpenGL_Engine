@@ -97,6 +97,7 @@ void Read(const TreeNode& node, StateClipsNames& result)
     Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
     Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
     Read(node.getChild(CSTR_ANIMATION_DOGE), result.doge);
+    Read(node.getChild(CSTR_FALLINING_IDLE_ANIMATION), result.falling);
 }
 
 void Read(const TreeNode& node, AimClips& result)

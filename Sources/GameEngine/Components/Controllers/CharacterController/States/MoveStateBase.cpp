@@ -148,8 +148,9 @@ void MoveStateBase::update(const SprintStateChangeEvent &event)
     onEnter(event);
 }
 
-void MoveStateBase::update(float)
+void MoveStateBase::update(float dt)
 {
+    BaseState::update(dt);
     // /*DISABLED*/ DEBUG_LOG("Update");
     if (not context_.animator.isAnimationPlaying(currentAnimName_))
     {

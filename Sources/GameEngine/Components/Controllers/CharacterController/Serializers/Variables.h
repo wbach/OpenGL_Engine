@@ -35,6 +35,7 @@ extern const std::string CSTR_JUMP_ANIMATION;
 extern const std::string CSTR_IDLE_MAIN;
 extern const std::string CSTR_HURT_ANIMATION;
 extern const std::string CSTR_DEATH_ANIMATION;
+extern const std::string CSTR_FALLINING_IDLE_ANIMATION;
 extern const std::string CSTR_DRAW_ARROW_ANIMATION;
 extern const std::string CSTR_RECOIL_ARROW_ANIMATION;
 extern const std::string CSTR_AIM_IDLE_ANIMATION;

@@ -2,16 +2,14 @@
 
 #include "../CharacterController.h"
 #include "../FsmContext.h"
-#include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
-#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
 namespace Components
 {
 JumpStateBase::JumpStateBase(FsmContext &context, const std::optional<std::string> &jointGroupName)
-    : context_{context}
+    : BaseState{context, -10.f}
     , jointGroupName_{jointGroupName}
 {
 }
@@ -24,10 +22,6 @@ void JumpStateBase::onEnter(const JumpEvent &event)
         context_.animator.ChangeAnimation(context_.animClipNames.disarmed.jump, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, jointGroupName_);
     }
-}
-
-void JumpStateBase::update(float)
-{
 }
 
 void JumpStateBase::onLeave(const EndJumpEvent &)

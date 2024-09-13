@@ -93,6 +93,8 @@ void RotateStateBase::onEnter(const EndMoveRightEvent &)
 
 void RotateStateBase::update(float deltaTime)
 {
+    BaseState::update(deltaTime);
+
     if (cameraComponent_ and cameraComponent_->fsmContext)
     {
         cameraComponent_->fsmContext->yaw += context_.rotateStateData_.rotateSpeed_ * deltaTime;

@@ -82,6 +82,7 @@ void write(TreeNode& node, const StateClipsNames& names)
     write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
     write(node.addChild(CSTR_ANIMATION_DOGE), names.doge);
     write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
+    write(node.addChild(CSTR_FALLINING_IDLE_ANIMATION), names.falling);
 }
 
 void write(TreeNode& node, const AimClips& names)

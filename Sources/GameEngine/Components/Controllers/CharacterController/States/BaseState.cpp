@@ -5,8 +5,11 @@
 
 namespace GameEngine::Components
 {
-BaseState::BaseState(FsmContext &context)
+float DEFAULT_FALLING_DETECT_THRESHOLD = -2.2f;
+
+BaseState::BaseState(FsmContext &context, float fallingDetectThreshold)
     : context_{context}
+    , fallingDetectThreshold{fallingDetectThreshold}
 {
 }
 void BaseState::update(const TriggerJumpEvent &event)
@@ -18,5 +21,15 @@ void BaseState::update(const TriggerJumpEvent &event)
     // To do cancel subscribtion?
     context_.physicsApi.subscribeForCollisionExit(
         context_.rigidbody.GetId(), [&]() { context_.characterController.pushEventToQueue(JumpEvent{event.power}); });
+}
+
+void BaseState::update(float)
+{
+    //DEBUG_LOG("context_.rigidbody.GetVelocity().y=" + std::to_string(context_.rigidbody.GetVelocity().y));
+    if (context_.rigidbody.GetVelocity().y < fallingDetectThreshold)
+    {
+        //DEBUG_LOG("Trigger");
+        //context_.characterController.pushEventToFrontQueue(StartFallingEvent{});
+    }
 }
 }  // namespace GameEngine::Components

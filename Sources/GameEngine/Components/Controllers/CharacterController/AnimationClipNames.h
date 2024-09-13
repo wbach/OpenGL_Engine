@@ -57,6 +57,7 @@ struct StateClipsNames
     std::string sprint;
     std::string doge;
     std::string dogeJump;
+    std::string falling;
 
     std::vector<AttackAnimation> attack;
 };

@@ -177,6 +177,8 @@ void CharacterController::Init()
             DrawArrowCrouchWalkState(context),
             DrawArrowCrouchRotateState(context),
             DrawArrowCrouchWalkAndRotateState(context),
+            DisarmedFallingState(context),
+            ArmedFallingState(context),
             DeathState(context));
         // clang-format on
 

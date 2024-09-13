@@ -102,10 +102,17 @@ struct AimStopEvent
 struct CrouchChangeStateEvent
 {
 };
+struct StartFallingEvent
+{
+};
+struct EndFallingEvent
+{
+};
 using CharacterControllerEvent =
     std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
                  SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
                  RotateTargetEvent, EndRotationEvent, TriggerJumpEvent, JumpEvent, EndJumpEvent, AttackEvent, EndAttackEvent,
                  DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent, ReloadArrowEvent,
-                 AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent, ChangeAnimEvent>;
+                 AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent, ChangeAnimEvent,
+                 StartFallingEvent, EndFallingEvent>;
 }  // namespace GameEngine

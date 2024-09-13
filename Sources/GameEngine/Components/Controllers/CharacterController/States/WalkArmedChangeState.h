@@ -4,7 +4,6 @@
 #include "ArmedChangeStateBase.h"
 #include "RotatingMoveState.h"
 
-
 namespace GameEngine
 {
 namespace Components
@@ -32,6 +31,7 @@ class WalkArmedChangeState
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<WalkAndRotateArmedChangeState>>,
           Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<CrouchWalkArmedChangeState>>,
+          Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<ArmedFallingState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::Update>,
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::Update>,  // quque?
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Update>>       // queue?

@@ -3,7 +3,6 @@
 #include "DrawArrowStateBase.h"
 #include "MoveAndRotateStateBase.h"
 
-
 namespace GameEngine
 {
 namespace Components
@@ -30,6 +29,7 @@ class DrawArrowWalkAndRotateState
           Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DrawArrowRotateState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchWalkAndRotateState>>,
+          Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<ArmedFallingState>>,
           Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkAndRotateState>>>
 {
@@ -41,7 +41,7 @@ public:
     using MoveAndRotateStateBase::update;
 
     void onEnter(ArmedSprintAndRotateState&, const DrawArrowEvent&);
-   // void onEnter(ArmedCrouchWalkAndRotateState&, const DrawArrowEvent&);
+    // void onEnter(ArmedCrouchWalkAndRotateState&, const DrawArrowEvent&);
 
     void onEnter(const DrawArrowEvent&);
     void onEnter(const ReloadArrowEvent&);

@@ -36,6 +36,7 @@ const std::string CSTR_JUMP_ANIMATION            = "jump";
 const std::string CSTR_IDLE_MAIN                 = "mainIdle";
 const std::string CSTR_HURT_ANIMATION            = "hurt";
 const std::string CSTR_DEATH_ANIMATION           = "death";
+const std::string CSTR_FALLINING_IDLE_ANIMATION  = "fallingIdle";
 const std::string CSTR_DRAW_ARROW_ANIMATION      = "drawArrow";
 const std::string CSTR_RECOIL_ARROW_ANIMATION    = "recoilArrow";
 const std::string CSTR_AIM_IDLE_ANIMATION        = "aimIdle";

@@ -26,6 +26,7 @@ class ArmedAttackAndRotateState
           Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
           Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
           Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>>,
+          Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<ArmedFallingState>>,
           Utils::StateMachine::On<EndRotationEvent, Utils::StateMachine::TransitionTo<ArmedAttackState>>,
           Utils::StateMachine::On<EndAttackEvent, Utils::StateMachine::TransitionTo<ArmedRotateState>>>
 {

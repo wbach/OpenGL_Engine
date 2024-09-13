@@ -7,6 +7,7 @@
 
 #include "../CharacterControllerEvents.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "BaseState.h"
 
 namespace GameEngine
 {
@@ -17,12 +18,11 @@ namespace Components
 struct FsmContext;
 class Rigidbody;
 
-struct JumpStateBase
+struct JumpStateBase : public BaseState
 {
 public:
     JumpStateBase(FsmContext&, const std::optional<std::string>&);
     void onEnter(const JumpEvent&);
-    void update(float);
     void onLeave(const EndJumpEvent&);
 
     template <typename Event>
@@ -46,7 +46,6 @@ private:
     void sendEndJumptEvent();
 
 private:
-    FsmContext& context_;
     std::optional<std::string> jointGroupName_;
     std::vector<CharacterControllerEvent> queue;
     

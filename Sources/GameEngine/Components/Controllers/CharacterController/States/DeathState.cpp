@@ -340,6 +340,16 @@ void DeathState::onEnter(DrawArrowCrouchRotateState &, const DeathEvent &)
     setAnim(context_.animClipNames.armed.posture.crouched.death);
 }
 
+void DeathState::onEnter(ArmedFallingState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.posture.stand.death);
+}
+
+void DeathState::onEnter(DisarmedFallingState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.disarmed.posture.stand.death);
+}
+
 void DeathState::onEnter(DrawArrowCrouchWalkAndRotateState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.armed.posture.crouched.death);

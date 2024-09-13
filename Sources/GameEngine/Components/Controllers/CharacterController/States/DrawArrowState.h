@@ -21,21 +21,22 @@ class DrawArrowState
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<AimStartEvent, Utils::StateMachine::TransitionTo<AimState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DrawArrowCrouchState>>,
+          Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<ArmedFallingState>>,
           Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedIdleState>>>
 {
 public:
-    DrawArrowState(FsmContext&);
+    DrawArrowState(FsmContext &);
 
     using DrawArrowStateBase::onEnter;
-    void onEnter(const EndRotationEvent&);
-    void onEnter(const EndForwardMoveEvent&);
-    void onEnter(const EndBackwardMoveEvent&);
-    void onEnter(const CrouchChangeStateEvent&);
+    void onEnter(const EndRotationEvent &);
+    void onEnter(const EndForwardMoveEvent &);
+    void onEnter(const EndBackwardMoveEvent &);
+    void onEnter(const CrouchChangeStateEvent &);
     void onEnter(const EndMoveLeftEvent &);
     void onEnter(const EndMoveRightEvent &);
 
-    void onLeave(const AimStopEvent&);
-    void onLeave(const WeaponStateEvent&);
+    void onLeave(const AimStopEvent &);
+    void onLeave(const WeaponStateEvent &);
 };
 }  // namespace Components
 }  // namespace GameEngine

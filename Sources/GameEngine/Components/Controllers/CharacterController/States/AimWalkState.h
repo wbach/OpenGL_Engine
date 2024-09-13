@@ -7,28 +7,28 @@ namespace GameEngine
 {
 namespace Components
 {
-class AimWalkState
-    : public AimStateBase,
-      public MoveStateBase,
-      public Utils::StateMachine::Will<
-          Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
-          Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
-          Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
-          Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
-          Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
-          Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
-          Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
-          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<AimState>>,
-          Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
-          Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
+class AimWalkState : public AimStateBase,
+                     public MoveStateBase,
+                     public Utils::StateMachine::Will<
+                         Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+                         Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>,
+                         Utils::StateMachine::On<MoveForwardEvent, Utils::StateMachine::Update>,
+                         Utils::StateMachine::On<MoveBackwardEvent, Utils::StateMachine::Update>,
+                         Utils::StateMachine::On<MoveLeftEvent, Utils::StateMachine::Update>,
+                         Utils::StateMachine::On<MoveRightEvent, Utils::StateMachine::Update>,
+                         Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<WalkArmedChangeState>>,
+                         Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+                         Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+                         Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<AimWalkAndRotateState>>,
+                         Utils::StateMachine::On<SprintStateChangeEvent, Utils::StateMachine::TransitionTo<ArmedSprintState>>,
+                         Utils::StateMachine::On<AttackEvent, Utils::StateMachine::TransitionTo<RecoilWalkState>>,
+                         Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
+                         Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<AimState>>,
+                         Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<AimState>>,
+                         Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<AimState>>,
+                         Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<AimCrouchWalkState>>,
+                         Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<ArmedFallingState>>,
+                         Utils::StateMachine::On<AimStopEvent, Utils::StateMachine::TransitionTo<ArmedWalkState>>>
 {
 public:
     AimWalkState(FsmContext&);
