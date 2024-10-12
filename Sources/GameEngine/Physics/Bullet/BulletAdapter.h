@@ -88,6 +88,7 @@ private:
     bool simualtePhysics_;
 
     using Tasks = std::unordered_map<IdType, Task>;
+    std::mutex dynamicWorldMutex;
     std::mutex tasksMutex;
     Tasks tasks;
 

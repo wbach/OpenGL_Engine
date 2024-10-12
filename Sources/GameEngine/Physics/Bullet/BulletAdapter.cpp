@@ -70,7 +70,10 @@ void BulletAdapter::Simulate(float deltaTime)
 
     if (simualtePhysics_)
     {
-        btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
+        {
+            std::lock_guard<std::mutex> lk(dynamicWorldMutex);
+            btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
+        }
 
         impl_->rigidbodies.dynamic_.foreach (
             [](auto, auto& rigidbody)
@@ -119,11 +122,11 @@ void BulletAdapter::Simulate(float deltaTime)
                                            });
                 }
 
-                auto finalCallback = [&]
+                auto finalCallback = [&, cd = collisionDetection]
                 {
-                    collisionDetection.callback(result);
+                    cd.callback(result);
 
-                    if (collisionDetection.type == CollisionDetection::Type::single)
+                    if (cd.type == CollisionDetection::Type::single)
                     {
                         idToRemove.push_back(subId);
                     }
@@ -353,6 +356,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     body.btRigidbody_->setCollisionFlags(body.btRigidbody_->getCollisionFlags() | flags);
     body.btRigidbody_->setFriction(1);
     body.shapeOwner = true;
+    std::lock_guard<std::mutex> lk(dynamicWorldMutex);
     btDynamicWorld->addRigidBody(body.btRigidbody_.get());
     btDynamicWorld->updateSingleAabb(body.btRigidbody_.get());
     return impl_->rigidbodies.insert(std::move(body), isStatic);
@@ -648,7 +652,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                                       collisionConfiguration.get());
+                                                               collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();
