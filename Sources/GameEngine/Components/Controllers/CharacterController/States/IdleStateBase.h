@@ -17,6 +17,7 @@ public:
 
     using BaseState::update;
 
+    void onEnter(const GroundDetectionEvent&);
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const EquipEndStateEvent&);
     void onEnter(const DisarmEndStateEvent&);

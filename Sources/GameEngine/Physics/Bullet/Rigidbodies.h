@@ -19,7 +19,7 @@ public:
     Rigidbody* get(const RigidbodyId&);
     RigidbodyId insert(Rigidbody, IsStatic);
     void clear();
-    void foreach (std::function<void(Rigidbody&)>);
+    void foreach (std::function<void(IdType, Rigidbody&)>);
     void erase(IdType);
     std::optional<IsStatic> isStatic(IdType) const;
 

@@ -118,5 +118,19 @@ string to_string(const std::optional<string> &maybeValue)
     }
     return "-";
 }
+template <>
+string to_string(const std::vector<string>& values)
+{
+    std::string result;
+    for (const auto& value : values)
+    {
+        result += value + ",";
+    }
+    if (not result.empty())
+    {
+        result.pop_back();
+    }
+    return result;
+}
 
 }  // namespace std

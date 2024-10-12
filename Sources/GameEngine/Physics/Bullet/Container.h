@@ -59,12 +59,12 @@ public:
         std::lock_guard<std::mutex> lk(mutex);
         values.clear();
     }
-    void foreach (std::function<void(Type&)> f)
+    void foreach (std::function<void(IdType, Type&)> f)
     {
         std::lock_guard<std::mutex> lk(mutex);
-        for (auto& [_, value] : values)
+        for (auto& [id, value] : values)
         {
-            f(value);
+            f(id, value);
         }
     }
 

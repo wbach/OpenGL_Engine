@@ -17,12 +17,14 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     , parent_(nullptr)
     , name_(name)
     , isStarted{false}
+    , isAwakened{false}
     , id_(idPool.getId(maybeId))
     , componentFactory_(componentFactory)
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
-    isStartedSub = componentController_.RegisterFunction(id_, Components::FunctionType::OnStart, [this]() { isStarted = true; });
+    isStartedSub  = componentController_.RegisterFunction(id_, Components::FunctionType::OnStart, [this]() { isStarted = true; });
+    isAwakenedSub = componentController_.RegisterFunction(id_, Components::FunctionType::Awake, [this]() { isAwakened = true; });
 }
 
 GameObject::~GameObject()
@@ -43,6 +45,8 @@ GameObject::~GameObject()
     DEBUG_LOG(name_);
     if (isStartedSub)
         componentController_.UnRegisterFunction(id_, Components::FunctionType::OnStart, isStartedSub);
+    if (isAwakenedSub)
+        componentController_.UnRegisterFunction(id_, Components::FunctionType::Awake, isAwakenedSub);
 }
 Components::IComponent* GameObject::InitComponent(const TreeNode& node)
 {

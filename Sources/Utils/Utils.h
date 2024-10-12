@@ -1,7 +1,9 @@
 #pragma once
+#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
+
 
 namespace Utils
 {
@@ -26,4 +28,11 @@ int StringToInt(const std::string& str);
 bool StringToBool(const std::string& str);
 std::string BoolToString(bool);
 std::string toLower(const std::string&);
+template <typename TCont, typename Pred>
+auto Filter(const TCont& cont, Pred p)
+{
+    auto out = cont;
+    std::erase_if(out, p);
+    return out;
+}
 }  // namespace Utils

@@ -36,10 +36,10 @@ public:
                      Input::InputManager&, IResourceManager&, Renderer::RenderersManager&, CameraWrapper&,
                      Physics::IPhysicsApi&, GuiElementFactory&, Utils::Time::TimerService&);
 
-    template <typename Component>
-    std::unique_ptr<IComponent> Create(GameObject& gameObject)
+    template <typename Component, typename... Args>
+    std::unique_ptr<IComponent> Create(GameObject& gameObject, Args && ... args)
     {
-        return std::make_unique<Component>(context_, gameObject);
+        return std::make_unique<Component>(context_, gameObject, std::forward<Args>(args)...);
     }
 
     std::unique_ptr<IComponent> Create(const TreeNode&, GameObject&);

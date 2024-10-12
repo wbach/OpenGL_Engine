@@ -31,13 +31,9 @@ PoseUpdateAction StateMachine::update(float deltaTime)
 
 void StateMachine::handle(const IncomingEvent& event)
 {
-    DEBUG_LOG("handle event");
     if (currentState_)
     {
-        std::visit(visitor{[&](const auto& event) {
-                       currentState_->handle(event);
-                   }},
-                   event);
+        std::visit(visitor{[&](const auto& event) { currentState_->handle(event); }}, event);
     }
 }
 }  // namespace Components

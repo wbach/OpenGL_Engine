@@ -53,8 +53,8 @@ public:
     template <class T>
     T* GetComponentInChild();
 
-    template <class T>
-    T& AddComponent();
+    template <class T, typename... Args>
+    T& AddComponent(Args&&...);
 
     Components::IComponent* InitComponent(const TreeNode&);
 
@@ -97,7 +97,9 @@ protected:
     std::optional<uint32> localTransfromSubscribtion_;
     GameObjects children_;
     bool isStarted;
+    bool isAwakened;
     IdType isStartedSub;
+    IdType isAwakenedSub;
 
 private:
     IdType id_;
@@ -159,10 +161,14 @@ inline T* GameObject::GetComponentInChild()
     return nullptr;
 }
 
-template <class T>
-inline T& GameObject::AddComponent()
+template <class T, typename... Args>
+inline T& GameObject::AddComponent(Args&&... args)
 {
-    auto component = componentFactory_.Create<T>(*this);
+    auto component = componentFactory_.Create<T>(*this, std::forward<Args>(args)...);
+    if (isStarted or isAwakened)
+    {
+        component->ReqisterFunctions();
+    }
     components_.push_back(std::move(component));
     return *static_cast<T*>(components_.back().get());
 }

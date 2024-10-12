@@ -8,6 +8,7 @@ enum class FunctionType
 {
     Awake,
     OnStart,
+    PostStart,
     Update,
     PostUpdate,
     AlwaysUpdate,

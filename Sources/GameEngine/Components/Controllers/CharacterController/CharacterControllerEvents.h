@@ -53,16 +53,9 @@ struct RotateTargetEvent
 struct EndRotationEvent
 {
 };
-struct TriggerJumpEvent
-{
-    float power{1.f};
-};
 struct JumpEvent
 {
     float power{1.f};
-};
-struct EndJumpEvent
-{
 };
 struct AttackEvent
 {
@@ -105,14 +98,14 @@ struct CrouchChangeStateEvent
 struct StartFallingEvent
 {
 };
-struct EndFallingEvent
+struct GroundDetectionEvent
 {
 };
 using CharacterControllerEvent =
     std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
                  SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
-                 RotateTargetEvent, EndRotationEvent, TriggerJumpEvent, JumpEvent, EndJumpEvent, AttackEvent, EndAttackEvent,
+                 RotateTargetEvent, EndRotationEvent, JumpEvent, GroundDetectionEvent, AttackEvent, EndAttackEvent,
                  DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent, ReloadArrowEvent,
                  AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent, ChangeAnimEvent,
-                 StartFallingEvent, EndFallingEvent>;
+                 StartFallingEvent>;
 }  // namespace GameEngine

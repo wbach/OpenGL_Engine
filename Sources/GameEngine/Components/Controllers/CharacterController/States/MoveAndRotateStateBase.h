@@ -20,7 +20,7 @@ public:
                            const RotateAnimationClips &);
 
     void onEnter(const SprintStateChangeEvent &);
-    void onEnter(const EndJumpEvent &);
+    void onEnter(const GroundDetectionEvent &);
     void onEnter(const MoveForwardEvent &);
     void onEnter(const MoveBackwardEvent &);
     void onEnter(const MoveLeftEvent &);

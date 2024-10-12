@@ -6,8 +6,8 @@
 #include <string>
 
 #include "../CharacterControllerEvents.h"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "BaseState.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 
 namespace GameEngine
 {
@@ -23,7 +23,8 @@ struct JumpStateBase : public BaseState
 public:
     JumpStateBase(FsmContext&, const std::optional<std::string>&);
     void onEnter(const JumpEvent&);
-    void onLeave(const EndJumpEvent&);
+    void onLeave(const GroundDetectionEvent&);
+    void onLeave();
 
     template <typename Event>
     void pushEventToQueue(const Event& event)
@@ -41,14 +42,10 @@ public:
     }
 
 private:
-    void subscribeForGroundCollision();
-    void unsubscribeCollisionCallback();
-    void sendEndJumptEvent();
-
-private:
     std::optional<std::string> jointGroupName_;
     std::vector<CharacterControllerEvent> queue;
-    
+    float playerCapsuleRadius{0.25f};
+
     Physics::CollisionSubId collisionSubId;
 };
 }  // namespace Components

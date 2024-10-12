@@ -24,10 +24,6 @@ namespace Input
 {
 class InputManager;
 }  // namespace Input
-namespace Physics
-{
-class IPhysicsApi;
-}  // namespace Physics
 
 namespace GameEngine
 {

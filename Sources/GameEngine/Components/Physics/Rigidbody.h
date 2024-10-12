@@ -47,6 +47,7 @@ public:
     void ApplyImpulse(const vec3&);
     void IncreaseVelocity(const vec3& v);
     void SetAsVisualizatedObject();
+    Rigidbody& callWhenReady(std::function<void()>);
 
     float GetMass() const;
     bool IsStatic() const;
@@ -83,6 +84,8 @@ private:
     std::optional<IdType> worldTransformSubscriptionId_;
 
     Physics::RigidbodyProperties rigidbodyPropierties;
+
+    std::vector<std::function<void()>> callWhenReady_;
 
 public:
     static void registerReadFunctions();

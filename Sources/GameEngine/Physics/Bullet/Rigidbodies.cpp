@@ -18,7 +18,7 @@ void Rigidbodies::clear()
     dynamic_.clear();
     static_.clear();
 }
-void Rigidbodies::foreach (std::function<void(Rigidbody&)> f)
+void Rigidbodies::foreach (std::function<void(IdType, Rigidbody&)> f)
 {
     dynamic_.foreach (f);
     static_.foreach (f);

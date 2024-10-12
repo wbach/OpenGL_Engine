@@ -1,5 +1,10 @@
 #include "CharacterControllerTests.h"
 
+MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for CollisionDetection")
+{
+    return (arg.action == action);
+}
+
 CharacterControllerTests::CharacterControllerTests()
     : BaseComponentTestSchould()
     , sut_(context_, obj_)
@@ -13,6 +18,14 @@ CharacterControllerTests::CharacterControllerTests()
     EXPECT_CALL(physicsApiMock_, CreateSphereColider(_, _, _)).WillOnce(Return(shapeId));
     EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _)).WillOnce(Return(rigidbodyid));
 
+    EXPECT_CALL(physicsApiMock_,
+                setCollisionCallback(_, CollisionDetectionActionMatcher(Physics::CollisionDetection::Action::onExit)))
+        .WillOnce(DoAll(SaveArg<1>(&groundExitSub.second), Return(groundExitSub.first)));
+
+    EXPECT_CALL(physicsApiMock_,
+                setCollisionCallback(_, CollisionDetectionActionMatcher(Physics::CollisionDetection::Action::onEnter)))
+        .WillOnce(DoAll(SaveArg<1>(&groundEnterSub.second), Return(groundEnterSub.first)));
+
     animator_  = &obj_.AddComponent<Animator>();
     rigidbody_ = &obj_.AddComponent<Rigidbody>();
 
@@ -20,6 +33,12 @@ CharacterControllerTests::CharacterControllerTests()
     obj_.AddComponent<SphereShape>();
 
     createDummySkeleton();
+    initAnimations();
+
+    auto weaponPtr =
+        std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
+    weaponPtr->AddComponent<BowPoseUpdater>();
+    obj_.AddChild(std::move(weaponPtr));
 
     for (auto& component : obj_.GetComponents())
     {
@@ -30,7 +49,27 @@ CharacterControllerTests::CharacterControllerTests()
 
     componentController_.CallFunctions(FunctionType::Awake);
     componentController_.CallFunctions(FunctionType::OnStart);
+    componentController_.CallFunctions(FunctionType::PostStart);
 
+    sut_.Init();
+    gpuResourceLoader_.RuntimeGpuTasks();
+}
+
+void CharacterControllerTests::SetUp()
+{
+    EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
+    EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
+    EXPECT_CALL(inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
+
+    Update(ADVANCED_TIME_TRANSITION_TIME);  // To set first anim
+}
+
+void CharacterControllerTests::TearDown()
+{
+}
+
+void CharacterControllerTests::initAnimations()
+{
     auto& clips  = sut_.animationClipsNames_;
     clips.equip  = "equip";
     clips.disarm = "disarm";
@@ -58,8 +97,8 @@ CharacterControllerTests::CharacterControllerTests()
 
     clips.disarmed.movement.walk.forward  = "DWF";
     clips.disarmed.movement.walk.backward = "DWB";
-    clips.disarmed.movement.walk.left     = "DMRL";
-    clips.disarmed.movement.walk.right    = "DMRR";
+    clips.disarmed.movement.walk.left     = "DMWL";
+    clips.disarmed.movement.walk.right    = "DMWR";
 
     clips.disarmed.movement.crouch.forward  = "DCWF";
     clips.disarmed.movement.crouch.backward = "DCWB";
@@ -68,6 +107,7 @@ CharacterControllerTests::CharacterControllerTests()
 
     clips.disarmed.sprint = "DS";
     clips.disarmed.jump   = "DJ";
+    clips.disarmed.falling   = "DF";
 
     clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
@@ -96,8 +136,8 @@ CharacterControllerTests::CharacterControllerTests()
 
     clips.armed.movement.walk.forward  = "AWF";
     clips.armed.movement.walk.backward = "AWB";
-    clips.armed.movement.walk.left     = "AMRL";
-    clips.armed.movement.walk.right    = "AMRR";
+    clips.armed.movement.walk.left     = "AMWL";
+    clips.armed.movement.walk.right    = "AMWR";
 
     clips.armed.movement.crouch.forward  = "ACWF";
     clips.armed.movement.crouch.backward = "ACWB";
@@ -106,6 +146,7 @@ CharacterControllerTests::CharacterControllerTests()
 
     clips.armed.sprint = "AS";
     clips.armed.jump   = "AJ";
+    clips.armed.falling = "AF";
     clips.armed.attack.push_back({"A1", PlayStateType::idle});
     clips.armed.attack.push_back({"A2", PlayStateType::idle});
     clips.armed.attack.push_back({"A3", PlayStateType::idle});
@@ -125,6 +166,7 @@ CharacterControllerTests::CharacterControllerTests()
         addDummyClip(attackClip.name);
     }
     addDummyClip(clips.disarmed.jump);
+    addDummyClip(clips.disarmed.falling);
     addDummyClip(clips.disarmed.sprint);
     addDummyClip(clips.disarmed.posture.crouched.death);
     addDummyClip(clips.disarmed.posture.crouched.idle);
@@ -182,6 +224,8 @@ CharacterControllerTests::CharacterControllerTests()
 
     addDummyClip(clips.armed.jump);
     addDummyClip(clips.armed.sprint);
+    addDummyClip(clips.armed.falling);
+
     for (const auto& attackClip : clips.armed.attack)
     {
         addDummyClip(attackClip.name);
@@ -189,27 +233,6 @@ CharacterControllerTests::CharacterControllerTests()
 
     sut_.equipTimeStamp  = DUMMY_CLIP_LENGTH;
     sut_.disarmTimeStamp = DUMMY_CLIP_LENGTH;
-
-    auto weaponPtr =
-        std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
-    weaponPtr->AddComponent<BowPoseUpdater>();
-    obj_.AddChild(std::move(weaponPtr));
-
-    sut_.Init();
-    gpuResourceLoader_.RuntimeGpuTasks();
-}
-
-void CharacterControllerTests::SetUp()
-{
-    EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
-    EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
-    EXPECT_CALL(inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
-
-    Update(ADVANCED_TIME_TRANSITION_TIME);  // To set first anim
-}
-
-void CharacterControllerTests::TearDown()
-{
 }
 
 void CharacterControllerTests::createDummySkeleton()

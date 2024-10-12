@@ -90,7 +90,7 @@ void MoveAndRotateStateBase::onMoveInactivity()
     RotateStateBase::setCurrentAnim();
 }
 
-void MoveAndRotateStateBase::onEnter(const EndJumpEvent &event)
+void MoveAndRotateStateBase::onEnter(const GroundDetectionEvent &event)
 {
     MoveStateBase::onEnter(event);
 }

@@ -543,7 +543,7 @@ std::string to_string(const vec3i&);
 std::string to_string(const vec3&);
 std::string to_string(const vec4&);
 std::string to_string(const Quaternion&);
-std::string to_string(const glm::mat4& m);
+std::string to_string(const glm::mat4&);
 
 template <typename T>
 std::string to_string(const std::optional<T>& maybeValue)
@@ -554,8 +554,24 @@ std::string to_string(const std::optional<T>& maybeValue)
     }
     return "-";
 }
+template <typename T>
+std::string to_string(const std::vector<T>& values)
+{
+    std::string result;
+    for (const auto& value: values)
+    {
+        result += std::to_string(value) + "\n";
+    }
+    if (not result.empty())
+    {
+        result.pop_back();
+    }
+    return result;
+}
 template <>
-std::string to_string(const std::optional<std::string>& maybeValue);
+std::string to_string(const std::optional<std::string>&);
+template <>
+std::string to_string(const std::vector<std::string>&);
 }  // namespace std
 
 typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;

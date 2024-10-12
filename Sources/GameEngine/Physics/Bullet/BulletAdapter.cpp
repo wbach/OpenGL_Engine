@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <ranges>
 #include <unordered_map>
 
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
@@ -32,6 +33,7 @@ struct BulletAdapter::Pimpl
     Pimpl()
         : shapes_{shapesIdPool}
         , collisionContactInfoSub_{collisionContactInfoSubIdPool_}
+    //, monitoringContactInfoSub_{monitoringInfoSubIdPool_}
     {
     }
     Rigidbodies rigidbodies;
@@ -40,7 +42,7 @@ struct BulletAdapter::Pimpl
     Container<std::unique_ptr<Shape>> shapes_;
 
     Utils::IdPool collisionContactInfoSubIdPool_;
-    Container<std::pair<RigidbodyId, CollisionResultCallback>> collisionContactInfoSub_;
+    Container<std::pair<Rigidbody*, CollisionDetection>> collisionContactInfoSub_;
 
     bool visualizationForAllObjectEnabled{false};
 };
@@ -54,7 +56,7 @@ BulletAdapter::BulletAdapter()
 BulletAdapter::~BulletAdapter()
 {
     DEBUG_LOG("destructor");
-    impl_->rigidbodies.foreach ([&](auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
+    impl_->rigidbodies.foreach ([&](auto, auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
     impl_->rigidbodies.clear();
 }
 void BulletAdapter::EnableSimulation()
@@ -71,7 +73,7 @@ void BulletAdapter::Simulate(float deltaTime)
         btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
 
         impl_->rigidbodies.dynamic_.foreach (
-            [](auto& rigidbody)
+            [](auto, auto& rigidbody)
             {
                 auto rotatedOffset =
                     Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
@@ -91,18 +93,79 @@ void BulletAdapter::Simulate(float deltaTime)
                 }
             });
 
+        std::vector<IdType> idToRemove;
         impl_->collisionContactInfoSub_.foreach (
-            [this](auto& sub)
+            [this, &idToRemove](auto subId, auto& sub)
             {
-                auto& [rigidbodyId, callback] = sub;
-                if (auto rigidbody = impl_->rigidbodies.get(rigidbodyId))
+                auto& [rigidbody, collisionDetection] = sub;
+                auto result                           = contactTest(*rigidbody);
+                if (not collisionDetection.ignoredList.empty())
                 {
-                    if (rigidbody)
-                    {
-                        btDynamicWorld->contactTest(&*rigidbody->btRigidbody_, callback);
-                    }
+                    result = Utils::Filter(result,
+                                           [&ignoredList = collisionDetection.ignoredList,
+                                            predicate    = collisionDetection.predicate](const auto& collisionInfo)
+                                           {
+                                               auto iter1  = std::find_if(ignoredList.begin(), ignoredList.end(),
+                                                                          [&collisionInfo](auto ignoredRbId) {
+                                                                             return ignoredRbId == collisionInfo.rigidbodyId1 or
+                                                                                    ignoredRbId == collisionInfo.rigidbodyId2;
+                                                                         });
+                                               auto result = (iter1 != ignoredList.end());
+                                               if (result and predicate)
+                                               {
+                                                   return predicate(collisionInfo);
+                                               }
+                                               return result;
+                                           });
                 }
+
+                auto finalCallback = [&]
+                {
+                    collisionDetection.callback(result);
+
+                    if (collisionDetection.type == CollisionDetection::Type::single)
+                    {
+                        idToRemove.push_back(subId);
+                    }
+                };
+
+                switch (collisionDetection.action)
+                {
+                    case CollisionDetection::Action::any:
+                        finalCallback();
+                        break;
+                    case CollisionDetection::Action::onEnter:
+                        if (not result.empty() and not collisionDetection.lastContactState)
+                        {
+                            finalCallback();
+                        }
+                        break;
+                    case CollisionDetection::Action::onExit:
+                        if (result.empty() and collisionDetection.lastContactState)
+                        {
+                            finalCallback();
+                        }
+                        break;
+                    case CollisionDetection::Action::on:
+                        if (not result.empty())
+                        {
+                            finalCallback();
+                        }
+                        break;
+                    case CollisionDetection::Action::no:
+                        if (result.empty())
+                        {
+                            finalCallback();
+                        }
+                        break;
+                }
+                collisionDetection.lastContactState = not result.empty();
             });
+
+        for (auto id : idToRemove)
+        {
+            impl_->collisionContactInfoSub_.erase(id);
+        }
     }
 }
 const GraphicsApi::LineMesh& BulletAdapter::DebugDraw()
@@ -404,7 +467,7 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
     std::unordered_map<uint32, Rigidbody>::iterator iter;
 
     impl_->rigidbodies.foreach (
-        [shapeId](auto& rigidbody)
+        [shapeId](auto, auto& rigidbody)
         {
             if (rigidbody.shapeId == shapeId)
             {
@@ -534,7 +597,7 @@ void BulletAdapter::enableVisualizationForAllRigidbodys()
 {
     impl_->visualizationForAllObjectEnabled = true;
 
-    auto action = [](auto& rigidbody)
+    auto action = [](auto, auto& rigidbody)
     {
         auto& body = *rigidbody.btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
@@ -546,7 +609,7 @@ void BulletAdapter::disableVisualizationForAllRigidbodys()
 {
     impl_->visualizationForAllObjectEnabled = false;
 
-    auto action = [](auto& rigidbody)
+    auto action = [](auto, auto& rigidbody)
     {
         auto& body = *rigidbody.btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
@@ -555,12 +618,11 @@ void BulletAdapter::disableVisualizationForAllRigidbodys()
     impl_->rigidbodies.foreach (action);
 }
 
-CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyId,
-                                                   std::function<void(const CollisionContactInfo&)> callback)
+CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyId, const CollisionDetection& collision)
 {
-    if (impl_->rigidbodies.get(rigidBodyId))
+    if (auto rb = impl_->rigidbodies.get(rigidBodyId))
     {
-        return impl_->collisionContactInfoSub_.insert({*rigidBodyId, CollisionResultCallback(callback)});
+        return impl_->collisionContactInfoSub_.insert({rb, collision});
     }
 
     WARNING_LOG("rigidBodyId not found : " + std::to_string(rigidBodyId));
@@ -571,61 +633,13 @@ void BulletAdapter::celarCollisionCallback(const CollisionSubId& id)
 {
     addTask([this, id]() { impl_->collisionContactInfoSub_.erase(*id); });
 }
-
-CollisionSubId BulletAdapter::contactTest(const RigidbodyId& id, CollisionsCallback resultCallback)
+CollisionContactInfos BulletAdapter::contactTest(const Rigidbody& rigidbody)
 {
-    return addTask([this, id, resultCallback]() { contactTestImpl(id, resultCallback); });
-}
-void BulletAdapter::contactTestImpl(const RigidbodyId& id, CollisionsCallback resultCallback)
-{
-    if (not id)
-        return;
-
-    if (auto rigidbody = impl_->rigidbodies.get(id))
-    {
-        std::vector<CollisionContactInfo> resultCallbackData;
-        CollisionResultCallback singleCollisionCallback([&resultCallbackData](const auto& info)
-                                                        { resultCallbackData.push_back(info); });
-        btDynamicWorld->contactTest(&*rigidbody->btRigidbody_, singleCollisionCallback);
-        DEBUG_LOG("Call contact test callback");
-        resultCallback(resultCallbackData);
-    }
-}
-
-void BulletAdapter::checkCollisionExit(const RigidbodyId & rigidbodyId, std::function<void ()> callback, IdType taskId, int &maxDepth)
-{
-    auto check2 = [this, rigidbodyId, callback, taskId, maxDepth](const auto& collisions) mutable
-    {
-        if (collisions.empty())
-        {
-            callback();
-        }
-        else if (maxDepth > 0)
-        {
-            --maxDepth;
-            addTask([this, rigidbodyId, callback, taskId, maxDepth]() mutable { checkCollisionExit(rigidbodyId, callback, taskId, maxDepth); }, taskId);
-        }
-    };
-
-    contactTestImpl(rigidbodyId, check2);
-}
-void BulletAdapter::cancelContactTest(const CollisionSubId& id)
-{
-    if (id)
-        removeTask(*id);
-}
-CollisionSubId BulletAdapter::subscribeForCollisionExit(const RigidbodyId& rigidbodyId, std::function<void()> callback)
-{
-    auto id = taskIdPool_.getId();
-    return addTask([this, rigidbodyId, callback, id]()
-    {
-        int maxDepth = 3;
-        checkCollisionExit(rigidbodyId, callback, id, maxDepth);
-    },
-    id);
-}
-void BulletAdapter::unsubscribeForCollisionExit(const CollisionSubId&)
-{
+    CollisionContactInfos resultCallbackData;
+    CollisionResultCallback singleCollisionCallback([&resultCallbackData](const auto& info)
+                                                    { resultCallbackData.push_back(info); });
+    btDynamicWorld->contactTest(&*rigidbody.btRigidbody_, singleCollisionCallback);
+    return resultCallbackData;
 }
 void BulletAdapter::createWorld()
 {
@@ -634,7 +648,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                               collisionConfiguration.get());
+                                                                       collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();

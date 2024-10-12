@@ -60,7 +60,7 @@ void MoveStateBase::onEnter(const MoveRightEvent &)
     context_.moveController.moveRight();
 }
 
-void MoveStateBase::onEnter(const EndJumpEvent &)
+void MoveStateBase::onEnter(const GroundDetectionEvent &)
 {
 }
 

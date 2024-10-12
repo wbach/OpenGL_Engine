@@ -279,29 +279,13 @@ void BachPhysicsAdapter::disableVisualizationForAllRigidbodys()
 {
 }
 
-Physics::CollisionSubId BachPhysicsAdapter::setCollisionCallback(const RigidbodyId&,
-                                                                 std::function<void(const CollisionContactInfo&)>)
+CollisionSubId BachPhysicsAdapter::setCollisionCallback(const RigidbodyId&, const CollisionDetection&)
 {
-    return {};
+    return CollisionSubId();
 }
 
 void BachPhysicsAdapter::celarCollisionCallback(const CollisionSubId&)
 {
-}
-
-CollisionSubId BachPhysicsAdapter::contactTest(const RigidbodyId&, std::function<void(const std::vector<CollisionContactInfo>&)>)
-{
-    return {};
-}
-void BachPhysicsAdapter::cancelContactTest(const CollisionSubId&)
-{
-}
-void BachPhysicsAdapter::unsubscribeForCollisionExit(const CollisionSubId&)
-{
-}
-CollisionSubId BachPhysicsAdapter::subscribeForCollisionExit(const RigidbodyId&, std::function<void()>)
-{
-    return CollisionSubId();
 }
 }  // namespace Physics
 }  // namespace GameEngine

@@ -43,15 +43,7 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD1(disableVisualizatedRigidbody, void(const Physics::RigidbodyId&));
     MOCK_METHOD0(enableVisualizationForAllRigidbodys, void());
     MOCK_METHOD0(disableVisualizationForAllRigidbodys, void());
-    MOCK_METHOD2(setCollisionCallback,
-                 Physics::CollisionSubId(const Physics::RigidbodyId&, std::function<void(const Physics::CollisionContactInfo&)>));
+    MOCK_METHOD2(setCollisionCallback, Physics::CollisionSubId(const Physics::RigidbodyId&, const Physics::CollisionDetection&));
     MOCK_METHOD1(celarCollisionCallback, void(const Physics::CollisionSubId&));
-    MOCK_METHOD(Physics::CollisionSubId, contactTest,
-                (const Physics::RigidbodyId&, std::function<void(const std::vector<Physics::CollisionContactInfo>&)>),
-                (override));
-    MOCK_METHOD(void, cancelContactTest, (const Physics::CollisionSubId&), (override));
-    MOCK_METHOD(Physics::CollisionSubId, subscribeForCollisionExit, (const Physics::RigidbodyId&, std::function<void()>),
-                (override));
-    MOCK_METHOD(void, unsubscribeForCollisionExit, (const Physics::CollisionSubId&), (override));
 };
 }  // namespace GameEngine

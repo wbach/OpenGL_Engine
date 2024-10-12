@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "MoveSpeed.h"
+#include <mutex>
 
 namespace GameEngine
 {
@@ -29,8 +30,12 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
 
+    void Awake();
     void Init();
+    void PostStart();
     void Update();
+
+    void triggerJump();
 
     void handleEvent(const CharacterControllerEvent&);
 
@@ -78,6 +83,15 @@ private:
     Animator* animator_;
     float shapeSize_;
     std::string aimJointName_;
+
+    Physics::CollisionSubId groundEnterSubId;
+    Physics::CollisionSubId groundExitSubId;
+    bool isInit{false};
+
+    float jumpAttemptTimeStamp{-1.f};
+
+    std::optional<float> fallTimer;
+    std::mutex fallTimerMutex;
 
 private:
     struct Impl;

@@ -7,14 +7,17 @@ namespace GameEngine
 {
 namespace Components
 {
-IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName,
-                             std::optional<std::string> jointGroupName)
+IdleStateBase::IdleStateBase(FsmContext &context, const std::string &idleAnimName, std::optional<std::string> jointGroupName)
     : BaseState{context}
     , idleAnimName_{idleAnimName}
     , jointGroupName_{jointGroupName}
 {
 }
 
+void IdleStateBase::onEnter(const GroundDetectionEvent &)
+{
+    setIdleAnim();
+}
 void IdleStateBase::onEnter(const CrouchChangeStateEvent &)
 {
     setIdleAnim();

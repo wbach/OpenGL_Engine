@@ -31,9 +31,11 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     virtual void SetUp() override;
     virtual void TearDown() override;
     void createDummySkeleton();
-    void addDummyClip(const std::string& name);
+    void addDummyClip(const std::string&);
+    void initAnimations();
+
     void Update(float time);
-    void expectAnimsToBeSet(const std::vector<std::string>& names);
+    void expectAnimsToBeSet(const std::vector<std::string>&);
     template <typename Event>
     void tiggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
@@ -79,4 +81,7 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     AttackAnimation* disarmedAttackClip3;
 
     vec3 lastSetVelocity = vec3(0);
+
+    std::pair<Physics::CollisionSubId, Physics::CollisionDetection> groundEnterSub{1, {}};
+    std::pair<Physics::CollisionSubId, Physics::CollisionDetection> groundExitSub{2, {}};
 };

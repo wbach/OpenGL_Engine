@@ -27,7 +27,7 @@ public:
     void onEnter(const MoveBackwardEvent &);
     void onEnter(const MoveLeftEvent &);
     void onEnter(const MoveRightEvent &);
-    void onEnter(const EndJumpEvent &);
+    void onEnter(const GroundDetectionEvent &);
     void onEnter(const WalkChangeStateEvent &);
     void postEnter();
 

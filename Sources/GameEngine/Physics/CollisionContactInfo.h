@@ -15,3 +15,8 @@ struct CollisionContactInfo
 };
 }  // namespace Physics
 }  // namespace GameEngine
+
+namespace std
+{
+string to_string(const GameEngine::Physics::CollisionContactInfo&);
+}  // namespace std

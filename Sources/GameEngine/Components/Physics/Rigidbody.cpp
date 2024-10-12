@@ -19,12 +19,13 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR        = "Rigidbody";
-const std::string CSTR_MASS            = "mass";
-const std::string CSTR_IS_STATIC       = "isStatic";
-const std::string CSTR_VELOCITY        = "velocity";
-const std::string CSTR_ANGULAR_FACTOR  = "angularFactor";
-const std::string CSTR_COLLISION_SHAPE = "collisionShape";
+const std::string COMPONENT_STR             = "Rigidbody";
+const std::string CSTR_MASS                 = "mass";
+const std::string CSTR_IS_STATIC            = "isStatic";
+const std::string CSTR_VELOCITY             = "velocity";
+const std::string CSTR_ANGULAR_FACTOR       = "angularFactor";
+const std::string CSTR_COLLISION_SHAPE      = "collisionShape";
+const std::string CSTR_NO_CONCTACT_RESPONSE = "noConctactResponse";
 }  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
@@ -77,8 +78,8 @@ void Rigidbody::OnStart()
         return;
     }
 
-    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties,
-                                                                     mass_, updateRigidbodyOnTransformChange_);
+    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties, mass_,
+                                                                     updateRigidbodyOnTransformChange_);
     if (not rigidBodyId)
     {
         ERROR_LOG("create rigidbody error.");
@@ -107,6 +108,11 @@ void Rigidbody::OnStart()
                 SetScale(transform.GetScale());
             }
         });
+
+    for (auto& f : callWhenReady_)
+    {
+        f();
+    }
 
     DEBUG_LOG("[" + thisObject_.GetName() + "] Rigidbody created. Id : " + std::to_string(rigidBodyId_));
 }
@@ -257,6 +263,19 @@ void Rigidbody::SetAsVisualizatedObject()
         componentContext_.physicsApi_.enableVisualizatedRigidbody(*rigidBodyId_);
     }
 }
+Rigidbody& Rigidbody::callWhenReady(std::function<void()> f)
+{
+    if (IsReady())
+    {
+        f();
+    }
+    else
+    {
+        callWhenReady_.push_back(f);
+    }
+
+    return *this;
+}
 float Rigidbody::GetMass() const
 {
     return mass_;
@@ -379,6 +398,10 @@ void Rigidbody::registerReadFunctions()
         ::Read(node.getChild(CSTR_IS_STATIC), isStatic);
         component->SetIsStatic(isStatic);
 
+        bool isNoConctactResponse(false);
+        ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponse);
+        component->SetNoContactResponse(isNoConctactResponse);
+
         vec3 velocity(0.f);
         ::Read(node.getChild(CSTR_VELOCITY), velocity);
         component->SetVelocity(velocity);
@@ -410,6 +433,8 @@ void Rigidbody::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_MASS), GetMass());
     ::write(node.addChild(CSTR_IS_STATIC), IsStatic());
+    ::write(node.addChild(CSTR_NO_CONCTACT_RESPONSE),
+            rigidbodyPropierties.contains(Physics::RigidbodyProperty::NoContactResponse));
     ::write(node.addChild(CSTR_COLLISION_SHAPE), GetCollisionShapeType());
 
     auto angularFactor = InputParams().angularFactor_;

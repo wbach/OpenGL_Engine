@@ -7,7 +7,9 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/AimController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
+#include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Physics/CollisionContactInfo.h"
 #include "Serializers/ReadFunctions.h"
 #include "Serializers/Variables.h"
 #include "Serializers/WriteFunctions.h"
@@ -57,22 +59,40 @@ CharacterController::~CharacterController()
 void CharacterController::CleanUp()
 {
     impl->CleanUp();
+    if (groundEnterSubId)
+    {
+        componentContext_.physicsApi_.celarCollisionCallback(groundEnterSubId);
+    }
+    if (groundExitSubId)
+    {
+        componentContext_.physicsApi_.celarCollisionCallback(groundExitSubId);
+    }
+    isInit = false;
 }
 void CharacterController::ReqisterFunctions()
 {
+    RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Awake, this));
     RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this));
+    RegisterFunction(FunctionType::PostStart, std::bind(&CharacterController::PostStart, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }
-void CharacterController::Init()
+void CharacterController::Awake()
 {
-    rigidbody_ = thisObject_.GetComponent<Rigidbody>();
-    animator_  = thisObject_.GetComponent<Animator>();
-
     if (auto capsuleShape = thisObject_.GetComponent<CapsuleShape>())
     {
         const auto& scale = thisObject_.GetWorldTransform().GetScale();
         shapeSize_        = capsuleShape->GetRadius() * glm::compMax(vec2(scale.x, scale.z));
     }
+}
+void CharacterController::Init()
+{
+    if (isInit)
+    {
+        DEBUG_LOG("Already initialized!");
+        return;
+    }
+    rigidbody_ = thisObject_.GetComponent<Rigidbody>();
+    animator_  = thisObject_.GetComponent<Animator>();
 
     if (animator_ and rigidbody_)
     {
@@ -223,6 +243,85 @@ void CharacterController::Init()
     {
         WARNING_LOG("Animator or rigidbody_ not exist in object");
     }
+
+    isInit = true;
+}
+void CharacterController::PostStart()
+{
+    DEBUG_LOG("PostStart");
+
+    groundExitSubId = componentContext_.physicsApi_.setCollisionCallback(
+        rigidbody_->GetId(),
+        Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onExit,
+                                    .type   = Physics::CollisionDetection::Type::repeat,
+                                    .callback =
+                                        [&](const auto& collisions)
+                                    {
+                                        DEBUG_LOG("onCollisionExit=" + std::to_string(collisions.size()));
+
+                                        if (impl->fsmContext->jumpTrigger_)
+                                        {
+                                            DEBUG_LOG("push JumpEvent");
+                                            pushEventToQueue(JumpEvent{impl->fsmContext->jumpTrigger_.value()});
+                                            jumpAttemptTimeStamp = -1.f;
+                                        }
+                                        else if (not fallTimer)
+                                        {
+                                            DEBUG_LOG("Start fall timer");
+                                            fallTimer = 0.2f;
+                                        }
+                                    },
+                                    .ignoredList = {}});
+
+    const auto& scale        = thisObject_.GetWorldTransform().GetScale();
+    auto playerCapsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
+
+    groundEnterSubId = componentContext_.physicsApi_.setCollisionCallback(
+        rigidbody_->GetId(),
+        Physics::CollisionDetection{
+            .action = Physics::CollisionDetection::Action::onEnter,
+            .type   = Physics::CollisionDetection::Type::repeat,
+            .callback =
+                [&](const auto& collisionInfos)
+            {
+                DEBUG_LOG("onCollisionEnter=" + std::to_string(collisionInfos.size()));
+
+                for (const auto& collisionInfo : collisionInfos)
+                {
+                    if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                    {
+                        DEBUG_LOG("collisionInfo.rigidbodyId2=" + std::to_string(collisionInfo.rigidbodyId2));
+                        pushEventToQueue(GroundDetectionEvent{});
+                        std::lock_guard<std::mutex> lk(fallTimerMutex);
+                        fallTimer.reset();
+                        break;
+                    }
+                    else
+                    {
+                        DEBUG_LOG("collisionInfo.rigidbodyId1=" + std::to_string(collisionInfo.rigidbodyId1));
+                        pushEventToQueue(GroundDetectionEvent{});
+                        std::lock_guard<std::mutex> lk(fallTimerMutex);
+                        fallTimer.reset();
+                        break;
+                    }
+                }
+            },
+            .ignoredList = {},
+            .predicate =
+                [&, playerCapsuleRadius](const auto& collisionInfo)
+            {
+                const auto& playerPosition     = thisObject_.GetWorldTransform().GetPosition();
+                const auto playerPosWithOffset = playerPosition + vec3(0, playerCapsuleRadius, 0);
+
+                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                {
+                    return (collisionInfo.pos2.y <= playerPosWithOffset.y);
+                }
+                else
+                {
+                    return (collisionInfo.pos1.y <= playerPosWithOffset.y);
+                }
+            }});
 }
 void CharacterController::processEvent()
 {
@@ -254,6 +353,48 @@ void CharacterController::Update()
             statePtr->update(componentContext_.time_.deltaTime);
         };
         std::visit(passEventToState, impl->stateMachine_->currentState);
+    }
+
+    if (jumpAttemptTimeStamp > -0.5f)
+    {
+        jumpAttemptTimeStamp += componentContext_.time_.deltaTime;
+        if (jumpAttemptTimeStamp > 0.2f)
+        {
+            DEBUG_LOG("JumpTriger timeout");
+            impl->fsmContext->jumpTrigger_.reset();
+            jumpAttemptTimeStamp = -1.f;
+        }
+    }
+
+    std::lock_guard<std::mutex> lk(fallTimerMutex);
+    if (fallTimer)
+    {
+        fallTimer = fallTimer.value() - componentContext_.time_.deltaTime;
+        DEBUG_LOG("fallTimer=" + std::to_string(fallTimer));
+        if (fallTimer.value() <= 0.f)
+        {
+            DEBUG_LOG("StartFallingEvent");
+            pushEventToQueue(StartFallingEvent{});
+            fallTimer.reset();
+        }
+    }
+}
+void CharacterController::triggerJump()
+{
+    if (not impl->fsmContext->jumpTrigger_.has_value())
+    {
+        DEBUG_LOG("triggerJump");
+        const float value = DEFAULT_JUMP_POWER;
+        auto velocity     = rigidbody_->GetVelocity();
+        velocity.y += value;
+
+        rigidbody_->SetVelocity(velocity);
+        impl->fsmContext->jumpTrigger_ = value;
+        jumpAttemptTimeStamp           = 0;
+    }
+    else
+    {
+        DEBUG_LOG("not triggerJump");
     }
 }
 void CharacterController::handleEvent(const CharacterControllerEvent& event)

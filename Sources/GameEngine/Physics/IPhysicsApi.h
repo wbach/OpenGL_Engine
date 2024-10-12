@@ -33,10 +33,35 @@ enum class RigidbodyProperty
     Static
 };
 
-using RigidbodyProperties   = std::set<RigidbodyProperty>;
+using RigidbodyProperties = std::set<RigidbodyProperty>;
+
 using CollisionContactInfos = std::vector<CollisionContactInfo>;
-using CollisionCallback     = std::function<void(const CollisionContactInfo&)>;
 using CollisionsCallback    = std::function<void(const CollisionContactInfos&)>;
+using Predicate = std::function<bool(const CollisionContactInfo&)>;
+
+struct CollisionDetection
+{
+    enum class Action
+    {
+        any,
+        on,
+        no,
+        onEnter,
+        onExit
+    };
+    enum class Type
+    {
+        single,
+        repeat
+    };
+    Action action{Action::on};
+    Type type{Type::single};
+    bool lastContactState{false};
+
+    CollisionsCallback callback;
+    std::vector<IdType> ignoredList;
+    Predicate predicate;
+};
 
 struct IPhysicsApi
 {
@@ -75,12 +100,8 @@ struct IPhysicsApi
     virtual void disableVisualizatedRigidbody(const RigidbodyId&)                                   = 0;
     virtual void enableVisualizationForAllRigidbodys()                                              = 0;
     virtual void disableVisualizationForAllRigidbodys()                                             = 0;
-    virtual CollisionSubId setCollisionCallback(const RigidbodyId&, CollisionCallback)              = 0;
+    virtual CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&)      = 0;
     virtual void celarCollisionCallback(const CollisionSubId&)                                      = 0;
-    virtual CollisionSubId contactTest(const RigidbodyId&, CollisionsCallback)                      = 0;
-    virtual void cancelContactTest(const CollisionSubId&)                                           = 0;
-    virtual CollisionSubId subscribeForCollisionExit(const RigidbodyId&, std::function<void()>)     = 0;
-    virtual void unsubscribeForCollisionExit(const CollisionSubId&)                                 = 0;
 };
 
 using IPhysicsApiPtr = std::shared_ptr<IPhysicsApi>;

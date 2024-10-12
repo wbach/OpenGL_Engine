@@ -8,7 +8,9 @@ namespace Components
 {
 class ArmedFallingState
     : public FallingStateBase,
-      public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Nothing>,
+      public Utils::StateMachine::Will<Utils::StateMachine::ByDefault<Utils::StateMachine::Queue>,
+                                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Nothing>,
+                                       Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::Nothing>,
                                        Utils::StateMachine::On<DeathEvent, Utils::StateMachine::TransitionTo<DeathState>>>
 {
 public:

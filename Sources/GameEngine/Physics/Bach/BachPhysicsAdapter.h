@@ -46,13 +46,8 @@ public:
     void disableVisualizatedRigidbody(const RigidbodyId&) override;
     void enableVisualizationForAllRigidbodys() override;
     void disableVisualizationForAllRigidbodys() override;
-    Physics::CollisionSubId setCollisionCallback(const RigidbodyId&,
-                                                 std::function<void(const CollisionContactInfo&)>) override;
+    CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
-    CollisionSubId contactTest(const RigidbodyId&, std::function<void(const std::vector<CollisionContactInfo>&)>) override;
-    void cancelContactTest(const CollisionSubId&) override;
-    CollisionSubId subscribeForCollisionExit(const RigidbodyId&, std::function<void()>) override;
-    void unsubscribeForCollisionExit(const CollisionSubId&) override;
 
 private:
     struct Pimpl;

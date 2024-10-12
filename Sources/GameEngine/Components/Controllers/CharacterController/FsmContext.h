@@ -114,6 +114,8 @@ struct FsmContext
     float progress = 1.f;
 
     AttackStatesContext attackStatesContext;
+    std::optional<float> jumpTrigger_;
+    Physics::RigidbodyId fallchkerRbId;
 };
 }  // namespace Components
 }  // namespace GameEngine

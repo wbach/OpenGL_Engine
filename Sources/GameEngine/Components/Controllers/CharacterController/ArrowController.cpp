@@ -150,8 +150,18 @@ void ArrowController::createPhysicsObject()
 
 void ArrowController::subscribeForCollisionDetection()
 {
+    Physics::CollisionDetection cd{.action   = Physics::CollisionDetection::Action::on,
+                                   .type     = Physics::CollisionDetection::Type::single,
+                                   .callback = [this](const auto& infos)
+                                   {
+                                       for (const auto& info : infos)
+                                       {
+                                           onCollisionDetect(info);
+                                       }
+                                   }};
+
     collisionSubId = componentContext_.physicsApi_.setCollisionCallback(
-        rigidbody->GetId(), [this](const auto& info) { onCollisionDetect(info); });
+        rigidbody->GetId(), cd);
 }
 
 Rigidbody* ArrowController::findCollidedRigidbody(uint32 rigidbodyId)

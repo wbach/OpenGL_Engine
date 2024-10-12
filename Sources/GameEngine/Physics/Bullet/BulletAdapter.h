@@ -63,12 +63,9 @@ public:
     void disableVisualizatedRigidbody(const RigidbodyId&) override;
     void enableVisualizationForAllRigidbodys() override;
     void disableVisualizationForAllRigidbodys() override;
-    CollisionSubId setCollisionCallback(const RigidbodyId&, std::function<void(const CollisionContactInfo&)>) override;
+    CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
-    CollisionSubId contactTest(const RigidbodyId&, CollisionsCallback) override;
-    void cancelContactTest(const CollisionSubId&) override;
-    CollisionSubId subscribeForCollisionExit(const RigidbodyId&, std::function<void()>) override;
-    void unsubscribeForCollisionExit(const CollisionSubId&) override;
+
 
 private:
     void createWorld();
@@ -77,8 +74,7 @@ private:
     IdType addTask(Task::Action, std::optional<IdType> = std::nullopt);
     void removeTask(IdType);
     void executeTasks();
-    void contactTestImpl(const RigidbodyId&, CollisionsCallback);
-    void checkCollisionExit(const RigidbodyId&, std::function<void()>, IdType, int& maxDepth);
+    CollisionContactInfos contactTest(const Rigidbody&);
 
 private:
     std::unique_ptr<BulletDebugDrawer> bulletDebugDrawer_;

@@ -62,8 +62,7 @@ void ComponentController::UnRegisterComponent(IComponent::Type type, ComponentId
         WARNING_LOG("ComponentsType not found.");
     }
 }
-void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type,
-                                             uint32 id)
+void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type, uint32 id)
 {
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
@@ -72,9 +71,8 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
 
         if (typeIter != iter->second.end())
         {
-            auto functionIter =
-                std::find_if(typeIter->second.begin(), typeIter->second.end(),
-                             [id](const auto& componentFunction) { return id == componentFunction.id; });
+            auto functionIter = std::find_if(typeIter->second.begin(), typeIter->second.end(),
+                                             [id](const auto& componentFunction) { return id == componentFunction.id; });
             if (functionIter != typeIter->second.end())
             {
                 typeIter->second.erase(functionIter);
@@ -89,8 +87,8 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
     }
 }
 
-void ComponentController::setActivateStateOfComponentFunction(ComponentController::GameObjectId gameObjectId,
-                                                              FunctionType type, FunctionId id, bool activeStatus)
+void ComponentController::setActivateStateOfComponentFunction(ComponentController::GameObjectId gameObjectId, FunctionType type,
+                                                              FunctionId id, bool activeStatus)
 {
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
@@ -99,9 +97,8 @@ void ComponentController::setActivateStateOfComponentFunction(ComponentControlle
 
         if (typeIter != iter->second.end())
         {
-            auto functionIter =
-                std::find_if(typeIter->second.begin(), typeIter->second.end(),
-                             [id](const auto& componentFunction) { return id == componentFunction.id; });
+            auto functionIter = std::find_if(typeIter->second.begin(), typeIter->second.end(),
+                                             [id](const auto& componentFunction) { return id == componentFunction.id; });
             if (functionIter != typeIter->second.end())
             {
                 functionIter->isActive = activeStatus;
@@ -134,9 +131,9 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
 
         if (typeIter != iter->second.end())
         {
-            auto functionIter = std::find_if(
-                typeIter->second.begin(), typeIter->second.end(),
-                [functionId](const auto& componentFunction) { return functionId == componentFunction.id; });
+            auto functionIter =
+                std::find_if(typeIter->second.begin(), typeIter->second.end(),
+                             [functionId](const auto& componentFunction) { return functionId == componentFunction.id; });
 
             if (functionIter != typeIter->second.end() and functionIter->function)
             {
@@ -171,11 +168,13 @@ void ComponentController::OnObjectCreated(IdType gameObjectId)
     if (isStarted)
     {
         CallGameObjectFunctions(FunctionType::OnStart, gameObjectId);
+        CallGameObjectFunctions(FunctionType::PostStart, gameObjectId);
     }
 }
 void ComponentController::OnStart()
 {
     CallFunctions(FunctionType::OnStart);
+    CallFunctions(FunctionType::PostStart);
     isStarted = true;
 }
 void ComponentController::Update()
