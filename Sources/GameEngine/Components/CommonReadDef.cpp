@@ -18,5 +18,9 @@ const std::string CSTR_MODEL_FILE_NAME     = "modelFileName";
 const std::string CSTR_POSITION_OFFSET     = "positionOffset";
 const std::string CSTR_RADIUS              = "radius";
 const std::string CSTR_SIZE                = "size";
+const std::string CSTR_FORWARD             = "forward";
+const std::string CSTR_BACKWARD            = "backward";
+const std::string CSTR_LEFT                = "left";
+const std::string CSTR_RIGHT               = "right";
 }  // namespace Components
 }  // namespace GameEngine

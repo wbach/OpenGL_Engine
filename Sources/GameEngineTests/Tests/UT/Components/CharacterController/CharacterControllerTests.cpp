@@ -105,9 +105,14 @@ void CharacterControllerTests::initAnimations()
     clips.disarmed.movement.crouch.left     = "DCMRL";
     clips.disarmed.movement.crouch.right    = "DCMRR";
 
-    clips.disarmed.sprint = "DS";
-    clips.disarmed.jump   = "DJ";
-    clips.disarmed.falling   = "DF";
+    clips.disarmed.sprint         = "DS";
+    clips.disarmed.jump           = "DJ";
+    clips.disarmed.falling        = "DF";
+    clips.disarmed.dodgeDive      = "DDD";
+    clips.disarmed.dodge.forward  = "DDF";
+    clips.disarmed.dodge.backward = "DDB";
+    clips.disarmed.dodge.left     = "DDL";
+    clips.disarmed.dodge.right    = "DDR";
 
     clips.disarmed.attack.push_back({"DA1", PlayStateType::idle});
     clips.disarmed.attack.push_back({"DA2", PlayStateType::idle});
@@ -144,9 +149,14 @@ void CharacterControllerTests::initAnimations()
     clips.armed.movement.crouch.left     = "ACMRL";
     clips.armed.movement.crouch.right    = "ACMRR";
 
-    clips.armed.sprint = "AS";
-    clips.armed.jump   = "AJ";
-    clips.armed.falling = "AF";
+    clips.armed.sprint         = "AS";
+    clips.armed.jump           = "AJ";
+    clips.armed.falling        = "AF";
+    clips.armed.dodgeDive      = "ADD";
+    clips.armed.dodge.forward  = "ADF";
+    clips.armed.dodge.backward = "ADB";
+    clips.armed.dodge.left     = "ADL";
+    clips.armed.dodge.right    = "ADR";
     clips.armed.attack.push_back({"A1", PlayStateType::idle});
     clips.armed.attack.push_back({"A2", PlayStateType::idle});
     clips.armed.attack.push_back({"A3", PlayStateType::idle});
@@ -165,9 +175,16 @@ void CharacterControllerTests::initAnimations()
     {
         addDummyClip(attackClip.name);
     }
+
     addDummyClip(clips.disarmed.jump);
     addDummyClip(clips.disarmed.falling);
     addDummyClip(clips.disarmed.sprint);
+    addDummyClip(clips.disarmed.dodgeDive);
+    addDummyClip(clips.disarmed.dodge.forward);
+    addDummyClip(clips.disarmed.dodge.backward);
+    addDummyClip(clips.disarmed.dodge.left);
+    addDummyClip(clips.disarmed.dodge.right);
+
     addDummyClip(clips.disarmed.posture.crouched.death);
     addDummyClip(clips.disarmed.posture.crouched.idle);
     addDummyClip(clips.disarmed.posture.crouched.hurt);
@@ -225,6 +242,11 @@ void CharacterControllerTests::initAnimations()
     addDummyClip(clips.armed.jump);
     addDummyClip(clips.armed.sprint);
     addDummyClip(clips.armed.falling);
+    addDummyClip(clips.armed.dodgeDive);
+    addDummyClip(clips.armed.dodge.forward);
+    addDummyClip(clips.armed.dodge.backward);
+    addDummyClip(clips.armed.dodge.left);
+    addDummyClip(clips.armed.dodge.right);
 
     for (const auto& attackClip : clips.armed.attack)
     {

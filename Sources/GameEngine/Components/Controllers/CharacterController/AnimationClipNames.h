@@ -52,11 +52,11 @@ struct StateClipsNames
 {
     Movement movement;
     Posture posture;
+    MovmentClipNames dodge;
+    std::string dodgeDive;
 
     std::string jump;
     std::string sprint;
-    std::string doge;
-    std::string dogeJump;
     std::string falling;
 
     std::vector<AttackAnimation> attack;

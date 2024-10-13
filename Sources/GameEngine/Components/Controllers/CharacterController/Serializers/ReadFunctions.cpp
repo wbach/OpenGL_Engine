@@ -6,16 +6,15 @@
 #include "GameEngine/Components/CommonReadDef.h"
 #include "Variables.h"
 
-
 using namespace GameEngine::Components;
 using namespace GameEngine::Components::Character;
 
 void Read(const TreeNode& node, MovmentClipNames& result)
 {
-    Read(node.getChild(CSTR_ANIMATION_FORWARD), result.forward);
-    Read(node.getChild(CSTR_ANIMATION_BACKWARD), result.backward);
-    Read(node.getChild(CSTR_ANIMATION_MOVE_LEFT), result.left);
-    Read(node.getChild(CSTR_ANIMATION_MOVE_RIGHT), result.right);
+    Read(node.getChild(CSTR_FORWARD), result.forward);
+    Read(node.getChild(CSTR_BACKWARD), result.backward);
+    Read(node.getChild(CSTR_LEFT), result.left);
+    Read(node.getChild(CSTR_RIGHT), result.right);
 }
 
 void Read(const TreeNode& node, std::vector<std::string>& result)
@@ -62,8 +61,8 @@ void Read(const TreeNode& node, std::vector<AttackAnimation>& result)
 }
 void Read(const TreeNode& node, RotateAnimationClips& result)
 {
-    Read(node.getChild(CSTR_ANIMATION_ROTATE_LEFT), result.left);
-    Read(node.getChild(CSTR_ANIMATION_ROTATE_RIGHT), result.right);
+    Read(node.getChild(CSTR_LEFT), result.left);
+    Read(node.getChild(CSTR_RIGHT), result.right);
 }
 
 void Read(const TreeNode& node, PostureClipNames& result)
@@ -95,8 +94,8 @@ void Read(const TreeNode& node, StateClipsNames& result)
     Read(node.getChild(CSTR_JUMP_ANIMATION), result.jump);
     Read(node.getChild(CSTR_ATTACK_ANIMATIONS), result.attack);
     Read(node.getChild(CSTR_ANIMATION_SPRINT), result.sprint);
-    Read(node.getChild(CSTR_ANIMATION_DOGE_JUMP), result.dogeJump);
-    Read(node.getChild(CSTR_ANIMATION_DOGE), result.doge);
+    Read(node.getChild(CSTR_ANIMATION_DODGE_DIVE), result.dodgeDive);
+    Read(node.getChild(CSTR_ANIMATION_DODGE), result.dodge);
     Read(node.getChild(CSTR_FALLINING_IDLE_ANIMATION), result.falling);
 }
 

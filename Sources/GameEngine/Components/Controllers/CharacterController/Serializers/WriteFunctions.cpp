@@ -11,10 +11,10 @@ namespace GameEngine::Components::Character
 {
 void write(TreeNode& node, const MovmentClipNames& names)
 {
-    write(node.addChild(CSTR_ANIMATION_FORWARD), names.forward);
-    write(node.addChild(CSTR_ANIMATION_BACKWARD), names.backward);
-    write(node.addChild(CSTR_ANIMATION_MOVE_LEFT), names.left);
-    write(node.addChild(CSTR_ANIMATION_MOVE_RIGHT), names.right);
+    write(node.addChild(CSTR_FORWARD), names.forward);
+    write(node.addChild(CSTR_BACKWARD), names.backward);
+    write(node.addChild(CSTR_LEFT), names.left);
+    write(node.addChild(CSTR_RIGHT), names.right);
 }
 
 void write(TreeNode& node, const PlayStateType& stateType)
@@ -55,8 +55,8 @@ void write(TreeNode& node, const Movement& movement)
 
 void write(TreeNode& node, const RotateAnimationClips& rotateClips)
 {
-    write(node.addChild(CSTR_ANIMATION_ROTATE_LEFT), rotateClips.left);
-    write(node.addChild(CSTR_ANIMATION_ROTATE_RIGHT), rotateClips.right);
+    write(node.addChild(CSTR_LEFT), rotateClips.left);
+    write(node.addChild(CSTR_RIGHT), rotateClips.right);
 }
 
 void write(TreeNode& node, const PostureClipNames& postureClips)
@@ -80,8 +80,8 @@ void write(TreeNode& node, const StateClipsNames& names)
     write(node.addChild(CSTR_JUMP_ANIMATION), names.jump);
     write(node.addChild(CSTR_ATTACK_ANIMATIONS), names.attack);
     write(node.addChild(CSTR_ANIMATION_SPRINT), names.sprint);
-    write(node.addChild(CSTR_ANIMATION_DOGE), names.doge);
-    write(node.addChild(CSTR_ANIMATION_DOGE_JUMP), names.dogeJump);
+    write(node.addChild(CSTR_ANIMATION_DODGE), names.dodge);
+    write(node.addChild(CSTR_ANIMATION_DODGE_DIVE), names.dodgeDive);
     write(node.addChild(CSTR_FALLINING_IDLE_ANIMATION), names.falling);
 }
 

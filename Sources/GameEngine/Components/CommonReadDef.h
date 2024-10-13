@@ -19,5 +19,9 @@ extern const std::string CSTR_MODEL_FILE_NAME;
 extern const std::string CSTR_POSITION_OFFSET;
 extern const std::string CSTR_RADIUS;
 extern const std::string CSTR_SIZE;
+extern const std::string CSTR_FORWARD;
+extern const std::string CSTR_BACKWARD;
+extern const std::string CSTR_LEFT;
+extern const std::string CSTR_RIGHT;
 }  // namespace Components
 }  // namespace GameEngine
