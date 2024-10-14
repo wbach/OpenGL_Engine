@@ -42,7 +42,9 @@ void InputManager::SetDefaultKeys()
     RegisterGameAction(GameAction::TURN_LEFT, KeyCodes::Q);
     RegisterGameAction(GameAction::TURN_RIGHT, KeyCodes::E);
     RegisterGameAction(GameAction::JUMP, KeyCodes::SPACE);
-    RegisterGameAction(GameAction::WALK, KeyCodes::LCTRL);
+    RegisterGameAction(GameAction::DODGE_DIVE, KeyCodes::LCTRL);
+    RegisterGameAction(GameAction::DODGE, KeyCodes::LALT);
+    RegisterGameAction(GameAction::WALK, KeyCodes::Z);
     RegisterGameAction(GameAction::SPRINT, KeyCodes::LSHIFT);
     RegisterGameAction(GameAction::EQUIP_DISARM, KeyCodes::F);
     RegisterGameAction(GameAction::CROUCH, KeyCodes::C);

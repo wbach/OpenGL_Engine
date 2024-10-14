@@ -34,6 +34,7 @@ SdlKeysMap SdlKeyConverter::keys = SdlKeysMap({
     {KeyCodes::B, SDL_SCANCODE_B},
     {KeyCodes::N, SDL_SCANCODE_N},
     {KeyCodes::M, SDL_SCANCODE_M},
+    {KeyCodes::LALT, SDL_SCANCODE_LALT},
     {KeyCodes::LCTRL, SDL_SCANCODE_LCTRL},
     {KeyCodes::ENTER, SDL_SCANCODE_RETURN},
     {KeyCodes::SPACE, SDL_SCANCODE_SPACE},

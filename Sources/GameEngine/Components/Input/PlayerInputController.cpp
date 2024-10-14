@@ -54,6 +54,12 @@ void PlayerInputController::SubscribeForPushActions()
         Input::GameAction::MOVE_FORWARD,
         [&]()
         {
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+            {
+                characterController_->handleEvent(DodgeForwardEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
+
             characterController_->handleEvent(MoveForwardEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
@@ -69,6 +75,11 @@ void PlayerInputController::SubscribeForPushActions()
         Input::GameAction::MOVE_BACKWARD,
         [&]()
         {
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+            {
+                characterController_->handleEvent(DodgeBackwardEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
             characterController_->handleEvent(MoveBackwardEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
@@ -97,6 +108,11 @@ void PlayerInputController::SubscribeForPushActions()
         Input::GameAction::MOVE_LEFT,
         [&]()
         {
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+            {
+                characterController_->handleEvent(DodgeLeftEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
             characterController_->handleEvent(MoveLeftEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
@@ -112,6 +128,11 @@ void PlayerInputController::SubscribeForPushActions()
         Input::GameAction::MOVE_RIGHT,
         [&]()
         {
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+            {
+                characterController_->handleEvent(DodgeRightEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
             characterController_->handleEvent(MoveRightEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
@@ -126,6 +147,9 @@ void PlayerInputController::SubscribeForPushActions()
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::JUMP, [&]() { characterController_->handleEvent(JumpEvent{DEFAULT_JUMP_POWER}); });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        Input::GameAction::DODGE_DIVE, [&]() { characterController_->handleEvent(DodgeDiveEvent{DEFAULT_DODGE_DIVE_POWER}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::WALK, [&]() { characterController_->handleEvent(WalkChangeStateEvent{}); });
@@ -146,15 +170,47 @@ void PlayerInputController::SubscribeForPushActions()
 
 void PlayerInputController::SubscribeForPopActions()
 {
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        Input::GameAction::MOVE_FORWARD, [&]() { characterController_->handleEvent(EndForwardMoveEvent{}); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        Input::GameAction::MOVE_BACKWARD, [&]() { characterController_->handleEvent(EndBackwardMoveEvent{}); });
+    subscriptions_ =
+        componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::MOVE_FORWARD,
+                                                         [&]()
+                                                         {
+                                                             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+                                                             {
+                                                                 return;
+                                                             }
+                                                             characterController_->handleEvent(EndForwardMoveEvent{});
+                                                         });
+    subscriptions_ =
+        componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::MOVE_BACKWARD,
+                                                         [&]()
+                                                         {
+                                                             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+                                                             {
+                                                                 return;
+                                                             }
+                                                             characterController_->handleEvent(EndBackwardMoveEvent{});
+                                                         });
 
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        Input::GameAction::MOVE_LEFT, [&]() { characterController_->handleEvent(EndMoveLeftEvent{}); });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        Input::GameAction::MOVE_RIGHT, [&]() { characterController_->handleEvent(EndMoveRightEvent{}); });
+    subscriptions_ =
+        componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::MOVE_LEFT,
+                                                         [&]()
+                                                         {
+                                                             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+                                                             {
+                                                                 return;
+                                                             }
+                                                             characterController_->handleEvent(EndMoveLeftEvent{});
+                                                         });
+    subscriptions_ =
+        componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::MOVE_RIGHT,
+                                                         [&]()
+                                                         {
+                                                             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
+                                                             {
+                                                                 return;
+                                                             }
+                                                             characterController_->handleEvent(EndMoveRightEvent{});
+                                                         });
 
     subscriptions_ =
         componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::TURN_LEFT,

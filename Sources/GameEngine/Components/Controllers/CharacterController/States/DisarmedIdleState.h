@@ -24,6 +24,11 @@ class DisarmedIdleState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<IdleArmedChangeState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedIdleCrouchState>>,
           Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<DisarmedFallingState>>,
+//          Utils::StateMachine::On<DodgeDiveEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeForwardEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeBackwardEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeLeftEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeRightEvent, Utils::StateMachine::TransitionTo<JumpState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

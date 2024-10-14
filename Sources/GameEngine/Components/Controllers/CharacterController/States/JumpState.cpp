@@ -21,10 +21,21 @@ JumpState::JumpState(FsmContext &context)
 void JumpState::onEnter(const JumpEvent &event)
 {
     auto velocity = context_.rigidbody.GetVelocity();
-    velocity.y += event.jumpPower;
+    velocity.y += event.power;
     context_.rigidbody.SetVelocity(velocity);
 
     jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
+    animName = context_.animClipNames.disarmed.jump;
+}
+
+void JumpState::onEnter(const DodgeDiveEvent & event)
+{
+    auto velocity = context_.rigidbody.GetVelocity();
+    velocity += VECTOR_FORWARD * event.power;
+    context_.rigidbody.SetVelocity(velocity);
+
+    jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
+    animName = context_.animClipNames.disarmed.dodgeDive;
 }
 
 void JumpState::update(const JumpConfirmEvent &)
@@ -54,9 +65,9 @@ void JumpState::onLeave(const GroundDetectionEvent &)
 
 void JumpState::setAnim()
 {
-    if (not context_.animClipNames.disarmed.jump.empty())
+    if (not animName.empty())
     {
-        context_.animator.ChangeAnimation(context_.animClipNames.disarmed.jump, Animator::AnimationChangeType::smooth,
+        context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth,
                                           PlayDirection::forward, std::nullopt);
     }
 }

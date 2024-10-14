@@ -32,6 +32,7 @@ enum Type
     N,
     M,
     LCTRL,
+    LALT,
     ENTER,
     LMOUSE,
     RMOUSE,

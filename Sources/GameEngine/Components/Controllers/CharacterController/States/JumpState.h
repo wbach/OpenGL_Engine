@@ -22,6 +22,8 @@ public:
     JumpState(FsmContext&);
 
     void onEnter(const JumpEvent&);
+    void onEnter(const DodgeDiveEvent&);
+
     void update(float);
     void update(const JumpConfirmEvent&);
     void onLeave(const GroundDetectionEvent&);
@@ -31,6 +33,7 @@ private:
 
 private:
     std::optional<float> jumpAttemptTimer;
+    std::string animName;
 };
 }  // namespace Components
 }  // namespace GameEngine

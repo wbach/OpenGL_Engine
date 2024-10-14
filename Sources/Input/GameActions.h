@@ -15,6 +15,8 @@ enum class GameAction
     WALK,
     SPRINT,
     JUMP,
+    DODGE_DIVE,
+    DODGE,
     AIM,
     ATTACK,
     CAM_FORWARD,

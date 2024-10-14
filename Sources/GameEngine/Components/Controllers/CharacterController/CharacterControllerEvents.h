@@ -55,10 +55,31 @@ struct EndRotationEvent
 };
 struct JumpEvent
 {
-    float jumpPower{1.f};
+    float power{1.f};
 };
 struct JumpConfirmEvent
 {
+    float power{1.f};
+};
+struct DodgeDiveEvent
+{
+    float power{1.f};
+};
+struct DodgeForwardEvent
+{
+    float power{1.f};
+};
+struct DodgeBackwardEvent
+{
+    float power{1.f};
+};
+struct DodgeLeftEvent
+{
+    float power{1.f};
+};
+struct DodgeRightEvent
+{
+    float power{1.f};
 };
 struct AttackEvent
 {
@@ -110,5 +131,6 @@ using CharacterControllerEvent =
                  RotateTargetEvent, EndRotationEvent, JumpEvent, JumpConfirmEvent, GroundDetectionEvent, AttackEvent,
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,
                  ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent,
-                 ChangeAnimEvent, StartFallingEvent>;
+                 ChangeAnimEvent, StartFallingEvent, DodgeDiveEvent, DodgeForwardEvent, DodgeBackwardEvent, DodgeLeftEvent,
+                 DodgeRightEvent>;
 }  // namespace GameEngine
