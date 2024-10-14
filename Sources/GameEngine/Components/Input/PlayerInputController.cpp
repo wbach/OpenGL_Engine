@@ -125,7 +125,7 @@ void PlayerInputController::SubscribeForPushActions()
         });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::JUMP, [&]() { characterController_->triggerJump(); });
+        Input::GameAction::JUMP, [&]() { characterController_->handleEvent(JumpEvent{DEFAULT_JUMP_POWER}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::WALK, [&]() { characterController_->handleEvent(WalkChangeStateEvent{}); });

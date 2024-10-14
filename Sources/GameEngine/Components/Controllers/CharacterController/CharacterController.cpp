@@ -26,7 +26,6 @@ namespace
 {
 Animation::Joint dummyJoint;
 
-const float DEFAULT_JUMP_ATTEMPT_TIMER_VALUE = 0.2f;
 const float DEFAULT_FALLING_TIMER_VALUE      = 0.1f;
 }
 
@@ -261,11 +260,10 @@ void CharacterController::PostStart()
                                                                .callback =
                                                                    [&](const auto&)
                                                                {
-                                                                   if (jumpAttemptTimer.has_value())
+                                                                   if (impl->stateMachine_->isCurrentStateOfType<JumpState>())
                                                                    {
                                                                        DEBUG_LOG("push JumpEvent");
-                                                                       pushEventToQueue(JumpEvent{});
-                                                                       jumpAttemptTimer.reset();
+                                                                       pushEventToQueue(JumpConfirmEvent{});
                                                                    }
                                                                    else if (not fallTimer)
                                                                    {
@@ -354,15 +352,6 @@ void CharacterController::Update()
         std::visit(passEventToState, impl->stateMachine_->currentState);
     }
 
-    if (jumpAttemptTimer)
-    {
-        jumpAttemptTimer = jumpAttemptTimer.value() - componentContext_.time_.deltaTime;
-        if (jumpAttemptTimer <= 0.f)
-        {
-            DEBUG_LOG("JumpTriger timeout");
-            jumpAttemptTimer.reset();
-        }
-    }
 
     std::lock_guard<std::mutex> lk(fallTimerMutex);
     if (fallTimer)
@@ -375,23 +364,6 @@ void CharacterController::Update()
             pushEventToQueue(StartFallingEvent{});
             fallTimer.reset();
         }
-    }
-}
-void CharacterController::triggerJump()
-{
-    if (not impl->stateMachine_->isCurrentStateOfType<JumpState>() and not jumpAttemptTimer.has_value())
-    {
-        DEBUG_LOG("triggerJump");
-        const float value = DEFAULT_JUMP_POWER;
-        auto velocity     = rigidbody_->GetVelocity();
-        velocity.y += value;
-
-        rigidbody_->SetVelocity(velocity);
-        jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
-    }
-    else
-    {
-        DEBUG_LOG("not triggerJump");
     }
 }
 void CharacterController::handleEvent(const CharacterControllerEvent& event)

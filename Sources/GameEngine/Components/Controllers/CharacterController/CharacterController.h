@@ -36,8 +36,6 @@ public:
     void PostStart();
     void Update();
 
-    void triggerJump();
-
     void handleEvent(const CharacterControllerEvent&);
 
     template <typename Event>
@@ -89,7 +87,6 @@ private:
     Physics::CollisionSubId groundExitSubId;
     bool isInit{false};
 
-    std::optional<float> jumpAttemptTimer;
     std::optional<float> fallTimer;
     std::mutex fallTimerMutex;
 
