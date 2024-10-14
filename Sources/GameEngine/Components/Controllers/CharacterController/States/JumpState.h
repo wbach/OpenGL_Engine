@@ -1,12 +1,15 @@
 #pragma once
+#include "BaseState.h"
 #include "CharacterControllerCommonDefs.h"
-#include "JumpStateBase.h"
+
+#include <optional>
+#include <vector>
 
 namespace GameEngine
 {
 namespace Components
 {
-class JumpState : public JumpStateBase,
+class JumpState : public BaseState,
                   public Utils::StateMachine::Will<
                       Utils::StateMachine::ByDefault<Utils::StateMachine::Queue>,
                       Utils::StateMachine::On<JumpEvent, Utils::StateMachine::Nothing>,
@@ -16,6 +19,9 @@ class JumpState : public JumpStateBase,
 {
 public:
     JumpState(FsmContext&);
+
+    void onEnter(const JumpEvent&);
+    void onLeave(const GroundDetectionEvent&);
 };
 }  // namespace Components
 }  // namespace GameEngine

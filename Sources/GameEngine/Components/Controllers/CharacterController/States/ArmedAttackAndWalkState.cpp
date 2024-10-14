@@ -10,6 +10,7 @@ ArmedAttackAndWalkState::ArmedAttackAndWalkState(FsmContext& context)
     : AttackStateBase{context, context.animClipNames.armed.attack, context.upperBodyGroupName}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.walkSpeed.forward,
                         context.animClipNames.armed.movement.walk.forward)
+    , context{context}
 {
 }
 
@@ -20,7 +21,7 @@ void ArmedAttackAndWalkState::update(float v)
 }
 void ArmedAttackAndWalkState::onMoveInactivity()
 {
-    context_.animator.StopAnimation(context.lowerBodyGroupName);
+    context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 ArmedAttackAndWalkState::MaybeAttackStates ArmedAttackAndWalkState::handle(const ChangeAnimEvent& event)
 {

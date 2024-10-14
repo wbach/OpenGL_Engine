@@ -21,18 +21,8 @@ class CharacterController;
 
 struct AttackStatesContext
 {
-    template <typename... States>
-    bool isAnyOfStateQueued()
-    {
-        auto iter = std::find_if(queue.begin(), queue.end(),
-                                 [](const auto& event) { return (std::holds_alternative<States>(event) or ...); });
-
-        return iter != queue.end();
-    }
-
     uint32 sequenceSize     = 0;
     uint32 currentAnimation = 0;
-    std::vector<CharacterControllerEvent> queue;
 
     enum NextMoveState
     {
@@ -114,8 +104,9 @@ struct FsmContext
     float progress = 1.f;
 
     AttackStatesContext attackStatesContext;
-    std::optional<float> jumpTrigger_;
     Physics::RigidbodyId fallchkerRbId;
+
+    std::vector<CharacterControllerEvent> eventsQueue;
 };
 }  // namespace Components
 }  // namespace GameEngine

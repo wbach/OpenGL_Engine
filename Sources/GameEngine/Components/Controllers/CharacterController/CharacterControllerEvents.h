@@ -55,7 +55,6 @@ struct EndRotationEvent
 };
 struct JumpEvent
 {
-    float power{1.f};
 };
 struct AttackEvent
 {

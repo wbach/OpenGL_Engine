@@ -10,6 +10,7 @@ ArmedAttackAndRotateState::ArmedAttackAndRotateState(FsmContext &context)
     : AttackStateBase{context, context.animClipNames.armed.attack, context.upperBodyGroupName}
     , RotateStateBase{context, context.lowerBodyGroupName, context.runSpeed.rotate,
                       context.animClipNames.armed.posture.stand.rotate}
+    , context{context}
 {
 }
 

@@ -55,6 +55,9 @@ public:
     MaybeAttackStates handle(const ChangeAnimEvent&);
 
     using Will::handle;
+
+private:
+    FsmContext& context;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -36,7 +36,7 @@ DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handle(const MoveBac
 template <typename Event>
 DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handleMoveEvents(const Event &event)
 {
-    const auto &clips = context.animClipNames.disarmed.attack;
+    const auto &clips = context_.animClipNames.disarmed.attack;
 
     if (clips.empty())
     {
@@ -45,7 +45,7 @@ DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handleMoveEvents(con
 
     if (clips.front().stateType == PlayStateType::idle)
     {
-        queue.push_back(event);
+        queue_.push_back(event);
     }
 
     return getCorrespodingState(clips.front().stateType);
@@ -72,7 +72,7 @@ DisarmedAttackState::MaybeAttackStates DisarmedAttackState::getCorrespodingState
 
 DisarmedAttackState::MaybeAttackStates DisarmedAttackState::handle(const ChangeAnimEvent &event)
 {
-    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle)
+    if (context_.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle)
         return Utils::StateMachine::Update{};
 
     return getCorrespodingState(event.stateType);

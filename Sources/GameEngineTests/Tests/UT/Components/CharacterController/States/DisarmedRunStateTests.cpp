@@ -218,7 +218,7 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_JumpEvent)
 
     EXPECT_CALL(physicsApiMock_, RayTest(_, _)).WillRepeatedly(Return(std::nullopt));
 
-    tiggerAndExpect<JumpEvent>({sut_.animationClipsNames_.disarmed.jump}, {ADVANCED_TIME_TRANSITION_TIME}, {jumpPower});
+    tiggerAndExpect<JumpEvent>({sut_.animationClipsNames_.disarmed.jump}, {ADVANCED_TIME_TRANSITION_TIME});
 
     Update(ADVANCED_TIME_CLIP_TIME);
 

@@ -12,7 +12,7 @@ namespace Components
 {
 RotateStateBase::RotateStateBase(FsmContext &context, const std::optional<std::string> &jointGourpName, float rotateSpeed,
                                  const RotateAnimationClips &rotateAnimationClips, CameraRotationPolicy cameraRotationPolicy)
-    : BaseState{context}
+    : context_{context}
     , jointGroupName_{jointGourpName}
     , rotateAnimationClips_{rotateAnimationClips}
     , rotateSpeed_{rotateSpeed}
@@ -93,8 +93,6 @@ void RotateStateBase::onEnter(const EndMoveRightEvent &)
 
 void RotateStateBase::update(float deltaTime)
 {
-    BaseState::update(deltaTime);
-
     if (cameraComponent_ and cameraComponent_->fsmContext)
     {
         cameraComponent_->fsmContext->yaw += context_.rotateStateData_.rotateSpeed_ * deltaTime;

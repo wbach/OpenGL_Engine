@@ -15,8 +15,6 @@ class IdleStateBase : public BaseState
 public:
     IdleStateBase(FsmContext&, const std::string&, std::optional<std::string> = std::nullopt);
 
-    using BaseState::update;
-
     void onEnter(const GroundDetectionEvent&);
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const EquipEndStateEvent&);

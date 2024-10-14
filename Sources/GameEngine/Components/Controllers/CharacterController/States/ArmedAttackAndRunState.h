@@ -56,6 +56,9 @@ public:
     void update(float);
 
     void onMoveInactivity() override;
+
+private:
+    FsmContext& context;
 };
 }  // namespace Components
 }  // namespace GameEngine

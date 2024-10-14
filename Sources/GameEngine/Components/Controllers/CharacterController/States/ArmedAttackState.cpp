@@ -34,7 +34,7 @@ ArmedAttackState::MaybeAttackStates ArmedAttackState::handle(const MoveBackwardE
 template <typename Event>
 ArmedAttackState::MaybeAttackStates ArmedAttackState::handleMoveEvents(const Event &event)
 {
-    const auto &clips = context.animClipNames.armed.attack;
+    const auto &clips = context_.animClipNames.armed.attack;
 
     if (clips.empty())
     {
@@ -43,7 +43,7 @@ ArmedAttackState::MaybeAttackStates ArmedAttackState::handleMoveEvents(const Eve
 
     if (clips.front().stateType == PlayStateType::idle)
     {
-        queue.push_back(event);
+        queue_.push_back(event);
     }
 
     return getCorrespodingState(clips.front().stateType);
@@ -71,7 +71,7 @@ ArmedAttackState::MaybeAttackStates ArmedAttackState::getCorrespodingState(PlayS
 
 ArmedAttackState::MaybeAttackStates ArmedAttackState::handle(const ChangeAnimEvent &event)
 {
-    if (context.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle)
+    if (context_.attackStatesContext.nextMoveState == AttackStatesContext::NextMoveState::idle)
         return Utils::StateMachine::Update{};
 
     return getCorrespodingState(event.stateType);

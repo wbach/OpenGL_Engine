@@ -22,23 +22,7 @@ public:
 
     StateAfterLand handle(const GroundDetectionEvent &);
 
-    template <typename Event>
-    void pushEventToQueue(const Event &event)
-    {
-        DEBUG_LOG("pushEventToQueue: " + typeName<Event>());
-        queue.push_back(event);
-    }
-    template <typename Event>
-    void removeEventFromQueue(const Event &event)
-    {
-        DEBUG_LOG("removeEventFromQueue: " + typeName<Event>());
-
-        queue.erase(
-            std::remove_if(queue.begin(), queue.end(), [](const auto &event) { return std::holds_alternative<Event>(event); }));
-    }
-
 private:
-    std::vector<CharacterControllerEvent> queue;
     std::string animName;
 };
 }  // namespace Components

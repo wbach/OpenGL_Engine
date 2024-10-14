@@ -3,12 +3,13 @@
 #include <GameEngine/Components/Physics/Rigidbody.h>
 #include <Utils/Time/Timer.h>
 
+#include <mutex>
+
 #include "AnimationClipNames.h"
 #include "CharacterControllerEvents.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "MoveSpeed.h"
-#include <mutex>
 
 namespace GameEngine
 {
@@ -88,8 +89,7 @@ private:
     Physics::CollisionSubId groundExitSubId;
     bool isInit{false};
 
-    float jumpAttemptTimeStamp{-1.f};
-
+    std::optional<float> jumpAttemptTimer;
     std::optional<float> fallTimer;
     std::mutex fallTimerMutex;
 

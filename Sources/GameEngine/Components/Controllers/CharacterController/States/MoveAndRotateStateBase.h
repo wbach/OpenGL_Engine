@@ -4,7 +4,6 @@
 #include "MoveStateBase.h"
 #include "RotateStateBase.h"
 
-
 namespace GameEngine
 {
 namespace Components

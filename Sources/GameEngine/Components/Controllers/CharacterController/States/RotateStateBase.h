@@ -13,7 +13,7 @@ namespace Components
 struct FsmContext;
 class ThridPersonCameraComponent;
 
-class RotateStateBase : public BaseState
+class RotateStateBase
 {
 public:
     enum class CameraRotationPolicy
@@ -23,8 +23,6 @@ public:
     };
     RotateStateBase(FsmContext&, const std::optional<std::string>&, float, const RotateAnimationClips&,
                     CameraRotationPolicy = CameraRotationPolicy::rotateOnlyCameraIfAvaiable);
-
-    using BaseState::update;
 
     void onEnter(const CrouchChangeStateEvent&);
     void onEnter(const EndAttackEvent&);
@@ -55,6 +53,7 @@ public:
     const RotateAnimationClips& getCurrentAnimationClips() const;
 
 protected:
+    FsmContext& context_;
     std::optional<std::string> jointGroupName_;
     RotateAnimationClips rotateAnimationClips_;
     float rotateSpeed_;

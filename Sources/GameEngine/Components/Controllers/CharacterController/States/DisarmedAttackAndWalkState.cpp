@@ -10,6 +10,7 @@ DisarmedAttackAndWalkState::DisarmedAttackAndWalkState(FsmContext& context)
     : AttackStateBase{context, context.animClipNames.disarmed.attack, context.upperBodyGroupName}
     , RotatingMoveState(context, context.lowerBodyGroupName, context.walkSpeed.forward,
                         context.animClipNames.disarmed.movement.walk.forward)
+    , context{context}
 {
 }
 
@@ -35,7 +36,7 @@ void DisarmedAttackAndWalkState::update(float v)
 }
 void DisarmedAttackAndWalkState::onMoveInactivity()
 {
-    context_.animator.StopAnimation(context.lowerBodyGroupName);
+    context.animator.StopAnimation(context.lowerBodyGroupName);
 }
 }  // namespace Components
 }  // namespace GameEngine

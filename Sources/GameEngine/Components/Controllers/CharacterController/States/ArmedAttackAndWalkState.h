@@ -56,6 +56,9 @@ public:
     using Will::handle;
 
     void onMoveInactivity() override;
+
+private:
+    FsmContext& context;
 };
 }  // namespace Components
 }  // namespace GameEngine

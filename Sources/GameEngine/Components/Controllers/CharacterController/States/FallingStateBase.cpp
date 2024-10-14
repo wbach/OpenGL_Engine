@@ -3,8 +3,9 @@
 #include "../CharacterController.h"
 #include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
+#include "GameEngine/Physics/CollisionContactInfo.h"
+
 
 namespace GameEngine
 {
@@ -30,7 +31,7 @@ DisarmedFallingState::StateAfterLand FallingStateBase::handle(const GroundDetect
     bool isNotDead{true};
     if (isNotDead)
     {
-        //return Utils::StateMachine::TransitionTo<DisarmedIdleState>{};
+        // return Utils::StateMachine::TransitionTo<DisarmedIdleState>{};
         return Utils::StateMachine::BackToPreviousState{};
     }
     return Utils::StateMachine::TransitionTo<DeathState>{};
@@ -42,11 +43,7 @@ void FallingStateBase::update(float)
 
 void FallingStateBase::onLeave(const GroundDetectionEvent &)
 {
-    for (const auto &e : queue)
-    {
-        context_.characterController.pushEventToQueue(e);
-    }
-    queue.clear();
+    flushEvents();
 }
 }  // namespace Components
 }  // namespace GameEngine
