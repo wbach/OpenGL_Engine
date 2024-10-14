@@ -268,7 +268,7 @@ void CharacterController::PostStart()
                                         else if (not fallTimer)
                                         {
                                             DEBUG_LOG("Start fall timer");
-                                            fallTimer = 0.2f;
+                                            fallTimer = 0.1f;
                                         }
                                     },
                                     .ignoredList = {}});

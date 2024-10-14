@@ -133,37 +133,16 @@ void RotatingMoveState::applyCurrentRotation()
     }
 }
 
-void RotatingMoveState::moveCameraRotateRigidbody()  // TO DO: refactor with moveStateBase
+void RotatingMoveState::moveCameraRotateRigidbody()
 {
-    if (not context_.moveController.isMoving())
-    {
-        // // /*DISABLED*/ DEBUG_LOG("Not moving, return");
-        return;
-    }
-
-    auto moveDirection = glm::normalize(context_.moveController.getCurrentDir());
-    auto moveSpeed     = glm::length(
-        vec3(moveSpeed_.leftRight, 0, moveDirection.z > 0.5f ? moveSpeed_.forward : moveSpeed_.backward) * moveDirection);
-
-    if (moveSpeed < 0.00001f)
-    {
-        return;
-    }
-
-    if (cameraComponent_)
+    if (context_.moveController.isMoving() and cameraComponent_)
     {
         auto [_, yaw] = cameraComponent_->getRotation();
         auto rotY     = glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
         context_.rigidbody.SetRotation(rotY);
     }
 
-    auto &rigidbody     = context_.rigidbody;
-    auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
-    targetVelocity.y    = rigidbody.GetVelocity().y;
-    // /*DISABLED*/ DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-    // /*DISABLED*/ DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-    // /*DISABLED*/ DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
-    rigidbody.SetVelocity(targetVelocity);
+    MoveStateBase::moveRigidbody();
 }
 
 }  // namespace Components

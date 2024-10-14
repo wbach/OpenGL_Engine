@@ -108,7 +108,6 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpEvent)
 
     Physics::CollisionContactInfos infos;
     infos.push_back({});
-    groundExitSub.second.callback({});
 
     for (int i = 0; i < 3; i++)
     {
