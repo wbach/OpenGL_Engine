@@ -28,23 +28,27 @@ mkdir -p "$gpgdir"
 sudo pacman-key --gpgdir "$gpgdir" --conf "$pacman_conf" --init
 
 # Populate the keyring
-sudo pacman-key --gpgdir "$gpgdir" --conf "$pacman_conf" --populate archlinux
+sudo pacman-key --gpgdir "$gpgdir" --conf "$pacman_conf" --populate holo
 
 pacman_="sudo pacman -r $USERROOT --gpgdir $USERROOT/etc/pacman.d/gnupg"
 
-yes | $pacman_ -Sy
-yes | $pacman_ -Sy coreutils tar less findutils diffutils grep sed gawk util-linux
-procps-ng
 
-$pacman_ -S --needed --noconfirm base-devel
-yes | $pacman_ -Sy sdl2
-yes | $pacman_ -Sy git
-yes | $pacman_ -Sy cmake
-yes | $pacman_ -Sy sdl2_net
-yes | $pacman_ -Sy glibc
-yes | $pacman_ -Sy glew
-yes | $pacman_ -Sy sdl2_ttf
-yes | $pacman_ -Sy freetype2
-yes | $pacman_ -Sy zlib
-yes | $pacman_ -Sy minizip
-yes | $pacman_ -Sy freeimage
+echo "Init..."
+yes | $pacman_ -Sy
+yes | $pacman_ -S coreutils tar less findutils diffutils grep sed gawk util-linux procps-ng
+
+
+echo "Instaling..."
+#$pacman_ -S --needed --noconfirm base-devel
+yes | $pacman_ -Sy base-devel pkg-config sdl2 git cmake sdl2_net glew sdl2_ttf freetype2 zlib minizip freeimage jsoncpp rhash libuv cppdap gcc make libmpc libisl glfw-x11 glu libgl libpng harfbuzz brotli glib2 libsysprof-capture pcre2 graphite libc++ linux-headers linux-api-headers jxrlib glibc distcc ninja
+
+
+
+cat > $USERROOT/etc/distcc/hosts <<- EOM
+# --- /etc/distcc/hosts -----------------------
+# See the "Hosts Specification" section of
+# "man distcc" for the format of this file.
+# By default, just test that it works in loopback mode.
+192.168.0.35/12
+EOM
+sudo cp -r $USERROOT/etc/distcc/ /etc/
