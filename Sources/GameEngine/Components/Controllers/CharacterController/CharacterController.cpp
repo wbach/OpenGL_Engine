@@ -26,8 +26,8 @@ namespace
 {
 Animation::Joint dummyJoint;
 
-const float DEFAULT_FALLING_TIMER_VALUE      = 0.1f;
-}
+const float DEFAULT_FALLING_TIMER_VALUE = 0.1f;
+}  // namespace
 
 struct CharacterController::Impl
 {
@@ -283,23 +283,26 @@ void CharacterController::PostStart()
                                     .callback =
                                         [&](const auto& collisionInfos)
                                     {
-                                        for (const auto& collisionInfo : collisionInfos)
+                                        if (not collisionInfos.empty())
                                         {
-                                            if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                                            std::lock_guard<std::mutex> lk(fallTimerMutex);
+
+                                            for (const auto& collisionInfo : collisionInfos)
                                             {
-                                                DEBUG_LOG("GroundDetectionEvent");
-                                                pushEventToQueue(GroundDetectionEvent{});
-                                                std::lock_guard<std::mutex> lk(fallTimerMutex);
-                                                fallTimer.reset();
-                                                break;
-                                            }
-                                            else
-                                            {
-                                                DEBUG_LOG("GroundDetectionEvent");
-                                                pushEventToQueue(GroundDetectionEvent{});
-                                                std::lock_guard<std::mutex> lk(fallTimerMutex);
-                                                fallTimer.reset();
-                                                break;
+                                                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                                                {
+                                                    DEBUG_LOG("GroundDetectionEvent");
+                                                    pushEventToQueue(GroundDetectionEvent{});
+                                                    fallTimer.reset();
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    DEBUG_LOG("GroundDetectionEvent");
+                                                    pushEventToQueue(GroundDetectionEvent{});
+                                                    fallTimer.reset();
+                                                    break;
+                                                }
                                             }
                                         }
                                     },
@@ -351,7 +354,6 @@ void CharacterController::Update()
         };
         std::visit(passEventToState, impl->stateMachine_->currentState);
     }
-
 
     std::lock_guard<std::mutex> lk(fallTimerMutex);
     if (fallTimer)

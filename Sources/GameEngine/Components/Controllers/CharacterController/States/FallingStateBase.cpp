@@ -23,6 +23,10 @@ void FallingStateBase::onEnter(const StartFallingEvent &)
     {
         context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward, std::nullopt);
     }
+    else
+    {
+        DEBUG_LOG("Falling anim name is empty!");
+    }
 }
 
 DisarmedFallingState::StateAfterLand FallingStateBase::handle(const GroundDetectionEvent &)
