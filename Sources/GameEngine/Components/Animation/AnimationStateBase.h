@@ -19,19 +19,17 @@ protected:
         float time;
         float direction;
         const AnimationClipInfo& clipInfo;
-        const std::vector<uint32>& jointGroup;
+        const std::vector<uint32>* jointGroup{nullptr};
     };
 
-    struct PlayGroup
+    struct PlayGroup : public Core
     {
-        Core core;
         CurrentFrames frames{nullptr, nullptr};
         float previousFrameTimeStamp{-1.0f};
     };
 
-    struct TransitionGroup
+    struct TransitionGroup : public Core
     {
-        Core core;
         float startupTime;
         float timeForChange;
         std::function<void()> onTransitionEnd;

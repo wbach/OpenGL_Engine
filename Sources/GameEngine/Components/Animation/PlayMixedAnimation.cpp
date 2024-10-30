@@ -14,22 +14,6 @@ namespace GameEngine
 {
 namespace Components
 {
-
-struct Core
-{
-    float time;
-    float direction;
-    const AnimationClipInfo& clipInfo;
-    const std::vector<uint32>& jointGroup;
-};
-
-struct PlayGroup
-{
-    Core core;
-    CurrentFrames frames{nullptr, nullptr};
-    float previousFrameTimeStamp{-1.0f};
-};
-
 PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfoPerGroup& animationPlayingInfoPerGroup)
     : context_{context}
 {
@@ -43,8 +27,7 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
             const auto& jointGroup = iter->second;
             float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
             groups_.insert(
-                {name,
-                 PlayGroup{.core = {.time = startTime, .direction = direction, .clipInfo = info, .jointGroup = jointGroup}}});
+                {name, PlayGroup{{.time = startTime, .direction = direction, .clipInfo = info, .jointGroup = &jointGroup}}});
         }
     }
 }
@@ -52,7 +35,7 @@ bool PlayMixedAnimation::update(float deltaTime)
 {
     for (auto& [name, group] : groups_)
     {
-        calculateCurrentAnimationPose(context_.currentPose, group.core.clipInfo.clip, group.core.time, group.core.jointGroup);
+        calculateCurrentAnimationPose(context_.currentPose, group.clipInfo.clip, group.time, *group.jointGroup);
         group.frames = context_.currentPose.frames;
     }
 
@@ -68,7 +51,7 @@ void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)
         {
             if (name != event.jointGroupName)
             {
-                infos.push_back(CurrentGroupsPlayingInfo{group.core.clipInfo, group.core.time, {name}});
+                infos.push_back(CurrentGroupsPlayingInfo{group.clipInfo, group.time, {name}});
             }
         }
 
@@ -98,7 +81,7 @@ void PlayMixedAnimation::handle(const StopAnimationEvent& event)
             {
                 if (name != *event.jointGroupName)
                 {
-                    CurrentGroupsPlayingInfo info{group.core.clipInfo, group.core.time, {name}};
+                    CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
                     context_.machine.transitionTo<AnimationTransitionMixedToSingle>(context_, info);
                     return;
                 }
@@ -115,13 +98,13 @@ std::vector<std::string> PlayMixedAnimation::getCurrentAnimation() const
 {
     std::vector<std::string> r;
     for (auto& [_, group] : groups_)
-        r.push_back(group.core.clipInfo.clip.getName());
+        r.push_back(group.clipInfo.clip.getName());
     return r;
 }
 bool PlayMixedAnimation::isAnimationPlaying(const std::string& name) const
 {
     auto iter = std::find_if(groups_.begin(), groups_.end(),
-                             [&name](const auto& pair) { return (pair.second.core.clipInfo.clip.getName() == name); });
+                             [&name](const auto& pair) { return (pair.second.clipInfo.clip.getName() == name); });
     return iter != groups_.end();
 }
 void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
@@ -130,23 +113,23 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
 
     for (auto& [name, group] : groups_)
     {
-        auto& core = group.core;
+        auto& core = group;
         core.time += deltaTime * core.clipInfo.playSpeed * core.direction;
 
         notifyFrameSubsribers(core.clipInfo, group.frames.first, core.time, group.previousFrameTimeStamp);
 
-        if (core.time > group.core.clipInfo.clip.GetLength())
+        if (core.time > group.clipInfo.clip.GetLength())
         {
-            if (group.core.clipInfo.playType == AnimationClipInfo::PlayType::once)
+            if (group.clipInfo.playType == AnimationClipInfo::PlayType::once)
             {
                 groupsToRemove_.push_back(name);
                 continue;
             }
-            core.time = fmodf(core.time, group.core.clipInfo.clip.GetLength());
+            core.time = fmodf(core.time, group.clipInfo.clip.GetLength());
         }
         if (core.time < 0)
         {
-            core.time = group.core.clipInfo.clip.GetLength() + core.time;
+            core.time = group.clipInfo.clip.GetLength() + core.time;
         }
     }
 
@@ -162,7 +145,7 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
             {
                 if (name != toRemoveName)
                 {
-                    CurrentGroupsPlayingInfo info{group.core.clipInfo, group.core.time, {name}};
+                    CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
                     DEBUG_LOG("increaseAnimationTime AnimationTransitionMixedToSingle");
                     context_.machine.transitionTo<AnimationTransitionMixedToSingle>(context_, info);
                     return;

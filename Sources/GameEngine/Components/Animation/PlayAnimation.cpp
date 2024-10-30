@@ -13,18 +13,18 @@ namespace Components
 {
 PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, float startTime)
     : context_{context}
-    , time_{startTime}
-    , direction_{info.playDirection == PlayDirection::forward ? 1.f : -1.f}
-    , clipInfo_{info}
-    , previousFrameTimeStamp{-1.0f}
+    , playInfo_{{.time = startTime, .direction = info.playDirection == PlayDirection::forward ? 1.f : -1.f, .clipInfo = info},
+                {nullptr, nullptr},
+                -1.f}
+
 {
 }
 bool PlayAnimation::update(float deltaTime)
 {
-    calculateCurrentAnimationPose(context_.currentPose, clipInfo_.clip, time_);
+    calculateCurrentAnimationPose(context_.currentPose, playInfo_.clipInfo.clip, playInfo_.time);
 
-    if (not increaseAnimationTime(time_, previousFrameTimeStamp, clipInfo_,
-                                                      context_.currentPose.frames.first, deltaTime))
+    if (not increaseAnimationTime(playInfo_.time, playInfo_.previousFrameTimeStamp, playInfo_.clipInfo,
+                                  context_.currentPose.frames.first, deltaTime))
     {
         context_.machine.transitionTo<EmptyState>(context_);
     }
@@ -35,7 +35,7 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        std::vector<CurrentGroupsPlayingInfo> v{{clipInfo_, time_, {}}};
+        std::vector<CurrentGroupsPlayingInfo> v{{playInfo_.clipInfo, playInfo_.time, {}}};
 
         for (auto& [name, group] : context_.jointGroups)
         {
@@ -48,8 +48,7 @@ void PlayAnimation::handle(const ChangeAnimationEvent& event)
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
-                                                           event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 
@@ -60,12 +59,12 @@ void PlayAnimation::handle(const StopAnimationEvent& e)
 
 std::vector<std::string> PlayAnimation::getCurrentAnimation() const
 {
-    return {clipInfo_.clip.getName()};
+    return {playInfo_.clipInfo.clip.getName()};
 }
 
 bool PlayAnimation::isAnimationPlaying(const std::string& name) const
 {
-    return clipInfo_.clip.getName() == name;
+    return playInfo_.clipInfo.clip.getName() == name;
 }
 }  // namespace Components
 }  // namespace GameEngine

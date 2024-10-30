@@ -25,11 +25,7 @@ public:
 
 private:
     Context& context_;
-
-    float time_;
-    float direction_;
-    const AnimationClipInfo& clipInfo_;
-    float previousFrameTimeStamp;
+    PlayGroup playInfo_;
 };
 }  // namespace Components
 }  // namespace GameEngine
