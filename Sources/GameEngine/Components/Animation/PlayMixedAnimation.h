@@ -11,17 +11,6 @@ namespace Components
 {
 class PlayMixedAnimation : public AnimationStateBase
 {
-private:
-    struct Group
-    {
-        const AnimationClipInfo& clipInfo;
-        float time;
-        float direction;
-        std::vector<uint32> jointIds;
-        CurrentFrames frames{nullptr, nullptr};
-        float previousFrameTimeStamp{-1.0f};
-    };
-
 public:
     PlayMixedAnimation(Context&, const AnimationClipInfoPerGroup&);
 
@@ -39,7 +28,7 @@ private:
 private:
     Context& context_;
 
-    std::unordered_map<std::string, Group> groups_;
+    std::unordered_map<std::string, PlayGroup> groups_;
 };
 }  // namespace Components
 }  // namespace GameEngine
