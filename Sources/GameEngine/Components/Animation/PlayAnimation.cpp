@@ -13,9 +13,7 @@ namespace Components
 {
 PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, float startTime)
     : context_{context}
-    , playInfo_{{.time = startTime, .direction = info.playDirection == PlayDirection::forward ? 1.f : -1.f, .clipInfo = info},
-                {nullptr, nullptr},
-                -1.f}
+    , playInfo_{{.time = startTime, .clipInfo = info}, info.playDirection == PlayDirection::forward ? 1.f : -1.f}
 
 {
 }

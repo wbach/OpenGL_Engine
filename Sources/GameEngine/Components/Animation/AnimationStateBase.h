@@ -14,26 +14,31 @@ struct AnimationClipInfo;
 class AnimationStateBase : public IAnimationState
 {
 protected:
-    struct Core
+    struct AnimationGroup
     {
-        float time;
-        float direction;
+        float time{0.f};
         const AnimationClipInfo& clipInfo;
         const std::vector<uint32>* jointGroup{nullptr};
     };
 
-    struct PlayGroup : public Core
+    struct PlayGroup : public AnimationGroup
     {
-        CurrentFrames frames{nullptr, nullptr};
+        float direction{1.f};
         float previousFrameTimeStamp{-1.0f};
     };
 
-    struct TransitionGroup : public Core
+    struct PlayGroupMixed : public PlayGroup
     {
-        float startupTime;
-        float timeForChange;
+        CurrentFrames frames{nullptr, nullptr};
+    };
+
+    struct TransitionGroup : public AnimationGroup
+    {
+        float startupTime{0.f};
+        float timeForChange{0.5f};
         std::function<void()> onTransitionEnd;
-        Animation::KeyFrame startKeyFram_;
+        Animation::KeyFrame startChaneAnimKeyFrame;
+        Animation::KeyFrame endChangeAnimKeyFrame;
     };
 
     void notifyFrameSubsribers(const AnimationClipInfo&, const Animation::KeyFrame*, float, float&);

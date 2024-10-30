@@ -1,7 +1,7 @@
 #pragma once
 #include "AnimationClipInfo.h"
-#include "Context.h"
 #include "AnimationStateBase.h"
+#include "Context.h"
 
 namespace GameEngine
 {
@@ -27,17 +27,8 @@ private:
     void calculateTime(float deltaTime);
 
 private:
-    Context& context_;
-    const AnimationClipInfo& info_;
-
-    Animation::KeyFrame startChaneAnimKeyFrame_;
-    Animation::KeyFrame endChangeAnimKeyFrame_;
-
-    float timeForChange_;
-    float currentTime_;
-    float startTime_;
-
-    OnTransitionEnd onTransitionEnd_;
+    Context& context;
+    TransitionGroup data;
 };
 }  // namespace Components
 }  // namespace GameEngine

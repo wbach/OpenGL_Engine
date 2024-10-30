@@ -32,7 +32,7 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
                                                        const CurrentGroupsPlayingInfos &currentGroupsPlayingInfos,
                                                        const TransitionGroupsPlayings &transitionGroupsPlaying,
                                                        const ChangeAnimationEvent &event)
-    : context_{context}
+    : context{context}
 {
     for (auto &info : currentGroupsPlayingInfos)
     {
@@ -40,9 +40,12 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
         {
             auto iter = context.jointGroups.find(groupName);
 
-            if (iter != context_.jointGroups.end())
+            if (iter != context.jointGroups.end())
             {
-                currentGroups_.insert({groupName, {info.info, info.currentTime, iter->second}});
+                const auto &jointGroup = iter->second;
+                currentGroups.insert(
+                    {groupName, PlayGroupMixed{{{.time = info.currentTime, .clipInfo = info.info, .jointGroup = &jointGroup},
+                                                info.info.playDirection == PlayDirection::forward ? 1.f : -1.f}}});
             }
         }
     }
@@ -53,11 +56,15 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
         {
             auto iter = context.jointGroups.find(groupName);
 
-            if (iter != context_.jointGroups.end())
+            if (iter != context.jointGroups.end())
             {
-                transtionGroups_.insert(
-                    {groupName, TransitionGroup{0.f, info.info, iter->second, info.onTransitionEnd, convert(context_.currentPose),
-                                                context_.transitionTime, info.currentTime}});
+                const auto &jointGroup = iter->second;
+                transtionGroups.insert(
+                    {groupName, TransitionGroup{{.time = info.currentTime, .clipInfo = info.info, .jointGroup = &jointGroup},
+                                                0.f,
+                                                context.transitionTime,
+                                                info.onTransitionEnd,
+                                                convert(context.currentPose)}});
             }
         }
     }
@@ -67,19 +74,23 @@ AnimationTransitionToMixed::AnimationTransitionToMixed(Context &context,
 
 bool AnimationTransitionToMixed::update(float deltaTime)
 {
-    for (auto &[name, group] : currentGroups_)
+    for (auto &[name, group] : currentGroups)
     {
-        if (not group.jointGroup_.empty())
+        if (group.jointGroup and not group.jointGroup->empty())
         {
-            calculateCurrentAnimationPose(context_.currentPose, group.clipInfo_.clip, group.time_, group.jointGroup_);
-            group.frames = context_.currentPose.frames;
+            calculateCurrentAnimationPose(context.currentPose, group.clipInfo.clip, group.time, *group.jointGroup);
+            group.frames = context.currentPose.frames;
         }
     }
 
-    for (const auto &[name, group] : transtionGroups_)
+    for (const auto &[name, group] : transtionGroups)
     {
-        const auto &endChangeAnimKeyFrame = group.clipInfo_.clip.GetFrames().front();
-        interpolatePoses(context_.currentPose, group.startKeyFrame_, endChangeAnimKeyFrame, group.progress_, group.jointGroup_);
+        if (group.jointGroup)
+        {
+            const auto &endChangeAnimKeyFrame = group.clipInfo.clip.GetFrames().front();
+            interpolatePoses(context.currentPose, group.startChaneAnimKeyFrame, endChangeAnimKeyFrame, group.time,
+                             *group.jointGroup);
+        }
     }
 
     increaseAnimationTime(deltaTime);
@@ -91,37 +102,34 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
-        auto iter = transtionGroups_.find(*event.jointGroupName);
+        auto iter = transtionGroups.find(*event.jointGroupName);
 
-        if (iter != transtionGroups_.end())
+        if (iter != transtionGroups.end())
         {
-            TransitionGroup newGroup{event.startTime,
-                                     event.info,
-                                     iter->second.jointGroup_,
+            TransitionGroup newGroup{{.time = 0.f, .clipInfo = event.info, .jointGroup = iter->second.jointGroup},
+                                     event.startTime,
+                                     context.transitionTime,
                                      event.onTransitionEnd,
-                                     convert(context_.currentPose),
-                                     context_.transitionTime,
-                                     0.f};
+                                     convert(context.currentPose)};
 
-            transtionGroups_.erase(iter);
-            transtionGroups_.insert({*event.jointGroupName, newGroup});
+            transtionGroups.erase(iter);
+            transtionGroups.insert({*event.jointGroupName, newGroup});
         }
         else
         {
-            auto currentGroupsIter = currentGroups_.find(*event.jointGroupName);
+            auto currentGroupsIter = currentGroups.find(*event.jointGroupName);
 
-            if (currentGroupsIter != currentGroups_.end())
+            if (currentGroupsIter != currentGroups.end())
             {
-                TransitionGroup newGroup{event.startTime,
-                                         event.info,
-                                         currentGroupsIter->second.jointGroup_,
-                                         event.onTransitionEnd,
-                                         convert(context_.currentPose),
-                                         context_.transitionTime,
-                                         0.f};
+                TransitionGroup newGroup{
+                    {.time = 0.f, .clipInfo = event.info, .jointGroup = currentGroupsIter->second.jointGroup},
+                    event.startTime,
+                    context.transitionTime,
+                    event.onTransitionEnd,
+                    convert(context.currentPose)};
 
-                currentGroups_.erase(currentGroupsIter);
-                transtionGroups_.insert({*event.jointGroupName, newGroup});
+                currentGroups.erase(currentGroupsIter);
+                transtionGroups.insert({*event.jointGroupName, newGroup});
             }
             else
             {
@@ -131,7 +139,7 @@ void AnimationTransitionToMixed::handle(const ChangeAnimationEvent &event)
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
+        context.machine.transitionTo<AnimationTransition>(context, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 
@@ -139,84 +147,83 @@ void AnimationTransitionToMixed::handle(const StopAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
-        auto iter = transtionGroups_.find(*event.jointGroupName);
+        auto iter = transtionGroups.find(*event.jointGroupName);
 
-        if (iter != transtionGroups_.end())
+        if (iter != transtionGroups.end())
         {
-            transtionGroups_.erase(iter);
+            transtionGroups.erase(iter);
         }
         else
         {
-            auto currentGroupsIter = currentGroups_.find(*event.jointGroupName);
+            auto currentGroupsIter = currentGroups.find(*event.jointGroupName);
 
-            if (currentGroupsIter != currentGroups_.end())
+            if (currentGroupsIter != currentGroups.end())
             {
-                currentGroups_.erase(currentGroupsIter);
+                currentGroups.erase(currentGroupsIter);
             }
         }
 
-        if (currentGroups_.empty() and transtionGroups_.size() == 1)
+        if (currentGroups.empty() and transtionGroups.size() == 1)
         {
-            for (auto &[_, group] : transtionGroups_)
+            for (auto &[_, group] : transtionGroups)
             {
-                context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_,
-                                                                   group.onTransitionEnd_);
+                context.machine.transitionTo<AnimationTransition>(context, group.clipInfo, group.time, group.onTransitionEnd);
                 return;
             }
         }
-        else if (currentGroups_.size() == 1 and transtionGroups_.empty())
+        else if (currentGroups.size() == 1 and transtionGroups.empty())
         {
-            for (auto &[_, group] : currentGroups_)
+            for (auto &[_, group] : currentGroups)
             {
-                context_.machine.transitionTo<PlayAnimation>(context_, group.clipInfo_, group.time_);
+                context.machine.transitionTo<PlayAnimation>(context, group.clipInfo, group.time);
                 return;
             }
         }
-        else if (currentGroups_.empty() and transtionGroups_.empty())
+        else if (currentGroups.empty() and transtionGroups.empty())
         {
-            context_.machine.transitionTo<EmptyState>(context_);
+            context.machine.transitionTo<EmptyState>(context);
         }
     }
     else
     {
-        context_.machine.transitionTo<EmptyState>(context_);
+        context.machine.transitionTo<EmptyState>(context);
     }
 }
 
 std::vector<std::string> AnimationTransitionToMixed::getCurrentAnimation() const
 {
     std::vector<std::string> r;
-    for (auto &[_, group] : currentGroups_)
-        r.push_back(group.clipInfo_.clip.getName());
+    for (auto &[_, group] : currentGroups)
+        r.push_back(group.clipInfo.clip.getName());
 
-    for (auto &[_, group] : transtionGroups_)
-        r.push_back(group.clipInfo_.clip.getName());
+    for (auto &[_, group] : transtionGroups)
+        r.push_back(group.clipInfo.clip.getName());
     return r;
 }
 
 bool AnimationTransitionToMixed::isAnimationPlaying(const std::string &name) const
 {
-    return Utils::contains(currentGroups_, [&name](const auto &pair) { return (pair.second.clipInfo_.clip.getName() == name); });
+    return Utils::contains(currentGroups, [&name](const auto &pair) { return (pair.second.clipInfo.clip.getName() == name); });
 }
 
 void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
 {
-    for (auto iter = currentGroups_.begin(); iter != currentGroups_.end();)
+    for (auto iter = currentGroups.begin(); iter != currentGroups.end();)
     {
         auto &group     = iter->second;
-        auto length     = group.clipInfo_.clip.GetLength();
-        auto &progress  = group.time_;
-        float direction = group.clipInfo_.playDirection == PlayDirection::forward ? 1.f : -1.f;
+        auto length     = group.clipInfo.clip.GetLength();
+        auto &progress  = group.time;
+        float direction = group.clipInfo.playDirection == PlayDirection::forward ? 1.f : -1.f;
 
-        progress += deltaTime * group.clipInfo_.playSpeed * direction;
+        progress += deltaTime * group.clipInfo.playSpeed * direction;
 
-        notifyFrameSubsribers(group.clipInfo_, group.frames.first, progress, group.previousFrameTimeStamp);
+        notifyFrameSubsribers(group.clipInfo, group.frames.first, progress, group.previousFrameTimeStamp);
 
         if (progress > length)
         {
-            if (group.clipInfo_.playType == Components::AnimationClipInfo::PlayType::once)
+            if (group.clipInfo.playType == Components::AnimationClipInfo::PlayType::once)
             {
-                iter = currentGroups_.erase(iter);
+                iter = currentGroups.erase(iter);
                 continue;
             }
 
@@ -224,17 +231,17 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
         }
         if (progress < 0)
         {
-            progress = group.clipInfo_.clip.GetLength() + progress;
+            progress = group.clipInfo.clip.GetLength() + progress;
         }
 
         ++iter;
     }
 
-    if (currentGroups_.empty() and transtionGroups_.size() == 1)
+    if (currentGroups.empty() and transtionGroups.size() == 1)
     {
-        for (auto &[_, group] : transtionGroups_)
+        for (auto &[_, group] : transtionGroups)
         {
-            context_.machine.transitionTo<AnimationTransition>(context_, group.clipInfo_, group.progress_);
+            context.machine.transitionTo<AnimationTransition>(context, group.clipInfo, group.time);
             return;
         }
     }
@@ -242,21 +249,23 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
 
 void AnimationTransitionToMixed::increaseTransitionTime(float deltaTime)
 {
-    for (auto iter = transtionGroups_.begin(); iter != transtionGroups_.end();)
+    for (auto iter = transtionGroups.begin(); iter != transtionGroups.end();)
     {
         auto &group = iter->second;
-        group.progress_ += (1.f / group.timeForChange_) * deltaTime;
+        group.time += (1.f / group.timeForChange) * deltaTime;
 
-        if (group.progress_ > 1.f)
+        if (group.time > 1.f)
         {
-            Group newGroup{group.clipInfo_, 0.f, group.jointGroup_};
-            currentGroups_.insert({iter->first, newGroup});
+            PlayGroupMixed newGroup{{{.time = 0.f, .clipInfo = group.clipInfo, .jointGroup = group.jointGroup},
+                                     group.clipInfo.playDirection == PlayDirection::forward ? 1.f : -1.f}};
 
-            if (group.onTransitionEnd_)
+            currentGroups.insert({iter->first, newGroup});
+
+            if (group.onTransitionEnd)
             {
-                group.onTransitionEnd_();
+                group.onTransitionEnd();
             }
-            iter = transtionGroups_.erase(iter);
+            iter = transtionGroups.erase(iter);
         }
         else
         {
@@ -264,14 +273,14 @@ void AnimationTransitionToMixed::increaseTransitionTime(float deltaTime)
         }
     }
 
-    if (transtionGroups_.empty())
+    if (transtionGroups.empty())
     {
         AnimationClipInfoPerGroup infoPerGroup;
-        for (const auto &[name, group] : currentGroups_)
+        for (const auto &[name, group] : currentGroups)
         {
-            infoPerGroup.insert({name, {group.clipInfo_, group.time_}});
+            infoPerGroup.insert({name, {group.clipInfo, group.time}});
         }
-        context_.machine.transitionTo<PlayMixedAnimation>(context_, infoPerGroup);
+        context.machine.transitionTo<PlayMixedAnimation>(context, infoPerGroup);
     }
 }
 
@@ -279,12 +288,15 @@ void AnimationTransitionToMixed::addTransitionBasedOnEvent(const ChangeAnimation
 {
     if (event.jointGroupName)
     {
-        auto iter = context_.jointGroups.find(*event.jointGroupName);
-        if (iter != context_.jointGroups.end())
+        auto iter = context.jointGroups.find(*event.jointGroupName);
+        if (iter != context.jointGroups.end())
         {
-            transtionGroups_.insert(
-                {*event.jointGroupName, TransitionGroup{event.startTime, event.info, iter->second, event.onTransitionEnd,
-                                                        convert(context_.currentPose), context_.transitionTime, 0.f}});
+            transtionGroups.insert(
+                {*event.jointGroupName, TransitionGroup{{.time = 0.f, .clipInfo = event.info, .jointGroup = &iter->second},
+                                                        event.startTime,
+                                                        context.transitionTime,
+                                                        event.onTransitionEnd,
+                                                        convert(context.currentPose)}});
         }
     }
 }

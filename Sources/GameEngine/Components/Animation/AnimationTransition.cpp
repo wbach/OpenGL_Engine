@@ -14,20 +14,18 @@ namespace Components
 {
 AnimationTransition::AnimationTransition(Context& context, const AnimationClipInfo& infoClip, float /*startTime*/,
                                          OnTransitionEnd onTransitionEnd)
-    : context_{context}
-    , info_{infoClip}
-    , startChaneAnimKeyFrame_{convert(context_.currentPose)}  // to do , calculate pose for startTime
-    , endChangeAnimKeyFrame_{not infoClip.clip.GetFrames().empty() ? infoClip.clip.GetFrames().front()
-                                                                   : Animation::KeyFrame{}}
-    , timeForChange_{context.transitionTime}
-    , currentTime_{0.f}
-    , startTime_{0.f}
-    , onTransitionEnd_{onTransitionEnd}
+    : context{context}
+    , data{{.time = 0.f, .clipInfo = infoClip, .jointGroup = nullptr},
+           0.f,
+           context.transitionTime,
+           onTransitionEnd,
+           convert(context.currentPose),  // to do , calculate pose for startTime
+           not infoClip.clip.GetFrames().empty() ? infoClip.clip.GetFrames().front() : Animation::KeyFrame{}}
 {
 }
 bool AnimationTransition::update(float deltaTime)
 {
-    interpolatePoses(context_.currentPose, startChaneAnimKeyFrame_, endChangeAnimKeyFrame_, currentTime_);
+    interpolatePoses(context.currentPose, data.startChaneAnimKeyFrame, data.endChangeAnimKeyFrame, data.time);
     calculateTime(deltaTime);
     return true;
 }
@@ -35,11 +33,11 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        std::vector<TransitionGroupsPlaying> currentAnimtionTransitionInfo{{info_, currentTime_, {}, onTransitionEnd_}};
+        std::vector<TransitionGroupsPlaying> currentAnimtionTransitionInfo{{data.clipInfo, data.time, {}, data.onTransitionEnd}};
         auto& jointGroupNames = currentAnimtionTransitionInfo.front();
 
         bool groupFound{false};
-        for (auto& [name, group] : context_.jointGroups)
+        for (auto& [name, group] : context.jointGroups)
         {
             if (name != event.jointGroupName)
             {
@@ -53,7 +51,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 
         if (groupFound)
         {
-            context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event);
+            context.machine.transitionTo<AnimationTransitionToMixed>(context, currentAnimtionTransitionInfo, event);
         }
         else
         {
@@ -62,8 +60,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
-                                                           event.onTransitionEnd);
+        context.machine.transitionTo<AnimationTransition>(context, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 
@@ -71,30 +68,30 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        context_.machine.transitionTo<EmptyState>(context_);
+        context.machine.transitionTo<EmptyState>(context);
     }
     else
     {
-        context_.machine.transitionTo<EmptyState>(context_);
+        context.machine.transitionTo<EmptyState>(context);
     }
 }
 
 std::vector<std::string> AnimationTransition::getCurrentAnimation() const
 {
-    return {info_.clip.getName()};
+    return {data.clipInfo.clip.getName()};
 }
 void AnimationTransition::calculateTime(float deltaTime)
 {
-    currentTime_ += (deltaTime / timeForChange_);
+    data.time += (deltaTime / data.timeForChange);
 
-    if (currentTime_ > 1.f)
+    if (data.time > 1.f)
     {
-        if (onTransitionEnd_)
+        if (data.onTransitionEnd)
         {
-            onTransitionEnd_();
+            data.onTransitionEnd();
         }
 
-        context_.machine.transitionTo<PlayAnimation>(context_, info_, startTime_);
+        context.machine.transitionTo<PlayAnimation>(context, data.clipInfo, data.startupTime);
         return;
     }
 }

@@ -26,8 +26,7 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
 
             const auto& jointGroup = iter->second;
             float direction{info.playDirection == PlayDirection::forward ? 1.f : -1.f};
-            groups_.insert(
-                {name, PlayGroup{{.time = startTime, .direction = direction, .clipInfo = info, .jointGroup = &jointGroup}}});
+            groups_.insert({name, PlayGroupMixed{{{.time = startTime, .clipInfo = info, .jointGroup = &jointGroup}, direction}}});
         }
     }
 }

@@ -1,9 +1,9 @@
 #pragma once
 #include <unordered_map>
 
+#include "AnimationStateBase.h"
 #include "Context.h"
 #include "GameEngine/Animations/AnimationClip.h"
-#include "AnimationStateBase.h"
 
 namespace GameEngine
 {
@@ -28,7 +28,7 @@ private:
 private:
     Context& context_;
 
-    std::unordered_map<std::string, PlayGroup> groups_;
+    std::unordered_map<std::string, PlayGroupMixed> groups_;
 };
 }  // namespace Components
 }  // namespace GameEngine

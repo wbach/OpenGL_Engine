@@ -36,29 +36,10 @@ private:
     void addTransitionBasedOnEvent(const ChangeAnimationEvent&);
 
 private:
-    Context& context_;
+    Context& context;
 
-    struct Group
-    {
-        const AnimationClipInfo& clipInfo_;
-        float time_;
-        const std::vector<uint32>& jointGroup_;
-        CurrentFrames frames{nullptr, nullptr};
-        float previousFrameTimeStamp{-1.0f};
-    };
-    std::unordered_map<std::string, Group> currentGroups_;
-
-    struct TransitionGroup
-    {
-        float startupTime_;
-        const AnimationClipInfo& clipInfo_;
-        const std::vector<uint32>& jointGroup_;
-        std::function<void()> onTransitionEnd_;
-        Animation::KeyFrame startKeyFrame_;
-        float timeForChange_;
-        float progress_;
-    };
-    std::unordered_map<std::string, TransitionGroup> transtionGroups_;
+    std::unordered_map<std::string, PlayGroupMixed> currentGroups;
+    std::unordered_map<std::string, TransitionGroup> transtionGroups;
 };
 }  // namespace Components
 }  // namespace GameEngine
