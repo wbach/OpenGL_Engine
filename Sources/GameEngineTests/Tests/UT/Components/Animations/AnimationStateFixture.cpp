@@ -17,12 +17,12 @@ AnimationStateFixture::AnimationStateFixture()
 {
 }
 
-AnimationClipInfo AnimationStateFixture::createClip(const std::string &name, float duration,
-                                                    Animation::AnimationClip::PlayType playType)
+AnimationClipInfo AnimationStateFixture::createClip(const std::string &name, float duration, AnimationClipInfo::PlayType playType)
 {
     AnimationClipInfo clipInfo;
-    clipInfo.clip.name     = name;
-    clipInfo.clip.playType = playType;
+    clipInfo.playType = playType;
+
+    clipInfo.clip = Animation::AnimationClip(name);
     clipInfo.clip.AddFrame(Animation::KeyFrame{});
     clipInfo.clip.AddFrame(Animation::KeyFrame{{duration}, {}});
     return clipInfo;
@@ -37,7 +37,7 @@ void AnimationStateFixture::expectClipName(const std::string &name)
 
 void AnimationStateFixture::expectClipName(const AnimationClipInfo &info)
 {
-    expectClipName(info.clip.name);
+    expectClipName(info.clip.getName());
 }
 
 void AnimationStateFixture::expectNoClipName(const std::string &name)
@@ -49,6 +49,6 @@ void AnimationStateFixture::expectNoClipName(const std::string &name)
 
 void AnimationStateFixture::expectNoClipName(const AnimationClipInfo &info)
 {
-    expectClipName(info.clip.name);
+    expectClipName(info.clip.getName());
 }
 }  // namespace AnimationStateTests

@@ -187,16 +187,16 @@ std::vector<std::string> AnimationTransitionToMixed::getCurrentAnimation() const
 {
     std::vector<std::string> r;
     for (auto &[_, group] : currentGroups_)
-        r.push_back(group.clipInfo_.clip.name);
+        r.push_back(group.clipInfo_.clip.getName());
 
     for (auto &[_, group] : transtionGroups_)
-        r.push_back(group.clipInfo_.clip.name);
+        r.push_back(group.clipInfo_.clip.getName());
     return r;
 }
 
 bool AnimationTransitionToMixed::isAnimationPlaying(const std::string &name) const
 {
-    return Utils::contains(currentGroups_, [&name](const auto &pair) { return (pair.second.clipInfo_.clip.name == name); });
+    return Utils::contains(currentGroups_, [&name](const auto &pair) { return (pair.second.clipInfo_.clip.getName() == name); });
 }
 
 void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
@@ -214,7 +214,7 @@ void AnimationTransitionToMixed::increaseAnimationTime(float deltaTime)
 
         if (progress > length)
         {
-            if (group.clipInfo_.clip.playType == Animation::AnimationClip::PlayType::once)
+            if (group.clipInfo_.playType == Components::AnimationClipInfo::PlayType::once)
             {
                 iter = currentGroups_.erase(iter);
                 continue;

@@ -81,7 +81,7 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
 
 std::vector<std::string> AnimationTransition::getCurrentAnimation() const
 {
-    return {info_.clip.name};
+    return {info_.clip.getName()};
 }
 void AnimationTransition::calculateTime(float deltaTime)
 {

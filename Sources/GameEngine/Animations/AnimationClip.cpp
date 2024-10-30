@@ -1,7 +1,9 @@
 #include "AnimationClip.h"
+
+#include <Utils/Container.h>
+
 #include <algorithm>
 #include <sstream>
-#include <Utils/Container.h>
 
 namespace GameEngine
 {
@@ -12,10 +14,10 @@ AnimationClip::AnimationClip()
 {
 }
 
-AnimationClip::AnimationClip(const std::string& name)
-    : name(name)
-    , playType(PlayType::loop)
-    , length(-std::numeric_limits<float>::max())
+AnimationClip::AnimationClip(const std::string& name, const std::optional<std::string> & filepath)
+    : length(-std::numeric_limits<float>::max())
+    , name(name)
+    , filePath(filepath)
 {
 }
 
@@ -59,10 +61,23 @@ KeyFrame* AnimationClip::getFrame(FrameIndex i)
 
 std::optional<uint32> AnimationClip::getFrameId(float time)
 {
-
     return std::nullopt;
 }
 
+bool AnimationClip::isFromExternalFile() const
+{
+    return filePath.has_value();
+}
+
+const std::string& AnimationClip::getName() const
+{
+    return name;
+}
+
+const std::optional<std::string>& AnimationClip::getFilePath() const
+{
+    return filePath;
+}
 }  // namespace Animation
 }  // namespace GameEngine
 
@@ -71,7 +86,7 @@ namespace std
 string to_string(const GameEngine::Animation::AnimationClip& clip)
 {
     stringstream ss;
-    ss << "Animation clip : " << clip.name << '\n';
+    ss << "Animation clip : " << clip.getName() << '\n';
     for (const auto& frame : clip.GetFrames())
     {
         ss << "frame time : " << std::to_string(frame.timeStamp.value) << '\n';

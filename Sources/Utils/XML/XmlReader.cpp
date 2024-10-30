@@ -1,5 +1,7 @@
 #include "XmlReader.h"
+
 #include <algorithm>
+
 #include "Logger/Log.h"
 #include "Utils/FileSystem/FileSystemUtils.hpp"
 #include "Utils/XML/XMLUtils.h"
@@ -39,14 +41,22 @@ void ParseNode(rapidxml::xml_node<>* node, TreeNode& n)
 
 bool XmlReader::Read(const std::string& filename)
 {
-    auto str = Utils::ReadFile(filename);
-
-    if (str.empty())
+    try
     {
-        return false;
-    }
+        auto str = Utils::ReadFile(filename);
 
-    return ReadXml(str);
+        if (str.empty())
+        {
+            return false;
+        }
+
+        return ReadXml(str);
+    }
+    catch (...)
+    {
+        WARNING_LOG("Xml read error! filename=" + filename);
+    }
+    return false;
 }
 
 bool XmlReader::ReadXml(std::string fileContent)

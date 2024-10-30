@@ -28,6 +28,9 @@ namespace
 const std::string COMPONENT_STR{"Animator"};
 const std::string CSTR_STARTUP_ANIMATION{"startupAnimationClip"};
 const std::string CSTR_JOINT_GROUPS{"jointGroups"};
+const std::string CSTR_ANIMATION_PLAY_TYPE{"playType"};
+const std::string CSTR_ANIMATION_USE_ROOT_MONTION{"rootMontion"};
+const std::string CSTR_MODEL_BASED_CLIP{"modelBased"};
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
@@ -55,6 +58,7 @@ Animator& Animator::SetAnimation(const std::string& name)
     auto clipIter = animationClipInfo_.find(name);
     if (clipIter != animationClipInfo_.end())
     {
+        jointData_.rootMontion = clipIter->second.rootMontion;
         machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, std::nullopt});
     }
     return *this;
@@ -73,7 +77,7 @@ void Animator::setPlayOnceForAnimationClip(const std::string& name)
     auto iter = animationClipInfo_.find(name);
     if (iter != animationClipInfo_.end())
     {
-        iter->second.clip.playType = Animation::AnimationClip::PlayType::once;
+        iter->second.playType = AnimationClipInfo::PlayType::once;
     }
 }
 
@@ -102,8 +106,7 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
     WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found or frames are empty!");
     return 0;
 }
-IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function,
-                                            float frameTimeStamp)
+IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frameTimeStamp)
 {
     auto iter = animationClipInfo_.find(animName);
     if (iter != animationClipInfo_.end() and not iter->second.clip.GetFrames().empty())
@@ -250,14 +253,9 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
     if (changeType == AnimationChangeType::direct)
     {
         DEBUG_LOG(" AnimationChangeType::direct not implemnted go to smooth");
-        //        machine_.transitionTo(std::make_unique<PlayAnimation>(machine_.context_, clipIter->second, 0.0f));
-        //        if (onTransitionEnd)
-        //        {
-        //            onTransitionEnd();
-        //        }
-        //        return;
     }
 
+    jointData_.rootMontion = clipIter->second.rootMontion;
     machine_.handle(ChangeAnimationEvent{0.f, clipIter->second, groupName, onTransitionEnd});
 }
 void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType, PlayDirection playDirection,
@@ -276,6 +274,7 @@ void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType,
         DEBUG_LOG(" AnimationChangeType::direct not implemnted go to smooth");
     }
 
+    jointData_.rootMontion = clipIter->second->rootMontion;
     machine_.handle(ChangeAnimationEvent{0.f, *clipIter->second, groupName, onTransitionEnd});
 }
 void createDefaultJointGroup(std::vector<std::string>& group, const Animation::Joint& joint)
@@ -345,19 +344,27 @@ void Animator::Update()
         applyPoseToJoints();
     }
 }
-void Animator::AddAnimationClip(const GameEngine::File& file)
+void Animator::AddAnimationClip(const std::string& name, const GameEngine::File& file, AnimationClipInfo::PlayType playType,
+                                AnimationClipInfo::UseRootMontion rootMontion)
 {
-    clipsToRead_.push_back(file);
+    clipsToRead_.push_back({name, file, playType, rootMontion});
 }
-void Animator::AddAnimationClip(const Animation::AnimationClip& clip)
+void Animator::AddAnimationClip(const std::string& name, const Animation::AnimationClip& clip,
+                                AnimationClipInfo::PlayType playType, AnimationClipInfo::UseRootMontion rootMontion)
 {
-    if (not animationClipInfo_.count(clip.name))
+    auto animationName = name.empty() ? clip.getName() : name;
+
+    if (not animationClipInfo_.count(animationName))
     {
-        animationClipInfo_.insert({clip.name, {1.f, clip, PlayDirection::forward}});
+        animationClipInfo_.insert({animationName, AnimationClipInfo{.playSpeed     = 1.f,
+                                                                    .playType      = playType,
+                                                                    .playDirection = PlayDirection::forward,
+                                                                    .rootMontion   = rootMontion,
+                                                                    .clip          = clip}});
     }
     else
     {
-        ERROR_LOG("Clip already exist :" + clip.name);
+        ERROR_LOG("Clip already exist :" + clip.getName());
     }
 }
 
@@ -393,6 +400,17 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
+    if (jointData_.rootMontion)
+    {
+        auto currentPoseRootJointIter = jointData_.pose.data.find(jointData_.rootJoint.id);
+
+        if (currentPoseRootJointIter != jointData_.pose.data.end())
+        {
+            // remove translation
+            currentPoseRootJointIter->second.matrix[0][0] = 0.f;
+        }
+        // jointData_.rootJoint.
+    }
     applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
     updateShaderBuffers();
 }
@@ -410,17 +428,45 @@ void Animator::createShaderJointBuffers()
 }
 void Animator::initAnimationClips(const Model& model)
 {
-    for (auto& file : clipsToRead_)
-    {
-        AddAnimationClip(Animation::ReadAnimationClip(file, jointData_.rootJoint));
-    }
-
     for (const auto& [name, clip] : model.animationClips_)
     {
-        auto iter = animationClipInfo_.find(name);
-        if (iter == animationClipInfo_.end())
+        DEBUG_LOG("Add model based clip : " + name);
+        animationClipInfo_.insert({name, AnimationClipInfo{.playSpeed     = 1.f,
+                                                           .playType      = AnimationClipInfo::PlayType::loop,
+                                                           .playDirection = PlayDirection::forward,
+                                                           .rootMontion   = false,
+                                                           .clip          = clip}});
+    }
+
+    for (auto& [name, file, playType, rootMontion] : clipsToRead_)
+    {
+        if (const auto& clip = Animation::ReadAnimationClip(file, jointData_.rootJoint))
         {
-            animationClipInfo_.insert({name, {1.f, clip, PlayDirection::forward}});
+            auto animationName = name.empty() ? clip->getName() : name;
+
+            auto iter = animationClipInfo_.find(animationName);
+            if (iter != animationClipInfo_.end())
+            {
+                DEBUG_LOG("Update anim info for : " + animationName);
+                auto& [_, info]  = *iter;
+                info.playType    = playType;
+                info.rootMontion = rootMontion;
+            }
+            else
+            {
+                DEBUG_LOG("Add animation file based clip : " + file.GetInitValue());
+                AddAnimationClip(animationName, *clip, playType, rootMontion);
+            }
+            continue;
+        }
+
+        auto iter = animationClipInfo_.find(name);
+        if (iter != animationClipInfo_.end())
+        {
+            DEBUG_LOG("Update anim info for : " + name);
+            auto& [_, info]  = *iter;
+            info.playType    = playType;
+            info.rootMontion = rootMontion;
         }
     }
 
@@ -438,6 +484,20 @@ void Animator::initAnimationClips(const Model& model)
         rendererComponent_->useArmature(true);
 }
 
+Animator::ReadAnimationInfo Read(const TreeNode& node)
+{
+    std::string name{node.getAttributeValue(CSTR_NAME)};
+    std::string filename;
+    std::string playTypeStr;
+    AnimationClipInfo::UseRootMontion rootMontion{false};
+
+    Read(node.getChild(CSTR_FILE_NAME), filename);
+    Read(node.getChild(CSTR_ANIMATION_USE_ROOT_MONTION), rootMontion);
+    Read(node.getChild(CSTR_ANIMATION_PLAY_TYPE), playTypeStr);
+
+    return {name, GameEngine::File(filename), std::from_string(playTypeStr), rootMontion};
+}
+
 void Animator::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
@@ -449,7 +509,8 @@ void Animator::registerReadFunctions()
         {
             for (const auto& childNode : animationClipsNode->getChildren())
             {
-                component->AddAnimationClip(GameEngine::File(childNode->value_));
+                const auto& [name, file, playType, rootMontion] = GameEngine::Components::Read(*childNode);
+                component->AddAnimationClip(name, file, playType, rootMontion);
             }
         }
 
@@ -473,18 +534,33 @@ void Animator::registerReadFunctions()
 
     regsiterComponentReadFunction(COMPONENT_STR, readFunc);
 }
+
+void write(TreeNode& node, const AnimationClipInfo& clipInfo)
+{
+    const auto& fp = clipInfo.clip.getFilePath();
+    if (fp)
+    {
+        write(node.addChild(CSTR_FILE_NAME), clipInfo.clip.getFilePath().value());
+    }
+    else
+    {
+        node.attributes_[CSTR_MODEL_BASED_CLIP] = "true";
+    }
+    write(node.addChild(CSTR_ANIMATION_PLAY_TYPE), std::to_string(clipInfo.playType));
+    write(node.addChild(CSTR_ANIMATION_USE_ROOT_MONTION), clipInfo.rootMontion);
+}
+
 void Animator::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_STARTUP_ANIMATION, startupAnimationClipName_);
     auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
 
-    for (const auto& [_, info] : animationClipInfo_)
+    for (const auto& [name, info] : animationClipInfo_)
     {
-        if (not info.clip.filePath.empty())
-        {
-            animationClipsNode.addChild(CSTR_ANIMATION_CLIP, info.clip.filePath);
-        }
+        auto& animClipNode               = animationClipsNode.addChild(CSTR_ANIMATION_CLIP);
+        animClipNode.attributes_["name"] = name;
+        ::GameEngine::Components::write(animClipNode, info);
     }
 
     auto& jointGroupNode = node.addChild(CSTR_JOINT_GROUPS);

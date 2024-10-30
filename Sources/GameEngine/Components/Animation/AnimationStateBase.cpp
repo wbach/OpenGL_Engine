@@ -47,7 +47,7 @@ bool AnimationStateBase::increaseAnimationTime(float& currentTime, float& previo
 
     if (currentTime > clipInfo.clip.GetLength())
     {
-        if (clipInfo.clip.playType == Animation::AnimationClip::PlayType::once)
+        if (clipInfo.playType == Components::AnimationClipInfo::PlayType::once)
         {
             return false;
         }

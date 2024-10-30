@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
+#include <Utils/Utils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
@@ -50,8 +51,11 @@ JointTransform Interpolate(const JointTransform& frameA, const JointTransform& f
     return out;
 }
 
-AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
+std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoint)
 {
+    if (file.empty())
+        return std::nullopt;
+
     Utils::XmlReader reader;
     reader.Read(file.GetAbsoultePath());
     auto root = reader.Get();
@@ -66,8 +70,7 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
             animationClipName = animationNameAttribute;
         }
 
-        AnimationClip animationClip(animationClipName);
-        animationClip.filePath = file.GetInitValue();
+        AnimationClip animationClip(animationClipName, file.GetInitValue());
         animationClip.SetLength(std::stof(root->attributes_["length"]));
 
         for (const auto& keyframeNode : reader.Get("KeyFrames")->getChildren())
@@ -95,8 +98,7 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
                 }
                 else
                 {
-                    ERROR_LOG("Joint \"" + jointName +
-                              "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
+                    ERROR_LOG("Joint \"" + jointName + "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
                 }
             }
             animationClip.AddFrame(keyFrame);
@@ -104,16 +106,16 @@ AnimationClip ReadAnimationClip(const File& file, Joint& rootJoint)
         return animationClip;
     }
 
-    return AnimationClip();
+    return std::nullopt;
 }
 
 void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, const Joint& rootJoint)
 {
     TreeNode rootNode("AnimationClip");
 
-    if (not animationClip.name.empty())
+    if (not animationClip.getName().empty())
     {
-        rootNode.attributes_.insert({"name", animationClip.name});
+        rootNode.attributes_.insert({"name", animationClip.getName()});
     }
 
     rootNode.attributes_.insert({"length", std::to_string(animationClip.GetLength())});

@@ -539,8 +539,7 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
         }
     }
 
-    Animation::AnimationClip clip;
-    clip.name = aiAnim.mName.data;
+    Animation::AnimationClip clip(aiAnim.mName.data);
     clip.SetLength(static_cast<float>(aiAnim.mDuration / aiAnim.mTicksPerSecond));
     tmpClip.addNotSimplifiedFramesToClip(clip);
 

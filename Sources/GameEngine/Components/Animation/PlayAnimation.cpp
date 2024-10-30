@@ -60,12 +60,12 @@ void PlayAnimation::handle(const StopAnimationEvent& e)
 
 std::vector<std::string> PlayAnimation::getCurrentAnimation() const
 {
-    return {clipInfo_.clip.name};
+    return {clipInfo_.clip.getName()};
 }
 
 bool PlayAnimation::isAnimationPlaying(const std::string& name) const
 {
-    return clipInfo_.clip.name == name;
+    return clipInfo_.clip.getName() == name;
 }
 }  // namespace Components
 }  // namespace GameEngine

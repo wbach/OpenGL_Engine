@@ -27,8 +27,10 @@ class RendererComponent;
 class Animator : public BaseComponent
 {
 public:
-    using AnimationInfoClips = std::unordered_map<std::string, AnimationClipInfo>;
+    using AnimationInfoClips      = std::unordered_map<std::string, AnimationClipInfo>;
     using AnimationInfoClipsIdMap = std::unordered_map<IdType, AnimationClipInfo*>;
+    using ReadAnimationInfo =
+        std::tuple<std::string, GameEngine::File, AnimationClipInfo::PlayType, AnimationClipInfo::UseRootMontion>;
 
     enum class AnimationChangeType
     {
@@ -41,13 +43,18 @@ public:
     void ReqisterFunctions() override;
 
     void Update();
-    void AddAnimationClip(const GameEngine::File&);
-    void AddAnimationClip(const Animation::AnimationClip&);
+    void AddAnimationClip(const std::string&, const GameEngine::File&,
+                          AnimationClipInfo::PlayType       = AnimationClipInfo::PlayType::loop,
+                          AnimationClipInfo::UseRootMontion = false);
+    void AddAnimationClip(const std::string&, const Animation::AnimationClip&,
+                          AnimationClipInfo::PlayType       = AnimationClipInfo::PlayType::loop,
+                          AnimationClipInfo::UseRootMontion = false);
     Animator& SetAnimation(const std::string&);
-    void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
-                         std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
+    void ChangeAnimation(const std::string&, AnimationChangeType = AnimationChangeType::smooth,
+                         PlayDirection = PlayDirection::forward, std::optional<std::string> = std::nullopt,
+                         std::function<void()> = nullptr);
     void ChangeAnimation(const IdType&, AnimationChangeType = AnimationChangeType::smooth, PlayDirection = PlayDirection::forward,
-        std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
+                         std::optional<std::string> = std::nullopt, std::function<void()> = nullptr);
 
     void StopAnimation(std::optional<std::string> = std::nullopt);
     GraphicsApi::ID getPerPoseBufferId() const;
@@ -99,7 +106,7 @@ protected:
     Utils::IdPool animationClipInfoByIdPool_;
 
     RendererComponent* rendererComponent_;
-    std::vector<GameEngine::File> clipsToRead_;
+    std::vector<ReadAnimationInfo> clipsToRead_;
     JointGroupsIds jointGroupsIds_;
 
 public:

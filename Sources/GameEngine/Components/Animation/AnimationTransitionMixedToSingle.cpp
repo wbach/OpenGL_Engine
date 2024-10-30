@@ -104,12 +104,12 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
 
 std::vector<std::string> AnimationTransitionMixedToSingle::getCurrentAnimation() const
 {
-    return {currentClipInfo_.clip.name};
+    return {currentClipInfo_.clip.getName()};
 }
 
 bool AnimationTransitionMixedToSingle::isAnimationPlaying(const std::string &name) const
 {
-    return currentClipInfo_.clip.name == name;
+    return currentClipInfo_.clip.getName() == name;
 }
 
 void AnimationTransitionMixedToSingle::increaseAnimationTime(float deltaTime)

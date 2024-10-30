@@ -1,6 +1,9 @@
 #include "BinaryReader.h"
+
 #include <Logger/Log.h>
+
 #include <fstream>
+
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Animations/KeyFrame.h"
@@ -59,7 +62,7 @@ void ReadFile(std::ifstream& file, Animation::KeyFrame& keyFrame)
             Animation::JointTransform transform;
             ReadFile(file, name);
             ReadFile(file, transform);
-//            keyFrame.transforms[name] = transform;
+            //            keyFrame.transforms[name] = transform;
         }
     }
 
@@ -78,7 +81,6 @@ void ReadFile(std::ifstream& file, Animation::KeyFrame& keyFrame)
 
 void ReadFile(std::ifstream& file, Animation::AnimationClip& clip)
 {
-    ReadFile(file, clip.name);
     float correctLength = 0;
     ReadFile(file, correctLength);
 
@@ -114,7 +116,13 @@ void ReadFile(std::ifstream& file, AnimationClipsMap& animations)
     {
         std::string name;
         ReadFile(file, name);
-        ReadFile(file, animations[name]);
+
+        std::string clipName;
+        ReadFile(file, clipName);
+
+        Animation::AnimationClip clip(clipName);
+        ReadFile(file, clip);
+        animations.insert({name, clip});
     }
 }
 void ReadFile(std::ifstream& file, Animation::JointTransform& transform)
@@ -129,7 +137,7 @@ void ReadFile(std::ifstream& file, Animation::Joint& skeleton)
     ReadFile(file, skeleton.name);
     ReadFile(file, skeleton.transform);
     ReadFile(file, skeleton.invtransform);
-//    ReadFile(file, skeleton.animatedTransform);
+    //    ReadFile(file, skeleton.animatedTransform);
 
     uint32 size = 0;
     file.read(reinterpret_cast<char*>(&size), sizeof(uint32));
@@ -212,7 +220,7 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
     }
 
     ReadFile(file, out->animationClips_);
-   // ReadFile(file, out->skeleton_);
+    // ReadFile(file, out->skeleton_);
 
     file.close();
 

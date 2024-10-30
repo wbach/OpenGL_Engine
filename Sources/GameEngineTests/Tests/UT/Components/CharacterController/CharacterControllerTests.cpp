@@ -289,7 +289,7 @@ void CharacterControllerTests::addDummyClip(const std::string& name)
         clip.AddFrame(Animation::KeyFrame{DUMMY_FRAME_TIME_DELTA * (float)i, {{0, Animation::JointTransform{}}}});
     }
     DEBUG_LOG("addDummyClip : " + name + " Length : " + std::to_string(clip.GetLength()));
-    animator_->AddAnimationClip(clip);
+    animator_->AddAnimationClip(name, clip);
 }
 
 void CharacterControllerTests::Update(float time)

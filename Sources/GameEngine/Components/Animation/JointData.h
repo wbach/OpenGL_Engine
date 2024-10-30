@@ -14,6 +14,7 @@ struct JointData
 {
     JointData(GraphicsApi::IGraphicsApi& api);
     Pose pose;
+    bool rootMontion{false};
     Animation::Joint rootJoint;
     std::unique_ptr<BufferObject<PerPoseUpdate>> buffer;
 

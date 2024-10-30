@@ -27,7 +27,7 @@ struct AnimationStateFixture : public ::testing::Test
     }
 
     AnimationClipInfo createClip(const std::string&, float = CLIP_LENGTH,
-                                 Animation::AnimationClip::PlayType = Animation::AnimationClip::PlayType::once);
+                                 AnimationClipInfo::PlayType = AnimationClipInfo::PlayType::once);
     void expectClipName(const std::string&);
     void expectClipName(const AnimationClipInfo&);
     void expectNoClipName(const std::string&);

@@ -19,6 +19,9 @@ File::File(const std::string &input)
     , fp_{nullptr}
     , fileSize_(0)
 {
+    if (input.empty())
+        return;
+
     if (Utils::IsAbsolutePath(initValue_))
         AbsoultePath(initValue_);
     else if (IsProjectRelativePath(initValue_))
@@ -155,7 +158,7 @@ void File::ChangeBaseName(const std::string &basename)
     auto filenameWithExtension = basename + GetExtension();
     auto absoultePath          = std::filesystem::path(absoultePath_).replace_filename(filenameWithExtension).string();
     auto dataRelative          = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
-    auto projectRelative = std::filesystem::path(projectRelative_).replace_filename(filenameWithExtension).string();
+    auto projectRelative       = std::filesystem::path(projectRelative_).replace_filename(filenameWithExtension).string();
     ConvertSlashes(absoultePath, dataRelative, projectRelative);
 }
 
@@ -185,8 +188,7 @@ bool File::IsExtension(const std::vector<std::string> &extensions) const
 {
     auto ext = GetExtension();
 
-    return std::any_of(extensions.begin(), extensions.end(),
-                       [&ext](const auto &s) { return getExtensionToCompare(s) == ext; });
+    return std::any_of(extensions.begin(), extensions.end(), [&ext](const auto &s) { return getExtensionToCompare(s) == ext; });
 }
 
 bool File::operator==(const File &f) const
@@ -210,7 +212,7 @@ File::operator bool() const
 }
 bool File::empty() const
 {
-    return absoultePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
+    return initValue_.empty() or absoultePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
 }
 bool File::openToWrite()
 {
@@ -266,8 +268,7 @@ void File::close()
 
     fp_ = nullptr;
 }
-void File::ConvertSlashes(const std::string &absoultePath, const std::string &dataRelative,
-                          const std::string &projectRelative)
+void File::ConvertSlashes(const std::string &absoultePath, const std::string &dataRelative, const std::string &projectRelative)
 {
     absoultePath_    = Utils::ReplaceSlash(absoultePath);
     dataRelative_    = Utils::ReplaceSlash(dataRelative);
@@ -300,19 +301,19 @@ void File::ClearSpecialCharacters()
     const std::string notAllowed{"<>:\"|?*"};
 
     bool changeNeeded{false};
-    auto fname   = GetFilename();
-    auto new_end = std::remove_if(
-        fname.begin(), fname.end(),
-        [notAllowed, this, &changeNeeded](std::string::value_type c)
-        {
-            auto result = notAllowed.find(c) != std::string::npos;
-            if (result)
-            {
-                changeNeeded = true;
-                DEBUG_LOG(std::string("Remove notAllowed character \"") + c + "\" from file : " + initValue_);
-            }
-            return result;
-        });
+    auto fname = GetFilename();
+    auto new_end =
+        std::remove_if(fname.begin(), fname.end(),
+                       [notAllowed, this, &changeNeeded](std::string::value_type c)
+                       {
+                           auto result = notAllowed.find(c) != std::string::npos;
+                           if (result)
+                           {
+                               changeNeeded = true;
+                               DEBUG_LOG(std::string("Remove notAllowed character \"") + c + "\" from file : " + initValue_);
+                           }
+                           return result;
+                       });
 
     if (changeNeeded)
     {

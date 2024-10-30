@@ -240,7 +240,7 @@ int EditorScene::Initialize()
                                 DEBUG_LOG("Found animation file in subfolders add clip : " + file);
                                 if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
                                 {
-                                    animator.AddAnimationClip(GameEngine::File(file));
+                                    animator.AddAnimationClip("", GameEngine::File(file));
                                     // auto button = guiElementFactory_->CreateGuiButton(
                                     //    *animationName, [&, animName = *animationName](const auto&) {
                                     //        DEBUG_LOG(animName);

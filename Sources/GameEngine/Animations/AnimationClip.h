@@ -41,14 +41,8 @@ struct FrameIndex
 class AnimationClip
 {
 public:
-    enum class PlayType
-    {
-        loop,
-        once
-    };
-
     AnimationClip();
-    AnimationClip(const std::string&);
+    AnimationClip(const std::string&, const std::optional<std::string>& = std::nullopt);
     float GetLength() const;
     KeyFrame& AddFrame(const KeyFrame&);
     const std::vector<KeyFrame>& GetFrames() const;
@@ -56,15 +50,15 @@ public:
     KeyFrame* getFrame(TimeStamp);
     KeyFrame* getFrame(FrameIndex);
     std::optional<uint32> getFrameId(float);
-
-public:
-    std::string name;
-    std::string filePath;
-    PlayType playType;
+    bool isFromExternalFile() const;
+    const std::string& getName() const;
+    const std::optional<std::string>& getFilePath() const;
 
 private:
     float length;
+    std::string name;
     std::vector<KeyFrame> frames;
+    std::optional<std::string> filePath;
 };
 }  // namespace Animation
 }  // namespace GameEngine

@@ -62,10 +62,7 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
     }
     void createClip(const std::string& clipName)
     {
-        AnimationClip clip;
-        clip.name     = clipName;
-        clip.playType = AnimationClip::PlayType::once;
-
+        AnimationClip clip(clipName);
         KeyFrame frame;
 
         for (auto i = 0u; i < BONE_COUNT; ++i)
@@ -82,7 +79,7 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
         frame.timeStamp = 0.99f;
         clip.AddFrame(frame);
 
-        sut_.AddAnimationClip(clip);
+        sut_.AddAnimationClip(clipName, clip);
         sut_.SetAnimation(clipName);
     }
 

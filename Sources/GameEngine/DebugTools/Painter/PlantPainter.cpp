@@ -18,7 +18,7 @@ PlantPainter::PlantPainter(const EntryParamters& entryParamters, Components::Gra
     const auto& data = component.GetGrassMeshesData();
     tmpPositions_.reserve(data.positions.size() / 3);
 
-    for (int i = 0; i < data.positions.size(); i += 3)
+    for (size_t i = 0; i < data.positions.size(); i += 3)
     {
         tmpPositions_.push_back(vec3(data.positions[i], data.positions[i + 1], data.positions[i + 2]));
     }

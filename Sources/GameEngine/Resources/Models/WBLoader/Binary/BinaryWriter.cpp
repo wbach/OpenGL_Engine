@@ -66,7 +66,7 @@ void WriteToFile(std::fstream& file, const Animation::KeyFrame& keyFrame)
 }
 void WriteToFile(std::fstream& file, const Animation::AnimationClip& clip)
 {
-    WriteToFile(file, clip.name);
+    WriteToFile(file, clip.getName());
     WriteToFile(file, clip.GetLength());
     const auto& frames = clip.GetFrames();
     WriteToFile(file, frames.size());
