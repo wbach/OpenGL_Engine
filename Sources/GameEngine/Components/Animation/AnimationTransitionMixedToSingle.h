@@ -28,26 +28,16 @@ private:
 
 private:
     Context& context_;
-
-    float currentClipProgres_;
-    const AnimationClipInfo& currentClipInfo_;
-
-    struct Group
-    {
-        std::string name;
-        std::vector<uint32> currentAnimJointGroup_;
-    };
-    std::vector<Group> currentGroups_;
-
-    Animation::KeyFrame startChaneAnimKeyFrame_;
+    PlayGroup currentAnim;
 
     struct TransitionGroups
     {
         const std::vector<uint32>& jointGroups;
     };
-    std::vector<TransitionGroups> transitionGroups_;
 
     float transitionProgress_;
+    Animation::KeyFrame startChangeAnimKeyFrame_;
+    std::vector<TransitionGroups> transitionGroups_;
 };
 }  // namespace Components
 }  // namespace GameEngine

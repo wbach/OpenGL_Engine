@@ -13,26 +13,34 @@ namespace GameEngine
 {
 namespace Components
 {
-AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &context,
-                                                                   const CurrentGroupsPlayingInfo &info)
-    : context_{context}
-    , currentClipProgres_{info.currentTime}
-    , currentClipInfo_{info.info}
-    , transitionProgress_{0.f}
+namespace
 {
-    for (auto &groupName : info.jointGroupNames)
+const std::vector<uint32> *findJointGroup(Context &context, const CurrentGroupsPlayingInfo &info)
+{
+    if (info.jointGroupNames.size() != 1)
     {
-        auto iter = context.jointGroups.find(groupName);
-
-        if (iter != context_.jointGroups.end())
-        {
-            currentGroups_.push_back({
-                groupName,
-                iter->second,
-            });
-        }
+        WARNING_LOG("Wrong group size! Note: multiple joint groups to single anim not implemented. Size=" +
+                    std::to_string(info.jointGroupNames.size()));
+        return nullptr;
     }
 
+    const auto &groupName = info.jointGroupNames.front();
+    auto iter             = context.jointGroups.find(groupName);
+
+    if (iter != context.jointGroups.end())
+    {
+        return &iter->second;
+    }
+
+    WARNING_LOG("Joint group not found! Group name :" + groupName);
+    return nullptr;
+}
+}  // namespace
+AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &context, const CurrentGroupsPlayingInfo &info)
+    : context_{context}
+    , currentAnim{{.time = info.currentTime, .clipInfo = info.info, .jointGroup = findJointGroup(context, info)}}
+    , transitionProgress_{0.f}
+{
     for (const auto &[name, group] : context_.jointGroups)
     {
         auto iter = std::find(info.jointGroupNames.begin(), info.jointGroupNames.end(), name);
@@ -41,25 +49,20 @@ AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &cont
             transitionGroups_.push_back({group});
         }
     }
-
-    startChaneAnimKeyFrame_ = convert(context_.currentPose);
+    startChangeAnimKeyFrame_ = convert(context_.currentPose);
 }
 
 bool AnimationTransitionMixedToSingle::update(float deltaTime)
 {
-    for (const auto &group : currentGroups_)
+    if (currentAnim.jointGroup and not currentAnim.jointGroup->empty())
     {
-        if (not group.currentAnimJointGroup_.empty())
-        {
-            calculateCurrentAnimationPose(context_.currentPose, currentClipInfo_.clip, currentClipProgres_,
-                                          group.currentAnimJointGroup_);
-        }
+        calculateCurrentAnimationPose(context_.currentPose, currentAnim.clipInfo.clip, currentAnim.time, *currentAnim.jointGroup);
     }
 
     for (const auto &transitionGroup : transitionGroups_)
     {
-        auto [_, nextKeyFrame] = getPreviousAndNextFrames(currentClipInfo_.clip, currentClipProgres_);
-        interpolatePoses(context_.currentPose, startChaneAnimKeyFrame_, *nextKeyFrame, transitionProgress_,
+        auto [_, nextKeyFrame] = getPreviousAndNextFrames(currentAnim.clipInfo.clip, currentAnim.time);
+        interpolatePoses(context_.currentPose, startChangeAnimKeyFrame_, *nextKeyFrame, transitionProgress_,
                          transitionGroup.jointGroups);
     }
 
@@ -72,7 +75,7 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
 {
     if (event.jointGroupName)
     {
-        std::vector<CurrentGroupsPlayingInfo> v{{currentClipInfo_, currentClipProgres_, {}}};
+        std::vector<CurrentGroupsPlayingInfo> v{{currentAnim.clipInfo, currentAnim.time, {}}};
 
         for (auto &[name, group] : context_.jointGroups)
         {
@@ -85,8 +88,7 @@ void AnimationTransitionMixedToSingle::handle(const ChangeAnimationEvent &event)
     }
     else
     {
-        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime,
-                                                           event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 
@@ -104,25 +106,25 @@ void AnimationTransitionMixedToSingle::handle(const StopAnimationEvent &event)
 
 std::vector<std::string> AnimationTransitionMixedToSingle::getCurrentAnimation() const
 {
-    return {currentClipInfo_.clip.getName()};
+    return {currentAnim.clipInfo.clip.getName()};
 }
 
 bool AnimationTransitionMixedToSingle::isAnimationPlaying(const std::string &name) const
 {
-    return currentClipInfo_.clip.getName() == name;
+    return currentAnim.clipInfo.clip.getName() == name;
 }
 
 void AnimationTransitionMixedToSingle::increaseAnimationTime(float deltaTime)
 {
-    currentClipProgres_ += deltaTime * currentClipInfo_.playSpeed;  //* direction_;
+    currentAnim.time += deltaTime * currentAnim.clipInfo.playSpeed;  //* direction_;
 
-    if (currentClipProgres_ > currentClipInfo_.clip.GetLength())
+    if (currentAnim.time > currentAnim.clipInfo.clip.GetLength())
     {
-        currentClipProgres_ = fmodf(currentClipProgres_, currentClipInfo_.clip.GetLength());
+        currentAnim.time = fmodf(currentAnim.time, currentAnim.clipInfo.clip.GetLength());
     }
-    if (currentClipProgres_ < 0)
+    if (currentAnim.time < 0)
     {
-        currentClipProgres_ = currentClipInfo_.clip.GetLength() + currentClipProgres_;
+        currentAnim.time = currentAnim.clipInfo.clip.GetLength() + currentAnim.time;
     }
 }
 
@@ -132,7 +134,7 @@ void AnimationTransitionMixedToSingle::increaseTransitionTime(float deltaTime)
 
     if (transitionProgress_ > 1.f)
     {
-        context_.machine.transitionTo<PlayAnimation>(context_, currentClipInfo_, currentClipProgres_);
+        context_.machine.transitionTo<PlayAnimation>(context_, currentAnim.clipInfo, currentAnim.time);
         return;
     }
 }
