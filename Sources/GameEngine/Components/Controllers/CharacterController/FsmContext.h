@@ -104,9 +104,10 @@ struct FsmContext
     float progress = 1.f;
 
     AttackStatesContext attackStatesContext;
-    Physics::RigidbodyId fallchkerRbId;
 
     std::vector<CharacterControllerEvent> eventsQueue;
+
+    bool isOnAir = false;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -36,11 +36,20 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     void Update(float time);
     void expectAnimsToBeSet(const std::vector<std::string>&);
+
+    template <typename Event>
+    void handleEvent(const Event& event)
+    {
+        sut_.handleEvent(event);
+        // sut_.pushEventToQueue(event);
+        // Update(0);
+    }
+
     template <typename Event>
     void tiggerAndExpect(const Event& event, const std::vector<std::string>& clipNames,
                          const std::vector<float>& updateTimes = {ADVANCED_TIME_TRANSITION_TIME})
     {
-        sut_.handleEvent(event);
+        handleEvent(event);
         for (auto updateTime : updateTimes)
             Update(updateTime);
         expectAnimsToBeSet(clipNames);

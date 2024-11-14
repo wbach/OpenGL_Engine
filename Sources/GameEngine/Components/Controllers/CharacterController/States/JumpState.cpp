@@ -10,7 +10,7 @@ namespace Components
 {
 namespace
 {
-const float DEFAULT_JUMP_ATTEMPT_TIMER_VALUE = 0.2f;
+const float DEFAULT_JUMP_ATTEMPT_TIMER_VALUE = 0.25f;
 }
 
 JumpState::JumpState(FsmContext &context)
@@ -20,28 +20,48 @@ JumpState::JumpState(FsmContext &context)
 
 void JumpState::onEnter(const JumpEvent &event)
 {
+    DEBUG_LOG("perform Jump");
     auto velocity = context_.rigidbody.GetVelocity();
     velocity.y += event.power;
     context_.rigidbody.SetVelocity(velocity);
 
-    jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
-    animName = context_.animClipNames.disarmed.jump;
+    animName         = context_.animClipNames.disarmed.jump;
+
+    if (context_.isOnAir)
+    {
+        setAnim();
+    }
+    else
+    {
+        jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
+    }
 }
 
-void JumpState::onEnter(const DodgeDiveEvent & event)
+void JumpState::onEnter(const DodgeDiveEvent &event)
 {
     auto velocity = context_.rigidbody.GetVelocity();
     velocity += VECTOR_FORWARD * event.power;
     context_.rigidbody.SetVelocity(velocity);
 
-    jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
     animName = context_.animClipNames.disarmed.dodgeDive;
+
+    if (context_.isOnAir)
+    {
+        setAnim();
+    }
+    else
+    {
+        jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
+    }
 }
 
 void JumpState::update(const JumpConfirmEvent &)
 {
-    jumpAttemptTimer.reset();
-    setAnim();
+    if (jumpAttemptTimer)
+    {
+        setAnim();
+        jumpAttemptTimer.reset();
+    }
 }
 
 void JumpState::update(float deltaTime)
@@ -53,6 +73,7 @@ void JumpState::update(float deltaTime)
         {
             DEBUG_LOG("JumpTriger timeout");
             context_.characterController.pushEventToFrontQueue(GroundDetectionEvent{});
+            context_.isOnAir = false;
             jumpAttemptTimer.reset();
         }
     }
@@ -60,6 +81,7 @@ void JumpState::update(float deltaTime)
 
 void JumpState::onLeave(const GroundDetectionEvent &)
 {
+    DEBUG_LOG("perform GroundDetectionEvent");
     flushEvents();
 }
 
@@ -67,8 +89,15 @@ void JumpState::setAnim()
 {
     if (not animName.empty())
     {
-        context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth,
-                                          PlayDirection::forward, std::nullopt);
+        const auto &currentClips = context_.animator.getCurrentAnimationName();
+
+        auto iter = std::find(currentClips.begin(), currentClips.end(), animName);
+
+        if (iter == currentClips.end())
+        {
+            context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
+                                              std::nullopt);
+        }
     }
 }
 }  // namespace Components

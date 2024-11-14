@@ -131,7 +131,7 @@ std::optional<int64> Enemy::hurt(int64 dmg)
         }
         else
         {
-            characterController_->handleEvent(DeathEvent{});
+            characterController_->pushEventToQueue(DeathEvent{});
             characterController_->Deactivate();
             Deactivate();
         }

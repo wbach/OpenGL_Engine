@@ -18,6 +18,7 @@ namespace Components
 class CharacterController : public BaseComponent
 {
 public:
+    using EventQueue = std::deque<CharacterControllerEvent>;
     struct MoveSpeeds
     {
         MoveSpeed walkSpeed{DEFAULT_WALK_SPEED, DEFAULT_BACKWARD_WALK_SPEED, DEFAULT_WALK_LEFT_RIGHT_SPEED, DEFAULT_TURN_SPEED};
@@ -36,12 +37,11 @@ public:
     void PostStart();
     void Update();
 
-    void handleEvent(const CharacterControllerEvent&);
-
     template <typename Event>
     void pushEventToQueue(const Event& event)
     {
         // /*DISABLED*/ DEBUG_LOG("pushEventToQueue " + typeName<Event>());
+        std::lock_guard<std::mutex> lk(eventQueueMutex);
         eventQueue.push_back(event);
     }
 
@@ -49,18 +49,23 @@ public:
     void pushEventToFrontQueue(const Event& event)
     {
         // /*DISABLED*/ DEBUG_LOG("pushEventToQueue " + typeName<Event>());
+        std::lock_guard<std::mutex> lk(eventQueueMutex);
         eventQueue.push_front(event);
     }
 
     template <typename... Event>
     bool isAnyOfEventsQueued()
     {
+        std::lock_guard<std::mutex> lk(eventQueueMutex);
         auto iter = std::find_if(eventQueue.begin(), eventQueue.end(),
                                  [](const auto& event) { return (std::holds_alternative<Event>(event) or ...); });
         return iter != eventQueue.end();
     }
 
     float getShapeSize() const;
+
+    // TO DO: Private
+    void handleEvent(const CharacterControllerEvent&);
 
 public:
     std::string upperBodyGroupName;
@@ -76,7 +81,9 @@ private:
     void processEvent();
 
 private:
-    std::deque<CharacterControllerEvent> eventQueue;
+    EventQueue eventQueue;
+    std::mutex eventQueueMutex;
+
     std::function<void()> jumpCallback_;
     Rigidbody* rigidbody_;
     Animator* animator_;
@@ -86,9 +93,6 @@ private:
     Physics::CollisionSubId groundEnterSubId;
     Physics::CollisionSubId groundExitSubId;
     bool isInit{false};
-
-    std::optional<float> fallTimer;
-    std::mutex fallTimerMutex;
 
 private:
     struct Impl;

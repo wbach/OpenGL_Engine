@@ -115,10 +115,10 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpEvent)
         EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
         EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.f, DEFAULT_JUMP_POWER, 0.f)));
 
-        sut_.handleEvent(JumpEvent{DEFAULT_JUMP_POWER});
+        handleEvent(JumpEvent{DEFAULT_JUMP_POWER});
 
         EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).Times(0);
-        sut_.handleEvent(JumpEvent{DEFAULT_JUMP_POWER});
+        handleEvent(JumpEvent{DEFAULT_JUMP_POWER});
 
         infos.clear();
         groundExitSub.second.callback({});

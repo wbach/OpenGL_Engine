@@ -56,19 +56,19 @@ void PlayerInputController::SubscribeForPushActions()
         {
             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
             {
-                characterController_->handleEvent(DodgeForwardEvent{DEFAULT_DODGE_POWER});
+                characterController_->pushEventToQueue(DodgeForwardEvent{DEFAULT_DODGE_POWER});
                 return;
             }
 
-            characterController_->handleEvent(MoveForwardEvent{});
+            characterController_->pushEventToQueue(MoveForwardEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
             {
-                characterController_->handleEvent(WalkChangeStateEvent{});
+                characterController_->pushEventToQueue(WalkChangeStateEvent{});
             }
             else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
             {
-                characterController_->handleEvent(SprintStateChangeEvent{});
+                characterController_->pushEventToQueue(SprintStateChangeEvent{});
             }
         });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
@@ -77,32 +77,34 @@ void PlayerInputController::SubscribeForPushActions()
         {
             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
             {
-                characterController_->handleEvent(DodgeBackwardEvent{DEFAULT_DODGE_POWER});
+                characterController_->pushEventToQueue(DodgeBackwardEvent{DEFAULT_DODGE_POWER});
                 return;
             }
-            characterController_->handleEvent(MoveBackwardEvent{});
+            characterController_->pushEventToQueue(MoveBackwardEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
             {
-                characterController_->handleEvent(WalkChangeStateEvent{});
+                characterController_->pushEventToQueue(WalkChangeStateEvent{});
             }
             else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
             {
-                characterController_->handleEvent(SprintStateChangeEvent{});
+                characterController_->pushEventToQueue(SprintStateChangeEvent{});
             }
         });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::TURN_LEFT,
-                                                                        [&]()
-                                                                        {
-                                                                            isRotateLeftPressed_ = true;
-                                                                            characterController_->handleEvent(RotateLeftEvent{});
-                                                                        });
-    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::TURN_RIGHT,
-                                                                        [&]()
-                                                                        {
-                                                                            isRotateRightPressed_ = true;
-                                                                            characterController_->handleEvent(RotateRightEvent{});
-                                                                        });
+    subscriptions_ =
+        componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::TURN_LEFT,
+                                                           [&]()
+                                                           {
+                                                               isRotateLeftPressed_ = true;
+                                                               characterController_->pushEventToQueue(RotateLeftEvent{});
+                                                           });
+    subscriptions_ =
+        componentContext_.inputManager_.SubscribeOnKeyDown(Input::GameAction::TURN_RIGHT,
+                                                           [&]()
+                                                           {
+                                                               isRotateRightPressed_ = true;
+                                                               characterController_->pushEventToQueue(RotateRightEvent{});
+                                                           });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::MOVE_LEFT,
@@ -110,18 +112,18 @@ void PlayerInputController::SubscribeForPushActions()
         {
             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
             {
-                characterController_->handleEvent(DodgeLeftEvent{DEFAULT_DODGE_POWER});
+                characterController_->pushEventToQueue(DodgeLeftEvent{DEFAULT_DODGE_POWER});
                 return;
             }
-            characterController_->handleEvent(MoveLeftEvent{});
+            characterController_->pushEventToQueue(MoveLeftEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
             {
-                characterController_->handleEvent(WalkChangeStateEvent{});
+                characterController_->pushEventToQueue(WalkChangeStateEvent{});
             }
             else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
             {
-                characterController_->handleEvent(SprintStateChangeEvent{});
+                characterController_->pushEventToQueue(SprintStateChangeEvent{});
             }
         });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
@@ -130,42 +132,43 @@ void PlayerInputController::SubscribeForPushActions()
         {
             if (componentContext_.inputManager_.GetKey(Input::GameAction::DODGE))
             {
-                characterController_->handleEvent(DodgeRightEvent{DEFAULT_DODGE_POWER});
+                characterController_->pushEventToQueue(DodgeRightEvent{DEFAULT_DODGE_POWER});
                 return;
             }
-            characterController_->handleEvent(MoveRightEvent{});
+            characterController_->pushEventToQueue(MoveRightEvent{});
 
             if (componentContext_.inputManager_.GetKey(Input::GameAction::WALK))
             {
-                characterController_->handleEvent(WalkChangeStateEvent{});
+                characterController_->pushEventToQueue(WalkChangeStateEvent{});
             }
             else if (componentContext_.inputManager_.GetKey(Input::GameAction::SPRINT))
             {
-                characterController_->handleEvent(SprintStateChangeEvent{});
+                characterController_->pushEventToQueue(SprintStateChangeEvent{});
             }
         });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::JUMP, [&]() { characterController_->handleEvent(JumpEvent{DEFAULT_JUMP_POWER}); });
+        Input::GameAction::JUMP, [&]() { characterController_->pushEventToQueue(JumpEvent{DEFAULT_JUMP_POWER}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::DODGE_DIVE, [&]() { characterController_->handleEvent(DodgeDiveEvent{DEFAULT_DODGE_DIVE_POWER}); });
+        Input::GameAction::DODGE_DIVE,
+        [&]() { characterController_->pushEventToQueue(DodgeDiveEvent{DEFAULT_DODGE_DIVE_POWER}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::WALK, [&]() { characterController_->handleEvent(WalkChangeStateEvent{}); });
+        Input::GameAction::WALK, [&]() { characterController_->pushEventToQueue(WalkChangeStateEvent{}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::SPRINT, [&]() { characterController_->handleEvent(SprintStateChangeEvent{}); });
+        Input::GameAction::SPRINT, [&]() { characterController_->pushEventToQueue(SprintStateChangeEvent{}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::ATTACK, [&]() { characterController_->handleEvent(AttackEvent{}); });
+        Input::GameAction::ATTACK, [&]() { characterController_->pushEventToQueue(AttackEvent{}); });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::AIM, [&]() { characterController_->handleEvent(DrawArrowEvent{}); });
+        Input::GameAction::AIM, [&]() { characterController_->pushEventToQueue(DrawArrowEvent{}); });
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::EQUIP_DISARM, [&]() { characterController_->handleEvent(WeaponStateEvent{}); });
+        Input::GameAction::EQUIP_DISARM, [&]() { characterController_->pushEventToQueue(WeaponStateEvent{}); });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
-        Input::GameAction::CROUCH, [&]() { characterController_->handleEvent(CrouchChangeStateEvent{}); });
+        Input::GameAction::CROUCH, [&]() { characterController_->pushEventToQueue(CrouchChangeStateEvent{}); });
 }
 
 void PlayerInputController::SubscribeForPopActions()
@@ -178,7 +181,7 @@ void PlayerInputController::SubscribeForPopActions()
                                                              {
                                                                  return;
                                                              }
-                                                             characterController_->handleEvent(EndForwardMoveEvent{});
+                                                             characterController_->pushEventToQueue(EndForwardMoveEvent{});
                                                          });
     subscriptions_ =
         componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::MOVE_BACKWARD,
@@ -188,7 +191,7 @@ void PlayerInputController::SubscribeForPopActions()
                                                              {
                                                                  return;
                                                              }
-                                                             characterController_->handleEvent(EndBackwardMoveEvent{});
+                                                             characterController_->pushEventToQueue(EndBackwardMoveEvent{});
                                                          });
 
     subscriptions_ =
@@ -199,7 +202,7 @@ void PlayerInputController::SubscribeForPopActions()
                                                              {
                                                                  return;
                                                              }
-                                                             characterController_->handleEvent(EndMoveLeftEvent{});
+                                                             characterController_->pushEventToQueue(EndMoveLeftEvent{});
                                                          });
     subscriptions_ =
         componentContext_.inputManager_.SubscribeOnKeyUp(Input::GameAction::MOVE_RIGHT,
@@ -209,7 +212,7 @@ void PlayerInputController::SubscribeForPopActions()
                                                              {
                                                                  return;
                                                              }
-                                                             characterController_->handleEvent(EndMoveRightEvent{});
+                                                             characterController_->pushEventToQueue(EndMoveRightEvent{});
                                                          });
 
     subscriptions_ =
@@ -220,11 +223,11 @@ void PlayerInputController::SubscribeForPopActions()
 
                                                              if (not isRotateRightPressed_)
                                                              {
-                                                                 characterController_->handleEvent(EndRotationEvent{});
+                                                                 characterController_->pushEventToQueue(EndRotationEvent{});
                                                              }
                                                              else
                                                              {
-                                                                 characterController_->handleEvent(RotateRightEvent{});
+                                                                 characterController_->pushEventToQueue(RotateRightEvent{});
                                                              }
                                                          });
     subscriptions_ =
@@ -235,16 +238,16 @@ void PlayerInputController::SubscribeForPopActions()
 
                                                              if (not isRotateLeftPressed_)
                                                              {
-                                                                 characterController_->handleEvent(EndRotationEvent{});
+                                                                 characterController_->pushEventToQueue(EndRotationEvent{});
                                                              }
                                                              else
                                                              {
-                                                                 characterController_->handleEvent(RotateLeftEvent{});
+                                                                 characterController_->pushEventToQueue(RotateLeftEvent{});
                                                              }
                                                          });
 
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyUp(
-        Input::GameAction::AIM, [&]() { characterController_->handleEvent(AimStopEvent{}); });
+        Input::GameAction::AIM, [&]() { characterController_->pushEventToQueue(AimStopEvent{}); });
 }
 
 void PlayerInputController::registerReadFunctions()

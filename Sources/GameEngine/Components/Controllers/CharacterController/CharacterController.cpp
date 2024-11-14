@@ -25,8 +25,6 @@ namespace Components
 namespace
 {
 Animation::Joint dummyJoint;
-
-const float DEFAULT_FALLING_TIMER_VALUE = 0.1f;
 }  // namespace
 
 struct CharacterController::Impl
@@ -248,96 +246,131 @@ void CharacterController::Init()
 
     isInit = true;
 }
+
+bool isCollision(Physics::IPhysicsApi& physicsApi, const vec3& characterPosition, const vec3& offset)
+{
+    const auto raySource = characterPosition + offset;
+    const auto rayTarget = characterPosition + (200.f * VECTOR_DOWN) + offset;
+
+    if (auto maybeHit = physicsApi.RayTest(raySource, rayTarget))
+    {
+        auto distance = glm::length(maybeHit->pointWorld - raySource);
+        return distance < 2.f;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 void CharacterController::PostStart()
 {
     DEBUG_LOG("PostStart");
+    const auto& scale  = thisObject_.GetWorldTransform().GetScale();
+    auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
 
-    groundExitSubId =
-        componentContext_.physicsApi_.setCollisionCallback(rigidbody_->GetId(),
-                                                           Physics::CollisionDetection{
-                                                               .action = Physics::CollisionDetection::Action::onExit,
-                                                               .type   = Physics::CollisionDetection::Type::repeat,
-                                                               .callback =
-                                                                   [&](const auto&)
-                                                               {
-                                                                   if (impl->stateMachine_->isCurrentStateOfType<JumpState>())
-                                                                   {
-                                                                       DEBUG_LOG("push JumpEvent");
-                                                                       pushEventToQueue(JumpConfirmEvent{});
-                                                                   }
-                                                                   else if (not fallTimer)
-                                                                   {
-                                                                       DEBUG_LOG("Start fall timer");
-                                                                       fallTimer = DEFAULT_FALLING_TIMER_VALUE;
-                                                                   }
-                                                               },
-                                                           });
+    groundExitSubId = componentContext_.physicsApi_.setCollisionCallback(
+        rigidbody_->GetId(),
+        Physics::CollisionDetection{
+            .action = Physics::CollisionDetection::Action::onExit,
+            .type   = Physics::CollisionDetection::Type::repeat,
+            .callback =
+                [&, capsuleRadius](const auto&)
+            {
+                impl->fsmContext->isOnAir = true;
 
-    const auto& scale        = thisObject_.GetWorldTransform().GetScale();
-    auto playerCapsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
+                if (impl->stateMachine_->isCurrentStateOfType<JumpState>())
+                {
+                    DEBUG_LOG("push JumpConfirmEvent");
+                    pushEventToQueue(JumpConfirmEvent{});
+                    return;
+                }
+
+                DEBUG_LOG("check falling");
+                const auto& characterPosition = thisObject_.GetWorldTransform().GetPosition();
+
+                bool isAwayFromGround{true};
+
+                auto& papi = componentContext_.physicsApi_;
+
+                for (int y = -1; y <= 1; ++y)
+                {
+                    for (int x = -1; x <= 1; ++x)
+                    {
+                        if (isCollision(papi, characterPosition,
+                                        vec3(capsuleRadius * static_cast<float>(x), 0, capsuleRadius * static_cast<float>(y))))
+                        {
+                            isAwayFromGround = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isAwayFromGround)
+                {
+                    pushEventToQueue(StartFallingEvent{});
+                }
+            },
+        });
 
     groundEnterSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody_->GetId(),
-        Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onEnter,
-                                    .type   = Physics::CollisionDetection::Type::repeat,
-                                    .callback =
-                                        [&](const auto& collisionInfos)
-                                    {
-                                        if (not collisionInfos.empty())
-                                        {
-                                            std::lock_guard<std::mutex> lk(fallTimerMutex);
+        Physics::CollisionDetection{
+            .action = Physics::CollisionDetection::Action::onEnter,
+            .type   = Physics::CollisionDetection::Type::repeat,
+            .callback =
+                [&](const auto& collisionInfos)
+            {
+                if (not collisionInfos.empty())
+                {
+                    for (const auto& collisionInfo : collisionInfos)
+                    {
+                        if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                        {
+                            DEBUG_LOG("GroundDetectionEvent collisionWith: " + std::to_string(collisionInfo.rigidbodyId2));
+                            pushEventToFrontQueue(GroundDetectionEvent{});
+                            impl->fsmContext->isOnAir = false;
+                            break;
+                        }
+                        else
+                        {
+                            DEBUG_LOG("GroundDetectionEvent collisionWith: " + std::to_string(collisionInfo.rigidbodyId1));
+                            pushEventToFrontQueue(GroundDetectionEvent{});
+                            impl->fsmContext->isOnAir = false;
+                            break;
+                        }
+                    }
+                }
+            },
+            .ignoredList = {},
+            .predicate =
+                [&, capsuleRadius](const auto& collisionInfo)
+            {
+                const auto& characterPosition     = thisObject_.GetWorldTransform().GetPosition();
+                const auto characterPosWithOffset = characterPosition + vec3(0, capsuleRadius, 0);
 
-                                            for (const auto& collisionInfo : collisionInfos)
-                                            {
-                                                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
-                                                {
-                                                    DEBUG_LOG("GroundDetectionEvent");
-                                                    pushEventToQueue(GroundDetectionEvent{});
-                                                    fallTimer.reset();
-                                                    break;
-                                                }
-                                                else
-                                                {
-                                                    DEBUG_LOG("GroundDetectionEvent");
-                                                    pushEventToQueue(GroundDetectionEvent{});
-                                                    fallTimer.reset();
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    },
-                                    .ignoredList = {},
-                                    .predicate =
-                                        [&, playerCapsuleRadius](const auto& collisionInfo)
-                                    {
-                                        const auto& playerPosition     = thisObject_.GetWorldTransform().GetPosition();
-                                        const auto playerPosWithOffset = playerPosition + vec3(0, playerCapsuleRadius, 0);
-
-                                        if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
-                                        {
-                                            return (collisionInfo.pos2.y <= playerPosWithOffset.y);
-                                        }
-                                        else
-                                        {
-                                            return (collisionInfo.pos1.y <= playerPosWithOffset.y);
-                                        }
-                                    }});
+                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                {
+                    return (collisionInfo.pos2.y <= characterPosWithOffset.y);
+                }
+                else
+                {
+                    return (collisionInfo.pos1.y <= characterPosWithOffset.y);
+                }
+            }});
 }
 void CharacterController::processEvent()
 {
-    if (not eventQueue.empty())
+    EventQueue tmpEventsQueue;
+
     {
-        auto tmpEvents = std::move(eventQueue);
-        for (auto& event : tmpEvents)
-        {
-            std::visit(
-                [&](const auto& e)
-                {
-                    // /*DISABLED*/ DEBUG_LOG("Process event : " + typeName(e));
-                    impl->stateMachine_->handle(e);
-                },
-                event);
-        }
+        std::lock_guard<std::mutex> lk(eventQueueMutex);
+        tmpEventsQueue = std::move(eventQueue);
+    }
+
+    for (auto& event : tmpEventsQueue)
+    {
+        handleEvent(event);
     }
 }
 void CharacterController::Update()
@@ -346,26 +379,14 @@ void CharacterController::Update()
 
     if (impl->stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
-        auto passEventToState = [&](auto statePtr)
-        {
-            // // /*DISABLED*/ DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " +
-            // std::to_string(componentContext_.time_.deltaTime));
-            statePtr->update(componentContext_.time_.deltaTime);
-        };
-        std::visit(passEventToState, impl->stateMachine_->currentState);
-    }
-
-    std::lock_guard<std::mutex> lk(fallTimerMutex);
-    if (fallTimer)
-    {
-        fallTimer = fallTimer.value() - componentContext_.time_.deltaTime;
-        DEBUG_LOG("fallTimer=" + std::to_string(fallTimer));
-        if (fallTimer.value() <= 0.f)
-        {
-            DEBUG_LOG("StartFallingEvent");
-            pushEventToQueue(StartFallingEvent{});
-            fallTimer.reset();
-        }
+        std::visit(
+            [&](auto statePtr)
+            {
+                // // /*DISABLED*/ DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " +
+                // std::to_string(componentContext_.time_.deltaTime));
+                statePtr->update(componentContext_.time_.deltaTime);
+            },
+            impl->stateMachine_->currentState);
     }
 }
 void CharacterController::handleEvent(const CharacterControllerEvent& event)

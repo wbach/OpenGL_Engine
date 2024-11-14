@@ -78,25 +78,23 @@ void Rigidbody::OnStart()
         return;
     }
 
-    auto rigidBodyId = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties, mass_,
-                                                                     updateRigidbodyOnTransformChange_);
-    if (not rigidBodyId)
+    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties, mass_,
+                                                                 updateRigidbodyOnTransformChange_);
+    if (not rigidBodyId_)
     {
         ERROR_LOG("create rigidbody error.");
         return;
     }
 
-    rigidBodyId_ = rigidBodyId;
-
     if (inputParams_.velocity_)
-        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId, *inputParams_.velocity_);
+        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, *inputParams_.velocity_);
     else if (tmpParams_.velocity_)
-        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId, *tmpParams_.velocity_);
+        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, *tmpParams_.velocity_);
 
     if (inputParams_.angularFactor_)
-        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *inputParams_.angularFactor_);
+        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, *inputParams_.angularFactor_);
     else if (tmpParams_.angularFactor_)
-        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId, *tmpParams_.angularFactor_);
+        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, *tmpParams_.angularFactor_);
 
     worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange(
         [this](const auto& transform)

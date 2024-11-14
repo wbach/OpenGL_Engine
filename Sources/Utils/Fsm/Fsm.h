@@ -50,9 +50,9 @@ public:
     template <typename Event, typename Machine>
     void handleBy(const Event& event, Machine& machine)
     {
-#ifdef NOREALTIME_LOG_ENABLED
+//#ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("Handle event : " + typeName<Event>());
-#endif
+//#endif
         auto passEventToState = [&machine, &event](auto statePtr)
         {
             auto action = statePtr->handle(event);

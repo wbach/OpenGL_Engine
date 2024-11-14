@@ -69,30 +69,30 @@ void EnemyController::Update()
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
             DEBUG_LOG("In attack range");
-            characterController_->handleEvent(EndForwardMoveEvent{});
-            //characterController_->handleEvent(AttackEvent{});
+            characterController_->pushEventToQueue(EndForwardMoveEvent{});
+            //characterController_->pushEventToQueue(AttackEvent{});
         }
         else
         {
-            //characterController_->handleEvent(EndAttackEvent{});
-            characterController_->handleEvent(MoveForwardEvent{});
+            //characterController_->pushEventToQueue(EndAttackEvent{});
+            characterController_->pushEventToQueue(MoveForwardEvent{});
         }
 
-        characterController_->handleEvent(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
+        characterController_->pushEventToQueue(RotateTargetEvent{caclulateTargetRotation(vectorToPlayer)});
         return;
     }
 
     if (movingPoints_.empty())
     {
-        characterController_->handleEvent(EndRotationEvent{});
-        characterController_->handleEvent(EndForwardMoveEvent{});
+        characterController_->pushEventToQueue(EndRotationEvent{});
+        characterController_->pushEventToQueue(EndForwardMoveEvent{});
         return;
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-   // characterController_->handleEvent(EndAttackEvent{});
-    characterController_->handleEvent(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
-    characterController_->handleEvent(MoveForwardEvent{});
+   // characterController_->pushEventToQueue(EndAttackEvent{});
+    characterController_->pushEventToQueue(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
+    characterController_->pushEventToQueue(MoveForwardEvent{});
 
     auto distanceToPoint = glm::length(vectorToTarget);
     //DEBUG_LOG("Enemy pos: " + std::to_string(thisObject_.GetWorldTransform().GetPosition()) +
