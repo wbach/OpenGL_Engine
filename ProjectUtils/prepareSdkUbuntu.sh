@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-echo "Script dir : "$SCRIPT_DIR
+echo "Prepare Ubuntu SDK. Script dir : "$SCRIPT_DIR
 
 source $SCRIPT_DIR/setEnv.sh
 
