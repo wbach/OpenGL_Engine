@@ -121,6 +121,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/linux/fbx/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
@@ -128,38 +129,26 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
 )
 
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/BulletDynamics/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/Bullet3Common/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/Bullet3Collision/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/Bullet3Dynamics/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/Bullet3Geometry/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/Bullet3OpenCL/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/BulletCollision/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/BulletInverseDynamics/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/BulletSoftBody/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/bullet/src/LinearMath/)
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../.sdk/ExternalLibs/assimp/code/)
-
 set(BulletLinkingLibs
             BulletDynamics
             Bullet3Common
+            #Bullet2FileLoader
             Bullet3Collision
             Bullet3Dynamics
             Bullet3Geometry
             Bullet3OpenCL_clew
             BulletCollision
-            BulletInverseDynamics
-            BulletSoftBody
-            LinearMath
-            #Bullet2FileLoader
             #BulletFileLoader
+            BulletInverseDynamics
             #BulletInverseDynamicsUtils
             #BulletRobotics
+            BulletSoftBody
             #BulletWorldImporter
             #BulletXmlWorldImporter
             #ConvexDecomposition
             #GIMPACTUtils
             #HACD
+            LinearMath
       )
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/Utils.cmake)
