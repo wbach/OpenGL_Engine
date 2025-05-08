@@ -387,7 +387,14 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
 {
     if (not bones_.empty())
     {
-        auto armatureNode = findArmatureRootNode(*scene.mRootNode);
+        const aiNode& node = *scene.mRootNode;
+
+
+        DEBUG_LOG("Rootnode bone name: " + std::string(node.mName.data));
+
+                for (const auto& bone : bones_)
+            DEBUG_LOG(bone.first);
+        auto armatureNode = findArmatureRootNode(node);
         if (armatureNode)
         {
             DEBUG_LOG("Root node found : " + armatureNode->mName.data);

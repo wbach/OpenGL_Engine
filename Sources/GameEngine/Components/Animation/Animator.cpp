@@ -9,6 +9,7 @@
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -239,6 +240,11 @@ std::optional<IdType> Animator::allocateIdForClip(const std::string& name)
     return id;
 }
 
+Animation::Joint* Animator::getRootJoint()
+{
+    return jointData_.rootJoint.children.empty() ? nullptr : &jointData_.rootJoint.children.front();  // jointData_.rootJoint
+}
+
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
@@ -324,6 +330,11 @@ void Animator::GetSkeletonAndAnimations()
                     }
                 }
             }
+            DEBUG_LOG("Skeleton of: " + model->GetFile().GetBaseName());
+            printSkeleton(jointData_.rootJoint);
+
+            if (auto rootJoint = getRootJoint())
+                machine_.context_.rootJointId = rootJoint->id;
         }
     }
 }
@@ -367,7 +378,6 @@ void Animator::AddAnimationClip(const std::string& name, const Animation::Animat
         ERROR_LOG("Clip already exist :" + clip.getName());
     }
 }
-
 void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 {
     mat4 parent(parentTransform);
@@ -385,7 +395,6 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
         parent = parent * invertedParentWithoutTranslation;
     }
     auto currentPoseIter = jointData_.pose.data.find(joint.id);
-
     if (currentPoseIter != jointData_.pose.data.end())
     {
         currentTransform = parent * currentPoseIter->second.matrix;
@@ -400,17 +409,60 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
-    if (jointData_.rootMontion)
+    auto realRootJoint = getRootJoint();
+    if (realRootJoint and jointData_.rootMontion)
     {
-        auto currentPoseRootJointIter = jointData_.pose.data.find(jointData_.rootJoint.id);
+        DEBUG_LOG("RootMontionDetected");
 
+        auto currentPoseRootJointIter = jointData_.pose.data.find(realRootJoint->id);
         if (currentPoseRootJointIter != jointData_.pose.data.end())
         {
-            // remove translation
-            currentPoseRootJointIter->second.matrix[0][0] = 0.f;
+            mat4 meshTransform(1.f);
+            if (rendererComponent_ && rendererComponent_->GetModelWrapper().Get())
+            {
+                meshTransform = rendererComponent_->GetModelWrapper().Get()->GetMeshes()[0].GetMeshTransform();
+            }
+            else
+            {
+                DEBUG_LOG("Renderer component not found");
+            }
+
+            vec3 moveVec{0.f};
+            auto& [_, data] = *currentPoseRootJointIter;
+            if (not rootMontionVec_)
+            {
+                moveVec = data.transform.position;
+            }
+            else
+            {
+                moveVec = data.transform.position - (*rootMontionVec_);
+            }
+
+            rootMontionVec_ = data.transform.position;
+
+            vec3 worldMoveVector =
+                thisObject_.GetWorldTransform().GetMatrix() * meshTransform * vec4(moveVec.x, 0.f, moveVec.z, 0.f);
+
+            DEBUG_LOG("moveVec: " + std::to_string(moveVec));
+            DEBUG_LOG("worldMoveVector: " + std::to_string(worldMoveVector));
+
+            worldMoveVector.y = 0;
+            if (auto rigidbody = thisObject_.GetComponent<Rigidbody>())
+            {
+                rigidbody->Translate(worldMoveVector);
+            }
+
+            // clear MoveVec from animation
+            data.matrix[3][0] = 0;
+            // data.matrix[3][1] = 0;
+            data.matrix[3][2] = 0;
         }
-        // jointData_.rootJoint.
     }
+    else
+    {
+        rootMontionVec_.reset();
+    }
+
     applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
     updateShaderBuffers();
 }
@@ -482,6 +534,16 @@ void Animator::initAnimationClips(const Model& model)
 
     if (animationClipInfo_.size() > 0)
         rendererComponent_->useArmature(true);
+}
+
+void Animator::printSkeleton(const Animation::Joint& joint, const std::string& hierarchy)
+{
+    DEBUG_LOG(hierarchy + joint.name);
+    const std::string& nextHierarchy{hierarchy + "-"};
+    for (const auto& childJoint : joint.children)
+    {
+        printSkeleton(childJoint, nextHierarchy);
+    }
 }
 
 Animator::ReadAnimationInfo Read(const TreeNode& node)

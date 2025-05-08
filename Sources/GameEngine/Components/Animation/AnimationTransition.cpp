@@ -22,6 +22,7 @@ AnimationTransition::AnimationTransition(Context& context, const AnimationClipIn
            convert(context.currentPose),  // to do , calculate pose for startTime
            not infoClip.clip.GetFrames().empty() ? infoClip.clip.GetFrames().front() : Animation::KeyFrame{}}
 {
+    removeRootTranslationFromPreviousClipIfNeeded();
 }
 bool AnimationTransition::update(float deltaTime)
 {
@@ -80,6 +81,7 @@ std::vector<std::string> AnimationTransition::getCurrentAnimation() const
 {
     return {data.clipInfo.clip.getName()};
 }
+
 void AnimationTransition::calculateTime(float deltaTime)
 {
     data.time += (deltaTime / data.timeForChange);
@@ -93,6 +95,21 @@ void AnimationTransition::calculateTime(float deltaTime)
 
         context.machine.transitionTo<PlayAnimation>(context, data.clipInfo, data.startupTime);
         return;
+    }
+}
+
+void AnimationTransition::removeRootTranslationFromPreviousClipIfNeeded()
+{
+    if (context.rootJointId)
+    {
+        auto& transforms   = data.startChaneAnimKeyFrame.transforms;
+        auto transformIter = transforms.find(*context.rootJointId);
+        if (transformIter != transforms.end())
+        {
+            auto& pos = transformIter->second.position;
+            pos.x     = 0;
+            pos.z     = 0;
+        }
     }
 }
 }  // namespace Components

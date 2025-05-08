@@ -22,8 +22,8 @@ public:
     ShapeId CreateCapsuleColider(const vec3& positionOffset, const Scale&, Radius, float) override;
     // void CreateMeshColider(vec3 positionOffset, std::vect) = 0;
     ShapeId CreateTerrainColider(const vec3& positionOffset, const Scale&, const HeightMap&) override;
-    ShapeId CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data,
-                               const IndicesVector& indicies, const vec3&, bool) override;
+    ShapeId CreateMeshCollider(const vec3& positionOffset, const std::vector<float>& data, const IndicesVector& indicies,
+                               const vec3&, bool) override;
     RigidbodyId CreateRigidbody(const ShapeId&, GameObject&, const RigidbodyProperties&, float mass, bool&) override;
     void RemoveRigidBody(const RigidbodyId&) override;
     void RemoveShape(const ShapeId&) override;
@@ -37,6 +37,7 @@ public:
     void SetRotation(const RigidbodyId&, const vec3&) override;
     void SetRotation(const RigidbodyId&, const Quaternion&) override;
     void SetPosition(const RigidbodyId&, const vec3&) override;
+    void Translate(const RigidbodyId&, const vec3&) override;
     void SetRigidbodyScale(const RigidbodyId&, const vec3&) override;
     void SetShapeScale(const ShapeId&, const vec3&) override;
     std::optional<Quaternion> GetRotation(const RigidbodyId&) const override;

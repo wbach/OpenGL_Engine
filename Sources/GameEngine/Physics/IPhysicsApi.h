@@ -37,7 +37,7 @@ using RigidbodyProperties = std::set<RigidbodyProperty>;
 
 using CollisionContactInfos = std::vector<CollisionContactInfo>;
 using CollisionsCallback    = std::function<void(const CollisionContactInfos&)>;
-using Predicate = std::function<bool(const CollisionContactInfo&)>;
+using Predicate             = std::function<bool(const CollisionContactInfo&)>;
 
 struct CollisionDetection
 {
@@ -91,6 +91,7 @@ struct IPhysicsApi
     virtual void SetRotation(const RigidbodyId&, const vec3&)                                       = 0;
     virtual void SetRotation(const RigidbodyId&, const Quaternion&)                                 = 0;
     virtual void SetPosition(const RigidbodyId&, const vec3&)                                       = 0;
+    virtual void Translate(const RigidbodyId&, const vec3&)                                         = 0;
     virtual void SetRigidbodyScale(const RigidbodyId&, const vec3&)                                 = 0;
     virtual void SetShapeScale(const ShapeId&, const vec3&)                                         = 0;
     virtual std::optional<Quaternion> GetRotation(const RigidbodyId&) const                         = 0;

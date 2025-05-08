@@ -44,6 +44,8 @@ public:
     Rigidbody& SetPosition(const vec3&);
     Rigidbody& SetScale(const vec3&);
 
+    void Translate(const vec3&);
+
     void ApplyImpulse(const vec3&);
     void IncreaseVelocity(const vec3& v);
     void SetAsVisualizatedObject();

@@ -514,7 +514,21 @@ void BulletAdapter::SetPosition(const RigidbodyId& rigidBodyId, const vec3& posi
             {
                 rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
             }
-        });
+    });
+}
+
+void BulletAdapter::Translate(const RigidbodyId & rigidBodyId, const vec3 & vector)
+{
+    addTask(
+        [this, rigidBodyId, vector]()
+        {
+            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
+            {
+                //rigidbody->btRigidbody_->translate(Convert(vector));
+                auto o = rigidbody->btRigidbody_->getWorldTransform().getOrigin();
+                rigidbody->btRigidbody_->getWorldTransform().setOrigin(o + Convert(vector));
+            }
+    });
 }
 
 void BulletAdapter::SetRigidbodyScale(const RigidbodyId& rigidBodyId, const vec3& position)

@@ -13,8 +13,11 @@ namespace
 {
 const std::string CLIP_NAME{"DefaultAnimationClip"};
 const std::string CLIP_NAME2{"DefaultAnimationClip2"};
+const std::string ROOT_MONTION_CLIP{"RootMontionAnimationClip"};
 const uint32 BONE_COUNT{100};
 const std::string boneName{"bone_"};
+const int FRAMES_COUNT{4};
+const float FRAMES_DELTA{0.33f};
 }  // namespace
 
 struct AnimatorTestWrapper : public Animator
@@ -59,8 +62,9 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
         sut_.setDeltaTime(.01f);
         createClip(CLIP_NAME);
         createClip(CLIP_NAME2);
+        createClip(ROOT_MONTION_CLIP, true);
     }
-    void createClip(const std::string& clipName)
+    void createClip(const std::string& clipName, AnimationClipInfo::UseRootMontion rootMontion = false)
     {
         AnimationClip clip(clipName);
         KeyFrame frame;
@@ -70,17 +74,27 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
             frame.transforms.insert({i, JointTransform{}});
         }
 
-        frame.timeStamp = 0;
-        clip.AddFrame(frame);
-        frame.timeStamp = 0.33f;
-        clip.AddFrame(frame);
-        frame.timeStamp = 0.6f;
-        clip.AddFrame(frame);
-        frame.timeStamp = 0.99f;
-        clip.AddFrame(frame);
+        for (int i = 0; i < FRAMES_COUNT; i++)
+        {
+            frame.timeStamp              = static_cast<float>(i) * FRAMES_DELTA;
+            frame.transforms[1].position = vec3(static_cast<float>(i), 0.f, 0.f);
+            clip.AddFrame(frame);
+        }
 
-        sut_.AddAnimationClip(clipName, clip);
-        sut_.SetAnimation(clipName);
+//        frame.timeStamp              = 0;
+//        frame.transforms[0].position = vec3(0.0f, 0.f, 0.f);
+//        clip.AddFrame(frame);
+//        frame.timeStamp              = 0.33f;
+//        frame.transforms[0].position = vec3(1.0f, 0.f, 0.f);
+//        clip.AddFrame(frame);
+//        frame.timeStamp              = 0.6f;
+//        frame.transforms[0].position = vec3(2.0f, 0.f, 0.f);
+//        clip.AddFrame(frame);
+//        frame.timeStamp              = 0.99f;
+//        frame.transforms[0].position = vec3(3.0f, 0.f, 0.f);
+//        clip.AddFrame(frame);
+
+        sut_.AddAnimationClip(clipName, clip, AnimationClipInfo::PlayType::loop, rootMontion);
     }
 
     AnimatorTestWrapper sut_;
@@ -90,7 +104,7 @@ TEST_F(AnimatorTestSchould, GetLastNextFrame)
 {
     float currentTime{.5f};
     sut_.setDeltaTime(currentTime);
-    const auto& anim  = sut_.getAnimationClips().at(CLIP_NAME).clip;
+    const auto& anim            = sut_.getAnimationClips().at(CLIP_NAME).clip;
     auto [prevFrame, nextFrame] = getPreviousAndNextFrames(anim, currentTime);
     ASSERT_FLOAT_EQ(prevFrame->timeStamp.value, 0.33f);
     ASSERT_FLOAT_EQ(nextFrame->timeStamp.value, 0.6f);
@@ -131,10 +145,25 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
     }
     DEBUG_LOG("Avarage frame time : " +
               std::to_string(static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter)));
-    DEBUG_LOG("Avarage animation time : " +
-              std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
+    DEBUG_LOG("Avarage animation time : " + std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
 }
 
-TEST_F(AnimatorTestSchould, StateMachinePlayToPlay)
+TEST_F(AnimatorTestSchould, rootMontion)
 {
+    auto rootJoint = sut_.GetRootJoint();
+    EXPECT_TRUE(rootJoint);
+    DEBUG_LOG("RootJointName: " + rootJoint->name);
+    sut_.SetAnimation(ROOT_MONTION_CLIP);
+
+    DEBUG_LOG("Update deltaTime: " + std::to_string(DEFAULT_ANIMATION_TRANSITION_TIME));
+    context_.time_.deltaTime = DEFAULT_ANIMATION_TRANSITION_TIME;
+    // componentController_.CallFunctions(FunctionType::Update);
+    sut_.Update();
+    sut_.Update();
+    for (int frame = 0; frame < FRAMES_COUNT; frame++)
+    {
+        context_.time_.deltaTime = FRAMES_DELTA;
+        sut_.Update();
+        DEBUG_LOG(std::to_string(obj_.GetWorldTransform().GetPosition()));
+    }
 }

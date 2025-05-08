@@ -34,6 +34,7 @@ struct PhysicsApiMock : public Physics::IPhysicsApi
     MOCK_METHOD2(SetRotation, void(const Physics::RigidbodyId&, const vec3&));
     MOCK_METHOD2(SetRotation, void(const Physics::RigidbodyId&, const Quaternion&));
     MOCK_METHOD2(SetPosition, void(const Physics::RigidbodyId&, const vec3&));
+    MOCK_METHOD2(Translate, void(const Physics::RigidbodyId&, const vec3&));
     MOCK_METHOD2(SetRigidbodyScale, void(const Physics::RigidbodyId&, const vec3&));
     MOCK_METHOD2(SetShapeScale, void(const Physics::ShapeId&, const vec3&));
     MOCK_CONST_METHOD1(GetRotation, std::optional<Quaternion>(const Physics::RigidbodyId&));

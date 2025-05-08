@@ -6,6 +6,8 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 
+#include <Logger/Log.h>
+
 namespace GameEngine
 {
 namespace Components
@@ -31,6 +33,8 @@ void CapsuleShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCapsuleColider(
         positionOffset_, thisObject_.GetWorldTransform().GetScale(), radius_, height_);
+
+    DEBUG_LOG(thisObject_.GetName() + ", offset : " + std::to_string(positionOffset_));
 
     if (collisionShapeId_)
     {

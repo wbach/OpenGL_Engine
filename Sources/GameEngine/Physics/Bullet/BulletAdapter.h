@@ -54,6 +54,7 @@ public:
     void SetRotation(const RigidbodyId&, const vec3&) override;
     void SetRotation(const RigidbodyId&, const Quaternion&) override;
     void SetPosition(const RigidbodyId&, const vec3&) override;
+    void Translate(const RigidbodyId&, const vec3&) override;
     void SetRigidbodyScale(const RigidbodyId&, const vec3&) override;
     void SetShapeScale(const ShapeId&, const vec3&) override;
     std::optional<Quaternion> GetRotation(const RigidbodyId&) const override;
@@ -65,7 +66,6 @@ public:
     void disableVisualizationForAllRigidbodys() override;
     CollisionSubId setCollisionCallback(const RigidbodyId&, const CollisionDetection&) override;
     void celarCollisionCallback(const CollisionSubId&) override;
-
 
 private:
     void createWorld();

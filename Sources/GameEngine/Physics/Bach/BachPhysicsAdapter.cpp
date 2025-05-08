@@ -247,6 +247,11 @@ void BachPhysicsAdapter::SetRotation(const RigidbodyId&, const Quaternion&)
 void BachPhysicsAdapter::SetPosition(const RigidbodyId&, const vec3&)
 {
 }
+
+void BachPhysicsAdapter::Translate(const RigidbodyId &, const vec3 &)
+{
+
+}
 void BachPhysicsAdapter::SetRigidbodyScale(const RigidbodyId&, const vec3&)
 {
 }

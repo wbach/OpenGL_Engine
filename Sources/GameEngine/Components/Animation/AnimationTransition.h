@@ -24,7 +24,8 @@ public:
     std::vector<std::string> getCurrentAnimation() const override;
 
 private:
-    void calculateTime(float deltaTime);
+    void calculateTime(float);
+    void removeRootTranslationFromPreviousClipIfNeeded();
 
 private:
     Context& context;

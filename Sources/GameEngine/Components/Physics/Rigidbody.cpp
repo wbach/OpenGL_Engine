@@ -240,6 +240,14 @@ Rigidbody& Rigidbody::SetScale(const vec3& scale)
     }
     return *this;
 }
+
+void Rigidbody::Translate(const vec3& v)
+{
+    if (not rigidBodyId_)
+        return;
+
+    componentContext_.physicsApi_.Translate(*rigidBodyId_, v);
+}
 void Rigidbody::ApplyImpulse(const vec3& v)
 {
     if (not rigidBodyId_)

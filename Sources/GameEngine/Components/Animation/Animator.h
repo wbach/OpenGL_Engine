@@ -87,12 +87,14 @@ public:
     JointGroups jointGroups_;
 
 protected:
+    Animation::Joint* getRootJoint();
     void updateShaderBuffers();
     void GetSkeletonAndAnimations();
     void applyPoseToJoints(Animation::Joint&, const mat4&);
     void applyPoseToJoints();
     void createShaderJointBuffers();
     void initAnimationClips(const Model&);
+    void printSkeleton(const Animation::Joint&, const std::string& = "");
 
 protected:
     StateMachine machine_;
@@ -108,6 +110,8 @@ protected:
     RendererComponent* rendererComponent_;
     std::vector<ReadAnimationInfo> clipsToRead_;
     JointGroupsIds jointGroupsIds_;
+
+    std::optional<vec3> rootMontionVec_;
 
 public:
     static void registerReadFunctions();

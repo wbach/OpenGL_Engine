@@ -39,20 +39,16 @@ void JumpState::onEnter(const JumpEvent &event)
 
 void JumpState::onEnter(const DodgeDiveEvent &event)
 {
-    auto velocity = context_.rigidbody.GetVelocity();
-    velocity += VECTOR_FORWARD * event.power;
-    context_.rigidbody.SetVelocity(velocity);
-
     animName = context_.animClipNames.disarmed.dodgeDive;
 
-    if (context_.isOnAir)
-    {
-        setAnim();
-    }
-    else
-    {
-        jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
-    }
+    setAnim();
+    dodgeAnimSubId = context_.animator.SubscribeForAnimationFrame(
+        animName,
+        [&]()
+        {
+            context_.characterController.pushEventToFrontQueue(GroundDetectionEvent{});
+            
+        });
 }
 
 void JumpState::update(const JumpConfirmEvent &)
@@ -89,6 +85,7 @@ void JumpState::setAnim()
 {
     if (not animName.empty())
     {
+        DEBUG_LOG(animName);
         const auto &currentClips = context_.animator.getCurrentAnimationName();
 
         auto iter = std::find(currentClips.begin(), currentClips.end(), animName);

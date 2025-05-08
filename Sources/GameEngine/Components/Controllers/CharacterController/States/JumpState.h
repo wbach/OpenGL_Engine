@@ -33,6 +33,7 @@ private:
 
 private:
     std::optional<float> jumpAttemptTimer;
+    std::optional<float> dodgeAnimSubId;
     std::string animName;
 };
 }  // namespace Components
