@@ -19,9 +19,6 @@ public:
     void handle(const StopAnimationEvent&) override;
 
     std::vector<std::string> getCurrentAnimation() const override;
-
-private:
-    Context& context_;
 };
 }  // namespace Components
 }  // namespace GameEngine

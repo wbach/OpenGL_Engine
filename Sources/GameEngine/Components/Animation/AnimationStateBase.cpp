@@ -8,9 +8,13 @@ namespace GameEngine
 {
 namespace Components
 {
-void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo,
-                                               const Animation::KeyFrame* currentFrame, float time,
-                                               float& previousFrameTimeStamp)
+AnimationStateBase::AnimationStateBase(Context& context)
+    : context_{context}
+{
+}
+
+void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo, const Animation::KeyFrame* currentFrame,
+                                               float time, float& previousFrameTimeStamp)
 {
     if (not currentFrame or clipInfo.subscribers.empty())
     {
@@ -37,8 +41,8 @@ void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo
 }
 
 bool AnimationStateBase::increaseAnimationTime(float& currentTime, float& previousFrameTimeStamp,
-                                               const AnimationClipInfo& clipInfo,
-                                               Animation::KeyFrame const* currentFrame, float deltaTime)
+                                               const AnimationClipInfo& clipInfo, Animation::KeyFrame const* currentFrame,
+                                               float deltaTime)
 {
     auto dir = clipInfo.playDirection == PlayDirection::forward ? 1.f : -1.f;
     currentTime += deltaTime * clipInfo.playSpeed * dir;
@@ -62,6 +66,36 @@ bool AnimationStateBase::increaseAnimationTime(float& currentTime, float& previo
 bool AnimationStateBase::isAnimationPlaying(const std::string&) const
 {
     return false;
+}
+void AnimationStateBase::calculateRootMontionVecAndClearTranslation()
+{
+    auto& currentPose = context_.currentPose;
+    if (context_.rootJointId)
+    {
+        auto currentPoseRootJointIter = currentPose.data.find(*context_.rootJointId);
+        if (currentPoseRootJointIter != currentPose.data.end())
+        {
+            auto& [_, data] = *currentPoseRootJointIter;
+
+            context_.moveVectorForRootMontion = vec3{0.f};
+            if (not rootMontionVec_)
+            {
+                context_.moveVectorForRootMontion = data.transform.position;
+            }
+            else
+            {
+                context_.moveVectorForRootMontion = data.transform.position - (*rootMontionVec_);
+            }
+            rootMontionVec_ = data.transform.position;
+
+            // clear MoveVec from animation
+            data.matrix[3][0] = 0;
+            data.matrix[3][2] = 0;
+
+            data.transform.position.x = 0;
+            data.transform.position.z = 0;
+        }
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

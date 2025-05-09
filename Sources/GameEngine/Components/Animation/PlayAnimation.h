@@ -1,7 +1,7 @@
 #pragma once
 #include "GameEngine/Animations/AnimationClip.h"
 #include "AnimationStateBase.h"
-#include "Context.h"
+
 
 namespace GameEngine
 {
@@ -24,7 +24,6 @@ public:
     bool isAnimationPlaying(const std::string&) const override;
 
 private:
-    Context& context_;
     PlayGroup playInfo_;
 };
 }  // namespace Components

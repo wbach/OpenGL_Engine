@@ -14,7 +14,7 @@ namespace Components
 {
 AnimationTransition::AnimationTransition(Context& context, const AnimationClipInfo& infoClip, float /*startTime*/,
                                          OnTransitionEnd onTransitionEnd)
-    : context{context}
+    : AnimationStateBase{context}
     , data{{.time = 0.f, .clipInfo = infoClip, .jointGroup = nullptr},
            0.f,
            context.transitionTime,
@@ -22,11 +22,10 @@ AnimationTransition::AnimationTransition(Context& context, const AnimationClipIn
            convert(context.currentPose),  // to do , calculate pose for startTime
            not infoClip.clip.GetFrames().empty() ? infoClip.clip.GetFrames().front() : Animation::KeyFrame{}}
 {
-    removeRootTranslationFromPreviousClipIfNeeded();
 }
 bool AnimationTransition::update(float deltaTime)
 {
-    interpolatePoses(context.currentPose, data.startChaneAnimKeyFrame, data.endChangeAnimKeyFrame, data.time);
+    interpolatePoses(context_.currentPose, data.startChaneAnimKeyFrame, data.endChangeAnimKeyFrame, data.time);
     calculateTime(deltaTime);
     return true;
 }
@@ -38,7 +37,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
         auto& jointGroupNames = currentAnimtionTransitionInfo.front();
 
         bool groupFound{false};
-        for (auto& [name, group] : context.jointGroups)
+        for (auto& [name, group] : context_.jointGroups)
         {
             if (name != event.jointGroupName)
             {
@@ -52,7 +51,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
 
         if (groupFound)
         {
-            context.machine.transitionTo<AnimationTransitionToMixed>(context, currentAnimtionTransitionInfo, event);
+            context_.machine.transitionTo<AnimationTransitionToMixed>(context_, currentAnimtionTransitionInfo, event);
         }
         else
         {
@@ -61,7 +60,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
     }
     else
     {
-        context.machine.transitionTo<AnimationTransition>(context, event.info, event.startTime, event.onTransitionEnd);
+        context_.machine.transitionTo<AnimationTransition>(context_, event.info, event.startTime, event.onTransitionEnd);
     }
 }
 
@@ -69,11 +68,11 @@ void AnimationTransition::handle(const StopAnimationEvent& event)
 {
     if (event.jointGroupName)
     {
-        context.machine.transitionTo<EmptyState>(context);
+        context_.machine.transitionTo<EmptyState>(context_);
     }
     else
     {
-        context.machine.transitionTo<EmptyState>(context);
+        context_.machine.transitionTo<EmptyState>(context_);
     }
 }
 
@@ -93,23 +92,8 @@ void AnimationTransition::calculateTime(float deltaTime)
             data.onTransitionEnd();
         }
 
-        context.machine.transitionTo<PlayAnimation>(context, data.clipInfo, data.startupTime);
+        context_.machine.transitionTo<PlayAnimation>(context_, data.clipInfo, data.startupTime);
         return;
-    }
-}
-
-void AnimationTransition::removeRootTranslationFromPreviousClipIfNeeded()
-{
-    if (context.rootJointId)
-    {
-        auto& transforms   = data.startChaneAnimKeyFrame.transforms;
-        auto transformIter = transforms.find(*context.rootJointId);
-        if (transformIter != transforms.end())
-        {
-            auto& pos = transformIter->second.position;
-            pos.x     = 0;
-            pos.z     = 0;
-        }
     }
 }
 }  // namespace Components

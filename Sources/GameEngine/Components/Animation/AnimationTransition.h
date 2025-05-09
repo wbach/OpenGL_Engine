@@ -25,10 +25,8 @@ public:
 
 private:
     void calculateTime(float);
-    void removeRootTranslationFromPreviousClipIfNeeded();
 
 private:
-    Context& context;
     TransitionGroup data;
 };
 }  // namespace Components

@@ -26,8 +26,6 @@ private:
     void increaseAnimationTime(float deltaTime);
 
 private:
-    Context& context_;
-
     std::unordered_map<std::string, PlayGroupMixed> groups_;
 };
 }  // namespace Components

@@ -29,10 +29,10 @@ class DisarmedRunState
           Utils::StateMachine::On<DrawArrowEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
           Utils::StateMachine::On<StartFallingEvent, Utils::StateMachine::TransitionTo<DisarmedFallingState>>,
           Utils::StateMachine::On<DodgeDiveEvent, Utils::StateMachine::TransitionTo<JumpState>>,
-          Utils::StateMachine::On<DodgeForwardEvent, Utils::StateMachine::TransitionTo<JumpState>>,
-          Utils::StateMachine::On<DodgeBackwardEvent, Utils::StateMachine::TransitionTo<JumpState>>,
-          Utils::StateMachine::On<DodgeLeftEvent, Utils::StateMachine::TransitionTo<JumpState>>,
-          Utils::StateMachine::On<DodgeRightEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeForwardEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeBackwardEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeLeftEvent, Utils::StateMachine::TransitionTo<JumpState>>,
+//          Utils::StateMachine::On<DodgeRightEvent, Utils::StateMachine::TransitionTo<JumpState>>,
           Utils::StateMachine::On<JumpEvent, Utils::StateMachine::TransitionTo<JumpState>>>
 {
 public:

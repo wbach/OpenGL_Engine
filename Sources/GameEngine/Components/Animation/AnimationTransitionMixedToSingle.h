@@ -27,7 +27,6 @@ private:
     void increaseTransitionTime(float);
 
 private:
-    Context& context_;
     PlayGroup currentAnim;
 
     struct TransitionGroups

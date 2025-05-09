@@ -12,21 +12,26 @@ namespace GameEngine
 namespace Components
 {
 PlayAnimation::PlayAnimation(Context& context, const AnimationClipInfo& info, float startTime)
-    : context_{context}
+    : AnimationStateBase{context}
     , playInfo_{{.time = startTime, .clipInfo = info}, info.playDirection == PlayDirection::forward ? 1.f : -1.f}
 
 {
 }
 bool PlayAnimation::update(float deltaTime)
 {
-    calculateCurrentAnimationPose(context_.currentPose, playInfo_.clipInfo.clip, playInfo_.time);
+    auto& currentPose = context_.currentPose;
+    calculateCurrentAnimationPose(currentPose, playInfo_.clipInfo.clip, playInfo_.time);
 
-    if (not increaseAnimationTime(playInfo_.time, playInfo_.previousFrameTimeStamp, playInfo_.clipInfo,
-                                  context_.currentPose.frames.first, deltaTime))
+    if (not increaseAnimationTime(playInfo_.time, playInfo_.previousFrameTimeStamp, playInfo_.clipInfo, currentPose.frames.first,
+                                  deltaTime))
     {
         context_.machine.transitionTo<EmptyState>(context_);
     }
 
+    if (playInfo_.clipInfo.rootMontion)
+    {
+        calculateRootMontionVecAndClearTranslation();
+    }
     return true;
 }
 void PlayAnimation::handle(const ChangeAnimationEvent& event)

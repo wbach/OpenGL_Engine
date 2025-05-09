@@ -1,4 +1,5 @@
 #pragma once
+#include "Context.h"
 #include "IAnimationState.h"
 
 namespace GameEngine
@@ -14,6 +15,7 @@ struct AnimationClipInfo;
 class AnimationStateBase : public IAnimationState
 {
 protected:
+    AnimationStateBase(Context& context);
     struct AnimationGroup
     {
         float time{0.f};
@@ -44,6 +46,12 @@ protected:
     void notifyFrameSubsribers(const AnimationClipInfo&, const Animation::KeyFrame*, float, float&);
     bool increaseAnimationTime(float&, float&, const AnimationClipInfo&, Animation::KeyFrame const*, float);
     bool isAnimationPlaying(const std::string&) const override;
+
+    void calculateRootMontionVecAndClearTranslation();
+    Context& context_;
+
+private:
+    std::optional<vec3> rootMontionVec_;
 };
 }  // namespace Components
 }  // namespace GameEngine

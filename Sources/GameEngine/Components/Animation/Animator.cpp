@@ -414,48 +414,25 @@ void Animator::applyPoseToJoints()
     {
         DEBUG_LOG("RootMontionDetected");
 
-        auto currentPoseRootJointIter = jointData_.pose.data.find(realRootJoint->id);
-        if (currentPoseRootJointIter != jointData_.pose.data.end())
+        mat4 meshTransform(1.f);
+        if (rendererComponent_ && rendererComponent_->GetModelWrapper().Get())
         {
-            mat4 meshTransform(1.f);
-            if (rendererComponent_ && rendererComponent_->GetModelWrapper().Get())
-            {
-                meshTransform = rendererComponent_->GetModelWrapper().Get()->GetMeshes()[0].GetMeshTransform();
-            }
-            else
-            {
-                DEBUG_LOG("Renderer component not found");
-            }
+            meshTransform = rendererComponent_->GetModelWrapper().Get()->GetMeshes()[0].GetMeshTransform();
+        }
+        else
+        {
+            DEBUG_LOG("Renderer component not found");
+        }
+        const auto& boneSpaceMoveVector = machine_.context_.moveVectorForRootMontion;
+        vec3 worldMoveVector = thisObject_.GetWorldTransform().GetMatrix() * meshTransform * vec4(boneSpaceMoveVector.x, 0.f, boneSpaceMoveVector.z, 0.f);
 
-            vec3 moveVec{0.f};
-            auto& [_, data] = *currentPoseRootJointIter;
-            if (not rootMontionVec_)
-            {
-                moveVec = data.transform.position;
-            }
-            else
-            {
-                moveVec = data.transform.position - (*rootMontionVec_);
-            }
+//        DEBUG_LOG("moveVec: " + std::to_string(moveVec));
+//        DEBUG_LOG("worldMoveVector: " + std::to_string(worldMoveVector));
 
-            rootMontionVec_ = data.transform.position;
-
-            vec3 worldMoveVector =
-                thisObject_.GetWorldTransform().GetMatrix() * meshTransform * vec4(moveVec.x, 0.f, moveVec.z, 0.f);
-
-            DEBUG_LOG("moveVec: " + std::to_string(moveVec));
-            DEBUG_LOG("worldMoveVector: " + std::to_string(worldMoveVector));
-
-            worldMoveVector.y = 0;
-            if (auto rigidbody = thisObject_.GetComponent<Rigidbody>())
-            {
-                rigidbody->Translate(worldMoveVector);
-            }
-
-            // clear MoveVec from animation
-            data.matrix[3][0] = 0;
-            // data.matrix[3][1] = 0;
-            data.matrix[3][2] = 0;
+        worldMoveVector.y = 0;
+        if (auto rigidbody = thisObject_.GetComponent<Rigidbody>())
+        {
+            rigidbody->Translate(worldMoveVector);
         }
     }
     else

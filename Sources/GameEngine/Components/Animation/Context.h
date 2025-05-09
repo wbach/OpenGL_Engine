@@ -16,6 +16,7 @@ struct Context
     const JointGroupsIds& jointGroups;
     float transitionTime{DEFAULT_ANIMATION_TRANSITION_TIME};
     std::optional<uint32> rootJointId;
+    vec3 moveVectorForRootMontion{vec3(0.f)};
 };
 }  // namespace Components
 }  // namespace GameEngine

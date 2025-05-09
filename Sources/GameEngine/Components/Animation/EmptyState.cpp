@@ -10,7 +10,7 @@ namespace GameEngine
 namespace Components
 {
 EmptyState::EmptyState(Context &context)
-    : context_{context}
+    : AnimationStateBase{context}
 {
 }
 bool EmptyState::update(float)

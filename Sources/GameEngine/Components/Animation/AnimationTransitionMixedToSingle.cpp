@@ -37,7 +37,7 @@ const std::vector<uint32> *findJointGroup(Context &context, const CurrentGroupsP
 }
 }  // namespace
 AnimationTransitionMixedToSingle::AnimationTransitionMixedToSingle(Context &context, const CurrentGroupsPlayingInfo &info)
-    : context_{context}
+    : AnimationStateBase{context}
     , currentAnim{{.time = info.currentTime, .clipInfo = info.info, .jointGroup = findJointGroup(context, info)}}
     , transitionProgress_{0.f}
 {

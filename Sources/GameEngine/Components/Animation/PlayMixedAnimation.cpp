@@ -15,7 +15,7 @@ namespace GameEngine
 namespace Components
 {
 PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfoPerGroup& animationPlayingInfoPerGroup)
-    : context_{context}
+    : AnimationStateBase{context}
 {
     for (auto& [name, clipInfoPair] : animationPlayingInfoPerGroup)
     {
@@ -32,13 +32,22 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
 }
 bool PlayMixedAnimation::update(float deltaTime)
 {
+    bool rootMontion=false;
     for (auto& [name, group] : groups_)
     {
         calculateCurrentAnimationPose(context_.currentPose, group.clipInfo.clip, group.time, *group.jointGroup);
         group.frames = context_.currentPose.frames;
+
+        if (group.clipInfo.rootMontion)
+            rootMontion = true;
     }
 
     increaseAnimationTime(deltaTime);
+
+    if (rootMontion)
+    {
+        calculateRootMontionVecAndClearTranslation();
+    }
     return true;
 }
 void PlayMixedAnimation::handle(const ChangeAnimationEvent& event)

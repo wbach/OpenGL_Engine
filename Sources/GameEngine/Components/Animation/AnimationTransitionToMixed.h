@@ -36,8 +36,6 @@ private:
     void addTransitionBasedOnEvent(const ChangeAnimationEvent&);
 
 private:
-    Context& context;
-
     std::unordered_map<std::string, PlayGroupMixed> currentGroups;
     std::unordered_map<std::string, TransitionGroup> transtionGroups;
 };
