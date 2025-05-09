@@ -15,7 +15,7 @@ struct Context
     StateMachine& machine;
     const JointGroupsIds& jointGroups;
     float transitionTime{DEFAULT_ANIMATION_TRANSITION_TIME};
-    std::optional<uint32> rootJointId;
+    std::optional<uint32> montionRootJointId;
     vec3 moveVectorForRootMontion{vec3(0.f)};
 };
 }  // namespace Components

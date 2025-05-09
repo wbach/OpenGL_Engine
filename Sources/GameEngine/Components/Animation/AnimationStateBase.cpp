@@ -11,6 +11,7 @@ namespace Components
 AnimationStateBase::AnimationStateBase(Context& context)
     : context_{context}
 {
+    rootMontionVec_.reset();
 }
 
 void AnimationStateBase::notifyFrameSubsribers(const AnimationClipInfo& clipInfo, const Animation::KeyFrame* currentFrame,
@@ -70,9 +71,9 @@ bool AnimationStateBase::isAnimationPlaying(const std::string&) const
 void AnimationStateBase::calculateRootMontionVecAndClearTranslation()
 {
     auto& currentPose = context_.currentPose;
-    if (context_.rootJointId)
+    if (context_.montionRootJointId)
     {
-        auto currentPoseRootJointIter = currentPose.data.find(*context_.rootJointId);
+        auto currentPoseRootJointIter = currentPose.data.find(*context_.montionRootJointId);
         if (currentPoseRootJointIter != currentPose.data.end())
         {
             auto& [_, data] = *currentPoseRootJointIter;

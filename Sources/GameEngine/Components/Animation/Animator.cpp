@@ -32,6 +32,7 @@ const std::string CSTR_JOINT_GROUPS{"jointGroups"};
 const std::string CSTR_ANIMATION_PLAY_TYPE{"playType"};
 const std::string CSTR_ANIMATION_USE_ROOT_MONTION{"rootMontion"};
 const std::string CSTR_MODEL_BASED_CLIP{"modelBased"};
+const std::string CSTR_MONTION_JOINT_NAME{"montionJointName"};
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
@@ -39,6 +40,8 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
     , jointData_(componentContext_.graphicsApi_)
     , animationSpeed_{1.f}
     , machine_(jointData_.pose, jointGroupsIds_)
+    , montionJointName_("mixamorig:Hips")
+    , montionJoint_{nullptr}
 {
 }
 
@@ -240,11 +243,6 @@ std::optional<IdType> Animator::allocateIdForClip(const std::string& name)
     return id;
 }
 
-Animation::Joint* Animator::getRootJoint()
-{
-    return jointData_.rootJoint.children.empty() ? nullptr : &jointData_.rootJoint.children.front();  // jointData_.rootJoint
-}
-
 void Animator::ChangeAnimation(const std::string& name, AnimationChangeType changeType, PlayDirection playDirection,
                                std::optional<std::string> groupName, std::function<void()> onTransitionEnd)
 {
@@ -333,8 +331,12 @@ void Animator::GetSkeletonAndAnimations()
             DEBUG_LOG("Skeleton of: " + model->GetFile().GetBaseName());
             printSkeleton(jointData_.rootJoint);
 
-            if (auto rootJoint = getRootJoint())
-                machine_.context_.rootJointId = rootJoint->id;
+            montionJoint_ = GetJoint(montionJointName_);
+            if (montionJoint_)
+            {
+                DEBUG_LOG("Montion joint found : " + montionJointName_);
+                machine_.context_.montionRootJointId = montionJoint_->id;
+            }
         }
     }
 }
@@ -409,8 +411,7 @@ void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
 }
 void Animator::applyPoseToJoints()
 {
-    auto realRootJoint = getRootJoint();
-    if (realRootJoint and jointData_.rootMontion)
+    if (montionJoint_ and jointData_.rootMontion)
     {
         DEBUG_LOG("RootMontionDetected");
 
@@ -423,21 +424,17 @@ void Animator::applyPoseToJoints()
         {
             DEBUG_LOG("Renderer component not found");
         }
+
         const auto& boneSpaceMoveVector = machine_.context_.moveVectorForRootMontion;
-        vec3 worldMoveVector = thisObject_.GetWorldTransform().GetMatrix() * meshTransform * vec4(boneSpaceMoveVector.x, 0.f, boneSpaceMoveVector.z, 0.f);
-
-//        DEBUG_LOG("moveVec: " + std::to_string(moveVec));
-//        DEBUG_LOG("worldMoveVector: " + std::to_string(worldMoveVector));
-
+        vec3 worldMoveVector            = thisObject_.GetWorldTransform().GetMatrix() *
+                               GetRootJoint()->additionalUserMofiyTransform.getMatrix() * meshTransform *
+                               vec4(boneSpaceMoveVector.x, 0.f, boneSpaceMoveVector.z, 0.f);
         worldMoveVector.y = 0;
+
         if (auto rigidbody = thisObject_.GetComponent<Rigidbody>())
         {
             rigidbody->Translate(worldMoveVector);
         }
-    }
-    else
-    {
-        rootMontionVec_.reset();
     }
 
     applyPoseToJoints(jointData_.rootJoint, jointData_.rootJoint.offset);
@@ -543,6 +540,11 @@ void Animator::registerReadFunctions()
     {
         auto component          = std::make_unique<Animator>(componentContext, gameObject);
         auto animationClipsNode = node.getChild(CSTR_ANIMATION_CLIPS);
+        auto montionJointName   = node.getChild(CSTR_MONTION_JOINT_NAME);
+        if (montionJointName)
+        {
+            component->montionJointName_ = montionJointName->value_;
+        }
 
         if (animationClipsNode)
         {
@@ -593,6 +595,7 @@ void Animator::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
     node.addChild(CSTR_STARTUP_ANIMATION, startupAnimationClipName_);
+    node.addChild(CSTR_MONTION_JOINT_NAME, montionJointName_);
     auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
 
     for (const auto& [name, info] : animationClipInfo_)

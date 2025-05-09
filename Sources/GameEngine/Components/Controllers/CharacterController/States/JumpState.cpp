@@ -47,7 +47,6 @@ void JumpState::onEnter(const DodgeDiveEvent &event)
         [&]()
         {
             context_.characterController.pushEventToFrontQueue(GroundDetectionEvent{});
-            
         });
 }
 
