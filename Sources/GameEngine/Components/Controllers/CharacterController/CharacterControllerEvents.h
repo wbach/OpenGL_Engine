@@ -125,6 +125,9 @@ struct StartFallingEvent
 struct GroundDetectionEvent
 {
 };
+struct DodgeEndEvent
+{
+};
 using CharacterControllerEvent =
     std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
                  SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
@@ -132,5 +135,5 @@ using CharacterControllerEvent =
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,
                  ReloadArrowEvent, AimStartEvent, AimStopEvent, EndMoveLeftEvent, EndMoveRightEvent, CrouchChangeStateEvent,
                  ChangeAnimEvent, StartFallingEvent, DodgeDiveEvent, DodgeForwardEvent, DodgeBackwardEvent, DodgeLeftEvent,
-                 DodgeRightEvent>;
+                 DodgeRightEvent, DodgeEndEvent>;
 }  // namespace GameEngine

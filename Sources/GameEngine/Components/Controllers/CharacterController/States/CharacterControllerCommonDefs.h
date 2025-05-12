@@ -58,6 +58,7 @@ class ArmedCrouchWalkState;
 class ArmedSprintState;
 class ArmedSprintAndRotateState;
 class JumpState;
+class DodgeState;
 class AimState;
 class AimCrouchState;
 class AimCrouchWalkState;

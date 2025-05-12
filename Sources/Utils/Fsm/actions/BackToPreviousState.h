@@ -16,7 +16,10 @@ public:
     {
 #ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("PrevState : " + typeName<State>());
-        std::visit([](const auto& state) { DEBUG_LOG("Entering : " + typeName(state)); }, machine.previousState);
+        if (machine.previousState.empty())
+        {
+            std::visit([](const auto& state) { DEBUG_LOG("Entering : " + typeName(state)); }, machine.previousState.back());
+        }
 #endif
 
         leave(prevState);

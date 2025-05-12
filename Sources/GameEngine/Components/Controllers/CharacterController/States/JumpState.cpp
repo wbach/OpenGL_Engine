@@ -1,3 +1,5 @@
+#include "JumpState.h"
+
 #include "../CharacterController.h"
 #include "../FsmContext.h"
 #include "CharacterControllerCommonDefs.h"
@@ -25,7 +27,7 @@ void JumpState::onEnter(const JumpEvent &event)
     velocity.y += event.power;
     context_.rigidbody.SetVelocity(velocity);
 
-    animName         = context_.animClipNames.disarmed.jump;
+    animName = context_.animClipNames.disarmed.jump;
 
     if (context_.isOnAir)
     {
@@ -35,19 +37,6 @@ void JumpState::onEnter(const JumpEvent &event)
     {
         jumpAttemptTimer = DEFAULT_JUMP_ATTEMPT_TIMER_VALUE;
     }
-}
-
-void JumpState::onEnter(const DodgeDiveEvent &event)
-{
-    animName = context_.animClipNames.disarmed.dodgeDive;
-
-    setAnim();
-    dodgeAnimSubId = context_.animator.SubscribeForAnimationFrame(
-        animName,
-        [&]()
-        {
-            context_.characterController.pushEventToFrontQueue(GroundDetectionEvent{});
-        });
 }
 
 void JumpState::update(const JumpConfirmEvent &)

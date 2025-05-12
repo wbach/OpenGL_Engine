@@ -173,6 +173,7 @@ void CharacterController::Init()
             ArmedAttackAndRunState(context),
             ArmedAttackAndWalkState(context),
             JumpState(context),
+            DodgeState(context),
             AimState(context),
             AimCrouchState(context),
             AimCrouchWalkState(context),

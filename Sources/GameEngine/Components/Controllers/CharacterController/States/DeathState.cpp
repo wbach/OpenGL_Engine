@@ -240,6 +240,11 @@ void DeathState::onEnter(JumpState &, const DeathEvent &)
     setAnim(context_.animClipNames.armed.posture.stand.death);
 }
 
+void DeathState::onEnter(DodgeState &, const DeathEvent &)
+{
+    setAnim(context_.animClipNames.armed.posture.stand.death);
+}
+
 void DeathState::onEnter(AimState &, const DeathEvent &)
 {
     setAnim(context_.animClipNames.armed.posture.stand.death);

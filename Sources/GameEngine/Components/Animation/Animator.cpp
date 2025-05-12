@@ -413,8 +413,6 @@ void Animator::applyPoseToJoints()
 {
     if (montionJoint_ and jointData_.rootMontion)
     {
-        DEBUG_LOG("RootMontionDetected");
-
         mat4 meshTransform(1.f);
         if (rendererComponent_ && rendererComponent_->GetModelWrapper().Get())
         {

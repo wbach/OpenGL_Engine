@@ -5,6 +5,7 @@ https://github.com/AdamsPL/state-machine
 */
 #include <Logger/Log.h>
 
+#include <list>
 #include <tuple>
 #include <variant>
 
@@ -26,7 +27,11 @@ public:
     template <typename State>
     State& transitionTo()
     {
-        previousState = currentState;
+        previousState.push_back(currentState);
+        if (previousState.size() > 10)
+        {
+            previousState.pop_front();
+        }
 
         State& state = std::get<State>(states);
         currentState = &state;
@@ -35,10 +40,15 @@ public:
 
     void backToPrevious()
     {
-        auto tmpState = currentState;
-
-        currentState  = previousState;
-        previousState = tmpState;
+        if (not previousState.empty())
+        {
+            currentState = previousState.back();
+            previousState.pop_back();
+        }
+        else
+        {
+            DEBUG_LOG("No previous state!");
+        }
     }
 
     template <typename Event>
@@ -50,9 +60,9 @@ public:
     template <typename Event, typename Machine>
     void handleBy(const Event& event, Machine& machine)
     {
-//#ifdef NOREALTIME_LOG_ENABLED
+        //#ifdef NOREALTIME_LOG_ENABLED
         DEBUG_LOG("Handle event : " + typeName<Event>());
-//#endif
+        //#endif
         auto passEventToState = [&machine, &event](auto statePtr)
         {
             auto action = statePtr->handle(event);
@@ -74,7 +84,7 @@ public:
     }
 
     std::tuple<States...> states;
-    std::variant<States*...> previousState{&std::get<0>(states)};
+    std::list<std::variant<States*...>> previousState{&std::get<0>(states)};
     std::variant<States*...> currentState{&std::get<0>(states)};
 };
 }  // namespace StateMachine
