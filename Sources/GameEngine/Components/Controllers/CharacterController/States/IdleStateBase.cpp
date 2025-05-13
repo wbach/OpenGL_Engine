@@ -40,6 +40,11 @@ void IdleStateBase::onEnter(const EndAttackEvent &)
     setIdleAnim();
 }
 
+void IdleStateBase::onEnter(const DodgeEndEvent &)
+{
+    setIdleAnim();
+}
+
 void IdleStateBase::update(float)
 {
 }

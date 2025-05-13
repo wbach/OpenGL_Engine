@@ -17,16 +17,35 @@ DodgeState::DodgeState(FsmContext &context)
 
 void DodgeState::onEnter(const DodgeDiveEvent &event)
 {
-    animName = context_.animClipNames.disarmed.dodgeDive;
+    setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodgeDive);
+}
 
-    setAnim();
-    dodgeAnimSubId = context_.animator.SubscribeForAnimationFrame(
-        animName, [&]() { context_.characterController.pushEventToFrontQueue(DodgeEndEvent{}); });
+void DodgeState::onEnter(const DodgeForwardEvent &e)
+{
+    DEBUG_LOG("perform DodgeForwardEvent: " + std::to_string(e.power));
+    setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.forward);
+}
+
+void DodgeState::onEnter(const DodgeBackwardEvent &e)
+{
+    DEBUG_LOG("perform DodgeBackwardEvent: " + std::to_string(e.power));
+    setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.backward);
+}
+
+void DodgeState::onEnter(const DodgeRightEvent &e)
+{
+    DEBUG_LOG("perform DodgeRightEvent: " + std::to_string(e.power));
+    setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.right);
+}
+
+void DodgeState::onEnter(const DodgeLeftEvent &e)
+{
+    DEBUG_LOG("perform DodgeLeftEvent: " + std::to_string(e.power));
+    setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.left);
 }
 
 void DodgeState::onEnter(DisarmedFallingState &)
 {
-    DEBUG_LOG("perform DisarmedFallingState");
     context_.characterController.pushEventToFrontQueue(DodgeEndEvent{});
 }
 
@@ -36,7 +55,25 @@ void DodgeState::onLeave(const DodgeEndEvent &)
     flushEvents();
 }
 
-void DodgeState::setAnim()
+void DodgeState::setAnimAndSubscribeForEnd(const std::string &animName)
+{
+    if (dodgeAnimSubId)
+    {
+        DEBUG_LOG("Dodge already performed!");
+        return;
+    }
+
+    setAnim(animName);
+    dodgeAnimSubId =
+        context_.animator.SubscribeForAnimationFrame(animName,
+                                                     [&]()
+                                                     {
+                                                         context_.characterController.pushEventToFrontQueue(DodgeEndEvent{});
+                                                         dodgeAnimSubId.reset();
+                                                     });
+}
+
+void DodgeState::setAnim(const std::string &animName)
 {
     if (not animName.empty())
     {

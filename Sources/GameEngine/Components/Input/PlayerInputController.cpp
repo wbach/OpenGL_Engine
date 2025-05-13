@@ -51,6 +51,32 @@ void PlayerInputController::Init()
 void PlayerInputController::SubscribeForPushActions()
 {
     subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
+        Input::GameAction::DODGE,
+        [&]()
+        {
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::MOVE_FORWARD))
+            {
+                characterController_->pushEventToQueue(DodgeForwardEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::MOVE_BACKWARD))
+            {
+                characterController_->pushEventToQueue(DodgeBackwardEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::MOVE_LEFT))
+            {
+                characterController_->pushEventToQueue(DodgeLeftEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
+            if (componentContext_.inputManager_.GetKey(Input::GameAction::MOVE_RIGHT))
+            {
+                characterController_->pushEventToQueue(DodgeRightEvent{DEFAULT_DODGE_POWER});
+                return;
+            }
+        });
+
+    subscriptions_ = componentContext_.inputManager_.SubscribeOnKeyDown(
         Input::GameAction::MOVE_FORWARD,
         [&]()
         {

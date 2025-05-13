@@ -81,6 +81,9 @@ struct DodgeRightEvent
 {
     float power{1.f};
 };
+struct DodgeEndEvent
+{
+};
 struct AttackEvent
 {
 };
@@ -123,9 +126,6 @@ struct StartFallingEvent
 {
 };
 struct GroundDetectionEvent
-{
-};
-struct DodgeEndEvent
 {
 };
 using CharacterControllerEvent =

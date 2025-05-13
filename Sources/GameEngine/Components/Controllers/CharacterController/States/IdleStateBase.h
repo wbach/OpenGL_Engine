@@ -26,7 +26,7 @@ public:
     void onEnter(const EndMoveLeftEvent&);
     void onEnter(const EndMoveRightEvent&);
     void onEnter(const EndAttackEvent&);
-
+    void onEnter(const DodgeEndEvent&);
     void update(float);
 
 protected:
