@@ -128,8 +128,12 @@ struct StartFallingEvent
 struct GroundDetectionEvent
 {
 };
+struct AnimatedTransitionEndEvent
+{
+};
+
 using CharacterControllerEvent =
-    std::variant<MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
+    std::variant<AnimatedTransitionEndEvent, MoveEvent, MoveForwardEvent, MoveBackwardEvent, MoveLeftEvent, MoveRightEvent, WalkChangeStateEvent,
                  SprintStateChangeEvent, EndForwardMoveEvent, EndBackwardMoveEvent, RotateLeftEvent, RotateRightEvent,
                  RotateTargetEvent, EndRotationEvent, JumpEvent, JumpConfirmEvent, GroundDetectionEvent, AttackEvent,
                  EndAttackEvent, DeathEvent, WeaponStateEvent, EquipEndStateEvent, DisarmEndStateEvent, DrawArrowEvent,

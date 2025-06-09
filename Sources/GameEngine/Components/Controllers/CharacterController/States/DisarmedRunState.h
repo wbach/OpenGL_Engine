@@ -1,4 +1,5 @@
 #pragma once
+#include "../AnimatedTransitionTo.h"
 #include "CharacterControllerCommonDefs.h"
 #include "RotatingMoveState.h"
 
@@ -18,10 +19,10 @@ class DisarmedRunState
           Utils::StateMachine::On<WalkChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedWalkState>>,
           Utils::StateMachine::On<CrouchChangeStateEvent, Utils::StateMachine::TransitionTo<DisarmedCrouchWalkState>>,
           Utils::StateMachine::On<WeaponStateEvent, Utils::StateMachine::TransitionTo<RunArmedChangeState>>,
-          Utils::StateMachine::On<EndForwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
-          Utils::StateMachine::On<EndBackwardMoveEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
-          Utils::StateMachine::On<EndMoveLeftEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
-          Utils::StateMachine::On<EndMoveRightEvent, Utils::StateMachine::TransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<EndForwardMoveEvent, AnimatedTransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<EndBackwardMoveEvent, AnimatedTransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<EndMoveLeftEvent, AnimatedTransitionTo<DisarmedIdleState>>,
+          Utils::StateMachine::On<EndMoveRightEvent, AnimatedTransitionTo<DisarmedIdleState>>,
           Utils::StateMachine::On<RotateLeftEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<RotateRightEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,
           Utils::StateMachine::On<RotateTargetEvent, Utils::StateMachine::TransitionTo<DisarmedRunAndRotateState>>,

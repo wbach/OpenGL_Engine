@@ -45,6 +45,11 @@ void IdleStateBase::onEnter(const DodgeEndEvent &)
     setIdleAnim();
 }
 
+void IdleStateBase::onEnter(const AnimatedTransitionEndEvent &)
+{
+    setIdleAnim();
+}
+
 void IdleStateBase::update(float)
 {
 }

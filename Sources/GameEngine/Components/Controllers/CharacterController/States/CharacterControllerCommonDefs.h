@@ -11,6 +11,7 @@ namespace Components
 {
 struct FsmContext;
 
+class AnimatedTransitionState;
 class DisarmedIdleState;
 class DisarmedAttackState;
 class DisarmedIdleCrouchState;

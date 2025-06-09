@@ -200,7 +200,8 @@ void CharacterController::Init()
             DrawArrowCrouchWalkAndRotateState(context),
             DisarmedFallingState(context),
             ArmedFallingState(context),
-            DeathState(context));
+            DeathState(context),
+            AnimatedTransitionState(context));
         // clang-format on
 
         rigidbody_->SetAngularFactor(0.f);

@@ -76,6 +76,7 @@
 #include "States/RunArmedChangeState.h"
 #include "States/WalkAndRotateArmedChangeState.h"
 #include "States/WalkArmedChangeState.h"
+#include "States/AnimatedTransitionState.h"
 
 namespace GameEngine
 {
@@ -158,7 +159,8 @@ using CharacterControllerFsm =
                             DrawArrowCrouchWalkAndRotateState,
                             DisarmedFallingState,
                             ArmedFallingState,
-                            DeathState
+                            DeathState,
+                            AnimatedTransitionState
                             >;
 }
 // clang-format on
