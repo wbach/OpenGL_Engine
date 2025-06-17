@@ -2,6 +2,7 @@ import bpy
 import xml.etree.cElementTree as ET
 import copy
 
+dataPath="E:\\Projects\\OpenGL_Engine\\Data\\"
 prefabNode = ET.Element("prefab")
 gameObjectsNode = ET.SubElement(prefabNode, "gameObjects")
 
@@ -32,7 +33,7 @@ def createRenderComponent(componentsNode, modelFilepath):
     ET.SubElement(rendererNode, "modelNormalization").text = "false"
     modelFileNamesNode = ET.SubElement(rendererNode, "modelFileNames")
     modelFileNameNode = ET.SubElement(modelFileNamesNode, "modelFileName")
-    ET.SubElement(modelFileNameNode, "filename").text = modelFilepath
+    ET.SubElement(modelFileNameNode, "fileName").text = modelFilepath
     ET.SubElement(modelFileNameNode, "lvlOfDetail").text = "0"
 
 def createMeshShapeNode(componentsNode):
@@ -45,7 +46,7 @@ def createMeshShapeNode(componentsNode):
     ET.SubElement(meshShapeNode, "size").text = "1.000000"
     ET.SubElement(meshShapeNode, "autoOptimize").text = "false"
     modelFileNameNode = ET.SubElement(meshShapeNode, "modelFileName")
-    ET.SubElement(modelFileNameNode, "filename")
+    ET.SubElement(modelFileNameNode, "fileName")
     ET.SubElement(modelFileNameNode, "modelNormalization").text = "false"
     ET.SubElement(modelFileNameNode, "meshOptimize").text = "true"
 
@@ -78,9 +79,40 @@ def createCollisionComponents(componentsNode):
     createRigidbodyNode(componentsNode)
 
 
+# // @param in 3d position vector in Right handed Coordinate System
+# // @param out 3d position vector in Unity Coordinate System
+# void RHSToUnity(Vector3 in, ref Vector3 out)
+# { 
+#   out[0] = in[1]; 
+#   out[1] = in[2]; 
+#   out[2] = -in[0];
+# }
+
+def convertAxis(v):
+    out = copy.deepcopy(v)
+    # out[0] = v[1]
+    # out[1] = v[2] 
+    # out[2] = -v[0]
+    # out[0] = -v[2]
+    # out[1] = v[0] 
+    # out[2] = v[1]
+    out[0] = v[0]
+    out[1] = v[2] 
+    out[2] = v[1]
+    return out
+
+# // @param in 3d position vector in Unity Coordinate System
+# // @param out 3d position vector in Right handed Coordinate System
+# void UnityToRHS(Vector3 in, ref Vector3 out)
+# { 
+#   out[0] = -in[2]; 
+#   out[1] = in[0]; 
+#   out[2] = in[1];
+# }
+
 id = 1
 for obj in bpy.data.objects:
-    if obj.type != "MESH":
+    if obj.type != "MESH" or obj.name_full == "RefImage":
         continue
     objectNode = ET.SubElement(gameObjectsNode, "gameObject" )
     objectNode.attrib["id"] = str(id)
@@ -90,27 +122,30 @@ for obj in bpy.data.objects:
     localTransformNode = ET.SubElement(objectNode, "localTransform")
     
     location = copy.deepcopy(obj.location.xyz)
+    axisConvertedLocation = convertAxis(location)
     positionNode = ET.SubElement(localTransformNode, "position")
-    positionNode.attrib["x"] = str(location.x)
-    positionNode.attrib["y"] = str(location.y)
-    positionNode.attrib["z"] = str(location.z)
+    positionNode.attrib["x"] = str(axisConvertedLocation.x)
+    positionNode.attrib["y"] = str(axisConvertedLocation.y) # Blender is other axis system
+    positionNode.attrib["z"] = str(-axisConvertedLocation.z)
    
     rotation = copy.deepcopy(obj.rotation_euler)
+    axisConvertedRotation = convertAxis(rotation)
     rotationNode = ET.SubElement(localTransformNode, "rotation")
-    rotationNode.attrib["x"] = str(ToDegrees(rotation.x))
-    rotationNode.attrib["y"] = str(ToDegrees(rotation.y))
-    rotationNode.attrib["z"] = str(ToDegrees(rotation.z))
+    rotationNode.attrib["x"] = str(ToDegrees(axisConvertedRotation.x))
+    rotationNode.attrib["y"] = str(ToDegrees(axisConvertedRotation.y)) # Blender is other axis system
+    rotationNode.attrib["z"] = str(ToDegrees(axisConvertedRotation.z))
     
     scale = copy.deepcopy(obj.scale.xyz)
+    axisConvertedScale = convertAxis(scale)
     scaleNode = ET.SubElement(localTransformNode, "scale")
-    scaleNode.attrib["x"] = str(scale.x)
-    scaleNode.attrib["y"] = str(scale.y)
-    scaleNode.attrib["z"] = str(scale.z)
+    scaleNode.attrib["x"] = str(axisConvertedScale.x)
+    scaleNode.attrib["y"] = str(axisConvertedScale.y)# Blender is other axis system
+    scaleNode.attrib["z"] = str(axisConvertedScale.z)
 
     componentsNode = ET.SubElement(objectNode, "components")
     componentsNode.attrib["count"] = str(3)
 
-    modelFilepath="d:\\tmp\\bengine_{}.obj".format(obj.name_full)
+    modelFilepath="BlenderExported/bengine_{}.obj".format(obj.name_full)
 
     createRenderComponent(componentsNode, modelFilepath)
     createCollisionComponents(componentsNode)
@@ -136,7 +171,8 @@ for obj in bpy.data.objects:
     obj.scale[1] = 1
     obj.scale[2] = 1
 
-    bpy.ops.wm.obj_export(export_selected_objects=True, filepath=modelFilepath)
+
+    bpy.ops.wm.obj_export(export_selected_objects=True, filepath=dataPath + modelFilepath)
 
     obj.location = location
     obj.rotation_euler = rotation
@@ -149,4 +185,4 @@ for obj in bpy.data.objects:
 
 tree = ET.ElementTree(prefabNode)
 ET.indent(tree, space="\t", level=0)
-tree.write("d:\\filename.xml")
+tree.write(dataPath + "Scenes\\Prefabs\\BlenderScenePrefab.xml")

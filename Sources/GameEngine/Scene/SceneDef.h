@@ -3,6 +3,8 @@
 
 extern const std::string CSTR_SCENE;
 extern const std::string CSTR_PREFAB;
+extern const std::string CSTR_PREFABS;
+extern const std::string CSTR_MODIFY_OBJECTS;
 extern const std::string CSTR_NAME;
 extern const std::string CSTR_ID;
 extern const std::string CSTR_GAMEOBJECTS;
@@ -18,3 +20,4 @@ extern const std::string CSTR_Y;
 extern const std::string CSTR_Z;
 extern const std::string CSTR_COMPONENTS;
 extern const std::string CSTR_COMPONENT;
+extern const std::string CSTR_FILE_NAME;

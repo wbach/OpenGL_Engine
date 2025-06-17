@@ -43,7 +43,7 @@ void MeshShape::OnAwake()
 {
     if (not model_)
     {
-        DEBUG_LOG("No model");
+        DEBUG_LOG("No dedicated model, try get from RendererComponent");
         auto renderer = thisObject_.GetComponent<RendererComponent>();
 
         if (not renderer)
@@ -53,7 +53,10 @@ void MeshShape::OnAwake()
     }
 
     if (not model_)
+    {
+        DEBUG_LOG("Model from RendererComponent also not found return");
         return;
+    }
     DEBUG_LOG("Model file used : " + model_->GetFile().GetFilename());
     const auto& meshes = model_->GetMeshes();
     auto scale         = calculateScale(thisObject_.GetWorldTransform().GetScale());

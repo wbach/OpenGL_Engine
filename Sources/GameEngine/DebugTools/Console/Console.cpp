@@ -234,7 +234,7 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
     const auto &filename = params[0];
     const auto &name     = params[1];
 
-    scene_.LoadPrefab(filename, name);
+    scene_.LoadPrefab(filename);
 }
 
 void Console::SetPosition(const std::vector<std::string> &args)

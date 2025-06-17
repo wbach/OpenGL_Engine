@@ -105,7 +105,7 @@ public:
     void SaveToFile();
     void SaveToFile(const File&);
     void LoadFromFile(const File&);
-    GameObject* LoadPrefab(const File&, const std::string&);
+    void LoadPrefab(const File&);
     void CreatePrefab(const File&, const GameObject&);
     void RunNetworkEditorInterface();
     void StopNetworkEditorInterface();

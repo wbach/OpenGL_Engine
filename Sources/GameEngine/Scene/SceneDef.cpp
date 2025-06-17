@@ -2,6 +2,8 @@
 
 const std::string CSTR_SCENE                             = "scene";
 const std::string CSTR_PREFAB                            = "prefab";
+const std::string CSTR_PREFABS                           = "prefabs";
+const std::string CSTR_MODIFY_OBJECTS                    = "modifyObjects";
 const std::string CSTR_NAME                              = "name";
 const std::string CSTR_ID                                = "id";
 const std::string CSTR_GAMEOBJECTS                       = "gameObjects";
@@ -17,3 +19,4 @@ const std::string CSTR_Y                                 = "y";
 const std::string CSTR_Z                                 = "z";
 const std::string CSTR_COMPONENTS                        = "components";
 const std::string CSTR_COMPONENT                         = "component";
+const std::string CSTR_FILE_NAME                         = "filename";

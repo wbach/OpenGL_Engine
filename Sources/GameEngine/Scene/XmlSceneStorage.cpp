@@ -59,9 +59,9 @@ void XmlSceneStorage::readFromFile(const File& file)
 {
     SceneReader::loadScene(scene_, file);
 }
-GameObject* XmlSceneStorage::loadPrefab(const File& file, const std::string& name)
+void XmlSceneStorage::loadPrefab(const File& file)
 {
-    return SceneReader::loadPrefab(scene_, file, name);
+    SceneReader::loadPrefab(scene_, file);
 }
 void XmlSceneStorage::createPrefab(const File& file, const GameObject& gameObject)
 {

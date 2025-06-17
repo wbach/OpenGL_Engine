@@ -859,17 +859,19 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
             goName = params.at("name");
         }
 
-        auto gameObject = scene_.LoadPrefab(GetRelativeDataPath(params.at("filename")), goName);
+        DEBUG_LOG("Load prefabs not implemented");
 
-        if (gameObject)
-        {
-            auto position = scene_.camera.GetPosition();
-            position += scene_.camera.GetDirection() * 5.f;
-            gameObject->GetTransform().SetPosition(position);
+        //scene_.LoadPrefab(GetRelativeDataPath(params.at("filename")), goName);
 
-            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
-            gateway_.Send(userId_, message);
-        }
+        //if (gameObject)
+        //{
+        //    auto position = scene_.camera.GetPosition();
+        //    position += scene_.camera.GetDirection() * 5.f;
+        //    gameObject->GetTransform().SetPosition(position);
+
+        //    DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+        //    gateway_.Send(userId_, message);
+        //}
     }
 }
 

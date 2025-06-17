@@ -12,7 +12,7 @@ namespace SceneReader
 {
 void readNode(const TreeNode& , Scene&);
 void loadScene(Scene&, const File&);
-GameObject* loadPrefab(Scene&, const File&, const std::string&);
+void loadPrefab(Scene&, const File&);
 GameObject* createGameObjectFromPrefabNodeInRootNode(Scene&, const TreeNode&, const std::string&);
 std::unique_ptr<GameObject> createGameObjectFromPrefabNode(Scene&, const TreeNode&, const std::string&);
 }  // namespace SceneReader
