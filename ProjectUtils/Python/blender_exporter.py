@@ -2,9 +2,15 @@ import bpy
 import xml.etree.cElementTree as ET
 import copy
 
-dataPath="E:\\Projects\\OpenGL_Engine\\Data\\"
-prefabNode = ET.Element("prefab")
-gameObjectsNode = ET.SubElement(prefabNode, "gameObjects")
+#dataPath="E:\\Projects\\OpenGL_Engine\\Data\\"
+dataPath="/home/baszek/Projects/OpenGL_Engine/Data/"
+
+class Vector:
+    def __init__(self, x = 0.0, y = 0.0, z = 0.0):
+        self.x = x
+        self.y = y
+        self.z = z
+
 
 # id = 1
 # for mesh in bpy.data.meshes:
@@ -57,7 +63,7 @@ def createRigidbodyNode(componentsNode):
     ET.SubElement(rigidbodyNode, "isStatic").text = "false"
     ET.SubElement(rigidbodyNode, "noConctactResponse").text = "false"
     ET.SubElement(rigidbodyNode, "collisionShape")
-    
+
 def createCollisionComponents(componentsNode):
     # <component type="MeshShape">
     #     <positionOffset z="0.000000" y="0.000000" x="0.000000"/>
@@ -78,69 +84,83 @@ def createCollisionComponents(componentsNode):
     createMeshShapeNode(componentsNode)
     createRigidbodyNode(componentsNode)
 
+def createLocalTransformNode(parentNode, position, rotation, scale):
+    localTransformNode = ET.SubElement(parentNode, "localTransform")
+    positionNode = ET.SubElement(localTransformNode, "position")
+    positionNode.attrib["x"] = str(position.x)
+    positionNode.attrib["y"] = str(position.y)
+    positionNode.attrib["z"] = str(position.z)
+
+    rotationNode = ET.SubElement(localTransformNode, "rotation")
+    rotationNode.attrib["x"] = str(rotation.x)
+    rotationNode.attrib["y"] = str(rotation.y)
+    rotationNode.attrib["z"] = str(rotation.z)
+
+    scaleNode = ET.SubElement(localTransformNode, "scale")
+    scaleNode.attrib["x"] = str(scale.x)
+    scaleNode.attrib["y"] = str(scale.y)
+    scaleNode.attrib["z"] = str(scale.z)
 
 # // @param in 3d position vector in Right handed Coordinate System
 # // @param out 3d position vector in Unity Coordinate System
 # void RHSToUnity(Vector3 in, ref Vector3 out)
-# { 
-#   out[0] = in[1]; 
-#   out[1] = in[2]; 
+# {
+#   out[0] = in[1];
+#   out[1] = in[2];
 #   out[2] = -in[0];
 # }
 
 def convertAxis(v):
     out = copy.deepcopy(v)
     # out[0] = v[1]
-    # out[1] = v[2] 
+    # out[1] = v[2]
     # out[2] = -v[0]
     # out[0] = -v[2]
-    # out[1] = v[0] 
+    # out[1] = v[0]
     # out[2] = v[1]
     out[0] = v[0]
-    out[1] = v[2] 
+    out[1] = v[2]
     out[2] = v[1]
     return out
 
 # // @param in 3d position vector in Unity Coordinate System
 # // @param out 3d position vector in Right handed Coordinate System
 # void UnityToRHS(Vector3 in, ref Vector3 out)
-# { 
-#   out[0] = -in[2]; 
-#   out[1] = in[0]; 
+# {
+#   out[0] = -in[2];
+#   out[1] = in[0];
 #   out[2] = in[1];
 # }
+
+prefabNode = ET.Element("prefab")
+prefabNode.attrib["name"] = bpy.path.basename(bpy.context.blend_data.filepath)
+
+createLocalTransformNode(prefabNode, Vector(), Vector(), Vector(1, 1, 1))
+childrenNode = ET.SubElement(prefabNode, "children")
 
 id = 1
 for obj in bpy.data.objects:
     if obj.type != "MESH" or obj.name_full == "RefImage":
         continue
-    objectNode = ET.SubElement(gameObjectsNode, "gameObject" )
+    objectNode = ET.SubElement(childrenNode, "gameObject" )
     objectNode.attrib["id"] = str(id)
     objectNode.attrib["name"] = obj.name_full
     #objectNode.attrib["type"] = obj.type
 
-    localTransformNode = ET.SubElement(objectNode, "localTransform")
-    
     location = copy.deepcopy(obj.location.xyz)
     axisConvertedLocation = convertAxis(location)
-    positionNode = ET.SubElement(localTransformNode, "position")
-    positionNode.attrib["x"] = str(axisConvertedLocation.x)
-    positionNode.attrib["y"] = str(axisConvertedLocation.y) # Blender is other axis system
-    positionNode.attrib["z"] = str(-axisConvertedLocation.z)
-   
+    axisConvertedLocation[2] = -axisConvertedLocation[2]
+
     rotation = copy.deepcopy(obj.rotation_euler)
     axisConvertedRotation = convertAxis(rotation)
-    rotationNode = ET.SubElement(localTransformNode, "rotation")
-    rotationNode.attrib["x"] = str(ToDegrees(axisConvertedRotation.x))
-    rotationNode.attrib["y"] = str(ToDegrees(axisConvertedRotation.y)) # Blender is other axis system
-    rotationNode.attrib["z"] = str(ToDegrees(axisConvertedRotation.z))
-    
+    axisConvertedRotation[0] = ToDegrees(axisConvertedRotation.x)
+    axisConvertedRotation[1] = ToDegrees(axisConvertedRotation.y)
+    axisConvertedRotation[2] = ToDegrees(axisConvertedRotation.z)
+
     scale = copy.deepcopy(obj.scale.xyz)
     axisConvertedScale = convertAxis(scale)
-    scaleNode = ET.SubElement(localTransformNode, "scale")
-    scaleNode.attrib["x"] = str(axisConvertedScale.x)
-    scaleNode.attrib["y"] = str(axisConvertedScale.y)# Blender is other axis system
-    scaleNode.attrib["z"] = str(axisConvertedScale.z)
+
+    createLocalTransformNode(objectNode, axisConvertedLocation, axisConvertedRotation, axisConvertedScale)
 
     componentsNode = ET.SubElement(objectNode, "components")
     componentsNode.attrib["count"] = str(3)
@@ -185,4 +205,4 @@ for obj in bpy.data.objects:
 
 tree = ET.ElementTree(prefabNode)
 ET.indent(tree, space="\t", level=0)
-tree.write(dataPath + "Scenes\\Prefabs\\BlenderScenePrefab.xml")
+tree.write(dataPath + "Scenes/Prefabs/BlenderScenePrefab.xml")

@@ -319,9 +319,9 @@ void Scene::LoadFromFile(const File& file)
     DEBUG_LOG("Load scene from file : \"" + file.GetAbsoultePath() + "\" complete");
 }
 
-void Scene::LoadPrefab(const File& file)
+GameObject* Scene::LoadPrefab(const File& file, const std::string& gameObjectName)
 {
-    sceneStorage_->loadPrefab(file);
+    return sceneStorage_->loadPrefab(file, gameObjectName);
 }
 
 void Scene::CreatePrefab(const File& file, const GameObject& gameObject)
