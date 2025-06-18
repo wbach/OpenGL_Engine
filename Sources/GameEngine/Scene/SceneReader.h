@@ -11,7 +11,7 @@ class GameObject;
 namespace SceneReader
 {
 void readNode(const TreeNode& , Scene&);
-void loadScene(Scene&, const File&);
+TreeNode* loadScene(Scene&, const File&);
 GameObject* loadPrefab(Scene&, const File&, const std::string& = "");
 GameObject* createGameObjectFromPrefabNodeInRootNode(Scene&, const TreeNode&, const std::string&);
 std::unique_ptr<GameObject> createGameObjectFromPrefabNode(Scene&, const TreeNode&, const std::string&);

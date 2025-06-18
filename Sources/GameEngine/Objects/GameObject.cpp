@@ -303,6 +303,21 @@ void GameObject::SetWorldPositionRotationScale(const vec3& position, const Quate
     localTransform_.SetPositionAndRotationAndScale(localPosition, localRotation, localScale);
 }
 
+const bool GameObject::isPrefabricated() const
+{
+    return not prefabricatedFile.empty();
+}
+
+void GameObject::markAsPrefabricated(const File& file)
+{
+    prefabricatedFile = file;
+}
+
+const File &GameObject::getPrefabricatedFile() const
+{
+    return prefabricatedFile;
+}
+
 GameObject& GameObject::getRootGameObject()
 {
     GameObject* go = GetParent();

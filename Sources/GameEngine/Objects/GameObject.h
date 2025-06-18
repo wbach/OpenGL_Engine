@@ -1,6 +1,5 @@
 #pragma once
 #include <Utils/IdPool.h>
-
 #include <list>
 #include <memory>
 #include <string>
@@ -10,6 +9,7 @@
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -78,6 +78,10 @@ public:
     void SetWorldPositionRotation(const vec3&, const Quaternion&);
     void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
 
+    const bool isPrefabricated() const;
+    void markAsPrefabricated(const File&);
+    const File& getPrefabricatedFile() const;
+
 private:
     GameObject& getRootGameObject();
     void CalculateWorldTransform();
@@ -100,6 +104,7 @@ protected:
     bool isAwakened;
     IdType isStartedSub;
     IdType isAwakenedSub;
+    File prefabricatedFile;
 
 private:
     IdType id_;

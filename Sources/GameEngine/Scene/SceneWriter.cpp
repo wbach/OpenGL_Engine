@@ -35,7 +35,10 @@ void Create(TreeNode& node, const std::vector<std::unique_ptr<Components::ICompo
         component->write(node.addChild(CSTR_COMPONENT));
     }
 }
-
+void CreatePrefabNode(TreeNode& node, const GameObject& gameObject)
+{
+    node.addChild(CSTR_FILE_NAME, gameObject.getPrefabricatedFile().GetProjectRelativeDir());
+}
 void Create(TreeNode& node, const GameObject& gameObject)
 {
     node.attributes_.insert({CSTR_NAME, gameObject.GetName()});
@@ -49,7 +52,14 @@ void Create(TreeNode& node, const GameObject& gameObject)
 
         for (const auto& gameObject : gameObject.GetChildren())
         {
-            Create(childrenNode.addChild(CSTR_GAMEOBJECT), *gameObject);
+            if (not gameObject->isPrefabricated())
+            {
+                Create(childrenNode.addChild(CSTR_GAMEOBJECT), *gameObject);
+            }
+            else
+            {
+                CreatePrefabNode(childrenNode.addChild(CSTR_PREFAB), *gameObject);
+            }
         }
     }
 }
@@ -60,9 +70,33 @@ void Create(TreeNode& node, const GameObjects& gameObjects)
 
     for (const auto& gameObject : gameObjects)
     {
-        Create(node.addChild(CSTR_GAMEOBJECT), *gameObject);
+        if (not gameObject->isPrefabricated())
+        {
+            Create(node.addChild(CSTR_GAMEOBJECT), *gameObject);
+        }
+        else
+        {
+            CreatePrefabNode(node.addChild(CSTR_PREFAB), *gameObject);
+        }
     }
 }
+
+void CreatePrefabs(TreeNode& node, const GameObjects& gameObjects)
+{
+    auto objectCount =
+        std::count_if(gameObjects.begin(), gameObjects.end(), [](const auto& obj) { return obj->isPrefabricated(); });
+
+    node.attributes_[CSTR_COUNT] = std::to_string(objectCount);
+
+    for (const auto& gameObject : gameObjects)
+    {
+        if (gameObject->isPrefabricated())
+        {
+            Create(node.addChild(CSTR_GAMEOBJECT), *gameObject);
+        }
+    }
+}
+
 TreeNode createTree(const Scene& input)
 {
     TreeNode scene(CSTR_SCENE);

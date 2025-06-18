@@ -35,6 +35,54 @@ void AddComponent(const TreeNode& node, GameObject& gameObject)
     Read(node, comp);
 }
 
+void ModifyGameObject(Scene& scene, const TreeNode& node, GameObject& gameObject)
+{
+    auto transformNode = node.getChild(CSTR_TRANSFORM);
+    if (transformNode)
+    {
+        Read(*transformNode, gameObject.GetTransform());
+    }
+
+    auto componentsNode = node.getChild(CSTR_COMPONENTS);
+    if (componentsNode)
+    {
+        for (const auto& component : componentsNode->getChildren())
+        {
+            DEBUG_LOG("TO DO: AddOrModifyComponent: " + component->name());
+            // gameObject.InitComponent(*component);
+        }
+    }
+
+    auto childrenNode = node.getChild(CSTR_CHILDREN);
+    if (childrenNode)
+    {
+        DEBUG_LOG("TO DO: AddOrModifyChildren: " + childrenNode->name());
+        // for (auto& childNode : childrenNode->getChildren())
+        //{
+        //     if (childNode)
+        //     {
+        //         auto name  = childNode->getAttributeValue(CSTR_NAME);
+        //         auto child = scene.CreateGameObject(name);
+        //         Read(scene, *childNode, *child);
+        //         gameObject.AddChild(std::move(child));
+        //     }
+        //     else
+        //     {
+        //         ERROR_LOG("Somthing goes wrong. Child is empty");
+        //     }
+        // }
+    }
+}
+
+void ReadPrefab(const TreeNode& node, Scene& scene)
+{
+    if (auto maybeFileNameNode = node.getChild(CSTR_FILE_NAME))
+    {
+        loadPrefab(scene, maybeFileNameNode->value_);
+    }
+}
+
+
 void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
 {
     auto transformNode = node.getChild(CSTR_TRANSFORM);
@@ -55,59 +103,20 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
     auto childrenNode = node.getChild(CSTR_CHILDREN);
     if (childrenNode)
     {
-        for (auto& childNode : childrenNode->getChildren())
+        for (auto& gameObjectNode : childrenNode->getChildren())
         {
-            if (childNode)
+            if (gameObjectNode->name() == CSTR_GAMEOBJECT)
             {
-                auto name  = childNode->getAttributeValue(CSTR_NAME);
+                auto name  = gameObjectNode->getAttributeValue(CSTR_NAME);
                 auto child = scene.CreateGameObject(name);
-                Read(scene, *childNode, *child);
+                Read(scene, *gameObjectNode, *child);
                 gameObject.AddChild(std::move(child));
             }
-            else
+            else if (gameObjectNode->name() == CSTR_PREFAB)
             {
-                ERROR_LOG("Somthing goes wrong. Child is empty");
+                ReadPrefab(*gameObjectNode, scene);
             }
         }
-    }
-}
-
-void ModifyGameObject(Scene& scene, const TreeNode& node, GameObject& gameObject)
-{
-    auto transformNode = node.getChild(CSTR_TRANSFORM);
-    if (transformNode)
-    {
-        Read(*transformNode, gameObject.GetTransform());
-    }
-
-    auto componentsNode = node.getChild(CSTR_COMPONENTS);
-    if (componentsNode)
-    {
-        for (const auto& component : componentsNode->getChildren())
-        {
-            DEBUG_LOG("TO DO: AddOrModifyComponent: " + component->name());
-            //gameObject.InitComponent(*component);
-        }
-    }
-
-    auto childrenNode = node.getChild(CSTR_CHILDREN);
-    if (childrenNode)
-    {
-        DEBUG_LOG("TO DO: AddOrModifyChildren: " + childrenNode->name());
-        //for (auto& childNode : childrenNode->getChildren())
-        //{
-        //    if (childNode)
-        //    {
-        //        auto name  = childNode->getAttributeValue(CSTR_NAME);
-        //        auto child = scene.CreateGameObject(name);
-        //        Read(scene, *childNode, *child);
-        //        gameObject.AddChild(std::move(child));
-        //    }
-        //    else
-        //    {
-        //        ERROR_LOG("Somthing goes wrong. Child is empty");
-        //    }
-        //}
     }
 }
 
@@ -126,6 +135,7 @@ GameObject* ReadPrefab(const File& file, Scene& scene, const TreeNode& node, con
     }
 
     auto gameObject = scene.CreateGameObject(prefabName);
+    gameObject->markAsPrefabricated(file);
     Read(scene, node, *gameObject);
 
     auto result = gameObject.get();
@@ -135,7 +145,7 @@ GameObject* ReadPrefab(const File& file, Scene& scene, const TreeNode& node, con
 
 GameObject* loadPrefab(Scene& scene, const File& file, const std::string& gameObjectName)
 {
-    DEBUG_LOG("LoadPrefab : " +file.GetAbsoultePath());
+    DEBUG_LOG("LoadPrefab : " + file.GetAbsoultePath());
     Utils::XmlReader xmlReader;
     if (not xmlReader.Read(file.GetAbsoultePath()))
     {
@@ -175,40 +185,40 @@ std::unique_ptr<GameObject> createGameObject(const TreeNode& node, Scene& scene)
 
     return scene.CreateGameObject(node.attributes_.at(CSTR_NAME));
 }
+
 void readNode(const TreeNode& node, Scene& scene)
 {
     if (auto maybeGameObjectsNode = node.getChild(CSTR_GAMEOBJECTS))
     {
         for (const auto& gameObjectNode : maybeGameObjectsNode->getChildren())
         {
-            auto gameObject = createGameObject(*gameObjectNode, scene);
-            Read(scene, *gameObjectNode, *gameObject);
-            scene.AddGameObject(std::move(gameObject));
+            if (gameObjectNode->name() == CSTR_GAMEOBJECT)
+            {
+                DEBUG_LOG("read gameobject");
+                auto gameObject = createGameObject(*gameObjectNode, scene);
+                Read(scene, *gameObjectNode, *gameObject);
+                scene.AddGameObject(std::move(gameObject));
+            }
+            else if (gameObjectNode->name() == CSTR_PREFAB)
+            {
+                DEBUG_LOG("read prefab");
+                ReadPrefab(*gameObjectNode, scene);
+            }
         }
     }
-    if (auto maybePrefabsNode = node.getChild(CSTR_PREFABS))
+    if (auto maybeModifyObjectsNode = node.getChild(CSTR_MODIFY_OBJECTS))
     {
-        for (const auto& prefabNode : maybePrefabsNode->getChildren())
+        for (const auto& gameObjectNode : maybeModifyObjectsNode->getChildren())
         {
-            if (auto maybeFileNameNode = prefabNode->getChild(CSTR_FILE_NAME))
+            auto nameAttributeIter = gameObjectNode->attributes_.find("name");
+            if (nameAttributeIter != gameObjectNode->attributes_.end())
             {
-                loadPrefab(scene, maybeFileNameNode->value_);
-                if (auto maybeModifyObjectsNode = prefabNode->getChild(CSTR_MODIFY_OBJECTS))
+                auto goName = nameAttributeIter->second;
+                if (not goName.empty())
                 {
-                    for (const auto& gameObjectNode : maybeModifyObjectsNode->getChildren())
+                    if (auto maybeGameObject = scene.GetGameObject(goName))
                     {
-                        auto nameAttributeIter = gameObjectNode->attributes_.find("name");
-                        if (nameAttributeIter != gameObjectNode->attributes_.end())
-                        {
-                            auto goName = nameAttributeIter->second;
-                            if (not goName.empty())
-                            {
-                                if (auto maybeGameObject = scene.GetGameObject(goName))
-                                {
-                                    ModifyGameObject(scene, *gameObjectNode, *maybeGameObject);
-                                }
-                            }
-                        }
+                        ModifyGameObject(scene, *gameObjectNode, *maybeGameObject);
                     }
                 }
             }
@@ -216,14 +226,19 @@ void readNode(const TreeNode& node, Scene& scene)
     }
 }
 
-void loadScene(Scene& scene, const File& file)
+TreeNode *loadScene(Scene& scene, const File& file)
 {
     Utils::XmlReader xmlReader;
     if (not xmlReader.Read(file.GetAbsoultePath()))
-        return;
+        return nullptr;
 
     currentReadingScene = &scene;
-    readNode(*xmlReader.Get(CSTR_SCENE), scene);
+    auto sceneNode = xmlReader.Get(CSTR_SCENE);
+    if (sceneNode)
+    {
+        readNode(*sceneNode, scene);
+    }
+    return sceneNode;
 }
 }  // namespace SceneReader
 }  // namespace GameEngine
