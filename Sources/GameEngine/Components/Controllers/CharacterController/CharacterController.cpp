@@ -299,7 +299,7 @@ void CharacterController::PostStart()
                     for (int x = -1; x <= 1; ++x)
                     {
                         if (isCollision(papi, characterPosition,
-                                        vec3(capsuleRadius * static_cast<float>(x), 0, capsuleRadius * static_cast<float>(y))))
+                                        vec3(capsuleRadius * static_cast<float>(x), capsuleRadius, capsuleRadius * static_cast<float>(y))))
                         {
                             isAwayFromGround = false;
                             break;
