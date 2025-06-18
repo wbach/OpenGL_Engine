@@ -31,6 +31,30 @@ def ToDegrees(a):
 for obj in bpy.data.objects:
     obj.select_set(False)
 
+def exportWaveFrontObject(obj : bpy.types.Object, file):
+    location = copy.deepcopy(obj.location.xyz)
+    rotation = copy.deepcopy(obj.rotation_euler)
+    scale = copy.deepcopy(obj.scale.xyz)
+
+    obj.select_set(True)
+    obj.location[0] = 0
+    obj.location[1] = 0
+    obj.location[2] = 0
+    obj.rotation_euler[0] = 0
+    obj.rotation_euler[1] = 0
+    obj.rotation_euler[2] = 0
+    obj.scale[0] = 1
+    obj.scale[1] = 1
+    obj.scale[2] = 1
+
+    bpy.ops.wm.obj_export(export_selected_objects=True, filepath=file)
+
+    obj.location = location
+    obj.rotation_euler = rotation
+    obj.scale = scale
+
+    obj.select_set(False)
+
 def createRenderComponent(componentsNode, modelFilepath):
     rendererNode = ET.SubElement(componentsNode, "component")
     rendererNode.attrib["type"] = "Renderer"
@@ -42,7 +66,13 @@ def createRenderComponent(componentsNode, modelFilepath):
     ET.SubElement(modelFileNameNode, "fileName").text = modelFilepath
     ET.SubElement(modelFileNameNode, "lvlOfDetail").text = "0"
 
-def createMeshShapeNode(componentsNode):
+def first_match(iterable, predicate):
+    try:
+        return next(idx for idx,n in enumerate(iterable) if predicate(n))
+    except StopIteration:
+        return None
+
+def createMeshShapeNode(componentsNode, colliderFile):
     meshShapeNode = ET.SubElement(componentsNode, "component")
     meshShapeNode.attrib["type"] = "MeshShape"
     positionOffsetNode = ET.SubElement(meshShapeNode, "positionOffset")
@@ -52,7 +82,7 @@ def createMeshShapeNode(componentsNode):
     ET.SubElement(meshShapeNode, "size").text = "1.000000"
     ET.SubElement(meshShapeNode, "autoOptimize").text = "false"
     modelFileNameNode = ET.SubElement(meshShapeNode, "modelFileName")
-    ET.SubElement(modelFileNameNode, "fileName")
+    ET.SubElement(modelFileNameNode, "fileName").text = colliderFile
     ET.SubElement(modelFileNameNode, "modelNormalization").text = "false"
     ET.SubElement(modelFileNameNode, "meshOptimize").text = "true"
 
@@ -64,7 +94,7 @@ def createRigidbodyNode(componentsNode):
     ET.SubElement(rigidbodyNode, "noConctactResponse").text = "false"
     ET.SubElement(rigidbodyNode, "collisionShape")
 
-def createCollisionComponents(componentsNode):
+def createCollisionComponents(componentsNode, colliderFile):
     # <component type="MeshShape">
     #     <positionOffset z="0.000000" y="0.000000" x="0.000000"/>
     #     <size>1.000000</size>
@@ -81,7 +111,7 @@ def createCollisionComponents(componentsNode):
     #     <noConctactResponse>false</noConctactResponse>
     #     <collisionShape/>
     # </component>
-    createMeshShapeNode(componentsNode)
+    createMeshShapeNode(componentsNode, colliderFile)
     createRigidbodyNode(componentsNode)
 
 def createLocalTransformNode(parentNode, position, rotation, scale):
@@ -140,8 +170,9 @@ childrenNode = ET.SubElement(prefabNode, "children")
 
 id = 1
 for obj in bpy.data.objects:
-    if obj.type != "MESH" or obj.name_full == "RefImage":
+    if obj.type != "MESH" or obj.name_full == "RefImage" or ("collider" in obj.name_full):
         continue
+
     objectNode = ET.SubElement(childrenNode, "gameObject" )
     objectNode.attrib["id"] = str(id)
     objectNode.attrib["name"] = obj.name_full
@@ -166,9 +197,34 @@ for obj in bpy.data.objects:
     componentsNode.attrib["count"] = str(3)
 
     modelFilepath="BlenderExported/bengine_{}.obj".format(obj.name_full)
+    exportWaveFrontObject(obj, file=dataPath + modelFilepath)
+
+    colliderIndex = first_match(obj.children, lambda obj: ("collider" in obj.name_full))
+    colliderFile = ""
+    if colliderIndex != None:
+        # remove parent transform
+        obj.location[0] = 0
+        obj.location[1] = 0
+        obj.location[2] = 0
+        obj.rotation_euler[0] = 0
+        obj.rotation_euler[1] = 0
+        obj.rotation_euler[2] = 0
+        obj.scale[0] = 1
+        obj.scale[1] = 1
+        obj.scale[2] = 1
+
+        colliderFile="BlenderExported/collider_bengine_{}.obj".format(obj.name_full)
+        exportWaveFrontObject(obj.children[colliderIndex], file=dataPath + colliderFile)
+
+        # restore parent transform
+        obj.location = location
+        obj.rotation_euler = rotation
+        obj.scale = scale
 
     createRenderComponent(componentsNode, modelFilepath)
-    createCollisionComponents(componentsNode)
+    createCollisionComponents(componentsNode, colliderFile)
+
+
 
     # rendererNode = ET.SubElement(componentsNode, "component")
     # rendererNode.attrib["type"] = "Renderer"
@@ -180,25 +236,27 @@ for obj in bpy.data.objects:
     # ET.SubElement(modelFileNameNode, "filename").text = modelFilepath
     # ET.SubElement(modelFileNameNode, "lvlOfDetail").text = "0"
 
-    obj.select_set(True)
-    obj.location[0] = 0
-    obj.location[1] = 0
-    obj.location[2] = 0
-    obj.rotation_euler[0] = 0
-    obj.rotation_euler[1] = 0
-    obj.rotation_euler[2] = 0
-    obj.scale[0] = 1
-    obj.scale[1] = 1
-    obj.scale[2] = 1
 
 
-    bpy.ops.wm.obj_export(export_selected_objects=True, filepath=dataPath + modelFilepath)
+    # obj.select_set(True)
+    # obj.location[0] = 0
+    # obj.location[1] = 0
+    # obj.location[2] = 0
+    # obj.rotation_euler[0] = 0
+    # obj.rotation_euler[1] = 0
+    # obj.rotation_euler[2] = 0
+    # obj.scale[0] = 1
+    # obj.scale[1] = 1
+    # obj.scale[2] = 1
 
-    obj.location = location
-    obj.rotation_euler = rotation
-    obj.scale = scale
 
-    obj.select_set(False)
+    # bpy.ops.wm.obj_export(export_selected_objects=True, filepath=dataPath + modelFilepath)
+
+    # obj.location = location
+    # obj.rotation_euler = rotation
+    # obj.scale = scale
+
+    # obj.select_set(False)
 
     id = id + 1
 
