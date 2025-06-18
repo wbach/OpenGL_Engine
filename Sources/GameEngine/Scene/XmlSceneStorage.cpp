@@ -14,7 +14,7 @@ namespace GameEngine
 {
 XmlSceneStorage::XmlSceneStorage(Scene& scene)
     : scene_(scene)
-    , maybeModifyObjectsTreeNode_{nullptr}
+    , maybeModifyObjectsTreeNode_{std::nullopt}
 {
 }
 XmlSceneStorage::~XmlSceneStorage()
@@ -26,8 +26,8 @@ void XmlSceneStorage::store()
     rootNode_ = createTree(scene_);
     if (maybeModifyObjectsTreeNode_)
     {
-        // auto & newModifyNode =  rootNode_->addChild(CSTR_MODIFY_OBJECTS);
-        // newModifyNode = *maybeModifyObjectsTreeNode_; TO DO , make copy
+         auto& newModifyNode = rootNode_->addChild(CSTR_MODIFY_OBJECTS);
+         newModifyNode       = *maybeModifyObjectsTreeNode_;
     }
 }
 void XmlSceneStorage::restore()
@@ -66,7 +66,10 @@ void XmlSceneStorage::readFromFile(const File& file)
 {
     if (auto maybeSceneNode = SceneReader::loadScene(scene_, file))
     {
-        maybeModifyObjectsTreeNode_ = maybeSceneNode->getChild(CSTR_MODIFY_OBJECTS);
+        if (auto maybeModifyNode = maybeSceneNode->getChild(CSTR_MODIFY_OBJECTS))
+        {
+            maybeModifyObjectsTreeNode_ = TreeNode(*maybeModifyNode);
+        }
     }
 }
 GameObject* XmlSceneStorage::loadPrefab(const File& file, const std::string& gameObjectName)

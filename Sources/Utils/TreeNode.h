@@ -9,11 +9,15 @@
 
 typedef std::unordered_map<std::string, std::string> Attributes;
 
+
 class TreeNode
 {
 public:
     TreeNode(const std::string&);
     TreeNode(const std::string&, const std::string&);
+    TreeNode(const TreeNode&);
+    TreeNode &operator=(const TreeNode&);
+
     const std::string& name() const;
     const std::vector<std::unique_ptr<TreeNode>>& getChildren() const;
     TreeNode& addChild(const std::string&);
@@ -32,6 +36,9 @@ public:
 private:
     std::vector<std::unique_ptr<TreeNode>> children_;
     std::string name_;
+
+private:
+    void CopyTreeNode(const TreeNode&, TreeNode&);
 };
 
 extern const std::string CSTR_VEC3;

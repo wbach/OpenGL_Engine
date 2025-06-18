@@ -37,7 +37,7 @@ void Create(TreeNode& node, const std::vector<std::unique_ptr<Components::ICompo
 }
 void CreatePrefabNode(TreeNode& node, const GameObject& gameObject)
 {
-    node.addChild(CSTR_FILE_NAME, gameObject.getPrefabricatedFile().GetProjectRelativeDir());
+    node.addChild(CSTR_FILE_NAME, gameObject.getPrefabricatedFile().GetDataRelativeDir());
 }
 void Create(TreeNode& node, const GameObject& gameObject)
 {

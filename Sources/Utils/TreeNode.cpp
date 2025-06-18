@@ -1,4 +1,5 @@
 #include "TreeNode.h"
+
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
 
@@ -22,6 +23,20 @@ TreeNode::TreeNode(const std::string& name, const std::string& value)
     , type_{"unknown"}
     , name_(name)
 {
+}
+
+TreeNode::TreeNode(const TreeNode& source)
+{
+    CopyTreeNode(source, *this);
+}
+
+TreeNode& TreeNode::operator=(const TreeNode& source)
+{
+    if (this == &source)
+        return *this;
+
+    CopyTreeNode(source, *this);
+    return *this;
 }
 const std::string& TreeNode::name() const
 {
@@ -312,5 +327,20 @@ void write(TreeNode& node, const std::vector<vec3>& v)
     for (const auto& value : v)
     {
         ::write(node.addChild(CSTR_VEC3), value);
+    }
+}
+
+void TreeNode::CopyTreeNode(const TreeNode& source, TreeNode& target)
+{
+    target.parent      = source.parent;
+    target.value_      = source.value_;
+    target.type_       = source.type_;
+    target.attributes_ = source.attributes_;
+    target.name_       = source.name_;
+
+    for (const auto& sourceChild : source.children_)
+    {
+        auto& targetChild = target.addChild(sourceChild->name_);
+        CopyTreeNode(*sourceChild, targetChild);
     }
 }

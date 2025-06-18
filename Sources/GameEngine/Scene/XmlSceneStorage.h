@@ -23,6 +23,6 @@ public:
 private:
     Scene& scene_;
     std::optional<TreeNode> rootNode_;
-    TreeNode* maybeModifyObjectsTreeNode_;
+    std::optional<TreeNode> maybeModifyObjectsTreeNode_;
 };
 }  // namespace GameEngine

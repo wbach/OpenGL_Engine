@@ -226,19 +226,21 @@ void readNode(const TreeNode& node, Scene& scene)
     }
 }
 
-TreeNode *loadScene(Scene& scene, const File& file)
+std::optional<TreeNode> loadScene(Scene& scene, const File& file)
 {
     Utils::XmlReader xmlReader;
     if (not xmlReader.Read(file.GetAbsoultePath()))
-        return nullptr;
+        return std::nullopt;
 
     currentReadingScene = &scene;
     auto sceneNode = xmlReader.Get(CSTR_SCENE);
     if (sceneNode)
     {
         readNode(*sceneNode, scene);
+        return TreeNode(*sceneNode);
     }
-    return sceneNode;
+
+    return std::nullopt;
 }
 }  // namespace SceneReader
 }  // namespace GameEngine
