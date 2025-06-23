@@ -4,6 +4,8 @@
 #include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <optional>
+#include <string>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -13,6 +15,10 @@
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Physics/IPhysicsApi.h"
+#include "Resources/Models/WBLoader/LoadingParameters.h"
+#include "Rotation.h"
+#include "Utils/Image/ImageUtils.h"
 
 namespace GameEngine
 {
@@ -21,8 +27,7 @@ namespace Components
 TerrainComponentBase::TerrainComponentBase(ComponentContext &componentContext, GameObject &gameObject)
     : componentContext_(componentContext)
     , thisObject_(gameObject)
-    , perTerrainTexturesBuffer_(
-          std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6))
+    , perTerrainTexturesBuffer_(std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6))
     , heightMap_(nullptr)
     , isSubscribed_(false)
 {
@@ -51,6 +56,178 @@ void TerrainComponentBase::BlendMapChanged()
     }
 }
 
+std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &objectFile) const
+{
+    DEBUG_LOG("Converting to heightmap : " + objectFile.GetAbsoultePath());
+    auto model = componentContext_.resourceManager_.LoadModel(
+        objectFile, LoadingParameters{MeshOptimize::none, ModelNormalization::normalized});
+    if (not model)
+    {
+        return std::nullopt;
+    }
+
+    auto modelRawData = model->getModelRawData();
+    if (not modelRawData)
+    {
+        return std::nullopt;
+    }
+
+    auto collisionShapeId = componentContext_.physicsApi_.CreateMeshCollider(Physics::PositionOffset{0.f}, modelRawData->positions_,
+                                                                             modelRawData->indices_, vec3(model->getNormalizedFactor()), false);
+    if (not collisionShapeId)
+    {
+        return std::nullopt;
+    }
+
+    auto currentWorldTransform = thisObject_.GetWorldTransform();
+    vec3 offset(1000);
+    thisObject_.SetWorldPosition(offset);
+    thisObject_.SetWorldRotation(Rotation{});
+    thisObject_.SetWorldScale(vec3(1.f));
+    bool updateRigidbodyOnTransformChange_ = false;
+    auto rigidBodyId_ =
+        componentContext_.physicsApi_.CreateRigidbody(*collisionShapeId, thisObject_, {}, 0.f, updateRigidbodyOnTransformChange_);
+
+
+    if (not rigidBodyId_)
+    {
+        componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
+        return std::nullopt;
+    }
+
+    // componentContext_.physicsApi_.SetPosition(*rigidBodyId_, offset);
+    DEBUG_LOG("Pos : " + std::to_string(componentContext_.physicsApi_.GetTransfrom(*rigidBodyId_)->GetPosition()));
+    //  componentContext_.physicsApi_.CreateMeshCollider(const PositionOffset &, const std::vector<float> &data, const
+    //  IndicesVector &, const vec3 &, bool)
+
+    uint32 heightmapResultuion = 512;
+    float step                 = 1.f / static_cast<float>(heightmapResultuion);
+
+    Utils::Image image;
+    image.width  = heightmapResultuion;
+    image.height = heightmapResultuion;
+    image.setChannels(4);
+    image.allocateImage<uint8>();
+
+    std::vector<std::vector<float>> heights;
+    heights.reserve(heightmapResultuion);
+    std::optional<float> maxHeight;
+    std::optional<float> minHeight;
+
+    for (float y = -0.5f; y < 0.5f; y += step)
+    {
+        heights.push_back({});
+        auto &row = heights.back();
+
+        for (float x = -0.5f; x < 0.5f; x += step)
+        {
+            vec3 from     = offset + vec3(x, 5.f, y);
+            vec3 to       = offset + vec3(x, -5.f, y);
+            auto maybeHit = componentContext_.physicsApi_.RayTest(from, to);
+
+            // if (maybeHit)
+            // {
+            //     DEBUG_LOG("Hit something pointWorld:" + std::to_string(maybeHit->pointWorld));
+            // }
+            float height{0.f};
+            maybeHit ? height = maybeHit->pointWorld.y : 0.f;
+
+            if (not maxHeight or (*maxHeight) < height)
+            {
+                maxHeight = height;
+            }
+
+            if (not minHeight or (*minHeight) > height)
+            {
+                minHeight = height;
+            }
+            row.push_back(height);
+        }
+    }
+
+    for (uint32 y = 0; y < heightmapResultuion; y++)
+    {
+        for (uint32 x = 0; x < heightmapResultuion; x++)
+        {
+            auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
+            Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
+            // uint8_t* array;
+            // array = reinterpret_cast<uint8_t*>(&normalizedHeight);
+            // Color color(array[0], array[1], array[2], array[3]);
+            image.setPixel(vec2ui{y, x}, color);
+        }
+    }
+
+    componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
+    componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
+    File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("png"));
+    DEBUG_LOG("Conversion done. Output file: " + outputFile.GetAbsoultePath());
+    Utils::SaveImage(image, outputFile.GetAbsoultePath());
+
+    thisObject_.SetWorldPosition(currentWorldTransform.GetPosition());
+    thisObject_.SetWorldScale(currentWorldTransform.GetScale());
+    return outputFile;
+    // [&](auto&)
+    //     {
+    //         if (not gameObject)
+    //             return;
+    //         uint32 heightmapResultuion = 512;
+    //         float step                 = 1.f / static_cast<float>(heightmapResultuion);
+
+    //         Utils::Image image;
+    //         image.width  = heightmapResultuion;
+    //         image.height = heightmapResultuion;
+    //         image.setChannels(4);
+    //         image.allocateImage<uint8>();
+
+    //         std::vector<std::vector<float>> heights;
+    //         heights.reserve(heightmapResultuion);
+    //         std::optional<float> maxHeight;
+    //         std::optional<float> minHeight;
+
+    //         for (float y = -0.5f; y < 0.5f; y += step)
+    //         {
+    //             heights.push_back({});
+    //             auto& row = heights.back();
+
+    //             for (float x = -0.5f; x < 0.5f; x += step)
+    //             {
+    //                 vec3 from(x, 5.f, y);
+    //                 vec3 to(x, -5.f, y);
+    //                 auto maybeHit = physicsApi_->RayTest(from, to);
+
+    //                 float height{0.f};
+    //                 maybeHit ? height = maybeHit->pointWorld.y : 0.f;
+
+    //                 if (not maxHeight or (*maxHeight) < height)
+    //                 {
+    //                     maxHeight = height;
+    //                 }
+
+    //                 if (not minHeight or (*minHeight) > height)
+    //                 {
+    //                     minHeight = height;
+    //                 }
+    //                 row.push_back(height);
+    //             }
+    //         }
+
+    //         for (uint32 y = 0; y < heightmapResultuion; y++)
+    //         {
+    //             for (uint32 x = 0; x < heightmapResultuion; x++)
+    //             {
+    //                 auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
+    //                 Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
+    //                 // uint8_t* array;
+    //                 // array = reinterpret_cast<uint8_t*>(&normalizedHeight);
+    //                 // Color color(array[0], array[1], array[2], array[3]);
+    //                 image.setPixel(vec2ui{y, x}, color);
+    //             }
+    //         }
+    //         Utils::SaveImage(image, outputFile.GetAbsoultePath());
+    //     }
+}
+
 void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textures)
 {
     if (textures.empty())
@@ -66,8 +243,21 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
     {
         if (TerrainTextureType::heightmap == terrainTexture.type)
         {
-            LoadHeightMap(terrainTexture.file);
-            LoadTerrainConfiguration(terrainTexture.file);
+            auto heightMap = terrainTexture.file;
+            if (terrainTexture.file.IsExtension("obj"))
+            {
+                if (auto maybeFile = ConvertObjectToHeightMap(terrainTexture.file))
+                {
+                    heightMap = maybeFile.value();
+                }
+                else
+                {
+                    DEBUG_LOG("Heightmap conversion from object faild");
+                    return;
+                }
+            }
+            LoadHeightMap(heightMap);
+            LoadTerrainConfiguration(heightMap);
             continue;
         }
 
@@ -80,8 +270,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
             textureParams.dataStorePolicy = DataStorePolicy::ToRelease;
         }
 
-        auto texture =
-            componentContext_.resourceManager_.GetTextureLoader().LoadTexture(terrainTexture.file, textureParams);
+        auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(terrainTexture.file, textureParams);
 
         if (texture)
         {
@@ -99,8 +288,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
 
 const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
 {
-    auto iter = std::find_if(inputData_.begin(), inputData_.end(),
-                             [type](const auto &texture) { return texture.type == type; });
+    auto iter = std::find_if(inputData_.begin(), inputData_.end(), [type](const auto &texture) { return texture.type == type; });
     if (iter != inputData_.end())
         return &iter->file;
 
@@ -109,8 +297,7 @@ const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
 
 TerrainComponentBase::TerrainTexture *TerrainComponentBase::getTerrainTexture(TerrainTextureType type)
 {
-    auto iter = std::find_if(inputData_.begin(), inputData_.end(),
-                             [type](const auto &texture) { return texture.type == type; });
+    auto iter = std::find_if(inputData_.begin(), inputData_.end(), [type](const auto &texture) { return texture.type == type; });
 
     if (iter != inputData_.end())
         return &*iter;
@@ -143,8 +330,7 @@ const std::vector<std::pair<TerrainTextureType, Texture *>> &TerrainComponentBas
 
 Texture *TerrainComponentBase::GetTexture(TerrainTextureType type) const
 {
-    auto iter =
-        std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
 
     if (iter != textures_.end())
         return iter->second;
@@ -165,8 +351,7 @@ HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
     Utils::CreateEmptyFile(filename);
     File file(filename);
 
-    auto texture =
-        componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(file, size, heightMapParameters_);
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(file, size, heightMapParameters_);
 
     if (texture)
     {
@@ -240,8 +425,7 @@ void TerrainComponentBase::LoadTerrainConfiguration(const File &terrainConfigFil
 
 void TerrainComponentBase::SetTexture(TerrainTextureType type, Texture *texture)
 {
-    auto iter =
-        std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
 
     if (iter != textures_.end())
     {
@@ -254,8 +438,7 @@ void TerrainComponentBase::SetTexture(TerrainTextureType type, Texture *texture)
 
 void TerrainComponentBase::UpdateTexture(TerrainTextureType type, Texture *texture)
 {
-    auto iter =
-        std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [type](const auto &pair) { return pair.first == type; });
 
     if (iter != textures_.end())
     {

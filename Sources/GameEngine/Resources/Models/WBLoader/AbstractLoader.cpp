@@ -8,6 +8,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "Logger/Log.h"
+#include "Resources/Models/BoundingBox.h"
 #include "Utils/Utils.h"
 
 namespace GameEngine
@@ -71,9 +72,11 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
     {
         normalizeFactor = 1.f / boundingBox.maxScale();
         boundingBox.scale(vec3(normalizeFactor));
+        DEBUG_LOG("Normalized boundingBox: " + std::to_string(boundingBox.min()) + "-" + std::to_string(boundingBox.max())  );
     }
 
     auto newModel = std::make_unique<Model>(boundingBox);
+    newModel->setNormailizedFactor(normalizeFactor);
 
     if (objects.empty())
     {
@@ -139,6 +142,7 @@ BoundingBox AbstractLoader::getModelBoundingBox() const
 
     BoundingBox modelBox;
     modelBox.minMax(min, max);
+    DEBUG_LOG("BoundingBox: " + std::to_string(modelBox.min()) + "-" + std::to_string(modelBox.max())  );
     DEBUG_LOG("Normalize factor : " + std::to_string(1.f / modelBox.maxScale()));
     return modelBox;
 }

@@ -1,5 +1,8 @@
 #include "Model.h"
 
+#include <cstddef>
+#include <optional>
+
 #include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
 
@@ -79,5 +82,52 @@ void Model::setRootJoint(Animation::Joint joint)
 const std::optional<Animation::Joint>& Model::getRootJoint() const
 {
     return skeleton_;
+}
+
+void Model::setNormailizedFactor(float v)
+{
+    normalizedFactor = v;
+}
+
+float Model::getNormalizedFactor() const
+{
+    return normalizedFactor;
+}
+
+std::optional<GraphicsApi::MeshRawData> Model::getModelRawData() const
+{
+    if (meshes_.empty())
+    {
+        return std::nullopt;
+    }
+
+    if (meshes_.size() == 1)
+    {
+        return meshes_.front().GetCMeshDataRef();
+    }
+
+    GraphicsApi::MeshRawData result;
+    size_t indiciesSize = 0;
+    size_t dataSize     = 0;
+    for (const auto& mesh : meshes_)
+    {
+        const auto& meshData = mesh.GetCMeshDataRef();
+        indiciesSize += meshData.indices_.size();
+        dataSize += meshData.positions_.size();
+    }
+
+    result.positions_.reserve(dataSize);
+    result.indices_.reserve(indiciesSize);
+
+    for (const auto& mesh : meshes_)
+    {
+        const auto& meshData = mesh.GetCMeshDataRef();
+        for (auto& i : meshData.indices_)
+        {
+            result.indices_.push_back(i + (result.positions_.size() / 3.f));
+        }
+        result.positions_.insert(std::end(result.positions_), std::begin(meshData.positions_), std::end(meshData.positions_));
+    }
+    return result;
 }
 }  // namespace GameEngine

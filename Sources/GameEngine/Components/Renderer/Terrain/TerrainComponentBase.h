@@ -1,6 +1,7 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 #include <functional>
+#include <optional>
 #include <utility>
 #include <vector>
 #include "GameEngine/Components/BaseComponent.h"
@@ -63,6 +64,7 @@ protected:
     void Subscribe();
     void UnSubscribe();
     void updateTerrainTextureBufferData();
+    std::optional<File> ConvertObjectToHeightMap(const File&) const;
 
 private:
     void ReleaseTextures();

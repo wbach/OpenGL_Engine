@@ -6,6 +6,7 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/GpuObject.h"
+#include "GraphicsApi/MeshRawData.h"
 #include "Mesh.h"
 
 namespace GameEngine
@@ -42,6 +43,9 @@ public:
 
     void setRootJoint(Animation::Joint);
     const std::optional<Animation::Joint>& getRootJoint() const;
+    std::optional<GraphicsApi::MeshRawData> getModelRawData() const;
+    void setNormailizedFactor(float);
+    float getNormalizedFactor() const;
 
 public:
     AnimationClipsMap animationClips_;
@@ -52,6 +56,7 @@ protected:
     std::vector<mat4> boneTransforms_;
     BoundingBox boundingBox_;
     std::optional<Animation::Joint> skeleton_;
+    float normalizedFactor;
 };
 
 const std::vector<Mesh>& Model::GetMeshes() const

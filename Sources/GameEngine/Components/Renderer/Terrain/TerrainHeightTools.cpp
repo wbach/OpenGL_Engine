@@ -37,7 +37,7 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     }
     else
     {
-        DEBUG_LOG("Multi channel heightmap not implemented.");
+       // DEBUG_LOG("Multi channel heightmap not implemented.");
     }
 
     return 0.f;
