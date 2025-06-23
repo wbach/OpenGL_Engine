@@ -387,7 +387,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
         return pair.second;
     }
 
-    ERROR_LOG("Shape type (" + shapeName_ + ") is not found.");
+    ERROR_LOG(thisObject_.GetName() + ". Shape type (" + shapeName_ + ") is not found.");
     return nullptr;
 }
 void Rigidbody::registerReadFunctions()
