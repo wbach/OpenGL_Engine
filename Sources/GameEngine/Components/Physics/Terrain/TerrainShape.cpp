@@ -66,7 +66,7 @@ void TerrainShape::ReqisterFunctions()
 }
 void TerrainShape::OnAwake()
 {
-    LoadHeightMap(heightMapFile_);
+    LoadHeightMapIfSet();
     create();
 }
 TerrainShape& TerrainShape::SetHeightMap(const File& filename)
@@ -74,14 +74,17 @@ TerrainShape& TerrainShape::SetHeightMap(const File& filename)
     heightMapFile_ = filename;
     return *this;
 }
-void TerrainShape::LoadHeightMap(const File& hightMapFile)
+void TerrainShape::LoadHeightMapIfSet()
 {
-    heightMapFile_ = hightMapFile;
+    if (heightMapFile_.empty())
+    {
+        return;
+    }
 
     TextureParameters params;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
 
-    auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(hightMapFile, params);
+    auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(heightMapFile_, params);
 
     if (not heightMapTexture)
     {
@@ -96,8 +99,8 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
     terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
     if (terrainRendererComponent_)
     {
-        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(
-            thisObject_.GetWorldTransform().GetScale(), *heightMap_, thisObject_.GetTransform().GetPosition());
+        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale(), *heightMap_,
+                                                                     thisObject_.GetTransform().GetPosition());
     }
     else
     {
@@ -106,6 +109,16 @@ void TerrainShape::LoadHeightMap(const File& hightMapFile)
 }
 void TerrainShape::create()
 {
+    if (not heightMap_)
+    {
+        DEBUG_LOG("GetHeightmap from renderer component");
+        terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
+        if (terrainRendererComponent_)
+        {
+            heightMap_ = terrainRendererComponent_->GetHeightMap();
+        }
+    }
+
     if (heightMap_)
     {
         collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(
@@ -118,7 +131,8 @@ void TerrainShape::create()
 }
 void TerrainShape::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<TerrainShape>(componentContext, gameObject);
 
         vec3 positionOffset(0.f);
@@ -142,7 +156,10 @@ void TerrainShape::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, TerrainShape::name});
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
-    ::write(node.addChild(CSTR_HEIGHTMAP_FILENAME), GetHeightMapFile().GetDataRelativeDir());
+    if (not heightMapFile_.empty())
+    {
+        ::write(node.addChild(CSTR_HEIGHTMAP_FILENAME), GetHeightMapFile().GetDataRelativeDir());
+    }
 }
 const File& TerrainShape::GetHeightMapFile() const
 {

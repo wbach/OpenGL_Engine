@@ -27,6 +27,7 @@ TerrainMeshUpdater::~TerrainMeshUpdater()
 }
 void TerrainMeshUpdater::create()
 {
+    DEBUG_LOG("create terrain mesh : " + heightMap_.GetFile()->GetAbsoultePath());
     WBLoader::TerrainMeshLoader loader(componentContext_.resourceManager_.GetTextureLoader());
     auto newModel = loader.createModel(heightMap_, EngineConf.renderer.terrain.meshPartsCount);
 
@@ -113,7 +114,8 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
         updateModelBoundingBox(*model);
 
         componentContext_.gpuResourceLoader_.AddFunctionToCall(
-            [& graphicsApi = this->componentContext_.graphicsApi_, meshesToUpdate]() {
+            [&graphicsApi = this->componentContext_.graphicsApi_, meshesToUpdate]()
+            {
                 for (auto& mesh : meshesToUpdate)
                 {
                     graphicsApi.UpdateMesh(mesh.first, *mesh.second,
@@ -137,12 +139,11 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
 
     TerrainHeightTools tools(scale_, heightMap_.GetImage());
 
-    if (mesh.GetGraphicsObjectId() and
-        updatePart(tools, mesh, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
+    if (mesh.GetGraphicsObjectId() and updatePart(tools, mesh, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
     {
         model->setBoundingBox(mesh.getBoundingBox());
         componentContext_.gpuResourceLoader_.AddFunctionToCall(
-            [& graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
+            [&graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
                 graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
                                        {VertexBufferObjects::POSITION, VertexBufferObjects::NORMAL});
             });
@@ -166,8 +167,7 @@ void TerrainMeshUpdater::updateModelBoundingBox(Model& model)
     }
     model.setBoundingBox(modelBoundingBox);
 }
-bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint32 startX, uint32 startY, uint32 endX,
-                                    uint32 endY)
+bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint32 startX, uint32 startY, uint32 endX, uint32 endY)
 {
     auto& meshData = mesh.GetMeshDataRef();
 

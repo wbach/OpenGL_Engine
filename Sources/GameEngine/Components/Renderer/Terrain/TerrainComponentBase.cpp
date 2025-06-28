@@ -17,7 +17,9 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Physics/IPhysicsApi.h"
 #include "Resources/Models/WBLoader/LoadingParameters.h"
+#include "Resources/TextureParameters.h"
 #include "Rotation.h"
+#include "Types.h"
 #include "Utils/Image/ImageUtils.h"
 
 namespace GameEngine
@@ -72,8 +74,9 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
         return std::nullopt;
     }
 
-    auto collisionShapeId = componentContext_.physicsApi_.CreateMeshCollider(Physics::PositionOffset{0.f}, modelRawData->positions_,
-                                                                             modelRawData->indices_, vec3(model->getNormalizedFactor()), false);
+    auto collisionShapeId =
+        componentContext_.physicsApi_.CreateMeshCollider(Physics::PositionOffset{0.f}, modelRawData->positions_,
+                                                         modelRawData->indices_, vec3(model->getNormalizedFactor()), false);
     if (not collisionShapeId)
     {
         return std::nullopt;
@@ -87,7 +90,6 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     bool updateRigidbodyOnTransformChange_ = false;
     auto rigidBodyId_ =
         componentContext_.physicsApi_.CreateRigidbody(*collisionShapeId, thisObject_, {}, 0.f, updateRigidbodyOnTransformChange_);
-
 
     if (not rigidBodyId_)
     {
@@ -103,11 +105,15 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     uint32 heightmapResultuion = 512;
     float step                 = 1.f / static_cast<float>(heightmapResultuion);
 
-    Utils::Image image;
-    image.width  = heightmapResultuion;
-    image.height = heightmapResultuion;
-    image.setChannels(4);
-    image.allocateImage<uint8>();
+    File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("terrain"));
+    auto heightMap = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
+        outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
+
+    // Utils::Image image;
+    // image.width  = heightmapResultuion;
+    // image.height = heightmapResultuion;
+    // image.setChannels(4);
+    // image.allocateImage<uint8>();
 
     std::vector<std::vector<float>> heights;
     heights.reserve(heightmapResultuion);
@@ -130,7 +136,10 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
             //     DEBUG_LOG("Hit something pointWorld:" + std::to_string(maybeHit->pointWorld));
             // }
             float height{0.f};
-            maybeHit ? height = maybeHit->pointWorld.y : 0.f;
+            if (maybeHit)
+            {
+                height = maybeHit->pointWorld.y - offset.y;
+            }
 
             if (not maxHeight or (*maxHeight) < height)
             {
@@ -145,87 +154,33 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
         }
     }
 
+    DEBUG_LOG("MinHeight: " + std::to_string(minHeight));
+    DEBUG_LOG("MaxHeight: " + std::to_string(maxHeight));
     for (uint32 y = 0; y < heightmapResultuion; y++)
     {
         for (uint32 x = 0; x < heightmapResultuion; x++)
         {
-            auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
-            Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
-            // uint8_t* array;
-            // array = reinterpret_cast<uint8_t*>(&normalizedHeight);
-            // Color color(array[0], array[1], array[2], array[3]);
-            image.setPixel(vec2ui{y, x}, color);
+            // auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
+            // Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
+            //  uint8_t* array;
+            //  array = reinterpret_cast<uint8_t*>(&normalizedHeight);
+            //  Color color(array[0], array[1], array[2], array[3]);
+            // image.setPixel(vec2ui{x, y}, color);
+            heightMap->SetHeight(vec2ui{x, y}, heights[y][x]);
         }
     }
-
+    auto correctedWorldScale = currentWorldTransform.GetScale() * (1.f / model->getNormalizedFactor());
+    thisObject_.SetWorldScale(correctedWorldScale);
+    DEBUG_LOG("correctedWorldScale=" + std::to_string(correctedWorldScale) + " " + std::to_string((1.f / model->getNormalizedFactor())));
     componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
-    File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("png"));
+    // File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("png"));
     DEBUG_LOG("Conversion done. Output file: " + outputFile.GetAbsoultePath());
-    Utils::SaveImage(image, outputFile.GetAbsoultePath());
+    // Utils::SaveImage(image, outputFile.GetAbsoultePath());
 
     thisObject_.SetWorldPosition(currentWorldTransform.GetPosition());
-    thisObject_.SetWorldScale(currentWorldTransform.GetScale());
+    //thisObject_.SetWorldScale(currentWorldTransform.GetScale());
     return outputFile;
-    // [&](auto&)
-    //     {
-    //         if (not gameObject)
-    //             return;
-    //         uint32 heightmapResultuion = 512;
-    //         float step                 = 1.f / static_cast<float>(heightmapResultuion);
-
-    //         Utils::Image image;
-    //         image.width  = heightmapResultuion;
-    //         image.height = heightmapResultuion;
-    //         image.setChannels(4);
-    //         image.allocateImage<uint8>();
-
-    //         std::vector<std::vector<float>> heights;
-    //         heights.reserve(heightmapResultuion);
-    //         std::optional<float> maxHeight;
-    //         std::optional<float> minHeight;
-
-    //         for (float y = -0.5f; y < 0.5f; y += step)
-    //         {
-    //             heights.push_back({});
-    //             auto& row = heights.back();
-
-    //             for (float x = -0.5f; x < 0.5f; x += step)
-    //             {
-    //                 vec3 from(x, 5.f, y);
-    //                 vec3 to(x, -5.f, y);
-    //                 auto maybeHit = physicsApi_->RayTest(from, to);
-
-    //                 float height{0.f};
-    //                 maybeHit ? height = maybeHit->pointWorld.y : 0.f;
-
-    //                 if (not maxHeight or (*maxHeight) < height)
-    //                 {
-    //                     maxHeight = height;
-    //                 }
-
-    //                 if (not minHeight or (*minHeight) > height)
-    //                 {
-    //                     minHeight = height;
-    //                 }
-    //                 row.push_back(height);
-    //             }
-    //         }
-
-    //         for (uint32 y = 0; y < heightmapResultuion; y++)
-    //         {
-    //             for (uint32 x = 0; x < heightmapResultuion; x++)
-    //             {
-    //                 auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
-    //                 Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
-    //                 // uint8_t* array;
-    //                 // array = reinterpret_cast<uint8_t*>(&normalizedHeight);
-    //                 // Color color(array[0], array[1], array[2], array[3]);
-    //                 image.setPixel(vec2ui{y, x}, color);
-    //             }
-    //         }
-    //         Utils::SaveImage(image, outputFile.GetAbsoultePath());
-    //     }
 }
 
 void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textures)

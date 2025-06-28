@@ -58,6 +58,6 @@ void main(void)
 {
     outputColor  = vec4(perMeshObject.waterColor.xyz, 0.5f);
 
-    const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
-    outputColor = mix(fogColor, outputColor, vs_out.visibility);
+    // const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
+    // outputColor = mix(fogColor, outputColor, vs_out.visibility);
 }

@@ -1,10 +1,10 @@
 #include "TerrainHeightTools.h"
 
+#include <GLM/GLMUtils.h>
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include <GLM/GLMUtils.h>
 
 namespace GameEngine
 {
@@ -27,7 +27,8 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     auto maybeColor = heightMapImage_.getPixel({x, y});
     if (not maybeColor)
     {
-        ERROR_LOG("outOfRange getPoint={" + std::to_string(vec2ui(x, y)) + "} heightMapImage_={" + std::to_string(heightMapImage_.size()) + "}");
+        ERROR_LOG("outOfRange getPoint={" + std::to_string(vec2ui(x, y)) + "} heightMapImage_={" +
+                  std::to_string(heightMapImage_.size()) + "}");
         return 0.f;
     }
 
@@ -37,7 +38,8 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     }
     else
     {
-       // DEBUG_LOG("Multi channel heightmap not implemented.");
+        // DEBUG_LOG("Multi channel heightmap not implemented.");
+        return (maybeColor->value.x) * terrainScale_.y;
     }
 
     return 0.f;
@@ -135,8 +137,7 @@ vec3 TerrainHeightTools::GetTangent(const vec3& normal) const
     q.x    = a.x;
     q.y    = a.y;
     q.z    = a.z;
-    q.w =
-        sqrtf((glm::length(normal) * glm::length(normal)) * (glm::length(up) * glm::length(up))) + glm::dot(up, normal);
+    q.w    = sqrtf((glm::length(normal) * glm::length(normal)) * (glm::length(up) * glm::length(up))) + glm::dot(up, normal);
 
     tangent = glm::normalize(q) * tangent;
     return glm::normalize(tangent);

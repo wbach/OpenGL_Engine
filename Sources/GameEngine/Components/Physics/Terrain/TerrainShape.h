@@ -31,7 +31,7 @@ public:
 
 private:
     void OnAwake();
-    void LoadHeightMap(const File&);
+    void LoadHeightMapIfSet();
     void create();
 
 private:

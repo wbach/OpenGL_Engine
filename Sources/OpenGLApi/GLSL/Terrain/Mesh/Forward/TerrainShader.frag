@@ -155,7 +155,11 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
 vec4 CalculateTerrainColor()
 {
     vec2 tiledCoords        = fs_in.texCoord * 480.0f ;
-    vec4 blendMapColor      = texture(blendMap, fs_in.texCoord);
+    vec4 blendMapColor      = vec4(0);
+    if (perTerrainTextures.haveBlendMap > 0.5f)
+    {
+        blendMapColor = texture(blendMap, fs_in.texCoord);
+    }
     float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
     return CalculateTerrainColor(tiledCoords, blendMapColor, backTextureAmount);
 }

@@ -126,8 +126,11 @@ void WaterRendererComponent::updatePerObjectUpdateBuffer()
 
     const auto& transform = thisObject_.GetWorldTransform();
 
+    auto convertedQuadScale = transform.GetScale();
+    convertedQuadScale.y = convertedQuadScale.z;
+    convertedQuadScale.z = 1.f;
     auto transformMatrix =
-        Utils::CreateTransformationMatrix(transform.GetPosition(), DegreesVec3(-90, 0, 0), transform.GetScale());
+        Utils::CreateTransformationMatrix(transform.GetPosition(), DegreesVec3(-90, 0, 0), convertedQuadScale);
 
     perObjectUpdateBuffer_->GetData().TransformationMatrix =
         componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatrix);

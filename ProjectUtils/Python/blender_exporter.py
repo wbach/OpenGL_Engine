@@ -114,10 +114,9 @@ def createTerrainTexture(parentNode, type, scale, texture):
     ET.SubElement(textureNode, "scale").text = str(scale)
     ET.SubElement(textureNode, "textureFileName").text = texture
 
-def createTerrainShapeComponent(parentNode, heightMap):
+def createTerrainShapeComponent(parentNode):
     shapeNode = ET.SubElement(parentNode, "component")
     shapeNode.attrib["type"] = "TerrainShape"
-    ET.SubElement(shapeNode, "heightMapFileName").text = heightMap
     offsetNode = ET.SubElement(shapeNode, "positionOffset")
     offsetNode.attrib["x"] = "0.0"
     offsetNode.attrib["y"] = "0.0"
@@ -131,7 +130,17 @@ def createTerrainRendererComponent(parentNode, heightMap):
     #createTerrainTexture(terrainTexturesNode, "blendMap", 1.0, "Textures/Terrain/BlendMaps/heightmap_Kingdom_2.png")
     createTerrainTexture(terrainTexturesNode, "backgorundTexture", 0.2, "Textures/Terrain/Ground/oreon/grass0_DIF.jpg")
 
-
+def createWaterTileComponent(parentNode):
+    waterComponentNode = ET.SubElement(parentNode, "component")
+    waterComponentNode.attrib["type"] = "Water"
+    colorNode = ET.SubElement(waterComponentNode, "color")
+    colorNode.attrib["x"] = "0.000000"
+    colorNode.attrib["y"] = "0.172500"
+    colorNode.attrib["z"] = "0.328000"
+    colorNode.attrib["w"] = "1.000000"
+    ET.SubElement(waterComponentNode, "waveSpeed").text = "10.000000"
+    ET.SubElement(waterComponentNode, "dudv").text = "Textures/Water/waterDUDV.png"
+    ET.SubElement(waterComponentNode, "normalMap").text = "Textures/Water/waternormal.png"
 
 prefabNode = ET.Element("prefab")
 prefabNode.attrib["name"] = bpy.path.basename(bpy.context.blend_data.filepath)
@@ -191,15 +200,16 @@ for obj in bpy.data.objects:
         obj.location = location
         obj.rotation_euler = rotation
         obj.scale = scale
+    if ("watertile" in obj.name_full.lower()):
+        createWaterTileComponent(componentsNode)
+    elif ("terrain" in obj.name_full.lower()):
+        createTerrainRendererComponent(componentsNode, modelFilepath)
 
-    # if ("terrain" in obj.name_full or "Terrain" in obj.name_full):
-    #     createTerrainRendererComponent(componentsNode, modelFilepath)
-
-    #     if colliderFile == "":
-    #         colliderFile = modelFilepath
-    #     createTerrainShapeComponent(componentsNode, colliderFile)
-    #     createRigidbodyNode(componentsNode, "true", "TerrainShape")
-    # else:
+        if colliderFile == "":
+            colliderFile = modelFilepath
+        createTerrainShapeComponent(componentsNode)
+        createRigidbodyNode(componentsNode, "true", "TerrainShape")
+    else:
         createRenderComponent(componentsNode, modelFilepath)
         createCollisionComponents(componentsNode, colliderFile)
 
