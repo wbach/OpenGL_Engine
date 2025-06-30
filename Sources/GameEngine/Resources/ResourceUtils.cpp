@@ -239,7 +239,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
     HeightMapHeader header;
     header.height = image.height;
     header.width  = image.width;
-    header.scale  = vec3(1.f);
+    header.scale  = heightmap.GetScale();
 
     auto size = header.width * header.height;
     fwrite(&header, sizeof(HeightMapHeader), 1, fp);
@@ -251,6 +251,8 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                        [](std::monostate) { ERROR_LOG("Data not set!"); }},
                image.getImageData());
     fclose(fp);
+
+    Utils::SaveImage(image, outfile.GetAbsolutePathWithDifferentExtension("png"));
 }
 
 uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)

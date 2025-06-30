@@ -11,6 +11,7 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParame
     : Texture(graphicsApi, params, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
     , maximumHeight_(0)
+    , scale_(1.f)
 {
     if (image_.getChannelsCount() > 1)
     {
@@ -126,5 +127,13 @@ bool HeightMap::UpdateMaximumHeight()
     }
 
     return false;
+}
+void HeightMap::SetScale(const vec3& s)
+{
+    scale_ = s;
+}
+const vec3& HeightMap::GetScale() const
+{
+    return scale_;
 }
 }  // namespace GameEngine

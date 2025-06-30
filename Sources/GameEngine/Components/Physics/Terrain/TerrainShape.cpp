@@ -99,7 +99,7 @@ void TerrainShape::LoadHeightMapIfSet()
     terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
     if (terrainRendererComponent_)
     {
-        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale(), *heightMap_,
+        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(), *heightMap_,
                                                                      thisObject_.GetTransform().GetPosition());
     }
     else
@@ -122,7 +122,7 @@ void TerrainShape::create()
     if (heightMap_)
     {
         collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(
-            positionOffset_, thisObject_.GetWorldTransform().GetScale(), *heightMap_);
+            positionOffset_, thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(), *heightMap_);
     }
     else
     {

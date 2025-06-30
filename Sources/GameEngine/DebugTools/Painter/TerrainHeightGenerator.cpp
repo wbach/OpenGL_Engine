@@ -1,16 +1,18 @@
 #include "TerrainHeightGenerator.h"
 
-#include <Utils/Image/ImageFilters.h>
 #include <Logger/Log.h>
+#include <Utils/Image/ImageFilters.h>
 
 #include <algorithm>
 #include <numeric>
 #include <random>
+#include <unordered_map>
 
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -23,7 +25,8 @@ enum class Interpolation
 };
 namespace
 {
-std::vector<float> noiseSeed;
+std::unordered_map<uint32, float> noiseSeed;
+const bool UseZeroBound{false};
 }  // namespace
 TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentController& componentController,
                                                const EntryParamters& parmaters)
@@ -103,7 +106,6 @@ void TerrainHeightGenerator::generateHeightMapsImage()
 
 void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionSize)
 {
-    DEBUG_LOG("");
     auto transform1 = go1.GetWorldTransform();
     auto transform2 = go2.GetWorldTransform();
 
@@ -203,14 +205,12 @@ void TerrainHeightGenerator::createSeed()
     auto count = perTerrainHeightMapsize_.x * perTerrainHeightMapsize_.y;
 
     noiseSeed.clear();
-    noiseSeed.resize(count);
 
-    for (auto& noise : noiseSeed)
+    for (uint32 i = 0; i < count; i++)
     {
-        // noise = dist(mt);
-        // noise = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-        noise = getRandomFloat(0.f, 1.f);
+        noiseSeed[i] = getRandomFloat(0.f, 1.f);
     }
+
     DEBUG_LOG("Noise size : " + std::to_string(noiseSeed.size()));
 }
 
@@ -227,7 +227,7 @@ void TerrainHeightGenerator::getTerrain()
 
 void TerrainHeightGenerator::getAllSceneTerrains()
 {
-    terrains_= componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    terrains_ = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
 }
 
 float linearInterpolation(float a, float b, float blend)
@@ -302,7 +302,9 @@ float interpolate(float a, float b, float blend, Interpolation interpolation = I
 void TerrainHeightGenerator::perlinNoise2D()
 {
     if (noiseSeed.empty())
-        return;
+    {
+        createSeed();
+    }
 
     auto width  = perTerrainHeightMapsize_.x;
     auto height = perTerrainHeightMapsize_.y;
@@ -340,10 +342,8 @@ void TerrainHeightGenerator::perlinNoise2D()
                     float blendX = static_cast<float>(x - sampleX1) / static_cast<float>(pitch);
                     float blendY = static_cast<float>(y - sampleY1) / static_cast<float>(pitch);
 
-                    auto sampleT =
-                        interpolate(getNoiseSample(sampleX1, sampleY1), getNoiseSample(sampleX2, sampleY1), blendX);
-                    auto sampleB =
-                        interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
+                    auto sampleT = interpolate(getNoiseSample(sampleX1, sampleY1), getNoiseSample(sampleX2, sampleY1), blendX);
+                    auto sampleB = interpolate(getNoiseSample(sampleX1, sampleY2), getNoiseSample(sampleX2, sampleY2), blendX);
 
                     noise += interpolate(sampleT, sampleB, blendY) * scale;
 
@@ -370,12 +370,26 @@ void TerrainHeightGenerator::perlinNoise2D()
 
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 {
+    auto index = x + perTerrainHeightMapsize_.x * y;
+
+    if (not UseZeroBound)
+    {
+        auto iter = noiseSeed.find(index);
+        if (iter != noiseSeed.end())
+        {
+            return iter->second;
+        }
+
+        auto result = getRandomFloat();
+        noiseSeed.insert({index, result});
+        return result;
+    }
+
     uint32 offset = 1;
     if (x < offset or y < offset or x > (perTerrainHeightMapsize_.x - 1 - offset) or
         y > (perTerrainHeightMapsize_.y - 1 - offset))
         return 0.0f;
 
-    auto index = x + perTerrainHeightMapsize_.x * y;
     if (index < noiseSeed.size())
         return noiseSeed[index];
 

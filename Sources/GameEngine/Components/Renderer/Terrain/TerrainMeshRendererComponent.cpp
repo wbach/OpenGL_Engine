@@ -1,5 +1,7 @@
 #include "TerrainMeshRendererComponent.h"
 
+#include <string>
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -8,7 +10,9 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "Logger/Log.h"
 #include "TerrainMeshUpdater.h"
+#include "glm/gtx/transform.hpp"
 
 namespace GameEngine
 {
@@ -114,26 +118,27 @@ void TerrainMeshRendererComponent::init()
     auto model = modelWrapper_.Get(LevelOfDetail::L1);
     if (model)
     {
-        createBoundongBoxes(*model);
-        CreateShaderBuffers(*model);
+        createBoundongBoxes(*model, heightMap_->GetScale());
+        CreateShaderBuffers(*model, heightMap_->GetScale());
 
         worldTransfomChangeSubscrbtion_ = thisObject_.SubscribeOnWorldTransfomChange(
             [this, model](const auto &transform)
             {
                 DEBUG_LOG("Terrain transform changed, " + std::to_string(transform.GetPosition()));
 
-                createBoundongBoxes(*model);
+                createBoundongBoxes(*model,heightMap_->GetScale());
 
                 for (size_t i = 0; i < model->GetMeshes().size(); ++i)
                 {
-                    auto &obj = perObjectUpdateBuffer_[i];
-                    obj->GetData().TransformationMatrix =
-                        componentContext_.graphicsApi_.PrepareMatrixToLoad(transform.CalculateCurrentMatrix());
+                    auto &obj                           = perObjectUpdateBuffer_[i];
+                    obj->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(
+                        transform.CalculateCurrentMatrix()* glm::scale(heightMap_->GetScale()));
                     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*obj);
                 }
             });
     }
 }
+
 void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 {
     heightMapFile_ = file;
@@ -152,7 +157,7 @@ void TerrainMeshRendererComponent::UpdateHeightMap(const File &)
     DEBUG_LOG("Not implemented.");
 }
 
-void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &model)
+void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &model, const vec3 &heightmapScale)
 {
     perObjectUpdateBuffer_.reserve(model.GetMeshes().size());
 
@@ -161,33 +166,34 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
         auto &obj         = CreatePerObjectBuffer(graphicsApi);
 
-        obj.GetData().TransformationMatrix =
-            graphicsApi.PrepareMatrixToLoad(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
+        DEBUG_LOG("Heightmap scale: " + std::to_string(heightmapScale));
+        auto tm = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * glm::scale(heightmapScale);
+        DEBUG_LOG("tm: " + std::to_string(tm));
+        obj.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(tm);
 
         LoadObjectToGpu(obj);
     }
 }
 
-void TerrainMeshRendererComponent::createBoundongBoxes(const GameEngine::Model &model)
+void TerrainMeshRendererComponent::createBoundongBoxes(const GameEngine::Model &model, const vec3 &heightmapScale)
 {
     boundingBoxes_.clear();
 
     auto boundingBox = model.getBoundingBox();
-    boundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+    boundingBox.scale(thisObject_.GetWorldTransform().GetScale() * heightmapScale);
     boundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
     boundingBoxes_.push_back(boundingBox);
 
     for (const auto &mesh : model.GetMeshes())
     {
         auto boundingBox = mesh.getBoundingBox();
-        boundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+        boundingBox.scale(thisObject_.GetWorldTransform().GetScale() * heightmapScale);
         boundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
         boundingBoxes_.push_back(boundingBox);
     }
 }
 
-BufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuffer(
-    GraphicsApi::IGraphicsApi &graphicsApi)
+BufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuffer(GraphicsApi::IGraphicsApi &graphicsApi)
 {
     perObjectUpdateBuffer_.push_back(
         std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
@@ -241,8 +247,9 @@ void TerrainMeshRendererComponent::subscribeForEngineConfChange()
 
                 if (auto model = modelWrapper_.Get(LevelOfDetail::L1))
                 {
-                    CreateShaderBuffers(*model);
-                    createBoundongBoxes(*model);
+                    auto heightmapScale = heightMap_ ? heightMap_->GetScale() : vec3(1.f);
+                    CreateShaderBuffers(*model, heightmapScale);
+                    createBoundongBoxes(*model, heightmapScale);
                     Subscribe();
                 }
             }

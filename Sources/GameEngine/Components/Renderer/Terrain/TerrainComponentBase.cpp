@@ -10,6 +10,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
@@ -17,6 +18,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "Physics/IPhysicsApi.h"
 #include "Resources/Models/WBLoader/LoadingParameters.h"
+#include "Resources/ResourceUtils.h"
 #include "Resources/TextureParameters.h"
 #include "Rotation.h"
 #include "Types.h"
@@ -97,23 +99,12 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
         return std::nullopt;
     }
 
-    // componentContext_.physicsApi_.SetPosition(*rigidBodyId_, offset);
-    DEBUG_LOG("Pos : " + std::to_string(componentContext_.physicsApi_.GetTransfrom(*rigidBodyId_)->GetPosition()));
-    //  componentContext_.physicsApi_.CreateMeshCollider(const PositionOffset &, const std::vector<float> &data, const
-    //  IndicesVector &, const vec3 &, bool)
-
-    uint32 heightmapResultuion = 512;
+    uint32 heightmapResultuion = 2048;
     float step                 = 1.f / static_cast<float>(heightmapResultuion);
 
     File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("terrain"));
     auto heightMap = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
         outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
-
-    // Utils::Image image;
-    // image.width  = heightmapResultuion;
-    // image.height = heightmapResultuion;
-    // image.setChannels(4);
-    // image.allocateImage<uint8>();
 
     std::vector<std::vector<float>> heights;
     heights.reserve(heightmapResultuion);
@@ -131,10 +122,6 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
             vec3 to       = offset + vec3(x, -5.f, y);
             auto maybeHit = componentContext_.physicsApi_.RayTest(from, to);
 
-            // if (maybeHit)
-            // {
-            //     DEBUG_LOG("Hit something pointWorld:" + std::to_string(maybeHit->pointWorld));
-            // }
             float height{0.f};
             if (maybeHit)
             {
@@ -160,26 +147,18 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     {
         for (uint32 x = 0; x < heightmapResultuion; x++)
         {
-            // auto normalizedHeight = (heights[y][x] - (*minHeight)) / ((*maxHeight) - (*minHeight));
-            // Color color(normalizedHeight, normalizedHeight, normalizedHeight, 1.f);
-            //  uint8_t* array;
-            //  array = reinterpret_cast<uint8_t*>(&normalizedHeight);
-            //  Color color(array[0], array[1], array[2], array[3]);
-            // image.setPixel(vec2ui{x, y}, color);
             heightMap->SetHeight(vec2ui{x, y}, heights[y][x]);
         }
     }
-    auto correctedWorldScale = currentWorldTransform.GetScale() * (1.f / model->getNormalizedFactor());
+    auto correctedWorldScale = currentWorldTransform.GetScale();
     thisObject_.SetWorldScale(correctedWorldScale);
-    DEBUG_LOG("correctedWorldScale=" + std::to_string(correctedWorldScale) + " " + std::to_string((1.f / model->getNormalizedFactor())));
+    thisObject_.SetWorldPosition(currentWorldTransform.GetPosition());
+    heightMap->SetScale(vec3(1.f / model->getNormalizedFactor()));
     componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
-    // File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("png"));
     DEBUG_LOG("Conversion done. Output file: " + outputFile.GetAbsoultePath());
-    // Utils::SaveImage(image, outputFile.GetAbsoultePath());
-
-    thisObject_.SetWorldPosition(currentWorldTransform.GetPosition());
-    //thisObject_.SetWorldScale(currentWorldTransform.GetScale());
+    SaveHeightMap(*heightMap, outputFile);
+    componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*heightMap);
     return outputFile;
 }
 

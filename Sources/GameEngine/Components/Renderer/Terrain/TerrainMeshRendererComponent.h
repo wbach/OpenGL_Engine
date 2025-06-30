@@ -30,8 +30,8 @@ private:
     void init();
     void LoadHeightMap(const File&) override;
     void UpdateHeightMap(const File&) override;
-    void CreateShaderBuffers(const GameEngine::Model&);
-    void createBoundongBoxes(const GameEngine::Model&);
+    void CreateShaderBuffers(const GameEngine::Model&, const vec3&);
+    void createBoundongBoxes(const GameEngine::Model&, const vec3&);
     BufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
     void LoadObjectToGpu(GpuObject&);
     void createModels();

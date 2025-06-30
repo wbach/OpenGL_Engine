@@ -9,8 +9,7 @@
 
 namespace Utils
 {
-void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename,
-               const std::optional<vec2> &scale)
+void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename, const std::optional<vec2> &scale)
 {
     auto minSize = size.x * size.y * 4;
     if (data.size() < minSize)
@@ -41,8 +40,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     }
     if (scale)
     {
-        auto scaledBitmap =
-            FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
+        auto scaledBitmap = FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
 
         FreeImage_Unload(bitmap);
         bitmap = scaledBitmap;
@@ -55,11 +53,44 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
 
 void SaveImage(const Image &image, const std::string &outputFilePath, const std::optional<vec2> &scale)
 {
-    std::visit(
-        visitor{[&](std::vector<uint8> data) { SaveImage(data, image.size(), outputFilePath, scale); },
-                [&](const std::vector<float> &) { DEBUG_LOG("SaveImage for floats not implemented"); },
-                [](std::monostate) { ERROR_LOG("Data not set!"); }},
-        image.getImageData());
-}
+    std::visit(visitor{[&](std::vector<uint8> data) { SaveImage(data, image.size(), outputFilePath, scale); },
+                       [&](const std::vector<float> &data)
+                       {
+                           if (image.getChannelsCount() == 1)
+                           {
+                               DEBUG_LOG("SaveImage for floats, converting to uint8 image");
 
+                               float min = data.front();
+                               float max = data.front();
+                               for (auto value : data)
+                               {
+                                   if (value < min)
+                                       min = value;
+
+                                   if (value > max)
+                                       max = value;
+                               }
+
+                               std::vector<uint8> udata;
+                               udata.reserve(data.size() * 4);
+
+                               for (auto value : data)
+                               {
+                                   auto normalized = static_cast<uint8>((value - min) / (max - min) * 255);
+                                   udata.push_back(normalized);
+                                   udata.push_back(normalized);
+                                   udata.push_back(normalized);
+                                   udata.push_back(255);
+                               }
+
+                               SaveImage(udata, image.size(), outputFilePath, scale);
+                           }
+                           else
+                           {
+                               DEBUG_LOG("SaveImage for floats for more than 1 channel not implemented");
+                           }
+                       },
+                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+               image.getImageData());
+}
 }  // namespace Utils

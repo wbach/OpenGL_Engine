@@ -277,6 +277,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
     image.moveData(std::move(floatData));
 
     auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
+    heightmapTexture->SetScale(header.scale);
     auto heightmapTexturePtr = heightmapTexture.get();
     AddTexture(inputFileName.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;
