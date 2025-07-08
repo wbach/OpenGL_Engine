@@ -180,6 +180,11 @@ SceneManager& Engine::GetSceneManager()
     return sceneManager_;
 }
 
+EngineContext& Engine::GetEngineContext()
+{
+    return engineContext_;
+}
+
 void Engine::MainLoop()
 {
     auto& displayManager = engineContext_.GetDisplayManager();

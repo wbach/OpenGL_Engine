@@ -4,8 +4,15 @@
 #include <wx/generic/dirctrlg.h>
 #include <wx/treectrl.h>
 #include <wx/wx.h>
+#include <wx/treebase.h>
+#include <unordered_map>
+#include <Types.h>
 
 class GLCanvas;
+namespace GameEngine
+{
+class GameObject;
+}
 
 class MainFrame : public wxFrame
 {
@@ -15,15 +22,19 @@ public:
 private:
     void OnAddObject(wxCommandEvent&);
     void OnGLVersion(wxCommandEvent&);
+    void OnOpenScene(wxCommandEvent&);
     void OnExit(wxCommandEvent&);
     void OnFileSelectChanged(wxTreeEvent&);
     void OnFileActivated(wxTreeEvent&);
+
+    void AddChilds(GameEngine::GameObject&, wxTreeItemId);
 
 private:
     GLCanvas* canvas;
     wxTreeCtrl* gameObjectsView;
     wxTreeItemId treeRootId;
     wxArrayTreeItemIds gameObjectsItemsIds;
+    std::unordered_map<IdType, wxTreeItemId> gameObjectsItemsIdsMap;
     wxGenericDirCtrl* fileExplorer;
     wxDECLARE_EVENT_TABLE();
 };

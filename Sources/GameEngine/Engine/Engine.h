@@ -32,6 +32,7 @@ public:
     void MainLoop();
     void CheckThreadsBeforeQuit();
     SceneManager& GetSceneManager();
+    EngineContext& GetEngineContext();
 
 private:
     void ProcessEngineEvents();

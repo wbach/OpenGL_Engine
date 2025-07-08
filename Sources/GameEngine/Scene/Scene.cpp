@@ -71,11 +71,9 @@ void Scene::InitResources(EngineContext& context)
 
     CreateResourceManger(context.GetGraphicsApi(), context.GetGpuResourceLoader());
     guiManager_ = std::make_unique<GuiManager>();
-    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_,
-                                                        *renderersManager_};
-    guiElementFactory_ = std::make_unique<GuiElementFactory>(guiFactoryParams);
-    guiEngineContextManger_ =
-        std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
+    GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
+    guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
+    guiEngineContextManger_ = std::make_unique<GuiEngineContextManger>(context.GetMeasurmentHandler(), *guiElementFactory_);
 
     console_ = std::make_unique<Debug::Console>(*this);
 
@@ -266,7 +264,7 @@ GameObject* Scene::GetGameObject(const std::string& name) const
     return rootGameObject_->GetChild(name);
 }
 
-GameObject &Scene::GetRootGameObject()
+GameObject& Scene::GetRootGameObject()
 {
     if (not rootGameObject_)
     {
@@ -346,12 +344,9 @@ void Scene::RunNetworkEditorInterface()
     if (not networkEditorInterface_)
     {
         networkEditorInterface_ = std::make_unique<NetworkEditorInterface>(*this, *threadSync_);
-        networkEditorInterface_->Run();
     }
-    else
-    {
-        networkEditorInterface_->Run();
-    }
+
+    networkEditorInterface_->Run();
 }
 void Scene::StopNetworkEditorInterface()
 {

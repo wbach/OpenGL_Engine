@@ -1,14 +1,6 @@
 
 #include "GLCanvas.h"
 
-#include <GL/glew.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
-
-//#include <GameEngine/Scene/Scene.hpp>
-//#include <GameEngine/Physics/Bullet/BulletAdapter.h>
-//#include <GameEngine/Scene/SceneFactoryBase.h>
-
 #include <wx/dcclient.h>
 
 #include <memory>
@@ -17,6 +9,13 @@
 BEGIN_EVENT_TABLE(GLCanvas, wxGLCanvas)
 EVT_PAINT(GLCanvas::OnPaint)
 EVT_SHOW(GLCanvas::OnShow)
+EVT_TIMER(wxID_ANY, GLCanvas::OnTimer)
+EVT_KEY_DOWN(GLCanvas::OnKeyDown)
+EVT_KEY_UP(GLCanvas::OnKeyUp)
+EVT_CHAR(GLCanvas::OnChar)
+EVT_LEFT_DOWN(GLCanvas::OnMouseDown)
+EVT_LEFT_UP(GLCanvas::OnMouseUp)
+EVT_MOTION(GLCanvas::OnMouseMove)
 END_EVENT_TABLE()
 // clang-format on
 
@@ -61,18 +60,30 @@ public:
         AddScene("WxEditorScene", []() { return std::make_unique<WxEditorScene>(); });
     }
 };
+const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,    1, WX_GL_MIN_BLUE,
+                            1,          WX_GL_DEPTH_SIZE, 1, WX_GL_DOUBLEBUFFER, 0};
+// int glAttributes[] = {
+//     WX_GL_RGBA,
+//     WX_GL_DOUBLEBUFFER,
+//     WX_GL_DEPTH_SIZE, 16,  // <--- bufor głębokości
+//     0
+// };
+
 }  // namespace WxEditor
 
 GLCanvas::GLCanvas(wxWindow* parent)
-    : wxGLCanvas(parent, wxID_ANY, nullptr)
+    : wxGLCanvas(parent, wxID_ANY, WxEditor::glAttributes)
     , context(nullptr)
+    , renderTimer(this)
 {
     context = new wxGLContext(this);
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    renderTimer.Start(16);
 }
 
 GLCanvas::~GLCanvas()
 {
+    renderTimer.Stop();
     delete context;
 }
 
@@ -97,6 +108,39 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     SwapBuffers();
 }
 
+void GLCanvas::OnTimer(wxTimerEvent&)
+{
+    Refresh(false);
+}
+
+void GLCanvas::OnKeyUp(wxKeyEvent& event)
+{
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, event.GetKeyCode());
+}
+
+void GLCanvas::OnKeyDown(wxKeyEvent& event)
+{
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, event.GetKeyCode());
+}
+
+void GLCanvas::OnChar(wxKeyEvent& evt)
+{
+}
+
+void GLCanvas::OnMouseUp(wxMouseEvent&)
+{
+}
+
+void GLCanvas::OnMouseDown(wxMouseEvent& evt)
+{
+}
+
+void GLCanvas::OnMouseMove(wxMouseEvent& evt)
+{
+}
+
 std::string GLCanvas::getGlInfo() const
 {
     std::string ver(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
@@ -118,6 +162,18 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
         return true;
     }
     return false;
+}
+
+void GLCanvas::OpenScene(const GameEngine::File& file)
+{
+    auto scene = engine->GetSceneManager().GetActiveScene();
+    scene->LoadFromFile(file);
+    // scene->Stop();
+}
+
+GameObject &GLCanvas::GetRootObject()
+{
+    return engine->GetSceneManager().GetActiveScene()->GetRootGameObject();
 }
 
 void GLCanvas::OnShow(wxShowEvent&)
