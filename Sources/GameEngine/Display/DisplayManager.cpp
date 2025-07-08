@@ -34,19 +34,24 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
         EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
     graphicsApi_.GetWindowApi().Init();
+    DEBUG_LOG("DisplayManager CreateGameWindow");
     graphicsApi_.GetWindowApi().CreateGameWindow(EngineConf.window.name, windowsSize_.x, windowsSize_.y, windowType);
     graphicsApi_.CreateContext();
     graphicsApi_.Init();
+    DEBUG_LOG("DisplayManager PrintVersion");
     graphicsApi_.PrintVersion();
+    DEBUG_LOG("DisplayManager PrepareFrame");
     graphicsApi_.PrepareFrame();
-
+DEBUG_LOG("DisplayManager GetDisplayModes");
     graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
 
+        DEBUG_LOG("DisplayManager GetDisplayModes");
     for (const auto& mode : graphicsApi_.GetWindowApi().GetDisplayModes())
     {
         EngineConf.window.size.AddDefaultValue(vec2ui(mode.w, mode.h));
     }
 
+     DEBUG_LOG("DisplayManager AddNewMeasurment");
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 
     timeMeasurer_.AddOnTickCallback(
@@ -55,6 +60,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
             time_.fps       = static_cast<float>(timeMeasurer_.GetFps());
             measurmentValue = std::to_string(timeMeasurer_.GetFps());
         });
+
+    DEBUG_LOG("DisplayManager init success");
 }
 
 DisplayManager::~DisplayManager()

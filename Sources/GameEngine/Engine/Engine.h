@@ -23,17 +23,17 @@ struct ReadConfiguration
 class Engine
 {
 public:
-    Engine(std::unique_ptr<Physics::IPhysicsApi>,
-           std::unique_ptr<SceneFactoryBase>);
+    Engine(std::unique_ptr<Physics::IPhysicsApi>, std::unique_ptr<SceneFactoryBase>,
+           std::unique_ptr<GraphicsApi::IGraphicsApi> = nullptr);
     ~Engine();
 
     void Init();
     void GameLoop();
+    void MainLoop();
+    void CheckThreadsBeforeQuit();
     SceneManager& GetSceneManager();
 
 private:
-    void CheckThreadsBeforeQuit();
-    void MainLoop();
     void ProcessEngineEvents();
     void Quit();
 

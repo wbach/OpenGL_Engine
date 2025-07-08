@@ -7,8 +7,8 @@
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "Logger/Log.h"
-#include "Resources/Models/BoundingBox.h"
 #include "Utils/Utils.h"
 
 namespace GameEngine
@@ -24,8 +24,8 @@ AbstractLoader::AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureL
 void AbstractLoader::Parse(const File& file, const LoadingParameters& loadingParameters)
 {
     loadingParameters_ = loadingParameters;
-    fileName_ = file.GetFilename();
-    filePath_ = file.GetParentDir();
+    fileName_          = file.GetFilename();
+    filePath_          = file.GetParentDir();
 
     auto binFile = CreateBinPath(fileName_);
     if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))
@@ -72,7 +72,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
     {
         normalizeFactor = 1.f / boundingBox.maxScale();
         boundingBox.scale(vec3(normalizeFactor));
-        DEBUG_LOG("Normalized boundingBox: " + std::to_string(boundingBox.min()) + "-" + std::to_string(boundingBox.max())  );
+        DEBUG_LOG("Normalized boundingBox: " + std::to_string(boundingBox.min()) + "-" + std::to_string(boundingBox.max()));
     }
 
     auto newModel = std::make_unique<Model>(boundingBox);
@@ -142,7 +142,7 @@ BoundingBox AbstractLoader::getModelBoundingBox() const
 
     BoundingBox modelBox;
     modelBox.minMax(min, max);
-    DEBUG_LOG("BoundingBox: " + std::to_string(modelBox.min()) + "-" + std::to_string(modelBox.max())  );
+    DEBUG_LOG("BoundingBox: " + std::to_string(modelBox.min()) + "-" + std::to_string(modelBox.max()));
     DEBUG_LOG("Normalize factor : " + std::to_string(1.f / modelBox.maxScale()));
     return modelBox;
 }

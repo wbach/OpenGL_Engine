@@ -19,6 +19,7 @@ createSrc Input
 createSrc OpenGLApi
 createSrc GameEngine
 createSrc Editor
+createSrc WxEditor
 createSrc GameEngineTests
 createSrc Gwint
 createSrc GwintServer

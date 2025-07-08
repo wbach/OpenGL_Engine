@@ -9,8 +9,6 @@
 #include <iostream>
 #include <optional>
 
-#include "Font.h"
-#include "GameEngine/Engine/Configuration.h"
 #include "GlFrameBuffer.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "GraphicsApi/TextureInfo.h"
@@ -39,7 +37,7 @@ std::unordered_map<GraphicsApi::ShaderType, uint32> shaderTypeMap_;
 std::unordered_map<GraphicsApi::TextureFilter, GLfloat> textureFilterMap_;
 std::unordered_map<GraphicsApi::TextureAccess, uint32> textureAccessMap_;
 std::unordered_map<GraphicsApi::RenderType, uint32> renderTypeMap_;
-CFont font;
+
 const GraphicsApi::TextureInfo defaultTextureInfo;
 
 struct TextTypeParams

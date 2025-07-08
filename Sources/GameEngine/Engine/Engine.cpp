@@ -10,11 +10,11 @@
 #include "GameEngine/Display/DisplayManager.hpp"
 
 #ifndef USE_GNU
-    #ifndef USE_MINGW // TO DO
-    #include <DirectXApi/DirectXApi.h>
-    #endif
-#include <windows.h>
+#ifndef USE_MINGW  // TO DO
+#include <DirectXApi/DirectXApi.h>
+#endif
 #include <shlobj.h>
+#include <windows.h>
 #else
 #include <pwd.h>
 #include <sys/types.h>
@@ -60,7 +60,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 {
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;
 
-#if !defined(USE_GNU) && !defined (USE_MINGW)
+#if !defined(USE_GNU) && !defined(USE_MINGW)
     if (EngineConf.renderer.graphicsApi == "OpenGL")
     {
         graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
@@ -85,12 +85,12 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
     return graphicsApi;
 }
 
-Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<SceneFactoryBase> sceneFactory)
+Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<SceneFactoryBase> sceneFactory,
+               std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi)
     : readConfiguration_()
-    , engineContext_(createGraphicsApi(), std::move(physicsApi))
+    , engineContext_(graphicsApi ? std::move(graphicsApi) : createGraphicsApi(), std::move(physicsApi))
     , sceneManager_(engineContext_, std::move(sceneFactory))
-    , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(),
-                     engineContext_.GetDisplayManager())
+    , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
     srand((unsigned)time(NULL));
@@ -131,7 +131,7 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
         },
         "Physics", EngineConf.renderer.fpsLimt);
 
-      showPhycicsVisualizationSub_ = EngineConf.debugParams.showPhycicsVisualization.subscribeForChange(
+    showPhycicsVisualizationSub_ = EngineConf.debugParams.showPhycicsVisualization.subscribeForChange(
         [this]()
         {
             if (EngineConf.debugParams.showPhycicsVisualization)
