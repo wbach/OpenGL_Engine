@@ -156,6 +156,7 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
         ERROR_LOG("GameObject not found, gameObjectId=" + std::to_string(gameObjectId));
     }
 }
+
 void ComponentController::UnRegisterAll()
 {
     functions_.clear();

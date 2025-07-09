@@ -20,7 +20,7 @@ public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
 private:
-    void OnAddObject(wxCommandEvent&);
+    void OnCreateObject(wxCommandEvent&);
     void OnGLVersion(wxCommandEvent&);
     void OnOpenScene(wxCommandEvent&);
     void OnExit(wxCommandEvent&);
@@ -29,6 +29,11 @@ private:
 
     void AddChilds(GameEngine::GameObject&, wxTreeItemId);
     void CreateRootGameObject();
+
+    void CreateMainMenu();
+    wxMenu *CreateFileMenu();
+    wxMenu *CreateEditMenu();
+    wxMenu *CreateRendererMenu();
 
 private:
     GLCanvas* canvas;

@@ -292,6 +292,7 @@ void createDefaultJointGroup(std::vector<std::string>& group, const Animation::J
 }
 void Animator::GetSkeletonAndAnimations()
 {
+    DEBUG_LOG(thisObject_.GetName()+  " GetSkeletonAndAnimations");
     rendererComponent_ = thisObject_.GetComponent<RendererComponent>();
 
     if (not rendererComponent_)

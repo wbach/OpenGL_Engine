@@ -64,11 +64,24 @@ std::unique_ptr<GameObject> GameObject::CreateChild(const std::string& name, con
     return std::make_unique<GameObject>(name, componentController_, componentFactory_, idPool_, maybeId);
 }
 
+void GameObject::NotifyComponentControllerAboutObjectCreation(GameObject& object)
+{
+    componentController_.OnObjectCreated(object.GetId());
+    for(auto& child : object.GetChildren())
+    {
+        componentController_.OnObjectCreated(child->GetId());
+        NotifyComponentControllerAboutObjectCreation(*child);
+    }
+}
+
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
     object->SetParent(this);
     object->RegisterComponentFunctions();
-    componentController_.OnObjectCreated(object->GetId());
+    if (parent_)
+    {
+        NotifyComponentControllerAboutObjectCreation(*object);
+    }
     children_.push_back(std::move(object));
 }
 

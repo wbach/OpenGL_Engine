@@ -82,6 +82,8 @@ public:
     void markAsPrefabricated(const File&);
     const File& getPrefabricatedFile() const;
 
+    void NotifyComponentControllerAboutObjectCreation(GameObject&);
+
 private:
     GameObject& getRootGameObject();
     void CalculateWorldTransform();

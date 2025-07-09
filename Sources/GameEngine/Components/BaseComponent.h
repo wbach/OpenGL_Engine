@@ -33,7 +33,7 @@ public:
     std::optional<IdType> getRegisteredFunctionId(FunctionType) const override;
 
 protected:
-    void RegisterFunction(FunctionType, std::function<void()> func);
+    void RegisterFunction(FunctionType, std::function<void()>);
 
 protected:
     size_t type_;

@@ -60,7 +60,6 @@ public:
 
     ComponentId RegisterComponent(IComponent::Type, IComponent*);
     void UnRegisterComponent(IComponent::Type, ComponentId);
-
     void UnRegisterAll();
 
 public:

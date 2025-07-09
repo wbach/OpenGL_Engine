@@ -78,7 +78,7 @@ void BaseComponent::InitFromParams(const std::unordered_map<std::string, std::st
 void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
 {
     registeredFunctionsIds_.insert(
-        {componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type, func), type});
+                {componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type, func), type});
 }
 
 void BaseComponent::changeActivateStateRegisteredFunctions()

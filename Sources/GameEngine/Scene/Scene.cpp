@@ -139,6 +139,7 @@ void Scene::Start()
 {
     DEBUG_LOG("Start");
     sceneStorage_->store();
+
     start_.store(true);
     if (physicsApi_)
         physicsApi_->EnableSimulation();
@@ -191,7 +192,9 @@ Light& Scene::AddLight(const Light& light)
 void Scene::AddGameObject(std::unique_ptr<GameObject> object)
 {
     gameObjectsIds_.insert({object->GetId(), object.get()});
+    auto& ptr = *object;
     rootGameObject_->AddChild(std::move(object));
+    rootGameObject_->NotifyComponentControllerAboutObjectCreation(ptr);
 }
 
 void Scene::ChangeParent(GameObject& gameObject, GameObject& newParent)
