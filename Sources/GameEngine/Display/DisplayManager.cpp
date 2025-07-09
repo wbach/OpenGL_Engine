@@ -27,11 +27,10 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     changeFullScreenSubscription_ =
         EngineConf.window.fullScreen.subscribeForChange([this]() { SetFullScreen(EngineConf.window.fullScreen); });
 
-    fpsLimitParamSub_ = EngineConf.renderer.fpsLimt.subscribeForChange(
-        [this]() { timeMeasurer_.setLockFps(EngineConf.renderer.fpsLimt); });
+    fpsLimitParamSub_ =
+        EngineConf.renderer.fpsLimt.subscribeForChange([this]() { timeMeasurer_.setLockFps(EngineConf.renderer.fpsLimt); });
 
-    auto windowType =
-        EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
+    auto windowType = EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
     graphicsApi_.GetWindowApi().Init();
     graphicsApi_.GetWindowApi().CreateGameWindow(EngineConf.window.name, windowsSize_.x, windowsSize_.y, windowType);
@@ -39,11 +38,28 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
     graphicsApi_.PrepareFrame();
-    graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
-    for (const auto& mode : graphicsApi_.GetWindowApi().GetDisplayModes())
+
+    const auto requestedWindowSize = EngineConf.window.size.get();
+
+    bool requestedSizeFoundInAvaiableDisplayMode{false};
+    const auto& diplayModes = graphicsApi_.GetWindowApi().GetDisplayModes();
+    for (const auto& mode : diplayModes)
     {
+        if (static_cast<int>(requestedWindowSize.x) == mode.w and static_cast<int>(requestedWindowSize.y) == mode.h)
+        {
+            requestedSizeFoundInAvaiableDisplayMode = true;
+        }
         EngineConf.window.size.AddDefaultValue(vec2ui(mode.w, mode.h));
     }
+    if (not requestedSizeFoundInAvaiableDisplayMode and not diplayModes.empty())
+    {
+        const auto& firstValidDisplayMode = diplayModes.front();
+        windowsSize_ = vec2ui{static_cast<uint32>(firstValidDisplayMode.w), static_cast<uint32>(firstValidDisplayMode.h)};
+        DEBUG_LOG("Requested window size not avaiable, take first, new size: " + std::to_string(windowsSize_));
+        EngineConf.window.size = windowsSize_;
+    }
+
+    graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
 
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 

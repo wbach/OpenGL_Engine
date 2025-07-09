@@ -28,6 +28,7 @@ private:
     void OnFileActivated(wxTreeEvent&);
 
     void AddChilds(GameEngine::GameObject&, wxTreeItemId);
+    void CreateRootGameObject();
 
 private:
     GLCanvas* canvas;

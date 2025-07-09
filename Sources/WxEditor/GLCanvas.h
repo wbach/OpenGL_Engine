@@ -46,8 +46,6 @@ private:
     void OnMouseDown(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent&);
 
-    void Render();
-
     DECLARE_EVENT_TABLE()
 
     std::unique_ptr<GameEngine::Engine> engine;

@@ -311,10 +311,20 @@ void Scene::SaveToFile(const File& file)
 }
 void Scene::LoadFromFile(const File& file)
 {
+    start_.store(false);
+
+    if (physicsApi_)
+        physicsApi_->DisableSimulation();
+
     DEBUG_LOG("Load scene from file : " + file.GetAbsoultePath());
     file_ = file;
     sceneStorage_->readFromFile(file);
     DEBUG_LOG("Load scene from file : \"" + file.GetAbsoultePath() + "\" complete");
+
+    start_.store(true);
+
+    if (physicsApi_)
+        physicsApi_->EnableSimulation();
 }
 
 GameObject* Scene::LoadPrefab(const File& file, const std::string& gameObjectName)

@@ -46,24 +46,9 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     // gameObjectsView       = new wxListBox(topSplitter, wxID_ANY);
     // FromDIP(wxSize(160, 250))
     gameObjectsView = new wxTreeCtrl(topSplitter, wxID_ANY, wxPoint(0, 0), wxSize(160, 250), wxTR_DEFAULT_STYLE | wxNO_BORDER);
-    treeRootId      = gameObjectsView->AddRoot("Scene", 0);
 
-//    gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, "Item 1", 0));
-//    gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, "Item 2", 0));
-//    gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, "Item 3", 0));
-//    gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, "Item 4", 0));
-//    gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, "Item 5", 0));
+    CreateRootGameObject();
 
-//    int i, count;
-//    for (i = 0, count = gameObjectsItemsIds.Count(); i < count; ++i)
-//    {
-//        wxTreeItemId id = gameObjectsItemsIds.Item(i);
-//        gameObjectsView->AppendItem(id, "Subitem 1", 1);
-//        gameObjectsView->AppendItem(id, "Subitem 2", 1);
-//        gameObjectsView->AppendItem(id, "Subitem 3", 1);
-//        gameObjectsView->AppendItem(id, "Subitem 4", 1);
-//        gameObjectsView->AppendItem(id, "Subitem 5", 1);
-//    }
     topSplitter->SplitVertically(gameObjectsView, trs, size.x / 8);
 
     canvas                   = new GLCanvas(trs);
@@ -110,12 +95,17 @@ void MainFrame::OnGLVersion(wxCommandEvent&)
 
 void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId parentId)
 {
-    for(const auto& child : gameObject.GetChildren())
+    for (const auto& child : gameObject.GetChildren())
     {
         auto itemId = gameObjectsView->AppendItem(parentId, child->GetName(), 0);
-        //gameObjectsItemsIdsMap.insert({child->GetId(), itemId});
+        // gameObjectsItemsIdsMap.insert({child->GetId(), itemId});
         AddChilds(*child, itemId);
     }
+}
+
+void MainFrame::CreateRootGameObject()
+{
+    treeRootId = gameObjectsView->AddRoot("Scene", 0);
 }
 
 void MainFrame::OnOpenScene(wxCommandEvent&)
@@ -126,15 +116,12 @@ void MainFrame::OnOpenScene(wxCommandEvent&)
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
+    gameObjectsView->DeleteAllItems();
+    CreateRootGameObject();
     wxString path = openFileDialog.GetPath();
     canvas->OpenScene(std::string{path.c_str()});
 
     AddChilds(canvas->GetRootObject(), treeRootId);
-//    for(const auto& child : rootObject.GetChildren())
-//    {
-//        auto itemId = gameObjectsView->AppendItem(treeRootId, child->GetName(), 0);
-//        gameObjectsItemsIdsMap.insert({child->GetId(), itemId});
-//    }
 }
 void MainFrame::OnFileSelectChanged(wxTreeEvent& event)
 {

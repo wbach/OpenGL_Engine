@@ -11,7 +11,7 @@ enum WxKeyEventType
 class WxOpenGLApiWrapper : public OpenGLApi::OpenGLApi
 {
 public:
-    WxOpenGLApiWrapper();
+    WxOpenGLApiWrapper(const vec2i);
     void CreateContext() override;
 };
 }  // namespace WxEditor

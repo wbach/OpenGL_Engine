@@ -92,11 +92,14 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     wxPaintDC dc(this);
     SetCurrent(*context);
 
+    wxSize size = GetClientSize();
     if (not engine)
     {
-        engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(),
-                                                      std::make_unique<WxEditor::WxEditorSceneFactory>(),
-                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>());
+        auto openglWrapper = std::make_unique<WxEditor::WxOpenGLApiWrapper>(vec2i{size.x, size.y});
+
+        engine =
+            std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(),
+                                                 std::make_unique<WxEditor::WxEditorSceneFactory>(), std::move(openglWrapper));
         engine->Init();
         engine->GetSceneManager().SetActiveScene("WxEditorScene");
     }
@@ -104,7 +107,7 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     {
         engine->MainLoop();
     }
-    // Render();
+
     SwapBuffers();
 }
 
@@ -133,8 +136,11 @@ void GLCanvas::OnMouseUp(wxMouseEvent&)
 {
 }
 
-void GLCanvas::OnMouseDown(wxMouseEvent& evt)
+void GLCanvas::OnMouseDown(wxMouseEvent& event)
 {
+    SetFocus();
+    auto point = event.GetPosition();
+    DEBUG_LOG("Cliced point: " + std::to_string(vec2i{point.x, point.y}));
 }
 
 void GLCanvas::OnMouseMove(wxMouseEvent& evt)
@@ -167,11 +173,11 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
 void GLCanvas::OpenScene(const GameEngine::File& file)
 {
     auto scene = engine->GetSceneManager().GetActiveScene();
+    scene->ClearGameObjects();
     scene->LoadFromFile(file);
-    // scene->Stop();
 }
 
-GameObject &GLCanvas::GetRootObject()
+GameObject& GLCanvas::GetRootObject()
 {
     return engine->GetSceneManager().GetActiveScene()->GetRootGameObject();
 }
@@ -186,86 +192,4 @@ void GLCanvas::OnShow(wxShowEvent&)
     //                                                      std::make_unique<WxEditor::WxEditorSceneFactory>(),
     //                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>());
     //    }
-}
-
-void GLCanvas::Render()
-{
-    glViewport(0, 0, GetSize().x, GetSize().y);
-    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45.0, (double)GetSize().x / GetSize().y, 0.01, 100.0);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    // glTranslatef(0, 0, -5);
-    gluLookAt(1, 1, -10, 0, 0, 0, 0, 1, 0);
-
-    glBegin(GL_QUADS);
-
-    // Front
-    glColor3f(1, 0, 0);
-    glVertex3f(-1, -1, 1);
-    glColor3f(0, 1, 0);
-    glVertex3f(1, -1, 1);
-    glColor3f(0, 0, 1);
-    glVertex3f(1, 1, 1);
-    glColor3f(1, 1, 0);
-    glVertex3f(-1, 1, 1);
-
-    // Back
-    glColor3f(1, 0, 1);
-    glVertex3f(-1, -1, -1);
-    glColor3f(0, 1, 1);
-    glVertex3f(1, -1, -1);
-    glColor3f(1, 1, 1);
-    glVertex3f(1, 1, -1);
-    glColor3f(0.2, 0.2, 0.2);
-    glVertex3f(-1, 1, -1);
-
-    // Top
-    glColor3f(1, 0, 0);
-    glVertex3f(-1, 1, -1);
-    glColor3f(0, 1, 0);
-    glVertex3f(1, 1, -1);
-    glColor3f(0, 0, 1);
-    glVertex3f(1, 1, 1);
-    glColor3f(1, 1, 0);
-    glVertex3f(-1, 1, 1);
-
-    // Bottom
-    glColor3f(1, 0, 1);
-    glVertex3f(-1, -1, -1);
-    glColor3f(0, 1, 1);
-    glVertex3f(1, -1, -1);
-    glColor3f(1, 1, 1);
-    glVertex3f(1, -1, 1);
-    glColor3f(0.2, 0.2, 0.2);
-    glVertex3f(-1, -1, 1);
-
-    // Left
-    glColor3f(1, 0.5, 0);
-    glVertex3f(-1, -1, -1);
-    glColor3f(0.5, 1, 0);
-    glVertex3f(-1, 1, -1);
-    glColor3f(0.5, 0, 1);
-    glVertex3f(-1, 1, 1);
-    glColor3f(0, 0.5, 1);
-    glVertex3f(-1, -1, 1);
-
-    // Right
-    glColor3f(1, 0.5, 1);
-    glVertex3f(1, -1, -1);
-    glColor3f(0.5, 1, 1);
-    glVertex3f(1, 1, -1);
-    glColor3f(1, 1, 0.5);
-    glVertex3f(1, 1, 1);
-    glColor3f(0, 1, 0.5);
-    glVertex3f(1, -1, 1);
-
-    glEnd();
 }

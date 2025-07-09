@@ -181,6 +181,12 @@ protected:
 class WxWindowApi : public GraphicsApi::IWindowApi
 {
 public:
+    WxWindowApi(const vec2i renderSize)
+    {
+        DEBUG_LOG("Add display mode: " + std::to_string(renderSize));
+        displayModes.push_back(
+            GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
+    }
     ~WxWindowApi() override;
 
     void Init() override;
@@ -299,8 +305,8 @@ void WxWindowApi::BeginFrame()
 {
 }
 
-WxOpenGLApiWrapper::WxOpenGLApiWrapper()
-    : OpenGLApi::OpenGLApi(std::make_unique<WxWindowApi>())
+WxOpenGLApiWrapper::WxOpenGLApiWrapper(const vec2i renderSize)
+    : OpenGLApi::OpenGLApi(std::make_unique<WxWindowApi>(renderSize))
 {
     SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
 }
