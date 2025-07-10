@@ -4,5 +4,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxInputManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxKeyEventType.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.h
 )
