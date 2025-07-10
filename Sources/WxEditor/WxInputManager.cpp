@@ -1,10 +1,11 @@
 #include "WxInputManager.h"
 
+#include <Logger/Log.h>
+#include <wx/event.h>
+
 #include "BidirectionalUnorderedMap.h"
 #include "Types.h"
 #include "WxKeyEventType.h"
-
-#include <Logger/Log.h>
 
 namespace WxEditor
 {
@@ -21,9 +22,9 @@ struct KeyConverter
 };
 
 KeysMap KeyConverter::keys = KeysMap({
-    //    {KeyCodes::LMOUSE, SDL_BUTTON_LEFT},
-    //    {KeyCodes::RMOUSE, SDL_BUTTON_RIGHT},
-    //    {KeyCodes::MOUSE_WHEEL, SDL_BUTTON_MIDDLE},
+    {KeyCodes::LMOUSE, WxKeySpecialKodes::WX_MOUSE_LEFT},
+    {KeyCodes::RMOUSE, WxKeySpecialKodes::WX_MOUSE_RIGHT},
+    {KeyCodes::MOUSE_WHEEL, WxKeySpecialKodes::WX_MOUSE_MIDDLE},
     {KeyCodes::Q, 'Q'},
     {KeyCodes::W, 'W'},
     {KeyCodes::E, 'E'},
@@ -117,6 +118,20 @@ uint32 KeyConverter::Convert(KeyCodes::Type type)
 }
 }  // namespace
 
+WxInputManager::WxInputManager(const vec2i& windowSize)
+    : windowSize{windowSize}
+{
+    lastMousePosition = vec2i{};
+}
+
+void WxInputManager::OnMouseMove(wxMouseEvent& event)
+{
+    auto currentMousePosition = event.GetPosition();
+    lastMouseMove.x           = currentMousePosition.x - lastMousePosition.x;
+    lastMouseMove.y           = currentMousePosition.y - lastMousePosition.y;
+    lastMousePosition         = vec2i{currentMousePosition.x, currentMousePosition.y};
+}
+
 bool WxInputManager::GetKey(KeyCodes::Type)
 {
     return false;
@@ -133,7 +148,9 @@ void WxInputManager::SetReleativeMouseMode(bool)
 
 vec2i WxInputManager::CalcualteMouseMove()
 {
-    return {0, 0};
+    auto result   = lastMouseMove;
+    lastMouseMove = vec2i(0);
+    return result;
 }
 
 vec2i WxInputManager::GetPixelMousePosition()
@@ -143,7 +160,11 @@ vec2i WxInputManager::GetPixelMousePosition()
 
 vec2 WxInputManager::GetMousePosition()
 {
-    return {0, 0};
+    vec2 out;
+    out.x = 2.f * (static_cast<float>(lastMousePosition.x) / static_cast<float>(windowSize.x)) - 1.f;
+    out.y = 2.f * (static_cast<float>(lastMousePosition.y) / static_cast<float>(windowSize.y)) - 1.f;
+    out.y *= -1.f;
+    return out;
 }
 
 void WxInputManager::SetKeyToBuffer(int, bool)

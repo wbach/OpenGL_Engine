@@ -2,9 +2,11 @@
 #include "GLCanvas.h"
 
 #include <wx/dcclient.h>
-#include "WxKeyEventType.h"
 
 #include <memory>
+
+#include "WxKeyEventType.h"
+#include "WxWindowApi.h"
 
 // clang-format off
 BEGIN_EVENT_TABLE(GLCanvas, wxGLCanvas)
@@ -14,8 +16,10 @@ EVT_TIMER(wxID_ANY, GLCanvas::OnTimer)
 EVT_KEY_DOWN(GLCanvas::OnKeyDown)
 EVT_KEY_UP(GLCanvas::OnKeyUp)
 EVT_CHAR(GLCanvas::OnChar)
-EVT_LEFT_DOWN(GLCanvas::OnMouseDown)
-EVT_LEFT_UP(GLCanvas::OnMouseUp)
+EVT_LEFT_DOWN(GLCanvas::OnMouseLeftDown)
+EVT_LEFT_UP(GLCanvas::OnMouseLeftUp)
+EVT_RIGHT_DOWN(GLCanvas::OnMouseRightDown)
+EVT_RIGHT_UP(GLCanvas::OnMouseRightUp)
 EVT_MOTION(GLCanvas::OnMouseMove)
 END_EVENT_TABLE()
 // clang-format on
@@ -96,7 +100,9 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     wxSize size = GetClientSize();
     if (not engine)
     {
-        auto openglWrapper = std::make_unique<WxEditor::WxOpenGLApiWrapper>(vec2i{size.x, size.y});
+        auto windowApiPtr  = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y});
+        wxWindowApi        = windowApiPtr.get();
+        auto openglWrapper = std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr));
 
         engine =
             std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(),
@@ -112,6 +118,22 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     SwapBuffers();
 }
 
+void GLCanvas::SetCursorToCenter()
+{
+    // Rozmiar canvasu
+    int w, h;
+    GetSize(&w, &h);
+
+    // Środek klienta
+    wxPoint center(w / 2, h / 2);
+
+    // Zamiana na współrzędne ekranowe
+    wxPoint screenPos = ClientToScreen(center);
+
+    // Przeniesienie kursora
+    this->WarpPointer(screenPos.x, screenPos.y);
+}
+
 void GLCanvas::OnTimer(wxTimerEvent&)
 {
     Refresh(false);
@@ -125,6 +147,11 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
 
 void GLCanvas::OnKeyDown(wxKeyEvent& event)
 {
+    if (event.GetKeyCode() == 27) // ESC
+    {
+        DEBUG_LOG("Escape");
+        GetParent()->SetFocus();
+    }
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, event.GetKeyCode());
 }
@@ -133,19 +160,38 @@ void GLCanvas::OnChar(wxKeyEvent& evt)
 {
 }
 
-void GLCanvas::OnMouseUp(wxMouseEvent&)
+void GLCanvas::OnMouseLeftUp(wxMouseEvent& event)
 {
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
 }
 
-void GLCanvas::OnMouseDown(wxMouseEvent& event)
+void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
 {
     SetFocus();
-    auto point = event.GetPosition();
-    DEBUG_LOG("Cliced point: " + std::to_string(vec2i{point.x, point.y}));
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
+}
+
+void GLCanvas::OnMouseRightUp(wxMouseEvent& event)
+{
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
+}
+
+void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
+{
+    SetFocus();
+    auto& inputManager = engine->GetEngineContext().GetInputManager();
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
 }
 
 void GLCanvas::OnMouseMove(wxMouseEvent& evt)
 {
+    if (wxWindowApi)
+    {
+        wxWindowApi->OnMouseMove(evt);
+    }
 }
 
 std::string GLCanvas::getGlInfo() const

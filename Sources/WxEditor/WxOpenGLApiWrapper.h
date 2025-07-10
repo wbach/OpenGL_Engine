@@ -6,7 +6,7 @@ namespace WxEditor
 class WxOpenGLApiWrapper : public OpenGLApi::OpenGLApi
 {
 public:
-    WxOpenGLApiWrapper(const vec2i);
+    WxOpenGLApiWrapper(std::unique_ptr<GraphicsApi::IWindowApi>);
     void CreateContext() override;
 };
 }  // namespace WxEditor

@@ -7,7 +7,7 @@
 namespace WxEditor
 {
 WxWindowApi::WxWindowApi(const vec2i renderSize)
-    : inputManager{std::make_unique<WxInputManager>()}
+    : inputManager{std::make_unique<WxInputManager>(renderSize)}
 {
     DEBUG_LOG("Add display mode: " + std::to_string(renderSize));
     displayModes.push_back(GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
@@ -15,6 +15,11 @@ WxWindowApi::WxWindowApi(const vec2i renderSize)
 
 WxWindowApi::~WxWindowApi()
 {
+}
+
+void WxWindowApi::OnMouseMove(wxMouseEvent & event)
+{
+    inputManager->OnMouseMove(event);
 }
 
 void WxWindowApi::Init()

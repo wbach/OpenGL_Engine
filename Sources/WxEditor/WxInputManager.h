@@ -1,11 +1,16 @@
 #pragma once
 #include <Input/InputManager.h>
 
+class wxMouseEvent;
+
 namespace WxEditor
 {
 class WxInputManager : public Input::InputManager
 {
 public:
+    WxInputManager(const vec2i&);
+    void OnMouseMove(wxMouseEvent&);
+
     bool GetKey(KeyCodes::Type);
     bool GetMouseKey(KeyCodes::Type);
     void SetReleativeMouseMode(bool);
@@ -19,8 +24,13 @@ public:
     void ShowCursor(bool);
 
 protected:
-    KeyCodes::Type ConvertCode(uint32 value) const;
-    bool IsKeyUpEventType(uint32 x) const;
-    bool IsKeyDownEventType(uint32 x) const;
+    KeyCodes::Type ConvertCode(uint32) const;
+    bool IsKeyUpEventType(uint32) const;
+    bool IsKeyDownEventType(uint32) const;
+
+private:
+    const vec2i windowSize;
+    vec2i lastMousePosition;
+    vec2i lastMouseMove;
 };
 }  // namespace WxEditor

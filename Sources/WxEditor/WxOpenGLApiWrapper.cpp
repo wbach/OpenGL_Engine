@@ -5,12 +5,10 @@
 #include <memory>
 #include <vector>
 
-#include "WxWindowApi.h"
-
 namespace WxEditor
 {
-WxOpenGLApiWrapper::WxOpenGLApiWrapper(const vec2i renderSize)
-    : OpenGLApi::OpenGLApi(std::make_unique<WxWindowApi>(renderSize))
+WxOpenGLApiWrapper::WxOpenGLApiWrapper(std::unique_ptr<GraphicsApi::IWindowApi> api)
+    : OpenGLApi::OpenGLApi(std::move(api))
 {
     SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
 }

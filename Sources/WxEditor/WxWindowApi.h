@@ -2,13 +2,18 @@
 #include <GraphicsApi/WindowApi.hpp>
 #include <vector>
 
+class wxMouseEvent;
+
 namespace WxEditor
 {
+class WxInputManager;
 class WxWindowApi : public GraphicsApi::IWindowApi
 {
 public:
     WxWindowApi(const vec2i renderSize);
     ~WxWindowApi() override;
+
+    void OnMouseMove(wxMouseEvent&);
 
     void Init() override;
     void CreateGameWindow(const std::string &, uint32, uint32, GraphicsApi::WindowType) override;
@@ -23,7 +28,7 @@ public:
     void SetFullScreen(bool full_screen) override;
     bool CheckActiveWindow() override;
     void ShowCursor(bool show) override;
-    Input::InputManager& GetInputManager() override;
+    Input::InputManager &GetInputManager() override;
     double GetTime() override;
     void SetCursorPosition(int x, int y) override;
     void ShowMessageBox(const std::string &title, const std::string &message) const override;
@@ -33,6 +38,6 @@ public:
 
 private:
     std::vector<GraphicsApi::DisplayMode> displayModes;
-    std::unique_ptr<Input::InputManager> inputManager;
+    std::unique_ptr<WxInputManager> inputManager;
 };
-} // namespace WxEditor
+}  // namespace WxEditor

@@ -17,7 +17,7 @@ public:
     using IFrameBuffer = GraphicsApi::IFrameBuffer;
 
     OpenGLApi();
-    OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi);
+    OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi>);
     ~OpenGLApi();
     void Init() override;
     void SetShadersFilesLocations(const std::string& path) override;
