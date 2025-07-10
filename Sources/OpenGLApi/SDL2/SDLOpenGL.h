@@ -32,7 +32,7 @@ public:
 
     void BeginFrame() override;
     void ShowCursor(bool show) override;
-    std::unique_ptr<Input::InputManager> CreateInput() override;
+    Input::InputManager& GetInputManager() override;
     double GetTime() override;
     void SetCursorPosition(int x, int y) override;
 
@@ -56,11 +56,12 @@ private:
     uint32 startTime;
     vec2ui windowSize_;
 
-    std::function<void(uint32, uint32)> addKeyEvent_;
     std::vector<GraphicsApi::DisplayMode> displayModes_;
 
     Utils::IdPool eventSubscribersEventsPool_;
     std::mutex eventSubscribersMutex_;
     std::unordered_map<IdType, std::function<void(const GraphicsApi::IWindowApi::Event&)>> eventsSubscribers_;
+
+    std::unique_ptr<Input::InputManager> inputManager_;
 };
 }  // namespace OpenGLApi

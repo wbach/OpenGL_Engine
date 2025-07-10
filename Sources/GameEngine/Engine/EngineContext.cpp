@@ -10,7 +10,7 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
     , graphicsApi_(std::move(graphicsApi))
     , physicsApi_(std::move(physicsApi))
     , displayManager_(*graphicsApi_, measurmentHandler_)
-    , inputManager_(displayManager_.CreateInput())
+    , inputManager_(displayManager_.GetInputManager())
     , threadSync_(measurmentHandler_)
     , renderersManager_(*graphicsApi_, gpuResourceLoader_, measurmentHandler_, threadSync_, displayManager_.GetTime())
 {

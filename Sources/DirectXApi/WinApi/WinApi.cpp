@@ -13,7 +13,6 @@ namespace DirectX
 {
 namespace
 {
-std::function<void(uint32, uint32)> addKeyEventFunc;
 Utils::IdPool eventSubscribersEventsPool_;
 std::mutex eventSubscribersMutex_;
 std::unordered_map<IdType, std::function<void(const GraphicsApi::IWindowApi::Event&)>> eventsSubscribers_;
@@ -62,28 +61,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         break;
         case WM_KEYDOWN:
-            if (addKeyEventFunc)
-                addKeyEventFunc(WM_KEYDOWN, wParam);
+                inputManager_->AddKeyEvent(WM_KEYDOWN, wParam);
             break;
         case WM_KEYUP:
-            if (addKeyEventFunc)
-                addKeyEventFunc(WM_KEYUP, wParam);
+                inputManager_->AddKeyEvent(WM_KEYUP, wParam);
             break;
         case WM_LBUTTONDOWN:
-            if (addKeyEventFunc)
-                addKeyEventFunc(WM_KEYDOWN, VK_LBUTTON);
+                inputManager_->AddKeyEvent(WM_KEYDOWN, VK_LBUTTON);
             break;
         case WM_LBUTTONUP:
-            if (addKeyEventFunc)
-                addKeyEventFunc(WM_KEYUP, VK_LBUTTON);
+                inputManager_->AddKeyEvent(WM_KEYUP, VK_LBUTTON);
             break;
         case WM_RBUTTONDOWN:
-            if (addKeyEventFunc)
-                addKeyEventFunc(WM_KEYDOWN, VK_RBUTTON);
+                inputManager_->AddKeyEvent(WM_KEYDOWN, VK_RBUTTON);
             break;
         case WM_RBUTTONUP:
-            if (addKeyEventFunc)
-                addKeyEventFunc(WM_KEYUP, VK_RBUTTON);
+                inputManager_->AddKeyEvent(WM_KEYUP, VK_RBUTTON);
             break;
         case WM_PAINT:
             hdc = BeginPaint(hwnd, &ps);
@@ -159,6 +152,9 @@ void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint
         return;
     }
 
+    inputManager_ = std::make_unique<XInputManager>(impl_->directXContext_.mainWindow,
+                                             vec2ui(impl_->rect_.right, impl_->rect_.bottom));
+
     ::ShowWindow(impl_->directXContext_.mainWindow, SW_SHOWDEFAULT);
 }
 void WinApi::SetWindowSize(const vec2ui&)
@@ -213,12 +209,10 @@ void WinApi::ShowCursor(bool show)
 {
     ::ShowCursor(show);
 }
-std::unique_ptr<Input::InputManager> WinApi::CreateInput()
+Input::InputManager& WinApi::GetInputManager()
 {
-    auto input      = std::make_unique<XInputManager>(impl_->directXContext_.mainWindow,
-                                                 vec2ui(impl_->rect_.right, impl_->rect_.bottom));
-    addKeyEventFunc = std::bind(&XInputManager::AddKeyEvent, input.get(), std::placeholders::_1, std::placeholders::_2);
-    return std::move(input);
+    assert(inputManager_);
+    return *inputManager_;
 }
 double WinApi::GetTime()
 {
@@ -230,9 +224,6 @@ void WinApi::SetCursorPosition(int x, int y)
 uint32 WinApi::CreateWindowFlags(GraphicsApi::WindowType type) const
 {
     return uint32();
-}
-void WinApi::CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags)
-{
 }
 bool WinApi::RegiesterWindowClass()
 {

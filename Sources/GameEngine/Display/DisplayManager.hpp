@@ -26,7 +26,7 @@ public:
     void UpdateWindow();
     void ShowCoursor(bool);
     bool CheckActiveWindow();
-    std::unique_ptr<Input::InputManager> CreateInput();
+    Input::InputManager& GetInputManager();
 
     void SetRefreshRate(uint32);
     void SetFullScreen(bool);

@@ -1,14 +1,16 @@
 #include "WxWindowApi.h"
+
 #include <Logger/Log.h>
+
 #include "WxInputManager.h"
 
 namespace WxEditor
 {
 WxWindowApi::WxWindowApi(const vec2i renderSize)
+    : inputManager{std::make_unique<WxInputManager>()}
 {
     DEBUG_LOG("Add display mode: " + std::to_string(renderSize));
-    displayModes.push_back(
-                GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
+    displayModes.push_back(GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
 }
 
 WxWindowApi::~WxWindowApi()
@@ -71,9 +73,10 @@ void WxWindowApi::ShowCursor(bool show)
 {
 }
 
-std::unique_ptr<Input::InputManager> WxWindowApi::CreateInput()
+Input::InputManager &WxWindowApi::GetInputManager()
 {
-    return std::make_unique<WxInputManager>();
+    assert(inputManager);
+    return *inputManager;
 }
 
 double WxWindowApi::GetTime()
@@ -101,4 +104,4 @@ const std::vector<GraphicsApi::DisplayMode> &WxWindowApi::GetDisplayModes() cons
 void WxWindowApi::BeginFrame()
 {
 }
-} // namespace WxEditor
+}  // namespace WxEditor

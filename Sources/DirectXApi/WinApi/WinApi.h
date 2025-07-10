@@ -33,7 +33,7 @@ public:
 
     void BeginFrame() override;
     void ShowCursor(bool show) override;
-    std::unique_ptr<Input::InputManager> CreateInput() override;
+    Input::InputManager& GetInputManager() override;
     double GetTime() override;
     void SetCursorPosition(int x, int y) override;
 
@@ -44,7 +44,6 @@ public:
 
 private:
     uint32 CreateWindowFlags(GraphicsApi::WindowType type) const;
-    void CreateSDLWindow(const std::string& window_name, const int& width, const int& height, uint32 flags);
 
 private:
     bool RegiesterWindowClass();
@@ -61,5 +60,6 @@ private:
 
     std::function<void(uint32, uint32)> addKeyEvent_;
     std::vector<GraphicsApi::DisplayMode> dispalyModes_;
+    std::unique_ptr<Input::InputManager> inputManager_;
 };
 }  // namespace DirectX

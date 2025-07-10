@@ -54,9 +54,9 @@ public:
     virtual void ShowCursor(bool) override
     {
     }
-    virtual std::unique_ptr<Input::InputManager> CreateInput() override
+    virtual Input::InputManager& GetInputManager() override
     {
-        return std::make_unique<DummyInputManager>();
+        return dummyInputManager_;
     }
     virtual double GetTime() override
     {
@@ -86,5 +86,6 @@ public:
 private:
     float time;
     std::vector<GraphicsApi::DisplayMode> displayModes_;
+    DummyInputManager dummyInputManager_;
 };
 }  // namespace GameEngine

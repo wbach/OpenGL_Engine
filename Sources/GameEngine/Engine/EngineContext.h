@@ -57,7 +57,7 @@ private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
     std::unique_ptr<Physics::IPhysicsApi> physicsApi_;
     DisplayManager displayManager_;
-    std::unique_ptr<Input::InputManager> inputManager_;
+    Input::InputManager& inputManager_;
     Utils::Thread::ThreadSync threadSync_;
     Utils::Time::TimerService timerService_;
 
@@ -85,7 +85,7 @@ Physics::IPhysicsApi& EngineContext::GetPhysicsApi()
 
 Input::InputManager& EngineContext::GetInputManager()
 {
-    return *inputManager_;
+    return inputManager_;
 }
 
 IGpuResourceLoader& EngineContext::GetGpuResourceLoader()

@@ -23,7 +23,7 @@ public:
     void SetFullScreen(bool full_screen) override;
     bool CheckActiveWindow() override;
     void ShowCursor(bool show) override;
-    std::unique_ptr<Input::InputManager> CreateInput() override;
+    Input::InputManager& GetInputManager() override;
     double GetTime() override;
     void SetCursorPosition(int x, int y) override;
     void ShowMessageBox(const std::string &title, const std::string &message) const override;
@@ -33,5 +33,6 @@ public:
 
 private:
     std::vector<GraphicsApi::DisplayMode> displayModes;
+    std::unique_ptr<Input::InputManager> inputManager;
 };
 } // namespace WxEditor

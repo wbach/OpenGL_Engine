@@ -148,8 +148,8 @@ bool DisplayManager::CheckActiveWindow()
     return graphicsApi_.GetWindowApi().CheckActiveWindow();
 }
 
-std::unique_ptr<Input::InputManager> DisplayManager::CreateInput()
+Input::InputManager& DisplayManager::GetInputManager()
 {
-    return graphicsApi_.GetWindowApi().CreateInput();
+    return graphicsApi_.GetWindowApi().GetInputManager();
 }
 }  // namespace GameEngine
