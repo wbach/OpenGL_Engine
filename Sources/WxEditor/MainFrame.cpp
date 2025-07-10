@@ -33,6 +33,7 @@ int id = 6;
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
+    EVT_CLOSE(MainFrame::OnClose)
     EVT_MENU(ID_CREATE_OBJECT, MainFrame::OnCreateObject)
     EVT_MENU(ID_GL_INFO, MainFrame::OnGLVersion)
     EVT_MENU(ID_OPEN_SCENE, MainFrame::OnOpenScene)
@@ -74,6 +75,17 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     CreateMainMenu();
     CreateStatusBar();
     SetStatusText("Welcome to game editor!");
+}
+
+void MainFrame::OnClose(wxCloseEvent& event)
+{
+    DEBUG_LOG("OnClose");
+    isRunning = false;
+    if (loadSceneThread.joinable())
+    {
+        loadSceneThread.join();
+    }
+    event.Skip();
 }
 
 void MainFrame::OnCreateObject(wxCommandEvent&)
@@ -174,14 +186,24 @@ void MainFrame::OnOpenScene(wxCommandEvent&)
         return;
 
     gameObjectsView->DeleteAllItems();
-    CreateRootGameObject();
     wxString path = openFileDialog.GetPath();
-    canvas->OpenScene(std::string{path.c_str()});
+    CreateRootGameObject();
+    GameEngine::File file{std::string{path.c_str()}};
+    loadSceneThread = std::thread(
+        [&]
+        {
+            canvas->OpenScene(file);
 
-    AddChilds(canvas->GetRootObject(), treeRootId);
-
-    auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
-    gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+            if (isRunning)
+            {
+                AddChilds(canvas->GetRootObject(), treeRootId);
+                auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
+                gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+                SetStatusText("Welcome to game editor!");
+            }
+        });
+    // loadSceneThread.detach();
+    SetStatusText("Loading file " + file.GetBaseName());
 }
 void MainFrame::OnFileSelectChanged(wxTreeEvent& event)
 {

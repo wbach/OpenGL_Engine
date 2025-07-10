@@ -7,6 +7,7 @@
 #include <wx/treebase.h>
 #include <unordered_map>
 #include <Types.h>
+#include <thread>
 
 class GLCanvas;
 namespace GameEngine
@@ -20,6 +21,7 @@ public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
 private:
+    void OnClose(wxCloseEvent&);
     void OnCreateObject(wxCommandEvent&);
     void OnGLVersion(wxCommandEvent&);
     void OnOpenScene(wxCommandEvent&);
@@ -42,5 +44,7 @@ private:
     wxArrayTreeItemIds gameObjectsItemsIds;
     std::unordered_map<IdType, wxTreeItemId> gameObjectsItemsIdsMap;
     wxGenericDirCtrl* fileExplorer;
+    std::thread loadSceneThread;
     wxDECLARE_EVENT_TABLE();
+    bool isRunning{true};
 };

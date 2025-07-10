@@ -2,6 +2,7 @@
 #include "GLCanvas.h"
 
 #include <wx/dcclient.h>
+#include "WxKeyEventType.h"
 
 #include <memory>
 
@@ -184,12 +185,4 @@ GameObject& GLCanvas::GetRootObject()
 
 void GLCanvas::OnShow(wxShowEvent&)
 {
-    //    SetCurrent(*context);
-
-    //    if (not engine)
-    //    {
-    //        engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(),
-    //                                                      std::make_unique<WxEditor::WxEditorSceneFactory>(),
-    //                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>());
-    //    }
 }
