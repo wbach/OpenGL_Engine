@@ -20,7 +20,6 @@ public:
     ~SceneManager();
 
     Scene* GetActiveScene();
-    void InitActiveScene();
     void Update();
     void SetActiveScene(const std::string& name);
     void Reset();

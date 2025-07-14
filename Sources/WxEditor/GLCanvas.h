@@ -37,6 +37,8 @@ public:
     bool AddGameObject(const GameEngine::File&);
     void OpenScene(const GameEngine::File&);
     GameEngine::GameObject& GetRootObject();
+    GameEngine::Engine& GetEngine();
+    GameEngine::Scene& GetScene();
 
 private:
     wxGLContext* context;

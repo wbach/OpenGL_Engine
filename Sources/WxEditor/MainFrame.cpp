@@ -12,21 +12,28 @@ namespace
 {
 enum
 {
-    ID_EXIT = 1,
-    ID_CREATE_OBJECT,
-    ID_CREATE_TERRAIN,
-    ID_TERRAIN_HEIGHT_PAINTER,
-    ID_TERRAIN_TEXTURE_PAINTER,
-    ID_LOAD_PREFAB,
-    ID_OPEN_SCENE,
-    ID_RELOAD_SCENE,
-    ID_SAVE_SCENE,
-    ID_SAVEAS_SCENE,
-    ID_CLEAR_SCENE,
+    ID_MENU_FILE_OPEN_SCENE = 1,
+    ID_MENU_FILE_RELOAD_SCENE,
+    ID_MENU_FILE_SAVE_SCENE,
+    ID_MENU_FILE_SAVEAS_SCENE,
+    ID_MENU_FILE_EXIT = 1,
+    ID_MENU_EDIT_CREATE_OBJECT,
+    ID_MENU_EDIT_CREATE_TERRAIN,
+    ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER,
+    ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER,
+    ID_MENU_EDIT_LOAD_PREFAB,
+    ID_MENU_EDIT_CLEAR_SCENE,
+    ID_MENU_RENDERER_RELOAD_SHADERS,
+    ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT,
+    ID_MENU_RENDERER_SWAP,
+    ID_MENU_RENDERER_PHYSICS_VISUALIZATION,
+    ID_MENU_RENDERER_NORMAL_VISUALIZATION,
+    ID_MENU_RENDERER_TEXTURE_DIFFUSE,
+    ID_MENU_RENDERER_TEXTURE_NORMALS,
+    ID_MENU_RENDERER_TEXTURE_SPECULAR,
+    ID_MENU_RENDERER_TEXTURE_DISPLACEMENT,
     ID_FILE_EXPLORER,
-    ID_RELOAD_SHADERS,
-    ID_TAKE_RENDERER_SNAPSHOT,
-    ID_GL_INFO
+    ID_MENU_ABOUT_GL_INFO,
 };
 int id = 6;
 }  // namespace
@@ -34,10 +41,26 @@ int id = 6;
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_CLOSE(MainFrame::OnClose)
-    EVT_MENU(ID_CREATE_OBJECT, MainFrame::OnCreateObject)
-    EVT_MENU(ID_GL_INFO, MainFrame::OnGLVersion)
-    EVT_MENU(ID_OPEN_SCENE, MainFrame::OnOpenScene)
-    EVT_MENU(ID_EXIT, MainFrame::OnExit)
+    EVT_MENU(ID_MENU_FILE_OPEN_SCENE, MainFrame::MenuFileOpenScene)
+    EVT_MENU(ID_MENU_FILE_SAVE_SCENE, MainFrame::MenuFileSaveScene)
+    EVT_MENU(ID_MENU_FILE_SAVEAS_SCENE, MainFrame::MenuFileSaveSceneAs)
+    EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
+    EVT_MENU(ID_MENU_EDIT_CREATE_OBJECT, MainFrame::MenuEditCreateObject)
+    EVT_MENU(ID_MENU_EDIT_CREATE_TERRAIN, MainFrame::MenuEditCreateTerrain)
+    EVT_MENU(ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER, MainFrame::MenuEditTerrainHeightPainter)
+    EVT_MENU(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, MainFrame::MenuEditTerrainTexturePainter)
+    EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
+    EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
+    EVT_MENU(ID_MENU_RENDERER_RELOAD_SHADERS, MainFrame::MenuRendererReloadShaders)
+    EVT_MENU(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, MainFrame::MenuRendererTakeSnapshot)
+    EVT_MENU(ID_MENU_RENDERER_SWAP, MainFrame::MenuRendererSwap)
+    EVT_MENU(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, MainFrame::MenuRendererPhysicsVisualization)
+    EVT_MENU(ID_MENU_RENDERER_NORMAL_VISUALIZATION, MainFrame::MenuRendererNormalsVisualization)
+    EVT_MENU(ID_MENU_RENDERER_TEXTURE_DIFFUSE, MainFrame::MenuRendererTextureDiffuse)
+    EVT_MENU(ID_MENU_RENDERER_TEXTURE_NORMALS, MainFrame::MenuRendererTextureNormals)
+    EVT_MENU(ID_MENU_RENDERER_TEXTURE_SPECULAR, MainFrame::MenuRendererTextureSpecular)
+    EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuRendererTextureDisplacement)
+    EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
 wxEND_EVENT_TABLE()
@@ -88,96 +111,7 @@ void MainFrame::OnClose(wxCloseEvent& event)
     event.Skip();
 }
 
-void MainFrame::OnCreateObject(wxCommandEvent&)
-{
-    // gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, "Item " + std::to_string(id++), 0));
-}
-void MainFrame::OnExit(wxCommandEvent& event)
-{
-    Close(true);
-}
-void MainFrame::OnGLVersion(wxCommandEvent&)
-{
-    wxLogMessage(canvas->getGlInfo().c_str());
-}
-
-void MainFrame::CreateRootGameObject()
-{
-    treeRootId = gameObjectsView->AddRoot("Scene (Objects: 0)", 0);
-}
-
-void MainFrame::CreateMainMenu()
-{
-    wxMenu* menuAbout = new wxMenu;
-    menuAbout->Append(ID_GL_INFO, "&GLInfo\tCtrl-H", "Print opengl info");
-
-    wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(CreateFileMenu(), "&File");
-    menuBar->Append(CreateEditMenu(), "&Edit");
-    menuBar->Append(CreateRendererMenu(), "&Renderer");
-    menuBar->Append(menuAbout, "&About");
-    //  menuBar->Append(menuHelp, "&Help");
-    SetMenuBar(menuBar);
-}
-
-wxMenu* MainFrame::CreateFileMenu()
-{
-    wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_OPEN_SCENE, "&Open scene\tCtrl-O", "OpenScene");
-    menuFile->Append(ID_RELOAD_SCENE, "&Reload scene\tCtrl-O", "OpenScene");
-    menuFile->Append(ID_SAVE_SCENE, "&Save scene\tCtrl-S", "SaveScene");
-    menuFile->Append(ID_SAVEAS_SCENE, "&Save scene as\tCtrl-S", "SaveScene");
-    menuFile->Append(ID_EXIT, "&Exit\tCtrl-C", "Close editor");
-    return menuFile;
-}
-
-wxMenu* MainFrame::CreateEditMenu()
-{
-    wxMenu* menu = new wxMenu;
-    menu->Append(ID_CREATE_OBJECT, "&Create new object\tCtrl-A", "Create empty new object");
-    menu->Append(ID_CREATE_TERRAIN, "&Create terrain\tCtrl-A", "Create gameobject with terrain components");
-    menu->Append(ID_TERRAIN_HEIGHT_PAINTER, "&Terrain height painter \tCtrl-A", "Enable height painter tool");
-    menu->Append(ID_TERRAIN_TEXTURE_PAINTER, "&Terrain texture painter \tCtrl-A", "Enable terrain texture painter tool");
-    menu->Append(ID_LOAD_PREFAB, "&Load from prefab\tCtrl-A", "Create new object");
-    menu->Append(ID_CLEAR_SCENE, "&Clear\tCtrl-A", "Delete all object in scene");
-    return menu;
-}
-
-wxMenu* MainFrame::CreateRendererMenu()
-{
-    wxMenu* menu = new wxMenu;
-    menu->Append(ID_RELOAD_SHADERS, "&Reload shaders\tCtrl-A", "Reload current shaders");
-    menu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Take snapshot\tCtrl-A", "Create snapshot of renderer state");
-    menu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Swap render mode\tCtrl-A", "Switch between line and fill render mode");
-    menu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Visualize physics\tCtrl-A", "Enable/Disable of physics visualization");
-    menu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Visualize normals\tCtrl-A", "Enable/Disable of normals visualization");
-
-    wxMenu* texturesMenu = new wxMenu;
-    texturesMenu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Diffuse\tCtrl-A", "Enable/Disable of normals visualization");
-    texturesMenu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Normals\tCtrl-A", "Enable/Disable of normals visualization");
-    texturesMenu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Specular\tCtrl-A", "Enable/Disable of normals visualization");
-    texturesMenu->Append(ID_TAKE_RENDERER_SNAPSHOT, "&Displacment\tCtrl-A", "Enable/Disable of normals visualization");
-
-    menu->AppendSubMenu(texturesMenu, "&Texture rendering\tCtrl-A", "Enable/Disable of normals visualization");
-    return menu;
-}
-
-void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId parentId)
-{
-    for (const auto& child : gameObject.GetChildren())
-    {
-        auto name = child->GetName();
-        if (child->isPrefabricated())
-        {
-            name += " (prefab)";
-        }
-        auto itemId = gameObjectsView->AppendItem(parentId, name, 0);
-        // gameObjectsItemsIdsMap.insert({child->GetId(), itemId});
-        AddChilds(*child, itemId);
-    }
-}
-
-void MainFrame::OnOpenScene(wxCommandEvent&)
+void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 {
     wxFileDialog openFileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
                                 "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
@@ -205,6 +139,229 @@ void MainFrame::OnOpenScene(wxCommandEvent&)
     // loadSceneThread.detach();
     SetStatusText("Loading file " + file.GetBaseName());
 }
+
+void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
+{
+    if (not canvas->GetScene().GetFile().empty())
+    {
+        canvas->GetScene().SaveToFile();
+        return;
+    }
+
+    MenuFileSaveSceneAs(e);
+}
+
+void MainFrame::MenuFileSaveSceneAs(wxCommandEvent&)
+{
+    wxFileDialog fileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
+                            "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_SAVE);
+
+    if (fileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString path = fileDialog.GetPath();
+    canvas->GetScene().SaveToFile(std::string(path.c_str()));
+}
+
+void MainFrame::MenuFileExit(wxCommandEvent&)
+{
+    Close(true);
+}
+
+void MainFrame::MenuEditCreateObject(wxCommandEvent&)
+{
+    auto treeSelectedItemId = gameObjectsView->GetSelection();
+    auto goIter             = gameObjectsItemsIdsMap.find(treeSelectedItemId);
+    auto parentGameObjectId = canvas->GetScene().GetRootGameObject().GetId();
+    if (goIter != gameObjectsItemsIdsMap.end())
+    {
+        DEBUG_LOG("goIter found");
+        auto parentGameObject = canvas->GetScene().GetGameObject(goIter->second);
+        if (parentGameObject)
+        {
+            DEBUG_LOG("parentGameObject found");
+            parentGameObjectId = parentGameObject->GetId();
+        }
+    }
+    auto gameObject = AddGameObject("NewGameObject", parentGameObjectId);
+    AddGameObjectToWxWidgets(treeSelectedItemId, gameObject->GetId(), gameObject->GetName());
+}
+
+GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
+{
+    auto gameObject       = canvas->GetScene().CreateGameObject(name);
+    auto result           = gameObject.get();
+    auto parentGameObject = canvas->GetScene().GetGameObject(parentId);
+
+    if (parentGameObject)
+    {
+        auto go            = gameObject.get();
+        auto worldPosition = gameObject->GetWorldTransform().GetPosition();
+        auto worldRotation = gameObject->GetWorldTransform().GetRotation();
+        auto worldScale    = gameObject->GetWorldTransform().GetScale();
+        DEBUG_LOG("NewGameObj add");
+        parentGameObject->AddChild(std::move(gameObject));
+        go->SetWorldPosition(worldPosition);
+        go->SetWorldRotation(worldRotation);
+        go->SetWorldScale(worldScale);
+    }
+    else
+    {
+        DEBUG_LOG("NewGameObj add");
+        canvas->GetScene().AddGameObject(std::move(gameObject));
+    }
+
+    return result;
+}
+
+wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdType goId, const std::string& name)
+{
+    auto itemId = gameObjectsView->AppendItem(pranetItemId, name);
+    gameObjectsItemsIdsMap.insert({itemId, goId});
+    return itemId;
+}
+
+void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuEditTerrainHeightPainter(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuEditTerrainTexturePainter(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuEditClearScene(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererReloadShaders(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererTakeSnapshot(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererSwap(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererPhysicsVisualization(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
+{
+}
+
+void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
+{
+}
+
+void MainFrame::OnGLVersion(wxCommandEvent&)
+{
+    wxLogMessage(canvas->getGlInfo().c_str());
+}
+
+void MainFrame::CreateRootGameObject()
+{
+    treeRootId = gameObjectsView->AddRoot("Scene (Objects: 0)", 0);
+}
+
+void MainFrame::CreateMainMenu()
+{
+    wxMenuBar* menuBar = new wxMenuBar;
+    menuBar->Append(CreateFileMenu(), "&File");
+    menuBar->Append(CreateEditMenu(), "&Edit");
+    menuBar->Append(CreateRendererMenu(), "&Renderer");
+    menuBar->Append(CreateAboutMenu(), "&About");
+    SetMenuBar(menuBar);
+}
+
+wxMenu* MainFrame::CreateFileMenu()
+{
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(ID_MENU_FILE_OPEN_SCENE, "&Open scene\tCtrl-O", "OpenScene");
+    menuFile->Append(ID_MENU_FILE_RELOAD_SCENE, "&Reload scene\tCtrl-O", "OpenScene");
+    menuFile->Append(ID_MENU_FILE_SAVE_SCENE, "&Save scene\tCtrl-S", "SaveScene");
+    menuFile->Append(ID_MENU_FILE_SAVEAS_SCENE, "&Save scene as\tCtrl-S", "SaveScene");
+    menuFile->Append(ID_MENU_FILE_EXIT, "&Exit\tCtrl-C", "Close editor");
+    return menuFile;
+}
+
+wxMenu* MainFrame::CreateEditMenu()
+{
+    wxMenu* menu = new wxMenu;
+    menu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&Create new object\tCtrl-A", "Create empty new object");
+    menu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Create terrain\tCtrl-A", "Create gameobject with terrain components");
+    menu->Append(ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER, "&Terrain height painter \tCtrl-A", "Enable height painter tool");
+    menu->Append(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, "&Terrain texture painter \tCtrl-A",
+                 "Enable terrain texture painter tool");
+    menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab\tCtrl-A", "Create new object");
+    menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear\tCtrl-A", "Delete all object in scene");
+    return menu;
+}
+
+wxMenu* MainFrame::CreateRendererMenu()
+{
+    wxMenu* menu = new wxMenu;
+    menu->Append(ID_MENU_RENDERER_RELOAD_SHADERS, "&Reload shaders\tCtrl-A", "Reload current shaders");
+    menu->Append(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, "&Take snapshot\tCtrl-A", "Create snapshot of renderer state");
+    menu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode\tCtrl-A", "Switch between line and fill render mode");
+    menu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics\tCtrl-A", "Enable/Disable of physics visualization");
+    menu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals\tCtrl-A", "Enable/Disable of normals visualization");
+
+    wxMenu* texturesMenu = new wxMenu;
+    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_DIFFUSE, "&Diffuse\tCtrl-A", "Enable/Disable of normals visualization");
+    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_NORMALS, "&Normals\tCtrl-A", "Enable/Disable of normals visualization");
+    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_SPECULAR, "&Specular\tCtrl-A", "Enable/Disable of normals visualization");
+    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, "&Displacment\tCtrl-A",
+                         "Enable/Disable of normals visualization");
+
+    menu->AppendSubMenu(texturesMenu, "&Texture rendering\tCtrl-A", "Enable/Disable of normals visualization");
+    return menu;
+}
+
+wxMenu* MainFrame::CreateAboutMenu()
+{
+    wxMenu* menuAbout = new wxMenu;
+    menuAbout->Append(ID_MENU_ABOUT_GL_INFO, "&GLInfo\tCtrl-H", "Print opengl info");
+    return menuAbout;
+}
+
+void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId parentId)
+{
+    for (const auto& child : gameObject.GetChildren())
+    {
+        auto name = child->GetName();
+        if (child->isPrefabricated())
+        {
+            name += " (prefab)";
+        }
+        auto wxItemId = AddGameObjectToWxWidgets(parentId, child->GetId(), name);
+        AddChilds(*child, wxItemId);
+    }
+}
+
 void MainFrame::OnFileSelectChanged(wxTreeEvent& event)
 {
     if (fileExplorer)
@@ -226,9 +383,10 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
                               "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
                               "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
                               "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
-        if (is3Model && canvas->AddGameObject(file))
+        if (is3Model)
         {
-            gameObjectsItemsIds.Add(gameObjectsView->AppendItem(treeRootId, file.GetBaseName() + std::to_string(id++), 0));
+            auto id = canvas->AddGameObject(file);
+            AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), id, file.GetBaseName());
         }
     }
 }

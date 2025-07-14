@@ -1,13 +1,14 @@
 
 #pragma once
+#include <Types.h>
 #include <wx/frame.h>
 #include <wx/generic/dirctrlg.h>
+#include <wx/treebase.h>
 #include <wx/treectrl.h>
 #include <wx/wx.h>
-#include <wx/treebase.h>
-#include <unordered_map>
-#include <Types.h>
+
 #include <thread>
+#include <unordered_map>
 
 class GLCanvas;
 namespace GameEngine
@@ -15,17 +16,54 @@ namespace GameEngine
 class GameObject;
 }
 
+struct TreeItemIdHasher
+{
+    std::size_t operator()(const wxTreeItemId& id) const
+    {
+        return std::hash<void*>()(id.GetID());
+    }
+};
+
+struct TreeItemIdEqual
+{
+    bool operator()(const wxTreeItemId& lhs, const wxTreeItemId& rhs) const
+    {
+        return lhs == rhs;
+    }
+};
+
 class MainFrame : public wxFrame
 {
 public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
 
 private:
+    void MenuFileOpenScene(wxCommandEvent&);
+    void MenuFileSaveScene(wxCommandEvent&);
+    void MenuFileSaveSceneAs(wxCommandEvent&);
+    void MenuFileExit(wxCommandEvent&);
+
+    void MenuEditCreateObject(wxCommandEvent&);
+    void MenuEditCreateTerrain(wxCommandEvent&);
+    void MenuEditTerrainHeightPainter(wxCommandEvent&);
+    void MenuEditTerrainTexturePainter(wxCommandEvent&);
+    void MenuEditLoadPrefab(wxCommandEvent&);
+    void MenuEditClearScene(wxCommandEvent&);
+
+    void MenuRendererReloadShaders(wxCommandEvent&);
+    void MenuRendererTakeSnapshot(wxCommandEvent&);
+    void MenuRendererSwap(wxCommandEvent&);
+    void MenuRendererPhysicsVisualization(wxCommandEvent&);
+    void MenuRendererNormalsVisualization(wxCommandEvent&);
+    void MenuRendererTextureDiffuse(wxCommandEvent&);
+    void MenuRendererTextureNormals(wxCommandEvent&);
+    void MenuRendererTextureSpecular(wxCommandEvent&);
+    void MenuRendererTextureDisplacement(wxCommandEvent&);
+
     void OnClose(wxCloseEvent&);
-    void OnCreateObject(wxCommandEvent&);
+
     void OnGLVersion(wxCommandEvent&);
-    void OnOpenScene(wxCommandEvent&);
-    void OnExit(wxCommandEvent&);
+
     void OnFileSelectChanged(wxTreeEvent&);
     void OnFileActivated(wxTreeEvent&);
 
@@ -33,16 +71,19 @@ private:
     void CreateRootGameObject();
 
     void CreateMainMenu();
-    wxMenu *CreateFileMenu();
-    wxMenu *CreateEditMenu();
-    wxMenu *CreateRendererMenu();
+    wxMenu* CreateFileMenu();
+    wxMenu* CreateEditMenu();
+    wxMenu* CreateRendererMenu();
+    wxMenu* CreateAboutMenu();
+
+    GameEngine::GameObject* AddGameObject(const std::string& = "NewGameObject", IdType = 0);
+    wxTreeItemId AddGameObjectToWxWidgets(wxTreeItemId, IdType, const std::string&);
 
 private:
     GLCanvas* canvas;
     wxTreeCtrl* gameObjectsView;
     wxTreeItemId treeRootId;
-    wxArrayTreeItemIds gameObjectsItemsIds;
-    std::unordered_map<IdType, wxTreeItemId> gameObjectsItemsIdsMap;
+    std::unordered_map<wxTreeItemId, IdType, TreeItemIdHasher, TreeItemIdEqual> gameObjectsItemsIdsMap;
     wxGenericDirCtrl* fileExplorer;
     std::thread loadSceneThread;
     wxDECLARE_EVENT_TABLE();

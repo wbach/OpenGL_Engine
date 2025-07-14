@@ -39,14 +39,6 @@ Scene* SceneManager::GetActiveScene()
 {
     return sceneWrapper_.Get();
 }
-void SceneManager::InitActiveScene()
-{
-    if (!sceneWrapper_.IsInitialized())
-    {
-        DEBUG_LOG("SceneManager::InitActiveScene() active scene isn't initialized.");
-        return;
-    }
-}
 
 void SceneManager::Update()
 {

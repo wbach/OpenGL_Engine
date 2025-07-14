@@ -42,8 +42,6 @@ public:
         camera.SetPosition(vec3(2, 2, 2));
         camera.LookAt(vec3(0, 0.5, 0));
         camera.UpdateMatrix();
-
-        // RunNetworkEditorInterface();
         renderersManager_->GetDebugRenderer().Enable();
 
         return 0;
@@ -227,6 +225,16 @@ void GLCanvas::OpenScene(const GameEngine::File& file)
 GameObject& GLCanvas::GetRootObject()
 {
     return engine->GetSceneManager().GetActiveScene()->GetRootGameObject();
+}
+
+Engine &GLCanvas::GetEngine()
+{
+    return *engine;
+}
+
+Scene &GLCanvas::GetScene()
+{
+    return *engine->GetSceneManager().GetActiveScene();
 }
 
 void GLCanvas::OnShow(wxShowEvent&)
