@@ -33,7 +33,7 @@ class WxEditorScene : public GameEngine::Scene
 {
 public:
     WxEditorScene()
-        : GameEngine::Scene("WxEditorScene")
+        : GameEngine::Scene("WxEditorSceneDll")
     {
     }
     ~WxEditorScene() override = default;

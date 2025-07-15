@@ -2,6 +2,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
@@ -20,8 +21,8 @@ typedef std::unordered_map<std::string, uint32> IdMap;
 class SceneFactoryBase
 {
 public:
-    ScenePtr Create(const std::string&);
-    ScenePtr Create(uint32);
+    virtual ScenePtr Create(const std::string&);
+    virtual ScenePtr Create(uint32);
 
     virtual ~SceneFactoryBase() = default;
 
@@ -29,10 +30,11 @@ public:
     const std::string& GetSceneName(uint32 id);
     uint32 GetSceneId(const std::string& name);
 
-    bool IsExist(uint32 name) const;
-    bool IsExist(const std::string& name) const;
+    virtual bool IsExist(uint32 name) const;
+    virtual bool IsExist(const std::string& name) const;
     void SetEngineContext(EngineContext&);
     const IdMap& GetAvaiableScenes() const;
+    void Clear();
 
 protected:
     ScenePtr GetScene(const std::string& name);

@@ -1,6 +1,13 @@
 #include "SceneFactoryBase.h"
-#include "Logger/Log.h"
+
+#include <Logger/Log.h>
+#include <dlfcn.h>
+
+#include <filesystem>
+
 #include "Scene.hpp"
+
+typedef GameEngine::Scene* (*CreateSceneFromLib)();
 
 namespace GameEngine
 {
@@ -26,6 +33,29 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 }
 ScenePtr SceneFactoryBase::GetScene(const std::string& name)
 {
+    File potentialyLibFile("Libs/lib" + name + ".so");
+    DEBUG_LOG("Looking for scene lib file : " + potentialyLibFile.GetAbsoultePath());
+    if (std::filesystem::exists(potentialyLibFile.GetAbsoultePath()))
+    {
+        void* sceneLib = dlopen(potentialyLibFile.GetAbsoultePath().c_str(), RTLD_NOW);
+        if (sceneLib)
+        {
+            DEBUG_LOG("Scene lib found");
+            auto create = (CreateSceneFromLib) dlsym(sceneLib, "CreateScene");
+            if (create)
+            {
+                std::unique_ptr<Scene> scene(create());
+                DEBUG_LOG("Scene loaded from lib: " + scene->GetName());
+                SetMenagersAndApi(*scene.get());
+                return scene;
+            }
+        }
+        else
+        {
+            DEBUG_LOG("Scene lib open failed. Using default");
+        }
+    }
+    DEBUG_LOG("Scene lib not found. Using default");
     auto scene = scenesMap_[name]();
     SetMenagersAndApi(*scene.get());
     return scene;
@@ -64,8 +94,15 @@ void SceneFactoryBase::SetEngineContext(EngineContext& engineContext)
     engineContext_ = &engineContext;
 }
 
-const IdMap &SceneFactoryBase::GetAvaiableScenes() const
+const IdMap& SceneFactoryBase::GetAvaiableScenes() const
 {
     return idMap_;
+}
+
+void SceneFactoryBase::Clear()
+{
+    idMap_.clear();
+    orderMap_.clear();
+    scenesMap_.clear();
 }
 }  // namespace GameEngine
