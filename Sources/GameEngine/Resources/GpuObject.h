@@ -7,6 +7,12 @@ class GpuObject : public IGpuObject
 {
 public:
     GpuObject();
+    ~GpuObject();
+
+    GpuObject(const GpuObject&) = delete;
+    GpuObject(GpuObject&&)      = default;
+    GpuObject& operator=(GpuObject const&) = delete;
+
     void GpuLoadingPass() override = 0;
     void UpdateGpuPass() override;
     void ReleaseGpuPass() override = 0;

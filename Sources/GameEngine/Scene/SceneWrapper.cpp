@@ -54,7 +54,8 @@ void SceneWrapper::Init()
     SafeSetState(SceneWrapperState::Initializing);
     std::visit(visitor{[&](const auto& s)
                        {
-                           activeScene = SceneLoader(sceneFactory_, graphicsApi_, gpuResourceLoader_, displayManager_).Load(s);
+                           SceneLoader sceneLoader(sceneFactory_, graphicsApi_, gpuResourceLoader_, displayManager_);
+                           activeScene = sceneLoader.Load(s);
                            activeScene->SetAddSceneEventCallback(addSceneEventCallback);
                        }},
                sceneToLoad_);

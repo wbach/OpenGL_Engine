@@ -22,6 +22,31 @@
 #include <unistd.h>
 #endif
 #include <OpenGLApi/OpenGLApi.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <stdio.h>
+
+void bt_sighandler(int nSig)
+{
+    // printf("print_trace: got signal %d\n", nSig);
+    ERROR_LOG("print_trace: got signal " + std::to_string(nSig));
+
+    void* array[32]; /* Array to store backtrace symbols */
+    size_t size;     /* To store the exact no of values stored */
+    char** strings;  /* To store functions from the backtrace list in ARRAY */
+    size_t nCnt;
+
+    size = backtrace(array, 32);
+
+    strings = backtrace_symbols(array, size);
+
+    /* prints each string of function names of trace*/
+    for (nCnt = 0; nCnt < size; nCnt++)
+        // fprintf(stderr, "%s\n", strings[nCnt]);
+        ERROR_LOG(strings[nCnt]);
+
+    exit(-1);
+}
 
 namespace GameEngine
 {
@@ -95,6 +120,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     , isRunning_(true)
 {
     DEBUG_LOG("Start engine.");
+
+    signal(SIGSEGV, bt_sighandler);
     srand((unsigned)time(NULL));
     Components::RegisterReadFunctionForDefaultEngineComponents();
 

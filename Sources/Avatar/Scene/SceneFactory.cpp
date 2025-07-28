@@ -15,5 +15,6 @@ SceneFactory::SceneFactory()
     AddScene("GreenIsland", GameEngine::File{"Scenes/GreenIsland/GreenIsland.xml"});
     AddScene("SouthPole", GameEngine::File{"Scenes/SouthPole/SouthPole.xml"});
     AddScene("Kingdom", GameEngine::File{"Scenes/Kingdom/Kingdom.xml"});
+    AddScene("TestScene", GameEngine::File{"Scenes/TestScene.xml"});
 }
 }  // namespace AvatarGame

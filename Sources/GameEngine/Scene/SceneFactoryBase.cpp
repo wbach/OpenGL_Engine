@@ -71,7 +71,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 #ifdef USE_GNU
                     void* sceneLib = dlopen(potentialyLibFile.GetAbsoultePath().c_str(), RTLD_NOW);
 #else
-                    HMODULE sceneLib = LoadLibrary("plugin.dll");
+                    HMODULE sceneLib = LoadLibrary(potentialyLibFile.GetAbsoultePath().c_str());
 #endif
                     if (sceneLib)
                     {

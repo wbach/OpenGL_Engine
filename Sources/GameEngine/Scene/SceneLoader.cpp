@@ -64,7 +64,7 @@ std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
     DEBUG_LOG("Load scene :" + name);
     std::unique_ptr<Scene> scene;
     std::thread loadingThread([&]() { scene = LoadScene(name); });
-
+    DEBUG_LOG("loadingThread done: " + name);
     ScreenRenderLoop();
     loadingThread.join();
 

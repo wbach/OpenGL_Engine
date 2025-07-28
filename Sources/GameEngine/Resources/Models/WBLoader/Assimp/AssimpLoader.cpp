@@ -214,6 +214,8 @@ void AssimpLoader::ParseFile(const File& file)
     processSkeleton(*scene);
     processAnimations(*scene);
     importer.FreeScene();
+
+    DEBUG_LOG("Done. " + file.GetInitValue());
 }
 
 bool AssimpLoader::CheckExtension(const File& file)
