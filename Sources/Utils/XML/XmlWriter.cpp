@@ -104,28 +104,28 @@ private:
     std::unique_ptr<XmlNodeWrapper> root_;
 };
 
-void WriteNode(TreeNode& node, XmlNodeWrapper& nodeWrapper);
+void WriteNode(const TreeNode& node, XmlNodeWrapper& nodeWrapper);
 
-void WroteNodeMembers(TreeNode& parent, XmlNodeWrapper& node)
+void WroteNodeMembers(const TreeNode& parent, XmlNodeWrapper& node)
 {
-    for (auto& attribute : parent.attributes_)
+    for (const auto& attribute : parent.attributes_)
     {
         node = node.AddAtributte(attribute.first, attribute.second);
     }
 
-    for (auto& c : parent.getChildren())
+    for (const auto& c : parent.getChildren())
     {
         WriteNode(*c, node);
     }
 }
 
-void WriteNode(TreeNode& node, XmlNodeWrapper& nodeWrapper)
+void WriteNode(const TreeNode &node, XmlNodeWrapper& nodeWrapper)
 {
     auto child = nodeWrapper.AddChild(node.name(), node.value_);
     WroteNodeMembers(node, child);
 }
 
-void Xml::Write(const std::string& filename, TreeNode& root)
+void Xml::Write(const std::string& filename, const TreeNode& root)
 {
     auto parentPath = std::filesystem::path(filename).parent_path();
     if (not std::filesystem::exists(parentPath))
@@ -141,7 +141,7 @@ void Xml::Write(const std::string& filename, TreeNode& root)
     creator.Save(filename);
 }
 
-std::string Xml::Write(TreeNode& root)
+std::string Xml::Write(const TreeNode& root)
 {
     XmlCreator creator;
     auto& builderRoot = creator.CreateRoot(root.name(), root.value_);

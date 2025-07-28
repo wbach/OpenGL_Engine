@@ -7,6 +7,7 @@
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
+#include <GameEngine/Scene/ISceneStorage.h>
 
 #include <wx/glcanvas.h>
 #include <wx/timer.h>
@@ -20,6 +21,7 @@
 namespace WxEditor
 {
 class WxWindowApi;
+class WxEditorSceneFactory;
 }  // namespace WxEditor
 
 namespace GameEngine
@@ -61,5 +63,7 @@ private:
     DECLARE_EVENT_TABLE()
 
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
+    WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};
     std::unique_ptr<GameEngine::Engine> engine;
+    std::unique_ptr<GameEngine::ISceneStorage> sceneCache;
 };

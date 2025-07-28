@@ -11,7 +11,7 @@
 #include <Thread.hpp>
 
 #include "Avatar/Game/PauseMenu.h"
-#include "PauseMenuTheme.h"
+#include "Avatar/Game/PauseMenuTheme.h"
 
 using namespace GameEngine;
 
@@ -57,12 +57,7 @@ void MainMenu::prepareMenu()
     guiManager_->RegisterAction("LoadGame()", [&](auto&) {});
     guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
-    std::vector<std::string> scenes;
-    scenes.reserve(avaiableScenes_.size());
-    for(const auto&[name, _] : avaiableScenes_)
-        scenes.push_back(name);
-
-    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::MainMenu, *this, *guiElementFactory_, *guiManager_, scenes);
+    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::MainMenu, *this, *guiElementFactory_, avaiableScenes_);
     menu_->show();
 }
 }  // namespace AvatarGame

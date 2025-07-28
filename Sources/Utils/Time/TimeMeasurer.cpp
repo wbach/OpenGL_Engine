@@ -43,9 +43,14 @@ double CTimeMeasurer::GetDeltaTime() const
 
 void CTimeMeasurer::setLockFps(uint32 lockFps)
 {
-    vsync = lockFps > 0;
-    lockFps_ = lockFps;
+    vsync          = lockFps > 0;
+    lockFps_       = lockFps;
     lockframeTime_ = vsync ? E9 / lockFps_ : 0;
+}
+
+void CTimeMeasurer::clearCallbacks()
+{
+    callbacks_.clear();
 }
 
 int64 CTimeMeasurer::CalculateTime(const Timepoint& t1, const Timepoint& t2) const

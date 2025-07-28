@@ -32,7 +32,7 @@ namespace Components
 class ComponentFactory
 {
 public:
-    ComponentFactory(Scene&, ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&,
+    ComponentFactory(Scene&, ISceneManager&, ComponentController&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Time&,
                      Input::InputManager&, IResourceManager&, Renderer::RenderersManager&, CameraWrapper&,
                      Physics::IPhysicsApi&, GuiElementFactory&, Utils::Time::TimerService&);
 

@@ -19,7 +19,7 @@
 #include <Thread.hpp>
 
 #include "Avatar/Game/PauseMenu.h"
-#include "PauseMenuTheme.h"
+#include "Avatar/Game/PauseMenuTheme.h"
 
 using namespace GameEngine;
 
@@ -54,8 +54,8 @@ int Kingdom::Initialize()
     prepareMenu();
     keyOperations();
 
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/Kingdom/Kingdom.xml");
-    LoadFromFile(sceneFile);
+    //const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/Kingdom/Kingdom.xml");
+    //LoadFromFile(sceneFile);
 
     DEBUG_LOG("Kingdom::Initialized");
 
@@ -82,9 +82,8 @@ void Kingdom::prepareMenu()
                                     SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, 0);
                                     addSceneEvent(sceneEvent);
                                 });
-    guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
-    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::PauseMenu, *this, *guiElementFactory_, *guiManager_);
+    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::PauseMenu, *this, *guiElementFactory_);
 }
 
 void Kingdom::keyOperations()

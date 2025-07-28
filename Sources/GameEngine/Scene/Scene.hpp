@@ -24,7 +24,6 @@
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
-#include "ISceneStorage.h"
 #include "SceneEvents.h"
 #include "Types.h"
 
@@ -80,7 +79,6 @@ public:
     bool RemoveGameObject(GameObject&);
     void ClearGameObjects();
     void SetAddSceneEventCallback(AddEvent func);
-    GameObject* CloneGameObject(GameObject&);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
@@ -102,11 +100,6 @@ public:
     inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
 
-    void SaveToFile();
-    void SaveToFile(const File&);
-    void LoadFromFile(const File&);
-    GameObject* LoadPrefab(const File&, const std::string& = "");
-    void CreatePrefab(const File&, const GameObject&);
     void RunNetworkEditorInterface();
     void StopNetworkEditorInterface();
 
@@ -122,6 +115,7 @@ public:
 public:
     uint32 objectCount;
     std::function<void(EngineEvent)> addEngineEvent;
+    AddEvent addSceneEvent;
 
 protected:
     virtual int Initialize();
@@ -151,8 +145,6 @@ protected:
 
     std::string name;
     File file_;
-    AddEvent addSceneEvent;
-
 
     // Minimum one light on scene only (night - decrease strength)
     Time time_;
@@ -170,7 +162,6 @@ private:
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;
-    std::unique_ptr<ISceneStorage> sceneStorage_;
 
     friend class NetworkEditorInterface;
     friend class Debug::Console;

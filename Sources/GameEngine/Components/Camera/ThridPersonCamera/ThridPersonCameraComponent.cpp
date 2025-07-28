@@ -82,6 +82,7 @@ void ThridPersonCameraComponent::init()
 
     // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
     fsm->handle(InitEvent{});
+    componentContext_.inputManager_.SetReleativeMouseMode(true);
 }
 
 void ThridPersonCameraComponent::processEvent()

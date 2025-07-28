@@ -144,7 +144,7 @@ void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
 {
     if (not canvas->GetScene().GetFile().empty())
     {
-        canvas->GetScene().SaveToFile();
+      //  canvas->GetScene().SaveToFile();
         return;
     }
 
@@ -160,7 +160,7 @@ void MainFrame::MenuFileSaveSceneAs(wxCommandEvent&)
         return;
 
     wxString path = fileDialog.GetPath();
-    canvas->GetScene().SaveToFile(std::string(path.c_str()));
+   // canvas->GetScene().SaveToFile(std::string(path.c_str()));
 }
 
 void MainFrame::MenuFileExit(wxCommandEvent&)

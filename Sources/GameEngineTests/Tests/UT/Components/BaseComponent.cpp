@@ -11,9 +11,9 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , cameraWrapper_(cameraMock_)
     , guiFactoryEntryParameters_{guiManager_, inputManagerMock_, resourcesManager_, renderersManager_}
     , guiElementFactory_(guiFactoryEntryParameters_)
-    , context_(scene, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_, cameraWrapper_, physicsApiMock_,
+    , context_(scene, sceneManager, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_, cameraWrapper_, physicsApiMock_,
                resourcesManager_, renderersManager_, componentController_, guiElementFactory_, timerService_)
-    , componentFactory_(scene, componentController_, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_,
+    , componentFactory_(scene, sceneManager, componentController_, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_,
                         resourcesManager_, renderersManager_, cameraWrapper_, physicsApiMock_, guiElementFactory_, timerService_)
     , obj_("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)
 {

@@ -1,24 +1,30 @@
 #include "LoadingScreenRenderer.h"
+
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Engine/Configuration.h"
 
 namespace GameEngine
 {
-LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture& bgTexture, Texture& circleTexture)
+LoadingScreenRenderer::LoadingScreenRenderer(GraphicsApi::IGraphicsApi &api, Texture &bgTexture, Texture &circleTexture)
     : graphicsApi_(api)
     , shader_(api, GraphicsApi::ShaderProgramType::Loading)
     , circleTexture(circleTexture)
     , backgroundTexture(bgTexture)
     , circleMatrix_(1.f)
     , timer_(0, 16)
+    , isInit_{false}
 {
 }
 
 LoadingScreenRenderer::~LoadingScreenRenderer()
 {
+    if (isInit_)
+    {
+        cleanUp();
+    }
 }
 
 void LoadingScreenRenderer::init()
@@ -28,10 +34,8 @@ void LoadingScreenRenderer::init()
     const auto windowSize = graphicsApi_.GetWindowApi().GetWindowSize();
     graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
 
-    timer_.AddOnTickCallback([this]()
-    {
-        circleMatrix_ *= glm::rotate(glm::radians(-1.f), glm::vec3(0.f, 0.f, 1.f));
-    });
+    timer_.AddOnTickCallback([this]() { circleMatrix_ *= glm::rotate(glm::radians(-1.f), glm::vec3(0.f, 0.f, 1.f)); });
+    isInit_ = true;
 }
 
 void LoadingScreenRenderer::render()
@@ -51,6 +55,18 @@ void LoadingScreenRenderer::render()
 void LoadingScreenRenderer::reloadShaders()
 {
     shader_.Reload();
+}
+
+void LoadingScreenRenderer::cleanUp()
+{
+    timer_.clearCallbacks();
+    shader_.Stop();
+    shader_.Clear();
+    if (backgroundBufferId_)
+        graphicsApi_.DeleteShaderBuffer(*backgroundBufferId_);
+    if (circleBufferId_)
+        graphicsApi_.DeleteShaderBuffer(*circleBufferId_);
+    isInit_ = false;
 }
 
 void LoadingScreenRenderer::prepareRender()
@@ -89,8 +105,8 @@ void LoadingScreenRenderer::CreateBuffers()
     if (not circleBufferId_)
     {
         circleBufferId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
-        circleMatrix_ = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), DegreesVec3(0), vec3(0.1f));
-       
+        circleMatrix_   = Utils::CreateTransformationMatrix(vec3(0.81, -0.75, -0.1), DegreesVec3(0), vec3(0.1f));
+
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
         graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &perObjectUpdate_);

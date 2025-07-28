@@ -1,11 +1,17 @@
 #include "SceneFactoryBase.h"
 
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
+#include <Utils/XML/XmlReader.h>
+#include <Utils/XML/XmlWriter.h>
 #include <dlfcn.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
 #include "Scene.hpp"
+#include "SceneDef.h"
+#include "SceneReader.h"
 
 typedef GameEngine::Scene* (*CreateSceneFromLib)();
 
@@ -31,46 +37,99 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 
     return GetScene(GetSceneName(id));
 }
-ScenePtr SceneFactoryBase::GetScene(const std::string& name)
+
+ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 {
-    File potentialyLibFile("Libs/lib" + name + ".so");
-    DEBUG_LOG("Looking for scene lib file : " + potentialyLibFile.GetAbsoultePath());
-    if (std::filesystem::exists(potentialyLibFile.GetAbsoultePath()))
+    std::string sceneName = file.GetBaseName();
+    Utils::XmlReader xmlReader;
+    TreeNode* sceneNode{nullptr};
+    std::unique_ptr<Scene> scene;
+
+    if (xmlReader.Read(file.GetAbsoultePath()))
     {
-        void* sceneLib = dlopen(potentialyLibFile.GetAbsoultePath().c_str(), RTLD_NOW);
-        if (sceneLib)
+        sceneNode = xmlReader.Get(CSTR_SCENE);
+        if (sceneNode)
         {
-            DEBUG_LOG("Scene lib found");
-            auto create = (CreateSceneFromLib) dlsym(sceneLib, "CreateScene");
-            if (create)
+            auto maybeNameAtt = sceneNode->attributes_.find("name");
+            if (maybeNameAtt != sceneNode->attributes_.end())
             {
-                std::unique_ptr<Scene> scene(create());
-                DEBUG_LOG("Scene loaded from lib: " + scene->GetName());
-                SetMenagersAndApi(*scene.get());
-                return scene;
+                sceneName = maybeNameAtt->second;
+            }
+
+            auto maybeSceneFile = sceneNode->getChild("file");
+
+            if (maybeSceneFile)
+            {
+                File potentialyLibFile(maybeSceneFile->value_);
+                if (std::filesystem::exists(potentialyLibFile.GetAbsoultePath()))
+                {
+                    void* sceneLib = dlopen(potentialyLibFile.GetAbsoultePath().c_str(), RTLD_NOW);
+                    if (sceneLib)
+                    {
+                        DEBUG_LOG("Scene lib found");
+                        auto create = (CreateSceneFromLib)dlsym(sceneLib, "CreateScene");
+                        if (create)
+                        {
+                            scene = std::unique_ptr<Scene>(create());
+                            DEBUG_LOG("Scene loaded from lib: " + scene->GetName());
+                        }
+                        else
+                        {
+                        }
+                    }
+                    else
+                    {
+                        DEBUG_LOG("Scene lib open failed. Using default");
+                    }
+                }
             }
         }
-        else
-        {
-            DEBUG_LOG("Scene lib open failed. Using default");
-        }
     }
-    DEBUG_LOG("Scene lib not found. Using default");
-    auto scene = scenesMap_[name]();
+
+    if (not scene)
+    {
+        scene = std::make_unique<Scene>(sceneName);
+    }
+
     SetMenagersAndApi(*scene.get());
+
+    if (sceneNode)
+    {
+        SceneReader::readNode(*sceneNode, *scene);
+    }
     return scene;
+}
+ScenePtr SceneFactoryBase::GetScene(const std::string& name)
+{
+    auto iter = scenesMap_.find(name);
+    if (iter != scenesMap_.end())
+    {
+        auto [_, method] = *iter;
+        auto scene       = std::visit(
+                  visitor{
+                [&](const CreateFunction& createFunc)
+                {
+                    auto scene = createFunc();
+                    scene->InitResources(*engineContext_);
+                    return scene;
+                },
+                [&](const File& file) { return CreateSceneBasedOnFile(file); },
+                [](const std::monostate&)
+                {
+                    ERROR_LOG("Image data is not set!");
+                    return nullptr;
+                },
+            },
+                  method);
+
+        return scene;
+    }
+
+    return nullptr;
 }
 void SceneFactoryBase::SetMenagersAndApi(Scene& scene)
 {
     scene.InitResources(*engineContext_);
-}
-void SceneFactoryBase::AddScene(const std::string& sceneName, CreateFunction func)
-{
-    auto currentId = static_cast<uint32>(scenesMap_.size());
-
-    idMap_[sceneName]     = currentId;
-    orderMap_[currentId]  = sceneName;
-    scenesMap_[sceneName] = func;
 }
 const std::string& SceneFactoryBase::GetSceneName(uint32 id)
 {

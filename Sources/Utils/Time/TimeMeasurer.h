@@ -23,6 +23,7 @@ public:
     int64 GetFps() const;
     double GetDeltaTime() const;
     void setLockFps(uint32);
+    void clearCallbacks();
 
 private:
     int64 CalculateTime(const Timepoint&, const Timepoint&) const;

@@ -1,5 +1,7 @@
 #include "CharacterControllerTests.h"
 
+#include "GameEngine/Physics/IPhysicsApi.h"
+
 MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for CollisionDetection")
 {
     return (arg.action == action);
@@ -19,11 +21,12 @@ CharacterControllerTests::CharacterControllerTests()
     EXPECT_CALL(physicsApiMock_, CreateRigidbody(shapeId, _, _, _, _)).WillOnce(Return(rigidbodyid));
 
     EXPECT_CALL(physicsApiMock_,
-                setCollisionCallback(_, CollisionDetectionActionMatcher(Physics::CollisionDetection::Action::onExit)))
+                setCollisionCallback(_, CollisionDetectionActionMatcher(GameEngine::Physics::CollisionDetection::Action::onExit)))
         .WillOnce(DoAll(SaveArg<1>(&groundExitSub.second), Return(groundExitSub.first)));
 
-    EXPECT_CALL(physicsApiMock_,
-                setCollisionCallback(_, CollisionDetectionActionMatcher(Physics::CollisionDetection::Action::onEnter)))
+    EXPECT_CALL(
+        physicsApiMock_,
+        setCollisionCallback(_, CollisionDetectionActionMatcher(GameEngine::Physics::CollisionDetection::Action::onEnter)))
         .WillOnce(DoAll(SaveArg<1>(&groundEnterSub.second), Return(groundEnterSub.first)));
 
     animator_  = &obj_.AddComponent<Animator>();

@@ -8,10 +8,16 @@
 
 namespace GameEngine
 {
-SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<SceneFactoryBase> sceneFactory)
+std::unique_ptr<ISceneFactory> setEngineContext(EngineContext& context, std::unique_ptr<ISceneFactory> factory)
+{
+    factory->SetEngineContext(context);
+    return factory;
+}
+
+SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<ISceneFactory> sceneFactory)
     : engineContext_(engineContext)
-    , sceneFactory_(std::move(sceneFactory))
-    , sceneWrapper_(engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(),
+    , sceneFactory_ (setEngineContext(engineContext, std::move(sceneFactory)))
+    , sceneWrapper_(*sceneFactory_, engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(),
                     engineContext.GetGpuResourceLoader())
     , currentSceneId_(0)
     , isRunning_(false)
@@ -101,11 +107,6 @@ void SceneManager::Reset()
     sceneWrapper_.Reset();
 }
 
-void SceneManager::SetFactor()
-{
-    sceneFactory_->SetEngineContext(engineContext_);
-}
-
 void SceneManager::UpdateScene(float dt)
 {
     if (not sceneWrapper_.IsInitialized())
@@ -173,9 +174,7 @@ template <class T>
 void SceneManager::JustLoadScene(T scene)
 {
     sceneWrapper_.Reset();
-    auto s = sceneFactory_->Create(scene);
-    SetSceneContext(s.get());
-    sceneWrapper_.Set(std::move(s));
+    sceneWrapper_.Set(scene, std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
 }
 
 void SceneManager::LoadScene(uint32 id)
@@ -234,6 +233,11 @@ void SceneManager::Stop()
     {
         WARNING_LOG("Scene is not started.");
     }
+}
+
+const IdMap &SceneManager::GetAvaiableScenes() const
+{
+    return sceneFactory_->GetAvaiableScenes();
 }
 
 }  // namespace GameEngine

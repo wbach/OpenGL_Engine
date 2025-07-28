@@ -33,7 +33,7 @@ class WxEditorScene : public GameEngine::Scene
 {
 public:
     WxEditorScene()
-        : GameEngine::Scene("WxEditorSceneDll")
+        : GameEngine::Scene("NewScene")
     {
     }
     ~WxEditorScene() override = default;
@@ -60,7 +60,11 @@ class WxEditorSceneFactory : public GameEngine::SceneFactoryBase
 public:
     WxEditorSceneFactory()
     {
-        AddScene("WxEditorScene", []() { return std::make_unique<WxEditorScene>(); });
+        GameEngine::SceneFactoryBase::AddScene("NewScene", []() { return std::make_unique<WxEditorScene>(); });
+    }
+    void AddScene(const std::string& sceneName, const File& file)
+    {
+        GameEngine::SceneFactoryBase::AddScene(sceneName, file);
     }
 };
 const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,    1, WX_GL_MIN_BLUE,
@@ -98,13 +102,13 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     wxSize size = GetClientSize();
     if (not engine)
     {
-        auto windowApiPtr  = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y});
-        wxWindowApi        = windowApiPtr.get();
-        auto openglWrapper = std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr));
+        auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y});
+        wxWindowApi               = windowApiPtr.get();
+        auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
+        wxSceneFactory            = wxEditorSceneFactory.get();
 
-        engine =
-            std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(),
-                                                 std::make_unique<WxEditor::WxEditorSceneFactory>(), std::move(openglWrapper));
+        engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
+                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
         engine->GetSceneManager().SetActiveScene("WxEditorScene");
     }
@@ -145,7 +149,7 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
 
 void GLCanvas::OnKeyDown(wxKeyEvent& event)
 {
-    if (event.GetKeyCode() == 27) // ESC
+    if (event.GetKeyCode() == 27)  // ESC
     {
         DEBUG_LOG("Escape");
         GetParent()->SetFocus();
@@ -217,9 +221,10 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
 
 void GLCanvas::OpenScene(const GameEngine::File& file)
 {
-    auto scene = engine->GetSceneManager().GetActiveScene();
-    scene->ClearGameObjects();
-    scene->LoadFromFile(file);
+    // wxSceneFactory->Ad
+    //    auto scene = engine->GetSceneManager().GetActiveScene();
+    //    scene->ClearGameObjects();
+    //  scene->LoadFromFile(file);
 }
 
 GameObject& GLCanvas::GetRootObject()
@@ -227,12 +232,12 @@ GameObject& GLCanvas::GetRootObject()
     return engine->GetSceneManager().GetActiveScene()->GetRootGameObject();
 }
 
-Engine &GLCanvas::GetEngine()
+Engine& GLCanvas::GetEngine()
 {
     return *engine;
 }
 
-Scene &GLCanvas::GetScene()
+Scene& GLCanvas::GetScene()
 {
     return *engine->GetSceneManager().GetActiveScene();
 }

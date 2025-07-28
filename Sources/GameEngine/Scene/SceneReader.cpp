@@ -14,11 +14,6 @@ namespace GameEngine
 {
 namespace SceneReader
 {
-namespace
-{
-Scene* currentReadingScene = nullptr;
-}
-
 void Read(const TreeNode& node, common::Transform& tranfsorm)
 {
     vec3 position(0), rotation(0), scale(1);
@@ -81,7 +76,6 @@ void ReadPrefab(const TreeNode& node, Scene& scene)
         loadPrefab(scene, maybeFileNameNode->value_);
     }
 }
-
 
 void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
 {
@@ -153,8 +147,6 @@ GameObject* loadPrefab(Scene& scene, const File& file, const std::string& gameOb
         return nullptr;
     }
 
-    currentReadingScene = &scene;
-
     auto maybePrefabNode = xmlReader.Get(CSTR_PREFAB);
     if (not maybePrefabNode)
     {
@@ -177,13 +169,24 @@ std::unique_ptr<GameObject> createGameObjectFromPrefabNode(Scene& scene, const T
 }
 std::unique_ptr<GameObject> createGameObject(const TreeNode& node, Scene& scene)
 {
+    std::string name;
+    if (node.attributes_.count(CSTR_NAME))
+    {
+        name = node.attributes_.at(CSTR_NAME);
+    }
+    else
+    {
+        static int nonameid = 0;
+        name = std::string{"NoName_" + std::to_string(nonameid++)};
+    }
+
     if (node.attributes_.count(CSTR_ID))
     {
         uint32 id = std::stoi(node.attributes_.at(CSTR_ID));
-        return scene.CreateGameObject(node.attributes_.at(CSTR_NAME), id);
+        return scene.CreateGameObject(name, id);
     }
 
-    return scene.CreateGameObject(node.attributes_.at(CSTR_NAME));
+    return scene.CreateGameObject(name);
 }
 
 void readNode(const TreeNode& node, Scene& scene)
@@ -232,7 +235,6 @@ std::optional<TreeNode> loadScene(Scene& scene, const File& file)
     if (not xmlReader.Read(file.GetAbsoultePath()))
         return std::nullopt;
 
-    currentReadingScene = &scene;
     auto sceneNode = xmlReader.Get(CSTR_SCENE);
     if (sceneNode)
     {
@@ -242,5 +244,6 @@ std::optional<TreeNode> loadScene(Scene& scene, const File& file)
 
     return std::nullopt;
 }
+
 }  // namespace SceneReader
 }  // namespace GameEngine

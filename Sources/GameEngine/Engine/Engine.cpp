@@ -3,6 +3,7 @@
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
 
 #include "Configuration.h"
 #include "EngineContext.h"
@@ -85,14 +86,15 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
     return graphicsApi;
 }
 
-Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<SceneFactoryBase> sceneFactory,
+Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<ISceneFactory> sceneFactory,
                std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi)
     : readConfiguration_()
-    , engineContext_(graphicsApi ? std::move(graphicsApi) : createGraphicsApi(), std::move(physicsApi))
-    , sceneManager_(engineContext_, std::move(sceneFactory))
+    , engineContext_(graphicsApi ? std::move(graphicsApi) : createGraphicsApi(), std::move(physicsApi), std::move(sceneFactory))
+    //, sceneManager_(engineContext_, std::move(sceneFactory))
     , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
+    DEBUG_LOG("Start engine.");
     srand((unsigned)time(NULL));
     Components::RegisterReadFunctionForDefaultEngineComponents();
 
@@ -120,7 +122,6 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 
     engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
     introRenderer_.Render();
-    sceneManager_.SetFactor();
 
     engineContext_.GetPhysicsApi().DisableSimulation();
     physicsThreadId_ = engineContext_.GetThreadSync().Subscribe(
@@ -143,16 +144,22 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
                 engineContext_.GetPhysicsApi().disableVisualizationForAllRigidbodys();
             }
         });
+
+    quitApiSubId_ = engineContext_.GetGraphicsApi().GetWindowApi().SubscribeForEvent(
+        [&](const auto& event) {
+            std::visit(visitor{[&](const GraphicsApi::QuitEvent&) { Quit(); }, [](const GraphicsApi::DropFileEvent&) {}}, event);
+        });
 }
 
 Engine::~Engine()
 {
+    engineContext_.GetGraphicsApi().GetWindowApi().UnsubscribeForEvent(quitApiSubId_);
     EngineConf.debugParams.showPhycicsVisualization.unsubscribe(showPhycicsVisualizationSub_);
     engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
     DEBUG_LOG("destructor");
-    sceneManager_.Reset();
+    engineContext_.GetSceneManager().Reset();
     EngineConf_SaveRequiredFiles();
 }
 
@@ -175,9 +182,9 @@ void Engine::GameLoop()
     CheckThreadsBeforeQuit();
 }
 
-SceneManager& Engine::GetSceneManager()
+ISceneManager& Engine::GetSceneManager()
 {
-    return sceneManager_;
+    return engineContext_.GetSceneManager();
 }
 
 EngineContext& Engine::GetEngineContext()
@@ -194,9 +201,9 @@ void Engine::MainLoop()
 
     engineContext_.GetInputManager().GetPressedKeys();
     displayManager.ProcessEvents();
-    sceneManager_.Update();
+    engineContext_.GetSceneManager().Update();
     engineContext_.GetGraphicsApi().PrepareFrame();
-    auto scene = sceneManager_.GetActiveScene();
+    auto scene = engineContext_.GetSceneManager().GetActiveScene();
     if (scene)
     {
         engineContext_.GetRenderersManager().renderScene(*scene);
@@ -234,7 +241,7 @@ void Engine::ProcessEngineEvents()
 
 void Engine::Quit()
 {
-    sceneManager_.Stop();
+    engineContext_.GetSceneManager().Stop();
     isRunning_ = false;
 }
 

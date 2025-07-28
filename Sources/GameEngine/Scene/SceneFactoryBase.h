@@ -1,45 +1,39 @@
 #pragma once
-#include <functional>
-#include <memory>
-#include <unordered_map>
-
-#include "GameEngine/Physics/IPhysicsApi.h"
-#include "GraphicsApi/IGraphicsApi.h"
-#include "Types.h"
+#include "ISceneFactory.h"
 
 namespace GameEngine
 {
-class Scene;
-class EngineContext;
-
-typedef std::unique_ptr<Scene> ScenePtr;
-typedef std::function<ScenePtr()> CreateFunction;
-typedef std::unordered_map<std::string, CreateFunction> ScenesMap;
-typedef std::unordered_map<uint32, std::string> OrderMap;
-typedef std::unordered_map<std::string, uint32> IdMap;
-
-class SceneFactoryBase
+class SceneFactoryBase : public ISceneFactory
 {
 public:
-    virtual ScenePtr Create(const std::string&);
-    virtual ScenePtr Create(uint32);
+    ScenePtr Create(const std::string&) override;
+    ScenePtr Create(uint32) override;
+    ScenePtr CreateSceneBasedOnFile(const File&) override;
 
-    virtual ~SceneFactoryBase() = default;
+    inline uint32 ScenesSize() override;
+    const std::string& GetSceneName(uint32 id) override;
+    uint32 GetSceneId(const std::string& name) override;
+    const IdMap& GetAvaiableScenes() const override;
 
-    inline uint32 ScenesSize();
-    const std::string& GetSceneName(uint32 id);
-    uint32 GetSceneId(const std::string& name);
+    bool IsExist(uint32 name) const override;
+    bool IsExist(const std::string& name) const override;
 
-    virtual bool IsExist(uint32 name) const;
-    virtual bool IsExist(const std::string& name) const;
-    void SetEngineContext(EngineContext&);
-    const IdMap& GetAvaiableScenes() const;
-    void Clear();
+    void SetEngineContext(EngineContext&) override;
+    void Clear() override;
 
 protected:
     ScenePtr GetScene(const std::string& name);
     void SetMenagersAndApi(Scene& scene);
-    void AddScene(const std::string&, CreateFunction);
+
+    template <typename Method>
+    void AddScene(const std::string& sceneName, const Method& method)
+    {
+        auto currentId = static_cast<uint32>(scenesMap_.size());
+
+        idMap_[sceneName]     = currentId;
+        orderMap_[currentId]  = sceneName;
+        scenesMap_[sceneName] = method;
+    }
 
 private:
     EngineContext* engineContext_;

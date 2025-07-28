@@ -96,9 +96,8 @@ public:
         bool focusToChild{false};
     };
 
-    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&);
-    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&, GameEngine::GuiManager&,
-              const std::vector<std::string>&);
+    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&);
+    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&, const std::unordered_map<std::string, uint32>&);
     ~PauseMenu();
 
     void show();
@@ -149,7 +148,7 @@ private:
     std::vector<std::function<void()>> events_;
 
     const vec2 menuButtonSize_;
-    std::vector<std::string> avaiableScenes_;
+    std::unordered_map<std::string, uint32> avaiableScenes_;
 
     std::vector<std::pair<uint32, GameEngine::Params::IConfigurationParam*>> paramChangeSubs_;
 

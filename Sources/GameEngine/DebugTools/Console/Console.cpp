@@ -234,7 +234,7 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
     const auto &filename = params[0];
     const auto &name     = params[1];
 
-    scene_.LoadPrefab(filename, name);
+    //scene_.LoadPrefab(filename, name);
 }
 
 void Console::SetPosition(const std::vector<std::string> &args)
@@ -370,11 +370,11 @@ void Console::SaveScene(const std::vector<std::string> &params)
 {
     if (params.empty())
     {
-        scene_.SaveToFile();
+        //scene_.SaveToFile();
     }
     else
     {
-        scene_.SaveToFile(params[0]);
+       // scene_.SaveToFile(params[0]);
     }
 }
 

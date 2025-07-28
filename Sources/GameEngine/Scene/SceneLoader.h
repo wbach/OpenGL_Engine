@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include <memory>
+
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "Thread.hpp"
@@ -8,6 +9,7 @@
 namespace GameEngine
 {
 class Scene;
+class ISceneFactory;
 class GpuObject;
 class DisplayManager;
 class ResourceManager;
@@ -16,13 +18,17 @@ class LoadingScreenRenderer;
 class SceneLoader
 {
 public:
-    SceneLoader(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&);
+    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&);
     ~SceneLoader();
-    void Load(Scene&);
+    std::unique_ptr<Scene> Load(uint32);
+    std::unique_ptr<Scene> Load(const std::string&);
 
 private:
     void Init();
-    void LoadScene(Scene&);
+
+    template <typename T>
+    std::unique_ptr<Scene> LoadScene(T);
+
     void IsLoading(bool);
     bool IsLoading();
     void UpdateScreen();
@@ -30,6 +36,7 @@ private:
     void CheckObjectCount(Scene&);
 
 private:
+    ISceneFactory& sceneFactory_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     DisplayManager& displayManager_;
     std::atomic_bool isLoading_;

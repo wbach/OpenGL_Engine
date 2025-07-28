@@ -17,6 +17,7 @@ public:
     void init() override;
     void render() override;
     void reloadShaders() override;
+    void cleanUp() override;
 
 private:
     void prepareRender();
@@ -33,5 +34,6 @@ private:
     Texture& backgroundTexture;
     mat4 circleMatrix_;
     Utils::Time::CTimeMeasurer timer_;
+    bool isInit_;
 };
 }  // namespace GameEngine

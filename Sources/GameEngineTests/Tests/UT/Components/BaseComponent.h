@@ -23,6 +23,7 @@
 #include "GameEngineTests/Tests/Mocks/Camera/CameraMock.h"
 #include "GameEngineTests/Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "GameEngineTests/Tests/Mocks/Resources/GpuResourceLoaderMock.h"
+#include "GameEngineTests/Tests/Mocks/Scene/SceneManagerMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -49,6 +50,7 @@ public:
     Utils::Time::TimerService timerService_;
     ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
     Scene scene;
+    SceneManagerMock sceneManager;
     ResourceManager resourcesManager_;
     Renderer::RenderersManager renderersManager_;
     CameraMock cameraMock_;

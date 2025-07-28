@@ -284,6 +284,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneWriter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneWrapper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneReader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/Scene.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneFactoryBase.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/SceneLoader.cpp

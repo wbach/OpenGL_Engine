@@ -19,7 +19,7 @@
 #include <Thread.hpp>
 
 #include "Avatar/Game/PauseMenu.h"
-#include "PauseMenuTheme.h"
+#include "Avatar/Game/PauseMenuTheme.h"
 
 using namespace GameEngine;
 
@@ -43,12 +43,12 @@ int Gorzow::Initialize()
     prepareMenu();
     keyOperations();
 
-    const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/Gorzow/Gorzow.xml");
+    //const std::string sceneFile = EngineConf_GetFullDataPath("Scenes/Gorzow/Gorzow.xml");
     camera.SetPosition(vec3(1, 1, 1));
     camera.LookAt(vec3(0));
     inputManager_->SetReleativeMouseMode(true);
 
-    LoadFromFile(sceneFile);
+    //LoadFromFile(sceneFile);
 
     DEBUG_LOG("Gorzow::Initialized");
     return 0;
@@ -72,7 +72,7 @@ void Gorzow::prepareMenu()
     });
     guiManager_->RegisterAction("ExitGame()", [&](auto&) { addEngineEvent(EngineEvent::QUIT); });
 
-    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::PauseMenu, *this, *guiElementFactory_, *guiManager_);
+    menu_ = std::make_unique<PauseMenu>(PauseMenu::State::PauseMenu, *this, *guiElementFactory_);
 }
 
 void Gorzow::keyOperations()

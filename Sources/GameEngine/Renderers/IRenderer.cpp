@@ -29,4 +29,9 @@ void IRenderer::unSubscribe(GameObject&)
 void IRenderer::unSubscribeAll()
 {
 }
+
+void IRenderer::cleanUp()
+{
+
+}
 } // GameEngine

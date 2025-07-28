@@ -33,7 +33,6 @@ Scene::Scene(const std::string& name)
     , directionalLight(vec3(1000.f, 15000.f, 10000.f), vec3(.8f))
     , simulatePhysics_(true)
     , start_(false)
-    , sceneStorage_(std::make_unique<XmlSceneStorage>(*this))
 {
 }
 
@@ -78,7 +77,7 @@ void Scene::InitResources(EngineContext& context)
     console_ = std::make_unique<Debug::Console>(*this);
 
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
-        *this, componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_, *inputManager_,
+        *this, context.GetSceneManager(), componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_, *inputManager_,
         *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_, *timerService_);
 
     rootGameObject_ = CreateGameObject("root");
@@ -138,8 +137,6 @@ void Scene::PostUpdate()
 void Scene::Start()
 {
     DEBUG_LOG("Start");
-    sceneStorage_->store();
-
     start_.store(true);
     if (physicsApi_)
         physicsApi_->EnableSimulation();
@@ -149,13 +146,8 @@ void Scene::Stop()
 {
     DEBUG_LOG("Stop");
     start_.store(false);
-
     if (physicsApi_)
         physicsApi_->DisableSimulation();
-
-    resourceManager_->LockReleaseResources();
-    sceneStorage_->restore();
-    resourceManager_->UnlockReleaseResources();
 }
 
 bool Scene::isStarted() const
@@ -249,11 +241,6 @@ void Scene::SetAddSceneEventCallback(AddEvent func)
     addSceneEvent = func;
 }
 
-GameObject* Scene::CloneGameObject(GameObject& gameObject)
-{
-    return sceneStorage_->clone(gameObject);
-}
-
 GameObject* Scene::GetGameObject(uint32 id) const
 {
     if (gameObjectsIds_.count(id))
@@ -299,45 +286,6 @@ const Light& Scene::GetDirectionalLight() const
 const std::vector<Light>& Scene::GetLights() const
 {
     return lights;
-}
-void Scene::SaveToFile()
-{
-    DEBUG_LOG("Save scene to file : " + file_.GetAbsoultePath());
-    sceneStorage_->saveToFile(file_);
-    DEBUG_LOG("Scene save complete  , file : " + file_.GetAbsoultePath());
-}
-void Scene::SaveToFile(const File& file)
-{
-    DEBUG_LOG("Save scene to file : " + file.GetAbsoultePath());
-    sceneStorage_->saveToFile(file);
-    DEBUG_LOG("Scene save complete  , file : " + file.GetAbsoultePath());
-}
-void Scene::LoadFromFile(const File& file)
-{
-    start_.store(false);
-
-    if (physicsApi_)
-        physicsApi_->DisableSimulation();
-
-    DEBUG_LOG("Load scene from file : " + file.GetAbsoultePath());
-    file_ = file;
-    sceneStorage_->readFromFile(file);
-    DEBUG_LOG("Load scene from file : \"" + file.GetAbsoultePath() + "\" complete");
-
-    start_.store(true);
-
-    if (physicsApi_)
-        physicsApi_->EnableSimulation();
-}
-
-GameObject* Scene::LoadPrefab(const File& file, const std::string& gameObjectName)
-{
-    return sceneStorage_->loadPrefab(file, gameObjectName);
-}
-
-void Scene::CreatePrefab(const File& file, const GameObject& gameObject)
-{
-    sceneStorage_->createPrefab(file, gameObject);
 }
 
 int Scene::Initialize()

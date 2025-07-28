@@ -23,23 +23,22 @@
 
 namespace AvatarGame
 {
-PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
-                     GameEngine::GuiManager& guiManager)
-    : PauseMenu(startState, scene, factory, guiManager, {})
+PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory)
+    : PauseMenu(startState, scene, factory, {})
 {
 }
 
 PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
-                     GameEngine::GuiManager& guiManager, const std::vector<std::string>& avaiableSscenes)
+                     const std::unordered_map<std::string, uint32>& avaiableScenes)
     : startState_{startState}
     , scene_{scene}
     , factory_{factory}
-    , guiManager_{guiManager}
+    , guiManager_{factory.getManager()}
     , messageBox_{nullptr}
     , mainWindow_{nullptr}
     , currentView_{nullptr}
     , menuButtonSize_{1.f, 0.075f}
-    , avaiableScenes_{avaiableSscenes}
+    , avaiableScenes_{avaiableScenes}
     , keysSubscriptionsManager{*scene_.getInputManager()}
 {
     init();
@@ -56,19 +55,19 @@ PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::Gui
 
 void PauseMenu::subscribeKeys()
 {
-    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
-        KeyCodes::DARROW,
-        [&]()
-        {
-            guiManager_.AddTask(
-                [&]()
-                {
-                    if (currentView_)
-                    {
-                        currentView_->second.getActiveButtons().updateSelectedRow(1);
-                    }
-                });
-        }));
+    keysSubscriptionsManager.AddSubscribtion(
+        scene_.getInputManager()->SubscribeOnKeyDown(KeyCodes::DARROW,
+                                                     [&]()
+                                                     {
+                                                         guiManager_.AddTask(
+                                                             [&]()
+                                                             {
+                                                                 if (currentView_)
+                                                                 {
+                                                                     currentView_->second.getActiveButtons().updateSelectedRow(1);
+                                                                 }
+                                                             });
+                                                     }));
     keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
         KeyCodes::UARROW,
         [&]()
@@ -109,19 +108,19 @@ void PauseMenu::subscribeKeys()
                 });
         }));
 
-    keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
-        KeyCodes::ENTER,
-        [&]()
-        {
-            guiManager_.AddTask(
-                [&]()
-                {
-                    if (currentView_)
-                    {
-                        currentView_->second.getActiveButtons().exectuteAction();
-                    }
-                });
-        }));
+    keysSubscriptionsManager.AddSubscribtion(
+        scene_.getInputManager()->SubscribeOnKeyDown(KeyCodes::ENTER,
+                                                     [&]()
+                                                     {
+                                                         guiManager_.AddTask(
+                                                             [&]()
+                                                             {
+                                                                 if (currentView_)
+                                                                 {
+                                                                     currentView_->second.getActiveButtons().exectuteAction();
+                                                                 }
+                                                             });
+                                                     }));
     keysSubscriptionsManager.AddSubscribtion(scene_.getInputManager()->SubscribeOnKeyDown(
         KeyCodes::ESCAPE,
         [&]()
@@ -174,7 +173,7 @@ PauseMenu::~PauseMenu()
 
 void PauseMenu::show()
 {
-    //scene_.getInputManager()->StashSubscribers();
+    // scene_.getInputManager()->StashSubscribers();
     scene_.getInputManager()->SetReleativeMouseMode(false);
     scene_.getInputManager()->ShowCursor(true);
 
@@ -193,7 +192,7 @@ void PauseMenu::show()
 void PauseMenu::hide()
 {
     keysSubscriptionsManager.UnsubscribeKeys();
-    //scene_.getInputManager()->StashPopSubscribers();
+    // scene_.getInputManager()->StashPopSubscribers();
     scene_.getInputManager()->SetReleativeMouseMode(true);
     scene_.getInputManager()->ShowCursor(false);
 
@@ -269,8 +268,7 @@ void PauseMenu::enableSceneLoaderViewState()
 
 void PauseMenu::init()
 {
-    auto mainWindow =
-        factory_.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, vec2(0.25f, 0.5f), vec2(0.2f, 1.f));
+    auto mainWindow = factory_.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, vec2(0.25f, 0.5f), vec2(0.2f, 1.f));
     mainWindow->Hide();
 
     mainWindow_ = mainWindow.get();
@@ -300,11 +298,14 @@ void PauseMenu::createMainMenuLayout()
     auto verticalLayout = factory_.CreateVerticalLayout();
     view.layout         = verticalLayout.get();
 
-    createButtonForLayout(view, "New game", guiManager_.GetActionFunction("StartGame()"));
+    createButtonForLayout(view, "New game",
+                          [this](auto&) {
+                              scene_.addSceneEvent(GameEngine::SceneEvent{GameEngine::SceneEventType::LOAD_SCENE_BY_ID, 1});
+                          });
     createButtonForLayout(view, "Load game", [this](auto&) { createMessageBox("Not implemented yet"); });
     createButtonForLayout(view, "Start specyfic scene", [this](auto&) { enableSceneLoaderViewState(); });
     createButtonForLayout(view, "Settings", [this](auto&) { enableSettingsViewState(); });
-    createButtonForLayout(view, "Exit game", guiManager_.GetActionFunction("ExitGame()"));
+    createButtonForLayout(view, "Exit game", [this](auto&) { scene_.addEngineEvent(GameEngine::EngineEvent::QUIT); });
 
     verticalLayout->Hide();
     setMainWindowVerticalLayoutTransform(*verticalLayout);
@@ -321,8 +322,11 @@ void PauseMenu::createPauseMenuLayout()
     createButtonForLayout(view, "Load game", [this](auto&) { createMessageBox("Not implemented yet"); });
     createButtonForLayout(view, "Save game", [this](auto&) { createMessageBox("Not implemented yet"); });
     createButtonForLayout(view, "Settings", [this](auto&) { enableSettingsViewState(); });
-    createButtonForLayout(view, "Back to main menu", guiManager_.GetActionFunction("BackToMainMenu()"));
-    createButtonForLayout(view, "Exit game", guiManager_.GetActionFunction("ExitGame()"));
+    createButtonForLayout(view, "Back to main menu",
+                          [this](auto&) {
+                              scene_.addSceneEvent(GameEngine::SceneEvent{GameEngine::SceneEventType::LOAD_SCENE_BY_ID, 0});
+                          });
+    createButtonForLayout(view, "Exit game", [this](auto&) { scene_.addEngineEvent(GameEngine::EngineEvent::QUIT); });
 
     verticalLayout->Hide();
     setMainWindowVerticalLayoutTransform(*verticalLayout);
@@ -374,13 +378,13 @@ void PauseMenu::createSceneLoaderLayout()
     auto& view = views_[State::SceneLoader];
 
     auto verticalLayout = factory_.CreateVerticalLayout();
-    for (const auto& sceneName : avaiableScenes_)
+    for (const auto& [sceneName, _] : avaiableScenes_)
     {
         auto guiButton = factory_.CreateGuiButton(sceneName,
-                                                  [this, sceneName](auto&)
+                                                  [this, name = sceneName](auto&)
                                                   {
                                                       GameEngine::SceneEvent sceneEvent(
-                                                          GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, sceneName);
+                                                          GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, name);
                                                       scene_.SendEvent(sceneEvent);
                                                   });
         guiButton->SetLocalScale(menuButtonSize_);
@@ -421,8 +425,8 @@ void PauseMenu::fillSettingsParamWindow(View::Child& view, const std::string& ca
         auto paramText = factory_.CreateGuiText(" " + param.configurationParam.toString() + " ");
         paramText->SetLocalScale({0.2f, 1.f});
 
-        auto id = param.configurationParam.subscribeForChange(
-            [guiText = paramText.get(), &param]() { guiText->SetText(param.configurationParam.toString()); });
+        auto id = param.configurationParam.subscribeForChange([guiText = paramText.get(), &param]()
+                                                              { guiText->SetText(param.configurationParam.toString()); });
         paramChangeSubs_.push_back({id, &param.configurationParam});
 
         auto previousValueButton = factory_.CreateGuiButton(
@@ -542,9 +546,8 @@ void PauseMenu::createMessageBox(const std::string& messageText)
     factory_.SetTheme(modifiedTheme);
 
     vec2 buttonSize{0.3f, 0.1f};
-    auto messageBoxWindow =
-        factory_.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {0.5f, 0.5f}, {0.5f, 0.25f});
-    messageBox_ = messageBoxWindow.get();
+    auto messageBoxWindow = factory_.CreateGuiWindow(GameEngine::GuiWindowStyle::BACKGROUND_ONLY, {0.5f, 0.5f}, {0.5f, 0.25f});
+    messageBox_           = messageBoxWindow.get();
     messageBoxWindow->SetZPosition(-100.f);
 
     auto text = factory_.CreateGuiText(messageText);
@@ -654,8 +657,7 @@ GameEngine::GuiButtonElement& PauseMenu::View::Buttons::get()
     return *array[selectedRow][selectedColumn];
 }
 
-void PauseMenu::createButtonForLayout(View& view, const std::string& text,
-                                      std::function<void(GameEngine::GuiElement&)> action)
+void PauseMenu::createButtonForLayout(View& view, const std::string& text, std::function<void(GameEngine::GuiElement&)> action)
 {
     auto guiButton = factory_.CreateGuiButton(text, action);
     guiButton->SetLocalScale(menuButtonSize_);

@@ -8,10 +8,6 @@ namespace Input
 {
 class InputManager;
 }  // namespace Input
-namespace Physics
-{
-class IPhysicsApi;
-}  // namespace Physics
 
 namespace GameEngine
 {
@@ -20,6 +16,10 @@ namespace Renderer
 {
 class RenderersManager;
 }  // namespace Renderer
+namespace Physics
+{
+class IPhysicsApi;
+}  // namespace Physics
 
 struct SceneContext
 {

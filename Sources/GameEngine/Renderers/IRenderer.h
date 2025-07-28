@@ -15,5 +15,6 @@ struct IRenderer
     virtual void subscribe(GameObject&);
     virtual void unSubscribe(GameObject&);
     virtual void unSubscribeAll();
+    virtual void cleanUp();
 };
 }  // namespace GameEngine

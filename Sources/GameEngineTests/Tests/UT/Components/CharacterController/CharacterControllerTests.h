@@ -91,6 +91,6 @@ struct CharacterControllerTests : public BaseComponentTestSchould
 
     vec3 lastSetVelocity = vec3(0);
 
-    std::pair<Physics::CollisionSubId, Physics::CollisionDetection> groundEnterSub{1, {}};
-    std::pair<Physics::CollisionSubId, Physics::CollisionDetection> groundExitSub{2, {}};
+    std::pair<GameEngine::Physics::CollisionSubId, GameEngine::Physics::CollisionDetection> groundEnterSub{1, {}};
+    std::pair<GameEngine::Physics::CollisionSubId, GameEngine::Physics::CollisionDetection> groundExitSub{2, {}};
 };

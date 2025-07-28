@@ -14,6 +14,7 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Scene/SceneManager.h"
 #include "MeasurementHandler.h"
 
 namespace GraphicsApi
@@ -36,7 +37,8 @@ class RenderersManager;
 class EngineContext
 {
 public:
-    EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>);
+    EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>,
+                  std::unique_ptr<ISceneFactory>);
     ~EngineContext();
 
     void AddEngineEvent(EngineEvent);
@@ -51,6 +53,7 @@ public:
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi();
     inline Renderer::RenderersManager& GetRenderersManager();
     inline Utils::Time::TimerService& GetTimerService();
+    inline ISceneManager& GetSceneManager();
 
 private:
     Utils::MeasurementHandler measurmentHandler_;
@@ -60,9 +63,9 @@ private:
     Input::InputManager& inputManager_;
     Utils::Thread::ThreadSync threadSync_;
     Utils::Time::TimerService timerService_;
-
     GpuResourceLoader gpuResourceLoader_;
     Renderer::RenderersManager renderersManager_;
+    std::unique_ptr<ISceneManager> sceneManager_;
 
     std::mutex engineEventsMutex_;
     std::list<EngineEvent> engineEvents_;
@@ -110,5 +113,9 @@ Renderer::RenderersManager& EngineContext::GetRenderersManager()
 Utils::Time::TimerService& EngineContext::GetTimerService()
 {
     return timerService_;
+}
+ISceneManager &EngineContext::GetSceneManager()
+{
+    return *sceneManager_;
 }
 }  // namespace GameEngine

@@ -6,25 +6,25 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "SceneContext.h"
 #include "SceneEvents.h"
-#include "SceneFactoryBase.h"
 #include "SceneWrapper.h"
+#include "ISceneManager.h"
 
 namespace GameEngine
 {
 class EngineContext;
 
-class SceneManager
+class SceneManager : public ISceneManager
 {
 public:
-    SceneManager(EngineContext&, std::unique_ptr<SceneFactoryBase>);
+    SceneManager(EngineContext&, std::unique_ptr<ISceneFactory>);
     ~SceneManager();
 
     Scene* GetActiveScene();
     void Update();
     void SetActiveScene(const std::string& name);
     void Reset();
-    void SetFactor();
     void Stop();
+    const IdMap& GetAvaiableScenes() const;
 
 private:
     void TakeEvents();
@@ -48,7 +48,7 @@ private:
 
 private:
     EngineContext& engineContext_;
-    std::unique_ptr<SceneFactoryBase> sceneFactory_;
+    std::unique_ptr<ISceneFactory> sceneFactory_;
     SceneWrapper sceneWrapper_;
     uint32 currentSceneId_;
 

@@ -15,6 +15,7 @@
 #include "GameEngineTests/Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "GameEngineTests/Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "GameEngineTests/Tests/UT/Components/BaseComponent.h"
+#include "GameEngineTests/Tests/Mocks/Scene/SceneFactoryMock.h"
 
 using namespace testing;
 using namespace GraphicsApi;
@@ -32,7 +33,7 @@ struct EntityRendererShould : public BaseComponentTestSchould
 {
     EntityRendererShould()
         : graphicsMock_(new GraphicsApiMock())
-        , engineContext_(std::unique_ptr<IGraphicsApi>(graphicsMock_), std::make_unique<PhysicsApiMock>())
+        , engineContext_(std::unique_ptr<IGraphicsApi>(graphicsMock_), std::make_unique<PhysicsApiMock>(), std::make_unique<SceneFactoryMock>())
         , scene_("testScene")
         , mesh_(GraphicsApi::RenderType::TRIANGLES, engineContext_.GetGraphicsApi())
         , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(), gpuResourceLoaderMock_, measurmentHandler_, time_)

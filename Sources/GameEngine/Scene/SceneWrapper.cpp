@@ -1,12 +1,17 @@
 #include "SceneWrapper.h"
-#include "Logger/Log.h"
+
+#include <Logger/Log.h>
+#include <Utils/Variant.h>
+
 #include "Scene.hpp"
 #include "SceneLoader.h"
 
 namespace GameEngine
 {
-SceneWrapper::SceneWrapper(GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager, IGpuResourceLoader& gpuResourceLoader)
-    : graphicsApi_(graphicsApi)
+SceneWrapper::SceneWrapper(ISceneFactory& sceneFactory, GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager,
+                           IGpuResourceLoader& gpuResourceLoader)
+    : sceneFactory_{sceneFactory}
+    , graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
     , gpuResourceLoader_(gpuResourceLoader)
     , state_(SceneWrapperState::SceneNotSet)
@@ -18,30 +23,47 @@ SceneWrapper::~SceneWrapper()
     DEBUG_LOG("destructor");
 }
 
-void SceneWrapper::Set(ScenePtr scene)
+void SceneWrapper::Set(uint32 id, AddEvent sceneEventCallback)
 {
+    DEBUG_LOG("Set id");
     Reset();
-    activeScene = std::move(scene);
-    SaveSetState(SceneWrapperState::ReadyToInitialized);
+    sceneToLoad_          = id;
+    addSceneEventCallback = sceneEventCallback;
+    SafeSetState(SceneWrapperState::ReadyToInitialized);
+}
+
+void SceneWrapper::Set(const std::string& name, AddEvent sceneEventCallback)
+{
+    DEBUG_LOG("Set name");
+    Reset();
+    sceneToLoad_          = name;
+    addSceneEventCallback = sceneEventCallback;
+    SafeSetState(SceneWrapperState::ReadyToInitialized);
 }
 
 void SceneWrapper::Init()
 {
     std::lock_guard<std::mutex> lk(initMutex_);
 
-    if (SaveGetState() != SceneWrapperState::ReadyToInitialized)
+    if (SafeGetState() != SceneWrapperState::ReadyToInitialized)
     {
-       ERROR_LOG("SceneWrapper::Init() Wrong state.");
+        ERROR_LOG("SceneWrapper::Init() Wrong state.");
         return;
     }
-    SaveSetState(SceneWrapperState::Initializing);
-    SceneLoader(graphicsApi_, gpuResourceLoader_, displayManager_).Load(*activeScene);
-    SaveSetState(SceneWrapperState::Initilaized);
+
+    SafeSetState(SceneWrapperState::Initializing);
+    std::visit(visitor{[&](const auto& s)
+                       {
+                           activeScene = SceneLoader(sceneFactory_, graphicsApi_, gpuResourceLoader_, displayManager_).Load(s);
+                           activeScene->SetAddSceneEventCallback(addSceneEventCallback);
+                       }},
+               sceneToLoad_);
+    SafeSetState(SceneWrapperState::Initilaized);
 }
 
 bool SceneWrapper::IsInitialized()
 {
-    return SaveGetState() == SceneWrapperState::Initilaized;
+    return SafeGetState() == SceneWrapperState::Initilaized;
 }
 
 void SceneWrapper::UpdateScene(float dt)
@@ -52,26 +74,27 @@ void SceneWrapper::UpdateScene(float dt)
     activeScene->FullUpdate(dt);
 }
 
-SceneWrapperState SceneWrapper::SaveGetState()
+SceneWrapperState SceneWrapper::SafeGetState()
 {
     std::lock_guard<std::mutex> lk(stateMutex_);
     return state_;
 }
 
-void SceneWrapper::SaveSetState(SceneWrapperState state)
+void SceneWrapper::SafeSetState(SceneWrapperState state)
 {
+    DEBUG_LOG("SetState = " + std::to_string(static_cast<int>(state)));
     std::lock_guard<std::mutex> lk(stateMutex_);
     state_ = state;
 }
 
 Scene* SceneWrapper::Get()
 {
-    if (SaveGetState() == SceneWrapperState::Initilaized)
+    if (SafeGetState() == SceneWrapperState::Initilaized)
         return activeScene.get();
 
-    if (SaveGetState() == SceneWrapperState::SceneNotSet)
+    if (SafeGetState() == SceneWrapperState::SceneNotSet)
     {
-       ERROR_LOG("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+        ERROR_LOG("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
     }
 
     return nullptr;
@@ -79,14 +102,11 @@ Scene* SceneWrapper::Get()
 
 SceneWrapperState SceneWrapper::GetState()
 {
-    if (not activeScene)
-        return SceneWrapperState::SceneNotSet;
-
-    return SaveGetState();
+    return SafeGetState();
 }
 void SceneWrapper::Reset()
 {
-    SaveSetState(SceneWrapperState::SceneNotSet);
+    SafeSetState(SceneWrapperState::SceneNotSet);
     activeScene.reset(nullptr);
 }
-}  // GameEngine
+}  // namespace GameEngine

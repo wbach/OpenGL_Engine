@@ -504,7 +504,7 @@ void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
         return;
     }
 
-    scene_.LoadFromFile(args.at("filename"));
+    //scene_.LoadFromFile(args.at("filename"));
 }
 
 void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::EntryParameters &args)
@@ -515,12 +515,12 @@ void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::Entry
         return;
     }
 
-    scene_.SaveToFile(args.at("filename"));
+   // scene_.SaveToFile(args.at("filename"));
 }
 
 void NetworkEditorInterface::QuickSave()
 {
-    scene_.SaveToFile();
+   // scene_.SaveToFile();
 }
 
 void NetworkEditorInterface::GetCamera(const EntryParameters &)
@@ -861,17 +861,17 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
 
         DEBUG_LOG("Load prefabs not implemented");
 
-        auto gameObject = scene_.LoadPrefab(GetRelativeDataPath(params.at("filename")), goName);
+//        auto gameObject = scene_.LoadPrefab(GetRelativeDataPath(params.at("filename")), goName);
 
-        if (gameObject)
-        {
-            auto position = scene_.camera.GetPosition();
-            position += scene_.camera.GetDirection() * 5.f;
-            gameObject->GetTransform().SetPosition(position);
+//        if (gameObject)
+//        {
+//            auto position = scene_.camera.GetPosition();
+//            position += scene_.camera.GetDirection() * 5.f;
+//            gameObject->GetTransform().SetPosition(position);
 
-            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
-            gateway_.Send(userId_, message);
-        }
+//            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+//            gateway_.Send(userId_, message);
+//        }
     }
 }
 
@@ -1821,12 +1821,13 @@ void NetworkEditorInterface::CloneGameObject(const EntryParameters &params)
         auto gameObject = GetGameObject(gameObjectIdIter->second);
         if (gameObject)
         {
-            auto clonedGameObject = scene_.CloneGameObject(*gameObject);
-            if (clonedGameObject)
-            {
-                SetSelectedGameObject(clonedGameObject);
-                SendObjectCreatedNotf(*clonedGameObject);
-            }
+             // TO DO:
+//            auto clonedGameObject = scene_.CloneGameObject(*gameObject);
+//            if (clonedGameObject)
+//            {
+//                SetSelectedGameObject(clonedGameObject);
+//                SendObjectCreatedNotf(*clonedGameObject);
+//            }
         }
     }
 }
@@ -1862,31 +1863,31 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
 
                 for (int i = 0; i < instances; ++i)
                 {
-                    auto clonedGameObject = scene_.CloneGameObject(*gameObject);
-                    if (clonedGameObject)
-                    {
-                        auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
+//                    auto clonedGameObject = scene_.CloneGameObject(*gameObject);
+//                    if (clonedGameObject)
+//                    {
+//                        auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
 
-                        freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
-                        auto x = getRandomFloat(minX, maxX);
-                        auto z = getRandomFloat(minZ, maxZ);
-                        // auto roatateY = getRandomFloat(0.f, 360.f);
-                        auto scale = getRandomFloat(0.8f, 1.2f);
+//                        freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
+//                        auto x = getRandomFloat(minX, maxX);
+//                        auto z = getRandomFloat(minZ, maxZ);
+//                        // auto roatateY = getRandomFloat(0.f, 360.f);
+//                        auto scale = getRandomFloat(0.8f, 1.2f);
 
-                        auto goScale    = gameObject->GetWorldTransform().GetScale() * scale;
-                        auto goRotation = gameObject->GetWorldTransform()
-                                              .GetRotation()
-                                              .value_;  // *Rotation(DegreesVec3(0, roatateY, 0)).value_;
+//                        auto goScale    = gameObject->GetWorldTransform().GetScale() * scale;
+//                        auto goRotation = gameObject->GetWorldTransform()
+//                                              .GetRotation()
+//                                              .value_;  // *Rotation(DegreesVec3(0, roatateY, 0)).value_;
 
-                        auto hit = scene_.getHeightPositionInWorld(x, z);
+//                        auto hit = scene_.getHeightPositionInWorld(x, z);
 
-                        freeGameObject->SetWorldPositionRotationScale(
-                            hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z), goRotation,
-                            goScale);
-                        auto freeGameObjectPtr = freeGameObject.get();
-                        containerPtr->MoveChild(std::move(freeGameObject));
-                        SendObjectCreatedNotf(*freeGameObjectPtr);
-                    }
+//                        freeGameObject->SetWorldPositionRotationScale(
+//                            hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z), goRotation,
+//                            goScale);
+//                        auto freeGameObjectPtr = freeGameObject.get();
+//                        containerPtr->MoveChild(std::move(freeGameObject));
+//                        SendObjectCreatedNotf(*freeGameObjectPtr);
+//                    }
                 }
             }
             catch (...)
@@ -1907,7 +1908,7 @@ void NetworkEditorInterface::CreatePrefabFromObject(const EntryParameters &param
         auto gameObject = GetGameObject(gameObjectIdIter->second);
         if (gameObject)
         {
-            scene_.CreatePrefab(filenameIter->second, *gameObject);
+            //scene_.CreatePrefab(filenameIter->second, *gameObject);
         }
     }
 }

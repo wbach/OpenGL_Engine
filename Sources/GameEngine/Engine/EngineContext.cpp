@@ -1,11 +1,13 @@
 #include "EngineContext.h"
+
 #include <Input/InputManager.h>
+
 #include "Configuration.h"
 
 namespace GameEngine
 {
 EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi,
-                             std::unique_ptr<Physics::IPhysicsApi> physicsApi)
+                             std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<ISceneFactory> sceneFactory)
     : measurmentHandler_()
     , graphicsApi_(std::move(graphicsApi))
     , physicsApi_(std::move(physicsApi))
@@ -13,6 +15,7 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
     , inputManager_(displayManager_.GetInputManager())
     , threadSync_(measurmentHandler_)
     , renderersManager_(*graphicsApi_, gpuResourceLoader_, measurmentHandler_, threadSync_, displayManager_.GetTime())
+    , sceneManager_{std::make_unique<SceneManager>(*this, std::move(sceneFactory))}
 {
 }
 
