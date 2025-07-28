@@ -2,7 +2,6 @@
 
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
-#include <dlfcn.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>

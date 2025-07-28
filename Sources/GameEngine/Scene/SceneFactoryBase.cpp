@@ -4,10 +4,15 @@
 #include <Utils/Variant.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
-#include <dlfcn.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+
+#ifdef USE_GNU
+#include <dlfcn.h>
+#else
+#include <windows.h>
+#endif
 
 #include "Scene.hpp"
 #include "SceneDef.h"
@@ -63,18 +68,23 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
                 File potentialyLibFile(maybeSceneFile->value_);
                 if (std::filesystem::exists(potentialyLibFile.GetAbsoultePath()))
                 {
+#ifdef USE_GNU
                     void* sceneLib = dlopen(potentialyLibFile.GetAbsoultePath().c_str(), RTLD_NOW);
+#else
+                    HMODULE sceneLib = LoadLibrary("plugin.dll");
+#endif
                     if (sceneLib)
                     {
                         DEBUG_LOG("Scene lib found");
+#ifdef USE_GNU
                         auto create = (CreateSceneFromLib)dlsym(sceneLib, "CreateScene");
+#else
+                        auto create = (CreateSceneFromLib)GetProcAddress(sceneLib, "CreateScene");
+#endif
                         if (create)
                         {
                             scene = std::unique_ptr<Scene>(create());
                             DEBUG_LOG("Scene loaded from lib: " + scene->GetName());
-                        }
-                        else
-                        {
                         }
                     }
                     else
@@ -106,7 +116,7 @@ ScenePtr SceneFactoryBase::GetScene(const std::string& name)
     {
         auto [_, method] = *iter;
         auto scene       = std::visit(
-                  visitor{
+            visitor{
                 [&](const CreateFunction& createFunc)
                 {
                     auto scene = createFunc();
@@ -120,7 +130,7 @@ ScenePtr SceneFactoryBase::GetScene(const std::string& name)
                     return nullptr;
                 },
             },
-                  method);
+            method);
 
         return scene;
     }

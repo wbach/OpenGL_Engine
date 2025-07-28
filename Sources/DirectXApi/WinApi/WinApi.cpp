@@ -1,9 +1,11 @@
 
 #include "WinApi.h"
+
 #include <D3D11.h>
 #include <Logger/Log.h>
 #include <Utils/IdPool.h>
 #include <Windows.h>
+
 #include "DirectXApi/DirectXContext.h"
 #include "XInput/XInputManager.h"
 
@@ -16,6 +18,7 @@ namespace
 Utils::IdPool eventSubscribersEventsPool_;
 std::mutex eventSubscribersMutex_;
 std::unordered_map<IdType, std::function<void(const GraphicsApi::IWindowApi::Event&)>> eventsSubscribers_;
+Input::InputManager* inputManagerForProcPtr{nullptr};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -30,9 +33,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         case WM_DROPFILES:
         {
-            HDROP drop                 = (HDROP)wParam;
-            auto filePathesCount       = DragQueryFile(drop, 0xFFFF, (LPSTR)NULL, 0);
-            wchar_t* fileName          = NULL;
+            HDROP drop           = (HDROP)wParam;
+            auto filePathesCount = DragQueryFile(drop, 0xFFFF, (LPSTR)NULL, 0);
+            wchar_t* fileName    = NULL;
 
             // If NULL as the third parameter: return the length of the path, not counting the trailing '0'
             UINT longestFileNameLength = 0;
@@ -61,22 +64,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         break;
         case WM_KEYDOWN:
-                inputManager_->AddKeyEvent(WM_KEYDOWN, wParam);
+            inputManagerForProcPtr->AddKeyEvent(WM_KEYDOWN, wParam);
             break;
         case WM_KEYUP:
-                inputManager_->AddKeyEvent(WM_KEYUP, wParam);
+            inputManagerForProcPtr->AddKeyEvent(WM_KEYUP, wParam);
             break;
         case WM_LBUTTONDOWN:
-                inputManager_->AddKeyEvent(WM_KEYDOWN, VK_LBUTTON);
+            inputManagerForProcPtr->AddKeyEvent(WM_KEYDOWN, VK_LBUTTON);
             break;
         case WM_LBUTTONUP:
-                inputManager_->AddKeyEvent(WM_KEYUP, VK_LBUTTON);
+            inputManagerForProcPtr->AddKeyEvent(WM_KEYUP, VK_LBUTTON);
             break;
         case WM_RBUTTONDOWN:
-                inputManager_->AddKeyEvent(WM_KEYDOWN, VK_RBUTTON);
+            inputManagerForProcPtr->AddKeyEvent(WM_KEYDOWN, VK_RBUTTON);
             break;
         case WM_RBUTTONUP:
-                inputManager_->AddKeyEvent(WM_KEYUP, VK_RBUTTON);
+            inputManagerForProcPtr->AddKeyEvent(WM_KEYUP, VK_RBUTTON);
             break;
         case WM_PAINT:
             hdc = BeginPaint(hwnd, &ps);
@@ -134,17 +137,15 @@ void WinApi::Init()
     RegiesterWindowClass();
     dispalyModes_ = {{640, 480, 60, 0}, {1280, 800, 60, 0}, {1366, 768, 60, 0}, {1920, 1080, 60, 0}};
 }
-void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height,
-                              GraphicsApi::WindowType full_screen)
+void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint32 height, GraphicsApi::WindowType full_screen)
 {
     RECT r{0, 0, width, height};
-    windowSize = {width, height};
+    windowSize   = {width, height};
     impl_->rect_ = r;
     AdjustWindowRect(&impl_->rect_, WS_OVERLAPPEDWINDOW, FALSE);
-    impl_->directXContext_.mainWindow =
-        CreateWindowEx(WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW,
-                       CW_USEDEFAULT, CW_USEDEFAULT, impl_->rect_.right - impl_->rect_.left,
-                       impl_->rect_.bottom - impl_->rect_.top, NULL, NULL, impl_->hInstance_, NULL);
+    impl_->directXContext_.mainWindow = CreateWindowEx(
+        WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+        impl_->rect_.right - impl_->rect_.left, impl_->rect_.bottom - impl_->rect_.top, NULL, NULL, impl_->hInstance_, NULL);
 
     if (impl_->directXContext_.mainWindow == NULL)
     {
@@ -152,8 +153,9 @@ void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint
         return;
     }
 
-    inputManager_ = std::make_unique<XInputManager>(impl_->directXContext_.mainWindow,
-                                             vec2ui(impl_->rect_.right, impl_->rect_.bottom));
+    inputManager_ =
+        std::make_unique<XInputManager>(impl_->directXContext_.mainWindow, vec2ui(impl_->rect_.right, impl_->rect_.bottom));
+    inputManagerForProcPtr = inputManager_.get();
 
     ::ShowWindow(impl_->directXContext_.mainWindow, SW_SHOWDEFAULT);
 }
