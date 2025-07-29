@@ -1,11 +1,11 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include "IMessage.h"
 #include "IMessageConverter.h"
 #include "ISDLNetWrapper.h"
 #include "Logger/Log.h"
 #include "MessageFormat.h"
-#include "SDLNetWrapper.h"
 #include "Types.h"
 
 namespace Network

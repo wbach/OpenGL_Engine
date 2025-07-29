@@ -4,8 +4,6 @@
 #include <Mutex.hpp>
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "SceneContext.h"
-#include "SceneEvents.h"
 #include "SceneWrapper.h"
 #include "ISceneManager.h"
 
