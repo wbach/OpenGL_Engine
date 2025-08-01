@@ -1,4 +1,5 @@
 #pragma once
+
 #include <GL/glew.h>
 // clang-format off
 #include <GameEngine/Components/Animation/Animator.h>
