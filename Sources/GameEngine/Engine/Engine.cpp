@@ -241,7 +241,7 @@ void Engine::ProcessEngineEvents()
 
 void Engine::Quit()
 {
-    engineContext_.GetSceneManager().Stop();
+    engineContext_.GetSceneManager().StopThread();
     isRunning_ = false;
 }
 

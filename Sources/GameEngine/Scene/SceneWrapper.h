@@ -29,10 +29,11 @@ public:
     ~SceneWrapper();
     Scene* Get();
     SceneWrapperState GetState();
+    void StartActiveScene();
     void Reset();
     void Set(uint32, AddEvent);
     void Set(const std::string&, AddEvent);
-    void Init();
+    void Init(std::function<void()>);
     bool IsInitialized();
     void UpdateScene(float dt);
 
