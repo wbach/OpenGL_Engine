@@ -1,6 +1,7 @@
 
 #include "MainFrame.h"
 
+#include <GameEngine/Scene/SceneUtils.h>
 #include <wx/splitter.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -62,6 +63,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuRendererTextureDisplacement)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
     EVT_TREE_SEL_CHANGED(ID_OBJECT_TREE, MainFrame::OnObjectTreeSelChange)
+    EVT_TREE_ITEM_ACTIVATED(ID_OBJECT_TREE, MainFrame::OnObjectTreeActivated)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
 wxEND_EVENT_TABLE()
@@ -133,6 +135,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                               AddChilds(canvas->GetRootObject(), treeRootId);
                               UpdateObjectCount();
                               SetStatusText("Welcome to game editor!");
+                              SetTitle("Active scene : " + canvas->GetScene().GetName());
                           }
                       });
     SetStatusText("Loading file " + file.GetBaseName());
@@ -142,7 +145,7 @@ void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
 {
     if (not canvas->GetScene().GetFile().empty())
     {
-        //  canvas->GetScene().SaveToFile();
+        GameEngine::saveSceneToFile(canvas->GetScene());
         return;
     }
 
@@ -158,7 +161,10 @@ void MainFrame::MenuFileSaveSceneAs(wxCommandEvent&)
         return;
 
     wxString path = fileDialog.GetPath();
-    // canvas->GetScene().SaveToFile(std::string(path.c_str()));
+    GameEngine::File file{path.c_str()};
+    canvas->GetScene().ChangeName(file.GetBaseName());
+    SetTitle("Active scene : " + canvas->GetScene().GetName());
+    GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
 }
 
 void MainFrame::MenuFileExit(wxCommandEvent&)
@@ -398,6 +404,11 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
 
 void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 {
+    DEBUG_LOG("OnObjectTreeSelChange");
+}
+
+void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
+{
     auto iter = gameObjectsItemsIdsMap.find(event.GetItem().GetID());
     if (iter != gameObjectsItemsIdsMap.end())
     {
@@ -411,6 +422,4 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
             scene.GetCamera().LookAt(gameObject->GetWorldTransform().GetPosition());
         }
     }
-
-    DEBUG_LOG("OnObjectTreeSelChange");
 }

@@ -155,6 +155,11 @@ bool Scene::isStarted() const
     return start_.load();
 }
 
+void Scene::ChangeName(const std::string &name)
+{
+    this->name = name;
+}
+
 void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
 {
     resourceManager_ = std::make_unique<ResourceManager>(graphicsApi, gpuResourceLoader);

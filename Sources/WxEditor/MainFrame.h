@@ -61,6 +61,7 @@ private:
     void MenuRendererTextureDisplacement(wxCommandEvent&);
 
     void OnObjectTreeSelChange(wxTreeEvent&);
+    void OnObjectTreeActivated(wxTreeEvent&);
 
     void OnClose(wxCloseEvent&);
 

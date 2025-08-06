@@ -61,7 +61,9 @@ public:
     void Stop();
     bool isStarted() const;
 
+    void ChangeName(const std::string& name);
     inline const std::string& GetName() const;
+    inline File& GetFile();
     inline const File& GetFile() const;
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
     inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
@@ -170,6 +172,11 @@ private:
 const std::string& Scene::GetName() const
 {
     return name;
+}
+
+File& Scene::GetFile()
+{
+    return file_;
 }
 
 inline const File& Scene::GetFile() const

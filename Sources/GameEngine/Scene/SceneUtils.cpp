@@ -15,7 +15,7 @@ typedef GameEngine::Scene* (*CreateSceneFromLib)();
 
 namespace GameEngine
 {
-void saveSceneToFile(const Scene& scene)
+void saveSceneToFile(Scene& scene)
 {
     const auto& file = scene.GetFile();
     if (not file.empty())
@@ -26,16 +26,21 @@ void saveSceneToFile(const Scene& scene)
     {
         auto sceneName = scene.GetName();
         File file("Scenes/" + sceneName + "/" + sceneName + ".xml");
-        if (std::filesystem::create_directories(file.GetAbsoultePath()))
-        {
-            saveSceneToFile(createTree(scene), file);
-        }
+        saveSceneToFile(scene, file);
     }
 }
+
+void saveSceneToFile(Scene& scene, const File& file)
+{
+    scene.GetFile() = file;
+    saveSceneToFile(createTree(scene), file);
+}
+
 void saveSceneToFile(const TreeNode& rootNode, const File& file)
 {
-    Utils::CreateBackupFile(file.GetAbsoultePath());
-    Utils::Xml::Write(file.GetAbsoultePath(), rootNode);
+    auto path = file.GetAbsolutePathWithDifferentExtension("xml");
+    Utils::CreateBackupFile(path);
+    Utils::Xml::Write(path, rootNode);
 }
 void createAndSavePrefab(const File& file, const GameObject& gameObject)
 {

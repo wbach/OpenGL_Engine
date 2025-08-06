@@ -10,7 +10,8 @@ namespace GameEngine
 class Scene;
 class GameObject;
 
-void saveSceneToFile(const Scene&);
+void saveSceneToFile(Scene&);
+void saveSceneToFile(Scene&, const File&);
 void saveSceneToFile(const TreeNode&, const File&);
 void createAndSavePrefab(const File&, const GameObject&);
 GameObject* cloneGameObject(Scene&, const GameObject&);

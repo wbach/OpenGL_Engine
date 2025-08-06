@@ -31,6 +31,7 @@
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Scene/SceneUtils.h"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
 #include "Messages/ComponentDataMessage.h"
@@ -515,12 +516,12 @@ void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::Entry
         return;
     }
 
-   // scene_.SaveToFile(args.at("filename"));
+    GameEngine::saveSceneToFile(scene_, File(args.at("filename")));
 }
 
 void NetworkEditorInterface::QuickSave()
 {
-   // scene_.SaveToFile();
+    GameEngine::saveSceneToFile(scene_);
 }
 
 void NetworkEditorInterface::GetCamera(const EntryParameters &)
