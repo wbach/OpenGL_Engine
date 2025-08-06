@@ -3,9 +3,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include "GameEngine/Physics/IPhysicsApi.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
+#include "GameEngine/Resources/File.h"
+#include <variant>
 
 namespace GameEngine
 {

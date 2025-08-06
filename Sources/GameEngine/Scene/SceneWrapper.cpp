@@ -41,7 +41,7 @@ void SceneWrapper::Set(const std::string& name, AddEvent sceneEventCallback)
     SafeSetState(SceneWrapperState::ReadyToInitialized);
 }
 
-void SceneWrapper::Init()
+void SceneWrapper::Init(std::function<void()> onLoadDone)
 {
     std::lock_guard<std::mutex> lk(initMutex_);
 
@@ -57,6 +57,10 @@ void SceneWrapper::Init()
                            SceneLoader sceneLoader(sceneFactory_, graphicsApi_, gpuResourceLoader_, displayManager_);
                            activeScene = sceneLoader.Load(s);
                            activeScene->SetAddSceneEventCallback(addSceneEventCallback);
+                           if (onLoadDone)
+                           {
+                               onLoadDone();
+                           }
                        }},
                sceneToLoad_);
     SafeSetState(SceneWrapperState::Initilaized);
@@ -90,20 +94,25 @@ void SceneWrapper::SafeSetState(SceneWrapperState state)
 
 Scene* SceneWrapper::Get()
 {
-    if (SafeGetState() == SceneWrapperState::Initilaized)
-        return activeScene.get();
-
     if (SafeGetState() == SceneWrapperState::SceneNotSet)
     {
         ERROR_LOG("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
     }
 
-    return nullptr;
+    return activeScene.get();
 }
 
 SceneWrapperState SceneWrapper::GetState()
 {
     return SafeGetState();
+}
+
+void SceneWrapper::StartActiveScene()
+{
+    if (activeScene)
+    {
+        activeScene->Start();
+    }
 }
 void SceneWrapper::Reset()
 {

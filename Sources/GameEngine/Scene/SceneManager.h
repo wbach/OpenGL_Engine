@@ -1,13 +1,11 @@
 #pragma once
+#include <Mutex.hpp>
 #include <queue>
 
-#include <Mutex.hpp>
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "SceneContext.h"
-#include "SceneEvents.h"
-#include "SceneWrapper.h"
 #include "ISceneManager.h"
+#include "SceneWrapper.h"
 
 namespace GameEngine
 {
@@ -19,12 +17,14 @@ public:
     SceneManager(EngineContext&, std::unique_ptr<ISceneFactory>);
     ~SceneManager();
 
-    Scene* GetActiveScene();
-    void Update();
-    void SetActiveScene(const std::string& name);
-    void Reset();
-    void Stop();
-    const IdMap& GetAvaiableScenes() const;
+    void SetActiveScene(const std::string&) override;
+    Scene* GetActiveScene() override;
+
+    void SetOnSceneLoadDone(OnSceneLoadDoneCallback) override;
+    void Update() override;
+    void Reset() override;
+    const IdMap& GetAvaiableScenes() const override;
+    void StopThread() override;
 
 private:
     void TakeEvents();
@@ -37,14 +37,14 @@ private:
 
     void LoadNextScene();
     void LoadPreviousScene();
-    void LoadScene(const std::string&);
-    void LoadScene(uint32 id);
+    void SetSceneToLoad(const std::string&);
+    void SetSceneToLoad(uint32 id);
     void SetSceneContext(Scene* scene);
 
-    template <class T>
-    void JustLoadScene(T scene);
+    template <class SceneNameOrId>
+    void SetToWrapper(SceneNameOrId);
 
-    void Start();
+    void StartUpdateThreadIfNeeded();
 
 private:
     EngineContext& engineContext_;
@@ -60,5 +60,6 @@ private:
     std::optional<IdType> updateSceneThreadId_;
     IdType fpsLimitParamSub_;
     bool isRunning_;
+    OnSceneLoadDoneCallback onSceneLoadDoneCallback;
 };
 }  // namespace GameEngine

@@ -16,7 +16,7 @@ enum
     ID_MENU_FILE_RELOAD_SCENE,
     ID_MENU_FILE_SAVE_SCENE,
     ID_MENU_FILE_SAVEAS_SCENE,
-    ID_MENU_FILE_EXIT = 1,
+    ID_MENU_FILE_EXIT,
     ID_MENU_EDIT_CREATE_OBJECT,
     ID_MENU_EDIT_CREATE_TERRAIN,
     ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER,
@@ -35,7 +35,6 @@ enum
     ID_FILE_EXPLORER,
     ID_MENU_ABOUT_GL_INFO,
 };
-int id = 6;
 }  // namespace
 
 // clang-format off
@@ -123,20 +122,15 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     wxString path = openFileDialog.GetPath();
     CreateRootGameObject();
     GameEngine::File file{std::string{path.c_str()}};
-    loadSceneThread = std::thread(
-        [&]
+    canvas->OpenScene(file, [&](){
+        if (isRunning)
         {
-            canvas->OpenScene(file);
-
-            if (isRunning)
-            {
-                AddChilds(canvas->GetRootObject(), treeRootId);
-                auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
-                gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
-                SetStatusText("Welcome to game editor!");
-            }
-        });
-    // loadSceneThread.detach();
+            AddChilds(canvas->GetRootObject(), treeRootId);
+            auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
+            gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+            SetStatusText("Welcome to game editor!");
+        }
+    });
     SetStatusText("Loading file " + file.GetBaseName());
 }
 
@@ -144,7 +138,7 @@ void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
 {
     if (not canvas->GetScene().GetFile().empty())
     {
-      //  canvas->GetScene().SaveToFile();
+        //  canvas->GetScene().SaveToFile();
         return;
     }
 
@@ -160,7 +154,7 @@ void MainFrame::MenuFileSaveSceneAs(wxCommandEvent&)
         return;
 
     wxString path = fileDialog.GetPath();
-   // canvas->GetScene().SaveToFile(std::string(path.c_str()));
+    // canvas->GetScene().SaveToFile(std::string(path.c_str()));
 }
 
 void MainFrame::MenuFileExit(wxCommandEvent&)

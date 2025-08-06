@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include <filesystem>
+
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
 
@@ -219,16 +221,26 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
     return false;
 }
 
-void GLCanvas::OpenScene(const GameEngine::File& file)
+bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void ()> callback)
 {
-    // wxSceneFactory->Ad
-    //    auto scene = engine->GetSceneManager().GetActiveScene();
-    //    scene->ClearGameObjects();
-    //  scene->LoadFromFile(file);
+    if (not std::filesystem::exists(file.GetAbsoultePath()))
+    {
+        return false;
+    }
+
+    const auto name = file.GetBaseName();
+    wxSceneFactory->AddScene(name, file);
+    engine->GetSceneManager().SetOnSceneLoadDone(callback);
+    engine->GetSceneManager().SetActiveScene(name);
+
+    return engine->GetSceneManager().GetActiveScene() != nullptr;
 }
 
 GameObject& GLCanvas::GetRootObject()
 {
+    if (not engine->GetSceneManager().GetActiveScene())
+        ERROR_LOG("No scene is set");
+
     return engine->GetSceneManager().GetActiveScene()->GetRootGameObject();
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <GL/glew.h>
 // clang-format off
 #include <GameEngine/Components/Animation/Animator.h>
@@ -37,7 +38,7 @@ public:
 
     std::string getGlInfo() const;
     bool AddGameObject(const GameEngine::File&);
-    void OpenScene(const GameEngine::File&);
+    bool OpenScene(const GameEngine::File&, std::function<void()>);
     GameEngine::GameObject& GetRootObject();
     GameEngine::Engine& GetEngine();
     GameEngine::Scene& GetScene();

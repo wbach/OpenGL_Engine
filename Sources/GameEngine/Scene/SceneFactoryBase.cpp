@@ -8,17 +8,18 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
+#include "Scene.hpp"
+#include "SceneDef.h"
+#include "SceneReader.h"
+
+typedef GameEngine::Scene* (*CreateSceneFromLib)();
+
 #ifdef USE_GNU
 #include <dlfcn.h>
 #else
 #include <windows.h>
 #endif
 
-#include "Scene.hpp"
-#include "SceneDef.h"
-#include "SceneReader.h"
-
-typedef GameEngine::Scene* (*CreateSceneFromLib)();
 
 namespace GameEngine
 {
@@ -123,12 +124,7 @@ ScenePtr SceneFactoryBase::GetScene(const std::string& name)
                     scene->InitResources(*engineContext_);
                     return scene;
                 },
-                [&](const File& file) { return CreateSceneBasedOnFile(file); },
-                [](const std::monostate&)
-                {
-                    ERROR_LOG("Image data is not set!");
-                    return nullptr;
-                },
+                [&](const File& file) { return CreateSceneBasedOnFile(file); }
             },
             method);
 

@@ -86,8 +86,6 @@ void Scene::InitResources(EngineContext& context)
 void Scene::Init()
 {
     Initialize();
-    Start();
-    componentController_.OnStart();
 }
 
 void Scene::PostInit()
@@ -138,6 +136,8 @@ void Scene::Start()
 {
     DEBUG_LOG("Start");
     start_.store(true);
+    componentController_.OnStart();
+
     if (physicsApi_)
         physicsApi_->EnableSimulation();
 }

@@ -16,7 +16,7 @@ std::unique_ptr<ISceneFactory> setEngineContext(EngineContext& context, std::uni
 
 SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<ISceneFactory> sceneFactory)
     : engineContext_(engineContext)
-    , sceneFactory_ (setEngineContext(engineContext, std::move(sceneFactory)))
+    , sceneFactory_(setEngineContext(engineContext, std::move(sceneFactory)))
     , sceneWrapper_(*sceneFactory_, engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(),
                     engineContext.GetGpuResourceLoader())
     , currentSceneId_(0)
@@ -27,29 +27,36 @@ SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<ISceneF
         {
             if (updateSceneThreadId_)
             {
-                engineContext_.GetThreadSync()
-                    .GetSubscriber(*updateSceneThreadId_)
-                    ->SetFpsLimit(EngineConf.renderer.fpsLimt);
+                engineContext_.GetThreadSync().GetSubscriber(*updateSceneThreadId_)->SetFpsLimit(EngineConf.renderer.fpsLimt);
             }
         });
 
-    Start();
+    StartUpdateThreadIfNeeded();
+
+    SetOnSceneLoadDone([&]() { sceneWrapper_.StartActiveScene(); });
 }
 SceneManager::~SceneManager()
 {
+    SetOnSceneLoadDone(nullptr);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
     DEBUG_LOG("destructor");
-    Stop();
+    StopThread();
 }
 Scene* SceneManager::GetActiveScene()
 {
     return sceneWrapper_.Get();
 }
 
+void SceneManager::SetOnSceneLoadDone(OnSceneLoadDoneCallback callback)
+{
+    DEBUG_LOG("Set new onSceneLoadDoneCallback");
+    onSceneLoadDoneCallback = callback;
+}
+
 void SceneManager::Update()
 {
     if (sceneWrapper_.GetState() == SceneWrapperState::ReadyToInitialized)
-        sceneWrapper_.Init();
+        sceneWrapper_.Init(onSceneLoadDoneCallback);
 
     TakeEvents();
     ProccessEvents();
@@ -61,7 +68,7 @@ void SceneManager::TakeEvents()
     if (not incomingEvent)
         return;
 
-    Stop();
+    StopThread();
     engineContext_.GetRenderersManager().UnSubscribeAll([&, e = *incomingEvent]() { AddEventToProcess(e); });
 }
 void SceneManager::ProccessEvents()
@@ -82,24 +89,24 @@ void SceneManager::ProccessEvents()
             LoadPreviousScene();
             break;
         case SceneEventType::LOAD_SCENE_BY_ID:
-            LoadScene(e.id);
+            SetSceneToLoad(e.id);
             break;
         case SceneEventType::LOAD_SCENE_BY_NAME:
-            LoadScene(e.name);
+            SetSceneToLoad(e.name);
             break;
         case SceneEventType::RELOAD_SCENE:
-            LoadScene(currentSceneId_);
+            SetSceneToLoad(currentSceneId_);
             break;
         default:
             break;
     }
 
-    Start();
+    StartUpdateThreadIfNeeded();
 }
 
 void SceneManager::SetActiveScene(const std::string& name)
 {
-    LoadScene(name);
+    SetSceneToLoad(name);
 }
 
 void SceneManager::Reset()
@@ -158,7 +165,7 @@ void SceneManager::LoadNextScene()
         DEBUG_LOG("SceneManager::LoadNextScene() no more scenes found.");
         return;
     }
-    LoadScene(++currentSceneId_);
+    SetSceneToLoad(++currentSceneId_);
 }
 void SceneManager::LoadPreviousScene()
 {
@@ -167,51 +174,50 @@ void SceneManager::LoadPreviousScene()
         DEBUG_LOG("SceneManager::LoadPreviousScene() no more scenes found.");
         return;
     }
-    LoadScene(--currentSceneId_);
+    SetSceneToLoad(--currentSceneId_);
 }
 
-template <class T>
-void SceneManager::JustLoadScene(T scene)
+template <class SceneNameOrId>
+void SceneManager::SetToWrapper(SceneNameOrId sceneNameOrId)
 {
     sceneWrapper_.Reset();
-    sceneWrapper_.Set(scene, std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
+    sceneWrapper_.Set(sceneNameOrId, std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
 }
 
-void SceneManager::LoadScene(uint32 id)
+void SceneManager::SetSceneToLoad(uint32 id)
 {
     if (!sceneFactory_->IsExist(id))
     {
-        DEBUG_LOG("SceneManager::LoadScene() no more scenes found.");
+        DEBUG_LOG("SceneManager::SetSceneToLoad() no more scenes found.");
         return;
     }
     currentSceneId_ = id;
-    JustLoadScene<uint32>(id);
+    SetToWrapper<uint32>(id);
 }
 
-void SceneManager::LoadScene(const std::string& name)
+void SceneManager::SetSceneToLoad(const std::string& name)
 {
     if (!sceneFactory_->IsExist(name))
     {
-        DEBUG_LOG("SceneManager::LoadScene() " + name + " not found.");
+        DEBUG_LOG("SceneManager::SetSceneToLoad() " + name + " not found.");
         return;
     }
 
     currentSceneId_ = sceneFactory_->GetSceneId(name);
-    JustLoadScene<const std::string&>(name);
+    SetToWrapper<const std::string&>(name);
 }
 void SceneManager::SetSceneContext(Scene* scene)
 {
     scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
 }
 
-void SceneManager::Start()
+void SceneManager::StartUpdateThreadIfNeeded()
 {
     if (not isRunning_)
     {
-        DEBUG_LOG("Starting scene");
-        updateSceneThreadId_ =
-            engineContext_.GetThreadSync().Subscribe(std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1),
-                                                     "UpdateScene", EngineConf.renderer.fpsLimt);
+        DEBUG_LOG("Starting scene update thread");
+        updateSceneThreadId_ = engineContext_.GetThreadSync().Subscribe(
+            std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene", EngineConf.renderer.fpsLimt);
         isRunning_ = true;
     }
     else
@@ -220,22 +226,22 @@ void SceneManager::Start()
     }
 }
 
-void SceneManager::Stop()
+void SceneManager::StopThread()
 {
     if (isRunning_)
     {
-        DEBUG_LOG("Stopping scene");
+        DEBUG_LOG("Stopping scene thread");
         if (updateSceneThreadId_)
             engineContext_.GetThreadSync().Unsubscribe(*updateSceneThreadId_);
         isRunning_ = false;
     }
     else
     {
-        WARNING_LOG("Scene is not started.");
+        WARNING_LOG("Scene thread is not started.");
     }
 }
 
-const IdMap &SceneManager::GetAvaiableScenes() const
+const IdMap& SceneManager::GetAvaiableScenes() const
 {
     return sceneFactory_->GetAvaiableScenes();
 }

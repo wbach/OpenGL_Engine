@@ -11,6 +11,7 @@ additionalIncludesDir='
 '$sourcesDir'/GraphicsApi;
 '$toolsDir'/common/glm;
 '$toolsDir'/common/bullet/src/;
+'$toolsDir'/common/wxWidgets/include/;
 '$toolsDir'/common/rapidxml-1.13;
 '$toolsDir'/Windows/assimp-5.0.1/include;
 '$toolsDir'/Windows/SDL2-2.0.12/include/;
@@ -93,6 +94,35 @@ additionalRelease64LibsDir='
 '$toolsDir'/Windows/gmock/lib/x64/Release;
 '$toolsDir'/Windows/Directx/Lib/x64;
 '$toolsDir'/Windows/bullet/x64/Release;
+'$toolsDir'/Windows/wxWidgets/x64/Release;
+'
+
+wxWidgetsReleaseLibs='
+wxbase33u.lib
+wxbase33u_net.lib
+wxbase33u_xml.lib
+wxexpat.lib
+wxjpeg.lib
+wxlexilla.lib
+wxmsw33u_adv.lib
+wxmsw33u_aui.lib
+wxmsw33u_core.lib
+wxmsw33u_gl.lib
+wxmsw33u_html.lib
+wxmsw33u_media.lib
+wxmsw33u_propgrid.lib
+wxmsw33u_qa.lib
+wxmsw33u_ribbon.lib
+wxmsw33u_richtext.lib
+wxmsw33u_stc.lib
+wxmsw33u_webview.lib
+wxmsw33u_xrc.lib
+wxpng.lib
+wxregexu.lib
+wxscintilla.lib
+wxtiff.lib
+wxwebp.lib
+wxzlib.lib
 '
 
 bulletReleaseLibs='
@@ -187,6 +217,7 @@ XInput.lib;
 '
 
 additionalReleaseLibs='
+'$wxWidgetsReleaseLibs'
 '$bulletReleaseLibs'
 libfbxsdk-md.lib;
 libxml2-md.lib;
