@@ -1,12 +1,13 @@
 
 #include "GLCanvas.h"
 
+#include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 #include <wx/dcclient.h>
 
+#include <filesystem>
 #include <memory>
 
-#include <filesystem>
-
+#include "WxInputManager.h"
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
 
@@ -104,7 +105,14 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     wxSize size = GetClientSize();
     if (not engine)
     {
-        auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y});
+        auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
+                                                                    [&](int x, int y)
+                                                                    {
+                                                                        if (GetHandle())
+                                                                        {
+                                                                            WarpPointer(x, y);
+                                                                        }
+                                                                    });
         wxWindowApi               = windowApiPtr.get();
         auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
         wxSceneFactory            = wxEditorSceneFactory.get();
@@ -112,7 +120,8 @@ void GLCanvas::OnPaint(wxPaintEvent&)
         engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
                                                       std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
-        engine->GetSceneManager().SetActiveScene("WxEditorScene");
+        engine->GetSceneManager().SetActiveScene("NewScene");
+        engine->GetSceneManager().SetOnSceneLoadDone([this]() { SetupCamera(); });
     }
     if (engine)
     {
@@ -147,6 +156,7 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
 {
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, event.GetKeyCode());
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, false);
 }
 
 void GLCanvas::OnKeyDown(wxKeyEvent& event)
@@ -156,6 +166,7 @@ void GLCanvas::OnKeyDown(wxKeyEvent& event)
         DEBUG_LOG("Escape");
         GetParent()->SetFocus();
     }
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, true);
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, event.GetKeyCode());
 }
@@ -221,7 +232,7 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
     return false;
 }
 
-bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void ()> callback)
+bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> callback)
 {
     if (not std::filesystem::exists(file.GetAbsoultePath()))
     {
@@ -230,10 +241,28 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void ()> ca
 
     const auto name = file.GetBaseName();
     wxSceneFactory->AddScene(name, file);
-    engine->GetSceneManager().SetOnSceneLoadDone(callback);
+    engine->GetSceneManager().SetOnSceneLoadDone(
+        [this, callback]()
+        {
+            callback();
+            SetupCamera();
+        });
     engine->GetSceneManager().SetActiveScene(name);
 
     return engine->GetSceneManager().GetActiveScene() != nullptr;
+}
+
+void GLCanvas::SetupCamera()
+{
+    auto& scene = GetScene();
+    scene.GetCamera().Lock();
+
+    auto cameraEditor = std::make_unique<GameEngine::CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
+    cameraEditor->SetPosition(scene.GetCamera().GetPosition());
+    cameraEditor->SetRotation(scene.GetCamera().GetRotation());
+    scene.getInputManager()->ShowCursor(true);
+    scene.getInputManager()->SetReleativeMouseMode(false);
+    cameraId = scene.GetCamera().addAndSet(std::move(cameraEditor));
 }
 
 GameObject& GLCanvas::GetRootObject()

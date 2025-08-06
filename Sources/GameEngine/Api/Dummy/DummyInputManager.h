@@ -20,7 +20,6 @@ public:
     virtual vec2 GetMousePosition() override;
 
     virtual void SetCursorPosition(int, int) override;
-    virtual void SetKeyToBuffer(int, bool) override;
     virtual void ClearKeyBuffer() override;
     virtual void GetPressedKeys() override;
     virtual void ShowCursor(bool) override;

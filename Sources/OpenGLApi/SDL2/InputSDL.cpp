@@ -111,9 +111,6 @@ bool InputSDL::IsKeyDownEventType(uint32 type) const
 {
     return type == SDL_KEYDOWN;
 }
-void InputSDL::SetKeyToBuffer(int, bool)
-{
-}
 void InputSDL::ClearKeyBuffer()
 {
     keyBuffer.clear();

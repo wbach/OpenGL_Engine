@@ -61,10 +61,13 @@ private:
     void OnMouseRightDown(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent&);
 
+    void SetupCamera();
+
     DECLARE_EVENT_TABLE()
 
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
     WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};
     std::unique_ptr<GameEngine::Engine> engine;
     std::unique_ptr<GameEngine::ISceneStorage> sceneCache;
+    std::optional<IdType> cameraId;
 };

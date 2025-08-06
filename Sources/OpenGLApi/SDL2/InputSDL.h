@@ -18,7 +18,6 @@ public:
     vec2i CalcualteMouseMove() override;
     vec2i GetPixelMousePosition() override;
     vec2 GetMousePosition() override;
-    void SetKeyToBuffer(int key, bool value) override;
     void ClearKeyBuffer() override;
     void SetCursorPosition(int x, int y) override;
     void GetPressedKeys() override;

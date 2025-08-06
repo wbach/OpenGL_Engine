@@ -2,12 +2,10 @@
 
 #include <Logger/Log.h>
 
-#include "WxInputManager.h"
-
 namespace WxEditor
 {
-WxWindowApi::WxWindowApi(const vec2i renderSize)
-    : inputManager{std::make_unique<WxInputManager>(renderSize)}
+WxWindowApi::WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc func)
+    : inputManager{std::make_unique<WxInputManager>(renderSize, func)}
     , windowSize(renderSize.x, renderSize.y)
 {
     DEBUG_LOG("Add display mode: " + std::to_string(renderSize));

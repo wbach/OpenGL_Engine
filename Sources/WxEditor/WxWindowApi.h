@@ -2,18 +2,20 @@
 #include <GraphicsApi/WindowApi.hpp>
 #include <vector>
 
+#include "WxInputManager.h"
+
 class wxMouseEvent;
 
 namespace WxEditor
 {
-class WxInputManager;
+
 class WxWindowApi : public GraphicsApi::IWindowApi
 {
 public:
-    WxWindowApi(const vec2i renderSize);
+    WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc);
     ~WxWindowApi() override;
 
-    void OnMouseMove(wxMouseEvent&);
+    void OnMouseMove(wxMouseEvent &);
 
     void Init() override;
     void CreateGameWindow(const std::string &, uint32, uint32, GraphicsApi::WindowType) override;
@@ -35,6 +37,10 @@ public:
     void ShowMessageBox(const std::string &title, const std::string &message, std::function<void(bool)>) const override;
     const std::vector<GraphicsApi::DisplayMode> &GetDisplayModes() const override;
     void BeginFrame() override;
+    WxInputManager &GetWxInputManager()
+    {
+        return *inputManager;
+    }
 
 private:
     std::vector<GraphicsApi::DisplayMode> displayModes;

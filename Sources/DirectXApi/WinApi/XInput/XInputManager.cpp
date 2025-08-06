@@ -85,9 +85,6 @@ vec2 XInputManager::GetMousePosition()
     }
     return vec2(0);
 }
-void XInputManager::SetKeyToBuffer(int key, bool value)
-{
-}
 void XInputManager::ClearKeyBuffer()
 {
     keyBuffer.clear();

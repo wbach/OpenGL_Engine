@@ -118,8 +118,9 @@ uint32 KeyConverter::Convert(KeyCodes::Type type)
 }
 }  // namespace
 
-WxInputManager::WxInputManager(const vec2i& windowSize)
+WxInputManager::WxInputManager(const vec2i& windowSize, WrapPointerFunc wrapPointerFunc)
     : windowSize{windowSize}
+    , wrapPointer{wrapPointerFunc}
 {
     lastMousePosition = vec2i{};
 }
@@ -132,30 +133,36 @@ void WxInputManager::OnMouseMove(wxMouseEvent& event)
     lastMousePosition         = vec2i{currentMousePosition.x, currentMousePosition.y};
 }
 
-bool WxInputManager::GetKey(KeyCodes::Type)
+bool WxInputManager::GetKey(KeyCodes::Type code)
 {
-    return false;
+    return keyBuffer[KeyConverter::Convert(code)];
 }
 
-bool WxInputManager::GetMouseKey(KeyCodes::Type)
+bool WxInputManager::GetMouseKey(KeyCodes::Type code)
 {
-    return false;
+    return keyBuffer[KeyConverter::Convert(code)];
 }
 
-void WxInputManager::SetReleativeMouseMode(bool)
+void WxInputManager::SetReleativeMouseMode(bool v)
 {
+    isRelativeMouseMode = v;
 }
 
 vec2i WxInputManager::CalcualteMouseMove()
 {
     auto result   = lastMouseMove;
     lastMouseMove = vec2i(0);
+
+    if (isRelativeMouseMode)
+    {
+        wrapPointer(windowSize.x / 2, windowSize.y / 2);
+    }
     return result;
 }
 
 vec2i WxInputManager::GetPixelMousePosition()
 {
-    return {0, 0};
+    return lastMousePosition;
 }
 
 vec2 WxInputManager::GetMousePosition()
@@ -167,16 +174,23 @@ vec2 WxInputManager::GetMousePosition()
     return out;
 }
 
-void WxInputManager::SetKeyToBuffer(int, bool)
+void WxInputManager::SetKeyToBuffer(Input::KeyInteger i, bool v)
 {
+    keyBuffer[i.value] = v;
 }
 
 void WxInputManager::ClearKeyBuffer()
 {
+    for (auto& key : keyBuffer)
+    {
+        key = false;
+    }
 }
 
-void WxInputManager::SetCursorPosition(int, int)
+void WxInputManager::SetCursorPosition(int x, int y)
 {
+    if (wrapPointer)
+        wrapPointer(x, y);
 }
 
 void WxInputManager::GetPressedKeys()

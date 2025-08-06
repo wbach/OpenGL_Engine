@@ -12,22 +12,21 @@ public:
     XInputManager(HWND windowHwnd, const vec2ui& windowSize);
     ~XInputManager() override;
 
-    virtual bool GetKey(KeyCodes::Type) override;
-    virtual bool GetMouseKey(KeyCodes::Type) override;
-    virtual void SetReleativeMouseMode(bool) override;
-    virtual vec2i CalcualteMouseMove() override;
-    virtual vec2i GetPixelMousePosition() override;
-    virtual vec2 GetMousePosition() override;
-    virtual void SetKeyToBuffer(int key, bool value) override;
-    virtual void ClearKeyBuffer() override;
-    virtual void SetCursorPosition(int x, int y) override;
-    virtual void GetPressedKeys() override;
-    virtual void ShowCursor(bool) override;
+    bool GetKey(KeyCodes::Type) override;
+    bool GetMouseKey(KeyCodes::Type) override;
+    void SetReleativeMouseMode(bool) override;
+    vec2i CalcualteMouseMove() override;
+    vec2i GetPixelMousePosition() override;
+    vec2 GetMousePosition() override;
+    void ClearKeyBuffer() override;
+    void SetCursorPosition(int x, int y) override;
+    void GetPressedKeys() override;
+    void ShowCursor(bool) override;
 
 protected:
-    virtual KeyCodes::Type ConvertCode(uint32) const override;
-    virtual bool IsKeyUpEventType(uint32) const override;
-    virtual bool IsKeyDownEventType(uint32) const override;
+    KeyCodes::Type ConvertCode(uint32) const override;
+    bool IsKeyUpEventType(uint32) const override;
+    bool IsKeyDownEventType(uint32) const override;
 
 private:
     HWND windowHwnd_;

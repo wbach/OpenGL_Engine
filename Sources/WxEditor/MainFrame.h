@@ -60,6 +60,8 @@ private:
     void MenuRendererTextureSpecular(wxCommandEvent&);
     void MenuRendererTextureDisplacement(wxCommandEvent&);
 
+    void OnObjectTreeSelChange(wxTreeEvent&);
+
     void OnClose(wxCloseEvent&);
 
     void OnGLVersion(wxCommandEvent&);
@@ -78,6 +80,7 @@ private:
 
     GameEngine::GameObject* AddGameObject(const std::string& = "NewGameObject", IdType = 0);
     wxTreeItemId AddGameObjectToWxWidgets(wxTreeItemId, IdType, const std::string&);
+
 
 private:
     GLCanvas* canvas;

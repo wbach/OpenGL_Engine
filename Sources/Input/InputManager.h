@@ -19,6 +19,11 @@ typedef std::function<void(KeyCodes::Type key)> KeysPressedFunc;
 typedef std::unordered_map<uint32, KeysPressedFunc> KeysSubscribers;
 typedef std::pair<uint32, uint32> KeyEvent;
 
+struct KeyInteger
+{
+    int value;
+};
+
 class InputManager
 {
     struct Subscribers
@@ -40,7 +45,7 @@ public:
     virtual vec2 GetMousePosition()              = 0;
 
     virtual void SetCursorPosition(int x, int y)     = 0;
-    virtual void SetKeyToBuffer(int key, bool value) = 0;
+    virtual void SetKeyToBuffer(KeyInteger, bool value) {};
     virtual void ClearKeyBuffer()                    = 0;
     virtual void GetPressedKeys()                    = 0;
     virtual void ShowCursor(bool)                    = 0;

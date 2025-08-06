@@ -40,9 +40,6 @@ vec2 GameEngine::DummyInputManager::GetMousePosition()
 void GameEngine::DummyInputManager::SetCursorPosition(int, int)
 {
 }
-void GameEngine::DummyInputManager::SetKeyToBuffer(int, bool)
-{
-}
 void GameEngine::DummyInputManager::ClearKeyBuffer()
 {
 }

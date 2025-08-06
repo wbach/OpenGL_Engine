@@ -8,7 +8,10 @@ namespace WxEditor
 class WxInputManager : public Input::InputManager
 {
 public:
-    WxInputManager(const vec2i&);
+    using KeyBuffer = std::array<bool, 1000>;
+    using WrapPointerFunc = std::function<void (int, int)>;
+
+    WxInputManager(const vec2i&, WrapPointerFunc);
     void OnMouseMove(wxMouseEvent&);
 
     bool GetKey(KeyCodes::Type);
@@ -17,7 +20,7 @@ public:
     vec2i CalcualteMouseMove();
     vec2i GetPixelMousePosition();
     vec2 GetMousePosition();
-    void SetKeyToBuffer(int, bool);
+    void SetKeyToBuffer(Input::KeyInteger, bool);
     void ClearKeyBuffer();
     void SetCursorPosition(int, int);
     void GetPressedKeys();
@@ -30,7 +33,10 @@ protected:
 
 private:
     const vec2i windowSize;
+    WrapPointerFunc wrapPointer;
     vec2i lastMousePosition;
     vec2i lastMouseMove;
+    KeyBuffer keyBuffer;
+    bool isRelativeMouseMode;
 };
 }  // namespace WxEditor

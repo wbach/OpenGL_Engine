@@ -33,6 +33,7 @@ enum
     ID_MENU_RENDERER_TEXTURE_SPECULAR,
     ID_MENU_RENDERER_TEXTURE_DISPLACEMENT,
     ID_FILE_EXPLORER,
+    ID_OBJECT_TREE,
     ID_MENU_ABOUT_GL_INFO,
 };
 }  // namespace
@@ -60,6 +61,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_SPECULAR, MainFrame::MenuRendererTextureSpecular)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuRendererTextureDisplacement)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
+    EVT_TREE_SEL_CHANGED(ID_OBJECT_TREE, MainFrame::OnObjectTreeSelChange)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
 wxEND_EVENT_TABLE()
@@ -76,7 +78,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     wxSplitterWindow* trs = new wxSplitterWindow(topSplitter, wxID_ANY);
     // FromDIP(wxSize(160, 250))
-    gameObjectsView = new wxTreeCtrl(topSplitter, wxID_ANY, wxPoint(0, 0), wxSize(160, 250), wxTR_DEFAULT_STYLE | wxNO_BORDER);
+    gameObjectsView =
+        new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250), wxTR_DEFAULT_STYLE | wxNO_BORDER);
 
     CreateRootGameObject();
 
@@ -122,15 +125,17 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     wxString path = openFileDialog.GetPath();
     CreateRootGameObject();
     GameEngine::File file{std::string{path.c_str()}};
-    canvas->OpenScene(file, [&](){
-        if (isRunning)
-        {
-            AddChilds(canvas->GetRootObject(), treeRootId);
-            auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
-            gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
-            SetStatusText("Welcome to game editor!");
-        }
-    });
+    canvas->OpenScene(file,
+                      [&]()
+                      {
+                          if (isRunning)
+                          {
+                              AddChilds(canvas->GetRootObject(), treeRootId);
+                              auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
+                              gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+                              SetStatusText("Welcome to game editor!");
+                          }
+                      });
     SetStatusText("Loading file " + file.GetBaseName());
 }
 
@@ -383,4 +388,23 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
             AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), id, file.GetBaseName());
         }
     }
+}
+
+void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
+{
+    auto iter = gameObjectsItemsIdsMap.find(event.GetItem().GetID());
+    if (iter != gameObjectsItemsIdsMap.end())
+    {
+        const auto& [_, goId] = *iter;
+        auto& scene           = canvas->GetScene();
+
+        if (auto gameObject = scene.GetGameObject(goId))
+        {
+            scene.GetCamera().SetPosition(gameObject->GetWorldTransform().GetPosition() +
+                                          (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
+            scene.GetCamera().LookAt(gameObject->GetWorldTransform().GetPosition());
+        }
+    }
+
+    DEBUG_LOG("OnObjectTreeSelChange");
 }
