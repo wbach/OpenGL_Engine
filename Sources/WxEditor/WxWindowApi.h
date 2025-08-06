@@ -39,5 +39,6 @@ public:
 private:
     std::vector<GraphicsApi::DisplayMode> displayModes;
     std::unique_ptr<WxInputManager> inputManager;
+    vec2ui windowSize;
 };
 }  // namespace WxEditor

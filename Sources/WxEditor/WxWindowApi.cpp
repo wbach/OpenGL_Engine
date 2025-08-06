@@ -8,6 +8,7 @@ namespace WxEditor
 {
 WxWindowApi::WxWindowApi(const vec2i renderSize)
     : inputManager{std::make_unique<WxInputManager>(renderSize)}
+    , windowSize(renderSize.x, renderSize.y)
 {
     DEBUG_LOG("Add display mode: " + std::to_string(renderSize));
     displayModes.push_back(GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
@@ -37,7 +38,7 @@ void WxWindowApi::SetWindowSize(const vec2ui &)
 
 vec2ui WxWindowApi::GetWindowSize() const
 {
-    return {};
+    return windowSize;
 }
 
 void WxWindowApi::CreateContext()
