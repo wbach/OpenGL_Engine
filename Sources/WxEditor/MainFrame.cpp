@@ -131,8 +131,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                           if (isRunning)
                           {
                               AddChilds(canvas->GetRootObject(), treeRootId);
-                              auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
-                              gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+                              UpdateObjectCount();
                               SetStatusText("Welcome to game editor!");
                           }
                       });
@@ -218,6 +217,12 @@ wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdTy
     auto itemId = gameObjectsView->AppendItem(pranetItemId, name);
     gameObjectsItemsIdsMap.insert({itemId, goId});
     return itemId;
+}
+
+void MainFrame::UpdateObjectCount()
+{
+    auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
+    gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
 }
 
 void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
@@ -386,6 +391,7 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
         {
             auto id = canvas->AddGameObject(file);
             AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), id, file.GetBaseName());
+            UpdateObjectCount();
         }
     }
 }

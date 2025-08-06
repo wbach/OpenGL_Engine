@@ -226,6 +226,11 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
         auto& animator                     = newGameObject->AddComponent<Components::Animator>();
         animator.startupAnimationClipName_ = "noname";
         rendererComponent.AddModel(file.GetAbsoultePath());
+
+        vec3 position(0.f);
+        position = scene->GetCamera().GetPosition();
+        position += scene->GetCamera().GetDirection() * 5.f;
+        newGameObject->GetTransform().SetPosition(position);
         scene->AddGameObject(std::move(newGameObject));
         return true;
     }

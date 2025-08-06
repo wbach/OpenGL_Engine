@@ -81,6 +81,7 @@ private:
     GameEngine::GameObject* AddGameObject(const std::string& = "NewGameObject", IdType = 0);
     wxTreeItemId AddGameObjectToWxWidgets(wxTreeItemId, IdType, const std::string&);
 
+    void UpdateObjectCount();
 
 private:
     GLCanvas* canvas;
