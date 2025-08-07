@@ -1,6 +1,7 @@
 
 #include "MainFrame.h"
 
+#include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <wx/splitter.h>
 
@@ -141,6 +142,11 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     SetStatusText("Loading file " + file.GetBaseName());
 }
 
+void MainFrame::MenuFileReloadScene(wxCommandEvent&)
+{
+    canvas->GetScene().addSceneEvent(GameEngine::SceneEventType::RELOAD_SCENE);
+}
+
 void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
 {
     if (not canvas->GetScene().GetFile().empty())
@@ -174,21 +180,13 @@ void MainFrame::MenuFileExit(wxCommandEvent&)
 
 void MainFrame::MenuEditCreateObject(wxCommandEvent&)
 {
-    auto treeSelectedItemId = gameObjectsView->GetSelection();
-    auto goIter             = gameObjectsItemsIdsMap.find(treeSelectedItemId);
     auto parentGameObjectId = canvas->GetScene().GetRootGameObject().GetId();
-    if (goIter != gameObjectsItemsIdsMap.end())
+    if (auto parentGameObject = GetSelectedGameObject())
     {
-        DEBUG_LOG("goIter found");
-        auto parentGameObject = canvas->GetScene().GetGameObject(goIter->second);
-        if (parentGameObject)
-        {
-            DEBUG_LOG("parentGameObject found");
-            parentGameObjectId = parentGameObject->GetId();
-        }
+        parentGameObjectId = parentGameObject->GetId();
     }
     auto gameObject = AddGameObject("NewGameObject", parentGameObjectId);
-    AddGameObjectToWxWidgets(treeSelectedItemId, gameObject->GetId(), gameObject->GetName());
+    AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), gameObject->GetId(), gameObject->GetName());
 }
 
 GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
@@ -229,6 +227,22 @@ void MainFrame::UpdateObjectCount()
 {
     auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
     gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+}
+
+GameEngine::GameObject* MainFrame::GetSelectedGameObject()
+{
+    auto treeSelectedItemId = gameObjectsView->GetSelection();
+    if (not treeSelectedItemId.IsOk())
+    {
+        return &canvas->GetScene().GetRootGameObject();
+    }
+
+    auto goIter = gameObjectsItemsIdsMap.find(treeSelectedItemId);
+    if (goIter != gameObjectsItemsIdsMap.end())
+    {
+        return canvas->GetScene().GetGameObject(goIter->second);
+    }
+    return nullptr;
 }
 
 void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
@@ -395,7 +409,8 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
                               "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
         if (is3Model)
         {
-            auto id = canvas->AddGameObject(file);
+            auto parentGameObject = GetSelectedGameObject();
+            auto id               = canvas->AddGameObject(file, parentGameObject);
             AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), id, file.GetBaseName());
             UpdateObjectCount();
         }

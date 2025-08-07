@@ -216,7 +216,7 @@ std::string GLCanvas::getGlInfo() const
     return "GL version:" + ver + "\nGLSL: version" + glslver;
 }
 
-bool GLCanvas::AddGameObject(const GameEngine::File& file)
+bool GLCanvas::AddGameObject(const GameEngine::File& file, GameEngine::GameObject* parent)
 {
     if (engine)
     {
@@ -231,7 +231,15 @@ bool GLCanvas::AddGameObject(const GameEngine::File& file)
         position = scene->GetCamera().GetPosition();
         position += scene->GetCamera().GetDirection() * 5.f;
         newGameObject->GetTransform().SetPosition(position);
-        scene->AddGameObject(std::move(newGameObject));
+
+        if (not parent)
+        {
+            scene->AddGameObject(std::move(newGameObject));
+        }
+        else
+        {
+            parent->AddChild(std::move(newGameObject));
+        }
         return true;
     }
     return false;

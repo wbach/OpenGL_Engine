@@ -37,7 +37,7 @@ public:
     ~GLCanvas();
 
     std::string getGlInfo() const;
-    bool AddGameObject(const GameEngine::File&);
+    bool AddGameObject(const GameEngine::File&, GameEngine::GameObject* = nullptr);
     bool OpenScene(const GameEngine::File&, std::function<void()>);
     GameEngine::GameObject& GetRootObject();
     GameEngine::Engine& GetEngine();

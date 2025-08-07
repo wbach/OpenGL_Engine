@@ -39,6 +39,7 @@ public:
 
 private:
     void MenuFileOpenScene(wxCommandEvent&);
+    void MenuFileReloadScene(wxCommandEvent&);
     void MenuFileSaveScene(wxCommandEvent&);
     void MenuFileSaveSceneAs(wxCommandEvent&);
     void MenuFileExit(wxCommandEvent&);
@@ -83,6 +84,7 @@ private:
     wxTreeItemId AddGameObjectToWxWidgets(wxTreeItemId, IdType, const std::string&);
 
     void UpdateObjectCount();
+    GameEngine::GameObject* GetSelectedGameObject();
 
 private:
     GLCanvas* canvas;
