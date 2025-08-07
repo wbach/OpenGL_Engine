@@ -292,7 +292,6 @@ void createDefaultJointGroup(std::vector<std::string>& group, const Animation::J
 }
 void Animator::GetSkeletonAndAnimations()
 {
-    DEBUG_LOG(thisObject_.GetName()+  " GetSkeletonAndAnimations");
     rendererComponent_ = thisObject_.GetComponent<RendererComponent>();
 
     if (not rendererComponent_)
@@ -337,6 +336,10 @@ void Animator::GetSkeletonAndAnimations()
             {
                 DEBUG_LOG("Montion joint found : " + montionJointName_);
                 machine_.context_.montionRootJointId = montionJoint_->id;
+            }
+            else
+            {
+                WARNING_LOG("Montion joint not found : " + montionJointName_);
             }
         }
     }
@@ -441,8 +444,17 @@ void Animator::applyPoseToJoints()
 }
 void Animator::createShaderJointBuffers()
 {
+    if (jointData_.buffer)
+    {
+        DEBUG_LOG("ShaderJointBuffer already exist!");
+        return;
+    }
+
     jointData_.buffer =
         std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_, PER_POSE_UPDATE_BIND_LOCATION);
+
+    DEBUG_LOG("Created shader buffer: " + thisObject_.GetName() +
+              ", buffer id: " + std::to_string(jointData_.buffer->GetGpuObjectId()));
 
     auto& bufferData = jointData_.buffer->GetData();
     for (size_t i = 0; i < MAX_BONES; ++i)
@@ -568,7 +580,6 @@ void Animator::registerReadFunctions()
                 component->jointGroups_[node->name()] = Utils::SplitString(node->value_, ' ');
             }
         }
-
         return component;
     };
 

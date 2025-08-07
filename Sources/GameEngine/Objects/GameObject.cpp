@@ -74,11 +74,15 @@ void GameObject::NotifyComponentControllerAboutObjectCreation(GameObject& object
     }
 }
 
+
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
+    bool shouldNotifyComponentController = (parent_ != nullptr);
+
     object->SetParent(this);
     object->RegisterComponentFunctions();
-    if (parent_)
+
+    if (shouldNotifyComponentController)
     {
         NotifyComponentControllerAboutObjectCreation(*object);
     }

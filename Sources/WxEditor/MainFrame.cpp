@@ -465,7 +465,7 @@ void MainFrame::OnObjectEndDrag(wxTreeEvent& event)
         return;
 
     auto dragedGameObject = GetGameObject(treeDragItemId);
-    auto newParent        = GetGameObject(target);
+    auto newParent = target == gameObjectsView->GetRootItem() ? &canvas->GetScene().GetRootGameObject() : GetGameObject(target);
 
     if (dragedGameObject and newParent)
     {
