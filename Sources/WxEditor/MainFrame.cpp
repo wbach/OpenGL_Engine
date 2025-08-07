@@ -3,12 +3,15 @@
 
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneUtils.h>
+#include <wx/artprov.h>
 #include <wx/splitter.h>
+#include <wx/statbmp.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <string>
 
 #include "GLCanvas.h"
+#include "TransformPanel.h"
 
 namespace
 {
@@ -71,6 +74,11 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
 wxEND_EVENT_TABLE()
 
+enum
+{
+    ID_TOOL_START = wxID_HIGHEST + 1,
+    ID_TOOL_STOP
+};
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
@@ -102,18 +110,49 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
                               }
                           });
 
-    wxListBox* transformView = new wxListBox(trs, wxID_ANY);
-    transformView->Append("TransformView");
+    // Zamiast wxListBox
+    wxScrolledWindow* transformView = new wxScrolledWindow(trs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
+    transformView->SetScrollRate(5, 5);  // ustaw scrollowanie
+
+    wxBoxSizer* transformSizer = new wxBoxSizer(wxVERTICAL);
+    transformView->SetSizer(transformSizer);
+
+    // Dodaj kilka paneli TransformPanel (na przykład 3)
+    for (int i = 0; i < 3; ++i)
+    {
+        TransformPanel* panel = new TransformPanel(transformView);
+        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
+    }
+
+    transformView->Layout();
+    transformView->FitInside();
+
+    // Splitter dzielimy na canvas i ten nowy panel z listą
     trs->SplitVertically(canvas, transformView, size.x * 6 / 8);
 
     fileExplorer = new wxGenericDirCtrl(bottomSpliter, ID_FILE_EXPLORER, Utils::GetAbsolutePath(EngineConf.files.data),
                                         wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SELECT_FIRST);
 
-    wxListBox* filePreview = new wxListBox(bottomSpliter, wxID_ANY);
-    filePreview->Append("FilePreview");
+    wxStaticBitmap* filePreview = nullptr;
+//    wxImage img;
+//    if (img.LoadFile("sample.png", wxBITMAP_TYPE_PNG))
+//    {
+//        wxBitmap bmp(img);
+//        filePreview = new wxStaticBitmap(bottomSpliter, wxID_ANY, bmp, wxDefaultPosition, wxSize(300, 200));
+//    }
+//    else
+    {
+        wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_OTHER, wxSize(300, 200));
+        filePreview = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
+    }
+
     bottomSpliter->SplitVertically(fileExplorer, filePreview, size.x / 2);
 
     CreateMainMenu();
+    auto* toolbar = CreateToolBar();
+    toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
+    toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
+    toolbar->Realize();
     CreateStatusBar();
     SetStatusText("Welcome to game editor!");
 }
