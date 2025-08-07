@@ -90,7 +90,18 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     topSplitter->SplitVertically(gameObjectsView, trs, size.x / 8);
 
-    canvas                   = new GLCanvas(trs);
+    canvas = new GLCanvas(trs,
+                          [&](uint32 gameObjectId, bool select)
+                          {
+                              for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
+                              {
+                                  if (goId == gameObjectId)
+                                  {
+                                      gameObjectsView->SelectItem(wxItemId, select);
+                                  }
+                              }
+                          });
+
     wxListBox* transformView = new wxListBox(trs, wxID_ANY);
     transformView->Append("TransformView");
     trs->SplitVertically(canvas, transformView, size.x * 6 / 8);
@@ -426,22 +437,6 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
 
 void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 {
-//    DEBUG_LOG("OnObjectTreeSelChange");
-
-//    if (not event.GetItem().IsOk())
-//    {
-//        canvas->ResetDragObject();
-//        return;
-//    }
-
-//    if (auto gameObject = GetGameObject(event.GetItem().GetID()))
-//    {
-//        canvas->GameObjectSelectChange(*gameObject);
-//    }
-//    else
-//    {
-//        canvas->ResetDragObject();
-//    }
 }
 
 void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)

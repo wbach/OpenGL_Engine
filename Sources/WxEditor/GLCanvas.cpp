@@ -83,10 +83,11 @@ const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,   
 
 }  // namespace WxEditor
 
-GLCanvas::GLCanvas(wxWindow* parent)
+GLCanvas::GLCanvas(wxWindow* parent, SelectItemInGameObjectTree callback)
     : wxGLCanvas(parent, wxID_ANY, WxEditor::glAttributes)
     , context(nullptr)
     , renderTimer(this)
+    , selectItemInGameObjectTree(callback)
 {
     context = new wxGLContext(this);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
@@ -207,6 +208,7 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
         if (maybeGameObject)
         {
             GameObjectSelectChange(*maybeGameObject);
+            selectItemInGameObjectTree(maybeGameObject->GetId(), true);
         }
     }
 }

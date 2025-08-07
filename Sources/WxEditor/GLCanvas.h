@@ -35,7 +35,9 @@ class MousePicker;
 class GLCanvas : public wxGLCanvas
 {
 public:
-    GLCanvas(wxWindow* parent);
+    using SelectItemInGameObjectTree = std::function<void(uint32, bool)>;
+    using PrentWindow = wxWindow*;
+    GLCanvas(PrentWindow, SelectItemInGameObjectTree);
     ~GLCanvas();
 
     std::string getGlInfo() const;
@@ -69,6 +71,7 @@ private:
 
     DECLARE_EVENT_TABLE()
 
+    SelectItemInGameObjectTree selectItemInGameObjectTree;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
     WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};
     std::unique_ptr<GameEngine::Engine> engine;
