@@ -28,7 +28,9 @@ class WxEditorSceneFactory;
 namespace GameEngine
 {
 class Engine;
-}
+class DragObject;
+class MousePicker;
+}  // namespace GameEngine
 
 class GLCanvas : public wxGLCanvas
 {
@@ -39,6 +41,8 @@ public:
     std::string getGlInfo() const;
     bool AddGameObject(const GameEngine::File&, GameEngine::GameObject* = nullptr);
     bool OpenScene(const GameEngine::File&, std::function<void()>);
+    void GameObjectSelectChange(GameEngine::GameObject&);
+    void ResetDragObject();
     GameEngine::GameObject& GetRootObject();
     GameEngine::Engine& GetEngine();
     GameEngine::Scene& GetScene();
@@ -70,4 +74,6 @@ private:
     std::unique_ptr<GameEngine::Engine> engine;
     std::unique_ptr<GameEngine::ISceneStorage> sceneCache;
     std::optional<IdType> cameraId;
+    std::unique_ptr<GameEngine::DragObject> dragGameObject;
+    std::unique_ptr<GameEngine::MousePicker> mousePicker;
 };

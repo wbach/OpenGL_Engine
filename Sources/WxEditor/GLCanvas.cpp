@@ -2,6 +2,8 @@
 #include "GLCanvas.h"
 
 #include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
+#include <GameEngine/DebugTools/MousePicker/DragObject.h>
+#include <GameEngine/DebugTools/MousePicker/MousePicker.h>
 #include <wx/dcclient.h>
 
 #include <filesystem>
@@ -128,6 +130,11 @@ void GLCanvas::OnPaint(wxPaintEvent&)
         engine->MainLoop();
     }
 
+    if (dragGameObject)
+    {
+        dragGameObject->Update();
+    }
+
     SwapBuffers();
 }
 
@@ -179,6 +186,9 @@ void GLCanvas::OnMouseLeftUp(wxMouseEvent& event)
 {
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, false);
+    mousePicker.reset();
+    ResetDragObject();
 }
 
 void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
@@ -186,12 +196,26 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
     SetFocus();
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, true);
+
+    if (engine->GetSceneManager().GetActiveScene() and not mousePicker)
+    {
+        mousePicker          = std::make_unique<GameEngine::MousePicker>(GetScene().GetCamera(),
+                                                                engine->GetEngineContext().GetRenderersManager().GetProjection());
+        auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
+                                                         GetScene().GetGameObjects());
+        if (maybeGameObject)
+        {
+            GameObjectSelectChange(*maybeGameObject);
+        }
+    }
 }
 
 void GLCanvas::OnMouseRightUp(wxMouseEvent& event)
 {
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT}, false);
 }
 
 void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
@@ -199,6 +223,7 @@ void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
     SetFocus();
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT}, true);
 }
 
 void GLCanvas::OnMouseMove(wxMouseEvent& evt)
@@ -263,6 +288,21 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
     engine->GetSceneManager().SetActiveScene(name);
 
     return engine->GetSceneManager().GetActiveScene() != nullptr;
+}
+
+void GLCanvas::GameObjectSelectChange(GameEngine::GameObject& gameObject)
+{
+    if (engine and engine->GetSceneManager().GetActiveScene())
+    {
+        dragGameObject =
+            std::make_unique<GameEngine::DragObject>(*GetScene().getInputManager(), gameObject, GetScene().GetCamera(),
+                                                     engine->GetEngineContext().GetRenderersManager().GetProjection());
+    }
+}
+
+void GLCanvas::ResetDragObject()
+{
+    dragGameObject.reset();
 }
 
 void GLCanvas::SetupCamera()

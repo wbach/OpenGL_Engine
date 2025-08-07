@@ -426,7 +426,22 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
 
 void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 {
-    DEBUG_LOG("OnObjectTreeSelChange");
+//    DEBUG_LOG("OnObjectTreeSelChange");
+
+//    if (not event.GetItem().IsOk())
+//    {
+//        canvas->ResetDragObject();
+//        return;
+//    }
+
+//    if (auto gameObject = GetGameObject(event.GetItem().GetID()))
+//    {
+//        canvas->GameObjectSelectChange(*gameObject);
+//    }
+//    else
+//    {
+//        canvas->ResetDragObject();
+//    }
 }
 
 void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)

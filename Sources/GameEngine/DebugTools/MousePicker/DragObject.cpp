@@ -66,7 +66,7 @@ vec3 DragObject::GetMouseAsWorldPoint(const vec2& mousePosition, float zCoord)
 }
 void DragObject::KeyDirectionLock(vec3& newPosition)
 {
-    const auto& position = gameObject_.GetTransform().GetPosition();
+    const auto& position = gameObject_.GetWorldTransform().GetPosition();
 
     if (input_.GetKey(KeyCodes::B))
     {
