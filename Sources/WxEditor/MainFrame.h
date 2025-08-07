@@ -63,6 +63,8 @@ private:
 
     void OnObjectTreeSelChange(wxTreeEvent&);
     void OnObjectTreeActivated(wxTreeEvent&);
+    void OnObjectDrag(wxTreeEvent&);
+    void OnObjectEndDrag(wxTreeEvent&);
 
     void OnClose(wxCloseEvent&);
 
@@ -85,11 +87,14 @@ private:
 
     void UpdateObjectCount();
     GameEngine::GameObject* GetSelectedGameObject();
+    GameEngine::GameObject* GetGameObject(wxTreeItemId);
+    void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
 
 private:
     GLCanvas* canvas;
     wxTreeCtrl* gameObjectsView;
     wxTreeItemId treeRootId;
+    wxTreeItemId treeDragItemId;
     std::unordered_map<wxTreeItemId, IdType, TreeItemIdHasher, TreeItemIdEqual> gameObjectsItemsIdsMap;
     wxGenericDirCtrl* fileExplorer;
     std::thread loadSceneThread;

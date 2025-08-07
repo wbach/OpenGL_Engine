@@ -65,6 +65,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
     EVT_TREE_SEL_CHANGED(ID_OBJECT_TREE, MainFrame::OnObjectTreeSelChange)
     EVT_TREE_ITEM_ACTIVATED(ID_OBJECT_TREE, MainFrame::OnObjectTreeActivated)
+    EVT_TREE_BEGIN_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectDrag)
+    EVT_TREE_END_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectEndDrag)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
 wxEND_EVENT_TABLE()
@@ -237,7 +239,12 @@ GameEngine::GameObject* MainFrame::GetSelectedGameObject()
         return &canvas->GetScene().GetRootGameObject();
     }
 
-    auto goIter = gameObjectsItemsIdsMap.find(treeSelectedItemId);
+    return GetGameObject(treeSelectedItemId);
+}
+
+GameEngine::GameObject* MainFrame::GetGameObject(wxTreeItemId id)
+{
+    auto goIter = gameObjectsItemsIdsMap.find(id);
     if (goIter != gameObjectsItemsIdsMap.end())
     {
         return canvas->GetScene().GetGameObject(goIter->second);
@@ -435,6 +442,75 @@ void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
             scene.GetCamera().SetPosition(gameObject->GetWorldTransform().GetPosition() +
                                           (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
             scene.GetCamera().LookAt(gameObject->GetWorldTransform().GetPosition());
+        }
+    }
+}
+
+void MainFrame::OnObjectDrag(wxTreeEvent& event)
+{
+    if (not event.GetItem().IsOk())
+        return;
+
+    treeDragItemId = event.GetItem();
+    event.Allow();
+}
+
+void MainFrame::OnObjectEndDrag(wxTreeEvent& event)
+{
+    auto target = event.GetItem();
+    if (not target.IsOk() or not treeDragItemId.IsOk())
+        return;
+
+    if (target == treeDragItemId)
+        return;
+
+    auto dragedGameObject = GetGameObject(treeDragItemId);
+    auto newParent        = GetGameObject(target);
+
+    if (dragedGameObject and newParent)
+    {
+        DEBUG_LOG("Change gameObjectParent");
+        ChangeGameObjectParent(*dragedGameObject, *newParent);
+    }
+
+    auto text    = gameObjectsView->GetItemText(treeDragItemId);
+    auto newItem = gameObjectsView->AppendItem(target, text);
+
+    std::optional<IdType> maybeGameObjectIdInMap;
+    auto goIter = gameObjectsItemsIdsMap.find(treeDragItemId);
+    if (goIter != gameObjectsItemsIdsMap.end())
+    {
+        maybeGameObjectIdInMap = goIter->second;
+    }
+
+    if (maybeGameObjectIdInMap)
+    {
+        gameObjectsItemsIdsMap.erase(treeDragItemId);
+        gameObjectsItemsIdsMap.insert({newItem, *maybeGameObjectIdInMap});
+    }
+
+    gameObjectsView->Delete(treeDragItemId);
+    treeDragItemId = {};
+}
+
+void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent)
+{
+    auto currentParent = object.GetParent();
+    if (currentParent and newParent.GetId() != currentParent->GetId())
+    {
+        auto worldPosition = object.GetWorldTransform().GetPosition();
+        auto worldRotation = object.GetWorldTransform().GetRotation();
+        auto worldScale    = object.GetWorldTransform().GetScale();
+
+        auto freeGameObject = currentParent->MoveChild(object.GetId());
+
+        if (freeGameObject)
+        {
+            auto go = freeGameObject.get();
+            newParent.MoveChild(std::move(freeGameObject));
+            go->SetWorldPosition(worldPosition);
+            go->SetWorldRotation(worldRotation);
+            go->SetWorldScale(worldScale);
         }
     }
 }
