@@ -22,9 +22,11 @@
 #include <unistd.h>
 #endif
 #include <OpenGLApi/OpenGLApi.h>
-#include <execinfo.h>
 #include <signal.h>
-#include <stdio.h>
+
+#ifdef USE_GNU
+#include <execinfo.h>
+
 
 void bt_sighandler(int nSig)
 {
@@ -47,6 +49,49 @@ void bt_sighandler(int nSig)
 
     exit(-1);
 }
+#else
+#include <dbghelp.h>
+#include <string>
+
+#pragma comment(lib, "dbghelp.lib")
+
+void bt_sighandler(int nSig)
+{
+    ERROR_LOG("print_trace: got signal " + std::to_string(nSig));
+
+    HANDLE hProcess = GetCurrentProcess();
+    SymInitialize(hProcess, NULL, TRUE);
+
+    void* stack[32];
+    USHORT frames = CaptureStackBackTrace(0, 32, stack, NULL);
+
+    for (USHORT i = 0; i < frames; ++i)
+    {
+        DWORD64 addr = (DWORD64)(stack[i]);
+
+        char symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(char)];
+        PSYMBOL_INFO symbol  = reinterpret_cast<PSYMBOL_INFO>(symbolBuffer);
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        symbol->MaxNameLen   = MAX_SYM_NAME;
+
+        DWORD64 displacement = 0;
+        if (SymFromAddr(hProcess, addr, &displacement, symbol))
+        {
+            ERROR_LOG(std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
+        }
+        else
+        {
+            ERROR_LOG("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
+        }
+    }
+
+    SymCleanup(hProcess);
+
+    // Aby zachowaæ domyœlne zakoñczenie procesu po sygnale:
+    signal(nSig, SIG_DFL);
+    raise(nSig);
+}
+#endif
 
 namespace GameEngine
 {

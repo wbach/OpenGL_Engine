@@ -215,9 +215,8 @@ xapobased.lib;
 XAPOFX.lib;
 XInput.lib;
 '
-
+#'$wxWidgetsReleaseLibs'
 additionalReleaseLibs='
-'$wxWidgetsReleaseLibs'
 '$bulletReleaseLibs'
 libfbxsdk-md.lib;
 libxml2-md.lib;
