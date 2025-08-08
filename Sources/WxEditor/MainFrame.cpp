@@ -391,18 +391,38 @@ void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
 
 void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
 {
+    auto& textConf      = EngineConf.renderer.textures;
+    textConf.useDiffuse = !textConf.useDiffuse;
+
+    canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
+        [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
 }
 
 void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
 {
+    auto& textConf      = EngineConf.renderer.textures;
+    textConf.useNormal = !textConf.useNormal;
+
+    canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
+        [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
 }
 
 void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
 {
+    auto& textConf      = EngineConf.renderer.textures;
+    textConf.useSpecular = !textConf.useSpecular;
+
+    canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
+        [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
 }
 
 void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
 {
+    auto& textConf      = EngineConf.renderer.textures;
+    textConf.useDisplacement = !textConf.useDisplacement;
+
+    canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
+        [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
 }
 
 void MainFrame::OnGLVersion(wxCommandEvent&)
