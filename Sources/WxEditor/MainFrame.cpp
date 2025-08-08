@@ -40,6 +40,9 @@ enum
     ID_FILE_EXPLORER,
     ID_OBJECT_TREE,
     ID_MENU_ABOUT_GL_INFO,
+    ID_TREE_MENU_CREATE_CHILD,
+    ID_TREE_MENU_REMOVE,
+    ID_TREE_MENU_3
 };
 }  // namespace
 
@@ -70,6 +73,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_TREE_ITEM_ACTIVATED(ID_OBJECT_TREE, MainFrame::OnObjectTreeActivated)
     EVT_TREE_BEGIN_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectDrag)
     EVT_TREE_END_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectEndDrag)
+    EVT_TREE_BEGIN_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnBeginLabelEdit)
+    EVT_TREE_END_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnEndLabelEdit)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
 wxEND_EVENT_TABLE()
@@ -91,8 +96,12 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     wxSplitterWindow* trs = new wxSplitterWindow(topSplitter, wxID_ANY);
     // FromDIP(wxSize(160, 250))
-    gameObjectsView =
-        new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250), wxTR_DEFAULT_STYLE | wxNO_BORDER);
+    gameObjectsView = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
+                                     wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
+    gameObjectsView->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &MainFrame::OnTreeItemRightClick, this);
+    Bind(wxEVT_MENU, &MainFrame::OnAddObject, this, ID_TREE_MENU_CREATE_CHILD);
+    Bind(wxEVT_MENU, &MainFrame::OnDeleteObject, this, ID_TREE_MENU_REMOVE);
+    Bind(wxEVT_MENU, &MainFrame::OnProperties, this, ID_TREE_MENU_3);
 
     CreateRootGameObject();
 
@@ -128,22 +137,22 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     transformView->FitInside();
 
     // Splitter dzielimy na canvas i ten nowy panel z listą
-    trs->SplitVertically(canvas, transformView, size.x * 6 / 8);
+    trs->SplitVertically(canvas, transformView, size.x * 5 / 8);
 
     fileExplorer = new wxGenericDirCtrl(bottomSpliter, ID_FILE_EXPLORER, Utils::GetAbsolutePath(EngineConf.files.data),
                                         wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SELECT_FIRST);
 
     wxStaticBitmap* filePreview = nullptr;
-//    wxImage img;
-//    if (img.LoadFile("sample.png", wxBITMAP_TYPE_PNG))
-//    {
-//        wxBitmap bmp(img);
-//        filePreview = new wxStaticBitmap(bottomSpliter, wxID_ANY, bmp, wxDefaultPosition, wxSize(300, 200));
-//    }
-//    else
+    //    wxImage img;
+    //    if (img.LoadFile("sample.png", wxBITMAP_TYPE_PNG))
+    //    {
+    //        wxBitmap bmp(img);
+    //        filePreview = new wxStaticBitmap(bottomSpliter, wxID_ANY, bmp, wxDefaultPosition, wxSize(300, 200));
+    //    }
+    //    else
     {
         wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_OTHER, wxSize(300, 200));
-        filePreview = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
+        filePreview           = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
     }
 
     bottomSpliter->SplitVertically(fileExplorer, filePreview, size.x / 2);
@@ -300,6 +309,16 @@ GameEngine::GameObject* MainFrame::GetGameObject(wxTreeItemId id)
         return canvas->GetScene().GetGameObject(goIter->second);
     }
     return nullptr;
+}
+
+std::optional<IdType> MainFrame::GetGameObjectId(wxTreeItemId id)
+{
+    auto goIter = gameObjectsItemsIdsMap.find(id);
+    if (goIter != gameObjectsItemsIdsMap.end())
+    {
+        return goIter->second;
+    }
+    return std::nullopt;
 }
 
 void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
@@ -493,6 +512,83 @@ void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
             scene.GetCamera().LookAt(gameObject->GetWorldTransform().GetPosition());
         }
     }
+}
+
+void MainFrame::OnTreeItemRightClick(wxTreeEvent& event)
+{
+    wxTreeItemId itemId = event.GetItem();
+    if (!itemId.IsOk())
+        return;
+
+    treeRightClickedItem = event.GetItem();
+    gameObjectsView->SelectItem(itemId);
+
+    wxMenu menu;
+    menu.Append(ID_TREE_MENU_CREATE_CHILD, "Create child");
+    menu.Append(ID_TREE_MENU_REMOVE, "Remove");
+    //    menu.AppendSeparator();
+    //    menu.Append(ID_TREE_MENU_3, "Properties");
+    PopupMenu(&menu);
+}
+
+void MainFrame::OnBeginLabelEdit(wxTreeEvent& event)
+{
+    wxTreeItemId item = event.GetItem();
+    if (item == gameObjectsView->GetRootItem())
+    {
+        event.Veto();
+    }
+}
+
+void MainFrame::OnEndLabelEdit(wxTreeEvent& event)
+{
+    if (!event.IsEditCancelled())
+    {
+        wxString newLabel = event.GetLabel();
+        if (newLabel.IsEmpty())
+        {
+            wxMessageBox("Nazwa nie moze byc pusta");
+            event.Veto();  // Anuluj zmianę
+        }
+        else
+        {
+            auto go = GetSelectedGameObject();
+            if (go)
+            {
+                go->SetName(newLabel.ToStdString());
+            }
+        }
+    }
+}
+
+void MainFrame::OnAddObject(wxCommandEvent& event)
+{
+    MenuEditCreateObject(event);
+}
+
+void MainFrame::OnDeleteObject(wxCommandEvent& event)
+{
+    wxTreeItemId sel = gameObjectsView->GetSelection();
+    if (sel.IsOk() and sel.GetID() != treeRootId)
+    {
+        auto gameObjectId = GetGameObjectId(sel);
+        if (gameObjectId)
+        {
+            canvas->GetScene().RemoveGameObject(*gameObjectId);
+            gameObjectsView->Delete(sel);
+        }
+        else
+        {
+            wxLogMessage("Game object not found in scene");
+        }
+    }
+}
+
+void MainFrame::OnProperties(wxCommandEvent& event)
+{
+    wxTreeItemId sel = gameObjectsView->GetSelection();
+    if (sel.IsOk())
+        wxLogMessage("Wlasciwiosci obiektu: %s", gameObjectsView->GetItemText(sel));
 }
 
 void MainFrame::OnObjectDrag(wxTreeEvent& event)
