@@ -17,7 +17,7 @@ namespace
 {
 enum
 {
-    ID_MENU_FILE_OPEN_SCENE = 1,
+    ID_MENU_FILE_OPEN_SCENE = wxID_HIGHEST + 1,
     ID_MENU_FILE_RELOAD_SCENE,
     ID_MENU_FILE_SAVE_SCENE,
     ID_MENU_FILE_SAVEAS_SCENE,
@@ -43,7 +43,13 @@ enum
     ID_TREE_MENU_CREATE_CHILD,
     ID_TREE_MENU_REMOVE,
     ID_TREE_MENU_3,
-    ID_SAVE
+    ID_SAVE,
+    ID_TOOL_OPEN,
+    ID_TOOL_SAVE,
+    ID_TOOL_SAVE_AS,
+    ID_TOOL_START,
+    ID_TOOL_STOP
+
 };
 }  // namespace
 
@@ -78,13 +84,10 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_TREE_END_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnEndLabelEdit)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
     EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
+    EVT_MENU(ID_TOOL_OPEN, MainFrame::MenuFileOpenScene)
+    EVT_MENU(ID_TOOL_SAVE, MainFrame::MenuFileSaveScene)
+    EVT_MENU(ID_TOOL_SAVE_AS, MainFrame::MenuFileSaveSceneAs)
 wxEND_EVENT_TABLE()
-
-enum
-{
-    ID_TOOL_START = wxID_HIGHEST + 1,
-    ID_TOOL_STOP
-};
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
@@ -152,7 +155,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     //    }
     //    else
     {
-        wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_OTHER, wxSize(300, 200));
+        wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_MISSING_IMAGE, wxART_OTHER, wxSize(300, 200));
         filePreview           = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
     }
 
@@ -160,6 +163,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     CreateMainMenu();
     auto* toolbar = CreateToolBar();
+
+    toolbar->AddTool(ID_TOOL_OPEN, "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN));
+    toolbar->AddTool(ID_TOOL_SAVE, "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE));
+    toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
     toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
     toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
     toolbar->Realize();
@@ -167,7 +174,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     SetStatusText("Welcome to game editor!");
 
     wxAcceleratorEntry entries[1];
-    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE); // ID_SAVE to Twój identyfikator
+    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE);  // ID_SAVE to Twój identyfikator
 
     wxAcceleratorTable accel(1, entries);
     SetAcceleratorTable(accel);
