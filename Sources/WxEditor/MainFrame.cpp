@@ -4,6 +4,7 @@
 #include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneUtils.h>
+#include <GameEngine/Scene/SceneReader.h>
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
@@ -309,7 +310,19 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
 
 wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdType goId, const std::string& name)
 {
-    auto itemId = gameObjectsView->AppendItem(pranetItemId, name);
+    auto isPrefab = false;
+    if (auto go = canvas->GetScene().GetGameObject(goId))
+    {
+        isPrefab = go->isPrefabricated();
+    }
+
+    auto goName = name;
+    if (isPrefab)
+    {
+        goName += " (prefab)";
+    }
+
+    auto itemId = gameObjectsView->AppendItem(pranetItemId, goName);
     gameObjectsItemsIdsMap.insert({itemId, goId});
     return itemId;
 }
@@ -376,6 +389,31 @@ void MainFrame::MenuEditTerrainTexturePainter(wxCommandEvent&)
 
 void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 {
+    wxFileDialog openFileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
+                                "Pliki prefab (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), openFileDialog.GetPath().ToStdString());
+    if (go)
+    {
+        auto prefabItemId = AddGameObjectToWxWidgets(treeRootId, go->GetId(), go->GetName());
+
+        // TO DO remove duplicate
+        std::function<void( wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
+        addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
+        {
+            const auto& children = go.GetChildren();
+            for (const auto& child : children)
+            {
+                auto childItemId = AddGameObjectToWxWidgets(wxId, child->GetId(), child->GetName());
+                addChildToWidgets(childItemId, *child);
+            }
+        };
+        addChildToWidgets(prefabItemId, *go);
+        UpdateObjectCount();
+    }
 }
 
 void MainFrame::MenuEditClearScene(wxCommandEvent&)
@@ -716,7 +754,6 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
             auto itemId = AddGameObjectToWxWidgets(selectedItem, clonedGo->GetId(), clonedGo->GetName());
 
             std::function<void( wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
-
             addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
             {
                 const auto& children = go.GetChildren();
