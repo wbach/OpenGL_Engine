@@ -1,4 +1,3 @@
-
 #include "MainFrame.h"
 
 #include <GameEngine/Scene/SceneEvents.h>
@@ -515,9 +514,11 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
         if (is3Model)
         {
             auto parentGameObject = GetSelectedGameObject();
-            auto id               = canvas->AddGameObject(file, parentGameObject);
-            AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), id, file.GetBaseName());
-            UpdateObjectCount();
+            if (auto maybeId = canvas->AddGameObject(file, parentGameObject))
+            {
+                AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), *maybeId, file.GetBaseName());
+                UpdateObjectCount();
+            }
         }
     }
 }
@@ -730,6 +731,7 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
     : canvas{canvas}
     , transformPanels{worldTranformPanel, localTransformPanel}
     , gameObjectId{goId}
+    , state{State::world}
 {
     DEBUG_LOG("SubscribeCurrent");
     SubscribeCurrent();
@@ -744,6 +746,7 @@ void TransfromSubController::ChangeGameObject(GameObjectId goId)
 {
     if (gameObjectId != goId)
     {
+        DEBUG_LOG("ChangeGameObject " + std::to_string(goId));
         UnsubscribeCurrent();
         gameObjectId = goId;
         SubscribeCurrent();
@@ -754,6 +757,7 @@ void TransfromSubController::ChangeState(State s)
 {
     if (state != s)
     {
+        DEBUG_LOG("State " + std::to_string(static_cast<int>(s)));
         UnsubscribeCurrent();
         state = s;
         SubscribeCurrent();
@@ -769,10 +773,12 @@ void TransfromSubController::SubscribeCurrent()
 
         if (state == State::world)
         {
+            DEBUG_LOG("Sub world, " + go->GetName());
             subId = go->SubscribeOnWorldTransfomChange(updatePanel);
         }
         else
         {
+            DEBUG_LOG("Sub local, " + go->GetName());
             subId = go->GetTransform().SubscribeOnChange(updatePanel);
         }
     }
@@ -787,10 +793,12 @@ void TransfromSubController::UnsubscribeCurrent()
         {
             if (state == State::world)
             {
+                DEBUG_LOG("Unsub worl, " + go->GetName());
                 go->UnsubscribeOnWorldTransfromChange(*subId);
             }
             else
             {
+                DEBUG_LOG("Uub local, " + go->GetName());
                 go->GetTransform().UnsubscribeOnChange(*subId);
             }
         }

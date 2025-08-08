@@ -16,7 +16,6 @@ void setVectorControls(TransformPanel::Vector3Controls& controls, const vec3& ve
 //    controls.yCtrl->SetValue(wxString::FromUTF8(std::format("{:.3f}", vector.y)));
 //    controls.zCtrl->SetValue(wxString::FromUTF8(std::format("{:.3f}", vector.z)));
 
-    DEBUG_LOG(std::to_string(vector));
     std::stringstream ssX, ssY, ssZ;
 
     ssX << std::fixed << std::setprecision(3) << vector.x;

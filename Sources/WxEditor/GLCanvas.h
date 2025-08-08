@@ -41,7 +41,7 @@ public:
     ~GLCanvas();
 
     std::string getGlInfo() const;
-    bool AddGameObject(const GameEngine::File&, GameEngine::GameObject* = nullptr);
+    std::optional<IdType> AddGameObject(const GameEngine::File&, GameEngine::GameObject* = nullptr);
     bool OpenScene(const GameEngine::File&, std::function<void()>);
     void GameObjectSelectChange(GameEngine::GameObject&);
     void ResetDragObject();
