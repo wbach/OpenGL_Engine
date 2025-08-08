@@ -130,15 +130,23 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     wxBoxSizer* transformSizer = new wxBoxSizer(wxVERTICAL);
     transformView->SetSizer(transformSizer);
 
-    // Dodaj kilka paneli TransformPanel (na przykład 3)
-    transformPanel = new TransformPanel(transformView);
-    transformSizer->Add(transformPanel, 0, wxEXPAND | wxALL, 5);
+    wxNotebook* notebook = new wxNotebook(transformView, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    notebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &MainFrame::OnPageChanged, this);
 
-    //    for (int i = 0; i < 3; ++i)
-    //    {
-    //        TransformPanel* panel = new TransformPanel(transformView);
-    //        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
-    //    }
+    worldTransformPanel = new TransformPanel(notebook);
+    notebook->AddPage(worldTransformPanel, "World");
+    localTransformPanel = new TransformPanel(notebook);
+    notebook->AddPage(localTransformPanel, "Local");
+
+    transformSizer->Add(notebook, 0, wxEXPAND | wxALL, 5);
+
+    // transformSizer->Add(transformPanel, 0, wxEXPAND | wxALL, 5);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        TransformPanel* panel = new TransformPanel(transformView);
+        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
+    }
 
     transformView->Layout();
     transformView->FitInside();
@@ -522,18 +530,23 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 
     if (itemId == treeRootId)
         return;
+
     DEBUG_LOG("OnObjectTreeSelChange");
     auto go = GetSelectedGameObject();
     if (go)
     {
         DEBUG_LOG("OnObjectTreeSelChange go: " + go->GetName());
-        transformPanel->set(go->GetWorldTransform());
+        worldTransformPanel->set(go->GetWorldTransform());
+        localTransformPanel->set(go->GetTransform());
 
-        UnSubscribeTransformView();
-
-        auto subId =
-            go->SubscribeOnWorldTransfomChange([&](const auto& transform) { transformPanel->set(transform); });
-        transformPanelTransformSubId = std::make_optional(std::make_pair(subId, go->GetId()));
+        if (not transfromSubController)
+        {
+            transfromSubController.emplace(*canvas, worldTransformPanel, localTransformPanel, go->GetId());
+        }
+        else
+        {
+            transfromSubController->ChangeGameObject(go->GetId());
+        }
     }
 }
 
@@ -678,6 +691,18 @@ void MainFrame::OnObjectEndDrag(wxTreeEvent& event)
     treeDragItemId = {};
 }
 
+void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
+{
+    int selection = event.GetSelection();  // indeks nowej aktywnej strony
+    if (transfromSubController)
+    {
+        DEBUG_LOG("selection = " + std::to_string(selection));
+        transfromSubController->ChangeState(static_cast<TransfromSubController::State>(selection));
+    }
+    // ... twoja logika ...
+    event.Skip();  // pozwól na dalszą obsługę
+}
+
 void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent)
 {
     auto currentParent = object.GetParent();
@@ -700,14 +725,76 @@ void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngin
     }
 }
 
-void MainFrame::UnSubscribeTransformView()
+TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel* worldTranformPanel,
+                                               TransformPanel* localTransformPanel, GameObjectId goId)
+    : canvas{canvas}
+    , transformPanels{worldTranformPanel, localTransformPanel}
+    , gameObjectId{goId}
 {
-    if (transformPanelTransformSubId)
+    DEBUG_LOG("SubscribeCurrent");
+    SubscribeCurrent();
+}
+
+TransfromSubController::~TransfromSubController()
+{
+    UnsubscribeCurrent();
+}
+
+void TransfromSubController::ChangeGameObject(GameObjectId goId)
+{
+    if (gameObjectId != goId)
     {
-        if (auto previosSubGo = canvas->GetScene().GetGameObject(transformPanelTransformSubId->second))
+        UnsubscribeCurrent();
+        gameObjectId = goId;
+        SubscribeCurrent();
+    }
+}
+
+void TransfromSubController::ChangeState(State s)
+{
+    if (state != s)
+    {
+        UnsubscribeCurrent();
+        state = s;
+        SubscribeCurrent();
+    }
+}
+
+void TransfromSubController::SubscribeCurrent()
+{
+    auto go = canvas.GetScene().GetGameObject(gameObjectId);
+    if (go)
+    {
+        auto updatePanel = [&](const auto& transform) { transformPanels[state]->set(transform); };
+
+        if (state == State::world)
         {
-            previosSubGo->UnsubscribeOnWorldTransfromChange(transformPanelTransformSubId->first);
+            subId = go->SubscribeOnWorldTransfomChange(updatePanel);
+        }
+        else
+        {
+            subId = go->GetTransform().SubscribeOnChange(updatePanel);
         }
     }
-    transformPanelTransformSubId.reset();
+}
+
+void TransfromSubController::UnsubscribeCurrent()
+{
+    if (subId)
+    {
+        auto go = canvas.GetScene().GetGameObject(gameObjectId);
+        if (go)
+        {
+            if (state == State::world)
+            {
+                go->UnsubscribeOnWorldTransfromChange(*subId);
+            }
+            else
+            {
+                go->GetTransform().UnsubscribeOnChange(*subId);
+            }
+        }
+    }
+
+    subId.reset();
 }

@@ -3,13 +3,15 @@
 #include <Types.h>
 #include <wx/frame.h>
 #include <wx/generic/dirctrlg.h>
+#include <wx/notebook.h>
 #include <wx/treebase.h>
 #include <wx/treectrl.h>
 #include <wx/wx.h>
-#include "TransformPanel.h"
 
 #include <thread>
 #include <unordered_map>
+
+#include "TransformPanel.h"
 
 class GLCanvas;
 namespace GameEngine
@@ -31,6 +33,33 @@ struct TreeItemIdEqual
     {
         return lhs == rhs;
     }
+};
+
+class TransfromSubController
+{
+public:
+    using GameObjectId = IdType;
+
+    enum State
+    {
+        world = 0,
+        local,
+    };
+    TransfromSubController(GLCanvas&, TransformPanel*, TransformPanel*, GameObjectId);
+    ~TransfromSubController();
+    void ChangeGameObject(GameObjectId);
+    void ChangeState(State);
+
+private:
+    void SubscribeCurrent();
+    void UnsubscribeCurrent();
+
+private:
+    GLCanvas& canvas;
+    std::vector<TransformPanel*> transformPanels;
+    std::optional<IdType> subId;
+    IdType gameObjectId;
+    State state;
 };
 
 class MainFrame : public wxFrame
@@ -72,6 +101,7 @@ private:
     void OnProperties(wxCommandEvent&);
     void OnObjectDrag(wxTreeEvent&);
     void OnObjectEndDrag(wxTreeEvent&);
+    void OnPageChanged(wxNotebookEvent&);
 
     void OnClose(wxCloseEvent&);
 
@@ -98,8 +128,6 @@ private:
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
 
-    void UnSubscribeTransformView();
-
 private:
     GLCanvas* canvas;
     wxTreeCtrl* gameObjectsView;
@@ -111,9 +139,8 @@ private:
     std::thread loadSceneThread;
     wxDECLARE_EVENT_TABLE();
     bool isRunning{true};
-    TransformPanel* transformPanel;
+    TransformPanel* worldTransformPanel;
+    TransformPanel* localTransformPanel;
 
-    using GameObjectId = IdType;
-    using SubId = IdType;
-    std::optional<std::pair<SubId, GameObjectId>> transformPanelTransformSubId;
+    std::optional<TransfromSubController> transfromSubController;
 };

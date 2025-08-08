@@ -32,7 +32,7 @@ void setVectorControls(TransformPanel::Vector3Controls& controls, const vec3& ve
 TransformPanel::TransformPanel(wxWindow* parent)
     : wxPanel(parent, wxID_ANY)
 {
-    wxCollapsiblePane* collapsible = new wxCollapsiblePane(this, wxID_ANY, "World transform");
+    wxCollapsiblePane* collapsible = new wxCollapsiblePane(this, wxID_ANY, "transform");
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     mainSizer->Add(collapsible, 1, wxEXPAND | wxALL, 5);
