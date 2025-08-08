@@ -1,5 +1,7 @@
 #include "MainFrame.h"
 
+#include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
+#include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <wx/artprov.h>
@@ -353,12 +355,23 @@ void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
 {
 }
 
+GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
+{
+    auto& engineContext = canvas->GetEngine().GetEngineContext();
+    auto& scene         = canvas->GetScene();
+    return GameEngine::Painter::EntryParamters{engineContext.GetInputManager(), scene.GetCamera(),
+                                               engineContext.GetRenderersManager().GetProjection(),
+                                               engineContext.GetDisplayManager().GetWindowSize(), scene.getComponentController()};
+}
+
 void MainFrame::MenuEditTerrainHeightPainter(wxCommandEvent&)
 {
+    terrainPainter_ = std::make_unique<GameEngine::TerrainHeightPainter>(GetPainterEntryParameters());
 }
 
 void MainFrame::MenuEditTerrainTexturePainter(wxCommandEvent&)
 {
+    terrainPainter_ = std::make_unique<GameEngine::TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
 }
 
 void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
@@ -367,26 +380,52 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 
 void MainFrame::MenuEditClearScene(wxCommandEvent&)
 {
+    canvas->GetScene().ClearGameObjects();
+    gameObjectsView->DeleteAllItems();
+    gameObjectsItemsIdsMap.clear();
+    CreateRootGameObject();
+    canvas->ResetDragObject();
+    transfromSubController.reset();
 }
 
 void MainFrame::MenuRendererReloadShaders(wxCommandEvent&)
 {
+    auto& renderesManager = canvas->GetEngine().GetEngineContext().GetRenderersManager();
+    renderesManager.ReloadShaders();
 }
 
 void MainFrame::MenuRendererTakeSnapshot(wxCommandEvent&)
 {
+    std::string path{"./snapshoot/"};
+    auto& resourceManager = canvas->GetScene().GetResourceManager();
+    auto takeSnapshoot    = [&, path]() { resourceManager.GetGraphicsApi().TakeSnapshoot(path); };
+    resourceManager.GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
 }
 
 void MainFrame::MenuRendererSwap(wxCommandEvent&)
 {
+    auto& renderesManager = canvas->GetEngine().GetEngineContext().GetRenderersManager();
+    renderesManager.setLineRenderMode(!renderesManager.getLineRenderMode());
 }
 
 void MainFrame::MenuRendererPhysicsVisualization(wxCommandEvent&)
 {
+    SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Physics);
+}
+
+void MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState state)
+{
+    auto& renderesManager = canvas->GetEngine().GetEngineContext().GetRenderersManager();
+    bool set              = renderesManager.GetDebugRenderer().IsStateEnabled(state);
+    set                   = !set;
+
+    auto& debugRenderer = renderesManager.GetDebugRenderer();
+    set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 }
 
 void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
 {
+    SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Normals);
 }
 
 void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
@@ -400,7 +439,7 @@ void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
 
 void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
 {
-    auto& textConf      = EngineConf.renderer.textures;
+    auto& textConf     = EngineConf.renderer.textures;
     textConf.useNormal = !textConf.useNormal;
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
@@ -409,7 +448,7 @@ void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
 
 void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
 {
-    auto& textConf      = EngineConf.renderer.textures;
+    auto& textConf       = EngineConf.renderer.textures;
     textConf.useSpecular = !textConf.useSpecular;
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
@@ -418,7 +457,7 @@ void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
 
 void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
 {
-    auto& textConf      = EngineConf.renderer.textures;
+    auto& textConf           = EngineConf.renderer.textures;
     textConf.useDisplacement = !textConf.useDisplacement;
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(

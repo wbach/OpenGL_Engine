@@ -8,6 +8,8 @@
 #include <wx/treectrl.h>
 #include <wx/wx.h>
 
+#include <GameEngine/Renderers/DebugElements/DebugRenderer.h>
+#include "GameEngine/DebugTools/Painter/Painter.h"
 #include <thread>
 #include <unordered_map>
 
@@ -91,6 +93,8 @@ private:
     void MenuRendererTextureSpecular(wxCommandEvent&);
     void MenuRendererTextureDisplacement(wxCommandEvent&);
 
+    void SetDeubgRendererState(GameEngine::DebugRenderer::RenderState);
+
     void OnObjectTreeSelChange(wxTreeEvent&);
     void OnObjectTreeActivated(wxTreeEvent&);
     void OnTreeItemRightClick(wxTreeEvent&);
@@ -127,6 +131,7 @@ private:
     GameEngine::GameObject* GetGameObject(wxTreeItemId);
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
+    GameEngine::Painter::EntryParamters GetPainterEntryParameters();
 
 private:
     GLCanvas* canvas;
@@ -143,4 +148,5 @@ private:
     TransformPanel* localTransformPanel;
 
     std::optional<TransfromSubController> transfromSubController;
+    std::unique_ptr<GameEngine::Painter> terrainPainter_;
 };

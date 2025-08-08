@@ -346,4 +346,9 @@ Input::InputManager* Scene::getInputManager()
 {
     return inputManager_;
 }
+
+Components::ComponentController &Scene::getComponentController()
+{
+    return componentController_;
+}
 }  // namespace GameEngine

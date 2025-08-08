@@ -113,6 +113,7 @@ public:
 
     DisplayManager* getDisplayManager();
     Input::InputManager* getInputManager();
+    Components::ComponentController& getComponentController();
 
 public:
     uint32 objectCount;
