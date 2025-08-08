@@ -131,11 +131,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     transformView->SetSizer(transformSizer);
 
     // Dodaj kilka paneli TransformPanel (na przykład 3)
-    for (int i = 0; i < 3; ++i)
-    {
-        TransformPanel* panel = new TransformPanel(transformView);
-        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
-    }
+    transformPanel = new TransformPanel(transformView);
+    transformSizer->Add(transformPanel, 0, wxEXPAND | wxALL, 5);
+
+    //    for (int i = 0; i < 3; ++i)
+    //    {
+    //        TransformPanel* panel = new TransformPanel(transformView);
+    //        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
+    //    }
 
     transformView->Layout();
     transformView->FitInside();
@@ -202,6 +205,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
+    canvas->ResetDragObject();
     gameObjectsView->DeleteAllItems();
     wxString path = openFileDialog.GetPath();
     CreateRootGameObject();
@@ -512,6 +516,25 @@ void MainFrame::OnFileActivated(wxTreeEvent& event)
 
 void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 {
+    wxTreeItemId itemId = event.GetItem();
+    if (not itemId.IsOk())
+        return;
+
+    if (itemId == treeRootId)
+        return;
+    DEBUG_LOG("OnObjectTreeSelChange");
+    auto go = GetSelectedGameObject();
+    if (go)
+    {
+        DEBUG_LOG("OnObjectTreeSelChange go: " + go->GetName());
+        transformPanel->set(go->GetWorldTransform());
+
+        UnSubscribeTransformView();
+
+        auto subId =
+            go->SubscribeOnWorldTransfomChange([&](const auto& transform) { transformPanel->set(transform); });
+        transformPanelTransformSubId = std::make_optional(std::make_pair(subId, go->GetId()));
+    }
 }
 
 void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
@@ -675,4 +698,16 @@ void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngin
             go->SetWorldScale(worldScale);
         }
     }
+}
+
+void MainFrame::UnSubscribeTransformView()
+{
+    if (transformPanelTransformSubId)
+    {
+        if (auto previosSubGo = canvas->GetScene().GetGameObject(transformPanelTransformSubId->second))
+        {
+            previosSubGo->UnsubscribeOnWorldTransfromChange(transformPanelTransformSubId->first);
+        }
+    }
+    transformPanelTransformSubId.reset();
 }

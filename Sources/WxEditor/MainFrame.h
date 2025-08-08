@@ -6,6 +6,7 @@
 #include <wx/treebase.h>
 #include <wx/treectrl.h>
 #include <wx/wx.h>
+#include "TransformPanel.h"
 
 #include <thread>
 #include <unordered_map>
@@ -97,6 +98,8 @@ private:
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
 
+    void UnSubscribeTransformView();
+
 private:
     GLCanvas* canvas;
     wxTreeCtrl* gameObjectsView;
@@ -108,4 +111,9 @@ private:
     std::thread loadSceneThread;
     wxDECLARE_EVENT_TABLE();
     bool isRunning{true};
+    TransformPanel* transformPanel;
+
+    using GameObjectId = IdType;
+    using SubId = IdType;
+    std::optional<std::pair<SubId, GameObjectId>> transformPanelTransformSubId;
 };
