@@ -42,7 +42,8 @@ enum
     ID_MENU_ABOUT_GL_INFO,
     ID_TREE_MENU_CREATE_CHILD,
     ID_TREE_MENU_REMOVE,
-    ID_TREE_MENU_3
+    ID_TREE_MENU_3,
+    ID_SAVE
 };
 }  // namespace
 
@@ -164,6 +165,15 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     toolbar->Realize();
     CreateStatusBar();
     SetStatusText("Welcome to game editor!");
+
+    wxAcceleratorEntry entries[1];
+    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE); // ID_SAVE to Twój identyfikator
+
+    wxAcceleratorTable accel(1, entries);
+    SetAcceleratorTable(accel);
+
+    // Powiązanie zdarzenia z ID_SAVE
+    Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
 }
 
 void MainFrame::OnClose(wxCloseEvent& event)
