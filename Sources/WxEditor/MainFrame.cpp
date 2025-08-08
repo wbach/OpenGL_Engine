@@ -43,7 +43,7 @@ enum
     ID_MENU_ABOUT_GL_INFO,
     ID_TREE_MENU_CREATE_CHILD,
     ID_TREE_MENU_REMOVE,
-    ID_TREE_MENU_3,
+    ID_TREE_MENU_CLONE,
     ID_SAVE,
     ID_TOOL_OPEN,
     ID_TOOL_SAVE,
@@ -106,7 +106,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectsView->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &MainFrame::OnTreeItemRightClick, this);
     Bind(wxEVT_MENU, &MainFrame::OnAddObject, this, ID_TREE_MENU_CREATE_CHILD);
     Bind(wxEVT_MENU, &MainFrame::OnDeleteObject, this, ID_TREE_MENU_REMOVE);
-    Bind(wxEVT_MENU, &MainFrame::OnProperties, this, ID_TREE_MENU_3);
+    Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
     CreateRootGameObject();
 
@@ -639,6 +639,7 @@ void MainFrame::OnTreeItemRightClick(wxTreeEvent& event)
     wxMenu menu;
     menu.Append(ID_TREE_MENU_CREATE_CHILD, "Create child");
     menu.Append(ID_TREE_MENU_REMOVE, "Remove");
+    menu.Append(ID_TREE_MENU_CLONE, "Clone");
     //    menu.AppendSeparator();
     //    menu.Append(ID_TREE_MENU_3, "Properties");
     PopupMenu(&menu);
@@ -689,6 +690,7 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
         {
             canvas->GetScene().RemoveGameObject(*gameObjectId);
             gameObjectsView->Delete(sel);
+            UpdateObjectCount();
         }
         else
         {
@@ -697,11 +699,37 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
     }
 }
 
-void MainFrame::OnProperties(wxCommandEvent& event)
+void MainFrame::CloneGameObject(wxCommandEvent& event)
 {
-    wxTreeItemId sel = gameObjectsView->GetSelection();
-    if (sel.IsOk())
-        wxLogMessage("Wlasciwiosci obiektu: %s", gameObjectsView->GetItemText(sel));
+    if (auto maybeGo = GetSelectedGameObject())
+    {
+        auto clonedGo = GameEngine::cloneGameObject(canvas->GetScene(), *maybeGo);
+
+        auto selectedItem = gameObjectsView->GetSelection();
+        if (selectedItem.IsOk())
+        {
+            wxTreeItemId parentItem = gameObjectsView->GetItemParent(selectedItem);
+            if (parentItem.IsOk())
+            {
+                selectedItem = parentItem;
+            }
+            auto itemId = AddGameObjectToWxWidgets(selectedItem, clonedGo->GetId(), clonedGo->GetName());
+
+            std::function<void( wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
+
+            addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
+            {
+                const auto& children = go.GetChildren();
+                for (const auto& child : children)
+                {
+                    auto childItemId = AddGameObjectToWxWidgets(wxId, child->GetId(), child->GetName());
+                    addChildToWidgets(childItemId, *child);
+                }
+            };
+            addChildToWidgets(itemId, *clonedGo);
+            UpdateObjectCount();
+        }
+    }
 }
 
 void MainFrame::OnObjectDrag(wxTreeEvent& event)

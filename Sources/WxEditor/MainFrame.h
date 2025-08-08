@@ -102,7 +102,7 @@ private:
     void OnEndLabelEdit(wxTreeEvent&);
     void OnAddObject(wxCommandEvent&);
     void OnDeleteObject(wxCommandEvent&);
-    void OnProperties(wxCommandEvent&);
+    void CloneGameObject(wxCommandEvent&);
     void OnObjectDrag(wxTreeEvent&);
     void OnObjectEndDrag(wxTreeEvent&);
     void OnPageChanged(wxNotebookEvent&);

@@ -123,6 +123,10 @@ WxInputManager::WxInputManager(const vec2i& windowSize, WrapPointerFunc wrapPoin
     , wrapPointer{wrapPointerFunc}
 {
     lastMousePosition = vec2i{};
+    for(auto& k : keyBuffer)
+    {
+        k = false;
+    }
 }
 
 void WxInputManager::OnMouseMove(wxMouseEvent& event)
