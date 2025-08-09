@@ -7,4 +7,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxInputManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TransformPanel.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame.cpp
 )

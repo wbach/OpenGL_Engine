@@ -1,5 +1,6 @@
 
 #pragma once
+#include <GameEngine/Renderers/DebugElements/DebugRenderer.h>
 #include <Types.h>
 #include <wx/frame.h>
 #include <wx/generic/dirctrlg.h>
@@ -8,14 +9,15 @@
 #include <wx/treectrl.h>
 #include <wx/wx.h>
 
-#include <GameEngine/Renderers/DebugElements/DebugRenderer.h>
-#include "GameEngine/DebugTools/Painter/Painter.h"
 #include <thread>
 #include <unordered_map>
 
+#include "GameEngine/DebugTools/Painter/Painter.h"
 #include "TransformPanel.h"
 
 class GLCanvas;
+class OptionsFrame;
+
 namespace GameEngine
 {
 class GameObject;
@@ -82,6 +84,7 @@ private:
     void MenuEditTerrainTexturePainter(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);
     void MenuEditClearScene(wxCommandEvent&);
+    void MenuEditPreferences(wxCommandEvent&);
 
     void MenuRendererReloadShaders(wxCommandEvent&);
     void MenuRendererTakeSnapshot(wxCommandEvent&);
@@ -134,18 +137,21 @@ private:
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
 
 private:
-    GLCanvas* canvas;
-    wxTreeCtrl* gameObjectsView;
+    GLCanvas* canvas{nullptr};
+    OptionsFrame* optionsFrame{nullptr};
+    wxTreeCtrl* gameObjectsView{nullptr};
+    TransformPanel* worldTransformPanel{nullptr};
+    TransformPanel* localTransformPanel{nullptr};
+    wxGenericDirCtrl* fileExplorer{nullptr};
+
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;
     wxTreeItemId treeRightClickedItem;
     std::unordered_map<wxTreeItemId, IdType, TreeItemIdHasher, TreeItemIdEqual> gameObjectsItemsIdsMap;
-    wxGenericDirCtrl* fileExplorer;
+
     std::thread loadSceneThread;
     wxDECLARE_EVENT_TABLE();
     bool isRunning{true};
-    TransformPanel* worldTransformPanel;
-    TransformPanel* localTransformPanel;
 
     std::optional<TransfromSubController> transfromSubController;
     std::unique_ptr<GameEngine::Painter> terrainPainter_;

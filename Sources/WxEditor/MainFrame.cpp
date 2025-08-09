@@ -3,8 +3,8 @@
 #include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
 #include <GameEngine/Scene/SceneEvents.h>
-#include <GameEngine/Scene/SceneUtils.h>
 #include <GameEngine/Scene/SceneReader.h>
+#include <GameEngine/Scene/SceneUtils.h>
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
@@ -13,6 +13,7 @@
 #include <string>
 
 #include "GLCanvas.h"
+#include "OptionsFrame.h"
 #include "TransformPanel.h"
 
 namespace
@@ -30,6 +31,7 @@ enum
     ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER,
     ID_MENU_EDIT_LOAD_PREFAB,
     ID_MENU_EDIT_CLEAR_SCENE,
+    ID_MENU_EDIT_PREFERENCES,
     ID_MENU_RENDERER_RELOAD_SHADERS,
     ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT,
     ID_MENU_RENDERER_SWAP,
@@ -68,6 +70,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, MainFrame::MenuEditTerrainTexturePainter)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
+    EVT_MENU(ID_MENU_EDIT_PREFERENCES, MainFrame::MenuEditPreferences)
     EVT_MENU(ID_MENU_RENDERER_RELOAD_SHADERS, MainFrame::MenuRendererReloadShaders)
     EVT_MENU(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, MainFrame::MenuRendererTakeSnapshot)
     EVT_MENU(ID_MENU_RENDERER_SWAP, MainFrame::MenuRendererSwap)
@@ -401,7 +404,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
         auto prefabItemId = AddGameObjectToWxWidgets(treeRootId, go->GetId(), go->GetName());
 
         // TO DO remove duplicate
-        std::function<void( wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
+        std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
         addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
         {
             const auto& children = go.GetChildren();
@@ -418,12 +421,27 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 
 void MainFrame::MenuEditClearScene(wxCommandEvent&)
 {
-    canvas->GetScene().ClearGameObjects();
-    gameObjectsView->DeleteAllItems();
-    gameObjectsItemsIdsMap.clear();
-    CreateRootGameObject();
-    canvas->ResetDragObject();
-    transfromSubController.reset();
+    int answer = wxMessageBox("Please confirm clear scene", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+    if (answer == wxYES)
+    {
+        canvas->GetScene().ClearGameObjects();
+        gameObjectsView->DeleteAllItems();
+        gameObjectsItemsIdsMap.clear();
+        CreateRootGameObject();
+        canvas->ResetDragObject();
+        transfromSubController.reset();
+    }
+}
+
+void MainFrame::MenuEditPreferences(wxCommandEvent&)
+{
+    if (not optionsFrame)
+    {
+        optionsFrame = new OptionsFrame(this);
+    }
+
+    optionsFrame->Show();
 }
 
 void MainFrame::MenuRendererReloadShaders(wxCommandEvent&)
@@ -543,6 +561,7 @@ wxMenu* MainFrame::CreateEditMenu()
                  "Enable terrain texture painter tool");
     menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab\tCtrl-A", "Create new object");
     menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear\tCtrl-A", "Delete all object in scene");
+    menu->Append(ID_MENU_EDIT_PREFERENCES, "&Preferences\tCtrl-A", "Change settings");
     return menu;
 }
 
@@ -753,7 +772,7 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
             }
             auto itemId = AddGameObjectToWxWidgets(selectedItem, clonedGo->GetId(), clonedGo->GetName());
 
-            std::function<void( wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
+            std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
             addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
             {
                 const auto& children = go.GetChildren();
