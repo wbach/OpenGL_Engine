@@ -878,6 +878,50 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
 {
     DEBUG_LOG("SubscribeCurrent");
     SubscribeCurrent();
+    for (auto& panel : transformPanels)
+    {
+        panel->set(
+            [&](const auto& label, const auto& v)
+            {
+                auto gameObject = canvas.GetScene().GetGameObject(gameObjectId);
+                if (gameObject)
+                {
+                    if (label == LABEL_POSITION)
+                    {
+                        if (state == State::world)
+                        {
+                            gameObject->SetWorldPosition(v);
+                        }
+                        else
+                        {
+                            gameObject->GetTransform().SetPosition(v);
+                        }
+                    }
+                    else if (label == LABEL_ROTATION)
+                    {
+                        if (state == State::world)
+                        {
+                            gameObject->SetWorldRotation(Rotation{DegreesVec3(v)});
+                        }
+                        else
+                        {
+                            gameObject->GetTransform().SetRotation(Rotation{DegreesVec3(v)});
+                        }
+                    }
+                    else if (label == LABEL_SCALE)
+                    {
+                        if (state == State::world)
+                        {
+                            gameObject->SetWorldScale(v);
+                        }
+                        else
+                        {
+                            gameObject->GetTransform().SetScale(v);
+                        }
+                    }
+                }
+            });
+    }
 }
 
 TransfromSubController::~TransfromSubController()
@@ -918,11 +962,13 @@ void TransfromSubController::SubscribeCurrent()
         {
             DEBUG_LOG("Sub world, " + go->GetName());
             subId = go->SubscribeOnWorldTransfomChange(updatePanel);
+            transformPanels[state]->set(go->GetWorldTransform());
         }
         else
         {
             DEBUG_LOG("Sub local, " + go->GetName());
             subId = go->GetTransform().SubscribeOnChange(updatePanel);
+            transformPanels[state]->set(go->GetTransform());
         }
     }
 }

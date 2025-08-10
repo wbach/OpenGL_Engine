@@ -1,31 +1,50 @@
 #pragma once
 #include <Common/Transform.h>
-#include <wx/wx.h>
-#include <wx/panel.h>
 #include <wx/collpane.h>
+#include <wx/panel.h>
+#include <wx/wx.h>
+
+extern const std::string LABEL_POSITION;
+extern const std::string LABEL_ROTATION;
+extern const std::string LABEL_SCALE;
 
 class TransformPanel : public wxPanel
 {
 public:
     struct Vector3Controls
     {
-        wxTextCtrl* xCtrl;
-        wxTextCtrl* yCtrl;
-        wxTextCtrl* zCtrl;
-        wxSizer*    sizer; // żeby można było łatwo dodać do layoutu
+        TransformPanel* transformPanel;
+        wxTextCtrl* xCtrl{nullptr};
+        wxTextCtrl* yCtrl{nullptr};
+        wxTextCtrl* zCtrl{nullptr};
+        wxSizer* sizer{nullptr};  // żeby można było łatwo dodać do layoutu
+        std::string label;
+
+        wxString tmpFocusString;
+
+        void onChanged(wxCommandEvent&);
+        void onFocus(wxFocusEvent&);
+        void onKillFocus(wxFocusEvent&);
+        bool isSetBySub{false};
+        void Bind();
     };
+    using TransfromChanged = std::function<void(const std::string&, const vec3&)>;
 
     TransformPanel(wxWindow* parent);
     void set(const common::Transform&);
+    void set(TransfromChanged);
 
 private:
     void OnPaneChanged(wxCollapsiblePaneEvent&);
     Vector3Controls CreateVector3Controls(wxWindow*, const wxString&);
 
 private:
-    wxCollapsiblePane* posPane;
-    wxCollapsiblePane* rotPane;
-    wxCollapsiblePane* scalePane;
+    common::Transform* tranfrom{nullptr};
+    TransfromChanged transfromChanged;
+
+    wxCollapsiblePane* posPane{nullptr};
+    wxCollapsiblePane* rotPane{nullptr};
+    wxCollapsiblePane* scalePane{nullptr};
 
     Vector3Controls position;
     Vector3Controls rotation;
