@@ -106,6 +106,7 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     SetCurrent(*context);
 
     wxSize size = GetClientSize();
+  //  Engine.
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},

@@ -1,18 +1,26 @@
 #pragma once
-#include <wx/wx.h>
+#include <GameEngine/Engine/ConfigurationExplorer.h>
 #include <wx/notebook.h>
+#include <wx/wx.h>
 
 class OptionsFrame : public wxFrame
 {
 public:
-    OptionsFrame(wxWindow* parent);
+    OptionsFrame(wxWindow*);
 
 private:
-    void CreateGeneralTab(wxNotebook* notebook);
-    void CreateAppearanceTab(wxNotebook* notebook);
-    void CreateAdvancedTab(wxNotebook* notebook);
+    void CreateRenderingOptionsTab(wxNotebook*);
+    void CreateRenderingSubTab(wxNotebook*, const std::string&);
+    void OnChoiceChanged(wxCommandEvent&);
 
-    void OnClose(wxCloseEvent& event);
+    void CreateGeneralTab(wxNotebook*);
+    void CreateAppearanceTab(wxNotebook*);
+    void CreateAdvancedTab(wxNotebook*);
+
+    void OnClose(wxCloseEvent&);
+
+private:
+    GameEngine::ConfigurationExplorer configurationExplorer_;
 
     wxDECLARE_EVENT_TABLE();
 };

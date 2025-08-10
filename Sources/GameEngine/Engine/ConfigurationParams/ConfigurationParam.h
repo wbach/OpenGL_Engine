@@ -23,6 +23,7 @@ public:
         : value_{v}
         , defaultValueIndex_{0}
         , defaultValues_{defaultValues}
+        , isLocked_{false}
     {
         updatetValueIndex();
     }
@@ -48,12 +49,29 @@ public:
     {
         return defaultValues_;
     }
+    std::vector<std::string> getValuesAsStrings() const override
+    {
+        std::vector<std::string> result;
+        for (const auto& value : defaultValues_)
+        {
+            result.push_back(paramToString(value));
+        }
+        return result;
+    }
+    size_t getValueIndex() const override
+    {
+        return defaultValueIndex_;
+    }
+
     std::string toString() const override
     {
         return paramToString(value_);
     }
     std::string next() override
     {
+        if (isLocked_)
+            return toString();
+
         if (not defaultValues_.empty())
         {
             ++defaultValueIndex_;
@@ -70,6 +88,9 @@ public:
     }
     std::string previous() override
     {
+        if (isLocked_)
+            return toString();
+
         if (not defaultValues_.empty())
         {
             if (defaultValueIndex_ == 0)
@@ -87,6 +108,9 @@ public:
     }
     void apply() override
     {
+        if (isLocked_)
+            return;
+
         if (not defaultValues_.empty())
         {
             if (defaultValueIndex_ > defaultValues_.size())
@@ -103,6 +127,9 @@ public:
     }
     void set(const T& value)
     {
+        if (isLocked_)
+            return;
+
         if (value_ == value)
             return;
 
@@ -115,6 +142,11 @@ public:
         }
         updatetValueIndex();
     }
+    void setValueFromIndex(size_t i)
+    {
+        defaultValueIndex_ = i;
+        apply();
+    }
     IdType subscribeForChange(std::function<void()> action) override
     {
         std::lock_guard<std::mutex> lk(subscriberMock_);
@@ -125,12 +157,14 @@ public:
     void unsubscribe(const IdType& id) override
     {
         std::lock_guard<std::mutex> lk(subscriberMock_);
-        auto iter =
-            std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& pair) { return pair.first == id; });
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& pair) { return pair.first == id; });
         subscribers_.erase(iter);
     }
     void operator=(const T& v)
     {
+        if (isLocked_)
+            return;
+
         set(v);
     }
     bool operator==(const T& v1) const
@@ -161,6 +195,18 @@ public:
     {
         return std::addressof(value_);
     }
+    void lock() override
+    {
+        isLocked_ = true;
+    }
+    void unlock() override
+    {
+        isLocked_ = false;
+    }
+    virtual bool isLocked() const override
+    {
+        return isLocked_;
+    }
 
 private:
     void updatetValueIndex()
@@ -181,6 +227,7 @@ private:
     T value_;
     size_t defaultValueIndex_;
     std::vector<T> defaultValues_;
+    bool isLocked_;
 };
 }  // namespace Params
 }  // namespace GameEngine
