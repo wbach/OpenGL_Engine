@@ -37,13 +37,11 @@ public:
 private:
     void OnPaneChanged(wxCollapsiblePaneEvent&);
     Vector3Controls CreateVector3Controls(wxWindow*, const wxString&);
-    void OnCollapsibleChanged(wxCollapsiblePaneEvent&);
 
 private:
     common::Transform* tranfrom{nullptr};
     TransfromChanged transfromChanged;
 
-    wxCollapsiblePane* collapsible;
     wxCollapsiblePane* posPane{nullptr};
     wxCollapsiblePane* rotPane{nullptr};
     wxCollapsiblePane* scalePane{nullptr};

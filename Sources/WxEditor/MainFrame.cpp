@@ -142,18 +142,39 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectPanelsSizer = new wxBoxSizer(wxVERTICAL);
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
-    transformsNotebook = new wxNotebook(gameObjectPanels, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    // Tworzymy collapsible, który będzie "kontenerem" dla notebooka
+    transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
+
+    gameObjectPanelsSizer->Add(transformsCollapsible, 0, wxEXPAND | wxALL, 0);
+
+    // Teraz do collapsible dajemy notebook
+    wxWindow* pane = transformsCollapsible->GetPane();
+
+    transformsNotebook = new wxNotebook(pane, wxID_ANY, wxDefaultPosition, wxDefaultSize);
     transformsNotebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &MainFrame::OnPageChanged, this);
 
     worldTransformPanel = new TransformPanel(transformsNotebook);
     transformsNotebook->AddPage(worldTransformPanel, "World");
+
     localTransformPanel = new TransformPanel(transformsNotebook);
     transformsNotebook->AddPage(localTransformPanel, "Local");
 
-    gameObjectPanelsSizer->Add(transformsNotebook, 0, wxEXPAND | wxALL, 5);
+    wxBoxSizer* paneSizer = new wxBoxSizer(wxVERTICAL);
+    paneSizer->Add(transformsNotebook, 1, wxEXPAND | wxALL, 0);
+    pane->SetSizer(paneSizer);
 
     gameObjectPanels->Layout();
     gameObjectPanels->FitInside();
+
+    // Opcjonalnie, możesz podpiąć event zmiany stanu collapsible aby wymusić poprawne ułożenie:
+    transformsCollapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, [this](wxCollapsiblePaneEvent&)
+    {
+        gameObjectPanelsSizer->Layout();
+        gameObjectPanels->FitInside();
+        gameObjectPanels->Refresh();
+    });
+
+    transformsCollapsible->Collapse(false);
 
     // Splitter dzielimy na canvas i ten nowy panel z listą
     trs->SplitVertically(canvas, gameObjectPanels, size.x * 5 / 8);
@@ -198,33 +219,24 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
 }
 
-void MainFrame::RemoveAllItemsButTransformView()
+void MainFrame::RemoveAllComponentPanels()
 {
-    if (not gameObjectPanelsSizer or not transformsNotebook)
+    if (!gameObjectPanelsSizer)
         return;
 
-    for (size_t i = 0; i < gameObjectPanelsSizer->GetItemCount(); /* no increment */)
+    for (int i = gameObjectPanelsSizer->GetItemCount() - 1; i >= 0; --i)
     {
         wxSizerItem* item = gameObjectPanelsSizer->GetItem(i);
-        if (not item)
+        if (!item)
             continue;
 
-        if (item->GetWindow() == transformsNotebook)
+        wxWindow* win = item->GetWindow();
+        if (win && dynamic_cast<ComponentPanel*>(win))
         {
-            i++;
-            continue;
+            gameObjectPanelsSizer->Detach(i);   // oddzielnie usuń z sizer bez zwalniania pamięci
+            win->Destroy();                     // a potem usuń okno
         }
-
-        // Najpierw usuń okno lub sizer
-        if (item->GetWindow())
-            item->GetWindow()->Destroy();
-        else if (item->GetSizer())
-            item->GetSizer()->Clear(true);
-
-        // Usuń element z sizera — wxWidgets samo zwolni wxSizerItem
-        gameObjectPanelsSizer->Remove(i);
     }
-
     gameObjectPanelsSizer->Layout();
 }
 
@@ -707,7 +719,8 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         {
             transfromSubController->ChangeGameObject(go->GetId());
         }
-        RemoveAllItemsButTransformView();
+        //RemoveAllItemsButTransformView();
+        RemoveAllComponentPanels();
         AddGameObjectComponentsToView(*go);
     }
 }

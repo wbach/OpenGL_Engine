@@ -39,16 +39,9 @@ void setVectorControls(TransformPanel::Vector3Controls& controls, const vec3& ve
 TransformPanel::TransformPanel(wxWindow* parent)
     : wxPanel(parent, wxID_ANY)
 {
-    collapsible = new wxCollapsiblePane(this, wxID_ANY, "transform");
-
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->Add(collapsible, 1, wxEXPAND | wxALL, 0);
-
-    wxWindow* pane = collapsible->GetPane();
-
-    position = CreateVector3Controls(pane, LABEL_POSITION);
-    rotation = CreateVector3Controls(pane, LABEL_ROTATION);
-    scale    = CreateVector3Controls(pane, LABEL_SCALE);
+    position = CreateVector3Controls(this, LABEL_POSITION);
+    rotation = CreateVector3Controls(this, LABEL_ROTATION);
+    scale    = CreateVector3Controls(this, LABEL_SCALE);
 
     position.Bind();
     rotation.Bind();
@@ -59,44 +52,8 @@ TransformPanel::TransformPanel(wxWindow* parent)
     contentSizer->Add(rotation.sizer, 0, wxEXPAND | wxALL, 5);
     contentSizer->Add(scale.sizer, 0, wxEXPAND | wxALL, 5);
 
-    pane->SetSizer(contentSizer);
-
-    SetSizer(mainSizer);
+    SetSizer(contentSizer);
     Layout();
-
-    collapsible->Collapse(false);
-    collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &TransformPanel::OnCollapsibleChanged, this);
-}
-
-void TransformPanel::OnCollapsibleChanged(wxCollapsiblePaneEvent& event)
-{
-    bool collapsed = collapsible->IsCollapsed();
-
-    wxNotebook* notebook = dynamic_cast<wxNotebook*>(GetParent());
-    if (!notebook)
-        return;
-
-    int pageCount = notebook->GetPageCount();
-    for (int i = 0; i < pageCount; i++)
-    {
-        wxWindow* page = notebook->GetPage(i);
-        if (page == this)  // pomijamy bieżącą kartę
-            continue;
-
-        TransformPanel* tp = dynamic_cast<TransformPanel*>(page);
-        if (tp)
-        {
-            if (tp->collapsible->IsCollapsed() != collapsed)
-            {
-                tp->collapsible->Collapse(collapsed);
-                tp->Layout();
-            }
-        }
-    }
-
-    notebook->Layout();
-    if (notebook->GetParent())
-        notebook->GetParent()->Layout();
 }
 
 TransformPanel::Vector3Controls TransformPanel::CreateVector3Controls(wxWindow* parent, const wxString& label)

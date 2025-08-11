@@ -136,7 +136,7 @@ private:
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
     void AddGameObjectComponentsToView(const GameEngine::GameObject&);
-    void RemoveAllItemsButTransformView();
+    void RemoveAllComponentPanels();
 
 private:
     GLCanvas* canvas{nullptr};
@@ -148,6 +148,7 @@ private:
     wxBoxSizer* gameObjectPanelsSizer{nullptr};
     wxScrolledWindow* gameObjectPanels{nullptr};
     wxNotebook* transformsNotebook{nullptr};
+    wxCollapsiblePane* transformsCollapsible{nullptr};
 
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;
