@@ -5,6 +5,7 @@
 #include <wx/textctrl.h>
 //#include <format>
 #include <GameEngine/Objects/GameObject.h>
+#include <wx/notebook.h>
 
 #include <iomanip>  // std::setprecision
 #include <sstream>
@@ -38,10 +39,10 @@ void setVectorControls(TransformPanel::Vector3Controls& controls, const vec3& ve
 TransformPanel::TransformPanel(wxWindow* parent)
     : wxPanel(parent, wxID_ANY)
 {
-    wxCollapsiblePane* collapsible = new wxCollapsiblePane(this, wxID_ANY, "transform");
+    collapsible = new wxCollapsiblePane(this, wxID_ANY, "transform");
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->Add(collapsible, 1, wxEXPAND | wxALL, 5);
+    mainSizer->Add(collapsible, 1, wxEXPAND | wxALL, 0);
 
     wxWindow* pane = collapsible->GetPane();
 
@@ -64,6 +65,38 @@ TransformPanel::TransformPanel(wxWindow* parent)
     Layout();
 
     collapsible->Collapse(false);
+    collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &TransformPanel::OnCollapsibleChanged, this);
+}
+
+void TransformPanel::OnCollapsibleChanged(wxCollapsiblePaneEvent& event)
+{
+    bool collapsed = collapsible->IsCollapsed();
+
+    wxNotebook* notebook = dynamic_cast<wxNotebook*>(GetParent());
+    if (!notebook)
+        return;
+
+    int pageCount = notebook->GetPageCount();
+    for (int i = 0; i < pageCount; i++)
+    {
+        wxWindow* page = notebook->GetPage(i);
+        if (page == this)  // pomijamy bieżącą kartę
+            continue;
+
+        TransformPanel* tp = dynamic_cast<TransformPanel*>(page);
+        if (tp)
+        {
+            if (tp->collapsible->IsCollapsed() != collapsed)
+            {
+                tp->collapsible->Collapse(collapsed);
+                tp->Layout();
+            }
+        }
+    }
+
+    notebook->Layout();
+    if (notebook->GetParent())
+        notebook->GetParent()->Layout();
 }
 
 TransformPanel::Vector3Controls TransformPanel::CreateVector3Controls(wxWindow* parent, const wxString& label)
