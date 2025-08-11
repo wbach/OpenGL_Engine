@@ -135,6 +135,8 @@ private:
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
+    void AddGameObjectComponentsToView(const GameEngine::GameObject&);
+    void RemoveAllItemsButTransformView();
 
 private:
     GLCanvas* canvas{nullptr};
@@ -143,6 +145,9 @@ private:
     TransformPanel* worldTransformPanel{nullptr};
     TransformPanel* localTransformPanel{nullptr};
     wxGenericDirCtrl* fileExplorer{nullptr};
+    wxBoxSizer* gameObjectPanelsSizer{nullptr};
+    wxScrolledWindow* gameObjectPanels{nullptr};
+    wxNotebook* transformsNotebook{nullptr};
 
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;

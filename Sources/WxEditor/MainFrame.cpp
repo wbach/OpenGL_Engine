@@ -8,6 +8,7 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
+#include <wx/spinctrl.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <string>
@@ -15,6 +16,7 @@
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
 #include "TransformPanel.h"
+#include "ComponentPanel.h"
 
 namespace
 {
@@ -57,6 +59,7 @@ enum
 };
 }  // namespace
 
+
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_CLOSE(MainFrame::OnClose)
@@ -98,6 +101,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 // clang-format on
 {
+    wxImage::AddHandler(new wxPNGHandler);
+    wxImage::AddHandler(new wxJPEGHandler);
+    wxImage::AddHandler(new wxBMPHandler);
+
     wxSplitterWindow* horizontalSpliter = new wxSplitterWindow(this, wxID_ANY);
     wxSplitterWindow* topSplitter       = new wxSplitterWindow(horizontalSpliter, wxID_ANY);
     wxSplitterWindow* bottomSpliter     = new wxSplitterWindow(horizontalSpliter, wxID_ANY);
@@ -129,35 +136,35 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
                           });
 
     // Zamiast wxListBox
-    wxScrolledWindow* transformView = new wxScrolledWindow(trs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
-    transformView->SetScrollRate(5, 5);  // ustaw scrollowanie
+    gameObjectPanels = new wxScrolledWindow(trs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
+    gameObjectPanels->SetScrollRate(5, 5);  // ustaw scrollowanie
 
-    wxBoxSizer* transformSizer = new wxBoxSizer(wxVERTICAL);
-    transformView->SetSizer(transformSizer);
+    gameObjectPanelsSizer = new wxBoxSizer(wxVERTICAL);
+    gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
-    wxNotebook* notebook = new wxNotebook(transformView, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-    notebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &MainFrame::OnPageChanged, this);
+    transformsNotebook = new wxNotebook(gameObjectPanels, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    transformsNotebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &MainFrame::OnPageChanged, this);
 
-    worldTransformPanel = new TransformPanel(notebook);
-    notebook->AddPage(worldTransformPanel, "World");
-    localTransformPanel = new TransformPanel(notebook);
-    notebook->AddPage(localTransformPanel, "Local");
+    worldTransformPanel = new TransformPanel(transformsNotebook);
+    transformsNotebook->AddPage(worldTransformPanel, "World");
+    localTransformPanel = new TransformPanel(transformsNotebook);
+    transformsNotebook->AddPage(localTransformPanel, "Local");
 
-    transformSizer->Add(notebook, 0, wxEXPAND | wxALL, 5);
+    gameObjectPanelsSizer->Add(transformsNotebook, 0, wxEXPAND | wxALL, 5);
 
     // transformSizer->Add(transformPanel, 0, wxEXPAND | wxALL, 5);
 
-    for (int i = 0; i < 3; ++i)
-    {
-        TransformPanel* panel = new TransformPanel(transformView);
-        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
-    }
+    //    for (int i = 0; i < 3; ++i)
+    //    {
+    //        TransformPanel* panel = new TransformPanel(transformView);
+    //        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
+    //    }
 
-    transformView->Layout();
-    transformView->FitInside();
+    gameObjectPanels->Layout();
+    gameObjectPanels->FitInside();
 
     // Splitter dzielimy na canvas i ten nowy panel z listą
-    trs->SplitVertically(canvas, transformView, size.x * 5 / 8);
+    trs->SplitVertically(canvas, gameObjectPanels, size.x * 5 / 8);
 
     fileExplorer = new wxGenericDirCtrl(bottomSpliter, ID_FILE_EXPLORER, Utils::GetAbsolutePath(EngineConf.files.data),
                                         wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SELECT_FIRST);
@@ -197,6 +204,36 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     // Powiązanie zdarzenia z ID_SAVE
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
+}
+
+void MainFrame::RemoveAllItemsButTransformView()
+{
+    if (not gameObjectPanelsSizer or not transformsNotebook)
+        return;
+
+    for (size_t i = 0; i < gameObjectPanelsSizer->GetItemCount(); /* no increment */)
+    {
+        wxSizerItem* item = gameObjectPanelsSizer->GetItem(i);
+        if (not item)
+            continue;
+
+        if (item->GetWindow() == transformsNotebook)
+        {
+            i++;
+            continue;
+        }
+
+        // Najpierw usuń okno lub sizer
+        if (item->GetWindow())
+            item->GetWindow()->Destroy();
+        else if (item->GetSizer())
+            item->GetSizer()->Clear(true);
+
+        // Usuń element z sizera — wxWidgets samo zwolni wxSizerItem
+        gameObjectPanelsSizer->Remove(i);
+    }
+
+    gameObjectPanelsSizer->Layout();
 }
 
 void MainFrame::OnClose(wxCloseEvent& event)
@@ -378,6 +415,20 @@ GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
     return GameEngine::Painter::EntryParamters{engineContext.GetInputManager(), scene.GetCamera(),
                                                engineContext.GetRenderersManager().GetProjection(),
                                                engineContext.GetDisplayManager().GetWindowSize(), scene.getComponentController()};
+}
+
+void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& gameObject)
+{
+    for (auto& component : gameObject.GetComponents())
+    {
+        ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
+        compPanel->AddComponent(*component);
+        gameObjectPanelsSizer->Add(compPanel, 1, wxEXPAND | wxALL, 5);
+    }
+
+    gameObjectPanelsSizer->Layout();
+    gameObjectPanels->FitInside();
+    gameObjectPanels->Refresh();
 }
 
 void MainFrame::MenuEditTerrainHeightPainter(wxCommandEvent&)
@@ -664,6 +715,8 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         {
             transfromSubController->ChangeGameObject(go->GetId());
         }
+        RemoveAllItemsButTransformView();
+        AddGameObjectComponentsToView(*go);
     }
 }
 
