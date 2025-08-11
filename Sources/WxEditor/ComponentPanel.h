@@ -12,7 +12,7 @@ class IComponent;
 }
 }  // namespace GameEngine
 
-class ComponentPanel : public wxScrolledWindow
+class ComponentPanel : public wxPanel
 {
 public:
     explicit ComponentPanel(wxWindow* parent);

@@ -152,14 +152,6 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     gameObjectPanelsSizer->Add(transformsNotebook, 0, wxEXPAND | wxALL, 5);
 
-    // transformSizer->Add(transformPanel, 0, wxEXPAND | wxALL, 5);
-
-    //    for (int i = 0; i < 3; ++i)
-    //    {
-    //        TransformPanel* panel = new TransformPanel(transformView);
-    //        transformSizer->Add(panel, 0, wxEXPAND | wxALL, 5);
-    //    }
-
     gameObjectPanels->Layout();
     gameObjectPanels->FitInside();
 
@@ -423,7 +415,7 @@ void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& game
     {
         ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
         compPanel->AddComponent(*component);
-        gameObjectPanelsSizer->Add(compPanel, 1, wxEXPAND | wxALL, 5);
+        gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
 
     gameObjectPanelsSizer->Layout();

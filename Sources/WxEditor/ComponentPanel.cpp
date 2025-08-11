@@ -13,10 +13,8 @@ extern const std::string CSTR_TYPE;
 
 
 ComponentPanel::ComponentPanel(wxWindow* parent)
-    : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL)
+    : wxPanel(parent, wxID_ANY)   // zmiana z wxScrolledWindow na wxPanel
 {
-    SetScrollRate(5, 5);
-   // SetMinSize(wxSize(300, 200));
     mainSizer = new wxBoxSizer(wxVERTICAL);
     SetSizer(mainSizer);
 }
@@ -25,7 +23,6 @@ void ComponentPanel::ClearComponents()
 {
     mainSizer->Clear(true);
     Layout();
-    FitInside();
 }
 
 void ComponentPanel::AddComponent(const GameEngine::Components::IComponent &component)
@@ -34,20 +31,23 @@ void ComponentPanel::AddComponent(const GameEngine::Components::IComponent &comp
     component.write(node);
     auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);
 
-    //wxString typeName = component.GetTypeName(); // Załóżmy, że masz taką funkcję
-
     wxCollapsiblePane* collapsible = new wxCollapsiblePane(this, wxID_ANY, typeName);
-
-
     wxWindow* pane = collapsible->GetPane();
-
     CreateUIForComponent(component, pane);
+    mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 0);
 
-    mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 5);
+    collapsible->Collapse(false);
 
-    collapsible->Collapse(false);  // rozwiń panel
-    collapsible->GetPane()->Layout();
-    collapsible->Layout();
+    // Podpięcie eventu do aktualizacji layoutu po zwinięciu/rozwinieciu
+    collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, [this](wxCollapsiblePaneEvent& evt) {
+        this->Layout();
+        this->FitInside();
+        if (GetParent()) {
+            GetParent()->Layout();
+        }
+        evt.Skip();
+    });
+
     this->Layout();
     this->FitInside();
 }
@@ -141,5 +141,3 @@ void ComponentPanel::CreateUIForComponent(const GameEngine::Components::ICompone
     sizer->Layout();
     pane->Layout();
 }
-
-
