@@ -148,6 +148,7 @@ private:
     wxBoxSizer* gameObjectPanelsSizer{nullptr};
     wxScrolledWindow* gameObjectPanels{nullptr};
     wxButton* addComponentButton{nullptr};
+    wxComboBox* addComponentChoice{nullptr};
 
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;

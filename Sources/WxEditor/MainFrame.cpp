@@ -16,8 +16,9 @@
 #include "ComponentPanel.h"
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
-#include "TransformPanel.h"
 #include "Theme.h"
+#include "TransformPanel.h"
+#include "ComponentPickerPopup.h"
 
 namespace
 {
@@ -211,15 +212,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     SetStatusText("Welcome to game editor!");
 
     wxAcceleratorEntry entries[1];
-    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE);  // ID_SAVE to Twój identyfikator
-
+    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE);
     wxAcceleratorTable accel(1, entries);
     SetAcceleratorTable(accel);
 
     // Powiązanie zdarzenia z ID_SAVE
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     SaveOsTheme(*this);
-    //ApplyTheme(*this);
+    // ApplyTheme(*this);
 }
 
 void MainFrame::RemoveAllComponentPanels()
@@ -236,8 +236,8 @@ void MainFrame::RemoveAllComponentPanels()
         wxWindow* win = item->GetWindow();
         if (win && (dynamic_cast<ComponentPanel*>(win)))
         {
-            gameObjectPanelsSizer->Detach(i);  // oddzielnie usuń z sizer bez zwalniania pamięci
-            win->Destroy();                    // a potem usuń okno
+            gameObjectPanelsSizer->Detach(i);
+            win->Destroy();
         }
     }
     gameObjectPanelsSizer->Layout();
@@ -426,6 +426,7 @@ GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
 
 void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& gameObject)
 {
+    // Dodajemy panele istniejących komponentów
     for (auto& component : gameObject.GetComponents())
     {
         ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
@@ -433,18 +434,41 @@ void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& game
         gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
 
+    // Usuwamy poprzedni przycisk, jeśli istnieje
     if (addComponentButton)
     {
         addComponentButton->Destroy();
     }
+
     addComponentButton = new wxButton(gameObjectPanels, wxID_ANY, "Add component");
     gameObjectPanelsSizer->Add(addComponentButton, 0, wxEXPAND | wxALL, 0);
-    addComponentButton->Bind(wxEVT_BUTTON,
-                             [&](const auto&)
-                             {
-                                 wxLogMessage("Add component");
-                             });
 
+    auto action = [&](wxCommandEvent&)
+    {
+        std::vector<wxString> comps = {"Component A", "Component B", "Component C"};
+
+        auto popup = new ComponentPickerPopup(gameObjectPanels, comps,
+                                              [this](const wxString& selected)
+                                              {
+                                                  wxLogMessage("Dodano komponent: %s", selected);
+                                                  // TODO: Dodaj logikę dodawania komponentu
+                                              });
+
+        // Pobieramy pozycję przycisku w globalnych współrzędnych
+        wxPoint pos = addComponentButton->GetScreenPosition();
+
+        // Ustawiamy szerokość popupu na szerokość przycisku
+        int buttonWidth = addComponentButton->GetSize().GetWidth();
+        wxSize popupSize(buttonWidth, 2 * popup->GetSize().GetHeight());
+        popup->SetSize(popupSize);
+
+        // Pozycjonujemy i pokazujemy popup
+        popup->Position(pos, wxSize(0, 0));
+        popup->Popup();
+    };
+    addComponentButton->Bind(wxEVT_BUTTON, action);
+
+    // Odświeżenie layoutu po dodaniu przycisku
     gameObjectPanelsSizer->Layout();
     gameObjectPanels->FitInside();
     gameObjectPanels->Refresh();
