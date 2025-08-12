@@ -1,8 +1,10 @@
 #include "ComponentPanel.h"
 
 #include <GameEngine/Components/IComponent.h>
+#include <GameEngine/Engine/Configuration.h>
 #include <Logger/Log.h>
 #include <Utils/TreeNode.h>
+#include <wx/artprov.h>
 #include <wx/spinctrl.h>
 
 namespace GameEngine
@@ -278,13 +280,41 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
 
                 valuesSizer->Add(sizeRow, 0, wxBOTTOM, 10);
 
-                // Kontrolki dla każdego stringa (poniżej sizeRow)
-                for (const auto& str : *val)
+                for (size_t i = 0; i < val->size(); ++i)
                 {
-                    wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, str);
-                    valuesSizer->Add(stringCtrl, 0, wxEXPAND | wxBOTTOM, 3);
+                    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
-                    // Tu możesz dodać bind do aktualizacji vectora, jeśli chcesz
+                    wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, (*val)[i]);
+                    elemRow->Add(stringCtrl, 1, wxEXPAND | wxRIGHT, 5);
+
+                    // wxBitmap bmp(EngineConf_GetFullDataPath("trashIcon.png"), wxBITMAP_TYPE_PNG);
+                    // wxBitmapButton* removeButton = new wxBitmapButton(pane, wxID_ANY, bmp, wxDefaultPosition, wxSize(height,
+                    // height));
+                    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+
+                    removeButton->SetToolTip("Remove element");
+
+                    elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
+
+                    valuesSizer->Add(elemRow, 0, wxEXPAND | wxBOTTOM, 3);
+
+                    stringCtrl->Bind(wxEVT_TEXT,
+                                     [val, i](wxCommandEvent& evt)
+                                     {
+                                         if (i < val->size())
+                                             (*val)[i] = evt.GetString().ToStdString();
+                                         evt.Skip();
+                                     });
+
+                    removeButton->Bind(wxEVT_BUTTON,
+                                       [this, val, i, rebuildUI](wxCommandEvent&)
+                                       {
+                                           if (i < val->size())
+                                           {
+                                               val->erase(val->begin() + i);
+                                               this->CallAfter(rebuildUI);
+                                           }
+                                       });
                 }
 
                 wxButton* addButton = new wxButton(pane, wxID_ANY, "Add element");
