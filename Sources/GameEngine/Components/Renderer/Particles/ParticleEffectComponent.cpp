@@ -189,11 +189,13 @@ void ParticleEffectComponent::SortParticlesByCameraDistance()
 {
     auto camPosition = componentContext_.camera_.GetPosition();
 
-    std::sort(particles_.begin(), particles_.end(), [&camPosition](const Particle& l, const Particle& r) {
-        auto distance  = glm::distance(l.position, camPosition);
-        auto distance2 = glm::distance(r.position, camPosition);
-        return distance > distance2;
-    });
+    std::sort(particles_.begin(), particles_.end(),
+              [&camPosition](const Particle& l, const Particle& r)
+              {
+                  auto distance  = glm::distance(l.position, camPosition);
+                  auto distance2 = glm::distance(r.position, camPosition);
+                  return distance > distance2;
+              });
 }
 
 Particle ReadParticle(const TreeNode& node)
@@ -212,30 +214,52 @@ Particle ReadParticle(const TreeNode& node)
 
 void ParticleEffectComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<ParticleEffectComponent>(componentContext, gameObject);
-
-        auto particle = ReadParticle(*node.getChild(CSTR_PARTICLE));
-        component->SetParticle(particle);
-        component->SetTexture(node.getChild(CSTR_TEXTURE)->value_);
-        component->SetParticlesPerSec(std::stoul(node.getChild(CSTR_PARTICLE_PER_SER)->value_));
-        component->SetBlendFunction(
-            static_cast<GraphicsApi::BlendFunctionType>(std::stoi(node.getChild(CSTR_BLEND_TYPE)->value_)));
-
-        auto emitFunctionName = node.getChild(CSTR_EMIT_FUNCTION)->value_;
-        auto emitFunction     = componentContext.scene_.GetParticleEmitFunction(emitFunctionName);
-        if (emitFunction)
+        if (auto particleNode = node.getChild(CSTR_PARTICLE))
         {
-            component->SetEmitFunction(emitFunctionName, *emitFunction);
+            auto particle = ReadParticle(*particleNode);
+            component->SetParticle(particle);
         }
-        component->SetSpeed(std::stof(node.getChild(CSTR_SPEED)->value_));
-        auto animated = Utils::StringToBool(node.getChild(CSTR_IS_ANIMATED)->value_);
-
-        if (animated)
+        if (auto maybeNode = node.getChild(CSTR_TEXTURE))
         {
-            component->EnableAnimation();
+            component->SetTexture(maybeNode->value_);
         }
-        component->SetParticlesLimit(std::stoul(node.getChild(CSTR_PARTICLE_LIMT)->value_));
+        if (auto maybeNode = node.getChild(CSTR_PARTICLE_PER_SER))
+        {
+            component->SetParticlesPerSec(std::stoul(maybeNode->value_));
+        }
+        if (auto maybeNode = node.getChild(CSTR_BLEND_TYPE))
+        {
+            component->SetBlendFunction(static_cast<GraphicsApi::BlendFunctionType>(std::stoi(maybeNode->value_)));
+        }
+        if (auto maybeNode = node.getChild(CSTR_EMIT_FUNCTION))
+        {
+            auto emitFunctionName = maybeNode->value_;
+            auto emitFunction     = componentContext.scene_.GetParticleEmitFunction(emitFunctionName);
+            if (emitFunction)
+            {
+                component->SetEmitFunction(emitFunctionName, *emitFunction);
+            }
+        }
+        if (auto maybeNode = node.getChild(CSTR_SPEED))
+        {
+            component->SetSpeed(std::stof(maybeNode->value_));
+        }
+        if (auto maybeNode = node.getChild(CSTR_IS_ANIMATED))
+        {
+            auto animated = Utils::StringToBool(maybeNode->value_);
+
+            if (animated)
+            {
+                component->EnableAnimation();
+            }
+        }
+        if (auto maybeNode = node.getChild(CSTR_PARTICLE_LIMT))
+        {
+            component->SetParticlesLimit(std::stoul(maybeNode->value_));
+        }
 
         return component;
     };
