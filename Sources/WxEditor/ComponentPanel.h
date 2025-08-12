@@ -1,16 +1,9 @@
 #pragma once
+#include <GameEngine/Components/IComponent.h>
 #include <wx/collpane.h>
 #include <wx/wx.h>
 
 #include <vector>
-
-namespace GameEngine
-{
-namespace Components
-{
-class IComponent;
-}
-}  // namespace GameEngine
 
 class ComponentPanel : public wxPanel
 {
@@ -26,7 +19,15 @@ private:
     wxBoxSizer* mainSizer;
     wxCollapsiblePane* collapsible;
 
-    // Pomocnicza funkcja do tworzenia UI dla pojedynczego komponentu
     void CreateUIForComponentExample(const GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
     void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
+
+    void CreateUIForInt(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
+    void CreateUIForFloat(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
+    void CreateUIForString(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
+                           const GameEngine::Components::FieldInfo& field);
+    void CreateUIForBool(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
+                         const GameEngine::Components::FieldInfo& field);
+    void CreateUIForVectorOfStrings(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
+                                    const GameEngine::Components::FieldInfo&);
 };
