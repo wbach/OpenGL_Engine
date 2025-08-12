@@ -21,6 +21,8 @@ public:
     std::string name = "Default";
     bool isVisible = true;
     std::vector<std::string> strings{"str1", "str2", "str3"};
+    std::vector<float> floats{0.4, 0.21, 0.69};
+    std::vector<int> ints{1,9,9,1};
 
 public:
     BEGIN_FIELDS()
@@ -30,6 +32,8 @@ public:
         FIELD_STRING(name)
         FIELD_BOOL(isVisible)
         FIELD_VECTOR_OF_STRINGS(strings)
+        FIELD_VECTOR_OF_FLOATS(floats)
+        FIELD_VECTOR_OF_INTS(ints)
     END_FIELDS()
 
 public:

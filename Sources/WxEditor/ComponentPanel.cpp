@@ -164,7 +164,6 @@ void ComponentPanel::CreateUIForComponentExample(const GameEngine::Components::I
     pane->Layout();
 }
 
-
 void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer)
 {
     // Checkbox aktywności
@@ -193,15 +192,28 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
             case GameEngine::Components::FieldType::VectorOfStrings:
                 CreateUIForVectorOfStrings(component, pane, sizer, field);
                 break;
+            case GameEngine::Components::FieldType::VectorOfInt:
+                CreateUIForVectorOfInts(component, pane, sizer, field);
+                break;
+            case GameEngine::Components::FieldType::VectorOfFloat:
+                CreateUIForVectorOfFloats(component, pane, sizer, field);
+                break;
+            case GameEngine::Components::FieldType::Texture:
+                break;
+            case GameEngine::Components::FieldType::File:
+                break;
+            case GameEngine::Components::FieldType::VectorOfFiles:
+                break;
+            case GameEngine::Components::FieldType::VectorOfTextures:
+                break;
         }
     }
 }
 
-
 void ComponentPanel::CreateUIForInt(GameEngine::Components::IComponent& /*component*/, wxWindow* pane, wxBoxSizer* sizer,
                                     const GameEngine::Components::FieldInfo& field)
 {
-    int* val = static_cast<int*>(field.ptr);
+    int* val        = static_cast<int*>(field.ptr);
     wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
     row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
@@ -219,12 +231,11 @@ void ComponentPanel::CreateUIForInt(GameEngine::Components::IComponent& /*compon
 void ComponentPanel::CreateUIForFloat(GameEngine::Components::IComponent& /*component*/, wxWindow* pane, wxBoxSizer* sizer,
                                       const GameEngine::Components::FieldInfo& field)
 {
-    float* val = static_cast<float*>(field.ptr);
+    float* val      = static_cast<float*>(field.ptr);
     wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
     row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
-    wxSpinCtrlDouble* floatCtrl =
-        new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+    wxSpinCtrlDouble* floatCtrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
     floatCtrl->SetRange(-1000.0, 1000.0);
     floatCtrl->SetValue(*val);
     floatCtrl->SetIncrement(0.01);
@@ -240,7 +251,7 @@ void ComponentPanel::CreateUIForString(GameEngine::Components::IComponent& /*com
                                        const GameEngine::Components::FieldInfo& field)
 {
     std::string* val = static_cast<std::string*>(field.ptr);
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* row  = new wxBoxSizer(wxHORIZONTAL);
     row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
     wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, *val);
@@ -253,7 +264,7 @@ void ComponentPanel::CreateUIForString(GameEngine::Components::IComponent& /*com
 void ComponentPanel::CreateUIForBool(GameEngine::Components::IComponent& /*component*/, wxWindow* pane, wxBoxSizer* sizer,
                                      const GameEngine::Components::FieldInfo& field)
 {
-    bool* val = static_cast<bool*>(field.ptr);
+    bool* val         = static_cast<bool*>(field.ptr);
     wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, field.name);
     check->SetValue(*val);
     sizer->Add(check, 0, wxALL, 5);
@@ -261,25 +272,29 @@ void ComponentPanel::CreateUIForBool(GameEngine::Components::IComponent& /*compo
     check->Bind(wxEVT_CHECKBOX, [val](wxCommandEvent& e) { *val = e.IsChecked(); });
 }
 
-void ComponentPanel::CreateUIForVectorOfStrings(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                                const GameEngine::Components::FieldInfo& field)
+template <typename T>
+void ComponentPanel::CreateUIForVector(
+    GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+    const GameEngine::Components::FieldInfo& field,
+    std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>)> createElementControl)
 {
-    auto val = static_cast<std::vector<std::string>*>(field.ptr);
+    auto val = static_cast<std::vector<T>*>(field.ptr);
 
     wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
 
-    // Lewa kolumna: nazwa pola (np. "names")
     wxStaticText* nameLabel = new wxStaticText(pane, wxID_ANY, field.name);
     row->Add(nameLabel, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 10);
 
-    // Prawa kolumna: pionowy sizer z "size" i elementami
     wxBoxSizer* valuesSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Nowy wiersz: label "size" + wartość size obok siebie poziomo
     wxBoxSizer* sizeRow     = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
     wxTextCtrl* sizeCtrl = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%zu", val->size()), wxDefaultPosition, wxDefaultSize,
                                           wxTE_PROCESS_ENTER);
+
+    sizeRow->Add(sizeLabel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    sizeRow->Add(sizeCtrl, 0, wxALIGN_CENTER_VERTICAL);
+    valuesSizer->Add(sizeRow, 0, wxBOTTOM, 10);
 
     auto rebuildUI = [this, &component]()
     {
@@ -294,7 +309,7 @@ void ComponentPanel::CreateUIForVectorOfStrings(GameEngine::Components::ICompone
     };
 
     sizeCtrl->Bind(wxEVT_TEXT_ENTER,
-                   [this, val, sizeCtrl, rebuildUI](wxCommandEvent&)
+                   [this, val, sizeCtrl, rebuildUI](auto&)
                    {
                        try
                        {
@@ -314,54 +329,158 @@ void ComponentPanel::CreateUIForVectorOfStrings(GameEngine::Components::ICompone
                        }
                    });
 
-    sizeRow->Add(sizeLabel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-    sizeRow->Add(sizeCtrl, 0, wxALIGN_CENTER_VERTICAL);
-
-    valuesSizer->Add(sizeRow, 0, wxBOTTOM, 10);
-
     for (size_t i = 0; i < val->size(); ++i)
     {
-        wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
-
-        wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, (*val)[i]);
-        elemRow->Add(stringCtrl, 1, wxEXPAND | wxRIGHT, 5);
-
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove element");
-
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
+        wxBoxSizer* elemRow = createElementControl(pane, val, i, rebuildUI);
         valuesSizer->Add(elemRow, 0, wxEXPAND | wxBOTTOM, 3);
-
-        stringCtrl->Bind(wxEVT_TEXT,
-                         [val, i](wxCommandEvent& evt)
-                         {
-                             if (i < val->size())
-                                 (*val)[i] = evt.GetString().ToStdString();
-                             evt.Skip();
-                         });
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, val, i, rebuildUI](wxCommandEvent&)
-                           {
-                               if (i < val->size())
-                               {
-                                   val->erase(val->begin() + i);
-                                   this->CallAfter(rebuildUI);
-                               }
-                           });
     }
 
     wxButton* addButton = new wxButton(pane, wxID_ANY, "Add element");
     valuesSizer->Add(addButton, 0, wxLEFT, 10);
+
     addButton->Bind(wxEVT_BUTTON,
-                    [this, val, rebuildUI](wxCommandEvent&)
+                    [this, val, rebuildUI](const auto&)
                     {
-                        val->push_back("");
+                        val->push_back({});
                         this->CallAfter(rebuildUI);
                     });
 
     row->Add(valuesSizer, 1, wxEXPAND);
 
     sizer->Add(row, 0, wxEXPAND | wxALL, 5);
+}
+
+wxBoxSizer* ComponentPanel::CreateStringControl(wxWindow* pane, std::vector<std::string>* val, size_t index,
+                                                std::function<void()> rebuildUI)
+{
+    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, (*val)[index]);
+    elemRow->Add(stringCtrl, 1, wxEXPAND | wxRIGHT, 5);
+
+    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+    removeButton->SetToolTip("Remove element");
+    elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
+
+    stringCtrl->Bind(wxEVT_TEXT,
+                     [val, index](wxCommandEvent& evt)
+                     {
+                         if (index < val->size())
+                             (*val)[index] = evt.GetString().ToStdString();
+                         evt.Skip();
+                     });
+
+    removeButton->Bind(wxEVT_BUTTON,
+                       [this, val, index, rebuildUI](wxCommandEvent&)
+                       {
+                           if (index < val->size())
+                           {
+                               val->erase(val->begin() + index);
+                               this->CallAfter(rebuildUI);
+                           }
+                       });
+
+    return elemRow;
+}
+
+wxBoxSizer* ComponentPanel::CreateIntControl(wxWindow* pane, std::vector<int>* val, size_t index, std::function<void()> rebuildUI)
+{
+    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    wxSpinCtrl* spinCtrl = new wxSpinCtrl(pane, wxID_ANY, wxString::Format("%d", (*val)[index]));
+    elemRow->Add(spinCtrl, 1, wxEXPAND | wxRIGHT, 5);
+
+    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+    removeButton->SetToolTip("Remove element");
+    elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
+
+    spinCtrl->Bind(wxEVT_SPINCTRL,
+                   [val, index](wxSpinEvent& evt)
+                   {
+                       if (index < val->size())
+                           (*val)[index] = evt.GetPosition();
+                   });
+
+    removeButton->Bind(wxEVT_BUTTON,
+                       [this, val, index, rebuildUI](wxCommandEvent&)
+                       {
+                           if (index < val->size())
+                           {
+                               val->erase(val->begin() + index);
+                               this->CallAfter(rebuildUI);
+                           }
+                       });
+
+    return elemRow;
+}
+
+wxBoxSizer* ComponentPanel::CreateFloatControl(wxWindow* pane, std::vector<float>* val, size_t index,
+                                               std::function<void()> rebuildUI)
+{
+    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    // Kontrolka tekstowa do edycji floatów
+    //    wxTextCtrl* floatCtrl = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%f", (*val)[index]));
+    //    elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
+
+    wxSpinCtrlDouble* floatCtrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+    // floatCtrl->SetRange(-1000.0, 1000.0);
+    floatCtrl->SetValue(1.23);
+    floatCtrl->SetIncrement(0.01);
+    floatCtrl->SetDigits(2);
+    elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
+
+    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+    removeButton->SetToolTip("Remove element");
+    elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
+
+    // Obsługa zmiany wartości float
+    floatCtrl->Bind(wxEVT_TEXT,
+                    [val, index](wxCommandEvent& evt)
+                    {
+                        if (index < val->size())
+                        {
+                            wxString valStr = evt.GetString();
+                            double parsedVal;
+                            if (valStr.ToDouble(&parsedVal))
+                            {
+                                (*val)[index] = static_cast<float>(parsedVal);
+                            }
+                            // jeśli parsowanie się nie powiedzie, ignoruj zmianę
+                        }
+                        evt.Skip();
+                    });
+
+    removeButton->Bind(wxEVT_BUTTON,
+                       [this, val, index, rebuildUI](wxCommandEvent&)
+                       {
+                           if (index < val->size())
+                           {
+                               val->erase(val->begin() + index);
+                               this->CallAfter(rebuildUI);
+                           }
+                       });
+
+    return elemRow;
+}
+
+void ComponentPanel::CreateUIForVectorOfStrings(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+                                                const GameEngine::Components::FieldInfo& field)
+{
+    CreateUIForVector<std::string>(component, pane, sizer, field,
+                                   [this](auto p, auto v, auto i, auto r) { return this->CreateStringControl(p, v, i, r); });
+}
+
+void ComponentPanel::CreateUIForVectorOfInts(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+                                             const GameEngine::Components::FieldInfo& field)
+{
+    CreateUIForVector<int>(component, pane, sizer, field,
+                           [this](auto p, auto v, auto i, auto r) { return this->CreateIntControl(p, v, i, r); });
+}
+
+void ComponentPanel::CreateUIForVectorOfFloats(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+                                               const GameEngine::Components::FieldInfo& field)
+{
+    CreateUIForVector<float>(component, pane, sizer, field,
+                             [this](auto p, auto v, auto i, auto r) { return this->CreateFloatControl(p, v, i, r); });
 }

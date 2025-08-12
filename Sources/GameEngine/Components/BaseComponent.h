@@ -16,6 +16,8 @@
 #define FIELD_STRING(member) fields.push_back({#member, FieldType::String, &member});
 #define FIELD_BOOL(member) fields.push_back({#member, FieldType::Bool, &member});
 #define FIELD_VECTOR_OF_STRINGS(member) fields.push_back({#member, FieldType::VectorOfStrings, &member});
+#define FIELD_VECTOR_OF_INTS(member) fields.push_back({#member, FieldType::VectorOfInt, &member});
+#define FIELD_VECTOR_OF_FLOATS(member) fields.push_back({#member, FieldType::VectorOfFloat, &member});
 
 #define END_FIELDS() return fields; }
 

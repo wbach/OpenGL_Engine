@@ -36,7 +36,13 @@ enum class FieldType
     Float,
     String,
     Bool,
-    VectorOfStrings
+    Texture,
+    File,
+    VectorOfStrings,
+    VectorOfInt,
+    VectorOfFloat,
+    VectorOfFiles,
+    VectorOfTextures
 };
 
 struct FieldInfo
