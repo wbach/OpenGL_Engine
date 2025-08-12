@@ -17,7 +17,7 @@ ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::GameObj
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
     searchCtrl = new wxTextCtrl(this, wxID_ANY);
-    listBox    = new wxListBox(this, wxID_ANY);
+    listBox    = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_SINGLE | wxLB_SORT);
 
     sizer->Add(searchCtrl, 0, wxEXPAND | wxALL, 5);
     sizer->Add(listBox, 1, wxEXPAND | wxALL, 5);
