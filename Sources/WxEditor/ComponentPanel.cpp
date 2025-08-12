@@ -237,8 +237,22 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
                 wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
                 wxTextCtrl* sizeCtrl    = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%zu", val->size()), wxDefaultPosition,
                                                          wxDefaultSize, wxTE_PROCESS_ENTER);
+
+                auto rebuildUI = [this, &component]()
+                {
+                    mainSizer->Clear(true);
+                    AddComponent(component);
+
+                    // Jeśli panel ma rodzica, to też daj Layout, by poprawić układ całego okna
+                    if (wxWindow* p = this->GetParent())
+                    {
+                        p->Layout();
+                        p->FitInside();
+                    }
+                };
+
                 sizeCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, val, sizeCtrl, &component](wxCommandEvent&)
+                               [this, val, sizeCtrl, rebuildUI](wxCommandEvent&)
                                {
                                    try
                                    {
@@ -250,19 +264,7 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
                                        {
                                            val->resize(requestedSize);
 
-                                           this->CallAfter(
-                                               [this, &component]()
-                                               {
-                                                   mainSizer->Clear(true);
-                                                   AddComponent(component);
-
-                                                   // Jeśli panel ma rodzica, to też daj Layout, by poprawić układ całego okna
-                                                   if (wxWindow* p = this->GetParent())
-                                                   {
-                                                       p->Layout();
-                                                       p->FitInside();
-                                                   }
-                                               });
+                                           this->CallAfter(rebuildUI);
                                        }
                                    }
                                    catch (...)
@@ -285,12 +287,18 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
                     // Tu możesz dodać bind do aktualizacji vectora, jeśli chcesz
                 }
 
+                wxButton* addButton = new wxButton(pane, wxID_ANY, "Add element");
+                valuesSizer->Add(addButton, 0, wxLEFT, 10);
+                addButton->Bind(wxEVT_BUTTON,
+                                [this, val, rebuildUI](wxCommandEvent&)
+                                {
+                                    val->push_back("");
+                                    this->CallAfter(rebuildUI);
+                                });
+
                 row->Add(valuesSizer, 1, wxEXPAND);
 
                 sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-                // Jeśli później będziesz dynamicznie zmieniać vector,
-                // pamiętaj aktualizować sizeCtrl->SetValue(...)
             }
             break;
             case GameEngine::Components::FieldType::Bool:
