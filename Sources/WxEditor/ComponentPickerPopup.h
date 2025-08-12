@@ -18,7 +18,7 @@ class IComponent;
 class ComponentPickerPopup : public wxPopupTransientWindow
 {
 public:
-    using SelectCallback = std::function<void(const GameEngine::Components::IComponent&)>;
+    using SelectCallback = std::function<void(GameEngine::Components::IComponent&)>;
 
     ComponentPickerPopup(wxWindow*, GameEngine::GameObject&, SelectCallback);
 

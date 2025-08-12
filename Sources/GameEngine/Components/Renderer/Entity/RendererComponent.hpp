@@ -15,6 +15,24 @@ namespace Components
 class RendererComponent : public BaseComponent
 {
 public:
+    int id = 2;
+    float x = 0.0124f;
+    float y = 0.0241f;
+    std::string name = "Default";
+    bool isVisible = true;
+    std::vector<std::string> strings{"str1", "str2", "str3"};
+
+public:
+    BEGIN_FIELDS()
+        FIELD_INT(id)
+        FIELD_FLOAT(x)
+        FIELD_FLOAT(y)
+        FIELD_STRING(name)
+        FIELD_BOOL(isVisible)
+        FIELD_VECTOR_OF_STRINGS(strings)
+    END_FIELDS()
+
+public:
     RendererComponent(ComponentContext&, GameObject&);
 
     void CleanUp() override;

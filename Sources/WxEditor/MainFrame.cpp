@@ -449,7 +449,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     {
         auto popup =
             new ComponentPickerPopup(gameObjectPanels, gameObject,
-                                     [this](const auto& component)
+                                     [this](auto& component)
                                      {
                                          ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
                                          compPanel->AddComponent(component);

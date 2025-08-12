@@ -20,11 +20,12 @@ public:
     void ClearComponents();
 
     // Dodaje UI dla komponentu
-    void AddComponent(const GameEngine::Components::IComponent&);
+    void AddComponent(GameEngine::Components::IComponent&);
 
 private:
     wxBoxSizer* mainSizer;
 
     // Pomocnicza funkcja do tworzenia UI dla pojedynczego komponentu
-    void CreateUIForComponent(const GameEngine::Components::IComponent&, wxWindow*);
+    void CreateUIForComponentExample(const GameEngine::Components::IComponent&, wxWindow*);
+    void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*);
 };

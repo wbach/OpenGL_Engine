@@ -30,6 +30,22 @@ struct Param
     std::string value;
 };
 
+enum class FieldType
+{
+    Int,
+    Float,
+    String,
+    Bool,
+    VectorOfStrings
+};
+
+struct FieldInfo
+{
+    const char* name;
+    FieldType type;
+    void* ptr;
+};
+
 typedef std::string ParamName;
 
 class IComponent
@@ -49,6 +65,7 @@ public:
     virtual const GameObject& getParentGameObject() const                            = 0;
     virtual void write(TreeNode&) const                                              = 0;
     virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const        = 0;
+    virtual std::vector<FieldInfo> GetFields()                                       = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine
