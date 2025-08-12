@@ -327,6 +327,7 @@ void MainFrame::MenuEditCreateObject(wxCommandEvent&)
     auto gameObject = AddGameObject("NewGameObject", parentGameObjectId);
     auto itemId     = AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), gameObject->GetId(), gameObject->GetName());
     gameObjectsView->SelectItem(itemId);
+    UpdateObjectCount();
 }
 
 GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
