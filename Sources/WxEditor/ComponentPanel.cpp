@@ -1,6 +1,7 @@
 #include "ComponentPanel.h"
 
 #include <GameEngine/Components/IComponent.h>
+#include <Logger/Log.h>
 #include <Utils/TreeNode.h>
 #include <wx/spinctrl.h>
 
@@ -31,9 +32,18 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component)
     component.write(node);
     auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);
 
-    wxCollapsiblePane* collapsible = new wxCollapsiblePane(this, wxID_ANY, typeName);
-    wxWindow* pane                 = collapsible->GetPane();
-    CreateUIForComponent(component, pane);
+    collapsible    = new wxCollapsiblePane(this, wxID_ANY, typeName);
+    wxWindow* pane = collapsible->GetPane();
+
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    pane->SetSizer(sizer);
+
+    CreateUIForComponent(component, pane, sizer);
+
+    pane->SetSizer(sizer);
+    sizer->Layout();
+    pane->Layout();
+
     mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 0);
 
     collapsible->Collapse(false);
@@ -55,10 +65,9 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component)
     this->FitInside();
 }
 
-void ComponentPanel::CreateUIForComponentExample(const GameEngine::Components::IComponent& component, wxWindow* pane)
+void ComponentPanel::CreateUIForComponentExample(const GameEngine::Components::IComponent& component, wxWindow* pane,
+                                                 wxBoxSizer* sizer)
 {
-    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-
     // Checkbox aktywności
     {
         wxCheckBox* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
@@ -150,16 +159,12 @@ void ComponentPanel::CreateUIForComponentExample(const GameEngine::Components::I
         sizer->Add(row, 0, wxEXPAND | wxALL, 5);
     }
 
-    pane->SetSizer(sizer);
     sizer->Layout();
     pane->Layout();
 }
 
-void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& component, wxWindow* pane)
+void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer)
 {
-    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    pane->SetSizer(sizer);
-
     // Checkbox aktywności
     {
         wxCheckBox* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
@@ -214,48 +219,80 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
                 sizer->Add(row, 0, wxEXPAND | wxALL, 5);
             }
             break;
-        case GameEngine::Components::FieldType::VectorOfStrings:
-        {
-            auto val = static_cast<std::vector<std::string>*>(field.ptr);
-
-            wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-
-            // Lewa kolumna: nazwa pola (np. "names")
-            wxStaticText* nameLabel = new wxStaticText(pane, wxID_ANY, field.name);
-            row->Add(nameLabel, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 10);
-
-            // Prawa kolumna: pionowy sizer z "size" i elementami
-            wxBoxSizer* valuesSizer = new wxBoxSizer(wxVERTICAL);
-
-            // Nowy wiersz: label "size" + wartość size obok siebie poziomo
-            wxBoxSizer* sizeRow = new wxBoxSizer(wxHORIZONTAL);
-            wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
-            wxTextCtrl* sizeCtrl = new wxTextCtrl(pane, wxID_ANY,
-                                                  wxString::Format("%zu", val->size()),
-                                                  wxDefaultPosition, wxDefaultSize,
-                                                  wxTE_READONLY);
-            sizeRow->Add(sizeLabel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-            sizeRow->Add(sizeCtrl, 0, wxALIGN_CENTER_VERTICAL);
-
-            valuesSizer->Add(sizeRow, 0, wxBOTTOM, 10);
-
-            // Kontrolki dla każdego stringa (poniżej sizeRow)
-            for (const auto& str : *val)
+            case GameEngine::Components::FieldType::VectorOfStrings:
             {
-                wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, str);
-                valuesSizer->Add(stringCtrl, 0, wxEXPAND | wxBOTTOM, 3);
+                auto val = static_cast<std::vector<std::string>*>(field.ptr);
 
-                // Tu możesz dodać bind do aktualizacji vectora, jeśli chcesz
+                wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+
+                // Lewa kolumna: nazwa pola (np. "names")
+                wxStaticText* nameLabel = new wxStaticText(pane, wxID_ANY, field.name);
+                row->Add(nameLabel, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 10);
+
+                // Prawa kolumna: pionowy sizer z "size" i elementami
+                wxBoxSizer* valuesSizer = new wxBoxSizer(wxVERTICAL);
+
+                // Nowy wiersz: label "size" + wartość size obok siebie poziomo
+                wxBoxSizer* sizeRow     = new wxBoxSizer(wxHORIZONTAL);
+                wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
+                wxTextCtrl* sizeCtrl    = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%zu", val->size()), wxDefaultPosition,
+                                                         wxDefaultSize, wxTE_PROCESS_ENTER);
+                sizeCtrl->Bind(wxEVT_TEXT_ENTER,
+                               [this, val, sizeCtrl, &component](wxCommandEvent&)
+                               {
+                                   try
+                                   {
+                                       int requestedSize = std::stoi(sizeCtrl->GetValue().ToStdString());
+                                       if (requestedSize < 0)
+                                           requestedSize = 0;
+
+                                       if (requestedSize != val->size())
+                                       {
+                                           val->resize(requestedSize);
+
+                                           this->CallAfter(
+                                               [this, &component]()
+                                               {
+                                                   mainSizer->Clear(true);
+                                                   AddComponent(component);
+
+                                                   // Jeśli panel ma rodzica, to też daj Layout, by poprawić układ całego okna
+                                                   if (wxWindow* p = this->GetParent())
+                                                   {
+                                                       p->Layout();
+                                                       p->FitInside();
+                                                   }
+                                               });
+                                       }
+                                   }
+                                   catch (...)
+                                   {
+                                       // ignoruj błędy parsowania
+                                   }
+                               });
+
+                sizeRow->Add(sizeLabel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+                sizeRow->Add(sizeCtrl, 0, wxALIGN_CENTER_VERTICAL);
+
+                valuesSizer->Add(sizeRow, 0, wxBOTTOM, 10);
+
+                // Kontrolki dla każdego stringa (poniżej sizeRow)
+                for (const auto& str : *val)
+                {
+                    wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, str);
+                    valuesSizer->Add(stringCtrl, 0, wxEXPAND | wxBOTTOM, 3);
+
+                    // Tu możesz dodać bind do aktualizacji vectora, jeśli chcesz
+                }
+
+                row->Add(valuesSizer, 1, wxEXPAND);
+
+                sizer->Add(row, 0, wxEXPAND | wxALL, 5);
+
+                // Jeśli później będziesz dynamicznie zmieniać vector,
+                // pamiętaj aktualizować sizeCtrl->SetValue(...)
             }
-
-            row->Add(valuesSizer, 1, wxEXPAND);
-
-            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-            // Jeśli później będziesz dynamicznie zmieniać vector,
-            // pamiętaj aktualizować sizeCtrl->SetValue(...)
-        }
-        break;
+            break;
             case GameEngine::Components::FieldType::Bool:
             {
                 bool* val         = static_cast<bool*>(field.ptr);
@@ -274,7 +311,4 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
             break;
         }
     }
-
-    sizer->Layout();
-    pane->Layout();
 }

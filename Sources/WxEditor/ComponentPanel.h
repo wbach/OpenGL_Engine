@@ -24,8 +24,9 @@ public:
 
 private:
     wxBoxSizer* mainSizer;
+    wxCollapsiblePane* collapsible;
 
     // Pomocnicza funkcja do tworzenia UI dla pojedynczego komponentu
-    void CreateUIForComponentExample(const GameEngine::Components::IComponent&, wxWindow*);
-    void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*);
+    void CreateUIForComponentExample(const GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
+    void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
 };
