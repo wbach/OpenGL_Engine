@@ -99,8 +99,8 @@ void TreeRendererComponent::CreatePerObjectUpdateBuffer()
                        ? bmodel->getBoundingBox().maxScale()
                        : bmodel->getBoundingBox().maxScale();
 
-    perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(
-        componentContext_.resourceManager_.GetGraphicsApi(), PER_OBJECT_UPDATE_BIND_LOCATION);
+    perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.resourceManager_.GetGraphicsApi(),
+                                                                             PER_OBJECT_UPDATE_BIND_LOCATION);
 
     auto normalizedMatrix = glm::scale(vec3(1.f / factor)) * thisObject_.GetWorldTransform().GetMatrix();
     perObjectUpdateBuffer_->GetData().TransformationMatrix = normalizedMatrix;
@@ -115,8 +115,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
     int index = 0;
     for (const auto& pos : positions_)
     {
-        perInstances_->GetData().transforms[index++] =
-            Utils::CreateTransformationMatrix(pos, DegreesVec3(0.f), vec3(1.f));
+        perInstances_->GetData().transforms[index++] = Utils::CreateTransformationMatrix(pos, DegreesVec3(0.f), vec3(1.f));
     }
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perInstances_);
@@ -143,11 +142,11 @@ void TreeRendererComponent::DeleteShaderBuffers()
 }
 void TreeRendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<TreeRendererComponent>(componentContext, gameObject);
 
-        auto bottomFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES);
-        if (bottomFilesNode)
+        if (auto bottomFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES))
         {
             for (const auto& fileNode : bottomFilesNode->getChildren())
             {
@@ -162,7 +161,8 @@ void TreeRendererComponent::registerReadFunctions()
                 }
             }
         }
-        auto topFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES);
+
+        if (auto topFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES))
         {
             for (const auto& fileNode : topFilesNode->getChildren())
             {
