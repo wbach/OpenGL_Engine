@@ -17,6 +17,7 @@
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
 #include "TransformPanel.h"
+#include "Theme.h"
 
 namespace
 {
@@ -217,6 +218,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     // Powiązanie zdarzenia z ID_SAVE
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
+    SaveOsTheme(*this);
+    //ApplyTheme(*this);
 }
 
 void MainFrame::RemoveAllComponentPanels()

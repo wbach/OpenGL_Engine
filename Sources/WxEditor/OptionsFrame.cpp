@@ -2,6 +2,7 @@
 
 #include <wx/spinctrl.h>
 #include <GameEngine/Engine/Configuration.h>
+#include "Theme.h"
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(OptionsFrame, wxFrame)
@@ -19,8 +20,8 @@ OptionsFrame::OptionsFrame(wxWindow* parent)
     wxNotebook* notebook = new wxNotebook(this, wxID_ANY);
 
     CreateRenderingOptionsTab(notebook);
-//    CreateGeneralTab(notebook);
-//    CreateAppearanceTab(notebook);
+    //CreateGeneralTab(notebook);
+    CreateAppearanceTab(notebook);
 //    CreateAdvancedTab(notebook);
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
@@ -81,12 +82,12 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
         wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
         rowSizer->Add(new wxStaticText(panel, wxID_ANY, param.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
-        wxArrayString themes;
+        wxArrayString options;
         for(const auto& value : param.configurationParam.getValuesAsStrings())
         {
-            themes.Add(value);
+            options.Add(value);
         }
-        auto choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, themes);
+        auto choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, options);
         choice->SetSelection(param.configurationParam.getValueIndex());
         rowSizer->Add(choice, 0, wxALL, 5);
 
@@ -136,17 +137,37 @@ void OptionsFrame::CreateAppearanceTab(wxNotebook* notebook)
     wxPanel* panel = new wxPanel(notebook);
 
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    sizer->Add(new wxStaticText(panel, wxID_ANY, "Motyw kolorystyczny:"), 0, wxALL, 5);
+    sizer->Add(new wxStaticText(panel, wxID_ANY, "Theme:"), 0, wxALL, 5);
 
     wxArrayString themes;
-    themes.Add("Jasny");
-    themes.Add("Ciemny");
-    themes.Add("Systemowy");
-    sizer->Add(new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, themes), 0, wxALL, 5);
+    themes.Add("Light");
+    themes.Add("Dark");
+    themes.Add("OsBased");
+    auto choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, themes);
+    sizer->Add(choice, 0, wxALL, 5);
+    choice->SetSelection(2);
+    choice->Bind(wxEVT_CHOICE, [&](const auto& event){
+        wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
+        if (!choice) return;
+        int sel = choice->GetSelection();
+        switch(sel)
+        {
+        case 0:
+            ApplyTheme(*this->GetParent(), LIGHT_THEME);
+            break;
+        case 1:
+            ApplyTheme(*this->GetParent(), DARK_THEME);
+            break;
+        case 2:
+            ApplyTheme(*this->GetParent(), OS_DEFAULT_THEME);
+            break;
+        }
+
+    });
 
     panel->SetSizer(sizer);
     panel->Layout();
-    notebook->AddPage(panel, "Wyglad");
+    notebook->AddPage(panel, "Enviroment");
 }
 
 void OptionsFrame::CreateAdvancedTab(wxNotebook* notebook)
