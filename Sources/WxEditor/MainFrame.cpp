@@ -6,17 +6,17 @@
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <wx/artprov.h>
+#include <wx/spinctrl.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
-#include <wx/spinctrl.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <string>
 
+#include "ComponentPanel.h"
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
 #include "TransformPanel.h"
-#include "ComponentPanel.h"
 
 namespace
 {
@@ -58,7 +58,6 @@ enum
 
 };
 }  // namespace
-
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
@@ -143,14 +142,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
     // Tworzymy collapsible, który będzie "kontenerem" dla notebooka
-    transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
+    auto transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
 
     gameObjectPanelsSizer->Add(transformsCollapsible, 0, wxEXPAND | wxALL, 0);
 
     // Teraz do collapsible dajemy notebook
     wxWindow* pane = transformsCollapsible->GetPane();
 
-    transformsNotebook = new wxNotebook(pane, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    auto transformsNotebook = new wxNotebook(pane, wxID_ANY, wxDefaultPosition, wxDefaultSize);
     transformsNotebook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &MainFrame::OnPageChanged, this);
 
     worldTransformPanel = new TransformPanel(transformsNotebook);
@@ -167,12 +166,13 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectPanels->FitInside();
 
     // Opcjonalnie, możesz podpiąć event zmiany stanu collapsible aby wymusić poprawne ułożenie:
-    transformsCollapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, [this](wxCollapsiblePaneEvent&)
-    {
-        gameObjectPanelsSizer->Layout();
-        gameObjectPanels->FitInside();
-        gameObjectPanels->Refresh();
-    });
+    transformsCollapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
+                                [this](wxCollapsiblePaneEvent&)
+                                {
+                                    gameObjectPanelsSizer->Layout();
+                                    gameObjectPanels->FitInside();
+                                    gameObjectPanels->Refresh();
+                                });
 
     transformsCollapsible->Collapse(false);
 
@@ -231,10 +231,10 @@ void MainFrame::RemoveAllComponentPanels()
             continue;
 
         wxWindow* win = item->GetWindow();
-        if (win && dynamic_cast<ComponentPanel*>(win))
+        if (win && (dynamic_cast<ComponentPanel*>(win)))
         {
-            gameObjectPanelsSizer->Detach(i);   // oddzielnie usuń z sizer bez zwalniania pamięci
-            win->Destroy();                     // a potem usuń okno
+            gameObjectPanelsSizer->Detach(i);  // oddzielnie usuń z sizer bez zwalniania pamięci
+            win->Destroy();                    // a potem usuń okno
         }
     }
     gameObjectPanelsSizer->Layout();
@@ -429,6 +429,18 @@ void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& game
         compPanel->AddComponent(*component);
         gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
+
+    if (addComponentButton)
+    {
+        addComponentButton->Destroy();
+    }
+    addComponentButton = new wxButton(gameObjectPanels, wxID_ANY, "Add component");
+    gameObjectPanelsSizer->Add(addComponentButton, 0, wxEXPAND | wxALL, 0);
+    addComponentButton->Bind(wxEVT_BUTTON,
+                             [&](const auto&)
+                             {
+                                 wxLogMessage("Add component");
+                             });
 
     gameObjectPanelsSizer->Layout();
     gameObjectPanels->FitInside();
@@ -719,7 +731,7 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         {
             transfromSubController->ChangeGameObject(go->GetId());
         }
-        //RemoveAllItemsButTransformView();
+        // RemoveAllItemsButTransformView();
         RemoveAllComponentPanels();
         AddGameObjectComponentsToView(*go);
     }

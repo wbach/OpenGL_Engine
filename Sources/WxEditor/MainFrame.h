@@ -147,8 +147,7 @@ private:
     wxGenericDirCtrl* fileExplorer{nullptr};
     wxBoxSizer* gameObjectPanelsSizer{nullptr};
     wxScrolledWindow* gameObjectPanels{nullptr};
-    wxNotebook* transformsNotebook{nullptr};
-    wxCollapsiblePane* transformsCollapsible{nullptr};
+    wxButton* addComponentButton{nullptr};
 
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;
