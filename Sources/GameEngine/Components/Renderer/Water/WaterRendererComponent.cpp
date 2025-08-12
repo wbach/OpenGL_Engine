@@ -25,6 +25,8 @@ WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContex
     , moveFactor_(0)
     , waterColor_(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
     , waveSpeed_(.1f)
+    , normalMap_{nullptr}
+    , dudvMap_{nullptr}
     , isSubscribed_(false)
 {
 }
