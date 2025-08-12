@@ -1,29 +1,37 @@
 #pragma once
 
-#include <wx/wx.h>
 #include <wx/popupwin.h>
+#include <wx/wx.h>
+
 #include <functional>
 #include <vector>
+
+namespace GameEngine
+{
+class GameObject;
+namespace Components
+{
+class IComponent;
+}
+}  // namespace GameEngine
 
 class ComponentPickerPopup : public wxPopupTransientWindow
 {
 public:
-    using SelectCallback = std::function<void(const wxString&)>;
+    using SelectCallback = std::function<void(const GameEngine::Components::IComponent&)>;
 
-    ComponentPickerPopup(wxWindow* parent,
-                         const std::vector<wxString>& components,
-                         SelectCallback onSelect);
+    ComponentPickerPopup(wxWindow*, GameEngine::GameObject&, SelectCallback);
 
 private:
+    GameEngine::GameObject& gameObject;
     wxTextCtrl* searchCtrl;
     wxListBox* listBox;
-    std::vector<wxString> allComponents;
     SelectCallback selectCallback;
 
     void PopulateList(const wxString& filter);
     void OnSearch(wxCommandEvent& evt);
-    void OnSelect(wxCommandEvent& evt); // nadpisujemy event listboxa
-    void OnDismiss() override; // opcjonalnie, jeśli chcesz reagować na zamknięcie
+    void OnSelect(wxCommandEvent& evt);  // nadpisujemy event listboxa
+    void OnDismiss() override;           // opcjonalnie, jeśli chcesz reagować na zamknięcie
 
     wxDECLARE_EVENT_TABLE();
 };

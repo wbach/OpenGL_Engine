@@ -14,11 +14,11 @@
 #include <string>
 
 #include "ComponentPanel.h"
+#include "ComponentPickerPopup.h"
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
 #include "Theme.h"
 #include "TransformPanel.h"
-#include "ComponentPickerPopup.h"
 
 namespace
 {
@@ -325,7 +325,8 @@ void MainFrame::MenuEditCreateObject(wxCommandEvent&)
         parentGameObjectId = parentGameObject->GetId();
     }
     auto gameObject = AddGameObject("NewGameObject", parentGameObjectId);
-    AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), gameObject->GetId(), gameObject->GetName());
+    auto itemId     = AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), gameObject->GetId(), gameObject->GetName());
+    gameObjectsView->SelectItem(itemId);
 }
 
 GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
@@ -424,7 +425,7 @@ GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
                                                engineContext.GetDisplayManager().GetWindowSize(), scene.getComponentController()};
 }
 
-void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& gameObject)
+void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject)
 {
     // Dodajemy panele istniejących komponentów
     for (auto& component : gameObject.GetComponents())
@@ -445,14 +446,25 @@ void MainFrame::AddGameObjectComponentsToView(const GameEngine::GameObject& game
 
     auto action = [&](wxCommandEvent&)
     {
-        std::vector<wxString> comps = {"Component A", "Component B", "Component C"};
+        auto popup =
+            new ComponentPickerPopup(gameObjectPanels, gameObject,
+                                     [this](const auto& component)
+                                     {
+                                         ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
+                                         compPanel->AddComponent(component);
+                                         this->CallAfter(
+                                             [this, compPanel]()
+                                             {
+                                                 int btnIndex = gameObjectPanelsSizer->GetItemCount() - 1;
+                                                 if (btnIndex < 0)
+                                                     btnIndex = 0;  // zabezpieczenie, gdyby przycisku jeszcze nie było
+                                                 gameObjectPanelsSizer->Insert(btnIndex, compPanel, 0, wxEXPAND | wxALL, 0);
 
-        auto popup = new ComponentPickerPopup(gameObjectPanels, comps,
-                                              [this](const wxString& selected)
-                                              {
-                                                  wxLogMessage("Dodano komponent: %s", selected);
-                                                  // TODO: Dodaj logikę dodawania komponentu
-                                              });
+                                                 gameObjectPanelsSizer->Layout();
+                                                 gameObjectPanels->FitInside();
+                                                 gameObjectPanels->Refresh();
+                                             });
+                                     });
 
         // Pobieramy pozycję przycisku w globalnych współrzędnych
         wxPoint pos = addComponentButton->GetScreenPosition();

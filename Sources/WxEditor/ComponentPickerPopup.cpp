@@ -1,20 +1,23 @@
 #include "ComponentPickerPopup.h"
 
+#include <GameEngine/Components/ComponentsReadFunctions.h>
+#include <GameEngine/Objects/GameObject.h>
+
+// clang-format off
 wxBEGIN_EVENT_TABLE(ComponentPickerPopup, wxPopupTransientWindow)
     // eventy bindowane dynamicznie
 wxEND_EVENT_TABLE()
 
-ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent,
-                                           const std::vector<wxString>& components,
-                                           SelectCallback onSelect)
-    : wxPopupTransientWindow(parent, wxBORDER_SIMPLE),
-      allComponents(components),
-      selectCallback(onSelect)
+ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::GameObject& gameObject, SelectCallback onSelect)
+    : wxPopupTransientWindow(parent, wxBORDER_SIMPLE)
+    , gameObject{gameObject}
+    , selectCallback(onSelect)
 {
+    // clang-format on
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
     searchCtrl = new wxTextCtrl(this, wxID_ANY);
-    listBox = new wxListBox(this, wxID_ANY);
+    listBox    = new wxListBox(this, wxID_ANY);
 
     sizer->Add(searchCtrl, 0, wxEXPAND | wxALL, 5);
     sizer->Add(listBox, 1, wxEXPAND | wxALL, 5);
@@ -32,10 +35,11 @@ void ComponentPickerPopup::PopulateList(const wxString& filter)
     listBox->Freeze();
     listBox->Clear();
 
-    for (const auto& comp : allComponents)
+    for (auto [name, _] : GameEngine::Components::ReadFunctions().instance().componentsReadFunctions)
     {
-        if (filter.IsEmpty() || comp.Lower().Contains(filter.Lower()))
-            listBox->Append(comp);
+        wxString componentName(name);
+        if (filter.IsEmpty() || componentName.Lower().Contains(filter.Lower()))
+            listBox->Append(componentName);
     }
 
     listBox->Thaw();
@@ -50,10 +54,28 @@ void ComponentPickerPopup::OnSearch(wxCommandEvent& evt)
 void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
 {
     wxString selected = listBox->GetStringSelection();
-    if (selectCallback)
-        selectCallback(selected);
 
-    Dismiss(); // zamykamy popup
+    const auto& readFunctions = GameEngine::Components::ReadFunctions().instance().componentsReadFunctions;
+    auto readFunctionIter     = readFunctions.find(selected.ToStdString());
+    if (readFunctionIter != readFunctions.end())
+    {
+        TreeNode node("component");
+        node.attributes_.insert({GameEngine::Components::CSTR_TYPE, selected.ToStdString()});
+        auto component = gameObject.InitComponent(node);
+        if (component)
+        {
+            component->ReqisterFunctions();
+
+            if (selectCallback)
+                selectCallback(*component);
+        }
+        else
+        {
+            wxLogMessage("Read function not found for component: %s", selected);
+        }
+    }
+
+    Dismiss();  // zamykamy popup
 }
 
 void ComponentPickerPopup::OnDismiss()

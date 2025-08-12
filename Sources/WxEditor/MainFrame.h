@@ -135,7 +135,7 @@ private:
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
-    void AddGameObjectComponentsToView(const GameEngine::GameObject&);
+    void AddGameObjectComponentsToView(GameEngine::GameObject &);
     void RemoveAllComponentPanels();
 
 private:
