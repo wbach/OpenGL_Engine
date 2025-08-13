@@ -1,8 +1,8 @@
 #pragma once
+#include <Logger/Log.h>
 #include <Types.h>
 
 #include <fstream>
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -13,6 +13,7 @@ public:
     File(const std::string&);
     File(const char*);
     File(const File&) = default;
+    void Change(const std::string&);
     void DataRelative(const std::string&);
     void ProjectRelative(const std::string&);
     void AbsoultePath(const std::string&);
@@ -36,7 +37,9 @@ public:
     bool IsExtension(const std::vector<std::string>&) const;
 
     bool operator==(const File&) const;
-    File operator=(const char*) const;
+    File& operator=(const File&);
+    File& operator=(const char*);
+    File& operator=(const std::string&);
     operator bool() const;
     bool empty() const;
 

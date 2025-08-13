@@ -3,6 +3,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
+#include <Logger/Log.h>
 
 #include "GameEngine/Engine/Configuration.h"
 
@@ -19,6 +20,18 @@ File::File(const std::string &input)
     , fp_{nullptr}
     , fileSize_(0)
 {
+    DEBUG_LOG(input);
+    Change(input);
+}
+File::File(const char *input)
+    : File(std::string(input))
+{
+}
+
+void File::Change(const std::string &input)
+{
+    initValue_ = input;
+
     if (input.empty())
         return;
 
@@ -30,10 +43,8 @@ File::File(const std::string &input)
         DataRelative(initValue_);
 
     ClearSpecialCharacters();
-}
-File::File(const char *input)
-    : File(std::string(input))
-{
+
+    DEBUG_LOG(GetAbsoultePath());
 }
 void File::DataRelative(const std::string &filename)
 {
@@ -195,9 +206,25 @@ bool File::operator==(const File &f) const
 {
     return absoultePath_ == f.absoultePath_;
 }
-File File::operator=(const char *str) const
+File &File::operator=(const File &f)
 {
-    return File(str);
+    if (&f != this)
+    {
+        DEBUG_LOG(f.GetAbsoultePath());
+        Change(f.initValue_);
+    }
+    return *this;
+}
+File &File::operator=(const char *str)
+{
+    Change(str);
+    return *this;
+}
+File &File::operator=(const std::string &str)
+{
+    DEBUG_LOG(str);
+    Change(str);
+    return *this;
 }
 File::operator bool() const
 {

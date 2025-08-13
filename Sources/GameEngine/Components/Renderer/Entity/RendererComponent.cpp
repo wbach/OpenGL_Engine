@@ -28,10 +28,12 @@ const GraphicsApi::ID defaultId;
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
+    , textureIndex(0)
     , isSubscribed_(false)
-    , textureIndex_(0)
     , loadingParameters_{DEFAULT_LOADING_PARAMETERS}
 {
+    modelNormalization = loadingParameters_.modelNormalization == ModelNormalization::normalized ? true : false;
+    meshOptimize       = loadingParameters_.meshOptimize == MeshOptimize::optimized ? true : false;
 }
 
 void RendererComponent::CleanUp()
@@ -52,49 +54,6 @@ void RendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::init, this));
 }
-void RendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
-{
-    UnSubscribe();
-
-    try
-    {
-        if (params.count(MODEL_L1) and not params.at(MODEL_L1).empty())
-            AddModel(params.at(MODEL_L1), LevelOfDetail::L1);
-        if (params.count(MODEL_L2) and not params.at(MODEL_L2).empty())
-            AddModel(params.at(MODEL_L2), LevelOfDetail::L2);
-        if (params.count(MODEL_L3) and not params.at(MODEL_L3).empty())
-            AddModel(params.at(MODEL_L3), LevelOfDetail::L3);
-        if (params.count(TEXTURE_INDEX) and not params.at(TEXTURE_INDEX).empty())
-            SetTextureIndex(std::stoi(params.at(TEXTURE_INDEX)));
-
-        DEBUG_LOG("Subscribe");
-        Subscribe();
-    }
-    catch (...)
-    {
-        ERROR_LOG("fail");
-    }
-}
-std::unordered_map<ParamName, Param> RendererComponent::GetParams() const
-{
-    std::unordered_map<ParamName, Param> result;
-    auto models = model_.GetAll();
-    result.insert(
-        {MODEL_L1,
-         {MODEL_FILE,
-          models.count(LevelOfDetail::L1) ? models.at(LevelOfDetail::L1)->GetFile().GetDataRelativeDir() : ""}});
-    result.insert(
-        {MODEL_L2,
-         {MODEL_FILE,
-          models.count(LevelOfDetail::L2) ? models.at(LevelOfDetail::L2)->GetFile().GetDataRelativeDir() : ""}});
-    result.insert(
-        {MODEL_L3,
-         {MODEL_FILE,
-          models.count(LevelOfDetail::L3) ? models.at(LevelOfDetail::L3)->GetFile().GetDataRelativeDir() : ""}});
-    result.insert({TEXTURE_INDEX, {INT, std::to_string(textureIndex_)}});
-
-    return result;
-}
 
 RendererComponent& RendererComponent::AddModel(Model* model, LevelOfDetail i)
 {
@@ -107,21 +66,35 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
     if (filename.empty())
         return *this;
 
-    filenames_.insert({Utils::ReplaceSlash(filename), lvl});
+    switch (lvl)
+    {
+        case GameEngine::LevelOfDetail::L1:
+            fileName_LOD1 = Utils::ReplaceSlash(filename);
+            break;
+        case GameEngine::LevelOfDetail::L2:
+            fileName_LOD2 = Utils::ReplaceSlash(filename);
+            break;
+        case GameEngine::LevelOfDetail::L3:
+            fileName_LOD3 = Utils::ReplaceSlash(filename);
+            break;
+    }
     return *this;
 }
 RendererComponent& RendererComponent::SetTextureIndex(uint32_t index)
 {
-    textureIndex_ = index;
+    textureIndex = index;
     return *this;
 }
 void RendererComponent::init()
 {
+    loadingParameters_.modelNormalization = modelNormalization ? ModelNormalization::normalized : ModelNormalization::none;
+    loadingParameters_.meshOptimize       = meshOptimize ? MeshOptimize::optimized : MeshOptimize::none;
+
     bool atLeastOneModelIsCreated{false};
-    for (auto& [filename, lvl] : filenames_)
+    for (auto& [lvl, file] : GetFiles())
     {
-        DEBUG_LOG(thisObject_.GetName()+  " Load model: " + filename);
-        auto model = componentContext_.resourceManager_.LoadModel(filename, loadingParameters_);
+        DEBUG_LOG(thisObject_.GetName() + " Load model: " + file.GetBaseName());
+        auto model = componentContext_.resourceManager_.LoadModel(file, loadingParameters_);
 
         if (model)
         {
@@ -216,7 +189,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     auto& buffer   = *bufferPtr.get();
     perObjectUpdateBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
-    const mat4 transformMatrix = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
+    const mat4 transformMatrix            = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
@@ -229,15 +202,15 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
         return;
     }
 
-    auto bufferPtr = std::make_unique<BufferObject<PerObjectConstants>>(componentContext_.graphicsApi_,
-                                                                        PER_OBJECT_CONSTANTS_BIND_LOCATION);
-    auto& buffer   = *bufferPtr.get();
+    auto bufferPtr =
+        std::make_unique<BufferObject<PerObjectConstants>>(componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION);
+    auto& buffer = *bufferPtr.get();
 
     perObjectConstantsBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
     if (mesh.GetMaterial().diffuseTexture)
     {
-        buffer.GetData().textureOffset = mesh.GetMaterial().diffuseTexture->GetTextureOffset(textureIndex_);
+        buffer.GetData().textureOffset = mesh.GetMaterial().diffuseTexture->GetTextureOffset(textureIndex);
     }
     else
     {
@@ -259,10 +232,9 @@ void RendererComponent::UpdateBuffers()
             auto iter = perObjectUpdateBuffer_.find(mesh.GetGpuObjectId());
             if (iter != perObjectUpdateBuffer_.end() and iter->second)
             {
-                auto& buffer              = *iter->second;
-                const mat4 transformMatix = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
-                buffer.GetData().TransformationMatrix =
-                    componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
+                auto& buffer                          = *iter->second;
+                const mat4 transformMatix             = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
+                buffer.GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
                 buffer.UpdateGpuPass();
                 // componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
             }
@@ -302,16 +274,23 @@ void RendererComponent::useArmature(bool value)
         }
     }
 }
+
+std::unordered_map<LevelOfDetail, File> RendererComponent::GetFiles() const
+{
+    return {{LevelOfDetail::L1, fileName_LOD1},
+            {LevelOfDetail::L2, fileName_LOD2},
+            {LevelOfDetail::L3, fileName_LOD3}};
+}
 void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
 {
-    node.addChild(CSTR_FILE_NAME, filename);
+    node.addChild(CSTR_FILE_NAME, Utils::ReplaceSlash(filename));
     node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
 }
-void create(TreeNode& node, const std::unordered_map<std::string, LevelOfDetail>& files)
+void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files)
 {
-    for (const auto& files : files)
+    for (const auto& [lodLvl, file] : files)
     {
-        create(node.addChild(CSTR_MODEL_FILE_NAME), files.first, files.second);
+        create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativeDir(), lodLvl);
     }
 }
 void RendererComponent::registerReadFunctions()
@@ -325,8 +304,7 @@ void RendererComponent::registerReadFunctions()
         {
             try
             {
-                auto textureIndex = std::stoul(textureIndexNode->value_);
-                component->SetTextureIndex(textureIndex);
+                component->textureIndex = std::stoul(textureIndexNode->value_);
             }
             catch (...)
             {
@@ -337,15 +315,12 @@ void RendererComponent::registerReadFunctions()
         auto modelNormalization = node.getChild(MODEL_NORMALIZATION);
         if (modelNormalization)
         {
-            component->loadingParameters_.modelNormalization = Utils::StringToBool(modelNormalization->value_)
-                                                                   ? ModelNormalization::normalized
-                                                                   : ModelNormalization::none;
+            component->modelNormalization = Utils::StringToBool(modelNormalization->value_);
         }
         auto meshOptimize = node.getChild(MESH_OPTIMIZE);
         if (meshOptimize)
         {
-            component->loadingParameters_.meshOptimize =
-                Utils::StringToBool(meshOptimize->value_) ? MeshOptimize::optimized : MeshOptimize::none;
+            component->meshOptimize = Utils::StringToBool(meshOptimize->value_);
         }
 
         auto modelFileNamesNode = node.getChild(CSTR_MODEL_FILE_NAMES);
@@ -360,8 +335,27 @@ void RendererComponent::registerReadFunctions()
                     try
                     {
                         const auto& filename = filenameNode->value_;
-                        auto lod             = static_cast<LevelOfDetail>(std::stoi(lodNode->value_));
-                        component->AddModel(filename, lod);
+                        auto lodInt          = std::stoi(lodNode->value_);
+                        if (lodInt == 0)
+                        {
+                            DEBUG_LOG(filename);
+                            component->fileName_LOD1 = filename;
+                            DEBUG_LOG(component->fileName_LOD1.GetAbsoultePath());
+                        }
+                        else if (lodInt == 1)
+                        {
+                            DEBUG_LOG(filename);
+                            component->fileName_LOD2 = filename;
+                        }
+                        else if (lodInt == 2)
+                        {
+                            DEBUG_LOG(filename);
+                            component->fileName_LOD3 = filename;
+                        }
+                        else
+                        {
+                            DEBUG_LOG("LOD \"" + std::to_string(lodInt) + "\" is out of range. Correct range is 0-2");
+                        }
                     }
                     catch (...)
                     {
@@ -379,11 +373,11 @@ void RendererComponent::registerReadFunctions()
 void RendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
-    node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex_));
-    node.addChild(MODEL_NORMALIZATION,
-                  Utils::BoolToString(loadingParameters_.modelNormalization == ModelNormalization::normalized));
-    node.addChild(MESH_OPTIMIZE, Utils::BoolToString(loadingParameters_.meshOptimize == MeshOptimize::optimized));
-    create(node.addChild(CSTR_MODEL_FILE_NAMES), filenames_);
+    node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex));
+    node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
+    node.addChild(MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));
+
+    create(node.addChild(CSTR_MODEL_FILE_NAMES), GetFiles());
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId) const
 {

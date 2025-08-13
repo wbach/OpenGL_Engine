@@ -33,6 +33,7 @@ struct Param
 enum class FieldType
 {
     Int,
+    UInt,
     Float,
     String,
     Bool,
