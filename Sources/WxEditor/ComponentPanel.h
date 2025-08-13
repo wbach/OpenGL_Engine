@@ -14,60 +14,58 @@ public:
     explicit ComponentPanel(wxWindow*, GameEngine::Components::ComponentController&, IdType);
 
     void ClearComponents();
-
-    // Dodaje UI dla komponentu
     void AddComponent(GameEngine::Components::IComponent&);
 
 private:
     GameEngine::Components::ComponentController& componentController;
     IdType gameObjectId;
-    wxBoxSizer* mainSizer;
-    wxCollapsiblePane* collapsible;
+    wxBoxSizer* mainSizer {nullptr};
+    wxCollapsiblePane* collapsible {nullptr};
 
-    void CreateUIForComponentExample(const GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
     void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
-
-    void CreateUIForUInt(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForInt(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForFloat(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForString(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForBool(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForTexture(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                            const GameEngine::Components::FieldInfo&);
-    void CreateUIForFile(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForVectorOfStrings(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                                    const GameEngine::Components::FieldInfo&);
-    void CreateUIForVectorOfInts(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                                 const GameEngine::Components::FieldInfo&);
-    void CreateUIForVectorOfFloats(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                                   const GameEngine::Components::FieldInfo&);
-    void CreateUIForVectorOfTextures(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                                     const GameEngine::Components::FieldInfo&);
-    void CreateUIForVectorOfFiles(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                                  const GameEngine::Components::FieldInfo&);
+    void CreateUIForField(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
 
     template <typename T>
-    void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&,
+    void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
+                           const GameEngine::Components::FieldInfo&,
                            std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>)>);
 
-    wxBoxSizer* CreateStringControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<std::string>*, size_t,
-                                    std::function<void()>);
-    wxBoxSizer* CreateIntControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t,
+    wxBoxSizer* CreateStringItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<std::string>*, size_t,
                                  std::function<void()>);
-    wxBoxSizer* CreateFloatControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
-                                   std::function<void()>);
-    wxBoxSizer* CreateFileControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
+    wxBoxSizer* CreateIntItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t,
+                              std::function<void()>);
+    wxBoxSizer* CreateFloatItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
+                                std::function<void()>);
+    wxBoxSizer* CreateFileItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
+                               std::function<void()>);
+    wxBoxSizer* CreateTextureItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
                                   std::function<void()>);
-    wxBoxSizer* CreateTextureControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
-                                     std::function<void()>);
 
+    // == Akcje/logika ==
     void reInitComponent(GameEngine::Components::IComponent&);
-
     void browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
                                  wxWindow* pane, GameEngine::File* val);
 
-    wxTextCtrl* createTextEnterCtrl(wxWindow* pane, const std::string& text)
+    wxBoxSizer* CreateLabeledRow(wxWindow* parent, const wxString& label, wxWindow* control, int proportion = 1,
+                                 int flags = wxEXPAND | wxRIGHT, int border = 5);
+
+    wxTextCtrl* createTextEnterCtrl(wxWindow* pane, const std::string& text);
+
+    struct BrowseRow
     {
-        return new wxTextCtrl(pane, wxID_ANY, text, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    }
+        wxBoxSizer* row;
+        wxTextCtrl* textCtrl;
+        wxButton* browseBtn;
+    };
+    BrowseRow CreateBrowseFileRow(wxWindow* parent, const wxString& label, const wxString& initial);
+
+    struct TextureRow
+    {
+        wxBoxSizer* row;
+        wxTextCtrl* textCtrl;
+        wxButton* browseBtn;
+        wxStaticBitmap* preview;
+    };
+    TextureRow CreateBrowseTextureRow(wxWindow* parent, const wxString& label, const wxString& initial);
+    void SetPreviewBitmap(wxStaticBitmap* preview, const wxString& path, wxWindow* relayoutParent);
 };

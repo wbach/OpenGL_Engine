@@ -65,6 +65,7 @@ public:
     virtual void ReqisterFunctions()                                                 = 0;
     virtual bool IsActive() const                                                    = 0;
     virtual void Activate()                                                          = 0;
+    virtual void SetActive(bool)                                                     = 0;
     virtual void Deactivate()                                                        = 0;
     virtual void InitFromParams(const std::unordered_map<std::string, std::string>&) = 0;
     virtual std::unordered_map<ParamName, Param> GetParams() const                   = 0;

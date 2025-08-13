@@ -43,6 +43,7 @@ public:
     bool IsActive() const override;
     void Activate() override;
     void Deactivate() override;
+    void SetActive(bool) override;
 
     void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
     std::unordered_map<ParamName, Param> GetParams() const override;

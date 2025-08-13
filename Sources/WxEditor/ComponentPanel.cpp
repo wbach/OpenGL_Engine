@@ -16,7 +16,7 @@ extern const std::string CSTR_TYPE;
 
 ComponentPanel::ComponentPanel(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
                                IdType gameObjectId)
-    : wxPanel(parent, wxID_ANY)  // zmiana z wxScrolledWindow na wxPanel
+    : wxPanel(parent, wxID_ANY)
     , componentController{componentController}
     , gameObjectId{gameObjectId}
 {
@@ -49,122 +49,21 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component)
     pane->Layout();
 
     mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 0);
-
     collapsible->Collapse(false);
 
-    // Podpięcie eventu do aktualizacji layoutu po zwinięciu/rozwinieciu
+    // Aktualizacja layoutu po zwinięciu/rozwinieciu
     collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
                       [this](wxCollapsiblePaneEvent& evt)
                       {
                           this->Layout();
                           this->FitInside();
                           if (GetParent())
-                          {
                               GetParent()->Layout();
-                          }
                           evt.Skip();
                       });
 
     this->Layout();
     this->FitInside();
-}
-
-void ComponentPanel::CreateUIForComponentExample(const GameEngine::Components::IComponent& component, wxWindow* pane,
-                                                 wxBoxSizer* sizer)
-{
-    // Checkbox aktywności
-    {
-        wxCheckBox* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
-        activeCheck->SetValue(component.IsActive());
-        sizer->Add(activeCheck, 0, wxALL, 5);
-    }
-
-    // FLOAT
-    {
-        wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-        row->Add(new wxStaticText(pane, wxID_ANY, "Float Value:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-        wxSpinCtrlDouble* floatCtrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-        floatCtrl->SetRange(-1000.0, 1000.0);
-        floatCtrl->SetValue(1.23);
-        floatCtrl->SetIncrement(0.01);
-        floatCtrl->SetDigits(2);
-        row->Add(floatCtrl, 1);
-        sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-    }
-
-    // STRING
-    {
-        wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-        row->Add(new wxStaticText(pane, wxID_ANY, "String Value:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-        wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, "Hello World");
-        row->Add(stringCtrl, 1);
-        sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-    }
-
-    // FILE
-    {
-        wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-        row->Add(new wxStaticText(pane, wxID_ANY, "File Path:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-        wxTextCtrl* fileCtrl = new wxTextCtrl(pane, wxID_ANY, "/path/to/file.txt");
-        row->Add(fileCtrl, 1);
-        wxButton* browseBtn = new wxButton(pane, wxID_ANY, "Browse");
-        row->Add(browseBtn, 0, wxLEFT, 5);
-
-        browseBtn->Bind(wxEVT_BUTTON,
-                        [fileCtrl, pane](wxCommandEvent&)
-                        {
-                            wxFileDialog openFileDialog(pane, "Choose file", "", "", "*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                            if (openFileDialog.ShowModal() == wxID_OK)
-                            {
-                                fileCtrl->SetValue(openFileDialog.GetPath());
-                            }
-                        });
-
-        sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-    }
-
-    // TEXTURE (plik + podgląd)
-    {
-        wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-        row->Add(new wxStaticText(pane, wxID_ANY, "Texture:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-        auto* textureCtrl = new wxTextCtrl(pane, wxID_ANY, "texture.png");
-        row->Add(textureCtrl, 1, wxALIGN_CENTER_VERTICAL);
-        wxButton* browseBtn = new wxButton(pane, wxID_ANY, "Browse");
-        row->Add(browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-
-        wxStaticBitmap* preview = new wxStaticBitmap(pane, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxSize(64, 64));
-        row->Add(preview, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-
-        browseBtn->Bind(wxEVT_BUTTON,
-                        [textureCtrl, preview, pane](wxCommandEvent&)
-                        {
-                            wxFileDialog openFileDialog(pane, "Choose texture", "", "",
-                                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                            if (openFileDialog.ShowModal() == wxID_OK)
-                            {
-                                wxString path = openFileDialog.GetPath();
-                                textureCtrl->SetValue(path);
-
-                                wxImage img;
-                                if (img.LoadFile(path))
-                                {
-                                    wxBitmap bmp(img.Scale(64, 64));
-                                    preview->SetBitmap(bmp);
-                                    pane->Layout();
-                                }
-                                else
-                                {
-                                    wxMessageBox("Failed to load image.", "Error", wxICON_ERROR);
-                                }
-                            }
-                        });
-
-        sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-    }
-
-    sizer->Layout();
-    pane->Layout();
 }
 
 void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer)
@@ -174,246 +73,193 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
         wxCheckBox* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
         activeCheck->SetValue(component.IsActive());
         sizer->Add(activeCheck, 0, wxALL, 5);
+
+        activeCheck->Bind(wxEVT_CHECKBOX,
+                          [this, &component](wxCommandEvent& e)
+                          {
+                              component.SetActive(e.IsChecked());
+                              reInitComponent(component);
+                          });
     }
 
+    // Pola komponentu
     for (auto& field : component.GetFields())
-    {
-        switch (field.type)
-        {
-            case GameEngine::Components::FieldType::UInt:
-                CreateUIForUInt(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::Int:
-                CreateUIForInt(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::Float:
-                CreateUIForFloat(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::String:
-                CreateUIForString(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::Bool:
-                CreateUIForBool(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::Texture:
-                CreateUIForTexture(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::File:
-                CreateUIForFile(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::VectorOfStrings:
-                CreateUIForVectorOfStrings(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::VectorOfInt:
-                CreateUIForVectorOfInts(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::VectorOfFloat:
-                CreateUIForVectorOfFloats(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::VectorOfFiles:
-                CreateUIForVectorOfTextures(component, pane, sizer, field);
-                break;
-            case GameEngine::Components::FieldType::VectorOfTextures:
-                CreateUIForVectorOfFiles(component, pane, sizer, field);
-                break;
-        }
-    }
+        CreateUIForField(component, pane, sizer, field);
 }
 
-void ComponentPanel::CreateUIForUInt(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                     const GameEngine::Components::FieldInfo& field)
-{
-    int* val        = static_cast<int*>(field.ptr);
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-
-    wxSpinCtrl* intCtrl = new wxSpinCtrl(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-    intCtrl->SetRange(-1000, 1000);
-    intCtrl->SetValue(*val);
-
-    row->Add(intCtrl, 1);
-    sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-    // Możesz dodać obsługę zdarzeń, np.:
-    intCtrl->Bind(wxEVT_SPINCTRL,
-                  [this, &component, val](wxSpinEvent& evt)
-                  {
-                      *val = evt.GetValue();
-                      reInitComponent(component);
-                  });
-}
-
-void ComponentPanel::CreateUIForInt(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                    const GameEngine::Components::FieldInfo& field)
-{
-    int* val        = static_cast<int*>(field.ptr);
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-
-    wxSpinCtrl* intCtrl = new wxSpinCtrl(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-    intCtrl->SetRange(-1000, 1000);
-    intCtrl->SetValue(*val);
-
-    row->Add(intCtrl, 1);
-    sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-
-    // Możesz dodać obsługę zdarzeń, np.:
-    intCtrl->Bind(wxEVT_SPINCTRL,
-                  [this, &component, val](wxSpinEvent& evt)
-                  {
-                      *val = evt.GetValue();
-                      reInitComponent(component);
-                  });
-}
-
-void ComponentPanel::CreateUIForFloat(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
                                       const GameEngine::Components::FieldInfo& field)
 {
-    float* val      = static_cast<float*>(field.ptr);
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    using namespace GameEngine::Components;
 
-    wxSpinCtrlDouble* floatCtrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-    floatCtrl->SetRange(-1000.0, 1000.0);
-    floatCtrl->SetValue(*val);
-    floatCtrl->SetIncrement(0.01);
-    floatCtrl->SetDigits(2);
+    switch (field.type)
+    {
+        // == Skalary ==
+        case FieldType::UInt:
+        case FieldType::Int:
+        {
+            int* val = static_cast<int*>(field.ptr);
 
-    row->Add(floatCtrl, 1);
-    sizer->Add(row, 0, wxEXPAND | wxALL, 5);
+            // spin int
+            wxSpinCtrl* ctrl = new wxSpinCtrl(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+            ctrl->SetRange(-1000, 1000);
+            ctrl->SetValue(*val);
 
-    floatCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                    [this, &component, val](wxSpinDoubleEvent& evt)
-                    {
-                        *val = evt.GetValue();
-                        reInitComponent(component);
-                    });
-}
+            wxBoxSizer* row = CreateLabeledRow(pane, field.name, ctrl);
+            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
-void ComponentPanel::CreateUIForString(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                       const GameEngine::Components::FieldInfo& field)
-{
-    std::string* val = static_cast<std::string*>(field.ptr);
-    wxBoxSizer* row  = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+            ctrl->Bind(wxEVT_SPINCTRL,
+                       [this, &component, val](wxSpinEvent& evt)
+                       {
+                           *val = evt.GetValue();
+                           reInitComponent(component);
+                       });
+            break;
+        }
 
-    wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, *val, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    row->Add(stringCtrl, 1);
-    sizer->Add(row, 0, wxEXPAND | wxALL, 5);
+        case FieldType::Float:
+        {
+            float* val = static_cast<float*>(field.ptr);
 
-    stringCtrl->Bind(wxEVT_TEXT_ENTER,
-                     [this, &component, val](wxCommandEvent& evt)
-                     {
-                         *val = evt.GetString().ToStdString();
-                         reInitComponent(component);
-                     });
-}
+            auto* ctrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+            ctrl->SetRange(-1000.0, 1000.0);
+            ctrl->SetDigits(2);
+            ctrl->SetIncrement(0.01);
+            ctrl->SetValue(*val);
 
-void ComponentPanel::CreateUIForBool(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                     const GameEngine::Components::FieldInfo& field)
-{
-    auto val = static_cast<bool*>(field.ptr);
+            wxBoxSizer* row = CreateLabeledRow(pane, field.name, ctrl);
+            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
-    wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, field.name);
-    check->SetValue(*val);
-    sizer->Add(check, 0, wxALL, 5);
+            ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
+                       [this, &component, val](wxSpinDoubleEvent& evt)
+                       {
+                           *val = static_cast<float>(evt.GetValue());
+                           reInitComponent(component);
+                       });
+            break;
+        }
 
-    check->Bind(wxEVT_CHECKBOX,
-                [this, val, &component](wxCommandEvent& e)
-                {
-                    *val = e.IsChecked();
-                    reInitComponent(component);
-                });
-}
+        case FieldType::String:
+        {
+            auto* val = static_cast<std::string*>(field.ptr);
 
-void ComponentPanel::CreateUIForFile(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                     const GameEngine::Components::FieldInfo& field)
-{
-    auto val = static_cast<GameEngine::File*>(field.ptr);
+            wxTextCtrl* ctrl = createTextEnterCtrl(pane, *val);
+            wxBoxSizer* row  = CreateLabeledRow(pane, field.name, ctrl);
+            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+            ctrl->Bind(wxEVT_TEXT_ENTER,
+                       [this, &component, val](wxCommandEvent& evt)
+                       {
+                           *val = evt.GetString().ToStdString();
+                           reInitComponent(component);
+                       });
+            break;
+        }
 
-    wxTextCtrl* fileCtrl =
-        new wxTextCtrl(pane, wxID_ANY, val->GetDataRelativeDir(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    row->Add(fileCtrl, 1);
-    wxButton* browseBtn = new wxButton(pane, wxID_ANY, "Browse");
-    row->Add(browseBtn, 0, wxLEFT, 5);
+        case FieldType::Bool:
+        {
+            auto* val = static_cast<bool*>(field.ptr);
 
-    browseBtn->Bind(wxEVT_BUTTON, [this, &component, fileCtrl, pane, val](wxCommandEvent& evt)
-                    { this->browseFileControlAction(evt, component, fileCtrl, pane, val); });
-    fileCtrl->Bind(wxEVT_TEXT_ENTER,
-                   [this, &component, val](wxCommandEvent& evt)
-                   {
-                       val->Change(evt.GetString().ToStdString());
-                       reInitComponent(component);
-                   });
+            wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, field.name);
+            check->SetValue(*val);
+            sizer->Add(check, 0, wxALL, 5);
 
-    sizer->Add(row, 0, wxEXPAND | wxALL, 5);
-}
-
-void ComponentPanel::CreateUIForTexture(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                        const GameEngine::Components::FieldInfo& field)
-{
-    auto val = static_cast<GameEngine::File*>(field.ptr);
-
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, field.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-    auto* textureCtrl = createTextEnterCtrl(pane, val->GetDataRelativeDir());
-    row->Add(textureCtrl, 1, wxALIGN_CENTER_VERTICAL);
-    wxButton* browseBtn = new wxButton(pane, wxID_ANY, "Browse");
-    row->Add(browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-
-    wxStaticBitmap* preview = new wxStaticBitmap(pane, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxSize(64, 64));
-    row->Add(preview, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-
-    browseBtn->Bind(wxEVT_BUTTON,
-                    [this, &component, textureCtrl, preview, pane, val](wxCommandEvent&)
-                    {
-                        wxFileDialog openFileDialog(pane, "Choose texture", "", "",
-                                                    "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                                    wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                        if (openFileDialog.ShowModal() == wxID_OK)
+            check->Bind(wxEVT_CHECKBOX,
+                        [this, val, &component](wxCommandEvent& e)
                         {
-                            wxString path = openFileDialog.GetPath();
-                            textureCtrl->SetValue(path);
-                            val->Change(path.ToStdString());
+                            *val = e.IsChecked();
                             reInitComponent(component);
+                        });
+            break;
+        }
 
-                            wxImage img;
-                            if (img.LoadFile(path))
-                            {
-                                wxBitmap bmp(img.Scale(64, 64));
-                                preview->SetBitmap(bmp);
-                                pane->Layout();
-                            }
-                            else
-                            {
-                                wxMessageBox("Failed to load image.", "Error", wxICON_ERROR);
-                            }
-                        }
-                    });
+        case FieldType::File:
+        {
+            auto* val = static_cast<GameEngine::File*>(field.ptr);
 
-    textureCtrl->Bind(wxEVT_TEXT_ENTER,
-                      [this, &component, val, preview, pane](wxCommandEvent& evt)
-                      {
-                          val->Change(evt.GetString().ToStdString());
-                          reInitComponent(component);
+            auto row = CreateBrowseFileRow(pane, field.name, val->GetDataRelativeDir());
+            sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
 
-                          wxImage img;
-                          if (img.LoadFile(evt.GetString()))
-                          {
-                              wxBitmap bmp(img.Scale(64, 64));
-                              preview->SetBitmap(bmp);
-                              pane->Layout();
-                          }
-                          else
-                          {
-                              wxMessageBox("Failed to load image.", "Error", wxICON_ERROR);
-                          }
-                      });
+            // Browse action
+            row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt=row.textCtrl, pane, val](wxCommandEvent& evt)
+                                { this->browseFileControlAction(evt, component, txt, pane, val); });
 
-    sizer->Add(row, 0, wxEXPAND | wxALL, 5);
+            // Enter w polu
+            row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                               [this, &component, val](wxCommandEvent& evt)
+                               {
+                                   val->Change(evt.GetString().ToStdString());
+                                   reInitComponent(component);
+                               });
+            break;
+        }
+
+        case FieldType::Texture:
+        {
+            auto* val = static_cast<GameEngine::File*>(field.ptr);
+
+            auto row = CreateBrowseTextureRow(pane, field.name, val->GetDataRelativeDir());
+            sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
+
+            // Browse action
+            row.browseBtn->Bind(wxEVT_BUTTON,
+                                [this, &component, tr=row.textCtrl, prev=row.preview, pane, val](wxCommandEvent&)
+                                {
+                                    wxFileDialog openFileDialog(pane, "Choose texture", "", "",
+                                                                "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                                                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                                    if (openFileDialog.ShowModal() == wxID_OK)
+                                    {
+                                        wxString path = openFileDialog.GetPath();
+                                        tr->SetValue(path);
+                                        val->Change(path.ToStdString());
+                                        reInitComponent(component);
+                                        SetPreviewBitmap(prev, path, pane);
+                                    }
+                                });
+
+            // Enter w polu
+            row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                               [this, &component, val, prev=row.preview, pane](wxCommandEvent& evt)
+                               {
+                                   val->Change(evt.GetString().ToStdString());
+                                   reInitComponent(component);
+                                   SetPreviewBitmap(prev, evt.GetString(), pane);
+                               });
+            break;
+        }
+
+        // == Wektory ==
+        case FieldType::VectorOfStrings:
+            CreateUIForVector<std::string>(component, pane, sizer, field,
+                                           [this, &component](auto p, auto v, auto i, auto r)
+                                           { return this->CreateStringItem(component, p, v, i, r); });
+            break;
+
+        case FieldType::VectorOfInt:
+            CreateUIForVector<int>(component, pane, sizer, field,
+                                   [this, &component](auto p, auto v, auto i, auto r)
+                                   { return this->CreateIntItem(component, p, v, i, r); });
+            break;
+
+        case FieldType::VectorOfFloat:
+            CreateUIForVector<float>(component, pane, sizer, field,
+                                     [this, &component](auto p, auto v, auto i, auto r)
+                                     { return this->CreateFloatItem(component, p, v, i, r); });
+            break;
+
+        case FieldType::VectorOfFiles:
+            CreateUIForVector<GameEngine::File>(component, pane, sizer, field,
+                                                [this, &component](auto p, auto v, auto i, auto r)
+                                                { return this->CreateFileItem(component, p, v, i, r); });
+            break;
+
+        case FieldType::VectorOfTextures:
+            CreateUIForVector<GameEngine::File>(component, pane, sizer, field,
+                                                [this, &component](auto p, auto v, auto i, auto r)
+                                                { return this->CreateTextureItem(component, p, v, i, r); });
+            break;
+    }
 }
 
 template <typename T>
@@ -431,10 +277,11 @@ void ComponentPanel::CreateUIForVector(
 
     wxBoxSizer* valuesSizer = new wxBoxSizer(wxVERTICAL);
 
+    // Pasek rozmiaru
     wxBoxSizer* sizeRow     = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
-    wxTextCtrl* sizeCtrl = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%zu", val->size()), wxDefaultPosition, wxDefaultSize,
-                                          wxTE_PROCESS_ENTER);
+    wxTextCtrl* sizeCtrl = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%zu", val->size()),
+                                          wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 
     sizeRow->Add(sizeLabel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
     sizeRow->Add(sizeCtrl, 0, wxALIGN_CENTER_VERTICAL);
@@ -459,27 +306,24 @@ void ComponentPanel::CreateUIForVector(
                        try
                        {
                            int requestedSize = std::stoi(sizeCtrl->GetValue().ToStdString());
-                           if (requestedSize < 0)
-                               requestedSize = 0;
-
-                           if (requestedSize != val->size())
+                           if (requestedSize < 0) requestedSize = 0;
+                           if (requestedSize != static_cast<int>(val->size()))
                            {
-                               val->resize(requestedSize);
+                               val->resize(static_cast<size_t>(requestedSize));
                                this->CallAfter(rebuildUI);
                            }
                        }
-                       catch (...)
-                       {
-                           // ignoruj błędy parsowania
-                       }
+                       catch (...) { /* ignoruj błędy parsowania */ }
                    });
 
+    // Elementy
     for (size_t i = 0; i < val->size(); ++i)
     {
         wxBoxSizer* elemRow = createElementControl(pane, val, i, rebuildUI);
         valuesSizer->Add(elemRow, 0, wxEXPAND | wxBOTTOM, 3);
     }
 
+    // Dodawanie elementu
     wxButton* addButton = new wxButton(pane, wxID_ANY, "Add element");
     valuesSizer->Add(addButton, 0, wxLEFT, 10);
 
@@ -491,16 +335,15 @@ void ComponentPanel::CreateUIForVector(
                     });
 
     row->Add(valuesSizer, 1, wxEXPAND);
-
     sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 }
 
-wxBoxSizer* ComponentPanel::CreateStringControl(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                                std::vector<std::string>* val, size_t index, std::function<void()> rebuildUI)
+wxBoxSizer* ComponentPanel::CreateStringItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                             std::vector<std::string>* val, size_t index, std::function<void()> rebuildUI)
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
-    wxTextCtrl* stringCtrl = new wxTextCtrl(pane, wxID_ANY, (*val)[index], wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    wxTextCtrl* stringCtrl = createTextEnterCtrl(pane, (*val)[index]);
     elemRow->Add(stringCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
@@ -532,8 +375,8 @@ wxBoxSizer* ComponentPanel::CreateStringControl(GameEngine::Components::ICompone
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateIntControl(GameEngine::Components::IComponent& component, wxWindow* pane, std::vector<int>* val,
-                                             size_t index, std::function<void()> rebuildUI)
+wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                          std::vector<int>* val, size_t index, std::function<void()> rebuildUI)
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
@@ -549,8 +392,8 @@ wxBoxSizer* ComponentPanel::CreateIntControl(GameEngine::Components::IComponent&
                    {
                        if (index < val->size())
                        {
-                           reInitComponent(component);
                            (*val)[index] = evt.GetPosition();
+                           reInitComponent(component);
                        }
                    });
 
@@ -568,165 +411,122 @@ wxBoxSizer* ComponentPanel::CreateIntControl(GameEngine::Components::IComponent&
     return elemRow;
 }
 
-wxBoxSizer* ComponentPanel::CreateFloatControl(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                               std::vector<float>* val, size_t index, std::function<void()> rebuildUI)
+wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                            std::vector<float>* val, size_t index, std::function<void()> rebuildUI)
 {
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
-    // Kontrolka tekstowa do edycji floatów
-    //    wxTextCtrl* floatCtrl = new wxTextCtrl(pane, wxID_ANY, wxString::Format("%f", (*val)[index]));
-    //    elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
-
     wxSpinCtrlDouble* floatCtrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-    // floatCtrl->SetRange(-1000.0, 1000.0);
-    floatCtrl->SetValue(1.23);
     floatCtrl->SetIncrement(0.01);
     floatCtrl->SetDigits(2);
+    floatCtrl->SetValue((*val)[index]);
     elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
     removeButton->SetToolTip("Remove element");
     elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
 
-    // Obsługa zmiany wartości float
-    floatCtrl->Bind(wxEVT_TEXT,
-                    [this, &component, val, index](wxCommandEvent& evt)
+    floatCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
+                    [this, &component, val, index](wxSpinDoubleEvent& evt)
                     {
                         if (index < val->size())
                         {
-                            wxString valStr = evt.GetString();
-                            double parsedVal;
-                            if (valStr.ToDouble(&parsedVal))
-                            {
-                                (*val)[index] = static_cast<float>(parsedVal);
-                                reInitComponent(component);
-                            }
-                            // jeśli parsowanie się nie powiedzie, ignoruj zmianę
-                        }
-                        evt.Skip();
-                    });
-
-    removeButton->Bind(wxEVT_BUTTON,
-                       [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                       {
-                           if (index < val->size())
-                           {
-                               val->erase(val->begin() + index);
-                               reInitComponent(component);
-                               this->CallAfter(rebuildUI);
-                           }
-                       });
-
-    return elemRow;
-}
-
-wxBoxSizer* ComponentPanel::CreateFileControl(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                              std::vector<GameEngine::File>* val, size_t index, std::function<void()> rebuildUI)
-{
-    auto& editedFile    = (*val)[index];
-    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
-
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, "File:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-    wxTextCtrl* fileCtrl =
-        new wxTextCtrl(pane, wxID_ANY, editedFile.GetDataRelativeDir(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    row->Add(fileCtrl, 1);
-    wxButton* browseBtn = new wxButton(pane, wxID_ANY, "Browse");
-    row->Add(browseBtn, 0, wxLEFT, 5);
-    elemRow->Add(row, 1, wxEXPAND | wxRIGHT, 5);
-
-    browseBtn->Bind(wxEVT_BUTTON, [this, &component, fileCtrl, pane, &editedFile](wxCommandEvent& evt)
-                    { this->browseFileControlAction(evt, component, fileCtrl, pane, &editedFile); });
-
-    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-    removeButton->SetToolTip("Remove element");
-    elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
-
-    // Obsługa zmiany wartości float
-    fileCtrl->Bind(wxEVT_TEXT_ENTER,
-                   [this, &component, editedFile](wxCommandEvent& evt) mutable
-                   {
-                       wxString valStr = evt.GetString();
-                       editedFile      = GameEngine::File(valStr.ToStdString());
-                       reInitComponent(component);
-                       // jeśli parsowanie się nie powiedzie, ignoruj zmianę
-
-                       evt.Skip();
-                   });
-
-    removeButton->Bind(wxEVT_BUTTON,
-                       [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                       {
-                           if (index < val->size())
-                           {
-                               val->erase(val->begin() + index);
-                               reInitComponent(component);
-                               this->CallAfter(rebuildUI);
-                           }
-                       });
-
-    return elemRow;
-}
-
-wxBoxSizer* ComponentPanel::CreateTextureControl(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                                 std::vector<GameEngine::File>* val, size_t index,
-                                                 std::function<void()> rebuildUI)
-{
-    auto& editedFile    = (*val)[index];
-    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
-
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
-    row->Add(new wxStaticText(pane, wxID_ANY, "Texture:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
-    auto* textureCtrl = new wxTextCtrl(pane, wxID_ANY, "texture.png");
-    row->Add(textureCtrl, 1, wxALIGN_CENTER_VERTICAL);
-    wxButton* browseBtn = new wxButton(pane, wxID_ANY, "Browse");
-    row->Add(browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-
-    wxStaticBitmap* preview = new wxStaticBitmap(pane, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxSize(64, 64));
-    row->Add(preview, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
-
-    browseBtn->Bind(wxEVT_BUTTON,
-                    [this, &component, textureCtrl, preview, pane](wxCommandEvent&)
-                    {
-                        wxFileDialog openFileDialog(pane, "Choose texture", "", "",
-                                                    "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                                    wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                        if (openFileDialog.ShowModal() == wxID_OK)
-                        {
-                            wxString path = openFileDialog.GetPath();
-                            textureCtrl->SetValue(path);
+                            (*val)[index] = static_cast<float>(evt.GetValue());
                             reInitComponent(component);
-
-                            wxImage img;
-                            if (img.LoadFile(path))
-                            {
-                                wxBitmap bmp(img.Scale(64, 64));
-                                preview->SetBitmap(bmp);
-                                pane->Layout();
-                            }
-                            else
-                            {
-                                wxMessageBox("Failed to load image.", "Error", wxICON_ERROR);
-                            }
                         }
                     });
 
-    elemRow->Add(row, 0, wxEXPAND | wxALL, 5);
+    removeButton->Bind(wxEVT_BUTTON,
+                       [this, &component, val, index, rebuildUI](wxCommandEvent&)
+                       {
+                           if (index < val->size())
+                           {
+                               val->erase(val->begin() + index);
+                               reInitComponent(component);
+                               this->CallAfter(rebuildUI);
+                           }
+                       });
+
+    return elemRow;
+}
+
+wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                           std::vector<GameEngine::File>* val, size_t index, std::function<void()> rebuildUI)
+{
+    auto& editedFile    = (*val)[index];
+    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    auto row = CreateBrowseFileRow(pane, "File:", editedFile.GetDataRelativeDir());
+    elemRow->Add(row.row, 1, wxEXPAND | wxRIGHT, 5);
+
+    row.browseBtn->Bind(wxEVT_BUTTON,
+                        [this, &component, txt=row.textCtrl, pane, &editedFile](wxCommandEvent& evt)
+                        { this->browseFileControlAction(evt, component, txt, pane, &editedFile); });
 
     wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
     removeButton->SetToolTip("Remove element");
     elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
 
-    // Obsługa zmiany wartości float
-    textureCtrl->Bind(wxEVT_TEXT_ENTER,
-                      [this, &component, editedFile](wxCommandEvent& evt) mutable
-                      {
-                          wxString valStr = evt.GetString();
-                          editedFile      = GameEngine::File(valStr.ToStdString());
-                          // jeśli parsowanie się nie powiedzie, ignoruj zmianę
-                          reInitComponent(component);
-                          evt.Skip();
-                      });
+    row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                       [this, &component, editedFile](wxCommandEvent& evt) mutable
+                       {
+                           editedFile = GameEngine::File(evt.GetString().ToStdString());
+                           reInitComponent(component);
+                           evt.Skip();
+                       });
+
+    removeButton->Bind(wxEVT_BUTTON,
+                       [this, &component, val, index, rebuildUI](wxCommandEvent&)
+                       {
+                           if (index < val->size())
+                           {
+                               val->erase(val->begin() + index);
+                               reInitComponent(component);
+                               this->CallAfter(rebuildUI);
+                           }
+                       });
+
+    return elemRow;
+}
+
+wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                              std::vector<GameEngine::File>* val, size_t index,
+                                              std::function<void()> rebuildUI)
+{
+    auto& editedFile    = (*val)[index];
+    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
+
+    auto row = CreateBrowseTextureRow(pane, "Texture:", editedFile.GetDataRelativeDir());
+    elemRow->Add(row.row, 1, wxEXPAND | wxRIGHT, 5);
+
+    row.browseBtn->Bind(wxEVT_BUTTON,
+                        [this, &component, tr=row.textCtrl, prev=row.preview, pane, &editedFile](wxCommandEvent&)
+                        {
+                            wxFileDialog openFileDialog(pane, "Choose texture", "", "",
+                                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                            if (openFileDialog.ShowModal() == wxID_OK)
+                            {
+                                wxString path = openFileDialog.GetPath();
+                                tr->SetValue(path);
+                                editedFile = GameEngine::File(path.ToStdString());
+                                reInitComponent(component);
+                                SetPreviewBitmap(prev, path, pane);
+                            }
+                        });
+
+    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+    removeButton->SetToolTip("Remove element");
+    elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL);
+
+    row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                       [this, &component, &editedFile, prev=row.preview, pane](wxCommandEvent& evt) mutable
+                       {
+                           editedFile = GameEngine::File(evt.GetString().ToStdString());
+                           reInitComponent(component);
+                           SetPreviewBitmap(prev, evt.GetString(), pane);
+                           evt.Skip();
+                       });
 
     removeButton->Bind(wxEVT_BUTTON,
                        [this, &component, val, index, rebuildUI](wxCommandEvent&)
@@ -748,8 +548,8 @@ void ComponentPanel::reInitComponent(GameEngine::Components::IComponent& compone
     this->componentController.CallGameObjectFunctions(GameEngine::Components::FunctionType::Awake, gameObjectId);
 }
 
-void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
-                                             wxWindow* pane, GameEngine::File* val)
+void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component,
+                                             wxTextCtrl* fileCtrl, wxWindow* pane, GameEngine::File* val)
 {
     wxFileDialog openFileDialog(pane, "Choose file", "", "", "*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (openFileDialog.ShowModal() == wxID_OK)
@@ -760,42 +560,67 @@ void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Compon
     }
 }
 
-void ComponentPanel::CreateUIForVectorOfStrings(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                                const GameEngine::Components::FieldInfo& field)
+wxBoxSizer* ComponentPanel::CreateLabeledRow(wxWindow* parent, const wxString& label, wxWindow* control,
+                                             int proportion, int flags, int border)
 {
-    CreateUIForVector<std::string>(component, pane, sizer, field,
-                                   [this, &component](auto p, auto v, auto i, auto r)
-                                   { return this->CreateStringControl(component, p, v, i, r); });
+    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+    row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    row->Add(control, proportion, flags, border);
+    return row;
 }
 
-void ComponentPanel::CreateUIForVectorOfInts(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                             const GameEngine::Components::FieldInfo& field)
+wxTextCtrl *ComponentPanel::createTextEnterCtrl(wxWindow *pane, const std::string &text)
 {
-    CreateUIForVector<int>(component, pane, sizer, field,
-                           [this, &component](auto p, auto v, auto i, auto r)
-                           { return this->CreateIntControl(component, p, v, i, r); });
+    return new wxTextCtrl(pane, wxID_ANY, text, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 }
 
-void ComponentPanel::CreateUIForVectorOfFloats(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                               const GameEngine::Components::FieldInfo& field)
+ComponentPanel::BrowseRow ComponentPanel::CreateBrowseFileRow(wxWindow* parent, const wxString& label,
+                                                              const wxString& initial)
 {
-    CreateUIForVector<float>(component, pane, sizer, field,
-                             [this, &component](auto p, auto v, auto i, auto r)
-                             { return this->CreateFloatControl(component, p, v, i, r); });
+    BrowseRow out{};
+    out.row = new wxBoxSizer(wxHORIZONTAL);
+    out.row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    out.textCtrl = createTextEnterCtrl(parent, initial.ToStdString());
+    out.row->Add(out.textCtrl, 1);
+
+    out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
+    out.row->Add(out.browseBtn, 0, wxLEFT, 5);
+
+    return out;
 }
 
-void ComponentPanel::CreateUIForVectorOfTextures(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                                 const GameEngine::Components::FieldInfo& field)
+ComponentPanel::TextureRow ComponentPanel::CreateBrowseTextureRow(wxWindow* parent, const wxString& label,
+                                                                  const wxString& initial)
 {
-    CreateUIForVector<GameEngine::File>(component, pane, sizer, field,
-                                        [this, &component](auto p, auto v, auto i, auto r)
-                                        { return this->CreateTextureControl(component, p, v, i, r); });
+    TextureRow out{};
+    out.row = new wxBoxSizer(wxHORIZONTAL);
+
+    out.row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    out.textCtrl = createTextEnterCtrl(parent, initial.ToStdString());
+    out.row->Add(out.textCtrl, 1, wxALIGN_CENTER_VERTICAL);
+
+    out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
+    out.row->Add(out.browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+
+    out.preview = new wxStaticBitmap(parent, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxSize(64, 64));
+    out.row->Add(out.preview, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+
+    return out;
 }
 
-void ComponentPanel::CreateUIForVectorOfFiles(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
-                                              const GameEngine::Components::FieldInfo& field)
+void ComponentPanel::SetPreviewBitmap(wxStaticBitmap* preview, const wxString& path, wxWindow* relayoutParent)
 {
-    CreateUIForVector<GameEngine::File>(component, pane, sizer, field,
-                                        [this, &component](auto p, auto v, auto i, auto r)
-                                        { return this->CreateFileControl(component, p, v, i, r); });
+    wxImage img;
+    if (img.LoadFile(path))
+    {
+        wxBitmap bmp(img.Scale(64, 64));
+        preview->SetBitmap(bmp);
+        if (relayoutParent) relayoutParent->Layout();
+    }
+    else
+    {
+        wxMessageBox("Failed to load image.", "Error", wxICON_ERROR);
+    }
 }
