@@ -431,7 +431,8 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     // Dodajemy panele istniejących komponentów
     for (auto& component : gameObject.GetComponents())
     {
-        ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
+        ComponentPanel* compPanel =
+            new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject.GetId());
         compPanel->AddComponent(*component);
         gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
@@ -449,9 +450,10 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     {
         auto popup =
             new ComponentPickerPopup(gameObjectPanels, gameObject,
-                                     [this](auto& component)
+                                     [this, goId = gameObject.GetId()](auto& component)
                                      {
-                                         ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels);
+                                         ComponentPanel* compPanel = new ComponentPanel(
+                                             gameObjectPanels, canvas->GetScene().getComponentController(), goId);
                                          compPanel->AddComponent(component);
                                          this->CallAfter(
                                              [this, compPanel]()
@@ -538,6 +540,7 @@ void MainFrame::MenuEditClearScene(wxCommandEvent&)
         CreateRootGameObject();
         canvas->ResetDragObject();
         transfromSubController.reset();
+        RemoveAllComponentPanels();
     }
 }
 

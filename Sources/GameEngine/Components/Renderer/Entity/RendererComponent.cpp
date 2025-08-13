@@ -93,6 +93,9 @@ void RendererComponent::init()
     bool atLeastOneModelIsCreated{false};
     for (auto& [lvl, file] : GetFiles())
     {
+        if (file.empty())
+            continue;
+
         DEBUG_LOG(thisObject_.GetName() + " Load model: " + file.GetBaseName());
         auto model = componentContext_.resourceManager_.LoadModel(file, loadingParameters_);
 

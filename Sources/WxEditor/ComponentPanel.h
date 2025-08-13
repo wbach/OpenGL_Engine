@@ -1,4 +1,5 @@
 #pragma once
+#include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
 #include <GameEngine/Resources/File.h>
 #include <wx/collpane.h>
@@ -10,7 +11,7 @@
 class ComponentPanel : public wxPanel
 {
 public:
-    explicit ComponentPanel(wxWindow* parent);
+    explicit ComponentPanel(wxWindow*, GameEngine::Components::ComponentController&, IdType);
 
     void ClearComponents();
 
@@ -18,6 +19,8 @@ public:
     void AddComponent(GameEngine::Components::IComponent&);
 
 private:
+    GameEngine::Components::ComponentController& componentController;
+    IdType gameObjectId;
     wxBoxSizer* mainSizer;
     wxCollapsiblePane* collapsible;
 
@@ -29,7 +32,8 @@ private:
     void CreateUIForFloat(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
     void CreateUIForString(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
     void CreateUIForBool(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
-    void CreateUIForTexture(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
+    void CreateUIForTexture(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
+                            const GameEngine::Components::FieldInfo&);
     void CreateUIForFile(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
     void CreateUIForVectorOfStrings(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
                                     const GameEngine::Components::FieldInfo&);
@@ -46,9 +50,24 @@ private:
     void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&,
                            std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>)>);
 
-    wxBoxSizer* CreateStringControl(wxWindow*, std::vector<std::string>*, size_t, std::function<void()>);
-    wxBoxSizer* CreateIntControl(wxWindow*, std::vector<int>*, size_t, std::function<void()>);
-    wxBoxSizer* CreateFloatControl(wxWindow*, std::vector<float>*, size_t, std::function<void()>);
-    wxBoxSizer* CreateFileControl(wxWindow*, std::vector<GameEngine::File>*, size_t, std::function<void()>);
-    wxBoxSizer* CreateTextureControl(wxWindow*, std::vector<GameEngine::File>*, size_t, std::function<void()>);
+    wxBoxSizer* CreateStringControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<std::string>*, size_t,
+                                    std::function<void()>);
+    wxBoxSizer* CreateIntControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t,
+                                 std::function<void()>);
+    wxBoxSizer* CreateFloatControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
+                                   std::function<void()>);
+    wxBoxSizer* CreateFileControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
+                                  std::function<void()>);
+    wxBoxSizer* CreateTextureControl(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
+                                     std::function<void()>);
+
+    void reInitComponent(GameEngine::Components::IComponent&);
+
+    void browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
+                                 wxWindow* pane, GameEngine::File* val);
+
+    wxTextCtrl* createTextEnterCtrl(wxWindow* pane, const std::string& text)
+    {
+        return new wxTextCtrl(pane, wxID_ANY, text, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    }
 };
