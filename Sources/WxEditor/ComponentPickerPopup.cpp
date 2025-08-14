@@ -8,8 +8,9 @@ wxBEGIN_EVENT_TABLE(ComponentPickerPopup, wxPopupTransientWindow)
     // eventy bindowane dynamicznie
 wxEND_EVENT_TABLE()
 
-ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::GameObject& gameObject, SelectCallback onSelect)
+ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::Components::ComponentController& componentController, GameEngine::GameObject& gameObject, SelectCallback onSelect)
     : wxPopupTransientWindow(parent, wxBORDER_SIMPLE)
+    , componentController{componentController}
     , gameObject{gameObject}
     , selectCallback(onSelect)
 {
@@ -65,6 +66,12 @@ void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
         if (component)
         {
             component->ReqisterFunctions();
+            auto maybeAwakeFunc = component->getRegisteredFunctionId(GameEngine::Components::FunctionType::Awake);
+            if (maybeAwakeFunc)
+            {
+                componentController.callComponentFunction(gameObject.GetId(), GameEngine::Components::FunctionType::Awake,
+                                                          *maybeAwakeFunc);
+            }
 
             if (selectCallback)
                 selectCallback(*component);

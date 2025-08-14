@@ -449,12 +449,13 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     auto action = [&](wxCommandEvent&)
     {
         auto popup =
-            new ComponentPickerPopup(gameObjectPanels, gameObject,
+            new ComponentPickerPopup(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject,
                                      [this, goId = gameObject.GetId()](auto& component)
                                      {
                                          ComponentPanel* compPanel = new ComponentPanel(
                                              gameObjectPanels, canvas->GetScene().getComponentController(), goId);
                                          compPanel->AddComponent(component);
+
                                          this->CallAfter(
                                              [this, compPanel]()
                                              {

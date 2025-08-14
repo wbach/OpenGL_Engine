@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GameEngine/Components/ComponentController.h>
 #include <wx/popupwin.h>
 #include <wx/wx.h>
 
@@ -20,9 +21,10 @@ class ComponentPickerPopup : public wxPopupTransientWindow
 public:
     using SelectCallback = std::function<void(GameEngine::Components::IComponent&)>;
 
-    ComponentPickerPopup(wxWindow*, GameEngine::GameObject&, SelectCallback);
+    ComponentPickerPopup(wxWindow*, GameEngine::Components::ComponentController&, GameEngine::GameObject&, SelectCallback);
 
 private:
+    GameEngine::Components::ComponentController& componentController;
     GameEngine::GameObject& gameObject;
     wxTextCtrl* searchCtrl;
     wxListBox* listBox;

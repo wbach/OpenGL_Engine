@@ -23,6 +23,7 @@ void BoxShape::ReqisterFunctions()
 }
 void BoxShape::OnAwake()
 {
+    DEBUG_LOG("CreateBoxColider");
     collisionShapeId_ = componentContext_.physicsApi_.CreateBoxColider(
         positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
 }

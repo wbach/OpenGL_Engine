@@ -17,6 +17,7 @@ public:
         FIELD_VECTOR3F(positionOffset)
     END_FIELDS()
     // clang-format on
+
 public:
     BoxShape(ComponentContext&, GameObject&);
     void ReqisterFunctions() override;
