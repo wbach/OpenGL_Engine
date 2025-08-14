@@ -19,21 +19,23 @@ public:
 private:
     GameEngine::Components::ComponentController& componentController;
     IdType gameObjectId;
-    wxBoxSizer* mainSizer {nullptr};
-    wxCollapsiblePane* collapsible {nullptr};
+    wxBoxSizer* mainSizer{nullptr};
+    wxCollapsiblePane* collapsible{nullptr};
 
     void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
     void CreateUIForField(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
 
+    template <typename VecT, typename CtrlT, typename BindEvt, typename SetVal, typename GetVal>
+    void CreateVectorRow(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const wxString&, VecT*, int, SetVal, GetVal,
+                         BindEvt);
+
     template <typename T>
-    void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*,
-                           const GameEngine::Components::FieldInfo&,
+    void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&,
                            std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>)>);
 
     wxBoxSizer* CreateStringItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<std::string>*, size_t,
                                  std::function<void()>);
-    wxBoxSizer* CreateIntItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t,
-                              std::function<void()>);
+    wxBoxSizer* CreateIntItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t, std::function<void()>);
     wxBoxSizer* CreateFloatItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
                                 std::function<void()>);
     wxBoxSizer* CreateFileItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,

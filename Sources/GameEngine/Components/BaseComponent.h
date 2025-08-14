@@ -19,6 +19,9 @@
 #define FIELD_BOOL(member) fields.push_back({#member, FieldType::Bool, &member});
 #define FIELD_TEXTURE(member) fields.push_back({#member, FieldType::Texture, &member});
 #define FIELD_FILE(member) fields.push_back({#member, FieldType::File, &member});
+#define FIELD_VECTOR2I(member) fields.push_back({#member, FieldType::Vector2i, &member});
+#define FIELD_VECTOR2F(member) fields.push_back({#member, FieldType::Vector2f, &member});
+#define FIELD_VECTOR3F(member) fields.push_back({#member, FieldType::Vector3f, &member});
 #define FIELD_VECTOR_OF_STRINGS(member) fields.push_back({#member, FieldType::VectorOfStrings, &member});
 #define FIELD_VECTOR_OF_INTS(member) fields.push_back({#member, FieldType::VectorOfInt, &member});
 #define FIELD_VECTOR_OF_FLOATS(member) fields.push_back({#member, FieldType::VectorOfFloat, &member});

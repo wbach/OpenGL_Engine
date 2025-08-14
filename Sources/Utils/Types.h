@@ -201,7 +201,6 @@ std::string to_string(const vec2i& v);
 std::string to_string(const vec3i& v);
 }  // namespace wb
 
-typedef wb::vec2i vec2i;
 typedef wb::vec2ui vec2ui;
 typedef wb::vec3i vec3i;
 typedef wb::vec3ui vec3ui;
@@ -210,6 +209,7 @@ typedef wb::vec4i vec4i;
 typedef wb::vec4ui vec4ui;
 typedef wb::vec4ui8 vec4ui8;
 
+typedef glm::ivec2 vec2i;
 typedef glm::vec3 vec3;
 typedef glm::vec2 vec2;
 typedef glm::vec4 vec4;

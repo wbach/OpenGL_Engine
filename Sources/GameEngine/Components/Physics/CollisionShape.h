@@ -21,7 +21,7 @@ public:
 
 protected:
     Physics::ShapeId collisionShapeId_;
-    vec3 positionOffset_;
+    vec3 positionOffset;
 
 public:
     static void registerReadFunctions();

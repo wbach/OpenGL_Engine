@@ -62,7 +62,7 @@ void MeshShape::OnAwake()
     auto scale = calculateScale(thisObject_.GetWorldTransform().GetScale());
     if (auto modelRawData = model_->getModelRawData())
     {
-        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset_, modelRawData->positions_,
+        collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset, modelRawData->positions_,
                                                                              modelRawData->indices_, scale, autoOptimize_);
     }
 }

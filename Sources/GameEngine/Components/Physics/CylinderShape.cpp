@@ -24,7 +24,7 @@ void CylinderShape::ReqisterFunctions()
 void CylinderShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCylinderColider(
-        positionOffset_, thisObject_.GetWorldTransform().GetScale(), size_ / 2.f);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), size_ / 2.f);
 }
 CylinderShape& CylinderShape::SetSize(const vec3& size)
 {

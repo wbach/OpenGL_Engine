@@ -24,7 +24,7 @@ void SphereShape::ReqisterFunctions()
 void SphereShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(
-        positionOffset_, thisObject_.GetWorldTransform().GetScale(), radius_ / 2.f);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), radius_ / 2.f);
 }
 SphereShape& SphereShape::SetRadius(float radius)
 {

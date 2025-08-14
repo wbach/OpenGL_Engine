@@ -32,9 +32,9 @@ void CapsuleShape::ReqisterFunctions()
 void CapsuleShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCapsuleColider(
-        positionOffset_, thisObject_.GetWorldTransform().GetScale(), radius_, height_);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), radius_, height_);
 
-    DEBUG_LOG(thisObject_.GetName() + ", offset : " + std::to_string(positionOffset_));
+    DEBUG_LOG(thisObject_.GetName() + ", offset : " + std::to_string(positionOffset));
 
     if (collisionShapeId_)
     {

@@ -49,7 +49,7 @@ void TerrainShape::setScale(const vec3& scale)
         if (rigidBody)
         {
             auto offset = heightMap_->GetMaximumHeight() * scale.y - (heightMap_->GetDeltaHeight() * scale.y / 2.f);
-            rigidBody->SetPosition(positionOffset_ + vec3(0, offset, 0));
+            rigidBody->SetPosition(positionOffset + vec3(0, offset, 0));
         }
     }
 }
@@ -122,7 +122,7 @@ void TerrainShape::create()
     if (heightMap_)
     {
         collisionShapeId_ = componentContext_.physicsApi_.CreateTerrainColider(
-            positionOffset_, thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(), *heightMap_);
+            positionOffset, thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(), *heightMap_);
     }
     else
     {

@@ -14,7 +14,7 @@ const std::string BoxShape::name = {"BoxShape"};
 
 BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(BoxShape).hash_code(), componentContext, gameObject)
-    , size_(1.f)
+    , size(1.f)
 {
 }
 void BoxShape::ReqisterFunctions()
@@ -24,7 +24,7 @@ void BoxShape::ReqisterFunctions()
 void BoxShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateBoxColider(
-        positionOffset_, thisObject_.GetWorldTransform().GetScale(), size_ / 2.f);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
 }
 void BoxShape::registerReadFunctions()
 {
@@ -50,14 +50,14 @@ void BoxShape::write(TreeNode& node) const
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_SIZE), GetSize());
 }
-BoxShape& BoxShape::SetSize(const vec3& size)
+BoxShape& BoxShape::SetSize(const vec3& v)
 {
-    size_ = size;
+    size = v;
     return *this;
 }
-BoxShape& BoxShape::SetSize(float size)
+BoxShape& BoxShape::SetSize(float v)
 {
-    size_ = vec3(size);
+    size = vec3(v);
     return *this;
 }
 }  // namespace Components

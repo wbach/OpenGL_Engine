@@ -12,7 +12,7 @@ namespace Components
 CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(type, componentContext, gameObject)
     , collisionShapeId_(0)
-    , positionOffset_(0.f)
+    , positionOffset(0.f)
 {
 }
 void CollisionShape::setScale(const vec3& scale)
@@ -34,11 +34,11 @@ void CollisionShape::CleanUp()
 }
 void CollisionShape::SetPostionOffset(const vec3& position)
 {
-    positionOffset_ = position;
+    positionOffset = position;
 }
 const vec3& CollisionShape::GetPositionOffset() const
 {
-    return positionOffset_;
+    return positionOffset;
 }
 void CollisionShape::registerReadFunctions()
 {
