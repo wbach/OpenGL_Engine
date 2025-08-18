@@ -14,7 +14,7 @@ std::string SphereShape::name = {"SphereShape"};
 
 SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(SphereShape).hash_code(), componentContext, gameObject)
-    , radius_(1.f)
+    , radius(1.f)
 {
 }
 void SphereShape::ReqisterFunctions()
@@ -24,16 +24,17 @@ void SphereShape::ReqisterFunctions()
 void SphereShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(
-        positionOffset, thisObject_.GetWorldTransform().GetScale(), radius_ / 2.f);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), radius / 2.f);
 }
-SphereShape& SphereShape::SetRadius(float radius)
+SphereShape& SphereShape::SetRadius(float r)
 {
-    radius_ = radius;
+    radius = r;
     return *this;
 }
 void SphereShape::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<SphereShape>(componentContext, gameObject);
 
         vec3 positionOffset(0.f);
@@ -52,7 +53,7 @@ void SphereShape::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, SphereShape::name});
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
-    ::write(node.addChild(CSTR_RADIUS), radius_);
+    ::write(node.addChild(CSTR_RADIUS), radius);
 }
 }  // namespace Components
 }  // namespace GameEngine

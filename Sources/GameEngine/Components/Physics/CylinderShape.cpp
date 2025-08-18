@@ -14,7 +14,7 @@ std::string CylinderShape::name = {"CylinderShape"};
 
 CylinderShape::CylinderShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(CylinderShape).hash_code(), componentContext, gameObject)
-    , size_(1.f)
+    , size(1.f)
 {
 }
 void CylinderShape::ReqisterFunctions()
@@ -24,11 +24,11 @@ void CylinderShape::ReqisterFunctions()
 void CylinderShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCylinderColider(
-        positionOffset, thisObject_.GetWorldTransform().GetScale(), size_ / 2.f);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
 }
-CylinderShape& CylinderShape::SetSize(const vec3& size)
+CylinderShape& CylinderShape::SetSize(const vec3& v)
 {
-    size_ = size;
+    size = v;
     return *this;
 }
 void CylinderShape::registerReadFunctions()
@@ -52,7 +52,7 @@ void CylinderShape::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, CylinderShape::name});
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
-    ::write(node.addChild(CSTR_SIZE), size_);
+    ::write(node.addChild(CSTR_SIZE), size);
 }
 }  // namespace Components
 }  // namespace GameEngine

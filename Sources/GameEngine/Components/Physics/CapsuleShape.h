@@ -8,6 +8,19 @@ namespace Components
 class CapsuleShape : public CollisionShape
 {
 public:
+    float height;
+    float radius;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_FLOAT(height)
+        FIELD_FLOAT(radius)
+        FIELD_VECTOR3F(positionOffset)
+    END_FIELDS()
+    // clang-format on
+
+public:
     CapsuleShape(ComponentContext& componentContext, GameObject& gameObject);
     void ReqisterFunctions() override;
     void OnAwake();
@@ -18,10 +31,6 @@ public:
     inline float GetHeight() const;
     inline float GetRadius() const;
 
-private:
-    float height_;
-    float radius_;
-
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
@@ -30,11 +39,11 @@ public:
 
 float CapsuleShape::GetHeight() const
 {
-    return height_;
+    return height;
 }
 inline float CapsuleShape::GetRadius() const
 {
-    return radius_;
+    return radius;
 }
 }  // namespace Components
 }  // namespace GameEngine

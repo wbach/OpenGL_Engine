@@ -8,6 +8,16 @@ namespace Components
 class SphereShape : public CollisionShape
 {
 public:
+    float radius;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_FLOAT(radius)
+        FIELD_VECTOR3F(positionOffset)
+    END_FIELDS()
+    // clang-format on
+public:
     SphereShape(ComponentContext& componentContext, GameObject& gameObject);
     void ReqisterFunctions() override;
     void OnAwake();
@@ -16,9 +26,6 @@ public:
     SphereShape& SetRadius(float size);
     inline float GetRadius() const;
 
-private:
-    float radius_;
-
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
@@ -26,7 +33,7 @@ public:
 };
 float SphereShape::GetRadius() const
 {
-    return radius_;
+    return radius;
 }
 }  // namespace Components
 }  // namespace GameEngine

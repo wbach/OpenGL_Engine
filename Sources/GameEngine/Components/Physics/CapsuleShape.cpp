@@ -21,8 +21,8 @@ const std::string CapsuleShape::name = "CapsuleShape";
 
 CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(CapsuleShape).hash_code(), componentContext, gameObject)
-    , height_{1.f}
-    , radius_{0.5f}
+    , height{1.f}
+    , radius{0.5f}
 {
 }
 void CapsuleShape::ReqisterFunctions()
@@ -32,7 +32,7 @@ void CapsuleShape::ReqisterFunctions()
 void CapsuleShape::OnAwake()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCapsuleColider(
-        positionOffset, thisObject_.GetWorldTransform().GetScale(), radius_, height_);
+        positionOffset, thisObject_.GetWorldTransform().GetScale(), radius, height);
 
     DEBUG_LOG(thisObject_.GetName() + ", offset : " + std::to_string(positionOffset));
 
@@ -43,12 +43,12 @@ void CapsuleShape::OnAwake()
 }
 CapsuleShape& CapsuleShape::SetHeight(float h)
 {
-    height_ = h;
+    height = h;
     return *this;
 }
 CapsuleShape& CapsuleShape::SetRadius(float r)
 {
-    radius_ = r;
+    radius = r;
     return *this;
 }
 void CapsuleShape::registerReadFunctions()

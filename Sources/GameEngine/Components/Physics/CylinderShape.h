@@ -7,6 +7,17 @@ namespace Components
 {
 class CylinderShape : public CollisionShape
 {
+private:
+    vec3 size;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_VECTOR3F(size)
+        FIELD_VECTOR3F(positionOffset)
+    END_FIELDS()
+    // clang-format on
+
 public:
     CylinderShape(ComponentContext&, GameObject&);
     void ReqisterFunctions() override;
@@ -14,10 +25,7 @@ public:
 
 public:
     CylinderShape& SetSize(const vec3&);
-    const vec3& GetSize() const { return size_; }
-
-private:
-    vec3 size_;
+    const vec3& GetSize() const { return size; }
 
 public:
     static void registerReadFunctions();
