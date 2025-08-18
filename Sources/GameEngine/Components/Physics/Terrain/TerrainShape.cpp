@@ -1,4 +1,3 @@
-
 #include "TerrainShape.h"
 
 #include <Logger/Log.h>
@@ -71,12 +70,12 @@ void TerrainShape::OnAwake()
 }
 TerrainShape& TerrainShape::SetHeightMap(const File& filename)
 {
-    heightMapFile_ = filename;
+    heightMapFile = filename;
     return *this;
 }
 void TerrainShape::LoadHeightMapIfSet()
 {
-    if (heightMapFile_.empty())
+    if (heightMapFile.empty())
     {
         return;
     }
@@ -84,7 +83,7 @@ void TerrainShape::LoadHeightMapIfSet()
     TextureParameters params;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
 
-    auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(heightMapFile_, params);
+    auto heightMapTexture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(heightMapFile, params);
 
     if (not heightMapTexture)
     {
@@ -156,14 +155,14 @@ void TerrainShape::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, TerrainShape::name});
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
-    if (not heightMapFile_.empty())
+    if (not heightMapFile.empty())
     {
         ::write(node.addChild(CSTR_HEIGHTMAP_FILENAME), GetHeightMapFile().GetDataRelativeDir());
     }
 }
 const File& TerrainShape::GetHeightMapFile() const
 {
-    return heightMapFile_;
+    return heightMapFile;
 }
 
 std::optional<float> TerrainShape::GetHeightOfTerrain(const vec3& worldPosition) const

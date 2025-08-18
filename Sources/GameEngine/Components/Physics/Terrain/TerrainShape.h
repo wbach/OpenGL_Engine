@@ -19,6 +19,17 @@ namespace Components
 class TerrainShape : public CollisionShape
 {
 public:
+    File heightMapFile;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_FILE(heightMapFile)
+        FIELD_VECTOR3F(positionOffset)
+    END_FIELDS()
+    // clang-format on
+
+public:
     TerrainShape(ComponentContext&, GameObject&);
     void setScale(const vec3&) override;
     void CleanUp() override;
@@ -39,7 +50,6 @@ private:
     Components::TerrainRendererComponent* terrainRendererComponent_;
     vec2ui size_;
     HeightMap* heightMap_;
-    File heightMapFile_;
 
 public:
     static void registerReadFunctions();

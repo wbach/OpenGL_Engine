@@ -24,9 +24,9 @@ const std::string CSTR_MESH_OPTIMIZE       = "meshOptimize";
 
 MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
     : CollisionShape(typeid(MeshShape).hash_code(), componentContext, gameObject)
-    , size_(1.f)
+    , size(1.f)
+    , autoOptimization{false}
     , model_(nullptr)
-    , autoOptimize_{false}
 {
 }
 
@@ -63,7 +63,7 @@ void MeshShape::OnAwake()
     if (auto modelRawData = model_->getModelRawData())
     {
         collisionShapeId_ = componentContext_.physicsApi_.CreateMeshCollider(positionOffset, modelRawData->positions_,
-                                                                             modelRawData->indices_, scale, autoOptimize_);
+                                                                             modelRawData->indices_, scale, autoOptimization);
     }
 }
 
@@ -78,26 +78,29 @@ MeshShape& MeshShape::SetModel(Model* model)
 }
 MeshShape& MeshShape::SetModel(const File& filename)
 {
-    requstedModelFileName_ = filename.GetInitValue();
-    model_                 = componentContext_.resourceManager_.LoadModel(filename, loadingParameters_);
+    LoadingParameters loadingParameters{
+        .meshOptimize       = meshOptimize ? MeshOptimize::optimized : MeshOptimize::none,
+        .modelNormalization = modelNormalization ? ModelNormalization::normalized : ModelNormalization::none};
+    modelFile = filename.GetInitValue();
+    model_    = componentContext_.resourceManager_.LoadModel(filename, loadingParameters);
     return *this;
 }
 void MeshShape::autoOptimize()
 {
-    autoOptimize_ = true;
+    autoOptimization = true;
 }
 const Model* MeshShape::GetModel() const
 {
     return model_;
 }
-MeshShape& MeshShape::SetSize(float size)
+MeshShape& MeshShape::SetSize(float s)
 {
-    size_ = size;
+    size = s;
     return *this;
 }
 vec3 MeshShape::calculateScale(const vec3& scale) const
 {
-    return size_ * scale * model_->getNormalizedFactor();
+    return size * scale * model_->getNormalizedFactor();
 }
 void MeshShape::registerReadFunctions()
 {
@@ -116,31 +119,29 @@ void MeshShape::registerReadFunctions()
         auto filenameNode = node.getChild(CSTR_MODEL_FILE_NAME);
         if (filenameNode)
         {
-            ::Read(filenameNode->getChild(CSTR_FILE_NAME), component->requstedModelFileName_);
+            std::string modelFileName;
+            ::Read(filenameNode->getChild(CSTR_FILE_NAME), modelFileName);
+            if (not component->modelFile.empty())
+            {
+                component->modelFile = modelFileName;
+                DEBUG_LOG("Set collider model :" + component->modelFile.GetFilename());
+                component->SetModel(component->modelFile);
+            }
 
             auto modelNormalization = filenameNode->getChild(CSTR_MODEL_NORMALIZATION);
             if (modelNormalization)
             {
-                component->loadingParameters_.modelNormalization =
-                    Utils::StringToBool(modelNormalization->value_) ? ModelNormalization::normalized : ModelNormalization::none;
+                component->modelNormalization = Utils::StringToBool(modelNormalization->value_);
             }
             auto meshOptimize = filenameNode->getChild(CSTR_MESH_OPTIMIZE);
             if (meshOptimize)
             {
-                component->loadingParameters_.meshOptimize =
-                    Utils::StringToBool(meshOptimize->value_) ? MeshOptimize::optimized : MeshOptimize::none;
-            }
-
-            if (not component->requstedModelFileName_.empty())
-            {
-                DEBUG_LOG("Set collider model :" + component->requstedModelFileName_);
-                component->SetModel(component->requstedModelFileName_);
+                component->meshOptimize = Utils::StringToBool(meshOptimize->value_);
             }
         }
 
-        bool autoOptimize_{false};
-        ::Read(node.getChild(CSTR_AUTO_OPTIMIZE_MESH), autoOptimize_);
-        if (autoOptimize_)
+        ::Read(node.getChild(CSTR_AUTO_OPTIMIZE_MESH), component->autoOptimization);
+        if (component->autoOptimization)
         {
             component->autoOptimize();
         }
@@ -155,12 +156,11 @@ void MeshShape::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     ::write(node.addChild(CSTR_SIZE), GetSize());
-    ::write(node.addChild(CSTR_AUTO_OPTIMIZE_MESH), Utils::BoolToString(autoOptimize_));
+    ::write(node.addChild(CSTR_AUTO_OPTIMIZE_MESH), Utils::BoolToString(autoOptimization));
     auto& modelNode = node.addChild(CSTR_MODEL_FILE_NAME);
-    ::write(modelNode.addChild(CSTR_FILE_NAME), requstedModelFileName_);
-    modelNode.addChild(CSTR_MODEL_NORMALIZATION,
-                       Utils::BoolToString(loadingParameters_.modelNormalization == ModelNormalization::normalized));
-    modelNode.addChild(CSTR_MESH_OPTIMIZE, Utils::BoolToString(loadingParameters_.meshOptimize == MeshOptimize::optimized));
+    ::write(modelNode.addChild(CSTR_FILE_NAME), modelFile.GetDataRelativeDir());
+    modelNode.addChild(CSTR_MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
+    modelNode.addChild(CSTR_MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));
 }
 }  // namespace Components
 }  // namespace GameEngine
