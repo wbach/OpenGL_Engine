@@ -154,7 +154,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
         }
 
-        case FieldType::Bool:
+        case FieldType::Boolean:
         {
             auto* val = static_cast<bool*>(field.ptr);
 

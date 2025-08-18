@@ -30,8 +30,8 @@ const std::string CSTR_NO_CONCTACT_RESPONSE = "noConctactResponse";
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(Rigidbody).hash_code(), componentContext, gameObject)
+    , mass(1.0f)
     , collisionShape_(nullptr)
-    , mass_(1.0f)
     , updateRigidbodyOnTransformChange_(false)
 {
     // clang-format off
@@ -78,7 +78,7 @@ void Rigidbody::OnStart()
         return;
     }
 
-    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties, mass_,
+    rigidBodyId_ = componentContext_.physicsApi_.CreateRigidbody(*maybeShapeId, thisObject_, rigidbodyPropierties, mass,
                                                                  updateRigidbodyOnTransformChange_);
     if (not rigidBodyId_)
     {
@@ -86,16 +86,10 @@ void Rigidbody::OnStart()
         return;
     }
 
-    if (inputParams_.velocity_)
-        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, *inputParams_.velocity_);
-    else if (tmpParams_.velocity_)
-        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, *tmpParams_.velocity_);
+    if (glm::length(velocity) > 0.0001f)
+        componentContext_.physicsApi_.SetVelocityRigidbody(rigidBodyId_, velocity);
 
-    if (inputParams_.angularFactor_)
-        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, *inputParams_.angularFactor_);
-    else if (tmpParams_.angularFactor_)
-        componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, *tmpParams_.angularFactor_);
-
+    componentContext_.physicsApi_.SetAngularFactor(rigidBodyId_, angularFactor);
     worldTransformSubscriptionId_ = thisObject_.SubscribeOnWorldTransfomChange(
         [this](const auto& transform)
         {
@@ -122,13 +116,14 @@ bool Rigidbody::IsReady() const
 {
     return rigidBodyId_.has_value();
 }
-Rigidbody& Rigidbody::SetMass(float mass)
+Rigidbody& Rigidbody::SetMass(float m)
 {
-    mass_ = mass;
+    mass = m;
     return *this;
 }
 Rigidbody& Rigidbody::SetIsStatic(bool is)
 {
+    isStaticObject = is;
     if (is)
     {
         SetMass(0.f);
@@ -142,25 +137,25 @@ Rigidbody& Rigidbody::SetIsStatic(bool is)
 }
 Rigidbody& Rigidbody::SetCollisionShape(const std::string& shapeName)
 {
-    shapeName_ = shapeName;
+    collisionShapeName = shapeName;
     return *this;
 }
-Rigidbody& Rigidbody::SetVelocity(const vec3& velocity)
+Rigidbody& Rigidbody::SetVelocity(const vec3& v)
 {
     if (not rigidBodyId_)
     {
-        tmpParams_.velocity_ = velocity;
+        velocity = v;
         return *this;
     }
 
-    componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, velocity);
+    componentContext_.physicsApi_.SetVelocityRigidbody(*rigidBodyId_, v);
     return *this;
 }
 Rigidbody& Rigidbody::SetAngularFactor(float v)
 {
     if (not rigidBodyId_)
     {
-        tmpParams_.angularFactor_ = vec3(v);
+        angularFactor = vec3(v);
         return *this;
     }
 
@@ -168,20 +163,21 @@ Rigidbody& Rigidbody::SetAngularFactor(float v)
     return *this;
 }
 
-Rigidbody& Rigidbody::SetAngularFactor(const vec3& angularFactor)
+Rigidbody& Rigidbody::SetAngularFactor(const vec3& v)
 {
     if (not rigidBodyId_)
     {
-        tmpParams_.angularFactor_ = angularFactor;
+        angularFactor = v;
         return *this;
     }
 
-    componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, angularFactor);
+    componentContext_.physicsApi_.SetAngularFactor(*rigidBodyId_, v);
     return *this;
 }
 
 Rigidbody& Rigidbody::SetNoContactResponse(bool is)
 {
+    isNoConctactResponse = is;
     if (is)
     {
         rigidbodyPropierties.insert(Physics::RigidbodyProperty::NoContactResponse);
@@ -284,7 +280,7 @@ Rigidbody& Rigidbody::callWhenReady(std::function<void()> f)
 }
 float Rigidbody::GetMass() const
 {
-    return mass_;
+    return mass;
 }
 bool Rigidbody::IsStatic() const
 {
@@ -292,7 +288,7 @@ bool Rigidbody::IsStatic() const
 }
 const std::string& Rigidbody::GetCollisionShapeType() const
 {
-    return shapeName_;
+    return collisionShapeName;
 }
 vec3 Rigidbody::GetVelocity() const
 {
@@ -324,16 +320,6 @@ common::Transform Rigidbody::GetTransform() const
     return *componentContext_.physicsApi_.GetTransfrom(*rigidBodyId_);
 }
 
-Rigidbody::Params& Rigidbody::InputParams()
-{
-    return inputParams_;
-}
-
-const Rigidbody::Params& Rigidbody::InputParams() const
-{
-    return inputParams_;
-}
-
 const std::optional<uint32>& Rigidbody::GetId() const
 {
     return rigidBodyId_;
@@ -359,7 +345,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
     detectShape<CapsuleShape>();
     detectShape<CylinderShape>();
 
-    if (shapeName_.empty())
+    if (collisionShapeName.empty())
     {
         for (auto& pair : detectedCollisionShapes_)
         {
@@ -368,10 +354,10 @@ CollisionShape* Rigidbody::GetCollisionShape()
         return nullptr;
     }
 
-    auto shapeTypeIter = nameToTypeMap_.find(shapeName_);
+    auto shapeTypeIter = nameToTypeMap_.find(collisionShapeName);
     if (shapeTypeIter == nameToTypeMap_.end())
     {
-        ERROR_LOG("Shape name " + shapeName_ + " not found in nameToTypeMap");
+        ERROR_LOG("Shape name " + collisionShapeName + " not found in nameToTypeMap");
         return nullptr;
     }
 
@@ -387,7 +373,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
         return pair.second;
     }
 
-    ERROR_LOG(thisObject_.GetName() + ". Shape type (" + shapeName_ + ") is not found.");
+    ERROR_LOG(thisObject_.GetName() + ". Shape type (" + collisionShapeName + ") is not found.");
     return nullptr;
 }
 void Rigidbody::registerReadFunctions()
@@ -400,13 +386,13 @@ void Rigidbody::registerReadFunctions()
         ::Read(node.getChild(CSTR_MASS), mass);
         component->SetMass(mass);
 
-        bool isStatic(true);
-        ::Read(node.getChild(CSTR_IS_STATIC), isStatic);
-        component->SetIsStatic(isStatic);
+        bool isStaticValue(true);
+        ::Read(node.getChild(CSTR_IS_STATIC), isStaticValue);
+        component->SetIsStatic(isStaticValue);
 
-        bool isNoConctactResponse(false);
-        ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponse);
-        component->SetNoContactResponse(isNoConctactResponse);
+        bool isNoConctactResponseValue(false);
+        ::Read(node.getChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponseValue);
+        component->SetNoContactResponse(isNoConctactResponseValue);
 
         vec3 velocity(0.f);
         ::Read(node.getChild(CSTR_VELOCITY), velocity);
@@ -437,23 +423,12 @@ void Rigidbody::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 
-    ::write(node.addChild(CSTR_MASS), GetMass());
-    ::write(node.addChild(CSTR_IS_STATIC), IsStatic());
-    ::write(node.addChild(CSTR_NO_CONCTACT_RESPONSE),
-            rigidbodyPropierties.contains(Physics::RigidbodyProperty::NoContactResponse));
-    ::write(node.addChild(CSTR_COLLISION_SHAPE), GetCollisionShapeType());
-
-    auto angularFactor = InputParams().angularFactor_;
-    if (angularFactor)
-    {
-        ::write(node.addChild(CSTR_ANGULAR_FACTOR), *angularFactor);
-    }
-
-    auto velocty = InputParams().velocity_;
-    if (velocty)
-    {
-        ::write(node.addChild(CSTR_VELOCITY), *velocty);
-    }
+    ::write(node.addChild(CSTR_MASS), mass);
+    ::write(node.addChild(CSTR_IS_STATIC), isStaticObject);
+    ::write(node.addChild(CSTR_NO_CONCTACT_RESPONSE), isNoConctactResponse);
+    ::write(node.addChild(CSTR_COLLISION_SHAPE), collisionShapeName);
+    ::write(node.addChild(CSTR_ANGULAR_FACTOR), angularFactor);
+    ::write(node.addChild(CSTR_VELOCITY), velocity);
 }
 }  // namespace Components
 }  // namespace GameEngine

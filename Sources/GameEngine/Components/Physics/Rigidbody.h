@@ -1,11 +1,12 @@
 #pragma once
+#include <GameEngine/Physics/IPhysicsApi.h>
+
 #include <optional>
 #include <unordered_map>
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Physics/ShapeType.h"
-#include <GameEngine/Physics/IPhysicsApi.h>
 
 namespace GameEngine
 {
@@ -16,11 +17,24 @@ class CollisionShape;
 class Rigidbody : public BaseComponent
 {
 public:
-    struct Params
-    {
-        std::optional<vec3> velocity_;
-        std::optional<vec3> angularFactor_;
-    };
+    float mass{1.f};
+    bool isStaticObject{true};
+    bool isNoConctactResponse{false};
+    vec3 velocity{0.f, 0.f, 0.f};
+    vec3 angularFactor{1.f, 1.f, 1.f};
+    std::string collisionShapeName;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_STRING(collisionShapeName)
+        FIELD_FLOAT(mass)
+        FIELD_BOOL(isStaticObject)
+        FIELD_BOOL(isNoConctactResponse)
+        FIELD_VECTOR3F(velocity)
+        FIELD_VECTOR3F(angularFactor)
+    END_FIELDS()
+    // clang-format on
 
 public:
     Rigidbody(ComponentContext&, GameObject&);
@@ -36,7 +50,7 @@ public:
     Rigidbody& SetVelocity(const vec3& velocity);
     Rigidbody& SetAngularFactor(float);
     Rigidbody& SetAngularFactor(const vec3&);
-    Rigidbody &SetNoContactResponse(bool);
+    Rigidbody& SetNoContactResponse(bool);
     Rigidbody& SetRotation(const DegreesVec3&);
     Rigidbody& SetRotation(const RadiansVec3&);
     Rigidbody& SetRotation(const Quaternion&);
@@ -59,10 +73,7 @@ public:
     Quaternion GetRotation() const;
     common::Transform GetTransform() const;
 
-    Params& InputParams();
-    const Params& InputParams() const;
-
-     const std::optional<uint32>& GetId() const;
+    const std::optional<uint32>& GetId() const;
 
 private:
     void OnStart();
@@ -70,12 +81,7 @@ private:
 
 private:
     std::optional<uint32> rigidBodyId_;
-    std::string shapeName_;
     CollisionShape* collisionShape_;
-
-    float mass_    = 1.f;
-    Params inputParams_;
-    Params tmpParams_;
 
     template <class T>
     void detectShape();

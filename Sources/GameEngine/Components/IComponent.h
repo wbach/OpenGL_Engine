@@ -32,11 +32,11 @@ struct Param
 
 enum class FieldType
 {
-    Int,
+    Int = 0,
     UInt,
     Float,
     String,
-    Bool,
+    Boolean,
     Texture,
     File,
     Vector2i,
