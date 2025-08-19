@@ -95,13 +95,14 @@ std::optional<Utils::Image> ReadFile(const File& inputFileName, const TexturePar
 {
     auto absoultePath = inputFileName.GetAbsoultePath();
 
-    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(absoultePath.c_str(), 0);
-
     if (not std::filesystem::exists(absoultePath))
     {
         ERROR_LOG("File not exist : " + absoultePath);
         return {};
     }
+
+    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(absoultePath.c_str(), 0);
+
     if (imageFormat == FIF_UNKNOWN)
     {
         ERROR_LOG("GetFileType: wrong image format : " + absoultePath);

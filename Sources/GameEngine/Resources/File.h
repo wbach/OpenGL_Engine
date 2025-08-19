@@ -42,6 +42,7 @@ public:
     File& operator=(const std::string&);
     operator bool() const;
     bool empty() const;
+    bool exist() const;
 
     bool openToWrite();
     bool openToRead();

@@ -137,6 +137,7 @@ private:
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
     void AddGameObjectComponentsToView(GameEngine::GameObject &);
     void RemoveAllComponentPanels();
+    void ClearScene();
 
 private:
     GLCanvas* canvas{nullptr};

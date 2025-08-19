@@ -21,8 +21,6 @@ public:
     bool modelNormalization;
     bool meshOptimize;
     uint32_t textureIndex;
-    std::vector<float> floatsVecTest;
-    std::vector<File> FileVecTest;
 
 public:
     // clang-format off
@@ -33,8 +31,6 @@ public:
         FIELD_BOOL(modelNormalization)
         FIELD_BOOL(meshOptimize)
         FIELD_UINT(textureIndex)
-        FIELD_VECTOR_OF_FILES(FileVecTest)
-        FIELD_VECTOR_OF_FLOATS(floatsVecTest)
     END_FIELDS()
     // clang-format on
 

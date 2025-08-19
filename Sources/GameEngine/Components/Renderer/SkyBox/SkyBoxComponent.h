@@ -15,11 +15,26 @@ namespace Components
 class SkyBoxComponent : public BaseComponent
 {
 public:
+    std::vector<File> dayTextureFiles;
+    std::vector<File> nightTextureFiles;
+    File modelFile;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_CONST_VECTOR_OF_TEXTURES(dayTextureFiles)
+        FIELD_CONST_VECTOR_OF_TEXTURES(nightTextureFiles)
+        FIELD_FILE(modelFile)
+    END_FIELDS()
+    // clang-format on
+public:
     SkyBoxComponent(ComponentContext&, GameObject&);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
 
+    SkyBoxComponent& SetDayTexture(const std::vector<File>&);
+    SkyBoxComponent& SetNightTexture(const std::vector<File>&);
     SkyBoxComponent& SetDayTexture(const std::array<File, 6>&);
     SkyBoxComponent& SetNightTexture(const std::array<File, 6>&);
     SkyBoxComponent& SetModel(const std::string& filename);
@@ -30,16 +45,15 @@ public:
 
 private:
     void DeleteTexture(CubeMapTexture*&);
+    void Init();
     void Subscribe();
     void UnSubscribe();
+    void LoadTextures();
 
 private:
     CubeMapTexture* dayTexture_;
     CubeMapTexture* nightTexture_;
     Model* model_;
-    std::array<File, 6> dayTextureFiles_;
-    std::array<File, 6> nightTextureFiles_;
-    std::string modelFileName_;
     bool isSubscribed_;
 
 public:

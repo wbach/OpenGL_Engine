@@ -1,4 +1,4 @@
-#include "SkyBoxComponent.h"
+﻿#include "SkyBoxComponent.h"
 
 #include <Utils/TreeNode.h>
 
@@ -22,9 +22,9 @@ const std::string CSTR_DAY_TEXTURES     = "dayTextures";
 const std::string CSTR_NIGHT_TEXTURES   = "nightTextures";
 }  // namespace
 
-std::array<File, 6> ReadCubeMapArray(const TreeNode& node, const std::string& str)
+std::vector<File> ReadCubeMapArray(const TreeNode& node, const std::string& str)
 {
-    std::array<File, 6> textures;
+    std::vector<File> textures{"right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp"};
     uint32 index   = 0;
     auto childNode = node.getChild(str);
 
@@ -45,7 +45,31 @@ std::array<File, 6> ReadCubeMapArray(const TreeNode& node, const std::string& st
 
     return textures;
 }
-void Create(TreeNode& node, const std::array<File, 6>& str)
+
+std::optional<std::array<File, 6>> Convert(const std::vector<File>& files)
+{
+    if (files.size() != 6)
+    {
+        ERROR_LOG("File size != 6. Current size = " + std::to_string(files.size()));
+        return std::nullopt;
+    }
+
+    std::array<File, 6> result;
+    for (size_t i = 0; i < files.size(); i++)
+    {
+        result[i] = files[i];
+    }
+    return result;
+}
+
+std::vector<File> Convert(const std::array<File, 6>& files)
+{
+    std::vector<File> result;
+    std::copy(files.cbegin(), files.cend(), std::back_inserter(result));
+    return result;
+}
+
+void Create(TreeNode& node, const std::vector<File>& str)
 {
     const std::string CSTR_TEXTURE_FILENAME = "textureFileName";
     for (const auto& value : str)
@@ -55,27 +79,33 @@ void Create(TreeNode& node, const std::array<File, 6>& str)
 }
 void read(const TreeNode& node, Components::SkyBoxComponent& component)
 {
-    component.SetDayTexture(ReadCubeMapArray(node, CSTR_DAY_TEXTURES));
-    component.SetNightTexture(ReadCubeMapArray(node, CSTR_NIGHT_TEXTURES));
+    component.dayTextureFiles   = ReadCubeMapArray(node, CSTR_DAY_TEXTURES);
+    component.nightTextureFiles = ReadCubeMapArray(node, CSTR_NIGHT_TEXTURES);
 
     auto modelNode = node.getChild(CSTR_MODEL_FILE_NAME);
 
     if (modelNode)
         component.SetModel(modelNode->value_);
-    else
-        component.SetModel("Meshes/SkyBox/cube.obj");
 }
 
 SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(SkyBoxComponent).hash_code(), componentContext, gameObject)
+    , modelFile("Meshes/SkyBox/cube.obj")
+    , dayTexture_{nullptr}
+    , nightTexture_{nullptr}
+    , model_{nullptr}
     , isSubscribed_(false)
 {
-    dayTextureFiles_   = {"right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp"};
-    nightTextureFiles_ = {"right.bmp", "left.bmp", "top.bmp", "bottom.bmp", "back.bmp", "front.bmp"};
 }
 void SkyBoxComponent::CleanUp()
 {
     UnSubscribe();
+
+    if (model_)
+    {
+        componentContext_.resourceManager_.ReleaseModel(*model_);
+        model_ = nullptr;
+    }
     DeleteTexture(dayTexture_);
     DeleteTexture(nightTexture_);
 }
@@ -87,31 +117,46 @@ void SkyBoxComponent::DeleteTexture(CubeMapTexture*& texture)
     }
     texture = nullptr;
 }
-SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<File, 6>& filenames)
+
+void SkyBoxComponent::Init()
 {
-    dayTextureFiles_ = filenames;
-    TextureParameters params;
-    params.flipMode = TextureFlip::VERTICAL;
-    dayTexture_     = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, params);
+    LoadTextures();
+    if (not model_)
+    {
+        model_ = componentContext_.resourceManager_.LoadModel(modelFile);
+    }
+    Subscribe();
+}
+SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::vector<File>& filenames)
+{
+    dayTextureFiles = filenames;
     return *this;
 }
-SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<File, 6>& filenames)
+SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::vector<File>& filenames)
 {
-    nightTextureFiles_ = filenames;
-    TextureParameters params;
-    params.flipMode = TextureFlip::VERTICAL;
-    nightTexture_   = componentContext_.resourceManager_.GetTextureLoader().LoadCubeMap(filenames, params);
+    nightTextureFiles = filenames;
+    return *this;
+}
+
+SkyBoxComponent& SkyBoxComponent::SetDayTexture(const std::array<File, 6>& arrayInput)
+{
+    dayTextureFiles = Convert(arrayInput);
+    return *this;
+}
+
+SkyBoxComponent& SkyBoxComponent::SetNightTexture(const std::array<File, 6>& arrayInput)
+{
+    nightTextureFiles = Convert(arrayInput);
     return *this;
 }
 SkyBoxComponent& SkyBoxComponent::SetModel(const std::string& filename)
 {
-    modelFileName_ = filename;
-    model_         = componentContext_.resourceManager_.LoadModel(filename);
+    modelFile = filename;
     return *this;
 }
 void SkyBoxComponent::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&SkyBoxComponent::Subscribe, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&SkyBoxComponent::Init, this));
 }
 Texture* SkyBoxComponent::GetDayTexture()
 {
@@ -127,15 +172,17 @@ Model* SkyBoxComponent::GetModel()
 }
 const std::string& SkyBoxComponent::GetModelFileName() const
 {
-    return modelFileName_;
+    return modelFile.GetDataRelativeDir();
 }
 void SkyBoxComponent::Subscribe()
 {
-    if (not isSubscribed_)
-    {
+    DEBUG_LOG("Try Subscribe");
+    if (not isSubscribed_ and (dayTexture_ or nightTexture_))
+    {    DEBUG_LOG("Subscribe");
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubscribed_ = true;
     }
+     DEBUG_LOG("Subscribe  done");
 }
 void SkyBoxComponent::UnSubscribe()
 {
@@ -146,10 +193,28 @@ void SkyBoxComponent::UnSubscribe()
     }
 }
 
+void SkyBoxComponent::LoadTextures()
+{
+    DEBUG_LOG("Load textures");
+    TextureParameters params;
+    params.flipMode = TextureFlip::VERTICAL;
+    auto& loader = componentContext_.resourceManager_.GetTextureLoader();
+    if (auto textures = Convert(dayTextureFiles))
+    {
+        dayTexture_ = loader.LoadCubeMap(*textures, params);
+    }
+    if (auto textures = Convert(nightTextureFiles))
+    {
+        nightTexture_ = loader.LoadCubeMap(*textures, params);
+    }
+    DEBUG_LOG("Load textures done");
+}
+
 void SkyBoxComponent::registerReadFunctions()
 {
     ReadFunctions::instance().componentsReadFunctions.insert(
-        {CSTR_COMPONENT_SKYBOX, [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+        {CSTR_COMPONENT_SKYBOX, [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+         {
              auto component = std::make_unique<SkyBoxComponent>(componentContext, gameObject);
              read(node, *component);
              return component;
@@ -158,8 +223,8 @@ void SkyBoxComponent::registerReadFunctions()
 void SkyBoxComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, CSTR_COMPONENT_SKYBOX});
-    Create(node.addChild(CSTR_DAY_TEXTURES), dayTextureFiles_);
-    Create(node.addChild(CSTR_NIGHT_TEXTURES), nightTextureFiles_);
+    Create(node.addChild(CSTR_DAY_TEXTURES), dayTextureFiles);
+    Create(node.addChild(CSTR_NIGHT_TEXTURES), nightTextureFiles);
     node.addChild(CSTR_MODEL_FILE_NAME, GetModelFileName());
 }
 }  // namespace Components

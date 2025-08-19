@@ -3,8 +3,8 @@
 #include <GameEngine/Components/IComponent.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
 #include <GameEngine/Resources/File.h>
-#include <wx/spinctrl.h>
 #include <wx/collpane.h>
+#include <wx/spinctrl.h>
 #include <wx/wx.h>
 
 #include <functional>
@@ -33,19 +33,22 @@ private:
 
     template <typename T>
     void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&,
-                           std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>)>);
+                           std::function<wxBoxSizer*(wxWindow*, std::vector<T>*, size_t, std::function<void()>, bool)>,
+                           bool resizeable = true);
 
     wxBoxSizer* CreateStringItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<std::string>*, size_t,
-                                 std::function<void()>);
-    wxBoxSizer* CreateIntItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t, std::function<void()>);
+                                 std::function<void()>, bool = true);
+    wxBoxSizer* CreateIntItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<int>*, size_t, std::function<void()>,
+                              bool = true);
     wxBoxSizer* CreateFloatItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<float>*, size_t,
-                                std::function<void()>);
+                                std::function<void()>, bool = true);
     wxBoxSizer* CreateFileItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
-                               std::function<void()>);
+                               std::function<void()>, bool = true);
     wxBoxSizer* CreateTextureItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
-                                  std::function<void()>);
+                                  std::function<void()>, bool = true);
     wxBoxSizer* CreateAnimationClipItem(GameEngine::Components::IComponent&, wxWindow*,
-                                        std::vector<GameEngine::Components::ReadAnimationInfo>*, size_t, std::function<void()>);
+                                        std::vector<GameEngine::Components::ReadAnimationInfo>*, size_t, std::function<void()>,
+                                        bool = true);
 
     // == Akcje/logika ==
     void reInitComponent(GameEngine::Components::IComponent&);
@@ -73,6 +76,8 @@ private:
         wxStaticBitmap* preview;
     };
     TextureRow CreateBrowseTextureRow(wxWindow* parent, const wxString& label, const wxString& initial);
+
+    void SetPreviewBitmap(wxStaticBitmap*, const GameEngine::File&, wxWindow*);
     void SetPreviewBitmap(wxStaticBitmap* preview, const wxString& path, wxWindow* relayoutParent);
 
     wxBoxSizer* CreateUIForAnimationClip(GameEngine::Components::IComponent&, wxWindow*,

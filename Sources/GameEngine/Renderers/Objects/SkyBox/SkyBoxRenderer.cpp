@@ -20,8 +20,7 @@ SkyBoxRenderer::SkyBoxRenderer(RendererContext& context)
     , rotation_(0.f)
     , scale_(150.f)
 {
-    viewDistanceChangeSubscription_ =
-        EngineConf.renderer.viewDistance.subscribeForChange([this]() { calculateBoxScale(); });
+    viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange([this]() { calculateBoxScale(); });
 }
 
 SkyBoxRenderer::~SkyBoxRenderer()
@@ -34,13 +33,12 @@ void SkyBoxRenderer::init()
 {
     if (not perObjectUpdateId_)
     {
-        perObjectUpdateId_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        perObjectUpdateId_ = context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
     }
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_            = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
-                                                                               sizeof(SkyBoxRenderer::PerMeshObject));
+        perMeshObjectId_ =
+            context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(SkyBoxRenderer::PerMeshObject));
         perMeshObject_.blendFactor_ = 1.f;
     }
     // max size : skybox width <= (2 * sqrt(3) / 3)
@@ -73,8 +71,8 @@ void SkyBoxRenderer::updateBuffer()
 
     auto position = context_.scene_ ? context_.scene_->GetCamera().GetPosition() : vec3(0);
 
-    perObjectUpdateBuffer_.TransformationMatrix = context_.graphicsApi_.PrepareMatrixToLoad(
-        Utils::CreateTransformationMatrix(position, DegreesVec3(rotation_), scale_));
+    perObjectUpdateBuffer_.TransformationMatrix =
+        context_.graphicsApi_.PrepareMatrixToLoad(Utils::CreateTransformationMatrix(position, DegreesVec3(rotation_), scale_));
 
     context_.graphicsApi_.UpdateShaderBuffer(*perObjectUpdateId_, &perObjectUpdateBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*perObjectUpdateId_);
@@ -152,8 +150,10 @@ void SkyBoxRenderer::unSubscribe(GameObject& gameObject)
 
 void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const
 {
-    BindCubeMapTexture(*sub.dayTexture_, 0);
-    BindCubeMapTexture(*sub.nightTexture_, 1);
+    if (sub.dayTexture_)
+        BindCubeMapTexture(*sub.dayTexture_, 0);
+    if (sub.nightTexture_)
+        BindCubeMapTexture(*sub.nightTexture_, 1);
 }
 
 void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, uint32 id) const

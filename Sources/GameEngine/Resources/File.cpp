@@ -20,7 +20,6 @@ File::File(const std::string &input)
     , fp_{nullptr}
     , fileSize_(0)
 {
-    DEBUG_LOG(input);
     Change(input);
 }
 File::File(const char *input)
@@ -43,8 +42,6 @@ void File::Change(const std::string &input)
         DataRelative(initValue_);
 
     ClearSpecialCharacters();
-
-    DEBUG_LOG(GetAbsoultePath());
 }
 void File::DataRelative(const std::string &filename)
 {
@@ -210,7 +207,6 @@ File &File::operator=(const File &f)
 {
     if (&f != this)
     {
-        DEBUG_LOG(f.GetAbsoultePath());
         Change(f.initValue_);
     }
     return *this;
@@ -222,7 +218,6 @@ File &File::operator=(const char *str)
 }
 File &File::operator=(const std::string &str)
 {
-    DEBUG_LOG(str);
     Change(str);
     return *this;
 }
@@ -240,6 +235,11 @@ File::operator bool() const
 bool File::empty() const
 {
     return initValue_.empty() or absoultePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
+}
+
+bool File::exist() const
+{
+    return not empty() and std::filesystem::exists(GetAbsoultePath());
 }
 bool File::openToWrite()
 {

@@ -243,6 +243,17 @@ void MainFrame::RemoveAllComponentPanels()
     gameObjectPanelsSizer->Layout();
 }
 
+void MainFrame::ClearScene()
+{
+    canvas->GetScene().ClearGameObjects();
+    gameObjectsView->DeleteAllItems();
+    gameObjectsItemsIdsMap.clear();
+    CreateRootGameObject();
+    canvas->ResetDragObject();
+    transfromSubController.reset();
+    RemoveAllComponentPanels();
+}
+
 void MainFrame::OnClose(wxCloseEvent& event)
 {
     DEBUG_LOG("OnClose");
@@ -256,16 +267,26 @@ void MainFrame::OnClose(wxCloseEvent& event)
 
 void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 {
+    if (canvas->GetScene().GetGameObjects().size() > 0)
+    {
+        int answer = wxMessageBox("Current scene not empty, close this scene and open new one?", "Confirmation",
+                                  wxYES_NO | wxICON_QUESTION);
+
+        if (answer != wxYES)
+        {
+            return;
+        }
+    }
+
     wxFileDialog openFileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
                                 "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
-    canvas->ResetDragObject();
-    gameObjectsView->DeleteAllItems();
+    ClearScene();
+
     wxString path = openFileDialog.GetPath();
-    CreateRootGameObject();
     GameEngine::File file{std::string{path.c_str()}};
     canvas->OpenScene(file,
                       [&]()
@@ -535,13 +556,7 @@ void MainFrame::MenuEditClearScene(wxCommandEvent&)
 
     if (answer == wxYES)
     {
-        canvas->GetScene().ClearGameObjects();
-        gameObjectsView->DeleteAllItems();
-        gameObjectsItemsIdsMap.clear();
-        CreateRootGameObject();
-        canvas->ResetDragObject();
-        transfromSubController.reset();
-        RemoveAllComponentPanels();
+        ClearScene();
     }
 }
 
