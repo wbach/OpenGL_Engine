@@ -15,7 +15,7 @@ string to_string(const GameEngine::Components::AnimationClipInfo::PlayType& type
     }
     return "unkown";
 }
-GameEngine::Components::AnimationClipInfo::PlayType from_string(const std::string& inputStr)
+std::optional<GameEngine::Components::AnimationClipInfo::PlayType> from_string(const std::string& inputStr)
 {
     if (not inputStr.empty())
     {
@@ -28,6 +28,6 @@ GameEngine::Components::AnimationClipInfo::PlayType from_string(const std::strin
             return GameEngine::Components::AnimationClipInfo::PlayType::once;
         }
     }
-    return GameEngine::Components::AnimationClipInfo::PlayType::loop;
+    return std::nullopt;
 }
 }  // namespace std

@@ -27,10 +27,23 @@ class RendererComponent;
 class Animator : public BaseComponent
 {
 public:
+    std::string montionJointName;
+    std::string startupAnimationClipName;
+    std::vector<ReadAnimationInfo> animationClips;
+    JointGroups jointGroups_;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_STRING(montionJointName)
+        FIELD_STRING(startupAnimationClipName)
+        FIELD_VECTOR_OF_ANIMATION_CLIPS(animationClips)
+        // jointGroups_
+    END_FIELDS()
+    // clang-format on
+public:
     using AnimationInfoClips      = std::unordered_map<std::string, AnimationClipInfo>;
     using AnimationInfoClipsIdMap = std::unordered_map<IdType, AnimationClipInfo*>;
-    using ReadAnimationInfo =
-        std::tuple<std::string, GameEngine::File, AnimationClipInfo::PlayType, AnimationClipInfo::UseRootMontion>;
 
     enum class AnimationChangeType
     {
@@ -43,6 +56,7 @@ public:
     void ReqisterFunctions() override;
 
     void Update();
+    void AddAnimationClip(const ReadAnimationInfo&);
     void AddAnimationClip(const std::string&, const GameEngine::File&,
                           AnimationClipInfo::PlayType       = AnimationClipInfo::PlayType::loop,
                           AnimationClipInfo::UseRootMontion = false);
@@ -83,8 +97,6 @@ public:
 public:
     JointData jointData_;
     float animationSpeed_;
-    std::string startupAnimationClipName_;
-    JointGroups jointGroups_;
 
 protected:
     void updateShaderBuffers();
@@ -107,10 +119,8 @@ protected:
     Utils::IdPool animationClipInfoByIdPool_;
 
     RendererComponent* rendererComponent_;
-    std::vector<ReadAnimationInfo> clipsToRead_;
     JointGroupsIds jointGroupsIds_;
 
-    std::string montionJointName_;
     Animation::Joint* montionJoint_;
 
 public:

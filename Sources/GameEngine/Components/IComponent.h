@@ -39,6 +39,7 @@ enum class FieldType
     Boolean,
     Texture,
     File,
+    AnimationClip,
     Vector2i,
     Vector2f,
     Vector3f,
@@ -46,7 +47,8 @@ enum class FieldType
     VectorOfInt,
     VectorOfFloat,
     VectorOfFiles,
-    VectorOfTextures
+    VectorOfTextures,
+    VectorOfAnimationClips
 };
 
 struct FieldInfo

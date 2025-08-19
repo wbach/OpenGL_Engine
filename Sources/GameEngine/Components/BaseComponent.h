@@ -6,6 +6,7 @@
 #include "ComponentController.h"
 #include "GameEngine/Time/Time.h"
 #include "IComponent.h"
+#include "ReadAnimationInfo.h"
 
 // clang-format off
 #define BEGIN_FIELDS() \
@@ -19,6 +20,7 @@
 #define FIELD_BOOL(member) fields.push_back({#member, FieldType::Boolean, &(this->member)});
 #define FIELD_TEXTURE(member) fields.push_back({#member, FieldType::Texture, &(this->member)});
 #define FIELD_FILE(member) fields.push_back({#member, FieldType::File, &(this->member)});
+#define FIELD_ANIMATION_CLIP(member) fields.push_back({#member, FieldType::AnimationClip, &(this->member)});
 #define FIELD_VECTOR2I(member) fields.push_back({#member, FieldType::Vector2i, &(this->member)});
 #define FIELD_VECTOR2F(member) fields.push_back({#member, FieldType::Vector2f, &(this->member)});
 #define FIELD_VECTOR3F(member) fields.push_back({#member, FieldType::Vector3f, &(this->member)});
@@ -27,6 +29,7 @@
 #define FIELD_VECTOR_OF_FLOATS(member) fields.push_back({#member, FieldType::VectorOfFloat, &(this->member)});
 #define FIELD_VECTOR_OF_FILES(member) fields.push_back({#member, FieldType::VectorOfFiles, &(this->member)});
 #define FIELD_VECTOR_OF_TEXTURES(member) fields.push_back({#member, FieldType::VectorOfTextures, &(this->member)});
+#define FIELD_VECTOR_OF_ANIMATION_CLIPS(member) fields.push_back({#member, FieldType::VectorOfAnimationClips, &(this->member)});
 
 #define END_FIELDS() return fields; }
 // clang-format on

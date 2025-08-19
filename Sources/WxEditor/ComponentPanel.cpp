@@ -94,6 +94,19 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
     switch (field.type)
     {
+        case GameEngine::Components::FieldType::AnimationClip:
+        {
+            auto* val = static_cast<GameEngine::Components::ReadAnimationInfo*>(field.ptr);
+            wxBoxSizer* clipSizer = CreateUIForAnimationClip(component, pane, val);
+            sizer->Add(clipSizer, 0, wxEXPAND | wxALL, 5);
+            break;
+        }
+        break;
+        case GameEngine::Components::FieldType::VectorOfAnimationClips:
+            CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(component, pane, sizer, field,
+                                         [this, &component](auto p, auto v, auto i, auto r)
+                                         { return this->CreateAnimationClipItem(component, p, v, i, r); });
+        break;
         case FieldType::UInt:
         case FieldType::Int:
         {
@@ -709,4 +722,126 @@ void ComponentPanel::SetPreviewBitmap(wxStaticBitmap* preview, const wxString& p
     {
         wxMessageBox("Failed to load image.", "Error", wxICON_ERROR);
     }
+}
+
+wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                                     GameEngine::Components::ReadAnimationInfo* val)
+{
+    wxBoxSizer* clipSizer = new wxBoxSizer(wxVERTICAL);
+
+    // name
+    {
+        wxTextCtrl* ctrl = createTextEnterCtrl(pane, val->name);
+        wxBoxSizer* row  = CreateLabeledRow(pane, "Name", ctrl);
+        clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
+
+        ctrl->Bind(wxEVT_TEXT_ENTER,
+                   [this, &component, val](wxCommandEvent& evt)
+                   {
+                       val->name = evt.GetString().ToStdString();
+                       reInitComponent(component);
+                   });
+    }
+
+    // file
+    {
+        auto row = CreateBrowseFileRow(pane, "File", val->file.GetDataRelativeDir());
+        clipSizer->Add(row.row, 0, wxEXPAND | wxALL, 2);
+
+        row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](wxCommandEvent& evt)
+                            { this->browseFileControlAction(evt, component, txt, pane, &val->file); });
+
+        row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                           [this, &component, val](wxCommandEvent& evt)
+                           {
+                               val->file.Change(evt.GetString().ToStdString());
+                               reInitComponent(component);
+                           });
+    }
+
+    // playInLoop
+    {
+        wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, "Play In Loop");
+        check->SetValue(val->playInLoop);
+        clipSizer->Add(check, 0, wxALL, 2);
+
+        check->Bind(wxEVT_CHECKBOX,
+                    [this, &component, val](wxCommandEvent& e)
+                    {
+                        val->playInLoop = e.IsChecked();
+                        reInitComponent(component);
+                    });
+    }
+
+    // useRootMotion
+    {
+        wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, "Use Root Motion");
+        check->SetValue(val->useRootMontion);
+        clipSizer->Add(check, 0, wxALL, 2);
+
+        check->Bind(wxEVT_CHECKBOX,
+                    [this, &component, val](wxCommandEvent& e)
+                    {
+                        val->useRootMontion = e.IsChecked();
+                        reInitComponent(component);
+                    });
+    }
+
+    // playSpeed
+    {
+        wxSpinCtrlDouble* ctrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+        ctrl->SetRange(0.01, 10.0);
+        ctrl->SetDigits(2);
+        ctrl->SetIncrement(0.1);
+        ctrl->SetValue(val->playSpeed);
+
+        wxBoxSizer* row = CreateLabeledRow(pane, "Play Speed", ctrl);
+        clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
+
+        ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
+                   [this, &component, val](wxSpinDoubleEvent& evt)
+                   {
+                       val->playSpeed = static_cast<float>(evt.GetValue());
+                       reInitComponent(component);
+                   });
+    }
+
+    return clipSizer;
+}
+
+wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::IComponent& component,
+                                                    wxWindow* pane,
+                                                    std::vector<GameEngine::Components::ReadAnimationInfo>* val,
+                                                    size_t index,
+                                                    std::function<void()> rebuildUI)
+{
+    wxStaticBoxSizer* box =
+        new wxStaticBoxSizer(wxVERTICAL, pane, "AnimationClip " + std::to_string(index));
+
+    if (index >= val->size())
+        return box;
+
+    auto& clip = (*val)[index];
+
+    // Wykorzystujemy wspólną funkcję do tworzenia pól AnimationClip
+    wxBoxSizer* clipSizer = CreateUIForAnimationClip(component, pane, &clip);
+    box->Add(clipSizer, 0, wxEXPAND | wxALL, 2);
+
+    // przycisk usuwania
+    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+    removeButton->SetToolTip("Remove element");
+    box->Add(removeButton, 0, wxALIGN_RIGHT | wxALL, 2);
+
+    removeButton->Bind(wxEVT_BUTTON,
+                       [this, &component, val, index, rebuildUI](wxCommandEvent&)
+                       {
+                           if (index < val->size())
+                           {
+                               val->erase(val->begin() + index);
+                               reInitComponent(component);
+                               this->CallAfter(rebuildUI);
+                           }
+                       });
+
+    return box;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
+#include <GameEngine/Components/ReadAnimationInfo.h>
 #include <GameEngine/Resources/File.h>
 #include <wx/collpane.h>
 #include <wx/wx.h>
@@ -42,6 +43,8 @@ private:
                                std::function<void()>);
     wxBoxSizer* CreateTextureItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::File>*, size_t,
                                   std::function<void()>);
+    wxBoxSizer* CreateAnimationClipItem(GameEngine::Components::IComponent&, wxWindow*,
+                                        std::vector<GameEngine::Components::ReadAnimationInfo>*, size_t, std::function<void()>);
 
     // == Akcje/logika ==
     void reInitComponent(GameEngine::Components::IComponent&);
@@ -70,4 +73,7 @@ private:
     };
     TextureRow CreateBrowseTextureRow(wxWindow* parent, const wxString& label, const wxString& initial);
     void SetPreviewBitmap(wxStaticBitmap* preview, const wxString& path, wxWindow* relayoutParent);
+
+    wxBoxSizer* CreateUIForAnimationClip(GameEngine::Components::IComponent&, wxWindow*,
+                                         GameEngine::Components::ReadAnimationInfo*);
 };

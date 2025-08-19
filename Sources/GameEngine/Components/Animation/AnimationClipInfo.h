@@ -40,5 +40,5 @@ struct AnimationClipInfo
 namespace std
 {
 string to_string(const GameEngine::Components::AnimationClipInfo::PlayType&);
-GameEngine::Components::AnimationClipInfo::PlayType from_string(const std::string&);
+std::optional<GameEngine::Components::AnimationClipInfo::PlayType> from_string(const std::string&);
 }  // namespace std
