@@ -83,10 +83,11 @@ const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,   
 
 }  // namespace WxEditor
 
-GLCanvas::GLCanvas(wxWindow* parent, SelectItemInGameObjectTree callback)
+GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback)
     : wxGLCanvas(parent, wxID_ANY, WxEditor::glAttributes)
     , context(nullptr)
     , renderTimer(this)
+    , onStartupDone{onStartupDone}
     , selectItemInGameObjectTree(callback)
 {
     context = new wxGLContext(this);
@@ -125,7 +126,7 @@ void GLCanvas::OnPaint(wxPaintEvent&)
                                                       std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
         engine->GetSceneManager().SetActiveScene("NewScene");
-        engine->GetSceneManager().SetOnSceneLoadDone([this]() { SetupCamera(); });
+        engine->GetSceneManager().SetOnSceneLoadDone([this]() { onStartupDone(); SetupCamera(); });
     }
     if (engine)
     {

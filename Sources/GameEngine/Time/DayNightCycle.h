@@ -1,50 +1,52 @@
 #pragma once
-#include "Types.h"
-#include "GameTime.h"
 #include "../Lights/Light.h"
+#include "GameTime.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-	class DayNightCycle : public GameTime
-	{
-	public:
-		DayNightCycle();
-		void Update(const float& delta_time) override;
-		void UpdateSunColor();
-		void UpdateSunPosition();
-		void CalculateBlendFactor();
-		void SetDirectionalLight(Light* light);
+class DayNightCycle : public GameTime
+{
+public:
+    DayNightCycle();
+    void Update(GameTime::DeltaTime) override;
+    void SetTime(GameTime::Time) override;
 
-		const wb::vec2i GetCurrentHour() const;
-		const bool IsDay() const;
-		const bool IsNight() const;
-		const bool IsMorning() const;
-		const bool IsEvening() const;
-		const bool IsFirstHalfMorning() const;
-		const bool IsFirstHalfEvening() const;
-		float GetDayNightBlendFactor() const;
+    void UpdateSunColor();
+    void UpdateSunPosition();
+    void CalculateBlendFactor();
+    void SetDirectionalLight(Light* light);
 
-	private:
-		Light* directionalLight;
-		vec3 sunRiseColor;
-		vec3 midDayColor;
-		vec3 sunSetColor;
-		vec3 nightColor;
+    const wb::vec2i GetCurrentHour() const;
+    const bool IsDay() const;
+    const bool IsNight() const;
+    const bool IsMorning() const;
+    const bool IsEvening() const;
+    const bool IsFirstHalfMorning() const;
+    const bool IsFirstHalfEvening() const;
+    float GetDayNightBlendFactor() const;
 
-		float dayNightBlendFactor;
-		float dayStart;
-		float dayEnd;
-		float nightStart;
-		float nightEnd;
-		float morningDuration;
-		float eveningDuration;
+private:
+    Light* directionalLight;
+    vec3 sunRiseColor;
+    vec3 midDayColor;
+    vec3 sunSetColor;
+    vec3 nightColor;
 
-		vec3 defaultSunPos;
-	};
+    float dayNightBlendFactor;
+    float dayStart;
+    float dayEnd;
+    float nightStart;
+    float nightEnd;
+    float morningDuration;
+    float eveningDuration;
 
-	inline float DayNightCycle::GetDayNightBlendFactor() const
-	{
-		return dayNightBlendFactor;
-	}
+    vec3 defaultSunPos;
+};
 
-} //GameEngine
+inline float DayNightCycle::GetDayNightBlendFactor() const
+{
+    return dayNightBlendFactor;
+}
+
+}  // namespace GameEngine

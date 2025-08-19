@@ -6,7 +6,6 @@
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <wx/artprov.h>
-#include <wx/spinctrl.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
 
@@ -124,17 +123,18 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     topSplitter->SplitVertically(gameObjectsView, trs, size.x / 8);
 
-    canvas = new GLCanvas(trs,
-                          [&](uint32 gameObjectId, bool select)
-                          {
-                              for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
-                              {
-                                  if (goId == gameObjectId)
-                                  {
-                                      gameObjectsView->SelectItem(wxItemId, select);
-                                  }
-                              }
-                          });
+    canvas = new GLCanvas(
+        trs, [this]() { UpdateTimeOnToolbar(); },
+        [&](uint32 gameObjectId, bool select)
+        {
+            for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
+            {
+                if (goId == gameObjectId)
+                {
+                    gameObjectsView->SelectItem(wxItemId, select);
+                }
+            }
+        });
 
     // Zamiast wxListBox
     gameObjectPanels = new wxScrolledWindow(trs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
@@ -200,14 +200,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     bottomSpliter->SplitVertically(fileExplorer, filePreview, size.x / 2);
 
     CreateMainMenu();
-    auto* toolbar = CreateToolBar();
+    CreateToolBarForEngine();
 
-    toolbar->AddTool(ID_TOOL_OPEN, "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN));
-    toolbar->AddTool(ID_TOOL_SAVE, "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE));
-    toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
-    toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
-    toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
-    toolbar->Realize();
     CreateStatusBar();
     SetStatusText("Welcome to game editor!");
 
@@ -716,6 +710,88 @@ wxMenu* MainFrame::CreateAboutMenu()
     wxMenu* menuAbout = new wxMenu;
     menuAbout->Append(ID_MENU_ABOUT_GL_INFO, "&GLInfo\tCtrl-H", "Print opengl info");
     return menuAbout;
+}
+
+void MainFrame::CreateToolBarForEngine()
+{
+    auto* toolbar = CreateToolBar();
+
+    toolbar->AddTool(ID_TOOL_OPEN, "Open", wxArtProvider::GetBitmap(wxART_FILE_OPEN));
+    toolbar->AddTool(ID_TOOL_SAVE, "Save", wxArtProvider::GetBitmap(wxART_FILE_SAVE));
+    toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
+    toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
+    toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
+    // Separator żeby odsunąć
+    toolbar->AddSeparator();
+
+    auto* timeLabel = new wxStaticText(toolbar, wxID_ANY, "Game time: ");
+    toolbar->AddControl(timeLabel);
+
+    hourCtrl = new wxSpinCtrl(toolbar, wxID_ANY, "0", wxDefaultPosition, wxSize(50, -1));
+    hourCtrl->SetRange(0, 23);
+    toolbar->AddControl(hourCtrl);
+
+    minuteCtrl = new wxSpinCtrl(toolbar, wxID_ANY, "0", wxDefaultPosition, wxSize(50, -1));
+    minuteCtrl->SetRange(0, 59);
+    toolbar->AddControl(minuteCtrl);
+
+    // Suwak godziny (0–24)
+    timeSlider = new wxSlider(toolbar, wxID_ANY, 0, 0, 1440, wxDefaultPosition, wxSize(200, -1), wxSL_HORIZONTAL);
+    toolbar->AddControl(timeSlider);
+
+    toolbar->Realize();
+
+    timeSlider->Bind(wxEVT_SLIDER,
+                     [this](wxCommandEvent& evt)
+                     {
+                         int minutes      = evt.GetInt();       // 0–1440
+                         float normalized = minutes / 1440.0f;  // w [0.0 – 1.0]
+                         canvas->GetScene().GetDayNightCycle().SetTime(normalized);
+
+                         // (opcjonalnie: update UI, np. status bar)
+                         int hour   = minutes / 60;
+                         int minute = minutes % 60;
+                         hourCtrl->SetValue(hour);
+                         minuteCtrl->SetValue(minute);
+                     });
+
+    hourCtrl->Bind(wxEVT_SPINCTRL,
+                   [this](wxSpinEvent& evt)
+                   {
+                       int hour         = evt.GetInt();
+                       int minute       = minuteCtrl->GetValue();
+                       int totalMinutes = hour * 60 + minute;
+
+                       float normalized = totalMinutes / 1440.0f;
+                       canvas->GetScene().GetDayNightCycle().SetTime(normalized);
+
+                       timeSlider->SetValue(totalMinutes);
+                   });
+
+    // minuteCtrl -> update slider
+    minuteCtrl->Bind(wxEVT_SPINCTRL,
+                     [this](wxSpinEvent& evt)
+                     {
+                         int hour         = hourCtrl->GetValue();
+                         int minute       = evt.GetInt();
+                         int totalMinutes = hour * 60 + minute;
+
+                         float normalized = totalMinutes / 1440.0f;
+                         canvas->GetScene().GetDayNightCycle().SetTime(normalized);
+
+                         timeSlider->SetValue(totalMinutes);
+                     });
+}
+
+void MainFrame::UpdateTimeOnToolbar()
+{
+    auto [hour, minute, _] = canvas->GetScene().GetDayNightCycle().GetHourMinuteSecond();
+    int totalMinutes = hour * 60 + minute;
+
+    DEBUG_LOG("hour: " + std::to_string(hour) + " minute: " + std::to_string(minute));
+    timeSlider->SetValue(totalMinutes);
+    hourCtrl->SetValue(hour);
+    minuteCtrl->SetValue(minute);
 }
 
 void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId parentId)

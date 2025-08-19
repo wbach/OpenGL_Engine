@@ -12,6 +12,7 @@
 #include "Mutex.hpp"
 #include "Thread.hpp"
 #include "Time/TimeMeasurer.h"
+#include <sstream>
 
 enum class LogginLvl
 {
@@ -22,6 +23,7 @@ enum class LogginLvl
     None
 };
 
+class CLogStream;
 class CLogger
 {
 public:
@@ -61,6 +63,8 @@ private:
     Utils::Time::CTimeMeasurer timer_;
     std::vector<std::string> prefixes_;
     std::string prefixTotal_;
+
+    friend class CLogStream;
 };
 std::string FileNameLogRepresentation(const char*);
 // clang-format off
@@ -95,4 +99,89 @@ template <typename T>
 std::string typeName(const T&)
 {
     return typeName<T>();
+}
+
+class CLogStream
+{
+public:
+    CLogStream(LogginLvl lvl, const char* file, int line, const char* func)
+        : lvl_(lvl)
+    {
+        // Dodajemy prefix automatyczny: plik:linia funkcja
+        ss_ << FileNameLogRepresentation(file) << ":" << line << " " << func << ": ";
+        // Dodajemy globalny prefix z loggera
+        ss_ << CLogger::Instance().prefixTotal_;
+    }
+
+    ~CLogStream()
+    {
+        // Przekazujemy zawartość strumienia do loggera
+        std::string log = ss_.str();
+        switch (lvl_)
+        {
+        case LogginLvl::Error:       CLogger::Instance().ErrorLog(log); break;
+        case LogginLvl::ErrorWarning:CLogger::Instance().WarningLog(log); break;
+        case LogginLvl::ErrorWarningInfo:
+        case LogginLvl::ErrorWarningInfoDebug:
+        default:                     CLogger::Instance().InfoLog(log); break;
+        }
+    }
+
+    template <typename T>
+    CLogStream& operator<<(const T& value)
+    {
+        ss_ << value;
+        return *this;
+    }
+
+private:
+    std::ostringstream ss_;
+    LogginLvl lvl_;
+};
+
+#define LOG_INFO  CLogStream(LogginLvl::ErrorWarningInfo, __FILE__, __LINE__, __FUNCTION__)
+#define LOG_WARN  CLogStream(LogginLvl::ErrorWarning, __FILE__, __LINE__, __FUNCTION__)
+#define LOG_ERROR CLogStream(LogginLvl::Error, __FILE__, __LINE__, __FUNCTION__)
+#define LOG_DEBUG CLogStream(LogginLvl::ErrorWarningInfoDebug, __FILE__, __LINE__, __FUNCTION__)
+
+// konwersja dowolnego typu na string
+template <typename T>
+std::string toString(const T& value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+// wersja bazowa: brak argumentów
+inline std::string formatString(const std::string& fmt)
+{
+    if (fmt.find("{}") != std::string::npos)
+        throw std::runtime_error("Brak argumentów do zastąpienia w '{}' w stringu.");
+    return fmt;
+}
+
+// wersja rekurencyjna: co najmniej jeden argument
+template<typename T, typename... Args>
+std::string formatString(const std::string& fmt, T&& first, Args&&... rest)
+{
+    size_t pos = fmt.find("{}");
+    if (pos == std::string::npos)
+        throw std::runtime_error("Za dużo argumentów do formatowania!");
+
+    std::string result = fmt.substr(0, pos) + toString(std::forward<T>(first));
+    std::string remaining = fmt.substr(pos + 2);
+
+    if constexpr (sizeof...(rest) > 0)
+    {
+        result += formatString(remaining, std::forward<Args>(rest)...);
+    }
+    else
+    {
+        if (remaining.find("{}") != std::string::npos)
+            throw std::runtime_error("Za mało argumentów do formatowania!");
+        result += remaining;
+    }
+
+    return result;
 }

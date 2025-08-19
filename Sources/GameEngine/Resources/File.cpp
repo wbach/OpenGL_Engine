@@ -349,3 +349,15 @@ void File::ClearSpecialCharacters()
     }
 }
 }  // namespace GameEngine
+
+inline std::ostream& operator<<(std::ostream& os, const GameEngine::File& file)
+{
+    os << "File{";
+    if (!file.GetAbsoultePath().empty())
+        os << "absoultePath: " << file.GetAbsoultePath();
+    else
+        os << "initValue: " << file.GetInitValue();
+
+    os << "}";
+    return os;
+}

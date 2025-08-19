@@ -106,6 +106,7 @@ void SkyBoxRenderer::render()
 void SkyBoxRenderer::prepareShaderBeforeFrameRender()
 {
     perMeshObject_.blendFactor_ = context_.scene_ ? context_.scene_->GetDayNightCycle().GetDayNightBlendFactor() : 1.f;
+    //DEBUG_LOG("perMeshObject_.blendFactor_: " + std::to_string(context_.scene_->GetDayNightCycle().GetDayNightBlendFactor()));
     context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &perMeshObject_);
     context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 }

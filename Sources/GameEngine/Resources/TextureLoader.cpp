@@ -41,8 +41,7 @@ TextureLoader::~TextureLoader()
     for (auto texture : toRelease)
         DeleteTexture(*texture);
 }
-GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params,
-                                             const Utils::Image& image)
+GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params, const Utils::Image& image)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
@@ -58,19 +57,17 @@ void TextureLoader::UpdateTexture(const GeneralTexture& texture)
 {
     if (texture.GetGraphicsObjectId())
     {
-        gpuResourceLoader_.AddFunctionToCall([texture = &texture, this]() {
-            graphicsApi_.UpdateTexture(*texture->GetGraphicsObjectId(), texture->GetImage());
-        });
+        gpuResourceLoader_.AddFunctionToCall(
+            [texture = &texture, this]() { graphicsApi_.UpdateTexture(*texture->GetGraphicsObjectId(), texture->GetImage()); });
     }
 }
 void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& newName)
 {
     if (not textures_.empty())
     {
-        auto iter =
-            std::find_if(textures_.begin(), textures_.end(), [id = texture->GetGpuObjectId()](const auto& texture) {
-                return (texture.second.resource_->GetGpuObjectId() == id);
-            });
+        auto iter = std::find_if(textures_.begin(), textures_.end(),
+                                 [id = texture->GetGpuObjectId()](const auto& texture)
+                                 { return (texture.second.resource_->GetGpuObjectId() == id); });
 
         texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->GetImage());
 
@@ -120,10 +117,13 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
 
     std::ostringstream textureName;
     for (const auto& file : files)
-        textureName << file;
+        textureName << Utils::RemoveSlashes(file.GetAbsoultePath());
 
     if (auto texture = GetTextureIfLoaded(textureName.str(), params))
+    {
+        DEBUG_LOG("Reusing cube map :" + textureName.str());
         return static_cast<CubeMapTexture*>(texture);
+    }
 
     std::array<Utils::Image, 6> images;
 
@@ -137,6 +137,12 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
 
         images[index++] = std::move(*image);
     }
+
+    DEBUG_LOG("Add cube map :" + textureName.str());
+    LOG_DEBUG << "Add cube map :" << textureName.str();
+    LOG_INFO << formatString("Format string test :) x={}, y={}", 5, 6);
+    LOG_INFO << formatString("Single value: {}", 42);
+    LOG_INFO << formatString("No value");
 
     auto cubeMap    = std::make_unique<CubeMapTexture>(graphicsApi_, params, textureName.str(), images);
     auto cubeMapPtr = cubeMap.get();
@@ -164,8 +170,7 @@ GeneralTexture* TextureLoader::CreateNormalMap(const HeightMap& heightMap, const
     AddTexture(GetNoName(), std::move(normaltexture), TextureLoadType::AddToGpuPass);
     return normaltexturePtr;
 }
-HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& requestedSize,
-                                          const TextureParameters& params)
+HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& requestedSize, const TextureParameters& params)
 {
     // textures_.find(filename);
     auto ox   = requestedSize.x % 2 == 0 ? 1 : 0;
@@ -199,9 +204,9 @@ void TextureLoader::DeleteTexture(Texture& texture)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture) {
-        return (texture.second.resource_->GetGpuObjectId() == id);
-    });
+    auto iter = std::find_if(textures_.begin(), textures_.end(),
+                             [id = texture.GetGpuObjectId()](const auto& texture)
+                             { return (texture.second.resource_->GetGpuObjectId() == id); });
 
     if (iter != textures_.end())
     {
@@ -265,8 +270,8 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
 
     if (bytes < size)
     {
-        ERROR_LOG("Read file error." + inputFileName.GetAbsoultePath() + " " + ", bytes : " + std::to_string(bytes) +
-                  "/" + std::to_string(sizeof(float) * size));
+        ERROR_LOG("Read file error." + inputFileName.GetAbsoultePath() + " " + ", bytes : " + std::to_string(bytes) + "/" +
+                  std::to_string(sizeof(float) * size));
         return nullptr;
     }
 
@@ -276,7 +281,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
     image.setChannels(1);
     image.moveData(std::move(floatData));
 
-    auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
     heightmapTexture->SetScale(header.scale);
     auto heightmapTexturePtr = heightmapTexture.get();
     AddTexture(inputFileName.GetAbsoultePath(), std::move(heightmapTexture), params.loadType);
@@ -331,7 +336,7 @@ void convertImageToCpp(const Utils::Image& image)
     DEBUG_LOG("createCppFile...");
     std::ofstream ofs("/home/bach/Projects/OpenGL_Engine/Data/textureNotFound.h", std::ofstream::out);
     ofs << "#pragma once\n\n";
-    //ofs << "#include <array>\n";
+    // ofs << "#include <array>\n";
     ofs << "namespace GameEngine\n";
     ofs << "{\n";
     ofs << "namespace Resource\n";
@@ -343,9 +348,9 @@ void convertImageToCpp(const Utils::Image& image)
     ofs << "static const unsigned int chanelsCount{" << static_cast<uint32>(image.getChannelsCount()) << "};\n";
     ofs << "static const unsigned char data[] = {";
 
-    auto data = reinterpret_cast<const uint8*>(image.getRawDataPtr());
+    auto data    = reinterpret_cast<const uint8*>(image.getRawDataPtr());
     uint32 count = image.width * image.height * image.getChannelsCount();
-    for(uint32 i = 0; i < count; ++i)
+    for (uint32 i = 0; i < count; ++i)
     {
         unsigned char v = data[i];
         ofs << static_cast<uint32>(v);
@@ -358,7 +363,6 @@ void convertImageToCpp(const Utils::Image& image)
     ofs << "} // namespace GameEngine\n";
     ofs.close();
     exit(0);
-
 }
 GeneralTexture* TextureLoader::GetTextureNotFound()
 {
@@ -387,7 +391,7 @@ GeneralTexture* TextureLoader::GetTextureNotFound()
     textureNotFoundImage.allocateImage<uint8>();
     textureNotFoundImage.copyImage<uint8>(Resource::TextureNotFound::data);
 
-    auto texture = std::make_unique<GeneralTexture>(graphicsApi_, textureNotFoundImage, params);
+    auto texture           = std::make_unique<GeneralTexture>(graphicsApi_, textureNotFoundImage, params);
     textureNotFound_.first = texture.get();
     AddTexture(textureName, std::move(texture), params.loadType);
 

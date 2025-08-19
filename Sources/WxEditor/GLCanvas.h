@@ -36,8 +36,9 @@ class GLCanvas : public wxGLCanvas
 {
 public:
     using SelectItemInGameObjectTree = std::function<void(uint32, bool)>;
+    using OnStartupDone = std::function<void()>;
     using PrentWindow = wxWindow*;
-    GLCanvas(PrentWindow, SelectItemInGameObjectTree);
+    GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree);
     ~GLCanvas();
 
     std::string getGlInfo() const;
@@ -71,6 +72,7 @@ private:
 
     DECLARE_EVENT_TABLE()
 
+    OnStartupDone onStartupDone;
     SelectItemInGameObjectTree selectItemInGameObjectTree;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
     WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};

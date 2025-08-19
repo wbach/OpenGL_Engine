@@ -98,6 +98,7 @@ public:
     const Light& GetDirectionalLight() const;
     const std::vector<Light>& GetLights() const;
     inline const DayNightCycle& GetDayNightCycle() const;
+    inline DayNightCycle& GetDayNightCycle();
     inline float GetGlobalTime() const;
     inline const Time& GetTime() const;
     inline IResourceManager& GetResourceManager();
@@ -206,6 +207,11 @@ inline const std::unordered_map<uint32, GameObject*> Scene::GetAllGameObjectsPtr
 }
 
 inline const DayNightCycle& Scene::GetDayNightCycle() const
+{
+    return dayNightCycle;
+}
+
+inline DayNightCycle& Scene::GetDayNightCycle()
 {
     return dayNightCycle;
 }

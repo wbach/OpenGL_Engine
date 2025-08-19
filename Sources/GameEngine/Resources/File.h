@@ -102,3 +102,5 @@ private:
     long fileSize_;
 };
 }  // namespace GameEngine
+
+std::ostream& operator<<(std::ostream&, const GameEngine::File&);

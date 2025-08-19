@@ -300,4 +300,21 @@ std::string MergeString(const std::vector<std::string>& input, const std::string
     return result;
 }
 
+void RemoveSlashes(std::string &str)
+{
+    str.erase(std::remove_if(str.begin(), str.end(),
+                             [](char c) { return c == '/' || c == '\\'; }),
+              str.end());
+}
+
+std::string RemoveSlashes(const std::string & str)
+{
+    std::string result;
+    result.reserve(str.size()); // żeby uniknąć wielokrotnego przydzielania pamięci
+
+    std::copy_if(str.begin(), str.end(), std::back_inserter(result),
+                 [](char c) { return c != '/' && c != '\\'; });
+
+    return result;
+}
 }  // namespace Utils

@@ -5,6 +5,7 @@
 #include <wx/frame.h>
 #include <wx/generic/dirctrlg.h>
 #include <wx/notebook.h>
+#include <wx/spinctrl.h>
 #include <wx/treebase.h>
 #include <wx/treectrl.h>
 #include <wx/wx.h>
@@ -126,6 +127,9 @@ private:
     wxMenu* CreateRendererMenu();
     wxMenu* CreateAboutMenu();
 
+    void CreateToolBarForEngine();
+    void UpdateTimeOnToolbar();
+
     GameEngine::GameObject* AddGameObject(const std::string& = "NewGameObject", IdType = 0);
     wxTreeItemId AddGameObjectToWxWidgets(wxTreeItemId, IdType, const std::string&);
 
@@ -135,7 +139,7 @@ private:
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
-    void AddGameObjectComponentsToView(GameEngine::GameObject &);
+    void AddGameObjectComponentsToView(GameEngine::GameObject&);
     void RemoveAllComponentPanels();
     void ClearScene();
 
@@ -150,6 +154,11 @@ private:
     wxScrolledWindow* gameObjectPanels{nullptr};
     wxButton* addComponentButton{nullptr};
     wxComboBox* addComponentChoice{nullptr};
+
+    wxSlider* timeSlider{nullptr};
+    wxSpinCtrl* hourCtrl{nullptr};
+    wxSpinCtrl* minuteCtrl{nullptr};
+
 
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;
