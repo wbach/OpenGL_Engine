@@ -4,7 +4,6 @@
 #include <Logger/Log.h>
 #include <Utils/TreeNode.h>
 #include <wx/artprov.h>
-#include <wx/spinctrl.h>
 
 namespace GameEngine
 {
@@ -53,7 +52,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component)
 
     // Aktualizacja layoutu po zwinięciu/rozwinieciu
     collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
-                      [this](wxCollapsiblePaneEvent& evt)
+                      [this](auto& evt)
                       {
                           this->Layout();
                           this->FitInside();
@@ -70,12 +69,12 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
 {
     // Checkbox aktywności
     {
-        wxCheckBox* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
+        auto* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
         activeCheck->SetValue(component.IsActive());
         sizer->Add(activeCheck, 0, wxALL, 5);
 
         activeCheck->Bind(wxEVT_CHECKBOX,
-                          [this, &component](wxCommandEvent& e)
+                          [this, &component](auto& e)
                           {
                               component.SetActive(e.IsChecked());
                               reInitComponent(component);
@@ -96,31 +95,33 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
     {
         case GameEngine::Components::FieldType::AnimationClip:
         {
-            auto* val = static_cast<GameEngine::Components::ReadAnimationInfo*>(field.ptr);
-            wxBoxSizer* clipSizer = CreateUIForAnimationClip(component, pane, val);
+            auto* val      = static_cast<GameEngine::Components::ReadAnimationInfo*>(field.ptr);
+            auto clipSizer = CreateUIForAnimationClip(component, pane, val);
             sizer->Add(clipSizer, 0, wxEXPAND | wxALL, 5);
             break;
         }
         break;
         case GameEngine::Components::FieldType::VectorOfAnimationClips:
-            CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(component, pane, sizer, field,
-                                         [this, &component](auto p, auto v, auto i, auto r)
-                                         { return this->CreateAnimationClipItem(component, p, v, i, r); });
-        break;
+            CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r)
+                { return this->CreateAnimationClipItem(component, p, v, i, r); });
+            break;
         case FieldType::UInt:
         case FieldType::Int:
         {
-            int* val = static_cast<int*>(field.ptr);
+            auto* val = static_cast<int*>(field.ptr);
 
-            wxSpinCtrl* ctrl = new wxSpinCtrl(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+            auto* ctrl = new wxSpinCtrl(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+            ctrl->Bind(wxEVT_MOUSEWHEEL, [](auto& evt) {});
             ctrl->SetRange(-1000, 1000);
             ctrl->SetValue(*val);
 
-            wxBoxSizer* row = CreateLabeledRow(pane, field.name, ctrl);
+            auto* row = CreateLabeledRow(pane, field.name, ctrl);
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_SPINCTRL,
-                       [this, &component, val](wxSpinEvent& evt)
+                       [this, &component, val](auto& evt)
                        {
                            *val = evt.GetValue();
                            reInitComponent(component);
@@ -130,19 +131,13 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::Float:
         {
-            float* val = static_cast<float*>(field.ptr);
-
-            auto* ctrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-            ctrl->SetRange(-1000.0, 1000.0);
-            ctrl->SetDigits(2);
-            ctrl->SetIncrement(0.01);
-            ctrl->SetValue(*val);
-
-            wxBoxSizer* row = CreateLabeledRow(pane, field.name, ctrl);
+            auto val  = static_cast<float*>(field.ptr);
+            auto ctrl = CreateFloatSpinCtrl(pane, *val, -1000.0, 1000.0, 0.01, 2);
+            auto row  = CreateLabeledRow(pane, field.name, ctrl);
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                       [this, &component, val](wxSpinDoubleEvent& evt)
+                       [this, &component, val](auto& evt)
                        {
                            *val = static_cast<float>(evt.GetValue());
                            reInitComponent(component);
@@ -153,13 +148,12 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         case FieldType::String:
         {
             auto* val = static_cast<std::string*>(field.ptr);
-
-            wxTextCtrl* ctrl = createTextEnterCtrl(pane, *val);
-            wxBoxSizer* row  = CreateLabeledRow(pane, field.name, ctrl);
+            auto* ctrl = createTextEnterCtrl(pane, *val);
+            auto* row  = CreateLabeledRow(pane, field.name, ctrl);
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, val](wxCommandEvent& evt)
+                       [this, &component, val](auto& evt)
                        {
                            *val = evt.GetString().ToStdString();
                            reInitComponent(component);
@@ -170,13 +164,12 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         case FieldType::Boolean:
         {
             auto* val = static_cast<bool*>(field.ptr);
-
-            wxCheckBox* check = new wxCheckBox(pane, wxID_ANY, field.name);
+            auto* check = new wxCheckBox(pane, wxID_ANY, field.name);
             check->SetValue(*val);
             sizer->Add(check, 0, wxALL, 5);
 
             check->Bind(wxEVT_CHECKBOX,
-                        [this, val, &component](wxCommandEvent& e)
+                        [this, val, &component](auto& e)
                         {
                             *val = e.IsChecked();
                             reInitComponent(component);
@@ -187,17 +180,15 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         case FieldType::File:
         {
             auto* val = static_cast<GameEngine::File*>(field.ptr);
-
             auto row = CreateBrowseFileRow(pane, field.name, val->GetDataRelativeDir());
             sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
-
             // Browse action
-            row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](wxCommandEvent& evt)
+            row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](auto& evt)
                                 { this->browseFileControlAction(evt, component, txt, pane, val); });
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val](wxCommandEvent& evt)
+                               [this, &component, val](auto& evt)
                                {
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
@@ -482,6 +473,7 @@ wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& co
     wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
 
     wxSpinCtrl* spinCtrl = new wxSpinCtrl(pane, wxID_ANY, wxString::Format("%d", (*val)[index]));
+    spinCtrl->Bind(wxEVT_MOUSEWHEEL, [](auto& evt) {});
     elemRow->Add(spinCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
@@ -515,12 +507,8 @@ wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& co
 wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& component, wxWindow* pane,
                                             std::vector<float>* val, size_t index, std::function<void()> rebuildUI)
 {
-    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
-
-    wxSpinCtrlDouble* floatCtrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-    floatCtrl->SetIncrement(0.01);
-    floatCtrl->SetDigits(2);
-    floatCtrl->SetValue((*val)[index]);
+    auto elemRow = new wxBoxSizer(wxHORIZONTAL);
+    auto floatCtrl = CreateFloatSpinCtrl(pane, (*val)[index], 0.01, 1000.0, 0.1, 2);
     elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
@@ -789,17 +777,12 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
 
     // playSpeed
     {
-        wxSpinCtrlDouble* ctrl = new wxSpinCtrlDouble(pane, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
-        ctrl->SetRange(0.01, 10.0);
-        ctrl->SetDigits(2);
-        ctrl->SetIncrement(0.1);
-        ctrl->SetValue(val->playSpeed);
-
-        wxBoxSizer* row = CreateLabeledRow(pane, "Play Speed", ctrl);
+        auto ctrl = CreateFloatSpinCtrl(pane, val->playSpeed, 0.01, 10.0, 0.1, 2);
+        auto row = CreateLabeledRow(pane, "Play Speed", ctrl);
         clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
 
         ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                   [this, &component, val](wxSpinDoubleEvent& evt)
+                   [this, &component, val](auto& evt)
                    {
                        val->playSpeed = static_cast<float>(evt.GetValue());
                        reInitComponent(component);
@@ -809,14 +792,11 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
     return clipSizer;
 }
 
-wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::IComponent& component,
-                                                    wxWindow* pane,
-                                                    std::vector<GameEngine::Components::ReadAnimationInfo>* val,
-                                                    size_t index,
+wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                                    std::vector<GameEngine::Components::ReadAnimationInfo>* val, size_t index,
                                                     std::function<void()> rebuildUI)
 {
-    wxStaticBoxSizer* box =
-        new wxStaticBoxSizer(wxVERTICAL, pane, "AnimationClip " + std::to_string(index));
+    wxStaticBoxSizer* box = new wxStaticBoxSizer(wxVERTICAL, pane, "AnimationClip " + std::to_string(index));
 
     if (index >= val->size())
         return box;
@@ -824,16 +804,16 @@ wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::ICom
     auto& clip = (*val)[index];
 
     // Wykorzystujemy wspólną funkcję do tworzenia pól AnimationClip
-    wxBoxSizer* clipSizer = CreateUIForAnimationClip(component, pane, &clip);
+    auto clipSizer = CreateUIForAnimationClip(component, pane, &clip);
     box->Add(clipSizer, 0, wxEXPAND | wxALL, 2);
 
     // przycisk usuwania
-    wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
+    auto removeButton = new wxButton(pane, wxID_ANY, "Delete");
     removeButton->SetToolTip("Remove element");
     box->Add(removeButton, 0, wxALIGN_RIGHT | wxALL, 2);
 
     removeButton->Bind(wxEVT_BUTTON,
-                       [this, &component, val, index, rebuildUI](wxCommandEvent&)
+                       [this, &component, val, index, rebuildUI](auto&)
                        {
                            if (index < val->size())
                            {
@@ -844,4 +824,17 @@ wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::ICom
                        });
 
     return box;
+}
+
+wxSpinCtrlDouble* ComponentPanel::CreateFloatSpinCtrl(wxWindow* parent, double value, double min, double max, double inc,
+                                                      int digits)
+{
+    auto* ctrl = new wxSpinCtrlDouble(parent, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS);
+    ctrl->SetRange(min, max);
+    ctrl->SetDigits(digits);
+    ctrl->SetIncrement(inc);
+    ctrl->SetValue(value);
+    ctrl->Bind(wxEVT_MOUSEWHEEL, [](auto& evt) {});
+
+    return ctrl;
 }

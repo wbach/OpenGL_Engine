@@ -3,6 +3,7 @@
 #include <GameEngine/Components/IComponent.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
 #include <GameEngine/Resources/File.h>
+#include <wx/spinctrl.h>
 #include <wx/collpane.h>
 #include <wx/wx.h>
 
@@ -76,4 +77,6 @@ private:
 
     wxBoxSizer* CreateUIForAnimationClip(GameEngine::Components::IComponent&, wxWindow*,
                                          GameEngine::Components::ReadAnimationInfo*);
+    wxSpinCtrlDouble* CreateFloatSpinCtrl(wxWindow* parent, double, double = -100000.0, double = 100000.0, double = 0.01,
+                                          int = 3);
 };
