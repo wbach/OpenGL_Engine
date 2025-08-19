@@ -24,6 +24,9 @@
 #define FIELD_VECTOR2I(member) fields.push_back({#member, FieldType::Vector2i, &(this->member)});
 #define FIELD_VECTOR2F(member) fields.push_back({#member, FieldType::Vector2f, &(this->member)});
 #define FIELD_VECTOR3F(member) fields.push_back({#member, FieldType::Vector3f, &(this->member)});
+#define FIELD_VECTOR4F(member) fields.push_back({#member, FieldType::Vector4f, &(this->member)});
+#define FIELD_COLOR_RGB(member) fields.push_back({#member, FieldType::ColorRGB, &(this->member)});
+#define FIELD_COLOR_RGBA(member) fields.push_back({#member, FieldType::ColorRGBA, &(this->member)});
 #define FIELD_VECTOR_OF_STRINGS(member) fields.push_back({#member, FieldType::VectorOfStrings, &(this->member)});
 #define FIELD_VECTOR_OF_INTS(member) fields.push_back({#member, FieldType::VectorOfInt, &(this->member)});
 #define FIELD_VECTOR_OF_FLOATS(member) fields.push_back({#member, FieldType::VectorOfFloat, &(this->member)});

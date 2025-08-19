@@ -147,7 +147,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::String:
         {
-            auto* val = static_cast<std::string*>(field.ptr);
+            auto* val  = static_cast<std::string*>(field.ptr);
             auto* ctrl = createTextEnterCtrl(pane, *val);
             auto* row  = CreateLabeledRow(pane, field.name, ctrl);
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
@@ -163,7 +163,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::Boolean:
         {
-            auto* val = static_cast<bool*>(field.ptr);
+            auto* val   = static_cast<bool*>(field.ptr);
             auto* check = new wxCheckBox(pane, wxID_ANY, field.name);
             check->SetValue(*val);
             sizer->Add(check, 0, wxALL, 5);
@@ -180,7 +180,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         case FieldType::File:
         {
             auto* val = static_cast<GameEngine::File*>(field.ptr);
-            auto row = CreateBrowseFileRow(pane, field.name, val->GetDataRelativeDir());
+            auto row  = CreateBrowseFileRow(pane, field.name, val->GetDataRelativeDir());
             sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
             // Browse action
             row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](auto& evt)
@@ -262,7 +262,6 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); });
             break;
         }
-
         case GameEngine::Components::FieldType::Vector3f:
         {
             auto* val = static_cast<vec3*>(field.ptr);
@@ -279,7 +278,56 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); });
             break;
         }
-
+        case GameEngine::Components::FieldType::Vector4f:
+        {
+            auto* val = static_cast<vec4*>(field.ptr);
+            CreateVectorRow<vec4, wxSpinCtrlDouble>(
+                component, pane, sizer, field.name, val, 4,
+                [](wxSpinCtrlDouble* ctrl, float v)
+                {
+                    ctrl->SetRange(-100000.0, 100000.0);
+                    ctrl->SetDigits(3);
+                    ctrl->SetIncrement(0.01);
+                    ctrl->SetValue(v);
+                },
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
+                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); });
+            break;
+        }
+        case GameEngine::Components::FieldType::ColorRGB:
+        {
+            auto* val = static_cast<vec3*>(field.ptr);
+            CreateVectorRow<vec3, wxSpinCtrlDouble>(
+                component, pane, sizer, field.name, val, 3,
+                [](wxSpinCtrlDouble* ctrl, float v)
+                {
+                    ctrl->SetRange(-100000.0, 100000.0);
+                    ctrl->SetDigits(3);
+                    ctrl->SetIncrement(0.01);
+                    ctrl->SetValue(v);
+                },
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
+                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); },
+                {"R:", "G:", "B:"});
+            break;
+        }
+        case GameEngine::Components::FieldType::ColorRGBA:
+        {
+            auto* val = static_cast<vec4*>(field.ptr);
+            CreateVectorRow<vec4, wxSpinCtrlDouble>(
+                component, pane, sizer, field.name, val, 4,
+                [](wxSpinCtrlDouble* ctrl, float v)
+                {
+                    ctrl->SetRange(-100000.0, 100000.0);
+                    ctrl->SetDigits(3);
+                    ctrl->SetIncrement(0.01);
+                    ctrl->SetValue(v);
+                },
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
+                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); },
+                {"R:", "G:", "B:", "A:"});
+            break;
+        }
         // == Wektory ==
         case FieldType::VectorOfStrings:
             CreateUIForVector<std::string>(component, pane, sizer, field,
@@ -316,7 +364,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 template <typename VecT, typename CtrlT, typename BindEvt, typename SetVal, typename GetVal>
 void ComponentPanel::CreateVectorRow(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
                                      const wxString& label, VecT* vec, int dimensions, SetVal setCtrlValue, GetVal getCtrlValue,
-                                     BindEvt bindEvent)
+                                     BindEvt bindEvent, const std::vector<std::string>& axisNames)
 {
     // Etykieta nad polami
     sizer->Add(new wxStaticText(pane, wxID_ANY, label), 0, wxBOTTOM, 2);
@@ -324,8 +372,6 @@ void ComponentPanel::CreateVectorRow(GameEngine::Components::IComponent& compone
     // Własny panel, żeby odseparować layout od reszty
     wxPanel* rowPanel    = new wxPanel(pane);
     wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
-
-    static const char* axisNames[] = {"X:", "Y:", "Z:"};
 
     for (int i = 0; i < dimensions; ++i)
     {
@@ -507,7 +553,7 @@ wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& co
 wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& component, wxWindow* pane,
                                             std::vector<float>* val, size_t index, std::function<void()> rebuildUI)
 {
-    auto elemRow = new wxBoxSizer(wxHORIZONTAL);
+    auto elemRow   = new wxBoxSizer(wxHORIZONTAL);
     auto floatCtrl = CreateFloatSpinCtrl(pane, (*val)[index], 0.01, 1000.0, 0.1, 2);
     elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
@@ -778,7 +824,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
     // playSpeed
     {
         auto ctrl = CreateFloatSpinCtrl(pane, val->playSpeed, 0.01, 10.0, 0.1, 2);
-        auto row = CreateLabeledRow(pane, "Play Speed", ctrl);
+        auto row  = CreateLabeledRow(pane, "Play Speed", ctrl);
         clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
 
         ctrl->Bind(wxEVT_SPINCTRLDOUBLE,

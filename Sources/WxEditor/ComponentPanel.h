@@ -29,7 +29,7 @@ private:
 
     template <typename VecT, typename CtrlT, typename BindEvt, typename SetVal, typename GetVal>
     void CreateVectorRow(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const wxString&, VecT*, int, SetVal, GetVal,
-                         BindEvt);
+                         BindEvt, const std::vector<std::string>& = {"X:", "Y:", "Z:", "W:"});
 
     template <typename T>
     void CreateUIForVector(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&,

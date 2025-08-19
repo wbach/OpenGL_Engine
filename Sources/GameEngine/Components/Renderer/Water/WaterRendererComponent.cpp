@@ -22,9 +22,9 @@ const std::string CSTR_NORMAL_MAP = "normalMap";
 }  // namespace
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(WaterRendererComponent).hash_code(), componentContext, gameObject)
+    , waveSpeed(.1f)
+    , waterColor(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
     , moveFactor_(0)
-    , waterColor_(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
-    , waveSpeed_(.1f)
     , normalMap_{nullptr}
     , dudvMap_{nullptr}
     , isSubscribed_(false)
@@ -39,7 +39,7 @@ void WaterRendererComponent::ReqisterFunctions()
 }
 const vec4& WaterRendererComponent::GetWaterColor() const
 {
-    return waterColor_;
+    return waterColor;
 }
 float WaterRendererComponent::moveFactor() const
 {
@@ -47,7 +47,7 @@ float WaterRendererComponent::moveFactor() const
 }
 float WaterRendererComponent::increaseAndGetMoveFactor(float deltaTime)
 {
-    moveFactor_ += waveSpeed_ * deltaTime;
+    moveFactor_ += waveSpeed * deltaTime;
     moveFactor_ = fmodf(moveFactor_, 1.f);
     return moveFactor_;
 }
@@ -79,19 +79,24 @@ GraphicsApi::ID WaterRendererComponent::getPerObjectUpdateBufferId() const
 }
 WaterRendererComponent& WaterRendererComponent::SetWaveSpeed(float speed)
 {
-    waveSpeed_ = speed;
+    waveSpeed = speed;
     return *this;
 }
 float WaterRendererComponent::GetWaveSpeed() const
 {
-    return waveSpeed_;
+    return waveSpeed;
 }
 void WaterRendererComponent::SetWaterColor(const vec4& color)
 {
-    waterColor_ = color;
+    waterColor = color;
 }
 void WaterRendererComponent::OnAwake()
 {
+    if (not dudvMap.empty() and not normalMap.empty())
+    {
+        LoadTextures(dudvMap, normalMap);
+    }
+
     if (not isSubscribed_)
     {
         componentContext_.renderersManager_.Subscribe(&thisObject_);
@@ -100,15 +105,15 @@ void WaterRendererComponent::OnAwake()
 
     if (not perObjectUpdateBuffer_)
     {
-        perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_,
-                                                                                 PER_OBJECT_UPDATE_BIND_LOCATION);
+        perObjectUpdateBuffer_ =
+            std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
         updatePerObjectUpdateBuffer();
     }
 
     if (not onTransformChangeSubscribtion_)
     {
-        onTransformChangeSubscribtion_ = thisObject_.SubscribeOnWorldTransfomChange(
-            [this](const common::Transform&) { updatePerObjectUpdateBuffer(); });
+        onTransformChangeSubscribtion_ =
+            thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { updatePerObjectUpdateBuffer(); });
     }
 }
 void WaterRendererComponent::UnSubscribe()
@@ -129,13 +134,11 @@ void WaterRendererComponent::updatePerObjectUpdateBuffer()
     const auto& transform = thisObject_.GetWorldTransform();
 
     auto convertedQuadScale = transform.GetScale();
-    convertedQuadScale.y = convertedQuadScale.z;
-    convertedQuadScale.z = 1.f;
-    auto transformMatrix =
-        Utils::CreateTransformationMatrix(transform.GetPosition(), DegreesVec3(-90, 0, 0), convertedQuadScale);
+    convertedQuadScale.y    = convertedQuadScale.z;
+    convertedQuadScale.z    = 1.f;
+    auto transformMatrix = Utils::CreateTransformationMatrix(transform.GetPosition(), DegreesVec3(-90, 0, 0), convertedQuadScale);
 
-    perObjectUpdateBuffer_->GetData().TransformationMatrix =
-        componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatrix);
+    perObjectUpdateBuffer_->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatrix);
 
     if (not perObjectUpdateBuffer_->GetGraphicsObjectId())
     {
@@ -176,23 +179,19 @@ void WaterRendererComponent::DeleteTextures()
 }
 void WaterRendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<WaterRendererComponent>(componentContext, gameObject);
 
-        float waveSpeed{1.f};
-        vec4 color(0, 0, 0.4f, 0.5f);
         std::string dudvMap, normalMap;
-        ::Read(node.getChild(CSTR_WAVE_SPEED), waveSpeed);
-        ::Read(node.getChild(CSTR_COLOR), color);
+        ::Read(node.getChild(CSTR_WAVE_SPEED), component->waveSpeed);
+        ::Read(node.getChild(CSTR_COLOR), component->waterColor);
         ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
         ::Read(node.getChild(CSTR_NORMAL_MAP), normalMap);
 
-        component->SetWaveSpeed(waveSpeed);
-        component->SetWaterColor(color);
-        if (not dudvMap.empty() and not normalMap.empty())
-        {
-            component->LoadTextures(dudvMap, normalMap);
-        }
+        component->dudvMap   = dudvMap;
+        component->normalMap = normalMap;
+
         return component;
     };
 
@@ -204,12 +203,8 @@ void WaterRendererComponent::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
     ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());
-
-    if (GetDudvTexture() and GetDudvTexture()->GetFile())
-        ::write(node.addChild(CSTR_DUDV_MAP), GetDudvTexture()->GetFile()->GetDataRelativeDir());
-
-    if (GetNormalTexture() and GetNormalTexture()->GetFile())
-        ::write(node.addChild(CSTR_NORMAL_MAP), GetNormalTexture()->GetFile()->GetDataRelativeDir());
+    ::write(node.addChild(CSTR_DUDV_MAP), dudvMap.GetDataRelativeDir());
+    ::write(node.addChild(CSTR_NORMAL_MAP), normalMap.GetDataRelativeDir());
 }
 }  // namespace Components
 }  // namespace GameEngine

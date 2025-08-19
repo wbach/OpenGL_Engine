@@ -12,6 +12,21 @@ namespace Components
 class WaterRendererComponent : public BaseComponent
 {
 public:
+    float waveSpeed;
+    vec4 waterColor;
+    File dudvMap;
+    File normalMap;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_TEXTURE(dudvMap)
+        FIELD_TEXTURE(normalMap)
+        FIELD_FLOAT(waveSpeed)
+        FIELD_COLOR_RGBA(waterColor)
+    END_FIELDS()
+    // clang-format on
+public:
     WaterRendererComponent(ComponentContext&, GameObject&);
     ~WaterRendererComponent() override;
 
@@ -45,9 +60,6 @@ private:
     std::optional<uint32> onTransformChangeSubscribtion_;
 
     float moveFactor_;
-    vec4 waterColor_;
-    float waveSpeed_;
-
     Texture* normalMap_;
     Texture* dudvMap_;
 
