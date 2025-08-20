@@ -16,9 +16,9 @@
 #include "ComponentPickerPopup.h"
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
+#include "ProjectPanel.h"
 #include "Theme.h"
 #include "TransformPanel.h"
-#include "ProjectPanel.h"
 
 namespace
 {
@@ -92,7 +92,6 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_TREE_BEGIN_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnBeginLabelEdit)
     EVT_TREE_END_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnEndLabelEdit)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
-    EVT_DIRCTRL_FILEACTIVATED(ID_FILE_EXPLORER, MainFrame::OnFileActivated)
     EVT_MENU(ID_TOOL_OPEN, MainFrame::MenuFileOpenScene)
     EVT_MENU(ID_TOOL_SAVE, MainFrame::MenuFileSaveScene)
     EVT_MENU(ID_TOOL_SAVE_AS, MainFrame::MenuFileSaveSceneAs)
@@ -124,18 +123,18 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     topSplitter->SplitVertically(gameObjectsView, trs, size.x / 8);
 
-    canvas = new GLCanvas(
-        trs, [this]() { UpdateTimeOnToolbar(); },
-        [&](uint32 gameObjectId, bool select)
+    auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
+    auto selectItemInGameObjectTree = [&](uint32 gameObjectId, bool select)
+    {
+        for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
         {
-            for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
+            if (goId == gameObjectId)
             {
-                if (goId == gameObjectId)
-                {
-                    gameObjectsView->SelectItem(wxItemId, select);
-                }
+                gameObjectsView->SelectItem(wxItemId, select);
             }
-        });
+        }
+    };
+    canvas = new GLCanvas(trs, onStartupDone, selectItemInGameObjectTree);
 
     // Zamiast wxListBox
     gameObjectPanels = new wxScrolledWindow(trs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
@@ -182,26 +181,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     // Splitter dzielimy na canvas i ten nowy panel z listą
     trs->SplitVertically(canvas, gameObjectPanels, size.x * 5 / 8);
 
-//    fileExplorer = new wxGenericDirCtrl(bottomSpliter, ID_FILE_EXPLORER, Utils::GetAbsolutePath(EngineConf.files.data),
-//                                        wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SELECT_FIRST);
+    auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
+    ProjectPanel* projectPanel =
+        new ProjectPanel(bottomSpliter, Utils::GetAbsolutePath(EngineConf.files.data), fileSelectedCallback);
 
-    ProjectPanel* projectPanel = new ProjectPanel(bottomSpliter, Utils::GetAbsolutePath(EngineConf.files.data));
+    wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_MISSING_IMAGE, wxART_OTHER, wxSize(300, 200));
+    auto filePreview      = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
 
-    wxStaticBitmap* filePreview = nullptr;
-    //    wxImage img;
-    //    if (img.LoadFile("sample.png", wxBITMAP_TYPE_PNG))
-    //    {
-    //        wxBitmap bmp(img);
-    //        filePreview = new wxStaticBitmap(bottomSpliter, wxID_ANY, bmp, wxDefaultPosition, wxSize(300, 200));
-    //    }
-    //    else
-    {
-        wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_MISSING_IMAGE, wxART_OTHER, wxSize(300, 200));
-        filePreview           = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
-    }
-
-   // bottomSpliter->SplitVertically(fileExplorer, filePreview, size.x / 2);
-     bottomSpliter->SplitVertically(projectPanel, filePreview, size.x / 2);
+    bottomSpliter->SplitVertically(projectPanel, filePreview, size.x / 2);
 
     CreateMainMenu();
     CreateToolBarForEngine();
@@ -790,7 +777,7 @@ void MainFrame::CreateToolBarForEngine()
 void MainFrame::UpdateTimeOnToolbar()
 {
     auto [hour, minute, _] = canvas->GetScene().GetDayNightCycle().GetHourMinuteSecond();
-    int totalMinutes = hour * 60 + minute;
+    int totalMinutes       = hour * 60 + minute;
 
     DEBUG_LOG("hour: " + std::to_string(hour) + " minute: " + std::to_string(minute));
     timeSlider->SetValue(totalMinutes);
@@ -814,33 +801,24 @@ void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId paren
 
 void MainFrame::OnFileSelectChanged(wxTreeEvent& event)
 {
-    if (fileExplorer)
-    {
-        // wxLogMessage("Selection changed to \"%s\"", fileExplorer->GetPath(event.GetItem()));
-        // Load preview if can
-    }
 }
-void MainFrame::OnFileActivated(wxTreeEvent& event)
+void MainFrame::OnFileActivated(const wxString& fullpath)
 {
-    if (fileExplorer)
-    {
-        // wxLogMessage("FileActivated to \"%s\"", fileExplorer->GetPath(event.GetItem()));
-        GameEngine::File file{std::string(fileExplorer->GetPath(event.GetItem()).c_str())};
+    GameEngine::File file{fullpath.ToStdString()};
+    LOG_DEBUG << file;
 
-        auto is3Model =
-            file.IsExtension({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
-                              "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
-                              "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
-                              "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
-                              "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
-        if (is3Model)
+    auto is3Model = file.IsExtension({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
+                                      "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
+                                      "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
+                                      "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
+                                      "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
+    if (is3Model)
+    {
+        auto parentGameObject = GetSelectedGameObject();
+        if (auto maybeId = canvas->AddGameObject(file, parentGameObject))
         {
-            auto parentGameObject = GetSelectedGameObject();
-            if (auto maybeId = canvas->AddGameObject(file, parentGameObject))
-            {
-                AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), *maybeId, file.GetBaseName());
-                UpdateObjectCount();
-            }
+            AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), *maybeId, file.GetBaseName());
+            UpdateObjectCount();
         }
     }
 }

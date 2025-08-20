@@ -9,13 +9,16 @@
 #include <wx/treectrl.h>
 #include <wx/wrapsizer.h>
 #include <wx/wx.h>
+#include <functional>
 
 class ProjectPanel : public wxPanel
 {
 public:
-    ProjectPanel(wxWindow* parent, const wxString& rootPath);
+    using FileSelectedCallback = std::function<void(const wxString&)>;
+    ProjectPanel(wxWindow*, const wxString&, FileSelectedCallback);
 
 private:
+    FileSelectedCallback fileSelectedCallback;
     // Przechowujemy pełną ścieżkę w każdym elemencie drzewa
     struct PathData : public wxTreeItemData
     {
@@ -67,7 +70,6 @@ private:
     void OnThumbClicked(wxMouseEvent& e);
 
     void CreateFilePanel(wxBoxSizer*);
-
 
     wxDECLARE_NO_COPY_CLASS(ProjectPanel);
 };

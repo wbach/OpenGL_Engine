@@ -1,5 +1,6 @@
 #include "ProjectPanel.h"
 
+#include <Logger/Log.h>
 #include <wx/renderer.h>
 
 namespace
@@ -21,8 +22,9 @@ wxBitmap CreateBitmap(const wxArtID& id, const wxArtClient& client, const wxSize
 
 }  // namespace
 
-ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath)
+ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelectedCallback fileSelectedCallback)
     : wxPanel(parent)
+    , fileSelectedCallback(fileSelectedCallback)
     , rootFolder(rootPath)
 {
     // Handlery obrazów (dla PNG/JPG itp.)
@@ -273,7 +275,12 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
 
         // Podwójny klik = logowanie
-        icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { wxLogMessage("Wybrano: %s", fn.GetFullPath()); });
+        icon->Bind(wxEVT_LEFT_DCLICK,
+                   [=](wxMouseEvent&)
+                   {
+                       LOG_DEBUG << fn.GetFullPath().ToStdString();
+                       fileSelectedCallback(fn.GetFullPath());
+                   });
 
         fileSizer->Add(itemSizer, 0, wxALL, 5);
         cont = dir.GetNext(&name);
@@ -339,7 +346,7 @@ void ProjectPanel::SelectTreeItemByPath(const wxString& path)
 wxTreeItemId ProjectPanel::FindTreeItemByPath(wxTreeItemId parent, const wxString& path)
 {
     if (not parent.IsOk())
-       return wxTreeItemId();
+        return wxTreeItemId();
 
     auto* data = static_cast<PathData*>(projectTree->GetItemData(parent));
     if (data && data->path == path)

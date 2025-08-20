@@ -116,7 +116,7 @@ private:
     void OnGLVersion(wxCommandEvent&);
 
     void OnFileSelectChanged(wxTreeEvent&);
-    void OnFileActivated(wxTreeEvent&);
+    void OnFileActivated(const wxString&);
 
     void AddChilds(GameEngine::GameObject&, wxTreeItemId);
     void CreateRootGameObject();
@@ -149,7 +149,6 @@ private:
     wxTreeCtrl* gameObjectsView{nullptr};
     TransformPanel* worldTransformPanel{nullptr};
     TransformPanel* localTransformPanel{nullptr};
-    wxGenericDirCtrl* fileExplorer{nullptr};
     wxBoxSizer* gameObjectPanelsSizer{nullptr};
     wxScrolledWindow* gameObjectPanels{nullptr};
     wxButton* addComponentButton{nullptr};
