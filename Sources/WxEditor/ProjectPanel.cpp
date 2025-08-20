@@ -117,10 +117,31 @@ static bool IsImageExt(const wxString& extLower)
            extLower == "tif" || extLower == "tiff";
 }
 
+void ProjectPanel::SelectItem(wxPanel* itemPanel)
+{
+    if (selectedItemPanel)
+    {
+        // Odznacz poprzedni element
+        selectedItemPanel->SetBackgroundColour(wxNullColour);
+        selectedItemPanel->Refresh();
+    }
+
+    selectedItemPanel = itemPanel;
+
+    if (selectedItemPanel)
+    {
+        // Zaznacz nowy element
+        selectedItemPanel->SetBackgroundColour(*wxLIGHT_GREY);
+        selectedItemPanel->Refresh();
+    }
+}
+
 void ProjectPanel::RefreshListFor(const wxString& folderPath)
 {
-    // Czyścimy panel i sizer
-    fileSizer->Clear(true);  // usuwa dzieci i niszczy kontrolki
+    // Usuń stare elementy
+    fileSizer->Clear(true);
+    selectedItem = nullptr;
+    selectedLabel = nullptr;
     filePanel->Refresh();
 
     wxDir dir(folderPath);
@@ -132,6 +153,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
 
     const int thumbSize = 64;
 
+    // Lambda do przycinania nazw
     auto EllipsizeString = [&](const wxString& text, const wxFont& font, int maxWidth) -> wxString
     {
         wxMemoryDC dc;
@@ -155,62 +177,70 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         return result;
     };
 
-    // --- Najpierw foldery ---
+    auto SelectItem = [&](wxWindow* item, wxStaticText* label)
+    {
+        if (selectedItem)
+        {
+            selectedItem->SetBackgroundColour(wxNullColour);
+            selectedItem->Refresh();
+        }
+        selectedItem = item;
+        selectedItem->SetBackgroundColour(*wxLIGHT_GREY);
+        selectedItem->Refresh();
+
+        if (selectedLabel)
+        {
+            selectedLabel->SetBackgroundColour(wxNullColour);
+            selectedLabel->Refresh();
+        }
+
+        selectedLabel = label;
+        selectedLabel->SetBackgroundColour(*wxLIGHT_GREY);
+        //selectedLabel->SetForegroundColour(*wxWHITE);
+        selectedLabel->Refresh();
+    };
+
+    // --- Foldery ---
     cont = dir.GetFirst(&name, wxEmptyString, wxDIR_DIRS);
     while (cont)
     {
         wxFileName fn(folderPath, name);
-
-        // Ikona folderu
-        wxBitmap bmp         = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
+        wxBitmap bmp = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
         wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
 
-        // Etykieta z przyciętym tekstem
         wxString shortName = EllipsizeString(name, GetFont(), thumbSize);
-        wxStaticText* label =
-            new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition, wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
+        wxStaticText* label = new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition,
+                                               wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
 
-        // Kontener pionowy
         wxBoxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
         itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
         itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
+
         icon->SetToolTip(name);
         label->SetToolTip(name);
+
+        // Kliknięcie = zaznaczenie
+        icon->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
+        label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
+
+        // Podwójny klik = wejście do folderu
+        icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&)
+        {
+            RefreshListFor(fn.GetFullPath());
+            // można też synchronizować z drzewem folderów
+        });
+
         fileSizer->Add(itemSizer, 0, wxALL, 5);
-
-        // Podwójny klik = zmiana folderu w drzewie
-        icon->Bind(wxEVT_LEFT_DCLICK,
-                   [=](wxMouseEvent&)
-                   {
-                       // Znajdź element w drzewie
-                       wxTreeItemIdValue cookie;
-                       wxTreeItemId root = projectTree->GetRootItem();
-                       wxTreeItemId item;
-                       for (item = projectTree->GetFirstChild(root, cookie); item.IsOk();
-                            item = projectTree->GetNextChild(root, cookie))
-                       {
-                           auto* data = static_cast<PathData*>(projectTree->GetItemData(item));
-                           if (data && data->path == fn.GetFullPath())
-                           {
-                               projectTree->SelectItem(item);
-                               return;
-                           }
-                       }
-                       // Jeśli nie znaleziono, po prostu odśwież listę
-                       RefreshListFor(fn.GetFullPath());
-                   });
-
         cont = dir.GetNext(&name);
     }
 
-    // --- Potem pliki ---
+    // --- Pliki ---
     cont = dir.GetFirst(&name, wxEmptyString, wxDIR_FILES);
     while (cont)
     {
         wxFileName fn(folderPath, name);
         wxBitmap bmp = CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(thumbSize, thumbSize));
 
-        // Miniaturka dla obrazów
         wxString ext = fn.GetExt().Lower();
         if (IsImageExt(ext))
         {
@@ -218,37 +248,37 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
             wxImage img(fn.GetFullPath(), wxBITMAP_TYPE_ANY);
             if (img.IsOk())
             {
-                int w = img.GetWidth();
-                int h = img.GetHeight();
-                if (w > 0 && h > 0)
-                {
-                    double scale = std::min(double(thumbSize) / w, double(thumbSize) / h);
-                    int nw       = std::max(1, int(w * scale));
-                    int nh       = std::max(1, int(h * scale));
-                    img          = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
-                }
-                img.SetOption(wxIMAGE_OPTION_QUALITY, 100);
-                if (not img.HasAlpha())
+                double scale = std::min(double(thumbSize) / img.GetWidth(),
+                                        double(thumbSize) / img.GetHeight());
+                int nw = std::max(1, int(img.GetWidth() * scale));
+                int nh = std::max(1, int(img.GetHeight() * scale));
+                img = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
+                if (!img.HasAlpha())
                     img.InitAlpha();
                 bmp = wxBitmap(img);
             }
         }
 
         wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
-        wxString shortName   = EllipsizeString(name, GetFont(), thumbSize);
-        wxStaticText* label =
-            new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition, wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
+        wxString shortName = EllipsizeString(name, GetFont(), thumbSize);
+        wxStaticText* label = new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition,
+                                               wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
+
         icon->SetToolTip(name);
         label->SetToolTip(name);
+
         wxBoxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
         itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
         itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
 
-        fileSizer->Add(itemSizer, 0, wxALL, 5);
+        // Kliknięcie = zaznaczenie
+        icon->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
+        label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
 
-        // Kliknięcie dwukrotne
+        // Podwójny klik = logowanie
         icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { wxLogMessage("Wybrano: %s", fn.GetFullPath()); });
 
+        fileSizer->Add(itemSizer, 0, wxALL, 5);
         cont = dir.GetNext(&name);
     }
 
