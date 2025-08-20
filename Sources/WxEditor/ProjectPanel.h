@@ -8,6 +8,7 @@
 #include <wx/artprov.h>
 #include <wx/image.h>
 #include <wx/imaglist.h>
+#include <wx/wrapsizer.h>
 
 class ProjectPanel : public wxPanel
 {
@@ -24,8 +25,11 @@ private:
 
     // UI
     wxTreeCtrl* projectTree {nullptr};
-    wxListCtrl* projectFiles {nullptr};
+    //wxListCtrl* projectFiles {nullptr};
     wxString    rootFolder;
+
+    wxScrolledWindow* filePanel;      // na panel przewijalny
+    wxWrapSizer* fileSizer;  // nowy wrap sizer
 
     // Ikony drzewa (16x16)
     wxImageList* treeImageList {nullptr};
@@ -51,6 +55,9 @@ private:
 
     void SelectTreeItemByPath(const wxString&);
     wxTreeItemId FindTreeItemByPath(wxTreeItemId, const wxString&);
+    void OnThumbClicked(wxMouseEvent& e);
+
+    void CreateFilePanel(wxBoxSizer*);
 
     wxDECLARE_NO_COPY_CLASS(ProjectPanel);
 };
