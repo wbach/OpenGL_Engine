@@ -1,6 +1,7 @@
 #include "ProjectPanel.h"
 
 #include <Logger/Log.h>
+#include <wx/dnd.h>
 #include <wx/renderer.h>
 
 namespace
@@ -223,12 +224,38 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         icon->SetToolTip(name);
         label->SetToolTip(name);
 
-        // Kliknięcie = zaznaczenie
-        icon->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
         label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
 
         // Podwójny klik = wejście do folderu
         icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { RefreshListFor(fn.GetFullPath()); });
+        // Kliknięcie = zaznaczenie
+        icon->Bind(wxEVT_LEFT_DOWN,
+                   [=](wxMouseEvent& event)
+                   {
+                       SelectItem(icon, label);
+                       dragStartPos = event.GetPosition();
+                       dragIcon     = icon;
+                   });
+
+        icon->Bind(wxEVT_MOTION,
+                   [=](wxMouseEvent& event)
+                   {
+                       if (event.Dragging() && event.LeftIsDown() && dragIcon)
+                       {
+                           wxFileDataObject fileData;
+                           fileData.AddFile(fn.GetFullPath());
+                           wxDropSource dragSource(dragIcon);
+                           dragSource.SetData(fileData);
+                           dragSource.DoDragDrop(wxDrag_CopyOnly);
+                           dragIcon = nullptr;  // zakończono drag
+                       }
+                   });
+
+        icon->Bind(wxEVT_LEFT_UP,
+                   [=](wxMouseEvent&)
+                   {
+                       dragIcon = nullptr;  // anulujemy drag jeśli nie było ruchu
+                   });
 
         fileSizer->Add(itemSizer, 0, wxALL, 5);
         cont = dir.GetNext(&name);
@@ -271,7 +298,6 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
 
         // Kliknięcie = zaznaczenie
-        icon->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
         label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
 
         // Podwójny klik = logowanie
@@ -280,6 +306,34 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
                    {
                        LOG_DEBUG << fn.GetFullPath().ToStdString();
                        fileSelectedCallback(fn.GetFullPath());
+                   });
+
+        icon->Bind(wxEVT_LEFT_DOWN,
+                   [=](wxMouseEvent& event)
+                   {
+                       SelectItem(icon, label);
+                       dragStartPos = event.GetPosition();
+                       dragIcon     = icon;
+                   });
+
+        icon->Bind(wxEVT_MOTION,
+                   [=](wxMouseEvent& event)
+                   {
+                       if (event.Dragging() && event.LeftIsDown() && dragIcon)
+                       {
+                           wxFileDataObject fileData;
+                           fileData.AddFile(fn.GetFullPath());
+                           wxDropSource dragSource(dragIcon);
+                           dragSource.SetData(fileData);
+                           dragSource.DoDragDrop(wxDrag_CopyOnly);
+                           dragIcon = nullptr;  // zakończono drag
+                       }
+                   });
+
+        icon->Bind(wxEVT_LEFT_UP,
+                   [=](wxMouseEvent&)
+                   {
+                       dragIcon = nullptr;  // anulujemy drag jeśli nie było ruchu
                    });
 
         fileSizer->Add(itemSizer, 0, wxALL, 5);
@@ -332,7 +386,7 @@ void ProjectPanel::SelectTreeItemByPath(const wxString& path)
 {
     wxTreeItemId rootId = projectTree->GetRootItem();
     if (not rootId.IsOk())
-       return;
+        return;
 
     wxTreeItemId found = FindTreeItemByPath(rootId, path);
     if (found.IsOk())

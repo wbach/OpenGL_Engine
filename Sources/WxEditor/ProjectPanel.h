@@ -36,6 +36,8 @@ private:
 
     wxScrolledWindow* filePanel;  // na panel przewijalny
     wxWrapSizer* fileSizer;       // nowy wrap sizer
+    wxPoint dragStartPos;
+    wxStaticBitmap* dragIcon = nullptr;
 
     // Ikony drzewa (16x16)
     wxImageList* treeImageList{nullptr};

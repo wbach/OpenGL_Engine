@@ -4,6 +4,59 @@
 #include <Logger/Log.h>
 #include <Utils/TreeNode.h>
 #include <wx/artprov.h>
+#include <wx/dnd.h>
+#include <wx/wx.h>
+
+class MyTextDropTarget : public wxTextDropTarget
+{
+public:
+    MyTextDropTarget(wxTextCtrl* ctrl)
+        : ctrl(ctrl)
+    {
+    }
+
+    virtual bool OnDropText(wxCoord x, wxCoord y, const wxString& data) override
+    {
+        LOG_DEBUG << "Drop text" << data;
+        if (ctrl)
+        {
+            ctrl->SetValue(data);
+            return true;
+        }
+        return false;
+    }
+
+private:
+    wxTextCtrl* ctrl;
+};
+
+class MyFileDropTarget : public wxFileDropTarget
+{
+public:
+    using Callback = std::function<void(const std::string&)>;
+    MyFileDropTarget(wxTextCtrl* textCtrl, Callback callback)
+        : ctrl(textCtrl)
+        , callback{callback}
+    {
+    }
+
+    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
+    {
+        LOG_DEBUG << "Drop text" << filenames[0];
+        if (ctrl && !filenames.IsEmpty())
+        {
+            ctrl->ChangeValue(filenames[0]);  // np. pierwsza ścieżka
+
+            if (callback)
+                callback(filenames[0].ToStdString());
+        }
+        return true;
+    }
+
+private:
+    wxTextCtrl* ctrl;
+    Callback callback;
+};
 
 namespace GameEngine
 {
@@ -193,6 +246,13 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
                                });
+
+            row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
+                                                             [this, &component, val](const std::string& path)
+                                                             {
+                                                                 val->Change(path);
+                                                                 reInitComponent(component);
+                                                             }));
             break;
         }
 
@@ -230,6 +290,13 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    reInitComponent(component);
                                    SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
                                });
+
+            row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
+                                                             [this, &component, val](const std::string& path)
+                                                             {
+                                                                 val->Change(path);
+                                                                 reInitComponent(component);
+                                                             }));
             break;
         }
 
@@ -426,7 +493,7 @@ void ComponentPanel::CreateUIForVector(
     wxBoxSizer* sizeRow     = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sizeLabel = new wxStaticText(pane, wxID_ANY, "Vector size:");
 
-    long style              = wxTE_PROCESS_ENTER;
+    long style = wxTE_PROCESS_ENTER;
     if (not resizeable)
     {
         style = wxTE_READONLY;
@@ -635,12 +702,18 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
                         { this->browseFileControlAction(evt, component, txt, pane, &editedFile); });
 
     row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, editedFile](wxCommandEvent& evt) mutable
+                       [this, &component, &editedFile](wxCommandEvent& evt)
                        {
                            editedFile = GameEngine::File(evt.GetString().ToStdString());
                            reInitComponent(component);
                            evt.Skip();
                        });
+    row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
+                                                     [this, &component, &editedFile](const std::string& path)
+                                                     {
+                                                         editedFile = GameEngine::File(path);
+                                                         reInitComponent(component);
+                                                     }));
 
     if (canDelete)
     {
@@ -699,6 +772,15 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                            reInitComponent(component);
                            evt.Skip();
                        });
+
+    row.textCtrl->SetDropTarget(
+        new MyFileDropTarget(row.textCtrl,
+                             [this, &component, &editedFile, prev = row.preview, pane](const std::string& path)
+                             {
+                                 editedFile = GameEngine::File(path);
+                                 SetPreviewBitmap(prev, editedFile, pane);
+                                 reInitComponent(component);
+                             }));
 
     if (canDelete)
     {
@@ -841,6 +923,12 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                                val->file.Change(evt.GetString().ToStdString());
                                reInitComponent(component);
                            });
+        row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
+                                                         [this, &component, val](const std::string& path)
+                                                         {
+                                                             val->file.Change(path);
+                                                             reInitComponent(component);
+                                                         }));
     }
 
     // playInLoop
