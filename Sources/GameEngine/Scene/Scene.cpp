@@ -34,6 +34,7 @@ Scene::Scene(const std::string& name)
     , simulatePhysics_(true)
     , start_(false)
 {
+    dayNightCycle.SetDirectionalLight(&directionalLight);
 }
 
 Scene::~Scene()
