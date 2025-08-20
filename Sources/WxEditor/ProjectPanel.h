@@ -16,73 +16,64 @@ class ProjectPanel : public wxPanel
 {
 public:
     using FileSelectedCallback = std::function<void(const wxString&)>;
-    ProjectPanel(wxWindow*, const wxString&, FileSelectedCallback);
+    ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelectedCallback callback);
 
 private:
     FileSelectedCallback fileSelectedCallback;
-    // Przechowujemy pełną ścieżkę w każdym elemencie drzewa
+
     struct PathData : public wxTreeItemData
     {
         wxString path;
-        explicit PathData(const wxString& p)
-            : path(p)
-        {
-        }
+        explicit PathData(const wxString& p) : path(p) {}
     };
 
-    // UI
     wxTreeCtrl* projectTree{nullptr};
-    // wxListCtrl* projectFiles {nullptr};
     wxString rootFolder;
 
-    wxScrolledWindow* filePanel;  // na panel przewijalny
-    wxWrapSizer* fileSizer;       // nowy wrap sizer
+    // --- Dane panelu plików ---
+    wxScrolledWindow* filePanel{nullptr};
+    wxWrapSizer* fileSizer{nullptr};
     wxPoint dragStartPos;
-    wxStaticBitmap* dragIcon = nullptr;
+    wxStaticBitmap* dragIcon{nullptr};
 
-    // Ikony drzewa (16x16)
-    wxImageList* treeImageList{nullptr};
-    int treeFolderClosedIdx{-1};
-    int treeFolderOpenIdx{-1};
-
-    // Ikony/miniatury listy plików (64x64)
-    wxImageList* fileImageList{nullptr};
-    int idxFolder{-1};
-    int idxDefaultFile{-1};
+    // Wybrany element
     wxPanel* selectedItemPanel{nullptr};
     wxWindow* selectedItem{nullptr};
     wxStaticText* selectedLabel{nullptr};
     wxString currentFolderPath;
 
-    // Funkcja pomocnicza
+    // --- Ikony ---
+    // Drzewo (16x16)
+    wxImageList* treeImageList{nullptr};
+    int treeFolderClosedIdx{-1};
+    int treeFolderOpenIdx{-1};
+
+    // Pliki / miniaturki (64x64)
+    wxImageList* fileImageList{nullptr};
+    int idxFolder{-1};
+    int idxDefaultFile{-1};
+
+    // --- Funkcje pomocnicze ---
     void SelectItem(wxPanel* itemPanel);
 
-    // Inicjalizacja
+    // --- Inicjalizacja UI ---
     void BuildTree();
     void AddSubDirs(const wxTreeItemId& parentId, const wxString& absPath);
     void InitFileList();
+    void CreateFilePanel(wxBoxSizer* sizer);
+    wxBoxSizer* CreateFileItem(const wxFileName& fn, const wxBitmap& bmp, bool selectable, const std::function<void()>& callback);
 
-    // Odświeżanie zawartości listy
+    // --- Odświeżanie ---
     void RefreshListFor(const wxString& folderPath);
 
-    // Eventy
+    // --- Eventy ---
     void OnTreeSelChanged(wxTreeEvent& e);
     void OnFileActivated(wxListEvent& e);
 
     void SelectTreeItemByPath(const wxString&);
-    wxTreeItemId FindTreeItemByPath(wxTreeItemId, const wxString&);
-    wxBoxSizer* CreateFileItem(const wxFileName&,
-                                             const wxBitmap&,
-                                             bool,
-                                             const std::function<void()>&);
-    void CreateFilePanel(wxBoxSizer*);
+    wxTreeItemId FindTreeItemByPath(wxTreeItemId parent, const wxString& path);
 
-    // funkcja generująca miniaturkę
-    wxBitmap GetThumbnail(const wxFileName&, int);
-
+    // --- Miniaturki ---
+    wxBitmap GetThumbnail(const wxFileName& fn, int thumbSize);
     wxDECLARE_NO_COPY_CLASS(ProjectPanel);
-
-    WX_DECLARE_STRING_HASH_MAP(wxBitmap, BitmapCache);
-
-    BitmapCache thumbnailCache;
 };

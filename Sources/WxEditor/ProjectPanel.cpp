@@ -70,12 +70,8 @@ ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelec
     , fileSelectedCallback(fileSelectedCallback)
     , rootFolder(rootPath)
 {
-    // Handlery obrazów (dla PNG/JPG itp.)
     wxInitAllImageHandlers();
-
     auto* sizer = new wxBoxSizer(wxHORIZONTAL);
-
-    // --- Drzewo folderów (po lewej) ---
     projectTree = new wxTreeCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(220, -1), wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT);
 
     // Ikony dla drzewa (16x16)
@@ -84,24 +80,14 @@ ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelec
     treeFolderOpenIdx   = treeImageList->Add(CreateBitmap(wxART_FOLDER_OPEN, wxART_OTHER, wxSize(16, 16)));
     projectTree->AssignImageList(treeImageList);
 
-    // --- Lista plików (po prawej) ---
-    //    projectFiles = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-    //                                  wxLC_ICON | wxLC_SINGLE_SEL | wxLC_AUTOARRANGE | wxLC_ALIGN_TOP);
-
     sizer->Add(projectTree, 1, wxEXPAND | wxALL, 2);
     CreateFilePanel(sizer);
-    // sizer->Add(projectFiles, 3, wxEXPAND | wxALL, 2);
     SetSizerAndFit(sizer);
 
-    // Inicjalizacja paneli
     BuildTree();
     InitFileList();
 
-    // Bindowanie eventów (instancja-specyficzne, pewniejsze niż tablica zdarzeń)
     projectTree->Bind(wxEVT_TREE_SEL_CHANGED, &ProjectPanel::OnTreeSelChanged, this);
-    // projectFiles->Bind(wxEVT_LIST_ITEM_ACTIVATED, &ProjectPanel::OnFileActivated, this);
-
-    // Start: pokaż zawartość root
     RefreshListFor(rootFolder);
 }
 
@@ -110,9 +96,9 @@ void ProjectPanel::BuildTree()
     projectTree->DeleteAllItems();
 
     // Root jako widoczny element (unikamy wxTR_HIDE_ROOT i asercji)
-    wxTreeItemId rootId = projectTree->AddRoot(rootFolder,  // tekst (może być pełna ścieżka lub nazwa projektu)
+    wxTreeItemId rootId = projectTree->AddRoot(GameEngine::File(rootFolder.ToStdString()).GetBaseName(),
                                                treeFolderClosedIdx, treeFolderOpenIdx,
-                                               new PathData(rootFolder)  // zapisujemy pełną ścieżkę
+                                               new PathData(rootFolder)
     );
 
     AddSubDirs(rootId, rootFolder);
@@ -153,13 +139,6 @@ void ProjectPanel::InitFileList()
     fileImageList->RemoveAll();
     idxFolder      = fileImageList->Add(CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(64, 64)));
     idxDefaultFile = fileImageList->Add(CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(64, 64)));
-}
-
-static bool IsImageExt(const wxString& extLower)
-{
-    // Rozszerzaj wg potrzeb
-    return extLower == "png" || extLower == "jpg" || extLower == "jpeg" || extLower == "bmp" || extLower == "gif" ||
-           extLower == "tif" || extLower == "tiff";
 }
 
 void ProjectPanel::SelectItem(wxPanel* itemPanel)
@@ -226,7 +205,6 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
 
         selectedLabel = label;
         selectedLabel->SetBackgroundColour(*wxLIGHT_GREY);
-        // selectedLabel->SetForegroundColour(*wxWHITE);
         selectedLabel->Refresh();
     };
 
@@ -496,31 +474,6 @@ void ProjectPanel::OnTreeSelChanged(wxTreeEvent& e)
     const wxString folderPath = data ? data->path : rootFolder;
 
     RefreshListFor(folderPath);
-}
-
-void ProjectPanel::OnFileActivated(wxListEvent& e)
-{
-    // Przykładowa obsługa dwukliku (zbudowanie pełnej ścieżki)
-    wxTreeItemId sel = projectTree->GetSelection();
-    if (!sel.IsOk())
-        return;
-
-    auto* data                = static_cast<PathData*>(projectTree->GetItemData(sel));
-    const wxString folderPath = data ? data->path : rootFolder;
-
-    wxString name;  //= projectFiles->GetItemText(e.GetIndex());
-    wxFileName full(folderPath, name);
-
-    if (full.DirExists())
-    {
-        // 🔹 Jeśli to folder → znajdź go w drzewie i zaznacz
-        SelectTreeItemByPath(full.GetFullPath());
-    }
-    else
-    {
-        // 🔹 Jeśli to plik → tylko log (albo otwieranie edytora, co planujesz dalej)
-        wxLogMessage("Wybrano plik: %s", full.GetFullPath());
-    }
 }
 
 void ProjectPanel::SelectTreeItemByPath(const wxString& path)
