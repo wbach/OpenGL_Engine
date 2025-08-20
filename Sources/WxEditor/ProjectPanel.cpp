@@ -290,6 +290,7 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
                 int ID_SHOW       = wxWindow::NewControlId();
                 int ID_COPY_PATH  = wxWindow::NewControlId();
                 int ID_DUPLICATE  = wxWindow::NewControlId();
+                int ID_PASTE      = wxWindow::NewControlId();
                 int ID_REMOVE     = wxWindow::NewControlId();
                 int ID_PROPERTIES = wxWindow::NewControlId();
 
@@ -299,9 +300,19 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
                 menu.Append(ID_COPY_PATH, "Copy Path");
                 menu.AppendSeparator();
                 menu.Append(ID_DUPLICATE, "Duplicate");
+                menu.Append(ID_PASTE, "Paste");
                 menu.Append(ID_REMOVE, "Remove");
                 menu.AppendSeparator();
                 menu.Append(ID_PROPERTIES, "Properties");
+
+                bool canPaste = false;
+                if (wxTheClipboard->Open())
+                {
+                    wxFileDataObject fileData;
+                    canPaste = wxTheClipboard->IsSupported(wxDF_FILENAME);
+                    wxTheClipboard->Close();
+                }
+                menu.Enable(ID_PASTE, canPaste);
 
                 // --- Handlery dla menu ---
                 menu.Bind(
@@ -355,6 +366,41 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
 
                 menu.Bind(
                     wxEVT_COMMAND_MENU_SELECTED,
+                    [=](wxCommandEvent& evt)
+                    {
+                        if (wxTheClipboard->Open())
+                        {
+                            wxFileDataObject fileData;
+                            if (wxTheClipboard->GetData(fileData))
+                            {
+                                wxArrayString files = fileData.GetFilenames();
+                                for (auto& f : files)
+                                {
+                                    wxString targetFolder;
+                                    if (fn.IsDir())
+                                        targetFolder = fn.GetFullPath();  // wklejamy do katalogu
+                                    else
+                                        targetFolder = fn.GetPath();  // wklejamy obok pliku
+
+                                    wxFileName src(f);
+                                    wxFileName dst(targetFolder, src.GetFullName());
+
+                                    if (wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
+                                    {
+                                        wxLogMessage("Copied %s to %s", src.GetFullPath(), dst.GetFullPath());
+                                        RefreshListFor(currentFolderPath);  // odśwież listę plików
+                                    }
+                                    else
+                                        wxLogError("Failed to copy %s", src.GetFullPath());
+                                }
+                            }
+                            wxTheClipboard->Close();
+                        }
+                    },
+                    ID_PASTE);
+
+                menu.Bind(
+                    wxEVT_COMMAND_MENU_SELECTED,
                     [=](wxCommandEvent&)
                     {
                         if (wxMessageBox("Remove " + fn.GetFullPath() + "?", "Confirm", wxYES_NO | wxICON_WARNING) == wxYES)
@@ -384,9 +430,9 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
             });
     };
 
-    // Dodaj menu zarówno dla ikony, jak i labela
     addContextMenu(icon, fn);
     addContextMenu(label, fn);
+    // addContextMenu(filePanel, currentFolderPath); multiple binds problem
 
     return itemSizer;
 }
