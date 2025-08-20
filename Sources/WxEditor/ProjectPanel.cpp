@@ -241,6 +241,92 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn,
         icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { onDClick(); });
     }
 
+    auto addContextMenu = [&](wxWindow* target, wxFileName fn)
+    {
+        target->Bind(wxEVT_RIGHT_DOWN, [=](wxMouseEvent& event)
+        {
+            SelectItem(icon, label);
+
+            wxMenu menu;
+
+            int ID_OPEN       = wxWindow::NewControlId();
+            int ID_SHOW       = wxWindow::NewControlId();
+            int ID_COPY_PATH  = wxWindow::NewControlId();
+            int ID_COPY_FILE  = wxWindow::NewControlId();
+            int ID_DUPLICATE  = wxWindow::NewControlId();
+            int ID_REMOVE     = wxWindow::NewControlId();
+
+            menu.Append(ID_OPEN,      "Open");
+            menu.Append(ID_SHOW,      "Show in Explorer");
+            menu.AppendSeparator();
+            menu.Append(ID_COPY_PATH, "Copy Path");
+            menu.Append(ID_COPY_FILE, "Copy File");
+            menu.AppendSeparator();
+            menu.Append(ID_DUPLICATE, "Duplicate");
+            menu.Append(ID_REMOVE,    "Remove");
+
+            // --- Handlery dla menu ---
+            menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) {
+                wxLaunchDefaultApplication(fn.GetFullPath());
+            }, ID_OPEN);
+
+            menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) {
+                wxString folder = fn.GetPath();
+    #if defined(__WXMSW__)
+                wxExecute("explorer.exe /select," + fn.GetFullPath());
+    #elif defined(__WXGTK__)
+                wxExecute("xdg-open \"" + folder + "\"");
+    #elif defined(__WXOSX__)
+                wxExecute("open \"" + folder + "\"");
+    #endif
+            }, ID_SHOW);
+
+            menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) {
+                if (wxTheClipboard->Open())
+                {
+                    wxTheClipboard->SetData(new wxTextDataObject(fn.GetFullPath()));
+                    wxTheClipboard->Close();
+                }
+            }, ID_COPY_PATH);
+
+            menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) {
+                if (wxTheClipboard->Open())
+                {
+                    auto* fileData = new wxFileDataObject();
+                    fileData->AddFile(fn.GetFullPath());
+                    wxTheClipboard->SetData(fileData);
+                    wxTheClipboard->Close();
+                }
+            }, ID_COPY_FILE);
+
+            menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) {
+                wxString newName = fn.GetPathWithSep() + fn.GetName() + "_copy." + fn.GetExt();
+                if (wxCopyFile(fn.GetFullPath(), newName))
+                    wxLogMessage("Duplicated to %s", newName);
+                else
+                    wxLogError("Failed to duplicate %s", fn.GetFullPath());
+            }, ID_DUPLICATE);
+
+            menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) {
+                if (wxMessageBox("Remove " + fn.GetFullPath() + "?", "Confirm",
+                                 wxYES_NO | wxICON_WARNING) == wxYES)
+                {
+                    if (wxRemoveFile(fn.GetFullPath()))
+                        wxLogMessage("Removed %s", fn.GetFullPath());
+                    else
+                        wxLogError("Failed to remove %s", fn.GetFullPath());
+                }
+            }, ID_REMOVE);
+
+            // Popup (ważne: użyj lokalnych współrzędnych → na globalne)
+            target->PopupMenu(&menu, event.GetPosition());
+        });
+    };
+
+    // Dodaj menu zarówno dla ikony, jak i labela
+    addContextMenu(icon, fn);
+    addContextMenu(label, fn);
+
     return itemSizer;
 }
 
