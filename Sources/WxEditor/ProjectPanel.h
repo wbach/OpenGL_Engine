@@ -51,6 +51,7 @@ private:
     wxPanel* selectedItemPanel{nullptr};
     wxWindow* selectedItem{nullptr};
     wxStaticText* selectedLabel{nullptr};
+    wxString currentFolderPath;
 
     // Funkcja pomocnicza
     void SelectItem(wxPanel* itemPanel);
