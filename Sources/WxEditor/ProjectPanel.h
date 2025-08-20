@@ -69,6 +69,10 @@ private:
 
     void SelectTreeItemByPath(const wxString&);
     wxTreeItemId FindTreeItemByPath(wxTreeItemId, const wxString&);
+    wxBoxSizer* CreateFileItem(const wxFileName&,
+                                             const wxBitmap&,
+                                             bool,
+                                             const std::function<void()>&);
     void OnThumbClicked(wxMouseEvent& e);
 
     void CreateFilePanel(wxBoxSizer*);

@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <wx/dnd.h>
 #include <wx/renderer.h>
+#include <wx/clipbrd.h>
 
 namespace
 {
@@ -139,26 +140,11 @@ void ProjectPanel::SelectItem(wxPanel* itemPanel)
     }
 }
 
-void ProjectPanel::RefreshListFor(const wxString& folderPath)
+wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn,
+                                         const wxBitmap& bmp,
+                                         bool isFolder,
+                                         const std::function<void()>& onDClick)
 {
-    // Usuń stare elementy
-    fileSizer->Clear(true);
-    selectedItem  = nullptr;
-    selectedLabel = nullptr;
-    filePanel->Refresh();
-
-    wxDir dir(folderPath);
-    if (!dir.IsOpened())
-        return;
-
-    wxString name;
-    bool cont;
-
-    SelectTreeItemByPath(folderPath);
-
-    const int thumbSize = 64;
-
-    // Lambda do przycinania nazw
     auto EllipsizeString = [&](const wxString& text, const wxFont& font, int maxWidth) -> wxString
     {
         wxMemoryDC dc;
@@ -205,57 +191,85 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         selectedLabel->Refresh();
     };
 
+    const int thumbSize = 64;
+
+    wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
+
+    wxString shortName = EllipsizeString(fn.GetFullName(), GetFont(), thumbSize);
+    wxStaticText* label =
+        new wxStaticText(filePanel, wxID_ANY, shortName,
+                         wxDefaultPosition,
+                         wxSize(thumbSize, -1),
+                         wxALIGN_CENTRE_HORIZONTAL);
+
+    icon->SetToolTip(fn.GetFullName());
+    label->SetToolTip(fn.GetFullName());
+
+    wxBoxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
+    itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
+    itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
+
+    // Kliknięcie = zaznaczenie
+    label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
+    icon->Bind(wxEVT_LEFT_DOWN,
+               [=](wxMouseEvent& event)
+               {
+                   SelectItem(icon, label);
+                   dragStartPos = event.GetPosition();
+                   dragIcon     = icon;
+               });
+
+    icon->Bind(wxEVT_MOTION,
+               [=](wxMouseEvent& event)
+               {
+                   if (event.Dragging() && event.LeftIsDown() && dragIcon)
+                   {
+                       wxFileDataObject fileData;
+                       fileData.AddFile(fn.GetFullPath());
+                       wxDropSource dragSource(dragIcon);
+                       dragSource.SetData(fileData);
+                       dragSource.DoDragDrop(wxDrag_CopyOnly);
+                       dragIcon = nullptr;
+                   }
+               });
+
+    icon->Bind(wxEVT_LEFT_UP, [=](wxMouseEvent&) { dragIcon = nullptr; });
+
+    // Podwójny klik – różne akcje dla folderu i pliku
+    if (onDClick)
+    {
+        icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { onDClick(); });
+    }
+
+    return itemSizer;
+}
+
+void ProjectPanel::RefreshListFor(const wxString& folderPath)
+{
+    fileSizer->Clear(true);
+    selectedItem  = nullptr;
+    selectedLabel = nullptr;
+    filePanel->Refresh();
+
+    wxDir dir(folderPath);
+    if (!dir.IsOpened())
+        return;
+
+    SelectTreeItemByPath(folderPath);
+
+    const int thumbSize = 64;
+    wxString name;
+    bool cont;
+
     // --- Foldery ---
     cont = dir.GetFirst(&name, wxEmptyString, wxDIR_DIRS);
     while (cont)
     {
         wxFileName fn(folderPath, name);
-        wxBitmap bmp         = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
-        wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
+        wxBitmap bmp = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
 
-        wxString shortName = EllipsizeString(name, GetFont(), thumbSize);
-        wxStaticText* label =
-            new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition, wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
-
-        wxBoxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
-        itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
-        itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
-
-        icon->SetToolTip(name);
-        label->SetToolTip(name);
-
-        label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
-
-        // Podwójny klik = wejście do folderu
-        icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { RefreshListFor(fn.GetFullPath()); });
-        // Kliknięcie = zaznaczenie
-        icon->Bind(wxEVT_LEFT_DOWN,
-                   [=](wxMouseEvent& event)
-                   {
-                       SelectItem(icon, label);
-                       dragStartPos = event.GetPosition();
-                       dragIcon     = icon;
-                   });
-
-        icon->Bind(wxEVT_MOTION,
-                   [=](wxMouseEvent& event)
-                   {
-                       if (event.Dragging() && event.LeftIsDown() && dragIcon)
-                       {
-                           wxFileDataObject fileData;
-                           fileData.AddFile(fn.GetFullPath());
-                           wxDropSource dragSource(dragIcon);
-                           dragSource.SetData(fileData);
-                           dragSource.DoDragDrop(wxDrag_CopyOnly);
-                           dragIcon = nullptr;  // zakończono drag
-                       }
-                   });
-
-        icon->Bind(wxEVT_LEFT_UP,
-                   [=](wxMouseEvent&)
-                   {
-                       dragIcon = nullptr;  // anulujemy drag jeśli nie było ruchu
-                   });
+        auto itemSizer = CreateFileItem(fn, bmp, true,
+                                        [=]() { RefreshListFor(fn.GetFullPath()); });
 
         fileSizer->Add(itemSizer, 0, wxALL, 5);
         cont = dir.GetNext(&name);
@@ -266,6 +280,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     while (cont)
     {
         wxFileName fn(folderPath, name);
+
         wxBitmap bmp = CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(thumbSize, thumbSize));
 
         wxString ext = fn.GetExt().Lower();
@@ -275,66 +290,19 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
             wxImage img(fn.GetFullPath(), wxBITMAP_TYPE_ANY);
             if (img.IsOk())
             {
-                double scale = std::min(double(thumbSize) / img.GetWidth(), double(thumbSize) / img.GetHeight());
-                int nw       = std::max(1, int(img.GetWidth() * scale));
-                int nh       = std::max(1, int(img.GetHeight() * scale));
-                img          = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
+                double scale = std::min(double(thumbSize) / img.GetWidth(),
+                                        double(thumbSize) / img.GetHeight());
+                int nw = std::max(1, int(img.GetWidth() * scale));
+                int nh = std::max(1, int(img.GetHeight() * scale));
+                img    = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
                 if (!img.HasAlpha())
                     img.InitAlpha();
                 bmp = wxBitmap(img);
             }
         }
 
-        wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
-        wxString shortName   = EllipsizeString(name, GetFont(), thumbSize);
-        wxStaticText* label =
-            new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition, wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
-
-        icon->SetToolTip(name);
-        label->SetToolTip(name);
-
-        wxBoxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
-        itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
-        itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
-
-        // Kliknięcie = zaznaczenie
-        label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
-
-        // Podwójny klik = logowanie
-        icon->Bind(wxEVT_LEFT_DCLICK,
-                   [=](wxMouseEvent&)
-                   {
-                       LOG_DEBUG << fn.GetFullPath().ToStdString();
-                       fileSelectedCallback(fn.GetFullPath());
-                   });
-
-        icon->Bind(wxEVT_LEFT_DOWN,
-                   [=](wxMouseEvent& event)
-                   {
-                       SelectItem(icon, label);
-                       dragStartPos = event.GetPosition();
-                       dragIcon     = icon;
-                   });
-
-        icon->Bind(wxEVT_MOTION,
-                   [=](wxMouseEvent& event)
-                   {
-                       if (event.Dragging() && event.LeftIsDown() && dragIcon)
-                       {
-                           wxFileDataObject fileData;
-                           fileData.AddFile(fn.GetFullPath());
-                           wxDropSource dragSource(dragIcon);
-                           dragSource.SetData(fileData);
-                           dragSource.DoDragDrop(wxDrag_CopyOnly);
-                           dragIcon = nullptr;  // zakończono drag
-                       }
-                   });
-
-        icon->Bind(wxEVT_LEFT_UP,
-                   [=](wxMouseEvent&)
-                   {
-                       dragIcon = nullptr;  // anulujemy drag jeśli nie było ruchu
-                   });
+        auto itemSizer = CreateFileItem(fn, bmp, false,
+                                        [=]() { fileSelectedCallback(fn.GetFullPath()); });
 
         fileSizer->Add(itemSizer, 0, wxALL, 5);
         cont = dir.GetNext(&name);
@@ -344,7 +312,6 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     filePanel->FitInside();
     filePanel->Refresh();
 }
-
 void ProjectPanel::OnTreeSelChanged(wxTreeEvent& e)
 {
     wxTreeItemId id = e.GetItem();
