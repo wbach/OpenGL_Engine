@@ -176,13 +176,11 @@ const std::string& SkyBoxComponent::GetModelFileName() const
 }
 void SkyBoxComponent::Subscribe()
 {
-    DEBUG_LOG("Try Subscribe");
     if (not isSubscribed_ and (dayTexture_ or nightTexture_))
-    {    DEBUG_LOG("Subscribe");
+    {
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubscribed_ = true;
     }
-     DEBUG_LOG("Subscribe  done");
 }
 void SkyBoxComponent::UnSubscribe()
 {
@@ -195,10 +193,9 @@ void SkyBoxComponent::UnSubscribe()
 
 void SkyBoxComponent::LoadTextures()
 {
-    DEBUG_LOG("Load textures");
     TextureParameters params;
     params.flipMode = TextureFlip::VERTICAL;
-    auto& loader = componentContext_.resourceManager_.GetTextureLoader();
+    auto& loader    = componentContext_.resourceManager_.GetTextureLoader();
     if (auto textures = Convert(dayTextureFiles))
     {
         dayTexture_ = loader.LoadCubeMap(*textures, params);
@@ -207,7 +204,6 @@ void SkyBoxComponent::LoadTextures()
     {
         nightTexture_ = loader.LoadCubeMap(*textures, params);
     }
-    DEBUG_LOG("Load textures done");
 }
 
 void SkyBoxComponent::registerReadFunctions()

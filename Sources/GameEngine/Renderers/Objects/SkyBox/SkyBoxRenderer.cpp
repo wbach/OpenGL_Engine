@@ -106,7 +106,6 @@ void SkyBoxRenderer::render()
 void SkyBoxRenderer::prepareShaderBeforeFrameRender()
 {
     perMeshObject_.blendFactor_ = context_.scene_ ? context_.scene_->GetDayNightCycle().GetDayNightBlendFactor() : 1.f;
-    //DEBUG_LOG("perMeshObject_.blendFactor_: " + std::to_string(context_.scene_->GetDayNightCycle().GetDayNightBlendFactor()));
     context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &perMeshObject_);
     context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
 }
@@ -152,9 +151,13 @@ void SkyBoxRenderer::unSubscribe(GameObject& gameObject)
 void SkyBoxRenderer::BindTextures(const SkyBoxSubscriber& sub) const
 {
     if (sub.dayTexture_)
+    {
         BindCubeMapTexture(*sub.dayTexture_, 0);
+    }
     if (sub.nightTexture_)
+    {
         BindCubeMapTexture(*sub.nightTexture_, 1);
+    }
 }
 
 void SkyBoxRenderer::BindCubeMapTexture(const Texture& texture, uint32 id) const

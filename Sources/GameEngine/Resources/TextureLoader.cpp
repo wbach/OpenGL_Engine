@@ -121,7 +121,6 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
 
     if (auto texture = GetTextureIfLoaded(textureName.str(), params))
     {
-        DEBUG_LOG("Reusing cube map :" + textureName.str());
         return static_cast<CubeMapTexture*>(texture);
     }
 
@@ -137,12 +136,6 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
 
         images[index++] = std::move(*image);
     }
-
-    DEBUG_LOG("Add cube map :" + textureName.str());
-    LOG_DEBUG << "Add cube map :" << textureName.str();
-    LOG_INFO << formatString("Format string test :) x={}, y={}", 5, 6);
-    LOG_INFO << formatString("Single value: {}", 42);
-    LOG_INFO << formatString("No value");
 
     auto cubeMap    = std::make_unique<CubeMapTexture>(graphicsApi_, params, textureName.str(), images);
     auto cubeMapPtr = cubeMap.get();
@@ -306,8 +299,6 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const Textur
 {
     if (textures_.count(name))
     {
-        //   DEBUG_LOG("Created texture already exist : " + name);
-
         auto& textureInfo = textures_.at(name);
         ++textureInfo.instances_;
 

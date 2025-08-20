@@ -15,8 +15,8 @@ layout (std140, align=16, binding=6) uniform PerMeshObject
 
 in vec3 TextureCoords;
 
-uniform samplerCube DayCubeMap;
-uniform samplerCube NightCubeMap;
+layout(binding = 0) uniform samplerCube DayCubeMap;
+layout(binding = 1) uniform samplerCube NightCubeMap;
 
 const float LowerLimit = 0.0;
 const float UpperLimit = 0.1;

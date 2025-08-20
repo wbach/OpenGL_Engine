@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <ostream>
 
 #include "Glm.h"
 
@@ -608,3 +609,13 @@ struct hash<vec3i>
     }
 };
 }  // namespace std
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt)
+{
+    if (opt.has_value())
+        os << *opt;
+    else
+        os << "nullopt";
+    return os;
+}
