@@ -46,6 +46,7 @@ public:
         if (ctrl && !filenames.IsEmpty())
         {
             ctrl->ChangeValue(filenames[0]);  // np. pierwsza ścieżka
+            ctrl->SetToolTip(filenames[0]);
 
             if (callback)
                 callback(filenames[0].ToStdString());
@@ -235,16 +236,18 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             auto* val = static_cast<GameEngine::File*>(field.ptr);
             auto row  = CreateBrowseFileRow(pane, field.name, val->GetDataRelativeDir());
             sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
+            row.textCtrl->SetToolTip(row.textCtrl->GetValue());
             // Browse action
             row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](auto& evt)
                                 { this->browseFileControlAction(evt, component, txt, pane, val); });
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val](auto& evt)
+                               [this, &component, val,txt = row.textCtrl](auto& evt)
                                {
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
+                                   txt->SetToolTip(txt->GetValue());
                                });
 
             row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
@@ -264,10 +267,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
 
             SetPreviewBitmap(row.preview, *val, pane);
-
+            row.textCtrl->SetToolTip(row.textCtrl->GetValue());
             // Browse action
             row.browseBtn->Bind(wxEVT_BUTTON,
-                                [this, &component, tr = row.textCtrl, prev = row.preview, pane, val](wxCommandEvent&)
+                                [this, &component, txt = row.textCtrl, prev = row.preview, pane, val](wxCommandEvent&)
                                 {
                                     wxFileDialog openFileDialog(pane, "Choose texture", "", "",
                                                                 "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
@@ -275,20 +278,22 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                     if (openFileDialog.ShowModal() == wxID_OK)
                                     {
                                         wxString path = openFileDialog.GetPath();
-                                        tr->SetValue(path);
+                                        txt->SetValue(path);
                                         val->Change(path.ToStdString());
                                         reInitComponent(component);
                                         SetPreviewBitmap(prev, GameEngine::File{path.ToStdString()}, pane);
+                                        txt->SetToolTip(txt->GetValue());
                                     }
                                 });
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val, prev = row.preview, pane](wxCommandEvent& evt)
+                               [this, &component, val, prev = row.preview, pane, txt = row.textCtrl](wxCommandEvent& evt)
                                {
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
                                    SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
+                                   txt->SetToolTip(txt->GetValue());
                                });
 
             row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
@@ -577,12 +582,14 @@ wxBoxSizer* ComponentPanel::CreateStringItem(GameEngine::Components::IComponent&
     wxTextCtrl* stringCtrl = createTextEnterCtrl(pane, (*val)[index]);
     elemRow->Add(stringCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
+    stringCtrl->SetToolTip(stringCtrl->GetValue());
     stringCtrl->Bind(wxEVT_TEXT_ENTER,
-                     [this, &component, val, index](wxCommandEvent& evt)
+                     [this, &component, val, index, stringCtrl](wxCommandEvent& evt)
                      {
                          if (index < val->size())
                          {
                              (*val)[index] = evt.GetString().ToStdString();
+                             stringCtrl->SetToolTip(evt.GetString().ToStdString());
                              reInitComponent(component);
                          }
                          evt.Skip();
@@ -698,14 +705,20 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
     auto row = CreateBrowseFileRow(pane, "File:", editedFile.GetDataRelativeDir());
     elemRow->Add(row.row, 1, wxEXPAND | wxRIGHT, 5);
 
-    row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, &editedFile](wxCommandEvent& evt)
-                        { this->browseFileControlAction(evt, component, txt, pane, &editedFile); });
+    row.textCtrl->SetToolTip(row.textCtrl->GetValue());
+    row.browseBtn->Bind(wxEVT_BUTTON,
+                        [this, &component, txt = row.textCtrl, pane, &editedFile](wxCommandEvent& evt)
+                        {
+                            this->browseFileControlAction(evt, component, txt, pane, &editedFile);
+                            txt->SetToolTip(txt->GetValue());
+                        });
 
     row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, &editedFile](wxCommandEvent& evt)
+                       [this, &component, &editedFile, txt = row.textCtrl](wxCommandEvent& evt)
                        {
                            editedFile = GameEngine::File(evt.GetString().ToStdString());
                            reInitComponent(component);
+                           txt->SetToolTip(txt->GetValue());
                            evt.Skip();
                        });
     row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
@@ -748,30 +761,34 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
 
     SetPreviewBitmap(row.preview, editedFile, pane);
 
-    row.browseBtn->Bind(wxEVT_BUTTON,
-                        [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile](wxCommandEvent&)
-                        {
-                            wxFileDialog openFileDialog(pane, "Choose texture", "", "",
-                                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                            if (openFileDialog.ShowModal() == wxID_OK)
-                            {
-                                wxString path = openFileDialog.GetPath();
-                                tr->SetValue(path);
-                                editedFile = GameEngine::File(path.ToStdString());
-                                reInitComponent(component);
-                                SetPreviewBitmap(prev, editedFile, pane);
-                            }
-                        });
+    row.textCtrl->SetToolTip(row.textCtrl->GetValue());
+    row.browseBtn->Bind(
+        wxEVT_BUTTON,
+        [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile, textCtrl = row.textCtrl](wxCommandEvent&)
+        {
+            wxFileDialog openFileDialog(pane, "Choose texture", "", "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            if (openFileDialog.ShowModal() == wxID_OK)
+            {
+                wxString path = openFileDialog.GetPath();
+                tr->SetValue(path);
+                editedFile = GameEngine::File(path.ToStdString());
+                textCtrl->SetToolTip(path.ToStdString());
+                reInitComponent(component);
+                SetPreviewBitmap(prev, editedFile, pane);
+            }
+        });
 
-    row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, &editedFile, prev = row.preview, pane](wxCommandEvent& evt) mutable
-                       {
-                           editedFile = GameEngine::File(evt.GetString().ToStdString());
-                           SetPreviewBitmap(prev, editedFile, pane);
-                           reInitComponent(component);
-                           evt.Skip();
-                       });
+    row.textCtrl->Bind(
+        wxEVT_TEXT_ENTER,
+        [this, &component, &editedFile, prev = row.preview, pane, textCtrl = row.textCtrl](wxCommandEvent& evt) mutable
+        {
+            editedFile = GameEngine::File(evt.GetString().ToStdString());
+            SetPreviewBitmap(prev, editedFile, pane);
+            textCtrl->SetToolTip(evt.GetString().ToStdString());
+            reInitComponent(component);
+            evt.Skip();
+        });
 
     row.textCtrl->SetDropTarget(
         new MyFileDropTarget(row.textCtrl,
@@ -816,6 +833,7 @@ void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Compon
     if (openFileDialog.ShowModal() == wxID_OK)
     {
         fileCtrl->SetValue(openFileDialog.GetPath());
+        fileCtrl->SetToolTip(openFileDialog.GetPath());
         val->Change(openFileDialog.GetPath().ToStdString());
         reInitComponent(component);
     }
@@ -832,7 +850,9 @@ wxBoxSizer* ComponentPanel::CreateLabeledRow(wxWindow* parent, const wxString& l
 
 wxTextCtrl* ComponentPanel::createTextEnterCtrl(wxWindow* pane, const std::string& text)
 {
-    return new wxTextCtrl(pane, wxID_ANY, text, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    auto result = new wxTextCtrl(pane, wxID_ANY, text, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    result->SetToolTip(text);
+    return result;
 }
 
 ComponentPanel::BrowseRow ComponentPanel::CreateBrowseFileRow(wxWindow* parent, const wxString& label, const wxString& initial)
@@ -842,6 +862,7 @@ ComponentPanel::BrowseRow ComponentPanel::CreateBrowseFileRow(wxWindow* parent, 
     out.row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
     out.textCtrl = createTextEnterCtrl(parent, initial.ToStdString());
+    out.textCtrl->SetToolTip(initial);
     out.row->Add(out.textCtrl, 1);
 
     out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
@@ -859,6 +880,7 @@ ComponentPanel::TextureRow ComponentPanel::CreateBrowseTextureRow(wxWindow* pare
     out.row->Add(new wxStaticText(parent, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
     out.textCtrl = createTextEnterCtrl(parent, initial.ToStdString());
+    out.textCtrl->SetToolTip(initial);
     out.row->Add(out.textCtrl, 1, wxALIGN_CENTER_VERTICAL);
 
     out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
@@ -902,10 +924,11 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
         clipSizer->Add(row, 0, wxEXPAND | wxALL, 2);
 
         ctrl->Bind(wxEVT_TEXT_ENTER,
-                   [this, &component, val](wxCommandEvent& evt)
+                   [this, &component, val, ctrl](wxCommandEvent& evt)
                    {
                        val->name = evt.GetString().ToStdString();
                        reInitComponent(component);
+                       ctrl->SetToolTip(val->name);
                    });
     }
 
@@ -918,10 +941,11 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                             { this->browseFileControlAction(evt, component, txt, pane, &val->file); });
 
         row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                           [this, &component, val](wxCommandEvent& evt)
+                           [this, &component, val, txt = row.textCtrl](wxCommandEvent& evt)
                            {
                                val->file.Change(evt.GetString().ToStdString());
                                reInitComponent(component);
+                               txt->SetToolTip(txt->GetValue());
                            });
         row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
                                                          [this, &component, val](const std::string& path)
