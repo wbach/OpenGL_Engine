@@ -7,6 +7,8 @@
 #include <wx/dnd.h>
 #include <wx/wx.h>
 
+#include "ThumbnailCache.h"
+
 class MyTextDropTarget : public wxTextDropTarget
 {
 public:
@@ -243,7 +245,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val,txt = row.textCtrl](auto& evt)
+                               [this, &component, val, txt = row.textCtrl](auto& evt)
                                {
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
@@ -886,7 +888,8 @@ ComponentPanel::TextureRow ComponentPanel::CreateBrowseTextureRow(wxWindow* pare
     out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
     out.row->Add(out.browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
 
-    out.preview = new wxStaticBitmap(parent, wxID_ANY, wxNullBitmap, wxDefaultPosition, wxSize(64, 64));
+    out.preview =
+        new wxStaticBitmap(parent, wxID_ANY, ThumbnailCache::Get().GetThumbnail(initial, 64), wxDefaultPosition, wxSize(64, 64));
     out.row->Add(out.preview, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
 
     return out;
@@ -902,10 +905,9 @@ void ComponentPanel::SetPreviewBitmap(wxStaticBitmap* preview, const GameEngine:
 
 void ComponentPanel::SetPreviewBitmap(wxStaticBitmap* preview, const wxString& path, wxWindow* relayoutParent)
 {
-    wxImage img;
-    if (img.LoadFile(path))
+    auto bmp = ThumbnailCache::Get().GetThumbnail(path, 64);
+    if (bmp.IsOk())
     {
-        wxBitmap bmp(img.Scale(64, 64));
         preview->SetBitmap(bmp);
         if (relayoutParent)
             relayoutParent->Layout();

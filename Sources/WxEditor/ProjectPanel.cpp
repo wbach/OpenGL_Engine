@@ -4,6 +4,7 @@
 #include <wx/clipbrd.h>
 #include <wx/dnd.h>
 #include <wx/renderer.h>
+#include "ThumbnailCache.h"
 
 namespace
 {
@@ -473,25 +474,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     while (cont)
     {
         wxFileName fn(folderPath, name);
-
-        wxBitmap bmp = CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(thumbSize, thumbSize));
-
-        wxString ext = fn.GetExt().Lower();
-        if (IsImageExt(ext))
-        {
-            wxLogNull noLog;
-            wxImage img(fn.GetFullPath(), wxBITMAP_TYPE_ANY);
-            if (img.IsOk())
-            {
-                double scale = std::min(double(thumbSize) / img.GetWidth(), double(thumbSize) / img.GetHeight());
-                int nw       = std::max(1, int(img.GetWidth() * scale));
-                int nh       = std::max(1, int(img.GetHeight() * scale));
-                img          = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
-                if (!img.HasAlpha())
-                    img.InitAlpha();
-                bmp = wxBitmap(img);
-            }
-        }
+        wxBitmap bmp = GetThumbnail(fn, thumbSize);
 
         auto itemSizer = CreateFileItem(fn, bmp, false, [=]() { fileSelectedCallback(fn.GetFullPath()); });
 
@@ -586,49 +569,18 @@ void ProjectPanel::CreateFilePanel(wxBoxSizer* mainSizer)
     mainSizer->Add(filePanel, 3, wxEXPAND | wxALL, 2);
 }
 
-void ProjectPanel::OnThumbClicked(wxMouseEvent& e)
+wxBitmap ProjectPanel::GetThumbnail(const wxFileName& fn, int thumbSize)
 {
-    wxPanel* thumb = dynamic_cast<wxPanel*>(e.GetEventObject());
-    if (!thumb)
-        return;
+    wxString key = fn.GetFullPath();
 
-    wxStaticText* label = dynamic_cast<wxStaticText*>(thumb->GetChildren()[1]);
-    if (!label)
-        return;
+    // Sprawdzenie cache globalnego
+    wxBitmap bmp = ThumbnailCache::Get().GetThumbnail(key, thumbSize);
 
-    wxString name = label->GetLabel();
-
-    // Wybrany folder?
-    wxDir dir(rootFolder);
-    wxString folderPath;
-    wxTreeItemId sel = projectTree->GetSelection();
-    if (sel.IsOk())
+    // Jeśli bitmapa jest pusta (nie obraz), stwórz placeholder
+    if (!bmp.IsOk())
     {
-        auto* data = static_cast<PathData*>(projectTree->GetItemData(sel));
-        folderPath = data ? data->path : rootFolder;
+        bmp = CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(thumbSize, thumbSize));
     }
-    else
-        folderPath = rootFolder;
 
-    wxFileName fn(folderPath, name);
-    if (fn.DirExists())
-    {
-        // zaznacz w drzewie
-        wxTreeItemIdValue cookie;
-        wxTreeItemId child = projectTree->GetFirstChild(projectTree->GetSelection(), cookie);
-        while (child.IsOk())
-        {
-            auto* pdata = static_cast<PathData*>(projectTree->GetItemData(child));
-            if (pdata && pdata->path == fn.GetFullPath())
-            {
-                projectTree->SelectItem(child);
-                break;
-            }
-            child = projectTree->GetNextChild(projectTree->GetSelection(), cookie);
-        }
-    }
-    else
-    {
-        wxLogMessage("Kliknięto plik: %s", fn.GetFullPath());
-    }
+    return bmp;
 }

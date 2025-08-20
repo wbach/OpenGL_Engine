@@ -10,6 +10,7 @@
 #include <wx/wrapsizer.h>
 #include <wx/wx.h>
 #include <functional>
+#include <memory>
 
 class ProjectPanel : public wxPanel
 {
@@ -74,9 +75,14 @@ private:
                                              const wxBitmap&,
                                              bool,
                                              const std::function<void()>&);
-    void OnThumbClicked(wxMouseEvent& e);
-
     void CreateFilePanel(wxBoxSizer*);
 
+    // funkcja generująca miniaturkę
+    wxBitmap GetThumbnail(const wxFileName&, int);
+
     wxDECLARE_NO_COPY_CLASS(ProjectPanel);
+
+    WX_DECLARE_STRING_HASH_MAP(wxBitmap, BitmapCache);
+
+    BitmapCache thumbnailCache;
 };
