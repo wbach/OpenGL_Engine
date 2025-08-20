@@ -188,7 +188,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_MISSING_IMAGE, wxART_OTHER, wxSize(300, 200));
     auto filePreview      = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
 
-    bottomSpliter->SplitVertically(projectPanel, filePreview, size.x / 2);
+    bottomSpliter->SplitVertically(projectPanel, filePreview, 3* size.x / 4);
 
     CreateMainMenu();
     CreateToolBarForEngine();
