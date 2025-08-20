@@ -4,6 +4,7 @@
 #include <wx/clipbrd.h>
 #include <wx/dnd.h>
 #include <wx/renderer.h>
+
 #include "ThumbnailCache.h"
 
 namespace
@@ -63,6 +64,27 @@ wxBitmap CreateBitmap(const wxArtID& id, const wxArtClient& client, const wxSize
     return EnsureSize(wxArtProvider::GetBitmap(id, client, size), size.x, size.y);
 }
 
+wxArrayString GetSortedDirContents(const wxString& folderPath, wxDirFlags flag)
+{
+    wxArrayString result;
+    wxDir dir(folderPath);
+    if (!dir.IsOpened())
+        return result;
+
+    wxString name;
+    bool cont = dir.GetFirst(&name, wxEmptyString, flag);
+    while (cont)
+    {
+        result.Add(name);
+        cont = dir.GetNext(&name);
+    }
+
+    // sortowanie alfabetyczne
+    result.Sort();
+
+    return result;
+}
+
 }  // namespace
 
 ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelectedCallback fileSelectedCallback)
@@ -96,10 +118,8 @@ void ProjectPanel::BuildTree()
     projectTree->DeleteAllItems();
 
     // Root jako widoczny element (unikamy wxTR_HIDE_ROOT i asercji)
-    wxTreeItemId rootId = projectTree->AddRoot(GameEngine::File(rootFolder.ToStdString()).GetBaseName(),
-                                               treeFolderClosedIdx, treeFolderOpenIdx,
-                                               new PathData(rootFolder)
-    );
+    wxTreeItemId rootId = projectTree->AddRoot(GameEngine::File(rootFolder.ToStdString()).GetBaseName(), treeFolderClosedIdx,
+                                               treeFolderOpenIdx, new PathData(rootFolder));
 
     AddSubDirs(rootId, rootFolder);
     projectTree->Expand(rootId);
@@ -431,33 +451,25 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     SelectTreeItemByPath(folderPath);
 
     const int thumbSize = 64;
-    wxString name;
-    bool cont;
 
     // --- Foldery ---
-    cont = dir.GetFirst(&name, wxEmptyString, wxDIR_DIRS);
-    while (cont)
+    auto dirs = GetSortedDirContents(folderPath, wxDIR_DIRS);
+    for (const wxString& name : dirs)
     {
         wxFileName fn(folderPath, name);
-        wxBitmap bmp = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
-
+        wxBitmap bmp   = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
         auto itemSizer = CreateFileItem(fn, bmp, true, [=]() { RefreshListFor(fn.GetFullPath()); });
-
         fileSizer->Add(itemSizer, 0, wxALL, 5);
-        cont = dir.GetNext(&name);
     }
 
     // --- Pliki ---
-    cont = dir.GetFirst(&name, wxEmptyString, wxDIR_FILES);
-    while (cont)
+    auto files = GetSortedDirContents(folderPath, wxDIR_FILES);
+    for (const wxString& name : files)
     {
         wxFileName fn(folderPath, name);
-        wxBitmap bmp = GetThumbnail(fn, thumbSize);
-
+        wxBitmap bmp   = GetThumbnail(fn, thumbSize);
         auto itemSizer = CreateFileItem(fn, bmp, false, [=]() { fileSelectedCallback(fn.GetFullPath()); });
-
         fileSizer->Add(itemSizer, 0, wxALL, 5);
-        cont = dir.GetNext(&name);
     }
 
     fileSizer->Layout();
