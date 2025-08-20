@@ -68,5 +68,6 @@ private:
 
     void CreateFilePanel(wxBoxSizer*);
 
+
     wxDECLARE_NO_COPY_CLASS(ProjectPanel);
 };

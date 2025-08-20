@@ -140,7 +140,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
 {
     // Usuń stare elementy
     fileSizer->Clear(true);
-    selectedItem = nullptr;
+    selectedItem  = nullptr;
     selectedLabel = nullptr;
     filePanel->Refresh();
 
@@ -150,6 +150,8 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
 
     wxString name;
     bool cont;
+
+    SelectTreeItemByPath(folderPath);
 
     const int thumbSize = 64;
 
@@ -196,7 +198,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
 
         selectedLabel = label;
         selectedLabel->SetBackgroundColour(*wxLIGHT_GREY);
-        //selectedLabel->SetForegroundColour(*wxWHITE);
+        // selectedLabel->SetForegroundColour(*wxWHITE);
         selectedLabel->Refresh();
     };
 
@@ -205,12 +207,12 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     while (cont)
     {
         wxFileName fn(folderPath, name);
-        wxBitmap bmp = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
+        wxBitmap bmp         = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
         wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
 
         wxString shortName = EllipsizeString(name, GetFont(), thumbSize);
-        wxStaticText* label = new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition,
-                                               wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
+        wxStaticText* label =
+            new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition, wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
 
         wxBoxSizer* itemSizer = new wxBoxSizer(wxVERTICAL);
         itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
@@ -224,11 +226,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
 
         // Podwójny klik = wejście do folderu
-        icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&)
-        {
-            RefreshListFor(fn.GetFullPath());
-            // można też synchronizować z drzewem folderów
-        });
+        icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { RefreshListFor(fn.GetFullPath()); });
 
         fileSizer->Add(itemSizer, 0, wxALL, 5);
         cont = dir.GetNext(&name);
@@ -248,11 +246,10 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
             wxImage img(fn.GetFullPath(), wxBITMAP_TYPE_ANY);
             if (img.IsOk())
             {
-                double scale = std::min(double(thumbSize) / img.GetWidth(),
-                                        double(thumbSize) / img.GetHeight());
-                int nw = std::max(1, int(img.GetWidth() * scale));
-                int nh = std::max(1, int(img.GetHeight() * scale));
-                img = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
+                double scale = std::min(double(thumbSize) / img.GetWidth(), double(thumbSize) / img.GetHeight());
+                int nw       = std::max(1, int(img.GetWidth() * scale));
+                int nh       = std::max(1, int(img.GetHeight() * scale));
+                img          = img.Scale(nw, nh, wxIMAGE_QUALITY_HIGH);
                 if (!img.HasAlpha())
                     img.InitAlpha();
                 bmp = wxBitmap(img);
@@ -260,9 +257,9 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
         }
 
         wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
-        wxString shortName = EllipsizeString(name, GetFont(), thumbSize);
-        wxStaticText* label = new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition,
-                                               wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
+        wxString shortName   = EllipsizeString(name, GetFont(), thumbSize);
+        wxStaticText* label =
+            new wxStaticText(filePanel, wxID_ANY, shortName, wxDefaultPosition, wxSize(thumbSize, -1), wxALIGN_CENTRE_HORIZONTAL);
 
         icon->SetToolTip(name);
         label->SetToolTip(name);
@@ -373,10 +370,12 @@ void ProjectPanel::CreateFilePanel(wxBoxSizer* mainSizer)
 void ProjectPanel::OnThumbClicked(wxMouseEvent& e)
 {
     wxPanel* thumb = dynamic_cast<wxPanel*>(e.GetEventObject());
-    if (!thumb) return;
+    if (!thumb)
+        return;
 
     wxStaticText* label = dynamic_cast<wxStaticText*>(thumb->GetChildren()[1]);
-    if (!label) return;
+    if (!label)
+        return;
 
     wxString name = label->GetLabel();
 
