@@ -11,4 +11,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPickerPopup.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel.cpp
 )

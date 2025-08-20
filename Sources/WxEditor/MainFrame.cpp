@@ -18,6 +18,7 @@
 #include "OptionsFrame.h"
 #include "Theme.h"
 #include "TransformPanel.h"
+#include "ProjectPanel.h"
 
 namespace
 {
@@ -181,8 +182,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     // Splitter dzielimy na canvas i ten nowy panel z listą
     trs->SplitVertically(canvas, gameObjectPanels, size.x * 5 / 8);
 
-    fileExplorer = new wxGenericDirCtrl(bottomSpliter, ID_FILE_EXPLORER, Utils::GetAbsolutePath(EngineConf.files.data),
-                                        wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SELECT_FIRST);
+//    fileExplorer = new wxGenericDirCtrl(bottomSpliter, ID_FILE_EXPLORER, Utils::GetAbsolutePath(EngineConf.files.data),
+//                                        wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SELECT_FIRST);
+
+    ProjectPanel* projectPanel = new ProjectPanel(bottomSpliter, Utils::GetAbsolutePath(EngineConf.files.data));
 
     wxStaticBitmap* filePreview = nullptr;
     //    wxImage img;
@@ -197,7 +200,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
         filePreview           = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
     }
 
-    bottomSpliter->SplitVertically(fileExplorer, filePreview, size.x / 2);
+   // bottomSpliter->SplitVertically(fileExplorer, filePreview, size.x / 2);
+     bottomSpliter->SplitVertically(projectPanel, filePreview, size.x / 2);
 
     CreateMainMenu();
     CreateToolBarForEngine();
