@@ -9,6 +9,18 @@ namespace Components
 class GrassRendererComponent : public BaseComponent
 {
 public:
+    File textureFile;
+    File dataFile;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_TEXTURE(textureFile)
+        FIELD_FILE(dataFile)
+    END_FIELDS()
+    // clang-format on
+
+public:
     struct GrassMeshData
     {
         vec3 position;
@@ -43,9 +55,6 @@ public:
     GrassRendererComponent& setTexture(const File&);
     GrassRendererComponent& setMeshDataFile(const File&);
 
-    void InitFromParams(const std::unordered_map<std::string, std::string>&) override;
-    std::unordered_map<ParamName, Param> GetParams() const override;
-
 private:
     void CreateModelAndSubscribe();
     void UnSubscribe();
@@ -56,8 +65,6 @@ private:
 
 private:
     ModelWrapper model_;
-    File textureFile_;
-    File meshDataFile_;
     GrassMeshes meshData_;
     bool isSubscribed_;
 
@@ -83,12 +90,12 @@ GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshesData(
 
 const File& GrassRendererComponent::getTextureFile() const
 {
-    return textureFile_;
+    return textureFile;
 }
 
 const File& GrassRendererComponent::getDataFile() const
 {
-    return meshDataFile_;
+    return dataFile;
 }
 
 }  // namespace Components

@@ -23,8 +23,7 @@ const bool DEVIDE_SPACE{false};
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(GrassRendererComponent).hash_code(), componentContext, gameObject)
-    , textureFile_("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
-    , meshDataFile_()
+    , textureFile("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     , isSubscribed_(false)
 {
 }
@@ -36,6 +35,7 @@ void GrassRendererComponent::CleanUp()
     {
         componentContext_.resourceManager_.ReleaseModel(*model);
     }
+    meshData_ = GrassMeshes();
 }
 
 void GrassRendererComponent::UpdateModel()
@@ -89,29 +89,16 @@ GrassRendererComponent& GrassRendererComponent::SetMeshesData(GrassMeshes data)
     meshData_ = std::move(data);
     return *this;
 }
-
 GrassRendererComponent& GrassRendererComponent::setMeshDataFile(const File& file)
 {
-    meshDataFile_ = file;
+    dataFile = file;
     return *this;
 }
-
 GrassRendererComponent& GrassRendererComponent::setTexture(const File& filename)
 {
-    textureFile_ = filename;
-    DEBUG_LOG(filename.GetAbsoultePath());
+    textureFile = filename;
     return *this;
 }
-
-void GrassRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>&)
-{
-}
-
-std::unordered_map<ParamName, Param> GrassRendererComponent::GetParams() const
-{
-    return std::unordered_map<ParamName, Param>();
-}
-
 void GrassRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::CreateModelAndSubscribe, this));
@@ -120,6 +107,29 @@ void GrassRendererComponent::CreateModelAndSubscribe()
 {
     if (EngineConf.renderer.flora.isEnabled)
     {
+        if (dataFile.exist())
+        {
+            auto succes = dataFile.openToRead();
+            if (succes)
+            {
+                LOG_DEBUG << "Read data file: " << dataFile;
+                dataFile.readVectorFromFile(meshData_.positions);
+                dataFile.readVectorFromFile(meshData_.normals);
+                dataFile.readVectorFromFile(meshData_.colors);
+                dataFile.readVectorFromFile(meshData_.sizesAndRotations);
+                dataFile.close();
+            }
+            else
+            {
+                LOG_DEBUG << "Read data file error: " << dataFile;
+            }
+        }
+        else
+        {
+            LOG_DEBUG << "Read data file not exist: " << dataFile;
+            return;
+        }
+
         if (not isSubscribed_ and not model_.Get(LevelOfDetail::L1))
         {
             if (CreateGrassModel())
@@ -163,8 +173,7 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
             Mesh* mesh{nullptr};
             if (iter == yMeshBox.end())
             {
-                Mesh m(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(),
-                       material);
+                Mesh m(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
                 yMeshBox.insert({zIndex, std::move(m)});
                 mesh = &yMeshBox.at(zIndex);
                 vec3 bbMin(xIndex * BOX_SIZE, yIndex * BOX_SIZE, zIndex * BOX_SIZE);
@@ -211,8 +220,7 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
     }
     else
     {
-        Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(),
-                  material);
+        Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
         CopyDataToMesh(mesh);
         result.push_back(std::move(mesh));
     }
@@ -239,7 +247,7 @@ bool GrassRendererComponent::CreateGrassModel()
         model->AddMesh(mesh);
 
     model_.Add(model.get(), LevelOfDetail::L1);
-    model->SetFile(meshDataFile_);
+    model->SetFile(dataFile);
     auto addedModel = componentContext_.resourceManager_.AddModel(std::move(model));
     return addedModel != nullptr;
 }
@@ -247,7 +255,7 @@ Material GrassRendererComponent::CreateGrassMaterial() const
 {
     Material grass_material;
     grass_material.diffuseTexture =
-        componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile_, TextureParameters());
+        componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, TextureParameters());
     return grass_material;
 }
 void GrassRendererComponent::registerReadFunctions()
@@ -263,24 +271,7 @@ void GrassRendererComponent::registerReadFunctions()
 
         if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
         {
-            Components::GrassRendererComponent::GrassMeshes meshesData;
-            auto filename = filenameNode->value_;
-            component->setMeshDataFile(filename);
-
-            if (not filename.empty())
-            {
-                File file(filename);
-                auto succes = file.openToRead();
-                if (succes)
-                {
-                    file.readVectorFromFile(meshesData.positions);
-                    file.readVectorFromFile(meshesData.normals);
-                    file.readVectorFromFile(meshesData.colors);
-                    file.readVectorFromFile(meshesData.sizesAndRotations);
-                    file.close();
-                }
-            }
-            component->SetMeshesData(std::move(meshesData));
+            component->setMeshDataFile(filenameNode->value_);
         }
         return component;
     };
