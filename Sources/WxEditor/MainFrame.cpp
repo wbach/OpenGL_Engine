@@ -89,6 +89,8 @@ enum
     ID_OBJECT_TREE,
     ID_MENU_ABOUT_GL_INFO,
     ID_TREE_MENU_CREATE_CHILD,
+    ID_TREE_MENU_UNMARK_PREFAB,
+    ID_TREE_MENU_MAKE_PREFAB,
     ID_TREE_MENU_REMOVE,
     ID_TREE_MENU_CLONE,
     ID_SAVE,
@@ -157,6 +159,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
                                      wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
     gameObjectsView->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &MainFrame::OnTreeItemRightClick, this);
     Bind(wxEVT_MENU, &MainFrame::OnAddObject, this, ID_TREE_MENU_CREATE_CHILD);
+    Bind(wxEVT_MENU, &MainFrame::OnUnmarkPrefab, this, ID_TREE_MENU_UNMARK_PREFAB);
+    Bind(wxEVT_MENU, &MainFrame::OnMakePrefab, this, ID_TREE_MENU_MAKE_PREFAB);
     Bind(wxEVT_MENU, &MainFrame::OnDeleteObject, this, ID_TREE_MENU_REMOVE);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
@@ -919,6 +923,8 @@ void MainFrame::OnTreeItemRightClick(wxTreeEvent& event)
 
     wxMenu menu;
     menu.Append(ID_TREE_MENU_CREATE_CHILD, "Create child");
+    menu.Append(ID_TREE_MENU_MAKE_PREFAB, "Create prefab");
+    menu.Append(ID_TREE_MENU_UNMARK_PREFAB, "Unmark prefab");
     menu.Append(ID_TREE_MENU_REMOVE, "Remove");
     menu.Append(ID_TREE_MENU_CLONE, "Clone");
     //    menu.AppendSeparator();
@@ -989,6 +995,16 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
             wxLogMessage("Game object not found in scene");
         }
     }
+}
+
+void MainFrame::OnUnmarkPrefab(wxCommandEvent &)
+{
+
+}
+
+void MainFrame::OnMakePrefab(wxCommandEvent &)
+{
+
 }
 
 void MainFrame::CloneGameObject(wxCommandEvent& event)
