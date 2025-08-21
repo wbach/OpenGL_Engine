@@ -8,6 +8,7 @@
 #include <wx/artprov.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
+#include <wx/stdpaths.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <string>
@@ -20,8 +21,44 @@
 #include "Theme.h"
 #include "TransformPanel.h"
 
+#include <iostream>
+
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <csignal>
+    #include <unistd.h>
+#endif
+
 namespace
 {
+bool terminateProcessByPID(long pid)
+{
+#ifdef _WIN32
+    HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, static_cast<DWORD>(pid));
+    if (!hProcess) {
+        std::cerr << "Nie można otworzyć procesu, PID=" << pid << "\n";
+        return false;
+    }
+
+    if (!TerminateProcess(hProcess, 0)) {
+        std::cerr << "Nie udało się zakończyć procesu, PID=" << pid << "\n";
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    CloseHandle(hProcess);
+    return true;
+
+#else
+    if (kill(static_cast<pid_t>(pid), SIGTERM) != 0) {
+        perror("Nie udało się zakończyć procesu");
+        return false;
+    }
+    return true;
+#endif
+}
+
 enum
 {
     ID_MENU_FILE_OPEN_SCENE = wxID_HIGHEST + 1,
@@ -57,7 +94,6 @@ enum
     ID_TOOL_SAVE_AS,
     ID_TOOL_START,
     ID_TOOL_STOP
-
 };
 }  // namespace
 
@@ -95,6 +131,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOOL_OPEN, MainFrame::MenuFileOpenScene)
     EVT_MENU(ID_TOOL_SAVE, MainFrame::MenuFileSaveScene)
     EVT_MENU(ID_TOOL_SAVE_AS, MainFrame::MenuFileSaveSceneAs)
+    EVT_MENU(ID_TOOL_START, MainFrame::OnToolStart)
+    EVT_MENU(ID_TOOL_STOP, MainFrame::OnToolStop)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -188,7 +226,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_MISSING_IMAGE, wxART_OTHER, wxSize(300, 200));
     auto filePreview      = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
 
-    bottomSpliter->SplitVertically(projectPanel, filePreview, 3* size.x / 4);
+    bottomSpliter->SplitVertically(projectPanel, filePreview, 3 * size.x / 4);
 
     CreateMainMenu();
     CreateToolBarForEngine();
@@ -292,7 +330,7 @@ void MainFrame::MenuFileReloadScene(wxCommandEvent&)
     canvas->GetScene().addSceneEvent(GameEngine::SceneEventType::RELOAD_SCENE);
 }
 
-void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
+void MainFrame::MenuFileSaveScene(wxCommandEvent&)
 {
     if (not canvas->GetScene().GetFile().empty())
     {
@@ -300,22 +338,12 @@ void MainFrame::MenuFileSaveScene(wxCommandEvent& e)
         return;
     }
 
-    MenuFileSaveSceneAs(e);
+    SaveSceneAs();
 }
 
 void MainFrame::MenuFileSaveSceneAs(wxCommandEvent&)
 {
-    wxFileDialog fileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
-                            "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_SAVE);
-
-    if (fileDialog.ShowModal() == wxID_CANCEL)
-        return;
-
-    wxString path = fileDialog.GetPath();
-    GameEngine::File file{path.c_str()};
-    canvas->GetScene().ChangeName(file.GetBaseName());
-    SetTitle("Active scene : " + canvas->GetScene().GetName());
-    GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
+    SaveSceneAs();
 }
 
 void MainFrame::MenuFileExit(wxCommandEvent&)
@@ -1054,6 +1082,48 @@ void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngin
             go->SetWorldScale(worldScale);
         }
     }
+}
+
+void MainFrame::OnToolStart(wxCommandEvent& event)
+{
+    GameEngine::File sceneFile{"editorTmpSceneToRun.xml"};
+    GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
+
+    std::string cmd =
+        "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" + sceneFile.GetAbsoultePath() + "\"";
+
+    long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
+    if (pid == 0)
+    {
+        wxLogError("Run scene error!");
+        return;
+    }
+    startedGameProceesId = pid;
+}
+
+void MainFrame::OnToolStop(wxCommandEvent &)
+{
+    if (startedGameProceesId)
+    {
+        terminateProcessByPID(*startedGameProceesId);
+        startedGameProceesId.reset();
+    }
+}
+
+bool MainFrame::SaveSceneAs()
+{
+    wxFileDialog fileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
+                            "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_SAVE);
+
+    if (fileDialog.ShowModal() == wxID_CANCEL)
+        return false;
+
+    wxString path = fileDialog.GetPath();
+    GameEngine::File file{path.c_str()};
+    canvas->GetScene().ChangeName(file.GetBaseName());
+    SetTitle("Active scene : " + canvas->GetScene().GetName());
+    GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
+    return true;
 }
 
 TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel* worldTranformPanel,

@@ -142,6 +142,10 @@ private:
     void AddGameObjectComponentsToView(GameEngine::GameObject&);
     void RemoveAllComponentPanels();
     void ClearScene();
+    void OnToolStart(wxCommandEvent&);
+    void OnToolStop(wxCommandEvent&);
+
+    bool SaveSceneAs();
 
 private:
     GLCanvas* canvas{nullptr};
@@ -170,4 +174,6 @@ private:
 
     std::optional<TransfromSubController> transfromSubController;
     std::unique_ptr<GameEngine::Painter> terrainPainter_;
+
+    std::optional<long> startedGameProceesId;
 };
