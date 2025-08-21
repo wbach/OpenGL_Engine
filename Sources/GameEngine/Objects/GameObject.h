@@ -60,6 +60,7 @@ public:
 
     template <class T>
     void RemoveComponent();
+    void RemoveComponent(size_t);
 
     inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
 

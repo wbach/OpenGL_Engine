@@ -1,6 +1,7 @@
 #include "ComponentPanel.h"
 
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Objects/GameObject.h>
 #include <Logger/Log.h>
 #include <Utils/TreeNode.h>
 #include <wx/artprov.h>
@@ -70,10 +71,10 @@ extern const std::string CSTR_TYPE;
 }  // namespace GameEngine
 
 ComponentPanel::ComponentPanel(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
-                               IdType gameObjectId)
+                               GameEngine::GameObject& gameObject)
     : wxPanel(parent, wxID_ANY)
     , componentController{componentController}
-    , gameObjectId{gameObjectId}
+    , gameObject{gameObject}
 {
     mainSizer = new wxBoxSizer(wxVERTICAL);
     SetSizer(mainSizer);
@@ -85,49 +86,24 @@ void ComponentPanel::ClearComponents()
     Layout();
 }
 
-void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component)
+void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component, bool collapsed)
 {
     TreeNode node("component");
     component.write(node);
     auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);
 
-    collapsible    = new wxCollapsiblePane(this, wxID_ANY, typeName);
-    wxWindow* pane = collapsible->GetPane();
+    wxPanel* headerPanel    = new wxPanel(this);
+    wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    pane->SetSizer(sizer);
+    // Label z nazwą sekcji
+    wxStaticText* title = new wxStaticText(headerPanel, wxID_ANY, "Component name: " + typeName);
+    headerSizer->Add(title, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
 
-    CreateUIForComponent(component, pane, sizer);
-
-    pane->SetSizer(sizer);
-    sizer->Layout();
-    pane->Layout();
-
-    mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 0);
-    collapsible->Collapse(false);
-
-    // Aktualizacja layoutu po zwinięciu/rozwinieciu
-    collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
-                      [this](auto& evt)
-                      {
-                          this->Layout();
-                          this->FitInside();
-                          if (GetParent())
-                              GetParent()->Layout();
-                          evt.Skip();
-                      });
-
-    this->Layout();
-    this->FitInside();
-}
-
-void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer)
-{
     // Checkbox aktywności
     {
-        auto* activeCheck = new wxCheckBox(pane, wxID_ANY, "Active");
+        auto* activeCheck = new wxCheckBox(headerPanel, wxID_ANY, "Active");
         activeCheck->SetValue(component.IsActive());
-        sizer->Add(activeCheck, 0, wxALL, 5);
+        headerSizer->Add(activeCheck, 0, wxALL, 5);
 
         activeCheck->Bind(wxEVT_CHECKBOX,
                           [this, &component](auto& e)
@@ -137,9 +113,84 @@ void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& co
                           });
     }
 
-    // Pola komponentu
-    for (auto& field : component.GetFields())
-        CreateUIForField(component, pane, sizer, field);
+    wxButton* deleteComponentButton = new wxButton(headerPanel, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, 20));
+    headerSizer->Add(deleteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
+    deleteComponentButton->Bind(wxEVT_BUTTON,
+                                [this, type = component.GetType()](const auto&)
+                                {
+                                    CallAfter(
+                                        [this, type]()
+                                        {
+                                            gameObject.RemoveComponent(type);
+                                            mainSizer->Clear(true);
+                                            this->Layout();
+                                            this->FitInside();
+                                            if (this->GetParent())
+                                            {
+                                                this->GetParent()->Layout();
+                                                this->GetParent()->FitInside();
+                                            }
+                                        });
+                                });
+
+    headerPanel->SetSizer(headerSizer);
+
+    // Tworzymy collapsible pane
+    collapsible    = new wxCollapsiblePane(this, wxID_ANY, "");
+    wxWindow* pane = collapsible->GetPane();
+
+    // Sizer dla zawartości collapsible
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    pane->SetSizer(sizer);
+
+    CreateUIForComponent(component, pane, sizer);
+
+    pane->Layout();
+    sizer->Layout();
+
+    // Dodajemy do głównego sizer
+    mainSizer->Add(headerPanel, 0, wxEXPAND | wxALL, 0);
+    mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 0);
+    collapsible->Collapse(false);
+
+    auto onCollapsAction = [this](auto& evt)
+    {
+        this->Layout();
+        this->FitInside();
+        if (GetParent())
+        {
+            GetParent()->Layout();
+            GetParent()->FitInside();
+            if (GetParent()->GetParent())
+            {
+                GetParent()->GetParent()->Layout();
+                GetParent()->GetParent()->GetParent();
+            }
+        }
+
+        evt.Skip();
+    };
+    // Aktualizacja layoutu po zwinięciu/rozwinieciu
+    collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, onCollapsAction);
+    if (collapsed)
+        collapsible->Collapse(true);
+
+    this->Layout();
+    this->FitInside();
+}
+
+void ComponentPanel::CreateUIForComponent(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer)
+{
+    if (not component.GetFields().empty())
+    {
+        for (auto& field : component.GetFields())
+            CreateUIForField(component, pane, sizer, field);
+    }
+    else
+    {
+        wxStaticText* title = new wxStaticText(pane, wxID_ANY, "No fields in component");
+        sizer->Add(title, 0, wxEXPAND | wxALL, 0);
+    }
 }
 
 void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
@@ -825,7 +876,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
 void ComponentPanel::reInitComponent(GameEngine::Components::IComponent& component)
 {
     component.CleanUp();
-    this->componentController.CallGameObjectFunctions(GameEngine::Components::FunctionType::Awake, gameObjectId);
+    this->componentController.CallGameObjectFunctions(GameEngine::Components::FunctionType::Awake, gameObject.GetId());
 }
 
 void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,

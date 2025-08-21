@@ -10,17 +10,22 @@
 #include <functional>
 #include <vector>
 
+namespace GameEngine
+{
+class GameObject;
+}
+
 class ComponentPanel : public wxPanel
 {
 public:
-    explicit ComponentPanel(wxWindow*, GameEngine::Components::ComponentController&, IdType);
+    explicit ComponentPanel(wxWindow*, GameEngine::Components::ComponentController&, GameEngine::GameObject&);
 
     void ClearComponents();
-    void AddComponent(GameEngine::Components::IComponent&);
+    void AddComponent(GameEngine::Components::IComponent&, bool collapsed = true);
 
 private:
     GameEngine::Components::ComponentController& componentController;
-    IdType gameObjectId;
+    GameEngine::GameObject& gameObject;
     wxBoxSizer* mainSizer{nullptr};
     wxCollapsiblePane* collapsible{nullptr};
 

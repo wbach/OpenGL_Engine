@@ -83,6 +83,7 @@ public:
     virtual void write(TreeNode&) const                                              = 0;
     virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const        = 0;
     virtual std::vector<FieldInfo> GetFields()                                       = 0;
+    virtual size_t GetType() const                                                   = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

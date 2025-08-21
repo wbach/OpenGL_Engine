@@ -11,6 +11,7 @@
 #include <wx/stdpaths.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <iostream>
 #include <string>
 
 #include "ComponentPanel.h"
@@ -21,13 +22,12 @@
 #include "Theme.h"
 #include "TransformPanel.h"
 
-#include <iostream>
-
 #ifdef _WIN32
-    #include <windows.h>
+#include <windows.h>
 #else
-    #include <csignal>
-    #include <unistd.h>
+#include <unistd.h>
+
+#include <csignal>
 #endif
 
 namespace
@@ -36,12 +36,14 @@ bool terminateProcessByPID(long pid)
 {
 #ifdef _WIN32
     HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, static_cast<DWORD>(pid));
-    if (!hProcess) {
+    if (!hProcess)
+    {
         std::cerr << "Nie można otworzyć procesu, PID=" << pid << "\n";
         return false;
     }
 
-    if (!TerminateProcess(hProcess, 0)) {
+    if (!TerminateProcess(hProcess, 0))
+    {
         std::cerr << "Nie udało się zakończyć procesu, PID=" << pid << "\n";
         CloseHandle(hProcess);
         return false;
@@ -51,7 +53,8 @@ bool terminateProcessByPID(long pid)
     return true;
 
 #else
-    if (kill(static_cast<pid_t>(pid), SIGTERM) != 0) {
+    if (kill(static_cast<pid_t>(pid), SIGTERM) != 0)
+    {
         perror("Nie udało się zakończyć procesu");
         return false;
     }
@@ -465,8 +468,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     // Dodajemy panele istniejących komponentów
     for (auto& component : gameObject.GetComponents())
     {
-        ComponentPanel* compPanel =
-            new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject.GetId());
+        ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
         compPanel->AddComponent(*component);
         gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
@@ -484,11 +486,11 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     {
         auto popup =
             new ComponentPickerPopup(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject,
-                                     [this, goId = gameObject.GetId()](auto& component)
+                                     [this, &gameObject](auto& component)
                                      {
                                          ComponentPanel* compPanel = new ComponentPanel(
-                                             gameObjectPanels, canvas->GetScene().getComponentController(), goId);
-                                         compPanel->AddComponent(component);
+                                             gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
+                                         compPanel->AddComponent(component, false);
 
                                          this->CallAfter(
                                              [this, compPanel]()
@@ -863,8 +865,11 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
     if (not itemId.IsOk())
         return;
 
+    RemoveAllComponentPanels();
     if (itemId == treeRootId)
+    {
         return;
+    }
 
     DEBUG_LOG("OnObjectTreeSelChange");
     auto go = GetSelectedGameObject();
@@ -882,8 +887,6 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         {
             transfromSubController->ChangeGameObject(go->GetId());
         }
-        // RemoveAllItemsButTransformView();
-        RemoveAllComponentPanels();
         AddGameObjectComponentsToView(*go);
     }
 }
@@ -966,9 +969,20 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
         auto gameObjectId = GetGameObjectId(sel);
         if (gameObjectId)
         {
+            wxTreeItemId parentItem = gameObjectsView->GetItemParent(sel);
+            if (parentItem.IsOk())
+            {
+                gameObjectsView->SelectItem(parentItem);
+            }
+            else
+            {
+                gameObjectsView->SelectItem(treeRootId);
+            }
+
             canvas->GetScene().RemoveGameObject(*gameObjectId);
             gameObjectsView->Delete(sel);
             UpdateObjectCount();
+            RemoveAllComponentPanels();
         }
         else
         {
@@ -1107,7 +1121,7 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
     startedGameProceesId = pid;
 }
 
-void MainFrame::OnToolStop(wxCommandEvent &)
+void MainFrame::OnToolStop(wxCommandEvent&)
 {
     if (startedGameProceesId)
     {

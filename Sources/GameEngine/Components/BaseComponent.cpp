@@ -33,6 +33,11 @@ BaseComponent::~BaseComponent()
         ERROR_LOG("componentRegistredId not set!");
     }
 }
+
+size_t BaseComponent::GetType() const
+{
+    return type_;
+}
 void BaseComponent::Activate()
 {
     isActive_ = true;

@@ -59,6 +59,21 @@ Components::IComponent* GameObject::InitComponent(const TreeNode& node)
     return nullptr;
 }
 
+void GameObject::RemoveComponent(size_t type)
+{
+    for (auto iter = components_.begin(); iter != components_.end(); ++iter)
+    {
+        auto& component = **iter;
+
+        if (component.GetType() == type)
+        {
+            component.CleanUp();
+            components_.erase(iter);
+            return;
+        }
+    }
+}
+
 std::unique_ptr<GameObject> GameObject::CreateChild(const std::string& name, const std::optional<uint32>& maybeId)
 {
     return std::make_unique<GameObject>(name, componentController_, componentFactory_, idPool_, maybeId);

@@ -50,6 +50,7 @@ public:
     BaseComponent(size_t, ComponentContext&, GameObject&);
     ~BaseComponent() override;
 
+    size_t GetType() const override;
     bool IsActive() const override;
     void Activate() override;
     void Deactivate() override;
