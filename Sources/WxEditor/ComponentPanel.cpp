@@ -80,6 +80,38 @@ ComponentPanel::ComponentPanel(wxWindow* parent, GameEngine::Components::Compone
     SetSizer(mainSizer);
 }
 
+void ComponentPanel::Lock()
+{
+    std::function<void(wxWindow*)> disableChildren;
+    disableChildren = [&](wxWindow* parent)
+    {
+        if (not wxDynamicCast(parent, wxCollapsiblePane))
+            parent->Disable();
+
+        wxWindowList& children = parent->GetChildren();
+        for (auto child : children)
+        {
+            disableChildren(child);
+        }
+    };
+    disableChildren(this);
+}
+
+void ComponentPanel::Unlock()
+{
+    std::function<void(wxWindow*)> enableChildren;
+    enableChildren = [&](wxWindow* parent)
+    {
+        parent->Enable();
+        wxWindowList& children = parent->GetChildren();
+        for (auto child : children)
+        {
+            enableChildren(child);
+        }
+    };
+    enableChildren(this);
+}
+
 void ComponentPanel::ClearComponents()
 {
     mainSizer->Clear(true);

@@ -22,6 +22,8 @@ public:
 
     void ClearComponents();
     void AddComponent(GameEngine::Components::IComponent&, bool collapsed = true);
+    void Unlock();
+    void Lock();
 
 private:
     GameEngine::Components::ComponentController& componentController;

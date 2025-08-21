@@ -144,6 +144,8 @@ private:
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
     void AddGameObjectComponentsToView(GameEngine::GameObject&);
+    void LockAllComponentPanels();
+    void UnlockAllComponentPanels();
     void RemoveAllComponentPanels();
     void ClearScene();
     void OnToolStart(wxCommandEvent&);

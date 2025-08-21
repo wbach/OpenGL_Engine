@@ -256,6 +256,50 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     // ApplyTheme(*this);
 }
 
+void MainFrame::LockAllComponentPanels()
+{
+    if (!gameObjectPanelsSizer)
+        return;
+
+    for (int i = gameObjectPanelsSizer->GetItemCount() - 1; i >= 0; --i)
+    {
+        wxSizerItem* item = gameObjectPanelsSizer->GetItem(i);
+        if (!item)
+            continue;
+
+        wxWindow* win = item->GetWindow();
+        if (win)
+        {
+            if (auto componentPanel = dynamic_cast<ComponentPanel*>(win))
+            {
+                componentPanel->Lock();
+            }
+        }
+    }
+}
+
+void MainFrame::UnlockAllComponentPanels()
+{
+    if (!gameObjectPanelsSizer)
+        return;
+
+    for (int i = gameObjectPanelsSizer->GetItemCount() - 1; i >= 0; --i)
+    {
+        wxSizerItem* item = gameObjectPanelsSizer->GetItem(i);
+        if (!item)
+            continue;
+
+        wxWindow* win = item->GetWindow();
+        if (win)
+        {
+            if (auto componentPanel = dynamic_cast<ComponentPanel*>(win))
+            {
+                componentPanel->Unlock();
+            }
+        }
+    }
+}
+
 void MainFrame::RemoveAllComponentPanels()
 {
     if (!gameObjectPanelsSizer)
@@ -482,6 +526,10 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     {
         ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
         compPanel->AddComponent(*component);
+        if (gameObject.isPrefabricated())
+        {
+            compPanel->Lock();
+        }
         gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
 
@@ -503,6 +551,10 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
                                          ComponentPanel* compPanel = new ComponentPanel(
                                              gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
                                          compPanel->AddComponent(component, false);
+                                         if (gameObject.isPrefabricated())
+                                         {
+                                             compPanel->Lock();
+                                         }
 
                                          this->CallAfter(
                                              [this, compPanel]()
