@@ -45,7 +45,7 @@ void saveSceneToFile(const TreeNode& rootNode, const File& file)
 void createAndSavePrefab(const File& file, const GameObject& gameObject)
 {
     auto prefabRootNode = GameEngine::createPrefab(gameObject);
-    Utils::Xml::Write(file.GetAbsoultePath(), prefabRootNode);
+    Utils::Xml::Write(file.GetAbsolutePathWithDifferentExtension("prefab"), prefabRootNode);
 }
 GameObject* cloneGameObject(Scene& scene, const GameObject& gameObject)
 {

@@ -81,6 +81,7 @@ public:
 
     const bool isPrefabricated() const;
     void markAsPrefabricated(const File&);
+    void unmarkAsPrefabricated();
     const File& getPrefabricatedFile() const;
 
     void NotifyComponentControllerAboutObjectCreation(GameObject&);

@@ -91,6 +91,7 @@ enum
     ID_TREE_MENU_CREATE_CHILD,
     ID_TREE_MENU_UNMARK_PREFAB,
     ID_TREE_MENU_MAKE_PREFAB,
+    ID_TREE_MENU_RENAME,
     ID_TREE_MENU_REMOVE,
     ID_TREE_MENU_CLONE,
     ID_SAVE,
@@ -162,6 +163,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::OnUnmarkPrefab, this, ID_TREE_MENU_UNMARK_PREFAB);
     Bind(wxEVT_MENU, &MainFrame::OnMakePrefab, this, ID_TREE_MENU_MAKE_PREFAB);
     Bind(wxEVT_MENU, &MainFrame::OnDeleteObject, this, ID_TREE_MENU_REMOVE);
+    Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
     CreateRootGameObject();
@@ -925,6 +927,7 @@ void MainFrame::OnTreeItemRightClick(wxTreeEvent& event)
     menu.Append(ID_TREE_MENU_CREATE_CHILD, "Create child");
     menu.Append(ID_TREE_MENU_MAKE_PREFAB, "Create prefab");
     menu.Append(ID_TREE_MENU_UNMARK_PREFAB, "Unmark prefab");
+    menu.Append(ID_TREE_MENU_RENAME, "Rename");
     menu.Append(ID_TREE_MENU_REMOVE, "Remove");
     menu.Append(ID_TREE_MENU_CLONE, "Clone");
     //    menu.AppendSeparator();
@@ -962,6 +965,15 @@ void MainFrame::OnEndLabelEdit(wxTreeEvent& event)
     }
 }
 
+void MainFrame::OnRename(wxCommandEvent& event)
+{
+    auto item = gameObjectsView->GetSelection();
+    if (item.IsOk())
+    {
+        gameObjectsView->EditLabel(item);
+    }
+}
+
 void MainFrame::OnAddObject(wxCommandEvent& event)
 {
     MenuEditCreateObject(event);
@@ -975,6 +987,14 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
         auto gameObjectId = GetGameObjectId(sel);
         if (gameObjectId)
         {
+            int answer = wxMessageBox("Delete game object " + gameObjectsView->GetItemText(sel) + "?", "Confirmation",
+                                      wxYES_NO | wxICON_QUESTION);
+
+            if (answer != wxYES)
+            {
+                return;
+            }
+
             wxTreeItemId parentItem = gameObjectsView->GetItemParent(sel);
             if (parentItem.IsOk())
             {
@@ -997,14 +1017,33 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
     }
 }
 
-void MainFrame::OnUnmarkPrefab(wxCommandEvent &)
+void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
 {
+    auto sel = gameObjectsView->GetSelection();
 
+    if (sel.IsOk())
+    {
+        if (auto maybeGo = GetGameObject(sel))
+        {
+            maybeGo->unmarkAsPrefabricated();
+            gameObjectsView->SetItemText(sel, maybeGo->GetName());
+        }
+    }
 }
 
-void MainFrame::OnMakePrefab(wxCommandEvent &)
+void MainFrame::OnMakePrefab(wxCommandEvent&)
 {
+    if (auto maybeGo = GetSelectedGameObject())
+    {
+        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data), "",
+                                "Pliki prefabów (*.prefab)|*.prefab", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
+        if (fileDialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        wxString path = fileDialog.GetPath();
+        GameEngine::createAndSavePrefab(GameEngine::File{path.c_str()}, *maybeGo);
+    }
 }
 
 void MainFrame::CloneGameObject(wxCommandEvent& event)

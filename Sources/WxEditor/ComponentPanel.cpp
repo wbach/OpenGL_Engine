@@ -116,21 +116,26 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     wxButton* deleteComponentButton = new wxButton(headerPanel, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, 20));
     headerSizer->Add(deleteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
     deleteComponentButton->Bind(wxEVT_BUTTON,
-                                [this, type = component.GetType()](const auto&)
+                                [this, type = component.GetType(), typeName](const auto&)
                                 {
-                                    CallAfter(
-                                        [this, type]()
-                                        {
-                                            gameObject.RemoveComponent(type);
-                                            mainSizer->Clear(true);
-                                            this->Layout();
-                                            this->FitInside();
-                                            if (this->GetParent())
+                                    int answer = wxMessageBox("Delete component " + typeName + "?", "Confirmation",
+                                                              wxYES_NO | wxICON_QUESTION);
+                                    if (answer == wxYES)
+                                    {
+                                        CallAfter(
+                                            [this, type]()
                                             {
-                                                this->GetParent()->Layout();
-                                                this->GetParent()->FitInside();
-                                            }
-                                        });
+                                                gameObject.RemoveComponent(type);
+                                                mainSizer->Clear(true);
+                                                this->Layout();
+                                                this->FitInside();
+                                                if (this->GetParent())
+                                                {
+                                                    this->GetParent()->Layout();
+                                                    this->GetParent()->FitInside();
+                                                }
+                                            });
+                                    }
                                 });
 
     headerPanel->SetSizer(headerSizer);

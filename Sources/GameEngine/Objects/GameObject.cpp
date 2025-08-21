@@ -345,6 +345,11 @@ void GameObject::markAsPrefabricated(const File& file)
     prefabricatedFile = file;
 }
 
+void GameObject::unmarkAsPrefabricated()
+{
+    prefabricatedFile = File();
+}
+
 const File &GameObject::getPrefabricatedFile() const
 {
     return prefabricatedFile;

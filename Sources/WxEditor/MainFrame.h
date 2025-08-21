@@ -108,6 +108,7 @@ private:
     void OnDeleteObject(wxCommandEvent&);
     void OnUnmarkPrefab(wxCommandEvent&);
     void OnMakePrefab(wxCommandEvent&);
+    void OnRename(wxCommandEvent&);
     void CloneGameObject(wxCommandEvent&);
     void OnObjectDrag(wxTreeEvent&);
     void OnObjectEndDrag(wxTreeEvent&);
