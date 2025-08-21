@@ -18,6 +18,7 @@
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Objects/Prefab.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"
@@ -70,6 +71,8 @@ public:
 
     std::unique_ptr<GameObject> CreateGameObject(const std::optional<uint32>& = std::nullopt);
     std::unique_ptr<GameObject> CreateGameObject(const std::string&, const std::optional<uint32>& = std::nullopt);
+    std::unique_ptr<Prefab> CreatePrefabGameObject(const std::optional<uint32>& = std::nullopt);
+    std::unique_ptr<Prefab> CreatePrefabGameObject(const std::string&, const std::optional<uint32>& = std::nullopt);
 
     void SetDirectionalLightColor(const vec3& color);
     Light& AddLight(const Light& light);

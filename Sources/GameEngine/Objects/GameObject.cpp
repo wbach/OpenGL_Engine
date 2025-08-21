@@ -82,13 +82,12 @@ std::unique_ptr<GameObject> GameObject::CreateChild(const std::string& name, con
 void GameObject::NotifyComponentControllerAboutObjectCreation(GameObject& object)
 {
     componentController_.OnObjectCreated(object.GetId());
-    for(auto& child : object.GetChildren())
+    for (auto& child : object.GetChildren())
     {
         componentController_.OnObjectCreated(child->GetId());
         NotifyComponentControllerAboutObjectCreation(*child);
     }
 }
-
 
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
@@ -333,48 +332,6 @@ void GameObject::SetWorldPositionRotationScale(const vec3& position, const Quate
     auto localScale    = ConvertWorldToLocalScale(scale);
 
     localTransform_.SetPositionAndRotationAndScale(localPosition, localRotation, localScale);
-}
-
-const bool GameObject::isPrefabricated() const
-{
-    return not prefabricatedFile.empty();
-}
-
-void GameObject::markAsPrefabricated(const File& file)
-{
-    prefabricatedFile = file;
-
-    std::function<void(GameEngine::GameObject&)> markAsPrefabChildren;
-    markAsPrefabChildren = [&](GameEngine::GameObject& go)
-    {
-        auto& children = go.GetChildren();
-        for (auto& child : children)
-        {
-            child->markAsPrefabricated(file);
-        }
-    };
-    markAsPrefabChildren(*this);
-}
-
-void GameObject::unmarkAsPrefabricated()
-{
-    prefabricatedFile = File();
-
-    std::function<void(GameEngine::GameObject&)> unmarkAsPrefabChildren;
-    unmarkAsPrefabChildren = [&](GameEngine::GameObject& go)
-    {
-        auto& children = go.GetChildren();
-        for (auto& child : children)
-        {
-            child->unmarkAsPrefabricated();
-        }
-    };
-    unmarkAsPrefabChildren(*this);
-}
-
-const File &GameObject::getPrefabricatedFile() const
-{
-    return prefabricatedFile;
 }
 
 GameObject& GameObject::getRootGameObject()

@@ -14,7 +14,6 @@ namespace GameEngine
 {
 XmlSceneStorage::XmlSceneStorage(Scene& scene)
     : scene_(scene)
-    , maybeModifyObjectsTreeNode_{std::nullopt}
 {
 }
 XmlSceneStorage::~XmlSceneStorage()
@@ -24,11 +23,6 @@ void XmlSceneStorage::store()
 {
     DEBUG_LOG("store");
     rootNode_ = createTree(scene_);
-    if (maybeModifyObjectsTreeNode_)
-    {
-         auto& newModifyNode = rootNode_->addChild(CSTR_MODIFY_OBJECTS);
-         newModifyNode       = *maybeModifyObjectsTreeNode_;
-    }
 }
 void XmlSceneStorage::restore()
 {

@@ -78,8 +78,8 @@ void Scene::InitResources(EngineContext& context)
     console_ = std::make_unique<Debug::Console>(*this);
 
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
-        *this, context.GetSceneManager(), componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_, *inputManager_,
-        *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_, *timerService_);
+        *this, context.GetSceneManager(), componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_,
+        *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_, *timerService_);
 
     rootGameObject_ = CreateGameObject("root");
 }
@@ -156,7 +156,7 @@ bool Scene::isStarted() const
     return start_.load();
 }
 
-void Scene::ChangeName(const std::string &name)
+void Scene::ChangeName(const std::string& name)
 {
     this->name = name;
 }
@@ -174,6 +174,16 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
     return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+}
+
+std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<uint32>& maybeId)
+{
+    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+}
+
+std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<uint32>& maybeId)
+{
+    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -348,7 +358,7 @@ Input::InputManager* Scene::getInputManager()
     return inputManager_;
 }
 
-Components::ComponentController &Scene::getComponentController()
+Components::ComponentController& Scene::getComponentController()
 {
     return componentController_;
 }

@@ -35,9 +35,13 @@ void Create(TreeNode& node, const std::vector<std::unique_ptr<Components::ICompo
         component->write(node.addChild(CSTR_COMPONENT));
     }
 }
-void CreatePrefabNode(TreeNode& node, const GameObject& gameObject)
+void CreatePrefabNode(TreeNode& node, const Prefab& gameObject)
 {
-    node.addChild(CSTR_FILE_NAME, gameObject.getPrefabricatedFile().GetDataRelativeDir());
+    node.attributes_.insert({CSTR_NAME, gameObject.GetName()});
+    node.attributes_.insert({CSTR_ID, std::to_string(gameObject.GetId())});
+    Create(node.addChild(CSTR_TRANSFORM), gameObject.GetTransform());
+
+    node.addChild(CSTR_FILE_NAME, gameObject.getFile().GetDataRelativeDir());
 }
 void Create(TreeNode& node, const GameObject& gameObject)
 {
@@ -52,13 +56,13 @@ void Create(TreeNode& node, const GameObject& gameObject)
 
         for (const auto& gameObject : gameObject.GetChildren())
         {
-            if (not gameObject->isPrefabricated())
+            if (const auto prefab = dynamic_cast<const Prefab*>(gameObject.get()))
             {
-                Create(childrenNode.addChild(CSTR_GAMEOBJECT), *gameObject);
+                CreatePrefabNode(childrenNode.addChild(CSTR_PREFAB), *prefab);
             }
             else
             {
-                CreatePrefabNode(childrenNode.addChild(CSTR_PREFAB), *gameObject);
+                Create(childrenNode.addChild(CSTR_GAMEOBJECT), *gameObject);
             }
         }
     }
@@ -70,27 +74,11 @@ void Create(TreeNode& node, const GameObjects& gameObjects)
 
     for (const auto& gameObject : gameObjects)
     {
-        if (not gameObject->isPrefabricated())
+        if (const auto prefab = dynamic_cast<const Prefab*>(gameObject.get()))
         {
-            Create(node.addChild(CSTR_GAMEOBJECT), *gameObject);
+            CreatePrefabNode(node.addChild(CSTR_PREFAB), *prefab);
         }
         else
-        {
-            CreatePrefabNode(node.addChild(CSTR_PREFAB), *gameObject);
-        }
-    }
-}
-
-void CreatePrefabs(TreeNode& node, const GameObjects& gameObjects)
-{
-    auto objectCount =
-        std::count_if(gameObjects.begin(), gameObjects.end(), [](const auto& obj) { return obj->isPrefabricated(); });
-
-    node.attributes_[CSTR_COUNT] = std::to_string(objectCount);
-
-    for (const auto& gameObject : gameObjects)
-    {
-        if (gameObject->isPrefabricated())
         {
             Create(node.addChild(CSTR_GAMEOBJECT), *gameObject);
         }

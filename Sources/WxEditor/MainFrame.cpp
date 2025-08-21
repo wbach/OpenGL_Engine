@@ -101,6 +101,28 @@ enum
     ID_TOOL_START,
     ID_TOOL_STOP
 };
+
+bool isGameObjectPrefab(const GameEngine::GameObject& go)
+{
+    return dynamic_cast<const GameEngine::Prefab*>(&go) != nullptr;
+}
+void MoveTreeNode(wxTreeCtrl* tree, const wxTreeItemId& srcItem, const wxTreeItemId& newParent)
+{
+    // 1. Skopiuj srcItem pod newParent
+    wxString text        = tree->GetItemText(srcItem);
+    wxTreeItemData* data = tree->GetItemData(srcItem);
+    auto newItem         = tree->AppendItem(newParent, text, -1, -1, data);
+
+    // 2. Rekurencyjnie kopiuj dzieci
+    wxTreeItemIdValue cookie;
+    for (auto child = tree->GetFirstChild(srcItem, cookie); child.IsOk(); child = tree->GetNextChild(srcItem, cookie))
+    {
+        MoveTreeNode(tree, child, newItem);
+    }
+
+    // 3. Usuń oryginalne źródło
+    tree->Delete(srcItem);
+}
 }  // namespace
 
 // clang-format off
@@ -175,12 +197,9 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
     auto selectItemInGameObjectTree = [&](uint32 gameObjectId, bool select)
     {
-        for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
+        if (auto wxItemId = GetTreeItemId(gameObjectId))
         {
-            if (goId == gameObjectId)
-            {
-                gameObjectsView->SelectItem(wxItemId, select);
-            }
+            gameObjectsView->SelectItem(*wxItemId, select);
         }
     };
     canvas = new GLCanvas(trs, onStartupDone, selectItemInGameObjectTree);
@@ -451,7 +470,7 @@ wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdTy
     auto isPrefab = false;
     if (auto go = canvas->GetScene().GetGameObject(goId))
     {
-        isPrefab = go->isPrefabricated();
+        isPrefab = isGameObjectPrefab(*go);
     }
 
     auto goName = name;
@@ -506,6 +525,24 @@ std::optional<IdType> MainFrame::GetGameObjectId(wxTreeItemId id)
     return std::nullopt;
 }
 
+std::optional<wxTreeItemId> MainFrame::GetTreeItemId(IdType gameObjectId)
+{
+    for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
+    {
+        if (goId == gameObjectId)
+        {
+            return wxItemId;
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<wxTreeItemId> MainFrame::GetTreeItemId(GameEngine::GameObject& go)
+{
+    return GetTreeItemId(go.GetId());
+}
+
 void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
 {
 }
@@ -526,7 +563,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     {
         ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
         compPanel->AddComponent(*component);
-        if (gameObject.isPrefabricated())
+        if (isGameObjectPrefab(gameObject))
         {
             compPanel->Lock();
         }
@@ -551,7 +588,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
                                          ComponentPanel* compPanel = new ComponentPanel(
                                              gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
                                          compPanel->AddComponent(component, false);
-                                         if (gameObject.isPrefabricated())
+                                         if (isGameObjectPrefab(gameObject))
                                          {
                                              compPanel->Lock();
                                          }
@@ -891,7 +928,7 @@ void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId paren
     for (const auto& child : gameObject.GetChildren())
     {
         auto wxItemId = AddGameObjectToWxWidgets(parentId, child->GetId(), child->GetName());
-        if (child->isPrefabricated())
+        if (isGameObjectPrefab(*child))
         {
             treeHelper->DisableItem(wxItemId);
         }
@@ -1102,10 +1139,66 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
     {
         if (auto maybeGo = GetGameObject(sel))
         {
-            maybeGo->unmarkAsPrefabricated();
-            gameObjectsView->SetItemText(sel, maybeGo->GetName());
-            treeHelper->EnableItem(sel);
-            UnlockAllComponentPanels();
+            if (isGameObjectPrefab(*maybeGo))
+            {
+                // gameObjectsView->SetItemText(sel, maybeGo->GetName());
+                // treeHelper->EnableItem(sel);
+                // UnlockAllComponentPanels();
+
+                if (not maybeGo->GetChildren().empty())
+                {
+                    if (auto parent = maybeGo->GetParent())
+                    {
+                        auto& rootGameObjectOfPrefab = maybeGo->GetChildren().front();
+
+                        // WxWidgets swap
+                        auto parentItemId     = GetTreeItemId(*parent);
+                        auto currentItemId    = GetTreeItemId(*maybeGo);
+                        auto prefabRootItemId = GetTreeItemId(*rootGameObjectOfPrefab);
+
+                        if (currentItemId)
+                            parentItemId = gameObjectsView->GetItemParent(*currentItemId);
+
+                        LOG_DEBUG << parentItemId;
+                        LOG_DEBUG << currentItemId;
+                        LOG_DEBUG << prefabRootItemId;
+
+                        if (parentItemId and prefabRootItemId)
+                        {
+                            LOG_DEBUG << "Start move wxItems";
+                            MoveTreeNode(gameObjectsView, *prefabRootItemId, *parentItemId);
+
+                            if (currentItemId and not gameObjectsView->ItemHasChildren(*currentItemId))
+                                gameObjectsView->Delete(*currentItemId);
+
+                            std::function<void(const wxTreeItemId&)> updateTreeItemMap;
+                            updateTreeItemMap = [&](const wxTreeItemId& item)
+                            {
+                                // pobieramy GameObjectId powiązany z tym item (stary lub nowy)
+                                auto it = gameObjectsItemsIdsMap.find(item);
+                                if (it != gameObjectsItemsIdsMap.end())
+                                {
+                                    auto id = it->second;
+                                    gameObjectsItemsIdsMap.erase(it);
+                                    gameObjectsItemsIdsMap[item] = id;
+                                }
+
+                                wxTreeItemIdValue cookie;
+                                for (auto child = gameObjectsView->GetFirstChild(item, cookie); child.IsOk();
+                                     child      = gameObjectsView->GetNextChild(item, cookie))
+                                {
+                                    updateTreeItemMap(child);
+                                }
+                            };
+                            updateTreeItemMap(*prefabRootItemId);
+                        }
+
+                        // Engine swap
+                        ChangeGameObjectParent(*rootGameObjectOfPrefab, *parent);
+                        canvas->GetScene().RemoveGameObject(maybeGo->GetId());
+                    }
+                }
+            }
         }
     }
 }

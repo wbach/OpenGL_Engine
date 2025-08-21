@@ -141,6 +141,8 @@ private:
     GameEngine::GameObject* GetSelectedGameObject();
     GameEngine::GameObject* GetGameObject(wxTreeItemId);
     std::optional<IdType> GetGameObjectId(wxTreeItemId);
+    std::optional<wxTreeItemId> GetTreeItemId(IdType);
+    std::optional<wxTreeItemId> GetTreeItemId(GameEngine::GameObject&);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
     void AddGameObjectComponentsToView(GameEngine::GameObject&);

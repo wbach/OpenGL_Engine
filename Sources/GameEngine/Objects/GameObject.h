@@ -79,11 +79,6 @@ public:
     void SetWorldPositionRotation(const vec3&, const Quaternion&);
     void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
 
-    const bool isPrefabricated() const;
-    void markAsPrefabricated(const File&);
-    void unmarkAsPrefabricated();
-    const File& getPrefabricatedFile() const;
-
     void NotifyComponentControllerAboutObjectCreation(GameObject&);
 
 private:
@@ -108,7 +103,6 @@ protected:
     bool isAwakened;
     IdType isStartedSub;
     IdType isAwakenedSub;
-    File prefabricatedFile;
 
 private:
     IdType id_;
