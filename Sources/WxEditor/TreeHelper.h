@@ -1,22 +1,28 @@
 #pragma once
-#include <wx/wx.h>
 #include <wx/treectrl.h>
+#include <wx/wx.h>
+
 #include <map>
 
 class TreeHelper
 {
 public:
-    TreeHelper(wxTreeCtrl* tree) : tree(tree) {}
+    TreeHelper(wxTreeCtrl* tree)
+        : tree(tree)
+    {
+    }
 
     void DisableItem(const wxTreeItemId& item)
     {
-        if (!item.IsOk()) return;
+        if (!item.IsOk())
+            return;
         ApplyRecursive(item, true);
     }
 
     void EnableItem(const wxTreeItemId& item)
     {
-        if (!item.IsOk()) return;
+        if (!item.IsOk())
+            return;
         ApplyRecursive(item, false);
     }
 
@@ -37,6 +43,12 @@ private:
     wxTreeCtrl* tree;
     std::map<wxTreeItemId, bool> disabledMap;
 
+    void RemovePrefabSuffix(wxString& str)
+    {
+        wxString suffix = " (prefab)";
+        str.Replace(suffix, "");
+    }
+
     void ApplyRecursive(const wxTreeItemId& item, bool disable)
     {
         // Zapisz stan
@@ -50,6 +62,10 @@ private:
         }
         else
         {
+            auto name = tree->GetItemText(item);
+            RemovePrefabSuffix(name);
+            tree->SetItemText(item, name);
+
             tree->SetItemTextColour(item, tree->GetForegroundColour());
             tree->SetItemFont(item, tree->GetFont());
         }

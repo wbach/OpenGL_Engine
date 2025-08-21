@@ -602,8 +602,9 @@ void MainFrame::MenuEditTerrainTexturePainter(wxCommandEvent&)
 
 void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 {
-    wxFileDialog openFileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
-                                "Pliki prefab (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxFileDialog openFileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data), "",
+                                "Pliki prefab (*.prefab)|*.prefab|Pliki prefab (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*",
+                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
@@ -1104,6 +1105,7 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
             maybeGo->unmarkAsPrefabricated();
             gameObjectsView->SetItemText(sel, maybeGo->GetName());
             treeHelper->EnableItem(sel);
+            UnlockAllComponentPanels();
         }
     }
 }
