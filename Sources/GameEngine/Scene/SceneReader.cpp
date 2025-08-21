@@ -129,9 +129,8 @@ GameObject* ReadPrefab(const File& file, Scene& scene, const TreeNode& node, con
     }
 
     auto gameObject = scene.CreateGameObject(prefabName);
-    gameObject->markAsPrefabricated(file);
     Read(scene, node, *gameObject);
-
+    gameObject->markAsPrefabricated(file);
     auto result = gameObject.get();
     scene.AddGameObject(std::move(gameObject));
     return result;

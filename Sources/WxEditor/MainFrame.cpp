@@ -159,6 +159,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectsView = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
                                      wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
     gameObjectsView->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &MainFrame::OnTreeItemRightClick, this);
+
     Bind(wxEVT_MENU, &MainFrame::OnAddObject, this, ID_TREE_MENU_CREATE_CHILD);
     Bind(wxEVT_MENU, &MainFrame::OnUnmarkPrefab, this, ID_TREE_MENU_UNMARK_PREFAB);
     Bind(wxEVT_MENU, &MainFrame::OnMakePrefab, this, ID_TREE_MENU_MAKE_PREFAB);
@@ -166,6 +167,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
+    treeHelper = std::make_unique<TreeHelper>(gameObjectsView);
     CreateRootGameObject();
 
     topSplitter->SplitVertically(gameObjectsView, trs, size.x / 8);
@@ -416,6 +418,10 @@ wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdTy
 
     auto itemId = gameObjectsView->AppendItem(pranetItemId, goName);
     gameObjectsItemsIdsMap.insert({itemId, goId});
+    if (isPrefab)
+    {
+        treeHelper->DisableItem(itemId);
+    }
     return itemId;
 }
 
@@ -831,12 +837,11 @@ void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId paren
 {
     for (const auto& child : gameObject.GetChildren())
     {
-        auto name = child->GetName();
+        auto wxItemId = AddGameObjectToWxWidgets(parentId, child->GetId(), child->GetName());
         if (child->isPrefabricated())
         {
-            name += " (prefab)";
+            treeHelper->DisableItem(wxItemId);
         }
-        auto wxItemId = AddGameObjectToWxWidgets(parentId, child->GetId(), name);
         AddChilds(*child, wxItemId);
     }
 }
@@ -925,13 +930,32 @@ void MainFrame::OnTreeItemRightClick(wxTreeEvent& event)
 
     wxMenu menu;
     menu.Append(ID_TREE_MENU_CREATE_CHILD, "Create child");
+    menu.Append(ID_TREE_MENU_CLONE, "Clone");
+    menu.AppendSeparator();
     menu.Append(ID_TREE_MENU_MAKE_PREFAB, "Create prefab");
     menu.Append(ID_TREE_MENU_UNMARK_PREFAB, "Unmark prefab");
+    menu.AppendSeparator();
     menu.Append(ID_TREE_MENU_RENAME, "Rename");
+    menu.AppendSeparator();
     menu.Append(ID_TREE_MENU_REMOVE, "Remove");
-    menu.Append(ID_TREE_MENU_CLONE, "Clone");
-    //    menu.AppendSeparator();
-    //    menu.Append(ID_TREE_MENU_3, "Properties");
+
+    if (treeHelper->IsDisabled(itemId))
+    {
+        menu.Enable(ID_TREE_MENU_CREATE_CHILD, false);
+        menu.Enable(ID_TREE_MENU_MAKE_PREFAB, false);
+        menu.Enable(ID_TREE_MENU_RENAME, false);
+        menu.Enable(ID_TREE_MENU_CLONE, false);
+
+        wxTreeItemId parent = gameObjectsView->GetItemParent(itemId);
+        if (parent.IsOk())
+        {
+            if (treeHelper->IsDisabled(parent))
+            {
+                menu.Enable(ID_TREE_MENU_UNMARK_PREFAB, false);
+                menu.Enable(ID_TREE_MENU_REMOVE, false);
+            }
+        }
+    }
     PopupMenu(&menu);
 }
 
@@ -1027,6 +1051,7 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
         {
             maybeGo->unmarkAsPrefabricated();
             gameObjectsView->SetItemText(sel, maybeGo->GetName());
+            treeHelper->EnableItem(sel);
         }
     }
 }

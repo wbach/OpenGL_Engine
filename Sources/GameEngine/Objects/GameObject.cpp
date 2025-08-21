@@ -343,11 +343,33 @@ const bool GameObject::isPrefabricated() const
 void GameObject::markAsPrefabricated(const File& file)
 {
     prefabricatedFile = file;
+
+    std::function<void(GameEngine::GameObject&)> markAsPrefabChildren;
+    markAsPrefabChildren = [&](GameEngine::GameObject& go)
+    {
+        auto& children = go.GetChildren();
+        for (auto& child : children)
+        {
+            child->markAsPrefabricated(file);
+        }
+    };
+    markAsPrefabChildren(*this);
 }
 
 void GameObject::unmarkAsPrefabricated()
 {
     prefabricatedFile = File();
+
+    std::function<void(GameEngine::GameObject&)> unmarkAsPrefabChildren;
+    unmarkAsPrefabChildren = [&](GameEngine::GameObject& go)
+    {
+        auto& children = go.GetChildren();
+        for (auto& child : children)
+        {
+            child->unmarkAsPrefabricated();
+        }
+    };
+    unmarkAsPrefabChildren(*this);
 }
 
 const File &GameObject::getPrefabricatedFile() const
