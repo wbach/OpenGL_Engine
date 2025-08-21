@@ -30,6 +30,7 @@ private:
     GameEngine::GameObject& gameObject;
     wxBoxSizer* mainSizer{nullptr};
     wxCollapsiblePane* collapsible{nullptr};
+    wxPanel* headerPanel{nullptr};
 
     void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
     void CreateUIForField(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);

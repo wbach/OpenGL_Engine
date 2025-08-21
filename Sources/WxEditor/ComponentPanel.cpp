@@ -82,19 +82,19 @@ ComponentPanel::ComponentPanel(wxWindow* parent, GameEngine::Components::Compone
 
 void ComponentPanel::Lock()
 {
-    std::function<void(wxWindow*)> disableChildren;
-    disableChildren = [&](wxWindow* parent)
+    std::function<void(wxWindow*)> lockChildren = [&](wxWindow* parent)
     {
-        if (not wxDynamicCast(parent, wxCollapsiblePane))
+        if (not parent) return;
+
+        if (not (parent == headerPanel || parent == collapsible))
             parent->Disable();
 
-        wxWindowList& children = parent->GetChildren();
-        for (auto child : children)
-        {
-            disableChildren(child);
-        }
+        for (auto child : parent->GetChildren())
+            lockChildren(child);
     };
-    disableChildren(this);
+
+    for (auto child : GetChildren())
+        lockChildren(child);
 }
 
 void ComponentPanel::Unlock()
@@ -124,7 +124,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     component.write(node);
     auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);
 
-    wxPanel* headerPanel    = new wxPanel(this);
+    headerPanel    = new wxPanel(this);
     wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);
 
     // Label z nazwą sekcji
