@@ -740,6 +740,12 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
     toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
     toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
+
+    toolbar->SetToolShortHelp(ID_TOOL_OPEN, "Open scene from file");
+    toolbar->SetToolShortHelp(ID_TOOL_SAVE, "Save scene");
+    toolbar->SetToolShortHelp(ID_TOOL_SAVE_AS, "Save scene to other file");
+    toolbar->SetToolShortHelp(ID_TOOL_START, "Start scene");
+    toolbar->SetToolShortHelp(ID_TOOL_STOP, "Stop scene if started");
     // Separator żeby odsunąć
     toolbar->AddSeparator();
 
