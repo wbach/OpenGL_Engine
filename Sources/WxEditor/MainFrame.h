@@ -155,6 +155,8 @@ private:
 
     bool SaveSceneAs();
 
+    void MoveTreeNode(const wxTreeItemId& srcItem, const wxTreeItemId& newParent);
+
 private:
     GLCanvas* canvas{nullptr};
     OptionsFrame* optionsFrame{nullptr};
@@ -169,7 +171,6 @@ private:
     wxSlider* timeSlider{nullptr};
     wxSpinCtrl* hourCtrl{nullptr};
     wxSpinCtrl* minuteCtrl{nullptr};
-
 
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;

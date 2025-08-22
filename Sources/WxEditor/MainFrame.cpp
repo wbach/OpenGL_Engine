@@ -105,7 +105,8 @@ enum
 bool isGameObjectPrefab(const GameEngine::GameObject& go)
 {
     std::function<bool(const GameEngine::GameObject&)> checkPrefab;
-    checkPrefab = [&checkPrefab](const GameEngine::GameObject& obj) -> bool {
+    checkPrefab = [&checkPrefab](const GameEngine::GameObject& obj) -> bool
+    {
         if (dynamic_cast<const GameEngine::Prefab*>(&obj) != nullptr)
             return true;
 
@@ -116,24 +117,6 @@ bool isGameObjectPrefab(const GameEngine::GameObject& go)
     };
 
     return checkPrefab(go);
-}
-
-void MoveTreeNode(wxTreeCtrl* tree, const wxTreeItemId& srcItem, const wxTreeItemId& newParent)
-{
-    // 1. Skopiuj srcItem pod newParent
-    wxString text        = tree->GetItemText(srcItem);
-    wxTreeItemData* data = tree->GetItemData(srcItem);
-    auto newItem         = tree->AppendItem(newParent, text, -1, -1, data);
-
-    // 2. Rekurencyjnie kopiuj dzieci
-    wxTreeItemIdValue cookie;
-    for (auto child = tree->GetFirstChild(srcItem, cookie); child.IsOk(); child = tree->GetNextChild(srcItem, cookie))
-    {
-        MoveTreeNode(tree, child, newItem);
-    }
-
-    // 3. Usuń oryginalne źródło
-    tree->Delete(srcItem);
 }
 }  // namespace
 
@@ -1133,10 +1116,6 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
         {
             if (isGameObjectPrefab(*maybeGo))
             {
-                // gameObjectsView->SetItemText(sel, maybeGo->GetName());
-                // treeHelper->EnableItem(sel);
-                // UnlockAllComponentPanels();
-
                 if (not maybeGo->GetChildren().empty())
                 {
                     if (auto parent = maybeGo->GetParent())
@@ -1151,38 +1130,12 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
                         if (currentItemId)
                             parentItemId = gameObjectsView->GetItemParent(*currentItemId);
 
-                        LOG_DEBUG << parentItemId;
-                        LOG_DEBUG << currentItemId;
-                        LOG_DEBUG << prefabRootItemId;
-
                         if (parentItemId and prefabRootItemId)
                         {
-                            LOG_DEBUG << "Start move wxItems";
-                            MoveTreeNode(gameObjectsView, *prefabRootItemId, *parentItemId);
+                            MoveTreeNode(*prefabRootItemId, *parentItemId);
 
                             if (currentItemId and not gameObjectsView->ItemHasChildren(*currentItemId))
                                 gameObjectsView->Delete(*currentItemId);
-
-                            std::function<void(const wxTreeItemId&)> updateTreeItemMap;
-                            updateTreeItemMap = [&](const wxTreeItemId& item)
-                            {
-                                // pobieramy GameObjectId powiązany z tym item (stary lub nowy)
-                                auto it = gameObjectsItemsIdsMap.find(item);
-                                if (it != gameObjectsItemsIdsMap.end())
-                                {
-                                    auto id = it->second;
-                                    gameObjectsItemsIdsMap.erase(it);
-                                    gameObjectsItemsIdsMap[item] = id;
-                                }
-
-                                wxTreeItemIdValue cookie;
-                                for (auto child = gameObjectsView->GetFirstChild(item, cookie); child.IsOk();
-                                     child      = gameObjectsView->GetNextChild(item, cookie))
-                                {
-                                    updateTreeItemMap(child);
-                                }
-                            };
-                            updateTreeItemMap(*prefabRootItemId);
                         }
 
                         // Engine swap
@@ -1193,6 +1146,35 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
             }
         }
     }
+}
+
+void MainFrame::MoveTreeNode(const wxTreeItemId& srcItem, const wxTreeItemId& newParent)
+{
+    // 1. Skopiuj srcItem pod newParent
+    auto text    = gameObjectsView->GetItemText(srcItem);
+    auto* data   = gameObjectsView->GetItemData(srcItem);
+    auto newItem = gameObjectsView->AppendItem(newParent, text, -1, -1, data);
+
+    if (auto maybeGoId = GetGameObjectId(srcItem))
+    {
+        gameObjectsItemsIdsMap.insert({newItem, *maybeGoId});
+    }
+    else
+    {
+        LOG_ERROR << "Move get gameObjct id error";
+    }
+
+    // 2. Rekurencyjnie kopiuj dzieci
+    wxTreeItemIdValue cookie;
+    for (auto child = gameObjectsView->GetFirstChild(srcItem, cookie); child.IsOk();
+         child      = gameObjectsView->GetNextChild(srcItem, cookie))
+    {
+        MoveTreeNode(child, newItem);
+    }
+
+    // 3. Usuń oryginalne źródło
+    gameObjectsItemsIdsMap.erase(srcItem);
+    gameObjectsView->Delete(srcItem);
 }
 
 void MainFrame::OnMakePrefab(wxCommandEvent&)
