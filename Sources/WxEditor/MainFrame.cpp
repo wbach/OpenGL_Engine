@@ -104,8 +104,20 @@ enum
 
 bool isGameObjectPrefab(const GameEngine::GameObject& go)
 {
-    return dynamic_cast<const GameEngine::Prefab*>(&go) != nullptr;
+    std::function<bool(const GameEngine::GameObject&)> checkPrefab;
+    checkPrefab = [&checkPrefab](const GameEngine::GameObject& obj) -> bool {
+        if (dynamic_cast<const GameEngine::Prefab*>(&obj) != nullptr)
+            return true;
+
+        if (obj.GetParent() != nullptr)
+            return checkPrefab(*obj.GetParent());
+
+        return false;
+    };
+
+    return checkPrefab(go);
 }
+
 void MoveTreeNode(wxTreeCtrl* tree, const wxTreeItemId& srcItem, const wxTreeItemId& newParent)
 {
     // 1. Skopiuj srcItem pod newParent
@@ -167,9 +179,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 // clang-format on
 {
-    wxImage::AddHandler(new wxPNGHandler);
-    wxImage::AddHandler(new wxJPEGHandler);
-    wxImage::AddHandler(new wxBMPHandler);
+    wxInitAllImageHandlers();
 
     wxSplitterWindow* horizontalSpliter = new wxSplitterWindow(this, wxID_ANY);
     wxSplitterWindow* topSplitter       = new wxSplitterWindow(horizontalSpliter, wxID_ANY);
@@ -467,24 +477,8 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
 
 wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdType goId, const std::string& name)
 {
-    auto isPrefab = false;
-    if (auto go = canvas->GetScene().GetGameObject(goId))
-    {
-        isPrefab = isGameObjectPrefab(*go);
-    }
-
-    auto goName = name;
-    if (isPrefab)
-    {
-        goName += " (prefab)";
-    }
-
-    auto itemId = gameObjectsView->AppendItem(pranetItemId, goName);
+    auto itemId = gameObjectsView->AppendItem(pranetItemId, name);
     gameObjectsItemsIdsMap.insert({itemId, goId});
-    if (isPrefab)
-    {
-        treeHelper->DisableItem(itemId);
-    }
     return itemId;
 }
 
@@ -558,10 +552,9 @@ GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
 
 void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject)
 {
-    // Dodajemy panele istniejących komponentów
     for (auto& component : gameObject.GetComponents())
     {
-        ComponentPanel* compPanel = new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
+        auto* compPanel = new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
         compPanel->AddComponent(*component);
         if (isGameObjectPrefab(gameObject))
         {
@@ -570,7 +563,6 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
         gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
 
-    // Usuwamy poprzedni przycisk, jeśli istnieje
     if (addComponentButton)
     {
         addComponentButton->Destroy();
@@ -649,7 +641,8 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
     auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), openFileDialog.GetPath().ToStdString());
     if (go)
     {
-        auto prefabItemId = AddGameObjectToWxWidgets(treeRootId, go->GetId(), go->GetName());
+        auto prefabItemId = AddGameObjectToWxWidgets(treeRootId, go->GetId(), go->GetName() + " (prefab)");
+        treeHelper->DisableItem(prefabItemId);
 
         // TO DO remove duplicate
         std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
@@ -659,6 +652,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
             for (const auto& child : children)
             {
                 auto childItemId = AddGameObjectToWxWidgets(wxId, child->GetId(), child->GetName());
+                treeHelper->DisableItem(childItemId);
                 addChildToWidgets(childItemId, *child);
             }
         };
@@ -972,11 +966,9 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         return;
     }
 
-    DEBUG_LOG("OnObjectTreeSelChange");
     auto go = GetSelectedGameObject();
     if (go)
     {
-        DEBUG_LOG("OnObjectTreeSelChange go: " + go->GetName());
         worldTransformPanel->set(go->GetWorldTransform());
         localTransformPanel->set(go->GetTransform());
 

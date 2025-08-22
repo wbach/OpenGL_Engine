@@ -92,7 +92,6 @@ ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelec
     , fileSelectedCallback(fileSelectedCallback)
     , rootFolder(rootPath)
 {
-    wxInitAllImageHandlers();
     auto* sizer = new wxBoxSizer(wxHORIZONTAL);
     projectTree = new wxTreeCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(220, -1), wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT);
 
