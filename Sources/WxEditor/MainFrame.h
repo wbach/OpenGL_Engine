@@ -16,6 +16,7 @@
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "TransformPanel.h"
 #include "TreeHelper.h"
+#include "SceneTreeCtrl.h"
 
 class GLCanvas;
 class OptionsFrame;
@@ -24,22 +25,6 @@ namespace GameEngine
 {
 class GameObject;
 }
-
-struct TreeItemIdHasher
-{
-    std::size_t operator()(const wxTreeItemId& id) const
-    {
-        return std::hash<void*>()(id.GetID());
-    }
-};
-
-struct TreeItemIdEqual
-{
-    bool operator()(const wxTreeItemId& lhs, const wxTreeItemId& rhs) const
-    {
-        return lhs == rhs;
-    }
-};
 
 class TransfromSubController
 {
@@ -102,7 +87,6 @@ private:
 
     void OnObjectTreeSelChange(wxTreeEvent&);
     void OnObjectTreeActivated(wxTreeEvent&);
-    void OnTreeItemRightClick(wxTreeEvent&);
     void OnBeginLabelEdit(wxTreeEvent&);
     void OnEndLabelEdit(wxTreeEvent&);
     void OnAddObject(wxCommandEvent&);
@@ -111,8 +95,6 @@ private:
     void OnMakePrefab(wxCommandEvent&);
     void OnRename(wxCommandEvent&);
     void CloneGameObject(wxCommandEvent&);
-    void OnObjectDrag(wxTreeEvent&);
-    void OnObjectEndDrag(wxTreeEvent&);
     void OnPageChanged(wxNotebookEvent&);
 
     void OnClose(wxCloseEvent&);
@@ -123,7 +105,6 @@ private:
     void OnFileActivated(const wxString&);
 
     void AddChilds(GameEngine::GameObject&, wxTreeItemId);
-    void CreateRootGameObject();
 
     void CreateMainMenu();
     wxMenu* CreateFileMenu();
@@ -135,14 +116,10 @@ private:
     void UpdateTimeOnToolbar();
 
     GameEngine::GameObject* AddGameObject(const std::string& = "NewGameObject", IdType = 0);
-    wxTreeItemId AddGameObjectToWxWidgets(wxTreeItemId, IdType, const std::string&);
 
     void UpdateObjectCount();
     GameEngine::GameObject* GetSelectedGameObject();
     GameEngine::GameObject* GetGameObject(wxTreeItemId);
-    std::optional<IdType> GetGameObjectId(wxTreeItemId);
-    std::optional<wxTreeItemId> GetTreeItemId(IdType);
-    std::optional<wxTreeItemId> GetTreeItemId(GameEngine::GameObject&);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
     GameEngine::Painter::EntryParamters GetPainterEntryParameters();
     void AddGameObjectComponentsToView(GameEngine::GameObject&);
@@ -154,13 +131,13 @@ private:
     void OnToolStop(wxCommandEvent&);
 
     bool SaveSceneAs();
-
-    void MoveTreeNode(const wxTreeItemId& srcItem, const wxTreeItemId& newParent);
+    void UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> = std::nullopt);
 
 private:
     GLCanvas* canvas{nullptr};
     OptionsFrame* optionsFrame{nullptr};
-    wxTreeCtrl* gameObjectsView{nullptr};
+    std::unique_ptr<SceneTreeCtrl> gameObjectsView{nullptr};
+    wxCollapsiblePane* transformsCollapsible{nullptr};
     TransformPanel* worldTransformPanel{nullptr};
     TransformPanel* localTransformPanel{nullptr};
     wxBoxSizer* gameObjectPanelsSizer{nullptr};
@@ -171,11 +148,6 @@ private:
     wxSlider* timeSlider{nullptr};
     wxSpinCtrl* hourCtrl{nullptr};
     wxSpinCtrl* minuteCtrl{nullptr};
-
-    wxTreeItemId treeRootId;
-    wxTreeItemId treeDragItemId;
-    wxTreeItemId treeRightClickedItem;
-    std::unordered_map<wxTreeItemId, IdType, TreeItemIdHasher, TreeItemIdEqual> gameObjectsItemsIdsMap;
 
     std::thread loadSceneThread;
     wxDECLARE_EVENT_TABLE();

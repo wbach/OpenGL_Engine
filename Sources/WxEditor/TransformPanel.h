@@ -33,6 +33,8 @@ public:
     TransformPanel(wxWindow* parent);
     void set(const common::Transform&);
     void set(TransfromChanged);
+    void lock();
+    void unlock();
 
 private:
     void OnPaneChanged(wxCollapsiblePaneEvent&);

@@ -16,6 +16,7 @@
 
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"
+#include "ControlsIds.h"
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
 #include "ProjectPanel.h"
@@ -62,46 +63,6 @@ bool terminateProcessByPID(long pid)
 #endif
 }
 
-enum
-{
-    ID_MENU_FILE_OPEN_SCENE = wxID_HIGHEST + 1,
-    ID_MENU_FILE_RELOAD_SCENE,
-    ID_MENU_FILE_SAVE_SCENE,
-    ID_MENU_FILE_SAVEAS_SCENE,
-    ID_MENU_FILE_EXIT,
-    ID_MENU_EDIT_CREATE_OBJECT,
-    ID_MENU_EDIT_CREATE_TERRAIN,
-    ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER,
-    ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER,
-    ID_MENU_EDIT_LOAD_PREFAB,
-    ID_MENU_EDIT_CLEAR_SCENE,
-    ID_MENU_EDIT_PREFERENCES,
-    ID_MENU_RENDERER_RELOAD_SHADERS,
-    ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT,
-    ID_MENU_RENDERER_SWAP,
-    ID_MENU_RENDERER_PHYSICS_VISUALIZATION,
-    ID_MENU_RENDERER_NORMAL_VISUALIZATION,
-    ID_MENU_RENDERER_TEXTURE_DIFFUSE,
-    ID_MENU_RENDERER_TEXTURE_NORMALS,
-    ID_MENU_RENDERER_TEXTURE_SPECULAR,
-    ID_MENU_RENDERER_TEXTURE_DISPLACEMENT,
-    ID_FILE_EXPLORER,
-    ID_OBJECT_TREE,
-    ID_MENU_ABOUT_GL_INFO,
-    ID_TREE_MENU_CREATE_CHILD,
-    ID_TREE_MENU_UNMARK_PREFAB,
-    ID_TREE_MENU_MAKE_PREFAB,
-    ID_TREE_MENU_RENAME,
-    ID_TREE_MENU_REMOVE,
-    ID_TREE_MENU_CLONE,
-    ID_SAVE,
-    ID_TOOL_OPEN,
-    ID_TOOL_SAVE,
-    ID_TOOL_SAVE_AS,
-    ID_TOOL_START,
-    ID_TOOL_STOP
-};
-
 bool isGameObjectPrefab(const GameEngine::GameObject& go)
 {
     std::function<bool(const GameEngine::GameObject&)> checkPrefab;
@@ -146,8 +107,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
     EVT_TREE_SEL_CHANGED(ID_OBJECT_TREE, MainFrame::OnObjectTreeSelChange)
     EVT_TREE_ITEM_ACTIVATED(ID_OBJECT_TREE, MainFrame::OnObjectTreeActivated)
-    EVT_TREE_BEGIN_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectDrag)
-    EVT_TREE_END_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectEndDrag)
+//    EVT_TREE_BEGIN_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectDrag)
+//    EVT_TREE_END_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectEndDrag)
     EVT_TREE_BEGIN_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnBeginLabelEdit)
     EVT_TREE_END_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnEndLabelEdit)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
@@ -171,9 +132,19 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     wxSplitterWindow* trs = new wxSplitterWindow(topSplitter, wxID_ANY);
     // FromDIP(wxSize(160, 250))
-    gameObjectsView = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
+    auto treeCtrl   = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
                                      wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
-    gameObjectsView->Bind(wxEVT_TREE_ITEM_RIGHT_CLICK, &MainFrame::OnTreeItemRightClick, this);
+    gameObjectsView = std::make_unique<SceneTreeCtrl>(treeCtrl,
+                                                      [this](IdType item, IdType newParent)
+                                                      {
+                                                          auto& scene      = canvas->GetScene();
+                                                          auto go          = scene.GetGameObject(item);
+                                                          auto newParentGo = scene.GetGameObject(newParent);
+                                                          if (go and newParentGo)
+                                                          {
+                                                              ChangeGameObjectParent(*go, *newParentGo);
+                                                          }
+                                                      });
 
     Bind(wxEVT_MENU, &MainFrame::OnAddObject, this, ID_TREE_MENU_CREATE_CHILD);
     Bind(wxEVT_MENU, &MainFrame::OnUnmarkPrefab, this, ID_TREE_MENU_UNMARK_PREFAB);
@@ -182,17 +153,17 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
-    treeHelper = std::make_unique<TreeHelper>(gameObjectsView);
-    CreateRootGameObject();
+    treeHelper = std::make_unique<TreeHelper>(gameObjectsView->GetWxTreeCtrl());
 
-    topSplitter->SplitVertically(gameObjectsView, trs, size.x / 8);
+    topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), trs, size.x / 8);
 
     auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
-    auto selectItemInGameObjectTree = [&](uint32 gameObjectId, bool select)
+    auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
-        if (auto wxItemId = GetTreeItemId(gameObjectId))
+        if (auto wxItemId = gameObjectsView->Get(gameObjectId))
         {
             gameObjectsView->SelectItem(*wxItemId, select);
+            UpdateGameObjectIdOnTransfromLabel(gameObjectId);
         }
     };
     canvas = new GLCanvas(trs, onStartupDone, selectItemInGameObjectTree);
@@ -205,7 +176,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
     // Tworzymy collapsible, który będzie "kontenerem" dla notebooka
-    auto transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
+    transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
+    UpdateGameObjectIdOnTransfromLabel();
 
     gameObjectPanelsSizer->Add(transformsCollapsible, 0, wxEXPAND | wxALL, 0);
 
@@ -220,6 +192,9 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     localTransformPanel = new TransformPanel(transformsNotebook);
     transformsNotebook->AddPage(localTransformPanel, "Local");
+
+    worldTransformPanel->lock();
+    localTransformPanel->lock();
 
     wxBoxSizer* paneSizer = new wxBoxSizer(wxVERTICAL);
     paneSizer->Add(transformsNotebook, 1, wxEXPAND | wxALL, 0);
@@ -337,8 +312,6 @@ void MainFrame::ClearScene()
 {
     canvas->GetScene().ClearGameObjects();
     gameObjectsView->DeleteAllItems();
-    gameObjectsItemsIdsMap.clear();
-    CreateRootGameObject();
     canvas->ResetDragObject();
     transfromSubController.reset();
     RemoveAllComponentPanels();
@@ -383,7 +356,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                       {
                           if (isRunning)
                           {
-                              AddChilds(canvas->GetRootObject(), treeRootId);
+                              AddChilds(canvas->GetRootObject(), gameObjectsView->GetRootItem());
                               UpdateObjectCount();
                               SetStatusText("Welcome to game editor!");
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
@@ -426,8 +399,9 @@ void MainFrame::MenuEditCreateObject(wxCommandEvent&)
         parentGameObjectId = parentGameObject->GetId();
     }
     auto gameObject = AddGameObject("NewGameObject", parentGameObjectId);
-    auto itemId     = AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), gameObject->GetId(), gameObject->GetName());
+    auto itemId     = gameObjectsView->AppendItem(gameObjectsView->GetSelection(), gameObject->GetName(), gameObject->GetId());
     gameObjectsView->SelectItem(itemId);
+    UpdateGameObjectIdOnTransfromLabel(gameObject->GetId());
     UpdateObjectCount();
 }
 
@@ -458,17 +432,10 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
     return result;
 }
 
-wxTreeItemId MainFrame::AddGameObjectToWxWidgets(wxTreeItemId pranetItemId, IdType goId, const std::string& name)
-{
-    auto itemId = gameObjectsView->AppendItem(pranetItemId, name);
-    gameObjectsItemsIdsMap.insert({itemId, goId});
-    return itemId;
-}
-
 void MainFrame::UpdateObjectCount()
 {
-    auto objectCount = gameObjectsView->GetChildrenCount(treeRootId);
-    gameObjectsView->SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
+    auto objectCount = gameObjectsView->GetChildrenCount();
+    gameObjectsView->SetItemText(gameObjectsView->GetRootItem(), "Scene (Objects: " + std::to_string(objectCount) + ")");
 }
 
 GameEngine::GameObject* MainFrame::GetSelectedGameObject()
@@ -484,40 +451,11 @@ GameEngine::GameObject* MainFrame::GetSelectedGameObject()
 
 GameEngine::GameObject* MainFrame::GetGameObject(wxTreeItemId id)
 {
-    auto goIter = gameObjectsItemsIdsMap.find(id);
-    if (goIter != gameObjectsItemsIdsMap.end())
+    if (auto goId = gameObjectsView->Get(id))
     {
-        return canvas->GetScene().GetGameObject(goIter->second);
+        return canvas->GetScene().GetGameObject(*goId);
     }
     return nullptr;
-}
-
-std::optional<IdType> MainFrame::GetGameObjectId(wxTreeItemId id)
-{
-    auto goIter = gameObjectsItemsIdsMap.find(id);
-    if (goIter != gameObjectsItemsIdsMap.end())
-    {
-        return goIter->second;
-    }
-    return std::nullopt;
-}
-
-std::optional<wxTreeItemId> MainFrame::GetTreeItemId(IdType gameObjectId)
-{
-    for (const auto& [wxItemId, goId] : gameObjectsItemsIdsMap)
-    {
-        if (goId == gameObjectId)
-        {
-            return wxItemId;
-        }
-    }
-
-    return std::nullopt;
-}
-
-std::optional<wxTreeItemId> MainFrame::GetTreeItemId(GameEngine::GameObject& go)
-{
-    return GetTreeItemId(go.GetId());
 }
 
 void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
@@ -624,7 +562,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
     auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), openFileDialog.GetPath().ToStdString());
     if (go)
     {
-        auto prefabItemId = AddGameObjectToWxWidgets(treeRootId, go->GetId(), go->GetName() + " (prefab)");
+        auto prefabItemId = gameObjectsView->AppendItemToSelection(go->GetName() + " (prefab)", go->GetId());
         treeHelper->DisableItem(prefabItemId);
 
         // TO DO remove duplicate
@@ -634,7 +572,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
             const auto& children = go.GetChildren();
             for (const auto& child : children)
             {
-                auto childItemId = AddGameObjectToWxWidgets(wxId, child->GetId(), child->GetName());
+                auto childItemId = gameObjectsView->AppendItem(wxId, child->GetName(), child->GetId());
                 treeHelper->DisableItem(childItemId);
                 addChildToWidgets(childItemId, *child);
             }
@@ -743,11 +681,6 @@ void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
 void MainFrame::OnGLVersion(wxCommandEvent&)
 {
     wxLogMessage(canvas->getGlInfo().c_str());
-}
-
-void MainFrame::CreateRootGameObject()
-{
-    treeRootId = gameObjectsView->AddRoot("Scene (Objects: 0)", 0);
 }
 
 void MainFrame::CreateMainMenu()
@@ -904,7 +837,7 @@ void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId paren
 {
     for (const auto& child : gameObject.GetChildren())
     {
-        auto wxItemId = AddGameObjectToWxWidgets(parentId, child->GetId(), child->GetName());
+        auto wxItemId = gameObjectsView->AppendItem(parentId, child->GetName(), child->GetId());
         if (isGameObjectPrefab(*child))
         {
             treeHelper->DisableItem(wxItemId);
@@ -931,7 +864,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
         auto parentGameObject = GetSelectedGameObject();
         if (auto maybeId = canvas->AddGameObject(file, parentGameObject))
         {
-            AddGameObjectToWxWidgets(gameObjectsView->GetSelection(), *maybeId, file.GetBaseName());
+            gameObjectsView->AppendItemToSelection(file.GetBaseName(), *maybeId);
             UpdateObjectCount();
         }
     }
@@ -944,16 +877,35 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
         return;
 
     RemoveAllComponentPanels();
-    if (itemId == treeRootId)
+    if (itemId == gameObjectsView->GetRootItem())
     {
+        worldTransformPanel->lock();
+        localTransformPanel->lock();
         return;
     }
 
     auto go = GetSelectedGameObject();
     if (go)
     {
+        UpdateGameObjectIdOnTransfromLabel(go->GetId());
         worldTransformPanel->set(go->GetWorldTransform());
         localTransformPanel->set(go->GetTransform());
+
+        if (not isGameObjectPrefab(*go->GetParent()))
+        {
+            worldTransformPanel->unlock();
+            localTransformPanel->unlock();
+        }
+        else if (not isGameObjectPrefab(*go->GetParent()))
+        {
+            worldTransformPanel->unlock();
+            localTransformPanel->unlock();
+        }
+        else
+        {
+            worldTransformPanel->lock();
+            localTransformPanel->lock();
+        }
 
         if (not transfromSubController)
         {
@@ -969,59 +921,16 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 
 void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
 {
-    auto iter = gameObjectsItemsIdsMap.find(event.GetItem().GetID());
-    if (iter != gameObjectsItemsIdsMap.end())
+    if (auto maybeGameObjectId = gameObjectsView->Get(event.GetItem().GetID()))
     {
-        const auto& [_, goId] = *iter;
-        auto& scene           = canvas->GetScene();
-
-        if (auto gameObject = scene.GetGameObject(goId))
+        auto& scene = canvas->GetScene();
+        if (auto gameObject = scene.GetGameObject(*maybeGameObjectId))
         {
             scene.GetCamera().SetPosition(gameObject->GetWorldTransform().GetPosition() +
                                           (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
             scene.GetCamera().LookAt(gameObject->GetWorldTransform().GetPosition());
         }
     }
-}
-
-void MainFrame::OnTreeItemRightClick(wxTreeEvent& event)
-{
-    wxTreeItemId itemId = event.GetItem();
-    if (!itemId.IsOk())
-        return;
-
-    treeRightClickedItem = event.GetItem();
-    gameObjectsView->SelectItem(itemId);
-
-    wxMenu menu;
-    menu.Append(ID_TREE_MENU_CREATE_CHILD, "Create child");
-    menu.Append(ID_TREE_MENU_CLONE, "Clone");
-    menu.AppendSeparator();
-    menu.Append(ID_TREE_MENU_MAKE_PREFAB, "Create prefab");
-    menu.Append(ID_TREE_MENU_UNMARK_PREFAB, "Unmark prefab");
-    menu.AppendSeparator();
-    menu.Append(ID_TREE_MENU_RENAME, "Rename");
-    menu.AppendSeparator();
-    menu.Append(ID_TREE_MENU_REMOVE, "Remove");
-
-    if (treeHelper->IsDisabled(itemId))
-    {
-        menu.Enable(ID_TREE_MENU_CREATE_CHILD, false);
-        menu.Enable(ID_TREE_MENU_MAKE_PREFAB, false);
-        menu.Enable(ID_TREE_MENU_RENAME, false);
-        menu.Enable(ID_TREE_MENU_CLONE, false);
-
-        wxTreeItemId parent = gameObjectsView->GetItemParent(itemId);
-        if (parent.IsOk())
-        {
-            if (treeHelper->IsDisabled(parent))
-            {
-                menu.Enable(ID_TREE_MENU_UNMARK_PREFAB, false);
-                menu.Enable(ID_TREE_MENU_REMOVE, false);
-            }
-        }
-    }
-    PopupMenu(&menu);
 }
 
 void MainFrame::OnBeginLabelEdit(wxTreeEvent& event)
@@ -1070,10 +979,10 @@ void MainFrame::OnAddObject(wxCommandEvent& event)
 
 void MainFrame::OnDeleteObject(wxCommandEvent& event)
 {
-    wxTreeItemId sel = gameObjectsView->GetSelection();
-    if (sel.IsOk() and sel.GetID() != treeRootId)
+    auto sel = gameObjectsView->GetSelection();
+    if (sel.IsOk() and sel.GetID() != gameObjectsView->GetRootItem())
     {
-        auto gameObjectId = GetGameObjectId(sel);
+        auto gameObjectId = gameObjectsView->Get(sel);
         if (gameObjectId)
         {
             int answer = wxMessageBox("Delete game object " + gameObjectsView->GetItemText(sel) + "?", "Confirmation",
@@ -1084,14 +993,25 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
                 return;
             }
 
-            wxTreeItemId parentItem = gameObjectsView->GetItemParent(sel);
+            auto parentItem = gameObjectsView->GetItemParent(sel);
             if (parentItem.IsOk())
             {
                 gameObjectsView->SelectItem(parentItem);
+                if (auto gameObject = GetGameObject(parentItem))
+                    UpdateGameObjectIdOnTransfromLabel(gameObject->GetId());
+                else
+                {
+                    UpdateGameObjectIdOnTransfromLabel();
+                    worldTransformPanel->lock();
+                    localTransformPanel->lock();
+                }
             }
             else
             {
-                gameObjectsView->SelectItem(treeRootId);
+                gameObjectsView->SelectItem(gameObjectsView->GetRootItem());
+                UpdateGameObjectIdOnTransfromLabel();
+                worldTransformPanel->lock();
+                localTransformPanel->lock();
             }
 
             canvas->GetScene().RemoveGameObject(*gameObjectId);
@@ -1123,16 +1043,16 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
                         auto& rootGameObjectOfPrefab = maybeGo->GetChildren().front();
 
                         // WxWidgets swap
-                        auto parentItemId     = GetTreeItemId(*parent);
-                        auto currentItemId    = GetTreeItemId(*maybeGo);
-                        auto prefabRootItemId = GetTreeItemId(*rootGameObjectOfPrefab);
+                        auto parentItemId     = gameObjectsView->Get(parent->GetId());
+                        auto currentItemId    = gameObjectsView->Get(maybeGo->GetId());
+                        auto prefabRootItemId = gameObjectsView->Get(rootGameObjectOfPrefab->GetId());
 
                         if (currentItemId)
                             parentItemId = gameObjectsView->GetItemParent(*currentItemId);
 
                         if (parentItemId and prefabRootItemId)
                         {
-                            MoveTreeNode(*prefabRootItemId, *parentItemId);
+                            gameObjectsView->MoveTreeNode(*prefabRootItemId, *parentItemId);
 
                             if (currentItemId and not gameObjectsView->ItemHasChildren(*currentItemId))
                                 gameObjectsView->Delete(*currentItemId);
@@ -1146,35 +1066,6 @@ void MainFrame::OnUnmarkPrefab(wxCommandEvent&)
             }
         }
     }
-}
-
-void MainFrame::MoveTreeNode(const wxTreeItemId& srcItem, const wxTreeItemId& newParent)
-{
-    // 1. Skopiuj srcItem pod newParent
-    auto text    = gameObjectsView->GetItemText(srcItem);
-    auto* data   = gameObjectsView->GetItemData(srcItem);
-    auto newItem = gameObjectsView->AppendItem(newParent, text, -1, -1, data);
-
-    if (auto maybeGoId = GetGameObjectId(srcItem))
-    {
-        gameObjectsItemsIdsMap.insert({newItem, *maybeGoId});
-    }
-    else
-    {
-        LOG_ERROR << "Move get gameObjct id error";
-    }
-
-    // 2. Rekurencyjnie kopiuj dzieci
-    wxTreeItemIdValue cookie;
-    for (auto child = gameObjectsView->GetFirstChild(srcItem, cookie); child.IsOk();
-         child      = gameObjectsView->GetNextChild(srcItem, cookie))
-    {
-        MoveTreeNode(child, newItem);
-    }
-
-    // 3. Usuń oryginalne źródło
-    gameObjectsItemsIdsMap.erase(srcItem);
-    gameObjectsView->Delete(srcItem);
 }
 
 void MainFrame::OnMakePrefab(wxCommandEvent&)
@@ -1202,11 +1093,11 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
         if (selectedItem.IsOk())
         {
             wxTreeItemId parentItem = gameObjectsView->GetItemParent(selectedItem);
-            if (parentItem.IsOk())
+            if (not parentItem.IsOk())
             {
-                selectedItem = parentItem;
+                parentItem = selectedItem;
             }
-            auto itemId = AddGameObjectToWxWidgets(selectedItem, clonedGo->GetId(), clonedGo->GetName());
+            auto itemId = gameObjectsView->AppendItem(parentItem, clonedGo->GetName(), clonedGo->GetId());
 
             std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
             addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
@@ -1214,7 +1105,7 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
                 const auto& children = go.GetChildren();
                 for (const auto& child : children)
                 {
-                    auto childItemId = AddGameObjectToWxWidgets(wxId, child->GetId(), child->GetName());
+                    auto childItemId = gameObjectsView->AppendItem(wxId, child->GetName(), child->GetId());
                     addChildToWidgets(childItemId, *child);
                 }
             };
@@ -1222,53 +1113,6 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
             UpdateObjectCount();
         }
     }
-}
-
-void MainFrame::OnObjectDrag(wxTreeEvent& event)
-{
-    if (not event.GetItem().IsOk())
-        return;
-
-    treeDragItemId = event.GetItem();
-    event.Allow();
-}
-
-void MainFrame::OnObjectEndDrag(wxTreeEvent& event)
-{
-    auto target = event.GetItem();
-    if (not target.IsOk() or not treeDragItemId.IsOk())
-        return;
-
-    if (target == treeDragItemId)
-        return;
-
-    auto dragedGameObject = GetGameObject(treeDragItemId);
-    auto newParent = target == gameObjectsView->GetRootItem() ? &canvas->GetScene().GetRootGameObject() : GetGameObject(target);
-
-    if (dragedGameObject and newParent)
-    {
-        DEBUG_LOG("Change gameObjectParent");
-        ChangeGameObjectParent(*dragedGameObject, *newParent);
-    }
-
-    auto text    = gameObjectsView->GetItemText(treeDragItemId);
-    auto newItem = gameObjectsView->AppendItem(target, text);
-
-    std::optional<IdType> maybeGameObjectIdInMap;
-    auto goIter = gameObjectsItemsIdsMap.find(treeDragItemId);
-    if (goIter != gameObjectsItemsIdsMap.end())
-    {
-        maybeGameObjectIdInMap = goIter->second;
-    }
-
-    if (maybeGameObjectIdInMap)
-    {
-        gameObjectsItemsIdsMap.erase(treeDragItemId);
-        gameObjectsItemsIdsMap.insert({newItem, *maybeGameObjectIdInMap});
-    }
-
-    gameObjectsView->Delete(treeDragItemId);
-    treeDragItemId = {};
 }
 
 void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
@@ -1345,6 +1189,16 @@ bool MainFrame::SaveSceneAs()
     SetTitle("Active scene : " + canvas->GetScene().GetName());
     GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
     return true;
+}
+
+void MainFrame::UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> maybeId)
+{
+    std::string id = "-";
+    if (maybeId)
+    {
+        id = std::to_string(*maybeId);
+    }
+    transformsCollapsible->SetLabelText("Transform, gameObject id: " + id);
 }
 
 TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel* worldTranformPanel,

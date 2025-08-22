@@ -95,6 +95,41 @@ void TransformPanel::set(TransfromChanged callback)
     transfromChanged = callback;
 }
 
+void TransformPanel::lock()
+{
+    std::function<void(wxWindow*)> lockChildren = [&](wxWindow* parent)
+    {
+        if (not parent)
+            return;
+
+        parent->Disable();
+
+        for (auto child : parent->GetChildren())
+            lockChildren(child);
+    };
+
+    for (auto child : GetChildren())
+        lockChildren(child);
+}
+
+void TransformPanel::unlock()
+{
+    std::function<void(wxWindow*)> enableChildren;
+    enableChildren = [&](wxWindow* parent)
+    {
+        if (not parent)
+            return;
+
+        parent->Enable();
+        wxWindowList& children = parent->GetChildren();
+        for (auto child : children)
+        {
+            enableChildren(child);
+        }
+    };
+    enableChildren(this);
+}
+
 void TransformPanel::Vector3Controls::onChanged(wxCommandEvent& event)
 {
     if (isSetBySub or not transformPanel->transfromChanged)
