@@ -33,45 +33,6 @@ void AddComponent(const TreeNode& node, GameObject& gameObject)
     Read(node, comp);
 }
 
-void ModifyGameObject(Scene& scene, const TreeNode& node, GameObject& gameObject)
-{
-    auto transformNode = node.getChild(CSTR_TRANSFORM);
-    if (transformNode)
-    {
-        Read(*transformNode, gameObject.GetTransform());
-    }
-
-    auto componentsNode = node.getChild(CSTR_COMPONENTS);
-    if (componentsNode)
-    {
-        for (const auto& component : componentsNode->getChildren())
-        {
-            DEBUG_LOG("TO DO: AddOrModifyComponent: " + component->name());
-            // gameObject.InitComponent(*component);
-        }
-    }
-
-    auto childrenNode = node.getChild(CSTR_CHILDREN);
-    if (childrenNode)
-    {
-        DEBUG_LOG("TO DO: AddOrModifyChildren: " + childrenNode->name());
-        // for (auto& childNode : childrenNode->getChildren())
-        //{
-        //     if (childNode)
-        //     {
-        //         auto name  = childNode->getAttributeValue(CSTR_NAME);
-        //         auto child = scene.CreateGameObject(name);
-        //         Read(scene, *childNode, *child);
-        //         gameObject.AddChild(std::move(child));
-        //     }
-        //     else
-        //     {
-        //         ERROR_LOG("Somthing goes wrong. Child is empty");
-        //     }
-        // }
-    }
-}
-
 void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
 {
     auto transformNode = node.getChild(CSTR_TRANSFORM);
@@ -128,7 +89,7 @@ void ReadPrefab(Scene& scene, const File& file, Prefab& prefabGameObject)
         return;
     }
 
-    auto name  = maybePrefabNode->getAttributeValue(CSTR_NAME);
+    auto name = maybePrefabNode->getAttributeValue(CSTR_NAME);
     if (prefabGameObject.GetName().empty())
     {
         prefabGameObject.SetName(name);
@@ -170,7 +131,7 @@ std::unique_ptr<GameObject> createGameObject(const TreeNode& node, Scene& scene)
     else
     {
         static int nonameid = 0;
-        name = std::string{"NoName_" + std::to_string(nonameid++)};
+        name                = std::string{"NoName_" + std::to_string(nonameid++)};
     }
 
     if (node.attributes_.count(CSTR_ID))
@@ -192,7 +153,7 @@ std::unique_ptr<Prefab> createPrefabGameObject(const TreeNode& node, Scene& scen
     else
     {
         static int nonameid = 0;
-        name = std::string{"NoName_" + std::to_string(nonameid++)};
+        name                = std::string{"NoName_" + std::to_string(nonameid++)};
     }
 
     std::optional<uint32> maybeId;
@@ -215,6 +176,23 @@ std::unique_ptr<Prefab> createPrefabGameObject(const TreeNode& node, Scene& scen
 
 void readNode(const TreeNode& node, Scene& scene)
 {
+    try
+    {
+        auto timeStr = node.getAttributeValue(CSTR_TIME);
+        if (not timeStr.empty())
+        {
+            scene.GetDayNightCycle().SetTime(std::stof(timeStr));
+        }
+        else
+        {
+            LOG_DEBUG << "Time not set.";
+        }
+    }
+    catch (...)
+    {
+        LOG_WARN << "Time read error";
+    }
+
     if (auto maybeGameObjectsNode = node.getChild(CSTR_GAMEOBJECTS))
     {
         for (const auto& gameObjectNode : maybeGameObjectsNode->getChildren())

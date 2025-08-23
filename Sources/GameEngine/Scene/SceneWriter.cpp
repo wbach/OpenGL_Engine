@@ -89,6 +89,7 @@ TreeNode createTree(const Scene& input)
 {
     TreeNode scene(CSTR_SCENE);
     scene.attributes_[CSTR_NAME] = input.GetName();
+    scene.attributes_[CSTR_TIME] = std::to_string(input.GetDayNightCycle().GetTime());
     Create(scene.addChild(CSTR_GAMEOBJECTS), input.GetGameObjects());
     return scene;
 }
