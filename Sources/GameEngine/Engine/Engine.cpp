@@ -87,7 +87,7 @@ void bt_sighandler(int nSig)
 
     SymCleanup(hProcess);
 
-    // Aby zachowaæ domyœlne zakoñczenie procesu po sygnale:
+    // Aby zachowaï¿½ domyï¿½lne zakoï¿½czenie procesu po sygnale:
     signal(nSig, SIG_DFL);
     raise(nSig);
 }
@@ -325,3 +325,4 @@ void Engine::Init()
 }
 
 }  // namespace GameEngine
+
