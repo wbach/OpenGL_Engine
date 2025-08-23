@@ -25,6 +25,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XmlReader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/ParseMethods.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XmlWriter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XMLUtils.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/SceneReader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Beizer.cpp
 )
