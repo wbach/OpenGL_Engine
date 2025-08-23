@@ -12,7 +12,9 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Scene/SceneUtils.h"
 #include "Input/KeyCodeToCharConverter.h"
+#include <GameEngine/Scene/SceneReader.h>
 
 namespace GameEngine
 {
@@ -234,7 +236,7 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
     const auto &filename = params[0];
     const auto &name     = params[1];
 
-    //scene_.LoadPrefab(filename, name);
+    GameEngine::SceneReader::loadPrefab(scene_, filename, name);
 }
 
 void Console::SetPosition(const std::vector<std::string> &args)
@@ -370,11 +372,11 @@ void Console::SaveScene(const std::vector<std::string> &params)
 {
     if (params.empty())
     {
-        //scene_.SaveToFile();
+       GameEngine::saveSceneToFile(scene_);
     }
     else
     {
-       // scene_.SaveToFile(params[0]);
+        GameEngine::saveSceneToFile(scene_, GameEngine::File{params[0]});
     }
 }
 
