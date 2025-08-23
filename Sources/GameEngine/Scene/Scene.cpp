@@ -60,6 +60,7 @@ Scene::~Scene()
 
 void Scene::InitResources(EngineContext& context)
 {
+    engineContext     = &context;
     graphicsApi_      = &context.GetGraphicsApi();
     inputManager_     = &context.GetInputManager();
     physicsApi_       = &context.GetPhysicsApi();
@@ -346,6 +347,11 @@ void Scene::SendEvent(SceneEvent& event)
 void Scene::SendEvent(EngineEvent& event)
 {
     addEngineEvent(event);
+}
+
+EngineContext* Scene::getEngineContext()
+{
+    return engineContext;
 }
 
 DisplayManager* Scene::getDisplayManager()

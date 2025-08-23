@@ -115,6 +115,7 @@ public:
     void SendEvent(SceneEvent&);
     void SendEvent(EngineEvent&);
 
+    EngineContext* getEngineContext();
     DisplayManager* getDisplayManager();
     Input::InputManager* getInputManager();
     Components::ComponentController& getComponentController();
@@ -142,13 +143,14 @@ protected:
     std::unique_ptr<GameObject> rootGameObject_;
     std::unordered_map<uint32, GameObject*> gameObjectsIds_;
 
-    GraphicsApi::IGraphicsApi* graphicsApi_;
-    Input::InputManager* inputManager_;
-    DisplayManager* displayManager_;
-    Renderer::RenderersManager* renderersManager_;
-    Physics::IPhysicsApi* physicsApi_;
-    Utils::Thread::ThreadSync* threadSync_;
-    Utils::Time::TimerService* timerService_;
+    EngineContext* engineContext{nullptr};
+    GraphicsApi::IGraphicsApi* graphicsApi_{nullptr};
+    Input::InputManager* inputManager_{nullptr};
+    DisplayManager* displayManager_{nullptr};
+    Renderer::RenderersManager* renderersManager_{nullptr};
+    Physics::IPhysicsApi* physicsApi_{nullptr};
+    Utils::Thread::ThreadSync* threadSync_{nullptr};
+    Utils::Time::TimerService* timerService_{nullptr};
 
     std::string name;
     File file_;

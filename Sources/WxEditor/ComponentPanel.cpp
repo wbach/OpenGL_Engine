@@ -7,7 +7,7 @@
 #include <wx/artprov.h>
 #include <wx/dnd.h>
 #include <wx/wx.h>
-
+#include <magic_enum/magic_enum.hpp>
 #include "ThumbnailCache.h"
 
 class MyTextDropTarget : public wxTextDropTarget
@@ -235,6 +235,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 {
     using namespace GameEngine::Components;
 
+    LOG_DEBUG << "Field type : " << magic_enum::enum_name(field.type);
     switch (field.type)
     {
         case GameEngine::Components::FieldType::AnimationClip:

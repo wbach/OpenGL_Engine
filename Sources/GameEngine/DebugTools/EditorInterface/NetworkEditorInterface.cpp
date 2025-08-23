@@ -7,6 +7,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
+#include <magic_enum/magic_enum.hpp>
 
 #include "CameraEditor.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
@@ -31,6 +32,8 @@
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Scene/SceneDef.h"
+#include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
@@ -252,13 +255,10 @@ void NetworkEditorInterface::StartGatway()
     DEBUG_LOG("Starting server");
     gateway_.StartServer(30, 1991);
     gateway_.SetDefaultMessageConverterFormat(Network::MessageFormat::Xml);
-    gateway_.SubscribeForNewUser(
-        std::bind(&NetworkEditorInterface::NewUser, this, std::placeholders::_1, std::placeholders::_2));
-    gateway_.SubscribeForDisconnectUser(
-        std::bind(&NetworkEditorInterface::DisconnectUser, this, std::placeholders::_1));
-    gateway_.SubscribeOnMessageArrived(
-        Network::MessageTypes::Text,
-        std::bind(&NetworkEditorInterface::OnMessage, this, std::placeholders::_1, std::placeholders::_2));
+    gateway_.SubscribeForNewUser(std::bind(&NetworkEditorInterface::NewUser, this, std::placeholders::_1, std::placeholders::_2));
+    gateway_.SubscribeForDisconnectUser(std::bind(&NetworkEditorInterface::DisconnectUser, this, std::placeholders::_1));
+    gateway_.SubscribeOnMessageArrived(Network::MessageTypes::Text, std::bind(&NetworkEditorInterface::OnMessage, this,
+                                                                              std::placeholders::_1, std::placeholders::_2));
 
     threadId_ = threadSync_.Subscribe([&](float) { MainLoop(); }, "NetworkEditorFps");
 }
@@ -284,10 +284,10 @@ void NetworkEditorInterface::PrepareDebugModels()
 
 void NetworkEditorInterface::KeysSubscribtions()
 {
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(OBJECT_CONTROL),
-                                                                       [this]() { ObjectControlAction(1.f); });
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL),
-                                                                         [this]() { ObjectControlAction(-1.f); });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(1.f); });
+    keysSubscriptionsManager_ =
+        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(-1.f); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         editorActions.at(MOVE_OBJECT),
@@ -302,8 +302,7 @@ void NetworkEditorInterface::KeysSubscribtions()
         {
             MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
 
-            SetSelectedGameObject(
-                mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
+            SetSelectedGameObject(mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
         });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
@@ -315,8 +314,7 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(BLENDMAPS_TO_FILE),
                                                                          [this]() { GenerateTerrainBlendMapToFile(); });
 
-    keysSubscriptionsManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT),
                                                                          [this]()
@@ -505,7 +503,11 @@ void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
         return;
     }
 
-    //scene_.LoadFromFile(args.at("filename"));
+    File file(args.at("filename"));
+    const auto name    = file.GetBaseName();
+    auto &sceneManager = scene_.getEngineContext()->GetSceneManager();
+    scene_.getEngineContext()->GetSceneManager().SetOnSceneLoadDone([this]() { SetupCamera(); });
+    sceneManager.SetActiveScene(name);
 }
 
 void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::EntryParameters &args)
@@ -533,8 +535,7 @@ void NetworkEditorInterface::GetCamera(const EntryParameters &)
     msg.rotation = scene_.GetCamera().GetRotation().GetEulerDegrees().value;
     gateway_.Send(userId_, msg);
 
-    cameraChangeSubscriptionId_ =
-        scene_.camera.SubscribeOnChange([&](const auto &) { cameraChangedToSend_.store(true); });
+    cameraChangeSubscriptionId_ = scene_.camera.SubscribeOnChange([&](const auto &) { cameraChangedToSend_.store(true); });
 }
 
 void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId,
@@ -823,8 +824,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
 
         try
         {
-            gameObject->AddComponent<Components::RendererComponent>().AddModel(
-                GetRelativeDataPath(params.at("filename")));
+            gameObject->AddComponent<Components::RendererComponent>().AddModel(GetRelativeDataPath(params.at("filename")));
             gameObject->GetTransform().SetPosition(position);
             gameObject->GetTransform().SetRotation(DegreesVec3(rotationEulerDegrees));
             gameObject->AddComponent<Components::MeshShape>();
@@ -862,17 +862,17 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
 
         DEBUG_LOG("Load prefabs not implemented");
 
-//        auto gameObject = scene_.LoadPrefab(GetRelativeDataPath(params.at("filename")), goName);
+        auto gameObject = GameEngine::SceneReader::loadPrefab(scene_, GetRelativeDataPath(params.at("filename")), goName);
 
-//        if (gameObject)
-//        {
-//            auto position = scene_.camera.GetPosition();
-//            position += scene_.camera.GetDirection() * 5.f;
-//            gameObject->GetTransform().SetPosition(position);
+        if (gameObject)
+        {
+            auto position = scene_.camera.GetPosition();
+            position += scene_.camera.GetDirection() * 5.f;
+            gameObject->GetTransform().SetPosition(position);
 
-//            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
-//            gateway_.Send(userId_, message);
-//        }
+            DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
+            gateway_.Send(userId_, message);
+        }
     }
 }
 
@@ -912,16 +912,15 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
                     auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);
                     if (maybeId)
                     {
-                        scene_.componentController_.callComponentFunction(go->GetId(), Components::FunctionType::Awake,
-                                                                          *maybeId);
+                        scene_.componentController_.callComponentFunction(go->GetId(), Components::FunctionType::Awake, *maybeId);
                     }
                 }
                 {
                     auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::OnStart);
                     if (maybeId)
                     {
-                        scene_.componentController_.callComponentFunction(go->GetId(),
-                                                                          Components::FunctionType::OnStart, *maybeId);
+                        scene_.componentController_.callComponentFunction(go->GetId(), Components::FunctionType::OnStart,
+                                                                          *maybeId);
                     }
                 }
 
@@ -938,34 +937,89 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
 
 void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
 {
-    // if (not params.count("gameObjectId") or not params.count("name"))
-    //    return;
+    if (not params.count("gameObjectId") or not params.count("name"))
+        return;
 
-    // auto gameObject = GetGameObject(params.at("gameObjectId"));
+    auto gameObject = GetGameObject(params.at("gameObjectId"));
 
-    // if (not gameObject)
-    //    return;
+    if (not gameObject)
+        return;
 
-    // auto componentType = Components::from_string(params.at("name"));
+    Components::IComponent *component{nullptr};
+    for (const auto &c : gameObject->GetComponents())
+    {
+        TreeNode node("component");
+        c->write(node);
+        if (node.getAttributeValue(CSTR_NAME) == params.at("name"))
+        {
+            component = c.get();
+            break;
+        }
+    }
 
-    // if (not componentType)
-    //    return;
+    if (not component)
+        return;
 
-    // auto component = gameObject->GetComponent(*componentType);
+    std::vector<DebugNetworkInterface::Param> componentParams;
+    std::string value{"notSerialiazedValue"};
+    for (auto &field : component->GetFields())
+    {
+        switch (field.type)
+        {
+            case GameEngine::Components::FieldType::Int:
+                value = std::to_string(*static_cast<int *>(field.ptr));
+                break;
+            case GameEngine::Components::FieldType::UInt:
+                value = std::to_string(*static_cast<uint32 *>(field.ptr));
+                break;
+            case GameEngine::Components::FieldType::Float:
+                value = std::to_string(*static_cast<float *>(field.ptr));
+                break;
+            case GameEngine::Components::FieldType::String:
+                value = *static_cast<std::string *>(field.ptr);
+                break;
+            case GameEngine::Components::FieldType::Boolean:
+                value = Utils::BoolToString(*static_cast<bool *>(field.ptr));
+                break;
+            case GameEngine::Components::FieldType::Texture:
+            case GameEngine::Components::FieldType::File:
+                value = static_cast<File *>(field.ptr)->GetAbsoultePath();
+                break;
+            case GameEngine::Components::FieldType::AnimationClip:
+                break;
+            case GameEngine::Components::FieldType::Vector2i:
+                break;
+            case GameEngine::Components::FieldType::Vector2f:
+                break;
+            case GameEngine::Components::FieldType::Vector3f:
+                break;
+            case GameEngine::Components::FieldType::Vector4f:
+                break;
+            case GameEngine::Components::FieldType::ColorRGB:
+                break;
+            case GameEngine::Components::FieldType::ColorRGBA:
+                break;
+            case GameEngine::Components::FieldType::VectorOfStrings:
+                break;
+            case GameEngine::Components::FieldType::VectorOfInt:
+                break;
+            case GameEngine::Components::FieldType::VectorOfFloat:
+                break;
+            case GameEngine::Components::FieldType::VectorOfFiles:
+                break;
+            case GameEngine::Components::FieldType::VectorOfTextures:
+                break;
+            case GameEngine::Components::FieldType::VectorOfAnimationClips:
+                break;
+            case GameEngine::Components::FieldType::ConstVectorOfTextures:
+                break;
+        }
+        DebugNetworkInterface::Param param(std::string(field.name), value, std::string(magic_enum::enum_name(field.type)));
+        componentParams.push_back(param);
+    }
 
-    // if (not component)
-    //    return;
-
-    // std::vector<DebugNetworkInterface::Param> componentParams;
-
-    // for (auto &p : component->GetParams())
-    //{
-    //    componentParams.push_back({p.first, p.second.value, p.second.type});
-    //}
-
-    // DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")),
-    //                                                componentParams);
-    // gateway_.Send(userId_, msg);
+    DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")), componentParams);
+    gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState state, const EntryParameters &params)
@@ -984,8 +1038,7 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
 }
 
-void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed,
-                                                 float scaleSpeed)
+void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed, float scaleSpeed)
 {
     UseSelectedGameObject(
         [this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject)
@@ -1002,8 +1055,8 @@ void NetworkEditorInterface::ObjectControlAction(float direction, float rotation
 void NetworkEditorInterface::CreateDragObject(GameObject &gameObject)
 {
     std::lock_guard<std::mutex> lk(dragObjectMutex_);
-    dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, gameObject, scene_.camera,
-                                               scene_.renderersManager_->GetProjection());
+    dragObject_ =
+        std::make_unique<DragObject>(*scene_.inputManager_, gameObject, scene_.camera, scene_.renderersManager_->GetProjection());
 }
 
 void NetworkEditorInterface::ReleaseDragObject()
@@ -1059,8 +1112,7 @@ void NetworkEditorInterface::SetSelectedGameObject(GameObject *gameObject)
     selectedGameObject_ = gameObject;
 }
 
-void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject &)> action,
-                                                   std::function<void()> notExistAction)
+void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject &)> action, std::function<void()> notExistAction)
 {
     std::lock_guard<std::mutex> m(selectedGameObjectMutex_);
     if (selectedGameObject_)
@@ -1368,42 +1420,130 @@ void NetworkEditorInterface::StopScene()
     gateway_.Send(userId_, DebugNetworkInterface::SceneStopedNotifMsg(scene_.GetName()));
 }
 
-void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &paramters)
+void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
 {
-    // if (not paramters.count("gameObjectId"))
-    //    return;
+    if (not params.count("gameObjectId") or not params.count("name"))
+        return;
 
-    // auto gameObject = GetGameObject(paramters.at("gameObjectId"));
+    auto gameObject = GetGameObject(params.at("gameObjectId"));
 
-    // if (not gameObject)
-    //    return;
+    if (not gameObject)
+        return;
 
-    // auto componentType = Components::from_string(paramters.at("componentName"));
+    Components::IComponent *component{nullptr};
+    for (const auto &c : gameObject->GetComponents())
+    {
+        TreeNode node("component");
+        c->write(node);
+        if (node.getAttributeValue(CSTR_NAME) == params.at("name"))
+        {
+            component = c.get();
+            break;
+        }
+    }
 
-    // if (not componentType)
-    //    return;
+    if (not component)
+        return;
 
-    // auto component = gameObject->GetComponent(*componentType);
+    auto p    = params;
+    auto iter = p.begin();
+    while (iter != p.end())
+    {
+        if (iter->first == "gameObjectId" or iter->first == "componentName")
+        {
+            iter = p.erase(iter);
+        }
+        else
+        {
+            std::replace(iter->second.begin(), iter->second.end(), '%', ' ');
+            ++iter;
+        }
+    }
 
-    // if (not component)
-    //    return;
-
-    // auto p = paramters;
-
-    // auto iter = p.begin();
-    // while (iter != p.end())
-    //{
-    //    if (iter->first == "gameObjectId" or iter->first == "componentName")
-    //    {
-    //        iter = p.erase(iter);
-    //    }
-    //    else
-    //    {
-    //        std::replace(iter->second.begin(), iter->second.end(), '%', ' ');
-    //        ++iter;
-    //    }
-    //}
-    // component->InitFromParams(p);
+    auto fields = component->GetFields();
+    for (const auto &[name, value] : params)
+    {
+        try
+        {
+            auto iter = std::find_if(fields.begin(), fields.end(), [n = name](const auto &field) { return n == field.name; });
+            if (iter != fields.end())
+            {
+                auto &field = *iter;
+                switch (field.type)
+                {
+                    case GameEngine::Components::FieldType::Int:
+                    {
+                        auto &val = *static_cast<int *>(field.ptr);
+                        val       = std::stoi(value);
+                        break;
+                    }
+                    case GameEngine::Components::FieldType::UInt:
+                    {
+                        auto &val = *static_cast<uint32 *>(field.ptr);
+                        val       = std::stoi(value);
+                    }
+                    break;
+                    case GameEngine::Components::FieldType::Float:
+                    {
+                        auto &val = *static_cast<float *>(field.ptr);
+                        val       = std::stof(value);
+                    }
+                    break;
+                    case GameEngine::Components::FieldType::String:
+                    {
+                        auto &val = *static_cast<std::string *>(field.ptr);
+                        val       = value;
+                    }
+                    break;
+                    case GameEngine::Components::FieldType::Boolean:
+                    {
+                        auto &val = *static_cast<bool *>(field.ptr);
+                        val       = Utils::StringToBool(value);
+                    }
+                    break;
+                    case GameEngine::Components::FieldType::Texture:
+                    case GameEngine::Components::FieldType::File:
+                    {
+                        auto &val = *static_cast<File *>(field.ptr);
+                        val       = value;
+                    }
+                    break;
+                    case GameEngine::Components::FieldType::AnimationClip:
+                        break;
+                    case GameEngine::Components::FieldType::Vector2i:
+                        break;
+                    case GameEngine::Components::FieldType::Vector2f:
+                        break;
+                    case GameEngine::Components::FieldType::Vector3f:
+                        break;
+                    case GameEngine::Components::FieldType::Vector4f:
+                        break;
+                    case GameEngine::Components::FieldType::ColorRGB:
+                        break;
+                    case GameEngine::Components::FieldType::ColorRGBA:
+                        break;
+                    case GameEngine::Components::FieldType::VectorOfStrings:
+                        break;
+                    case GameEngine::Components::FieldType::VectorOfInt:
+                        break;
+                    case GameEngine::Components::FieldType::VectorOfFloat:
+                        break;
+                    case GameEngine::Components::FieldType::VectorOfFiles:
+                        break;
+                    case GameEngine::Components::FieldType::VectorOfTextures:
+                        break;
+                    case GameEngine::Components::FieldType::VectorOfAnimationClips:
+                        break;
+                    case GameEngine::Components::FieldType::ConstVectorOfTextures:
+                        break;
+                }
+            }
+        }
+        catch (...)
+        {
+            LOG_WARN << "set param error " << name;
+        }
+    }
 }
 
 void NetworkEditorInterface::GetRunningStatus(const NetworkEditorInterface::EntryParameters &)
@@ -1645,8 +1785,7 @@ void NetworkEditorInterface::ControlTextureUsage(const NetworkEditorInterface::E
         textConf.useDisplacement = enabled;
     }
 
-    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall(
-        [&]() { scene_.renderersManager_->UpdatePerAppBuffer(); });
+    scene_.resourceManager_->GetGpuResourceLoader().AddFunctionToCall([&]() { scene_.renderersManager_->UpdatePerAppBuffer(); });
 }
 
 void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryParameters &params)
@@ -1822,13 +1961,12 @@ void NetworkEditorInterface::CloneGameObject(const EntryParameters &params)
         auto gameObject = GetGameObject(gameObjectIdIter->second);
         if (gameObject)
         {
-             // TO DO:
-//            auto clonedGameObject = scene_.CloneGameObject(*gameObject);
-//            if (clonedGameObject)
-//            {
-//                SetSelectedGameObject(clonedGameObject);
-//                SendObjectCreatedNotf(*clonedGameObject);
-//            }
+            auto clonedGameObject = GameEngine::cloneGameObject(scene_, *gameObject);
+            if (clonedGameObject)
+            {
+                SetSelectedGameObject(clonedGameObject);
+                SendObjectCreatedNotf(*clonedGameObject);
+            }
         }
     }
 }
@@ -1864,31 +2002,30 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
 
                 for (int i = 0; i < instances; ++i)
                 {
-//                    auto clonedGameObject = scene_.CloneGameObject(*gameObject);
-//                    if (clonedGameObject)
-//                    {
-//                        auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
+                    auto clonedGameObject = GameEngine::cloneGameObject(scene_, *gameObject);
+                    if (clonedGameObject)
+                    {
+                        auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
 
-//                        freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
-//                        auto x = getRandomFloat(minX, maxX);
-//                        auto z = getRandomFloat(minZ, maxZ);
-//                        // auto roatateY = getRandomFloat(0.f, 360.f);
-//                        auto scale = getRandomFloat(0.8f, 1.2f);
+                        freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
+                        auto x = getRandomFloat(minX, maxX);
+                        auto z = getRandomFloat(minZ, maxZ);
+                        // auto roatateY = getRandomFloat(0.f, 360.f);
+                        auto scale = getRandomFloat(0.8f, 1.2f);
 
-//                        auto goScale    = gameObject->GetWorldTransform().GetScale() * scale;
-//                        auto goRotation = gameObject->GetWorldTransform()
-//                                              .GetRotation()
-//                                              .value_;  // *Rotation(DegreesVec3(0, roatateY, 0)).value_;
+                        auto goScale    = gameObject->GetWorldTransform().GetScale() * scale;
+                        auto goRotation = gameObject->GetWorldTransform()
+                                              .GetRotation()
+                                              .value_;  // *Rotation(DegreesVec3(0, roatateY, 0)).value_;
 
-//                        auto hit = scene_.getHeightPositionInWorld(x, z);
+                        auto hit = scene_.getHeightPositionInWorld(x, z);
 
-//                        freeGameObject->SetWorldPositionRotationScale(
-//                            hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z), goRotation,
-//                            goScale);
-//                        auto freeGameObjectPtr = freeGameObject.get();
-//                        containerPtr->MoveChild(std::move(freeGameObject));
-//                        SendObjectCreatedNotf(*freeGameObjectPtr);
-//                    }
+                        freeGameObject->SetWorldPositionRotationScale(
+                            hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z), goRotation, goScale);
+                        auto freeGameObjectPtr = freeGameObject.get();
+                        containerPtr->MoveChild(std::move(freeGameObject));
+                        SendObjectCreatedNotf(*freeGameObjectPtr);
+                    }
                 }
             }
             catch (...)
@@ -1909,7 +2046,7 @@ void NetworkEditorInterface::CreatePrefabFromObject(const EntryParameters &param
         auto gameObject = GetGameObject(gameObjectIdIter->second);
         if (gameObject)
         {
-            //scene_.CreatePrefab(filenameIter->second, *gameObject);
+            GameEngine::createAndSavePrefab(GameEngine::File{filenameIter->second}, *gameObject);
         }
     }
 }

@@ -14,7 +14,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Scene/SceneUtils.h"
 #include "Input/KeyCodeToCharConverter.h"
-#include <GameEngine/Scene/SceneReader.h>
+#include "GameEngine/Scene/SceneReader.h"
 
 namespace GameEngine
 {
