@@ -15,7 +15,7 @@
 
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "TransformPanel.h"
-#include "TreeHelper.h"
+#include "DisableHelper.h"
 #include "SceneTreeCtrl.h"
 
 class GLCanvas;
@@ -157,5 +157,4 @@ private:
     std::unique_ptr<GameEngine::Painter> terrainPainter_;
 
     std::optional<long> startedGameProceesId;
-    std::unique_ptr<TreeHelper> treeHelper;
 };

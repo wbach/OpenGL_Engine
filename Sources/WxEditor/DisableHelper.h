@@ -4,10 +4,10 @@
 
 #include <map>
 
-class TreeHelper
+class DisableHelper
 {
 public:
-    TreeHelper(wxTreeCtrl*);
+    DisableHelper(wxTreeCtrl*);
 
     void DisableItem(const wxTreeItemId&);
     void EnableItem(const wxTreeItemId&);

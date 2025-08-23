@@ -2,7 +2,10 @@
 #include <Types.h>
 #include <Utils/BidirectionalUnorderedMap.h>
 #include <wx/treectrl.h>
+
 #include <functional>
+
+#include "DisableHelper.h"
 
 struct TreeItemIdHasher
 {
@@ -23,8 +26,10 @@ struct TreeItemIdEqual
 class SceneTreeCtrl
 {
 public:
-    using ChangeGameObjectParent = std::function<void (IdType, IdType)>;
+    using ChangeGameObjectParent = std::function<void(IdType, IdType)>;
+
     SceneTreeCtrl(wxTreeCtrl* tree, ChangeGameObjectParent);
+
     void CreateRootGameObject();
     void SelectItem(const wxTreeItemId& item, bool select = true);
     wxTreeItemId AppendItemToRoot(const wxString& text, IdType id);
@@ -50,10 +55,12 @@ public:
     void OnTreeItemRightClick(wxTreeEvent&);
     void OnObjectDrag(wxTreeEvent&);
     void OnObjectEndDrag(wxTreeEvent&);
+    void DisableItem(const wxTreeItemId&);
 
 private:
     void deleteRecursiveFromMap(const wxTreeItemId& item);
 
+    DisableHelper disableHelper;
     ChangeGameObjectParent changeGameObjectParent;
     wxTreeItemId treeRootId;
     wxTreeItemId treeDragItemId;

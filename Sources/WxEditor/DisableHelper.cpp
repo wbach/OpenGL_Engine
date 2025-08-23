@@ -1,25 +1,25 @@
-#include "TreeHelper.h"
+#include "DisableHelper.h"
 
-TreeHelper::TreeHelper(wxTreeCtrl *tree)
+DisableHelper::DisableHelper(wxTreeCtrl *tree)
     : tree(tree)
 {
 }
 
-void TreeHelper::DisableItem(const wxTreeItemId &item)
+void DisableHelper::DisableItem(const wxTreeItemId &item)
 {
     if (!item.IsOk())
         return;
     ApplyRecursive(item, true);
 }
 
-void TreeHelper::EnableItem(const wxTreeItemId &item)
+void DisableHelper::EnableItem(const wxTreeItemId &item)
 {
     if (!item.IsOk())
         return;
     ApplyRecursive(item, false);
 }
 
-bool TreeHelper::IsDisabled(const wxTreeItemId &item) const
+bool DisableHelper::IsDisabled(const wxTreeItemId &item) const
 {
     auto it = disabledMap.find(item);
     if (it != disabledMap.end())
@@ -27,18 +27,18 @@ bool TreeHelper::IsDisabled(const wxTreeItemId &item) const
     return false;
 }
 
-bool TreeHelper::CanInteract(const wxTreeItemId &item) const
+bool DisableHelper::CanInteract(const wxTreeItemId &item) const
 {
     return !IsDisabled(item);
 }
 
-void TreeHelper::RemovePrefabSuffix(wxString &str)
+void DisableHelper::RemovePrefabSuffix(wxString &str)
 {
     wxString suffix = " (prefab)";
     str.Replace(suffix, "");
 }
 
-void TreeHelper::ApplyRecursive(const wxTreeItemId &item, bool disable)
+void DisableHelper::ApplyRecursive(const wxTreeItemId &item, bool disable)
 {
     // Zapisz stan
     disabledMap[item] = disable;

@@ -4,10 +4,11 @@
 #include <wx/menu.h>
 
 #include "ControlsIds.h"
-#include "TreeHelper.h"
+#include "DisableHelper.h"
 
 SceneTreeCtrl::SceneTreeCtrl(wxTreeCtrl *tree, ChangeGameObjectParent changeGameObjectParent)
-    : changeGameObjectParent(changeGameObjectParent)
+    : disableHelper(tree)
+    , changeGameObjectParent(changeGameObjectParent)
     , gameObjectsView(tree)
 {
     CreateRootGameObject();
@@ -144,23 +145,23 @@ void SceneTreeCtrl::OnTreeItemRightClick(wxTreeEvent &event)
     menu.AppendSeparator();
     menu.Append(ID_TREE_MENU_REMOVE, "Remove");
 
-    //    if (treeHelper->IsDisabled(itemId))
-    //    {
-    //        menu.Enable(ID_TREE_MENU_CREATE_CHILD, false);
-    //        menu.Enable(ID_TREE_MENU_MAKE_PREFAB, false);
-    //        menu.Enable(ID_TREE_MENU_RENAME, false);
-    //        menu.Enable(ID_TREE_MENU_CLONE, false);
+    if (disableHelper.IsDisabled(itemId))
+    {
+        menu.Enable(ID_TREE_MENU_CREATE_CHILD, false);
+        menu.Enable(ID_TREE_MENU_MAKE_PREFAB, false);
+        menu.Enable(ID_TREE_MENU_RENAME, false);
+        menu.Enable(ID_TREE_MENU_CLONE, false);
 
-    //        wxTreeItemId parent = gameObjectsView->GetItemParent(itemId);
-    //        if (parent.IsOk())
-    //        {
-    //            if (treeHelper->IsDisabled(parent))
-    //            {
-    //                menu.Enable(ID_TREE_MENU_UNMARK_PREFAB, false);
-    //                menu.Enable(ID_TREE_MENU_REMOVE, false);
-    //            }
-    //        }
-    //    }
+        wxTreeItemId parent = gameObjectsView->GetItemParent(itemId);
+        if (parent.IsOk())
+        {
+            if (disableHelper.IsDisabled(parent))
+            {
+                menu.Enable(ID_TREE_MENU_UNMARK_PREFAB, false);
+                menu.Enable(ID_TREE_MENU_REMOVE, false);
+            }
+        }
+    }
     gameObjectsView->PopupMenu(&menu);
 }
 
@@ -192,6 +193,11 @@ void SceneTreeCtrl::OnObjectEndDrag(wxTreeEvent &event)
     changeGameObjectParent(*maybeDragedGoId, *maybeTargetGoId);
     MoveTreeNode(treeDragItemId, target);
     treeDragItemId = {};
+}
+
+void SceneTreeCtrl::DisableItem(const wxTreeItemId &item)
+{
+    disableHelper.DisableItem(item);
 }
 
 void SceneTreeCtrl::EditLabel(const wxTreeItemId &item)

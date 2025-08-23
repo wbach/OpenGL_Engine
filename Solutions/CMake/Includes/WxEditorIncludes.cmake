@@ -1,5 +1,5 @@
 set(WxEditorIncludes
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeHelper.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ThumbnailCache.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.h

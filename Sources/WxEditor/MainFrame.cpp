@@ -153,8 +153,6 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
-    treeHelper = std::make_unique<TreeHelper>(gameObjectsView->GetWxTreeCtrl());
-
     topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), trs, size.x / 8);
 
     auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
@@ -563,7 +561,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
     if (go)
     {
         auto prefabItemId = gameObjectsView->AppendItemToSelection(go->GetName() + " (prefab)", go->GetId());
-        treeHelper->DisableItem(prefabItemId);
+        gameObjectsView->DisableItem(prefabItemId);
 
         // TO DO remove duplicate
         std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
@@ -573,7 +571,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
             for (const auto& child : children)
             {
                 auto childItemId = gameObjectsView->AppendItem(wxId, child->GetName(), child->GetId());
-                treeHelper->DisableItem(childItemId);
+                gameObjectsView->DisableItem(childItemId);
                 addChildToWidgets(childItemId, *child);
             }
         };
@@ -840,7 +838,7 @@ void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId paren
         auto wxItemId = gameObjectsView->AppendItem(parentId, child->GetName(), child->GetId());
         if (isGameObjectPrefab(*child))
         {
-            treeHelper->DisableItem(wxItemId);
+            gameObjectsView->DisableItem(wxItemId);
         }
         AddChilds(*child, wxItemId);
     }
@@ -849,6 +847,7 @@ void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId paren
 void MainFrame::OnFileSelectChanged(wxTreeEvent& event)
 {
 }
+
 void MainFrame::OnFileActivated(const wxString& fullpath)
 {
     GameEngine::File file{fullpath.ToStdString()};
