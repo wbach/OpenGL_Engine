@@ -76,7 +76,7 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
     wxPanel* panel    = new wxPanel(notebook);
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
-    const auto& params = configurationExplorer_.getParamsFromCategory(catergory);
+    auto& params = configurationExplorer_.getParamsFromCategory(catergory);
 
     for (auto& param : params)
     {
@@ -91,6 +91,8 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
         auto choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, options);
         choice->SetSelection(param.configurationParam.getValueIndex());
         rowSizer->Add(choice, 0, wxALL, 5);
+
+        paramsCtrls.push_back(ParamCtrl{.param = param.configurationParam, .ctrl= choice});
 
         if (param.configurationParam.isLocked())
         {
@@ -112,6 +114,12 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
                     wxMessageBox("To make effect restart is requierd", "Information",
                                               wxOK| wxICON_INFORMATION,  this);
                 }
+
+                if (param.paramsImpact == GameEngine::ConfigurationExplorer::ParamsImpact::HasImpact)
+                {
+                    UpdateSelectedValuesInCtrl();
+                }
+
                 WriteConfigurationToFile(EngineConf);
             }
         });
@@ -192,4 +200,14 @@ void OptionsFrame::OnClose(wxCloseEvent& event)
 {
     Hide();        // ukryj zamiast niszczyć
     event.Veto();  // anuluj zamknięcie
+}
+
+void OptionsFrame::UpdateSelectedValuesInCtrl()
+{
+    for(auto& parmCtrl : paramsCtrls)
+    {
+            auto index = parmCtrl.param.getValueIndex();
+            parmCtrl.ctrl->Select(index);
+    }
+
 }

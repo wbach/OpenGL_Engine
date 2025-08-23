@@ -13,11 +13,17 @@ public:
         RestartRequired,
         RestartNotNeeded
     };
+    enum class ParamsImpact
+    {
+        HasImpact,
+        NoImpact
+    };
     struct Param
     {
         std::string name;
         GameEngine::Params::IConfigurationParam& configurationParam;
         ApplyPolicy restartRequierd;
+        ParamsImpact paramsImpact{ParamsImpact::NoImpact};
     };
     using Params = std::vector<Param>;
     struct Category
@@ -30,7 +36,8 @@ public:
 
     ConfigurationExplorer();
     const Categories& getParamsByCategories() const;
-    const Params& getParamsFromCategory(const std::string&) const;
+    const Params& getParamsFromCategoryConst(const std::string&) const;
+    Params& getParamsFromCategory(const std::string&);
     std::vector<std::string> getCatogiresList() const;
 
 private:

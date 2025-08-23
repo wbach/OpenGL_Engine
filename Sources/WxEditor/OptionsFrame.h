@@ -18,8 +18,17 @@ private:
 
     void OnClose(wxCloseEvent&);
 
+    void UpdateSelectedValuesInCtrl();
+
 private:
     GameEngine::ConfigurationExplorer configurationExplorer_;
+
+    struct ParamCtrl
+    {
+        GameEngine::Params::IConfigurationParam& param;
+        wxChoice* ctrl;
+    };
+    std::vector<ParamCtrl> paramsCtrls;
 
     wxDECLARE_EVENT_TABLE();
 };

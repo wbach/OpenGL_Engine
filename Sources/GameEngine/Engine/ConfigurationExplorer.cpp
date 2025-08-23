@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace
 {
-const ConfigurationExplorer::Params emptyParams;
+ConfigurationExplorer::Params emptyParams;
 }  // namespace
 
 // clang-format off
@@ -26,7 +26,7 @@ ConfigurationExplorer::ConfigurationExplorer()
     categories.push_back(
         {"Graphics",
          {
-             {"Preset settings", EngineConf.renderer.preset, ApplyPolicy::RestartRequired},
+             {"Preset settings", EngineConf.renderer.preset, ApplyPolicy::RestartRequired, ParamsImpact::HasImpact},
              {"Renderer type", EngineConf.renderer.type, ApplyPolicy::RestartRequired},
              {"UseInstanceRendering", EngineConf.renderer.useInstanceRendering, ApplyPolicy::RestartNotNeeded},
              {"View distance", EngineConf.renderer.viewDistance, ApplyPolicy::RestartNotNeeded},
@@ -77,7 +77,18 @@ const ConfigurationExplorer::Categories& ConfigurationExplorer::getParamsByCateg
 {
     return categories;
 }
-const ConfigurationExplorer::Params& ConfigurationExplorer::getParamsFromCategory(const std::string& name) const
+const ConfigurationExplorer::Params& ConfigurationExplorer::getParamsFromCategoryConst(const std::string& name) const
+{
+    auto iter = std::find_if(categories.begin(), categories.end(),
+                             [&name](const auto& category) { return category.name == name; });
+
+    if (iter != categories.end())
+        return iter->params;
+
+    return emptyParams;
+}
+
+ConfigurationExplorer::Params &ConfigurationExplorer::getParamsFromCategory(const std::string & name)
 {
     auto iter = std::find_if(categories.begin(), categories.end(),
                              [&name](const auto& category) { return category.name == name; });
