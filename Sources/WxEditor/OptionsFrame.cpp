@@ -2,6 +2,7 @@
 
 #include <wx/spinctrl.h>
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Engine/ConfigurationWriter.h>
 #include "Theme.h"
 
 // clang-format off
@@ -96,7 +97,24 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
             choice->Disable();
         }
         choice->SetClientData(&param.configurationParam);
-        choice->Bind(wxEVT_CHOICE, &OptionsFrame::OnChoiceChanged, this);
+        choice->Bind(wxEVT_CHOICE, [this, param](const auto& event){
+            wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
+            if (!choice) return;
+
+            auto paramPtr = static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
+            if (paramPtr)
+            {
+                int sel = choice->GetSelection();
+                paramPtr->setValueFromIndex(sel);
+
+                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+                {
+                    wxMessageBox("To make effect restart is requierd", "Information",
+                                              wxOK| wxICON_INFORMATION,  this);
+                }
+                WriteConfigurationToFile(EngineConf);
+            }
+        });
         sizer->Add(rowSizer, 0, wxEXPAND | wxTOP, 2);
     }
 
@@ -104,19 +122,6 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
     panel->Layout();
 
     notebook->AddPage(panel, catergory);
-}
-
-void OptionsFrame::OnChoiceChanged(wxCommandEvent &event)
-{
-    wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
-    if (!choice) return;
-
-    auto paramPtr = static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
-    if (paramPtr)
-    {
-        int sel = choice->GetSelection();
-        paramPtr->setValueFromIndex(sel);
-    }
 }
 
 void OptionsFrame::CreateGeneralTab(wxNotebook* notebook)

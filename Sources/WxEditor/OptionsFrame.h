@@ -11,7 +11,6 @@ public:
 private:
     void CreateRenderingOptionsTab(wxNotebook*);
     void CreateRenderingSubTab(wxNotebook*, const std::string&);
-    void OnChoiceChanged(wxCommandEvent&);
 
     void CreateGeneralTab(wxNotebook*);
     void CreateAppearanceTab(wxNotebook*);
