@@ -176,104 +176,6 @@ void TerrainRendererComponent::BlendMapChanged()
     terrainComponent_->BlendMapChanged();
 }
 
-void TerrainRendererComponent::InitFromParams(const std::unordered_map<std::string, std::string>& params)
-{
-    for (const auto& param : params)
-    {
-        if (param.second.empty())
-            continue;
-
-        if (IsTerrainTextureType(param.first))
-        {
-            TerrainTextureType textureType;
-            std::from_string(param.first, textureType);
-            UpdateTexture(textureType, GetRelativeDataPath(param.second));
-        }
-        else if (param.first == "redTiledScale")
-        {
-            float v = Utils::StringToFloat(param.second);
-            terrainComponent_->getTerrainTexture(TerrainTextureType::redTexture)->tiledScale             = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::redTextureDisplacement)->tiledScale = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::redTextureNormal)->tiledScale       = v;
-        }
-        else if (param.first == "blueTiledScale")
-        {
-            float v = Utils::StringToFloat(param.second);
-            terrainComponent_->getTerrainTexture(TerrainTextureType::blueTexture)->tiledScale             = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::blueTextureNormal)->tiledScale       = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::blueTextureDisplacement)->tiledScale = v;
-        }
-        else if (param.first == "greenTiledScale")
-        {
-            float v = Utils::StringToFloat(param.second);
-            terrainComponent_->getTerrainTexture(TerrainTextureType::greenTexture)->tiledScale             = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::greenTextureNormal)->tiledScale       = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::greenTextureDisplacement)->tiledScale = v;
-        }
-        else if (param.first == "alphaTiledScale")
-        {
-            float v = Utils::StringToFloat(param.second);
-            terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTexture)->tiledScale             = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTextureDisplacement)->tiledScale = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTextureNormal)->tiledScale       = v;
-        }
-        else if (param.first == "rockTiledScale")
-        {
-            float v = Utils::StringToFloat(param.second);
-            terrainComponent_->getTerrainTexture(TerrainTextureType::rockTexture)->tiledScale             = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::rockTextureNormal)->tiledScale       = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::rockTextureDisplacement)->tiledScale = v;
-        }
-        else if (param.first == "bgTiledScale")
-        {
-            float v = Utils::StringToFloat(param.second);
-            terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTexture)->tiledScale             = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTextureNormal)->tiledScale       = v;
-            terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTextureDisplacement)->tiledScale = v;
-        }
-    }
-    terrainComponent_->updateTerrainTextureBuffer();
-}
-
-std::unordered_map<ParamName, Param> TerrainRendererComponent::GetParams() const
-{
-    std::unordered_map<ParamName, Param> result;
-
-    const auto& textures = GetInputDataTextures();
-
-    for (const auto& texture : textures)
-    {
-        auto varType = texture.type == TerrainTextureType::heightmap ? FILE : IMAGE_FILE;
-        result.insert({std::to_string(texture.type), {varType, texture.file.GetAbsoultePath()}});
-    }
-
-    {
-        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::redTexture);
-        result.insert({"redTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
-    }
-    {
-        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::blueTexture);
-        result.insert({"blueTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
-    }
-    {
-        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::greenTexture);
-        result.insert({"greenTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
-    }
-    {
-        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::alphaTexture);
-        result.insert({"alphaTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
-    }
-    {
-        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::rockTexture);
-        result.insert({"rockTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
-    }
-    {
-        auto texture = terrainComponent_->getTerrainTexture(TerrainTextureType::backgorundTexture);
-        result.insert({"bgTiledScale", {FLOAT, std::to_string(texture ? texture->tiledScale : 1.f)}});
-    }
-    return result;
-}
-
 void TerrainRendererComponent::RecalculateNormals()
 {
     terrainComponent_->RecalculateNormals();
@@ -314,7 +216,8 @@ std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTexture
 }
 void TerrainRendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<TerrainRendererComponent>(componentContext, gameObject);
 
         auto texturesNode = node.getChild(CSTR_TEXTURE_FILENAMES);
@@ -382,14 +285,14 @@ void TerrainRendererComponent::write(TreeNode& node) const
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
 
-            std::visit(visitor{
-                           [&](const std::vector<uint8>& data) {
-                               Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath());
-                           },
-                           [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                           [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
-                       },
-                       image.getImageData());
+            std::visit(
+                visitor{
+                    [&](const std::vector<uint8>& data)
+                    { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath()); },
+                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
+                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                },
+                image.getImageData());
         }
     }
 }

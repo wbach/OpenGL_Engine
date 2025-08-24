@@ -1,11 +1,5 @@
 #include "SceneFactory.h"
 
-#include "Scenes/Gorzow.h"
-#include "Scenes/GreenIsland.h"
-#include "Scenes/Kingdom.h"
-#include "Scenes/MainMenu.h"
-#include "Scenes/SouthPole.h"
-
 namespace AvatarGame
 {
 SceneFactory::SceneFactory()

@@ -6,6 +6,7 @@
 #include <vector>
 #include <optional>
 #include "Types.h"
+#include <string_view>
 
 typedef std::unordered_map<std::string, std::string> Attributes;
 
@@ -22,6 +23,7 @@ public:
     const std::vector<std::unique_ptr<TreeNode>>& getChildren() const;
     TreeNode& addChild(const std::string&);
     TreeNode& addChild(const std::string&, const std::string&);
+    TreeNode& addChild(const std::string&, const std::string_view&);
     TreeNode& addChild(std::unique_ptr<TreeNode>);
     TreeNode* getChild(const std::string&) const;
     bool isAttributePresent(const std::string&) const;

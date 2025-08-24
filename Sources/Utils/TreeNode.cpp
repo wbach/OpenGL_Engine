@@ -56,6 +56,12 @@ TreeNode& TreeNode::addChild(const std::string& name, const std::string& value)
     children_.emplace_back(new TreeNode(name, value));
     return *children_.back();
 }
+
+TreeNode &TreeNode::addChild(const std::string & name, const std::string_view & value)
+{
+    children_.emplace_back(new TreeNode(name, std::string(value)));
+    return *children_.back();
+}
 TreeNode& TreeNode::addChild(std::unique_ptr<TreeNode> child)
 {
     children_.push_back(std::move(child));

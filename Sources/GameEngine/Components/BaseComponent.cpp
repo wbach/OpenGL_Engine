@@ -33,7 +33,6 @@ BaseComponent::~BaseComponent()
         ERROR_LOG("componentRegistredId not set!");
     }
 }
-
 size_t BaseComponent::GetType() const
 {
     return type_;
@@ -48,15 +47,10 @@ void BaseComponent::Deactivate()
     isActive_ = false;
     changeActivateStateRegisteredFunctions();
 }
-
 void BaseComponent::SetActive(bool is)
 {
     isActive_ = is;
     changeActivateStateRegisteredFunctions();
-}
-std::unordered_map<ParamName, Param> BaseComponent::GetParams() const
-{
-    return {};
 }
 GameObject& BaseComponent::GetParentGameObject()
 {
@@ -69,7 +63,6 @@ const GameObject& BaseComponent::getParentGameObject() const
 void BaseComponent::write(TreeNode&) const
 {
 }
-
 std::optional<IdType> BaseComponent::getRegisteredFunctionId(FunctionType functionType) const
 {
     for (const auto& [id, type] : registeredFunctionsIds_)
@@ -82,9 +75,6 @@ std::optional<IdType> BaseComponent::getRegisteredFunctionId(FunctionType functi
 bool BaseComponent::IsActive() const
 {
     return isActive_;
-}
-void BaseComponent::InitFromParams(const std::unordered_map<std::string, std::string>&)
-{
 }
 void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func)
 {

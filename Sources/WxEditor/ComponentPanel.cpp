@@ -7,7 +7,9 @@
 #include <wx/artprov.h>
 #include <wx/dnd.h>
 #include <wx/wx.h>
+
 #include <magic_enum/magic_enum.hpp>
+
 #include "ThumbnailCache.h"
 
 class MyTextDropTarget : public wxTextDropTarget
@@ -84,9 +86,10 @@ void ComponentPanel::Lock()
 {
     std::function<void(wxWindow*)> lockChildren = [&](wxWindow* parent)
     {
-        if (not parent) return;
+        if (not parent)
+            return;
 
-        if (not (parent == headerPanel || parent == collapsible))
+        if (not(parent == headerPanel || parent == collapsible))
             parent->Disable();
 
         for (auto child : parent->GetChildren())
@@ -124,7 +127,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     component.write(node);
     auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);
 
-    headerPanel    = new wxPanel(this);
+    headerPanel             = new wxPanel(this);
     wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);
 
     // Label z nazwą sekcji
@@ -238,6 +241,28 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
     LOG_DEBUG << "Field type : " << magic_enum::enum_name(field.type);
     switch (field.type)
     {
+        case FieldType::Enum:
+        {
+            auto* ctrl = new wxChoice(pane, wxID_ANY);
+
+            for (auto& n : field.enumNames())
+                ctrl->Append(wxString::FromUTF8(n.c_str()));
+            ctrl->SetSelection(field.enumToIndex(field.ptr));
+
+            auto* row = CreateLabeledRow(pane, field.name, ctrl);
+            sizer->Add(row, 0, wxEXPAND | wxALL, 5);
+
+            ctrl->Bind(wxEVT_CHOICE,
+                       [this, &component, ptr = field.ptr, indexToEnum = field.indexToEnum](wxCommandEvent& evt)
+                       {
+                           LOG_DEBUG << "OnChoice";
+                           indexToEnum(ptr, evt.GetSelection());
+                           LOG_DEBUG << "reInit";
+                           reInitComponent(component);
+                       });
+
+            break;
+        }
         case GameEngine::Components::FieldType::AnimationClip:
         {
             auto* val      = static_cast<GameEngine::Components::ReadAnimationInfo*>(field.ptr);

@@ -21,14 +21,16 @@
 
 #include "GameEngine/Scene/Scene.hpp"
 
-PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory)
-    : PauseMenu(startState, scene, factory, {})
+PauseMenu::PauseMenu(GameEngine::File& logoFile, State startState, GameEngine::Scene& scene,
+                     GameEngine::GuiElementFactory& factory)
+    : PauseMenu(logoFile, startState, scene, factory, {})
 {
 }
 
-PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory,
-                     const std::unordered_map<std::string, uint32>& avaiableScenes)
-    : startState_{startState}
+PauseMenu::PauseMenu(GameEngine::File& logoFile, State startState, GameEngine::Scene& scene,
+                     GameEngine::GuiElementFactory& factory, const std::unordered_map<std::string, uint32>& avaiableScenes)
+    : logoFile{logoFile}
+    , startState_{startState}
     , scene_{scene}
     , factory_{factory}
     , guiManager_{factory.getManager()}
@@ -270,7 +272,7 @@ void PauseMenu::init()
     mainWindow->Hide();
 
     mainWindow_ = mainWindow.get();
-    auto logo   = factory_.CreateGuiTexture("GUI/1200px-Avatar_The_Last_Airbender_logo.svg.png");
+    auto logo   = factory_.CreateGuiTexture(logoFile.GetAbsoultePath());
     logo->SetLocalScale({1.f, 0.15f});
     logo->SetLocalPostion({0.5f, 0.75f});
     mainWindow_->AddChild(std::move(logo));

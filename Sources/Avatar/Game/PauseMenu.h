@@ -1,5 +1,6 @@
 #pragma once
 #include <GameEngine/Engine/ConfigurationExplorer.h>
+#include <GameEngine/Resources/File.h>
 #include <Input/KeysSubscriptionsManager.h>
 #include <Types.h>
 
@@ -94,8 +95,8 @@ public:
         bool focusToChild{false};
     };
 
-    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&);
-    PauseMenu(State, GameEngine::Scene&, GameEngine::GuiElementFactory&, const std::unordered_map<std::string, uint32>&);
+    PauseMenu(GameEngine::File&, State, GameEngine::Scene&, GameEngine::GuiElementFactory&);
+    PauseMenu(GameEngine::File&, State, GameEngine::Scene&, GameEngine::GuiElementFactory&, const std::unordered_map<std::string, uint32>&);
     ~PauseMenu();
 
     void show();
@@ -126,6 +127,7 @@ private:
     void createButtonForLayout(View&, const std::string&, std::function<void(GameEngine::GuiElement&)>);
 
 private:
+    GameEngine::File& logoFile;
     bool onePramaterNeedRestart_{false};
     State startState_;
 

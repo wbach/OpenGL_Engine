@@ -3,8 +3,28 @@
 
 #include "PauseMenu.h"
 
-class PauseMenuComponent : public GameEngine::Components::BaseComponent
+using namespace GameEngine;
+using namespace GameEngine::Components;
+
+namespace GameEngine
 {
+class GuiTextureElement;
+}
+
+class PauseMenuComponent : public BaseComponent
+{
+public:
+    File pauseMenuImage;
+    File mainMenuBackground;
+    PauseMenu::State startState;
+
+public:
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_TEXTURE(pauseMenuImage)
+        FIELD_TEXTURE(mainMenuBackground)
+        FIELD_ENUM(startState)
+    END_FIELDS()
 public:
     PauseMenuComponent(GameEngine::Components::ComponentContext&, GameEngine::GameObject&);
 
@@ -13,7 +33,7 @@ public:
 
 private:
     std::unique_ptr<PauseMenu> pauseMenu;
-    PauseMenu::State startState;
+    GuiTextureElement* backgroundTexture;
 
 public:
     static void registerReadFunctions();
