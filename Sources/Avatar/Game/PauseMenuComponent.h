@@ -1,10 +1,7 @@
-#pragma once 
+#pragma once
 #include <GameEngine/Components/BaseComponent.h>
-#include "PauseMenu.h"
 
-namespace AvatarGame
-{
-class PauseMenu;
+#include "PauseMenu.h"
 
 class PauseMenuComponent : public GameEngine::Components::BaseComponent
 {
@@ -22,4 +19,5 @@ public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
 };
-} // namespace AvatarGame
+
+extern "C" void registerReadFunction();

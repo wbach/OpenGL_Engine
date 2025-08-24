@@ -15,8 +15,6 @@ namespace
 const std::string COMPONENT_STR{"PauseMenu"};
 }
 
-namespace AvatarGame
-{
 PauseMenuComponent::PauseMenuComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(typeid(PauseMenuComponent).hash_code(), componentContext, gameObject)
     , startState{PauseMenu::State::MainMenu}
@@ -106,4 +104,9 @@ void PauseMenuComponent::write(TreeNode& node) const
             break;
     };
 }
-}  // namespace AvatarGame
+
+extern "C" void registerReadFunction()
+{
+    LOG_DEBUG << "PauseMenuComponent::registerReadFunctions";
+    PauseMenuComponent::registerReadFunctions();
+}

@@ -21,8 +21,6 @@
 
 #include "GameEngine/Scene/Scene.hpp"
 
-namespace AvatarGame
-{
 PauseMenu::PauseMenu(State startState, GameEngine::Scene& scene, GameEngine::GuiElementFactory& factory)
     : PauseMenu(startState, scene, factory, {})
 {
@@ -380,13 +378,13 @@ void PauseMenu::createSceneLoaderLayout()
     auto verticalLayout = factory_.CreateVerticalLayout();
     for (const auto& [sceneName, _] : avaiableScenes_)
     {
-        auto guiButton = factory_.CreateGuiButton(sceneName,
-                                                  [this, name = sceneName](auto&)
-                                                  {
-                                                      GameEngine::SceneEvent sceneEvent(
-                                                          GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, name);
-                                                      scene_.SendEvent(sceneEvent);
-                                                  });
+        auto guiButton =
+            factory_.CreateGuiButton(sceneName,
+                                     [this, name = sceneName](auto&)
+                                     {
+                                         GameEngine::SceneEvent sceneEvent(GameEngine::SceneEventType::LOAD_SCENE_BY_NAME, name);
+                                         scene_.SendEvent(sceneEvent);
+                                     });
         guiButton->SetLocalScale(menuButtonSize_);
         view.getActiveButtons().array.push_back({guiButton.get()});
         verticalLayout->AddChild(std::move(guiButton));
@@ -691,5 +689,3 @@ void PauseMenu::View::Buttons::toneDownCurrent()
     if (isInRange())
         get().ToneDown();
 }
-
-}  // namespace AvatarGame

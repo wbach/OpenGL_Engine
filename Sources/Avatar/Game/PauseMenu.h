@@ -18,8 +18,6 @@ class GuiElementFactory;
 class GuiButtonElement;
 }  // namespace GameEngine
 
-namespace AvatarGame
-{
 class PauseMenu
 {
 public:
@@ -155,4 +153,3 @@ private:
     Input::KeysSubscriptionsManager keysSubscriptionsManager;
     uint32 escapeSub;
 };
-}  // namespace AvatarGame

@@ -1,10 +1,10 @@
 #pragma once
 #include "GameEngine/Scene/Scene.hpp"
 
-namespace AvatarGame
-{
 class PauseMenu;
 
+namespace AvatarGame
+{
 class GreenIsland : public GameEngine::Scene
 {
 public:

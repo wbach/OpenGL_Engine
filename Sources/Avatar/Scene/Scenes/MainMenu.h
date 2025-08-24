@@ -3,10 +3,10 @@
 
 #include "GameEngine/Scene/Scene.hpp"
 
-namespace AvatarGame
-{
 class PauseMenu;
 
+namespace AvatarGame
+{
 class MainMenu : public GameEngine::Scene
 {
 public:

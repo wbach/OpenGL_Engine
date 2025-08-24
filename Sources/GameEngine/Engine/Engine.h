@@ -19,6 +19,11 @@ struct ReadConfiguration
     ReadConfiguration();
 };
 
+struct ExternalComponents
+{
+    ExternalComponents();
+};
+
 class Engine
 {
 public:
@@ -39,6 +44,7 @@ private:
 
 private:
     ReadConfiguration readConfiguration_;
+    ExternalComponents externalComponents_;
     EngineContext engineContext_;
     IntroRenderer introRenderer_;
     IdType loggingLvlParamSub_;

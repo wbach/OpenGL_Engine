@@ -1,10 +1,10 @@
 #pragma once
 #include "GameEngine/Scene/Scene.hpp"
 
-namespace AvatarGame
-{
 class PauseMenu;
 
+namespace AvatarGame
+{
 class Gorzow : public GameEngine::Scene
 {
 public:

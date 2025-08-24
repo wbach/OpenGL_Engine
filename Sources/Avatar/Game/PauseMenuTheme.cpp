@@ -1,7 +1,5 @@
 #include "PauseMenuTheme.h"
 
-namespace AvatarGame
-{
 GameEngine::GuiTheme getGuiTheme()
 {
     GameEngine::GuiTheme guiTheme;
@@ -12,4 +10,3 @@ GameEngine::GuiTheme getGuiTheme()
     guiTheme.buttonHoverTexture = guiTheme.backgroundTexture;
     return guiTheme;
 }
-}  // namespace AvatarGame

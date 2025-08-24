@@ -41,10 +41,14 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/magic_enum-v0.9.7/include/
 )
 
 set(SceneDllSources
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxEditorSceneDll.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxEditorSceneDll.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Game/PauseMenu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Game/PauseMenuTheme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Avatar/Game/PauseMenuComponent.cpp
 )
 
 SET(EngineCompileFlags "-std=c++20 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined -Wno-deprecated")
@@ -56,5 +60,5 @@ set_source_files_properties(
     COMPILE_FLAGS ${EngineCompileFlags}
 )
 
-add_library(WxEditorSceneDll SHARED ${SceneDllSources})
-target_include_directories(WxEditorSceneDll PRIVATE ${CMAKE_SOURCE_DIR})
+add_library(PauseMenuComponentDll SHARED ${SceneDllSources})
+target_include_directories(PauseMenuComponentDll PRIVATE ${CMAKE_SOURCE_DIR})
