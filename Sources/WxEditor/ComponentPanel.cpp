@@ -388,7 +388,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             row.browseBtn->Bind(wxEVT_BUTTON,
                                 [this, &component, txt = row.textCtrl, prev = row.preview, pane, val](wxCommandEvent&)
                                 {
-                                    wxFileDialog openFileDialog(pane, "Choose texture", "", "",
+                                    wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "",
                                                                 "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                                     if (openFileDialog.ShowModal() == wxID_OK)
@@ -882,7 +882,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
         wxEVT_BUTTON,
         [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile, textCtrl = row.textCtrl](wxCommandEvent&)
         {
-            wxFileDialog openFileDialog(pane, "Choose texture", "", "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+            wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (openFileDialog.ShowModal() == wxID_OK)
             {
@@ -945,7 +945,7 @@ void ComponentPanel::reInitComponent(GameEngine::Components::IComponent& compone
 void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
                                              wxWindow* pane, GameEngine::File* val)
 {
-    wxFileDialog openFileDialog(pane, "Choose file", "", "", "*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxFileDialog openFileDialog(pane, "Choose file", EngineConf.files.data, "", "*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (openFileDialog.ShowModal() == wxID_OK)
     {
         fileCtrl->SetValue(openFileDialog.GetPath());
