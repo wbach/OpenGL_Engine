@@ -135,8 +135,8 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     wxSplitterWindow* topSplitter = new wxSplitterWindow(leftSplitter, wxID_ANY);
 
     // === Tree ===
-    auto treeCtrl = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
-                                   wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
+    auto treeCtrl   = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
+                                     wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
     gameObjectsView = std::make_unique<SceneTreeCtrl>(treeCtrl,
                                                       [this](IdType item, IdType newParent)
                                                       {
@@ -156,7 +156,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
-    auto onStartupDone = [this]() { UpdateTimeOnToolbar(); };
+    auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
         if (auto wxItemId = gameObjectsView->Get(gameObjectId))
@@ -242,8 +242,16 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     SaveOsTheme(*this);
     // ApplyTheme(*this);
-}
 
+    Bind(wxEVT_RELOAD_COMPONENT_LIB_EVENT,
+         [this](ReloadComponentLibEvent& event)
+         {
+             LOG_DEBUG << "wxEVT_RELOAD_COMPONENT_LIB_EVENT";
+             RemoveAllComponentPanels();
+             canvas->GetEngine().getExternalComponentsReader().Reload(event.GetFile());
+             AddGameObjectComponentsToView(event.GetGameObject());
+         });
+}
 
 void MainFrame::LockAllComponentPanels()
 {
@@ -477,7 +485,8 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
 {
     for (auto& component : gameObject.GetComponents())
     {
-        auto* compPanel = new ComponentPanel(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
+        auto* compPanel = new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
+                                             canvas->GetScene().getComponentController(), gameObject);
         compPanel->AddComponent(*component);
         if (isGameObjectPrefab(gameObject))
         {
@@ -500,8 +509,9 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
             new ComponentPickerPopup(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject,
                                      [this, &gameObject](auto& component)
                                      {
-                                         ComponentPanel* compPanel = new ComponentPanel(
-                                             gameObjectPanels, canvas->GetScene().getComponentController(), gameObject);
+                                         ComponentPanel* compPanel = new ComponentPanel(this,
+                                             gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
+                                             canvas->GetScene().getComponentController(), gameObject);
                                          compPanel->AddComponent(component, false);
                                          if (isGameObjectPrefab(gameObject))
                                          {

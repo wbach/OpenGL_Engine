@@ -13,12 +13,14 @@
 namespace GameEngine
 {
 class GameObject;
-}
+class ExternalComponentsReader;
+}  // namespace GameEngine
 
 class ComponentPanel : public wxPanel
 {
 public:
-    explicit ComponentPanel(wxWindow*, GameEngine::Components::ComponentController&, GameEngine::GameObject&);
+    explicit ComponentPanel(wxFrame*, wxWindow*, GameEngine::ExternalComponentsReader&, GameEngine::Components::ComponentController&,
+                            GameEngine::GameObject&);
 
     void ClearComponents();
     void AddComponent(GameEngine::Components::IComponent&, bool collapsed = true);
@@ -26,6 +28,8 @@ public:
     void Lock();
 
 private:
+    wxFrame* mainFrame;
+    GameEngine::ExternalComponentsReader& externalComponentsReader;
     GameEngine::Components::ComponentController& componentController;
     GameEngine::GameObject& gameObject;
     wxBoxSizer* mainSizer{nullptr};

@@ -64,6 +64,7 @@ std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = t
 std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
 std::string GetFilePatch(const std::string& file_full_path);
 std::string GetDataLocationFromString(const std::string& str);
+std::string GetCacheLocationFromString(const std::string& str);
 std::string GetShaderLocationFromString(const std::string& str);
 std::string GetRelativeDataPath(const std::string&);
 }  // namespace GameEngine

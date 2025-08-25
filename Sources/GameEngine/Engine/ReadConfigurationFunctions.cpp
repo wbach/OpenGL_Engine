@@ -1,6 +1,8 @@
 #include "ReadConfigurationFunctions.h"
 
 #include <Logger/Log.h>
+
+#include <filesystem>
 #include <iostream>
 
 #include "Configuration.h"
@@ -253,7 +255,7 @@ void Read(TreeNode& node, Params::Files& files)
     if (auto child = node.getChild(CSTR_SHADER_LOCATION))
         files.shaders = GetShaderLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_CACHE_LOCATION))
-        files.cache = GetShaderLocationFromString(child->value_);
+        files.cache = GetCacheLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_USER_DIR_LOCATION))
         files.userDir = GetShaderLocationFromString(child->value_);
     if (auto child = node.getChild(CSTR_REQUIRED_FILE_OUTPUT))
@@ -262,6 +264,15 @@ void Read(TreeNode& node, Params::Files& files)
         files.loadingScreenBackgroundTexture = child->value_;
     if (auto child = node.getChild(CSTR_LOADING_SCREEN_CIRCLE))
         files.loadingScreenCircleTexture = child->value_;
+
+    if (not std::filesystem::exists(files.cache))
+    {
+        std::filesystem::create_directories(files.cache);
+    }
+    if (not std::filesystem::exists(files.data))
+    {
+        std::filesystem::create_directories(files.data);
+    }
 }
 
 void Read(TreeNode* node, Params::PhysicsVisualizatorParams& params)

@@ -28,6 +28,20 @@ std::string GetDataLocationFromString(const std::string& str)
     return str;
 }
 
+std::string GetCacheLocationFromString(const std::string& str)
+{
+    if (str.empty())
+        return DEFAULT_CACHE_PATH;
+
+    if (str[str.size() - 1] != '/')
+    {
+        return str + '/';
+    }
+
+    return str;
+}
+
+
 std::string GetShaderLocationFromString(const std::string& str)
 {
     if (str.empty())

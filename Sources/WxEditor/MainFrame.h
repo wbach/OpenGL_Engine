@@ -17,6 +17,7 @@
 #include "TransformPanel.h"
 #include "DisableHelper.h"
 #include "SceneTreeCtrl.h"
+#include "MyEvents.h"
 
 class GLCanvas;
 class OptionsFrame;

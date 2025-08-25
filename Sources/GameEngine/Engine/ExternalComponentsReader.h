@@ -14,7 +14,7 @@ struct ExternalComponentsReader
     void LoadAll();
     void LoadSingle(const std::string&);
     void Reload(const std::string&);
-    std::vector <std::string> GetLoadedLibs() const;
+    std::vector <std::pair<std::string, std::string>> GetLoadedLibs() const;
 
     struct ComponentInstance
     {

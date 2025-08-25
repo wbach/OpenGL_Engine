@@ -8,6 +8,7 @@ Tools/
 Intermediate/
 Logs/
 tmp/
+Cache/
 __pycache__/
 GameEngineCM/output/
 .cmake/

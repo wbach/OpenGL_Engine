@@ -15,4 +15,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeCtrl.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MyEvents.cpp
 )

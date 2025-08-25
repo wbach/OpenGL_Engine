@@ -1,12 +1,14 @@
 #include "ComponentPanel.h"
 
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Engine/ExternalComponentsReader.h>
 #include <GameEngine/Objects/GameObject.h>
 #include <Logger/Log.h>
 #include <Utils/TreeNode.h>
 #include <wx/artprov.h>
 #include <wx/dnd.h>
 #include <wx/wx.h>
+#include "MyEvents.h"
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -72,9 +74,12 @@ extern const std::string CSTR_TYPE;
 }
 }  // namespace GameEngine
 
-ComponentPanel::ComponentPanel(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
+ComponentPanel::ComponentPanel(wxFrame* mainFrame, wxWindow* parent, GameEngine::ExternalComponentsReader& reader,
+                               GameEngine::Components::ComponentController& componentController,
                                GameEngine::GameObject& gameObject)
     : wxPanel(parent, wxID_ANY)
+    , mainFrame(mainFrame)
+    , externalComponentsReader(reader)
     , componentController{componentController}
     , gameObject{gameObject}
 {
@@ -146,6 +151,34 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                               component.SetActive(e.IsChecked());
                               reInitComponent(component);
                           });
+    }
+
+    auto externalLoadedLibs = externalComponentsReader.GetLoadedLibs();
+    for (auto& [file, name] : externalLoadedLibs)
+    {
+        if (name == component.GetTypeString())
+        {
+            wxButton* reloadComponentButton = new wxButton(headerPanel, wxID_ANY, "Reload", wxDefaultPosition, wxSize(60, 20));
+            headerSizer->Add(reloadComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
+            reloadComponentButton->Bind(wxEVT_BUTTON,
+                                        [this, libFile = file, typeName](const auto&)
+                                        {
+                                            int answer = wxMessageBox("Reload component " + typeName + "?", "Confirmation",
+                                                                      wxYES_NO | wxICON_QUESTION);
+                                            if (answer == wxYES)
+                                            {
+                                                CallAfter(
+                                                    [this, libFile]()
+                                                    {
+                                                        ReloadComponentLibEvent event(wxEVT_RELOAD_COMPONENT_LIB_EVENT);
+                                                        event.SetFile(libFile);
+                                                        event.SetGameObject(gameObject);
+                                                        wxPostEvent(mainFrame, event);
+                                                    });
+                                            }
+                                        });
+            break;
+        }
     }
 
     wxButton* deleteComponentButton = new wxButton(headerPanel, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, 20));
@@ -882,8 +915,8 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
         wxEVT_BUTTON,
         [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile, textCtrl = row.textCtrl](wxCommandEvent&)
         {
-            wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "",
+                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
             if (openFileDialog.ShowModal() == wxID_OK)
             {
                 wxString path = openFileDialog.GetPath();

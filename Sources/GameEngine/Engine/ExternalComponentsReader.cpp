@@ -15,10 +15,10 @@
 #else
 #include <dlfcn.h>
 #endif
-
 #include <GameEngine/Scene/ISceneManager.h>
 
 #include <GameEngine/Scene/Scene.hpp>
+#include <filesystem>
 
 typedef const char* (*registerReadFunction)();
 
@@ -93,27 +93,44 @@ void ExternalComponentsReader::LoadAll()
     }
 }
 
-void ExternalComponentsReader::LoadSingle(const std::string& file)
+void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
 {
-    LOG_DEBUG << "Component file detected : " << file;
+    LOG_DEBUG << "Component file detected : " << inputFile;
+    if (not std::filesystem::exists(inputFile))
+    {
+        return;
+    }
+
+    static int loadInstance = 0;
+    std::string file        = EngineConf.files.cache + "/LoadInstance_" + std::to_string(loadInstance++) + "_" +
+                       std::filesystem::path(inputFile).filename().string();
+    std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
     LibHandle handle = LoadLib(file);
     if (handle)
     {
-        auto func = reinterpret_cast<registerReadFunction>(GetSymbol(handle, "registerReadFunction"));
+        auto symbol = GetSymbol(handle, "registerReadFunction");
+        if (not symbol)
+        {
+            LOG_ERROR << "dlsym failed: " << dlerror();
+            return;
+        }
+
+        auto func = reinterpret_cast<registerReadFunction>(symbol);
         if (func)
         {
             auto name = func();
-            externalLibs.insert({file, ComponentLib{.name = name, .handle = handle}});
-            LOG_DEBUG << "Component loaded";
+            externalLibs.insert({inputFile, ComponentLib{.name = name, .handle = handle}});
         }
         else
         {
-            LOG_WARN << "GetSymbol registerReadFunction " << file << " failed : " << dlerror();
+            LOG_WARN << "GetSymbol registerReadFunction " << inputFile << " failed : " << dlerror();
+            std::filesystem::remove(file);
         }
     }
     else
     {
-        LOG_WARN << "Open lib " << file << " failed : " << dlerror();
+        LOG_WARN << "Open lib " << inputFile << " failed : " << dlerror();
+        std::filesystem::remove(file);
     }
 }
 
@@ -122,15 +139,13 @@ void ExternalComponentsReader::Reload(const std::string& path)
     auto iter = externalLibs.find(path);
     if (iter != externalLibs.end())
     {
-        LOG_DEBUG << "Reload lib: " << path;
-        auto& lib      = iter->second;
+        auto& lib = iter->second;
+        LOG_DEBUG << "Reload lib: " << path << " lib name = " << lib.name;
         auto instances = removeAllInstanceOfComponent(Components::BaseComponent::GetType(lib.name));
-
-        UnloadLib(lib.handle);
         Components::ReadFunctions::instance().componentsReadFunctions.erase(lib.name);
+        UnloadLib(lib.handle);
         externalLibs.erase(path);
         LoadSingle(path);
-
         recreateAllInstancesOfComponent(instances);
     }
     else
@@ -140,13 +155,13 @@ void ExternalComponentsReader::Reload(const std::string& path)
     }
 }
 
-std::vector<std::string> ExternalComponentsReader::GetLoadedLibs() const
+std::vector<std::pair<std::string, std::string>> ExternalComponentsReader::GetLoadedLibs() const
 {
-    std::vector<std::string> result;
+    std::vector<std::pair<std::string, std::string>> result;
     result.reserve(externalLibs.size());
-    for(const auto& lib : externalLibs)
+    for (const auto& lib : externalLibs)
     {
-        result.push_back(lib.first);
+        result.push_back({lib.first, lib.second.name});
     }
     return result;
 }
@@ -164,7 +179,6 @@ std::vector<ExternalComponentsReader::ComponentInstance> ExternalComponentsReade
                 TreeNode node("component");
                 component->write(node);
                 result.push_back(ComponentInstance{.gameObject = gameObject, .nodeToRestore = std::move(node)});
-                component->CleanUp();
                 gameObject.RemoveComponent(type);
             }
 
@@ -187,7 +201,20 @@ void ExternalComponentsReader::recreateAllInstancesOfComponent(const std::vector
     for (auto& instance : instances)
     {
         auto& gameObject = instance.gameObject;
-        gameObject.InitComponent(instance.nodeToRestore);
+        if (auto component = gameObject.InitComponent(instance.nodeToRestore))
+        {
+            component->ReqisterFunctions();
+
+            if (auto scene = sceneManager.GetActiveScene())
+            {
+                auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);
+                if (maybeId)
+                {
+                    scene->getComponentController().callComponentFunction(gameObject.GetId(), Components::FunctionType::Awake,
+                                                                          *maybeId);
+                }
+            }
+        }
     }
 }
 }  // namespace GameEngine
