@@ -125,15 +125,18 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 {
     wxInitAllImageHandlers();
 
-    wxSplitterWindow* horizontalSpliter = new wxSplitterWindow(this, wxID_ANY);
-    wxSplitterWindow* topSplitter       = new wxSplitterWindow(horizontalSpliter, wxID_ANY);
-    wxSplitterWindow* bottomSpliter     = new wxSplitterWindow(horizontalSpliter, wxID_ANY);
-    horizontalSpliter->SplitHorizontally(topSplitter, bottomSpliter, size.y * 3 / 5);
+    // Główny splitter: lewy/prawy
+    wxSplitterWindow* mainSplitter = new wxSplitterWindow(this, wxID_ANY);
 
-    wxSplitterWindow* trs = new wxSplitterWindow(topSplitter, wxID_ANY);
-    // FromDIP(wxSize(160, 250))
-    auto treeCtrl   = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
-                                     wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
+    // Lewy splitter: góra/dół
+    wxSplitterWindow* leftSplitter = new wxSplitterWindow(mainSplitter, wxID_ANY);
+
+    // Góra lewego splittera: tree + canvas
+    wxSplitterWindow* topSplitter = new wxSplitterWindow(leftSplitter, wxID_ANY);
+
+    // === Tree ===
+    auto treeCtrl = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
+                                   wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
     gameObjectsView = std::make_unique<SceneTreeCtrl>(treeCtrl,
                                                       [this](IdType item, IdType newParent)
                                                       {
@@ -153,9 +156,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
-    topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), trs, size.x / 8);
-
-    auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
+    auto onStartupDone = [this]() { UpdateTimeOnToolbar(); };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
         if (auto wxItemId = gameObjectsView->Get(gameObjectId))
@@ -164,10 +165,21 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
             UpdateGameObjectIdOnTransfromLabel(gameObjectId);
         }
     };
-    canvas = new GLCanvas(trs, onStartupDone, selectItemInGameObjectTree);
+    canvas = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
 
-    // Zamiast wxListBox
-    gameObjectPanels = new wxScrolledWindow(trs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
+    // Split pionowy: tree + canvas
+    topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), canvas, size.x / 8);
+
+    // === Dół: ProjectPanel ===
+    auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
+    ProjectPanel* projectPanel =
+        new ProjectPanel(leftSplitter, Utils::GetAbsolutePath(EngineConf.files.data), fileSelectedCallback);
+
+    // Lewy splitter: góra (tree+canvas), dół (projectPanel)
+    leftSplitter->SplitHorizontally(topSplitter, projectPanel, size.y * 3 / 5);
+
+    // === Prawa strona: gameObjectPanels ===
+    gameObjectPanels = new wxScrolledWindow(mainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
     gameObjectPanels->SetScrollRate(5, 5);  // ustaw scrollowanie
 
     gameObjectPanelsSizer = new wxBoxSizer(wxVERTICAL);
@@ -201,7 +213,6 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     gameObjectPanels->Layout();
     gameObjectPanels->FitInside();
 
-    // Opcjonalnie, możesz podpiąć event zmiany stanu collapsible aby wymusić poprawne ułożenie:
     transformsCollapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
                                 [this](wxCollapsiblePaneEvent&)
                                 {
@@ -212,18 +223,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 
     transformsCollapsible->Collapse(false);
 
-    // Splitter dzielimy na canvas i ten nowy panel z listą
-    trs->SplitVertically(canvas, gameObjectPanels, size.x * 5 / 8);
+    // Main split: lewa/prawa
+    mainSplitter->SplitVertically(leftSplitter, gameObjectPanels, 3 * size.x / 4);
 
-    auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
-    ProjectPanel* projectPanel =
-        new ProjectPanel(bottomSpliter, Utils::GetAbsolutePath(EngineConf.files.data), fileSelectedCallback);
-
-    wxBitmap sampleBitmap = wxArtProvider::GetBitmap(wxART_MISSING_IMAGE, wxART_OTHER, wxSize(300, 200));
-    auto filePreview      = new wxStaticBitmap(bottomSpliter, wxID_ANY, sampleBitmap, wxDefaultPosition, wxSize(300, 200));
-
-    bottomSpliter->SplitVertically(projectPanel, filePreview, 3 * size.x / 4);
-
+    // === Reszta GUI ===
     CreateMainMenu();
     CreateToolBarForEngine();
 
@@ -240,6 +243,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     SaveOsTheme(*this);
     // ApplyTheme(*this);
 }
+
 
 void MainFrame::LockAllComponentPanels()
 {
