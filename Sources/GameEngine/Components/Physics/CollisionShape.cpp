@@ -1,16 +1,17 @@
 #include "CollisionShape.h"
 
+#include <Logger/Log.h>
+
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
 namespace Components
 {
-CollisionShape::CollisionShape(size_t type, ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(type, componentContext, gameObject)
+CollisionShape::CollisionShape(const std::string& name, ComponentContext& componentContext, GameObject& gameObject)
+    : BaseComponent(name, componentContext, gameObject)
     , collisionShapeId_(0)
     , positionOffset(0.f)
 {

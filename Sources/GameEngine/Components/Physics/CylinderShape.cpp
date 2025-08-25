@@ -13,7 +13,7 @@ namespace Components
 std::string CylinderShape::name = {"CylinderShape"};
 
 CylinderShape::CylinderShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(typeid(CylinderShape).hash_code(), componentContext, gameObject)
+    : CollisionShape(CylinderShape::name, componentContext, gameObject)
     , size(1.f)
 {
 }

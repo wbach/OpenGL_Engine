@@ -20,7 +20,7 @@ const std::string CSTR_HEIGHT = "height";
 const std::string CapsuleShape::name = "CapsuleShape";
 
 CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(typeid(CapsuleShape).hash_code(), componentContext, gameObject)
+    : CollisionShape(CapsuleShape::name, componentContext, gameObject)
     , height{1.f}
     , radius{0.5f}
 {

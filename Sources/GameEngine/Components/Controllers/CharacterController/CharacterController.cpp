@@ -41,7 +41,7 @@ struct CharacterController::Impl
 };
 
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(CharacterController).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
     , equipTimeStamp{-1.0}

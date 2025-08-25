@@ -27,7 +27,7 @@ const GraphicsApi::ID defaultId;
 }  // namespace
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(RendererComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , textureIndex(0)
     , isSubscribed_(false)
     , loadingParameters_{DEFAULT_LOADING_PARAMETERS}

@@ -27,7 +27,7 @@ const std::string CSTR_OFFSET_EQUIP_REFERENCE  = "offsetEquipReference";
 
 }  // namespace
 BowPoseUpdater::BowPoseUpdater(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(BowPoseUpdater).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , currentJointUpdater_{nullptr}
 {
 }

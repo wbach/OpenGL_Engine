@@ -40,4 +40,4 @@ public:
     void write(TreeNode&) const override;
 };
 
-extern "C" void registerReadFunction();
+extern "C" const char* registerReadFunction();

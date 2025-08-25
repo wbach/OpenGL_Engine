@@ -3,6 +3,9 @@
 
 namespace GameEngine
 {
-struct Configuration;
-void ReadConfiguration(Configuration& configuration, const std::string& filename);
+struct ConfigurationReader
+{
+    ConfigurationReader();
+};
+
 }  // namespace GameEngine

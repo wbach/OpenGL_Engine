@@ -22,7 +22,7 @@ const std::string CSTR_POSITIONS        = "positions";
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(TreeRendererComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , isSubsribed_(false)
 {
 }

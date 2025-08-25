@@ -13,7 +13,7 @@ namespace Components
 std::string SphereShape::name = {"SphereShape"};
 
 SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(typeid(SphereShape).hash_code(), componentContext, gameObject)
+    : CollisionShape(SphereShape::name, componentContext, gameObject)
     , radius(1.f)
 {
 }

@@ -23,7 +23,7 @@ const std::string CSTR_MODEL_NORMALIZATION = "modelNormalization";
 const std::string CSTR_MESH_OPTIMIZE       = "meshOptimize";
 
 MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(typeid(MeshShape).hash_code(), componentContext, gameObject)
+    : CollisionShape(MeshShape::name, componentContext, gameObject)
     , size(1.f)
     , autoOptimization{false}
     , model_(nullptr)

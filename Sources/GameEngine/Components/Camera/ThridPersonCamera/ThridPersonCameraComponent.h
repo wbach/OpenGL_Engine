@@ -6,7 +6,6 @@
 #include "Fsm/ThridPersonCameraFsm.h"
 #include "GameEngine/Components/BaseComponent.h"
 
-
 namespace GameEngine
 {
 struct ICamera;

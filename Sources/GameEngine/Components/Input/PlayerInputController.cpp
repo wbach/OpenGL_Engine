@@ -19,7 +19,7 @@ const std::string COMPONENT_STR{"PlayerInputController"};
 }  // namespace
 
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(PlayerInputController).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , characterController_{nullptr}
     , subscriptions_{componentContext.inputManager_}
 {

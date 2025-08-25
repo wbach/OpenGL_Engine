@@ -325,11 +325,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/GameTime.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/DayNightCycle.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationReader.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ReadConfigurationFunctions.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationWriter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/IntroRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineContext.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/Engine.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ExternalComponentsReader.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationReader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationExplorer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/Configuration.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/WindowParams/WindowParams.cpp

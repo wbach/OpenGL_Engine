@@ -36,7 +36,7 @@ const std::string CSTR_MONTION_JOINT_NAME{"montionJointName"};
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(Animator).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , montionJointName("mixamorig:Hips")
     , jointData_(componentContext_.graphicsApi_)
     , machine_(jointData_.pose, jointGroupsIds_)

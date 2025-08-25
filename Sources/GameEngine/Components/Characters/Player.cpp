@@ -23,8 +23,9 @@ namespace
 const std::string COMPONENT_STR{"Player"};
 const float ATTACK_RANGE{2.f};
 }  // namespace
+
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(Player).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , guiManager_{componentContext.guiElementFactory_.getManager()}
     , animator_{nullptr}
     , characterController_{nullptr}

@@ -50,6 +50,8 @@ public:
     template <class T>
     T* GetComponent();
 
+    Components::IComponent* GetComponent(Components::IComponent::Type);
+
     template <class T>
     T* GetComponentInChild();
 
@@ -60,7 +62,7 @@ public:
 
     template <class T>
     void RemoveComponent();
-    void RemoveComponent(size_t);
+    void RemoveComponent(Components::IComponent::Type);
 
     inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
 

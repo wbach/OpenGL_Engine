@@ -9,7 +9,7 @@ namespace Components
 class CollisionShape : public BaseComponent
 {
 public:
-    CollisionShape(size_t, ComponentContext&, GameObject&);
+    CollisionShape(const std::string&, ComponentContext&, GameObject&);
 
     virtual void setScale(const vec3&);
     const Physics::ShapeId& GetCollisionShapeId() const;

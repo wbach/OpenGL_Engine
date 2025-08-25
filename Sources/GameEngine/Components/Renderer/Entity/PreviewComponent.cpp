@@ -11,7 +11,7 @@ namespace GameEngine
 namespace Components
 {
 PreviewComponent::PreviewComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(PreviewComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent("PreviewComponent", componentContext, gameObject)
     , isSubscribed_(false)
 {
 }

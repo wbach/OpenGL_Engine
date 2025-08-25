@@ -1,12 +1,12 @@
 #pragma once
 #include <Types.h>
 
+#include <functional>
 #include <optional>
 #include <string>
 #include <unordered_map>
 
 #include "FunctionType.h"
-#include <functional>
 
 class TreeNode;
 
@@ -58,21 +58,22 @@ typedef std::string ParamName;
 class IComponent
 {
 public:
-    using Type = size_t;
+    using Type = uint64_t;
 
-    virtual ~IComponent()                                                            = default;
-    virtual void CleanUp()                                                           = 0;
-    virtual void ReqisterFunctions()                                                 = 0;
-    virtual bool IsActive() const                                                    = 0;
-    virtual void Activate()                                                          = 0;
-    virtual void SetActive(bool)                                                     = 0;
-    virtual void Deactivate()                                                        = 0;
-    virtual GameObject& GetParentGameObject()                                        = 0;
-    virtual const GameObject& getParentGameObject() const                            = 0;
-    virtual void write(TreeNode&) const                                              = 0;
-    virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const        = 0;
-    virtual std::vector<FieldInfo> GetFields()                                       = 0;
-    virtual size_t GetType() const                                                   = 0;
+    virtual ~IComponent()                                                     = default;
+    virtual void CleanUp()                                                    = 0;
+    virtual void ReqisterFunctions()                                          = 0;
+    virtual bool IsActive() const                                             = 0;
+    virtual void Activate()                                                   = 0;
+    virtual void SetActive(bool)                                              = 0;
+    virtual void Deactivate()                                                 = 0;
+    virtual GameObject& GetParentGameObject()                                 = 0;
+    virtual const GameObject& getParentGameObject() const                     = 0;
+    virtual void write(TreeNode&) const                                       = 0;
+    virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const = 0;
+    virtual std::vector<FieldInfo> GetFields()                                = 0;
+    virtual Type GetType() const                                              = 0;
+    virtual const std::string& GetTypeString() const                          = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

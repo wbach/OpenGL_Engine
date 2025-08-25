@@ -89,7 +89,7 @@ void read(const TreeNode& node, Components::SkyBoxComponent& component)
 }
 
 SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(SkyBoxComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(CSTR_COMPONENT_SKYBOX, componentContext, gameObject)
     , modelFile("Meshes/SkyBox/cube.obj")
     , dayTexture_{nullptr}
     , nightTexture_{nullptr}

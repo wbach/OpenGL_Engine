@@ -3,6 +3,8 @@
 
 #include "EngineContext.h"
 #include "IntroRenderer.h"
+#include "ConfigurationReader.h"
+#include "ExternalComponentsReader.h"
 
 namespace GraphicsApi
 {
@@ -13,16 +15,6 @@ namespace GameEngine
 {
 class DisplayManager;
 class LoadingScreenRenderer;
-
-struct ReadConfiguration
-{
-    ReadConfiguration();
-};
-
-struct ExternalComponents
-{
-    ExternalComponents();
-};
 
 class Engine
 {
@@ -35,6 +27,7 @@ public:
     void GameLoop();
     void MainLoop();
     void CheckThreadsBeforeQuit();
+    ExternalComponentsReader& getExternalComponentsReader();
     ISceneManager& GetSceneManager();
     EngineContext& GetEngineContext();
 
@@ -43,9 +36,9 @@ private:
     void Quit();
 
 private:
-    ReadConfiguration readConfiguration_;
-    ExternalComponents externalComponents_;
+    ConfigurationReader readConfiguration_;
     EngineContext engineContext_;
+    ExternalComponentsReader externalComponents_;
     IntroRenderer introRenderer_;
     IdType loggingLvlParamSub_;
     IdType fpsLimitParamSub_;

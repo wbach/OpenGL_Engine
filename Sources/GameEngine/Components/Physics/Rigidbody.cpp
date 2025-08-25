@@ -29,7 +29,7 @@ const std::string CSTR_NO_CONCTACT_RESPONSE = "noConctactResponse";
 }  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(Rigidbody).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , mass(1.0f)
     , collisionShape_(nullptr)
     , updateRigidbodyOnTransformChange_(false)

@@ -4,12 +4,32 @@
 
 #include "GameEngine/Objects/GameObject.h"
 
+namespace
+{
+constexpr uint64_t fnv1a(const char* str)
+{
+    uint64_t hash = 1469598103934665603ULL;
+    while (*str)
+    {
+        hash ^= static_cast<uint64_t>(*str++);
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+}  // namespace
+
 namespace GameEngine
 {
 namespace Components
 {
-BaseComponent::BaseComponent(size_t type, ComponentContext& componentContext, GameObject& gameObject)
-    : type_(type)
+IComponent::Type BaseComponent::GetType(const std::string & type)
+{
+    return fnv1a(type.c_str());
+}
+
+BaseComponent::BaseComponent(const std::string& type, ComponentContext& componentContext, GameObject& gameObject)
+    : type_(BaseComponent::GetType(type))
+    , name_{type}
     , thisObject_(gameObject)
     , componentContext_(componentContext)
     , isActive_(true)
@@ -71,6 +91,16 @@ std::optional<IdType> BaseComponent::getRegisteredFunctionId(FunctionType functi
             return id;
     }
     return std::nullopt;
+}
+
+std::vector<FieldInfo> BaseComponent::GetFields()
+{
+    return {};
+}
+
+const std::string& BaseComponent::GetTypeString() const
+{
+    return name_;
 }
 bool BaseComponent::IsActive() const
 {

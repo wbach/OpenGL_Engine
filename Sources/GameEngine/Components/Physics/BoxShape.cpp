@@ -13,7 +13,7 @@ namespace Components
 const std::string BoxShape::name = {"BoxShape"};
 
 BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(typeid(BoxShape).hash_code(), componentContext, gameObject)
+    : CollisionShape(BoxShape::name, componentContext, gameObject)
     , size(1.f)
 {
 }
@@ -24,12 +24,13 @@ void BoxShape::ReqisterFunctions()
 void BoxShape::OnAwake()
 {
     DEBUG_LOG("CreateBoxColider");
-    collisionShapeId_ = componentContext_.physicsApi_.CreateBoxColider(
-        positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
+    collisionShapeId_ =
+        componentContext_.physicsApi_.CreateBoxColider(positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
 }
 void BoxShape::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<BoxShape>(componentContext, gameObject);
 
         vec3 positionOffset(0.f);

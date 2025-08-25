@@ -19,11 +19,12 @@ using ComponentReadFunction =
 struct ReadFunctions
 {
 public:
+    using ComponentName = std::string;
     static ReadFunctions& instance();
-    std::unordered_map<std::string, ComponentReadFunction> componentsReadFunctions;
+    std::unordered_map<ComponentName, ComponentReadFunction> componentsReadFunctions;
 };
 
-void regsiterComponentReadFunction(const std::string&, ComponentReadFunction);
+void regsiterComponentReadFunction(const ReadFunctions::ComponentName&, ComponentReadFunction);
 extern const std::string CSTR_TYPE;
 }  // namespace Components
 }  // namespace GameEngine

@@ -421,6 +421,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/DayNightCycle.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/GameTime.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/Time.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/Engine.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ExternalComponentsReader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ReadConfigurationFunctions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/IntroRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/Configuration.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineDef.h

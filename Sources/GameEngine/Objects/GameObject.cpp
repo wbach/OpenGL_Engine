@@ -59,7 +59,7 @@ Components::IComponent* GameObject::InitComponent(const TreeNode& node)
     return nullptr;
 }
 
-void GameObject::RemoveComponent(size_t type)
+void GameObject::RemoveComponent(Components::IComponent::Type type)
 {
     for (auto iter = components_.begin(); iter != components_.end(); ++iter)
     {
@@ -265,6 +265,16 @@ void GameObject::RegisterComponentFunctions()
     {
         c->ReqisterFunctions();
     }
+}
+
+Components::IComponent *GameObject::GetComponent(Components::IComponent::Type type)
+{
+    auto iter = std::find_if(components_.begin(), components_.end(), [type](const auto& component){ return component->GetType() == type; });
+
+    if (iter != components_.end())
+        return iter->get();
+
+    return nullptr;
 }
 
 common::Transform& GameObject::GetTransform()

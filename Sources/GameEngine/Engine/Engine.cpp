@@ -17,10 +17,6 @@
 #include <shlobj.h>
 #include <windows.h>
 #else
-#include <dlfcn.h>
-#include <pwd.h>
-#include <sys/types.h>
-#include <unistd.h>
 #endif
 #include <OpenGLApi/OpenGLApi.h>
 #include <signal.h>
@@ -92,8 +88,6 @@ void bt_sighandler(int nSig)
 }
 #endif
 
-typedef void (*registerReadFunction)();
-
 namespace GameEngine
 {
 namespace
@@ -130,83 +124,11 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 }
 }  // namespace
 
-ReadConfiguration::ReadConfiguration()
-{
-    std::string configFile("./Conf.xml");
-
-#ifdef USE_GNU
-    struct passwd* pw = getpwuid(getuid());
-    configFile        = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
-#else
-    wchar_t myDocumentsPath[1024];
-    HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
-    if (SUCCEEDED(hr))
-    {
-        char str[1024];
-        wcstombs(str, myDocumentsPath, 1023);
-        configFile = std::string(str) + "\\bengine\\Conf.xml";
-    }
-#endif
-    GameEngine::ReadFromFile(configFile);
-
-    if (EngineConf.debugParams.logLvl != LogginLvl::None)
-    {
-        CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-        CLogger::Instance().ImmeditalyLog();
-        std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
-    }
-}
-
-ExternalComponents::ExternalComponents()
-{
-    LOG_DEBUG << "Check for ExternalComponents";
-    std::string libExtension{".so"};
-    const auto componentsDir = EngineConf.files.data + "/Components";
-    if (not Utils::DirectoryExist(componentsDir))
-    {
-        LOG_DEBUG << "Components dir not exist : " << componentsDir;
-        return;
-    }
-
-    const auto& files = Utils::FindFilesWithExtension(componentsDir, libExtension);
-    LOG_DEBUG << "Found files : " << files.size();
-
-    for (const auto& file : files)
-    {
-        LOG_DEBUG << "Component file detected : " << file;
-
-#ifdef USE_GNU
-        void* componentLib = dlopen(file.c_str(), RTLD_NOW);
-#else
-        HMODULE sceneLib = LoadLibrary(file.c_str());
-#endif
-        if (componentLib)
-        {
-            LOG_DEBUG << "Component : " << file << " lib opened. Search registerReadFunction";
-#ifdef USE_GNU
-            auto func = (registerReadFunction)dlsym(componentLib, "registerReadFunction");
-
-#else
-            auto func = (registerReadFunction)GetProcAddress(componentLib, "registerReadFunction");
-#endif
-            if (func)
-            {
-                LOG_DEBUG << "Component : " << file << " register function found. Call function. End loading.";
-                func();
-            }
-        }
-        else
-        {
-            LOG_WARN << "Open lib " << file << " failed : " << dlerror();
-        }
-    }
-}
-
 Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<ISceneFactory> sceneFactory,
                std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi)
     : readConfiguration_()
-    , externalComponents_()
     , engineContext_(graphicsApi ? std::move(graphicsApi) : createGraphicsApi(), std::move(physicsApi), std::move(sceneFactory))
+    , externalComponents_(engineContext_.GetSceneManager())
     , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
@@ -288,6 +210,11 @@ void Engine::CheckThreadsBeforeQuit()
         WARNING_LOG("Not closed threads. Force to close.");
         engineContext_.GetThreadSync().Stop();
     }
+}
+
+ExternalComponentsReader& Engine::getExternalComponentsReader()
+{
+    return externalComponents_;
 }
 
 void Engine::GameLoop()

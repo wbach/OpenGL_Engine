@@ -14,7 +14,7 @@ const std::string COMPONENT_STR{"Skydome"};
 }  // namespace
 
 SkydomeComponent::SkydomeComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(SkydomeComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , model_(nullptr)
     , isSubscribed_(false)
 {

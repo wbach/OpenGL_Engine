@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <fstream>
 
-#include "ConfigurationReader.h"
+#include "ReadConfigurationFunctions.h"
 #include "ConfigurationWriter.h"
 #include "Logger/Log.h"
 

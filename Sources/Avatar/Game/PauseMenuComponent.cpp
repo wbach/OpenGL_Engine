@@ -9,14 +9,14 @@
 
 namespace
 {
-const std::string COMPONENT_STR{"PauseMenu"};
-const std::string CSTR_START_STATE{"startState"};
-const std::string CSTR_LOGO_FILE{"logo"};
-const std::string CSTR_BACKGROUND{"background"};
+constexpr char COMPONENT_STR[]        = "PauseMenu";
+constexpr char CSTR_START_STATE[]     = "startState";
+constexpr char CSTR_LOGO_FILE[]       = "logo";
+constexpr char CSTR_BACKGROUND[]      = "background";
 }  // namespace
 
 PauseMenuComponent::PauseMenuComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(PauseMenuComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , pauseMenuImage("GUI/1200px-Avatar_The_Last_Airbender_logo.svg.png")
     , mainMenuBackground("GUI/204473.jpg")
     , startState{PauseMenu::State::MainMenu}
@@ -105,8 +105,8 @@ void PauseMenuComponent::write(TreeNode& node) const
     node.addChild(CSTR_START_STATE, magic_enum::enum_name(startState));
 }
 
-extern "C" void registerReadFunction()
+extern "C" const char* registerReadFunction()
 {
-    LOG_DEBUG << "PauseMenuComponent::registerReadFunctions";
     PauseMenuComponent::registerReadFunctions();
+    return COMPONENT_STR;
 }

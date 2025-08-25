@@ -985,6 +985,8 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
             case GameEngine::Components::FieldType::File:
                 value = static_cast<File *>(field.ptr)->GetAbsoultePath();
                 break;
+            case GameEngine::Components::FieldType::Enum:
+                break;
             case GameEngine::Components::FieldType::AnimationClip:
                 break;
             case GameEngine::Components::FieldType::Vector2i:
@@ -1508,6 +1510,8 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
                         val       = value;
                     }
                     break;
+                    case GameEngine::Components::FieldType::Enum:
+                        break;
                     case GameEngine::Components::FieldType::AnimationClip:
                         break;
                     case GameEngine::Components::FieldType::Vector2i:

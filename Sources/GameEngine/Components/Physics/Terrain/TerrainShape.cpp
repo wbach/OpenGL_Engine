@@ -28,7 +28,7 @@ const std::string CSTR_HEIGHTMAP_FILENAME = "heightMapFileName";
 const std::string TerrainShape::name = {"TerrainShape"};
 
 TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(typeid(TerrainShape).hash_code(), componentContext, gameObject)
+    : CollisionShape(TerrainShape::name, componentContext, gameObject)
     , terrainHeightGetter_(nullptr)
     , terrainRendererComponent_(nullptr)
     , size_(1)

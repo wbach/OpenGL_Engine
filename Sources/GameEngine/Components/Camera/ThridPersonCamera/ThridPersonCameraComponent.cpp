@@ -18,8 +18,9 @@ namespace
 {
 const std::string& COMPONENT_STR{"ThridPersonCamera"};
 }
+
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(ThridPersonCameraComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
 {
 }
 
@@ -109,6 +110,5 @@ void ThridPersonCameraComponent::write(TreeNode& node) const
     const std::string CSTR_TYPE = "type";
     node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
 }
-
 }  // namespace Components
 }  // namespace GameEngine

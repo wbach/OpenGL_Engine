@@ -11,9 +11,9 @@ ReadFunctions& ReadFunctions::instance()
     static ReadFunctions rf;
     return rf;
 }
-void regsiterComponentReadFunction(const std::string& componentName, ComponentReadFunction readFunction)
+void regsiterComponentReadFunction(const ReadFunctions::ComponentName& name, ComponentReadFunction readFunction)
 {
-    ReadFunctions::instance().componentsReadFunctions.insert({componentName, readFunction});
+    ReadFunctions::instance().componentsReadFunctions.insert({name, readFunction});
 }
 
 const std::string CSTR_TYPE = "type";

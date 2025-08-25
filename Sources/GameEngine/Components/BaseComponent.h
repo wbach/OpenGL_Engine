@@ -113,7 +113,9 @@ namespace Components
 class BaseComponent : public IComponent
 {
 public:
-    BaseComponent(size_t, ComponentContext&, GameObject&);
+    static Type GetType(const std::string&);
+
+    BaseComponent(const std::string&, ComponentContext&, GameObject&);
     ~BaseComponent() override;
 
     size_t GetType() const override;
@@ -127,16 +129,15 @@ public:
 
     void write(TreeNode&) const override;
     std::optional<IdType> getRegisteredFunctionId(FunctionType) const override;
-    std::vector<FieldInfo> GetFields() override
-    {
-        return {};
-    }
+    std::vector<FieldInfo> GetFields() override;
+    const std::string& GetTypeString() const override;
 
 protected:
     void RegisterFunction(FunctionType, std::function<void()>);
 
 protected:
-    size_t type_;
+    uint64_t type_;
+    std::string name_;
     GameObject& thisObject_;
     ComponentContext& componentContext_;
 

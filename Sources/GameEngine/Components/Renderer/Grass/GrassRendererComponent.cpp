@@ -22,7 +22,7 @@ const bool DEVIDE_SPACE{false};
 }  // namespace
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(typeid(GrassRendererComponent).hash_code(), componentContext, gameObject)
+    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
     , textureFile("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     , isSubscribed_(false)
 {
