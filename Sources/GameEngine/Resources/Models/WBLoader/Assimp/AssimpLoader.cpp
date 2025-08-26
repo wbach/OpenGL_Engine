@@ -4,12 +4,23 @@
 #include <Logger/Log.h>
 #include <XML/XMLUtils.h>
 #include <XML/XmlReader.h>
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/version.h>
 
 #include <assimp/Importer.hpp>
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+
 #include <filesystem>
 
 #include "GameEngine/Resources/ITextureLoader.h"

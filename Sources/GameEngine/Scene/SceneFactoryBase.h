@@ -6,6 +6,7 @@ namespace GameEngine
 class SceneFactoryBase : public ISceneFactory
 {
 public:
+    void ReadScenes();
     ScenePtr Create(const std::string&) override;
     ScenePtr Create(uint32) override;
     ScenePtr CreateSceneBasedOnFile(const File&) override;

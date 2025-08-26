@@ -40,6 +40,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidjson-1.1.0/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/magic_enum-v0.9.7/include/
 )

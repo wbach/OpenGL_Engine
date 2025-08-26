@@ -1,5 +1,7 @@
 set(GameEngineTestsSources
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/main.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/JsonWriterTreeTest.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/JsonReaderTreeTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/TerrainHeightGetterTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Animations/AnimationTransitionTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngineTests/Tests/UT/Components/Animations/AnimationTransitionToMixedTests.cpp

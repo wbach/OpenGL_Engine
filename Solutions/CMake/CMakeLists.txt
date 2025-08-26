@@ -96,7 +96,7 @@ message(STATUS "Build wx editor: ${BUILD_WX_EDITOR}")
 
 SET(GCC_COVERAGE_LINK_FLAGS "-static-libgcc")
 #CMAKE_CXX_FLAGS
-SET(EngineCompileFlags "-std=c++20 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined -Wno-deprecated")
+SET(EngineCompileFlags "-std=c++20 -Wuninitialized -Wtype-limits -Wdelete-incomplete -Wall -pedantic ${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-expansion-to-defined -Wno-deprecated -Wno-class-memaccess")
 SET(CMAKE_CXX_FLAGS "-g -O0 ")
 set(CMAKE_C_FLAGS "-g -O0")
 SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
@@ -138,6 +138,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidjson-1.1.0/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/magic_enum-v0.9.7/include/
 )
 

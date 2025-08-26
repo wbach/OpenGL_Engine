@@ -38,6 +38,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/SceneReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XMLUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XmlReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/XmlWriter.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/JsonReader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/XML/JsonWriter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Glm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/md5.h

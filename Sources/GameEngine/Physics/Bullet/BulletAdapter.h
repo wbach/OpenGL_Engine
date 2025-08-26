@@ -1,6 +1,16 @@
 #pragma once
 #include <Utils/IdPool.h>
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
+
 #include <btBulletDynamicsCommon.h>
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include <memory>
 
