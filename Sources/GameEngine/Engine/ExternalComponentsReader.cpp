@@ -18,6 +18,7 @@
 #include <GameEngine/Scene/ISceneManager.h>
 
 #include <GameEngine/Scene/Scene.hpp>
+#include <chrono>
 #include <filesystem>
 
 typedef const char* (*registerReadFunction)();
@@ -100,9 +101,11 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
     {
         return;
     }
+    using namespace std::chrono;
+    auto now = system_clock::now();
+    auto ms = duration_cast<milliseconds>(now.time_since_epoch()).count();
 
-    static int loadInstance = 0;
-    std::string file        = EngineConf.files.cache + "/LoadInstance_" + std::to_string(loadInstance++) + "_" +
+    std::string file        = EngineConf.files.cache + "/" + std::to_string(ms) + "_" +
                        std::filesystem::path(inputFile).filename().string();
     std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
     LibHandle handle = LoadLib(file);
