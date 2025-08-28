@@ -18,12 +18,12 @@ public:
     void SetDirectionalLight(Light* light);
 
     const wb::vec2i GetCurrentHour() const;
-    const bool IsDay() const;
-    const bool IsNight() const;
-    const bool IsMorning() const;
-    const bool IsEvening() const;
-    const bool IsFirstHalfMorning() const;
-    const bool IsFirstHalfEvening() const;
+    bool IsDay() const;
+    bool IsNight() const;
+    bool IsMorning() const;
+    bool IsEvening() const;
+    bool IsFirstHalfMorning() const;
+    bool IsFirstHalfEvening() const;
     float GetDayNightBlendFactor() const;
 
 private:

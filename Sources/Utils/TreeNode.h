@@ -102,3 +102,5 @@ void write(TreeNode&, const vec3&);
 void write(TreeNode&, const vec4&);
 void write(TreeNode&, const std::optional<uint32>&);
 void write(TreeNode&, const std::vector<vec3>&);
+
+void PrintTree(const TreeNode&);

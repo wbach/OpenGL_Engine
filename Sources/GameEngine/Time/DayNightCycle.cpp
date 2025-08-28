@@ -153,32 +153,32 @@ const wb::vec2i DayNightCycle::GetCurrentHour() const
     return wb::vec2i(hour, minutes);
 }
 
-const bool DayNightCycle::IsDay() const
+bool DayNightCycle::IsDay() const
 {
     return (currentTime_ > dayStart && currentTime_ < dayEnd);
 }
 
-const bool DayNightCycle::IsNight() const
+bool DayNightCycle::IsNight() const
 {
     return (currentTime_ > nightStart || currentTime_ < nightEnd);
 }
 
-const bool DayNightCycle::IsMorning() const
+bool DayNightCycle::IsMorning() const
 {
     return (currentTime_ > nightEnd && currentTime_ < dayStart);
 }
 
-const bool DayNightCycle::IsEvening() const
+bool DayNightCycle::IsEvening() const
 {
     return (currentTime_ > dayEnd && currentTime_ < nightStart);
 }
 
-const bool DayNightCycle::IsFirstHalfMorning() const
+bool DayNightCycle::IsFirstHalfMorning() const
 {
     return (currentTime_ > nightEnd && currentTime_ < (nightEnd + morningDuration / 2.f));
 }
 
-const bool DayNightCycle::IsFirstHalfEvening() const
+bool DayNightCycle::IsFirstHalfEvening() const
 {
     return (currentTime_ > dayEnd && currentTime_ < (dayEnd + eveningDuration / 2.f));
 }

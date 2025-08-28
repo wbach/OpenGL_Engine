@@ -13,24 +13,19 @@ function createSrc()
     mv $1'Sources.cmake' ./Sources/
 }
 
+createSrc Common
 createSrc DirectXApi
+createSrc Editor
+createSrc Game
+createSrc GameEngine
 createSrc GraphicsApi
 createSrc Input
 createSrc OpenGLApi
-createSrc GameEngine
-createSrc Editor
-createSrc WxEditor
-createSrc GameEngineTests
-createSrc Gwint
-createSrc GwintServer
-createSrc TerrainGeneration
-createSrc TestGame
+createSrc RpgGameServer
+createSrc Tests
 createSrc Utils
 createSrc UtilsNetwork
 createSrc UtilsNetworkTests
-createSrc WindowAppCreator
-createSrc RpgGameServer
-createSrc Common
-createSrc Avatar
+createSrc WxEditor
 
 cd ../../ProjectUtils/

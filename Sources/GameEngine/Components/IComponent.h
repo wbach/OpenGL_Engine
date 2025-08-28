@@ -44,13 +44,13 @@ enum class FieldType
 
 struct FieldInfo
 {
-    std::string name;
-    FieldType type;
-    void* ptr;
+    std::string name{""};
+    FieldType type{FieldType::Int};
+    void* ptr{nullptr};
 
-    std::function<std::vector<std::string>()> enumNames;
-    std::function<int(void*)> enumToIndex;
-    std::function<void(void*, int)> indexToEnum;
+    std::function<std::vector<std::string>()> enumNames = {};
+    std::function<int(void*)> enumToIndex = {};
+    std::function<void(void*, int)> indexToEnum = {};
 };
 
 typedef std::string ParamName;

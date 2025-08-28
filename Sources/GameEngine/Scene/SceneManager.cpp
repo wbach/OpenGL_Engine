@@ -109,6 +109,11 @@ void SceneManager::SetActiveScene(const std::string& name)
     SetSceneToLoad(name);
 }
 
+void SceneManager::SetActiveScene(uint32 id)
+{
+    SetSceneToLoad(id);
+}
+
 void SceneManager::Reset()
 {
     sceneWrapper_.Reset();

@@ -1,5 +1,7 @@
 #include "TreeNode.h"
 
+#include <sstream>
+
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
 
@@ -57,7 +59,7 @@ TreeNode& TreeNode::addChild(const std::string& name, const std::string& value)
     return *children_.back();
 }
 
-TreeNode &TreeNode::addChild(const std::string & name, const std::string_view & value)
+TreeNode& TreeNode::addChild(const std::string& name, const std::string_view& value)
 {
     children_.emplace_back(new TreeNode(name, std::string(value)));
     return *children_.back();
@@ -349,4 +351,37 @@ void TreeNode::CopyTreeNode(const TreeNode& source, TreeNode& target)
         auto& targetChild = target.addChild(sourceChild->name_);
         CopyTreeNode(*sourceChild, targetChild);
     }
+}
+
+void PrintTree(const TreeNode& root)
+{
+    std::function<void(const TreeNode&, int)> printRec;
+
+    printRec = [&](const TreeNode& node, int indent)
+    {
+        std::string pad(indent * 2, ' ');
+        std::stringstream ss;
+        ss << pad << "- " << node.name();
+
+        if (!node.value_.empty())
+        {
+            ss << " = " << node.value_;
+        }
+
+        LOG_DEBUG << ss.str();
+
+        // Atrybuty
+        for (const auto& [k, v] : node.attributes_)
+        {
+            LOG_DEBUG << pad << "   @" << k << " = " << v << "\n";
+        }
+
+        // Dzieci
+        for (const auto& child : node.getChildren())
+        {
+            printRec(*child, indent + 1);
+        }
+    };
+
+    printRec(root, 0);
 }

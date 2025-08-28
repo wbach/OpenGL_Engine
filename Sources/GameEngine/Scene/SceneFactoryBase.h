@@ -22,7 +22,6 @@ public:
     void SetEngineContext(EngineContext&) override;
     void Clear() override;
 
-protected:
     ScenePtr GetScene(const std::string& name);
     void SetMenagersAndApi(Scene& scene);
 

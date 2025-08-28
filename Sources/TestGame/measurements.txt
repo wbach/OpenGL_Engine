@@ -1,5 +1,0 @@
-RenderMesh: 22400ns (22399ns)
-SkyBoxRenderer: 70720ns (70492ns)
-Physics: 5120ns (5111ns)
-TerrainRenderer: 82560ns (82294ns)
-EntityRenderer: 16527360ns (16474217ns)

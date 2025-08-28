@@ -29,7 +29,7 @@ namespace
 using LibHandle = void*;
 inline LibHandle LoadLib(const std::string& file)
 {
-    return dlopen(file.c_str(), RTLD_NOW);
+    return dlopen(file.c_str(), RTLD_NOW | RTLD_GLOBAL);
 }
 inline void UnloadLib(LibHandle lib)
 {

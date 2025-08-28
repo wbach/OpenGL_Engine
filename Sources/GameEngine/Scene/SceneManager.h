@@ -17,6 +17,7 @@ public:
     SceneManager(EngineContext&, std::unique_ptr<ISceneFactory>);
     ~SceneManager();
 
+    void SetActiveScene(uint32) override;
     void SetActiveScene(const std::string&) override;
     Scene* GetActiveScene() override;
 

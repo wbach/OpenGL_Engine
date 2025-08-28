@@ -3,7 +3,7 @@ if(BUILD_RPG_GAME_SERVER)
     set_source_files_properties(
       ${RpgGameServerSources}
       PROPERTIES
-      COMPILE_FLAGS ${EngineCompileFlags}
+      COMPILE_FLAGS ${ENGINE_COMPILE_FLAGS}
     )
     add_executable(RpgGameServerExe ${RpgGameServerSources})
     #set_target_properties(RpgGameServerExe PROPERTIES COMPILE_FLAGS ${EngineCompileFlags})

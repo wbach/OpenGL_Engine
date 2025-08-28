@@ -3,6 +3,7 @@
 #include <string>
 
 #include "ISceneFactory.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -17,6 +18,7 @@ public:
     virtual void SetOnSceneLoadDone(OnSceneLoadDoneCallback) = 0;
     virtual void Update()                                    = 0;
     virtual void SetActiveScene(const std::string&)          = 0;
+    virtual void SetActiveScene(uint32)                      = 0;
     virtual void Reset()                                     = 0;
     virtual void StopThread()                                = 0;
     virtual const IdMap& GetAvaiableScenes() const           = 0;

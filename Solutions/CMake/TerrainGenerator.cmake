@@ -1,5 +1,0 @@
-if(BUILD_TERRAIN_GENERATOR)
-    include(./Sources/TerrainGenerationSources.cmake)
-    add_executable(TerrainGeneratorExe ${TerrainGenerationSources})
-    target_link_libraries(TerrainGeneratorExe LibNoise pthread)
-endif()
