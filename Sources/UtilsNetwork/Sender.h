@@ -1,18 +1,19 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "IMessage.h"
-#include "IMessageConverter.h"
-#include "ISDLNetWrapper.h"
 #include "Logger/Log.h"
 #include "MessageFormat.h"
 #include "Types.h"
 
 namespace Network
 {
+class ISDLNetWrapper;
+class IMessageConverter;
+class IMessage;
+
 enum class SentStatus
 {
-    OK,
+    OK = 0,
     ERROR,
     EMPTY,
     CAST_ERROR
@@ -32,23 +33,7 @@ private:
     bool sendMessage(TCPsocket socket, const IMessage& msg, Network::IMessageConverter&);
 
     template <class T>
-    SentStatus SendIMessage(TCPsocket socket, IMessage* msg)
-    {
-        auto final_msg = castMessageAs<T>(msg);
-        if (final_msg == nullptr)
-        {
-            ERROR_LOG("Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
-            return SentStatus::CAST_ERROR;
-        }
-
-        int length    = sizeof(T);
-        int sentBytes = sdlNetWrapper_.SendTcp(socket, final_msg, sizeof(T));
-
-        if (sentBytes < length)
-            return SentStatus::ERROR;
-
-        return SentStatus::OK;
-    }
+    SentStatus SendIMessage(TCPsocket socket, IMessage* msg);
 
 private:
     ISDLNetWrapper& sdlNetWrapper_;

@@ -40,6 +40,11 @@ inline void* GetSymbol(LibHandle lib, const char* name)
 {
     return dlsym(lib, name);
 }
+inline std::string LastLibError()
+{
+    const char* err = dlerror();
+    return err ? std::string(err) : std::string();
+}
 #else
 using LibHandle = HMODULE;
 inline LibHandle LoadLib(const std::string& file)
@@ -54,6 +59,20 @@ inline void UnloadLib(LibHandle lib)
 inline void* GetSymbol(LibHandle lib, const char* name)
 {
     return reinterpret_cast<void*>(GetProcAddress(lib, name));
+}
+inline std::string LastLibError()
+{
+    DWORD errCode = GetLastError();
+    if (!errCode)
+        return {};
+
+    LPSTR buf   = nullptr;
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL, errCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, NULL);
+
+    std::string msg(buf, size);
+    LocalFree(buf);
+    return msg;
 }
 #endif
 
@@ -114,7 +133,7 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
         auto symbol = GetSymbol(handle, "registerReadFunction");
         if (not symbol)
         {
-            LOG_ERROR << "dlsym failed: " << dlerror();
+            LOG_ERROR << "dlsym failed: " << LastLibError();
             return;
         }
 
@@ -126,13 +145,13 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
         }
         else
         {
-            LOG_WARN << "GetSymbol registerReadFunction " << inputFile << " failed : " << dlerror();
+            LOG_WARN << "GetSymbol registerReadFunction " << inputFile << " failed : " << LastLibError();
             std::filesystem::remove(file);
         }
     }
     else
     {
-        LOG_WARN << "Open lib " << inputFile << " failed : " << dlerror();
+        LOG_WARN << "Open lib " << inputFile << " failed : " << LastLibError();
         std::filesystem::remove(file);
     }
 }

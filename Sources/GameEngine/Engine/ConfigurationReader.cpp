@@ -6,9 +6,15 @@
 
 #include "Configuration.h"
 #include "EngineDef.h"
-#include <pwd.h>
+
 #include <sys/types.h>
+#ifdef GNU
+#include <pwd.h>
 #include <unistd.h>
+#else
+#include <Windows.h>
+#include <ShlObj.h>
+#endif
 
 namespace GameEngine
 {

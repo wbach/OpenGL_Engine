@@ -12,6 +12,8 @@ additionalIncludesDir='
 '$toolsDir'/common/glm;
 '$toolsDir'/common/bullet/src/;
 '$toolsDir'/common/wxWidgets/include/;
+'$toolsDir'/common/magic_enum-v0.9.7/include;
+'$toolsDir'/common/rapidjson-1.1.0/include;
 '$toolsDir'/common/rapidxml-1.13;
 '$toolsDir'/Windows/assimp-5.0.1/include;
 '$toolsDir'/Windows/SDL2-2.0.12/include/;

@@ -1,6 +1,8 @@
 #include "Sender.h"
 #include <algorithm>
 #include <Logger/Log.h>
+#include "ISDLNetWrapper.h"
+#include "IMessageConverter.h"
 
 namespace Network
 {
@@ -85,5 +87,23 @@ bool Sender::sendMessage(TCPsocket socket, const IMessage& msg, IMessageConverte
         return sdlNetWrapper_.SendTcp(socket, &convertedMsg[0], length);
     }
     return false;
+}
+template <class T>
+SentStatus Sender::SendIMessage(TCPsocket socket, IMessage* msg)
+{
+    auto final_msg = castMessageAs<T>(msg);
+    if (final_msg == nullptr)
+    {
+        ERROR_LOG("Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
+        return SentStatus::CAST_ERROR;
+    }
+
+    int length    = sizeof(T);
+    int sentBytes = sdlNetWrapper_.SendTcp(socket, final_msg, sizeof(T));
+
+    if (sentBytes < length)
+        return SentStatus::ERROR;
+
+    return SentStatus::OK;
 }
 }  // namespace Network
