@@ -102,7 +102,7 @@ SentStatus Sender::SendIMessage(TCPsocket socket, IMessage* msg)
     int sentBytes = sdlNetWrapper_.SendTcp(socket, final_msg, sizeof(T));
 
     if (sentBytes < length)
-        return SentStatus::ERROR;
+        return SentStatus::UNDEFINED_ERROR;
 
     return SentStatus::OK;
 }

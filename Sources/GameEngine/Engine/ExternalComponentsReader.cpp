@@ -8,15 +8,11 @@
 #include "Configuration.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 
-#ifndef USE_GNU
-#ifndef USE_MINGW  // TO DO
-#include <DirectXApi/DirectXApi.h>
-#endif
-
+#ifdef USE_GNU
+#include <dlfcn.h>
+#else
 #define WIN32_LEAN_AND_MEAN
 #include <Utils/Windows.hpp>
-#else
-#include <dlfcn.h>
 #endif
 
 #include <GameEngine/Scene/ISceneManager.h>
@@ -54,7 +50,7 @@ inline std::string LastLibError()
 using LibHandle = HMODULE;
 inline LibHandle LoadLib(const std::string& file)
 {
-    return LoadLibraryA(file.c_str());  // wymuszamy wersjê ANSI
+    return LoadLibraryA(file.c_str());  // wymuszamy wersjï¿½ ANSI
 }
 inline void UnloadLib(LibHandle lib)
 {

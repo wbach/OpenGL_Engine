@@ -8,7 +8,8 @@
 #include "EngineDef.h"
 
 #include <sys/types.h>
-#ifdef GNU
+
+#ifdef USE_GNU
 #include <pwd.h>
 #include <unistd.h>
 #else

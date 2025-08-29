@@ -64,8 +64,8 @@ endif()
 
 
 # --- Domyślne flagi i linker ---
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 
 set(ENGINE_COMPILE_FLAGS
@@ -83,8 +83,6 @@ set(ENGINE_COMPILE_FLAGS
 
 if(WIN32)
     add_compile_options(-O3 -Wa,-mbig-obj)
-else()
-    add_compile_options(-O3)
 endif()
 
 # --- Środowisko (USERROOT) ---
