@@ -31,17 +31,17 @@ SentStatus Sender::SendTcp(TCPsocket socket, const IMessage& msg)
     if (not converter)
     {
         DEBUG_LOG("Converter for message not found.");
-        return SentStatus::ERROR;
+        return SentStatus::UNDEFINED_ERROR;
     }
 
     if (not sendMessageFormat(socket))
-        return SentStatus::ERROR;
+        return SentStatus::UNDEFINED_ERROR;
 
     if (not sendMessageType(socket, msg))
-        return SentStatus::ERROR;
+        return SentStatus::UNDEFINED_ERROR;
 
     if (not sendMessage(socket, msg, *converter))
-        return SentStatus::ERROR;
+        return SentStatus::UNDEFINED_ERROR;
 
     return SentStatus::OK;
 }

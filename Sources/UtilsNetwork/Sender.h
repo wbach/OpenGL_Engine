@@ -4,6 +4,7 @@
 #include "Logger/Log.h"
 #include "MessageFormat.h"
 #include "Types.h"
+#include <SDL2/SDL_net.h>
 
 namespace Network
 {
@@ -14,7 +15,7 @@ class IMessage;
 enum class SentStatus
 {
     OK = 0,
-    ERROR,
+    UNDEFINED_ERROR,
     EMPTY,
     CAST_ERROR
 };

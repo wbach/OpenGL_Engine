@@ -1,3 +1,4 @@
+#pragma once
 #include "ExternalComponentsReader.h"
 
 #include <Logger/Log.h>
@@ -6,20 +7,24 @@
 
 #include "Configuration.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+
 #ifndef USE_GNU
 #ifndef USE_MINGW  // TO DO
 #include <DirectXApi/DirectXApi.h>
 #endif
-#include <shlobj.h>
-#include <windows.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <Utils/Windows.hpp>
 #else
 #include <dlfcn.h>
 #endif
+
 #include <GameEngine/Scene/ISceneManager.h>
 
 #include <GameEngine/Scene/Scene.hpp>
 #include <chrono>
 #include <filesystem>
+#include <unordered_map>
 
 typedef const char* (*registerReadFunction)();
 
@@ -49,7 +54,7 @@ inline std::string LastLibError()
 using LibHandle = HMODULE;
 inline LibHandle LoadLib(const std::string& file)
 {
-    return LoadLibrary(file.c_str());
+    return LoadLibraryA(file.c_str());  // wymuszamy wersjê ANSI
 }
 inline void UnloadLib(LibHandle lib)
 {
@@ -66,9 +71,9 @@ inline std::string LastLibError()
     if (!errCode)
         return {};
 
-    LPSTR buf   = nullptr;
-    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                                 NULL, errCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, NULL);
+    LPSTR buf  = nullptr;
+    DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+                                errCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&buf), 0, NULL);
 
     std::string msg(buf, size);
     LocalFree(buf);
@@ -122,10 +127,10 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
     }
     using namespace std::chrono;
     auto now = system_clock::now();
-    auto ms = duration_cast<milliseconds>(now.time_since_epoch()).count();
+    auto ms  = duration_cast<milliseconds>(now.time_since_epoch()).count();
 
-    std::string file        = EngineConf.files.cache + "/" + std::to_string(ms) + "_" +
-                       std::filesystem::path(inputFile).filename().string();
+    std::string file =
+        EngineConf.files.cache + "/" + std::to_string(ms) + "_" + std::filesystem::path(inputFile).filename().string();
     std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
     LibHandle handle = LoadLib(file);
     if (handle)

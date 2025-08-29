@@ -145,7 +145,7 @@ bool Gateway::Send(uint32 userId, const IMessage& message)
     auto i = sender_.SendTcp(context_.users.at(userId)->socket, message);
     ;
 
-    if (i == SentStatus::ERROR)
+    if (i == SentStatus::UNDEFINED_ERROR)
     {
         DisconnectUser(userId);
         context_.users.erase(userId);

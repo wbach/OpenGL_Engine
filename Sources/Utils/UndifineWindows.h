@@ -7,3 +7,5 @@
 #undef ERROR
 #undef GetCurrentTime
 #undef XMLDocument
+#undef max
+#undef min

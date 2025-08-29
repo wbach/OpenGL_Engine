@@ -12,8 +12,7 @@
 #include <pwd.h>
 #include <unistd.h>
 #else
-#include <Windows.h>
-#include <ShlObj.h>
+#include <Utils/Windows.hpp>
 #endif
 
 namespace GameEngine
