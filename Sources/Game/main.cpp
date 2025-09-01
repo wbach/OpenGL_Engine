@@ -12,6 +12,7 @@
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/SceneFactoryBase.h"
 #include "Logger/Log.h"
+#include "Scene/SceneUtils.h"
 #include "TreeNode.h"
 
 using namespace GameEngine;
@@ -37,10 +38,8 @@ void Start()
         LOG_DEBUG << inputFile << " read failed";
         if (std::filesystem::exists(inputFile))
             return;
-        TreeNode rootNode(CSTR_ROOT_NODE);
-        rootNode.addChild(CSTR_STARTUP_SCENE_NODE);
-        rootNode.addChild(CSTR_SCENES_NODE);
-        Utils::Json::Write(inputFile, rootNode);
+
+        GameEngine::createScenesFile(inputFile, {}, {});
         return;
     }
 

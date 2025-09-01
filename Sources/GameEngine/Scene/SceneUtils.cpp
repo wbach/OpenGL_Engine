@@ -2,6 +2,7 @@
 
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
+#include <Utils/Json/JsonWriter.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
@@ -15,6 +16,13 @@ typedef GameEngine::Scene* (*CreateSceneFromLib)();
 
 namespace GameEngine
 {
+namespace
+{
+const std::string CSTR_ROOT_NODE{"projectConfiguration"};
+const std::string CSTR_STARTUP_SCENE_NODE{"startupScene"};
+const std::string CSTR_SCENES_NODE{"scenes"};
+}  // namespace
+
 void saveSceneToFile(Scene& scene)
 {
     const auto& file = scene.GetFile();
@@ -62,5 +70,16 @@ GameObject* cloneGameObject(Scene& scene, const GameObject& gameObject)
         scene.AddGameObject(std::move(clonedGameObject));
     }
     return result;
+}
+void createScenesFile(const File& inputFile, const std::unordered_map<std::string, File>& scenes, const std::string& startupScene)
+{
+    TreeNode rootNode(CSTR_ROOT_NODE);
+    rootNode.addChild(CSTR_STARTUP_SCENE_NODE).value_ = startupScene;
+    auto& scenesNode = rootNode.addChild(CSTR_SCENES_NODE);
+    for(const auto& [name, file] : scenes)
+    {
+        scenesNode.addChild(name, file.GetDataRelativeDir());
+    }
+    Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
 }
 }  // namespace GameEngine

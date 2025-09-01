@@ -1,13 +1,13 @@
 #include "ConfigurationReader.h"
 
 #include <Logger/Log.h>
+#include <sys/types.h>
 
+#include <filesystem>
 #include <iostream>
 
 #include "Configuration.h"
 #include "EngineDef.h"
-
-#include <sys/types.h>
 
 #ifdef USE_GNU
 #include <pwd.h>
@@ -18,9 +18,15 @@
 
 namespace GameEngine
 {
-ConfigurationReader::ConfigurationReader()
+std::string getConfigFile()
 {
     std::string configFile("./Conf.xml");
+    if (std::filesystem::exists(configFile))
+        return configFile;
+
+    configFile = "./config.xml";
+    if (std::filesystem::exists(configFile))
+        return configFile;
 
 #ifdef USE_GNU
     struct passwd* pw = getpwuid(getuid());
@@ -35,7 +41,12 @@ ConfigurationReader::ConfigurationReader()
         configFile = std::string(str) + "\\bengine\\Conf.xml";
     }
 #endif
-    GameEngine::ReadFromFile(configFile);
+    return configFile;
+}
+
+ConfigurationReader::ConfigurationReader()
+{
+    GameEngine::ReadFromFile(getConfigFile());
 
     if (EngineConf.debugParams.logLvl != LogginLvl::None)
     {

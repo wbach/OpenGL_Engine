@@ -10,14 +10,15 @@
 #include <wx/treectrl.h>
 #include <wx/wx.h>
 
+#include <string>
 #include <thread>
 #include <unordered_map>
 
-#include "GameEngine/DebugTools/Painter/Painter.h"
-#include "TransformPanel.h"
 #include "DisableHelper.h"
-#include "SceneTreeCtrl.h"
+#include "GameEngine/DebugTools/Painter/Painter.h"
 #include "MyEvents.h"
+#include "SceneTreeCtrl.h"
+#include "TransformPanel.h"
 
 class GLCanvas;
 class OptionsFrame;
@@ -58,8 +59,11 @@ class MainFrame : public wxFrame
 {
 public:
     MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    void Init();
 
 private:
+    void MenuFileNewProject(wxCommandEvent&);
+    void MenuFileOpenProject(wxCommandEvent&);
     void MenuFileOpenScene(wxCommandEvent&);
     void MenuFileReloadScene(wxCommandEvent&);
     void MenuFileSaveScene(wxCommandEvent&);
@@ -132,6 +136,7 @@ private:
     void OnToolStop(wxCommandEvent&);
 
     bool SaveSceneAs();
+    void SaveSceneAs(const std::string&);
     void UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> = std::nullopt);
 
 private:

@@ -59,6 +59,7 @@ struct Configuration
 void SaveRequiredFiles();
 void AddRequiredFile(const std::string& file);
 void ReadFromFile(const std::string& filename);
+void CreateDefaultFile(const std::string& filename);
 std::string RemoveDataPath(const std::string&);
 std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
 std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);

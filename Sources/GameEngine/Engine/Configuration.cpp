@@ -4,9 +4,9 @@
 #include <filesystem>
 #include <fstream>
 
-#include "ReadConfigurationFunctions.h"
 #include "ConfigurationWriter.h"
 #include "Logger/Log.h"
+#include "ReadConfigurationFunctions.h"
 
 namespace GameEngine
 {
@@ -40,7 +40,6 @@ std::string GetCacheLocationFromString(const std::string& str)
 
     return str;
 }
-
 
 std::string GetShaderLocationFromString(const std::string& str)
 {
@@ -134,6 +133,16 @@ void SaveRequiredFiles()
     output.close();
 }
 
+void CreateDefaultFile(const std::string& filename)
+{
+    auto parentPath = std::filesystem::path(filename).parent_path();
+    if (not std::filesystem::exists(parentPath))
+    {
+        std::filesystem::create_directories(parentPath);
+    }
+    WriteConfigurationToFile(EngineConf, filename);
+}
+
 void ReadFromFile(const std::string& filename)
 {
     if (Utils::CheckFileExist(filename))
@@ -142,14 +151,9 @@ void ReadFromFile(const std::string& filename)
     }
     else
     {
-        auto parentPath = std::filesystem::path(filename).parent_path();
-        if (not std::filesystem::exists(parentPath))
-        {
-            std::filesystem::create_directories(parentPath);
-        }
+        CreateDefaultFile(filename);
     }
 
-    WriteConfigurationToFile(EngineConf, filename);
     AddRequiredFile(filename);
     EngineConf.filename = filename;
 }

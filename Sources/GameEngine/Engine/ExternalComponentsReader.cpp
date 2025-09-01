@@ -1,4 +1,3 @@
-#pragma once
 #include "ExternalComponentsReader.h"
 
 #include <Logger/Log.h>

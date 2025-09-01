@@ -6,6 +6,8 @@
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <wx/artprov.h>
+#include <wx/defs.h>
+#include <wx/filedlg.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
 #include <wx/stdpaths.h>
@@ -17,8 +19,10 @@
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"
 #include "ControlsIds.h"
+#include "Engine/Configuration.h"
 #include "GLCanvas.h"
 #include "OptionsFrame.h"
+#include "ProjectManager.h"
 #include "ProjectPanel.h"
 #include "Theme.h"
 #include "TransformPanel.h"
@@ -84,6 +88,8 @@ bool isGameObjectPrefab(const GameEngine::GameObject& go)
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_CLOSE(MainFrame::OnClose)
+    EVT_MENU(ID_MENU_FILE_NEW_PROJECT, MainFrame::MenuFileNewProject)
+    EVT_MENU(ID_MENU_FILE_OPEN_PROJECT, MainFrame::MenuFileOpenProject)
     EVT_MENU(ID_MENU_FILE_OPEN_SCENE, MainFrame::MenuFileOpenScene)
     EVT_MENU(ID_MENU_FILE_SAVE_SCENE, MainFrame::MenuFileSaveScene)
     EVT_MENU(ID_MENU_FILE_SAVEAS_SCENE, MainFrame::MenuFileSaveSceneAs)
@@ -122,6 +128,11 @@ wxEND_EVENT_TABLE()
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 // clang-format on
+{
+    // Init();
+}
+
+void MainFrame::Init()
 {
     wxInitAllImageHandlers();
 
@@ -166,14 +177,14 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
         }
     };
     canvas = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
-
+    auto size = GetSize();
     // Split pionowy: tree + canvas
     topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), canvas, size.x / 8);
 
     // === Dół: ProjectPanel ===
     auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
     ProjectPanel* projectPanel =
-        new ProjectPanel(leftSplitter, Utils::GetAbsolutePath(EngineConf.files.data), fileSelectedCallback);
+        new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
 
     // Lewy splitter: góra (tree+canvas), dół (projectPanel)
     leftSplitter->SplitHorizontally(topSplitter, projectPanel, size.y * 3 / 5);
@@ -338,6 +349,51 @@ void MainFrame::OnClose(wxCloseEvent& event)
     event.Skip();
 }
 
+void MainFrame::MenuFileNewProject(wxCommandEvent&)
+{
+    // Step 1: Ask for project name
+    wxTextEntryDialog nameDialog(this, "Enter project name:", "New Project");
+
+    if (nameDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString projectName = nameDialog.GetValue();
+    if (projectName.IsEmpty())
+    {
+        wxMessageBox("Project name cannot be empty.", "Error", wxICON_ERROR | wxOK);
+        return;
+    }
+
+    // Step 2: Choose directory
+    wxDirDialog openDirDialog(this, "Choose a directory for the new project",
+                              Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"),
+                              wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST | wxDD_NEW_DIR_BUTTON);
+
+    if (openDirDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString selectedDir = openDirDialog.GetPath();
+
+    // Step 3: Create project subfolder
+    wxString projectDir = selectedDir + "/" + projectName;
+
+    // Step 4: Update ProjectManager
+    auto& pm = ProjectManager::GetInstance();
+    pm.SetProjectPath(projectDir.ToStdString());
+    pm.SetProjectName(projectName.ToStdString());
+
+    auto defualtMainScene = pm.GetScenesDir() + "/main.xml";
+    SaveSceneAs(defualtMainScene);
+    GameEngine::CreateDefaultFile(pm.GetConfigFile());
+    GameEngine::createScenesFile(pm.GetScenesFactoryFile(), {{"main", defualtMainScene}}, {});
+
+    wxMessageBox("Project created at:\n" + projectDir, "Success", wxICON_INFORMATION | wxOK);
+}
+
+void MainFrame::MenuFileOpenProject(wxCommandEvent&)
+{
+    wxMessageBox("NotImplemented yet", "Confirmation", wxOK | wxICON_QUESTION);
+}
 void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 {
     if (canvas->GetScene().GetGameObjects().size() > 0)
@@ -509,8 +565,8 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
             new ComponentPickerPopup(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject,
                                      [this, &gameObject](auto& component)
                                      {
-                                         ComponentPanel* compPanel = new ComponentPanel(this,
-                                             gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
+                                         ComponentPanel* compPanel = new ComponentPanel(
+                                             this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
                                              canvas->GetScene().getComponentController(), gameObject);
                                          compPanel->AddComponent(component, false);
                                          if (isGameObjectPrefab(gameObject))
@@ -708,11 +764,13 @@ void MainFrame::CreateMainMenu()
 wxMenu* MainFrame::CreateFileMenu()
 {
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_MENU_FILE_OPEN_SCENE, "&Open scene\tCtrl-O", "OpenScene");
-    menuFile->Append(ID_MENU_FILE_RELOAD_SCENE, "&Reload scene\tCtrl-O", "OpenScene");
-    menuFile->Append(ID_MENU_FILE_SAVE_SCENE, "&Save scene\tCtrl-S", "SaveScene");
-    menuFile->Append(ID_MENU_FILE_SAVEAS_SCENE, "&Save scene as\tCtrl-S", "SaveScene");
-    menuFile->Append(ID_MENU_FILE_EXIT, "&Exit\tCtrl-C", "Close editor");
+    menuFile->Append(ID_MENU_FILE_NEW_PROJECT, "&New project", "Create new project");
+    menuFile->Append(ID_MENU_FILE_OPEN_PROJECT, "&Open project", "Open existing project");
+    menuFile->Append(ID_MENU_FILE_OPEN_SCENE, "&Open scene", "OpenScene");
+    menuFile->Append(ID_MENU_FILE_RELOAD_SCENE, "&Reload scene", "Reload current scene");
+    menuFile->Append(ID_MENU_FILE_SAVE_SCENE, "&Save scene\tCtrl-S", "Save scene to known file");
+    menuFile->Append(ID_MENU_FILE_SAVEAS_SCENE, "&Save scene as\tCtrl-S", "Save scene to new file");
+    menuFile->Append(ID_MENU_FILE_EXIT, "&Exit", "Close editor");
     return menuFile;
 }
 
@@ -1197,11 +1255,16 @@ bool MainFrame::SaveSceneAs()
         return false;
 
     wxString path = fileDialog.GetPath();
+    SaveSceneAs(path.ToStdString());
+    return true;
+}
+
+void MainFrame::SaveSceneAs(const std::string& path)
+{
     GameEngine::File file{path.c_str()};
     canvas->GetScene().ChangeName(file.GetBaseName());
     SetTitle("Active scene : " + canvas->GetScene().GetName());
     GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
-    return true;
 }
 
 void MainFrame::UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> maybeId)
