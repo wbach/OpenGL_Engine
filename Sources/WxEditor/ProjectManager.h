@@ -165,6 +165,23 @@ public:
         config.Flush();
     }
 
+    void RemoveRecentProject(const std::string& path)
+    {
+        wxConfig config("MyEditor");
+        auto recents = GetRecentProjects();
+        recents.erase(std::remove_if(recents.begin(), recents.end(), [&path](const RecentProject& p) { return p.path == path; }),
+                      recents.end());
+
+        config.Write("Recent/Count", (long)recents.size());
+        for (size_t i = 0; i < recents.size(); i++)
+        {
+            wxString key;
+            key.Printf("Recent/Project%zu", i);
+            config.Write(key, wxString(recents[i].path));
+        }
+        config.Flush();
+    }
+
 private:
     ProjectManager()  = default;
     ~ProjectManager() = default;

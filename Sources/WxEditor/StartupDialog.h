@@ -63,6 +63,11 @@ public:
         exitBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnExit, this);
         loadBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnLoadSelected, this);
         m_recentList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StartupDialog::OnRecentActivated, this);
+        wxButton* removeBtn = new wxButton(this, wxID_ANY, "Remove selected from list");
+        buttonSizer->Add(removeBtn, 0, wxEXPAND | wxALL, 5);
+
+        // Podpięcie zdarzenia
+        removeBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnRemoveSelected, this);
 
         Bind(wxEVT_CLOSE_WINDOW,
              [this](wxCloseEvent&)
@@ -169,5 +174,24 @@ private:
         ProjectManager::GetInstance().SetProjectPath(m_selectedProject);
 
         EndModal(wxID_OK);
+    }
+
+    void OnRemoveSelected(wxCommandEvent&)
+    {
+        long item = m_recentList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if (item == -1)
+        {
+            wxMessageBox("No project selected to remove.", "Info", wxOK | wxICON_INFORMATION);
+            return;
+        }
+
+        // Pobierz ścieżkę projektu
+        std::string path = m_recentList->GetItemText(item, 1).ToStdString();
+
+        // Usuń z ProjectManager / wxConfig
+        ProjectManager::GetInstance().RemoveRecentProject(path);
+
+        // Usuń z listy
+        m_recentList->DeleteItem(item);
     }
 };
