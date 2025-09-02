@@ -5,10 +5,65 @@
 #include <wx/dnd.h>
 #include <wx/renderer.h>
 
+#include <filesystem>
+
 #include "ThumbnailCache.h"
 
 namespace
 {
+namespace
+{
+
+class FileDropTarget : public wxFileDropTarget
+{
+public:
+    FileDropTarget(ProjectPanel* panel)
+        : m_panel(panel)
+    {
+    }
+
+    bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
+    {
+        if (!m_panel)
+            return false;
+
+        wxString destFolder = m_panel->GetCurrentFolderPath();
+
+        for (auto& srcPath : filenames)
+        {
+            wxFileName src(srcPath);
+            wxFileName dst(destFolder, src.GetFullName());
+
+            if (wxFileExists(dst.GetFullPath()))
+            {
+                wxString base = dst.GetName();
+                wxString ext  = dst.GetExt();
+                int counter   = 1;
+                do
+                {
+                    dst.SetName(base + "_" + std::to_string(counter));
+                    dst.SetExt(ext);
+                    counter++;
+                } while (wxFileExists(dst.GetFullPath()));
+            }
+
+            if (not wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
+            {
+                wxLogError("Copy failed. From %s to %s", src.GetFullPath(), dst.GetFullPath());
+            }
+        }
+
+        // Odśwież listę po dodaniu plików
+        m_panel->RefreshListFor(destFolder);
+
+        return true;
+    }
+
+private:
+    ProjectPanel* m_panel;
+};
+
+}  // namespace
 void ShowProperties(const wxFileName& fn)
 {
     wxDialog dlg(nullptr, wxID_ANY, "Properties");
@@ -289,6 +344,7 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
                 int ID_COPY_PATH  = wxWindow::NewControlId();
                 int ID_DUPLICATE  = wxWindow::NewControlId();
                 int ID_PASTE      = wxWindow::NewControlId();
+                int ID_NEW_FOLDER = wxWindow::NewControlId();
                 int ID_REMOVE     = wxWindow::NewControlId();
                 int ID_PROPERTIES = wxWindow::NewControlId();
 
@@ -299,6 +355,7 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
                 menu.AppendSeparator();
                 menu.Append(ID_DUPLICATE, "Duplicate");
                 menu.Append(ID_PASTE, "Paste");
+                menu.Append(ID_NEW_FOLDER, "New folder");
                 menu.Append(ID_REMOVE, "Remove");
                 menu.AppendSeparator();
                 menu.Append(ID_PROPERTIES, "Properties");
@@ -364,6 +421,26 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
 
                 menu.Bind(
                     wxEVT_COMMAND_MENU_SELECTED,
+                    [=](wxCommandEvent&)
+                    {
+                        wxTextEntryDialog nameDlg(this, "Enter folder name:");
+                        if (nameDlg.ShowModal() != wxID_OK)
+                            return;
+
+                        std::string name = nameDlg.GetValue().ToStdString();
+                        if (name.empty())
+                        {
+                            wxMessageBox("folder name cannot be empty!");
+                            return;
+                        }
+                        auto parent = std::filesystem::path(fn.GetFullPath().ToStdString()).parent_path().string();
+                        std::filesystem::create_directory(parent + "/" + name);
+                        RefreshListFor(currentFolderPath);
+                    },
+                    ID_NEW_FOLDER);
+
+                menu.Bind(
+                    wxEVT_COMMAND_MENU_SELECTED,
                     [=](wxCommandEvent& evt)
                     {
                         if (wxTheClipboard->Open())
@@ -403,9 +480,14 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
                     {
                         if (wxMessageBox("Remove " + fn.GetFullPath() + "?", "Confirm", wxYES_NO | wxICON_WARNING) == wxYES)
                         {
-                            if (wxRemoveFile(fn.GetFullPath()))
+                            if (std::filesystem::is_directory(fn.GetFullPath().ToStdString()))
                             {
-                                wxLogMessage("Removed %s", fn.GetFullPath());
+                                std::filesystem::remove(fn.GetFullPath().ToStdString());
+                                RefreshListFor(currentFolderPath);
+                            }
+                            else if (wxRemoveFile(fn.GetFullPath()))
+                            {
+                                //wxLogMessage("Removed %s", fn.GetFullPath());
                                 RefreshListFor(currentFolderPath);
                             }
                             else
@@ -530,6 +612,8 @@ void ProjectPanel::CreateFilePanel(wxBoxSizer* mainSizer)
     filePanel->SetSizer(fileSizer);
     filePanel->SetScrollRate(10, 10);
 
+    filePanel->SetDropTarget(new FileDropTarget(this));
+
     mainSizer->Add(filePanel, 3, wxEXPAND | wxALL, 2);
 }
 
@@ -547,4 +631,9 @@ wxBitmap ProjectPanel::GetThumbnail(const wxFileName& fn, int thumbSize)
     }
 
     return bmp;
+}
+
+wxString ProjectPanel::GetCurrentFolderPath() const
+{
+    return currentFolderPath;
 }

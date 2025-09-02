@@ -9,6 +9,7 @@
 #include <wx/treectrl.h>
 #include <wx/wrapsizer.h>
 #include <wx/wx.h>
+
 #include <functional>
 #include <memory>
 
@@ -18,13 +19,21 @@ public:
     using FileSelectedCallback = std::function<void(const wxString&)>;
     ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelectedCallback callback);
 
+    // --- Odświeżanie ---
+    void RefreshListFor(const wxString& folderPath);
+
+    wxString GetCurrentFolderPath() const;
+
 private:
     FileSelectedCallback fileSelectedCallback;
 
     struct PathData : public wxTreeItemData
     {
         wxString path;
-        explicit PathData(const wxString& p) : path(p) {}
+        explicit PathData(const wxString& p)
+            : path(p)
+        {
+        }
     };
 
     wxTreeCtrl* projectTree{nullptr};
@@ -62,9 +71,6 @@ private:
     void InitFileList();
     void CreateFilePanel(wxBoxSizer* sizer);
     wxBoxSizer* CreateFileItem(const wxFileName& fn, const wxBitmap& bmp, bool selectable, const std::function<void()>& callback);
-
-    // --- Odświeżanie ---
-    void RefreshListFor(const wxString& folderPath);
 
     // --- Eventy ---
     void OnTreeSelChanged(wxTreeEvent& e);
