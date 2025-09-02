@@ -223,10 +223,15 @@ void OptionsFrame::UpdateSelectedValuesInCtrl()
 }
 void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 {
-    wxPanel* panel = new wxPanel(notebook);
-    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    wxPanel* panel        = new wxPanel(notebook);
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    struct PathOption {
+    // ===== Sekcja katalogów =====
+    wxStaticBox* folderBox        = new wxStaticBox(panel, wxID_ANY, "Project Paths");
+    wxStaticBoxSizer* folderSizer = new wxStaticBoxSizer(folderBox, wxVERTICAL);
+
+    struct PathOption
+    {
         std::string label;
         std::string& value;
     };
@@ -234,26 +239,76 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     std::vector<PathOption> paths = {{"Data Path:", EngineConf.files.data},
                                      {"Shader Path:", EngineConf.files.shaders},
                                      {"Cache Path:", EngineConf.files.cache}};
+
     for (auto& pathOpt : paths)
     {
-        sizer->Add(new wxStaticText(panel, wxID_ANY, pathOpt.label), 0, wxALL, 5);
+        folderSizer->Add(new wxStaticText(panel, wxID_ANY, pathOpt.label), 0, wxALL, 5);
 
         wxDirPickerCtrl* dirPicker = new wxDirPickerCtrl(panel, wxID_ANY, pathOpt.value, "Select a folder");
-        sizer->Add(dirPicker, 0, wxEXPAND | wxALL, 5);
+        folderSizer->Add(dirPicker, 0, wxEXPAND | wxALL, 5);
 
-        // StaticText pod pickerem, pokazujący pełną ścieżkę
         wxStaticText* pathDisplay = new wxStaticText(panel, wxID_ANY, pathOpt.value);
-        sizer->Add(pathDisplay, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+        folderSizer->Add(pathDisplay, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-        // Aktualizacja konfiguracji i StaticText po zmianie katalogu
-        dirPicker->Bind(wxEVT_DIRPICKER_CHANGED, [&, dirPicker, pathDisplay](wxFileDirPickerEvent& event){
-            pathOpt.value = dirPicker->GetPath().ToStdString();
-            pathDisplay->SetLabel(pathOpt.value);  // aktualizacja StaticText
-            WriteConfigurationToFile(EngineConf);
-        });
+        dirPicker->Bind(wxEVT_DIRPICKER_CHANGED,
+                        [&, dirPicker, pathDisplay](wxFileDirPickerEvent& event)
+                        {
+                            pathOpt.value = dirPicker->GetPath().ToStdString();
+                            pathDisplay->SetLabel(pathOpt.value);
+                            WriteConfigurationToFile(EngineConf);
+                        });
     }
 
-    panel->SetSizer(sizer);
+    mainSizer->Add(folderSizer, 0, wxEXPAND | wxALL, 10);  // margines między sekcjami
+
+    // ===== Sekcja tekstur =====
+    wxStaticBox* textureBox        = new wxStaticBox(panel, wxID_ANY, "Textures");
+    wxStaticBoxSizer* textureSizer = new wxStaticBoxSizer(textureBox, wxVERTICAL);
+
+    struct TextureOption
+    {
+        std::string label;
+        std::string& path;
+    };
+
+    std::vector<TextureOption> textures = {{"Loading screen background:", EngineConf.files.loadingScreenBackgroundTexture},
+                                           {"Loading circle texture:", EngineConf.files.loadingScreenCircleTexture}};
+
+    for (auto& texOpt : textures)
+    {
+        textureSizer->Add(new wxStaticText(panel, wxID_ANY, texOpt.label), 0, wxALL, 5);
+
+        wxFilePickerCtrl* filePicker =
+            new wxFilePickerCtrl(panel, wxID_ANY, texOpt.path, "Select a texture", "*.png;*.jpg;*.bmp", wxDefaultPosition,
+                                 wxDefaultSize, wxFLP_USE_TEXTCTRL | wxFLP_FILE_MUST_EXIST);
+        textureSizer->Add(filePicker, 0, wxEXPAND | wxALL, 5);
+
+        // Miniatura
+        wxLogNull logNo;
+        wxImage img;
+        if (!texOpt.path.empty())
+            img.LoadFile(texOpt.path, wxBITMAP_TYPE_ANY);
+        wxStaticBitmap* thumbnail =
+            new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(100, 100)) : wxNullBitmap);
+        textureSizer->Add(thumbnail, 0, wxALL, 5);
+
+        filePicker->Bind(wxEVT_FILEPICKER_CHANGED,
+                         [&, filePicker, thumbnail](wxFileDirPickerEvent& event)
+                         {
+                             texOpt.path = filePicker->GetPath().ToStdString();
+                             wxImage newImg;
+                             if (newImg.LoadFile(texOpt.path, wxBITMAP_TYPE_ANY))
+                             {
+                                 thumbnail->SetBitmap(wxBitmap(newImg.Scale(100, 100)));
+                                 thumbnail->Refresh();
+                             }
+                             WriteConfigurationToFile(EngineConf);
+                         });
+    }
+
+    mainSizer->Add(textureSizer, 0, wxEXPAND | wxALL, 10);  // margines na dole sekcji
+
+    panel->SetSizer(mainSizer);
     panel->Layout();
     notebook->AddPage(panel, "Project Options");
 }
