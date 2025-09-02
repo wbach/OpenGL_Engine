@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 
 #include "ProjectManager.h"
+#include <GameEngine/Scene/SceneUtils.h>
 
 class StartupDialog : public wxDialog
 {
@@ -120,10 +121,15 @@ private:
         if (!wxDirExists(projectPath))
             wxMkdir(projectPath);
 
-        ProjectManager::GetInstance().SetProjectPath(projectPath);
-        ProjectManager::GetInstance().SetProjectName(name);
+        auto& projectManager = ProjectManager::GetInstance();
+        projectManager.SetProjectPath(projectPath);
+        projectManager.SetProjectName(name);
+        projectManager.SaveRecentProject(projectPath);
 
-        ProjectManager::GetInstance().SaveRecentProject(projectPath);
+        auto defualtMainScene = projectManager.GetScenesDir() + "/main.xml";
+       // SaveSceneAs(defualtMainScene);
+        GameEngine::CreateDefaultFile(projectManager.GetConfigFile());
+        GameEngine::createScenesFile(projectManager.GetScenesFactoryFile(), {{"main", defualtMainScene}}, {});
 
         m_selectedProject = projectPath;
         EndModal(wxID_OK);

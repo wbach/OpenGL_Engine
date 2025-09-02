@@ -1,14 +1,14 @@
 # Dockerfile: środowisko dev z SSH, SDL2/OpenGL, wxWidgets, fzf, distcc i pełnym home
 # Użycie:
-# 0. ssh-keygen -t rsa -b 4096 
+# 0. ssh-keygen -t rsa -b 4096
 # 1. Zbuduj obraz: docker build --build-arg PUB_KEY="$(cat ~/.ssh/id_rsa.pub)" -t dev-env .
-# 2. Uruchom kontener: 
+# 2. Uruchom kontener:
 #    xhost +local:docker
 #    docker run -d -p 2222:22 \
 #       -e DISPLAY=$DISPLAY \
 #       -v /tmp/.X11-unix:/tmp/.X11-unix \
 #       --device /dev/dri \
-#       -v home/$USER/Documents/GitHub/OpenGL_Engine/:/home/baszek/OpenGL_Engine \  
+#       -v home/$USER/Documents/GitHub/OpenGL_Engine/:/home/baszek/OpenGL_Engine \
 #       --name game-engine \
 #       dev-env
 #    Notka: -v ścieżka/host:ścieżka/docker
@@ -67,6 +67,7 @@ RUN apt-get update && apt-get install -y \
     distcc \
     libwxgtk3.0-gtk3-dev \
     wget \
+    clangd \
     && rm -rf /var/lib/apt/lists/*
 
 # Konfiguracja SSH i generowanie host keys
