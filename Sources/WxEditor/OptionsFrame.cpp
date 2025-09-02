@@ -1,8 +1,10 @@
 #include "OptionsFrame.h"
 
-#include <wx/spinctrl.h>
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Engine/ConfigurationWriter.h>
+#include <wx/filepicker.h>
+#include <wx/spinctrl.h>
+
 #include "Theme.h"
 
 // clang-format off
@@ -21,9 +23,10 @@ OptionsFrame::OptionsFrame(wxWindow* parent)
     wxNotebook* notebook = new wxNotebook(this, wxID_ANY);
 
     CreateRenderingOptionsTab(notebook);
-    //CreateGeneralTab(notebook);
+    CreateProjectTab(notebook);
+    // CreateGeneralTab(notebook);
     CreateAppearanceTab(notebook);
-//    CreateAdvancedTab(notebook);
+    //    CreateAdvancedTab(notebook);
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     mainSizer->Add(notebook, 1, wxEXPAND);
@@ -32,13 +35,16 @@ OptionsFrame::OptionsFrame(wxWindow* parent)
     // 🔹 Wymuś przeliczenie layoutu po zbudowaniu całej struktury
     Layout();
 
-    Bind(wxEVT_SHOW, [this](wxShowEvent& event) {
-        if (event.IsShown()) {
-            SetSize(800, 600);
-            SendSizeEvent();
-        }
-        event.Skip();
-    });
+    Bind(wxEVT_SHOW,
+         [this](wxShowEvent& event)
+         {
+             if (event.IsShown())
+             {
+                 SetSize(800, 600);
+                 SendSizeEvent();
+             }
+             event.Skip();
+         });
 }
 
 void OptionsFrame::CreateRenderingOptionsTab(wxNotebook* notebook)
@@ -71,7 +77,7 @@ void OptionsFrame::CreateRenderingOptionsTab(wxNotebook* notebook)
     notebook->AddPage(renderingPanel, "Rendering Options");
 }
 
-void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::string & catergory)
+void OptionsFrame::CreateRenderingSubTab(wxNotebook* notebook, const std::string& catergory)
 {
     wxPanel* panel    = new wxPanel(notebook);
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -84,7 +90,7 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
         rowSizer->Add(new wxStaticText(panel, wxID_ANY, param.name), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
         wxArrayString options;
-        for(const auto& value : param.configurationParam.getValuesAsStrings())
+        for (const auto& value : param.configurationParam.getValuesAsStrings())
         {
             options.Add(value);
         }
@@ -92,37 +98,40 @@ void OptionsFrame::CreateRenderingSubTab(wxNotebook * notebook, const std::strin
         choice->SetSelection(param.configurationParam.getValueIndex());
         rowSizer->Add(choice, 0, wxALL, 5);
 
-        paramsCtrls.push_back(ParamCtrl{.param = param.configurationParam, .ctrl= choice});
+        paramsCtrls.push_back(ParamCtrl{.param = param.configurationParam, .ctrl = choice});
 
         if (param.configurationParam.isLocked())
         {
             choice->Disable();
         }
         choice->SetClientData(&param.configurationParam);
-        choice->Bind(wxEVT_CHOICE, [this, param](const auto& event){
-            wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
-            if (!choice) return;
+        choice->Bind(wxEVT_CHOICE,
+                     [this, param](const auto& event)
+                     {
+                         wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
+                         if (!choice)
+                             return;
 
-            auto paramPtr = static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
-            if (paramPtr)
-            {
-                int sel = choice->GetSelection();
-                paramPtr->setValueFromIndex(sel);
+                         auto paramPtr = static_cast<GameEngine::Params::IConfigurationParam*>(choice->GetClientData());
+                         if (paramPtr)
+                         {
+                             int sel = choice->GetSelection();
+                             paramPtr->setValueFromIndex(sel);
 
-                if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
-                {
-                    wxMessageBox("To make effect restart is requierd", "Information",
-                                              wxOK| wxICON_INFORMATION,  this);
-                }
+                             if (param.restartRequierd == GameEngine::ConfigurationExplorer::ApplyPolicy::RestartRequired)
+                             {
+                                 wxMessageBox("To make effect restart is requierd", "Information", wxOK | wxICON_INFORMATION,
+                                              this);
+                             }
 
-                if (param.paramsImpact == GameEngine::ConfigurationExplorer::ParamsImpact::HasImpact)
-                {
-                    UpdateSelectedValuesInCtrl();
-                }
+                             if (param.paramsImpact == GameEngine::ConfigurationExplorer::ParamsImpact::HasImpact)
+                             {
+                                 UpdateSelectedValuesInCtrl();
+                             }
 
-                WriteConfigurationToFile(EngineConf);
-            }
-        });
+                             WriteConfigurationToFile(EngineConf);
+                         }
+                     });
         sizer->Add(rowSizer, 0, wxEXPAND | wxTOP, 2);
     }
 
@@ -159,24 +168,26 @@ void OptionsFrame::CreateAppearanceTab(wxNotebook* notebook)
     auto choice = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, themes);
     sizer->Add(choice, 0, wxALL, 5);
     choice->SetSelection(2);
-    choice->Bind(wxEVT_CHOICE, [&](const auto& event){
-        wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
-        if (!choice) return;
-        int sel = choice->GetSelection();
-        switch(sel)
-        {
-        case 0:
-            ApplyTheme(*this->GetParent(), LIGHT_THEME);
-            break;
-        case 1:
-            ApplyTheme(*this->GetParent(), DARK_THEME);
-            break;
-        case 2:
-            ApplyTheme(*this->GetParent(), OS_DEFAULT_THEME);
-            break;
-        }
-
-    });
+    choice->Bind(wxEVT_CHOICE,
+                 [&](const auto& event)
+                 {
+                     wxChoice* choice = dynamic_cast<wxChoice*>(event.GetEventObject());
+                     if (!choice)
+                         return;
+                     int sel = choice->GetSelection();
+                     switch (sel)
+                     {
+                         case 0:
+                             ApplyTheme(*this->GetParent(), LIGHT_THEME);
+                             break;
+                         case 1:
+                             ApplyTheme(*this->GetParent(), DARK_THEME);
+                             break;
+                         case 2:
+                             ApplyTheme(*this->GetParent(), OS_DEFAULT_THEME);
+                             break;
+                     }
+                 });
 
     panel->SetSizer(sizer);
     panel->Layout();
@@ -204,10 +215,45 @@ void OptionsFrame::OnClose(wxCloseEvent& event)
 
 void OptionsFrame::UpdateSelectedValuesInCtrl()
 {
-    for(auto& parmCtrl : paramsCtrls)
+    for (auto& parmCtrl : paramsCtrls)
     {
-            auto index = parmCtrl.param.getValueIndex();
-            parmCtrl.ctrl->Select(index);
+        auto index = parmCtrl.param.getValueIndex();
+        parmCtrl.ctrl->Select(index);
+    }
+}
+void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
+{
+    wxPanel* panel = new wxPanel(notebook);
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+
+    struct PathOption {
+        std::string label;
+        std::string& value;
+    };
+
+    std::vector<PathOption> paths = {{"Data Path:", EngineConf.files.data},
+                                     {"Shader Path:", EngineConf.files.shaders},
+                                     {"Cache Path:", EngineConf.files.cache}};
+    for (auto& pathOpt : paths)
+    {
+        sizer->Add(new wxStaticText(panel, wxID_ANY, pathOpt.label), 0, wxALL, 5);
+
+        wxDirPickerCtrl* dirPicker = new wxDirPickerCtrl(panel, wxID_ANY, pathOpt.value, "Select a folder");
+        sizer->Add(dirPicker, 0, wxEXPAND | wxALL, 5);
+
+        // StaticText pod pickerem, pokazujący pełną ścieżkę
+        wxStaticText* pathDisplay = new wxStaticText(panel, wxID_ANY, pathOpt.value);
+        sizer->Add(pathDisplay, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+
+        // Aktualizacja konfiguracji i StaticText po zmianie katalogu
+        dirPicker->Bind(wxEVT_DIRPICKER_CHANGED, [&, dirPicker, pathDisplay](wxFileDirPickerEvent& event){
+            pathOpt.value = dirPicker->GetPath().ToStdString();
+            pathDisplay->SetLabel(pathOpt.value);  // aktualizacja StaticText
+            WriteConfigurationToFile(EngineConf);
+        });
     }
 
+    panel->SetSizer(sizer);
+    panel->Layout();
+    notebook->AddPage(panel, "Project Options");
 }

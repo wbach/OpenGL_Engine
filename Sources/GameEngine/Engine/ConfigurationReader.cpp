@@ -45,8 +45,12 @@ std::string getConfigFile()
 }
 
 ConfigurationReader::ConfigurationReader()
+    : ConfigurationReader(getConfigFile())
 {
-    GameEngine::ReadFromFile(getConfigFile());
+}
+ConfigurationReader::ConfigurationReader(const std::string& filename)
+{
+    GameEngine::ReadFromFile(filename);
 
     if (EngineConf.debugParams.logLvl != LogginLvl::None)
     {
@@ -55,5 +59,4 @@ ConfigurationReader::ConfigurationReader()
         std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
     }
 }
-
 }  // namespace GameEngine

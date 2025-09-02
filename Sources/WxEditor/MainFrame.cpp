@@ -167,7 +167,7 @@ void MainFrame::Init()
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
-    auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); };
+    auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); SetStatusText(EngineConf.files.data); };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
         if (auto wxItemId = gameObjectsView->Get(gameObjectId))

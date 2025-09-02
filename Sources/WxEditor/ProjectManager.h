@@ -6,6 +6,8 @@
 #include <vector>
 
 #include "Engine/Configuration.h"
+#include "Engine/ConfigurationReader.h"
+#include "Engine/ConfigurationWriter.h"
 
 class ProjectManager
 {
@@ -36,8 +38,24 @@ public:
 
         CreateDirectories();
 
-        EngineConf.files.data  = projectDataDirPath;
-        EngineConf.files.cache = projectCachePath;
+        GameEngine::ConfigurationReader reader(projectConfigPath);
+
+        bool needUpdate{false};
+        if (EngineConf.files.data != projectDataDirPath)
+        {
+            EngineConf.files.data = projectDataDirPath;
+            needUpdate = true;
+        }
+        if (EngineConf.files.cache != projectCachePath)
+        {
+            EngineConf.files.cache = projectCachePath;
+            needUpdate = true;
+        }
+
+        if (needUpdate)
+        {
+            GameEngine::WriteConfigurationToFile(EngineConf);
+        }
     }
 
     void CreateDirectories()

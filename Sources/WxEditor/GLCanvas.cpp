@@ -106,8 +106,15 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     wxPaintDC dc(this);
     SetCurrent(*context);
 
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    if (!renderer)
+    {
+        wxLogError("OpenGL context failed!");
+        return;
+    }
+
     wxSize size = GetClientSize();
-  //  Engine.
+    //  Engine.
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
@@ -126,7 +133,12 @@ void GLCanvas::OnPaint(wxPaintEvent&)
                                                       std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
         engine->GetSceneManager().SetActiveScene("NewScene");
-        engine->GetSceneManager().SetOnSceneLoadDone([this]() { onStartupDone(); SetupCamera(); });
+        engine->GetSceneManager().SetOnSceneLoadDone(
+            [this]()
+            {
+                onStartupDone();
+                SetupCamera();
+            });
     }
     if (engine)
     {
@@ -249,11 +261,11 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
 {
     if (engine)
     {
-        auto scene                         = engine->GetSceneManager().GetActiveScene();
-        auto newGameObject                 = scene->CreateGameObject(file.GetBaseName());
-        auto& rendererComponent            = newGameObject->AddComponent<Components::RendererComponent>();
-        auto& animator                     = newGameObject->AddComponent<Components::Animator>();
-        animator.startupAnimationClipName  = "noname";
+        auto scene                        = engine->GetSceneManager().GetActiveScene();
+        auto newGameObject                = scene->CreateGameObject(file.GetBaseName());
+        auto& rendererComponent           = newGameObject->AddComponent<Components::RendererComponent>();
+        auto& animator                    = newGameObject->AddComponent<Components::Animator>();
+        animator.startupAnimationClipName = "noname";
         rendererComponent.AddModel(file.GetAbsoultePath());
 
         vec3 position(0.f);

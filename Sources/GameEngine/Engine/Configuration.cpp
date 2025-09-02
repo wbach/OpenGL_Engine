@@ -145,6 +145,11 @@ void CreateDefaultFile(const std::string& filename)
 
 void ReadFromFile(const std::string& filename)
 {
+    if (not EngineConf.filename.empty())
+    {
+        LOG_DEBUG << "Configuration already read. Skip";
+        return;
+    }
     if (Utils::CheckFileExist(filename))
     {
         ReadConfiguration(EngineConf, filename);
