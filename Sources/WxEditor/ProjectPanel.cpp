@@ -395,14 +395,16 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
 {
     wxMenu menu;
 
-    int ID_OPEN       = wxWindow::NewControlId();
-    int ID_SHOW       = wxWindow::NewControlId();
-    int ID_COPY_PATH  = wxWindow::NewControlId();
-    int ID_DUPLICATE  = wxWindow::NewControlId();
-    int ID_PASTE      = wxWindow::NewControlId();
-    int ID_NEW_FOLDER = wxWindow::NewControlId();
-    int ID_REMOVE     = wxWindow::NewControlId();
-    int ID_PROPERTIES = wxWindow::NewControlId();
+    int ID_OPEN          = wxWindow::NewControlId();
+    int ID_SHOW          = wxWindow::NewControlId();
+    int ID_COPY_PATH     = wxWindow::NewControlId();
+    int ID_DUPLICATE     = wxWindow::NewControlId();
+    int ID_IMPORT        = wxWindow::NewControlId();
+    int ID_IMPORT_FOLDER = wxWindow::NewControlId();
+    int ID_PASTE         = wxWindow::NewControlId();
+    int ID_NEW_FOLDER    = wxWindow::NewControlId();
+    int ID_REMOVE        = wxWindow::NewControlId();
+    int ID_PROPERTIES    = wxWindow::NewControlId();
 
     menu.Append(ID_OPEN, "Open");
     menu.Append(ID_SHOW, "Show in Explorer");
@@ -410,6 +412,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Append(ID_COPY_PATH, "Copy Path");
     menu.AppendSeparator();
     menu.Append(ID_DUPLICATE, "Duplicate");
+    menu.Append(ID_IMPORT, "Import");
+    menu.Append(ID_IMPORT_FOLDER, "Import folder");
     menu.Append(ID_PASTE, "Paste");
     menu.Append(ID_NEW_FOLDER, "New folder");
     menu.Append(ID_REMOVE, "Remove");
@@ -504,6 +508,122 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             }
         },
         ID_DUPLICATE);
+
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxString destFolder = GetCurrentFolderPath();  // zakładam, że masz taką funkcję w ProjectPanel
+
+            wxFileDialog fileDialog(this, "Select files to import", "", "", "All files (*.*)|*.*",
+                                    wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
+
+            if (fileDialog.ShowModal() == wxID_OK)
+            {
+                wxArrayString files;
+                fileDialog.GetPaths(files);
+
+                for (auto& srcPath : files)
+                {
+                    wxFileName src(srcPath);
+                    wxFileName dst(destFolder, src.GetFullName());
+
+                    // Obsługa konfliktów nazw
+                    if (wxFileExists(dst.GetFullPath()))
+                    {
+                        wxString base = dst.GetName();
+                        wxString ext  = dst.GetExt();
+                        int counter   = 1;
+                        do
+                        {
+                            dst.SetName(base + "_" + std::to_string(counter));
+                            dst.SetExt(ext);
+                            counter++;
+                        } while (wxFileExists(dst.GetFullPath()));
+                    }
+
+                    if (!wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
+                    {
+                        wxLogError("Copy failed. From %s to %s", src.GetFullPath(), dst.GetFullPath());
+                    }
+                }
+
+                // Odśwież listę po dodaniu plików
+                RefreshListFor(destFolder);
+            }
+        },
+        ID_IMPORT);
+
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxString destFolder = GetCurrentFolderPath();  // aktualny folder w projekcie
+
+            wxDirDialog dirDialog(this, "Select folder to import", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+            if (dirDialog.ShowModal() != wxID_OK)
+                return;
+
+            std::filesystem::path srcFolder = dirDialog.GetPath().ToStdString();
+            std::filesystem::path dstFolder = std::filesystem::path(destFolder.ToStdString()) / srcFolder.filename();
+
+            // jeśli folder docelowy już istnieje, dodajemy sufiks _1, _2, ...
+            if (std::filesystem::exists(dstFolder))
+            {
+                int counter                   = 1;
+                std::filesystem::path baseDst = dstFolder;
+                do
+                {
+                    dstFolder = baseDst.string() + "_" + std::to_string(counter);
+                    counter++;
+                } while (std::filesystem::exists(dstFolder));
+            }
+
+            try
+            {
+                // Rekurencyjne kopiowanie katalogu
+                std::function<void(const std::filesystem::path&, const std::filesystem::path&)> copyRecursive;
+                copyRecursive = [&](const std::filesystem::path& src, const std::filesystem::path& dst)
+                {
+                    std::filesystem::create_directories(dst);  // tworzymy katalog docelowy
+
+                    for (auto& entry : std::filesystem::directory_iterator(src))
+                    {
+                        const auto& path = entry.path();
+                        auto dstPath     = dst / path.filename();
+
+                        if (entry.is_directory())
+                        {
+                            copyRecursive(path, dstPath);  // rekurencja dla katalogów
+                        }
+                        else if (entry.is_regular_file())
+                        {
+                            // Obsługa konfliktów nazw
+                            std::filesystem::path finalDst = dstPath;
+                            int counter                    = 1;
+                            while (std::filesystem::exists(finalDst))
+                            {
+                                finalDst = dstPath.stem().string() + "_" + std::to_string(counter) + dstPath.extension().string();
+                                finalDst = dst / finalDst.filename();
+                                counter++;
+                            }
+                            std::filesystem::copy_file(path, finalDst);
+                        }
+                    }
+                };
+
+                copyRecursive(srcFolder, dstFolder);
+            }
+            catch (const std::filesystem::filesystem_error& e)
+            {
+                wxLogError("Copy failed: %s", e.what());
+            }
+
+            // Odśwież listę plików
+            BuildTree();
+            SelectTreeItemByPath(destFolder);
+        },
+        ID_IMPORT_FOLDER);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
