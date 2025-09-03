@@ -5,6 +5,7 @@
 #include <wx/dnd.h>
 #include <wx/renderer.h>
 
+#include <cstdio>
 #include <filesystem>
 
 #include "ThumbnailCache.h"
@@ -54,7 +55,7 @@ public:
         }
 
         // Odśwież listę po dodaniu plików
-        m_panel->RefreshListFor(destFolder);
+        m_panel->RefreshListAndTreeFor(destFolder);
 
         return true;
     }
@@ -260,28 +261,6 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
         return result;
     };
 
-    auto SelectItem = [&](wxWindow* item, wxStaticText* label)
-    {
-        if (selectedItem)
-        {
-            selectedItem->SetBackgroundColour(wxNullColour);
-            selectedItem->Refresh();
-        }
-        selectedItem = item;
-        selectedItem->SetBackgroundColour(*wxLIGHT_GREY);
-        selectedItem->Refresh();
-
-        if (selectedLabel)
-        {
-            selectedLabel->SetBackgroundColour(wxNullColour);
-            selectedLabel->Refresh();
-        }
-
-        selectedLabel = label;
-        selectedLabel->SetBackgroundColour(*wxLIGHT_GREY);
-        selectedLabel->Refresh();
-    };
-
     const int thumbSize = 64;
 
     wxStaticBitmap* icon = new wxStaticBitmap(filePanel, wxID_ANY, bmp);
@@ -329,192 +308,272 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
         icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { onDClick(); });
     }
 
-    auto addContextMenu = [&](wxWindow* target, wxFileName fn)
+    addContextMenu(icon, FileInfo{.name = fn, .icon = icon, .label = label});
+    addContextMenu(label, FileInfo{.name = fn, .icon = icon, .label = label});
+
+    return itemSizer;
+}
+
+void ProjectPanel::SelectItem(wxWindow* item, wxStaticText* label)
+{
+    UnSelectCurrentItem();
+
+    selectedItem = item;
+    selectedItem->SetBackgroundColour(*wxLIGHT_GREY);
+    selectedItem->Refresh();
+
+    selectedLabel = label;
+    selectedLabel->SetBackgroundColour(*wxLIGHT_GREY);
+    selectedLabel->Refresh();
+}
+
+void ProjectPanel::UnSelectCurrentItem()
+{
+    if (selectedItem)
     {
-        target->Bind(
-            wxEVT_RIGHT_DOWN,
-            [=](wxMouseEvent& event)
-            {
-                SelectItem(icon, label);
+        selectedItem->SetBackgroundColour(wxNullColour);
+        selectedItem->Refresh();
+    }
 
-                wxMenu menu;
+    if (selectedLabel)
+    {
+        selectedLabel->SetBackgroundColour(wxNullColour);
+        selectedLabel->Refresh();
+    }
 
-                int ID_OPEN       = wxWindow::NewControlId();
-                int ID_SHOW       = wxWindow::NewControlId();
-                int ID_COPY_PATH  = wxWindow::NewControlId();
-                int ID_DUPLICATE  = wxWindow::NewControlId();
-                int ID_PASTE      = wxWindow::NewControlId();
-                int ID_NEW_FOLDER = wxWindow::NewControlId();
-                int ID_REMOVE     = wxWindow::NewControlId();
-                int ID_PROPERTIES = wxWindow::NewControlId();
+    selectedItem  = nullptr;
+    selectedLabel = nullptr;
+}
 
-                menu.Append(ID_OPEN, "Open");
-                menu.Append(ID_SHOW, "Show in Explorer");
-                menu.AppendSeparator();
-                menu.Append(ID_COPY_PATH, "Copy Path");
-                menu.AppendSeparator();
-                menu.Append(ID_DUPLICATE, "Duplicate");
-                menu.Append(ID_PASTE, "Paste");
-                menu.Append(ID_NEW_FOLDER, "New folder");
-                menu.Append(ID_REMOVE, "Remove");
-                menu.AppendSeparator();
-                menu.Append(ID_PROPERTIES, "Properties");
+void ProjectPanel::addContextMenu(wxWindow* target)
+{
+    target->Bind(wxEVT_RIGHT_DOWN,
+                 [this, t = target](wxMouseEvent& event)
+                 {
+                     UnSelectCurrentItem();
+                     contextMenuTriggerAction(event, t, GetCurrentFolderPath());
+                 });
+}
 
-                bool canPaste = false;
-                if (wxTheClipboard->Open())
-                {
-                    wxFileDataObject fileData;
-                    canPaste = wxTheClipboard->IsSupported(wxDF_FILENAME);
-                    wxTheClipboard->Close();
-                }
-                menu.Enable(ID_PASTE, canPaste);
+void ProjectPanel::addContextMenu(wxWindow* target, const FileInfo& fileInfo)
+{
+    target->Bind(wxEVT_RIGHT_DOWN,
+                 [=](wxMouseEvent& event)
+                 {
+                     SelectItem(fileInfo.icon, fileInfo.label);
+                     contextMenuTriggerAction(event, target, fileInfo.name);
+                 });
+};
 
-                // --- Handlery dla menu ---
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fn.GetFullPath()); }, ID_OPEN);
+void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* target, const wxFileName& fileName)
+{
+    wxMenu menu;
 
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED,
-                    [=](wxCommandEvent&)
-                    {
-                        wxString folder = fn.GetPath();
+    int ID_OPEN       = wxWindow::NewControlId();
+    int ID_SHOW       = wxWindow::NewControlId();
+    int ID_COPY_PATH  = wxWindow::NewControlId();
+    int ID_DUPLICATE  = wxWindow::NewControlId();
+    int ID_PASTE      = wxWindow::NewControlId();
+    int ID_NEW_FOLDER = wxWindow::NewControlId();
+    int ID_REMOVE     = wxWindow::NewControlId();
+    int ID_PROPERTIES = wxWindow::NewControlId();
+
+    menu.Append(ID_OPEN, "Open");
+    menu.Append(ID_SHOW, "Show in Explorer");
+    menu.AppendSeparator();
+    menu.Append(ID_COPY_PATH, "Copy Path");
+    menu.AppendSeparator();
+    menu.Append(ID_DUPLICATE, "Duplicate");
+    menu.Append(ID_PASTE, "Paste");
+    menu.Append(ID_NEW_FOLDER, "New folder");
+    menu.Append(ID_REMOVE, "Remove");
+    menu.AppendSeparator();
+    menu.Append(ID_PROPERTIES, "Properties");
+
+    auto isCurrentDir = fileName == currentFolderPath;
+
+    menu.Enable(ID_OPEN, not isCurrentDir);
+    menu.Enable(ID_DUPLICATE, not isCurrentDir);
+    menu.Enable(ID_REMOVE, not isCurrentDir);
+
+    bool canPaste = false;
+    if (wxTheClipboard->Open())
+    {
+        wxFileDataObject fileData;
+        canPaste = wxTheClipboard->IsSupported(wxDF_FILENAME);
+        wxTheClipboard->Close();
+    }
+    menu.Enable(ID_PASTE, canPaste);
+
+    // --- Handlery dla menu ---
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
+
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxString folder = fileName.GetPath();
 #if defined(__WXMSW__)
-                        wxExecute("explorer.exe /select,\"" + fn.GetFullPath() + "\"");
+            wxExecute("explorer.exe /select,\"" + fileName.GetFullPath() + "\"");
 #elif defined(__WXGTK__)
-                        wxString cmd = "nautilus --select \"" + fn.GetFullPath() + "\"";
-                        if (wxExecute(cmd, wxEXEC_ASYNC) != 0)
-                            wxExecute("xdg-open \"" + fn.GetPath() + "\"", wxEXEC_ASYNC);
+            wxString cmd = "nautilus --select \"" + fileName.GetFullPath() + "\"";
+            if (wxExecute(cmd, wxEXEC_ASYNC) != 0)
+                wxExecute("xdg-open \"" + fileName.GetPath() + "\"", wxEXEC_ASYNC);
 #elif defined(__WXOSX__)
-                        wxExecute("open -R \"" + fn.GetFullPath() + "\"");
+            wxExecute("open -R \"" + fileName.GetFullPath() + "\"");
 #endif
-                    },
-                    ID_SHOW);
+        },
+        ID_SHOW);
 
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED,
-                    [=](wxCommandEvent&)
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            if (wxTheClipboard->Open())
+            {
+                wxTheClipboard->SetData(new wxTextDataObject(fileName.GetFullPath()));
+                wxTheClipboard->Close();
+            }
+        },
+        ID_COPY_PATH);
+
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxString newName = fileName.GetPathWithSep() + fileName.GetName() + "_copy." + fileName.GetExt();
+            if (wxCopyFile(fileName.GetFullPath(), newName))
+            {
+                wxLogMessage("Duplicated to %s", newName);
+                RefreshListFor(currentFolderPath);
+            }
+            else
+            {
+                wxLogError("Failed to duplicate %s", fileName.GetFullPath());
+            }
+        },
+        ID_DUPLICATE);
+
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxTextEntryDialog nameDlg(this, "Enter folder name:");
+            if (nameDlg.ShowModal() != wxID_OK)
+                return;
+
+            std::string name = nameDlg.GetValue().ToStdString();
+            if (name.empty())
+            {
+                wxMessageBox("folder name cannot be empty!");
+                return;
+            }
+            std::string parent;
+            // if (fileName.IsDir())
+            if (std::filesystem::is_directory(fileName.GetFullPath().ToStdString()))
+            {
+                parent = fileName.GetFullPath().ToStdString();
+                wxMessageBox(parent);
+            }
+            else
+            {
+                parent = std::filesystem::path(fileName.GetFullPath().ToStdString()).parent_path().string();
+                wxMessageBox(parent + "_getParent");
+            }
+
+            std::filesystem::create_directory(parent + "/" + name);
+            RefreshListAndTreeFor(currentFolderPath);
+        },
+        ID_NEW_FOLDER);
+
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent& evt)
+        {
+            if (wxTheClipboard->Open())
+            {
+                wxFileDataObject fileData;
+                if (wxTheClipboard->GetData(fileData))
+                {
+                    wxArrayString files = fileData.GetFilenames();
+                    for (auto& f : files)
                     {
-                        if (wxTheClipboard->Open())
+                        wxString targetFolder;
+                        if (fileName.IsDir())
+                            targetFolder = fileName.GetFullPath();  // wklejamy do katalogu
+                        else
+                            targetFolder = fileName.GetPath();  // wklejamy obok pliku
+
+                        wxFileName src(f);
+                        wxFileName dst(targetFolder, src.GetFullName());
+
+                        if (wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
                         {
-                            wxTheClipboard->SetData(new wxTextDataObject(fn.GetFullPath()));
-                            wxTheClipboard->Close();
+                            wxLogMessage("Copied %s to %s", src.GetFullPath(), dst.GetFullPath());
+                            RefreshListAndTreeFor(currentFolderPath);  // odśwież listę plików
                         }
-                    },
-                    ID_COPY_PATH);
+                        else
+                            wxLogError("Failed to copy %s", src.GetFullPath());
+                    }
+                }
+                wxTheClipboard->Close();
+            }
+        },
+        ID_PASTE);
 
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED,
-                    [=](wxCommandEvent&)
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            if (wxMessageBox("Remove " + fileName.GetFullPath() + "?", "Confirm", wxYES_NO | wxICON_WARNING) == wxYES)
+            {
+                auto path = fileName.GetFullPath().ToStdString();
+                try
+                {
+                    if (std::filesystem::is_directory(path))
                     {
-                        wxString newName = fn.GetPathWithSep() + fn.GetName() + "_copy." + fn.GetExt();
-                        if (wxCopyFile(fn.GetFullPath(), newName))
+                        if (std::filesystem::is_empty(path))
                         {
-                            wxLogMessage("Duplicated to %s", newName);
-                            RefreshListFor(currentFolderPath);
+                            std::filesystem::remove(path);
+                            RefreshListAndTreeFor(currentFolderPath);
                         }
                         else
                         {
-                            wxLogError("Failed to duplicate %s", fn.GetFullPath());
+                            if (wxMessageBox("Folder is not empty. Remove everything?", "Confirm", wxYES_NO | wxICON_WARNING) ==
+                                wxYES)
+                            {
+                                std::filesystem::remove_all(path);
+                                RefreshListAndTreeFor(currentFolderPath);
+                            }
                         }
-                    },
-                    ID_DUPLICATE);
-
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED,
-                    [=](wxCommandEvent&)
+                    }
+                    else if (wxRemoveFile(fileName.GetFullPath()))
                     {
-                        wxTextEntryDialog nameDlg(this, "Enter folder name:");
-                        if (nameDlg.ShowModal() != wxID_OK)
-                            return;
-
-                        std::string name = nameDlg.GetValue().ToStdString();
-                        if (name.empty())
-                        {
-                            wxMessageBox("folder name cannot be empty!");
-                            return;
-                        }
-                        auto parent = std::filesystem::path(fn.GetFullPath().ToStdString()).parent_path().string();
-                        std::filesystem::create_directory(parent + "/" + name);
-                        RefreshListFor(currentFolderPath);
-                    },
-                    ID_NEW_FOLDER);
-
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED,
-                    [=](wxCommandEvent& evt)
+                        RefreshListAndTreeFor(currentFolderPath);
+                    }
+                    else
                     {
-                        if (wxTheClipboard->Open())
-                        {
-                            wxFileDataObject fileData;
-                            if (wxTheClipboard->GetData(fileData))
-                            {
-                                wxArrayString files = fileData.GetFilenames();
-                                for (auto& f : files)
-                                {
-                                    wxString targetFolder;
-                                    if (fn.IsDir())
-                                        targetFolder = fn.GetFullPath();  // wklejamy do katalogu
-                                    else
-                                        targetFolder = fn.GetPath();  // wklejamy obok pliku
+                        wxLogError("Failed to remove %s", fileName.GetFullPath());
+                    }
+                }
+                catch (const std::filesystem::filesystem_error& e)
+                {
+                    wxLogError("Filesystem error: %s", e.what());
+                }
+            }
+        },
+        ID_REMOVE);
 
-                                    wxFileName src(f);
-                                    wxFileName dst(targetFolder, src.GetFullName());
+    target->Bind(wxEVT_MENU,
+                 [=](wxCommandEvent& evt)
+                 {
+                     if (evt.GetId() == ID_PROPERTIES)
+                         ShowProperties(fileName);
+                 });
 
-                                    if (wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
-                                    {
-                                        wxLogMessage("Copied %s to %s", src.GetFullPath(), dst.GetFullPath());
-                                        RefreshListFor(currentFolderPath);  // odśwież listę plików
-                                    }
-                                    else
-                                        wxLogError("Failed to copy %s", src.GetFullPath());
-                                }
-                            }
-                            wxTheClipboard->Close();
-                        }
-                    },
-                    ID_PASTE);
-
-                menu.Bind(
-                    wxEVT_COMMAND_MENU_SELECTED,
-                    [=](wxCommandEvent&)
-                    {
-                        if (wxMessageBox("Remove " + fn.GetFullPath() + "?", "Confirm", wxYES_NO | wxICON_WARNING) == wxYES)
-                        {
-                            if (std::filesystem::is_directory(fn.GetFullPath().ToStdString()))
-                            {
-                                std::filesystem::remove(fn.GetFullPath().ToStdString());
-                                RefreshListFor(currentFolderPath);
-                            }
-                            else if (wxRemoveFile(fn.GetFullPath()))
-                            {
-                                //wxLogMessage("Removed %s", fn.GetFullPath());
-                                RefreshListFor(currentFolderPath);
-                            }
-                            else
-                            {
-                                wxLogError("Failed to remove %s", fn.GetFullPath());
-                            }
-                        }
-                    },
-                    ID_REMOVE);
-
-                target->Bind(wxEVT_MENU,
-                             [=](wxCommandEvent& evt)
-                             {
-                                 if (evt.GetId() == ID_PROPERTIES)
-                                     ShowProperties(fn);
-                             });
-
-                // Popup (ważne: użyj lokalnych współrzędnych → na globalne)
-                target->PopupMenu(&menu, event.GetPosition());
-            });
-    };
-
-    addContextMenu(icon, fn);
-    addContextMenu(label, fn);
-    // addContextMenu(filePanel, currentFolderPath); multiple binds problem
-
-    return itemSizer;
+    // Popup (ważne: użyj lokalnych współrzędnych → na globalne)
+    target->PopupMenu(&menu, event.GetPosition());
 }
 
 void ProjectPanel::RefreshListFor(const wxString& folderPath)
@@ -539,7 +598,7 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     {
         wxFileName fn(folderPath, name);
         wxBitmap bmp   = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
-        auto itemSizer = CreateFileItem(fn, bmp, true, [=]() { SelectTreeItemByPath(fn.GetFullPath());  });
+        auto itemSizer = CreateFileItem(fn, bmp, true, [=]() { SelectTreeItemByPath(fn.GetFullPath()); });
         fileSizer->Add(itemSizer, 0, wxALL, 5);
     }
 
@@ -557,6 +616,13 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     filePanel->FitInside();
     filePanel->Refresh();
 }
+
+void ProjectPanel::RefreshListAndTreeFor(const wxString& folderPath)
+{
+    BuildTree();
+    RefreshListFor(folderPath);
+}
+
 void ProjectPanel::OnTreeSelChanged(wxTreeEvent& e)
 {
     wxTreeItemId id = e.GetItem();
@@ -613,6 +679,8 @@ void ProjectPanel::CreateFilePanel(wxBoxSizer* mainSizer)
     filePanel->SetScrollRate(10, 10);
 
     filePanel->SetDropTarget(new FileDropTarget(this));
+
+    addContextMenu(filePanel);
 
     mainSizer->Add(filePanel, 3, wxEXPAND | wxALL, 2);
 }

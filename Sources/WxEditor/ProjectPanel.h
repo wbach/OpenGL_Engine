@@ -21,6 +21,7 @@ public:
 
     // --- Odświeżanie ---
     void RefreshListFor(const wxString& folderPath);
+    void RefreshListAndTreeFor(const wxString& folderPath);
 
     wxString GetCurrentFolderPath() const;
 
@@ -36,6 +37,18 @@ private:
         }
     };
 
+    struct FileInfo
+    {
+        wxFileName name;
+        wxStaticBitmap* icon{nullptr};
+        wxStaticText* label{nullptr};
+    };
+
+    void addContextMenu(wxWindow*);
+    void addContextMenu(wxWindow*, const FileInfo&);
+    void contextMenuTriggerAction(wxMouseEvent&, wxWindow*, const wxFileName&);
+
+private:
     wxTreeCtrl* projectTree{nullptr};
     wxString rootFolder;
 
@@ -64,6 +77,8 @@ private:
 
     // --- Funkcje pomocnicze ---
     void SelectItem(wxPanel* itemPanel);
+    void SelectItem(wxWindow* item, wxStaticText* label);
+    void UnSelectCurrentItem();
 
     // --- Inicjalizacja UI ---
     void BuildTree();
