@@ -1,8 +1,11 @@
 #pragma once
+#include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Scene/SceneUtils.h>
+#include <Utils/Json/JsonReader.h>
 #include <wx/listctrl.h>
 #include <wx/wx.h>
 
+#include "Logger/Log.h"
 #include "ProjectManager.h"
 
 class StartupDialog : public wxDialog
@@ -126,7 +129,7 @@ private:
         auto defualtMainScene = projectManager.GetScenesDir() + "/main.xml";
         // SaveSceneAs(defualtMainScene);
         GameEngine::CreateDefaultFile(projectManager.GetConfigFile());
-        GameEngine::createScenesFile(projectManager.GetScenesFactoryFile(), {{"main", defualtMainScene}}, {});
+        GameEngine::createScenesFile(projectManager.GetScenesFactoryFile());
 
         m_selectedProject = projectPath;
         EndModal(wxID_OK);
@@ -134,19 +137,67 @@ private:
 
     void OnOpenProject(wxCommandEvent&)
     {
-        wxDirDialog dirDlg(this, "Choose project folder:", ProjectManager::GetInstance().GetProjectPath(),
-                           wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+        auto& pm = ProjectManager::GetInstance();
+        wxDirDialog dirDlg(this, "Choose project folder:", pm.GetProjectPath(), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
 
         if (dirDlg.ShowModal() != wxID_OK)
             return;
 
         std::string path = dirDlg.GetPath().ToStdString();
-        ProjectManager::GetInstance().SetProjectPath(path);
+        pm.SetProjectPath(path);
         m_selectedProject = path;
+        pm.SaveRecentProject(path);
 
-        ProjectManager::GetInstance().SaveRecentProject(path);
+        ReadSceneFactoryFile();
 
         EndModal(wxID_OK);
+    }
+
+    void ReadSceneFactoryFile()
+    {
+        LOG_DEBUG << "ReadSceneFactoryFile";
+        auto& pm = ProjectManager::GetInstance();
+        Utils::JsonReader jsonReader;
+
+         //wxMessageBox(pm.GetScenesFactoryFile());
+        if (jsonReader.Read(pm.GetScenesFactoryFile()))
+        {
+            const std::string CSTR_ROOT_NODE{"projectConfiguration"};
+            const std::string CSTR_STARTUP_SCENE_NODE{"startupScene"};
+            const std::string CSTR_SCENES_NODE{"scenes"};
+
+            auto startupScene = jsonReader.Get(CSTR_STARTUP_SCENE_NODE);
+            if (startupScene)
+            {
+                pm.SetStartupScene(startupScene->value_);
+            }
+            else
+            {
+                LOG_DEBUG << "Startup node not found";
+            }
+
+            auto scenesNode = jsonReader.Get(CSTR_SCENES_NODE);
+            if (scenesNode)
+            {
+                LOG_DEBUG << "scenes size=" << scenesNode->getChildren().size();
+                for (const auto& sceneNode : scenesNode->getChildren())
+                {
+                    if (not sceneNode)
+                        continue;
+
+                    pm.AddScene(sceneNode->name(), sceneNode->value_);
+                }
+            }
+            else
+            {
+                LOG_DEBUG << "scenes node not found";
+            }
+        }
+        else
+        {
+            LOG_DEBUG << "ReadSceneFactoryFile failed: " << pm.GetScenesFactoryFile();
+            wxMessageBox(pm.GetScenesFactoryFile());
+        }
     }
 
     void OnExit(wxCommandEvent&)
@@ -154,28 +205,12 @@ private:
         EndModal(wxID_CANCEL);
     }
 
-    void OnLoadSelected(wxCommandEvent&)
-    {
-        long sel = m_recentList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-        if (sel == -1)
-        {
-            wxMessageBox("Select a project first.");
-            return;
-        }
-
-        wxString path     = m_recentList->GetItemText(sel, 1);
-        m_selectedProject = path.ToStdString();
-        ProjectManager::GetInstance().SetProjectPath(m_selectedProject);
-
-        EndModal(wxID_OK);
-    }
-
     void OnRecentActivated(wxListEvent& event)
     {
         wxString path     = m_recentList->GetItemText(event.GetIndex(), 1);
         m_selectedProject = path.ToStdString();
         ProjectManager::GetInstance().SetProjectPath(m_selectedProject);
-
+        ReadSceneFactoryFile();
         EndModal(wxID_OK);
     }
 

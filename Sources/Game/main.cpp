@@ -39,7 +39,7 @@ void Start()
         if (std::filesystem::exists(inputFile))
             return;
 
-        GameEngine::createScenesFile(inputFile, {}, {});
+        GameEngine::createScenesFile(inputFile);
         return;
     }
 

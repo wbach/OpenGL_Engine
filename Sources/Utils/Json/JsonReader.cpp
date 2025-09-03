@@ -109,7 +109,10 @@ bool JsonReader::Read(const std::string& filename)
     {
         auto str = Utils::ReadFile(filename);
         if (str.empty())
+        {
+            LOG_ERROR << "File empty. " << filename;
             return false;
+        }
 
         return ReadJson(str);
     }

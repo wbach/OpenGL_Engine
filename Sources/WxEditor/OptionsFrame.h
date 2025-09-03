@@ -13,6 +13,7 @@ private:
     void CreateRenderingSubTab(wxNotebook*, const std::string&);
     void CreateProjectTab(wxNotebook*);
     void CreateTextureOptions(wxBoxSizer*);
+    void CreateScenesTab(wxNotebook*);
 
     void CreateGeneralTab(wxNotebook*);
     void CreateAppearanceTab(wxNotebook*);
@@ -23,7 +24,11 @@ private:
     void UpdateSelectedValuesInCtrl();
 
 private:
+    void RebuildScenesList(wxWindow*);
+
     GameEngine::ConfigurationExplorer configurationExplorer_;
+    wxStaticBoxSizer* scenesSizer_ = nullptr;
+    wxChoice* startupChoice_       = nullptr;
 
     struct ParamCtrl
     {

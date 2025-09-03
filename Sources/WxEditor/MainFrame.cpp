@@ -385,7 +385,7 @@ void MainFrame::MenuFileNewProject(wxCommandEvent&)
     auto defualtMainScene = pm.GetScenesDir() + "/main.xml";
     SaveSceneAs(defualtMainScene);
     GameEngine::CreateDefaultFile(pm.GetConfigFile());
-    GameEngine::createScenesFile(pm.GetScenesFactoryFile(), {{"main", defualtMainScene}}, {});
+    GameEngine::createScenesFile(pm.GetScenesFactoryFile());
 
     wxMessageBox("Project created at:\n" + projectDir, "Success", wxICON_INFORMATION | wxOK);
 }
@@ -764,8 +764,8 @@ void MainFrame::CreateMainMenu()
 wxMenu* MainFrame::CreateFileMenu()
 {
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(ID_MENU_FILE_NEW_PROJECT, "&New project", "Create new project");
-    menuFile->Append(ID_MENU_FILE_OPEN_PROJECT, "&Open project", "Open existing project");
+    //menuFile->Append(ID_MENU_FILE_NEW_PROJECT, "&New project", "Create new project");
+    //menuFile->Append(ID_MENU_FILE_OPEN_PROJECT, "&Open project", "Open existing project");
     menuFile->Append(ID_MENU_FILE_OPEN_SCENE, "&Open scene", "OpenScene");
     menuFile->Append(ID_MENU_FILE_RELOAD_SCENE, "&Reload scene", "Reload current scene");
     menuFile->Append(ID_MENU_FILE_SAVE_SCENE, "&Save scene\tCtrl-S", "Save scene to known file");

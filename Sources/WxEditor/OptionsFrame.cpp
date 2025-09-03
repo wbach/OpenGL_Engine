@@ -2,9 +2,12 @@
 
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Engine/ConfigurationWriter.h>
+#include <GameEngine/Scene/SceneUtils.h>
 #include <wx/filepicker.h>
 #include <wx/spinctrl.h>
 
+#include "Logger/Log.h"
+#include "ProjectManager.h"
 #include "Theme.h"
 
 // clang-format off
@@ -24,6 +27,7 @@ OptionsFrame::OptionsFrame(wxWindow* parent)
 
     CreateRenderingOptionsTab(notebook);
     CreateProjectTab(notebook);
+    CreateScenesTab(notebook);
     // CreateGeneralTab(notebook);
     CreateAppearanceTab(notebook);
     //    CreateAdvancedTab(notebook);
@@ -311,4 +315,114 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     panel->SetSizer(mainSizer);
     panel->Layout();
     notebook->AddPage(panel, "Project Options");
+}
+
+void OptionsFrame::CreateScenesTab(wxNotebook* notebook)
+{
+    wxPanel* panel        = new wxPanel(notebook);
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+    // ==== Startup scene ====
+    mainSizer->Add(new wxStaticText(panel, wxID_ANY, "Startup Scene:"), 0, wxALL, 5);
+
+    startupChoice_ = new wxChoice(panel, wxID_ANY);
+    mainSizer->Add(startupChoice_, 0, wxEXPAND | wxALL, 5);
+
+    startupChoice_->Bind(wxEVT_CHOICE, [&](wxCommandEvent& event)
+                         { ProjectManager::GetInstance().SetStartupScene(startupChoice_->GetStringSelection().ToStdString()); });
+
+    // ==== Sceny i ich pliki ====  (ScrolledWindow + StaticBox)
+    wxScrolledWindow* scrollWin = new wxScrolledWindow(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
+    scrollWin->SetScrollRate(5, 5);
+
+    wxStaticBox* scenesBox = new wxStaticBox(scrollWin, wxID_ANY, "Scenes");
+    scenesSizer_           = new wxStaticBoxSizer(scenesBox, wxVERTICAL);
+
+    scrollWin->SetSizer(scenesSizer_);
+
+    // przycisk dodawania
+    wxButton* addButton = new wxButton(panel, wxID_ANY, "Add Scene");
+    addButton->Bind(wxEVT_BUTTON,
+                    [=](wxCommandEvent& evt)
+                    {
+                        wxTextEntryDialog dlg(panel, "Scene name:", "Add Scene", "NewScene");
+
+                        dlg.Bind(wxEVT_INIT_DIALOG,
+                                 [&](wxInitDialogEvent&)
+                                 {
+                                     wxTextCtrl* txt = nullptr;
+                                     for (wxWindow* w : dlg.GetChildren())
+                                     {
+                                         if ((txt = wxDynamicCast(w, wxTextCtrl)))
+                                             break;
+                                     }
+                                     if (txt)
+                                     {
+                                         txt->SetFocus();
+                                         txt->SetSelection(-1, -1);  // select all
+                                     }
+                                 });
+
+                        if (dlg.ShowModal() == wxID_OK)
+                        {
+                            auto name = dlg.GetValue().ToStdString();
+                            if (!name.empty())
+                            {
+                                ProjectManager::GetInstance().AddScene(name, "");
+                                RebuildScenesList(scrollWin);
+                            }
+                        }
+                    });
+
+    mainSizer->Add(scrollWin, 1, wxEXPAND | wxALL, 10);
+    mainSizer->Add(addButton, 0, wxALIGN_RIGHT | wxALL, 5);
+
+    panel->SetSizer(mainSizer);
+    panel->Layout();
+
+    // inicjalizacja listy
+    RebuildScenesList(scrollWin);
+
+    notebook->AddPage(panel, "Game scenes");
+}
+
+void OptionsFrame::RebuildScenesList(wxWindow* parent)
+{
+    scenesSizer_->Clear(true);
+    startupChoice_->Clear();
+
+    for (auto& [sceneName, scenePath] : ProjectManager::GetInstance().GetScenes())
+    {
+        startupChoice_->Append(sceneName);
+        if (sceneName == ProjectManager::GetInstance().GetStartupScene())
+            startupChoice_->SetStringSelection(sceneName);
+
+        wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
+
+        rowSizer->Add(new wxStaticText(parent, wxID_ANY, sceneName), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+
+        wxFilePickerCtrl* filePicker =
+            new wxFilePickerCtrl(parent, wxID_ANY, scenePath, "Select scene file", "*.xml", wxDefaultPosition, wxDefaultSize,
+                                 wxFLP_USE_TEXTCTRL | wxFLP_FILE_MUST_EXIST);
+        rowSizer->Add(filePicker, 1, wxEXPAND | wxALL, 5);
+
+        filePicker->Bind(wxEVT_FILEPICKER_CHANGED, [=](wxFileDirPickerEvent& event)
+                         { ProjectManager::GetInstance().SetSenePath(sceneName, filePicker->GetPath().ToStdString()); });
+
+        wxButton* removeBtn = new wxButton(parent, wxID_ANY, "Remove");
+        rowSizer->Add(removeBtn, 0, wxALL, 5);
+
+        removeBtn->Bind(wxEVT_BUTTON,
+                        [=](wxCommandEvent& evt)
+                        {
+                            ProjectManager::GetInstance().RemoveScene(sceneName);
+                            RebuildScenesList(parent);
+                        });
+
+        scenesSizer_->Add(rowSizer, 0, wxEXPAND | wxALL, 2);
+    }
+
+    parent->Layout();
+    parent->FitInside();  // ważne przy scrollowaniu
+    parent->Refresh();
 }

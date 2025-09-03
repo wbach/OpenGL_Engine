@@ -1,8 +1,8 @@
 #include "SceneUtils.h"
 
+#include <Utils/Json/JsonWriter.h>
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
-#include <Utils/Json/JsonWriter.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
@@ -75,11 +75,31 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
 {
     TreeNode rootNode(CSTR_ROOT_NODE);
     rootNode.addChild(CSTR_STARTUP_SCENE_NODE).value_ = startupScene;
-    auto& scenesNode = rootNode.addChild(CSTR_SCENES_NODE);
-    for(const auto& [name, file] : scenes)
+    auto& scenesNode                                  = rootNode.addChild(CSTR_SCENES_NODE);
+    for (const auto& [name, file] : scenes)
     {
         scenesNode.addChild(name, file.GetDataRelativeDir());
     }
+    Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
+}
+void createScenesFile(const File& inputFile, const std::unordered_map<std::string, std::string>& scenes,
+                      const std::string& startupScene)
+{
+    TreeNode rootNode(CSTR_ROOT_NODE);
+    rootNode.addChild(CSTR_STARTUP_SCENE_NODE).value_ = startupScene;
+    auto& scenesNode                                  = rootNode.addChild(CSTR_SCENES_NODE);
+    for (const auto& [name, file] : scenes)
+    {
+        scenesNode.addChild(name, file);
+    }
+    Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
+}
+void createScenesFile(const File& inputFile)
+{
+    TreeNode rootNode(CSTR_ROOT_NODE);
+    rootNode.addChild(CSTR_STARTUP_SCENE_NODE).value_ = "";
+    rootNode.addChild(CSTR_SCENES_NODE);
+
     Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
 }
 }  // namespace GameEngine

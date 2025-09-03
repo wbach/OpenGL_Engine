@@ -1,8 +1,11 @@
 #pragma once
+#include <GameEngine/Scene/SceneUtils.h>
 #include <wx/config.h>
 
 #include <filesystem>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "Engine/Configuration.h"
@@ -44,12 +47,12 @@ public:
         if (EngineConf.files.data != projectDataDirPath)
         {
             EngineConf.files.data = projectDataDirPath;
-            needUpdate = true;
+            needUpdate            = true;
         }
         if (EngineConf.files.cache != projectCachePath)
         {
             EngineConf.files.cache = projectCachePath;
-            needUpdate = true;
+            needUpdate             = true;
         }
 
         if (needUpdate)
@@ -92,13 +95,26 @@ public:
     }
 
     // Add scene to the project
-    void AddScene(const std::string& scene)
+    void AddScene(const std::string& scene, const std::string& file)
     {
-        scenes.push_back(scene);
+        scenes.insert({scene, file});
+        SaveSceneFiles();
+    }
+
+    void SetSenePath(const std::string& scene, const std::string& file)
+    {
+        scenes[scene] = file;
+        SaveSceneFiles();
+    }
+
+    void RemoveScene(const std::string& scene)
+    {
+        scenes.erase(scene);
+        SaveSceneFiles();
     }
 
     // Get all scenes
-    const std::vector<std::string>& GetScenes() const
+    const std::unordered_map<std::string, std::string>& GetScenes() const
     {
         return scenes;
     }
@@ -200,6 +216,22 @@ public:
         config.Flush();
     }
 
+    void SetStartupScene(const std::string& name)
+    {
+        startupscene = name;
+        SaveSceneFiles();
+    }
+
+    const std::string& GetStartupScene() const
+    {
+        return startupscene;
+    }
+
+    void SaveSceneFiles()
+    {
+        GameEngine::createScenesFile(ProjectManager::GetInstance().GetScenesFactoryFile(), scenes, startupscene);
+    }
+
 private:
     ProjectManager()  = default;
     ~ProjectManager() = default;
@@ -225,5 +257,6 @@ private:
     std::string projectDataDirPath;
     std::string lastOpenedPath;
     std::string projectName;
-    std::vector<std::string> scenes;
+    std::string startupscene;
+    std::unordered_map<std::string, std::string> scenes;
 };
