@@ -9,8 +9,8 @@
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
-#include "Scene.hpp"
 #include "ISceneFactory.h"
+#include "Scene.hpp"
 
 namespace GameEngine
 {
@@ -31,6 +31,11 @@ SceneLoader::SceneLoader(ISceneFactory& factory, GraphicsApi::IGraphicsApi& grap
 
 SceneLoader::~SceneLoader()
 {
+    CleanUp();
+}
+
+void SceneLoader::CleanUp()
+{
     loadingScreenRenderer->cleanUp();
     loadingScreenRenderer.reset();
 
@@ -38,6 +43,9 @@ SceneLoader::~SceneLoader()
         resorceManager_.GetTextureLoader().DeleteTexture(*bgTexture_);
     if (circleTexture_)
         resorceManager_.GetTextureLoader().DeleteTexture(*circleTexture_);
+
+    bgTexture_     = nullptr;
+    circleTexture_ = nullptr;
 }
 
 std::unique_ptr<Scene> SceneLoader::Load(uint32 id)

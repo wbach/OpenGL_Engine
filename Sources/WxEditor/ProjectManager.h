@@ -35,9 +35,9 @@ public:
         lastOpenedPath               = path;
         projectConfigPath            = path + "/config.xml";
         projectScenesFactoryFilePath = path + "/scenes.json";
-        projectScenesDirPath         = path + "/Scenes";
-        projectDataDirPath           = path + "/Data";
-        projectCachePath             = path + "/.cache";
+        projectScenesDirPath         = path + "/Scenes/";
+        projectDataDirPath           = path + "/Data/";
+        projectCachePath             = path + "/.cache/";
 
         CreateDirectories();
 

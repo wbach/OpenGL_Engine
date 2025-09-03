@@ -117,7 +117,7 @@ private:
             return;
 
         std::string folder      = dirDlg.GetPath().ToStdString();
-        std::string projectPath = folder + "/" + name;
+        std::string projectPath = folder + "/" + name + "/";
         if (!wxDirExists(projectPath))
             wxMkdir(projectPath);
 

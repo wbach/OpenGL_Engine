@@ -25,6 +25,7 @@ public:
 
 private:
     void Init();
+    void CleanUp();
 
     template <typename T>
     std::unique_ptr<Scene> LoadScene(T);

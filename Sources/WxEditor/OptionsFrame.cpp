@@ -8,6 +8,7 @@
 
 #include "Logger/Log.h"
 #include "ProjectManager.h"
+#include "Resources/File.h"
 #include "Theme.h"
 
 // clang-format off
@@ -265,6 +266,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
     mainSizer->Add(folderSizer, 0, wxEXPAND | wxALL, 10);  // margines między sekcjami
 
+    wxLogNull logNo;
     // ===== Sekcja tekstur =====
     wxStaticBox* textureBox        = new wxStaticBox(panel, wxID_ANY, "Textures");
     wxStaticBoxSizer* textureSizer = new wxStaticBoxSizer(textureBox, wxVERTICAL);
@@ -280,34 +282,47 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
     for (auto& texOpt : textures)
     {
-        textureSizer->Add(new wxStaticText(panel, wxID_ANY, texOpt.label), 0, wxALL, 5);
+        wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
-        wxFilePickerCtrl* filePicker =
-            new wxFilePickerCtrl(panel, wxID_ANY, texOpt.path, "Select a texture", "*.png;*.jpg;*.bmp", wxDefaultPosition,
-                                 wxDefaultSize, wxFLP_USE_TEXTCTRL | wxFLP_FILE_MUST_EXIST);
-        textureSizer->Add(filePicker, 0, wxEXPAND | wxALL, 5);
+        // pole tekstowe do wyświetlania ścieżki
+        wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, texOpt.path, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
+
+        // przycisk "Browse"
+        wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
+        rowSizer->Add(browseBtn, 0, wxALL, 5);
+
+        textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
 
         // Miniatura
-        wxLogNull logNo;
         wxImage img;
         if (!texOpt.path.empty())
-            img.LoadFile(texOpt.path, wxBITMAP_TYPE_ANY);
+            img.LoadFile(EngineConf_GetFullDataPath(texOpt.path), wxBITMAP_TYPE_ANY);
         wxStaticBitmap* thumbnail =
             new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(100, 100)) : wxNullBitmap);
         textureSizer->Add(thumbnail, 0, wxALL, 5);
 
-        filePicker->Bind(wxEVT_FILEPICKER_CHANGED,
-                         [&, filePicker, thumbnail](wxFileDirPickerEvent& event)
-                         {
-                             texOpt.path = filePicker->GetPath().ToStdString();
-                             wxImage newImg;
-                             if (newImg.LoadFile(texOpt.path, wxBITMAP_TYPE_ANY))
-                             {
-                                 thumbnail->SetBitmap(wxBitmap(newImg.Scale(100, 100)));
-                                 thumbnail->Refresh();
-                             }
-                             WriteConfigurationToFile(EngineConf);
-                         });
+        // obsługa kliknięcia "Browse"
+        browseBtn->Bind(wxEVT_BUTTON,
+                        [=, &texOpt](wxCommandEvent&)
+                        {
+                            wxString startDir = EngineConf.files.data;  // katalog startowy
+                            wxFileDialog dlg(panel, "Select texture", startDir, "", "*.png;*.jpg;*.bmp",
+                                             wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+                            if (dlg.ShowModal() == wxID_OK)
+                            {
+                                texOpt.path = dlg.GetPath().ToStdString();  // aktualizacja wartości
+                                pathCtrl->SetValue(dlg.GetPath());          // aktualizacja pola
+                                wxImage newImg;
+                                if (newImg.LoadFile(EngineConf_GetFullDataPath(texOpt.path), wxBITMAP_TYPE_ANY))
+                                {
+                                    thumbnail->SetBitmap(wxBitmap(newImg.Scale(100, 100)));
+                                    thumbnail->Refresh();
+                                }
+                                WriteConfigurationToFile(EngineConf);
+                            }
+                        });
     }
 
     mainSizer->Add(textureSizer, 0, wxEXPAND | wxALL, 10);  // margines na dole sekcji
@@ -399,21 +414,38 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
 
         wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
+        // Nazwa sceny
         rowSizer->Add(new wxStaticText(parent, wxID_ANY, sceneName), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
-        wxFilePickerCtrl* filePicker =
-            new wxFilePickerCtrl(parent, wxID_ANY, scenePath, "Select scene file", "*.xml", wxDefaultPosition, wxDefaultSize,
-                                 wxFLP_USE_TEXTCTRL | wxFLP_FILE_MUST_EXIST);
-        rowSizer->Add(filePicker, 1, wxEXPAND | wxALL, 5);
+        // TextCtrl pokazujący ścieżkę
+        wxTextCtrl* pathCtrl = new wxTextCtrl(parent, wxID_ANY, scenePath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+        rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
 
-        filePicker->Bind(wxEVT_FILEPICKER_CHANGED, [=](wxFileDirPickerEvent& event)
-                         { ProjectManager::GetInstance().SetSenePath(sceneName, filePicker->GetPath().ToStdString()); });
+        // Przyciski "Browse" i "Remove"
+        wxButton* browseBtn = new wxButton(parent, wxID_ANY, "Browse");
+        rowSizer->Add(browseBtn, 0, wxALL, 5);
 
         wxButton* removeBtn = new wxButton(parent, wxID_ANY, "Remove");
         rowSizer->Add(removeBtn, 0, wxALL, 5);
 
+        // Obsługa Browse
+        browseBtn->Bind(wxEVT_BUTTON,
+                        [=](wxCommandEvent&)
+                        {
+                            wxFileDialog dlg(parent, "Select scene file", ProjectManager::GetInstance().GetProjectPath(), "",
+                                             "*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                            if (dlg.ShowModal() == wxID_OK)
+                            {
+                                std::string newPath = dlg.GetPath().ToStdString();
+                                ProjectManager::GetInstance().SetSenePath(sceneName, newPath);
+                                pathCtrl->SetValue(dlg.GetPath());
+                                WriteConfigurationToFile(EngineConf);
+                            }
+                        });
+
+        // Obsługa Remove
         removeBtn->Bind(wxEVT_BUTTON,
-                        [=](wxCommandEvent& evt)
+                        [=](wxCommandEvent&)
                         {
                             ProjectManager::GetInstance().RemoveScene(sceneName);
                             RebuildScenesList(parent);
