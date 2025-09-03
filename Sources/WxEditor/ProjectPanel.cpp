@@ -33,35 +33,61 @@ public:
         if (!m_panel)
             return false;
 
-        wxString destFolder = m_panel->GetCurrentFolderPath();
+        wxString destFolderStr = m_panel->GetCurrentFolderPath();
+        std::filesystem::path destFolder(destFolderStr.ToStdString());
 
-        for (auto& srcPath : filenames)
+        for (auto& srcPathStr : filenames)
         {
-            wxFileName src(srcPath);
-            wxFileName dst(destFolder, src.GetFullName());
+            std::filesystem::path srcPath(srcPathStr.ToStdString());
+            std::filesystem::path dstPath = destFolder / srcPath.filename();
 
-            if (wxFileExists(dst.GetFullPath()))
+            // jeśli folder/plik docelowy już istnieje, dodajemy sufiks _1, _2...
+            if (std::filesystem::exists(dstPath))
             {
-                wxString base = dst.GetName();
-                wxString ext  = dst.GetExt();
-                int counter   = 1;
+                int counter                   = 1;
+                std::filesystem::path baseDst = dstPath;
                 do
                 {
-                    dst.SetName(base + "_" + std::to_string(counter));
-                    dst.SetExt(ext);
+                    dstPath = baseDst.string() + "_" + std::to_string(counter);
                     counter++;
-                } while (wxFileExists(dst.GetFullPath()));
+                } while (std::filesystem::exists(dstPath));
             }
 
-            if (not wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
+            try
             {
-                wxLogError("Copy failed. From %s to %s", src.GetFullPath(), dst.GetFullPath());
+                if (std::filesystem::is_directory(srcPath))
+                {
+                    // Rekurencyjne kopiowanie katalogu
+                    std::function<void(const std::filesystem::path&, const std::filesystem::path&)> copyRecursive;
+                    copyRecursive = [&](const std::filesystem::path& src, const std::filesystem::path& dst)
+                    {
+                        std::filesystem::create_directories(dst);
+                        for (auto& entry : std::filesystem::directory_iterator(src))
+                        {
+                            auto dstEntry = dst / entry.path().filename();
+                            if (entry.is_directory())
+                                copyRecursive(entry.path(), dstEntry);
+                            else if (entry.is_regular_file())
+                            {
+                                std::filesystem::copy_file(entry.path(), dstEntry);
+                            }
+                        }
+                    };
+                    copyRecursive(srcPath, dstPath);
+                }
+                else if (std::filesystem::is_regular_file(srcPath))
+                {
+                    std::filesystem::copy_file(srcPath, dstPath);
+                }
+            }
+            catch (const std::filesystem::filesystem_error& e)
+            {
+                wxLogError("Copy failed: %s", e.what());
             }
         }
 
-        // Odśwież listę po dodaniu plików
-        m_panel->RefreshListAndTreeFor(destFolder);
-
+        // Odśwież listę tylko w aktualnym folderze
+        m_panel->RebuildTreeAndSelect(destFolderStr);
         return true;
     }
 

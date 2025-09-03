@@ -22,6 +22,11 @@ public:
     // --- Odświeżanie ---
     void RefreshListFor(const wxString& folderPath);
     void RefreshListAndTreeFor(const wxString& folderPath);
+    void RebuildTreeAndSelect(const wxString& folderPath)
+    {
+               BuildTree();
+            SelectTreeItemByPath(folderPath);
+    }
 
     wxString GetCurrentFolderPath() const;
 
