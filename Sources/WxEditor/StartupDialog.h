@@ -1,9 +1,9 @@
 #pragma once
+#include <GameEngine/Scene/SceneUtils.h>
 #include <wx/listctrl.h>
 #include <wx/wx.h>
 
 #include "ProjectManager.h"
-#include <GameEngine/Scene/SceneUtils.h>
 
 class StartupDialog : public wxDialog
 {
@@ -39,20 +39,20 @@ public:
         wxBoxSizer* buttonSizer = new wxBoxSizer(wxVERTICAL);
         wxButton* newBtn        = new wxButton(this, wxID_NEW, "New Project");
         wxButton* openBtn       = new wxButton(this, wxID_OPEN, "Open Project");
-        wxButton* exitBtn       = new wxButton(this, wxID_EXIT, "Exit");
+        wxButton* removeBtn     = new wxButton(this, wxID_ANY, "Remove selected from list");
 
         buttonSizer->Add(newBtn, 0, wxEXPAND | wxALL, 5);
         buttonSizer->Add(openBtn, 0, wxEXPAND | wxALL, 5);
-        buttonSizer->Add(exitBtn, 0, wxEXPAND | wxALL, 5);
+        buttonSizer->Add(removeBtn, 0, wxEXPAND | wxALL, 5);
 
         contentSizer->Add(buttonSizer, 0, wxALIGN_TOP | wxALL, 10);
         mainSizer->Add(contentSizer, 1, wxEXPAND);
 
         // FOOTER
         wxBoxSizer* footerSizer = new wxBoxSizer(wxHORIZONTAL);
-        wxButton* loadBtn       = new wxButton(this, wxID_OK, "Load Selected Project");
+        wxButton* exitBtn       = new wxButton(this, wxID_EXIT, "Exit");
         footerSizer->AddStretchSpacer(1);
-        footerSizer->Add(loadBtn, 0, wxALL, 10);
+        footerSizer->Add(exitBtn, 0, wxALL, 10);
         mainSizer->Add(footerSizer, 0, wxEXPAND);
 
         SetSizerAndFit(mainSizer);
@@ -62,10 +62,7 @@ public:
         newBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnNewProject, this);
         openBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnOpenProject, this);
         exitBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnExit, this);
-        loadBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnLoadSelected, this);
         m_recentList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StartupDialog::OnRecentActivated, this);
-        wxButton* removeBtn = new wxButton(this, wxID_ANY, "Remove selected from list");
-        buttonSizer->Add(removeBtn, 0, wxEXPAND | wxALL, 5);
 
         // Podpięcie zdarzenia
         removeBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnRemoveSelected, this);
@@ -127,7 +124,7 @@ private:
         projectManager.SaveRecentProject(projectPath);
 
         auto defualtMainScene = projectManager.GetScenesDir() + "/main.xml";
-       // SaveSceneAs(defualtMainScene);
+        // SaveSceneAs(defualtMainScene);
         GameEngine::CreateDefaultFile(projectManager.GetConfigFile());
         GameEngine::createScenesFile(projectManager.GetScenesFactoryFile(), {{"main", defualtMainScene}}, {});
 
