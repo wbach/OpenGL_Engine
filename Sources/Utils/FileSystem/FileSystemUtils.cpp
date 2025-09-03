@@ -375,4 +375,50 @@ void RenameFile(const std::string& path, const std::string& newName)
         DEBUG_LOG("rename error");
     }
 }
+void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::path& destFolder)
+{
+    std::filesystem::path dstPath = destFolder / src.filename();
+
+    // Konflikt nazwy
+    if (std::filesystem::exists(dstPath))
+    {
+        int counter                   = 1;
+        std::filesystem::path baseDst = dstPath;
+        do
+        {
+            dstPath = baseDst.stem().string() + "_" + std::to_string(counter) + dstPath.extension().string();
+            dstPath = destFolder / dstPath.filename();
+            counter++;
+        } while (std::filesystem::exists(dstPath));
+    }
+
+    try
+    {
+        if (std::filesystem::is_directory(src))
+        {
+            std::function<void(const std::filesystem::path&, const std::filesystem::path&)> copyRecursive;
+            copyRecursive = [&](const std::filesystem::path& srcDir, const std::filesystem::path& dstDir)
+            {
+                std::filesystem::create_directories(dstDir);
+                for (auto& entry : std::filesystem::directory_iterator(srcDir))
+                {
+                    auto dstEntry = dstDir / entry.path().filename();
+                    if (entry.is_directory())
+                        copyRecursive(entry.path(), dstEntry);
+                    else if (entry.is_regular_file())
+                        std::filesystem::copy_file(entry.path(), dstEntry);
+                }
+            };
+            copyRecursive(src, dstPath);
+        }
+        else if (std::filesystem::is_regular_file(src))
+        {
+            std::filesystem::copy_file(src, dstPath);
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        LOG_ERROR << "Copy failed: " << e.what();
+    }
+}
 }  // namespace Utils

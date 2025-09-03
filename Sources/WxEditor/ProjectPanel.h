@@ -20,13 +20,8 @@ public:
     ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelectedCallback callback);
 
     // --- Odświeżanie ---
-    void RefreshListFor(const wxString& folderPath);
-    void RefreshListAndTreeFor(const wxString& folderPath);
-    void RebuildTreeAndSelect(const wxString& folderPath)
-    {
-               BuildTree();
-            SelectTreeItemByPath(folderPath);
-    }
+    void RefreshCurrent(const wxString& folderPath);
+    void RefreshAll(const wxString& folderPath);
 
     wxString GetCurrentFolderPath() const;
 

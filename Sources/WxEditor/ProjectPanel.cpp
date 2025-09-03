@@ -5,6 +5,7 @@
 #include <wx/dnd.h>
 #include <wx/renderer.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <cstdio>
 #include <filesystem>
 #include <string>
@@ -33,61 +34,15 @@ public:
         if (!m_panel)
             return false;
 
-        wxString destFolderStr = m_panel->GetCurrentFolderPath();
-        std::filesystem::path destFolder(destFolderStr.ToStdString());
+        wxString destFolder = m_panel->GetCurrentFolderPath();
 
-        for (auto& srcPathStr : filenames)
+        for (auto& srcPath : filenames)
         {
-            std::filesystem::path srcPath(srcPathStr.ToStdString());
-            std::filesystem::path dstPath = destFolder / srcPath.filename();
-
-            // jeśli folder/plik docelowy już istnieje, dodajemy sufiks _1, _2...
-            if (std::filesystem::exists(dstPath))
-            {
-                int counter                   = 1;
-                std::filesystem::path baseDst = dstPath;
-                do
-                {
-                    dstPath = baseDst.string() + "_" + std::to_string(counter);
-                    counter++;
-                } while (std::filesystem::exists(dstPath));
-            }
-
-            try
-            {
-                if (std::filesystem::is_directory(srcPath))
-                {
-                    // Rekurencyjne kopiowanie katalogu
-                    std::function<void(const std::filesystem::path&, const std::filesystem::path&)> copyRecursive;
-                    copyRecursive = [&](const std::filesystem::path& src, const std::filesystem::path& dst)
-                    {
-                        std::filesystem::create_directories(dst);
-                        for (auto& entry : std::filesystem::directory_iterator(src))
-                        {
-                            auto dstEntry = dst / entry.path().filename();
-                            if (entry.is_directory())
-                                copyRecursive(entry.path(), dstEntry);
-                            else if (entry.is_regular_file())
-                            {
-                                std::filesystem::copy_file(entry.path(), dstEntry);
-                            }
-                        }
-                    };
-                    copyRecursive(srcPath, dstPath);
-                }
-                else if (std::filesystem::is_regular_file(srcPath))
-                {
-                    std::filesystem::copy_file(srcPath, dstPath);
-                }
-            }
-            catch (const std::filesystem::filesystem_error& e)
-            {
-                wxLogError("Copy failed: %s", e.what());
-            }
+            Utils::CopyFileOrFolder(srcPath.ToStdString(), destFolder.ToStdString());
         }
 
         // Odśwież listę tylko w aktualnym folderze
-        m_panel->RebuildTreeAndSelect(destFolderStr);
+        m_panel->RefreshAll(destFolder);
         return true;
     }
 
@@ -217,7 +172,7 @@ ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelec
                           }
                       });
 
-    RefreshListFor(rootFolder);
+    RefreshCurrent(rootFolder);
 }
 
 void ProjectPanel::BuildTree()
@@ -466,45 +421,45 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
 
-    menu.Bind(wxEVT_COMMAND_MENU_SELECTED,
-              [=](wxCommandEvent&)
-              {
-                  wxString folder = fileName.GetPath();
-                  wxString full   = fileName.GetFullPath();
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            wxString folder = fileName.GetPath();
+            wxString full   = fileName.GetFullPath();
 
 #if defined(__WXMSW__)
-                  // Windows - zaznacz plik w Explorerze
-                  wxExecute("explorer.exe /select,\"" + full + "\"");
+            // Windows - zaznacz plik w Explorerze
+            wxExecute("explorer.exe /select,\"" + full + "\"");
 
 #elif defined(__WXGTK__)
-    // Linux - spróbuj kilku menedżerów plików, fallback do xdg-open
-    auto IsCommandAvailable = [](const wxString& cmd) -> bool
-    {
-        return wxExecute("command -v " + cmd, wxEXEC_SYNC) == 0;
-    };
+            // Linux - spróbuj kilku menedżerów plików, fallback do xdg-open
+            auto IsCommandAvailable = [](const wxString& cmd) -> bool
+            { return wxExecute("command -v " + cmd, wxEXEC_SYNC) == 0; };
 
-    if (IsCommandAvailable("nautilus"))
-    {
-        wxExecute("nautilus --select \"" + full + "\"", wxEXEC_ASYNC);
-    }
-    else if (IsCommandAvailable("nemo"))
-    {
-        wxExecute("nemo \"" + folder + "\"", wxEXEC_ASYNC);
-    }
-    else if (IsCommandAvailable("thunar"))
-    {
-        wxExecute("thunar \"" + folder + "\"", wxEXEC_ASYNC);
-    }
-    else
-    {
-        wxExecute("xdg-open \"" + folder + "\"", wxEXEC_ASYNC);
-    }
+            if (IsCommandAvailable("nautilus"))
+            {
+                wxExecute("nautilus --select \"" + full + "\"", wxEXEC_ASYNC);
+            }
+            else if (IsCommandAvailable("nemo"))
+            {
+                wxExecute("nemo \"" + folder + "\"", wxEXEC_ASYNC);
+            }
+            else if (IsCommandAvailable("thunar"))
+            {
+                wxExecute("thunar \"" + folder + "\"", wxEXEC_ASYNC);
+            }
+            else
+            {
+                wxExecute("xdg-open \"" + folder + "\"", wxEXEC_ASYNC);
+            }
 
 #elif defined(__WXOSX__)
-    // macOS - zaznacz plik w Finderze
-    wxExecute("open -R \"" + full + "\"");
+            // macOS - zaznacz plik w Finderze
+            wxExecute("open -R \"" + full + "\"");
 #endif
-              });
+        },
+        ID_SHOW);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -526,7 +481,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             if (wxCopyFile(fileName.GetFullPath(), newName))
             {
                 wxLogMessage("Duplicated to %s", newName);
-                RefreshListFor(currentFolderPath);
+                RefreshCurrent(currentFolderPath);
             }
             else
             {
@@ -575,7 +530,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                 }
 
                 // Odśwież listę po dodaniu plików
-                RefreshListFor(destFolder);
+                RefreshCurrent(destFolder);
             }
         },
         ID_IMPORT);
@@ -584,70 +539,19 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&)
         {
-            wxString destFolder = GetCurrentFolderPath();  // aktualny folder w projekcie
+            wxString destFolder = GetCurrentFolderPath();
 
             wxDirDialog dirDialog(this, "Select folder to import", "", wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (dirDialog.ShowModal() != wxID_OK)
                 return;
 
             std::filesystem::path srcFolder = dirDialog.GetPath().ToStdString();
-            std::filesystem::path dstFolder = std::filesystem::path(destFolder.ToStdString()) / srcFolder.filename();
+            std::filesystem::path dstFolder = destFolder.ToStdString();
 
-            // jeśli folder docelowy już istnieje, dodajemy sufiks _1, _2, ...
-            if (std::filesystem::exists(dstFolder))
-            {
-                int counter                   = 1;
-                std::filesystem::path baseDst = dstFolder;
-                do
-                {
-                    dstFolder = baseDst.string() + "_" + std::to_string(counter);
-                    counter++;
-                } while (std::filesystem::exists(dstFolder));
-            }
-
-            try
-            {
-                // Rekurencyjne kopiowanie katalogu
-                std::function<void(const std::filesystem::path&, const std::filesystem::path&)> copyRecursive;
-                copyRecursive = [&](const std::filesystem::path& src, const std::filesystem::path& dst)
-                {
-                    std::filesystem::create_directories(dst);  // tworzymy katalog docelowy
-
-                    for (auto& entry : std::filesystem::directory_iterator(src))
-                    {
-                        const auto& path = entry.path();
-                        auto dstPath     = dst / path.filename();
-
-                        if (entry.is_directory())
-                        {
-                            copyRecursive(path, dstPath);  // rekurencja dla katalogów
-                        }
-                        else if (entry.is_regular_file())
-                        {
-                            // Obsługa konfliktów nazw
-                            std::filesystem::path finalDst = dstPath;
-                            int counter                    = 1;
-                            while (std::filesystem::exists(finalDst))
-                            {
-                                finalDst = dstPath.stem().string() + "_" + std::to_string(counter) + dstPath.extension().string();
-                                finalDst = dst / finalDst.filename();
-                                counter++;
-                            }
-                            std::filesystem::copy_file(path, finalDst);
-                        }
-                    }
-                };
-
-                copyRecursive(srcFolder, dstFolder);
-            }
-            catch (const std::filesystem::filesystem_error& e)
-            {
-                wxLogError("Copy failed: %s", e.what());
-            }
+            Utils::CopyFileOrFolder(srcFolder, dstFolder);
 
             // Odśwież listę plików
-            BuildTree();
-            SelectTreeItemByPath(destFolder);
+            RefreshAll(destFolder);
         },
         ID_IMPORT_FOLDER);
 
@@ -679,7 +583,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             }
 
             std::filesystem::create_directory(parent + "/" + name);
-            RefreshListAndTreeFor(currentFolderPath);
+            RefreshAll(currentFolderPath);
         },
         ID_NEW_FOLDER);
 
@@ -687,6 +591,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent& evt)
         {
+            bool isDirCopy{false};
+
             if (wxTheClipboard->Open())
             {
                 wxFileDataObject fileData;
@@ -696,24 +602,22 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                     for (auto& f : files)
                     {
                         wxString targetFolder;
-                        if (fileName.IsDir())
-                            targetFolder = fileName.GetFullPath();  // wklejamy do katalogu
+                        if (std::filesystem::is_directory(fileName.GetFullPath().ToStdString()))
+                            targetFolder = fileName.GetFullPath();
                         else
-                            targetFolder = fileName.GetPath();  // wklejamy obok pliku
+                            targetFolder = fileName.GetPath();
 
-                        wxFileName src(f);
-                        wxFileName dst(targetFolder, src.GetFullName());
-
-                        if (wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
-                        {
-                            wxLogMessage("Copied %s to %s", src.GetFullPath(), dst.GetFullPath());
-                            RefreshListAndTreeFor(currentFolderPath);  // odśwież listę plików
-                        }
-                        else
-                            wxLogError("Failed to copy %s", src.GetFullPath());
+                        isDirCopy = std::filesystem::is_directory(f.ToStdString());
+                        Utils::CopyFileOrFolder(f.ToStdString(), targetFolder.ToStdString());
                     }
                 }
                 wxTheClipboard->Close();
+
+                // Odśwież panel i drzewo
+                if (isDirCopy)
+                    RefreshAll(currentFolderPath);
+                else
+                    RefreshCurrent(currentFolderPath);
             }
         },
         ID_PASTE);
@@ -734,7 +638,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                         if (std::filesystem::is_empty(path))
                         {
                             std::filesystem::remove(path);
-                            RefreshListAndTreeFor(pathAfterRemove);
+                            RefreshAll(pathAfterRemove);
                         }
                         else
                         {
@@ -742,13 +646,13 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                                 wxYES)
                             {
                                 std::filesystem::remove_all(path);
-                                RefreshListAndTreeFor(pathAfterRemove);
+                                RefreshAll(pathAfterRemove);
                             }
                         }
                     }
                     else if (wxRemoveFile(fileName.GetFullPath()))
                     {
-                        RefreshListAndTreeFor(pathAfterRemove);
+                        RefreshCurrent(pathAfterRemove);
                     }
                     else
                     {
@@ -763,18 +667,14 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         },
         ID_REMOVE);
 
-    target->Bind(wxEVT_MENU,
-                 [=](wxCommandEvent& evt)
-                 {
-                     if (evt.GetId() == ID_PROPERTIES)
-                         ShowProperties(fileName);
-                 });
+    target->Bind(
+        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
 
     // Popup (ważne: użyj lokalnych współrzędnych → na globalne)
     target->PopupMenu(&menu, event.GetPosition());
 }
 
-void ProjectPanel::RefreshListFor(const wxString& folderPath)
+void ProjectPanel::RefreshCurrent(const wxString& folderPath)
 {
     currentFolderPath = folderPath;
     fileSizer->Clear(true);
@@ -786,8 +686,6 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     if (!dir.IsOpened())
         return;
 
-    SelectTreeItemByPath(folderPath);
-
     const int thumbSize = 64;
 
     // --- Foldery ---
@@ -796,7 +694,12 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     {
         wxFileName fn(folderPath, name);
         wxBitmap bmp   = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
-        auto itemSizer = CreateFileItem(fn, bmp, true, [=]() { SelectTreeItemByPath(fn.GetFullPath()); });
+        auto itemSizer = CreateFileItem(fn, bmp, true,
+                                        [=]()
+                                        {
+                                            SelectTreeItemByPath(fn.GetFullPath());
+                                           // RefreshCurrent(fn.GetFullPath());
+                                        });
         fileSizer->Add(itemSizer, 0, wxALL, 5);
     }
 
@@ -815,10 +718,11 @@ void ProjectPanel::RefreshListFor(const wxString& folderPath)
     filePanel->Refresh();
 }
 
-void ProjectPanel::RefreshListAndTreeFor(const wxString& folderPath)
+void ProjectPanel::RefreshAll(const wxString& folderPath)
 {
     BuildTree();
-    RefreshListFor(folderPath);
+    RefreshCurrent(folderPath);
+    SelectTreeItemByPath(folderPath);
 }
 
 void ProjectPanel::OnTreeSelChanged(wxTreeEvent& e)
@@ -830,7 +734,7 @@ void ProjectPanel::OnTreeSelChanged(wxTreeEvent& e)
     auto* data                = static_cast<PathData*>(projectTree->GetItemData(id));
     const wxString folderPath = data ? data->path : rootFolder;
 
-    RefreshListFor(folderPath);
+    RefreshCurrent(folderPath.ToStdString());
 }
 
 void ProjectPanel::SelectTreeItemByPath(const wxString& path)
