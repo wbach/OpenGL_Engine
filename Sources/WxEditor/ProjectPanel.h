@@ -46,7 +46,7 @@ private:
 
     void addContextMenu(wxWindow*);
     void addContextMenu(wxWindow*, const FileInfo&);
-    void contextMenuTriggerAction(wxMouseEvent&, wxWindow*, const wxFileName&);
+    void contextMenuTriggerAction(wxMouseEvent&, wxWindow*, const wxFileName&, bool = true);
 
 private:
     wxTreeCtrl* projectTree{nullptr};

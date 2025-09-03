@@ -7,13 +7,18 @@
 
 #include <cstdio>
 #include <filesystem>
+#include <string>
 
 #include "ThumbnailCache.h"
 
 namespace
 {
-namespace
+wxString GetParentPath(const wxString& currentFolderPath)
 {
+    wxFileName fn(currentFolderPath);
+    fn.Normalize();
+    return fn.GetPath();
+}
 
 class FileDropTarget : public wxFileDropTarget
 {
@@ -64,7 +69,6 @@ private:
     ProjectPanel* m_panel;
 };
 
-}  // namespace
 void ShowProperties(const wxFileName& fn)
 {
     wxDialog dlg(nullptr, wxID_ANY, "Properties");
@@ -165,6 +169,28 @@ ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelec
     InitFileList();
 
     projectTree->Bind(wxEVT_TREE_SEL_CHANGED, &ProjectPanel::OnTreeSelChanged, this);
+
+    projectTree->Bind(wxEVT_RIGHT_DOWN,
+                      [this](wxMouseEvent& event)
+                      {
+                          int flags;
+                          wxTreeItemId item = projectTree->HitTest(event.GetPosition(), flags);
+
+                          if (item.IsOk())
+                          {
+                              projectTree->SelectItem(item);  // 👈 teraz PPM też zaznacza
+                              auto* data = static_cast<PathData*>(projectTree->GetItemData(item));
+                              if (data)
+                              {
+                                  contextMenuTriggerAction(event, projectTree, data->path);
+                              }
+                          }
+                          else
+                          {
+                              UnSelectCurrentItem();
+                          }
+                      });
+
     RefreshListFor(rootFolder);
 }
 
@@ -351,7 +377,7 @@ void ProjectPanel::addContextMenu(wxWindow* target)
                  [this, t = target](wxMouseEvent& event)
                  {
                      UnSelectCurrentItem();
-                     contextMenuTriggerAction(event, t, GetCurrentFolderPath());
+                     contextMenuTriggerAction(event, t, GetCurrentFolderPath(), false);
                  });
 }
 
@@ -365,7 +391,7 @@ void ProjectPanel::addContextMenu(wxWindow* target, const FileInfo& fileInfo)
                  });
 };
 
-void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* target, const wxFileName& fileName)
+void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* target, const wxFileName& fileName, bool removeAble)
 {
     wxMenu menu;
 
@@ -391,10 +417,11 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Append(ID_PROPERTIES, "Properties");
 
     auto isCurrentDir = fileName == currentFolderPath;
+    auto isRootItem   = fileName == rootFolder;
 
     menu.Enable(ID_OPEN, not isCurrentDir);
     menu.Enable(ID_DUPLICATE, not isCurrentDir);
-    menu.Enable(ID_REMOVE, not isCurrentDir);
+    menu.Enable(ID_REMOVE, removeAble and not isRootItem);
 
     bool canPaste = false;
     if (wxTheClipboard->Open())
@@ -409,22 +436,45 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
 
-    menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED,
-        [=](wxCommandEvent&)
-        {
-            wxString folder = fileName.GetPath();
+    menu.Bind(wxEVT_COMMAND_MENU_SELECTED,
+              [=](wxCommandEvent&)
+              {
+                  wxString folder = fileName.GetPath();
+                  wxString full   = fileName.GetFullPath();
+
 #if defined(__WXMSW__)
-            wxExecute("explorer.exe /select,\"" + fileName.GetFullPath() + "\"");
+                  // Windows - zaznacz plik w Explorerze
+                  wxExecute("explorer.exe /select,\"" + full + "\"");
+
 #elif defined(__WXGTK__)
-            wxString cmd = "nautilus --select \"" + fileName.GetFullPath() + "\"";
-            if (wxExecute(cmd, wxEXEC_ASYNC) != 0)
-                wxExecute("xdg-open \"" + fileName.GetPath() + "\"", wxEXEC_ASYNC);
+    // Linux - spróbuj kilku menedżerów plików, fallback do xdg-open
+    auto IsCommandAvailable = [](const wxString& cmd) -> bool
+    {
+        return wxExecute("command -v " + cmd, wxEXEC_SYNC) == 0;
+    };
+
+    if (IsCommandAvailable("nautilus"))
+    {
+        wxExecute("nautilus --select \"" + full + "\"", wxEXEC_ASYNC);
+    }
+    else if (IsCommandAvailable("nemo"))
+    {
+        wxExecute("nemo \"" + folder + "\"", wxEXEC_ASYNC);
+    }
+    else if (IsCommandAvailable("thunar"))
+    {
+        wxExecute("thunar \"" + folder + "\"", wxEXEC_ASYNC);
+    }
+    else
+    {
+        wxExecute("xdg-open \"" + folder + "\"", wxEXEC_ASYNC);
+    }
+
 #elif defined(__WXOSX__)
-            wxExecute("open -R \"" + fileName.GetFullPath() + "\"");
+    // macOS - zaznacz plik w Finderze
+    wxExecute("open -R \"" + full + "\"");
 #endif
-        },
-        ID_SHOW);
+              });
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -528,7 +578,9 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         {
             if (wxMessageBox("Remove " + fileName.GetFullPath() + "?", "Confirm", wxYES_NO | wxICON_WARNING) == wxYES)
             {
-                auto path = fileName.GetFullPath().ToStdString();
+                auto isCurrentDir    = fileName == currentFolderPath;
+                auto pathAfterRemove = isCurrentDir ? GetParentPath(currentFolderPath) : currentFolderPath;
+                auto path            = fileName.GetFullPath().ToStdString();
                 try
                 {
                     if (std::filesystem::is_directory(path))
@@ -536,7 +588,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                         if (std::filesystem::is_empty(path))
                         {
                             std::filesystem::remove(path);
-                            RefreshListAndTreeFor(currentFolderPath);
+                            RefreshListAndTreeFor(pathAfterRemove);
                         }
                         else
                         {
@@ -544,13 +596,13 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                                 wxYES)
                             {
                                 std::filesystem::remove_all(path);
-                                RefreshListAndTreeFor(currentFolderPath);
+                                RefreshListAndTreeFor(pathAfterRemove);
                             }
                         }
                     }
                     else if (wxRemoveFile(fileName.GetFullPath()))
                     {
-                        RefreshListAndTreeFor(currentFolderPath);
+                        RefreshListAndTreeFor(pathAfterRemove);
                     }
                     else
                     {
