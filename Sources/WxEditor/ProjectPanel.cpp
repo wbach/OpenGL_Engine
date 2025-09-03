@@ -694,12 +694,7 @@ void ProjectPanel::RefreshCurrent(const wxString& folderPath)
     {
         wxFileName fn(folderPath, name);
         wxBitmap bmp   = CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(thumbSize, thumbSize));
-        auto itemSizer = CreateFileItem(fn, bmp, true,
-                                        [=]()
-                                        {
-                                            SelectTreeItemByPath(fn.GetFullPath());
-                                           // RefreshCurrent(fn.GetFullPath());
-                                        });
+        auto itemSizer = CreateFileItem(fn, bmp, true, [=]() { SelectTreeItemByPath(fn.GetFullPath()); });
         fileSizer->Add(itemSizer, 0, wxALL, 5);
     }
 
