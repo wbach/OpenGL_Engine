@@ -8,7 +8,6 @@
 #include "FileSystem/FileSystemUtils.hpp"
 #include "Logger/Log.h"
 
-
 namespace Utils
 {
 std::vector<std::string> SplitString(char* s, int size, char split_char)
@@ -300,21 +299,50 @@ std::string MergeString(const std::vector<std::string>& input, const std::string
     return result;
 }
 
-void RemoveSlashes(std::string &str)
+void RemoveSlashes(std::string& str)
 {
-    str.erase(std::remove_if(str.begin(), str.end(),
-                             [](char c) { return c == '/' || c == '\\'; }),
-              str.end());
+    str.erase(std::remove_if(str.begin(), str.end(), [](char c) { return c == '/' || c == '\\'; }), str.end());
 }
 
-std::string RemoveSlashes(const std::string & str)
+std::string RemoveSlashes(const std::string& str)
 {
     std::string result;
-    result.reserve(str.size()); // żeby uniknąć wielokrotnego przydzielania pamięci
+    result.reserve(str.size());  // żeby uniknąć wielokrotnego przydzielania pamięci
 
-    std::copy_if(str.begin(), str.end(), std::back_inserter(result),
-                 [](char c) { return c != '/' && c != '\\'; });
+    std::copy_if(str.begin(), str.end(), std::back_inserter(result), [](char c) { return c != '/' && c != '\\'; });
 
     return result;
+}
+
+std::unordered_map<std::string, std::string> parseArguments(int argc, char* argv[])
+{
+    std::unordered_map<std::string, std::string> args;
+
+    for (int i = 1; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+
+        // Sprawdzamy, czy argument zaczyna się od "--"
+        if (arg.rfind("--", 0) == 0)
+        {
+            std::string key = arg.substr(2);  // usuwamy "--"
+            std::string value;
+
+            // Jeśli kolejny argument istnieje i nie zaczyna się od "--", traktujemy go jako wartość
+            if (i + 1 < argc && std::string(argv[i + 1]).rfind("--", 0) != 0)
+            {
+                value = argv[i + 1];
+                ++i;  // przesuwamy indeks, bo wartość już wykorzystana
+            }
+            else
+            {
+                value = "true";  // jeśli brak wartości, traktujemy jako flagę
+            }
+
+            args[key] = value;
+        }
+    }
+
+    return args;
 }
 }  // namespace Utils

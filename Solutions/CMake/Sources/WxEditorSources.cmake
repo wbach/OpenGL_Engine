@@ -16,4 +16,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPickerPopup.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewerFrame.cpp
 )

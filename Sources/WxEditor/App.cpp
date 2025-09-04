@@ -1,13 +1,25 @@
 
 #include "App.h"
 
+#include "AnimationViewerFrame.h"
 #include "MainFrame.h"
 #include "StartupDialog.h"
+#include "Utils.h"
 
 bool App::OnInit()
 {
+    auto args = Utils::parseArguments(argc, argv);
+
+    if (Utils::GetValue(args, "animationViewer"))
+    {
+        auto* frame = new AnimationViewerFrame("AnimationViewer", wxPoint(100, 100), wxSize(600, 800));
+        SetTopWindow(frame);
+        frame->Show(true);
+        return true;
+    }
+
     auto* frame = new MainFrame("GameEngine", wxPoint(100, 100), wxSize(1920, 1080));
-     SetTopWindow(frame);
+    SetTopWindow(frame);
     frame->Show(true);  // najpierw nie pokazujemy
     frame->Show(false);
 
@@ -17,7 +29,7 @@ bool App::OnInit()
 
     frame->Init();
     frame->Show(true);
-        frame->Raise();
+    frame->Raise();
     frame->SetFocus();
 
     return true;

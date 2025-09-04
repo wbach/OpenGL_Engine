@@ -1,9 +1,8 @@
 #pragma once
-#include <functional>
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <unordered_map>
 
 namespace Utils
 {
@@ -36,5 +35,33 @@ auto Filter(const TCont& cont, Pred p)
     auto out = cont;
     std::erase_if(out, p);
     return out;
+}
+std::unordered_map<std::string, std::string> parseArguments(int argc, char* argv[]);
+
+template <class Container, class Key>
+bool IsKeyExist(const Container& container, const Key& key)
+{
+    return std::find(container.begin(), container.end(), key) != container.end();
+}
+
+template <class Map, class Key>
+typename Map::mapped_type* GetValue(Map& map, const Key& key)
+{
+    auto iter = map.find(key);
+    if (iter != map.end())
+    {
+        return &iter->second;
+    }
+    return nullptr;
+}
+template <class Map, class Key>
+const typename Map::mapped_type* GetKey(const Map& map, const Key& key)
+{
+    auto iter = map.find(key);
+    if (iter != map.end())
+    {
+        return &iter->second;
+    }
+    return nullptr;
 }
 }  // namespace Utils

@@ -1,8 +1,11 @@
 #include <GameEngine/Engine/Engine.h>
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
+#include <wx/log.h>
 
 #include "App.h"
+#include "Utils.h"
+#include "WxEditor/ProjectManager.h"
 
 wxIMPLEMENT_APP_NO_MAIN(App);
 
@@ -20,22 +23,24 @@ public:
 
 int main(int argc, char* argv[])
 {
-    if (argc > 1 && std::string(argv[1]) == "--scene")
+    auto args = Utils::parseArguments(argc, argv);
+
+    if (auto value = Utils::GetValue(args, "scene"))
     {
-        if (argc > 2)
+        File file{*value};
+        if (file.exist())
         {
-            File file{argv[2]};
-            if (file.exist())
-            {
-                std::cout << "Starting game engine with scene: " << file << "\n";
-                Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<SceneFactory>(file));
-                engine.Init();
-                engine.GetSceneManager().SetActiveScene(file.GetBaseName());
-                engine.GameLoop();
-                return 0;
-            }
+            std::cout << "Starting game engine with scene: " << file << "\n";
+            Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<SceneFactory>(file));
+            engine.Init();
+            engine.GetSceneManager().SetActiveScene(file.GetBaseName());
+            engine.GameLoop();
+            return 0;
         }
-        std::cout << "Starting game engine failed" << "\n";
+
+        LOG_ERROR << "Starting scene failed. " << *value;
+
+        return 0;
     }
 
     return wxEntry(argc, argv);

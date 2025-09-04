@@ -21,6 +21,7 @@
 #include "ControlsIds.h"
 #include "Engine/Configuration.h"
 #include "GLCanvas.h"
+#include "Logger/Log.h"
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel.h"
@@ -123,6 +124,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOOL_SAVE_AS, MainFrame::MenuFileSaveSceneAs)
     EVT_MENU(ID_TOOL_START, MainFrame::OnToolStart)
     EVT_MENU(ID_TOOL_STOP, MainFrame::OnToolStop)
+    EVT_MENU(ID_TOOL_ANIMATION_VIEWER, MainFrame::OnToolAnimationViewer)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -167,7 +169,11 @@ void MainFrame::Init()
     Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
     Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
 
-    auto onStartupDone              = [this]() { UpdateTimeOnToolbar(); SetStatusText(EngineConf.files.data); };
+    auto onStartupDone = [this]()
+    {
+        UpdateTimeOnToolbar();
+        SetStatusText(EngineConf.files.data);
+    };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
         if (auto wxItemId = gameObjectsView->Get(gameObjectId))
@@ -176,7 +182,7 @@ void MainFrame::Init()
             UpdateGameObjectIdOnTransfromLabel(gameObjectId);
         }
     };
-    canvas = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
+    canvas    = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
     auto size = GetSize();
     // Split pionowy: tree + canvas
     topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), canvas, size.x / 8);
@@ -764,8 +770,8 @@ void MainFrame::CreateMainMenu()
 wxMenu* MainFrame::CreateFileMenu()
 {
     wxMenu* menuFile = new wxMenu;
-    //menuFile->Append(ID_MENU_FILE_NEW_PROJECT, "&New project", "Create new project");
-    //menuFile->Append(ID_MENU_FILE_OPEN_PROJECT, "&Open project", "Open existing project");
+    // menuFile->Append(ID_MENU_FILE_NEW_PROJECT, "&New project", "Create new project");
+    // menuFile->Append(ID_MENU_FILE_OPEN_PROJECT, "&Open project", "Open existing project");
     menuFile->Append(ID_MENU_FILE_OPEN_SCENE, "&Open scene", "OpenScene");
     menuFile->Append(ID_MENU_FILE_RELOAD_SCENE, "&Reload scene", "Reload current scene");
     menuFile->Append(ID_MENU_FILE_SAVE_SCENE, "&Save scene\tCtrl-S", "Save scene to known file");
@@ -824,12 +830,14 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
     toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
     toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
+    toolbar->AddTool(ID_TOOL_ANIMATION_VIEWER, "Animation Viewer", wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE, wxART_TOOLBAR));
 
     toolbar->SetToolShortHelp(ID_TOOL_OPEN, "Open scene from file");
     toolbar->SetToolShortHelp(ID_TOOL_SAVE, "Save scene");
     toolbar->SetToolShortHelp(ID_TOOL_SAVE_AS, "Save scene to other file");
     toolbar->SetToolShortHelp(ID_TOOL_START, "Start scene");
     toolbar->SetToolShortHelp(ID_TOOL_STOP, "Stop scene if started");
+    toolbar->SetToolShortHelp(ID_TOOL_ANIMATION_VIEWER, "Start animation viewer tool");
     // Separator żeby odsunąć
     toolbar->AddSeparator();
 
@@ -1244,6 +1252,21 @@ void MainFrame::OnToolStop(wxCommandEvent&)
         terminateProcessByPID(*startedGameProceesId);
         startedGameProceesId.reset();
     }
+}
+
+void MainFrame::OnToolAnimationViewer(wxCommandEvent&)
+{
+    std::string cmd =
+        "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer";
+
+    long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
+    if (pid == 0)
+    {
+        wxLogError("Run AnimationViewer error!");
+        return;
+    }
+
+   // wxLogMessage("AnimationViewer started, PID=%ld", pid);
 }
 
 bool MainFrame::SaveSceneAs()

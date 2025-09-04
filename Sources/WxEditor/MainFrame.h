@@ -134,6 +134,7 @@ private:
     void ClearScene();
     void OnToolStart(wxCommandEvent&);
     void OnToolStop(wxCommandEvent&);
+    void OnToolAnimationViewer(wxCommandEvent&);
 
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);
