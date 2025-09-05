@@ -21,21 +21,22 @@ public:
     ThirdPersonCamera(Input::InputManager&, const common::Transform&, const vec3&);
     ~ThirdPersonCamera() override;
     void Update() override;
-    void CalculateInput();
+    virtual bool ShouldMove();
+    void CalculateMove();
     void CalculateZoom(float);
     void LockInputs(bool);
     void Lock() override;
     void Unlock() override;
 
-private:
+protected:
     void SetRelativeMode(bool);
     vec2 CalcualteMouseMove();
 
-private:
+protected:
     Input::InputManager& inputManager_;
     const common::Transform& lookAtTransform_;
     float distanceFromPlayer_;
-    
+
     vec3 offset_;
     vec3 lookAtOffset_;
     float mouseSensitivity_;

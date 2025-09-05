@@ -12,9 +12,13 @@ bool App::OnInit()
 
     if (Utils::GetValue(args, "animationViewer"))
     {
-        auto* frame = new AnimationViewerFrame("AnimationViewer", wxPoint(100, 100), wxSize(600, 800));
+        auto* frame = new AnimationViewerFrame("AnimationViewer", wxPoint(100, 100), wxSize(800, 600));
         SetTopWindow(frame);
         frame->Show(true);
+        if (auto file = Utils::GetValue(args, "file"))
+        {
+            frame->ShowModel(*file);
+        }
         return true;
     }
 

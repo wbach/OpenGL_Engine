@@ -4,16 +4,27 @@
 #include <wx/clipbrd.h>
 #include <wx/dnd.h>
 #include <wx/renderer.h>
+#include <wx/stdpaths.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <cstdio>
 #include <filesystem>
 #include <string>
 
+#include "Resources/File.h"
 #include "ThumbnailCache.h"
+#include "model3d_icon.h"
 
 namespace
 {
+bool is3dModelFile(const std::string& fileName)
+{
+    return GameEngine::File(fileName).IsExtension(
+        {"AMF",  "3DS",     "AC",       "ASE",  "ASSBIN", "B3D",   "BVH",     "COLLADA", "DXF", "CSM", "DAE",   "HMP", "IRRMESH",
+         "IRR",  "LWO",     "LWS",      "MD2",  "MD3",    "MD5",   "MD5MESH", "MDC",     "MDL", "NFF", "NDO",   "OFF", "OBJ",
+         "OGRE", "OPENGEX", "PLY",      "MS3D", "COB",    "BLEND", "IFC",     "XGL",     "FBX", "Q3D", "Q3BSP", "RAW", "SIB",
+         "SMD",  "STL",     "TERRAGEN", "3D",   "X",      "X3D",   "GLTF",    "3MF",     "MMD", "STEP"});
+}
 wxString GetParentPath(const wxString& currentFolderPath)
 {
     wxFileName fn(currentFolderPath);
@@ -376,19 +387,21 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
 {
     wxMenu menu;
 
-    int ID_OPEN          = wxWindow::NewControlId();
-    int ID_SHOW          = wxWindow::NewControlId();
-    int ID_COPY_PATH     = wxWindow::NewControlId();
-    int ID_DUPLICATE     = wxWindow::NewControlId();
-    int ID_IMPORT        = wxWindow::NewControlId();
-    int ID_IMPORT_FOLDER = wxWindow::NewControlId();
-    int ID_PASTE         = wxWindow::NewControlId();
-    int ID_NEW_FOLDER    = wxWindow::NewControlId();
-    int ID_REMOVE        = wxWindow::NewControlId();
-    int ID_PROPERTIES    = wxWindow::NewControlId();
+    int ID_OPEN            = wxWindow::NewControlId();
+    int ID_SHOW            = wxWindow::NewControlId();
+    int ID_COPY_PATH       = wxWindow::NewControlId();
+    int ID_DUPLICATE       = wxWindow::NewControlId();
+    int ID_IMPORT          = wxWindow::NewControlId();
+    int ID_IMPORT_FOLDER   = wxWindow::NewControlId();
+    int ID_PASTE           = wxWindow::NewControlId();
+    int ID_ANIMATION_VIWER = wxWindow::NewControlId();
+    int ID_NEW_FOLDER      = wxWindow::NewControlId();
+    int ID_REMOVE          = wxWindow::NewControlId();
+    int ID_PROPERTIES      = wxWindow::NewControlId();
 
     menu.Append(ID_OPEN, "Open");
     menu.Append(ID_SHOW, "Show in Explorer");
+    menu.Append(ID_ANIMATION_VIWER, "Show in animation viewer");
     menu.AppendSeparator();
     menu.Append(ID_COPY_PATH, "Copy Path");
     menu.AppendSeparator();
@@ -400,6 +413,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Append(ID_REMOVE, "Remove");
     menu.AppendSeparator();
     menu.Append(ID_PROPERTIES, "Properties");
+
+    menu.Enable(ID_ANIMATION_VIWER, is3dModelFile(fileName.GetFullPath().ToStdString()));
 
     auto isCurrentDir = fileName == currentFolderPath;
     auto isRootItem   = fileName == rootFolder;
@@ -461,6 +476,20 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         },
         ID_SHOW);
 
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer " +
+                              " --file " + fileName.GetFullPath().ToStdString();
+
+            long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
+            if (pid == 0)
+            {
+                wxLogError("Run AnimationViewer error! " + fileName.GetFullPath());
+            }
+        },
+        ID_ANIMATION_VIWER);
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&)
@@ -792,7 +821,17 @@ wxBitmap ProjectPanel::GetThumbnail(const wxFileName& fn, int thumbSize)
     // Jeśli bitmapa jest pusta (nie obraz), stwórz placeholder
     if (!bmp.IsOk())
     {
-        bmp = CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(thumbSize, thumbSize));
+        if (is3dModelFile(fn.GetFullPath().ToStdString()))
+        {
+            auto newBmp = wxBitmap::NewFromPNGData(model3d_icon_png, model3d_icon_png_len);
+            wxImage img = newBmp.ConvertToImage();
+            img.Rescale(thumbSize, thumbSize, wxIMAGE_QUALITY_HIGH);
+            bmp = img;
+        }
+        else
+        {
+            bmp = CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(thumbSize, thumbSize));
+        }
     }
 
     return bmp;

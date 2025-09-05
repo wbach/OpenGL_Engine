@@ -12,8 +12,7 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
     : ThirdPersonCamera(inputManager, lookAt, vec3(0))
 {
 }
-ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const common::Transform& lookAt,
-                                     const vec3& lookAtOffset)
+ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const common::Transform& lookAt, const vec3& lookAtOffset)
     : inputManager_(inputManager)
     , lookAtTransform_(lookAt)
     , distanceFromPlayer_(3.f)
@@ -29,24 +28,25 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
 ThirdPersonCamera::~ThirdPersonCamera()
 {
 }
-void ThirdPersonCamera::CalculateInput()
+bool ThirdPersonCamera::ShouldMove()
 {
     if (lockInputs_)
-        return;
+        return false;
 
-     if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
+    if (inputManager_.GetKey(KeyCodes::LCTRL) or lock_)
     {
         inputManager_.ShowCursor(true);
         SetRelativeMode(false);
-        return;
+        return false;
     }
-     SetRelativeMode(true);
-     inputManager_.ShowCursor(false);
+    SetRelativeMode(true);
+    inputManager_.ShowCursor(false);
+    return true;
+}
 
-    if (!clock_.OnTick())
-        return;
-
-    vec2 move  = CalcualteMouseMove() * mouseSensitivity_;
+void ThirdPersonCamera::CalculateMove()
+{
+    vec2 move = CalcualteMouseMove() * mouseSensitivity_;
 
     auto pitch = glm::angleAxis(glm::radians(move.y), vec3(1, 0, 0));
     auto yaw   = glm::angleAxis(glm::radians(move.x), vec3(0, 1, 0));
@@ -55,12 +55,12 @@ void ThirdPersonCamera::CalculateInput()
 
 void ThirdPersonCamera::Update()
 {
-    CalculateInput();
+    if (ShouldMove() and clock_.OnTick())
+        CalculateMove();
 
     auto lookAtPosition = lookAtTransform_.GetPosition() + lookAtOffset_;
     SetPosition(lookAtPosition + (lookAtTransform_.GetRotation().value_ * offset_ * distanceFromPlayer_));
     LookAt(lookAtPosition);
-
 }
 void ThirdPersonCamera::CalculateZoom(float v)
 {
