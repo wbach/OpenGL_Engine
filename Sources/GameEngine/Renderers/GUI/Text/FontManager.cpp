@@ -5,8 +5,11 @@
 #include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
+#include <filesystem>
+#include <optional>
 
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/DefaultFiles/segoe-ui.h"
 
 namespace GameEngine
 {
@@ -91,7 +94,28 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
 
     DEBUG_LOG("Font percent size : " + std::to_string(percentFontSize) + "/" + std::to_string(size));
 
-    auto font = TTF_OpenFont(filename.GetAbsoultePath().c_str(), static_cast<int>(percentFontSize));
+    TTF_Font *font{nullptr};
+
+    if (not std::filesystem::exists(filename.GetAbsoultePath().c_str()))
+    {
+        SDL_RWops *rw = SDL_RWFromConstMem(segoe_ui_ttf, segoe_ui_ttf_len);
+        if (!rw)
+        {
+            LOG_ERROR << "Create default font error: " << SDL_GetError();
+            return std::nullopt;
+        }
+
+        font = TTF_OpenFontRW(rw, 1, 24);  // '1' = SDL zwolni pamięć RWops automatycznie
+        if (!font)
+        {
+            LOG_ERROR << "Create default font error: " << TTF_GetError();
+            return std::nullopt;
+        }
+    }
+    else
+    {
+        font = TTF_OpenFont(filename.GetAbsoultePath().c_str(), static_cast<int>(percentFontSize));
+    }
 
     if (font)
     {

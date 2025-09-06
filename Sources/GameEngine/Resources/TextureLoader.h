@@ -22,6 +22,7 @@ public:
     void UpdateTexture(const GeneralTexture&) override;
     void UpdateTexture(GeneralTexture*&, const std::string&) override;
     GeneralTexture* LoadTexture(const File&, const TextureParameters&) override;
+    GeneralTexture* LoadTexture(const std::string&, const unsigned char*, unsigned int, const TextureParameters&) override;
     CubeMapTexture* LoadCubeMap(const std::array<File, 6>&, const TextureParameters&) override;
     GeneralTexture* CreateNormalMap(const HeightMap&, const vec3&) override;
     HeightMap* CreateHeightMap(const File&, const vec2ui&, const TextureParameters&) override;

@@ -13,6 +13,7 @@
 
 namespace GameEngine
 {
+std::optional<Utils::Image> ReadImage(const unsigned char*, unsigned int, const TextureParameters&);
 std::optional<Utils::Image> ReadFile(const File&, const TextureParameters&);
 void CreateHeightMap(const File&, const vec2ui&);
 void CreateHeightMap(const File&, const File&, const vec3&);

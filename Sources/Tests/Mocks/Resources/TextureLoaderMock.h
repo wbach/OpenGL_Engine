@@ -14,6 +14,7 @@ public:
                  GeneralTexture*(const std::string&, const TextureParameters&, const Utils::Image&));
     MOCK_METHOD1(UpdateTexture, void(const GeneralTexture&));
     MOCK_METHOD2(UpdateTexture, void(GeneralTexture*&, const std::string&));
+    MOCK_METHOD4(LoadTexture, GeneralTexture*(const std::string&, const unsigned char*, unsigned int, const TextureParameters&));
     MOCK_METHOD2(LoadTexture, GeneralTexture*(const File&, const TextureParameters&));
     MOCK_METHOD2(LoadCubeMap, CubeMapTexture*(const std::array<File, 6>&, const TextureParameters&));
     MOCK_METHOD2(LoadHeightMap, HeightMap*(const File&, const TextureParameters&));

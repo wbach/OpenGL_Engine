@@ -65,8 +65,7 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
 {
     if (not textures_.empty())
     {
-        auto iter = std::find_if(textures_.begin(), textures_.end(),
-                                 [id = texture->GetGpuObjectId()](const auto& texture)
+        auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture->GetGpuObjectId()](const auto& texture)
                                  { return (texture.second.resource_->GetGpuObjectId() == id); });
 
         texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->GetImage());
@@ -109,6 +108,28 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, inputFile);
     auto texturePtr = texture.get();
     AddTexture(inputFile.GetAbsoultePath(), std::move(texture), params.loadType);
+    return texturePtr;
+}
+
+GeneralTexture* TextureLoader::LoadTexture(const std::string& name, const unsigned char* data, unsigned int len,
+                                           const TextureParameters& params)
+{
+    std::lock_guard<std::mutex> lk(textureMutex_);
+
+    if (auto texture = GetTextureIfLoaded(name, params))
+    {
+        LOG_DEBUG << "Texture found name= " << name;
+        return static_cast<GeneralTexture*>(texture);
+    }
+
+    auto image = ReadImage(data, len, params);
+
+    if (not image)
+        return GetTextureNotFound();
+
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params);
+    auto texturePtr = texture.get();
+    AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;
 }
 CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, const TextureParameters& params)
@@ -197,8 +218,7 @@ void TextureLoader::DeleteTexture(Texture& texture)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto iter = std::find_if(textures_.begin(), textures_.end(),
-                             [id = texture.GetGpuObjectId()](const auto& texture)
+    auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture)
                              { return (texture.second.resource_->GetGpuObjectId() == id); });
 
     if (iter != textures_.end())

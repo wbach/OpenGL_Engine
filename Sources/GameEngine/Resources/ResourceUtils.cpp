@@ -8,6 +8,7 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <optional>
 
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
@@ -61,8 +62,8 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
         {
             DEBUG_LOG("Resize image from " + std::to_string(vec2ui(w, h)) + " to " + std::to_string(newImageSize));
 
-            auto resizedImage = FreeImage_Rescale(image, static_cast<int>(newImageSize.x),
-                                                  static_cast<int>(newImageSize.y), FILTER_BSPLINE);
+            auto resizedImage =
+                FreeImage_Rescale(image, static_cast<int>(newImageSize.x), static_cast<int>(newImageSize.y), FILTER_BSPLINE);
 
             if (resizedImage)
             {
@@ -140,7 +141,62 @@ std::optional<Utils::Image> ReadFile(const File& inputFileName, const TexturePar
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" + std::to_string(resultImage.height));
+    DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
+              std::to_string(resultImage.height));
+    return std::move(resultImage);
+}
+
+std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int len, const TextureParameters& params)
+{
+    FIMEMORY* stream = FreeImage_OpenMemory(const_cast<BYTE*>(data), static_cast<DWORD>(len));
+    if (not stream)
+    {
+        printf("Nie można otworzyć pamięci!\n");
+        return std::nullopt;
+    }
+
+    FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromMemory(stream, 0);
+    if (format == FIF_UNKNOWN)
+    {
+        FreeImage_CloseMemory(stream);
+        return std::nullopt;
+    }
+
+    // Wczytujemy obraz z pamięci
+    FIBITMAP* image = FreeImage_LoadFromMemory(format, stream, 0);
+    if (not image)
+    {
+        printf("Nie można wczytać obrazu!\n");
+        FreeImage_CloseMemory(stream);
+        return std::nullopt;
+    }
+
+    image = resizeImageIfisLimited(image, params.sizeLimitPolicy);
+    flipImageIfRequest(image, params.flipMode);
+    image = convertTo32bppIfDifferent(image);
+
+    if (not image)
+    {
+        ERROR_LOG("Cant convert to 32 bits memory image.");
+        return {};
+    }
+
+    Utils::Image resultImage;
+    resultImage.width  = FreeImage_GetWidth(image);
+    resultImage.height = FreeImage_GetHeight(image);
+    resultImage.setChannels(4);
+    resultImage.allocateImage<uint8>();
+
+    auto pixeles = FreeImage_GetBits(image);
+    // bgr2rgb
+    for (uint32 j = 0; j < resultImage.width * resultImage.height; j++)
+    {
+        resultImage.setPixel(vec2ui(j % resultImage.width, j / resultImage.width),
+                             Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
+    }
+    FreeImage_Unload(image);
+    DEBUG_LOG("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" +
+              std::to_string(resultImage.height));
     return std::move(resultImage);
 }
 
@@ -150,8 +206,7 @@ std::vector<float> ConvertHeightData(const std::vector<uint8>& data)
     output.reserve(data.size());
     for (auto i = 0u; i < data.size(); i += 4)
     {
-        auto color =
-            (Utils::RGBtoFloat(data[i]) + Utils::RGBtoFloat(data[i + 1]) + Utils::RGBtoFloat(data[i + 2])) / 3.f;
+        auto color = (Utils::RGBtoFloat(data[i]) + Utils::RGBtoFloat(data[i + 1]) + Utils::RGBtoFloat(data[i + 2])) / 3.f;
         output.push_back(color);
     }
     return output;
@@ -183,7 +238,8 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
     auto size     = header.width * header.height;
     fwrite(&header, sizeof(HeightMapHeader), 1, fp);
 
-    std::visit(visitor{[&](const std::vector<uint8>& inputData) {
+    std::visit(visitor{[&](const std::vector<uint8>& inputData)
+                       {
                            auto data = ConvertHeightData(inputData);
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
@@ -244,7 +300,8 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
 
     auto size = header.width * header.height;
     fwrite(&header, sizeof(HeightMapHeader), 1, fp);
-    std::visit(visitor{[&](const std::vector<uint8>& inputData) {
+    std::visit(visitor{[&](const std::vector<uint8>& inputData)
+                       {
                            auto data = ConvertHeightData(inputData);
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
@@ -331,18 +388,18 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
 {
     auto image = GenerateBlendMapImage(terrainScale, heightMap, thresholds);
 
-    std::visit(
-        visitor{[&](std::vector<uint8> data) {
-                    Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsoultePath(), vec2(4));
-                    for (size_t i = 3; i < data.size(); i += 4)
-                        data[i] = 255;
+    std::visit(visitor{[&](std::vector<uint8> data)
+                       {
+                           Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsoultePath(), vec2(4));
+                           for (size_t i = 3; i < data.size(); i += 4)
+                               data[i] = 255;
 
-                    Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview");
-                    Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview_scaled", vec2(4));
-                },
-                [&](const std::vector<float>&) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
-                [](std::monostate) { ERROR_LOG("Data not set!"); }},
-        image.getImageData());
+                           Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview");
+                           Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview_scaled", vec2(4));
+                       },
+                       [&](const std::vector<float>&) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
+                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+               image.getImageData());
 }
 
 }  // namespace GameEngine

@@ -7,6 +7,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Resources/DefaultFiles/bengineLogo.h"
 
 namespace GameEngine
 {
@@ -44,7 +45,8 @@ void IntroRenderer::Init()
     params.flipMode        = TextureFlip::VERTICAL;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
 
-    backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("GUI/BENGINE.png", params);
+   // backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("GUI/BENGINE.png", params);
+    backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("BENGINE_LOGO", BENGINE_png, BENGINE_png_len, params);
 
     if (not perUpdateObjectBuffer_)
     {
