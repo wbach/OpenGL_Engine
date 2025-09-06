@@ -304,7 +304,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
         // obsługa kliknięcia "Browse"
         browseBtn->Bind(wxEVT_BUTTON,
-                        [=, &texOpt](wxCommandEvent&)
+                        [=, text = texOpt](wxCommandEvent&)
                         {
                             wxString startDir = EngineConf.files.data;  // katalog startowy
                             wxFileDialog dlg(panel, "Select texture", startDir, "", "*.png;*.jpg;*.bmp",
@@ -312,10 +312,10 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
                             if (dlg.ShowModal() == wxID_OK)
                             {
-                                texOpt.path = dlg.GetPath().ToStdString();  // aktualizacja wartości
+                                text.path = dlg.GetPath().ToStdString();  // aktualizacja wartości
                                 pathCtrl->SetValue(dlg.GetPath());          // aktualizacja pola
                                 wxImage newImg;
-                                if (newImg.LoadFile(EngineConf_GetFullDataPath(texOpt.path), wxBITMAP_TYPE_ANY))
+                                if (newImg.LoadFile(EngineConf_GetFullDataPath(text.path), wxBITMAP_TYPE_ANY))
                                 {
                                     thumbnail->SetBitmap(wxBitmap(newImg.Scale(100, 100)));
                                     thumbnail->Refresh();

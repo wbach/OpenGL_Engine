@@ -187,7 +187,7 @@ int EditorScene::Initialize()
                         DEBUG_LOG(dropFileEvent.filename);
                         auto& component                    = newGameObject->AddComponent<Components::RendererComponent>();
                         auto& animator                     = newGameObject->AddComponent<Components::Animator>();
-                        animator.startupAnimationClipName_ = "noname";
+                        animator.startupAnimationClipName = "noname";
                         component.AddModel(dropFileEvent.filename);
 
                         newGameObject->AddComponent<Components::MeshShape>();
@@ -256,7 +256,7 @@ int EditorScene::Initialize()
                             auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
                             if (animationName)
                             {
-                                animator.startupAnimationClipName_ = *animationName;
+                                animator.startupAnimationClipName = *animationName;
                             }
                         }
 

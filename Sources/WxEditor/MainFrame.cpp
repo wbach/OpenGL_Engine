@@ -413,7 +413,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
         }
     }
 
-    wxFileDialog openFileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
+    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir(), "",
                                 "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
@@ -1234,7 +1234,7 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
     GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
 
     std::string cmd =
-        "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" + sceneFile.GetAbsoultePath() + "\"";
+        "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" + sceneFile.GetAbsoultePath() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)

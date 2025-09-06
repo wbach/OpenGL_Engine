@@ -10,6 +10,8 @@ Intermediate/
 Logs/
 tmp/
 Cache/
+.cache/
+clangd/
 __pycache__/
 GameEngineCM/output/
 .cmake/

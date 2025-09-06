@@ -30,6 +30,12 @@ int main(int argc, char* argv[])
         File file{*value};
         if (file.exist())
         {
+            if (auto path = Utils::GetValue(args, "projectPath"))
+            {
+                auto& pm = ProjectManager::GetInstance();
+                pm.SetProjectPath(*path);
+            }
+
             std::cout << "Starting game engine with scene: " << file << "\n";
             Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<SceneFactory>(file));
             engine.Init();
