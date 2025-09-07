@@ -4,6 +4,7 @@
 #include <Mutex.hpp>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "ITextureLoader.h"
@@ -50,5 +51,13 @@ private:
     std::pair<GeneralTexture*, bool> textureNotFound_;
     std::mutex textureMutex_;
     bool releaseLockState_;
+
+    struct MemmoryImage
+    {
+        unsigned char* data;
+        unsigned int length;
+    };
+
+    std::unordered_map<std::string, MemmoryImage> memoryImages;
 };
 }  // namespace GameEngine

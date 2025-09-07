@@ -6,7 +6,12 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#include <vector>
 
+#include "DefaultFiles/darkGrayButton.h"
+#include "DefaultFiles/darkGrayButtonActive.h"
+#include "DefaultFiles/darkGrayButtonHover.h"
+#include "DefaultFiles/whiteClear.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GpuResourceLoader.h"
@@ -31,6 +36,14 @@ TextureLoader::TextureLoader(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourc
     , textureNotFound_({nullptr, false})
     , releaseLockState_(false)
 {
+    LOG_DEBUG << "Register default images";
+    memoryImages = {
+        {"whiteClear.png", MemmoryImage{.data = whiteClear_png, .length = whiteClear_png_len}},
+        {"darkGrayButtonActive.png", MemmoryImage{.data = darkGrayButtonActive_png, .length = darkGrayButtonActive_png_len}},
+        {"darkGrayButtonHover.png", MemmoryImage{.data = darkGrayButtonHover_png, .length = darkGrayButtonHover_png_len}},
+        {"darkGrayButton.png", MemmoryImage{.data = darkGrayButton_png, .length = darkGrayButton_png_len}}};
+
+    LOG_DEBUG << "Registered memory images: " << KEYS_ONLY << memoryImages;
 }
 TextureLoader::~TextureLoader()
 {
@@ -65,7 +78,8 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
 {
     if (not textures_.empty())
     {
-        auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture->GetGpuObjectId()](const auto& texture)
+        auto iter = std::find_if(textures_.begin(), textures_.end(),
+                                 [id = texture->GetGpuObjectId()](const auto& texture)
                                  { return (texture.second.resource_->GetGpuObjectId() == id); });
 
         texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->GetImage());
@@ -78,6 +92,15 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
 }
 GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const TextureParameters& params)
 {
+    auto memoryImagesIter = memoryImages.find(inputFileName.GetInitValue());
+
+    if (memoryImagesIter != memoryImages.end())
+    {
+        LOG_DEBUG << "Image found in memoryImages " << inputFileName.GetInitValue();
+        const auto& memoryImage = memoryImagesIter->second;
+        return LoadTexture(inputFileName.GetInitValue(), memoryImage.data, memoryImage.length, params);
+    }
+
     std::lock_guard<std::mutex> lk(textureMutex_);
 
     File inputFile = inputFileName;
@@ -122,6 +145,7 @@ GeneralTexture* TextureLoader::LoadTexture(const std::string& name, const unsign
         return static_cast<GeneralTexture*>(texture);
     }
 
+    LOG_DEBUG << "Read image data " << name;
     auto image = ReadImage(data, len, params);
 
     if (not image)
@@ -218,7 +242,8 @@ void TextureLoader::DeleteTexture(Texture& texture)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    auto iter = std::find_if(textures_.begin(), textures_.end(), [id = texture.GetGpuObjectId()](const auto& texture)
+    auto iter = std::find_if(textures_.begin(), textures_.end(),
+                             [id = texture.GetGpuObjectId()](const auto& texture)
                              { return (texture.second.resource_->GetGpuObjectId() == id); });
 
     if (iter != textures_.end())

@@ -101,14 +101,14 @@ void PrintFilesInDirectory(const std::string& dirPath, const std::string& t)
         if (p.is_directory())
         {
             auto filename = Utils::ReplaceSlash(p.path().string());
-            std::cout << t << "[D] " << filename << std::endl;
+            LOG_DEBUG << t << "[D] " << filename;
 
             PrintFilesInDirectory(p.path().string(), t + "    ");
         }
         else
         {
             auto filename = Utils::ReplaceSlash(p.path().string());
-            std::cout << t << "[F] " << filename << std::endl;
+            LOG_DEBUG << t << "[F] " << filename;
         }
     }
 }
