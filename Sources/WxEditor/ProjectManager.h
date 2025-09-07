@@ -37,6 +37,7 @@ public:
         projectScenesFactoryFilePath = path + "/scenes.json";
         projectScenesDirPath         = path + "/Scenes/";
         projectDataDirPath           = path + "/Data/";
+        projectComponentsDirPath     = projectDataDirPath + "Components/";
         projectCachePath             = path + "/.cache/";
 
         CreateDirectories();
@@ -66,7 +67,7 @@ public:
         createDirIfNotExist(projectPath);
         createDirIfNotExist(projectScenesDirPath);
         createDirIfNotExist(projectDataDirPath);
-        createDirIfNotExist(projectDataDirPath + "/Components");
+        createDirIfNotExist(projectComponentsDirPath);
         createDirIfNotExist(projectCachePath);
     }
 
@@ -74,6 +75,11 @@ public:
     const std::string& GetProjectPath() const
     {
         return projectPath;
+    }
+
+    const std::string& GetComponentsDirPath() const
+    {
+        return projectComponentsDirPath;
     }
 
     // Set project name
@@ -157,6 +163,9 @@ public:
             if (!wxPath.IsEmpty())
             {
                 std::string path = wxPath.ToStdString();
+
+                if (not path.empty() && (path.back() == '/' or path.back() == '\\'))
+                    path.pop_back();
 
                 // wyciągamy nazwę projektu z folderu
                 size_t lastSlash = path.find_last_of("/\\");
@@ -255,6 +264,7 @@ private:
     std::string projectCachePath;
     std::string projectScenesDirPath;
     std::string projectDataDirPath;
+    std::string projectComponentsDirPath;
     std::string lastOpenedPath;
     std::string projectName;
     std::string startupscene;

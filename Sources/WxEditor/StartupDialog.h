@@ -4,9 +4,11 @@
 #include <Utils/Json/JsonReader.h>
 #include <wx/listctrl.h>
 #include <wx/wx.h>
+#include <filesystem>
 
 #include "Logger/Log.h"
 #include "ProjectManager.h"
+#include "ProjectsCMakeTemplate.h"
 
 class StartupDialog : public wxDialog
 {
@@ -117,19 +119,23 @@ private:
             return;
 
         std::string folder      = dirDlg.GetPath().ToStdString();
-        std::string projectPath = folder + "/" + name + "/";
-        if (!wxDirExists(projectPath))
-            wxMkdir(projectPath);
+        std::string projectPath = folder + "/" + name;
+        if (not std::filesystem::exists(projectPath))
+            std::filesystem::create_directories(projectPath);
 
         auto& projectManager = ProjectManager::GetInstance();
         projectManager.SetProjectPath(projectPath);
         projectManager.SetProjectName(name);
         projectManager.SaveRecentProject(projectPath);
 
-        auto defualtMainScene = projectManager.GetScenesDir() + "/main.xml";
-        // SaveSceneAs(defualtMainScene);
         GameEngine::CreateDefaultFile(projectManager.GetConfigFile());
         GameEngine::createScenesFile(projectManager.GetScenesFactoryFile());
+
+        std::ofstream out(projectManager.GetProjectPath() + "CMakeLists.txt");
+        if (out)
+        {
+            out << projectCMakeTemplate;
+        }
 
         m_selectedProject = projectPath;
         EndModal(wxID_OK);
@@ -159,7 +165,7 @@ private:
         auto& pm = ProjectManager::GetInstance();
         Utils::JsonReader jsonReader;
 
-         //wxMessageBox(pm.GetScenesFactoryFile());
+        // wxMessageBox(pm.GetScenesFactoryFile());
         if (jsonReader.Read(pm.GetScenesFactoryFile()))
         {
             const std::string CSTR_ROOT_NODE{"projectConfiguration"};
