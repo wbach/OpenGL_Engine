@@ -22,6 +22,7 @@ public:
     // --- Odświeżanie ---
     void RefreshCurrent(const wxString& folderPath);
     void RefreshAll(const wxString& folderPath);
+    void RefreshAll();
 
     wxString GetCurrentFolderPath() const;
 

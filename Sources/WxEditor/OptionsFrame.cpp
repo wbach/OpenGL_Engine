@@ -6,6 +6,8 @@
 #include <wx/filepicker.h>
 #include <wx/spinctrl.h>
 
+#include <functional>
+
 #include "Logger/Log.h"
 #include "ProjectManager.h"
 #include "Resources/File.h"
@@ -239,11 +241,17 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     {
         std::string label;
         std::string& value;
+        std::function<void()> save;
     };
 
-    std::vector<PathOption> paths = {{"Data Path:", EngineConf.files.data},
-                                     {"Shader Path:", EngineConf.files.shaders},
-                                     {"Cache Path:", EngineConf.files.cache}};
+    auto saveConfig       = []() { WriteConfigurationToFile(EngineConf); };
+    auto saveEditorConfig = []() { ProjectManager::GetInstance().SaveEditorConfig(); };
+
+    std::vector<PathOption> paths = {
+        {"Data path:", EngineConf.files.data, saveConfig},
+        {"Shader path:", EngineConf.files.shaders, saveConfig},
+        {"Cache path:", EngineConf.files.cache, saveConfig},
+        {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir(), saveEditorConfig}};
 
     for (auto& pathOpt : paths)
     {
@@ -256,11 +264,11 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
         folderSizer->Add(pathDisplay, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
         dirPicker->Bind(wxEVT_DIRPICKER_CHANGED,
-                        [&, dirPicker, pathDisplay](wxFileDirPickerEvent& event)
+                        [&, option = pathOpt, dirPicker, pathDisplay](wxFileDirPickerEvent& event)
                         {
-                            pathOpt.value = dirPicker->GetPath().ToStdString();
-                            pathDisplay->SetLabel(pathOpt.value);
-                            WriteConfigurationToFile(EngineConf);
+                            option.value = dirPicker->GetPath().ToStdString();
+                            pathDisplay->SetLabel(option.value);
+                            option.save();
                         });
     }
 
@@ -313,7 +321,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
                             if (dlg.ShowModal() == wxID_OK)
                             {
                                 text.path = dlg.GetPath().ToStdString();  // aktualizacja wartości
-                                pathCtrl->SetValue(dlg.GetPath());          // aktualizacja pola
+                                pathCtrl->SetValue(dlg.GetPath());        // aktualizacja pola
                                 wxImage newImg;
                                 if (newImg.LoadFile(EngineConf_GetFullDataPath(text.path), wxBITMAP_TYPE_ANY))
                                 {

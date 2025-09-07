@@ -13,6 +13,7 @@
 #include <wx/stdpaths.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -191,7 +192,7 @@ void MainFrame::Init()
 
     // === Dół: ProjectPanel ===
     auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
-    ProjectPanel* projectPanel =
+    projectPanel =
         new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
 
     // Lewy splitter: góra (tree+canvas), dół (projectPanel)
@@ -1277,24 +1278,37 @@ void MainFrame::OnBuildCmponents(wxCommandEvent&)
 {
     LOG_DEBUG << "Build components";
 
+    std::string buildDir          = ProjectManager::GetInstance().GetProjectPath() + "/build";
+    std::string engineIncludesDir = ProjectManager::GetInstance().GetEngineIncludesDir();
 
-    std::string buildDir = ProjectManager::GetInstance().GetProjectPath() + "/build";
+    if (not std::filesystem::exists(buildDir))
+    {
+        std::filesystem::create_directories(buildDir);
+    }
+    if (engineIncludesDir.empty())
+    {
+        wxLogMessage("engineIncludesDir is empty, check preferenes settings. Should be path to engine repo");
+        return;
+    }
 
     LOG_DEBUG << "buildDir : " << buildDir;
+    LOG_DEBUG << "engineIncludesDir : " << engineIncludesDir;
 
-    RunCommand("cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=/home/baszek/Projects/OpenGL_Engine", buildDir);
+    RunCommand("cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir, buildDir);
     RunCommand("cmake --build .", buildDir);
 
     wxLogMessage("Components build finished");
+    projectPanel->RefreshAll();
 }
 
 void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir)
 {
     wxExecuteEnv env;
-    env.cwd = workDir; // katalog roboczy
+    env.cwd = workDir;  // katalog roboczy
 
     long pid = wxExecute(cmd, wxEXEC_SYNC, nullptr, &env);
-    if (pid == -1) {
+    if (pid == -1)
+    {
         wxLogError("Failed to run command: %s", cmd);
     }
 }

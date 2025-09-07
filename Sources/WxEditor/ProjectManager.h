@@ -1,16 +1,19 @@
 #pragma once
 #include <GameEngine/Scene/SceneUtils.h>
+#include <Utils/Json/JsonWriter.h>
 #include <wx/config.h>
 
 #include <filesystem>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include "Engine/Configuration.h"
 #include "Engine/ConfigurationReader.h"
 #include "Engine/ConfigurationWriter.h"
+#include "Json/JsonReader.h"
+#include "Json/JsonWriter.h"
+#include "TreeNode.h"
 
 class ProjectManager
 {
@@ -33,6 +36,7 @@ public:
     {
         projectPath                  = path;
         lastOpenedPath               = path;
+        projectEditorConfigFilePath  = path + "/editorConfig.json";
         projectConfigPath            = path + "/config.xml";
         projectScenesFactoryFilePath = path + "/scenes.json";
         projectScenesDirPath         = path + "/Scenes/";
@@ -59,6 +63,15 @@ public:
         if (needUpdate)
         {
             GameEngine::WriteConfigurationToFile(EngineConf);
+        }
+
+        if (std::filesystem::exists(projectEditorConfigFilePath))
+        {
+            ReadEditorConfig();
+        }
+        else
+        {
+            SaveEditorConfig();
         }
     }
 
@@ -153,7 +166,12 @@ public:
         return engineIncludesDir;
     }
 
-    void SetEngineIncludesDir(const std::string&  dir)
+    std::string& GetEngineIncludesDir()
+    {
+        return engineIncludesDir;
+    }
+
+    void SetEngineIncludesDir(const std::string& dir)
     {
         engineIncludesDir = dir;
     }
@@ -248,7 +266,24 @@ public:
 
     void SaveSceneFiles()
     {
-        GameEngine::createScenesFile(ProjectManager::GetInstance().GetScenesFactoryFile(), scenes, startupscene);
+        GameEngine::createScenesFile(projectScenesFactoryFilePath, scenes, startupscene);
+    }
+
+    void SaveEditorConfig()
+    {
+        TreeNode node("editorConfig");
+        node.addChild("engineIncludesDir", engineIncludesDir);
+        Utils::Json::Write(projectEditorConfigFilePath, node);
+    }
+
+    void ReadEditorConfig()
+    {
+        Utils::JsonReader json;
+        json.Read(projectEditorConfigFilePath);
+        if (auto engineIncludesDirNode = json.Get("engineIncludesDir"))
+        {
+            engineIncludesDir = engineIncludesDirNode->value_;
+        }
     }
 
 private:
@@ -275,6 +310,7 @@ private:
     std::string projectScenesDirPath;
     std::string projectDataDirPath;
     std::string projectComponentsDirPath;
+    std::string projectEditorConfigFilePath;
     std::string lastOpenedPath;
     std::string projectName;
     std::string startupscene;

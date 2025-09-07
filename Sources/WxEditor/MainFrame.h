@@ -22,6 +22,7 @@
 
 class GLCanvas;
 class OptionsFrame;
+class ProjectPanel;
 
 namespace GameEngine
 {
@@ -146,6 +147,7 @@ private:
 private:
     GLCanvas* canvas{nullptr};
     OptionsFrame* optionsFrame{nullptr};
+    ProjectPanel* projectPanel{nullptr};
     std::unique_ptr<SceneTreeCtrl> gameObjectsView{nullptr};
     wxCollapsiblePane* transformsCollapsible{nullptr};
     TransformPanel* worldTransformPanel{nullptr};

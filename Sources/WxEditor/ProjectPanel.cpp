@@ -751,6 +751,11 @@ void ProjectPanel::RefreshCurrent(const wxString& folderPath)
     filePanel->Refresh();
 }
 
+ void ProjectPanel::RefreshAll()
+ {
+    RefreshAll(currentFolderPath);
+ }
+
 void ProjectPanel::RefreshAll(const wxString& folderPath)
 {
     BuildTree();
