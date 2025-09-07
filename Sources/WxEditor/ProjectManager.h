@@ -148,6 +148,16 @@ public:
         return projectScenesDirPath;
     }
 
+    const std::string& GetEngineIncludesDir() const
+    {
+        return engineIncludesDir;
+    }
+
+    void SetEngineIncludesDir(const std::string&  dir)
+    {
+        engineIncludesDir = dir;
+    }
+
     std::vector<RecentProject> GetRecentProjects()
     {
         wxConfig config("MyEditor");
@@ -268,5 +278,6 @@ private:
     std::string lastOpenedPath;
     std::string projectName;
     std::string startupscene;
+    std::string engineIncludesDir;
     std::unordered_map<std::string, std::string> scenes;
 };

@@ -135,6 +135,9 @@ private:
     void OnToolStart(wxCommandEvent&);
     void OnToolStop(wxCommandEvent&);
     void OnToolAnimationViewer(wxCommandEvent&);
+    void OnBuildCmponents(wxCommandEvent&);
+
+    void RunCommand(const std::string& cmd, const std::string& workDir);
 
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);

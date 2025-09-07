@@ -125,6 +125,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOOL_START, MainFrame::OnToolStart)
     EVT_MENU(ID_TOOL_STOP, MainFrame::OnToolStop)
     EVT_MENU(ID_TOOL_ANIMATION_VIEWER, MainFrame::OnToolAnimationViewer)
+    EVT_MENU(ID_TOOL_BUILD, MainFrame::OnBuildCmponents)
+
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -830,7 +832,9 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
     toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
     toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
-    toolbar->AddTool(ID_TOOL_ANIMATION_VIEWER, "Animation Viewer", wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_ANIMATION_VIEWER, "Animation Viewer",
+                     wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_BUILD, "Build components", wxArtProvider::GetBitmap(wxART_FLOPPY));
 
     toolbar->SetToolShortHelp(ID_TOOL_OPEN, "Open scene from file");
     toolbar->SetToolShortHelp(ID_TOOL_SAVE, "Save scene");
@@ -838,6 +842,7 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->SetToolShortHelp(ID_TOOL_START, "Start scene");
     toolbar->SetToolShortHelp(ID_TOOL_STOP, "Stop scene if started");
     toolbar->SetToolShortHelp(ID_TOOL_ANIMATION_VIEWER, "Start animation viewer tool");
+    toolbar->SetToolShortHelp(ID_TOOL_BUILD, "Build projects componets to create shared libs");
     // Separator żeby odsunąć
     toolbar->AddSeparator();
 
@@ -1233,8 +1238,8 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
     GameEngine::File sceneFile{"editorTmpSceneToRun.xml"};
     GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
 
-    std::string cmd =
-        "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" + sceneFile.GetAbsoultePath() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
+    std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" +
+                      sceneFile.GetAbsoultePath() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)
@@ -1256,8 +1261,7 @@ void MainFrame::OnToolStop(wxCommandEvent&)
 
 void MainFrame::OnToolAnimationViewer(wxCommandEvent&)
 {
-    std::string cmd =
-        "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer";
+    std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer";
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)
@@ -1266,7 +1270,33 @@ void MainFrame::OnToolAnimationViewer(wxCommandEvent&)
         return;
     }
 
-   // wxLogMessage("AnimationViewer started, PID=%ld", pid);
+    // wxLogMessage("AnimationViewer started, PID=%ld", pid);
+}
+
+void MainFrame::OnBuildCmponents(wxCommandEvent&)
+{
+    LOG_DEBUG << "Build components";
+
+
+    std::string buildDir = ProjectManager::GetInstance().GetProjectPath() + "/build";
+
+    LOG_DEBUG << "buildDir : " << buildDir;
+
+    RunCommand("cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=/home/baszek/Projects/OpenGL_Engine", buildDir);
+    RunCommand("cmake --build .", buildDir);
+
+    wxLogMessage("Components build finished");
+}
+
+void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir)
+{
+    wxExecuteEnv env;
+    env.cwd = workDir; // katalog roboczy
+
+    long pid = wxExecute(cmd, wxEXEC_SYNC, nullptr, &env);
+    if (pid == -1) {
+        wxLogError("Failed to run command: %s", cmd);
+    }
 }
 
 bool MainFrame::SaveSceneAs()
