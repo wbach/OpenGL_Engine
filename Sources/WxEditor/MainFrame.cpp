@@ -8,6 +8,7 @@
 #include <wx/artprov.h>
 #include <wx/defs.h>
 #include <wx/filedlg.h>
+#include <wx/log.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
 #include <wx/stdpaths.h>
@@ -17,6 +18,7 @@
 #include <iostream>
 #include <string>
 
+#include "BuildLogFrame.h"
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"
 #include "ControlsIds.h"
@@ -192,8 +194,7 @@ void MainFrame::Init()
 
     // === Dół: ProjectPanel ===
     auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
-    projectPanel =
-        new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
+    projectPanel = new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
 
     // Lewy splitter: góra (tree+canvas), dół (projectPanel)
     leftSplitter->SplitHorizontally(topSplitter, projectPanel, size.y * 3 / 5);
@@ -1287,26 +1288,55 @@ void MainFrame::OnBuildCmponents(wxCommandEvent&)
     }
     if (engineIncludesDir.empty())
     {
-        wxLogMessage("engineIncludesDir is empty, check preferenes settings. Should be path to engine repo");
+        wxLogMessage("engineIncludesDir is empty, check preferences settings. Should be path to engine repo");
         return;
     }
 
     LOG_DEBUG << "buildDir : " << buildDir;
     LOG_DEBUG << "engineIncludesDir : " << engineIncludesDir;
 
-    RunCommand("cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir, buildDir);
-    RunCommand("cmake --build .", buildDir);
+    auto* logFrame = new BuildLogFrame(this);
+    logFrame->Show();
 
-    wxLogMessage("Components build finished");
-    projectPanel->RefreshAll();
+    logFrame->AppendLine("BuildDir: " + buildDir, *wxLIGHT_GREY);
+    logFrame->AppendLine("EngineIncludesDir: " + engineIncludesDir, *wxLIGHT_GREY);
+
+    wxExecuteEnv env;
+    env.cwd = buildDir;
+
+    auto* processCmake = new BuildProcess(logFrame);
+
+    logFrame->Bind(wxEVT_IDLE,
+                   [processCmake](wxIdleEvent& evt)
+                   {
+                       std::lock_guard<std::mutex> lock(processCmake->GetMutex());
+                       if (processCmake->IsRedirected())
+                           processCmake->ReadOutput();
+                       evt.Skip();
+                   });
+
+    logFrame->Bind(wxEVT_END_PROCESS,
+                   [=](wxProcessEvent& evt)
+                   {
+                       std::lock_guard<std::mutex> lock(processCmake->GetMutex());
+                       processCmake->ReadOutput();
+                       processCmake->Stop();
+                       logFrame->AppendLine("Components build finished.", *wxGREEN);
+                       projectPanel->RefreshAll();
+                   });
+
+    std::string cmd =
+        "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";
+
+    RunCommand(cmd, buildDir, processCmake);
 }
 
-void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir)
+void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process)
 {
     wxExecuteEnv env;
-    env.cwd = workDir;  // katalog roboczy
+    env.cwd = workDir;
 
-    long pid = wxExecute(cmd, wxEXEC_SYNC, nullptr, &env);
+    long pid = wxExecute(cmd, wxEXEC_ASYNC, process, &env);
     if (pid == -1)
     {
         wxLogError("Failed to run command: %s", cmd);
