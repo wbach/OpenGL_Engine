@@ -23,8 +23,7 @@ GuiManager::~GuiManager()
 
 GuiLayer& GuiManager::AddLayer(const std::string& name)
 {
-    auto iter =
-        std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
+    auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
     if (iter == layers_.end())
     {
         layers_.emplace_back(name);
@@ -37,8 +36,9 @@ GuiLayer& GuiManager::AddLayer(const std::string& name)
 
 void GuiManager::Add(const std::string& layerName, std::unique_ptr<GuiElement> element)
 {
-    auto iter = std::find_if(layers_.begin(), layers_.end(),
-                             [layerName](const auto& layer) { return layer.GetName() == layerName; });
+    std::lock_guard<std::mutex> lk(elementMutex_);
+    auto iter =
+        std::find_if(layers_.begin(), layers_.end(), [layerName](const auto& layer) { return layer.GetName() == layerName; });
 
     if (iter != layers_.end())
     {
@@ -107,6 +107,7 @@ void GuiManager::Update(float deltaTime)
         }
     }
 
+    std::lock_guard<std::mutex> lk(elementMutex_);
     for (auto& layer : layers_)
     {
         for (auto& element : layer.GetElements())
@@ -147,11 +148,11 @@ void GuiManager::AddTask(std::function<void()> task)
     tasks_.push_back(task);
 }
 
-void GuiManager::AddRemoveTask(GuiElement* element)
-{
-    std::lock_guard<std::mutex> lk(taskMutex_);
-    tasks_.push_back([this, element]() { Remove(element->GetId()); });
-}
+// void GuiManager::AddRemoveTask(GuiElement* element)
+// {
+//     std::lock_guard<std::mutex> lk(taskMutex_);
+//     tasks_.push_back([this, element]() { Remove(element->GetId()); });
+// }
 
 void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
 {
@@ -182,6 +183,7 @@ bool GuiManager::SaveToFile(const std::string& filename, const std::string& laye
 
 void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
 {
+    std::lock_guard<std::mutex> lk(elementMutex_);
     DEBUG_LOG("Remove ");
     if (exceptions.empty())
     {
@@ -194,7 +196,7 @@ void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
         {
             const auto& layerName = iter->GetName();
             auto skip             = std::find_if(exceptions.begin(), exceptions.end(),
-                                     [&layerName](const auto& layer) { return layerName == layer; });
+                                                 [&layerName](const auto& layer) { return layerName == layer; });
 
             if (skip == exceptions.end())
             {
@@ -211,10 +213,15 @@ void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
 
 void GuiManager::Remove(uint32 id)
 {
+    std::lock_guard<std::mutex> lk(elementMutex_);
     auto element = GetElement(id);
     if (element)
     {
-        Remove(*element);
+        for (auto& layer : layers_)
+        {
+            if (layer.removeElement(*element))
+                return;
+        }
     }
     else
     {
@@ -224,6 +231,7 @@ void GuiManager::Remove(uint32 id)
 
 void GuiManager::Remove(const GuiElement& element)
 {
+    std::lock_guard<std::mutex> lk(elementMutex_);
     for (auto& layer : layers_)
     {
         if (layer.removeElement(element))
@@ -233,6 +241,7 @@ void GuiManager::Remove(const GuiElement& element)
 
 void GuiManager::RemoveAll()
 {
+    std::lock_guard<std::mutex> lk(elementMutex_);
     for (auto& layer : layers_)
     {
         layer.clear();
@@ -241,8 +250,7 @@ void GuiManager::RemoveAll()
 
 GuiLayer* GuiManager::GetLayer(const std::string& name)
 {
-    auto iter =
-        std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
+    auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
     if (iter != layers_.end())
     {
         return &(*iter);

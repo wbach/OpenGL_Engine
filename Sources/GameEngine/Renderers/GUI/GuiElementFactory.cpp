@@ -271,7 +271,7 @@ void GuiElementFactory::CreateMessageBox(const std::string &title, const std::st
     auto button    = CreateGuiButton("ok", [this, windowPtr, okFunc](auto &) {
         if (okFunc)
             okFunc();
-        guiManager_.AddRemoveTask(windowPtr);
+        guiManager_.Remove(*windowPtr);
     });
 
     button->SetLocalScale(1.5f * button->GetLocalScale());
@@ -337,7 +337,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
     if (style != GuiWindowStyle::WITHOUT_BUTTONS)
     {
-        auto closeButton        = CreateGuiButton([this, ptr](auto &) { guiManager_.AddRemoveTask(ptr); });
+        auto closeButton        = CreateGuiButton([this, ptr](auto &) { guiManager_.Remove(*ptr); });
         auto closeButtonTexture = CreateGuiTexture("GUI/close.png");
         if (closeButtonTexture)
         {

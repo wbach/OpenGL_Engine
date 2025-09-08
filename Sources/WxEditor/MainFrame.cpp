@@ -1315,15 +1315,51 @@ void MainFrame::OnBuildCmponents(wxCommandEvent&)
                        evt.Skip();
                    });
 
-    logFrame->Bind(wxEVT_END_PROCESS,
-                   [=](wxProcessEvent& evt)
-                   {
-                       std::lock_guard<std::mutex> lock(processCmake->GetMutex());
-                       processCmake->ReadOutput();
-                       processCmake->Stop();
-                       logFrame->AppendLine("Components build finished.", *wxGREEN);
-                       projectPanel->RefreshAll();
-                   });
+    logFrame->Bind(
+        wxEVT_END_PROCESS,
+        [=](wxProcessEvent& evt)
+        {
+            std::lock_guard<std::mutex> lock(processCmake->GetMutex());
+            processCmake->ReadOutput();
+            processCmake->Stop();
+            projectPanel->RefreshAll();
+
+            int exitCode = evt.GetExitCode();
+
+            if (exitCode == 0)
+            {
+                logFrame->AppendLine("✅ Build finished successfully.", *wxGREEN);
+            }
+            else
+            {
+                logFrame->AppendLine("⚠️ Build finished with errors.", *wxRED);
+            }
+
+            projectPanel->RefreshAll();
+
+            logFrame->CallAfter(
+                [this, exitCode, logFrame]()
+                {
+                    wxString msg =
+                        (exitCode == 0)
+                            ? "Components build finished successfully.\nDo you want to reload the libraries?"
+                            : "Components build finished, but some targets failed.\nDo you still want to reload the libraries?";
+
+                    int answer = wxMessageBox(msg, "Build Finished", wxYES_NO | wxICON_QUESTION, logFrame);
+
+                    if (answer == wxYES)
+                    {
+                        LOG_DEBUG << "Reloading components...";
+                        canvas->GetEngine().getExternalComponentsReader().ReloadAll();
+                        RemoveAllComponentPanels();
+
+                        if (auto gameObject = GetSelectedGameObject())
+                        {
+                            AddGameObjectComponentsToView(*gameObject);
+                        }
+                    }
+                });
+        });
 
     std::string cmd =
         "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";

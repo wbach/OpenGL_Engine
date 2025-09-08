@@ -1,7 +1,8 @@
 #pragma once
+#include <Utils/TreeNode.h>
+
 #include <string>
 #include <vector>
-#include <Utils/TreeNode.h>
 
 namespace GameEngine
 {
@@ -11,10 +12,13 @@ class GameObject;
 struct ExternalComponentsReader
 {
     ExternalComponentsReader(ISceneManager&);
+    ~ExternalComponentsReader();
     void LoadAll();
     void LoadSingle(const std::string&);
     void Reload(const std::string&);
-    std::vector <std::pair<std::string, std::string>> GetLoadedLibs() const;
+    void ReloadAll();
+
+    std::vector<std::pair<std::string, std::string>> GetLoadedLibs() const;
 
     struct ComponentInstance
     {
@@ -25,6 +29,11 @@ struct ExternalComponentsReader
     void recreateAllInstancesOfComponent(const std::vector<ComponentInstance>&);
 
 private:
+    void removeCachedFile(const std::string&);
+
+private:
     ISceneManager& sceneManager;
 };
 }  // namespace GameEngine
+
+std::ostream& operator<<(std::ostream&, const GameEngine::ExternalComponentsReader::ComponentInstance&);

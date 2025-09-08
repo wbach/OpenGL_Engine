@@ -29,7 +29,7 @@ namespace
 using LibHandle = void*;
 inline LibHandle LoadLib(const std::string& file)
 {
-    return dlopen(file.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    return dlopen(file.c_str(), RTLD_NOW | RTLD_LOCAL);
 }
 inline void UnloadLib(LibHandle lib)
 {
@@ -79,7 +79,8 @@ inline std::string LastLibError()
 using FilePath = std::string;
 struct ComponentLib
 {
-    const char* name;
+    std::string name;
+    std::string cachedName;
     LibHandle handle;
 };
 std::unordered_map<FilePath, ComponentLib> externalLibs;
@@ -91,6 +92,21 @@ ExternalComponentsReader::ExternalComponentsReader(ISceneManager& sceneManager)
     : sceneManager(sceneManager)
 {
     LoadAll();
+}
+
+ExternalComponentsReader::~ExternalComponentsReader()
+{
+    LOG_DEBUG << "~ExternalComponentsReader";
+    for (auto& [_, lib] : externalLibs)
+    {
+        removeAllInstanceOfComponent(Components::BaseComponent::GetType(lib.name));
+        Components::ReadFunctions::instance().componentsReadFunctions.erase(lib.name);
+
+        UnloadLib(lib.handle);
+
+        removeCachedFile(lib.cachedName);
+    }
+    externalLibs.clear();
 }
 
 void ExternalComponentsReader::LoadAll()
@@ -127,6 +143,7 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
     std::string file =
         EngineConf.files.cache + "/" + std::to_string(ms) + "_" + std::filesystem::path(inputFile).filename().string();
     std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
+    LOG_DEBUG << "LoadLib cached: " << file;
     LibHandle handle = LoadLib(file);
     if (handle)
     {
@@ -141,7 +158,7 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
         if (func)
         {
             auto name = func();
-            externalLibs.insert({inputFile, ComponentLib{.name = name, .handle = handle}});
+            externalLibs.insert({inputFile, ComponentLib{.name = name, .cachedName = file, .handle = handle}});
         }
         else
         {
@@ -164,8 +181,10 @@ void ExternalComponentsReader::Reload(const std::string& path)
         auto& lib = iter->second;
         LOG_DEBUG << "Reload lib: " << path << " lib name = " << lib.name;
         auto instances = removeAllInstanceOfComponent(Components::BaseComponent::GetType(lib.name));
+        LOG_DEBUG << "Instances removed : " << instances;
         Components::ReadFunctions::instance().componentsReadFunctions.erase(lib.name);
         UnloadLib(lib.handle);
+        removeCachedFile(lib.cachedName);
         externalLibs.erase(path);
         LoadSingle(path);
         recreateAllInstancesOfComponent(instances);
@@ -174,6 +193,27 @@ void ExternalComponentsReader::Reload(const std::string& path)
     {
         LOG_DEBUG << "Component " << path << " not registered. Try load as new one.";
         LoadSingle(path);
+    }
+}
+
+void ExternalComponentsReader::removeCachedFile(const std::string& cachedName)
+{
+    try
+    {
+        std::filesystem::remove(cachedName);
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        LOG_WARN << "Failed to remove cache file " << cachedName << ": " << e.what();
+    }
+}
+
+void ExternalComponentsReader::ReloadAll()
+{
+    auto externalLibsCopy = externalLibs;
+    for (const auto& lib : externalLibsCopy)
+    {
+        Reload(lib.first);
     }
 }
 
@@ -240,3 +280,9 @@ void ExternalComponentsReader::recreateAllInstancesOfComponent(const std::vector
     }
 }
 }  // namespace GameEngine
+
+std::ostream& operator<<(std::ostream& os, const GameEngine::ExternalComponentsReader::ComponentInstance& instance)
+{
+    os << "ComponentInstance gameOBject(" << instance.gameObject.GetId() << ") name=" << instance.gameObject.GetName();
+    return os;
+}

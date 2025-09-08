@@ -2,8 +2,11 @@
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <Utils/Json/JsonReader.h>
+#include <wx/defs.h>
 #include <wx/listctrl.h>
+#include <wx/log.h>
 #include <wx/wx.h>
+
 #include <filesystem>
 
 #include "Logger/Log.h"
@@ -213,7 +216,20 @@ private:
 
     void OnRecentActivated(wxListEvent& event)
     {
-        wxString path     = m_recentList->GetItemText(event.GetIndex(), 1);
+        wxString path = m_recentList->GetItemText(event.GetIndex(), 1);
+        if (not std::filesystem::exists(path.ToStdString()))
+        {
+            int answer = wxMessageBox("Project not exist anymore. Path= " + path + ". Do you want remove from recenet projects?",
+                                      "Confirmation", wxYES_NO | wxICON_ERROR);
+
+            if (answer == wxYES)
+            {
+                long item = m_recentList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+                ProjectManager::GetInstance().RemoveRecentProject(path.ToStdString());
+                m_recentList->DeleteItem(item);
+            }
+            return;
+        }
         m_selectedProject = path.ToStdString();
         ProjectManager::GetInstance().SetProjectPath(m_selectedProject);
         ReadSceneFactoryFile();

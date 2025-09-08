@@ -37,24 +37,27 @@ public:
     void Remove(const GuiElement&);
     void RemoveAll();
 
+    GuiLayer* GetLayer(const std::string&);
+    const GuiLayers& GetGuiLayers() const;
+
+    ActionFunction GetActionFunction(const std::string& name);
+
+    void AddTask(std::function<void()>);
+    // void AddRemoveTask(GuiElement*);
+
+private:
     template <class T>
     T* Get(uint32);
     template <class T>
     T* Get(const std::string&);
 
-    GuiLayer* GetLayer(const std::string&);
-    const GuiLayers& GetGuiLayers() const;
-
     GuiElement* GetElement(const std::string&);
     GuiElement* GetElement(uint32 id);
-    ActionFunction GetActionFunction(const std::string& name);
-
-    void AddTask(std::function<void()>);
-    void AddRemoveTask(GuiElement*);
 
 private:
     GuiLayers layers_;
     std::mutex taskMutex_;
+    std::mutex elementMutex_;
     std::unordered_map<std::string, ActionFunction> registeredActions_;
     std::vector<std::function<void()>> tasks_;
     std::vector<GuiAnimation> animations;
