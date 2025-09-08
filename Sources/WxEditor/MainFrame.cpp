@@ -430,7 +430,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     wxString path = openFileDialog.GetPath();
     GameEngine::File file{std::string{path.c_str()}};
     canvas->OpenScene(file,
-                      [&]()
+                      [&, path = file.GetDataRelativeDir()]()
                       {
                           if (isRunning)
                           {
@@ -438,6 +438,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                               UpdateObjectCount();
                               SetStatusText("Welcome to game editor!");
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
+                              canvas->GetScene().GetFile() = path;
                           }
                       });
     SetStatusText("Loading file " + file.GetBaseName());
@@ -1410,7 +1411,7 @@ void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir, w
 
 bool MainFrame::SaveSceneAs()
 {
-    wxFileDialog fileDialog(this, "Wybierz plik", Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"), "",
+    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir(), "",
                             "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_SAVE);
 
     if (fileDialog.ShowModal() == wxID_CANCEL)

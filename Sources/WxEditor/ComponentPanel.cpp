@@ -8,10 +8,11 @@
 #include <wx/artprov.h>
 #include <wx/dnd.h>
 #include <wx/wx.h>
-#include "MyEvents.h"
 
 #include <magic_enum/magic_enum.hpp>
 
+#include "MyEvents.h"
+#include "Resources/File.h"
 #include "ThumbnailCache.h"
 
 class MyTextDropTarget : public wxTextDropTarget
@@ -52,7 +53,7 @@ public:
         LOG_DEBUG << "Drop text" << filenames[0];
         if (ctrl && !filenames.IsEmpty())
         {
-            ctrl->ChangeValue(filenames[0]);  // np. pierwsza ścieżka
+            ctrl->ChangeValue(GameEngine::File(filenames[0]).GetDataRelativeDir());
             ctrl->SetToolTip(filenames[0]);
 
             if (callback)
@@ -427,8 +428,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                     if (openFileDialog.ShowModal() == wxID_OK)
                                     {
                                         wxString path = openFileDialog.GetPath();
-                                        txt->SetValue(path);
                                         val->Change(path.ToStdString());
+                                        txt->SetValue(val->GetDataRelativeDir());
                                         reInitComponent(component);
                                         SetPreviewBitmap(prev, GameEngine::File{path.ToStdString()}, pane);
                                         txt->SetToolTip(txt->GetValue());
@@ -443,6 +444,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    reInitComponent(component);
                                    SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
                                    txt->SetToolTip(txt->GetValue());
+                                   txt->SetValue(val->GetDataRelativeDir());
                                });
 
             row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
@@ -920,8 +922,8 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
             if (openFileDialog.ShowModal() == wxID_OK)
             {
                 wxString path = openFileDialog.GetPath();
-                tr->SetValue(path);
                 editedFile = GameEngine::File(path.ToStdString());
+                tr->SetValue(editedFile.GetDataRelativeDir());
                 textCtrl->SetToolTip(path.ToStdString());
                 reInitComponent(component);
                 SetPreviewBitmap(prev, editedFile, pane);
@@ -981,7 +983,7 @@ void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Compon
     wxFileDialog openFileDialog(pane, "Choose file", EngineConf.files.data, "", "*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (openFileDialog.ShowModal() == wxID_OK)
     {
-        fileCtrl->SetValue(openFileDialog.GetPath());
+        fileCtrl->SetValue(GameEngine::File(openFileDialog.GetPath()).GetDataRelativeDir());
         fileCtrl->SetToolTip(openFileDialog.GetPath());
         val->Change(openFileDialog.GetPath().ToStdString());
         reInitComponent(component);

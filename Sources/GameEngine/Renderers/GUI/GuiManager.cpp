@@ -250,6 +250,7 @@ void GuiManager::RemoveAll()
 
 GuiLayer* GuiManager::GetLayer(const std::string& name)
 {
+    std::lock_guard<std::mutex> lk(elementMutex_);
     auto iter = std::find_if(layers_.begin(), layers_.end(), [name](const auto& layer) { return layer.GetName() == name; });
     if (iter != layers_.end())
     {
