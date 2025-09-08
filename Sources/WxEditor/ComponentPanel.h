@@ -19,8 +19,8 @@ class ExternalComponentsReader;
 class ComponentPanel : public wxPanel
 {
 public:
-    explicit ComponentPanel(wxFrame*, wxWindow*, GameEngine::ExternalComponentsReader&, GameEngine::Components::ComponentController&,
-                            GameEngine::GameObject&);
+    explicit ComponentPanel(wxFrame*, wxWindow*, GameEngine::ExternalComponentsReader&,
+                            GameEngine::Components::ComponentController&, GameEngine::GameObject&);
 
     void ClearComponents();
     void AddComponent(GameEngine::Components::IComponent&, bool collapsed = true);
@@ -77,6 +77,7 @@ private:
         wxBoxSizer* row;
         wxTextCtrl* textCtrl;
         wxButton* browseBtn;
+        wxStaticBitmap* warningIcon;
     };
     BrowseRow CreateBrowseFileRow(wxWindow* parent, const wxString& label, const wxString& initial);
 
@@ -86,6 +87,7 @@ private:
         wxTextCtrl* textCtrl;
         wxButton* browseBtn;
         wxStaticBitmap* preview;
+        wxStaticBitmap* warningIcon;
     };
     TextureRow CreateBrowseTextureRow(wxWindow* parent, const wxString& label, const wxString& initial);
 
@@ -96,4 +98,6 @@ private:
                                          GameEngine::Components::ReadAnimationInfo*);
     wxSpinCtrlDouble* CreateFloatSpinCtrl(wxWindow* parent, double, double = -100000.0, double = 100000.0, double = 0.01,
                                           int = 3);
+
+    void UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEngine::File& file);
 };

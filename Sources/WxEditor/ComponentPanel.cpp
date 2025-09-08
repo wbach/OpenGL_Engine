@@ -388,24 +388,31 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(row.row, 0, wxEXPAND | wxALL, 5);
             row.textCtrl->SetToolTip(row.textCtrl->GetValue());
             // Browse action
-            row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](auto& evt)
-                                { this->browseFileControlAction(evt, component, txt, pane, val); });
+            row.browseBtn->Bind(wxEVT_BUTTON,
+                                [this, &component, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](auto& evt)
+                                {
+                                    this->browseFileControlAction(evt, component, txt, pane, val);
+                                    UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                });
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val, txt = row.textCtrl](auto& evt)
+                               [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](auto& evt)
                                {
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
                                    txt->SetToolTip(txt->GetValue());
+                                   UpdateFileWarning(warningIcon, val->GetAbsoultePath());
                                });
 
-            row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
-                                                             [this, &component, val](const std::string& path)
-                                                             {
-                                                                 val->Change(path);
-                                                                 reInitComponent(component);
-                                                             }));
+            row.textCtrl->SetDropTarget(
+                new MyFileDropTarget(row.textCtrl,
+                                     [this, &component, val, warningIcon = row.warningIcon](const std::string& path)
+                                     {
+                                         val->Change(path);
+                                         reInitComponent(component);
+                                         UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                     }));
             break;
         }
 
@@ -420,7 +427,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             row.textCtrl->SetToolTip(row.textCtrl->GetValue());
             // Browse action
             row.browseBtn->Bind(wxEVT_BUTTON,
-                                [this, &component, txt = row.textCtrl, prev = row.preview, pane, val](wxCommandEvent&)
+                                [this, &component, txt = row.textCtrl, prev = row.preview, pane, val,
+                                 warningIcon = row.warningIcon](wxCommandEvent&)
                                 {
                                     wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "",
                                                                 "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
@@ -433,26 +441,32 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                         reInitComponent(component);
                                         SetPreviewBitmap(prev, GameEngine::File{path.ToStdString()}, pane);
                                         txt->SetToolTip(txt->GetValue());
+                                        UpdateFileWarning(warningIcon, val->GetAbsoultePath());
                                     }
                                 });
 
             // Enter w polu
             row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                               [this, &component, val, prev = row.preview, pane, txt = row.textCtrl](wxCommandEvent& evt)
+                               [this, &component, val, prev = row.preview, pane, txt = row.textCtrl,
+                                warningIcon = row.warningIcon](wxCommandEvent& evt)
                                {
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
                                    SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
                                    txt->SetToolTip(txt->GetValue());
                                    txt->SetValue(val->GetDataRelativeDir());
+                                   UpdateFileWarning(warningIcon, val->GetAbsoultePath());
                                });
 
-            row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
-                                                             [this, &component, val](const std::string& path)
-                                                             {
-                                                                 val->Change(path);
-                                                                 reInitComponent(component);
-                                                             }));
+            row.textCtrl->SetDropTarget(new MyFileDropTarget(
+                row.textCtrl,
+                [this, &component, pane, val, warningIcon = row.warningIcon, prev = row.preview](const std::string& path)
+                {
+                    val->Change(path);
+                    reInitComponent(component);
+                    SetPreviewBitmap(prev, *val, pane);
+                    UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                }));
             break;
         }
 
@@ -857,27 +871,32 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
     elemRow->Add(row.row, 1, wxEXPAND | wxRIGHT, 5);
 
     row.textCtrl->SetToolTip(row.textCtrl->GetValue());
-    row.browseBtn->Bind(wxEVT_BUTTON,
-                        [this, &component, txt = row.textCtrl, pane, &editedFile](wxCommandEvent& evt)
-                        {
-                            this->browseFileControlAction(evt, component, txt, pane, &editedFile);
-                            txt->SetToolTip(txt->GetValue());
-                        });
+    row.browseBtn->Bind(
+        wxEVT_BUTTON,
+        [this, &component, txt = row.textCtrl, pane, &editedFile, warningIcon = row.warningIcon](wxCommandEvent& evt)
+        {
+            this->browseFileControlAction(evt, component, txt, pane, &editedFile);
+            txt->SetToolTip(txt->GetValue());
+            UpdateFileWarning(warningIcon, txt->GetValue().ToStdString());
+        });
 
     row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, &editedFile, txt = row.textCtrl](wxCommandEvent& evt)
+                       [this, &component, &editedFile, txt = row.textCtrl, warningIcon = row.warningIcon](wxCommandEvent& evt)
                        {
                            editedFile = GameEngine::File(evt.GetString().ToStdString());
                            reInitComponent(component);
                            txt->SetToolTip(txt->GetValue());
+                           UpdateFileWarning(warningIcon, txt->GetValue().ToStdString());
                            evt.Skip();
                        });
-    row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
-                                                     [this, &component, &editedFile](const std::string& path)
-                                                     {
-                                                         editedFile = GameEngine::File(path);
-                                                         reInitComponent(component);
-                                                     }));
+    row.textCtrl->SetDropTarget(
+        new MyFileDropTarget(row.textCtrl,
+                             [this, &component, &editedFile, warningIcon = row.warningIcon](const std::string& path)
+                             {
+                                 editedFile = GameEngine::File(path);
+                                 UpdateFileWarning(warningIcon, path);
+                                 reInitComponent(component);
+                             }));
 
     if (canDelete)
     {
@@ -913,42 +932,46 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
     SetPreviewBitmap(row.preview, editedFile, pane);
 
     row.textCtrl->SetToolTip(row.textCtrl->GetValue());
-    row.browseBtn->Bind(
-        wxEVT_BUTTON,
-        [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile, textCtrl = row.textCtrl](wxCommandEvent&)
-        {
-            wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "",
-                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-            if (openFileDialog.ShowModal() == wxID_OK)
-            {
-                wxString path = openFileDialog.GetPath();
-                editedFile = GameEngine::File(path.ToStdString());
-                tr->SetValue(editedFile.GetDataRelativeDir());
-                textCtrl->SetToolTip(path.ToStdString());
-                reInitComponent(component);
-                SetPreviewBitmap(prev, editedFile, pane);
-            }
-        });
+    row.browseBtn->Bind(wxEVT_BUTTON,
+                        [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile, textCtrl = row.textCtrl,
+                         warningIcon = row.warningIcon](wxCommandEvent&)
+                        {
+                            wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.data, "",
+                                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                                                        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                            if (openFileDialog.ShowModal() == wxID_OK)
+                            {
+                                wxString path = openFileDialog.GetPath();
+                                editedFile    = GameEngine::File(path.ToStdString());
+                                tr->SetValue(editedFile.GetDataRelativeDir());
+                                textCtrl->SetToolTip(path.ToStdString());
+                                reInitComponent(component);
+                                SetPreviewBitmap(prev, editedFile, pane);
+                                UpdateFileWarning(warningIcon, editedFile.GetAbsoultePath());
+                            }
+                        });
 
-    row.textCtrl->Bind(
-        wxEVT_TEXT_ENTER,
-        [this, &component, &editedFile, prev = row.preview, pane, textCtrl = row.textCtrl](wxCommandEvent& evt) mutable
+    row.textCtrl->Bind(wxEVT_TEXT_ENTER,
+                       [this, &component, &editedFile, prev = row.preview, pane, textCtrl = row.textCtrl,
+                        warningIcon = row.warningIcon](wxCommandEvent& evt) mutable
+                       {
+                           editedFile = GameEngine::File(evt.GetString().ToStdString());
+                           SetPreviewBitmap(prev, editedFile, pane);
+                           textCtrl->SetToolTip(evt.GetString().ToStdString());
+                           reInitComponent(component);
+                           UpdateFileWarning(warningIcon, editedFile.GetAbsoultePath());
+                           evt.Skip();
+                       });
+
+    row.textCtrl->SetDropTarget(new MyFileDropTarget(
+        row.textCtrl,
+        [this, &component, &editedFile, prev = row.preview, pane, warningIcon = row.warningIcon](const std::string& path)
         {
-            editedFile = GameEngine::File(evt.GetString().ToStdString());
+            editedFile = GameEngine::File(path);
             SetPreviewBitmap(prev, editedFile, pane);
-            textCtrl->SetToolTip(evt.GetString().ToStdString());
             reInitComponent(component);
-            evt.Skip();
-        });
-
-    row.textCtrl->SetDropTarget(
-        new MyFileDropTarget(row.textCtrl,
-                             [this, &component, &editedFile, prev = row.preview, pane](const std::string& path)
-                             {
-                                 editedFile = GameEngine::File(path);
-                                 SetPreviewBitmap(prev, editedFile, pane);
-                                 reInitComponent(component);
-                             }));
+            UpdateFileWarning(warningIcon, editedFile.GetAbsoultePath());
+        }));
 
     if (canDelete)
     {
@@ -1019,6 +1042,12 @@ ComponentPanel::BrowseRow ComponentPanel::CreateBrowseFileRow(wxWindow* parent, 
     out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
     out.row->Add(out.browseBtn, 0, wxLEFT, 5);
 
+    out.warningIcon = new wxStaticBitmap(parent, wxID_ANY, wxBitmap(16, 16));
+    out.row->Add(out.warningIcon, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+    out.warningIcon->Hide();
+
+    UpdateFileWarning(out.warningIcon, initial.ToStdString());
+
     return out;
 }
 
@@ -1037,9 +1066,15 @@ ComponentPanel::TextureRow ComponentPanel::CreateBrowseTextureRow(wxWindow* pare
     out.browseBtn = new wxButton(parent, wxID_ANY, "Browse");
     out.row->Add(out.browseBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
 
+    out.warningIcon = new wxStaticBitmap(parent, wxID_ANY, wxBitmap(16, 16));
+    out.row->Add(out.warningIcon, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+    out.warningIcon->Hide();
+
     out.preview =
         new wxStaticBitmap(parent, wxID_ANY, ThumbnailCache::Get().GetThumbnail(initial, 64), wxDefaultPosition, wxSize(64, 64));
     out.row->Add(out.preview, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 10);
+
+    UpdateFileWarning(out.warningIcon, initial.ToStdString());
 
     return out;
 }
@@ -1088,22 +1123,29 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
         auto row = CreateBrowseFileRow(pane, "File", val->file.GetDataRelativeDir());
         clipSizer->Add(row.row, 0, wxEXPAND | wxALL, 2);
 
-        row.browseBtn->Bind(wxEVT_BUTTON, [this, &component, txt = row.textCtrl, pane, val](wxCommandEvent& evt)
-                            { this->browseFileControlAction(evt, component, txt, pane, &val->file); });
+        row.browseBtn->Bind(wxEVT_BUTTON,
+                            [this, &component, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](wxCommandEvent& evt)
+                            {
+                                this->browseFileControlAction(evt, component, txt, pane, &val->file);
+                                UpdateFileWarning(warningIcon, val->file.GetAbsoultePath());
+                            });
 
         row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                           [this, &component, val, txt = row.textCtrl](wxCommandEvent& evt)
+                           [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](wxCommandEvent& evt)
                            {
                                val->file.Change(evt.GetString().ToStdString());
                                reInitComponent(component);
                                txt->SetToolTip(txt->GetValue());
+                               UpdateFileWarning(warningIcon, val->file.GetAbsoultePath());
                            });
-        row.textCtrl->SetDropTarget(new MyFileDropTarget(row.textCtrl,
-                                                         [this, &component, val](const std::string& path)
-                                                         {
-                                                             val->file.Change(path);
-                                                             reInitComponent(component);
-                                                         }));
+        row.textCtrl->SetDropTarget(
+            new MyFileDropTarget(row.textCtrl,
+                                 [this, &component, val, warningIcon = row.warningIcon](const std::string& path)
+                                 {
+                                     val->file.Change(path);
+                                     reInitComponent(component);
+                                     UpdateFileWarning(warningIcon, val->file.GetAbsoultePath());
+                                 }));
     }
 
     // playInLoop
@@ -1199,4 +1241,21 @@ wxSpinCtrlDouble* ComponentPanel::CreateFloatSpinCtrl(wxWindow* parent, double v
     ctrl->Bind(wxEVT_MOUSEWHEEL, [](auto& evt) {});
 
     return ctrl;
+}
+
+void ComponentPanel::UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEngine::File& file)
+{
+    if (file.exist())
+    {
+        warningIcon->Hide();
+    }
+    else
+    {
+        // Zakładamy, że masz ikonę wykrzyknika w zasobach lub pliku
+        auto bmp = wxArtProvider::GetBitmap(wxART_ERROR, wxART_OTHER, wxSize(16, 16));
+        warningIcon->SetBitmap(bmp);
+        warningIcon->Show();
+    }
+    if (warningIcon->GetParent())
+        warningIcon->GetParent()->Layout();
 }
