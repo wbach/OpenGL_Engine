@@ -115,6 +115,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_SPECULAR, MainFrame::MenuRendererTextureSpecular)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuRendererTextureDisplacement)
     EVT_MENU(ID_MENU_ABOUT_GL_INFO, MainFrame::OnGLVersion)
+    EVT_MENU(ID_MENU_COMPONENTS_REBUILD, MainFrame::MenuComponentsRebuild)
+    EVT_MENU(ID_MENU_COMPONENTS_RELOAD, MainFrame::MenuComponentsReload)
     EVT_TREE_SEL_CHANGED(ID_OBJECT_TREE, MainFrame::OnObjectTreeSelChange)
     EVT_TREE_ITEM_ACTIVATED(ID_OBJECT_TREE, MainFrame::OnObjectTreeActivated)
 //    EVT_TREE_BEGIN_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectDrag)
@@ -756,6 +758,23 @@ void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
 }
 
+void MainFrame::MenuComponentsRebuild(wxCommandEvent& evt)
+{
+    OnBuildCmponents(evt);
+}
+
+void MainFrame::MenuComponentsReload(wxCommandEvent&)
+{
+    LOG_DEBUG << "Reloading components...";
+    canvas->GetEngine().getExternalComponentsReader().ReloadAll();
+    RemoveAllComponentPanels();
+
+    if (auto gameObject = GetSelectedGameObject())
+    {
+        AddGameObjectComponentsToView(*gameObject);
+    }
+}
+
 void MainFrame::OnGLVersion(wxCommandEvent&)
 {
     wxLogMessage(canvas->getGlInfo().c_str());
@@ -767,6 +786,7 @@ void MainFrame::CreateMainMenu()
     menuBar->Append(CreateFileMenu(), "&File");
     menuBar->Append(CreateEditMenu(), "&Edit");
     menuBar->Append(CreateRendererMenu(), "&Renderer");
+    menuBar->Append(CreateComponentsMenu(), "&Components");
     menuBar->Append(CreateAboutMenu(), "&About");
     SetMenuBar(menuBar);
 }
@@ -816,6 +836,15 @@ wxMenu* MainFrame::CreateRendererMenu()
 
     menu->AppendSubMenu(texturesMenu, "&Texture rendering\tCtrl-A", "Enable/Disable of normals visualization");
     return menu;
+}
+
+wxMenu* MainFrame::CreateComponentsMenu()
+{
+    wxMenu* menuFile = new wxMenu;
+    menuFile->Append(ID_MENU_COMPONENTS_REBUILD, "&Rebuild all project components", "Rebuild all project components");
+    menuFile->Append(ID_MENU_COMPONENTS_RELOAD, "&Reload all project components", "Reload all project components");
+
+    return menuFile;
 }
 
 wxMenu* MainFrame::CreateAboutMenu()

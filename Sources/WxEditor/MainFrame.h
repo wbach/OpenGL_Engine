@@ -89,6 +89,9 @@ private:
     void MenuRendererTextureSpecular(wxCommandEvent&);
     void MenuRendererTextureDisplacement(wxCommandEvent&);
 
+    void MenuComponentsRebuild(wxCommandEvent&);
+    void MenuComponentsReload(wxCommandEvent&);
+
     void SetDeubgRendererState(GameEngine::DebugRenderer::RenderState);
 
     void OnObjectTreeSelChange(wxTreeEvent&);
@@ -116,6 +119,7 @@ private:
     wxMenu* CreateFileMenu();
     wxMenu* CreateEditMenu();
     wxMenu* CreateRendererMenu();
+    wxMenu* CreateComponentsMenu();
     wxMenu* CreateAboutMenu();
 
     void CreateToolBarForEngine();
