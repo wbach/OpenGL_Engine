@@ -420,6 +420,28 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
         if (fileDialog.ShowModal() == wxID_CANCEL)
             return;
 
+        int answer = wxMessageBox("Would you like set startup animation?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+        if (answer == wxYES)
+        {
+            const auto& clips = currentGameObject->animator.getAnimationClips();
+            if (!clips.empty())
+            {
+                wxArrayString animNames;
+                for (const auto& [name, _] : clips)
+                    animNames.Add(name);
+
+                wxSingleChoiceDialog animDialog(this, "Choose startup animation", "Startup Animation", animNames);
+
+                if (animDialog.ShowModal() == wxID_OK)
+                {
+                    wxString chosenAnim                                  = animDialog.GetStringSelection();
+                    currentGameObject->animator.startupAnimationClipName = chosenAnim.ToStdString();
+                    LOG_DEBUG << "Startup animation chosen: " << chosenAnim.ToStdString();
+                }
+            }
+        }
+
         wxString path = fileDialog.GetPath();
         GameEngine::createAndSavePrefab(GameEngine::File{path.c_str()}, *maybeGo);
     }
