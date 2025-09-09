@@ -6,6 +6,7 @@
 #include <GameEngine/Engine/Engine.h>
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
+#include <wx/defs.h>
 #include <wx/dnd.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
@@ -46,9 +47,28 @@ public:
             LOG_DEBUG << "Only one file is supported";
         }
 
-        LOG_DEBUG << "OnDropFiles: " << filenames[0];
+        const auto& file = filenames[0].ToStdString();
 
-        viewer->ShowModel(filenames[0].ToStdString());
+        LOG_DEBUG << "OnDropFiles: " << file;
+
+        if (std::filesystem::is_directory(file))
+        {
+            if (not viewer->isObjectSelcted())
+            {
+                wxMessageBox("Dropp folder, but model not set", "Warning", wxOK | wxICON_WARNING);
+                return false;
+            }
+            int answer = wxMessageBox("Dropp folder, search for animations there?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+            if (answer == wxYES)
+            {
+                viewer->SearchAndAddClipsFromDir(file);
+            }
+        }
+        else
+        {
+            viewer->ShowModel(file);
+        }
 
         return true;
     }
@@ -62,6 +82,11 @@ AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint&
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 {
     Init();
+}
+
+bool AnimationViewerFrame::isObjectSelcted() const
+{
+    return currentGameObject.has_value();
 }
 
 void AnimationViewerFrame::Init()
@@ -138,7 +163,7 @@ void AnimationViewerFrame::Init()
                               {
                                   wxString path = dlg.GetPath();
 
-                                  FindAllAnimationsInFolder(currentGameObject->animator, path.ToStdString());
+                                  SearchAndAddClipsFromDir(path.ToStdString());
 
                                   auto modelName =
                                       currentGameObject->rendererComponent.GetModelWrapper().Get()->GetFile().GetBaseName();
@@ -237,49 +262,6 @@ void AnimationViewerFrame::OnTimer(wxTimerEvent& event)
                                                                currentGameObject->gameObjectId.value());
     }
 }
-void AnimationViewerFrame::FindAllAnimationsInFolder(GameEngine::Components::Animator& animator, const std::string& path)
-{
-    if (not animList->IsEmpty())
-    {
-        int answer = wxMessageBox("List not empty, clear current anims?", "Confirmation", wxYES_NO | wxICON_QUESTION);
-
-        if (answer == wxYES)
-        {
-            animList->Clear();
-            animator.clearAnimationClips();
-        }
-        else
-        {
-            int answer = wxMessageBox("Continue anyway?", "Confirmation", wxYES_NO | wxICON_QUESTION);
-
-            if (answer != wxYES)
-            {
-                return;
-            }
-        }
-    }
-    auto files = Utils::FindFilesWithExtension(path, ".xml");
-    if (not files.empty())
-    {
-        for (const auto& file : files)
-        {
-            DEBUG_LOG("Found animation file in subfolders add clip : " + file);
-            if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
-            {
-                animator.AddAnimationClip(*animationName, GameEngine::File(file));
-                animList->Append(*animationName);
-            }
-        }
-
-        auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
-        if (animationName)
-        {
-            animator.startupAnimationClipName = *animationName;
-        }
-
-        animator.initAnimationClips();
-    }
-}
 
 void AnimationViewerFrame::OnAnimListContextMenu(wxContextMenuEvent& event)
 {
@@ -329,4 +311,52 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
     }
 
     wxMessageBox("Exported " + selected + " to " + path, "Export", wxOK | wxICON_INFORMATION);
+}
+
+void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
+{
+    if (not currentGameObject)
+        return;
+
+    if (not animList->IsEmpty())
+    {
+        int answer = wxMessageBox("List not empty, clear current anims?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+        if (answer == wxYES)
+        {
+            animList->Clear();
+            currentGameObject->animator.clearAnimationClips();
+        }
+        else
+        {
+            int answer = wxMessageBox("Continue anyway?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+            if (answer != wxYES)
+            {
+                return;
+            }
+        }
+    }
+
+    auto files = Utils::FindFilesWithExtension(path, ".xml");
+    if (not files.empty())
+    {
+        for (const auto& file : files)
+        {
+            DEBUG_LOG("Found animation file in subfolders add clip : " + file);
+            if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
+            {
+                currentGameObject->animator.AddAnimationClip(*animationName, GameEngine::File(file));
+                animList->Append(*animationName);
+            }
+        }
+
+        auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
+        if (animationName)
+        {
+            currentGameObject->animator.startupAnimationClipName = *animationName;
+        }
+
+        currentGameObject->animator.initAnimationClips();
+    }
 }

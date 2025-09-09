@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 
 #include "GLCanvas.h"
 #include "IdPool.h"
@@ -23,11 +24,12 @@ class AnimationViewerFrame : public wxFrame
 public:
     AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void ShowModel(const GameEngine::File&);
+    void SearchAndAddClipsFromDir(const std::string&);
     static bool CheckExtension(const GameEngine::File& file);
+    bool isObjectSelcted() const;
 
 private:
     void Init();
-    void FindAllAnimationsInFolder(GameEngine::Components::Animator&, const std::string&);
     void OnTimer(wxTimerEvent&);
     void OnAnimListContextMenu(wxContextMenuEvent& event);
     void OnExportToFile(wxCommandEvent& event);
