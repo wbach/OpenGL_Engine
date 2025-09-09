@@ -618,7 +618,7 @@ void write(TreeNode& node, const AnimationClipInfo& clipInfo)
     const auto& fp = clipInfo.clip.getFilePath();
     if (fp)
     {
-        write(node.addChild(CSTR_FILE_NAME), clipInfo.clip.getFilePath().value());
+        write(node.addChild(CSTR_FILE_NAME), File(clipInfo.clip.getFilePath().value()).GetDataRelativeDir());
     }
     else
     {

@@ -1193,8 +1193,9 @@ void MainFrame::OnMakePrefab(wxCommandEvent&)
 {
     if (auto maybeGo = GetSelectedGameObject())
     {
-        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data), "",
-                                "Pliki prefabów (*.prefab)|*.prefab", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data),
+                                maybeGo->GetName() + ".prefab", "Pliki prefabów (*.prefab)|*.prefab",
+                                wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
         if (fileDialog.ShowModal() == wxID_CANCEL)
             return;

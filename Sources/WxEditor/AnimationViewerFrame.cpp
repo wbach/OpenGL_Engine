@@ -410,6 +410,19 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
         wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
         return;
     }
+
+    auto& scene = canvas->GetScene();
+    if (auto maybeGo = scene.GetGameObject(currentGameObject->gameObjectId.value()))
+    {
+        wxFileDialog fileDialog(this, "Choose prefab file", GetStartupDialogPathBasedOnCurrent(), maybeGo->GetName() + ".prefab",
+                                "Pliki prefabów (*.prefab)|*.prefab", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+        if (fileDialog.ShowModal() == wxID_CANCEL)
+            return;
+
+        wxString path = fileDialog.GetPath();
+        GameEngine::createAndSavePrefab(GameEngine::File{path.c_str()}, *maybeGo);
+    }
 }
 
 void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
