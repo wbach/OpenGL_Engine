@@ -8,6 +8,7 @@
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <wx/defs.h>
 #include <wx/dnd.h>
+#include <wx/gtk/filedlg.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
@@ -138,50 +139,89 @@ void AnimationViewerFrame::Init()
                        }
                    });
 
-    wxBoxSizer* folderRowSizer = new wxBoxSizer(wxHORIZONTAL);
-
-    animationsSearchFolderPath = new wxStaticText(rightPanel, wxID_ANY, "-");
-    folderRowSizer->Add(animationsSearchFolderPath, 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-
-    wxButton* chooseFolderBtn = new wxButton(rightPanel, wxID_ANY, "Read animations from directory");
-    folderRowSizer->Add(chooseFolderBtn, 0, wxALL, 5);
-
-    rightSizer->Add(folderRowSizer, 0, wxEXPAND);
-
-    // Obsługa kliknięcia przycisku
-    chooseFolderBtn->Bind(wxEVT_BUTTON,
-                          [this](wxCommandEvent&)
-                          {
-                              if (not currentGameObject)
-                                  return;
-
-                              auto startupPath = currentGameObject->currentModelFile.has_value()
-                                                     ? currentGameObject->currentModelFile->GetParentDir()
-                                                     : ProjectManager::GetInstance().GetProjectPath();
-                              wxDirDialog dlg(this, "Read animations from directory", startupPath, wxDD_DIR_MUST_EXIST);
-                              if (dlg.ShowModal() == wxID_OK)
-                              {
-                                  wxString path = dlg.GetPath();
-
-                                  SearchAndAddClipsFromDir(path.ToStdString());
-
-                                  auto modelName =
-                                      currentGameObject->rendererComponent.GetModelWrapper().Get()->GetFile().GetBaseName();
-                                  SetStatusText(modelName + ". Path: " + path);
-                              }
-                          });
-
     rightPanel->SetSizer(rightSizer);
 
     auto size = GetSize();
     mainSplitter->SplitVertically(canvas, rightPanel, 3 * size.x / 4);
 
+    CreateMainMenu();
     CreateStatusBar();
     SetStatusText("Animation Viewer ready");
 
     timer = new wxTimer(this);
     Bind(wxEVT_TIMER, &AnimationViewerFrame::OnTimer, this);
     timer->Start(16);
+}
+
+void AnimationViewerFrame::CreateMainMenu()
+{
+    wxMenuBar* menuBar            = new wxMenuBar();
+    int ID_OPEN_FILE              = wxWindow::NewControlId();
+    int ID_READ_ANIMATIONS_FOLDER = wxWindow::NewControlId();
+    int ID_EXPORT_SELECTED_CLIP   = wxWindow::NewControlId();
+    int ID_EXPORT_ALL_CLIPS       = wxWindow::NewControlId();
+    int ID_CREATE_PREFAB          = wxWindow::NewControlId();
+
+    wxMenu* fileMenu = new wxMenu();
+    fileMenu->Append(ID_OPEN_FILE, "Open model");
+    fileMenu->Append(ID_READ_ANIMATIONS_FOLDER, "Import animations from directory");
+    fileMenu->Append(ID_EXPORT_SELECTED_CLIP, "Export slected clip");
+    fileMenu->Append(ID_EXPORT_ALL_CLIPS, "Export all animation clips");
+    fileMenu->Append(ID_CREATE_PREFAB, "Create prefab from current object");
+
+    Bind(
+        wxEVT_MENU,
+        [this](wxCommandEvent&)
+        {
+            wxFileDialog dlg(this, "Open mode", ProjectManager::GetInstance().GetProjectPath());
+            if (dlg.ShowModal() == wxID_OK)
+            {
+                wxString path = dlg.GetPath();
+                ShowModel(path.ToStdString());
+            }
+        },
+        ID_OPEN_FILE);
+
+    Bind(
+        wxEVT_MENU,
+        [this](wxCommandEvent&)
+        {
+            if (not currentGameObject)
+            {
+                wxMessageBox("model not set, please drag or open model first", "Warning", wxOK | wxICON_WARNING);
+                return;
+            }
+
+            wxDirDialog dlg(this, "Import animations from directory", GetStartupDialogPathBasedOnCurrent(), wxDD_DIR_MUST_EXIST);
+            if (dlg.ShowModal() == wxID_OK)
+            {
+                wxString path = dlg.GetPath();
+                SearchAndAddClipsFromDir(path.ToStdString());
+
+                auto modelName = currentGameObject->rendererComponent.GetModelWrapper().Get()->GetFile().GetBaseName();
+                SetStatusText(modelName + ". Path: " + path);
+            }
+        },
+        ID_READ_ANIMATIONS_FOLDER);
+
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
+
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
+
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
+
+    fileMenu->AppendSeparator();
+    fileMenu->Append(wxID_EXIT);
+
+    menuBar->Append(fileMenu, "&File");
+
+    Bind(
+        wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
+
+    SetMenuBar(menuBar);
 }
 
 void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
@@ -206,8 +246,7 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
             LOG_ERROR << "Something goes wrong, return";
             return;
         }
-        scene.RemoveGameObject(currentGameObject->gameObjectId.value());
-        currentGameObject.reset();
+        Clear();
     }
 
     auto newGameObject      = scene.CreateGameObject(modelFile.GetBaseName());
@@ -216,7 +255,6 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
 
     animator.startupAnimationClipName = "noname";
     rendererComponent.AddModel(modelFile.GetAbsoultePath());
-    animationsSearchFolderPath->SetLabel(modelFile.GetBaseName());
 
     LOG_DEBUG << "Object created. Id = " << newGameObject->GetId();
 
@@ -276,7 +314,10 @@ void AnimationViewerFrame::OnAnimListContextMenu(wxContextMenuEvent& event)
 void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
 {
     if (not currentGameObject)
+    {
+        wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
         return;
+    }
 
     wxString selected = animList->GetStringSelection();
     if (selected.IsEmpty())
@@ -303,14 +344,72 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
         const auto& clips   = currentGameObject->animator.getAnimationClips();
         auto iter           = clips.find(selected.ToStdString());
 
-        if (maybeRootJoint and iter != clips.end())
+        if (not maybeRootJoint)
         {
-            GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), iter->second.clip, *maybeRootJoint,
-                                                             wxFileName(saveFileDialog.GetFilename()).GetName().ToStdString());
+            wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
+            return;
         }
+
+        if (iter == clips.end())
+        {
+            wxMessageBox("Clip not found", "Warning", wxOK | wxICON_WARNING);
+            return;
+        }
+
+        GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), iter->second.clip, *maybeRootJoint,
+                                                         wxFileName(saveFileDialog.GetFilename()).GetName().ToStdString());
     }
 
     wxMessageBox("Exported " + selected + " to " + path, "Export", wxOK | wxICON_INFORMATION);
+}
+
+void AnimationViewerFrame::OnExportAll(wxCommandEvent& event)
+{
+    if (not currentGameObject)
+    {
+        wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxDirDialog dlg(this, "Export all animations to directory", GetStartupDialogPathBasedOnCurrent(),
+                    wxDD_DIR_MUST_EXIST | wxDD_NEW_DIR_BUTTON);
+
+    int exportedCount = 0;
+    if (dlg.ShowModal() == wxID_OK)
+    {
+        wxString path = dlg.GetPath();
+
+        auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
+        if (model)
+        {
+            auto maybeRootJoint = model->getRootJoint();
+            const auto& clips   = currentGameObject->animator.getAnimationClips();
+            if (not maybeRootJoint)
+            {
+                wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
+                return;
+            }
+
+            for (const auto& [name, info] : clips)
+            {
+                GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString() + "/" + name + ".xml", info.clip,
+                                                                 *maybeRootJoint, name);
+                ++exportedCount;
+            }
+        }
+    }
+
+    auto string = exportedCount > 0 ? "Exported sucessfully " + std::to_string(exportedCount) : "Export error, 0 clips exported";
+    wxMessageBox(string, "Export", wxOK | wxICON_INFORMATION);
+}
+
+void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
+{
+    if (not currentGameObject)
+    {
+        wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
+        return;
+    }
 }
 
 void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
@@ -359,4 +458,18 @@ void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
 
         currentGameObject->animator.initAnimationClips();
     }
+}
+
+void AnimationViewerFrame::Clear()
+{
+    auto& scene = canvas->GetScene();
+    scene.RemoveGameObject(currentGameObject->gameObjectId.value());
+    currentGameObject.reset();
+    animList->Clear();
+}
+
+std::string AnimationViewerFrame::GetStartupDialogPathBasedOnCurrent() const
+{
+    return currentGameObject->currentModelFile.has_value() ? currentGameObject->currentModelFile->GetParentDir()
+                                                           : ProjectManager::GetInstance().GetProjectPath();
 }

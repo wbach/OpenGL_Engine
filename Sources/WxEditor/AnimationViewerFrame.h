@@ -30,9 +30,14 @@ public:
 
 private:
     void Init();
+    void CreateMainMenu();
     void OnTimer(wxTimerEvent&);
     void OnAnimListContextMenu(wxContextMenuEvent& event);
     void OnExportToFile(wxCommandEvent& event);
+    void OnExportAll(wxCommandEvent& event);
+    void CreatePrefab(wxCommandEvent& event);
+    void Clear();
+    std::string GetStartupDialogPathBasedOnCurrent() const;
 
 private:
     struct CurrentGameObject
@@ -47,7 +52,6 @@ private:
     wxListBox* animList;
     std::optional<CurrentGameObject> currentGameObject;
     wxTimer* timer;
-    wxStaticText* animationsSearchFolderPath;
 
     bool isInit{false};
     std::optional<GameEngine::File> showModelAfterInit;
