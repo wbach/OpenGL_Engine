@@ -15,7 +15,8 @@
 namespace GameEngine::Components
 {
 class Animator;
-}
+class RendererComponent;
+}  // namespace GameEngine::Components
 
 class AnimationViewerFrame : public wxFrame
 {
@@ -28,15 +29,24 @@ private:
     void Init();
     void FindAllAnimationsInFolder(GameEngine::Components::Animator&, const std::string&);
     void OnTimer(wxTimerEvent&);
+    void OnAnimListContextMenu(wxContextMenuEvent& event);
+    void OnExportToFile(wxCommandEvent& event);
 
 private:
+    struct CurrentGameObject
+    {
+        std::optional<IdType> gameObjectId;
+        std::optional<GameEngine::File> currentModelFile;
+        GameEngine::Components::Animator& animator;
+        GameEngine::Components::RendererComponent& rendererComponent;
+    };
+
     GLCanvas* canvas;
     wxListBox* animList;
-    std::optional<IdType> gameObjectId;
+    std::optional<CurrentGameObject> currentGameObject;
     wxTimer* timer;
     wxStaticText* animationsSearchFolderPath;
 
     bool isInit{false};
     std::optional<GameEngine::File> showModelAfterInit;
-    std::optional<GameEngine::File> currentModelFile;
 };

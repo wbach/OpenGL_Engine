@@ -97,27 +97,22 @@ void AnimationViewerFrame::Init()
     animList = new wxListBox(rightPanel, wxID_ANY);
     rightSizer->Add(animList, 1, wxEXPAND | wxALL, 5);
 
+    animList->Bind(wxEVT_CONTEXT_MENU, &AnimationViewerFrame::OnAnimListContextMenu, this);
     animList->Bind(wxEVT_LISTBOX,
                    [this](wxCommandEvent&)
                    {
-                       if (!gameObjectId)
-                           return;
-
-                       auto& scene    = canvas->GetScene();
-                       auto* animator = scene.GetGameObject(*gameObjectId)->GetComponent<GameEngine::Components::Animator>();
-                       if (!animator)
+                       if (not currentGameObject)
                            return;
 
                        wxString selected = animList->GetStringSelection();
                        if (!selected.IsEmpty())
                        {
-                           animator->ChangeAnimation(selected.ToStdString(),
-                                                     GameEngine::Components::Animator::AnimationChangeType::smooth);
+                           currentGameObject->animator.ChangeAnimation(
+                               selected.ToStdString(), GameEngine::Components::Animator::AnimationChangeType::smooth);
                            LOG_DEBUG << "Changed animation to: " << selected.ToStdString();
                        }
                    });
 
-    // --- Dodaj wiersz do wyboru folderu ---
     wxBoxSizer* folderRowSizer = new wxBoxSizer(wxHORIZONTAL);
 
     animationsSearchFolderPath = new wxStaticText(rightPanel, wxID_ANY, "-");
@@ -129,36 +124,27 @@ void AnimationViewerFrame::Init()
     rightSizer->Add(folderRowSizer, 0, wxEXPAND);
 
     // Obsługa kliknięcia przycisku
-    chooseFolderBtn->Bind(
-        wxEVT_BUTTON,
-        [this](wxCommandEvent&)
-        {
-            auto startupPath =
-                currentModelFile.has_value() ? currentModelFile->GetParentDir() : ProjectManager::GetInstance().GetProjectPath();
-            wxDirDialog dlg(this, "Read animations from directory", startupPath, wxDD_DIR_MUST_EXIST);
-            if (dlg.ShowModal() == wxID_OK)
-            {
-                wxString path = dlg.GetPath();
+    chooseFolderBtn->Bind(wxEVT_BUTTON,
+                          [this](wxCommandEvent&)
+                          {
+                              if (not currentGameObject)
+                                  return;
 
-                if (gameObjectId)
-                {
-                    auto& scene    = canvas->GetScene();
-                    auto* animator = scene.GetGameObject(*gameObjectId)->GetComponent<GameEngine::Components::Animator>();
-                    if (animator)
-                    {
-                        FindAllAnimationsInFolder(*animator, path.ToStdString());
-                    }
+                              auto startupPath = currentGameObject->currentModelFile.has_value()
+                                                     ? currentGameObject->currentModelFile->GetParentDir()
+                                                     : ProjectManager::GetInstance().GetProjectPath();
+                              wxDirDialog dlg(this, "Read animations from directory", startupPath, wxDD_DIR_MUST_EXIST);
+                              if (dlg.ShowModal() == wxID_OK)
+                              {
+                                  wxString path = dlg.GetPath();
 
-                    auto* rendererComponent =
-                        scene.GetGameObject(*gameObjectId)->GetComponent<GameEngine::Components::RendererComponent>();
-                    if (rendererComponent)
-                    {
-                        auto modelName = rendererComponent->GetModelWrapper().Get()->GetFile().GetBaseName();
-                        SetStatusText(modelName + ". Path: " + path);
-                    }
-                }
-            }
-        });
+                                  FindAllAnimationsInFolder(currentGameObject->animator, path.ToStdString());
+
+                                  auto modelName =
+                                      currentGameObject->rendererComponent.GetModelWrapper().Get()->GetFile().GetBaseName();
+                                  SetStatusText(modelName + ". Path: " + path);
+                              }
+                          });
 
     rightPanel->SetSizer(rightSizer);
 
@@ -181,8 +167,6 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
         return;
     }
 
-    currentModelFile = modelFile;
-
     if (not CheckExtension(modelFile))
     {
         LOG_DEBUG << "Externsion not supporeted.";
@@ -190,10 +174,15 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
     }
     auto& scene = canvas->GetScene();
 
-    if (gameObjectId)
+    if (currentGameObject)
     {
-        scene.RemoveGameObject(*gameObjectId);
-        gameObjectId.reset();
+        if (not currentGameObject->gameObjectId)
+        {
+            LOG_ERROR << "Something goes wrong, return";
+            return;
+        }
+        scene.RemoveGameObject(currentGameObject->gameObjectId.value());
+        currentGameObject.reset();
     }
 
     auto newGameObject      = scene.CreateGameObject(modelFile.GetBaseName());
@@ -202,16 +191,20 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
 
     animator.startupAnimationClipName = "noname";
     rendererComponent.AddModel(modelFile.GetAbsoultePath());
-    gameObjectId = newGameObject->GetId();
     animationsSearchFolderPath->SetLabel(modelFile.GetBaseName());
 
-    LOG_DEBUG << "Object created. Id = " << gameObjectId;
+    LOG_DEBUG << "Object created. Id = " << newGameObject->GetId();
 
     if (not scene.getInputManager())
     {
         LOG_ERROR << "not scene.getInputManager()";
         return;
     }
+
+    currentGameObject.emplace(CurrentGameObject{.gameObjectId      = newGameObject->GetId(),
+                                                .currentModelFile  = modelFile,
+                                                .animator          = animator,
+                                                .rendererComponent = rendererComponent});
 
     scene.AddGameObject(std::move(newGameObject));
 
@@ -237,10 +230,11 @@ bool AnimationViewerFrame::CheckExtension(const GameEngine::File& file)
 }
 void AnimationViewerFrame::OnTimer(wxTimerEvent& event)
 {
-    if (gameObjectId)
+    if (currentGameObject)
     {
         auto& scene = canvas->GetScene();
-        scene.getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::Update, *gameObjectId);
+        scene.getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::Update,
+                                                               currentGameObject->gameObjectId.value());
     }
 }
 void AnimationViewerFrame::FindAllAnimationsInFolder(GameEngine::Components::Animator& animator, const std::string& path)
@@ -285,4 +279,54 @@ void AnimationViewerFrame::FindAllAnimationsInFolder(GameEngine::Components::Ani
 
         animator.initAnimationClips();
     }
+}
+
+void AnimationViewerFrame::OnAnimListContextMenu(wxContextMenuEvent& event)
+{
+    wxMenu menu;
+    menu.Append(10001, "Export to file");
+
+    Bind(wxEVT_MENU, &AnimationViewerFrame::OnExportToFile, this, 10001);
+
+    PopupMenu(&menu);
+}
+
+void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
+{
+    if (not currentGameObject)
+        return;
+
+    wxString selected = animList->GetStringSelection();
+    if (selected.IsEmpty())
+    {
+        wxMessageBox("No animation selected!", "Export", wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxFileDialog saveFileDialog(this, "Save animation to file", currentGameObject->currentModelFile->GetParentDir(),
+                                selected + ".xml", "Animation files (*.xml)|*.xml|All files (*.*)|*.*",
+                                wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString path = saveFileDialog.GetPath();
+
+    LOG_DEBUG << "Exporting animation " << selected.ToStdString() << " to file: " << path.ToStdString();
+
+    auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
+    if (model)
+    {
+        auto maybeRootJoint = model->getRootJoint();
+        const auto& clips   = currentGameObject->animator.getAnimationClips();
+        auto iter           = clips.find(selected.ToStdString());
+
+        if (maybeRootJoint and iter != clips.end())
+        {
+            GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString(), iter->second.clip, *maybeRootJoint,
+                                                             wxFileName(saveFileDialog.GetFilename()).GetName().ToStdString());
+        }
+    }
+
+    wxMessageBox("Exported " + selected + " to " + path, "Export", wxOK | wxICON_INFORMATION);
 }

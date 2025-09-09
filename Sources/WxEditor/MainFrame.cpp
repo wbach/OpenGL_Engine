@@ -8,6 +8,7 @@
 #include <wx/artprov.h>
 #include <wx/defs.h>
 #include <wx/filedlg.h>
+#include <wx/gdicmn.h>
 #include <wx/log.h>
 #include <wx/splitter.h>
 #include <wx/statbmp.h>
@@ -18,10 +19,12 @@
 #include <iostream>
 #include <string>
 
+#include "AnimationViwerIcon.h"
 #include "BuildLogFrame.h"
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"
 #include "ControlsIds.h"
+#include "EditorUitls.h"
 #include "Engine/Configuration.h"
 #include "GLCanvas.h"
 #include "Logger/Log.h"
@@ -864,9 +867,11 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddTool(ID_TOOL_SAVE_AS, "SaveAs", wxArtProvider::GetBitmap(wxART_FILE_SAVE_AS));
     toolbar->AddTool(ID_TOOL_START, "Start", wxArtProvider::GetBitmap(wxART_GO_FORWARD));
     toolbar->AddTool(ID_TOOL_STOP, "Stop", wxArtProvider::GetBitmap(wxART_CROSS_MARK));
+
+    auto size = toolbar->GetToolBitmapSize();
     toolbar->AddTool(ID_TOOL_ANIMATION_VIEWER, "Animation Viewer",
-                     wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE, wxART_TOOLBAR));
-    toolbar->AddTool(ID_TOOL_BUILD, "Build components", wxArtProvider::GetBitmap(wxART_FLOPPY));
+                     createImage(AnimationViwerIcon_png, AnimationViwerIcon_png_len, size));
+    toolbar->AddTool(ID_TOOL_BUILD, "Build components", wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE));
 
     toolbar->SetToolShortHelp(ID_TOOL_OPEN, "Open scene from file");
     toolbar->SetToolShortHelp(ID_TOOL_SAVE, "Save scene");

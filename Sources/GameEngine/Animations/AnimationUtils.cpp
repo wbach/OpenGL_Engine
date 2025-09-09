@@ -109,13 +109,21 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
     return std::nullopt;
 }
 
-void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, const Joint& rootJoint)
+void ExportAnimationClipToFile(const File& file, const AnimationClip& animationClip, const Joint& rootJoint,
+                               const std::string& name)
 {
     TreeNode rootNode("AnimationClip");
-
-    if (not animationClip.getName().empty())
+    if (not name.empty())
+    {
+        rootNode.attributes_.insert({"name", name});
+    }
+    else if (not animationClip.getName().empty())
     {
         rootNode.attributes_.insert({"name", animationClip.getName()});
+    }
+    else
+    {
+        rootNode.attributes_.insert({"name", file.GetBaseName()});
     }
 
     rootNode.attributes_.insert({"length", std::to_string(animationClip.GetLength())});
