@@ -26,6 +26,8 @@ struct StateMachine
     StateMachine(Pose&, const JointGroupsIds&);
     ~StateMachine();
 
+    void Reset();
+
     PoseUpdateAction update(float);
     void handle(const IncomingEvent&);
 

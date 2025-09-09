@@ -479,6 +479,11 @@ void Animator::initAnimationClips(const Model& model)
                                                            .clip          = clip}});
     }
 
+    initAnimationClips();
+}
+
+void Animator::initAnimationClips()
+{
     for (auto& clipToRead : animationClips)
     {
         auto playType = clipToRead.playInLoop ? AnimationClipInfo::PlayType::loop : AnimationClipInfo::PlayType::once;
@@ -524,6 +529,13 @@ void Animator::initAnimationClips(const Model& model)
 
     if (animationClipInfo_.size() > 0)
         rendererComponent_->useArmature(true);
+}
+
+void Animator::clearAnimationClips()
+{
+    animationClips.clear();
+    animationClipInfo_.clear();
+    machine_.Reset();
 }
 
 void Animator::printSkeleton(const Animation::Joint& joint, const std::string& hierarchy)

@@ -1,5 +1,6 @@
 #include "AnimationViewerFrame.h"
 
+#include <GameEngine/Animations/AnimationUtils.h>
 #include <GameEngine/Camera/ThridPersonCamera.h>
 #include <GameEngine/Components/Animation/Animator.h>
 #include <GameEngine/Engine/Engine.h>
@@ -9,12 +10,16 @@
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <cmath>
+#include <filesystem>
 #include <memory>
+#include <string>
 
 #include "Components/FunctionType.h"
 #include "Input/KeyCodes.h"
 #include "Logger/Log.h"
+#include "ProjectManager.h"
 
 namespace
 {
@@ -63,10 +68,8 @@ void AnimationViewerFrame::Init()
 {
     wxInitAllImageHandlers();
 
-    // === Główny splitter: lewo/prawo ===
     wxSplitterWindow* mainSplitter = new wxSplitterWindow(this, wxID_ANY);
 
-    // --- Canvas po lewej ---
     auto onStartupDone = [this]()
     {
         auto& camera = canvas->GetScene().GetCamera();
@@ -84,31 +87,86 @@ void AnimationViewerFrame::Init()
     canvas = new GLCanvas(mainSplitter, onStartupDone, selectItemInGameObjectTree);
     canvas->SetDropTarget(new FileDropTarget(this));
 
-    // --- Panel po prawej (lista animacji + potencjalnie inne widgety) ---
     wxPanel* rightPanel    = new wxPanel(mainSplitter);
     wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
 
+    // Label lista animacji
     wxStaticText* label = new wxStaticText(rightPanel, wxID_ANY, "Lista animacji:");
     rightSizer->Add(label, 0, wxALL, 5);
 
     animList = new wxListBox(rightPanel, wxID_ANY);
     rightSizer->Add(animList, 1, wxEXPAND | wxALL, 5);
 
+    animList->Bind(wxEVT_LISTBOX,
+                   [this](wxCommandEvent&)
+                   {
+                       if (!gameObjectId)
+                           return;
+
+                       auto& scene    = canvas->GetScene();
+                       auto* animator = scene.GetGameObject(*gameObjectId)->GetComponent<GameEngine::Components::Animator>();
+                       if (!animator)
+                           return;
+
+                       wxString selected = animList->GetStringSelection();
+                       if (!selected.IsEmpty())
+                       {
+                           animator->ChangeAnimation(selected.ToStdString(),
+                                                     GameEngine::Components::Animator::AnimationChangeType::smooth);
+                           LOG_DEBUG << "Changed animation to: " << selected.ToStdString();
+                       }
+                   });
+
+    // --- Dodaj wiersz do wyboru folderu ---
+    wxBoxSizer* folderRowSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    animationsSearchFolderPath = new wxStaticText(rightPanel, wxID_ANY, "-");
+    folderRowSizer->Add(animationsSearchFolderPath, 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+
+    wxButton* chooseFolderBtn = new wxButton(rightPanel, wxID_ANY, "Read animations from directory");
+    folderRowSizer->Add(chooseFolderBtn, 0, wxALL, 5);
+
+    rightSizer->Add(folderRowSizer, 0, wxEXPAND);
+
+    // Obsługa kliknięcia przycisku
+    chooseFolderBtn->Bind(
+        wxEVT_BUTTON,
+        [this](wxCommandEvent&)
+        {
+            auto startupPath =
+                currentModelFile.has_value() ? currentModelFile->GetParentDir() : ProjectManager::GetInstance().GetProjectPath();
+            wxDirDialog dlg(this, "Read animations from directory", startupPath, wxDD_DIR_MUST_EXIST);
+            if (dlg.ShowModal() == wxID_OK)
+            {
+                wxString path = dlg.GetPath();
+
+                if (gameObjectId)
+                {
+                    auto& scene    = canvas->GetScene();
+                    auto* animator = scene.GetGameObject(*gameObjectId)->GetComponent<GameEngine::Components::Animator>();
+                    if (animator)
+                    {
+                        FindAllAnimationsInFolder(*animator, path.ToStdString());
+                    }
+
+                    auto* rendererComponent =
+                        scene.GetGameObject(*gameObjectId)->GetComponent<GameEngine::Components::RendererComponent>();
+                    if (rendererComponent)
+                    {
+                        auto modelName = rendererComponent->GetModelWrapper().Get()->GetFile().GetBaseName();
+                        SetStatusText(modelName + ". Path: " + path);
+                    }
+                }
+            }
+        });
+
     rightPanel->SetSizer(rightSizer);
 
-    // --- Podział na lewo/prawo ---
     auto size = GetSize();
     mainSplitter->SplitVertically(canvas, rightPanel, 3 * size.x / 4);
 
-    // === Status bar / menu (opcjonalnie) ===
     CreateStatusBar();
     SetStatusText("Animation Viewer ready");
-
-    // przykładowe animacje
-    animList->Append("Idle");
-    animList->Append("Walk");
-    animList->Append("Run");
-    animList->Append("Jump");
 
     timer = new wxTimer(this);
     Bind(wxEVT_TIMER, &AnimationViewerFrame::OnTimer, this);
@@ -122,6 +180,8 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
         showModelAfterInit = modelFile;
         return;
     }
+
+    currentModelFile = modelFile;
 
     if (not CheckExtension(modelFile))
     {
@@ -143,6 +203,7 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
     animator.startupAnimationClipName = "noname";
     rendererComponent.AddModel(modelFile.GetAbsoultePath());
     gameObjectId = newGameObject->GetId();
+    animationsSearchFolderPath->SetLabel(modelFile.GetBaseName());
 
     LOG_DEBUG << "Object created. Id = " << gameObjectId;
 
@@ -153,6 +214,12 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
     }
 
     scene.AddGameObject(std::move(newGameObject));
+
+    const auto& animationClips = animator.getAnimationClips();
+    for (const auto& [name, _] : animationClips)
+    {
+        animList->Append(name);
+    }
 
     //  scene.getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::OnStart, *gameObjectId);
 }
@@ -174,5 +241,48 @@ void AnimationViewerFrame::OnTimer(wxTimerEvent& event)
     {
         auto& scene = canvas->GetScene();
         scene.getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::Update, *gameObjectId);
+    }
+}
+void AnimationViewerFrame::FindAllAnimationsInFolder(GameEngine::Components::Animator& animator, const std::string& path)
+{
+    if (not animList->IsEmpty())
+    {
+        int answer = wxMessageBox("List not empty, clear current anims?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+        if (answer == wxYES)
+        {
+            animList->Clear();
+            animator.clearAnimationClips();
+        }
+        else
+        {
+            int answer = wxMessageBox("Continue anyway?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+            if (answer != wxYES)
+            {
+                return;
+            }
+        }
+    }
+    auto files = Utils::FindFilesWithExtension(path, ".xml");
+    if (not files.empty())
+    {
+        for (const auto& file : files)
+        {
+            DEBUG_LOG("Found animation file in subfolders add clip : " + file);
+            if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
+            {
+                animator.AddAnimationClip(*animationName, GameEngine::File(file));
+                animList->Append(*animationName);
+            }
+        }
+
+        auto animationName = GameEngine::Animation::IsAnimationClip(files.front());
+        if (animationName)
+        {
+            animator.startupAnimationClipName = *animationName;
+        }
+
+        animator.initAnimationClips();
     }
 }

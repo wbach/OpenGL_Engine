@@ -18,6 +18,12 @@ StateMachine::StateMachine(Pose& pose, const JointGroupsIds& jointGroups)
 StateMachine::~StateMachine()
 {
 }
+
+void StateMachine::Reset()
+{
+    transitionTo<EmptyState>(context_);
+}
+
 PoseUpdateAction StateMachine::update(float deltaTime)
 {
     if (currentState_)

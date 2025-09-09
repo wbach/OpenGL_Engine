@@ -12,6 +12,11 @@
 #include "IdPool.h"
 #include "Resources/File.h"
 
+namespace GameEngine::Components
+{
+class Animator;
+}
+
 class AnimationViewerFrame : public wxFrame
 {
 public:
@@ -21,15 +26,17 @@ public:
 
 private:
     void Init();
-
-    void OnTimer(wxTimerEvent& event);
+    void FindAllAnimationsInFolder(GameEngine::Components::Animator&, const std::string&);
+    void OnTimer(wxTimerEvent&);
 
 private:
     GLCanvas* canvas;
     wxListBox* animList;
     std::optional<IdType> gameObjectId;
     wxTimer* timer;
+    wxStaticText* animationsSearchFolderPath;
 
     bool isInit{false};
     std::optional<GameEngine::File> showModelAfterInit;
+    std::optional<GameEngine::File> currentModelFile;
 };

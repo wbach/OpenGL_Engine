@@ -93,6 +93,8 @@ public:
     bool isAnimationPlaying(const std::string&) const;
 
     std::optional<IdType> allocateIdForClip(const std::string&);
+    void initAnimationClips();
+    void clearAnimationClips();
 
 public:
     JointData jointData_;
