@@ -378,29 +378,35 @@ void AnimationViewerFrame::OnExportAll(wxCommandEvent& event)
     if (dlg.ShowModal() == wxID_OK)
     {
         wxString path = dlg.GetPath();
-
-        auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
-        if (model)
-        {
-            auto maybeRootJoint = model->getRootJoint();
-            const auto& clips   = currentGameObject->animator.getAnimationClips();
-            if (not maybeRootJoint)
-            {
-                wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
-                return;
-            }
-
-            for (const auto& [name, info] : clips)
-            {
-                GameEngine::Animation::ExportAnimationClipToFile(path.ToStdString() + "/" + name + ".xml", info.clip,
-                                                                 *maybeRootJoint, name);
-                ++exportedCount;
-            }
-        }
+        exportedCount = OnExportAll(path.ToStdString());
     }
 
     auto string = exportedCount > 0 ? "Exported sucessfully " + std::to_string(exportedCount) : "Export error, 0 clips exported";
     wxMessageBox(string, "Export", wxOK | wxICON_INFORMATION);
+}
+
+int AnimationViewerFrame::OnExportAll(const std::string& path)
+{
+    int exportedCount = 0;
+    auto model        = currentGameObject->rendererComponent.GetModelWrapper().Get();
+    if (model)
+    {
+        auto maybeRootJoint = model->getRootJoint();
+        const auto& clips   = currentGameObject->animator.getAnimationClips();
+        if (not maybeRootJoint)
+        {
+            wxMessageBox("Model: rootJoint not exist", "Warning", wxOK | wxICON_WARNING);
+            return 0;
+        }
+
+        for (const auto& [name, info] : clips)
+        {
+            GameEngine::Animation::ExportAnimationClipToFile(path + "/" + name + ".xml", info.clip, *maybeRootJoint, name);
+            ++exportedCount;
+        }
+    }
+
+    return exportedCount;
 }
 
 void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
@@ -409,6 +415,22 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
     {
         wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
         return;
+    }
+
+    auto isModelInProjectDir = Utils::IsFileExistsInDir(ProjectManager::GetInstance().GetProjectPath(),
+                                                        currentGameObject->currentModelFile->GetAbsoultePath());
+    if (not isModelInProjectDir)
+    {
+        int answer = wxMessageBox("Model file is outside the project. To created prefab should be imported. Do you want import?",
+                                  "Confirmation", wxYES_NO | wxICON_QUESTION);
+        if (answer == wxYES)
+        {
+            ImportCurrentObject();
+        }
+        else
+        {
+            return;
+        }
     }
 
     auto& scene = canvas->GetScene();
@@ -445,6 +467,50 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
         wxString path = fileDialog.GetPath();
         GameEngine::createAndSavePrefab(GameEngine::File{path.c_str()}, *maybeGo);
     }
+}
+
+void AnimationViewerFrame::ImportCurrentObject()
+{
+    if (not currentGameObject)
+    {
+        wxMessageBox("Model not set", "Warning", wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxFileDialog fileDialog(this, "Choose prefab file", ProjectManager::GetInstance().GetProjectPath(),
+                            currentGameObject->currentModelFile->GetFilename(), "Wszystkie pliki (*.*)|*.*",
+                            wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    if (fileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString targetPath = fileDialog.GetPath();
+
+    auto targetFilename = Utils::CopyFileToDirectory(currentGameObject->currentModelFile->GetAbsoultePath(),
+                                                     wxFileName(targetPath).GetPath().ToStdString());
+
+    if (not targetFilename)
+    {
+        wxMessageBox("Import error", "Warning", wxOK | wxICON_WARNING);
+        return;
+    }
+
+    currentGameObject->currentModelFile                = targetFilename->string();
+    currentGameObject->rendererComponent.fileName_LOD1 = targetFilename->string();
+
+    std::filesystem::path targetClipsFolder =
+        std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString()) / "AnimationClips/";
+    if (not std::filesystem::exists(targetClipsFolder))
+    {
+        std::filesystem::create_directories(targetClipsFolder);
+    }
+
+    for (auto& clip : currentGameObject->animator.animationClips)
+    {
+        clip.file = Utils::ChangeFileParentPath(clip.file.GetAbsoultePath(), targetClipsFolder);
+    }
+
+    OnExportAll(targetClipsFolder.string());
 }
 
 void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)

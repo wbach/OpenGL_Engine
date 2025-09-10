@@ -4,6 +4,7 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <string>
 
 #include "ChangeAnimationEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
@@ -26,13 +27,14 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR{"Animator"};
-const std::string CSTR_STARTUP_ANIMATION{"startupAnimationClip"};
-const std::string CSTR_JOINT_GROUPS{"jointGroups"};
-const std::string CSTR_ANIMATION_PLAY_TYPE{"playType"};
-const std::string CSTR_ANIMATION_USE_ROOT_MONTION{"rootMontion"};
-const std::string CSTR_MODEL_BASED_CLIP{"modelBased"};
-const std::string CSTR_MONTION_JOINT_NAME{"montionJointName"};
+constexpr char COMPONENT_STR[]                   = "Animator";
+constexpr char CSTR_STARTUP_ANIMATION[]          = "startupAnimationClip";
+constexpr char CSTR_JOINT_GROUPS[]               = "jointGroups";
+constexpr char CSTR_ANIMATION_PLAY_TYPE[]        = "playType";
+constexpr char CSTR_ANIMATION_USE_ROOT_MONTION[] = "rootMontion";
+constexpr char CSTR_MODEL_BASED_CLIP[]           = "modelBased";
+constexpr char CSTR_MONTION_JOINT_NAME[]         = "montionJointName";
+constexpr char CSTR_ANIMATION_PLAY_SPEED[]       = "playSpeed";
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
@@ -553,11 +555,13 @@ ReadAnimationInfo Read(const TreeNode& node)
     std::string name{node.getAttributeValue(CSTR_NAME)};
     std::string filename;
     std::string playTypeStr;
+    std::string playSpeedStr;
     AnimationClipInfo::UseRootMontion rootMontion{false};
 
     Read(node.getChild(CSTR_FILE_NAME), filename);
     Read(node.getChild(CSTR_ANIMATION_USE_ROOT_MONTION), rootMontion);
     Read(node.getChild(CSTR_ANIMATION_PLAY_TYPE), playTypeStr);
+    Read(node.getChild(CSTR_ANIMATION_PLAY_SPEED), playSpeedStr);
 
     auto maybePlayType = std::from_string(playTypeStr);
     bool isPlayInLoop{true};
@@ -569,7 +573,18 @@ ReadAnimationInfo Read(const TreeNode& node)
     {
         isPlayInLoop = Utils::StringToBool(playTypeStr);
     }
-    return {name, GameEngine::File(filename), isPlayInLoop, rootMontion};
+
+    float playSpeed = 1.f;
+    try
+    {
+        playSpeed = std::stof(playSpeedStr);
+    }
+    catch (...)
+    {
+        LOG_ERROR << "playSpeed read error";
+    }
+
+    return {name, GameEngine::File(filename), isPlayInLoop, rootMontion, playSpeed};
 }
 
 void Animator::registerReadFunctions()
@@ -613,19 +628,20 @@ void Animator::registerReadFunctions()
     regsiterComponentReadFunction(COMPONENT_STR, readFunc);
 }
 
-void write(TreeNode& node, const AnimationClipInfo& clipInfo)
+void write(TreeNode& node, const ReadAnimationInfo& info)
 {
-    const auto& fp = clipInfo.clip.getFilePath();
-    if (fp)
+    if (info.file)
     {
-        write(node.addChild(CSTR_FILE_NAME), File(clipInfo.clip.getFilePath().value()).GetDataRelativeDir());
+        write(node.addChild(CSTR_FILE_NAME), info.file.GetDataRelativeDir());
     }
     else
     {
         node.attributes_[CSTR_MODEL_BASED_CLIP] = "true";
     }
-    write(node.addChild(CSTR_ANIMATION_PLAY_TYPE), std::to_string(clipInfo.playType));
-    write(node.addChild(CSTR_ANIMATION_USE_ROOT_MONTION), clipInfo.rootMontion);
+    write(node.addChild(CSTR_ANIMATION_PLAY_TYPE),
+          std::to_string(info.playInLoop ? AnimationClipInfo::PlayType::loop : AnimationClipInfo::PlayType::once));
+    write(node.addChild(CSTR_ANIMATION_USE_ROOT_MONTION), info.useRootMontion);
+    write(node.addChild(CSTR_ANIMATION_PLAY_SPEED), info.playSpeed);
 }
 
 void Animator::write(TreeNode& node) const
@@ -635,10 +651,10 @@ void Animator::write(TreeNode& node) const
     node.addChild(CSTR_MONTION_JOINT_NAME, montionJointName);
     auto& animationClipsNode = node.addChild(CSTR_ANIMATION_CLIPS);
 
-    for (const auto& [name, info] : animationClipInfo_)
+    for (const auto& info : animationClips)
     {
         auto& animClipNode               = animationClipsNode.addChild(CSTR_ANIMATION_CLIP);
-        animClipNode.attributes_["name"] = name;
+        animClipNode.attributes_["name"] = info.name;
         ::GameEngine::Components::write(animClipNode, info);
     }
 

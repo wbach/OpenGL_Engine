@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <optional>
 
 #ifndef USE_GNU
 #include <windows.h>
@@ -15,6 +16,8 @@
 
 namespace Utils
 {
+namespace fs = std::filesystem;
+
 std::string FindFile(const std::string& filename, const std::string& dir)
 {
     try
@@ -46,6 +49,24 @@ std::string FindFile(const std::string& filename, const std::string& dir)
     }
 
     return std::string();
+}
+
+bool IsFileExistsInDir(const std::string& directory, const std::string& filename)
+{
+    if (not fs::exists(directory) or not fs::is_directory(directory))
+    {
+        return false;
+    }
+
+    for (const auto& entry : fs::recursive_directory_iterator(directory))
+    {
+        if (entry.is_regular_file() and entry.path().filename() == filename)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 std::vector<std::string> FindFilesWithExtension(const std::string& dir, const std::string& extension)
@@ -146,13 +167,15 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
         }
     }
 
-    std::sort(result.begin(), result.end(), [](const File& l, const File& r) {
-        auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFileName(l.name);
-        auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFileName(r.name);
-        std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
-        std::transform(rname.begin(), rname.end(), rname.begin(), ::tolower);
-        return lname < rname;
-    });
+    std::sort(result.begin(), result.end(),
+              [](const File& l, const File& r)
+              {
+                  auto lname = std::to_string(static_cast<int>(l.type)) + Utils::GetFileName(l.name);
+                  auto rname = std::to_string(static_cast<int>(r.type)) + Utils::GetFileName(r.name);
+                  std::transform(lname.begin(), lname.end(), lname.begin(), ::tolower);
+                  std::transform(rname.begin(), rname.end(), rname.begin(), ::tolower);
+                  return lname < rname;
+              });
 
     return result;
 }
@@ -317,8 +340,7 @@ void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& o
             {
                 std::string includedFileName{std::filesystem::path(filename).make_preferred().string()};
                 auto absultePath =
-                    std::filesystem::canonical(std::filesystem::canonical(fullPath).replace_filename(includedFileName))
-                        .string();
+                    std::filesystem::canonical(std::filesystem::canonical(fullPath).replace_filename(includedFileName)).string();
                 ReadFilesWithIncludesImpl(absultePath, output);
                 output << '\n';
             }
@@ -415,6 +437,85 @@ void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::p
     catch (const std::filesystem::filesystem_error& e)
     {
         LOG_ERROR << "Copy failed: " << e.what();
+    }
+}
+
+std::optional<std::filesystem::path> CopyFileToDirectory(const std::filesystem::path& file,
+                                                         const std::filesystem::path& newParentDir)
+{
+    try
+    {
+        if (not std::filesystem::exists(file) or not std::filesystem::is_regular_file(file))
+        {
+            std::cerr << "File not found: " << file << "\n";
+            return std::nullopt;
+        }
+
+        if (not std::filesystem::exists(newParentDir) or not std::filesystem::is_directory(newParentDir))
+        {
+            std::cerr << "Parent dir not found: " << newParentDir << "\n";
+            return std::nullopt;
+        }
+
+        std::filesystem::path newPath = newParentDir / file.filename();
+        std::filesystem::copy_file(file, newPath, std::filesystem::copy_options::overwrite_existing);
+
+        return newPath;
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << "Error: " << e.what() << "\n";
+        return std::nullopt;
+    }
+}
+
+std::optional<std::filesystem::path> MoveFileToDirectory(const std::filesystem::path& file,
+                                                         const std::filesystem::path& newParentDir)
+{
+    try
+    {
+        if (not std::filesystem::exists(file) or not std::filesystem::is_regular_file(file))
+        {
+            std::cerr << "File not found: " << file << "\n";
+            return std::nullopt;
+        }
+
+        if (not std::filesystem::exists(newParentDir) or not std::filesystem::is_directory(newParentDir))
+        {
+            std::cerr << "Parent dir not found: " << newParentDir << "\n";
+            return std::nullopt;
+        }
+
+        std::filesystem::path newPath = newParentDir / file.filename();
+
+        try
+        {
+            std::filesystem::rename(file, newPath);
+        }
+        catch (const std::filesystem::filesystem_error&)
+        {
+            std::filesystem::copy_file(file, newPath, std::filesystem::copy_options::overwrite_existing);
+            std::filesystem::remove(file);
+        }
+
+        return newPath;
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << "Error: " << e.what() << "\n";
+        return std::nullopt;
+    }
+}
+
+std::filesystem::path ChangeFileParentPath(const std::filesystem::path& file, const std::filesystem::path& newParentDir)
+{
+    if (not file.empty() and not newParentDir.empty())
+    {
+        return newParentDir / file.filename();
+    }
+    else
+    {
+        return file;
     }
 }
 }  // namespace Utils

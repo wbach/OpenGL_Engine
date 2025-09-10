@@ -14,15 +14,11 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR{"Renderer"};
-const std::string CSTR_TEXTURE_INDEX    = "textureIndex";
-const std::string CSTR_MODEL_FILE_NAMES = "modelFileNames";
-const std::string MODEL_NORMALIZATION   = "modelNormalization";
-const std::string MESH_OPTIMIZE         = "meshOptimize";
-const std::string MODEL_L1              = "model_l1";
-const std::string MODEL_L2              = "model_l2";
-const std::string MODEL_L3              = "model_l3";
-const std::string TEXTURE_INDEX         = "textureIndex";
+constexpr char COMPONENT_STR[]         = "Renderer";
+constexpr char CSTR_TEXTURE_INDEX[]    = "textureIndex";
+constexpr char CSTR_MODEL_FILE_NAMES[] = "modelFileNames";
+constexpr char MODEL_NORMALIZATION[]   = "modelNormalization";
+constexpr char MESH_OPTIMIZE[]         = "meshOptimize";
 const GraphicsApi::ID defaultId;
 }  // namespace
 
@@ -280,22 +276,9 @@ void RendererComponent::useArmature(bool value)
 
 std::unordered_map<LevelOfDetail, File> RendererComponent::GetFiles() const
 {
-    return {{LevelOfDetail::L1, fileName_LOD1},
-            {LevelOfDetail::L2, fileName_LOD2},
-            {LevelOfDetail::L3, fileName_LOD3}};
+    return {{LevelOfDetail::L1, fileName_LOD1}, {LevelOfDetail::L2, fileName_LOD2}, {LevelOfDetail::L3, fileName_LOD3}};
 }
-void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
-{
-    node.addChild(CSTR_FILE_NAME, Utils::ReplaceSlash(filename));
-    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
-}
-void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files)
-{
-    for (const auto& [lodLvl, file] : files)
-    {
-        create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativeDir(), lodLvl);
-    }
-}
+
 void RendererComponent::registerReadFunctions()
 {
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
@@ -372,6 +355,18 @@ void RendererComponent::registerReadFunctions()
     };
 
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+}
+void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
+{
+    node.addChild(CSTR_FILE_NAME, Utils::ReplaceSlash(filename));
+    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
+}
+void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files)
+{
+    for (const auto& [lodLvl, file] : files)
+    {
+        create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativeDir(), lodLvl);
+    }
 }
 void RendererComponent::write(TreeNode& node) const
 {

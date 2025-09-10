@@ -1,7 +1,8 @@
 #pragma once
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 namespace Utils
 {
@@ -17,9 +18,11 @@ struct File
     Type type;
     std::string name;
 };
+
 void CreateEmptyFile(const std::string&);
 void RenameFile(const std::string&, const std::string&);
 std::string FindFile(const std::string&, const std::string&);
+bool IsFileExistsInDir(const std::string&, const std::string&);
 std::vector<std::string> FindFilesWithExtension(const std::string&, const std::string&);
 std::string GetFileName(const std::string&);
 std::string GetExtension(const std::string&);
@@ -41,4 +44,8 @@ std::string ReadFilesWithIncludes(const std::string& filename);
 std::vector<std::string> ReadFileLines(const std::string& file_name);
 void WrtieToFile(const std::string& filename, const std::string& content);
 void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::path& destFolder);
+std::optional<std::filesystem::path> MoveFileToDirectory(const std::filesystem::path&, const std::filesystem::path&);
+std::optional<std::filesystem::path> CopyFileToDirectory(const std::filesystem::path& file,
+                                                         const std::filesystem::path& newParentDir);
+std::filesystem::path ChangeFileParentPath(const std::filesystem::path& file, const std::filesystem::path& newParentDir);
 }  // namespace Utils

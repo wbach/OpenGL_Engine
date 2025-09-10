@@ -35,9 +35,11 @@ private:
     void OnAnimListContextMenu(wxContextMenuEvent& event);
     void OnExportToFile(wxCommandEvent& event);
     void OnExportAll(wxCommandEvent& event);
+    int OnExportAll(const std::string&);
     void CreatePrefab(wxCommandEvent& event);
     void Clear();
     std::string GetStartupDialogPathBasedOnCurrent() const;
+    void ImportCurrentObject();
 
 private:
     struct CurrentGameObject
