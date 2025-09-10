@@ -1,9 +1,12 @@
 #include "XMLUtils.h"
+#include <string>
 
 #include "Logger/Log.h"
 #include "Utils.h"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
+
+#include "XmlReader.h"
 
 namespace Utils
 {
@@ -84,5 +87,16 @@ std::string MessageBuilder(std::multimap<std::string, std::string>& messeges)
     // ss << document;
     document.clear();
     return ss.str();
+}
+
+bool CheckXmlObjectType(const std::string& file, const std::string& type)
+{
+    XmlReader reader;
+    if (reader.Read(file))
+    {
+        auto root = reader.Get();
+        return (root and root->name() == type);
+    }
+    return false;
 }
 }  // namespace Utils

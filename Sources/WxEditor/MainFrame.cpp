@@ -5,8 +5,10 @@
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
+#include <Utils/XML/XMLUtils.h>
 #include <wx/artprov.h>
 #include <wx/defs.h>
+#include <wx/dnd.h>
 #include <wx/filedlg.h>
 #include <wx/gdicmn.h>
 #include <wx/log.h>
@@ -44,6 +46,33 @@
 
 namespace
 {
+class GLCanvasDropTarget : public wxFileDropTarget
+{
+public:
+    using Callback = std::function<void(const wxString&)>;
+    GLCanvasDropTarget(Callback callback)
+        : callback{callback}
+    {
+    }
+
+    bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
+    {
+        LOG_DEBUG << "Drop file" << filenames[0];
+        if (not filenames.IsEmpty())
+        {
+            if (callback)
+            {
+                callback(filenames[0]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
+    Callback callback;
+};
+
 bool terminateProcessByPID(long pid)
 {
 #ifdef _WIN32
@@ -192,7 +221,10 @@ void MainFrame::Init()
             UpdateGameObjectIdOnTransfromLabel(gameObjectId);
         }
     };
-    canvas    = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
+    canvas = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
+
+    canvas->SetDropTarget(new GLCanvasDropTarget([this](const auto& file) { OnFileActivated(file); }));
+
     auto size = GetSize();
     // Split pionowy: tree + canvas
     topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), canvas, size.x / 8);
@@ -642,8 +674,12 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
+    LoadPrefab(openFileDialog.GetPath().ToStdString());
+}
 
-    auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), openFileDialog.GetPath().ToStdString());
+void MainFrame::LoadPrefab(const std::string& path)
+{
+    auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
     if (go)
     {
         auto prefabItemId = gameObjectsView->AppendItemToSelection(go->GetName() + " (prefab)", go->GetId());
@@ -988,6 +1024,10 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
             gameObjectsView->AppendItemToSelection(file.GetBaseName(), *maybeId);
             UpdateObjectCount();
         }
+    }
+    else if (file.IsExtension("prefab") or Utils::CheckXmlObjectType(file.GetAbsoultePath(), "prefab"))
+    {
+        LoadPrefab(file.GetAbsoultePath());
     }
 }
 

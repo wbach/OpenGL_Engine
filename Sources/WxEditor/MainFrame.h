@@ -147,6 +147,7 @@ private:
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);
     void UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> = std::nullopt);
+    void LoadPrefab(const std::string&);
 
 private:
     GLCanvas* canvas{nullptr};

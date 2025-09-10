@@ -31,4 +31,5 @@ void ForEachAttribute(rapidxml::xml_attribute<char>* att,
 void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec3 vector);
 void AddVectorToNode(rapidxml::xml_document<char>& document, rapidxml::xml_node<char>* node, const glm::vec2 vector);
 std::string MessageBuilder(std::multimap<std::string, std::string>& messeges);
+bool CheckXmlObjectType(const std::string& file, const std::string& type);
 }  // namespace Utils
