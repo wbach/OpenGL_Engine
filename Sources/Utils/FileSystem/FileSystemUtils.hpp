@@ -48,4 +48,6 @@ std::optional<std::filesystem::path> MoveFileToDirectory(const std::filesystem::
 std::optional<std::filesystem::path> CopyFileToDirectory(const std::filesystem::path& file,
                                                          const std::filesystem::path& newParentDir);
 std::filesystem::path ChangeFileParentPath(const std::filesystem::path& file, const std::filesystem::path& newParentDir);
+std::optional<std::filesystem::path> GetRelativePathToFile(const std::filesystem::path& baseFile,
+                                                           const std::string& targetFilename);
 }  // namespace Utils

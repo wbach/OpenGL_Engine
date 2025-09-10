@@ -518,4 +518,36 @@ std::filesystem::path ChangeFileParentPath(const std::filesystem::path& file, co
         return file;
     }
 }
+
+// TO DO FIX
+std::optional<std::filesystem::path> GetRelativePathToFile(const std::filesystem::path& baseFile,
+                                                           const std::string& targetFilename)
+{
+    try
+    {
+        auto baseFolder = baseFile.parent_path();
+
+        if (not std::filesystem::exists(baseFolder) or not std::filesystem::is_directory(baseFolder))
+            return std::nullopt;
+
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(baseFolder))
+        {
+            if (entry.is_regular_file() and entry.path().filename() == targetFilename)
+            {
+                if (entry.path().parent_path() == baseFolder)
+                    return std::filesystem::path("");
+
+                auto relPath = std::filesystem::relative(entry.path(), baseFolder);
+                return relPath.parent_path();
+            }
+        }
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+
+    return std::nullopt;
+}
+
 }  // namespace Utils

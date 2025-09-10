@@ -495,22 +495,74 @@ void AnimationViewerFrame::ImportCurrentObject()
         return;
     }
 
+    const auto& meshes = currentGameObject->rendererComponent.GetModelWrapper().Get()->GetMeshes();
+    for (const auto& mesh : meshes)
+    {
+        const auto& material = mesh.GetMaterial();
+
+        auto copyTexture = [this, &targetPath](auto texture)
+        {
+            if (texture)
+            {
+                auto textureFile =
+                    Utils::FindFile(texture->GetFile()->GetFilename(), currentGameObject->currentModelFile->GetParentDir());
+                    Utils::CopyFileToDirectory(textureFile, wxFileName(targetPath).GetPath().ToStdString());
+
+                    // TO DO : recreate relative path of texture in target folder
+
+                // LOG_DEBUG << "texture->GetFile()->GetAbsolutePath() : " << texture->GetFile()->GetAbsoultePath();
+                // LOG_DEBUG << "texture->GetFile()->GetFilename() : " << texture->GetFile()->GetFilename();
+                // LOG_DEBUG << "FindFile : " << textureFile;
+
+                // if (not textureFile.empty())
+                // {
+                //     auto relPath =
+                //         Utils::GetRelativePathToFile(std::filesystem::path(textureFile).parent_path(),       // <-- folder pliku
+                //                                      std::filesystem::path(textureFile).filename().string()  // nazwa pliku
+                //         );
+
+                //     LOG_DEBUG << "relPath : " << relPath;
+
+                //     if (relPath)
+                //     {
+                //         auto targetTexturePath =
+                //             std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString()) / relPath.value();
+
+                //         LOG_DEBUG << "targetTexturePath : " << targetTexturePath;
+
+                //         std::filesystem::create_directories(targetTexturePath.parent_path());
+                //         auto copiedFile = Utils::CopyFileToDirectory(textureFile, targetTexturePath);
+                //     }
+                // }
+            }
+        };
+
+        copyTexture(material.diffuseTexture);
+        copyTexture(material.normalTexture);
+        copyTexture(material.specularTexture);
+        copyTexture(material.ambientTexture);
+        copyTexture(material.displacementTexture);
+    }
+
     currentGameObject->currentModelFile                = targetFilename->string();
     currentGameObject->rendererComponent.fileName_LOD1 = targetFilename->string();
 
-    std::filesystem::path targetClipsFolder =
-        std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString()) / "AnimationClips/";
-    if (not std::filesystem::exists(targetClipsFolder))
+    if (not currentGameObject->animator.animationClips.empty())
     {
-        std::filesystem::create_directories(targetClipsFolder);
-    }
+        std::filesystem::path targetClipsFolder =
+            std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString()) / "AnimationClips/";
+        if (not std::filesystem::exists(targetClipsFolder))
+        {
+            std::filesystem::create_directories(targetClipsFolder);
+        }
 
-    for (auto& clip : currentGameObject->animator.animationClips)
-    {
-        clip.file = Utils::ChangeFileParentPath(clip.file.GetAbsoultePath(), targetClipsFolder);
-    }
+        for (auto& clip : currentGameObject->animator.animationClips)
+        {
+            clip.file = Utils::ChangeFileParentPath(clip.file.GetAbsoultePath(), targetClipsFolder);
+        }
 
-    OnExportAll(targetClipsFolder.string());
+        OnExportAll(targetClipsFolder.string());
+    }
 }
 
 void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
