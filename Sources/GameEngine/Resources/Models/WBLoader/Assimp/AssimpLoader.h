@@ -1,6 +1,8 @@
 #pragma once
 #include <Types.h>
 
+#include <string>
+
 #include "../AbstractLoader.h"
 
 struct aiNode;
@@ -21,7 +23,7 @@ namespace WBLoader
 class BoneIdPool
 {
 public:
-    uint32 nextId() 
+    uint32 nextId()
     {
         return id_++;
     }
@@ -63,8 +65,10 @@ private:
     Animation::KeyFrame& getFrameByTimeStamp(Animation::AnimationClip&, float);
     void readAdditionInfoFile(const File&);
     void printTree(const aiNode&, uint32 = 0) const;
+    std::string getTexturePath(const std::string&) const;
 
 private:
+    std::optional<File> currentProcessingFile_;
     WBLoader::Object* object_;
     BonesMap bones_;
     BoneIdPool boneIdPool_;

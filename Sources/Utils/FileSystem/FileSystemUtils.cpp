@@ -48,10 +48,6 @@ std::string FindFile(const std::string& filename, const std::string& dir)
     return std::string();
 }
 
-void FindFilesWithExtension(const std::string&, const std::string&, std::vector<std::string>& result)
-{
-}
-
 std::vector<std::string> FindFilesWithExtension(const std::string& dir, const std::string& extension)
 {
     std::vector<std::string> result;

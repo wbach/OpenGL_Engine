@@ -6,8 +6,8 @@
 #include <XML/XmlReader.h>
 
 #ifdef __GNUC__
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wclass-memaccess"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 
 #include <assimp/cimport.h>
@@ -18,9 +18,10 @@
 #include <assimp/Importer.hpp>
 
 #ifdef __GNUC__
-#  pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -88,8 +89,8 @@ struct TmpAnimationClip
 
     TmpKeyFrame& getTmpKeyFrame(float time)
     {
-        auto iter = std::find_if(frames.begin(), frames.end(),
-                                 [time](const auto& frame) { return compare(frame.timeStamp, time); });
+        auto iter =
+            std::find_if(frames.begin(), frames.end(), [time](const auto& frame) { return compare(frame.timeStamp, time); });
 
         if (iter != frames.end())
         {
@@ -191,12 +192,12 @@ void AssimpLoader::ParseFile(const File& file)
     objects.clear();
     boneIdPool_.reset();
 
-    uint32 flags =
-        aiProcess_Triangulate | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
+    uint32 flags = aiProcess_Triangulate | aiProcess_LimitBoneWeights | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
 
     if (loadingParameters_.meshOptimize == MeshOptimize::optimized)
     {
-        flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes; // aiProcess_RemoveRedundantMaterials | aiProcess_SplitLargeMeshes
+        flags |= aiProcess_JoinIdenticalVertices | aiProcess_OptimizeGraph |
+                 aiProcess_OptimizeMeshes;  // aiProcess_RemoveRedundantMaterials | aiProcess_SplitLargeMeshes
     }
 
     Assimp::Importer importer;
@@ -213,6 +214,8 @@ void AssimpLoader::ParseFile(const File& file)
         WARNING_LOG("import scene incomplete");
     }
 
+    currentProcessingFile_ = file;
+
     auto globalInverseTransform = scene->mRootNode->mTransformation;
     globalInverseTransform.Inverse();
 
@@ -226,17 +229,18 @@ void AssimpLoader::ParseFile(const File& file)
     processAnimations(*scene);
     importer.FreeScene();
 
+    currentProcessingFile_.reset();
+
     DEBUG_LOG("Done. " + file.GetInitValue());
 }
 
 bool AssimpLoader::CheckExtension(const File& file)
 {
-    return file.IsExtension({"AMF",     "3DS",     "AC",   "ASE",     "ASSBIN", "B3D",      "BVH", "COLLADA", "DXF",
-                             "CSM",     "DAE",     "HMP",  "IRRMESH", "IRR",    "LWO",      "LWS", "MD2",     "MD3",
-                             "MD5",     "MD5MESH", "MDC",  "MDL",     "NFF",    "NDO",      "OFF", "OBJ",     "OGRE",
-                             "OPENGEX", "PLY",     "MS3D", "COB",     "BLEND",  "IFC",      "XGL", "FBX",     "Q3D",
-                             "Q3BSP",   "RAW",     "SIB",  "SMD",     "STL",    "TERRAGEN", "3D",  "X",       "X3D",
-                             "GLTF",    "3MF",     "MMD",  "STEP"});
+    return file.IsExtension({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
+                             "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
+                             "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
+                             "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
+                             "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
 
     // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ
     // OGRE OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
@@ -402,10 +406,9 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
     {
         const aiNode& node = *scene.mRootNode;
 
-
         DEBUG_LOG("Rootnode bone name: " + std::string(node.mName.data));
 
-                for (const auto& bone : bones_)
+        for (const auto& bone : bones_)
             DEBUG_LOG(bone.first);
         auto armatureNode = findArmatureRootNode(node);
         if (armatureNode)
@@ -507,7 +510,7 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
         aiString path;
         mat->GetTexture(aiTextureType_DIFFUSE, i, &path);
         TextureParameters parameters;
-        material.diffuseTexture = textureLoader_.LoadTexture(path.C_Str(), parameters);
+        material.diffuseTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
     }
 
     for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_HEIGHT); i++)
@@ -515,10 +518,66 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
         aiString path;
         mat->GetTexture(aiTextureType_HEIGHT, i, &path);
         TextureParameters parameters;
-        material.normalTexture = textureLoader_.LoadTexture(path.C_Str(), parameters);
+        material.normalTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
+    }
+
+    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_NORMALS); i++)
+    {
+        aiString path;
+        mat->GetTexture(aiTextureType_NORMALS, i, &path);
+
+        LOG_INFO << "Model have normal texture, should be conider as normal map rather than HEIGHT? Path: " << path.C_Str();
+
+        // TextureParameters parameters;
+        // material.normalTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
+    }
+
+    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_SPECULAR); ++i)
+    {
+        aiString path;
+        mat->GetTexture(aiTextureType_SPECULAR, i, &path);
+        TextureParameters parameters;
+        material.specularTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
+    }
+
+    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_AMBIENT); ++i)
+    {
+        aiString path;
+        mat->GetTexture(aiTextureType_AMBIENT, i, &path);
+        TextureParameters parameters;
+        material.ambientTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
+    }
+
+    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_DISPLACEMENT); ++i)
+    {
+        aiString path;
+        mat->GetTexture(aiTextureType_DISPLACEMENT, i, &path);
+        TextureParameters parameters;
+        material.displacementTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
     }
 
     return material;
+}
+
+std::string AssimpLoader::getTexturePath(const std::string& path) const
+{
+    if (std::filesystem::exists(path))
+        return path;
+
+    if (not currentProcessingFile_)
+        return path;
+
+    if (std::filesystem::exists(path))
+        return path;
+    auto parent = currentProcessingFile_->GetParentDir();
+    if (not parent.empty() and not(parent.ends_with('/') or parent.ends_with('\\')))
+    {
+        parent += '/';
+    }
+
+    LOG_DEBUG << "Texture not found : " << path << ". Searching recursively in model based directory : " << parent;
+
+    return Utils::FindFile(File(path).GetFilename(), parent);
 }
 
 Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAnim)
@@ -540,21 +599,21 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
         for (uint32 i = 0; i < animChannel.mNumRotationKeys; i++)
         {
             const auto& rotationKey = animChannel.mRotationKeys[i];
-            auto& frame = tmpClip.getTmpKeyFrame(static_cast<float>(rotationKey.mTime / aiAnim.mTicksPerSecond));
+            auto& frame             = tmpClip.getTmpKeyFrame(static_cast<float>(rotationKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[joint->id].rotation = covnertQuat(rotationKey.mValue);
         }
 
         for (uint32 i = 0; i < animChannel.mNumPositionKeys; i++)
         {
             const auto& positionKey = animChannel.mPositionKeys[i];
-            auto& frame = tmpClip.getTmpKeyFrame(static_cast<float>(positionKey.mTime / aiAnim.mTicksPerSecond));
+            auto& frame             = tmpClip.getTmpKeyFrame(static_cast<float>(positionKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[joint->id].position = covnertVec3(positionKey.mValue);
         }
 
         for (uint32 i = 0; i < animChannel.mNumScalingKeys; i++)
         {
             const auto& scalingKey = animChannel.mScalingKeys[i];
-            auto& frame = tmpClip.getTmpKeyFrame(static_cast<float>(scalingKey.mTime / aiAnim.mTicksPerSecond));
+            auto& frame            = tmpClip.getTmpKeyFrame(static_cast<float>(scalingKey.mTime / aiAnim.mTicksPerSecond));
             frame.transforms[joint->id].scale = covnertVec3(scalingKey.mValue);
         }
     }
