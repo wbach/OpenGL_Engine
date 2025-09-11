@@ -14,10 +14,10 @@ AnimationClip::AnimationClip()
 {
 }
 
-AnimationClip::AnimationClip(const std::string& name, const std::optional<std::string> & filepath)
+AnimationClip::AnimationClip(const std::string& name, const std::optional<File> & file)
     : length(-std::numeric_limits<float>::max())
     , name(name)
-    , filePath(filepath)
+    , file(file)
 {
 }
 
@@ -66,7 +66,7 @@ std::optional<uint32> AnimationClip::getFrameId(float time)
 
 bool AnimationClip::isFromExternalFile() const
 {
-    return filePath.has_value();
+    return file.has_value();
 }
 
 const std::string& AnimationClip::getName() const
@@ -74,9 +74,9 @@ const std::string& AnimationClip::getName() const
     return name;
 }
 
-const std::optional<std::string>& AnimationClip::getFilePath() const
+const std::optional<File>& AnimationClip::getFile() const
 {
-    return filePath;
+    return file;
 }
 }  // namespace Animation
 }  // namespace GameEngine

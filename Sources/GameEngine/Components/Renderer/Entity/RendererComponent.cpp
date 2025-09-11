@@ -326,7 +326,6 @@ void RendererComponent::registerReadFunctions()
                         {
                             DEBUG_LOG(filename);
                             component->fileName_LOD1 = filename;
-                            DEBUG_LOG(component->fileName_LOD1.GetAbsolutePath());
                         }
                         else if (lodInt == 1)
                         {
@@ -356,16 +355,16 @@ void RendererComponent::registerReadFunctions()
 
     ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
 }
-void create(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
+void create(TreeNode& node, const std::filesystem::path& file, LevelOfDetail lvl)
 {
-    node.addChild(CSTR_FILE_NAME, Utils::ReplaceSlash(filename));
+    node.addChild(CSTR_FILE_NAME, file);
     node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
 }
 void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files)
 {
     for (const auto& [lodLvl, file] : files)
     {
-        create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativeDir(), lodLvl);
+        create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativePath(), lodLvl);
     }
 }
 void RendererComponent::write(TreeNode& node) const

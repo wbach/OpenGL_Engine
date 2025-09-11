@@ -2,7 +2,8 @@
 #include <Logger/Log.h>
 #include <Types.h>
 
-#include <fstream>
+#include <filesystem>
+#include <string>
 
 namespace GameEngine
 {
@@ -10,22 +11,21 @@ class File
 {
 public:
     File();
-    File(const std::string&);
     File(const char*);
+    File(const std::string&);
+    File(const std::filesystem::path&);
     File(const File&) = default;
 
-    void Change(const std::string&);
-    void DataRelative(const std::string&);
-    void ProjectRelative(const std::string&);
-    void AbsoultePath(const std::string&);
+    void Init(const std::string&);
+    void Init(const std::filesystem::path&);
+
+    void DataRelative(const std::filesystem::path&);
+    void AbsoultePath(const std::filesystem::path&);
     void ChangeExtension(const std::string&);
 
-    const std::string& GetDataRelativeDir() const;
-    const std::string& GetProjectRelativeDir() const;
-    const std::string& GetAbsolutePath() const;
-    std::string GetAbsolutePathWithDifferentExtension(const std::string&) const;
+    const std::filesystem::path& GetDataRelativePath() const;
+    const std::filesystem::path& GetAbsolutePath() const;
 
-    const std::string& GetInitValue() const;
     std::string GetBaseName() const;
     std::string GetExtension() const;
     std::string GetFilename() const;
@@ -41,6 +41,7 @@ public:
     File& operator=(const File&);
     File& operator=(const char*);
     File& operator=(const std::string&);
+    File& operator=(const std::filesystem::path&);
     operator bool() const;
     bool empty() const;
     bool exist() const;
@@ -74,30 +75,24 @@ public:
             auto readedBytes = fread(&dataSize, sizeof(uint32), 1, fp_);
             if (readedBytes < sizeof(uint32))
             {
-                ERROR_LOG("Read size error in " + absolutePath_);
+                LOG_ERROR << "Read size error in " << absolutePath_;
             }
             data.resize(dataSize);
             auto dataBytes = fread(&data[0], sizeof(T), dataSize, fp_);
 
             if (dataBytes < sizeof(T) * dataSize)
             {
-                ERROR_LOG("Read data error in " + absolutePath_);
+                LOG_ERROR << "Read data error in " << absolutePath_;
             }
         }
     }
 
 private:
-    void ConvertSlashes(const std::string&, const std::string&, const std::string&);
-    void ConvertSlashesAndAddToRequired(const std::string&, const std::string&, const std::string&);
-    bool IsProjectRelativePath(const std::string&) const;
-    void printError(const std::string&) const;
     void ClearSpecialCharacters();
 
 private:
-    std::string initValue_;
-    std::string absolutePath_;
-    std::string dataRelative_;
-    std::string projectRelative_;
+    std::filesystem::path absolutePath_;
+    std::filesystem::path dataRelative_;
 
     FILE* fp_;
     long fileSize_;

@@ -46,14 +46,14 @@ void saveSceneToFile(Scene& scene, const File& file)
 
 void saveSceneToFile(const TreeNode& rootNode, const File& file)
 {
-    auto path = file.GetAbsolutePathWithDifferentExtension("xml");
+    auto path = file.CreateFileWithExtension("xml").GetAbsolutePath();
     Utils::CreateBackupFile(path);
     Utils::Xml::Write(path, rootNode);
 }
 void createAndSavePrefab(const File& file, const GameObject& gameObject)
 {
     auto prefabRootNode = GameEngine::createPrefab(gameObject);
-    Utils::Xml::Write(file.GetAbsolutePathWithDifferentExtension("prefab"), prefabRootNode);
+    Utils::Xml::Write(file.CreateFileWithExtension("prefab").GetAbsolutePath(), prefabRootNode);
 }
 GameObject* cloneGameObject(Scene& scene, const GameObject& gameObject)
 {
@@ -78,7 +78,7 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
     auto& scenesNode                                  = rootNode.addChild(CSTR_SCENES_NODE);
     for (const auto& [name, file] : scenes)
     {
-        scenesNode.addChild(name, file.GetDataRelativeDir());
+        scenesNode.addChild(name, file.GetDataRelativePath());
     }
     Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
 }

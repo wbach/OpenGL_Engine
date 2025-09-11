@@ -157,7 +157,7 @@ void TerrainShape::write(TreeNode& node) const
     ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
     if (not heightMapFile.empty())
     {
-        ::write(node.addChild(CSTR_HEIGHTMAP_FILENAME), GetHeightMapFile().GetDataRelativeDir());
+        ::write(node.addChild(CSTR_HEIGHTMAP_FILENAME), GetHeightMapFile().GetDataRelativePath());
     }
 }
 const File& TerrainShape::GetHeightMapFile() const

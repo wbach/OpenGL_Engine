@@ -59,6 +59,12 @@ TreeNode& TreeNode::addChild(const std::string& name, const std::string& value)
     return *children_.back();
 }
 
+TreeNode& TreeNode::addChild(const std::string& name, const std::filesystem::path& value)
+{
+    children_.emplace_back(new TreeNode(name,  Utils::ReplaceSlash(value)));
+    return *children_.back();
+}
+
 TreeNode& TreeNode::addChild(const std::string& name, const std::string_view& value)
 {
     children_.emplace_back(new TreeNode(name, std::string(value)));

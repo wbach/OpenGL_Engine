@@ -76,13 +76,13 @@ MeshShape& MeshShape::SetModel(Model* model)
     model_ = model;
     return *this;
 }
-MeshShape& MeshShape::SetModel(const File& filename)
+MeshShape& MeshShape::SetModel(const File& file)
 {
     LoadingParameters loadingParameters{
         .meshOptimize       = meshOptimize ? MeshOptimize::optimized : MeshOptimize::none,
         .modelNormalization = modelNormalization ? ModelNormalization::normalized : ModelNormalization::none};
-    modelFile = filename.GetInitValue();
-    model_    = componentContext_.resourceManager_.LoadModel(filename, loadingParameters);
+    modelFile = file;
+    model_    = componentContext_.resourceManager_.LoadModel(file, loadingParameters);
     return *this;
 }
 void MeshShape::autoOptimize()
@@ -158,7 +158,7 @@ void MeshShape::write(TreeNode& node) const
     ::write(node.addChild(CSTR_SIZE), GetSize());
     ::write(node.addChild(CSTR_AUTO_OPTIMIZE_MESH), Utils::BoolToString(autoOptimization));
     auto& modelNode = node.addChild(CSTR_MODEL_FILE_NAME);
-    ::write(modelNode.addChild(CSTR_FILE_NAME), modelFile.GetDataRelativeDir());
+    ::write(modelNode.addChild(CSTR_FILE_NAME), modelFile.GetDataRelativePath());
     modelNode.addChild(CSTR_MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
     modelNode.addChild(CSTR_MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));
 }

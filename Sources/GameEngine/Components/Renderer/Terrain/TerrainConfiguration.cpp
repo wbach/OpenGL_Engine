@@ -41,7 +41,7 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
 
 TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
 {
-    DEBUG_LOG("filename : " + configFile.GetDataRelativeDir());
+    LOG_DEBUG << "filename : " << configFile.GetDataRelativePath();
     TerrainConfiguration config;
 
     std::fstream file(configFile.GetAbsolutePath());

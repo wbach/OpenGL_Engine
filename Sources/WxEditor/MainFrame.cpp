@@ -465,7 +465,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     wxString path = openFileDialog.GetPath();
     GameEngine::File file{std::string{path.c_str()}};
     canvas->OpenScene(file,
-                      [&, path = file.GetDataRelativeDir()]()
+                      [&, path = file.GetDataRelativePath().string()]()
                       {
                           if (isRunning)
                           {
@@ -1317,7 +1317,7 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
     GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
 
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" +
-                      sceneFile.GetAbsolutePath() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
+                      sceneFile.GetAbsolutePath().string() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)

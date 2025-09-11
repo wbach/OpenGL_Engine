@@ -204,8 +204,8 @@ void WaterRendererComponent::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
     ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());
-    ::write(node.addChild(CSTR_DUDV_MAP), dudvMap.GetDataRelativeDir());
-    ::write(node.addChild(CSTR_NORMAL_MAP), normalMap.GetDataRelativeDir());
+    ::write(node.addChild(CSTR_DUDV_MAP), dudvMap.GetDataRelativePath());
+    ::write(node.addChild(CSTR_NORMAL_MAP), normalMap.GetDataRelativePath());
 }
 }  // namespace Components
 }  // namespace GameEngine

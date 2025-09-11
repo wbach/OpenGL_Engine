@@ -503,7 +503,7 @@ void Animator::initAnimationClips()
             }
             else
             {
-                DEBUG_LOG("Add animation file based clip : " + clipToRead.file.GetInitValue());
+                LOG_DEBUG << "Add animation file based clip : " << clipToRead.file;
                 AddAnimationClip(animationName, *clip, playType, clipToRead.useRootMontion);
             }
             continue;
@@ -632,7 +632,7 @@ void write(TreeNode& node, const ReadAnimationInfo& info)
 {
     if (info.file)
     {
-        write(node.addChild(CSTR_FILE_NAME), info.file.GetDataRelativeDir());
+        write(node.addChild(CSTR_FILE_NAME), info.file.GetDataRelativePath());
     }
     else
     {

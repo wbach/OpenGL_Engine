@@ -70,7 +70,7 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
             animationClipName = animationNameAttribute;
         }
 
-        AnimationClip animationClip(animationClipName, file.GetInitValue());
+        AnimationClip animationClip(animationClipName, file.GetFilename());
         animationClip.SetLength(std::stof(root->attributes_["length"]));
 
         for (const auto& keyframeNode : reader.Get("KeyFrames")->getChildren())

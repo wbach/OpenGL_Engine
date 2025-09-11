@@ -31,7 +31,8 @@ void writeChildren(TreeNode& node, const GuiElement& element)
 
 void write(TreeNode& node, const File& v)
 {
-    node.value_ = v.GetDataRelativeDir();
+    if (not v.empty())
+        node.value_ = v.GetDataRelativePath();
 }
 
 void writeBasicParams(TreeNode& node, const GuiElement& element)
@@ -68,7 +69,7 @@ TreeNode& write(TreeNode& node, const GuiTextureElement& element)
     writeBasicParams(textureNode, element);
     auto& file   = textureNode.addChild(Gui::FILE);
     auto texture = element.GetTexture();
-    write(file, texture ? texture->GetFile()->GetDataRelativeDir() : "");
+    write(file, texture ? texture->GetFile() : File());
     auto& color = textureNode.addChild(Gui::COLOR);
     write(color, element.GetColor());
     return textureNode;

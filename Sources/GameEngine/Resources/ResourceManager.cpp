@@ -74,7 +74,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     //   DEBUG_LOG("add model.");
     auto modelPtr = model.get();
     auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
-                                     : model->GetFile().GetAbsolutePath();
+                                     : model->GetFile().GetAbsolutePath().string();
 
     auto iter = models_.find(filename);
 

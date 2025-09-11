@@ -1,11 +1,14 @@
 #include "File.h"
 
+#include <Logger/Log.h>
+
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
-#include <Logger/Log.h>
 
 #include "GameEngine/Engine/Configuration.h"
+
+namespace fs = std::filesystem;
 
 namespace GameEngine
 {
@@ -16,112 +19,77 @@ File::File()
 }
 
 File::File(const std::string &input)
-    : initValue_(input)
-    , fp_{nullptr}
+    : File(std::filesystem::path(input))
+{
+}
+
+File::File(const char *input)
+    : File(std::filesystem::path(input))
+{
+}
+
+File::File(const std::filesystem::path &input)
+    : fp_{nullptr}
     , fileSize_(0)
 {
-    Change(input);
-}
-File::File(const char *input)
-    : File(std::string(input))
-{
+    Init(input);
 }
 
-void File::Change(const std::string &input)
+void File::Init(const std::string &input)
 {
-    initValue_ = input;
+    Init(std::filesystem::path{input});
+}
 
+void File::Init(const std::filesystem::path &input)
+{
     if (input.empty())
         return;
 
-    if (Utils::IsAbsolutePath(initValue_))
-        AbsoultePath(initValue_);
-    else if (IsProjectRelativePath(initValue_))
-        ProjectRelative(initValue_);
-    else
-        DataRelative(initValue_);
+    try
+    {
+        if (std::filesystem::path(input).is_absolute())
+        {
+            AbsoultePath(input);
+        }
+        else
+        {
+            DataRelative(input);
+        }
+    }
+    catch (...)
+    {
+        LOG_ERROR << "File init error: " << input;
+    }
 
     ClearSpecialCharacters();
 }
-void File::DataRelative(const std::string &filename)
+
+void File::DataRelative(const std::filesystem::path &filename)
 {
-    auto dataRelative    = filename;
-    auto projectRelative = EngineConf_GetFullDataPath(filename);
-
-    std::string absoultePath;
-
-    if (std::filesystem::exists(projectRelative))
-    {
-        absoultePath = Utils::GetAbsolutePath(projectRelative);
-    }
-    else
-    {
-        auto parentPath = Utils::GetAbsolutePath(Utils::GetParent(projectRelative));
-
-        if (not std::filesystem::exists(parentPath))
-        {
-            try
-            {
-                /// std::filesystem::create_directories(parentPath);
-            }
-            catch (const std::exception &e)
-            {
-                ERROR_LOG(e.what());
-            }
-        }
-
-        absoultePath = parentPath + "/" + std::filesystem::path(filename).filename().string();
-    }
-    ConvertSlashesAndAddToRequired(absoultePath, dataRelative, absoultePath);
+    dataRelative_ = filename;
+    absolutePath_ = std::filesystem::absolute(std::filesystem::path(EngineConf.files.data) / dataRelative_);
 }
 
-void File::ProjectRelative(const std::string &filename)
+void File::AbsoultePath(const std::filesystem::path &filename)
 {
-    auto dataRelative    = GetRelativeDataPath(filename);
-    auto projectRelative = filename;
-    auto absoultePath    = Utils::GetAbsolutePath(projectRelative);
-    ConvertSlashesAndAddToRequired(absoultePath, dataRelative, absoultePath);
-}
-
-void File::AbsoultePath(const std::string &filename)
-{
-    auto absoultePath    = filename;
-    auto dataRelative    = GetRelativeDataPath(filename);
-    auto projectRelative = EngineConf_GetFullDataPath(dataRelative_);
-    ConvertSlashesAndAddToRequired(absoultePath, dataRelative, absoultePath);
+    absolutePath_ = filename;
+    dataRelative_ = fs::relative(absolutePath_, EngineConf.files.data);
 }
 
 void File::ChangeExtension(const std::string &extension)
 {
-    auto absoultePath    = std::filesystem::path(absolutePath_).replace_extension(extension).string();
-    auto dataRelative    = std::filesystem::path(dataRelative_).replace_extension(extension).string();
-    auto projectRelative = std::filesystem::path(projectRelative_).replace_extension(extension).string();
-    ConvertSlashes(absoultePath, dataRelative, projectRelative);
+    absolutePath_ = std::filesystem::path(absolutePath_).replace_extension(extension).string();
+    dataRelative_ = std::filesystem::path(dataRelative_).replace_extension(extension).string();
 }
 
-const std::string &File::GetDataRelativeDir() const
+const std::filesystem::path &File::GetDataRelativePath() const
 {
     return dataRelative_;
 }
 
-const std::string &File::GetProjectRelativeDir() const
-{
-    return projectRelative_;
-}
-
-const std::string &File::GetAbsolutePath() const
+const std::filesystem::path &File::GetAbsolutePath() const
 {
     return absolutePath_;
-}
-
-std::string File::GetAbsolutePathWithDifferentExtension(const std::string &extension) const
-{
-    return std::filesystem::path(absolutePath_).replace_extension(extension).string();
-}
-
-const std::string &File::GetInitValue() const
-{
-    return initValue_;
 }
 
 std::string File::GetBaseName() const
@@ -155,19 +123,15 @@ File File::CreateFileWithExtension(const std::string &extension) const
 
 void File::ChangeFileName(const std::string &filename)
 {
-    auto absoultePath    = std::filesystem::path(absolutePath_).replace_filename(filename).string();
-    auto dataRelative    = std::filesystem::path(dataRelative_).replace_filename(filename).string();
-    auto projectRelative = std::filesystem::path(projectRelative_).replace_filename(filename).string();
-    ConvertSlashes(absoultePath, dataRelative, projectRelative);
+    absolutePath_ = std::filesystem::path(absolutePath_).replace_filename(filename).string();
+    dataRelative_ = std::filesystem::path(dataRelative_).replace_filename(filename).string();
 }
 
 void File::ChangeBaseName(const std::string &basename)
 {
     auto filenameWithExtension = basename + GetExtension();
-    auto absoultePath          = std::filesystem::path(absolutePath_).replace_filename(filenameWithExtension).string();
-    auto dataRelative          = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
-    auto projectRelative       = std::filesystem::path(projectRelative_).replace_filename(filenameWithExtension).string();
-    ConvertSlashes(absoultePath, dataRelative, projectRelative);
+    absolutePath_              = std::filesystem::path(absolutePath_).replace_filename(filenameWithExtension).string();
+    dataRelative_              = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
 }
 
 void File::AddSuffixToBaseName(const std::string &suffix)
@@ -207,18 +171,23 @@ File &File::operator=(const File &f)
 {
     if (&f != this)
     {
-        Change(f.initValue_);
+        Init(f.absolutePath_);
     }
     return *this;
 }
 File &File::operator=(const char *str)
 {
-    Change(str);
+    Init(std::filesystem::path(str));
     return *this;
 }
 File &File::operator=(const std::string &str)
 {
-    Change(str);
+    Init(str);
+    return *this;
+}
+File& File::operator=(const std::filesystem::path& path)
+{
+    Init(path);
     return *this;
 }
 File::operator bool() const
@@ -234,12 +203,12 @@ File::operator bool() const
 }
 bool File::empty() const
 {
-    return initValue_.empty() or absolutePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
+    return absolutePath_.empty() or dataRelative_.empty();
 }
 
 bool File::exist() const
 {
-    return not empty() and std::filesystem::exists(GetAbsolutePath());
+    return not empty() and std::filesystem::exists(absolutePath_);
 }
 bool File::openToWrite()
 {
@@ -253,7 +222,7 @@ bool File::openToWrite()
 
     if (not fp_)
     {
-        ERROR_LOG("cannot open file : " + absolutePath_);
+        LOG_ERROR << "Cannot open file : " << absolutePath_;
         return false;
     }
     return true;
@@ -268,7 +237,7 @@ bool File::openToRead()
 
     if (not std::filesystem::exists(absolutePath_))
     {
-        ERROR_LOG("file not exist! " + absolutePath_);
+        LOG_ERROR << "File not exist : " << absolutePath_;
         return false;
     }
 
@@ -276,7 +245,7 @@ bool File::openToRead()
 
     if (not fp_)
     {
-        ERROR_LOG("cannot open file : " + absolutePath_);
+        LOG_ERROR << "Cannot open file : " << absolutePath_;
         return false;
     }
 
@@ -295,34 +264,7 @@ void File::close()
 
     fp_ = nullptr;
 }
-void File::ConvertSlashes(const std::string &absoultePath, const std::string &dataRelative, const std::string &projectRelative)
-{
-    absolutePath_    = Utils::ReplaceSlash(absoultePath);
-    dataRelative_    = Utils::ReplaceSlash(dataRelative);
-    projectRelative_ = Utils::ReplaceSlash(projectRelative);
-}
-void File::ConvertSlashesAndAddToRequired(const std::string &absoultePath, const std::string &dataRelative,
-                                          const std::string &projectRelative)
-{
-    ConvertSlashes(absoultePath, dataRelative, projectRelative);
-    EngineConf_AddRequiredFile(dataRelative_);
-}
-bool File::IsProjectRelativePath(const std::string &inputpath) const
-{
-    try
-    {
-        return (std::filesystem::exists(inputpath) or inputpath.find(EngineConf.files.data) != std::string::npos);
-    }
-    catch (...)
-    {
-        return false;
-    }
-}
 
-void File::printError(const std::string &str) const
-{
-    ERROR_LOG(str);
-}
 void File::ClearSpecialCharacters()
 {
     const std::string notAllowed{"<>:\"|?*"};
@@ -337,7 +279,7 @@ void File::ClearSpecialCharacters()
                            if (result)
                            {
                                changeNeeded = true;
-                               DEBUG_LOG(std::string("Remove notAllowed character \"") + c + "\" from file : " + initValue_);
+                               DEBUG_LOG(std::string("Remove notAllowed character \"") + c + "\" from file : " + GetFilename());
                            }
                            return result;
                        });
@@ -350,14 +292,12 @@ void File::ClearSpecialCharacters()
 }
 }  // namespace GameEngine
 
-std::ostream& operator<<(std::ostream& os, const GameEngine::File& file)
+std::ostream &operator<<(std::ostream &os, const GameEngine::File &file)
 {
-    os << "File{";
-    if (!file.GetAbsolutePath().empty())
-        os << "absoultePath: " << file.GetAbsolutePath();
-    else
-        os << "initValue: " << file.GetInitValue();
-
+    os << "File";
+    os << "{";
+    os << "absolutePath: " << file.GetAbsolutePath();
+    os << "dataRelative: " << file.GetDataRelativePath();
     os << "}";
     return os;
 }

@@ -74,7 +74,7 @@ void Create(TreeNode& node, const std::vector<File>& str)
     const std::string CSTR_TEXTURE_FILENAME = "textureFileName";
     for (const auto& value : str)
     {
-        node.addChild(CSTR_TEXTURE_FILENAME, value.GetDataRelativeDir());
+        node.addChild(CSTR_TEXTURE_FILENAME, value.GetDataRelativePath());
     }
 }
 void read(const TreeNode& node, Components::SkyBoxComponent& component)
@@ -170,9 +170,9 @@ Model* SkyBoxComponent::GetModel()
 {
     return model_;
 }
-const std::string& SkyBoxComponent::GetModelFileName() const
+std::string SkyBoxComponent::GetModelFileName() const
 {
-    return modelFile.GetDataRelativeDir();
+    return modelFile.GetDataRelativePath();
 }
 void SkyBoxComponent::Subscribe()
 {

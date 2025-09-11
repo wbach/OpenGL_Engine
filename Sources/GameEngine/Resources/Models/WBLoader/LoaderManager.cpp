@@ -24,7 +24,7 @@ LoaderManager::LoaderManager(ITextureLoader& textureloader)
     loaders_.emplace_back(new WBLoader::AssimpLoader(textureloader));
 }
 
-std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParameters & loadingParameters)
+std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParameters& loadingParameters)
 {
     auto loaderPtr = GetLoader(file);
 
@@ -48,17 +48,15 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParame
                                   : (mesh.GetCMeshDataRef().positions_.size() / 3.f / 3.f);
         }
 
-        DEBUG_LOG("File : " + file.GetDataRelativeDir() +
-                  ", Meshes count : " + std::to_string(result->GetMeshes().size()) +
-                  ", Total triangles count : " + std::to_string(trianglesCount));
+        LOG_ERROR << "File  creation error: " << file << " Meshes count : " << result->GetMeshes().size()
+                  << ", Total triangles count : " << trianglesCount;
     }
     else
     {
-        ERROR_LOG("File  creation error: " + file.GetDataRelativeDir());
+        LOG_ERROR << "File  creation error: " << file;
     }
     return result;
 }
-
 
 WBLoader::AbstractLoader* LoaderManager::GetLoader(const File& file)
 {

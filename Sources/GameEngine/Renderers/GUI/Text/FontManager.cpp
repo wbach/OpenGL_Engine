@@ -83,7 +83,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     if (not isInit_)
         return std::nullopt;
 
-    auto fname = filename.GetAbsolutePath() + std::to_string(size);
+    auto fname = filename.GetAbsolutePath().string() + std::to_string(size);
     if (fontNameToIdMap_.count(fname) > 0)
     {
         return fontNameToIdMap_.at(fname);

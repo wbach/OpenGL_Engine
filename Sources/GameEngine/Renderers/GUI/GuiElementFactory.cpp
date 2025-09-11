@@ -306,7 +306,7 @@ std::unique_ptr<GuiTextureElement> GuiElementFactory::MakeGuiTexture(const File 
     auto texture = resourceManager_.GetTextureLoader().LoadTexture(file, params);
     if (not texture)
     {
-        DEBUG_LOG("Texture not loaded : " + file.GetAbsolutePath());
+        LOG_DEBUG << "Texture not loaded : " << file;
         return nullptr;
     }
 

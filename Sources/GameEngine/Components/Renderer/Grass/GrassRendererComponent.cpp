@@ -315,8 +315,8 @@ void GrassRendererComponent::write(TreeNode& node) const
         file.close();
     }
 
-    ::write(node.addChild(CSTR_FILE_NAME), file.GetDataRelativeDir());
-    ::write(node.addChild(CSTR_TEXTURE_FILENAME), getTextureFile().GetDataRelativeDir());
+    ::write(node.addChild(CSTR_FILE_NAME), file.GetDataRelativePath());
+    ::write(node.addChild(CSTR_TEXTURE_FILENAME), getTextureFile().GetDataRelativePath());
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -185,7 +185,7 @@ AssimpLoader::~AssimpLoader()
 
 void AssimpLoader::ParseFile(const File& file)
 {
-    DEBUG_LOG(file.GetInitValue());
+    LOG_DEBUG << file.GetAbsolutePath();
 
     // to do create factory and loader per one loading
     bones_.clear();
@@ -231,7 +231,7 @@ void AssimpLoader::ParseFile(const File& file)
 
     currentProcessingFile_.reset();
 
-    DEBUG_LOG("Done. " + file.GetInitValue());
+    LOG_DEBUG << "Done. " << file.GetAbsolutePath();
 }
 
 bool AssimpLoader::CheckExtension(const File& file)
@@ -643,11 +643,11 @@ Animation::KeyFrame& AssimpLoader::getFrameByTimeStamp(Animation::AnimationClip&
 
 void AssimpLoader::readAdditionInfoFile(const File& file)
 {
-    auto additionInfoFile = file.GetAbsolutePathWithDifferentExtension("xml");
-    if (std::filesystem::exists(additionInfoFile))
+    auto additionInfoFile = file.CreateFileWithExtension("xml");
+    if (additionInfoFile.exist())
     {
         Utils::XmlReader xmlReader;
-        if (xmlReader.Read(additionInfoFile))
+        if (xmlReader.Read(additionInfoFile.GetAbsolutePath()))
         {
             auto correction = xmlReader.Get("correction");
             if (correction)

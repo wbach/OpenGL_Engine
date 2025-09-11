@@ -8,18 +8,17 @@
 #include <string>
 
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
-#include "GameEngine/Resources/Textures/GeneralTexture.h"
-#include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/TextureParameters.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "Rotation.h"
 #include "Types.h"
 #include "Utils/Image/ImageUtils.h"
@@ -62,7 +61,7 @@ void TerrainComponentBase::BlendMapChanged()
 
 std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &objectFile) const
 {
-    DEBUG_LOG("Converting to heightmap : " + objectFile.GetAbsolutePath());
+    LOG_DEBUG << "Converting to heightmap : " << objectFile.GetAbsolutePath();
     auto model = componentContext_.resourceManager_.LoadModel(
         objectFile, LoadingParameters{MeshOptimize::none, ModelNormalization::normalized});
     if (not model)
@@ -102,9 +101,9 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     uint32 heightmapResultuion = 2048;
     float step                 = 1.f / static_cast<float>(heightmapResultuion);
 
-    File outputFile(objectFile.GetAbsolutePathWithDifferentExtension("terrain"));
-    auto heightMap = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
-        outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
+    auto outputFile = objectFile.CreateFileWithExtension("terrain");
+    auto heightMap  = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
+         outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
 
     std::vector<std::vector<float>> heights;
     heights.reserve(heightmapResultuion);
@@ -156,7 +155,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     heightMap->SetScale(vec3(1.f / model->getNormalizedFactor()));
     componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
-    DEBUG_LOG("Conversion done. Output file: " + outputFile.GetAbsolutePath());
+    LOG_DEBUG << "Conversion done. Output file: " << outputFile.GetAbsolutePath();
     SaveHeightMap(*heightMap, outputFile);
     componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*heightMap);
     return outputFile;
@@ -212,8 +211,8 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
         }
         else
         {
-            ERROR_LOG("Texture not loaded correctly. " + std::to_string(terrainTexture.type) +
-                      ", file : " + terrainTexture.file.GetAbsolutePath());
+            LOG_ERROR << "Texture not loaded correctly. " << magic_enum::enum_name(terrainTexture.type)
+                      << ", file : " << terrainTexture.file.GetAbsolutePath();
         }
     }
 

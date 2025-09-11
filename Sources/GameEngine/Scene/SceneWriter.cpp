@@ -41,7 +41,7 @@ void CreatePrefabNode(TreeNode& node, const Prefab& gameObject)
     node.attributes_.insert({CSTR_ID, std::to_string(gameObject.GetId())});
     Create(node.addChild(CSTR_TRANSFORM), gameObject.GetTransform());
 
-    node.addChild(CSTR_FILE_NAME, gameObject.getFile().GetDataRelativeDir());
+    node.addChild(CSTR_FILE_NAME, gameObject.getFile().GetDataRelativePath());
 }
 void Create(TreeNode& node, const GameObject& gameObject)
 {

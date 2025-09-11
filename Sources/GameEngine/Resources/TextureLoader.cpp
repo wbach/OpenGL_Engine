@@ -92,13 +92,13 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
 }
 GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const TextureParameters& params)
 {
-    auto memoryImagesIter = memoryImages.find(inputFileName.GetInitValue());
+    auto memoryImagesIter = memoryImages.find(inputFileName.GetBaseName());
 
     if (memoryImagesIter != memoryImages.end())
     {
-        LOG_DEBUG << "Image found in memoryImages " << inputFileName.GetInitValue();
+        LOG_DEBUG << "Image found in memoryImages " << inputFileName.GetBaseName();
         const auto& memoryImage = memoryImagesIter->second;
-        return LoadTexture(inputFileName.GetInitValue(), memoryImage.data, memoryImage.length, params);
+        return LoadTexture(inputFileName.GetBaseName(), memoryImage.data, memoryImage.length, params);
     }
 
     std::lock_guard<std::mutex> lk(textureMutex_);
@@ -115,7 +115,7 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
         }
         else
         {
-            ERROR_LOG("File not exist : " + inputFileName.GetAbsolutePath());
+            LOG_ERROR << "File not exist : " << inputFileName;
             return GetTextureNotFound();
         }
     }
@@ -279,13 +279,13 @@ void TextureLoader::UnlockReleaseResources()
     releaseLockState_ = false;
 }
 
-HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const TextureParameters& params)
+HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFile, const TextureParameters& params)
 {
-    auto fp = fopen(inputFileName.GetAbsolutePath().c_str(), "rb");
+    auto fp = fopen(inputFile.GetAbsolutePath().c_str(), "rb");
 
     if (!fp)
     {
-        ERROR_LOG("GetFileType: wrong image format or file does not exist : " + inputFileName.GetAbsolutePath());
+        LOG_ERROR << "GetFileType: wrong image format or file does not exist : " << inputFile;
         return nullptr;
     }
 
@@ -294,7 +294,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
 
     if (bytes == 0)
     {
-        ERROR_LOG("Read file error." + inputFileName.GetAbsolutePath());
+        LOG_ERROR << "Read file error." << inputFile;
     }
 
     DEBUG_LOG("Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
@@ -308,8 +308,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
 
     if (bytes < size)
     {
-        ERROR_LOG("Read file error." + inputFileName.GetAbsolutePath() + " " + ", bytes : " + std::to_string(bytes) + "/" +
-                  std::to_string(sizeof(float) * size));
+        LOG_ERROR << "Read file error." << inputFile << ", bytes : " << bytes << "/" << (sizeof(float) * size);
         return nullptr;
     }
 
@@ -319,10 +318,10 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFileName, const T
     image.setChannels(1);
     image.moveData(std::move(floatData));
 
-    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
+    auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, params, inputFile, std::move(image));
     heightmapTexture->SetScale(header.scale);
     auto heightmapTexturePtr = heightmapTexture.get();
-    AddTexture(inputFileName.GetAbsolutePath(), std::move(heightmapTexture), params.loadType);
+    AddTexture(inputFile.GetAbsolutePath(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;
 }
 HeightMap* TextureLoader::LoadHeightMapTexture(const File& inputFileName, const TextureParameters& params)

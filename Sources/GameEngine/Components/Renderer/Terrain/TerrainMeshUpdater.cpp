@@ -27,7 +27,7 @@ TerrainMeshUpdater::~TerrainMeshUpdater()
 }
 void TerrainMeshUpdater::create()
 {
-    DEBUG_LOG("create terrain mesh : " + heightMap_.GetFile()->GetAbsolutePath());
+    LOG_DEBUG << "Create terrain mesh : " << heightMap_.GetFile();
     WBLoader::TerrainMeshLoader loader(componentContext_.resourceManager_.GetTextureLoader());
     auto newModel = loader.createModel(heightMap_, EngineConf.renderer.terrain.meshPartsCount);
 

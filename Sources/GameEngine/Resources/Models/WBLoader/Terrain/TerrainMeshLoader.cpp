@@ -24,18 +24,16 @@ void TerrainMeshLoader::ParseFile(const File& file)
     params.loadType = TextureLoadType::None;
 
     auto heightMap = textureLoader_.LoadHeightMap(file, params);
-    DEBUG_LOG("ParseFile : "+ file.GetAbsolutePath());
 
     if (not heightMap)
     {
-        ERROR_LOG("Height mapt not loaded. " + file.GetFilename());
+        LOG_ERROR << "Height mapt not loaded. " << file;
         return;
     }
 
-    auto terrainConfig =
-        TerrainConfiguration::ReadFromFile(file.GetAbsolutePathWithDifferentExtension("terrainConfig"));
-    auto partsCount  = terrainConfig.GetPartsCount();
-    model_ = createModel(*heightMap, partsCount);
+    auto terrainConfig = TerrainConfiguration::ReadFromFile(file.CreateFileWithExtension("terrainConfig"));
+    auto partsCount    = terrainConfig.GetPartsCount();
+    model_             = createModel(*heightMap, partsCount);
     textureLoader_.DeleteTexture(*heightMap);
 }
 bool TerrainMeshLoader::CheckExtension(const File& file)
@@ -74,8 +72,8 @@ std::unique_ptr<Model> TerrainMeshLoader::createModel(const HeightMap& heightMap
 
 void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& tools, uint32 resolutionDivideFactor)
 {
-    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(),
-                             GraphicsApi::MeshRawData(), Material());
+    GameEngine::Mesh newMesh(GraphicsApi::RenderType::TRIAGNLE_STRIP, textureLoader_.GetGraphicsApi(), GraphicsApi::MeshRawData(),
+                             Material());
     auto heightMapResolution = tools.getHeightMapResolution();
 
     ReserveMeshData(newMesh, heightMapResolution);
@@ -85,8 +83,7 @@ void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& 
     model.AddMesh(newMesh);
 }
 
-void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, uint32 partsCount,
-                                      uint32 resolutionDivideFactor)
+void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, uint32 partsCount, uint32 resolutionDivideFactor)
 {
     auto heightMapResolution = tools.getHeightMapResolution();
     auto partialSize         = heightMapResolution / partsCount;
@@ -133,9 +130,8 @@ void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)
     data.textCoords_.reserve(size * size * 2);
     data.indices_.reserve(size * size * 2);
 }
-void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEngine::Mesh& mesh, uint32 x_start,
-                                              uint32 y_start, uint32 width, uint32 height,
-                                              uint32 resolutionDivideFactor)
+void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEngine::Mesh& mesh, uint32 x_start, uint32 y_start,
+                                              uint32 width, uint32 height, uint32 resolutionDivideFactor)
 {
     auto& vertices           = mesh.GetMeshDataRef().positions_;
     auto& normals            = mesh.GetMeshDataRef().normals_;
@@ -143,7 +139,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
     auto& tangents           = mesh.GetMeshDataRef().tangents_;
     auto heightMapResolution = static_cast<float>(tools.getHeightMapResolution() - 1);
 
-    auto gridSize = vec3(1.f) / (heightMapResolution);
+    auto gridSize   = vec3(1.f) / (heightMapResolution);
     float maxHeight = -std::numeric_limits<float>::max();
     float minHeight = std::numeric_limits<float>::max();
 
@@ -166,7 +162,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
             vec3 normal  = tools.GetNormal(j, i);
             vec3 tangnet = tools.GetTangent(normal);
 
-            //DEBUG_LOG("normal : " + std::to_string(normal));
+            // DEBUG_LOG("normal : " + std::to_string(normal));
 
             normals.push_back(normal.x);
             normals.push_back(normal.y);

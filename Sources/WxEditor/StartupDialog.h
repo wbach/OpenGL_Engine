@@ -8,6 +8,7 @@
 #include <wx/wx.h>
 
 #include <filesystem>
+#include <fstream>
 
 #include "Logger/Log.h"
 #include "ProjectManager.h"

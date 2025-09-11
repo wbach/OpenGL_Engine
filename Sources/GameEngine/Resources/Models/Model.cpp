@@ -22,7 +22,7 @@ void Model::SetFile(const File& file)
 }
 Model::~Model()
 {
-    DEBUG_LOG(file_.GetDataRelativeDir());
+    LOG_DEBUG << file_.GetDataRelativePath();
 }
 void Model::GpuLoadingPass()
 {

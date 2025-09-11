@@ -249,7 +249,7 @@ void create(TreeNode& node, const std::vector<Components::TerrainComponentBase::
 {
     for (const auto& value : textures)
     {
-        create(node.addChild(CSTR_TEXTURE), value.type, value.tiledScale, value.file.GetDataRelativeDir());
+        create(node.addChild(CSTR_TEXTURE), value.type, value.tiledScale, value.file.GetDataRelativePath());
     }
 }
 }  // namespace

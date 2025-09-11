@@ -41,7 +41,7 @@ public:
     Texture* GetDayTexture();
     Texture* GetNightTexture();
     Model* GetModel();
-    const std::string& GetModelFileName() const;
+    std::string GetModelFileName() const;
 
 private:
     void DeleteTexture(CubeMapTexture*&);

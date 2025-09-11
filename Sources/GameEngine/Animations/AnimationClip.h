@@ -2,6 +2,7 @@
 #include <optional>
 
 #include "KeyFrame.h"
+#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
@@ -42,7 +43,7 @@ class AnimationClip
 {
 public:
     AnimationClip();
-    AnimationClip(const std::string&, const std::optional<std::string>& = std::nullopt);
+    AnimationClip(const std::string&, const std::optional<File>& = std::nullopt);
     float GetLength() const;
     KeyFrame& AddFrame(const KeyFrame&);
     const std::vector<KeyFrame>& GetFrames() const;
@@ -52,13 +53,13 @@ public:
     std::optional<uint32> getFrameId(float);
     bool isFromExternalFile() const;
     const std::string& getName() const;
-    const std::optional<std::string>& getFilePath() const;
+    const std::optional<File>& getFile() const;
 
 private:
     float length;
     std::string name;
     std::vector<KeyFrame> frames;
-    std::optional<std::string> filePath;
+    std::optional<File> file;
 };
 }  // namespace Animation
 }  // namespace GameEngine

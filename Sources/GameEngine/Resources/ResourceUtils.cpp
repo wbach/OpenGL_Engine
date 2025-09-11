@@ -92,28 +92,26 @@ void flipImageIfRequest(FIBITMAP* image, TextureFlip flipMode)
     }
 }
 
-std::optional<Utils::Image> ReadFile(const File& inputFileName, const TextureParameters& params)
+std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& params)
 {
-    auto absoultePath = inputFileName.GetAbsolutePath();
-
-    if (not std::filesystem::exists(absoultePath))
+    if (not file)
     {
-        ERROR_LOG("File not exist : " + absoultePath);
+        LOG_ERROR << "File not exist : " << file;
         return {};
     }
 
-    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(absoultePath.c_str(), 0);
+    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(file.GetAbsolutePath().c_str(), 0);
 
     if (imageFormat == FIF_UNKNOWN)
     {
-        ERROR_LOG("GetFileType: wrong image format : " + absoultePath);
+        LOG_ERROR << "GetFileType: wrong image format : " << file;
         return {};
     }
 
-    FIBITMAP* image = FreeImage_Load(imageFormat, absoultePath.c_str());
+    FIBITMAP* image = FreeImage_Load(imageFormat, file.GetAbsolutePath().c_str());
     if (not image)
     {
-        ERROR_LOG("FreeImageLoad load failed  : " + absoultePath);
+        LOG_ERROR << "FreeImageLoad load failed: " << file;
         return {};
     }
 
@@ -123,7 +121,7 @@ std::optional<Utils::Image> ReadFile(const File& inputFileName, const TexturePar
 
     if (not image)
     {
-        ERROR_LOG("Cant convert to 32 bits : " + inputFileName.GetDataRelativeDir());
+        LOG_ERROR << "Cant convert to 32 bits: " << file;
         return {};
     }
 
@@ -141,7 +139,7 @@ std::optional<Utils::Image> ReadFile(const File& inputFileName, const TexturePar
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    DEBUG_LOG("File: " + inputFileName.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
+    DEBUG_LOG("File: " + file.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
               std::to_string(resultImage.height));
     return std::move(resultImage);
 }
@@ -195,8 +193,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    DEBUG_LOG("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" +
-              std::to_string(resultImage.height));
+    DEBUG_LOG("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" + std::to_string(resultImage.height));
     return std::move(resultImage);
 }
 
@@ -218,7 +215,7 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
 
     if (!fp)
     {
-        ERROR_LOG("cannot open file : " + out.GetAbsolutePath());
+        LOG_ERROR << "cannot open file : " << out;
         return;
     }
 
@@ -259,9 +256,9 @@ void CreateHeightMap(const File& out, const vec2ui& size)
 
     auto fp = fopen(out.GetAbsolutePath().c_str(), "wb+");
 
-    if (!fp)
+    if (not fp)
     {
-        ERROR_LOG("cannot open file : " + out.GetAbsolutePath());
+        LOG_ERROR << "cannot open file : " << out;
         return;
     }
 
@@ -287,11 +284,11 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
 
     if (not fp)
     {
-        ERROR_LOG("cannot open file : " + outfile.GetAbsolutePath());
+        LOG_ERROR << "cannot open file : " << outfile;
         return;
     }
 
-    DEBUG_LOG(outfile.GetAbsolutePath());
+    LOG_DEBUG << "outfile: " << outfile;
 
     HeightMapHeader header;
     header.height = image.height;
@@ -310,7 +307,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                image.getImageData());
     fclose(fp);
 
-    Utils::SaveImage(image, outfile.GetAbsolutePathWithDifferentExtension("png"));
+    Utils::SaveImage(image, outfile.CreateFileWithExtension("png").GetAbsolutePath());
 }
 
 uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)
@@ -394,8 +391,9 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                            for (size_t i = 3; i < data.size(); i += 4)
                                data[i] = 255;
 
-                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath() + "_alpha1_preview");
-                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath() + "_alpha1_preview_scaled", vec2(4));
+                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview");
+                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
+                                            vec2(4));
                        },
                        [&](const std::vector<float>&) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
                        [](std::monostate) { ERROR_LOG("Data not set!"); }},
