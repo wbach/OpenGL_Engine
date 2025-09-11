@@ -13,6 +13,7 @@ public:
     File(const std::string&);
     File(const char*);
     File(const File&) = default;
+
     void Change(const std::string&);
     void DataRelative(const std::string&);
     void ProjectRelative(const std::string&);
@@ -21,7 +22,7 @@ public:
 
     const std::string& GetDataRelativeDir() const;
     const std::string& GetProjectRelativeDir() const;
-    const std::string& GetAbsoultePath() const;
+    const std::string& GetAbsolutePath() const;
     std::string GetAbsolutePathWithDifferentExtension(const std::string&) const;
 
     const std::string& GetInitValue() const;
@@ -73,14 +74,14 @@ public:
             auto readedBytes = fread(&dataSize, sizeof(uint32), 1, fp_);
             if (readedBytes < sizeof(uint32))
             {
-                ERROR_LOG("Read size error in " + absoultePath_);
+                ERROR_LOG("Read size error in " + absolutePath_);
             }
             data.resize(dataSize);
             auto dataBytes = fread(&data[0], sizeof(T), dataSize, fp_);
 
             if (dataBytes < sizeof(T) * dataSize)
             {
-                ERROR_LOG("Read data error in " + absoultePath_);
+                ERROR_LOG("Read data error in " + absolutePath_);
             }
         }
     }
@@ -94,7 +95,7 @@ private:
 
 private:
     std::string initValue_;
-    std::string absoultePath_;
+    std::string absolutePath_;
     std::string dataRelative_;
     std::string projectRelative_;
 

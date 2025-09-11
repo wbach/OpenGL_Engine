@@ -99,7 +99,7 @@ void PreviewRenderer::prepare()
             frameBuffer_->Clear();
             frameBuffer_->Bind(GraphicsApi::FrameBuffer::BindType::ReadWrite);
             shader_.Start();
-            DEBUG_LOG("Render mesh : " + subcriber.second->getOutputFile().GetAbsoultePath());
+            DEBUG_LOG("Render mesh : " + subcriber.second->getOutputFile().GetAbsolutePath());
 
             for (const auto& mesh : model->GetMeshes())
             {
@@ -132,11 +132,11 @@ void PreviewRenderer::prepare()
                 std::to_string(*frameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0)) + ".png";
 
             DEBUG_LOG(outputFileName);
-            DEBUG_LOG(subcriber.second->getOutputFile().GetAbsoultePath());
+            DEBUG_LOG(subcriber.second->getOutputFile().GetAbsolutePath());
 
             Utils::RenameFile(
                 outputFileName,
-                subcriber.second->getOutputFile().GetAbsoultePath());
+                subcriber.second->getOutputFile().GetAbsolutePath());
 
             doneObjects.push_back(subcriber.first);
             shader_.Stop();

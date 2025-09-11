@@ -459,7 +459,7 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 
     if (not scene_.GetFile().empty())
     {
-        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile().GetAbsoultePath());
+        DebugNetworkInterface::SceneFileMsg msg(scene_.GetFile().GetAbsolutePath());
         gateway_.Send(userId_, msg);
     }
 }
@@ -983,7 +983,7 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
                 break;
             case GameEngine::Components::FieldType::Texture:
             case GameEngine::Components::FieldType::File:
-                value = static_cast<File *>(field.ptr)->GetAbsoultePath();
+                value = static_cast<File *>(field.ptr)->GetAbsolutePath();
                 break;
             case GameEngine::Components::FieldType::Enum:
                 break;
@@ -1861,12 +1861,12 @@ void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 
         auto heightMapFile = *terrain->GetTexture(TerrainTextureType::heightmap)->GetFile();
 
-        if (not generetedBlendMaps.count(heightMapFile.GetAbsoultePath()))
+        if (not generetedBlendMaps.count(heightMapFile.GetAbsolutePath()))
         {
             heightMapFile.AddSuffixToBaseName("_generatedBlendmap");
 
             GenerateBlendMap(terrain->GetTerrainConfiguration().GetScale(), heightMap, heightMapFile);
-            generetedBlendMaps.insert(heightMapFile.GetAbsoultePath());
+            generetedBlendMaps.insert(heightMapFile.GetAbsolutePath());
         }
     }
 }

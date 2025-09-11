@@ -392,7 +392,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                 [this, &component, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](auto& evt)
                                 {
                                     this->browseFileControlAction(evt, component, txt, pane, val);
-                                    UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                 });
 
             // Enter w polu
@@ -402,7 +402,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    val->Change(evt.GetString().ToStdString());
                                    reInitComponent(component);
                                    txt->SetToolTip(txt->GetValue());
-                                   UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                   UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                });
 
             row.textCtrl->SetDropTarget(
@@ -411,7 +411,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                      {
                                          val->Change(path);
                                          reInitComponent(component);
-                                         UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                         UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                      }));
             break;
         }
@@ -441,7 +441,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                         reInitComponent(component);
                                         SetPreviewBitmap(prev, GameEngine::File{path.ToStdString()}, pane);
                                         txt->SetToolTip(txt->GetValue());
-                                        UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                        UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                     }
                                 });
 
@@ -455,7 +455,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
                                    txt->SetToolTip(txt->GetValue());
                                    txt->SetValue(val->GetDataRelativeDir());
-                                   UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                                   UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                });
 
             row.textCtrl->SetDropTarget(new MyFileDropTarget(
@@ -465,7 +465,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                     val->Change(path);
                     reInitComponent(component);
                     SetPreviewBitmap(prev, *val, pane);
-                    UpdateFileWarning(warningIcon, val->GetAbsoultePath());
+                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                 }));
             break;
         }
@@ -947,7 +947,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                                 textCtrl->SetToolTip(path.ToStdString());
                                 reInitComponent(component);
                                 SetPreviewBitmap(prev, editedFile, pane);
-                                UpdateFileWarning(warningIcon, editedFile.GetAbsoultePath());
+                                UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
                             }
                         });
 
@@ -959,7 +959,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                            SetPreviewBitmap(prev, editedFile, pane);
                            textCtrl->SetToolTip(evt.GetString().ToStdString());
                            reInitComponent(component);
-                           UpdateFileWarning(warningIcon, editedFile.GetAbsoultePath());
+                           UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
                            evt.Skip();
                        });
 
@@ -970,7 +970,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
             editedFile = GameEngine::File(path);
             SetPreviewBitmap(prev, editedFile, pane);
             reInitComponent(component);
-            UpdateFileWarning(warningIcon, editedFile.GetAbsoultePath());
+            UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
         }));
 
     if (canDelete)
@@ -1083,7 +1083,7 @@ void ComponentPanel::SetPreviewBitmap(wxStaticBitmap* preview, const GameEngine:
 {
     if (file.exist())
     {
-        SetPreviewBitmap(preview, wxString(file.GetAbsoultePath()), relayoutParent);
+        SetPreviewBitmap(preview, wxString(file.GetAbsolutePath()), relayoutParent);
     }
 }
 
@@ -1127,7 +1127,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                             [this, &component, txt = row.textCtrl, pane, val, warningIcon = row.warningIcon](wxCommandEvent& evt)
                             {
                                 this->browseFileControlAction(evt, component, txt, pane, &val->file);
-                                UpdateFileWarning(warningIcon, val->file.GetAbsoultePath());
+                                UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
                             });
 
         row.textCtrl->Bind(wxEVT_TEXT_ENTER,
@@ -1136,7 +1136,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                                val->file.Change(evt.GetString().ToStdString());
                                reInitComponent(component);
                                txt->SetToolTip(txt->GetValue());
-                               UpdateFileWarning(warningIcon, val->file.GetAbsoultePath());
+                               UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
                            });
         row.textCtrl->SetDropTarget(
             new MyFileDropTarget(row.textCtrl,
@@ -1144,7 +1144,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                                  {
                                      val->file.Change(path);
                                      reInitComponent(component);
-                                     UpdateFileWarning(warningIcon, val->file.GetAbsoultePath());
+                                     UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
                                  }));
     }
 

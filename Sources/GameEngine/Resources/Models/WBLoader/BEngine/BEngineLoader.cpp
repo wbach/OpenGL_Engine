@@ -63,7 +63,7 @@ void BEngineLoader::ParseFile(const File& file)
 {
     model_ = std::make_unique<Model>();
     Utils::XmlReader reader;
-    if (not reader.Read(file.GetAbsoultePath()))
+    if (not reader.Read(file.GetAbsolutePath()))
     {
         return;
     }

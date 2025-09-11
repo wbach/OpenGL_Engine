@@ -254,7 +254,7 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
     auto& animator          = newGameObject->AddComponent<GameEngine::Components::Animator>();
 
     animator.startupAnimationClipName = "noname";
-    rendererComponent.AddModel(modelFile.GetAbsoultePath());
+    rendererComponent.AddModel(modelFile.GetAbsolutePath());
 
     LOG_DEBUG << "Object created. Id = " << newGameObject->GetId();
 
@@ -418,7 +418,7 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
     }
 
     auto isModelInProjectDir = Utils::IsFileExistsInDir(ProjectManager::GetInstance().GetProjectPath(),
-                                                        currentGameObject->currentModelFile->GetAbsoultePath());
+                                                        currentGameObject->currentModelFile->GetAbsolutePath());
     if (not isModelInProjectDir)
     {
         int answer = wxMessageBox("Model file is outside the project. To created prefab should be imported. Do you want import?",
@@ -486,7 +486,7 @@ void AnimationViewerFrame::ImportCurrentObject()
 
     wxString targetPath = fileDialog.GetPath();
 
-    auto targetFilename = Utils::CopyFileToDirectory(currentGameObject->currentModelFile->GetAbsoultePath(),
+    auto targetFilename = Utils::CopyFileToDirectory(currentGameObject->currentModelFile->GetAbsolutePath(),
                                                      wxFileName(targetPath).GetPath().ToStdString());
 
     if (not targetFilename)
@@ -549,7 +549,7 @@ void AnimationViewerFrame::ImportCurrentObject()
 
         for (auto& clip : currentGameObject->animator.animationClips)
         {
-            clip.file = Utils::ChangeFileParentPath(clip.file.GetAbsoultePath(), targetClipsFolder);
+            clip.file = Utils::ChangeFileParentPath(clip.file.GetAbsolutePath(), targetClipsFolder);
         }
 
         OnExportAll(targetClipsFolder.string());

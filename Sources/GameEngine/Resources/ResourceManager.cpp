@@ -33,7 +33,7 @@ ResourceManager::~ResourceManager()
 
 Model* ResourceManager::LoadModel(const File& file, const LoadingParameters& loadingParameters)
 {
-    auto absoultePath = file.GetAbsoultePath();
+    auto absoultePath = file.GetAbsolutePath();
     std::lock_guard<std::mutex> lk(modelMutex_);
     auto iter = models_.find(absoultePath);
 
@@ -74,7 +74,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     //   DEBUG_LOG("add model.");
     auto modelPtr = model.get();
     auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
-                                     : model->GetFile().GetAbsoultePath();
+                                     : model->GetFile().GetAbsolutePath();
 
     auto iter = models_.find(filename);
 
@@ -95,7 +95,7 @@ void ResourceManager::ReleaseModel(Model& model)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
 
-    auto absoultePath = model.GetFile().GetAbsoultePath();
+    auto absoultePath = model.GetFile().GetAbsolutePath();
 
     if (not models_.count(absoultePath))
         return;

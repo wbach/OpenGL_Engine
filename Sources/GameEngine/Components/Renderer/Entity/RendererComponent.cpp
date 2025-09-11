@@ -326,7 +326,7 @@ void RendererComponent::registerReadFunctions()
                         {
                             DEBUG_LOG(filename);
                             component->fileName_LOD1 = filename;
-                            DEBUG_LOG(component->fileName_LOD1.GetAbsoultePath());
+                            DEBUG_LOG(component->fileName_LOD1.GetAbsolutePath());
                         }
                         else if (lodInt == 1)
                         {

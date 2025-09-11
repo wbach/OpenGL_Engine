@@ -44,12 +44,12 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
     DEBUG_LOG("filename : " + configFile.GetDataRelativeDir());
     TerrainConfiguration config;
 
-    std::fstream file(configFile.GetAbsoultePath());
+    std::fstream file(configFile.GetAbsolutePath());
 
     if (not file.is_open())
     {
         DEBUG_LOG("Terrain config file not found, creating default : " + configFile.GetFilename());
-        SaveTerrainConfigurationToFile(config, configFile.GetAbsoultePath());
+        SaveTerrainConfigurationToFile(config, configFile.GetAbsolutePath());
         return config;
     }
 

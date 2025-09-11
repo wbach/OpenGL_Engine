@@ -57,7 +57,7 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
         return std::nullopt;
 
     Utils::XmlReader reader;
-    reader.Read(file.GetAbsoultePath());
+    reader.Read(file.GetAbsolutePath());
     auto root = reader.Get();
 
     if (root)
@@ -158,12 +158,12 @@ void ExportAnimationClipToFile(const File& file, const AnimationClip& animationC
             transformNode.addChild(Convert("Scale", transform.scale));
         }
     }
-    Utils::Xml::Write(file.GetAbsoultePath(), rootNode);
+    Utils::Xml::Write(file.GetAbsolutePath(), rootNode);
 }
 std::optional<std::string> IsAnimationClip(const File& file)
 {
     Utils::XmlReader reader;
-    if (reader.Read(file.GetAbsoultePath()))
+    if (reader.Read(file.GetAbsolutePath()))
     {
         auto root = reader.Get();
         if (root and root->name() == "AnimationClip")

@@ -26,7 +26,7 @@ public:
         }
 
         GameEngine::File file(input);
-        wxString path = file.GetAbsoultePath();
+        wxString path = file.GetAbsolutePath();
 
         auto it = cache.find(path);
         if (it != cache.end())

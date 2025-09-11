@@ -94,7 +94,7 @@ void flipImageIfRequest(FIBITMAP* image, TextureFlip flipMode)
 
 std::optional<Utils::Image> ReadFile(const File& inputFileName, const TextureParameters& params)
 {
-    auto absoultePath = inputFileName.GetAbsoultePath();
+    auto absoultePath = inputFileName.GetAbsolutePath();
 
     if (not std::filesystem::exists(absoultePath))
     {
@@ -214,11 +214,11 @@ std::vector<float> ConvertHeightData(const std::vector<uint8>& data)
 
 void CreateHeightMap(const File& in, const File& out, const vec3& scale)
 {
-    auto fp = fopen(out.GetAbsoultePath().c_str(), "wb+");
+    auto fp = fopen(out.GetAbsolutePath().c_str(), "wb+");
 
     if (!fp)
     {
-        ERROR_LOG("cannot open file : " + out.GetAbsoultePath());
+        ERROR_LOG("cannot open file : " + out.GetAbsolutePath());
         return;
     }
 
@@ -257,11 +257,11 @@ void CreateHeightMap(const File& out, const vec2ui& size)
     header.scale  = vec3(1);
     auto dataSize = header.width * header.height;
 
-    auto fp = fopen(out.GetAbsoultePath().c_str(), "wb+");
+    auto fp = fopen(out.GetAbsolutePath().c_str(), "wb+");
 
     if (!fp)
     {
-        ERROR_LOG("cannot open file : " + out.GetAbsoultePath());
+        ERROR_LOG("cannot open file : " + out.GetAbsolutePath());
         return;
     }
 
@@ -282,16 +282,16 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
         return;
     }
 
-    Utils::CreateBackupFile(outfile.GetAbsoultePath());
-    auto fp = fopen(outfile.GetAbsoultePath().c_str(), "wb");
+    Utils::CreateBackupFile(outfile.GetAbsolutePath());
+    auto fp = fopen(outfile.GetAbsolutePath().c_str(), "wb");
 
     if (not fp)
     {
-        ERROR_LOG("cannot open file : " + outfile.GetAbsoultePath());
+        ERROR_LOG("cannot open file : " + outfile.GetAbsolutePath());
         return;
     }
 
-    DEBUG_LOG(outfile.GetAbsoultePath());
+    DEBUG_LOG(outfile.GetAbsolutePath());
 
     HeightMapHeader header;
     header.height = image.height;
@@ -390,12 +390,12 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
 
     std::visit(visitor{[&](std::vector<uint8> data)
                        {
-                           Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsoultePath(), vec2(4));
+                           Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsolutePath(), vec2(4));
                            for (size_t i = 3; i < data.size(); i += 4)
                                data[i] = 255;
 
-                           Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview");
-                           Utils::SaveImage(data, image.size(), file.GetAbsoultePath() + "_alpha1_preview_scaled", vec2(4));
+                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath() + "_alpha1_preview");
+                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath() + "_alpha1_preview_scaled", vec2(4));
                        },
                        [&](const std::vector<float>&) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
                        [](std::monostate) { ERROR_LOG("Data not set!"); }},

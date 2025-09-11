@@ -93,7 +93,7 @@ void File::AbsoultePath(const std::string &filename)
 
 void File::ChangeExtension(const std::string &extension)
 {
-    auto absoultePath    = std::filesystem::path(absoultePath_).replace_extension(extension).string();
+    auto absoultePath    = std::filesystem::path(absolutePath_).replace_extension(extension).string();
     auto dataRelative    = std::filesystem::path(dataRelative_).replace_extension(extension).string();
     auto projectRelative = std::filesystem::path(projectRelative_).replace_extension(extension).string();
     ConvertSlashes(absoultePath, dataRelative, projectRelative);
@@ -109,14 +109,14 @@ const std::string &File::GetProjectRelativeDir() const
     return projectRelative_;
 }
 
-const std::string &File::GetAbsoultePath() const
+const std::string &File::GetAbsolutePath() const
 {
-    return absoultePath_;
+    return absolutePath_;
 }
 
 std::string File::GetAbsolutePathWithDifferentExtension(const std::string &extension) const
 {
-    return std::filesystem::path(absoultePath_).replace_extension(extension).string();
+    return std::filesystem::path(absolutePath_).replace_extension(extension).string();
 }
 
 const std::string &File::GetInitValue() const
@@ -126,24 +126,24 @@ const std::string &File::GetInitValue() const
 
 std::string File::GetBaseName() const
 {
-    return std::filesystem::path(absoultePath_).stem().string();
+    return std::filesystem::path(absolutePath_).stem().string();
 }
 
 std::string File::GetExtension() const
 {
-    auto str = std::filesystem::path(absoultePath_).extension().string();
+    auto str = std::filesystem::path(absolutePath_).extension().string();
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     return str;
 }
 
 std::string File::GetFilename() const
 {
-    return std::filesystem::path(absoultePath_).filename().string();
+    return std::filesystem::path(absolutePath_).filename().string();
 }
 
 std::string File::GetParentDir() const
 {
-    return Utils::GetParent(absoultePath_);
+    return Utils::GetParent(absolutePath_);
 }
 
 File File::CreateFileWithExtension(const std::string &extension) const
@@ -155,7 +155,7 @@ File File::CreateFileWithExtension(const std::string &extension) const
 
 void File::ChangeFileName(const std::string &filename)
 {
-    auto absoultePath    = std::filesystem::path(absoultePath_).replace_filename(filename).string();
+    auto absoultePath    = std::filesystem::path(absolutePath_).replace_filename(filename).string();
     auto dataRelative    = std::filesystem::path(dataRelative_).replace_filename(filename).string();
     auto projectRelative = std::filesystem::path(projectRelative_).replace_filename(filename).string();
     ConvertSlashes(absoultePath, dataRelative, projectRelative);
@@ -164,7 +164,7 @@ void File::ChangeFileName(const std::string &filename)
 void File::ChangeBaseName(const std::string &basename)
 {
     auto filenameWithExtension = basename + GetExtension();
-    auto absoultePath          = std::filesystem::path(absoultePath_).replace_filename(filenameWithExtension).string();
+    auto absoultePath          = std::filesystem::path(absolutePath_).replace_filename(filenameWithExtension).string();
     auto dataRelative          = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
     auto projectRelative       = std::filesystem::path(projectRelative_).replace_filename(filenameWithExtension).string();
     ConvertSlashes(absoultePath, dataRelative, projectRelative);
@@ -201,7 +201,7 @@ bool File::IsExtension(const std::vector<std::string> &extensions) const
 
 bool File::operator==(const File &f) const
 {
-    return absoultePath_ == f.absoultePath_;
+    return absolutePath_ == f.absolutePath_;
 }
 File &File::operator=(const File &f)
 {
@@ -225,7 +225,7 @@ File::operator bool() const
 {
     try
     {
-        return not absoultePath_.empty() and std::filesystem::exists(absoultePath_);
+        return not absolutePath_.empty() and std::filesystem::exists(absolutePath_);
     }
     catch (...)
     {
@@ -234,12 +234,12 @@ File::operator bool() const
 }
 bool File::empty() const
 {
-    return initValue_.empty() or absoultePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
+    return initValue_.empty() or absolutePath_.empty() or dataRelative_.empty() or projectRelative_.empty();
 }
 
 bool File::exist() const
 {
-    return not empty() and std::filesystem::exists(GetAbsoultePath());
+    return not empty() and std::filesystem::exists(GetAbsolutePath());
 }
 bool File::openToWrite()
 {
@@ -249,11 +249,11 @@ bool File::openToWrite()
         return false;
     }
 
-    fp_ = fopen(absoultePath_.c_str(), "wb");
+    fp_ = fopen(absolutePath_.c_str(), "wb");
 
     if (not fp_)
     {
-        ERROR_LOG("cannot open file : " + absoultePath_);
+        ERROR_LOG("cannot open file : " + absolutePath_);
         return false;
     }
     return true;
@@ -266,17 +266,17 @@ bool File::openToRead()
         return false;
     }
 
-    if (not std::filesystem::exists(absoultePath_))
+    if (not std::filesystem::exists(absolutePath_))
     {
-        ERROR_LOG("file not exist! " + absoultePath_);
+        ERROR_LOG("file not exist! " + absolutePath_);
         return false;
     }
 
-    fp_ = fopen(absoultePath_.c_str(), "rb");
+    fp_ = fopen(absolutePath_.c_str(), "rb");
 
     if (not fp_)
     {
-        ERROR_LOG("cannot open file : " + absoultePath_);
+        ERROR_LOG("cannot open file : " + absolutePath_);
         return false;
     }
 
@@ -297,7 +297,7 @@ void File::close()
 }
 void File::ConvertSlashes(const std::string &absoultePath, const std::string &dataRelative, const std::string &projectRelative)
 {
-    absoultePath_    = Utils::ReplaceSlash(absoultePath);
+    absolutePath_    = Utils::ReplaceSlash(absoultePath);
     dataRelative_    = Utils::ReplaceSlash(dataRelative);
     projectRelative_ = Utils::ReplaceSlash(projectRelative);
 }
@@ -353,8 +353,8 @@ void File::ClearSpecialCharacters()
 std::ostream& operator<<(std::ostream& os, const GameEngine::File& file)
 {
     os << "File{";
-    if (!file.GetAbsoultePath().empty())
-        os << "absoultePath: " << file.GetAbsoultePath();
+    if (!file.GetAbsolutePath().empty())
+        os << "absoultePath: " << file.GetAbsolutePath();
     else
         os << "initValue: " << file.GetInitValue();
 

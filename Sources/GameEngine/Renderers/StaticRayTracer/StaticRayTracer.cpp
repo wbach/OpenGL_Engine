@@ -111,7 +111,7 @@ void RayTracerEngine::render(const vec2ui &size, float, const File &outputFile)
 
     multiThreadsRun(threadsCount_);
 
-    Utils::SaveImage(image_, outputFile.GetAbsoultePath());
+    Utils::SaveImage(image_, outputFile.GetAbsolutePath());
 }
 
 void RayTracerEngine::multiThreadsRun(uint32 threadsCount)

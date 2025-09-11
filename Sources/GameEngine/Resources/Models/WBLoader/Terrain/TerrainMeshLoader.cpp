@@ -24,7 +24,7 @@ void TerrainMeshLoader::ParseFile(const File& file)
     params.loadType = TextureLoadType::None;
 
     auto heightMap = textureLoader_.LoadHeightMap(file, params);
-    DEBUG_LOG("ParseFile : "+ file.GetAbsoultePath());
+    DEBUG_LOG("ParseFile : "+ file.GetAbsolutePath());
 
     if (not heightMap)
     {

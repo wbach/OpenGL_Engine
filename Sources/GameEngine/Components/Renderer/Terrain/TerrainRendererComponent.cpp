@@ -267,7 +267,7 @@ void TerrainRendererComponent::write(TreeNode& node) const
         auto heightMap = static_cast<HeightMap*>(heightMapTexture);
         if (heightMap and heightMap->GetFile())
         {
-            SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsoultePath());
+            SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsolutePath());
         }
         else
         {
@@ -283,12 +283,12 @@ void TerrainRendererComponent::write(TreeNode& node) const
         {
             auto blendMap     = static_cast<GeneralTexture*>(blendMapTexture);
             const auto& image = blendMap->GetImage();
-            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsoultePath());
+            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsolutePath());
 
             std::visit(
                 visitor{
                     [&](const std::vector<uint8>& data)
-                    { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsoultePath()); },
+                    { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsolutePath()); },
                     [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
                     [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
                 },

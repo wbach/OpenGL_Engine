@@ -83,7 +83,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     if (not isInit_)
         return std::nullopt;
 
-    auto fname = filename.GetAbsoultePath() + std::to_string(size);
+    auto fname = filename.GetAbsolutePath() + std::to_string(size);
     if (fontNameToIdMap_.count(fname) > 0)
     {
         return fontNameToIdMap_.at(fname);
@@ -96,7 +96,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
 
     TTF_Font *font{nullptr};
 
-    if (not std::filesystem::exists(filename.GetAbsoultePath().c_str()))
+    if (not std::filesystem::exists(filename.GetAbsolutePath().c_str()))
     {
         SDL_RWops *rw = SDL_RWFromConstMem(segoe_ui_ttf, segoe_ui_ttf_len);
         if (!rw)
@@ -114,7 +114,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     }
     else
     {
-        font = TTF_OpenFont(filename.GetAbsoultePath().c_str(), static_cast<int>(percentFontSize));
+        font = TTF_OpenFont(filename.GetAbsolutePath().c_str(), static_cast<int>(percentFontSize));
     }
 
     if (font)

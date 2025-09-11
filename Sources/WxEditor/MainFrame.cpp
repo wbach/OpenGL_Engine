@@ -1025,9 +1025,9 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
             UpdateObjectCount();
         }
     }
-    else if (file.IsExtension("prefab") or Utils::CheckXmlObjectType(file.GetAbsoultePath(), "prefab"))
+    else if (file.IsExtension("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath(), "prefab"))
     {
-        LoadPrefab(file.GetAbsoultePath());
+        LoadPrefab(file.GetAbsolutePath());
     }
 }
 
@@ -1317,7 +1317,7 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
     GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
 
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" +
-                      sceneFile.GetAbsoultePath() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
+                      sceneFile.GetAbsolutePath() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)

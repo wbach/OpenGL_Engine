@@ -266,7 +266,7 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
         auto& rendererComponent           = newGameObject->AddComponent<Components::RendererComponent>();
         auto& animator                    = newGameObject->AddComponent<Components::Animator>();
         animator.startupAnimationClipName = "noname";
-        rendererComponent.AddModel(file.GetAbsoultePath());
+        rendererComponent.AddModel(file.GetAbsolutePath());
 
         vec3 position(0.f);
         position = scene->GetCamera().GetPosition();
@@ -289,7 +289,7 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
 
 bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> callback)
 {
-    if (not std::filesystem::exists(file.GetAbsoultePath()))
+    if (not std::filesystem::exists(file.GetAbsolutePath()))
     {
         return false;
     }

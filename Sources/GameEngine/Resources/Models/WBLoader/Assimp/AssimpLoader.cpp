@@ -201,7 +201,7 @@ void AssimpLoader::ParseFile(const File& file)
     }
 
     Assimp::Importer importer;
-    auto scene = importer.ReadFile(file.GetAbsoultePath().c_str(), flags);
+    auto scene = importer.ReadFile(file.GetAbsolutePath().c_str(), flags);
 
     if (not scene)
     {

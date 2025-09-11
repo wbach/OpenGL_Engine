@@ -51,7 +51,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
     TreeNode* sceneNode{nullptr};
     std::unique_ptr<Scene> scene;
 
-    if (xmlReader.Read(file.GetAbsoultePath()))
+    if (xmlReader.Read(file.GetAbsolutePath()))
     {
         sceneNode = xmlReader.Get(CSTR_SCENE);
         if (sceneNode)
@@ -67,12 +67,12 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
             if (maybeSceneFile)
             {
                 File potentialyLibFile(maybeSceneFile->value_);
-                if (std::filesystem::exists(potentialyLibFile.GetAbsoultePath()))
+                if (std::filesystem::exists(potentialyLibFile.GetAbsolutePath()))
                 {
 #ifdef USE_GNU
-                    void* sceneLib = dlopen(potentialyLibFile.GetAbsoultePath().c_str(), RTLD_NOW);
+                    void* sceneLib = dlopen(potentialyLibFile.GetAbsolutePath().c_str(), RTLD_NOW);
 #else
-                    HMODULE sceneLib = LoadLibrary(potentialyLibFile.GetAbsoultePath().c_str());
+                    HMODULE sceneLib = LoadLibrary(potentialyLibFile.GetAbsolutePath().c_str());
 #endif
                     if (sceneLib)
                     {

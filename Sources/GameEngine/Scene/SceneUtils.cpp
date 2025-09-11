@@ -80,7 +80,7 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
     {
         scenesNode.addChild(name, file.GetDataRelativeDir());
     }
-    Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
+    Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
 }
 void createScenesFile(const File& inputFile, const std::unordered_map<std::string, std::string>& scenes,
                       const std::string& startupScene)
@@ -92,7 +92,7 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
     {
         scenesNode.addChild(name, file);
     }
-    Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
+    Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
 }
 void createScenesFile(const File& inputFile)
 {
@@ -100,6 +100,6 @@ void createScenesFile(const File& inputFile)
     rootNode.addChild(CSTR_STARTUP_SCENE_NODE).value_ = "";
     rootNode.addChild(CSTR_SCENES_NODE);
 
-    Utils::Json::Write(inputFile.GetAbsoultePath(), rootNode);
+    Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
 }
 }  // namespace GameEngine

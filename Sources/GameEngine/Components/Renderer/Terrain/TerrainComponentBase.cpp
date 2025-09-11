@@ -62,7 +62,7 @@ void TerrainComponentBase::BlendMapChanged()
 
 std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &objectFile) const
 {
-    DEBUG_LOG("Converting to heightmap : " + objectFile.GetAbsoultePath());
+    DEBUG_LOG("Converting to heightmap : " + objectFile.GetAbsolutePath());
     auto model = componentContext_.resourceManager_.LoadModel(
         objectFile, LoadingParameters{MeshOptimize::none, ModelNormalization::normalized});
     if (not model)
@@ -156,7 +156,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     heightMap->SetScale(vec3(1.f / model->getNormalizedFactor()));
     componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
-    DEBUG_LOG("Conversion done. Output file: " + outputFile.GetAbsoultePath());
+    DEBUG_LOG("Conversion done. Output file: " + outputFile.GetAbsolutePath());
     SaveHeightMap(*heightMap, outputFile);
     componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*heightMap);
     return outputFile;
@@ -213,7 +213,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
         else
         {
             ERROR_LOG("Texture not loaded correctly. " + std::to_string(terrainTexture.type) +
-                      ", file : " + terrainTexture.file.GetAbsoultePath());
+                      ", file : " + terrainTexture.file.GetAbsolutePath());
         }
     }
 
