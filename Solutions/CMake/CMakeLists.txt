@@ -98,12 +98,11 @@ option(BUILD_UTILS               "Build game engine utils" OFF)
 option(BUILD_UTILS_NETWORK       "Build network utils" OFF)
 option(BUILD_UTILS_NETWORK_TESTS "Build network utils tests" OFF)
 option(BUILD_COMMON              "Build common" OFF)
-option(BUILD_GAME_ENGINE         "Build game engine" OFF)
+option(BUILD_GAME_ENGINE         "Build game engine" ON)
 option(BUILD_TESTS               "Build tests" OFF)
-option(BUILD_GAME                "Build avatar game" OFF)
+option(BUILD_GAME                "Build avatar game" ON)
 option(BUILD_RPG_GAME_SERVER     "Build RPG game server" OFF)
-option(BUILD_EDITOR              "Build editor" OFF)
-option(BUILD_WX_EDITOR           "Build wxEditor" ON)
+option(BUILD_WX_EDITOR           "Build wxEditor" OFF)
 option(BUILD_I386                "32bit build" OFF)
 
 # --- Makro do włączania komponentów ---
@@ -123,7 +122,6 @@ if(BUILD_ALL)
         BUILD_TESTS
         BUILD_GAME
         BUILD_RPG_GAME_SERVER
-        BUILD_EDITOR
         BUILD_WX_EDITOR
     )
 endif()
@@ -131,10 +129,6 @@ endif()
 if(BUILD_WX_EDITOR)
     enable_components(BUILD_UTILS BUILD_UTILS_NETWORK BUILD_COMMON BUILD_GAME_ENGINE)
     set(BUILD_EDITOR OFF CACHE BOOL "" FORCE)
-endif()
-
-if(BUILD_EDITOR)
-    enable_components(BUILD_UTILS BUILD_UTILS_NETWORK BUILD_COMMON BUILD_GAME_ENGINE)
 endif()
 
 if(BUILD_GAME)
@@ -193,7 +187,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtilsTests.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Common.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameEngine.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/Editor.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/WxEditor.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Game.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/GameServer.cmake)
@@ -204,7 +197,7 @@ message(STATUS "Build configuration:")
 foreach(opt
     BUILD_I386 BUILD_UTILS BUILD_UTILS_NETWORK BUILD_UTILS_NETWORK_TESTS
     BUILD_COMMON BUILD_GAME_ENGINE BUILD_TESTS BUILD_GAME
-    BUILD_RPG_GAME_SERVER BUILD_EDITOR BUILD_WX_EDITOR
+    BUILD_RPG_GAME_SERVER BUILD_WX_EDITOR
 )
     message(STATUS "  ${opt}: ${${opt}}")
 endforeach()

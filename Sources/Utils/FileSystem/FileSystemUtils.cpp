@@ -519,35 +519,32 @@ std::filesystem::path ChangeFileParentPath(const std::filesystem::path& file, co
     }
 }
 
-// TO DO FIX
-std::optional<std::filesystem::path> GetRelativePathToFile(const std::filesystem::path& baseFile,
-                                                           const std::string& targetFilename)
+std::optional<std::filesystem::path> GetRelativePathToFile(const std::filesystem::path& baseDir,
+                                                           const std::filesystem::path& filePath)
 {
-    try
+    auto absBase = baseDir.lexically_normal();
+    auto absFile = filePath.lexically_normal();
+
+    auto fileParent = absFile.parent_path();
+
+    auto relative = fileParent.lexically_relative(absBase);
+
+    // przypadek: nie da się policzyć lub wyszło poza baseDir
+    if (relative.empty() && fileParent != absBase)
     {
-        auto baseFolder = baseFile.parent_path();
-
-        if (not std::filesystem::exists(baseFolder) or not std::filesystem::is_directory(baseFolder))
-            return std::nullopt;
-
-        for (const auto& entry : std::filesystem::recursive_directory_iterator(baseFolder))
-        {
-            if (entry.is_regular_file() and entry.path().filename() == targetFilename)
-            {
-                if (entry.path().parent_path() == baseFolder)
-                    return std::filesystem::path("");
-
-                auto relPath = std::filesystem::relative(entry.path(), baseFolder);
-                return relPath.parent_path();
-            }
-        }
+        return std::nullopt;
     }
-    catch (...)
+    if (!relative.empty() && relative.begin()->string() == "..")
     {
         return std::nullopt;
     }
 
-    return std::nullopt;
-}
+    // przypadek: ta sama ścieżka => chcemy ""
+    if (relative == ".")
+    {
+        return std::filesystem::path{};
+    }
 
+    return relative;
+}
 }  // namespace Utils

@@ -506,34 +506,25 @@ void AnimationViewerFrame::ImportCurrentObject()
             {
                 auto textureFile =
                     Utils::FindFile(texture->GetFile()->GetFilename(), currentGameObject->currentModelFile->GetParentDir());
-                    Utils::CopyFileToDirectory(textureFile, wxFileName(targetPath).GetPath().ToStdString());
 
-                    // TO DO : recreate relative path of texture in target folder
+                const auto fsTargetPath = std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString());
 
-                // LOG_DEBUG << "texture->GetFile()->GetAbsolutePath() : " << texture->GetFile()->GetAbsoultePath();
-                // LOG_DEBUG << "texture->GetFile()->GetFilename() : " << texture->GetFile()->GetFilename();
-                // LOG_DEBUG << "FindFile : " << textureFile;
+                if (not textureFile.empty())
+                {
+                    auto relPath = Utils::GetRelativePathToFile(currentGameObject->currentModelFile->GetParentDir(), textureFile);
+                    LOG_DEBUG << "relPath : " << relPath;
 
-                // if (not textureFile.empty())
-                // {
-                //     auto relPath =
-                //         Utils::GetRelativePathToFile(std::filesystem::path(textureFile).parent_path(),       // <-- folder pliku
-                //                                      std::filesystem::path(textureFile).filename().string()  // nazwa pliku
-                //         );
-
-                //     LOG_DEBUG << "relPath : " << relPath;
-
-                //     if (relPath)
-                //     {
-                //         auto targetTexturePath =
-                //             std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString()) / relPath.value();
-
-                //         LOG_DEBUG << "targetTexturePath : " << targetTexturePath;
-
-                //         std::filesystem::create_directories(targetTexturePath.parent_path());
-                //         auto copiedFile = Utils::CopyFileToDirectory(textureFile, targetTexturePath);
-                //     }
-                // }
+                    if (relPath)
+                    {
+                        auto targetTexturePath = fsTargetPath / relPath.value();
+                        std::filesystem::create_directories(targetTexturePath);
+                        auto copiedFile = Utils::CopyFileToDirectory(textureFile, targetTexturePath);
+                    }
+                    else
+                    {
+                        Utils::CopyFileToDirectory(textureFile, wxFileName(targetPath).GetPath().ToStdString());
+                    }
+                }
             }
         };
 
