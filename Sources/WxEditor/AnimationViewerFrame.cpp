@@ -442,12 +442,12 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
         if (fileDialog.ShowModal() == wxID_CANCEL)
             return;
 
-        int answer = wxMessageBox("Would you like set startup animation?", "Confirmation", wxYES_NO | wxICON_QUESTION);
-
-        if (answer == wxYES)
+        const auto& clips = currentGameObject->animator.getAnimationClips();
+        if (not clips.empty())
         {
-            const auto& clips = currentGameObject->animator.getAnimationClips();
-            if (!clips.empty())
+            int answer = wxMessageBox("Would you like set startup animation?", "Confirmation", wxYES_NO | wxICON_QUESTION);
+
+            if (answer == wxYES)
             {
                 wxArrayString animNames;
                 for (const auto& [name, _] : clips)
