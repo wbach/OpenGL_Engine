@@ -21,7 +21,7 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
 
 EngineContext::~EngineContext()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
     threadSync_.Stop();
 }
 

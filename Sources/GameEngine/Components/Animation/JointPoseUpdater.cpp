@@ -32,7 +32,7 @@ void JointPoseUpdater::fillOffsets()
     auto parent = owner.GetParent();
     if (not joint or not parent)
     {
-        ERROR_LOG("Joint or parent not set!");
+        LOG_ERROR << "Joint or parent not set!";
         return;
     }
 

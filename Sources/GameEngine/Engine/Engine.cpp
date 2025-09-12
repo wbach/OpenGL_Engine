@@ -28,7 +28,7 @@
 
 void bt_sighandler(int nSig)
 {
-    ERROR_LOG("print_trace: got signal " + std::to_string(nSig));
+    LOG_ERROR << "print_trace: got signal " << nSig;
 
     void* array[32];
     size_t size;
@@ -40,7 +40,7 @@ void bt_sighandler(int nSig)
     strings = backtrace_symbols(array, size);
 
     for (nCnt = 0; nCnt < size; nCnt++)
-        ERROR_LOG(strings[nCnt]);
+        LOG_ERROR << strings[nCnt];
 
     exit(-1);
 }
@@ -53,7 +53,7 @@ void bt_sighandler(int nSig)
 
 void bt_sighandler(int nSig)
 {
-    ERROR_LOG("print_trace: got signal " + std::to_string(nSig));
+    /* LOG TO FIX*/ LOG_ERROR << ("print_trace: got signal " + std::to_string(nSig));
 
     HANDLE hProcess = GetCurrentProcess();
     SymInitialize(hProcess, NULL, TRUE);
@@ -73,11 +73,11 @@ void bt_sighandler(int nSig)
         DWORD64 displacement = 0;
         if (SymFromAddr(hProcess, addr, &displacement, symbol))
         {
-            ERROR_LOG(std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
+            /* LOG TO FIX*/ LOG_ERROR << (std::string(symbol->Name) + " [0x" + std::to_string(symbol->Address) + "]");
         }
         else
         {
-            ERROR_LOG("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
+            /* LOG TO FIX*/ LOG_ERROR << ("Unknown function at [0x" + std::to_string((uintptr_t)addr) + "]");
         }
     }
 
@@ -114,7 +114,7 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 #else
     if (EngineConf.renderer.graphicsApi != "OpenGL")
     {
-        DEBUG_LOG("GNU support only OpenGL");
+        LOG_ERROR << "GNU support only OpenGL";
     }
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
 #endif
@@ -132,7 +132,7 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager())
     , isRunning_(true)
 {
-    DEBUG_LOG("Start engine.");
+    LOG_DEBUG << "Start engine.";
 
     signal(SIGSEGV, bt_sighandler);
     srand((unsigned)time(NULL));
@@ -141,10 +141,10 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     loggingLvlParamSub_ = EngineConf.debugParams.logLvl.subscribeForChange(
         []()
         {
-            if (EngineConf.debugParams.logLvl != LogginLvl::None)
+            if (EngineConf.debugParams.logLvl != LoggingLvl::None)
             {
                 CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-                CLogger::Instance().ImmeditalyLog();
+                CLogger::Instance().UseAsyncLogging(false);
             }
             else
             {
@@ -198,7 +198,7 @@ Engine::~Engine()
     engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
-    DEBUG_LOG("destructor");
+    LOG_DEBUG << "destructor";
     engineContext_.GetSceneManager().Reset();
     EngineConf_SaveRequiredFiles();
 }
@@ -207,7 +207,7 @@ void Engine::CheckThreadsBeforeQuit()
 {
     if (engineContext_.GetThreadSync().SubscribersCount() > 0)
     {
-        WARNING_LOG("Not closed threads. Force to close.");
+        LOG_ERROR << "Not closed threads. Force to close.";
         engineContext_.GetThreadSync().Stop();
     }
 }

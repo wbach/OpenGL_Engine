@@ -19,7 +19,7 @@ struct TextureLoaderTest : public ::testing::Test
         const std::string configFile = "./Conf.xml";
         GameEngine::ReadFromFile(configFile);
         CLogger::Instance().EnableLogs();
-        CLogger::Instance().ImmeditalyLog();
+        CLogger::Instance().UseAsyncLogging(false);
     }
 
     virtual void SetUp() override
@@ -40,7 +40,7 @@ TEST_F(TextureLoaderTest, DISABLED_FreeImageForValgrind)
     File textureFile{"Textures/textureNotFound.png"};
     EXPECT_TRUE(std::filesystem::exists(textureFile.GetAbsolutePath()));
     GameEngine::ReadFile(textureFile, TextureParameters());
-    DEBUG_LOG("Time : " + std::to_string(timer.GetTimeNanoseconds()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Time : " + std::to_string(timer.GetTimeNanoseconds()));
 }
 // Disabled because of data needed
 TEST_F(TextureLoaderTest, DISABLED_FreeImageResizedForValgrind)
@@ -50,6 +50,6 @@ TEST_F(TextureLoaderTest, DISABLED_FreeImageResizedForValgrind)
     File textureFile{"Textures/textureNotFound.png"};
     EXPECT_TRUE(std::filesystem::exists(textureFile.GetAbsolutePath()));
     GameEngine::ReadFile(textureFile, TextureParameters());
-    DEBUG_LOG("Time : " + std::to_string(timer.GetTimeNanoseconds()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Time : " + std::to_string(timer.GetTimeNanoseconds()));
 }
 }  // namespace GameEngine

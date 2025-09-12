@@ -199,14 +199,14 @@ void readNode(const TreeNode& node, Scene& scene)
         {
             if (gameObjectNode->name() == CSTR_GAMEOBJECT)
             {
-                DEBUG_LOG("read gameobject");
+                /* LOG TO FIX*/  LOG_ERROR << ("read gameobject");
                 auto gameObject = createGameObject(*gameObjectNode, scene);
                 Read(scene, *gameObjectNode, *gameObject);
                 scene.AddGameObject(std::move(gameObject));
             }
             else if (gameObjectNode->name() == CSTR_PREFAB)
             {
-                DEBUG_LOG("read prefab");
+                /* LOG TO FIX*/  LOG_ERROR << ("read prefab");
                 auto gameObject = createPrefabGameObject(*gameObjectNode, scene);
                 scene.AddGameObject(std::move(gameObject));
             }

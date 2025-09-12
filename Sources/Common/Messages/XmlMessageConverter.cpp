@@ -43,11 +43,10 @@ bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMess
     case common::MessageTypes::GetCharactersDataReq
     */
 
-std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType type,
-                                                                const Network::IMessageData &message)
+std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType type, const Network::IMessageData &message)
 {
     std::string a = common::Convert(message);
-    DEBUG_LOG(a);
+    LOG_DEBUG << "Message: " << a;
 
     Utils::XmlReader reader;
     reader.ReadXml(a);
@@ -103,7 +102,7 @@ std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessag
         }
         break;
         default:
-            DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
+            LOG_DEBUG << "Convert to IMessage. Unsuporrted message.";
     }
 
     return nullptr;
@@ -113,5 +112,4 @@ Network::IMessageData XmlMessageConverter::Convert(const Network::IMessage &mess
 {
     return {};
 }
-
 }  // namespace common

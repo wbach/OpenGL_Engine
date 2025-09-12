@@ -62,7 +62,6 @@ void RotateStateBase::onEnter(const RotateTargetEvent &event)
 
 void RotateStateBase::onEnter(const EndForwardMoveEvent &)
 {
-    DEBUG_LOG("EndForwardMoveEvent");
     setCurrentAnim();
 }
 
@@ -105,7 +104,6 @@ void RotateStateBase::update(float deltaTime)
         auto rotation =
             context_.rigidbody.GetRotation() *
             glm::angleAxis(glm::radians(context_.rotateStateData_.rotateSpeed_ * deltaTime), glm::vec3(0.f, 1.f, 0.f));
-        // /*DISABLED*/  DEBUG_LOG("newRotation " + std::to_string(rotation));
         context_.rigidbody.SetRotation(rotation);
     }
     else

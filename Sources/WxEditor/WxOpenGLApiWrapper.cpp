@@ -14,6 +14,6 @@ WxOpenGLApiWrapper::WxOpenGLApiWrapper(std::unique_ptr<GraphicsApi::IWindowApi> 
 }
 void WxOpenGLApiWrapper::CreateContext()
 {
-    DEBUG_LOG("Skip createContext, should already be created");
+    /* LOG TO FIX*/  LOG_ERROR << ("Skip createContext, should already be created");
 }
 }  // namespace WxEditor

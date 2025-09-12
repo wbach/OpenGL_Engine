@@ -38,19 +38,19 @@ Gateway::Gateway(Utils::Time::CTimeMeasurer timeMeasurer)
 
 Gateway::~Gateway()
 {
-    DEBUG_LOG("Disconnecting users");
+    /* LOG TO FIX*/  LOG_ERROR << ("Disconnecting users");
     for (auto& user : context_.users)
         DisconnectUser(user.second->id);
 }
 
 bool Gateway::StartServer(uint32 maxClients, uint32 port)
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     auto context = serverCreator_.Create(maxClients, port);
 
     if (not context)
     {
-        DEBUG_LOG("Server creation failed.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Server creation failed.");
         return false;
     }
 
@@ -63,7 +63,7 @@ bool Gateway::StartServer(uint32 maxClients, uint32 port)
 bool Gateway::ConnectToServer(const std::string& username, const std::string& password, const std::string& host,
                               uint32 port)
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
 
     auto op_context = clientCreator_.ConnectToServer(username, password, host, port);
 
@@ -99,7 +99,7 @@ void Gateway::Update()
 
         if (status == RecvStatus::Disconnect)
         {
-            DEBUG_LOG("Disconnect : " + std::to_string(user.second->id));
+            /* LOG TO FIX*/  LOG_ERROR << ("Disconnect : " + std::to_string(user.second->id));
             DisconnectUser(user.second->id);
             iter = context_.users.erase(iter);
             continue;
@@ -138,7 +138,7 @@ bool Gateway::Send(uint32 userId, const IMessage& message)
 {
     if (context_.users.count(userId) == 0)
     {
-        DEBUG_LOG("User not found: Id : " + std::to_string(userId));
+        /* LOG TO FIX*/  LOG_ERROR << ("User not found: Id : " + std::to_string(userId));
         return false;
     }
 

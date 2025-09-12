@@ -40,7 +40,6 @@ public:
     template <typename Event>
     void pushEventToQueue(const Event& event)
     {
-        // /*DISABLED*/ DEBUG_LOG("pushEventToQueue " + typeName<Event>());
         std::lock_guard<std::mutex> lk(eventQueueMutex);
         eventQueue.push_back(event);
     }
@@ -48,7 +47,6 @@ public:
     template <typename Event>
     void pushEventToFrontQueue(const Event& event)
     {
-        // /*DISABLED*/ DEBUG_LOG("pushEventToQueue " + typeName<Event>());
         std::lock_guard<std::mutex> lk(eventQueueMutex);
         eventQueue.push_front(event);
     }

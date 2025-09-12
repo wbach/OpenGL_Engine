@@ -66,7 +66,7 @@ void Rigidbody::OnStart()
 
     if (not collisionShape_)
     {
-        ERROR_LOG("Can not create Rigidbody without shape.");
+        LOG_ERROR << "Can not create Rigidbody without shape.";
         return;
     }
 
@@ -74,7 +74,7 @@ void Rigidbody::OnStart()
 
     if (not maybeShapeId)
     {
-        ERROR_LOG("Shape not initilized!");
+        LOG_ERROR << "Shape not initilized!";
         return;
     }
 
@@ -82,7 +82,7 @@ void Rigidbody::OnStart()
                                                                  updateRigidbodyOnTransformChange_);
     if (not rigidBodyId_)
     {
-        ERROR_LOG("create rigidbody error.");
+        LOG_ERROR << "create rigidbody error.";
         return;
     }
 
@@ -106,7 +106,7 @@ void Rigidbody::OnStart()
         f();
     }
 
-    DEBUG_LOG("[" + thisObject_.GetName() + "] Rigidbody created. Id : " + std::to_string(rigidBodyId_));
+    LOG_DEBUG << "[" << thisObject_.GetName() << "] Rigidbody created. Id : " << rigidBodyId_;
 }
 void Rigidbody::ReqisterFunctions()
 {
@@ -357,7 +357,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
     auto shapeTypeIter = nameToTypeMap_.find(collisionShapeName);
     if (shapeTypeIter == nameToTypeMap_.end())
     {
-        ERROR_LOG("Shape name " + collisionShapeName + " not found in nameToTypeMap");
+        LOG_ERROR << "Shape name " << collisionShapeName << " not found in nameToTypeMap";
         return nullptr;
     }
 
@@ -373,7 +373,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
         return pair.second;
     }
 
-    ERROR_LOG(thisObject_.GetName() + ". Shape type (" + collisionShapeName + ") is not found.");
+    LOG_ERROR << thisObject_.GetName() << ". Shape type (" << collisionShapeName << ") is not found.";
     return nullptr;
 }
 void Rigidbody::registerReadFunctions()

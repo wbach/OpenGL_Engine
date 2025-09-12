@@ -7,6 +7,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -92,7 +93,7 @@ void RendererComponent::init()
         if (file.empty())
             continue;
 
-        DEBUG_LOG(thisObject_.GetName() + " Load model: " + file.GetBaseName());
+        LOG_DEBUG << thisObject_.GetName() << " Load model: " << file.GetBaseName();
         auto model = componentContext_.resourceManager_.LoadModel(file, loadingParameters_);
 
         if (model)
@@ -115,7 +116,7 @@ void RendererComponent::init()
         }
         else
         {
-            ERROR_LOG("nullptr");
+            LOG_ERROR << "nullptr";
         }
     }
     if (atLeastOneModelIsCreated)
@@ -178,7 +179,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     auto iter = perObjectUpdateBuffer_.find(mesh.GetGpuObjectId());
     if (iter != perObjectUpdateBuffer_.end())
     {
-        ERROR_LOG("perObjectUpdateBuffer object already exist!");
+        LOG_ERROR << "perObjectUpdateBuffer object already exist!";
         return;
     }
 
@@ -197,7 +198,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     auto iter = perObjectConstantsBuffer_.find(mesh.GetGpuObjectId());
     if (iter != perObjectConstantsBuffer_.end())
     {
-        ERROR_LOG("perObjectConstantsBuffer object already exist!");
+        LOG_ERROR << "perObjectConstantsBuffer object already exist!";
         return;
     }
 
@@ -235,12 +236,11 @@ void RendererComponent::UpdateBuffers()
                 const mat4 transformMatix             = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
                 buffer.GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
                 buffer.UpdateGpuPass();
-                // componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
+                componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
             }
             else
             {
-                ERROR_LOG("perObjectUpdateBuffer not found! : " + thisObject_.GetName() +
-                          ", id : " + std::to_string(thisObject_.GetId()));
+                LOG_ERROR << "perObjectUpdateBuffer not found! : " << thisObject_.GetName() << ", id : " << thisObject_.GetId();
             }
         }
     }
@@ -267,8 +267,7 @@ void RendererComponent::useArmature(bool value)
             }
             else
             {
-                ERROR_LOG("perObjectUpdateBuffer not found! : " + thisObject_.GetName() +
-                          ", id : " + std::to_string(thisObject_.GetId()));
+                LOG_ERROR << "perObjectUpdateBuffer not found! : " << thisObject_.GetName() << ", id : " << thisObject_.GetId();
             }
         }
     }
@@ -294,7 +293,7 @@ void RendererComponent::registerReadFunctions()
             }
             catch (...)
             {
-                ERROR_LOG("SetTextureIndex index error");
+                LOG_ERROR << "SetTextureIndex index error";
             }
         }
 
@@ -324,27 +323,24 @@ void RendererComponent::registerReadFunctions()
                         auto lodInt          = std::stoi(lodNode->value_);
                         if (lodInt == 0)
                         {
-                            DEBUG_LOG(filename);
                             component->fileName_LOD1 = filename;
                         }
                         else if (lodInt == 1)
                         {
-                            DEBUG_LOG(filename);
                             component->fileName_LOD2 = filename;
                         }
                         else if (lodInt == 2)
                         {
-                            DEBUG_LOG(filename);
                             component->fileName_LOD3 = filename;
                         }
                         else
                         {
-                            DEBUG_LOG("LOD \"" + std::to_string(lodInt) + "\" is out of range. Correct range is 0-2");
+                            LOG_ERROR << "LOD \"" + std::to_string(lodInt) + "\" is out of range. Correct range is 0-2";
                         }
                     }
                     catch (...)
                     {
-                        ERROR_LOG("Set model filenames error");
+                        LOG_ERROR << "Set model filenames error";
                     }
                 }
             }

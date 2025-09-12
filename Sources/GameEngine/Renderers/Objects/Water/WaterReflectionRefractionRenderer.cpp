@@ -269,7 +269,7 @@ GraphicsApi::IFrameBuffer* WaterReflectionRefractionRenderer::createWaterFbo(con
     if (not status)
     {
         context_.graphicsApi_.DeleteFrameBuffer(*result);
-        ERROR_LOG("Shadow framebuffer creation error.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Shadow framebuffer creation error.");
         return nullptr;
     }
     return result;
@@ -449,7 +449,7 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
 WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::createWaterTilesTextures(
     float positionY)
 {
-    DEBUG_LOG("Create new water fbo positionY=" + std::to_string(positionY));
+    /* LOG TO FIX*/  LOG_ERROR << ("Create new water fbo positionY=" + std::to_string(positionY));
     WaterReflectionRefractionRenderer::WaterFbo waterFbo;
     waterFbo.positionY              = positionY;
     waterFbo.reflectionFrameBuffer_ = createWaterFbo(EngineConf.renderer.water.waterReflectionResolution);

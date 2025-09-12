@@ -17,8 +17,6 @@ DrawArrowStateBase::DrawArrowStateBase(FsmContext &context, const std::optional<
 
 void DrawArrowStateBase::onEnter(const DrawArrowEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("On enter DrawArrowEvent clip: " + context_.animClipNames.drawArrow);
-
     onEnter(ReloadArrowEvent{});
 
     if (thridPersonCameraComponent_)

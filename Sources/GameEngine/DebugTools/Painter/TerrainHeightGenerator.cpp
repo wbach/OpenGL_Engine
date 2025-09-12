@@ -49,8 +49,6 @@ TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentContro
         perTerrainHeightMapsize_.y += 1;
     }
 
-    DEBUG_LOG("perTerrainHeightMapsize_ " + std::to_string(perTerrainHeightMapsize_));
-
     uint32 maxOctaves = 0;
     for (uint32 o = 0; o < octaves_; o++)
     {
@@ -64,11 +62,11 @@ TerrainHeightGenerator::TerrainHeightGenerator(const Components::ComponentContro
             break;
         }
     }
-    DEBUG_LOG("maxOctaves : " + std::to_string(maxOctaves));
+
     if (octaves_ > maxOctaves)
     {
         octaves_ = maxOctaves;
-        DEBUG_LOG("To hight value of octaves. Set max value");
+        LOG_DEBUG << "To hight value of octaves. Set max value";
     }
 }
 
@@ -82,7 +80,6 @@ void TerrainHeightGenerator::generateHeightMapsImage()
     auto count = perTerrainHeightMapsize_.x * perTerrainHeightMapsize_.y;
     if (count != noiseSeed.size())
     {
-        DEBUG_LOG("regenerate noise seed");
         createSeed();
     }
 
@@ -97,7 +94,7 @@ void TerrainHeightGenerator::generateHeightMapsImage()
 
     if (terrains_.size() != 1)
     {
-        DEBUG_LOG("Support only 1 terrain, Current terrain size : " + std::to_string(terrains_.size()));
+        LOG_ERROR << "Support only 1 terrain, Current terrain size : " << terrains_.size();
         return;
     }
 
@@ -116,7 +113,7 @@ void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionS
     {
         if (compare(transform1.GetPosition().z, transform2.GetPosition().z))
         {
-            ERROR_LOG("Both terrain have the same position!");
+            LOG_ERROR << "Both terrain have the same position!";
             return;
         }
 
@@ -139,14 +136,14 @@ void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionS
 
         if (not heightMap1 or not heightMap2)
         {
-            ERROR_LOG("Heihtmap not set!, heightMap1{" + Utils::BoolToString(heightMap1) + "} heightmap2{" +
-                      Utils::BoolToString(heightMap2) + "}");
+            LOG_ERROR << "Heihtmap not set!, heightMap1{" << Utils::BoolToString(heightMap1) << "} heightmap2{"
+                      << Utils::BoolToString(heightMap2) << "}";
             return;
         }
 
         if (heightMap1->GetImage().size() != heightMap2->GetImage().size())
         {
-            ERROR_LOG("Height map are diffrentSize, unsupported");
+            LOG_ERROR << "Height map are diffrentSize, unsupported";
             return;
         }
 
@@ -154,7 +151,7 @@ void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionS
         auto scale2 = component2->getParentGameObject().GetWorldTransform().GetScale().y;
 
         auto size = heightMap1->GetImage().size();
-        DEBUG_LOG("creating transition...");
+        LOG_DEBUG << "creating transition...";
         for (uint32 x = 0; x < size.x; ++x)
         {
             for (uint32 y = 0; y < transitionSize; ++y)
@@ -174,26 +171,22 @@ void createTerrainTransition(GameObject& go1, GameObject& go2, float transitionS
 
                     auto newHeight = heightMapValue2->value.x * scale2 / scale1;
                     // auto newHeight = heightMapValue2->value.x * scale2 / scale1 / scale1;
-                    DEBUG_LOG("Old height " + std::to_string(heightMapValue1->value) + " | New height " +
-                              std::to_string(newHeight));
+                    LOG_DEBUG << "Old height " << heightMapValue1->value << " | New height " << newHeight;
                     heightMap1->SetHeight(targetPixel, newHeight);
                 }
             }
         }
-
-        DEBUG_LOG("Notif about heightmap change");
         component1->HeightMapChanged();
     }
     else if (compare(transform1.GetPosition().z, transform2.GetPosition().z))
     {
         if (compare(transform1.GetPosition().x, transform2.GetPosition().x))
         {
-            ERROR_LOG("Both terrain have the same position!");
+            LOG_ERROR << "Both terrain have the same position!";
             return;
         }
     }
-
-    DEBUG_LOG("Done.");
+    LOG_DEBUG << "Done.";
 }
 
 void TerrainHeightGenerator::createSeed()
@@ -210,8 +203,6 @@ void TerrainHeightGenerator::createSeed()
     {
         noiseSeed[i] = getRandomFloat(0.f, 1.f);
     }
-
-    DEBUG_LOG("Noise size : " + std::to_string(noiseSeed.size()));
 }
 
 void TerrainHeightGenerator::getTerrain()
@@ -309,7 +300,7 @@ void TerrainHeightGenerator::perlinNoise2D()
     auto width  = perTerrainHeightMapsize_.x;
     auto height = perTerrainHeightMapsize_.y;
 
-    DEBUG_LOG("Start generating terrains.");
+    LOG_DEBUG << "Start generating terrains.";
     for (auto& terrain : terrains_)
     {
         if (not terrain->GetHeightMap())
@@ -365,7 +356,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }
-    DEBUG_LOG("completed");
+    /* LOG TO FIX*/  LOG_ERROR << ("completed");
 }
 
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
@@ -393,7 +384,7 @@ float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
     if (index < noiseSeed.size())
         return noiseSeed[index];
 
-    ERROR_LOG("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
+    /* LOG TO FIX*/  LOG_ERROR << ("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
               std::to_string(noiseSeed.size()) + ")");
     return 0.f;
 }

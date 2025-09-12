@@ -44,7 +44,7 @@ void GrassRenderer::init()
 {
     shader_.Init();
     InitShaderBuffer();
-    DEBUG_LOG("Grass renderer initialized.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Grass renderer initialized.");
 }
 
 void GrassRenderer::render()
@@ -142,7 +142,7 @@ void GrassRenderer::RenderModel(const Model& model)
             }
         }
     }
-    // DEBUG_LOG("rendererdMeshes : " + std::to_string(rendererdMeshes));
+    // /* LOG TO FIX*/  LOG_ERROR << ("rendererdMeshes : " + std::to_string(rendererdMeshes));
 }
 
 void GrassRenderer::RenderMesh(const Mesh& mesh)

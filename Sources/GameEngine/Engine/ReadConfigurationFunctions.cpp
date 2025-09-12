@@ -136,11 +136,11 @@ void Read(TreeNode& node, Params::Shadows& shadows)
     if (*shadows.cascadesSize < 1)
     {
         shadows.cascadesSize = 1;
-        ERROR_LOG("Cascade size must be set minimum to 1");
+        /* LOG TO FIX*/  LOG_ERROR << ("Cascade size must be set minimum to 1");
     }
     if (*shadows.cascadesSize > Params::MAX_SHADOW_MAP_CASADES)
     {
-        ERROR_LOG("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
+        /* LOG TO FIX*/  LOG_ERROR << ("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
         shadows.cascadesSize = Params::MAX_SHADOW_MAP_CASADES;
     }
     if (shadows.firstCascadeDistance < 1.f)
@@ -194,7 +194,7 @@ void Read(TreeNode* node, Params::TerrainType& param)
         return;
 
     std::from_string(node->value_, param);
-    DEBUG_LOG(node->value_);
+    /* LOG TO FIX*/  LOG_ERROR << (node->value_);
 }
 
 void Read(TreeNode* node, Params::Terrain& param)

@@ -5,6 +5,7 @@
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -38,7 +39,7 @@ void AimState::setJointIfNeeded(const StartAimEvent& event)
 
     if (not joint)
     {
-        ERROR_LOG("Joint : " + context.jointName + " not found");
+        LOG_ERROR << "Joint : " << context.jointName << " not found";
     }
 }
 

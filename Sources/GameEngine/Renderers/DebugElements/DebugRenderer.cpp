@@ -39,10 +39,10 @@ DebugObject::~DebugObject()
 }
 void DebugObject::CreateBuffer()
 {
-    DEBUG_LOG("perObjectBufferId");
+    /* LOG TO FIX*/  LOG_ERROR << ("perObjectBufferId");
     perObjectBufferId = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
-    DEBUG_LOG("perObjectBufferId");
+    /* LOG TO FIX*/  LOG_ERROR << ("perObjectBufferId");
     transform_.TakeSnapShoot();
     buffer.TransformationMatrix = transform_.GetMatrix();
     UpdateBuffer();
@@ -83,7 +83,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::Th
 
 DebugRenderer::~DebugRenderer()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     if (showPhycicsVisualizationSubId)
         EngineConf.debugParams.showPhycicsVisualization.unsubscribe(*showPhycicsVisualizationSubId);
 }
@@ -108,7 +108,7 @@ void DebugRenderer::init()
     }
     else
     {
-        ERROR_LOG("gridPerObjectUpdateBufferId_ error!");
+        /* LOG TO FIX*/  LOG_ERROR << ("gridPerObjectUpdateBufferId_ error!");
     }
 
     texturePerObjectUpdateBufferId_ =
@@ -122,7 +122,7 @@ void DebugRenderer::init()
     }
     else
     {
-        ERROR_LOG("texturePerObjectUpdateBufferId_ error!");
+        /* LOG TO FIX*/  LOG_ERROR << ("texturePerObjectUpdateBufferId_ error!");
     }
 
     textureColorBufferId_ =

@@ -122,7 +122,7 @@ void SaveRequiredFiles()
 
     if (!output.is_open())
     {
-        ERROR_LOG("Cant open file : " + GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
+        /* LOG TO FIX*/  LOG_ERROR << ("Cant open file : " + GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
         return;
     }
 
@@ -178,9 +178,9 @@ Configuration::Configuration()
 }
 
 Params::DebugParams::DebugParams()
-    : logLvl{LogginLvl::None,
-             {LogginLvl::None, LogginLvl::Error, LogginLvl::ErrorWarning, LogginLvl::ErrorWarningInfo,
-              LogginLvl::ErrorWarningInfoDebug}}
+    : logLvl{LoggingLvl::None,
+             {LoggingLvl::None, LoggingLvl::Error, LoggingLvl::ErrorWarning, LoggingLvl::ErrorWarningInfo,
+              LoggingLvl::ErrorWarningInfoDebug}}
     , showRenderInfo{false, {false, true}}
     , showPhycicsVisualization{false, {false, true}}
 {

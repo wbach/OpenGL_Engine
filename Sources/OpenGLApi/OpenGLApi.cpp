@@ -179,19 +179,19 @@ void GetInfoAndPrint(const std::string& str, GLenum i)
 {
     int info{0};
     glGetIntegerv(i, &info);
-    INFO_LOG(str + " : " + std::to_string(info));
+    /* LOG TO FIX*/  LOG_ERROR << (str + " : " + std::to_string(info));
 }
 
 void OpenGLApi::Init()
 {
-    DEBUG_LOG("Init openGLApi");
+    /* LOG TO FIX*/  LOG_ERROR << ("Init openGLApi");
 
     auto glew_init_result = glewInit();
 
     if (glew_init_result != GLEW_OK)
     {
         std::string err(reinterpret_cast<char const*>(glewGetErrorString(glew_init_result)));
-        ERROR_LOG("Glew init error : " + err);
+        /* LOG TO FIX*/  LOG_ERROR << ("Glew init error : " + err);
         return;
     }
 
@@ -209,7 +209,7 @@ void OpenGLApi::Init()
 
     glPolygonOffset(1, 1);
 
-    DEBUG_LOG("Init done.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Init done.");
 }
 void OpenGLApi::SetShadersFilesLocations(const std::string& path)
 {
@@ -231,15 +231,15 @@ void OpenGLApi::DeleteContext()
 void OpenGLApi::PrintVersion()
 {
     std::string ver(reinterpret_cast<char const*>(glGetString(GL_VERSION)));
-    INFO_LOG("GL version: " + ver);
+    /* LOG TO FIX*/  LOG_ERROR << ("GL version: " + ver);
 
     std::string glslver(reinterpret_cast<char const*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
-    INFO_LOG("GLSL version: " + glslver);
+    /* LOG TO FIX*/  LOG_ERROR << ("GLSL version: " + glslver);
 
     if (not useLowGLversion_)
     {
         glGetIntegerv(GL_MAX_PATCH_VERTICES, &impl_->maxPatchVertices_);
-        INFO_LOG("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
+        /* LOG TO FIX*/  LOG_ERROR << ("Max supported patch vertices :" + std::to_string(impl_->maxPatchVertices_));
 
         if (impl_->maxPatchVertices_)
         {
@@ -283,7 +283,7 @@ void OpenGLApi::PrepareFrame()
 
     if (not errorString.empty())
     {
-        ERROR_LOG(errorString);
+        /* LOG TO FIX*/  LOG_ERROR << (errorString);
     }
 }
 void OpenGLApi::SetDefaultTarget()
@@ -455,7 +455,7 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
             {
                 if (impl_->textureInfos_.count(object.first) == 0)
                 {
-                    DEBUG_LOG("Texture info not found. Id : " + std::to_string(object.first));
+                    /* LOG TO FIX*/  LOG_ERROR << ("Texture info not found. Id : " + std::to_string(object.first));
                     break;
                 }
                 const auto& textureInfo    = GetTextureInfo(object.first);
@@ -466,7 +466,7 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
             }
             break;
             default:
-                DEBUG_LOG("not imeplmented");
+                /* LOG TO FIX*/  LOG_ERROR << ("not imeplmented");
                 break;
         }
     }
@@ -486,7 +486,7 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
             }
             break;
             default:
-                DEBUG_LOG("not imeplmented");
+                /* LOG TO FIX*/  LOG_ERROR << ("not imeplmented");
                 break;
         }
     }
@@ -501,14 +501,14 @@ OpenGLApi::IFrameBuffer& OpenGLApi::CreateFrameBuffer(
     const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
 {
     impl_->frameBuffers_.push_back(std::make_unique<FrameBuffer>(impl_->idPool_, attachments));
-    DEBUG_LOG(std::to_string(impl_->frameBuffers_.back()->GetId()));
+    /* LOG TO FIX*/  LOG_ERROR << (std::to_string(impl_->frameBuffers_.back()->GetId()));
     impl_->createdGraphicsObjects_.insert({impl_->frameBuffers_.back()->GetId(), ObjectType::FRAME_BUFFER});
     return *impl_->frameBuffers_.back();
 }
 
 void OpenGLApi::DeleteFrameBuffer(OpenGLApi::IFrameBuffer& framebuffer)
 {
-    DEBUG_LOG(std::to_string(framebuffer.GetId()));
+    /* LOG TO FIX*/  LOG_ERROR << (std::to_string(framebuffer.GetId()));
     framebuffer.CleanUp();
 
     auto& v   = impl_->frameBuffers_;
@@ -608,7 +608,7 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
 
 void OpenGLApi::DeleteMesh(uint32 id)
 {
-    // DEBUG_LOG("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+    // /* LOG TO FIX*/  LOG_ERROR << ("openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
 
     auto iter = openGlMeshes_.find(id);
     if (iter == openGlMeshes_.end())
@@ -627,7 +627,7 @@ void OpenGLApi::DeleteMesh(uint32 id)
 
     openGlMeshes_.erase(id);
     DeleteDebugNormalMesh(id);
-    // DEBUG_LOG("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
+    // /* LOG TO FIX*/  LOG_ERROR << ("erase openGlMeshes_ size  " + std::to_string(openGlMeshes_.size()));
 }
 
 void OpenGLApi::DeleteDebugNormalMesh(uint32 id)
@@ -727,7 +727,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
     auto errorString = GetGlError();
     if (not errorString.empty())
     {
-        ERROR_LOG(errorString);
+        /* LOG TO FIX*/  LOG_ERROR << (errorString);
         return {};
     }
     GraphicsApi::TextureType type{GraphicsApi::TextureType ::U8_RGBA};
@@ -744,7 +744,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
                         dataTypeSize = sizeof(uint8) * 4;
                         break;
                     default:
-                        DEBUG_LOG("Not implmented.");
+                        /* LOG TO FIX*/  LOG_ERROR << ("Not implmented.");
                 }
             },
             [&](const std::vector<float>&)
@@ -768,11 +768,11 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
                         dataTypeSize = sizeof(float) * 4;
                         break;
                     default:
-                        DEBUG_LOG("Not implmented.");
+                        /* LOG TO FIX*/  LOG_ERROR << ("Not implmented.");
                 }
                 dataTypeSize = sizeof(float);
             },
-            [](std::monostate) { ERROR_LOG("Image data not set!"); },
+            [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Image data not set!"); },
         },
         image.getImageData());
 
@@ -805,7 +805,7 @@ GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, Graphi
     auto errorString = GetGlError();
     if (not errorString.empty())
     {
-        ERROR_LOG(errorString);
+        /* LOG TO FIX*/  LOG_ERROR << (errorString);
         return {};
     }
 
@@ -867,7 +867,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const Utils::Imag
 {
     if (image.empty())
     {
-        ERROR_LOG("Update image without data");
+        /* LOG TO FIX*/  LOG_ERROR << ("Update image without data");
         return;
     }
     auto iter = impl_->textureInfos_.find(id);
@@ -889,7 +889,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const Utils::Image& image)
     auto iter = impl_->textureInfos_.find(id);
     if (iter == impl_->textureInfos_.end())
     {
-        ERROR_LOG("Texture not found id : " + std::to_string(id));
+        /* LOG TO FIX*/  LOG_ERROR << ("Texture not found id : " + std::to_string(id));
         return;
     }
 
@@ -935,7 +935,7 @@ void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
     // if (id == 0 or not createdObjectIds.count(id))
     //{
-    //    ERROR_LOG("Wrong image id : " + std::to_string(id));
+    //    /* LOG TO FIX*/  LOG_ERROR << ("Wrong image id : " + std::to_string(id));
     //    return;
     //}
 
@@ -958,7 +958,7 @@ void OpenGLApi::DeleteObject(uint32 id)
 
     if (createdObjectIds.count(id) == 0)
     {
-        ERROR_LOG("Delete object error. Object with id : " + std::to_string(id) + " not created?");
+        /* LOG TO FIX*/  LOG_ERROR << ("Delete object error. Object with id : " + std::to_string(id) + " not created?");
         return;
     }
 
@@ -1000,7 +1000,7 @@ void OpenGLApi::DeleteObject(uint32 id)
             break;
     }
 
-    // DEBUG_LOG("Delete object :" + std::to_string(id));
+    // /* LOG TO FIX*/  LOG_ERROR << ("Delete object :" + std::to_string(id));
     createdObjectIds.erase(id);
 }
 
@@ -1017,7 +1017,7 @@ std::string OpenGLApi::GetBufferStatus()
 
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
-        ERROR_LOG("FB error, status: " + std::to_string(status));
+        /* LOG TO FIX*/  LOG_ERROR << ("FB error, status: " + std::to_string(status));
         return std::to_string(status);
     }
 
@@ -1237,7 +1237,7 @@ void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data
                 UpdateVBO(obj, buffer, data.tangents_);
                 break;
             default:
-                DEBUG_LOG("Update not implemented.");
+                /* LOG TO FIX*/  LOG_ERROR << ("Update not implemented.");
         }
     }
 
@@ -1477,7 +1477,7 @@ void OpenGLApi::SetBlendFunction(GraphicsApi::BlendFunctionType type)
 void OpenGLApi::allocatedBytes(int64 bytes)
 {
     allocatedBytes_ += bytes;
-    // DEBUG_LOG("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
+    // /* LOG TO FIX*/  LOG_ERROR << ("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
     //         std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
 }
 }  // namespace OpenGLApi

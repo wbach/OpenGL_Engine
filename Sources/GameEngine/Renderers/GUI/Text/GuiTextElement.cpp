@@ -40,7 +40,7 @@ GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRendere
     , algin_(Algin::CENTER)
     , rendererdTextScale_(0)
 {
-    DEBUG_LOG(text_);
+    /* LOG TO FIX*/  LOG_ERROR << (text_);
     RenderText();
 }
 
@@ -220,7 +220,7 @@ void GuiTextElement::RenderText(bool fontOverride)
         }
         else
         {
-            ERROR_LOG("RenderFont error for : " + text_);
+            /* LOG TO FIX*/  LOG_ERROR << ("RenderFont error for : " + text_);
         }
 
         Show();

@@ -22,7 +22,6 @@ XInputManager::XInputManager(HWND windowHwnd, const vec2ui& windowSize)
 }
 XInputManager::~XInputManager()
 {
-    DEBUG_LOG("");
 }
 bool XInputManager::GetKey(KeyCodes::Type key)
 {

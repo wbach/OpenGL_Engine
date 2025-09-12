@@ -18,7 +18,7 @@ namespace Network
 {
 XmlConnectionMessageConverter::XmlConnectionMessageConverter()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
 }
 
 bool XmlConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType type) const
@@ -29,7 +29,7 @@ bool XmlConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType 
 
 std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType type, const IMessageData& message)
 {
-    DEBUG_LOG(Network::Convert(message));
+    /* LOG TO FIX*/  LOG_ERROR << (Network::Convert(message));
 
     Utils::XmlReader reader;
     std::string a = Network::Convert(message);
@@ -77,7 +77,7 @@ std::unique_ptr<IMessage> XmlConnectionMessageConverter::Convert(IMessageType ty
             break;
         }
         default:
-            DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Convert to IMessage. Unsuporrted message.");
     }
 
     return nullptr;
@@ -94,7 +94,7 @@ IMessageData XmlConnectionMessageConverter::Convert(const IMessage& message)
             return ConvertTextMessage(message);
     }
     //  XML
-    DEBUG_LOG("Convert to xml. Unsuporrted message.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Convert to xml. Unsuporrted message.");
     return {};
 }
 
@@ -106,7 +106,7 @@ IMessageData XmlConnectionMessageConverter::ConvertConnectionMessage(const IMess
     root.attributes_.insert({"connectionStatus", std::to_string(connectionMessage->connectionStatus)});
 
     auto v = CreatePayload(root);
-    DEBUG_LOG(Network::Convert(v));
+    /* LOG TO FIX*/  LOG_ERROR << (Network::Convert(v));
     return v;
 }
 
@@ -119,7 +119,7 @@ IMessageData XmlConnectionMessageConverter::ConvertAuthenticationMessage(const I
     root.attributes_.insert({"password", msg->GetPassword()});
 
     auto v = CreatePayload(root);
-    DEBUG_LOG(Network::Convert(v));
+    /* LOG TO FIX*/  LOG_ERROR << (Network::Convert(v));
     return v;
 }
 
@@ -127,13 +127,13 @@ IMessageData XmlConnectionMessageConverter::ConvertTextMessage(const IMessage& m
 {
     auto msg = castMessageAs<TextMessage>(message);
 
-    DEBUG_LOG("testShortMessage_ : " + msg->GetText());
+    /* LOG TO FIX*/  LOG_ERROR << ("testShortMessage_ : " + msg->GetText());
 
     TreeNode root("TextMessage");
     root.attributes_.insert({"text", msg->GetText()});
 
     auto v = CreatePayload(root);
-    DEBUG_LOG(Network::Convert(v));
+    /* LOG TO FIX*/  LOG_ERROR << (Network::Convert(v));
     return v;
 }
 

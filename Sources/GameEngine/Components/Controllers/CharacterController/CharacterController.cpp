@@ -10,6 +10,7 @@
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
+#include "Logger/Log.h"
 #include "Serializers/ReadFunctions.h"
 #include "Serializers/Variables.h"
 #include "Serializers/WriteFunctions.h"
@@ -88,7 +89,7 @@ void CharacterController::Init()
 {
     if (isInit)
     {
-        DEBUG_LOG("Already initialized!");
+        LOG_DEBUG << "Already initialized!";
         return;
     }
     rigidbody_ = thisObject_.GetComponent<Rigidbody>();
@@ -98,7 +99,7 @@ void CharacterController::Init()
     {
         auto aimJoint = animator_->GetJoint(aimJointName_);
         if (not aimJoint)
-            ERROR_LOG("Aim joint not found : " + aimJointName_);
+            LOG_ERROR << "Aim joint not found : " << aimJointName_;
 
         impl->aimController_ =
             std::make_unique<AimController>(componentContext_.scene_, thisObject_, componentContext_.inputManager_,
@@ -227,22 +228,18 @@ void CharacterController::Init()
         auto lowerBodyGroupIter = animator_->jointGroups_.find(lowerBodyGroupName);
         if (lowerBodyGroupIter == animator_->jointGroups_.end())
         {
-            // /*DISABLED*/ DEBUG_LOG("lowerBodyGroupName which is : " + lowerBodyGroupName + ", not found in animator,
-            // create empty.");
             animator_->jointGroups_.insert({lowerBodyGroupName, {}});
         }
 
         auto upperBodyGroupIter = animator_->jointGroups_.find(upperBodyGroupName);
         if (upperBodyGroupIter == animator_->jointGroups_.end())
         {
-            // /*DISABLED*/ DEBUG_LOG("upperBodyGroupName which is : " + upperBodyGroupName + ", not found in animator,
-            // create empty");
             animator_->jointGroups_.insert({upperBodyGroupName, {}});
         }
     }
     else
     {
-        WARNING_LOG("Animator or rigidbody_ not exist in object");
+        LOG_WARN << "Animator or rigidbody_ not exist in object";
     }
 
     isInit = true;
@@ -266,7 +263,7 @@ bool isCollision(Physics::IPhysicsApi& physicsApi, const vec3& characterPosition
 
 void CharacterController::PostStart()
 {
-    DEBUG_LOG("PostStart");
+    LOG_DEBUG << "PostStart";
     const auto& scale  = thisObject_.GetWorldTransform().GetScale();
     auto capsuleRadius = shapeSize_ / glm::compMax(vec2(scale.x, scale.z));
 
@@ -282,12 +279,11 @@ void CharacterController::PostStart()
 
                 if (impl->stateMachine_->isCurrentStateOfType<JumpState>())
                 {
-                    DEBUG_LOG("push JumpConfirmEvent");
+                    LOG_DEBUG << "push JumpConfirmEvent";
                     pushEventToQueue(JumpConfirmEvent{});
                     return;
                 }
 
-                DEBUG_LOG("check falling");
                 const auto& characterPosition = thisObject_.GetWorldTransform().GetPosition();
 
                 bool isAwayFromGround{true};
@@ -299,7 +295,8 @@ void CharacterController::PostStart()
                     for (int x = -1; x <= 1; ++x)
                     {
                         if (isCollision(papi, characterPosition,
-                                        vec3(capsuleRadius * static_cast<float>(x), capsuleRadius, capsuleRadius * static_cast<float>(y))))
+                                        vec3(capsuleRadius * static_cast<float>(x), capsuleRadius,
+                                             capsuleRadius * static_cast<float>(y))))
                         {
                             isAwayFromGround = false;
                             break;
@@ -328,14 +325,14 @@ void CharacterController::PostStart()
                     {
                         if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
                         {
-                            DEBUG_LOG("GroundDetectionEvent collisionWith: " + std::to_string(collisionInfo.rigidbodyId2));
+                            LOG_DEBUG << "GroundDetectionEvent collisionWith: " << collisionInfo.rigidbodyId2;
                             pushEventToFrontQueue(GroundDetectionEvent{});
                             impl->fsmContext->isOnAir = false;
                             break;
                         }
                         else
                         {
-                            DEBUG_LOG("GroundDetectionEvent collisionWith: " + std::to_string(collisionInfo.rigidbodyId1));
+                            LOG_DEBUG << "GroundDetectionEvent collisionWith: " << collisionInfo.rigidbodyId1;
                             pushEventToFrontQueue(GroundDetectionEvent{});
                             impl->fsmContext->isOnAir = false;
                             break;
@@ -383,8 +380,6 @@ void CharacterController::Update()
         std::visit(
             [&](auto statePtr)
             {
-                // // /*DISABLED*/ DEBUG_LOG("[" + typeName(statePtr) + "] Update dt = " +
-                // std::to_string(componentContext_.time_.deltaTime));
                 statePtr->update(componentContext_.time_.deltaTime);
             },
             impl->stateMachine_->currentState);

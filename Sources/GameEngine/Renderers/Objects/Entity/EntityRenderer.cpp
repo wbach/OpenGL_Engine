@@ -24,7 +24,7 @@ EntityRenderer::EntityRenderer(RendererContext& context)
 
 EntityRenderer::~EntityRenderer()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     unSubscribeAll();
     cleanUp();
 }
@@ -127,7 +127,7 @@ void EntityRenderer::unSubscribe(GameObject& gameObject)
 
 void EntityRenderer::unSubscribeAll()
 {
-    DEBUG_LOG("subscribes_ size: " + std::to_string(subscribes_.size()) + " subscribes_ clear");
+    /* LOG TO FIX*/  LOG_ERROR << ("subscribes_ size: " + std::to_string(subscribes_.size()) + " subscribes_ clear");
     subscribes_.clear();
 }
 
@@ -250,7 +250,7 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
                 {
                     if (classificatedToSingleIter->second.size() > 1)
                     {
-                        ERROR_LOG("Multiple single should be only for animated models");
+                        /* LOG TO FIX*/  LOG_ERROR << ("Multiple single should be only for animated models");
                         continue;
                     }
 
@@ -299,7 +299,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
     {
         if (not mesh.GetGraphicsObjectId())
         {
-            DEBUG_LOG("not mesh.GetGraphicsObjectId()");
+            /* LOG TO FIX*/  LOG_ERROR << ("not mesh.GetGraphicsObjectId()");
             continue;
         }
 
@@ -311,7 +311,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         }
         else
         {
-            DEBUG_LOG("not meshBuffer");
+            /* LOG TO FIX*/  LOG_ERROR << ("not meshBuffer");
             continue;
         }
 
@@ -322,7 +322,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         }
         else
         {
-            DEBUG_LOG("not perMeshUpdateBuffer");
+            /* LOG TO FIX*/  LOG_ERROR << ("not perMeshUpdateBuffer");
             continue;
         }
 
@@ -334,7 +334,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         }
         else
         {
-            DEBUG_LOG("not perMeshConstantBuffer");
+            /* LOG TO FIX*/  LOG_ERROR << ("not perMeshConstantBuffer");
             continue;
         }
 

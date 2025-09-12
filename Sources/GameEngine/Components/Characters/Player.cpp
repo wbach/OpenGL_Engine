@@ -122,7 +122,6 @@ void Player::Update()
 }
 void Player::hurt(int64 dmg)
 {
-    DEBUG_LOG("hurt 1");
     if (characterController_ and characterStatistic_.currentHp > 0)
     {
         characterStatistic_.currentHp -= dmg;

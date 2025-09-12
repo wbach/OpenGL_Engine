@@ -43,7 +43,6 @@ void MeshShape::OnAwake()
 {
     if (not model_)
     {
-        DEBUG_LOG("No dedicated model, try get from RendererComponent");
         auto renderer = thisObject_.GetComponent<RendererComponent>();
 
         if (not renderer)
@@ -54,10 +53,9 @@ void MeshShape::OnAwake()
 
     if (not model_)
     {
-        DEBUG_LOG("Model from RendererComponent also not found return");
+        LOG_ERROR << "Model from RendererComponent also not found return";
         return;
     }
-    DEBUG_LOG("Model file used : " + model_->GetFile().GetFilename());
 
     auto scale = calculateScale(thisObject_.GetWorldTransform().GetScale());
     if (auto modelRawData = model_->getModelRawData())
@@ -124,7 +122,7 @@ void MeshShape::registerReadFunctions()
             if (not component->modelFile.empty())
             {
                 component->modelFile = modelFileName;
-                DEBUG_LOG("Set collider model :" + component->modelFile.GetFilename());
+                LOG_DEBUG << "Set collider model :" << component->modelFile.GetFilename();
                 component->SetModel(component->modelFile);
             }
 

@@ -12,7 +12,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
 {
     if (not gameObject)
     {
-        WARNING_LOG("gameObject not set!");
+        /* LOG TO FIX*/  LOG_ERROR << ("gameObject not set!");
         return;
     }
 

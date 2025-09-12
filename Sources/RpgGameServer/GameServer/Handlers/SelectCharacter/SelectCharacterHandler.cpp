@@ -29,7 +29,7 @@ void SelectCharacterHandler::ProcessMessage(Network::UserId userId, const Networ
 
     if (not hasChar)
     {
-        DEBUG_LOG("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
+        /* LOG TO FIX*/  LOG_ERROR << ("SelectCharacterHandler::ProcessMessage user " + std::to_string(userId) + " dont have character : " + std::to_string(characterId));
         return;
     }
 

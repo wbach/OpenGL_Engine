@@ -17,7 +17,7 @@ public:
     void CalculateBlendFactor();
     void SetDirectionalLight(Light* light);
 
-    const wb::vec2i GetCurrentHour() const;
+    const vec2i GetCurrentHour() const;
     bool IsDay() const;
     bool IsNight() const;
     bool IsMorning() const;

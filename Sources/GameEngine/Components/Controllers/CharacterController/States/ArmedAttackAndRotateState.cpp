@@ -53,13 +53,11 @@ ArmedAttackAndRotateState::MaybeAttackStates ArmedAttackAndRotateState::handle(c
 
     if (event.stateType == PlayStateType::walk)
     {
-        DEBUG_LOG("PlayStateType::walk");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkAndRotateState>{};
     }
 
     if (event.stateType == PlayStateType::run)
     {
-        DEBUG_LOG("PlayStateType::run");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndRunAndRotateState>{};
     }
 

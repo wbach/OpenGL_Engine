@@ -80,7 +80,6 @@ void AttackStateBase::onEnter(const EndMoveRightEvent &)
 
 void AttackStateBase::onEnter(const EndRotationEvent &)
 {
-    DEBUG_LOG("EndRotationEvent");
     context_.animator.StopAnimation(context_.lowerBodyGroupName);
 }
 
@@ -135,7 +134,6 @@ void AttackStateBase::onLeave()
 }
 void AttackStateBase::onClipEnd()
 {
-    DEBUG_LOG("onClipEnd sequenceSize=" + std::to_string(context_.attackStatesContext.sequenceSize));
     if (context_.attackStatesContext.sequenceSize == context_.attackStatesContext.currentAnimation)
     {
         context_.characterController.pushEventToQueue(EndAttackEvent{});

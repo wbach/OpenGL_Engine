@@ -30,7 +30,7 @@ void GameEngine::ColladaMergeAnimationClips(const std::vector<std::string>& file
         }
         catch (...)
         {
-           ERROR_LOG("Can not parse file " + filename);
+           /* LOG TO FIX*/  LOG_ERROR << ("Can not parse file " + filename);
             return;
         }
         // auto root = document.first_node();

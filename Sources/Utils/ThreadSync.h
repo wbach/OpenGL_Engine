@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include <iostream>
+#include <list>
 #include <unordered_map>
 #include "Logger/Log.h"
 #include "Mutex.hpp"

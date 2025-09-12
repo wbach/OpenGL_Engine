@@ -1,20 +1,24 @@
 #pragma once
 #include <chrono>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/component_wise.hpp>
+#include <glm/gtx/hash.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/vector_angle.hpp>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <ostream>
-
-#include "Glm.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288 /* pi */
 #endif
 
-bool compare(float, float);
-bool compare(float, float, float);
-
+// ==================== Typy podstawowe ====================
 typedef unsigned char uchar;
 typedef uint8_t uint8;
 typedef uint16_t uint16;
@@ -39,7 +43,7 @@ typedef uint32_t IdType;
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 
-// clang-format off
+// ==================== Czas ====================
 #if defined(USE_GNU) || defined(USE_MINGW)
 typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #else
@@ -48,7 +52,10 @@ typedef std::chrono::_V2::system_clock::time_point Timepoint;
 #define or ||
 typedef std::chrono::time_point<std::chrono::steady_clock> Timepoint;
 #endif
-// clang-format on
+
+// ==================== Utils ====================
+bool compare(float, float);
+bool compare(float, float, float);
 
 float getRandomFloat();
 float getRandomFloat(float, float);
@@ -57,7 +64,6 @@ template <class T>
 struct alignas(16) AlignWrapper
 {
     T value;
-
     AlignWrapper operator=(const T& v)
     {
         this->value = v;
@@ -65,14 +71,14 @@ struct alignas(16) AlignWrapper
     }
 };
 
+// ==================== Własne wektory ====================
 namespace wb
 {
+
 template <class T>
 struct Tvec2
 {
-    T x;
-    T y;
-
+    T x, y;
     Tvec2()
         : Tvec2(0, 0)
     {
@@ -97,19 +103,14 @@ struct Tvec2
     }
     bool operator!=(const Tvec2& v) const
     {
-        return x != v.x or y != v.y;
+        return !(*this == v);
     }
-    bool operator<(const Tvec2& a)
+    bool operator<(const Tvec2& a) const
     {
         if (x < a.x)
-        {
             return true;
-        }
-        else if (x == a.x)
-        {
+        if (x == a.x)
             return y < a.y;
-        }
-
         return false;
     }
 };
@@ -117,10 +118,7 @@ struct Tvec2
 template <class T>
 struct Tvec3
 {
-    T x;
-    T y;
-    T z;
-
+    T x, y, z;
     Tvec3()
         : Tvec3(0)
     {
@@ -131,7 +129,6 @@ struct Tvec3
         , z(a)
     {
     }
-
     Tvec3(T a, T b, T c)
         : x(a)
         , y(b)
@@ -143,7 +140,6 @@ struct Tvec3
     {
         return x == v.x && y == v.y && z == v.z;
     }
-    // To my model map find
     bool operator<(const Tvec3& v) const
     {
         return x != v.x || y != v.y || z != v.z;
@@ -153,11 +149,7 @@ struct Tvec3
 template <class T>
 struct Tvec4
 {
-    T x;
-    T y;
-    T z;
-    T w;
-
+    T x, y, z, w;
     Tvec4()
         : Tvec4(0)
     {
@@ -169,7 +161,6 @@ struct Tvec4
         , w(a)
     {
     }
-
     Tvec4(T a, T b, T c, T d)
         : x(a)
         , y(b)
@@ -182,38 +173,30 @@ struct Tvec4
     {
         return x == v.x and y == v.y and z == v.z and w == v.w;
     }
-    // To my model map find
     bool operator<(const Tvec4& v) const
     {
         return x != v.x or y != v.y or z != v.z or w != v.w;
     }
 };
 
-typedef Tvec2<int32> vec2i;
-typedef Tvec2<uint32> vec2ui;
-typedef Tvec3<int32> vec3i;
 typedef Tvec3<uint8> vec3ui8;
-typedef Tvec3<uint32> vec3ui;
-typedef Tvec4<int32> vec4i;
 typedef Tvec4<uint8> vec4ui8;
-typedef Tvec4<uint32> vec4ui;
 
-std::string to_string(const vec2i& v);
-std::string to_string(const vec3i& v);
 }  // namespace wb
 
-typedef wb::vec2ui vec2ui;
-typedef wb::vec3i vec3i;
-typedef wb::vec3ui vec3ui;
 typedef wb::vec3ui8 vec3ui8;
-typedef wb::vec4i vec4i;
-typedef wb::vec4ui vec4ui;
 typedef wb::vec4ui8 vec4ui8;
 
-typedef glm::ivec2 vec2i;
-typedef glm::vec3 vec3;
+// ==================== Alias na GLM ====================
 typedef glm::vec2 vec2;
+typedef glm::ivec2 vec2i;
+typedef glm::uvec2 vec2ui;
+typedef glm::vec3 vec3;
+typedef glm::ivec3 vec3i;
+typedef glm::uvec3 vec3ui;
 typedef glm::vec4 vec4;
+typedef glm::ivec4 vec4i;
+typedef glm::uvec4 vec4ui;
 
 typedef glm::mat3 mat3;
 typedef glm::mat4 mat4;
@@ -221,6 +204,7 @@ typedef glm::fquat Quaternion;
 
 typedef vec2ui WindowSize;
 
+// ==================== Stałe ====================
 extern const std::string DEFAULT_STRING;
 extern const vec3 VECTOR_ZERO;
 extern const vec2 DEFAULT_VEC2;
@@ -232,6 +216,7 @@ extern const vec3 VECTOR_FORWARD;
 extern const vec3 VECTOR_BACKWARD;
 extern const vec3 VECTOR_ONE;
 
+// ==================== Konwersje ====================
 template <class type>
 type ToRadians(type a)
 {
@@ -244,6 +229,7 @@ type ToDegrees(type a)
     return a * 180.0f / static_cast<float>(M_PI);
 }
 
+// ==================== Radian/Degrees wrappers ====================
 struct RadianFloat
 {
     RadianFloat()
@@ -254,7 +240,6 @@ struct RadianFloat
         : value(v)
     {
     }
-
     float Degrees() const
     {
         return ToDegrees(value);
@@ -267,7 +252,6 @@ struct RadianFloat
     {
         return &value;
     }
-
     float value;
 };
 
@@ -289,7 +273,6 @@ struct RadiansVec3
         : value(v)
     {
     }
-
     vec3 Degrees() const
     {
         return ToDegrees(value);
@@ -302,7 +285,6 @@ struct RadiansVec3
     {
         return &value;
     }
-
     vec3 value;
 };
 
@@ -316,7 +298,6 @@ struct DegreesFloat
         : value(v)
     {
     }
-
     float Radians() const
     {
         return ToRadians(value);
@@ -329,7 +310,6 @@ struct DegreesFloat
     {
         return &value;
     }
-
     float value;
 };
 
@@ -351,7 +331,6 @@ struct DegreesVec3
         : value(v)
     {
     }
-
     vec3 Radians() const
     {
         return ToRadians(value);
@@ -364,10 +343,10 @@ struct DegreesVec3
     {
         return &value;
     }
-
     vec3 value;
 };
 
+// ==================== Kolor ====================
 struct Color
 {
     Color()
@@ -389,7 +368,7 @@ struct Color
     Color(const vec3ui8& color)
     {
         rgb(color);
-        this->value.w = 1.f;
+        value.w = 1.f;
     }
     Color(const vec4ui8& color)
     {
@@ -416,6 +395,7 @@ struct Color
         : value(r, g, b, a)
     {
     }
+
     void r(uint8 r)
     {
         value.x = static_cast<float>(r) / 255.f;
@@ -462,6 +442,7 @@ struct Color
         b(color.z);
         a(color.w);
     }
+
     uint8 r() const
     {
         return static_cast<uint8>(value.x * 255.f);
@@ -478,6 +459,7 @@ struct Color
     {
         return static_cast<uint8>(value.w * 255.f);
     }
+
     vec3ui rgb() const
     {
         return vec3ui(r(), g(), b());
@@ -486,6 +468,7 @@ struct Color
     {
         return vec4ui(r(), g(), b(), a());
     }
+
     float& operator[](int idx)
     {
         return value[idx];
@@ -510,9 +493,11 @@ struct Color
     {
         value += v.value;
     }
+
     vec4 value;
 };
 
+// ==================== Inne ====================
 vec4 ToVec4(const vec3& v3);
 vec4 ToVec4(const vec3& v3, float w);
 vec4 ToVec4(const vec2& v2, float z, float w);
@@ -526,17 +511,111 @@ struct MeasurementValue
     }
     MeasurementValue(const MeasurementValue&) = delete;
     MeasurementValue(MeasurementValue&&)      = delete;
-
-    void operator=(const std::string& value)
+    void operator=(const std::string& v)
     {
-        this->value = value;
+        value = v;
     }
-
     std::string value;
 };
 
+// ====== vec2 ======
+inline bool operator==(const vec2& a, const vec2& b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline bool operator!=(const vec2& a, const vec2& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const vec2& a, const vec2& b)
+{
+    return a.x < b.x || (a.x == b.x && a.y < b.y);
+}
+
+// ====== vec3 ======
+inline bool operator==(const vec3& a, const vec3& b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline bool operator!=(const vec3& a, const vec3& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const vec3& a, const vec3& b)
+{
+    if (a.x != b.x)
+        return a.x < b.x;
+    if (a.y != b.y)
+        return a.y < b.y;
+    return a.z < b.z;
+}
+
+// ====== vec4 ======
+inline bool operator==(const vec4& a, const vec4& b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline bool operator!=(const vec4& a, const vec4& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const vec4& a, const vec4& b)
+{
+    if (a.x != b.x)
+        return a.x < b.x;
+    if (a.y != b.y)
+        return a.y < b.y;
+    if (a.z != b.z)
+        return a.z < b.z;
+    return a.w < b.w;
+}
+
+// ====== Color ======
+inline bool operator==(const Color& a, const Color& b)
+{
+    return a.value == b.value;
+}
+inline bool operator!=(const Color& a, const Color& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const Color& a, const Color& b)
+{
+    return a.value < b.value;
+}
+
+typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
+
+enum class VertexBufferObjects
+{
+    INDICES = 0,
+    POSITION,
+    TEXT_COORD,
+    NORMAL,
+    TANGENT,
+    WEIGHTS,
+    JOINTS,
+    TRANSFORM_MATRIX,
+    TEXTURE_OFFSET,
+    BLEND_FACTOR
+};
+
+typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;
+
 namespace std
 {
+template <>
+struct hash<vec3i>
+{
+    size_t operator()(const vec3i& k) const
+    {
+        size_t h1 = std::hash<double>()(k.x);
+        size_t h2 = std::hash<double>()(k.y);
+        size_t h3 = std::hash<double>()(k.z);
+        return (h1 ^ (h2 << 1)) ^ h3;
+    }
+};
+
 std::string to_string(const vec2&);
 std::string to_string(const vec2i&);
 std::string to_string(const vec2ui&);
@@ -559,7 +638,7 @@ template <typename T>
 std::string to_string(const std::vector<T>& values)
 {
     std::string result;
-    for (const auto& value: values)
+    for (const auto& value : values)
     {
         result += std::to_string(value) + "\n";
     }
@@ -574,48 +653,3 @@ std::string to_string(const std::optional<std::string>&);
 template <>
 std::string to_string(const std::vector<std::string>&);
 }  // namespace std
-
-typedef std::common_type_t<std::chrono::steady_clock::duration, std::chrono::steady_clock::duration> Delta;
-
-enum class VertexBufferObjects
-{
-    INDICES          = 0,
-    POSITION         = 1,
-    TEXT_COORD       = 2,
-    NORMAL           = 3,
-    TANGENT          = 4,
-    WEIGHTS          = 5,
-    JOINTS           = 6,
-    TRANSFORM_MATRIX = 7,
-    TEXTURE_OFFSET   = 8,
-    BLEND_FACTOR     = 9
-};
-
-typedef std::unordered_map<VertexBufferObjects, uint32> VboMap;
-
-// Specyfic types for different os
-
-namespace std
-{
-template <>
-struct hash<vec3i>
-{
-    size_t operator()(const vec3i& k) const
-    {
-        size_t h1 = std::hash<double>()(k.x);
-        size_t h2 = std::hash<double>()(k.y);
-        size_t h3 = std::hash<double>()(k.z);
-        return (h1 ^ (h2 << 1)) ^ h3;
-    }
-};
-}  // namespace std
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::optional<T>& opt)
-{
-    if (opt.has_value())
-        os << *opt;
-    else
-        os << "nullopt";
-    return os;
-}

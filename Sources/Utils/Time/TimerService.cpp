@@ -16,7 +16,7 @@ TimerService::~TimerService()
     {
         isUpdate_.store(false);
         thread_.join();
-        DEBUG_LOG("Thread end");
+        /* LOG TO FIX*/  LOG_ERROR << ("Thread end");
     }
 }
 IdType TimerService::timer(const std::chrono::milliseconds& time, std::function<void()> callback)
@@ -66,7 +66,7 @@ void TimerService::update()
 }
 void TimerService::startThread()
 {
-    DEBUG_LOG("Thread started");
+    /* LOG TO FIX*/  LOG_ERROR << ("Thread started");
     isUpdate_.store(true);
     thread_ = std::thread([&]() {
         while (isUpdate_.load())
@@ -84,7 +84,7 @@ void TimerService::cancelWithoutLock(IdType id)
     {
         isUpdate_.store(false);
         thread_.join();
-        DEBUG_LOG("Thread end");
+        /* LOG TO FIX*/  LOG_ERROR << ("Thread end");
     }
 }
 }  // namespace Time

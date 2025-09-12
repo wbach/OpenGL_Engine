@@ -27,7 +27,7 @@ ScenePtr SceneFactoryBase::Create(const std::string& sceneName)
 {
     if (!IsExist(sceneName))
     {
-        DEBUG_LOG("SceneFactory::Create scene : " + sceneName + " not found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneFactory::Create scene : " + sceneName + " not found.");
         return nullptr;
     }
 
@@ -37,7 +37,7 @@ ScenePtr SceneFactoryBase::Create(uint32 id)
 {
     if (!IsExist(id))
     {
-        DEBUG_LOG("SceneFactory::Create scene id: " + std::to_string(id) + " not found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneFactory::Create scene id: " + std::to_string(id) + " not found.");
         return nullptr;
     }
 
@@ -76,7 +76,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 #endif
                     if (sceneLib)
                     {
-                        DEBUG_LOG("Scene lib found");
+                        /* LOG TO FIX*/  LOG_ERROR << ("Scene lib found");
 #ifdef USE_GNU
                         auto create = (CreateSceneFromLib)dlsym(sceneLib, "CreateScene");
 #else
@@ -85,12 +85,12 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
                         if (create)
                         {
                             scene = std::unique_ptr<Scene>(create());
-                            DEBUG_LOG("Scene loaded from lib: " + scene->GetName());
+                            /* LOG TO FIX*/  LOG_ERROR << ("Scene loaded from lib: " + scene->GetName());
                         }
                     }
                     else
                     {
-                        DEBUG_LOG("Scene lib open failed. Using default");
+                        /* LOG TO FIX*/  LOG_ERROR << ("Scene lib open failed. Using default");
                     }
                 }
             }

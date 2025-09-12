@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
+#include "Logger/Log.h"
 
 
 namespace GameEngine
@@ -25,17 +26,15 @@ void FallingStateBase::onEnter(const StartFallingEvent &)
     }
     else
     {
-        DEBUG_LOG("Falling anim name is empty!");
+        LOG_ERROR << "Falling anim name is empty!";
     }
 }
 
 DisarmedFallingState::StateAfterLand FallingStateBase::handle(const GroundDetectionEvent &)
 {
-    DEBUG_LOG("handle(const EndFallingEvent &)");
     bool isNotDead{true};
     if (isNotDead)
     {
-        // return Utils::StateMachine::TransitionTo<DisarmedIdleState>{};
         return Utils::StateMachine::BackToPreviousState{};
     }
     return Utils::StateMachine::TransitionTo<DeathState>{};

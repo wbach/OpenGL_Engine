@@ -59,7 +59,7 @@ std::string ReadFileBinary(const std::string& file_name)
     std::ifstream t(file_name, std::ios::binary);
     if (!t.is_open())
     {
-        ERROR_LOG("Cannot open file : " + file_name);
+        /* LOG TO FIX*/  LOG_ERROR << ("Cannot open file : " + file_name);
         return std::string();
     }
     std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -72,7 +72,7 @@ std::string ReadFile(const std::string& file_name)
     std::ifstream t(file_name);
     if (!t.is_open())
     {
-        ERROR_LOG("Cannot open file : " + file_name);
+        /* LOG TO FIX*/  LOG_ERROR << ("Cannot open file : " + file_name);
         return std::string();
     }
     std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
@@ -86,7 +86,7 @@ std::vector<std::string> ReadFileLines(const std::string& file_name)
     std::ifstream f(file_name);
     if (!f.is_open())
     {
-        ERROR_LOG("Cannot open file : " + file_name);
+        /* LOG TO FIX*/  LOG_ERROR << ("Cannot open file : " + file_name);
         return output;
     }
 
@@ -104,7 +104,7 @@ void WrtieToFile(const std::string& filename, const std::string& content)
     std::ofstream file(filename.c_str());
     if (!file.is_open())
     {
-        ERROR_LOG("cannot open file " + filename);
+        /* LOG TO FIX*/  LOG_ERROR << ("cannot open file " + filename);
         return;
     }
     file << content;
@@ -235,12 +235,12 @@ float StringToFloat(const std::string& str)
     catch (const std::invalid_argument& e)
     {
         std::string s = e.what();
-        ERROR_LOG("StringToFloat invalid_argument. : " + s);
+        /* LOG TO FIX*/  LOG_ERROR << ("StringToFloat invalid_argument. : " + s);
     }
     catch (const std::out_of_range& e)
     {
         std::string s = e.what();
-        ERROR_LOG("StringToFloat out_of_range. : " + s);
+        /* LOG TO FIX*/  LOG_ERROR << ("StringToFloat out_of_range. : " + s);
     }
     return f;
 }
@@ -255,12 +255,12 @@ int StringToInt(const std::string& str)
     catch (const std::invalid_argument& e)
     {
         std::string s = e.what();
-        ERROR_LOG("StringToInt invalid_argument. : " + s);
+        /* LOG TO FIX*/  LOG_ERROR << ("StringToInt invalid_argument. : " + s);
     }
     catch (const std::out_of_range& e)
     {
         std::string s = e.what();
-        ERROR_LOG("StringToInt out_of_range. : " + s);
+        /* LOG TO FIX*/  LOG_ERROR << ("StringToInt out_of_range. : " + s);
     }
     return i;
 }

@@ -12,9 +12,9 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
 #include "Input/KeyCodeToCharConverter.h"
-#include "GameEngine/Scene/SceneReader.h"
 
 namespace GameEngine
 {
@@ -42,7 +42,6 @@ Console::Console(Scene &scene)
 
 Console::~Console()
 {
-    DEBUG_LOG("destructor");
     DisableFreeCam({});
 }
 
@@ -88,7 +87,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"save", [this](const auto &params) { SaveScene(params); }});
     commandsActions_.insert({"load", [this](const auto &params) { LoadScene(params); }});
     commandsActions_.insert({"reload", [this](const auto &params) { ReloadScene(params); }});
-    commandsActions_.insert({"lognow", [this](const auto &params) { SetImmeditalyLogs(params); }});
+    commandsActions_.insert({"lognow", [this](const auto &params) { UseAsyncLogging(params); }});
     commandsActions_.insert({"snap", [this](const auto &params) { TakeSnapshoot(params); }});
     commandsActions_.insert({"reloadshaders", [this](const auto &params) { ReloadShaders(params); }});
     commandsActions_.insert({"swapRenderMode", [this](const auto &params) { SwapRenderMode(params); }});
@@ -262,12 +261,10 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 if (rigidbody)
                 {
                     rigidbody->SetPosition(position);
-                    DEBUG_LOG("Set rigidbody position");
                 }
                 else
                 {
                     gameObject->GetTransform().SetPosition(position);
-                    DEBUG_LOG("Set transform position");
                 }
             }
             catch (...)
@@ -284,13 +281,10 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 if (rigidbody)
                 {
                     rigidbody->SetPosition(position);
-                    DEBUG_LOG("Set rigidbody position");
                 }
                 else
                 {
                     gameObject->GetTransform().SetPosition(position);
-
-                    DEBUG_LOG("Set transform position");
                 }
             }
             catch (...)
@@ -372,7 +366,7 @@ void Console::SaveScene(const std::vector<std::string> &params)
 {
     if (params.empty())
     {
-       GameEngine::saveSceneToFile(scene_);
+        GameEngine::saveSceneToFile(scene_);
     }
     else
     {
@@ -420,17 +414,14 @@ void Console::ReloadScene(const std::vector<std::string> &)
     scene_.addSceneEvent(sceneEvent);
 }
 
-void Console::SetImmeditalyLogs(const std::vector<std::string> &params)
+void Console::UseAsyncLogging(const std::vector<std::string> &params)
 {
     if (params.empty())
         return;
 
     auto use = Utils::StringToBool(params[0]);
 
-    if (use)
-        CLogger::Instance().ImmeditalyLog();
-    else
-        CLogger::Instance().LazyLog();
+    CLogger::Instance().UseAsyncLogging(use);
 }
 
 void Console::TakeSnapshoot(const std::vector<std::string> &params)
@@ -504,7 +495,7 @@ void Console::SetPhysicsVisualization(const std::vector<std::string> &params)
             {
                 if (auto rigidbody = go->GetComponent<Components::Rigidbody>())
                 {
-                    DEBUG_LOG("VisualizatedRigidbody id : " + std::to_string(rigidbody->GetId()) + ", value: " + Utils::BoolToString(set));
+                    LOG_DEBUG << "VisualizatedRigidbody id : " << rigidbody->GetId() << ", value: " << Utils::BoolToString(set);
                     if (set)
                     {
                         scene_.physicsApi_->enableVisualizatedRigidbody(rigidbody->GetId());
@@ -534,17 +525,17 @@ void Console::SetTimeMulitplayer(const std::vector<std::string> &params)
     }
     catch (...)
     {
-        WARNING_LOG("Set time multiplayer error");
+        LOG_ERROR << "Set time multiplayer error";
     }
 }
 
 void Console::Help(const std::vector<std::string> &)
 {
-    DEBUG_LOG("All commands : ");
+    LOG_DEBUG << "All commands : ";
 
     for (const auto &command : commandsActions_)
     {
-        DEBUG_LOG(command.first);
+        LOG_DEBUG << command.first;
     }
 }
 
@@ -685,7 +676,6 @@ GameObject *Console::GetGameObject(const std::string &name)
 
 void Console::PrepareConsoleWindow()
 {
-    DEBUG_LOG("");
     scene_.guiManager_->AddLayer(CONSOLE_LAYER_NAME);
 
     auto window = scene_.guiElementFactory_->CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.5, 0.75), vec2(1, 0.5f));
@@ -706,7 +696,6 @@ void Console::PrepareConsoleWindow()
                                                  [this]()
                                                  {
                                                      window_->Show();
-                                                     DEBUG_LOG("f2");
                                                      if (not commandsHistory_.empty())
                                                          commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
 

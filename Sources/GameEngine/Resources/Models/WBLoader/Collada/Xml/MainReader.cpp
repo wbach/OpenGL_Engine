@@ -34,7 +34,7 @@ void ReadCollada(const File& filename, ColladaData& colladaData)
     }
     catch (...)
     {
-        ERROR_LOG("Can not parse file " + filename.GetFilename());
+        /* LOG TO FIX*/  LOG_ERROR << ("Can not parse file " + filename.GetFilename());
         return;
     }
     auto root = document.first_node();

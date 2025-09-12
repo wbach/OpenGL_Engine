@@ -16,6 +16,8 @@
 #include <Utils/Windows.hpp>
 #endif
 
+#include <magic_enum/magic_enum.hpp>
+
 namespace GameEngine
 {
 std::string getConfigFile()
@@ -52,11 +54,11 @@ ConfigurationReader::ConfigurationReader(const std::string& filename)
 {
     GameEngine::ReadFromFile(filename);
 
-    if (EngineConf.debugParams.logLvl != LogginLvl::None)
+    if (EngineConf.debugParams.logLvl != LoggingLvl::None)
     {
         CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
-        CLogger::Instance().ImmeditalyLog();
-        std::cout << "LogginLvl: " << Params::paramToString(EngineConf.debugParams.logLvl) << std::endl;
+        CLogger::Instance().UseAsyncLogging(false);
+        std::cout << "LoggingLvl: " << magic_enum::enum_name(EngineConf.debugParams.logLvl.get()) << std::endl;
     }
 }
 }  // namespace GameEngine

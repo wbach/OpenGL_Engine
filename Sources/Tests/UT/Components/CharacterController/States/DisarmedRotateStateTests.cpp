@@ -156,8 +156,8 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_XXX)
         auto rotation = caclulateTargetRotation(target - position);
 
         auto d = glm::dot(rotation, rotationRef);
-        DEBUG_LOG(std::to_string(d));
-        DEBUG_LOG(std::to_string(ToDegrees(acosf(d))));
+        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(d));
+        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
 
         target.x += 0.1f;
     }
@@ -168,8 +168,8 @@ TEST_F(CharacterControllerTests, DisarmedRotateState_XXX)
         auto rotation = caclulateTargetRotation(target - position);
 
         auto d = glm::dot(rotation, rotationRef);
-        DEBUG_LOG(std::to_string(d));
-        DEBUG_LOG(std::to_string(ToDegrees(acosf(d))));
+        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(d));
+        /* LOG TO FIX*/  LOG_ERROR << (std::to_string(ToDegrees(acosf(d))));
         target.x -= 0.1f;
     }
 }

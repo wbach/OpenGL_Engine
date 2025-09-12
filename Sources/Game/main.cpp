@@ -29,7 +29,7 @@ const std::string CSTR_SCENES_NODE{"scenes"};
 void Start()
 {
     CLogger::Instance().EnableLogs();
-    CLogger::Instance().ImmeditalyLog();
+    CLogger::Instance().UseAsyncLogging(false);
 
     Utils::JsonReader jsonReader;
     const auto& inputFile = EngineConf.files.data + "Projects/avatar.json";

@@ -84,7 +84,7 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
                 auto jointName = transformNode->getAttributeValue("jointName");
                 if (jointName.empty())
                 {
-                    ERROR_LOG("Joint name empty");
+                    LOG_ERROR << "Joint name empty";
                     continue;
                 }
 
@@ -98,7 +98,7 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
                 }
                 else
                 {
-                    ERROR_LOG("Joint \"" + jointName + "\" not found in skeleton. Skeleton root joint name : " + rootJoint.name);
+                    LOG_ERROR << "Joint \"" << jointName << "\" not found in skeleton. Skeleton root joint name : " << rootJoint.name;
                 }
             }
             animationClip.AddFrame(keyFrame);

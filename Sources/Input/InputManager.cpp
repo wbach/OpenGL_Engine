@@ -30,7 +30,7 @@ InputManager::InputManager()
 
 InputManager::~InputManager()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 }
 
 void InputManager::SetDefaultKeys()
@@ -66,7 +66,7 @@ bool InputManager::GetKey(GameAction action)
     }
     // else
     //{
-    //     ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+    //     /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     // }
     return false;
 }
@@ -198,7 +198,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
     auto subscribersKeyIter = subscribers_.keyDownSubscribers_.find(key);
     if (subscribersKeyIter != subscribers_.keyDownSubscribers_.end())
     {
-        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
         return;
     }
     subscribers_.keyDownSubscribers_.erase(subscribersKeyIter);
@@ -213,7 +213,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
     {
-        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
         return;
     }
     subscribers_.keyUpSubscribers_.erase(key);
@@ -230,7 +230,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, uint32 id)
 
     if (subscribers_.keyDownSubscribers_.count(key) == 0)
     {
-        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
+        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
                   "}");
         return;
     }
@@ -249,7 +249,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
     {
-        ERROR_LOG("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
+        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
                   "}");
         return;
     }
@@ -268,7 +268,7 @@ void InputManager::UnsubscribeAnyKey(uint32 id)
 
     if (subscribers_.keysSubscribers_.count(id) == 0)
     {
-        ERROR_LOG("Not existing subscribtion : {" + std::to_string(id) + "}");
+        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(id) + "}");
         return;
     }
     subscribers_.keysSubscribers_.erase(id);
@@ -282,7 +282,7 @@ uint32 InputManager::SubscribeOnKeyDown(GameAction action, KeyPressedFunc func)
     }
     else
     {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
     return 0;
 }
@@ -295,7 +295,7 @@ uint32 InputManager::SubscribeOnKeyUp(GameAction action, KeyPressedFunc func)
     }
     else
     {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
     return 0;
 }
@@ -308,7 +308,7 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action, uint32 id)
     }
     else
     {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -320,7 +320,7 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action, uint32 id)
     }
     else
     {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -332,7 +332,7 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action)
     }
     else
     {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -344,7 +344,7 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action)
     }
     else
     {
-        ERROR_LOG("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -352,7 +352,7 @@ void InputManager::StashSubscribers()
 {
     if (stashedSubsribtions_)
     {
-        DEBUG_LOG("Multiple stash subscribtions, losing last one");
+        /* LOG TO FIX*/  LOG_ERROR << ("Multiple stash subscribtions, losing last one");
     }
 
     stashedSubsribtions_ = true;

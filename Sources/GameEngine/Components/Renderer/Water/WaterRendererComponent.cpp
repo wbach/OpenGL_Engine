@@ -130,8 +130,6 @@ void WaterRendererComponent::updatePerObjectUpdateBuffer()
     if (not perObjectUpdateBuffer_)
         return;
 
-    DEBUG_LOG("update buffer");
-
     const auto& transform = thisObject_.GetWorldTransform();
 
     auto convertedQuadScale = transform.GetScale();

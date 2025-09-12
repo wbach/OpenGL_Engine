@@ -23,7 +23,7 @@ void ShaderProgram::Init()
 {
     if (programID_)
     {
-        ERROR_LOG("Shader program is already initialized.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Shader program is already initialized.");
         return;
     }
 

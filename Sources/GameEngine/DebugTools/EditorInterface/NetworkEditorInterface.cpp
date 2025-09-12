@@ -35,6 +35,7 @@
 #include "GameEngine/Scene/SceneDef.h"
 #include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
+#include "Logger/Log.h"
 #include "Messages/AvailableComponentMsgInd.h"
 #include "Messages/CameraMsg.h"
 #include "Messages/ComponentDataMessage.h"
@@ -164,7 +165,7 @@ void NetworkEditorInterface::Run()
 }
 void NetworkEditorInterface::AddObject(const std::string &path)
 {
-    DEBUG_LOG("AddObject not implemented : path=" + path);
+    LOG_ERROR << "AddObject not implemented : path=" << path;
 }
 
 void NetworkEditorInterface::MainLoop()
@@ -252,7 +253,7 @@ void NetworkEditorInterface::SetupCamera()
 
 void NetworkEditorInterface::StartGatway()
 {
-    DEBUG_LOG("Starting server");
+    LOG_DEBUG << "Starting server";
     gateway_.StartServer(30, 1991);
     gateway_.SetDefaultMessageConverterFormat(Network::MessageFormat::Xml);
     gateway_.SubscribeForNewUser(std::bind(&NetworkEditorInterface::NewUser, this, std::placeholders::_1, std::placeholders::_2));
@@ -454,7 +455,7 @@ vec3 NetworkEditorInterface::GetScaleChangeValueBasedOnKeys(float dir, float spe
 
 void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 {
-    DEBUG_LOG("New user : {" + str + ", " + std::to_string(id) + "}");
+    LOG_DEBUG << "New user : {" << str << ", " << id << "}";
     userId_ = id;
 
     if (not scene_.GetFile().empty())
@@ -466,20 +467,20 @@ void NetworkEditorInterface::NewUser(const std::string &str, uint32 id)
 void NetworkEditorInterface::DisconnectUser(uint32 id)
 {
     userId_ = 0;
-    DEBUG_LOG("Disconnect user : {" + std::to_string(id) + "}");
+    LOG_DEBUG << "Disconnect user : {" << id << "}";
     UnsubscribeTransformUpdateIfExist();
     StartScene();
 }
 void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network::IMessage> msg)
 {
     auto textMsg = Network::castMessageAs<Network::TextMessage>(msg.get())->GetText();
-    DEBUG_LOG("Recevied command : " + textMsg);
+    LOG_DEBUG << "Recevied command : " << textMsg;
 
     auto splitCommand = Utils::SplitString(textMsg, ' ');
 
     if (splitCommand.empty())
     {
-        DEBUG_LOG("splitCommand empty");
+        LOG_DEBUG << "splitCommand empty";
         return;
     }
 
@@ -492,14 +493,14 @@ void NetworkEditorInterface::OnMessage(Network::UserId, std::unique_ptr<Network:
     }
     else
     {
-        DEBUG_LOG("Unknown command : \"" + command + "\"");
+        LOG_ERROR << "Unknown command : \"" << command << "\"";
     }
 }
 void NetworkEditorInterface::LoadSceneFromFile(const EntryParameters &args)
 {
     if (args.count("filename") == 0)
     {
-        DEBUG_LOG("Filename not found.");
+        LOG_ERROR << "Filename not found.";
         return;
     }
 
@@ -514,7 +515,7 @@ void NetworkEditorInterface::SaveSceneToFile(const NetworkEditorInterface::Entry
 {
     if (args.count("filename") == 0)
     {
-        DEBUG_LOG("Filename not found.");
+        LOG_DEBUG << "Filename not found.";
         return;
     }
 
@@ -543,7 +544,7 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 par
 {
     if (objectList.empty())
     {
-        DEBUG_LOG("No children found. Parent id : " + std::to_string(parentId));
+        LOG_ERROR << "No children found. Parent id : " << parentId;
         return;
     }
 
@@ -559,8 +560,6 @@ void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 par
 
 void NetworkEditorInterface::GetObjectList(const EntryParameters &)
 {
-    DEBUG_LOG("");
-
     auto &objectList = scene_.GetGameObjects();
     if (not objectList.empty())
     {
@@ -646,7 +645,7 @@ void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
         }
         catch (...)
         {
-            ERROR_LOG("Set position error");
+            LOG_ERROR << "Set position error";
         }
     }
 }
@@ -673,7 +672,7 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
         }
         catch (...)
         {
-            ERROR_LOG("Set rotation error");
+            LOG_ERROR << "Set rotation error";
         }
     }
 }
@@ -693,7 +692,7 @@ void NetworkEditorInterface::SetGameObjectScale(const EntryParameters &param)
             }
             catch (...)
             {
-                ERROR_LOG("Set scale error. Can not convert str to float.");
+                LOG_ERROR << "Set scale error. Can not convert str to float.";
             }
         }
     }
@@ -728,12 +727,12 @@ void NetworkEditorInterface::DeleteGameObject(const EntryParameters &params)
         }
         else
         {
-            ERROR_LOG("GameObject not found");
+            LOG_ERROR << "GameObject not found";
         }
     }
     else
     {
-        ERROR_LOG("Incomplete request");
+        LOG_ERROR << "Incomplete request";
     }
 }
 
@@ -750,12 +749,12 @@ void NetworkEditorInterface::RenameGameObject(const EntryParameters &params)
         }
         else
         {
-            ERROR_LOG("GameObject not found");
+            LOG_ERROR << "GameObject not found";
         }
     }
     else
     {
-        ERROR_LOG("Incomplete request");
+        LOG_ERROR << "Incomplete request";
     }
 }
 
@@ -787,7 +786,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
     }
     catch (...)
     {
-        ERROR_LOG("Position parsing stof error");
+        LOG_ERROR << "Position parsing stof error";
     }
 
     vec3 rotationEulerDegrees(0.f);
@@ -808,7 +807,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
     }
     catch (...)
     {
-        ERROR_LOG("Stof error");
+        LOG_ERROR << "Stof error";
     }
 
     if (params.count("filename"))
@@ -841,12 +840,12 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
         }
         catch (...)
         {
-            ERROR_LOG("Exception caught");
+            LOG_ERROR << "Exception caught";
         }
     }
     else
     {
-        ERROR_LOG("mandatory param filename not found.");
+        LOG_ERROR << "mandatory param filename not found.";
     }
 }
 
@@ -859,8 +858,6 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
         {
             goName = params.at("name");
         }
-
-        DEBUG_LOG("Load prefabs not implemented");
 
         auto gameObject = GameEngine::SceneReader::loadPrefab(scene_, GetRelativeDataPath(params.at("filename")), goName);
 
@@ -929,7 +926,7 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
             }
             else
             {
-                ERROR_LOG("Component : \"" + componentName + "\" creation error.");
+                LOG_ERROR << "Component : \"" << componentName << "\" creation error.";
             }
         }
     }
@@ -1212,7 +1209,7 @@ void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, con
         }
         catch (...)
         {
-            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+            LOG_ERROR << "Deserialize error for param : " << name << "=" << iter->second;
         }
     }
 }
@@ -1228,7 +1225,7 @@ void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, con
         }
         catch (...)
         {
-            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+            LOG_ERROR << "Deserialize error for param : " << name << "=" << iter->second;
         }
     }
 }
@@ -1244,7 +1241,7 @@ void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, con
         }
         catch (...)
         {
-            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+            LOG_ERROR << "Deserialize error for param : " << name << "=" << iter->second;
         }
     }
 }
@@ -1260,7 +1257,7 @@ void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, con
         }
         catch (...)
         {
-            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+            LOG_ERROR << "Deserialize error for param : " << name + "=" << iter->second;
         }
     }
 }
@@ -1276,7 +1273,7 @@ void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, con
         }
         catch (...)
         {
-            ERROR_LOG("Deserialize error for param : " + name + "=" + iter->second);
+            LOG_ERROR << "Deserialize error for param : " << name << "=" << iter->second;
         }
     }
 }
@@ -1625,7 +1622,7 @@ void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
 {
     if (not params.count("gameObjectId"))
     {
-        ERROR_LOG("GameObject Id is necessary to get plant component.");
+        LOG_ERROR << "GameObject Id is necessary to get plant component.";
         return;
     }
 
@@ -1637,7 +1634,7 @@ void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
 
         if (not component)
         {
-            ERROR_LOG("Grass component not found in object : " + params.at("gameObjectId"));
+            LOG_ERROR << "Grass component not found in object : " << params.at("gameObjectId");
             return;
         }
 
@@ -1688,7 +1685,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
         {
             if (terrainPainter_->getPaintType() != PaintType::BlendMap)
             {
-                ERROR_LOG("Incompatible paint mode.");
+                LOG_ERROR << "Incompatible paint mode.";
                 return;
             }
 
@@ -1700,7 +1697,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
                 if (i < 4)
                     color[i++] = c == '1' ? 1.f : 0.f;
                 else
-                    ERROR_LOG("to many bits.");
+                    LOG_ERROR << "to many bits.";
             }
             static_cast<TerrainTexturePainter *>(terrainPainter_.get())->setColor(color);
         }
@@ -1715,7 +1712,7 @@ void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterf
     }
     catch (...)
     {
-        ERROR_LOG("Message parsing error.");
+        LOG_ERROR << "Message parsing error.";
     }
 }
 
@@ -1845,7 +1842,7 @@ void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryPa
     }
     catch (...)
     {
-        ERROR_LOG("Exception caught");
+        LOG_ERROR << "Exception caught";
     }
 }
 
@@ -2034,7 +2031,7 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
             }
             catch (...)
             {
-                ERROR_LOG("Something went wrong");
+                LOG_ERROR << "Something went wrong";
             }
         }
     }
@@ -2106,10 +2103,10 @@ GameObject *NetworkEditorInterface::GetGameObject(const std::string &gameObjectI
     }
     catch (...)
     {
-        DEBUG_LOG("Invalid convert gameObject str to int.");
+        LOG_ERROR << "Invalid convert gameObject str to int.";
     }
 
-    DEBUG_LOG("GameObject not found. " + gameObjectId);
+    LOG_ERROR << "GameObject not found. " << gameObjectId;
     return nullptr;
 }
 void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
@@ -2118,7 +2115,7 @@ void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
     {
         if (not transformChangeSubscription_)
         {
-            ERROR_LOG("Somthing went wrong. transformChangeSubscription_ is nullptr");
+            LOG_ERROR << "Somthing went wrong. transformChangeSubscription_ is nullptr";
             return;
         }
 
@@ -2168,7 +2165,7 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
         }
         else
         {
-            ERROR_LOG("Parent not found, parentId=" + params.at("parentGameObjectId"));
+            LOG_ERROR << "Parent not found, parentId=" << params.at("parentGameObjectId");
         }
     }
     else

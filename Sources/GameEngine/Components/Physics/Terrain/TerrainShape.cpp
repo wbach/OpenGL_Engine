@@ -103,14 +103,13 @@ void TerrainShape::LoadHeightMapIfSet()
     }
     else
     {
-        ERROR_LOG("terrainHeightGetter creating error! terrainRendererComponent not found.");
+        LOG_ERROR << "terrainHeightGetter creating error! terrainRendererComponent not found.";
     }
 }
 void TerrainShape::create()
 {
     if (not heightMap_)
     {
-        DEBUG_LOG("GetHeightmap from renderer component");
         terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
         if (terrainRendererComponent_)
         {
@@ -125,7 +124,7 @@ void TerrainShape::create()
     }
     else
     {
-        ERROR_LOG("Collision shape create error, heightMap not set ");
+        LOG_ERROR << "Collision shape create error, heightMap not set ";
     }
 }
 void TerrainShape::registerReadFunctions()

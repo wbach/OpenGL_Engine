@@ -55,7 +55,7 @@ void AnimationTransition::handle(const ChangeAnimationEvent& event)
         }
         else
         {
-            WARNING_LOG("Try change animation for non exisitng group: " + *event.jointGroupName);
+            LOG_WARN << "Try change animation for non exisitng group: " << *event.jointGroupName;
         }
     }
     else

@@ -49,39 +49,39 @@ std::string paramToString(GraphicsApi::RendererType renderType)
     return "simple";
 }
 
-std::string paramToString(LogginLvl lvl)
+std::string paramToString(LoggingLvl lvl)
 {
     switch (lvl)
     {
-        case LogginLvl::None:
+        case LoggingLvl::None:
             return "none";
-        case LogginLvl::Error:
+        case LoggingLvl::Error:
             return "error";
-        case LogginLvl::ErrorWarning:
+        case LoggingLvl::ErrorWarning:
             return "error/warning";
-        case LogginLvl::ErrorWarningInfo:
+        case LoggingLvl::ErrorWarningInfo:
             return "error/warning/info";
-        case LogginLvl::ErrorWarningInfoDebug:
+        case LoggingLvl::ErrorWarningInfoDebug:
             return "error/warning/info/debug";
     }
     return {"unknown"};
 }
 
-LogginLvl paramFromString(const std::string & input)
+LoggingLvl paramFromString(const std::string & input)
 {
     auto str = Utils::toLower(input);
     if (str=="none")
-        return LogginLvl::None;
+        return LoggingLvl::None;
     if (str == "error" or str == "error")
-        return LogginLvl::Error;
+        return LoggingLvl::Error;
     if (str == "error/warning" or str == "warning")
-        return LogginLvl::ErrorWarning;
+        return LoggingLvl::ErrorWarning;
     if (str == "error/warning/info" or str == "info")
-        return LogginLvl::ErrorWarningInfo;
+        return LoggingLvl::ErrorWarningInfo;
     if (str == "error/warning/info/debug" or str == "debug")
-        return LogginLvl::ErrorWarningInfoDebug;
+        return LoggingLvl::ErrorWarningInfoDebug;
 
-    return LogginLvl::None;
+    return LoggingLvl::None;
 }
 
 }  // namespace Params

@@ -55,7 +55,7 @@ BulletAdapter::BulletAdapter()
 }
 BulletAdapter::~BulletAdapter()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
     impl_->rigidbodies.foreach ([&](auto, auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
     impl_->rigidbodies.clear();
 }
@@ -228,7 +228,7 @@ ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset
                 shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
             },
-            [](std::monostate) { ERROR_LOG("Height map data is not set!."); },
+            [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Height map data is not set!."); },
         },
         heightMap.GetImage().getImageData());
 
@@ -270,7 +270,7 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
             }
             else
             {
-                WARNING_LOG("Out of range");
+                /* LOG TO FIX*/  LOG_ERROR << ("Out of range");
             }
         }
 
@@ -305,14 +305,14 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
 {
     if (not shapeId)
     {
-        ERROR_LOG("Invalid shape id");
+        /* LOG TO FIX*/  LOG_ERROR << ("Invalid shape id");
         return std::nullopt;
     }
 
     auto maybeShape = impl_->shapes_.get(*shapeId);
     if (not maybeShape)
     {
-        ERROR_LOG("Shape not found");
+        /* LOG TO FIX*/  LOG_ERROR << ("Shape not found");
         return 0;
     }
 
@@ -339,7 +339,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
                 isStatic = true;
                 break;
             case RigidbodyProperty::NoContactResponse:
-                DEBUG_LOG("NoContactResponse for: " + gameObject.GetName());
+                /* LOG TO FIX*/  LOG_ERROR << ("NoContactResponse for: " + gameObject.GetName());
                 flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
                 break;
         }
@@ -399,7 +399,7 @@ void BulletAdapter::SetAngularFactor(const RigidbodyId& rigidBodyId, float value
     {
         if (compare(value, 0.f))
         {
-            DEBUG_LOG("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
+            /* LOG TO FIX*/  LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
             rigidbody->btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
         }
         rigidbody->btRigidbody_->setAngularFactor(value);
@@ -412,7 +412,7 @@ void BulletAdapter::SetAngularFactor(const RigidbodyId& rigidBodyId, const vec3&
     {
         if (compare(value.x, 0.f) and compare(value.y, 0.f) and compare(value.z, 0.f))
         {
-            DEBUG_LOG("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
+            /* LOG TO FIX*/  LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
             rigidbody->btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
         }
         rigidbody->btRigidbody_->setAngularFactor(Convert(value));
@@ -431,7 +431,7 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 {
     if (not rigidBodyId)
     {
-        ERROR_LOG("Ivalid rigidbody");
+        /* LOG TO FIX*/  LOG_ERROR << ("Ivalid rigidbody");
         return;
     }
 
@@ -450,7 +450,7 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 
     if (auto rigidBody = impl_->rigidbodies.get(*rigidBodyId))
     {
-        DEBUG_LOG("removeRigidBody : " + std::to_string(rigidBodyId));
+        /* LOG TO FIX*/  LOG_ERROR << ("removeRigidBody : " + std::to_string(rigidBodyId));
         clearRigidbody(*rigidBody);
     }
     impl_->rigidbodies.erase(*rigidBodyId);
@@ -464,7 +464,7 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
 {
     if (not shapeId)
     {
-        ERROR_LOG("Ivalid shapeId");
+        /* LOG TO FIX*/  LOG_ERROR << ("Ivalid shapeId");
         return;
     }
 
@@ -549,7 +549,7 @@ void BulletAdapter::SetShapeScale(const ShapeId& shapeId, const vec3& position)
 {
     if (not shapeId)
     {
-        ERROR_LOG("Invalid shapeId");
+        /* LOG TO FIX*/  LOG_ERROR << ("Invalid shapeId");
         return;
     }
 
@@ -643,7 +643,7 @@ CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyI
         return impl_->collisionContactInfoSub_.insert({rb, collision});
     }
 
-    WARNING_LOG("rigidBodyId not found : " + std::to_string(rigidBodyId));
+    /* LOG TO FIX*/  LOG_ERROR << ("rigidBodyId not found : " + std::to_string(rigidBodyId));
     return {};
 }
 

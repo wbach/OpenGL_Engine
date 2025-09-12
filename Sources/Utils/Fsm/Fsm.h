@@ -47,7 +47,7 @@ public:
         }
         else
         {
-            DEBUG_LOG("No previous state!");
+            /* LOG TO FIX*/  LOG_ERROR << ("No previous state!");
         }
     }
 
@@ -61,7 +61,7 @@ public:
     void handleBy(const Event& event, Machine& machine)
     {
         //#ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Handle event : " + typeName<Event>());
+        /* LOG TO FIX*/  LOG_ERROR << ("Handle event : " + typeName<Event>());
         //#endif
         auto passEventToState = [&machine, &event](auto statePtr)
         {

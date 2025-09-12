@@ -25,7 +25,7 @@ struct TerrainTransitionTests : public BaseComponentTestSchould
         , go2("go2", componentController_, componentFactory_, gameObjectIdPool)
     {
         CLogger::Instance().EnableLogs();
-        CLogger::Instance().ImmeditalyLog();
+        CLogger::Instance().UseAsyncLogging(false);
 
         // auto& terrainComponent1 = go1.AddComponent<Components::TerrainRendererComponent>();
         // auto& terrainComponent2 = go2.AddComponent<Components::TerrainRendererComponent>();

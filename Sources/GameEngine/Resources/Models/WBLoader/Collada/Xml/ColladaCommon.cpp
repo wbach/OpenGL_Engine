@@ -107,7 +107,7 @@ mat4 GetMatrixFromString(const std::string& str)
     mat4 transform_matrix(1.f);
     if (mdata.size() != 16)
     {
-        DEBUG_LOG("GetMatrixFromString string is wrong size.");
+        /* LOG TO FIX*/  LOG_ERROR << ("GetMatrixFromString string is wrong size.");
         return transform_matrix;
     }
 

@@ -3,6 +3,7 @@
 
 #include "../BaseComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "Logger/Log.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Animation;
@@ -81,18 +82,18 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
             clip.AddFrame(frame);
         }
 
-//        frame.timeStamp              = 0;
-//        frame.transforms[0].position = vec3(0.0f, 0.f, 0.f);
-//        clip.AddFrame(frame);
-//        frame.timeStamp              = 0.33f;
-//        frame.transforms[0].position = vec3(1.0f, 0.f, 0.f);
-//        clip.AddFrame(frame);
-//        frame.timeStamp              = 0.6f;
-//        frame.transforms[0].position = vec3(2.0f, 0.f, 0.f);
-//        clip.AddFrame(frame);
-//        frame.timeStamp              = 0.99f;
-//        frame.transforms[0].position = vec3(3.0f, 0.f, 0.f);
-//        clip.AddFrame(frame);
+        //        frame.timeStamp              = 0;
+        //        frame.transforms[0].position = vec3(0.0f, 0.f, 0.f);
+        //        clip.AddFrame(frame);
+        //        frame.timeStamp              = 0.33f;
+        //        frame.transforms[0].position = vec3(1.0f, 0.f, 0.f);
+        //        clip.AddFrame(frame);
+        //        frame.timeStamp              = 0.6f;
+        //        frame.transforms[0].position = vec3(2.0f, 0.f, 0.f);
+        //        clip.AddFrame(frame);
+        //        frame.timeStamp              = 0.99f;
+        //        frame.transforms[0].position = vec3(3.0f, 0.f, 0.f);
+        //        clip.AddFrame(frame);
 
         sut_.AddAnimationClip(clipName, clip, AnimationClipInfo::PlayType::loop, rootMontion);
     }
@@ -123,10 +124,10 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
                                         run       = false;
                                         auto time = timer.GetTimeNanoseconds();
                                         avarageTime += time;
-                                        DEBUG_LOG("Execute time : " + std::to_string(time));
+                                        LOG_DEBUG << "Execute time : " << time;
                                     });
 
-    DEBUG_LOG("Start timer...");
+    LOG_DEBUG << "Start timer...";
 
     int repeatCount{30};
     int frameCounter{0};
@@ -143,19 +144,18 @@ TEST_F(AnimatorTestSchould, FullUpdateOneCycle)
             ++frameCounter;
         }
     }
-    DEBUG_LOG("Avarage frame time : " +
-              std::to_string(static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter)));
-    DEBUG_LOG("Avarage animation time : " + std::to_string(static_cast<double>(avarageTime) / static_cast<double>(repeatCount)));
+    LOG_DEBUG << "Avarage frame time : " << static_cast<double>(avarageFrameTime) / static_cast<double>(frameCounter);
+    LOG_DEBUG << "Avarage animation time : " << static_cast<double>(avarageTime) / static_cast<double>(repeatCount);
 }
 
 TEST_F(AnimatorTestSchould, DISABLED_rootMontion)
 {
     auto rootJoint = sut_.GetRootJoint();
     EXPECT_TRUE(rootJoint);
-    DEBUG_LOG("RootJointName: " + rootJoint->name);
+    LOG_DEBUG << "RootJointName: " + rootJoint->name;
     sut_.SetAnimation(ROOT_MONTION_CLIP);
 
-    DEBUG_LOG("Update deltaTime: " + std::to_string(DEFAULT_ANIMATION_TRANSITION_TIME));
+    LOG_DEBUG << "Update deltaTime: " << DEFAULT_ANIMATION_TRANSITION_TIME;
     context_.time_.deltaTime = DEFAULT_ANIMATION_TRANSITION_TIME;
     // componentController_.CallFunctions(FunctionType::Update);
     sut_.Update();
@@ -164,6 +164,6 @@ TEST_F(AnimatorTestSchould, DISABLED_rootMontion)
     {
         context_.time_.deltaTime = FRAMES_DELTA;
         sut_.Update();
-        DEBUG_LOG(std::to_string(obj_.GetWorldTransform().GetPosition()));
+        LOG_DEBUG << obj_.GetWorldTransform().GetPosition();
     }
 }

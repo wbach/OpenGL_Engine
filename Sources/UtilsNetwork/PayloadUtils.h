@@ -19,7 +19,7 @@ Network::IMessageData ConvertMessage(const Network::IMessage& message)
     std::vector<int8> result;
     result.resize(sizeof(T));
     memcpy(&result[0], (void*)&message, sizeof(T));
-    DEBUG_LOG("Sizeof <T> : " + std::to_string(sizeof(T)));
+    /* LOG TO FIX*/  LOG_ERROR << ("Sizeof <T> : " + std::to_string(sizeof(T)));
     return result;
 }
 }  // namespace Network

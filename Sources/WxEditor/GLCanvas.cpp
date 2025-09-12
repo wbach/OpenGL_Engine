@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "Logger/Log.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
@@ -176,6 +177,8 @@ void GLCanvas::OnTimer(wxTimerEvent&)
 
 void GLCanvas::OnKeyUp(wxKeyEvent& event)
 {
+    if (not engine)
+        return;
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, event.GetKeyCode());
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, false);
@@ -183,9 +186,12 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
 
 void GLCanvas::OnKeyDown(wxKeyEvent& event)
 {
+    if (not engine)
+        return;
+
     if (event.GetKeyCode() == 27)  // ESC
     {
-        DEBUG_LOG("Escape");
+        /* LOG TO FIX*/ LOG_ERROR << ("Escape");
         GetParent()->SetFocus();
     }
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, true);
@@ -199,6 +205,9 @@ void GLCanvas::OnChar(wxKeyEvent& evt)
 
 void GLCanvas::OnMouseLeftUp(wxMouseEvent& event)
 {
+    if (not engine)
+        return;
+
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, false);
@@ -208,6 +217,9 @@ void GLCanvas::OnMouseLeftUp(wxMouseEvent& event)
 
 void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
 {
+    if (not engine)
+        return;
+
     SetFocus();
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
@@ -229,6 +241,9 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
 
 void GLCanvas::OnMouseRightUp(wxMouseEvent& event)
 {
+    if (not engine)
+        return;
+
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT}, false);
@@ -236,6 +251,9 @@ void GLCanvas::OnMouseRightUp(wxMouseEvent& event)
 
 void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
 {
+    if (not engine)
+        return;
+
     SetFocus();
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
@@ -244,6 +262,9 @@ void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
 
 void GLCanvas::OnMouseMove(wxMouseEvent& evt)
 {
+    if (not engine)
+        return;
+
     if (wxWindowApi)
     {
         wxWindowApi->OnMouseMove(evt);
@@ -289,6 +310,9 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
 
 bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> callback)
 {
+    if (not engine)
+        return false;
+
     if (not std::filesystem::exists(file.GetAbsolutePath()))
     {
         return false;
@@ -324,6 +348,9 @@ void GLCanvas::ResetDragObject()
 
 void GLCanvas::SetupCamera()
 {
+    if (not engine)
+        return;
+
     auto& scene = GetScene();
     scene.GetCamera().Lock();
 
@@ -338,13 +365,16 @@ void GLCanvas::SetupCamera()
 GameObject& GLCanvas::GetRootObject()
 {
     if (not engine->GetSceneManager().GetActiveScene())
-        ERROR_LOG("No scene is set");
+        LOG_ERROR << "No scene is set";
 
     return engine->GetSceneManager().GetActiveScene()->GetRootGameObject();
 }
 
 Engine& GLCanvas::GetEngine()
 {
+    if (not engine)
+        LOG_ERROR << "Engine not created";
+
     return *engine;
 }
 

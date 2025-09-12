@@ -15,11 +15,11 @@ void Map::AddCharacter(uint32 characterId, Hero::BaseHeroPtr hero)
 }
 void Map::RemoveCharacter(uint32 id)
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     if (characters_.count(id) == 0)
         return;
 
-    DEBUG_LOG("Removing...");
+    /* LOG TO FIX*/  LOG_ERROR << ("Removing...");
     characters_.erase(id);
 }
 void Map::UpdateAllControllers(float dt)

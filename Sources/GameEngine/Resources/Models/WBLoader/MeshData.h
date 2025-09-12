@@ -1,12 +1,10 @@
 ﻿#pragma once
-#include <list>
 #include <vector>
 #include "../Material.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "Types.h"
-#include "optional.hpp"
 #include <GraphicsApi/MeshRawData.h>
 #include <optional>
 

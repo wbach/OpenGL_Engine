@@ -46,7 +46,7 @@ void DayNightCycle::UpdateSunColor()
 {
     if (directionalLight == nullptr)
     {
-        DEBUG_LOG("Directional light not set in DayNightCycle but is used.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Directional light not set in DayNightCycle but is used.");
         return;
     }
     if (IsNight())
@@ -95,7 +95,7 @@ void DayNightCycle::UpdateSunPosition()
 {
     if (directionalLight == nullptr)
     {
-        DEBUG_LOG("Directional light not set in DayNightCycle but is used.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Directional light not set in DayNightCycle but is used.");
         return;
     }
     vec3 current_pos = directionalLight->GetPosition();
@@ -144,13 +144,13 @@ void DayNightCycle::SetDirectionalLight(Light* light)
     directionalLight = light;
 }
 
-const wb::vec2i DayNightCycle::GetCurrentHour() const
+const vec2i DayNightCycle::GetCurrentHour() const
 {
     int hour = static_cast<int>(GetHours());
 
     int minutes = static_cast<int>(currentTime_ * 24.f * 60.f - (hour * 60.f));
 
-    return wb::vec2i(hour, minutes);
+    return vec2i(hour, minutes);
 }
 
 bool DayNightCycle::IsDay() const

@@ -29,7 +29,7 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 
 GameObject::~GameObject()
 {
-    DEBUG_LOG("~GameObject() " + name_);
+    /* LOG TO FIX*/  LOG_ERROR << ("~GameObject() " + name_);
 
     for (auto& component : components_)
     {
@@ -42,7 +42,7 @@ GameObject::~GameObject()
     if (localTransfromSubscribtion_)
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 
-    DEBUG_LOG(name_);
+    /* LOG TO FIX*/  LOG_ERROR << (name_);
     if (isStartedSub)
         componentController_.UnRegisterFunction(id_, Components::FunctionType::OnStart, isStartedSub);
     if (isAwakenedSub)
@@ -146,7 +146,7 @@ void GameObject::SetParent(GameObject* parent)
     {
         if (parent_ and parentIdTransfromSubscribtion_)
         {
-            DEBUG_LOG("UnsubscribeOnWorldTransfromChange");
+            /* LOG TO FIX*/  LOG_ERROR << ("UnsubscribeOnWorldTransfromChange");
             parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
             parent_                        = nullptr;
             parentIdTransfromSubscribtion_ = std::nullopt;
@@ -190,7 +190,7 @@ void GameObject::ChangeParent(GameObject& newParent)
 {
     if (not parent_)
     {
-        DEBUG_LOG("Root gameObject can not be moved");
+        /* LOG TO FIX*/  LOG_ERROR << ("Root gameObject can not be moved");
         return;
     }
 
@@ -351,7 +351,7 @@ GameObject& GameObject::getRootGameObject()
     {
         go = go->GetParent();
     }
-    DEBUG_LOG(go->GetName());
+    /* LOG TO FIX*/  LOG_ERROR << (go->GetName());
     return *go;
 }
 

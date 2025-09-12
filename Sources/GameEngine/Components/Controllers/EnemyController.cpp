@@ -68,7 +68,6 @@ void EnemyController::Update()
     {
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
-            DEBUG_LOG("In attack range");
             characterController_->pushEventToQueue(EndForwardMoveEvent{});
             //characterController_->pushEventToQueue(AttackEvent{});
         }
@@ -95,9 +94,6 @@ void EnemyController::Update()
     characterController_->pushEventToQueue(MoveForwardEvent{});
 
     auto distanceToPoint = glm::length(vectorToTarget);
-    //DEBUG_LOG("Enemy pos: " + std::to_string(thisObject_.GetWorldTransform().GetPosition()) +
-    //          ", freeWalkingTargetPoint=" + std::to_string(freeWalkingTargetPoint) +
-    //          ", distance: " + std::to_string(distanceToPoint));
 
     if (distanceToPoint < 5.f)
     {

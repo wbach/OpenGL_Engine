@@ -24,7 +24,7 @@ std::vector<float> convertFloatNode(const TreeNode& node)
         }
         catch (...)
         {
-            ERROR_LOG("convert error");
+            /* LOG TO FIX*/  LOG_ERROR << ("convert error");
             return 0.f;
         }
     });
@@ -43,7 +43,7 @@ std::vector<int32> convertIntNode(const TreeNode& node)
         }
         catch (...)
         {
-            ERROR_LOG("convert error");
+            /* LOG TO FIX*/  LOG_ERROR << ("convert error");
             return 0;
         }
     });
@@ -79,7 +79,7 @@ void BEngineLoader::ParseFile(const File& file)
         }
         else
         {
-            ERROR_LOG("no vertices in object");
+            /* LOG TO FIX*/  LOG_ERROR << ("no vertices in object");
             continue;
         }
         auto positionSize = mesh.GetMeshDataRef().positions_.size();
@@ -91,7 +91,7 @@ void BEngineLoader::ParseFile(const File& file)
         }
         else
         {
-            ERROR_LOG("no indices in in object");
+            /* LOG TO FIX*/  LOG_ERROR << ("no indices in in object");
             continue;
         }
 

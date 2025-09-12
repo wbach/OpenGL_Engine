@@ -4,6 +4,7 @@
 #include <Types.h>
 
 #include "../FsmContext.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -34,7 +35,6 @@ void MoveStateBase::onEnter(const CrouchChangeStateEvent &)
 
 void MoveStateBase::onEnter(const SprintStateChangeEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("SprintStateChangeEvent");
 }
 
 void MoveStateBase::onEnter(const MoveEvent &)
@@ -70,7 +70,6 @@ void MoveStateBase::onEnter(const WalkChangeStateEvent &)
 
 void MoveStateBase::postEnter()
 {
-    // /*DISABLED*/ DEBUG_LOG("postEnter");
     setCurrentAnimIfNeeded();
 }
 
@@ -117,7 +116,6 @@ bool MoveStateBase::shouldLeaveAndSetCurrAnimIfNot()
 {
     if (context_.moveController.isMoveActive())
     {
-        // /*DISABLED*/ DEBUG_LOG("shouldLeaveAndSetCurrAnimIfNot");
         setCurrentAnimIfNeeded();
         return false;
     }
@@ -150,10 +148,8 @@ void MoveStateBase::update(const SprintStateChangeEvent &event)
 
 void MoveStateBase::update(float dt)
 {
-    // /*DISABLED*/ DEBUG_LOG("Update");
     if (not context_.animator.isAnimationPlaying(currentAnimName_))
     {
-        // // /*DISABLED*/ DEBUG_LOG("Forward not ready");
         return;
     }
 
@@ -162,7 +158,6 @@ void MoveStateBase::update(float dt)
 
 void MoveStateBase::postUpdate()
 {
-    // /*DISABLED*/ DEBUG_LOG("postUpdate");
     setCurrentAnimIfNeeded();
 }
 
@@ -203,11 +198,10 @@ void MoveStateBase::setAnim(const std::string &clipName)
     auto iter              = std::find(currentAnimations.begin(), currentAnimations.end(), clipName);
     if (iter != currentAnimations.end())
     {
-        DEBUG_LOG("current is playing");
+        LOG_WARN << "current is playing";
         return;
     }
 
-    // // /*DISABLED*/ DEBUG_LOG("SetAnim : " + clipName + " jointGroup=" + std::to_string(jointGroupName_));
     context_.animator.ChangeAnimation(clipName, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName_);
 }
 
@@ -215,7 +209,6 @@ void MoveStateBase::moveRigidbody()
 {
     if (not context_.moveController.isMoving())
     {
-        // // /*DISABLED*/ DEBUG_LOG("Not moving, return");
         return;
     }
 
@@ -231,9 +224,6 @@ void MoveStateBase::moveRigidbody()
     auto &rigidbody     = context_.rigidbody;
     auto targetVelocity = rigidbody.GetRotation() * moveDirection * moveSpeed;
     targetVelocity.y    = rigidbody.GetVelocity().y;
-    // /*DISABLED*/ DEBUG_LOG("moveDirection : " + std::to_string(moveDirection));
-    // /*DISABLED*/ DEBUG_LOG("moveSpeed : " + std::to_string(moveSpeed));
-    // /*DISABLED*/ DEBUG_LOG("targetVelocity : " + std::to_string(targetVelocity));
     rigidbody.SetVelocity(targetVelocity);
 }
 

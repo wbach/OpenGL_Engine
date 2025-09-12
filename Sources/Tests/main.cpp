@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {
     CLogger::Instance().EnableLogs();
-    CLogger::Instance().ImmeditalyLog();
+    CLogger::Instance().UseAsyncLogging(false);
     ::testing::InitGoogleTest(&argc, argv);
     ::testing::InitGoogleMock(&argc, argv);
     auto result = RUN_ALL_TESTS();

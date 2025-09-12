@@ -15,7 +15,7 @@ std::string paramToString(float);
 std::string paramToString(const vec2ui&);
 std::string paramToString(const std::string&);
 std::string paramToString(GraphicsApi::RendererType);
-std::string paramToString(LogginLvl);
-LogginLvl paramFromString(const std::string&);
+std::string paramToString(LoggingLvl);
+LoggingLvl paramFromString(const std::string&);
 }  // namespace Params
 }  // namespace GameEngine

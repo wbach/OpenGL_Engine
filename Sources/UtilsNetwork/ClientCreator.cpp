@@ -55,14 +55,14 @@ ClientCreator::ConnectionState ClientCreator::WaitForAcceptConnection()
 
     if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
     {
-        DEBUG_LOG("Connected to server.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Connected to server.");
         return ClientCreator::CONNECTED;
     }
 
     if (connectingMsg->connectionStatus != ConnectionStatus::WAIT_FOR_AUTHENTICATION)
         return ClientCreator::NOT_CONNECTED;
 
-    DEBUG_LOG("Wait for authentication...");
+    /* LOG TO FIX*/  LOG_ERROR << ("Wait for authentication...");
     return ClientCreator::WAIT_FOR_AUTHENTICATION;
 }
 
@@ -72,7 +72,7 @@ bool ClientCreator::WaitForAuthentication(const std::string& username, const std
 
     sender_.SendTcp(context_.socket, msg);
 
-    DEBUG_LOG("Sent authenticationMessage");
+    /* LOG TO FIX*/  LOG_ERROR << ("Sent authenticationMessage");
 
     sdlNetWrapper_.CheckSockets(context_.socketSet, 5000);
 
@@ -87,11 +87,11 @@ bool ClientCreator::WaitForAuthentication(const std::string& username, const std
 
     if (connectingMsg->connectionStatus == ConnectionStatus::CONNECTED)
     {
-        DEBUG_LOG("Joining server now...");
+        /* LOG TO FIX*/  LOG_ERROR << ("Joining server now...");
         return true;
     }
 
-    DEBUG_LOG("Authentication failed. Wrong username or password.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Authentication failed. Wrong username or password.");
     return false;
 }
 
@@ -99,13 +99,13 @@ ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
 {
     if (msg == nullptr)
     {
-        ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Recv nullptr msg.");
+        /* LOG TO FIX*/  LOG_ERROR << ("[ClientCreator::GetAndValidateConnectionMessage] Recv nullptr msg.");
         return nullptr;
     }
 
     if (msg->GetType() != MessageTypes::ConnectionMsg)
     {
-        ERROR_LOG("[ClientCreator::GetAndValidateConnectionMessage] Unsupported msg recv.");
+        /* LOG TO FIX*/  LOG_ERROR << ("[ClientCreator::GetAndValidateConnectionMessage] Unsupported msg recv.");
         return nullptr;
     }
 
@@ -113,7 +113,7 @@ ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
 
     if (connectingMsg == nullptr)
     {
-        ERROR_LOG(
+        /* LOG TO FIX*/  LOG_ERROR << (
             "[ClientCreator::GetAndValidateConnectionMessage] Something went wrong. Couldn't cast to "
             "ConnectionMessage*.");
         return nullptr;
@@ -121,7 +121,7 @@ ConnectionMessage* ClientCreator::GetAndValidateConnectionMessage(IMessage* msg)
 
     if (connectingMsg->connectionStatus == ConnectionStatus::ERROR_FULL)
     {
-        ERROR_LOG("Not connected. Server is full.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Not connected. Server is full.");
         return nullptr;
     }
 

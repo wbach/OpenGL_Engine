@@ -61,7 +61,7 @@ private:
     void SaveScene(const std::vector<std::string>&);
     void LoadScene(const std::vector<std::string>&);
     void ReloadScene(const std::vector<std::string>&);
-    void SetImmeditalyLogs(const std::vector<std::string>&);
+    void UseAsyncLogging(const std::vector<std::string>&);
     void TakeSnapshoot(const std::vector<std::string>&);
     void ReloadShaders(const std::vector<std::string>&);
     void SwapRenderMode(const std::vector<std::string>&);

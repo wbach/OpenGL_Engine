@@ -81,18 +81,17 @@ void PlantPainter::paintImpl()
         return;
 
     auto numberOfInstances = getNumberOfInstances();
-    TerrainHeightGetter terrainHeightGetter(
-        point.terrainComponent.getParentGameObject().GetWorldTransform().GetScale(),
-        *point.terrainComponent.GetHeightMap(),
-        point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
+    TerrainHeightGetter terrainHeightGetter(point.terrainComponent.getParentGameObject().GetWorldTransform().GetScale(),
+                                            *point.terrainComponent.GetHeightMap(),
+                                            point.terrainComponent.GetParentGameObject().GetWorldTransform().GetPosition());
     createRandomPositions(point.pointOnTerrain, terrainHeightGetter, range, numberOfInstances);
 }
 uint32 PlantPainter::getNumberOfInstances()
 {
     return paintContext_.strength < 0.f ? 1 : static_cast<uint32>(paintContext_.strength);
 }
-void PlantPainter::createRandomPositions(const vec3& pointOnTerrain, const TerrainHeightGetter& terrainHeightGetter,
-                                         float range, uint32 numberOfInstances)
+void PlantPainter::createRandomPositions(const vec3& pointOnTerrain, const TerrainHeightGetter& terrainHeightGetter, float range,
+                                         uint32 numberOfInstances)
 {
     std::random_device rd;
     std::mt19937 mt(rd());
@@ -150,13 +149,12 @@ void PlantPainter::generatePositions()
     const auto range               = static_cast<float>(paintContext_.brushSize / 2);
     const auto numberOfInstances   = getNumberOfInstances();
 
-    DEBUG_LOG("generatePositions terrains count: " + std::to_string(terrainRendererComponents.size()));
+    LOG_DEBUG << "generatePositions terrains count: " << terrainRendererComponents.size();
     for (auto& terrainRendererComponent : terrainRendererComponents)
     {
         const auto& gameObjectWorldTransform = terrainRendererComponent->getParentGameObject().GetWorldTransform();
 
-        TerrainHeightGetter terrainHeightGetter(gameObjectWorldTransform.GetScale(),
-                                                *terrainRendererComponent->GetHeightMap(),
+        TerrainHeightGetter terrainHeightGetter(gameObjectWorldTransform.GetScale(), *terrainRendererComponent->GetHeightMap(),
                                                 gameObjectWorldTransform.GetPosition());
 
         auto halfScale = Utils::xz(gameObjectWorldTransform.GetScale() / 2.f);
@@ -165,7 +163,7 @@ void PlantPainter::generatePositions()
         vec2 start = position - halfScale + vec2(range);
         vec2 end   = position + halfScale - vec2(range);
 
-        DEBUG_LOG("generatePositions start : " + std::to_string(start) + ", end : " + std::to_string(end));
+        LOG_DEBUG << "generatePositions start : " << start << ", end : " << end;
 
         for (float y = start.y; y < end.y; y += range)
         {

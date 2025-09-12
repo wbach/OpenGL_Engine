@@ -40,8 +40,9 @@ struct StateMachine
 #ifdef NOREALTIME_LOG_ENABLED
         auto previousAnims = tmpTransitionState_->getCurrentAnimation();
         auto nextAnims     = currentState_->getCurrentAnimation();
-        DEBUG_LOG("Animation state transition : " + typeName<State>() + ", Prev anims: " +
-                  Utils::MergeString(previousAnims, " ") + " New anims: " + Utils::MergeString(nextAnims, " "));
+        LOG_DEBUG << "Animation state transition : " << typeName<State>()
+                  << ", Prev anims: " << Utils::MergeString(previousAnims, " ")
+                  << " New anims: " << Utils::MergeString(nextAnims, " ");
 #endif
     }
 

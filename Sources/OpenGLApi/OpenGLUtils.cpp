@@ -102,7 +102,7 @@ void VaoCreator::AddStaticAttribute(VertexBufferObjects type, uint32 coordinateS
     int vsize     = data.size() / 3;
     if (type == VertexBufferObjects::POSITION and vsize > maxNumber)
     {
-       ERROR_LOG("To many vertices in model.");
+       /* LOG TO FIX*/  LOG_ERROR << ("To many vertices in model.");
     }
 }
 

@@ -24,7 +24,9 @@ ResourceManager::~ResourceManager()
     std::vector<Model*> toRelease;
     for (auto& model : models_)
         toRelease.push_back(model.second.resource_.get());
-    DEBUG_LOG("Release not deleted models. size :" + std::to_string(toRelease.size()));
+
+    LOG_DEBUG << "Release not deleted models. size :" << toRelease.size();
+
     for (auto model : toRelease)
         ReleaseModel(*model);
 
@@ -46,8 +48,7 @@ Model* ResourceManager::LoadModel(const File& file, const LoadingParameters& loa
         // To do: Can be useful for simplified physics collision mesh shapes.
         // Visual representation of physics shape not needed
 
-        /*   DEBUG_LOG(file.GetBaseName() +
-                     " model already loaded, instances count : " + std::to_string(modelInfo.instances_));*/
+        LOG_DEBUG << file.GetBaseName() << " model already loaded, instances count : " << modelInfo.instances_;
         return modelInfo.resource_.get();
     }
 
@@ -71,7 +72,6 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
 
     std::lock_guard<std::mutex> lk(modelMutex_);
 
-    //   DEBUG_LOG("add model.");
     auto modelPtr = model.get();
     auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
                                      : model->GetFile().GetAbsolutePath().string();
@@ -80,7 +80,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
 
     if (iter != models_.end())
     {
-        ERROR_LOG("Model \"" + filename + "\" already exist");
+        LOG_DEBUG << "Model \"" << filename << "\" already exist";
         return nullptr;
     }
 
@@ -113,7 +113,6 @@ void ResourceManager::ReleaseModel(Model& model)
 
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(absoultePath);
-    //    DEBUG_LOG("models_ erase , size : " + std::to_string(models_.size()));
 }
 
 void ResourceManager::LockReleaseResources()

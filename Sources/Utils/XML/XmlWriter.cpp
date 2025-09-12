@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <list>
 
 #include "Logger/Log.h"
 #include "rapidxml.hpp"
@@ -84,10 +85,10 @@ public:
         std::ofstream file(filename.c_str());
         if (!file.is_open())
         {
-            ERROR_LOG("cannot open file " + filename);
+            /* LOG TO FIX*/  LOG_ERROR << ("cannot open file " + filename);
             return;
         }
-        DEBUG_LOG("Xml save : " + filename);
+        /* LOG TO FIX*/  LOG_ERROR << ("Xml save : " + filename);
         file << document_;
         file.close();
     }

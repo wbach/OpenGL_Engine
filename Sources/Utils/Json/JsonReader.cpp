@@ -118,7 +118,7 @@ bool JsonReader::Read(const std::string& filename)
     }
     catch (...)
     {
-        WARNING_LOG("Json read error! filename=" + filename);
+        /* LOG TO FIX*/  LOG_ERROR << ("Json read error! filename=" + filename);
     }
     return false;
 }
@@ -130,9 +130,9 @@ bool JsonReader::ReadJson(const std::string& fileContent)
 
     if (!ok)
     {
-        ERROR_LOG("JSON parse error: " + std::string(GetParseError_En(ok.Code())) + " (offset " + std::to_string(ok.Offset()) +
+        /* LOG TO FIX*/  LOG_ERROR << ("JSON parse error: " + std::string(GetParseError_En(ok.Code())) + " (offset " + std::to_string(ok.Offset()) +
                   ")");
-        ERROR_LOG(fileContent);
+        /* LOG TO FIX*/  LOG_ERROR << (fileContent);
         return false;
     }
 

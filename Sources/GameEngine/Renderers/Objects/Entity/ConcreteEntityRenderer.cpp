@@ -31,14 +31,14 @@ ConcreteEntityRenderer::ConcreteEntityRenderer(RendererContext& context)
 
 ConcreteEntityRenderer::~ConcreteEntityRenderer()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     shader_.Clear();
     instancesShader_.Clear();
 }
 
 void ConcreteEntityRenderer::init()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     shader_.Init();
     instancesShader_.Init();
     entityRenderer_.init();
@@ -83,7 +83,7 @@ void ConcreteEntityRenderer::unSubscribeAll()
 
 void ConcreteEntityRenderer::reloadShaders()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     shader_.Reload();
     instancesShader_.Reload();
 }

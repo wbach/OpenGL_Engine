@@ -1,6 +1,7 @@
 #include "CharacterControllerTests.h"
 
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "Logger/Log.h"
 
 MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for CollisionDetection")
 {
@@ -12,9 +13,9 @@ CharacterControllerTests::CharacterControllerTests()
     , sut_(context_, obj_)
 {
     CLogger::Instance().EnableLogs();
-    CLogger::Instance().ImmeditalyLog();
+    CLogger::Instance().UseAsyncLogging(false);
 
-    DEBUG_LOG("CharacterControllerTests::CharacterControllerTests");
+    LOG_DEBUG << "CharacterControllerTests::CharacterControllerTests";
 
     EXPECT_CALL(physicsApiMock_, SetAngularFactor(_, Matcher<float>(_))).Times(AtLeast(1));
     EXPECT_CALL(physicsApiMock_, CreateSphereColider(_, _, _)).WillOnce(Return(shapeId));
@@ -289,15 +290,15 @@ void CharacterControllerTests::addDummyClip(const std::string& name)
     Animation::AnimationClip clip(name);
     for (int i = 0; i <= DUMMY_FRAMES; ++i)
     {
-        clip.AddFrame(Animation::KeyFrame{DUMMY_FRAME_TIME_DELTA * (float)i, {{0, Animation::JointTransform{}}}});
+        clip.AddFrame(Animation::KeyFrame{{DUMMY_FRAME_TIME_DELTA * (float)i}, {{0, Animation::JointTransform{}}}});
     }
-    DEBUG_LOG("addDummyClip : " + name + " Length : " + std::to_string(clip.GetLength()));
+    LOG_DEBUG << "addDummyClip : " << name << " Length : " << clip.GetLength();
     animator_->AddAnimationClip(name, clip);
 }
 
 void CharacterControllerTests::Update(float time)
 {
-    DEBUG_LOG("Update deltaTime: " + std::to_string(time));
+    LOG_DEBUG << "Update deltaTime: " << time;
     context_.time_.deltaTime = time;
     componentController_.CallFunctions(FunctionType::Update);
 }
@@ -313,12 +314,12 @@ void CharacterControllerTests::expectAnimsToBeSet(const std::vector<std::string>
 
     for (const auto& name : names)
     {
-        DEBUG_LOG("Expected : " + name);
+        LOG_DEBUG << "Expected : " << name;
     }
 
     for (const auto& name : animator_->getCurrentAnimationName())
     {
-        DEBUG_LOG("Current  : " + name);
+        LOG_DEBUG << "Current  : " << name;
         auto iter = std::find(names.begin(), names.end(), name);
         EXPECT_TRUE(iter != names.end());
     }
@@ -338,9 +339,9 @@ void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveS
 {
     auto normalizedDir = glm::normalize(dir);
     auto velocity      = normalizedDir * glm::length(moveSpeed * normalizedDir);
-    DEBUG_LOG("Expected dir : " + std::to_string(dir));
-    DEBUG_LOG("Expected speed : " + std::to_string(moveSpeed));
-    DEBUG_LOG("Expected velocity : " + std::to_string(velocity));
+    LOG_DEBUG << "Expected dir : " << dir;
+    LOG_DEBUG << "Expected speed : " << moveSpeed;
+    LOG_DEBUG << "Expected velocity : " << velocity;
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(currentVelocity));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, velocity))
@@ -350,7 +351,7 @@ void CharacterControllerTests::expectVelocity(const vec3& dir, const vec3& moveS
 
 void CharacterControllerTests::expectForwardVelocity(float speed)
 {
-    DEBUG_LOG("Expected speed : " + std::to_string(speed));
+    LOG_DEBUG << "Expected speed : " << speed;
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
     EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.0, 0.0, speed)))
@@ -376,7 +377,7 @@ void CharacterControllerTests::expectRotatation(float deltaTime, float rotateSpe
 {
     auto rotation = createRotaion(rotateSpeed, deltaTime);
 
-    DEBUG_LOG("Expected rotation : " + std::to_string(rotation.value_));
+    /* LOG TO FIX*/ LOG_ERROR << ("Expected rotation : " + std::to_string(rotation.value_));
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));
     EXPECT_CALL(physicsApiMock_, SetRotation(rigidbodyid, Matcher<const Quaternion&>(rotation.value_))).Times(AtLeast(1));
 }
@@ -403,8 +404,8 @@ void CharacterControllerTests::expectRootboneRotation(const vec3& dir)
     EXPECT_NEAR(currentBoneRotation.z, expectedBoneRotation.z, std::numeric_limits<float>::epsilon());
     EXPECT_NEAR(currentBoneRotation.w, expectedBoneRotation.w, std::numeric_limits<float>::epsilon());
 
-    DEBUG_LOG("Expected bone rotation : " + std::to_string(expectedBoneRotation) + ", eurler " +
-              std::to_string(Rotation(expectedBoneRotation).GetEulerDegrees().value));
-    DEBUG_LOG("Current bone rotation : " + std::to_string(currentBoneRotation) + ", eurler " +
-              std::to_string(Rotation(currentBoneRotation).GetEulerDegrees().value));
+    /* LOG TO FIX*/ LOG_ERROR << ("Expected bone rotation : " + std::to_string(expectedBoneRotation) + ", eurler " +
+                                  std::to_string(Rotation(expectedBoneRotation).GetEulerDegrees().value));
+    /* LOG TO FIX*/ LOG_ERROR << ("Current bone rotation : " + std::to_string(currentBoneRotation) + ", eurler " +
+                                  std::to_string(Rotation(currentBoneRotation).GetEulerDegrees().value));
 }

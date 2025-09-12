@@ -94,7 +94,7 @@ std::vector<std::string> FindFilesWithExtension(const std::string& dir, const st
     }
     catch (...)
     {
-        ERROR_LOG("Find files error. searching files with extension : " + extension + " in dir : " + dir);
+        /* LOG TO FIX*/  LOG_ERROR << ("Find files error. searching files with extension : " + extension + " in dir : " + dir);
     }
 
     return result;
@@ -206,12 +206,12 @@ std::string GetAbsolutePath(const std::string& file)
     }
     catch (const std::filesystem::filesystem_error& e)
     {
-        ERROR_LOG(e.what());
+        /* LOG TO FIX*/  LOG_ERROR << (e.what());
         return file;
     }
     catch (...)
     {
-        ERROR_LOG("error " + file);
+        /* LOG TO FIX*/  LOG_ERROR << ("error " + file);
         return file;
     }
 }
@@ -224,12 +224,12 @@ std::string GetAbsoluteParentPath(const std::string& file)
     }
     catch (const std::filesystem::filesystem_error& e)
     {
-        ERROR_LOG(e.what());
+        /* LOG TO FIX*/  LOG_ERROR << (e.what());
         return file;
     }
     catch (...)
     {
-        ERROR_LOG("error " + file);
+        /* LOG TO FIX*/  LOG_ERROR << ("error " + file);
         return file;
     }
 }
@@ -278,12 +278,12 @@ std::string GetRelativePath(const std::string& absoultePath, const std::string& 
     }
     catch (const std::filesystem::filesystem_error& e)
     {
-        ERROR_LOG(e.what());
+        /* LOG TO FIX*/  LOG_ERROR << (e.what());
         return absoultePath;
     }
     catch (...)
     {
-        ERROR_LOG("error " + absoultePath);
+        /* LOG TO FIX*/  LOG_ERROR << ("error " + absoultePath);
         return absoultePath;
     }
 }
@@ -297,17 +297,17 @@ std::string CreateBackupFile(const std::string& output)
             auto backupFile = output + ".backup";
             if (std::filesystem::exists(backupFile))
             {
-                DEBUG_LOG("Remove old backup file " + backupFile);
+                /* LOG TO FIX*/  LOG_ERROR << ("Remove old backup file " + backupFile);
                 std::filesystem::remove(backupFile);
             }
 
             std::filesystem::copy(output, backupFile);
-            DEBUG_LOG("Backup created. " + backupFile);
+            /* LOG TO FIX*/  LOG_ERROR << ("Backup created. " + backupFile);
             return backupFile;
         }
         catch (...)
         {
-            ERROR_LOG("Create backup error. " + output);
+            /* LOG TO FIX*/  LOG_ERROR << ("Create backup error. " + output);
         }
     }
 
@@ -331,7 +331,7 @@ void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& o
 
             if (startFileNamePos >= endNamePos)
             {
-                ERROR_LOG(fullPath + " : inncorect include line : " + line);
+                /* LOG TO FIX*/  LOG_ERROR << (fullPath + " : inncorect include line : " + line);
                 continue;
             }
 
@@ -365,7 +365,7 @@ std::string ReadFilesWithIncludes(const std::string& filename)
     }
     catch (...)
     {
-        ERROR_LOG(filename + " including error");
+        /* LOG TO FIX*/  LOG_ERROR << (filename + " including error");
     }
     return sourceCode.str();
 }
@@ -379,7 +379,7 @@ void CreateEmptyFile(const std::string& filename)
     }
     catch (...)
     {
-        ERROR_LOG("Create file error : " + filename);
+        /* LOG TO FIX*/  LOG_ERROR << ("Create file error : " + filename);
     }
 }
 void RenameFile(const std::string& path, const std::string& newName)
@@ -390,7 +390,7 @@ void RenameFile(const std::string& path, const std::string& newName)
     }
     catch (...)
     {
-        DEBUG_LOG("rename error");
+        /* LOG TO FIX*/  LOG_ERROR << ("rename error");
     }
 }
 void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::path& destFolder)

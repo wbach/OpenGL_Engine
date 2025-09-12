@@ -1,11 +1,64 @@
+#include <Logger/Log.h>
 #include <Utils/IdPool.h>
 #include <gtest/gtest.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <optional>
-#include <string>
+#include <sstream>
+#include <unordered_map>
+#include <vector>
 
 using namespace Utils;
+
+TEST(StreamOperator, unorderedMapStream)
+{
+    std::stringstream o;
+    std::unordered_map<int, std::string> map{{1, "str"}};
+    o << map;
+
+    LOG_DEBUG << map;
+
+    std::string output = o.str();
+    EXPECT_NE(output.find("1"), std::string::npos);
+    EXPECT_NE(output.find("str"), std::string::npos);
+}
+
+TEST(StreamOperator, mapStream)
+{
+    std::stringstream o;
+    std::map<int, std::string> map{{1, "str"}};
+    o << map;
+
+    LOG_DEBUG << map;
+
+    std::string output = o.str();
+    EXPECT_NE(output.find("1"), std::string::npos);
+    EXPECT_NE(output.find("str"), std::string::npos);
+}
+
+TEST(StreamOperator, vectorStream)
+{
+    std::stringstream o;
+    std::vector<int> v{1};
+    o << v;
+
+    LOG_DEBUG << v;
+
+    std::string output = o.str();
+    EXPECT_NE(output.find("1"), std::string::npos);
+}
+
+TEST(StreamOperator, setStream)
+{
+    std::stringstream o;
+    std::set<int> v{1};
+    o << v;
+
+    LOG_DEBUG << v;
+
+    std::string output = o.str();
+    EXPECT_NE(output.find("1"), std::string::npos);
+}
 
 TEST(idPool, simpleNextId)
 {
@@ -67,7 +120,6 @@ TEST(FilesystemUtils, getRelativePathToFile_inSubSameFolder)
     EXPECT_TRUE(v.has_value());
     EXPECT_EQ(v.value(), "sub");
 }
-
 
 TEST(FilesystemUtils, getRelativePathToFile_inDeeperInSubSameFolder)
 {

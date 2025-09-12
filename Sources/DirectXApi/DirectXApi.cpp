@@ -7,6 +7,7 @@
 #include <xnamath.h>
 #undef CreateFont
 #undef CreateWindow
+#include <Utils/Container.h>
 #include <Utils/Variant.h>
 
 #include <algorithm>
@@ -26,7 +27,6 @@
 #include "Vao.h"
 #include "Vertex.h"
 #include "WinApi/WinApi.h"
-#include <Utils/Container.h>
 
 namespace DirectX
 {
@@ -54,8 +54,7 @@ struct Triangle : public Vao
 {
     Triangle()
     {
-        vertexes_ = {
-            {vec3(0.0, 0.5, 0.5), vec2(0, 0)}, {vec3(0.5, -0.5, 0.5), vec2(0, 1)}, {vec3(-0.5, -0.5, 0.5), vec2(1, 1)}};
+        vertexes_ = {{vec3(0.0, 0.5, 0.5), vec2(0, 0)}, {vec3(0.5, -0.5, 0.5), vec2(0, 1)}, {vec3(-0.5, -0.5, 0.5), vec2(1, 1)}};
     }
 };
 
@@ -129,17 +128,17 @@ HRESULT InitDevice(DirectXContext &directXContext)
 
         if (SUCCEEDED(hr))
         {
-            DEBUG_LOG("Use driver : " + driverTypesStr[driverTypeIndex]);
+            LOG_DEBUG << "Use driver : " + driverTypesStr[driverTypeIndex];
             break;
         }
         else
         {
-            ERROR_LOG("Can not use driver : " + driverTypesStr[driverTypeIndex]);
+            LOG_ERROR << "Can not use driver : " + driverTypesStr[driverTypeIndex];
         }
     }
     if (FAILED(hr))
     {
-        ERROR_LOG("Init device error.");
+        LOG_ERROR << "Init device error.";
         return hr;
     }
 
@@ -323,8 +322,8 @@ void DirectXApi::Init()
 
     D3D11_BLEND_DESC dsc = {false,
                             false,
-                            {true, D3D11_BLEND_SRC_ALPHA, D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND_OP_ADD,
-                             D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD, D3D11_COLOR_WRITE_ENABLE_ALL}};
+                            {true, D3D11_BLEND_SRC_ALPHA, D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND_OP_ADD, D3D11_BLEND_ZERO,
+                             D3D11_BLEND_ZERO, D3D11_BLEND_OP_ADD, D3D11_COLOR_WRITE_ENABLE_ALL}};
 
     auto hr = impl_->dxCondext_.dev->CreateBlendState(&dsc, &impl_->alphaBlendState);
 
@@ -379,7 +378,7 @@ void DirectXApi::InitDepthSetncilView()
     descDepth.BindFlags          = D3D11_BIND_DEPTH_STENCIL;
     descDepth.CPUAccessFlags     = 0;
     descDepth.MiscFlags          = 0;
-    auto hr = impl_->dxCondext_.dev->CreateTexture2D(&descDepth, NULL, &impl_->dxCondext_.depthStencil);
+    auto hr                      = impl_->dxCondext_.dev->CreateTexture2D(&descDepth, NULL, &impl_->dxCondext_.depthStencil);
 
     if (FAILED(hr))
     {
@@ -393,7 +392,7 @@ void DirectXApi::InitDepthSetncilView()
     descDSV.ViewDimension      = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
     hr                         = impl_->dxCondext_.dev->CreateDepthStencilView(impl_->dxCondext_.depthStencil, &descDSV,
-                                                       &impl_->dxCondext_.depthStencilView);
+                                                                               &impl_->dxCondext_.depthStencilView);
     if (FAILED(hr))
     {
         MessageBox(NULL, "CreateDepthStencilView error.", __FUNCTION__, MB_OK);
@@ -422,8 +421,7 @@ void DirectXApi::SetRasterState()
 
 void DirectXApi::SetRenderTargets()
 {
-    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
-                                                 impl_->dxCondext_.depthStencilView);
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView, impl_->dxCondext_.depthStencilView);
 }
 
 void DirectXApi::SetShadersFilesLocations(const std::string &path)
@@ -458,8 +456,8 @@ GraphicsApi::IWindowApi &DirectXApi::GetWindowApi()
 void DirectXApi::PrepareFrame()
 {
     impl_->dxCondext_.devcon->ClearRenderTargetView(impl_->dxCondext_.renderTargetView, bgColor_);
-    impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView,
-                                                    D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    impl_->dxCondext_.devcon->ClearDepthStencilView(impl_->dxCondext_.depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+                                                    1.0f, 0);
 }
 void DirectXApi::SetDefaultTarget()
 {
@@ -479,8 +477,7 @@ const Color &DirectXApi::GetBackgroundColor() const
 }
 void DirectXApi::EnableDepthTest()
 {
-    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView,
-                                                 impl_->dxCondext_.depthStencilView);
+    impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView, impl_->dxCondext_.depthStencilView);
 }
 void DirectXApi::DisableDepthTest()
 {
@@ -498,7 +495,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     DxShader shader;
 
     auto vsShaderFileName = shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER);
-    DEBUG_LOG("Compiling " + vsShaderFileName + "...");
+    LOG_DEBUG << "Compiling " << vsShaderFileName << "...";
     auto hr = CompileShaderFromFile(vsShaderFileName, "VS", "vs_4_0", &shader.blob_.vertex_);
 
     if (FAILED(hr))
@@ -542,7 +539,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
 
     auto fragmentShaderFile = shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER);
-    DEBUG_LOG("Compiling " + fragmentShaderFile + "...");
+    LOG_DEBUG << "Compiling " << fragmentShaderFile << "...";
     hr = CompileShaderFromFile(fragmentShaderFile, "PS", "ps_4_0", &shader.blob_.pixel_);
 
     if (FAILED(hr))
@@ -553,8 +550,8 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     }
 
     // Create the pixel shader
-    hr = impl_->dxCondext_.dev->CreatePixelShader(shader.blob_.pixel_->GetBufferPointer(),
-                                                  shader.blob_.pixel_->GetBufferSize(), NULL, &shader.pixel_);
+    hr = impl_->dxCondext_.dev->CreatePixelShader(shader.blob_.pixel_->GetBufferPointer(), shader.blob_.pixel_->GetBufferSize(),
+                                                  NULL, &shader.pixel_);
     shader.blob_.Release();
 
     if (FAILED(hr))
@@ -564,7 +561,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     }
 
     impl_->shaders_.push_back(shader);
-    DEBUG_LOG("Shader created : " + vsShaderFileName);
+    LOG_DEBUG << "Shader created : " << vsShaderFileName;
     return impl_->shaders_.size();
 }
 void DirectXApi::UseShader(uint32 id)
@@ -654,7 +651,7 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
 
     if (FAILED(result))
     {
-        ERROR_LOG("Create CreateTexture2D failed.");
+        LOG_ERROR << "Create CreateTexture2D failed.";
         return nullptr;
     }
 
@@ -669,7 +666,7 @@ ID3D11ShaderResourceView *CreateTexture2DDesc(DirectXContext &context, const vec
     texture2d->Release();
     if (FAILED(result))
     {
-        ERROR_LOG("Create shaderResourceView failed.");
+        LOG_ERROR << "Create shaderResourceView failed.";
         return nullptr;
     }
     context.devcon->GenerateMips(rv);
@@ -683,17 +680,19 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
     auto channels = image.getChannelsCount();
     std::visit(
         visitor{
-            [&](const std::vector<uint8> &data) {
+            [&](const std::vector<uint8> &data)
+            {
                 switch (channels)
                 {
                     case 4:
                         type = GraphicsApi::TextureType::U8_RGBA;
                         break;
                     default:
-                        DEBUG_LOG("Not implmented.");
+                        LOG_ERROR << "Not implmented.";
                 }
             },
-            [&](const std::vector<float> &data) {
+            [&](const std::vector<float> &data)
+            {
                 switch (channels)
                 {
                     case 1:
@@ -709,16 +708,16 @@ GraphicsApi::ID DirectXApi::CreateTexture(const Utils::Image &image, GraphicsApi
                         type = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
                         break;
                     default:
-                        DEBUG_LOG("Not implmented.");
+                        LOG_ERROR << "Not implmented.";
                 }
             },
-            [](std::monostate) { ERROR_LOG("Image data not set!"); },
+            [](std::monostate) { LOG_ERROR << "Image data not set!"; },
         },
         image.getImageData());
 
     if (type != GraphicsApi::TextureType::U8_RGBA)
     {
-        DEBUG_LOG("Not implmented.");
+        LOG_ERROR << "Not implmented.";
         return {};
     }
 
@@ -779,7 +778,7 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6
     HRESULT hr = impl_->dxCondext_.dev->CreateTexture2D(&texDesc, &pData[0], &cubeTexture);
     if (hr != S_OK)
     {
-        ERROR_LOG("CreateTexture2D for cube map error.");
+        LOG_ERROR << "CreateTexture2D for cube map error.";
         return std::nullopt;
     }
 
@@ -788,7 +787,7 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6
     hr = impl_->dxCondext_.dev->CreateShaderResourceView(cubeTexture, &SMViewDesc, &shaderResourceView);
     if (hr != S_OK)
     {
-        ERROR_LOG("CreateShaderResourceView for cube map error.");
+        LOG_ERROR << "CreateShaderResourceView for cube map error.";
         return std::nullopt;
     }
 
@@ -927,8 +926,8 @@ GraphicsApi::ID DirectXApi::CreateMesh(const GraphicsApi::MeshRawData &meshData,
     i = 0;
     for (size_t x = 0; x < meshData.bonesWeights_.size(); x += 4)
     {
-        vao.vertexes_[i].weights = vec4(meshData.bonesWeights_[x], meshData.bonesWeights_[x + 1],
-                                        meshData.bonesWeights_[x + 2], meshData.bonesWeights_[x + 3]);
+        vao.vertexes_[i].weights = vec4(meshData.bonesWeights_[x], meshData.bonesWeights_[x + 1], meshData.bonesWeights_[x + 2],
+                                        meshData.bonesWeights_[x + 3]);
         vao.vertexes_[i++].bonesIds =
             vec4i(meshData.joinIds_[x], meshData.joinIds_[x + 1], meshData.joinIds_[x + 2], meshData.joinIds_[x + 3]);
     }
@@ -1046,19 +1045,19 @@ void DirectXApi::SetBlendFunction(GraphicsApi::BlendFunctionType)
 }
 void DirectXApi::UpdateMatrixes(uint32, const std::vector<mat4> &)
 {
-    DEBUG_LOG("Not implmented.");
+    LOG_ERROR << "Not implmented.";
 }
 void DirectXApi::UpdateMesh(uint32, const GraphicsApi::MeshRawData &, const std::set<VertexBufferObjects> &)
 {
-    DEBUG_LOG("Not implmented.");
+    LOG_ERROR << "Not implmented.";
 }
 void DirectXApi::UpdateLineMesh(uint32, const GraphicsApi::LineMesh &)
 {
-    DEBUG_LOG("Not implmented.");
+    LOG_ERROR << "Not implmented.";
 }
 void DirectXApi::UpdateOffset(uint32, const std::vector<vec4> &)
 {
-    DEBUG_LOG("Not implmented.");
+    LOG_ERROR << "Not implmented.";
 }
 void DirectXApi::UpdateBlend(uint32, const std::vector<float> &)
 {

@@ -37,7 +37,7 @@ IdType IdPool::getId(const std::optional<IdType>& requestedId)
             else
             {
                 auto toReturn = getNextId();
-                WARNING_LOG("Can not allocate id : " + std::to_string(*requestedId) +
+                /* LOG TO FIX*/  LOG_ERROR << ("Can not allocate id : " + std::to_string(*requestedId) +
                             " assign new one : " + std::to_string(toReturn));
                 return toReturn;
             }

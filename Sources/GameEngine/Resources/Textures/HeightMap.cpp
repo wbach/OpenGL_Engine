@@ -15,7 +15,7 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParame
 {
     if (image_.getChannelsCount() > 1)
     {
-        ERROR_LOG("Height map shouldbe one channel float data, but is : " + std::to_string(image.getChannelsCount()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Height map shouldbe one channel float data, but is : " + std::to_string(image.getChannelsCount()));
     }
 
     UpdateMaximumHeight();
@@ -25,11 +25,11 @@ void HeightMap::GpuLoadingPass()
 {
     if (image_.empty() or graphicsObjectId_)
     {
-        ERROR_LOG("There was an error loading the texture : " + file_->GetBaseName() +
+        /* LOG TO FIX*/  LOG_ERROR << ("There was an error loading the texture : " + file_->GetBaseName() +
                   ". floatData is null or is initialized.");
         return;
     }
-    DEBUG_LOG("Create texutre filneame : " + file_->GetBaseName());
+    /* LOG TO FIX*/  LOG_ERROR << ("Create texutre filneame : " + file_->GetBaseName());
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(image_, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
@@ -37,11 +37,11 @@ void HeightMap::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("File " + file_->GetBaseName() + " is in GPU.");
+        /* LOG TO FIX*/  LOG_ERROR << ("File " + file_->GetBaseName() + " is in GPU.");
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + file_->GetBaseName());
+        /* LOG TO FIX*/  LOG_ERROR << ("Texutre not created. Filename : " + file_->GetBaseName());
     }
 }
 const Utils::Image& HeightMap::GetImage() const
@@ -74,7 +74,7 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
 {
     if (image_.getChannelsCount() > 1)
     {
-        ERROR_LOG("Only one channel in height map is supported");
+        /* LOG TO FIX*/  LOG_ERROR << ("Only one channel in height map is supported");
         return false;
     }
 
@@ -115,7 +115,7 @@ bool HeightMap::UpdateMaximumHeight()
                            maximumHeight = *std::max_element(data.begin(), data.end());
                            minimumHeight = *std::min_element(data.begin(), data.end());
                        },
-                       [](std::monostate) { ERROR_LOG("Image data not set!."); }},
+                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Image data not set!."); }},
                image_.getImageData());
 
     if (not compare(maximumHeight_, maximumHeight) or not compare(minimumHeight_, minimumHeight))

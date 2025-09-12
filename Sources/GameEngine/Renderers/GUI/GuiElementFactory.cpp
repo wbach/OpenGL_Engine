@@ -52,7 +52,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
 
 GuiElementFactory::~GuiElementFactory()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 }
 
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,
@@ -350,7 +350,7 @@ void GuiElementFactory::CreateWindowBar(GuiWindowStyle style, GuiWindowElement &
 
     if (style == GuiWindowStyle::FULL)
     {
-        DEBUG_LOG("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
+        /* LOG TO FIX*/  LOG_ERROR << ("GuiWindowElement::Style::FULL, minimalize, maxmalize buttons not implemented.");
     }
 
     window.SetBar(std::move(horizontalLayout));

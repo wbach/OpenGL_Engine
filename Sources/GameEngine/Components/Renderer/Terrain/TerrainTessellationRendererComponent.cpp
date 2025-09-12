@@ -69,7 +69,7 @@ void TerrainTessellationRendererComponent::HeightMapChanged()
     }
     else
     {
-        ERROR_LOG("Unknown height map file.");
+        LOG_ERROR << "Unknown height map file.";
     }
 }
 void TerrainTessellationRendererComponent::CleanUp()

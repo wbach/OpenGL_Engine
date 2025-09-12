@@ -61,7 +61,7 @@ bool compare(float x, float y, float epsilon)
 
 float getRandomFloat()
 {
-    //return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+    // return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     return getRandomFloat(0.f, 1.f);
 }
 
@@ -110,7 +110,7 @@ std::string to_string(const glm::mat4& m)
     return s;
 }
 template <>
-string to_string(const std::optional<string> &maybeValue)
+string to_string(const optional<string>& maybeValue)
 {
     if (maybeValue)
     {

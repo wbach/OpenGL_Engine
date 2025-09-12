@@ -6,12 +6,8 @@
 
 #include <math.hpp>
 
-#include "GameEngine/Camera/Camera.h"
-#include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
@@ -70,7 +66,7 @@ void ShadowMapRenderer::init()
 
     entityRenderer_.init();
 
-    GraphicsApi::FrameBuffer::Attachment depthAttachment(*EngineConf.renderer.shadows.mapSize,
+    GraphicsApi::FrameBuffer::Attachment depthAttachment(vec2ui(*EngineConf.renderer.shadows.mapSize),
                                                          GraphicsApi::FrameBuffer::Type::Depth,
                                                          GraphicsApi::FrameBuffer::Format::Depth);
 
@@ -82,7 +78,7 @@ void ShadowMapRenderer::init()
 
     if (not perFrameBuffer_)
     {
-        ERROR_LOG("Shadow perframebuffer creation error.");
+        LOG_ERROR << "Shadow perframebuffer creation error.";
         shader_.Clear();
         return;
     }
@@ -104,7 +100,7 @@ void ShadowMapRenderer::init()
         {
             context_.graphicsApi_.DeleteFrameBuffer(*shadowFrameBuffer);
             shadowFrameBuffer = nullptr;
-            ERROR_LOG("Shadow framebuffer creation error.");
+            LOG_ERROR << "Shadow framebuffer creation error.";
             shader_.Clear();
             return;
         }

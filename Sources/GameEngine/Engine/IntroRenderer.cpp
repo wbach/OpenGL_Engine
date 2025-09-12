@@ -22,7 +22,7 @@ IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourc
 }
 IntroRenderer::~IntroRenderer()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 }
 
 void IntroRenderer::Render()

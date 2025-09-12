@@ -8,7 +8,7 @@ namespace GameEngine
 {
 namespace WBLoader
 {
-long FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v)
+long FindIndex(const std::list<vec3i>& vertexes, const vec3i& v)
 {
     auto it    = std::find(vertexes.begin(), vertexes.end(), v);
     auto index = std::distance(vertexes.begin(), it);
@@ -16,7 +16,7 @@ long FindIndex(const std::list<wb::vec3i>& vertexes, const wb::vec3i& v)
     return static_cast<long>(it != vertexes.end() ? index : -1);
 }
 
-std::optional<int32> FindIndexFast(std::unordered_map<wb::vec3i, int32>& vertexes, const wb::vec3i& v)
+std::optional<int32> FindIndexFast(std::unordered_map<vec3i, int32>& vertexes, const vec3i& v)
 {
     auto it = vertexes.find(v);
 

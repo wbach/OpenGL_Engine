@@ -16,7 +16,7 @@ void Dispacher::AddHandlers(Handlers handlers)
         }
         else
         {
-            DEBUG_LOG("Handler already exist.");
+            LOG_DEBUG << "Handler already exist.";
         }
     }
 }
@@ -35,7 +35,7 @@ void Dispacher::Dispatch(uint32 userId, const Network::IMessage& message)
 
     if (not result)
     {
-        DEBUG_LOG("Handler not found. Dispacher::Dispatch message missed.");
+        LOG_DEBUG << "Handler not found. Dispacher::Dispatch message missed.";
     }
 }
 void Dispacher::RemoveHandler(const std::string& label)

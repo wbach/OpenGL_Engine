@@ -169,6 +169,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
 // clang-format on
 {
     // Init();
+    LOG_DEBUG << "xx";
 }
 
 void MainFrame::Init()
@@ -385,7 +386,7 @@ void MainFrame::ClearScene()
 
 void MainFrame::OnClose(wxCloseEvent& event)
 {
-    DEBUG_LOG("OnClose");
+    /* LOG TO FIX*/  LOG_ERROR << ("OnClose");
     isRunning = false;
     if (loadSceneThread.joinable())
     {
@@ -529,7 +530,7 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
         auto worldPosition = gameObject->GetWorldTransform().GetPosition();
         auto worldRotation = gameObject->GetWorldTransform().GetRotation();
         auto worldScale    = gameObject->GetWorldTransform().GetScale();
-        DEBUG_LOG("NewGameObj add");
+        /* LOG TO FIX*/  LOG_ERROR << ("NewGameObj add");
         parentGameObject->AddChild(std::move(gameObject));
         go->SetWorldPosition(worldPosition);
         go->SetWorldRotation(worldRotation);
@@ -537,7 +538,7 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
     }
     else
     {
-        DEBUG_LOG("NewGameObj add");
+        /* LOG TO FIX*/  LOG_ERROR << ("NewGameObj add");
         canvas->GetScene().AddGameObject(std::move(gameObject));
     }
 
@@ -981,7 +982,7 @@ void MainFrame::UpdateTimeOnToolbar()
     auto [hour, minute, _] = canvas->GetScene().GetDayNightCycle().GetHourMinuteSecond();
     int totalMinutes       = hour * 60 + minute;
 
-    DEBUG_LOG("hour: " + std::to_string(hour) + " minute: " + std::to_string(minute));
+    /* LOG TO FIX*/  LOG_ERROR << ("hour: " + std::to_string(hour) + " minute: " + std::to_string(minute));
     timeSlider->SetValue(totalMinutes);
     hourCtrl->SetValue(hour);
     minuteCtrl->SetValue(minute);
@@ -1275,7 +1276,7 @@ void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
     int selection = event.GetSelection();  // indeks nowej aktywnej strony
     if (transfromSubController)
     {
-        DEBUG_LOG("selection = " + std::to_string(selection));
+        /* LOG TO FIX*/  LOG_ERROR << ("selection = " + std::to_string(selection));
         transfromSubController->ChangeState(static_cast<TransfromSubController::State>(selection));
     }
     // ... twoja logika ...
@@ -1488,7 +1489,7 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
     , gameObjectId{goId}
     , state{State::world}
 {
-    DEBUG_LOG("SubscribeCurrent");
+    /* LOG TO FIX*/  LOG_ERROR << ("SubscribeCurrent");
     SubscribeCurrent();
     for (auto& panel : transformPanels)
     {
@@ -1545,7 +1546,7 @@ void TransfromSubController::ChangeGameObject(GameObjectId goId)
 {
     if (gameObjectId != goId)
     {
-        DEBUG_LOG("ChangeGameObject " + std::to_string(goId));
+        /* LOG TO FIX*/  LOG_ERROR << ("ChangeGameObject " + std::to_string(goId));
         UnsubscribeCurrent();
         gameObjectId = goId;
         SubscribeCurrent();
@@ -1556,7 +1557,7 @@ void TransfromSubController::ChangeState(State s)
 {
     if (state != s)
     {
-        DEBUG_LOG("State " + std::to_string(static_cast<int>(s)));
+        /* LOG TO FIX*/  LOG_ERROR << ("State " + std::to_string(static_cast<int>(s)));
         UnsubscribeCurrent();
         state = s;
         SubscribeCurrent();
@@ -1572,13 +1573,13 @@ void TransfromSubController::SubscribeCurrent()
 
         if (state == State::world)
         {
-            DEBUG_LOG("Sub world, " + go->GetName());
+            /* LOG TO FIX*/  LOG_ERROR << ("Sub world, " + go->GetName());
             subId = go->SubscribeOnWorldTransfomChange(updatePanel);
             transformPanels[state]->set(go->GetWorldTransform());
         }
         else
         {
-            DEBUG_LOG("Sub local, " + go->GetName());
+            /* LOG TO FIX*/  LOG_ERROR << ("Sub local, " + go->GetName());
             subId = go->GetTransform().SubscribeOnChange(updatePanel);
             transformPanels[state]->set(go->GetTransform());
         }
@@ -1594,12 +1595,12 @@ void TransfromSubController::UnsubscribeCurrent()
         {
             if (state == State::world)
             {
-                DEBUG_LOG("Unsub worl, " + go->GetName());
+                /* LOG TO FIX*/  LOG_ERROR << ("Unsub worl, " + go->GetName());
                 go->UnsubscribeOnWorldTransfromChange(*subId);
             }
             else
             {
-                DEBUG_LOG("Uub local, " + go->GetName());
+                /* LOG TO FIX*/  LOG_ERROR << ("Uub local, " + go->GetName());
                 go->GetTransform().UnsubscribeOnChange(*subId);
             }
         }

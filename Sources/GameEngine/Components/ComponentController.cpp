@@ -1,6 +1,7 @@
 #include "ComponentController.h"
 
 #include <algorithm>
+#include <magic_enum/magic_enum.hpp>
 
 #include "Logger/Log.h"
 
@@ -15,13 +16,15 @@ ComponentController::ComponentController()
 }
 ComponentController::~ComponentController()
 {
-    DEBUG_LOG("destructor");
-
-    for (auto& [type, functionMap] : functions_)
+    for (auto& [gameObjectId, functionMap] : functions_)
     {
         if (functionMap.size() > 0)
         {
-            WARNING_LOG("Some funstion left. GameObjectId := " + std::to_string(type));
+            LOG_WARN << "Some funstion left. GameObjectId : " << gameObjectId;
+            for (const auto& [type, _] : functionMap)
+            {
+                LOG_WARN << " GameObjectId : " << gameObjectId << "Function type " << magic_enum::enum_name(type);
+            }
         }
     }
 
@@ -29,7 +32,7 @@ ComponentController::~ComponentController()
     {
         if (componentMap.size() > 0)
         {
-            WARNING_LOG("Some components left. Type : " + std::to_string(type));
+            LOG_WARN << "Some components left. Type : " << type;
         }
     }
 }
@@ -59,7 +62,7 @@ void ComponentController::UnRegisterComponent(IComponent::Type type, ComponentId
     }
     else
     {
-        WARNING_LOG("ComponentsType not found.");
+        LOG_WARN << "ComponentsType not found.";
     }
 }
 void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type, uint32 id)
@@ -83,7 +86,7 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
     }
     else
     {
-        WARNING_LOG("Function not found.");
+        LOG_WARN << "Function not found.";
     }
 }
 
@@ -105,19 +108,18 @@ void ComponentController::setActivateStateOfComponentFunction(ComponentControlle
             }
             else
             {
-                ERROR_LOG("Function id=" + std::to_string(id) + "of type{" + std::to_string(static_cast<int>(type)) +
-                          "} not found for gameObjectId=" + std::to_string(gameObjectId));
+                LOG_ERROR << "Function id=" << id << "of type{"
+                          << magic_enum::enum_name(type) << "} not found for gameObjectId=" << gameObjectId;
             }
         }
         else
         {
-            ERROR_LOG("Function type{" + std::to_string(static_cast<int>(type)) +
-                      "} not found for gameObjectId=" + std::to_string(gameObjectId));
+            LOG_ERROR << "Function type{" << magic_enum::enum_name(type) << "} not found for gameObjectId=" << gameObjectId;
         }
     }
     else
     {
-        ERROR_LOG("GameObject not found, gameObjectId=" + std::to_string(gameObjectId));
+        LOG_ERROR << "GameObject not found, gameObjectId=" << gameObjectId;
     }
 }
 
@@ -141,19 +143,18 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
             }
             else
             {
-                ERROR_LOG("Can not call function type{" + std::to_string(static_cast<int>(type)) +
-                          "} for gameObjectId=" + std::to_string(gameObjectId));
+                LOG_ERROR << "Can not call function type{" << magic_enum::enum_name(type)
+                          << "} for gameObjectId=" << gameObjectId;
             }
         }
         else
         {
-            ERROR_LOG("Function type{" + std::to_string(static_cast<int>(type)) +
-                      "} not found for gameObjectId=" + std::to_string(gameObjectId));
+            LOG_ERROR << "Function type{" << magic_enum::enum_name(type) << "} not found for gameObjectId=" << gameObjectId;
         }
     }
     else
     {
-        ERROR_LOG("GameObject not found, gameObjectId=" + std::to_string(gameObjectId));
+        LOG_ERROR << "GameObject not found, gameObjectId=" << gameObjectId;
     }
 }
 

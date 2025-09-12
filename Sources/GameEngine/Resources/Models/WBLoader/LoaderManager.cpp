@@ -30,7 +30,7 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParame
 
     if (loaderPtr == nullptr)
     {
-        ERROR_LOG("Try parse unkonwn file extension : " + file.GetExtension());
+        /* LOG TO FIX*/  LOG_ERROR << ("Try parse unkonwn file extension : " + file.GetExtension());
         return nullptr;
     }
 

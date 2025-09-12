@@ -247,7 +247,7 @@ void GuiButtonElement::UnsubscribeInputAction()
     }
     else
     {
-        ERROR_LOG("Subscribtion not exist.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Subscribtion not exist.");
     }
 }
 

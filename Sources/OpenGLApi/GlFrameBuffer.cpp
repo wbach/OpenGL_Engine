@@ -73,7 +73,7 @@ FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuf
 
 FrameBuffer::~FrameBuffer()
 {
-    DEBUG_LOG(std::to_string(GetId()));
+    /* LOG TO FIX*/  LOG_ERROR << (std::to_string(GetId()));
 }
 
 bool FrameBuffer::Init()
@@ -82,7 +82,7 @@ bool FrameBuffer::Init()
     auto errorString = GetGlError();
     if (not errorString.empty())
     {
-        ERROR_LOG(errorString);
+        /* LOG TO FIX*/  LOG_ERROR << (errorString);
         return false;
     }
     Bind();
@@ -91,11 +91,11 @@ bool FrameBuffer::Init()
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
-        ERROR_LOG("Framebuffer error, status: " + std::to_string(status));
+        /* LOG TO FIX*/  LOG_ERROR << ("Framebuffer error, status: " + std::to_string(status));
         UnBind();
         return false;
     }
-    DEBUG_LOG("Succesful create framebuffer. " + std::to_string(GetId()) + ", glId :" + std::to_string(glId_));
+    /* LOG TO FIX*/  LOG_ERROR << ("Succesful create framebuffer. " + std::to_string(GetId()) + ", glId :" + std::to_string(glId_));
     UnBind();
     return true;
 }
@@ -131,7 +131,7 @@ void FrameBuffer::UnBind()
     auto errorString = GetGlError();
     if (not errorString.empty())
     {
-        ERROR_LOG(errorString + ", framebuffer id " + std::to_string(GetId()));
+        /* LOG TO FIX*/  LOG_ERROR << (errorString + ", framebuffer id " + std::to_string(GetId()));
     }
 }
 
@@ -195,7 +195,7 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
                     format = GL_RGBA;
                     break;
                 default:
-                    ERROR_LOG("Undef format.");
+                    /* LOG TO FIX*/  LOG_ERROR << ("Undef format.");
                     continue;
             }
         }
@@ -255,7 +255,7 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         auto errorString = GetGlError();
         if (not errorString.empty())
         {
-            ERROR_LOG(errorString);
+            /* LOG TO FIX*/  LOG_ERROR << (errorString);
             continue;
         }
 

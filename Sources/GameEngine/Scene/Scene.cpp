@@ -44,7 +44,7 @@ Scene::~Scene()
         physicsApi_->DisableSimulation();
     }
 
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 
     networkEditorInterface_.reset();
 
@@ -136,7 +136,7 @@ void Scene::PostUpdate()
 
 void Scene::Start()
 {
-    DEBUG_LOG("Start");
+    /* LOG TO FIX*/  LOG_ERROR << ("Start");
     start_.store(true);
     componentController_.OnStart();
 
@@ -146,7 +146,7 @@ void Scene::Start()
 
 void Scene::Stop()
 {
-    DEBUG_LOG("Stop");
+    /* LOG TO FIX*/  LOG_ERROR << ("Stop");
     start_.store(false);
     if (physicsApi_)
         physicsApi_->DisableSimulation();
@@ -212,7 +212,7 @@ void Scene::ChangeParent(GameObject& gameObject, GameObject& newParent)
 
     if (not currentParent)
     {
-        DEBUG_LOG("Root gameObject can not be moved");
+        /* LOG TO FIX*/  LOG_ERROR << ("Root gameObject can not be moved");
         return;
     }
 
@@ -275,7 +275,7 @@ GameObject& Scene::GetRootGameObject()
 {
     if (not rootGameObject_)
     {
-        ERROR_LOG("Something went wrong. Not initilized scene?");
+        /* LOG TO FIX*/  LOG_ERROR << ("Something went wrong. Not initilized scene?");
     }
     return *rootGameObject_;
 }

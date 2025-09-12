@@ -62,7 +62,7 @@ SdlOpenGlApi::SdlOpenGlApi()
 
 SdlOpenGlApi::~SdlOpenGlApi()
 {
-    DEBUG_LOG("destructor");
+    LOG_DEBUG << "destructor";
     if (impl_->window)
     {
         SDL_DestroyWindow(impl_->window);
@@ -110,12 +110,12 @@ void SdlOpenGlApi::CreateContext()
     if (impl_->glContext)
         return;
 
-    ERROR_LOG("SDL_GL_CreateContext error.");
+    LOG_ERROR << "SDL_GL_CreateContext error.";
 }
 
 void SdlOpenGlApi::DeleteContext()
 {
-    DEBUG_LOG("DeleteContext");
+    LOG_ERROR << "DeleteContext";
     SDL_GL_DeleteContext(impl_->glContext);
 }
 
@@ -194,7 +194,7 @@ void SdlOpenGlApi::ShowMessageBox(const std::string& title, const std::string& m
     int buttonid;
     if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0)
     {
-        ERROR_LOG("error displaying message box");
+        LOG_ERROR << "error displaying message box";
         return;
     }
 
@@ -217,7 +217,7 @@ void SdlOpenGlApi::FillDisplayModes()
         {
             if (SDL_GetDisplayMode(displayIndex, modeIndex, &mode) != 0)
             {
-                ERROR_LOG("SDL_GetDisplayMode failed: " + SDL_GetError());
+                LOG_ERROR << "SDL_GetDisplayMode failed: " << SDL_GetError();
                 continue;
             }
             displayModes_.push_back({mode.w, mode.h, mode.refresh_rate, displayIndex});
@@ -251,7 +251,7 @@ void SdlOpenGlApi::CreateSDLWindow(const std::string& window_name, const int& wi
     if (impl_->window)
         return;
 
-    ERROR_LOG("SDL_CreateWindow error. " + SDL_GetError());
+    LOG_ERROR << "SDL_CreateWindow error. " << SDL_GetError();
     exit(-1);
 }
 
@@ -314,7 +314,7 @@ void SdlOpenGlApi::ProcessSdlEvent()
             {
                 subscriber(GraphicsApi::DropFileEvent{impl_->event.drop.file});
             }
-            DEBUG_LOG("Drop file : " + impl_->event.drop.file);
+            LOG_ERROR << "Drop file : " << impl_->event.drop.file;
         }
         break;
     }

@@ -105,7 +105,7 @@ void Read(const TreeNode& node, float& v)
     }
     catch (...)
     {
-        ERROR_LOG("read error " + node.value_);
+        /* LOG TO FIX*/  LOG_ERROR << ("read error " + node.value_);
     }
 }
 
@@ -147,7 +147,7 @@ void Read(const TreeNode& node, vec3& v)
     }
     catch (...)
     {
-        ERROR_LOG("Read error");
+        /* LOG TO FIX*/  LOG_ERROR << ("Read error");
     }
 }
 void Read(const TreeNode& node, vec4& v)
@@ -161,7 +161,7 @@ void Read(const TreeNode& node, vec4& v)
     }
     catch (...)
     {
-        ERROR_LOG("Read error");
+        /* LOG TO FIX*/  LOG_ERROR << ("Read error");
     }
 }
 
@@ -176,7 +176,7 @@ void Read(const TreeNode& node, Quaternion& v)
     }
     catch (...)
     {
-        ERROR_LOG("Read error");
+        /* LOG TO FIX*/  LOG_ERROR << ("Read error");
     }
 }
 

@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/SceneWriter.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -50,21 +51,21 @@ void BowPoseUpdater::ReqisterFunctions()
 
             if (not parent)
             {
-                WARNING_LOG("Parent not found.");
+                LOG_WARN << "Parent not found.";
                 return;
             }
 
             auto animator = parent->GetComponent<Animator>();
             if (not animator)
             {
-                WARNING_LOG("Animator not found");
+                LOG_WARN << "Animator not found";
                 return;
             }
             auto equipJoint = animator->GetJoint(equipJointName_);
 
             if (not equipJoint)
             {
-                WARNING_LOG("equip joint: \"" + equipJointName_ + "\" not found");
+                LOG_WARN << "equip joint: \"" << equipJointName_ << "\" not found";
                 return;
             }
 
@@ -72,7 +73,7 @@ void BowPoseUpdater::ReqisterFunctions()
 
             if (not disarmJoint)
             {
-                WARNING_LOG("disam joint: \"" + disarmJointName_ + "\" not found");
+                LOG_WARN << "disam joint: \"" << disarmJointName_ << "\" not found";
                 return;
             }
 
@@ -80,7 +81,7 @@ void BowPoseUpdater::ReqisterFunctions()
 
             if (not rendererCopmponent)
             {
-                WARNING_LOG("RendererComponent not found");
+                LOG_WARN << "RendererComponent not found";
                 return;
             }
 
@@ -88,7 +89,7 @@ void BowPoseUpdater::ReqisterFunctions()
 
             if (not model or model->GetMeshes().empty())
             {
-                WARNING_LOG("Mesh not found");
+                LOG_WARN << "Mesh not found";
                 return;
             }
             auto meshTransform = model->GetMeshes().front().GetMeshTransform();

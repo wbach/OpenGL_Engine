@@ -64,7 +64,7 @@ bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
     {
         --clientsCount_;
         userIter = notAuthenticatedUsers.erase(userIter);
-        DEBUG_LOG("Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
         return true;
     }
 
@@ -114,14 +114,14 @@ bool ConnectionManager::ProccessAuthentication(Users::iterator& userIter)
         for (auto s : newUserSubscribes_)
             s(name, connectedUserId);
 
-        DEBUG_LOG(name + " connected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+        /* LOG TO FIX*/  LOG_ERROR << (name + " connected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
     }
     else
     {
         ConnectionMessage conMsg(errorConnectionStatus);
         sender_.SendTcp(user->socket, conMsg);
         --clientsCount_;
-        DEBUG_LOG(errorString + name + ". Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+        /* LOG TO FIX*/  LOG_ERROR << (errorString + name + ". Disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
     }
 
     userIter = notAuthenticatedUsers.erase(userIter);
@@ -147,7 +147,7 @@ void ConnectionManager::CreateClientSocketIfAvailable()
     ConnectionMessage conMsg(ConnectionStatus::WAIT_FOR_AUTHENTICATION);
     sender_.SendTcp(usr->socket, conMsg);
 
-    DEBUG_LOG("Client connected. Wait for authentication. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Client connected. Wait for authentication. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 }
 
 bool ConnectionManager::CheckSocketsActivity()
@@ -168,7 +168,7 @@ void ConnectionManager::DisconectUser(uint32 id)
 {
     sdlNetWrapper_.TCPCloseAndDeleteSocket(context_.socketSet, context_.users[id]->socket);
     --clientsCount_;
-    DEBUG_LOG("User disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
+    /* LOG TO FIX*/  LOG_ERROR << ("User disconnected. There are now " + std::to_string(clientsCount_) + " client(s) connected.");
 }
 
 void ConnectionManager::DissmissConection()
@@ -176,7 +176,7 @@ void ConnectionManager::DissmissConection()
     if (IsSpace())
         return;
 
-    DEBUG_LOG("*** Maximum client count reached - rejecting client connection ***");
+    /* LOG TO FIX*/  LOG_ERROR << ("*** Maximum client count reached - rejecting client connection ***");
 
     TCPsocket tempSock = sdlNetWrapper_.TCPAccept(context_.socket);
 

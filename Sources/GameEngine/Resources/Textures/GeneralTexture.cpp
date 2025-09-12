@@ -27,12 +27,12 @@ void GeneralTexture::GpuLoadingPass()
     }
     if (image_.empty() or graphicsObjectId_)
     {
-        ERROR_LOG("There was an error loading the texture : " + debugFileNamePrint +
+        /* LOG TO FIX*/  LOG_ERROR << ("There was an error loading the texture : " + debugFileNamePrint +
                   ". data is null or is initialized.");
         return;
     }
 
-    DEBUG_LOG("Create texutre : " + debugFileNamePrint);
+    /* LOG TO FIX*/  LOG_ERROR << ("Create texutre : " + debugFileNamePrint);
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(image_, paramters_.filter, paramters_.mimap);
@@ -40,13 +40,13 @@ void GeneralTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("Texture " + debugFileNamePrint +
+        /* LOG TO FIX*/  LOG_ERROR << ("Texture " + debugFileNamePrint +
                   " is in GPU. GraphicsObjectId :" + std::to_string(*graphicsObjectId));
     }
     else
     {
         image_.clearData();
-        ERROR_LOG("Texutre not created. " + debugFileNamePrint);
+        /* LOG TO FIX*/  LOG_ERROR << ("Texutre not created. " + debugFileNamePrint);
     }
 
     if (paramters_.dataStorePolicy == DataStorePolicy::ToRelease)

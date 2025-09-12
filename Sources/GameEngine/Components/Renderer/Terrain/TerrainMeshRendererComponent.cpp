@@ -124,8 +124,6 @@ void TerrainMeshRendererComponent::init()
         worldTransfomChangeSubscrbtion_ = thisObject_.SubscribeOnWorldTransfomChange(
             [this, model](const auto &transform)
             {
-                DEBUG_LOG("Terrain transform changed, " + std::to_string(transform.GetPosition()));
-
                 createBoundongBoxes(*model,heightMap_->GetScale());
 
                 for (size_t i = 0; i < model->GetMeshes().size(); ++i)
@@ -154,7 +152,7 @@ void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
 
 void TerrainMeshRendererComponent::UpdateHeightMap(const File &)
 {
-    DEBUG_LOG("Not implemented.");
+    LOG_ERROR << ("Not implemented.");
 }
 
 void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &model, const vec3 &heightmapScale)
@@ -166,9 +164,7 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
         auto &obj         = CreatePerObjectBuffer(graphicsApi);
 
-        DEBUG_LOG("Heightmap scale: " + std::to_string(heightmapScale));
         auto tm = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * glm::scale(heightmapScale);
-        DEBUG_LOG("tm: " + std::to_string(tm));
         obj.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(tm);
 
         LoadObjectToGpu(obj);

@@ -25,7 +25,7 @@ std::optional<ConectContext> ServerCreator::Create(uint32 maxClients, uint32 por
     if (not AddSocketTcp())
         return {};
 
-    DEBUG_LOG("Connection is open.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Connection is open.");
     isCreated = true;
 
     return context_;

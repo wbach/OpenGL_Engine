@@ -1,12 +1,13 @@
-#include <GameEngine/Camera/Frustrum.h>
 #include <GameEngine/Camera/Camera.h>
+#include <GameEngine/Camera/Frustrum.h>
 #include <GameEngine/Renderers/GUI/Text/GuiTextElement.h>
 #include <GameEngine/Renderers/Projection.h>
-#include <Utils/GLM/GLMUtils.h>
 #include <Types.h>
+#include <Utils/GLM/GLMUtils.h>
 #include <gtest/gtest.h>
-#include <Utils/math.hpp>
+
 #include <GameEngine/Scene/Scene.hpp>
+#include <Utils/math.hpp>
 
 namespace GameEngine
 {
@@ -115,9 +116,9 @@ TEST_F(CameraFrustrumShould, PointBorderOutside)
 
         if (is)
         {
-            DEBUG_LOG("Z: " + std::to_string(z));
-            DEBUG_LOG("Point border : " + std::to_string(point - OFFSET));
-            DEBUG_LOG("Point border changed : " + std::to_string(point));
+            LOG_DEBUG << "Z: " << z;
+            LOG_DEBUG << "Point border : " << (point - OFFSET);
+            LOG_DEBUG << "Point border changed : " << point;
             break;
         }
     }
@@ -137,9 +138,9 @@ TEST_F(CameraFrustrumShould, DISABLED_PointBorderInside)
 
         if (not is)
         {
-            DEBUG_LOG("Z: " + std::to_string(z));
-            DEBUG_LOG("Point border : " + std::to_string(point - OFFSET));
-            DEBUG_LOG("Point border changed : " + std::to_string(point));
+            LOG_DEBUG << "Z: " << z;
+            LOG_DEBUG << "Point border : " << (point - OFFSET);
+            LOG_DEBUG << "Point border changed : " << point;
             break;
         }
     }
@@ -213,7 +214,7 @@ TEST_F(CameraFrustrumShould, SphereRightBorderOutside)
     EXPECT_FALSE(sut_.intersection(sphereCenter, radius));
 }
 
-TEST_F(CameraFrustrumShould,  DISABLED_SphereRightBorderInside)
+TEST_F(CameraFrustrumShould, DISABLED_SphereRightBorderInside)
 {
     auto distanceSphreToPlane = 1.0f - OFFSET;
     auto v3                   = CalculateSpherePositionInDistanceToSidePlane(distanceSphreToPlane);

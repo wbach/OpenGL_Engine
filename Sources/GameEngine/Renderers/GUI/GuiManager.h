@@ -76,13 +76,13 @@ T* GuiManager::Get(uint32 id)
         }
         else
         {
-            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) +
+            /* LOG TO FIX*/  LOG_ERROR << ("Can not get " + std::to_string(static_cast<int>(T::type)) +
                       ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
         }
     }
     else
     {
-        DEBUG_LOG("Element with id : \"" + std::to_string(id) + "\" not found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Element with id : \"" + std::to_string(id) + "\" not found.");
     }
     return nullptr;
 }
@@ -100,7 +100,7 @@ T* GuiManager::Get(const std::string& label)
         }
         else
         {
-            ERROR_LOG("Can not get " + std::to_string(static_cast<int>(T::type)) +
+            /* LOG TO FIX*/  LOG_ERROR << ("Can not get " + std::to_string(static_cast<int>(T::type)) +
                       ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
         }
     }

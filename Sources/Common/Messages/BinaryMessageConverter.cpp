@@ -1,4 +1,5 @@
 #include "BinaryMessageConverter.h"
+
 #include <Common/Messages/CreateCharacter/CreateCharacterMsgReq.h>
 #include <Common/Messages/CreateCharacter/CreateCharacterMsgResp.h>
 #include <Common/Messages/GetCharacterData/GetCharacterDataMsgReq.h>
@@ -23,10 +24,12 @@ BinaryMessageConverter::BinaryMessageConverter()
 
 bool BinaryMessageConverter::IsValid(Network::IMessageFormat format, Network::IMessageType type) const
 {
-    return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
+    return format == Network::ConvertFormat(Network::MessageFormat::Binary) and type >= COMMON_MESSAGE_TYPE_RANGE_LOW and
+           type <= COMMON_MESSAGE_TYPE_RANGE_HIGH;
 }
 
-std::unique_ptr<Network::IMessage> BinaryMessageConverter::Convert(Network::IMessageType type, const Network::IMessageData& message)
+std::unique_ptr<Network::IMessage> BinaryMessageConverter::Convert(Network::IMessageType type,
+                                                                   const Network::IMessageData& message)
 {
     switch (type)
     {
@@ -55,7 +58,7 @@ std::unique_ptr<Network::IMessage> BinaryMessageConverter::Convert(Network::IMes
         case MessageTypes::GetCharactersDataReq:
             return Network::ConvertMessage<GetCharactersDataMsgReq>(message);
         default:
-            DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
+            LOG_DEBUG << "Convert to IMessage. Unsuporrted message.";
     }
 
     return nullptr;
@@ -90,10 +93,10 @@ Network::IMessageData BinaryMessageConverter::Convert(const Network::IMessage& m
         case MessageTypes::GetCharactersDataReq:
             return Network::ConvertMessage<GetCharactersDataMsgReq>(message);
         default:
-            DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
+            LOG_DEBUG << "Convert to IMessage. Unsuporrted message.";
     }
 
-    DEBUG_LOG("Convert to binary. Unsuporrted message.");
+    LOG_DEBUG << "Convert to binary. Unsuporrted message.";
     return {};
 }
 }  // namespace common

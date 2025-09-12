@@ -18,7 +18,7 @@ void BaseBufferObject::ReleaseGpuPass()
 {
     if (graphicsObjectId_)
     {
-       // DEBUG_LOG("Clean gpu resources graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
+       // /* LOG TO FIX*/  LOG_ERROR << ("Clean gpu resources graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
         graphicsApi_.DeleteShaderBuffer(*graphicsObjectId_);
     }
     GpuObject::ReleaseGpuPass();

@@ -27,14 +27,12 @@ void IdleCrouchArmedChangeState::onEnter(IdleArmedChangeState &, const CrouchCha
 }
 void IdleCrouchArmedChangeState::onEnter(DisarmedIdleCrouchState &, const WeaponStateEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter(DisarmedIdleCrouchState&, const WeaponStateEvent &)");
     idleAnimName_ = context_.animClipNames.armed.posture.crouched.idle;
     setAnim();
     ArmedChangeStateBase::equipWeapon();
 }
 void IdleCrouchArmedChangeState::onEnter(ArmedIdleCrouchState &, const WeaponStateEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter(ArmedIdleCrouchState&, const WeaponStateEvent &)");
     idleAnimName_ = context_.animClipNames.disarmed.posture.crouched.idle;
     setAnim();
     ArmedChangeStateBase::disarmWeapon();

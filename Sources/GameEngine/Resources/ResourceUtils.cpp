@@ -22,7 +22,7 @@ FIBITMAP* convertTo32bppIfDifferent(FIBITMAP* image)
 
     if (bpp != 32)
     {
-        DEBUG_LOG("Convert image from " + std::to_string(bpp) + " bpp to 32 bpp");
+        /* LOG TO FIX*/  LOG_ERROR << ("Convert image from " + std::to_string(bpp) + " bpp to 32 bpp");
 
         FIBITMAP* image32bit = FreeImage_ConvertTo32Bits(image);
         FreeImage_Unload(image);
@@ -60,7 +60,7 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
 
         if (resize_texture)
         {
-            DEBUG_LOG("Resize image from " + std::to_string(vec2ui(w, h)) + " to " + std::to_string(newImageSize));
+            /* LOG TO FIX*/  LOG_ERROR << ("Resize image from " + std::to_string(vec2ui(w, h)) + " to " + std::to_string(newImageSize));
 
             auto resizedImage =
                 FreeImage_Rescale(image, static_cast<int>(newImageSize.x), static_cast<int>(newImageSize.y), FILTER_BSPLINE);
@@ -72,7 +72,7 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
             }
             else
             {
-                ERROR_LOG("Resize error.");
+                /* LOG TO FIX*/  LOG_ERROR << ("Resize error.");
             }
         }
     }
@@ -139,7 +139,7 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    DEBUG_LOG("File: " + file.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
+    /* LOG TO FIX*/  LOG_ERROR << ("File: " + file.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
               std::to_string(resultImage.height));
     return std::move(resultImage);
 }
@@ -175,7 +175,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
 
     if (not image)
     {
-        ERROR_LOG("Cant convert to 32 bits memory image.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Cant convert to 32 bits memory image.");
         return {};
     }
 
@@ -193,7 +193,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    DEBUG_LOG("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" + std::to_string(resultImage.height));
+    /* LOG TO FIX*/  LOG_ERROR << ("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" + std::to_string(resultImage.height));
     return std::move(resultImage);
 }
 
@@ -241,7 +241,7 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
                        [&](const std::vector<float>& data) { fwrite(&data[0], sizeof(float), size, fp); },
-                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Data not set!"); }},
                image.getImageData());
     fclose(fp);
 }
@@ -275,7 +275,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
     auto& image = heightmap.GetImage();
     if (image.empty())
     {
-        ERROR_LOG("Can not save height map without data!");
+        /* LOG TO FIX*/  LOG_ERROR << ("Can not save height map without data!");
         return;
     }
 
@@ -303,7 +303,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
                        [&](const std::vector<float>& data) { fwrite(&data[0], sizeof(float), size, fp); },
-                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Data not set!"); }},
                image.getImageData());
     fclose(fp);
 
@@ -395,8 +395,8 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                            Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
                                             vec2(4));
                        },
-                       [&](const std::vector<float>&) { DEBUG_LOG("GenerateBlendMapImage for floats not implemented"); },
-                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+                       [&](const std::vector<float>&) { /* LOG TO FIX*/  LOG_ERROR << ("GenerateBlendMapImage for floats not implemented"); },
+                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Data not set!"); }},
                image.getImageData());
 }
 

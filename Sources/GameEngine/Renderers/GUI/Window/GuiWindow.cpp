@@ -100,17 +100,17 @@ void GuiWindowElement::SetBackground(std::unique_ptr<GuiElement> background)
     background_ = std::move(background);
     background_->setParent(this);
     background_->SetZPosition(0.5f);
-    DEBUG_LOG("Id : " + std::to_string(GetId()));
-    DEBUG_LOG("BId : " + std::to_string(background_->GetId()));
-    DEBUG_LOG("Screen scale " + std::to_string(GetScreenScale()));
-    DEBUG_LOG("BScreen scale " + std::to_string(background_->GetScreenScale()));
-    DEBUG_LOG("Screen pos " + std::to_string(GetScreenPosition()));
-    DEBUG_LOG("BScreen pos " + std::to_string(background_->GetScreenPosition()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Id : " + std::to_string(GetId()));
+    /* LOG TO FIX*/  LOG_ERROR << ("BId : " + std::to_string(background_->GetId()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Screen scale " + std::to_string(GetScreenScale()));
+    /* LOG TO FIX*/  LOG_ERROR << ("BScreen scale " + std::to_string(background_->GetScreenScale()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Screen pos " + std::to_string(GetScreenPosition()));
+    /* LOG TO FIX*/  LOG_ERROR << ("BScreen pos " + std::to_string(background_->GetScreenPosition()));
 }
 
 void GuiWindowElement::SetBar(std::unique_ptr<GuiElement> bar)
 {
-    DEBUG_LOG("Not implemented");
+    /* LOG TO FIX*/  LOG_ERROR << ("Not implemented");
     // bar_ = std::move(bar);
     // bar_->setParent(this);
 }

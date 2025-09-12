@@ -192,10 +192,10 @@ void write(TreeNode& node, const GuiElement& element)
             write(node, *static_cast<const GuiTextureElement*>(&element));
             break;
         case GuiElementTypes::Checkbox:
-            DEBUG_LOG("Gui Checkbox write method not implemented.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Gui Checkbox write method not implemented.");
             break;
         case GuiElementTypes::ComboBox:
-            DEBUG_LOG("Gui ComboBox write method not implemented.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Gui ComboBox write method not implemented.");
             break;
         case GuiElementTypes::TreeView:
             write(node, *static_cast<const TreeView*>(&element));

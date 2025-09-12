@@ -207,7 +207,7 @@ TEST_F(CharacterControllerTests, DISABLED_DisarmedRunState_JumpEvent)
 {
     prepareState(*this);
     const float jumpPower{1.f};
-    DEBUG_LOG("lastSetVelocity=" + std::to_string(lastSetVelocity));
+    /* LOG TO FIX*/  LOG_ERROR << ("lastSetVelocity=" + std::to_string(lastSetVelocity));
 
     // expectVelocity(VECTOR_FORWARD + VECTOR_UP, vec3(0, jumpPower, DEFAULT_RUN_SPEED), lastSetVelocity);
     EXPECT_CALL(physicsApiMock_, GetRotation(rigidbodyid)).WillRepeatedly(Return(Rotation().value_));

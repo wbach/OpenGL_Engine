@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <optional>
+#include <functional>
 
 #include "CharacterControllerCommonDefs.h"
 

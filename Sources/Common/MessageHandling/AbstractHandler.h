@@ -2,6 +2,7 @@
 #include "Logger/Log.h"
 #include <UtilsNetwork/NetworkTypes.h>
 #include "Common/Messages/MessageTypes.h"
+#include <magic_enum/magic_enum.hpp>
 
 namespace common
 {
@@ -33,7 +34,7 @@ public:
 
         ProcessMessage(userId, message);
 
-        DEBUG_LOG(std::to_string(message.GetType()));
+        LOG_DEBUG << "Handle type: " << message.GetType();
 
         return true;
     }
@@ -45,7 +46,7 @@ public:
 
         if (msg == nullptr)
         {
-            DEBUG_LOG("[Error] CastToMsgType: cannot cast " + std::to_string(message->GetType()) + ".");
+            LOG_DEBUG << "[Error] CastToMsgType: cannot cast " << message->GetType() << ".";
             return nullptr;
         }
 

@@ -15,7 +15,7 @@ NetworkCreator::~NetworkCreator()
     if (!isCreated)
         return;
 
-    DEBUG_LOG("Closing TCP");
+    /* LOG TO FIX*/  LOG_ERROR << ("Closing TCP");
     SDLNet_TCP_Close(context_.socket);
     SDLNet_FreeSocketSet(context_.socketSet);
     SDLNet_Quit();
@@ -26,7 +26,7 @@ bool NetworkCreator::Init()
     if (sdlNetWrapper_.Init() != -1)
         return true;
 
-    ERROR_LOG("Failed to intialise SDL_net: " + std::string(sdlNetWrapper_.GetError()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Failed to intialise SDL_net: " + std::string(sdlNetWrapper_.GetError()));
     return false;
 }
 
@@ -36,12 +36,12 @@ bool NetworkCreator::AllocSocketSet(int count)
 
     if (context_.socketSet == nullptr)
     {
-        ERROR_LOG("Failed to allocate the socket set:: " + std::string(sdlNetWrapper_.GetError()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Failed to allocate the socket set:: " + std::string(sdlNetWrapper_.GetError()));
         return false;
     }
 
     std::string str = "Allocated socket set with size:  " + std::to_string(context_.maxClients + 1) + ", of which " + std::to_string(context_.maxClients) + " are availble for use by clients.";
-    DEBUG_LOG(str);
+    /* LOG TO FIX*/  LOG_ERROR << (str);
     return true;
 }
 
@@ -51,11 +51,11 @@ bool NetworkCreator::ResolveHost(const char* hostName)
 
     if (hostResolved == -1)
     {
-        ERROR_LOG("Failed to resolve the server host: " + std::string(sdlNetWrapper_.GetError()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Failed to resolve the server host: " + std::string(sdlNetWrapper_.GetError()));
         return false;
     }
 
-    DEBUG_LOG("Successfully resolved server host to IP: " + UtilsNetwork::IpAddressToString(context_.serverIP));
+    /* LOG TO FIX*/  LOG_ERROR << ("Successfully resolved server host to IP: " + UtilsNetwork::IpAddressToString(context_.serverIP));
     return true;
 }
 
@@ -65,11 +65,11 @@ bool NetworkCreator::ResolveIp()
 
     if (ipResolved == nullptr)
     {
-        ERROR_LOG("Failed to resolve ip: " + std::string(sdlNetWrapper_.GetError()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Failed to resolve ip: " + std::string(sdlNetWrapper_.GetError()));
         return false;
     }
 
-    DEBUG_LOG("Ip resolved : " + std::string(ipResolved));
+    /* LOG TO FIX*/  LOG_ERROR << ("Ip resolved : " + std::string(ipResolved));
     return true;
 }
 
@@ -80,11 +80,11 @@ bool NetworkCreator::OpenTcp()
 
     if (!context_.socket)
     {
-        ERROR_LOG("Failed to open the server socket: " + std::string(sdlNetWrapper_.GetError()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Failed to open the server socket: " + std::string(sdlNetWrapper_.GetError()));
         return false;
     }
 
-    DEBUG_LOG("Sucessfully created server socket.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Sucessfully created server socket.");
     return true;
 }
 

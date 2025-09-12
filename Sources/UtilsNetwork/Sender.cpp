@@ -30,7 +30,7 @@ SentStatus Sender::SendTcp(TCPsocket socket, const IMessage& msg)
 
     if (not converter)
     {
-        DEBUG_LOG("Converter for message not found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Converter for message not found.");
         return SentStatus::UNDEFINED_ERROR;
     }
 
@@ -56,7 +56,7 @@ bool Sender::sendMessageFormat(TCPsocket socket)
     if (not sentStatus)
         return false;
 
-    DEBUG_LOG("formatValue sent : " + std::to_string(formatValue));
+    /* LOG TO FIX*/  LOG_ERROR << ("formatValue sent : " + std::to_string(formatValue));
     return true;
 }
 
@@ -70,7 +70,7 @@ bool Sender::sendMessageType(TCPsocket socket, const IMessage& msg)
     if (not sentStatus)
         return false;
 
-    DEBUG_LOG("Msssage type sent : " + std::to_string(type));
+    /* LOG TO FIX*/  LOG_ERROR << ("Msssage type sent : " + std::to_string(type));
 
     return true;
 }
@@ -79,8 +79,8 @@ bool Sender::sendMessage(TCPsocket socket, const IMessage& msg, IMessageConverte
 {
     auto convertedMsg = converter.Convert(msg);
     uint32 length       = static_cast<int>(sizeof(uint8) * convertedMsg.size());
-    DEBUG_LOG("Message size : " + std::to_string(length));
-    DEBUG_LOG(Convert(convertedMsg));
+    /* LOG TO FIX*/  LOG_ERROR << ("Message size : " + std::to_string(length));
+    /* LOG TO FIX*/  LOG_ERROR << (Convert(convertedMsg));
 
     if (sdlNetWrapper_.SendTcp(socket, &length, sizeof(uint32)))
     {
@@ -94,7 +94,7 @@ SentStatus Sender::SendIMessage(TCPsocket socket, IMessage* msg)
     auto final_msg = castMessageAs<T>(msg);
     if (final_msg == nullptr)
     {
-        ERROR_LOG("Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Something went wrong. Couldn't cast to : " + std::to_string(msg->GetType()));
         return SentStatus::CAST_ERROR;
     }
 

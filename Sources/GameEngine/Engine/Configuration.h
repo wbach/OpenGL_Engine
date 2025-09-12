@@ -38,7 +38,7 @@ struct DebugParams
 {
     DebugParams();
     PhysicsVisualizatorParams physicsVisualizator;
-    Params::ConfigurationParam<LogginLvl> logLvl;
+    Params::ConfigurationParam<LoggingLvl> logLvl;
     Params::ConfigurationParam<bool> showRenderInfo;
     Params::ConfigurationParam<bool> showPhycicsVisualization;
 };

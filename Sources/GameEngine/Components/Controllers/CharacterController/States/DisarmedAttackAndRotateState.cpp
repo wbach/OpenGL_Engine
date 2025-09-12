@@ -53,13 +53,11 @@ DisarmedAttackAndRotateState::MaybeAttackStates DisarmedAttackAndRotateState::ha
 
     if (event.stateType == PlayStateType::walk)
     {
-        DEBUG_LOG("PlayStateType::walk");
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndWalkAndRotateState>{};
     }
 
     if (event.stateType == PlayStateType::run)
     {
-        DEBUG_LOG("PlayStateType::run");
         return Utils::StateMachine::TransitionTo<DisarmedAttackAndRunAndRotateState>{};
     }
 

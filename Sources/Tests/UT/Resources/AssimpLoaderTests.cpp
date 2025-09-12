@@ -16,8 +16,8 @@ struct AssimpLoaderShould : public ::testing::Test
     AssimpLoaderShould()
     {
         EngineConf.useBinaryLoading = false;
-        CLogger::Instance().EnableLogs(LogginLvl::ErrorWarningInfoDebug);
-        CLogger::Instance().ImmeditalyLog();
+        CLogger::Instance().EnableLogs(LoggingLvl::ErrorWarningInfoDebug);
+        CLogger::Instance().UseAsyncLogging(false);
     }
 
     void SetUp() override
@@ -29,7 +29,7 @@ struct AssimpLoaderShould : public ::testing::Test
 
     void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
     {
-        DEBUG_LOG(of + joint.name + " (size : " + std::to_string(joint.size) + ")");
+        /* LOG TO FIX*/  LOG_ERROR << (of + joint.name + " (size : " + std::to_string(joint.size) + ")");
 
         for (const auto& child : joint.children)
         {
@@ -39,9 +39,9 @@ struct AssimpLoaderShould : public ::testing::Test
 
     void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std::string& of = "")
     {
-        DEBUG_LOG(of + joint.name);
-        DEBUG_LOG(of + std::to_string(joint.id));
-        DEBUG_LOG(of + std::to_string(joint.transform));
+        /* LOG TO FIX*/  LOG_ERROR << (of + joint.name);
+        /* LOG TO FIX*/  LOG_ERROR << (of + std::to_string(joint.id));
+        /* LOG TO FIX*/  LOG_ERROR << (of + std::to_string(joint.transform));
 
         for (const auto& child : joint.children)
         {
@@ -97,9 +97,9 @@ TEST_F(AssimpLoaderShould, DISABLED_ReadGarenAnimations)
     auto data  = model->GetMeshes().front().GetCMeshDataRef();
     // EXPECT_EQ( model->skeleton_.children.size(), 1);
 
-    DEBUG_LOG("Print skeleton");
+    /* LOG TO FIX*/  LOG_ERROR << ("Print skeleton");
     //PrintJointsWithMatrix(model->skeleton_);
-    DEBUG_LOG("end print skeleton");
+    /* LOG TO FIX*/  LOG_ERROR << ("end print skeleton");
 }
 }  // namespace UT
 }  // namespace GameEngine

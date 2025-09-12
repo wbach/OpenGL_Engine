@@ -49,7 +49,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     fileName              = (wchar_t*)realloc(fileName, longestFileNameLength * sizeof(*fileName));
                 }
                 DragQueryFileW(drop, i, fileName, fileNameLength);
-                DEBUG_LOG("fileName : " + reinterpret_cast<char*>(fileName));
+                LOG_ERROR << "fileName : " + reinterpret_cast<char*>(fileName);
             }
 
             std::lock_guard<std::mutex> lk(eventSubscribersMutex_);
@@ -130,7 +130,7 @@ WinApi::WinApi(DirectXContext& directXContext)
 }
 WinApi::~WinApi()
 {
-    DEBUG_LOG("destructor");
+    LOG_DEBUG << "destructor";
 }
 void WinApi::Init()
 {

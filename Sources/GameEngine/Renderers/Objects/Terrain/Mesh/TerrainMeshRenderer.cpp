@@ -110,7 +110,7 @@ void TerrainMeshRenderer::subscribe(GameObject& gameObject)
         if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
             return;
 
-        DEBUG_LOG("Subscribe goId : " + std::to_string(gameObject.GetId()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Subscribe goId : " + std::to_string(gameObject.GetId()));
         auto terrainMeshComponent = terrain->GetMeshTerrain();
         if (terrainMeshComponent)
         {
@@ -118,7 +118,7 @@ void TerrainMeshRenderer::subscribe(GameObject& gameObject)
         }
         else
         {
-            DEBUG_LOG("terrainMeshComponent not exist");
+            /* LOG TO FIX*/  LOG_ERROR << ("terrainMeshComponent not exist");
         }
     }
 }
@@ -129,14 +129,14 @@ void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
 
     if (iter != subscribes_.end())
     {
-        DEBUG_LOG("unSubscribe goId : " + std::to_string(gameObject.GetId()));
+        /* LOG TO FIX*/  LOG_ERROR << ("unSubscribe goId : " + std::to_string(gameObject.GetId()));
         std::lock_guard<std::mutex> lk(subscriberMutex_);
         subscribes_.erase(iter);
     }
 }
 void TerrainMeshRenderer::unSubscribeAll()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.clear();
 }

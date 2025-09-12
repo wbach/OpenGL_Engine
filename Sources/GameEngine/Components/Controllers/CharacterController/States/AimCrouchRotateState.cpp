@@ -17,7 +17,6 @@ AimCrouchRotateState::AimCrouchRotateState(FsmContext &context)
 
 void AimCrouchRotateState::onEnter(const AimStartEvent &event)
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
     AimStateBase::onEnter(event);
     RotateStateBase::update(event);
 }
@@ -39,7 +38,6 @@ void AimCrouchRotateState::onEnter(const RotateRightEvent &event)
 
 void AimCrouchRotateState::onEnter(const RotateTargetEvent &event)
 {
-    // /*DISABLED*/ DEBUG_LOG("AimCrouchRotateState::onEnter(const RotateTargetEvent& event)");
     RotateStateBase::onEnter(event);
 }
 
@@ -73,7 +71,6 @@ void AimCrouchRotateState::update(float dt)
 
 void AimCrouchRotateState::onLeave(const AimStopEvent &event)
 {
-    // /*DISABLED*/ DEBUG_LOG("onLeave(AimStopEvent)");
     AimStateBase::onLeave(event);
 }
 

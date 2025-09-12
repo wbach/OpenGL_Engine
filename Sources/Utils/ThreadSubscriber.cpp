@@ -20,13 +20,13 @@ ThreadSubscriber::ThreadSubscriber(const std::string& label, frameFunc func, Mea
 
 ThreadSubscriber::~ThreadSubscriber()
 {
-    DEBUG_LOG("destructor " + label_);
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor " + label_);
     Stop();
 }
 
 void ThreadSubscriber::Start()
 {
-    DEBUG_LOG("Start \"" + label_ + "\",  thread.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Start \"" + label_ + "\",  thread.");
     isRunning.store(true);
     thread = std::thread(std::bind(&ThreadSubscriber::Update, this));
     timeMeasurer.AddOnTickCallback(std::bind(&ThreadSubscriber::PrintFps, this));
@@ -53,7 +53,7 @@ void ThreadSubscriber::Update()
         timeMeasurer.EndFrame();
     }
 
-    DEBUG_LOG("End \"" + label_ + "\",  thread.");
+    /* LOG TO FIX*/  LOG_ERROR << ("End \"" + label_ + "\",  thread.");
 }
 
 void ThreadSubscriber::PrintFps()

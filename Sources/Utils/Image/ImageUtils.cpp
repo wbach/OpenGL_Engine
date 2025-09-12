@@ -4,7 +4,6 @@
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
 
-#include <algorithm>
 #include <filesystem>
 
 namespace Utils
@@ -14,12 +13,11 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     auto minSize = size.x * size.y * 4;
     if (data.size() < minSize)
     {
-        DEBUG_LOG("Data image not complete : " + filename + " size : " + std::to_string(data.size()) + "/" +
-                  std::to_string(minSize));
+        LOG_ERROR << "Data image not complete : " << filename << " size : " << data.size() << "/" << std::to_string(minSize);
         return;
     }
 
-    DEBUG_LOG("Save image : " + filename + ", size=" + std::to_string(size.x) + "x" + std::to_string(size.y) + ":4");
+    LOG_DEBUG << "Save image : " << filename << ", size=" << size.x << "x" << size.y << ":4";
     FIBITMAP *bitmap = FreeImage_Allocate(static_cast<int>(size.x), static_cast<int>(size.y), 32, 8, 8, 8);
 
     auto width  = FreeImage_GetWidth(bitmap);
@@ -58,7 +56,7 @@ void SaveImage(const Image &image, const std::string &outputFilePath, const std:
                        {
                            if (image.getChannelsCount() == 1)
                            {
-                               DEBUG_LOG("SaveImage for floats, converting to uint8 image");
+                               LOG_DEBUG << "SaveImage for floats, converting to uint8 image";
 
                                float min = data.front();
                                float max = data.front();
@@ -87,10 +85,12 @@ void SaveImage(const Image &image, const std::string &outputFilePath, const std:
                            }
                            else
                            {
-                               DEBUG_LOG("SaveImage for floats for more than 1 channel not implemented");
+                               LOG_DEBUG << "SaveImage for floats for more than 1 channel not implemented";
                            }
                        },
-                       [](std::monostate) { ERROR_LOG("Data not set!"); }},
+                       [](std::monostate) { /* LOG TO FIX*/
+                                            LOG_ERROR << ("Data not set!");
+                       }},
                image.getImageData());
 }
 }  // namespace Utils

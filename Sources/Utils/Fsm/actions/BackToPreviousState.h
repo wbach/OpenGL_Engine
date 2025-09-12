@@ -15,10 +15,10 @@ public:
     void execute(Machine& machine, State& prevState, const Event& event)
     {
 #ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("PrevState : " + typeName<State>());
+        LOG_DEBUG << "PrevState : " << typeName<State>();
         if (not machine.previousState.empty())
         {
-            std::visit([](const auto& state) { DEBUG_LOG("Entering : " + typeName(state)); }, machine.previousState.back());
+            std::visit([](const auto& state) { LOG_DEBUG << "Entering : " << typeName(state); }, machine.previousState.back());
         }
 #endif
 

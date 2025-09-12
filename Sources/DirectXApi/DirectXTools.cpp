@@ -1,11 +1,12 @@
 #include "DirectXTools.h"
-#include "Logger/Log.h"
+
 #include <d3dx11.h>
+
+#include "Logger/Log.h"
 
 namespace DirectX
 {
-HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, LPCSTR szShaderModel,
-                              ID3DBlob** ppBlobOut)
+HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
 {
     HRESULT hr = S_OK;
 
@@ -19,12 +20,12 @@ HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, 
 #endif
 
     ID3DBlob* pErrorBlob;
-    hr = D3DX11CompileFromFile(filename.c_str(), NULL, NULL, szEntryPoint, szShaderModel, dwShaderFlags, 0, NULL,
-                               ppBlobOut, &pErrorBlob, NULL);
+    hr = D3DX11CompileFromFile(filename.c_str(), NULL, NULL, szEntryPoint, szShaderModel, dwShaderFlags, 0, NULL, ppBlobOut,
+                               &pErrorBlob, NULL);
     if (FAILED(hr))
     {
         if (pErrorBlob != NULL)
-            ERROR_LOG((char*)pErrorBlob->GetBufferPointer());
+            LOG_ERROR << (char*)pErrorBlob->GetBufferPointer();
         if (pErrorBlob)
             pErrorBlob->Release();
         return hr;
@@ -34,4 +35,4 @@ HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, 
 
     return S_OK;
 }
-}
+}  // namespace DirectX

@@ -19,8 +19,8 @@ const std::vector<uint32> *findJointGroup(Context &context, const CurrentGroupsP
 {
     if (info.jointGroupNames.size() != 1)
     {
-        WARNING_LOG("Wrong group size! Note: multiple joint groups to single anim not implemented. Size=" +
-                    std::to_string(info.jointGroupNames.size()));
+        LOG_WARN << "Wrong group size! Note: multiple joint groups to single anim not implemented. Size="
+                 << info.jointGroupNames.size();
         return nullptr;
     }
 
@@ -32,7 +32,7 @@ const std::vector<uint32> *findJointGroup(Context &context, const CurrentGroupsP
         return &iter->second;
     }
 
-    WARNING_LOG("Joint group not found! Group name :" + groupName);
+    LOG_WARN << "Joint group not found! Group name :" << groupName;
     return nullptr;
 }
 }  // namespace

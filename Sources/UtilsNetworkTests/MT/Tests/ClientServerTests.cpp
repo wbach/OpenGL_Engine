@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include "../UtilsNetwork/Gateway.h"
+#include "Logger/Log.h"
 
 #include <UtilsNetwork/Messages/TextMessage.h>
-#include <condition_variable>
-#include <mutex>
+
 
 namespace Network
 {
@@ -15,7 +15,7 @@ public:
         , testShortMessage_{"test text message. Hello World!"}
         , textMessagesCount_{10}
     {
-        CLogger::Instance().ImmeditalyLog();
+        CLogger::Instance().UseAsyncLogging(false);
 
         testShortMessage_.clear();
         for (uint32 x = 0; x < TEXT_MSG_ARRAY_SIZE - 1; ++x)
@@ -27,8 +27,8 @@ public:
             }
             testShortMessage_.push_back(c);
         }
-        DEBUG_LOG("testShortMessage_ : " +  testShortMessage_);
-        DEBUG_LOG("testShortMessage_ size : " + std::to_string(testShortMessage_.size()));
+        LOG_DEBUG << "testShortMessage_ : " << testShortMessage_;
+        LOG_DEBUG << "testShortMessage_ size : " << testShortMessage_.size();
     }
 
     void ClientMain()
@@ -44,7 +44,7 @@ public:
         for (uint32 i = 0; i < textMessagesCount_; ++i)
         {
             TextMessage textMessage(testShortMessage_);
-            DEBUG_LOG("TextMessage textMessage size : " + std::to_string(textMessage.GetText().size()));
+            LOG_DEBUG << "TextMessage textMessage size : " << textMessage.GetText().size();
             clientGateway_.Send(textMessage);
         }
     }
@@ -61,15 +61,15 @@ public:
         serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](auto, std::unique_ptr<IMessage> imessage) {
             auto textMessage = castMessageAs<TextMessage>(imessage.get());
             auto t           = textMessage->GetText();
-            DEBUG_LOG("Server recevied message : " + t + " size : " + std::to_string(t.size()));
+            /* LOG TO FIX*/  LOG_ERROR << ("Server recevied message : " + t + " size : " + std::to_string(t.size()));
             receviedMessage_ = textMessage->GetText();
 
             if (testShortMessage_ == receviedMessage_)
             {
-                DEBUG_LOG("==");
+                /* LOG TO FIX*/  LOG_ERROR << ("==");
             }
             else {
-                DEBUG_LOG("!=");
+                /* LOG TO FIX*/  LOG_ERROR << ("!=");
             }
             ++textMessagesRecvCount_;
             if (textMessagesRecvCount_ >= textMessagesCount_)
@@ -86,7 +86,7 @@ public:
             serverGateway_.Update();
         }
 
-        DEBUG_LOG("Server closed.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Server closed.");
     }
 
     void SetUp() override

@@ -28,7 +28,7 @@ void std::from_string(const std::string& type, GameEngine::TerrainTextureType& t
     FROM_STRING(rockTexture);
     FROM_STRING(rockTextureNormal);
     FROM_STRING(rockTextureDisplacement);
-    ERROR_LOG("unknow terrainTextureType=" + type);
+    LOG_ERROR << "unknow terrainTextureType=" << type;
 }
 #undef FROM_STRING
 

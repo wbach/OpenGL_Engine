@@ -33,14 +33,14 @@ void PostProcessingManager::Init()
     }
     else
     {
-        ERROR_LOG("Buffer creation error.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Buffer creation error.");
     }
 }
 void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer, const Scene& scene)
 {
     if (not fboManager_->GetStatus() or postProcessingRenderers_.empty())
     {
-        ERROR_LOG("No activePostProcessing effects.");
+        /* LOG TO FIX*/  LOG_ERROR << ("No activePostProcessing effects.");
         return;
     }
     fboManager_->StartFrame();

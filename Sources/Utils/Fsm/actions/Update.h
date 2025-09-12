@@ -25,7 +25,7 @@ private:
     auto update(State& state, const Event& event) -> decltype(state.update(event))
     {
 #ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Update state: " + typeName<State>() + ", event: " + typeName<Event>());
+        /* LOG TO FIX*/  LOG_ERROR << ("Update state: " + typeName<State>() + ", event: " + typeName<Event>());
 #endif
         return state.update(event);
     }
@@ -39,7 +39,7 @@ private:
     auto post(State& state) -> decltype(state.postUpdate())
     {
 #ifdef NOREALTIME_LOG_ENABLED
-        DEBUG_LOG("Post update state: " + typeName<State>());
+        /* LOG TO FIX*/  LOG_ERROR << ("Post update state: " + typeName<State>());
 #endif
         return state.postUpdate();
     }

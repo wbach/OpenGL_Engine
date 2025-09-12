@@ -79,11 +79,11 @@ GuiElementReader::GuiElementReader(GuiManager &manager, GuiElementFactory &facto
 
 bool GuiElementReader::Read(const std::string &filename)
 {
-    DEBUG_LOG(filename);
+    /* LOG TO FIX*/  LOG_ERROR << (filename);
 
     if (not Utils::CheckExtension(filename, "xml"))
     {
-        ERROR_LOG("This is not xml file. Format should be \".xml\". File name : " + filename);
+        /* LOG TO FIX*/  LOG_ERROR << ("This is not xml file. Format should be \".xml\". File name : " + filename);
         return false;
     }
 
@@ -91,7 +91,7 @@ bool GuiElementReader::Read(const std::string &filename)
 
     if (fileContent.empty())
     {
-        ERROR_LOG(filename + " is empty!");
+        /* LOG TO FIX*/  LOG_ERROR << (filename + " is empty!");
         return false;
     }
 
@@ -104,7 +104,7 @@ bool GuiElementReader::Read(const std::string &filename)
     auto guiNode = reader.Get(Gui::ROOT);
     if (not guiNode)
     {
-        ERROR_LOG("This is not gui file.");
+        /* LOG TO FIX*/  LOG_ERROR << ("This is not gui file.");
         return false;
     }
 
@@ -203,7 +203,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
         }
         catch (...)
         {
-            ERROR_LOG("Read gui file, parse font size error.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Read gui file, parse font size error.");
         }
     }
 
@@ -216,7 +216,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
         }
         catch (...)
         {
-            ERROR_LOG("Read gui file, parse outline error.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Read gui file, parse outline error.");
         }
     }
 
@@ -229,7 +229,7 @@ std::unique_ptr<GuiTextElement> GuiElementReader::ReadGuiText(TreeNode &node)
         vec4 color(0.f, 0.f, 0.f, 1.f);
         ::Read(*paramNode, color);
 
-        DEBUG_LOG("SetColor " + std::to_string(color));
+        /* LOG TO FIX*/  LOG_ERROR << ("SetColor " + std::to_string(color));
         text->SetColor(color);
     }
     return text;
@@ -405,7 +405,7 @@ std::unique_ptr<TreeView> GuiElementReader::ReadTreeView(TreeNode &treeNode)
 
     if (not action)
     {
-        DEBUG_LOG("No action found for tree view \"" + actionNode->value_ + "\"");
+        /* LOG TO FIX*/  LOG_ERROR << ("No action found for tree view \"" + actionNode->value_ + "\"");
         return nullptr;
     }
 
@@ -469,7 +469,7 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(T
             }
             else
             {
-                ERROR_LOG("read vertical layout error.");
+                /* LOG TO FIX*/  LOG_ERROR << ("read vertical layout error.");
             }
         }
         else if (child->name() == Gui::WINDOW)
@@ -481,7 +481,7 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(T
             }
             else
             {
-                ERROR_LOG("read window error.");
+                /* LOG TO FIX*/  LOG_ERROR << ("read window error.");
             }
         }
         else if (child->name() == Gui::TREE_VIEW)
@@ -493,12 +493,12 @@ std::vector<std::unique_ptr<GuiElement>> GuiElementReader::ReadChildrenElemets(T
             }
             else
             {
-                ERROR_LOG("read tree view error.");
+                /* LOG TO FIX*/  LOG_ERROR << ("read tree view error.");
             }
         }
         else
         {
-            ERROR_LOG("try read unknown gui element type : " + child->name());
+            /* LOG TO FIX*/  LOG_ERROR << ("try read unknown gui element type : " + child->name());
             continue;
         }
     }

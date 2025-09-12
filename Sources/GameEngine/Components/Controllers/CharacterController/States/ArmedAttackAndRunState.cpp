@@ -27,19 +27,16 @@ ArmedAttackAndRunState::MaybeAttackStates ArmedAttackAndRunState::handle(const C
 {
     if (event.stateType == PlayStateType::idle)
     {
-        DEBUG_LOG("PlayStateType::idle");
         return Utils::StateMachine::TransitionTo<ArmedAttackState>{};
     }
 
     if (event.stateType == PlayStateType::walk)
     {
-        DEBUG_LOG("PlayStateType::walk");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>{};
     }
 
     if (event.stateType == PlayStateType::run)
     {
-        DEBUG_LOG("PlayStateType::run");
         return Utils::StateMachine::Update{};
     }
 

@@ -36,6 +36,7 @@ BaseComponent::BaseComponent(const std::string& type, ComponentContext& componen
     , componentRegistredId_(0)
 {
     componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_, this);
+    LOG_DEBUG << "Component "  << name_ << " is " << type_;
 }
 BaseComponent::~BaseComponent()
 {
@@ -50,7 +51,7 @@ BaseComponent::~BaseComponent()
     }
     else
     {
-        ERROR_LOG("componentRegistredId not set!");
+        LOG_ERROR << "componentRegistredId not set!";
     }
 }
 size_t BaseComponent::GetType() const

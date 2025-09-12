@@ -7,3 +7,4 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/component_wise.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/hash.hpp>

@@ -146,7 +146,7 @@ void TransformPanel::Vector3Controls::onChanged(wxCommandEvent& event)
     }
     catch (...)
     {
-        ERROR_LOG("Parse error");
+        /* LOG TO FIX*/  LOG_ERROR << ("Parse error");
     }
 }
 

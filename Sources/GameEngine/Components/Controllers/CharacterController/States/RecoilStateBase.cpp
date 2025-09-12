@@ -17,8 +17,6 @@ RecoilStateBase::RecoilStateBase(FsmContext &context, const std::optional<std::s
 
 void RecoilStateBase::onEnter(const AttackEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("On enter DrawArrowEvent clip: " + animName_);
-
     if (animationClip.empty())
     {
         return;

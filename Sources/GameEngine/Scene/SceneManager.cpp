@@ -39,7 +39,7 @@ SceneManager::~SceneManager()
 {
     SetOnSceneLoadDone(nullptr);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
     StopThread();
 }
 Scene* SceneManager::GetActiveScene()
@@ -49,7 +49,7 @@ Scene* SceneManager::GetActiveScene()
 
 void SceneManager::SetOnSceneLoadDone(OnSceneLoadDoneCallback callback)
 {
-    DEBUG_LOG("Set new onSceneLoadDoneCallback");
+    /* LOG TO FIX*/  LOG_ERROR << ("Set new onSceneLoadDoneCallback");
     onSceneLoadDoneCallback = callback;
 }
 
@@ -167,7 +167,7 @@ void SceneManager::LoadNextScene()
 {
     if (currentSceneId_ >= sceneFactory_->ScenesSize() - 1)
     {
-        DEBUG_LOG("SceneManager::LoadNextScene() no more scenes found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneManager::LoadNextScene() no more scenes found.");
         return;
     }
     SetSceneToLoad(++currentSceneId_);
@@ -176,7 +176,7 @@ void SceneManager::LoadPreviousScene()
 {
     if (currentSceneId_ == 0)
     {
-        DEBUG_LOG("SceneManager::LoadPreviousScene() no more scenes found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneManager::LoadPreviousScene() no more scenes found.");
         return;
     }
     SetSceneToLoad(--currentSceneId_);
@@ -193,7 +193,7 @@ void SceneManager::SetSceneToLoad(uint32 id)
 {
     if (!sceneFactory_->IsExist(id))
     {
-        DEBUG_LOG("SceneManager::SetSceneToLoad() no more scenes found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneManager::SetSceneToLoad() no more scenes found.");
         return;
     }
     currentSceneId_ = id;
@@ -204,7 +204,7 @@ void SceneManager::SetSceneToLoad(const std::string& name)
 {
     if (!sceneFactory_->IsExist(name))
     {
-        DEBUG_LOG("SceneManager::SetSceneToLoad() " + name + " not found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneManager::SetSceneToLoad() " + name + " not found.");
         return;
     }
 
@@ -220,14 +220,14 @@ void SceneManager::StartUpdateThreadIfNeeded()
 {
     if (not isRunning_)
     {
-        DEBUG_LOG("Starting scene update thread");
+        /* LOG TO FIX*/  LOG_ERROR << ("Starting scene update thread");
         updateSceneThreadId_ = engineContext_.GetThreadSync().Subscribe(
             std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene", EngineConf.renderer.fpsLimt);
         isRunning_ = true;
     }
     else
     {
-        ERROR_LOG("Scene is already started!");
+        /* LOG TO FIX*/  LOG_ERROR << ("Scene is already started!");
     }
 }
 
@@ -235,14 +235,14 @@ void SceneManager::StopThread()
 {
     if (isRunning_)
     {
-        DEBUG_LOG("Stopping scene thread");
+        /* LOG TO FIX*/  LOG_ERROR << ("Stopping scene thread");
         if (updateSceneThreadId_)
             engineContext_.GetThreadSync().Unsubscribe(*updateSceneThreadId_);
         isRunning_ = false;
     }
     else
     {
-        WARNING_LOG("Scene thread is not started.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Scene thread is not started.");
     }
 }
 

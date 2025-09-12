@@ -75,7 +75,7 @@ void Texture::ReleaseGpuPass()
 
     auto filename = file_ ? file_->GetBaseName() : "";
 
-    DEBUG_LOG("Clean gpu resources " + filename + ", graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
+    /* LOG TO FIX*/  LOG_ERROR << ("Clean gpu resources " + filename + ", graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
 
     graphicsApi_.DeleteObject(*graphicsObjectId_);
     GpuObject::ReleaseGpuPass();

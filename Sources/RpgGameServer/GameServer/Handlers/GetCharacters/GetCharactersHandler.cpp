@@ -23,7 +23,7 @@ void GetCharactersHandler::ProcessMessage(Network::UserId userId, const Network:
 
         if (!c)
         {
-            DEBUG_LOG("GetCharactersHandler::ProcessMessage character not found " + std::to_string(characterId));
+            /* LOG TO FIX*/  LOG_ERROR << ("GetCharactersHandler::ProcessMessage character not found " + std::to_string(characterId));
             continue;
         }
 

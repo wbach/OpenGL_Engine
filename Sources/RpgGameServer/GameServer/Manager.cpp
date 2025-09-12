@@ -40,7 +40,7 @@ void Manager::AddHero(uint32 id)
 }
 void Manager::RemoveHero(uint32 id)
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
     for (auto& m : maps_)
     {
         auto character = m.GetCharacter(id);
@@ -60,7 +60,7 @@ const CharactersMap& Manager::GetAllCharactersInMap(uint32 mapId) const
 {
     if (mapId >= maps_.size())
     {
-        DEBUG_LOG("anager::GetAllCharactersInMap: map id : " + std::to_string(mapId) + " not found.");
+        /* LOG TO FIX*/  LOG_ERROR << ("anager::GetAllCharactersInMap: map id : " + std::to_string(mapId) + " not found.");
         return emptyCharactersMap_;
     }
     return maps_[mapId].GetAllCharacters();

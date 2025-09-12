@@ -15,7 +15,7 @@ GpuResourceLoader::GpuResourceLoader()
 
 GpuResourceLoader::~GpuResourceLoader()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
 }
 void GpuResourceLoader::AddFunctionToCall(std::function<void()> f)
 {
@@ -175,7 +175,7 @@ void GpuResourceLoader::RuntimeLoadObjectToGpu()
         }
         else
         {
-            DEBUG_LOG("Is already loaded.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Is already loaded.");
         }
 
         obj = GetObjectToGpuLoadingPass();
@@ -194,7 +194,7 @@ void GpuResourceLoader::RuntimeUpdateObjectGpu()
         }
         else
         {
-            ERROR_LOG("Object not loaded");
+            /* LOG TO FIX*/  LOG_ERROR << ("Object not loaded");
         }
 
         obj = GetObjectToUpdateGpuPass();

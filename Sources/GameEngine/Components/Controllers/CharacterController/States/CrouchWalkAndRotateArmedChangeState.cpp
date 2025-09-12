@@ -17,10 +17,8 @@ CrouchWalkAndRotateArmedChangeState::CrouchWalkAndRotateArmedChangeState(FsmCont
 }
 void CrouchWalkAndRotateArmedChangeState::onEnter()
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter ");
     if (context_.weaponArmedChangeState == FsmContext::WeaponArmedChangeState::Equip)
     {
-        // /*DISABLED*/ DEBUG_LOG("onEnter 1");
         MoveStateBase::changeAnimationClips(context_.animClipNames.armed.movement.crouch);
         MoveStateBase::setCurrentAnimIfNeeded();
     }

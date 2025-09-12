@@ -140,8 +140,6 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
         }
     }
 
-    DEBUG_LOG("MinHeight: " + std::to_string(minHeight));
-    DEBUG_LOG("MaxHeight: " + std::to_string(maxHeight));
     for (uint32 y = 0; y < heightmapResultuion; y++)
     {
         for (uint32 x = 0; x < heightmapResultuion; x++)
@@ -185,7 +183,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
                 }
                 else
                 {
-                    DEBUG_LOG("Heightmap conversion from object faild");
+                    LOG_ERROR << "Heightmap conversion from object faild";
                     return;
                 }
             }
@@ -294,7 +292,7 @@ HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
     }
     else
     {
-        ERROR_LOG("create error");
+        LOG_ERROR << "create error";
     }
 
     return heightMap_;
@@ -347,7 +345,7 @@ void TerrainComponentBase::LoadHeightMap(const File &file)
     }
     else
     {
-        ERROR_LOG("load error");
+        LOG_ERROR << "load error";
     }
 }
 
@@ -362,7 +360,7 @@ void TerrainComponentBase::SetTexture(TerrainTextureType type, Texture *texture)
 
     if (iter != textures_.end())
     {
-        ERROR_LOG("Texture type " + std::to_string(type) + " already exist.");
+        LOG_ERROR << "Texture type " << magic_enum::enum_name(type) << " already exist.";
         return;
     }
 
@@ -463,7 +461,7 @@ void TerrainComponentBase::updateTerrainTextureBufferData()
                 bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
                 break;
             default:
-                DEBUG_LOG("unknown");
+                LOG_ERROR << "unknown texture type";
         }
     }
 }

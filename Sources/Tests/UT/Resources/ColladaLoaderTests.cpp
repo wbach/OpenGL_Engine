@@ -25,7 +25,7 @@ struct ColladaLoaderShould : public ::testing::Test
 
     void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
     {
-        DEBUG_LOG(of + joint.name + " (size : " + std::to_string(joint.size) + ")");
+        /* LOG TO FIX*/  LOG_ERROR << (of + joint.name + " (size : " + std::to_string(joint.size) + ")");
 
         for (const auto& child : joint.children)
         {
@@ -35,9 +35,9 @@ struct ColladaLoaderShould : public ::testing::Test
 
     void PrintJointsWithMatrix(const GameEngine::Animation::Joint& joint, const std::string& of = "")
     {
-        DEBUG_LOG(of + joint.name);
-        DEBUG_LOG(of + std::to_string(joint.id));
-        DEBUG_LOG(of + std::to_string(joint.transform));
+        /* LOG TO FIX*/  LOG_ERROR << (of + joint.name);
+        /* LOG TO FIX*/  LOG_ERROR << (of + std::to_string(joint.id));
+        /* LOG TO FIX*/  LOG_ERROR << (of + std::to_string(joint.transform));
 
         for (const auto& child : joint.children)
         {
@@ -108,9 +108,9 @@ TEST_F(ColladaLoaderShould, DISABLED_ReadAnimations)
     auto model = sut_->Create();
     auto data = model->GetMeshes().front().GetCMeshDataRef();
 
-    DEBUG_LOG("Print skeleton");
+    /* LOG TO FIX*/  LOG_ERROR << ("Print skeleton");
   //  PrintJointsWithMatrix(model->skeleton_);
-    DEBUG_LOG("end print skeleton");
+    /* LOG TO FIX*/  LOG_ERROR << ("end print skeleton");
 }
 }  // namespace WBLoader
 }  // namespace GameEngine

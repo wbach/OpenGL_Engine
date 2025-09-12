@@ -23,7 +23,7 @@ void EmptyState::handle(const ChangeAnimationEvent &event)
 }
 void EmptyState::handle(const StopAnimationEvent &)
 {
-    DEBUG_LOG("EmptyState StopAnimationEvent?");
+    LOG_DEBUG <<"EmptyState StopAnimationEvent?";
 }
 
 std::vector<std::string> EmptyState::getCurrentAnimation() const

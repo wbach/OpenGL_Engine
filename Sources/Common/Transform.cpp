@@ -64,12 +64,12 @@ void Transform::UnsubscribeOnChange(uint32 id)
         }
         else
         {
-            DEBUG_LOG("Subsribtion not found");
+            LOG_DEBUG << "Subsribtion not found";
         }
     }
     else
     {
-        DEBUG_LOG("Subsribtion not found");
+        LOG_DEBUG << "Subsribtion not found";
     }
 }
 

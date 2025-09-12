@@ -22,6 +22,6 @@ void VertexBoneData::AddBoneData(uint32 bone_id, float weight)
             return;
         }
     }
-    ERROR_LOG("To many bones per vertex. Current limit : " + std::to_string(NUM_BONES_PER_VEREX));
+    /* LOG TO FIX*/  LOG_ERROR << ("To many bones per vertex. Current limit : " + std::to_string(NUM_BONES_PER_VEREX));
 }
 }  // namespace GameEngine

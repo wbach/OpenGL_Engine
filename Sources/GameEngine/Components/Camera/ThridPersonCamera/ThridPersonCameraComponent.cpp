@@ -26,7 +26,6 @@ ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& compone
 
 void ThridPersonCameraComponent::CleanUp()
 {
-    DEBUG_LOG("CleanUp()");
     fsm.reset();
     fsmContext.reset();
 }
@@ -51,8 +50,6 @@ vec3 ThridPersonCameraComponent::getDirection() const
     vec3 dir(1.f);
     auto yaw   = ToRadians(fsmContext->yaw - 90);
     auto pitch = -ToRadians(fsmContext->pitch);
-    //DEBUG_LOG("Yaw :" + std::to_string(fsmContext->yaw) + " Pitch: " + std::to_string(fsmContext->pitch));
-    //DEBUG_LOG("Yaw :" + std::to_string(yaw) + " Pitch: " + std::to_string(pitch));
 
     auto xzLen = cosf(pitch);
     dir.x      = xzLen * cos(yaw);
@@ -63,10 +60,9 @@ vec3 ThridPersonCameraComponent::getDirection() const
 
 void ThridPersonCameraComponent::init()
 {
-    DEBUG_LOG("init");
     if (not componentContext_.scene_.getDisplayManager())
     {
-        ERROR_LOG("Display manager not set!");
+        LOG_ERROR << "Display manager not set!";
         return;
     }
     auto camera = std::make_unique<CustomCamera>();

@@ -130,7 +130,7 @@ void Create(TreeNode& node, const Params::PhysicsVisualizatorParams& param)
     node.attributes_[CSTR_USE_WORKER]        = Utils::BoolToString(param.useWorkredToUpdatePhysicsVisualization_);
     node.attributes_[CSTR_REFRESH_STEP_DOWN] = std::to_string(param.refreshRateStepDown_);
 }
-void Create(TreeNode& node, LogginLvl param)
+void Create(TreeNode& node, LoggingLvl param)
 {
     node.value_ = Params::paramToString(param);
 }

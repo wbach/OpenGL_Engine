@@ -22,25 +22,21 @@ void DodgeState::onEnter(const DodgeDiveEvent &event)
 
 void DodgeState::onEnter(const DodgeForwardEvent &e)
 {
-    DEBUG_LOG("perform DodgeForwardEvent: " + std::to_string(e.power));
     setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.forward);
 }
 
 void DodgeState::onEnter(const DodgeBackwardEvent &e)
 {
-    DEBUG_LOG("perform DodgeBackwardEvent: " + std::to_string(e.power));
     setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.backward);
 }
 
 void DodgeState::onEnter(const DodgeRightEvent &e)
 {
-    DEBUG_LOG("perform DodgeRightEvent: " + std::to_string(e.power));
     setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.right);
 }
 
 void DodgeState::onEnter(const DodgeLeftEvent &e)
 {
-    DEBUG_LOG("perform DodgeLeftEvent: " + std::to_string(e.power));
     setAnimAndSubscribeForEnd(context_.animClipNames.disarmed.dodge.left);
 }
 
@@ -51,7 +47,6 @@ void DodgeState::onEnter(DisarmedFallingState &)
 
 void DodgeState::onLeave(const DodgeEndEvent &)
 {
-    DEBUG_LOG("perform DodgeEndEvent");
     flushEvents();
 }
 
@@ -59,7 +54,6 @@ void DodgeState::setAnimAndSubscribeForEnd(const std::string &animName)
 {
     if (dodgeAnimSubId)
     {
-        DEBUG_LOG("Dodge already performed!");
         return;
     }
 
@@ -77,7 +71,6 @@ void DodgeState::setAnim(const std::string &animName)
 {
     if (not animName.empty())
     {
-        DEBUG_LOG(animName);
         const auto &currentClips = context_.animator.getCurrentAnimationName();
 
         auto iter = std::find(currentClips.begin(), currentClips.end(), animName);

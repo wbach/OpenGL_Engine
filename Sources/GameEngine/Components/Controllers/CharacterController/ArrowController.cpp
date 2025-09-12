@@ -66,8 +66,7 @@ Quaternion generateRotationFromDirection(const vec3& direction)
     {
         if (direction.y < 0)  // rotate 180 degrees
         {
-            transform =
-                glm::mat3(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            transform = glm::mat3(glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         }
         // else if direction.y >= 0, leave transform as the identity matrix.
     }
@@ -100,17 +99,14 @@ void ArrowController::update()
 
         vec3 offset(0, 0.6f, 0);
         auto rotatedOffset = direction * offset;
-        thisObject_.SetWorldPosition( rayTestResult->pointWorld - rotatedOffset);  // lastPosition, rayTestResult->pointWorld but last make better result?
+        thisObject_.SetWorldPosition(rayTestResult->pointWorld -
+                                     rotatedOffset);  // lastPosition, rayTestResult->pointWorld but last make better result?
     }
     lastPosition = currentPos;
 }
 
 void ArrowController::onCollisionDetect(const Physics::CollisionContactInfo& info)
 {
-    //    DEBUG_LOG("Collision detected rigidbodyId=" + std::to_string(rigidbody->GetId()) + "(" +
-    //              std::to_string(info.rigidbodyId1) + ") with rigidbodyId=" + std::to_string(info.rigidbodyId2) +
-    //              ", Oncollision p1 : " + std::to_string(info.pos1) + ", p2 : " + std::to_string(info.pos2));
-
     performCollision(info.rigidbodyId2);
 }
 
@@ -119,13 +115,13 @@ void ArrowController::performCollision(uint32 rigidbodyId)
     auto rigidbody = findCollidedRigidbody(rigidbodyId);
     if (not rigidbody)
     {
-        WARNING_LOG("Rigidbody not found : " + std::to_string(rigidbodyId));
+        LOG_WARN << "Rigidbody not found : " << rigidbodyId;
         return;
     }
 
     if (rigidbody->GetParentGameObject().GetName() != "Player")  // TO DO : check tag
     {
-        DEBUG_LOG("Collision detected with " + rigidbody->GetParentGameObject().GetName());
+        LOG_DEBUG << "Collision detected with " << rigidbody->GetParentGameObject().GetName();
         componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
         collisionSubId.reset();
 
@@ -160,8 +156,7 @@ void ArrowController::subscribeForCollisionDetection()
                                        }
                                    }};
 
-    collisionSubId = componentContext_.physicsApi_.setCollisionCallback(
-        rigidbody->GetId(), cd);
+    collisionSubId = componentContext_.physicsApi_.setCollisionCallback(rigidbody->GetId(), cd);
 }
 
 Rigidbody* ArrowController::findCollidedRigidbody(uint32 rigidbodyId)

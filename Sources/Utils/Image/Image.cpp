@@ -235,7 +235,7 @@ void Image::setChannels(uint8 channels)
     }
     else
     {
-        ERROR_LOG("Unsupported channels count :" + std::to_string(channels) +
+        /* LOG TO FIX*/  LOG_ERROR << ("Unsupported channels count :" + std::to_string(channels) +
                   ", current value : " + std::to_string(channels_));
     }
 }
@@ -254,10 +254,10 @@ void Image::applyFilter(const ImageFilter& imageFilter)
 
     if (size.x % 2 == 0 or size.y % 2 == 0)
     {
-        DEBUG_LOG("Wrong filter size. Filter not applied");
+        /* LOG TO FIX*/  LOG_ERROR << ("Wrong filter size. Filter not applied");
         return;
     }
-    DEBUG_LOG("Applying filter");
+    /* LOG TO FIX*/  LOG_ERROR << ("Applying filter");
     uint32 halfsizeY = size.y / 2;
     uint32 halfsizeX = size.x / 2;
 

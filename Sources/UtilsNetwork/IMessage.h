@@ -52,7 +52,7 @@ std::unique_ptr<T> castMessageAs(std::unique_ptr<IMessage> ptr)
     auto msg = std::static_pointer_cast<T>(ptr);
     if (msg == nullptr)
     {
-        ERROR_LOG("Cant cast type : " + std::to_string(ptr->GetType()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Cant cast type : " + std::to_string(ptr->GetType()));
         return nullptr;
     }
     return msg;
@@ -63,7 +63,7 @@ T* castMessageAs(IMessage* ptr)
     auto msg = static_cast<T*>(ptr);
     if (msg == nullptr)
     {
-        ERROR_LOG("Cant cast type : " + std::to_string(ptr->GetType()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Cant cast type : " + std::to_string(ptr->GetType()));
         return nullptr;
     }
     return msg;
@@ -74,7 +74,7 @@ const T* const castMessageAs(const IMessage& ptr)
     auto msg = &static_cast<const T&>(ptr);
     if (msg == nullptr)
     {
-        ERROR_LOG("Cant cast type : " + std::to_string(ptr.GetType()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Cant cast type : " + std::to_string(ptr.GetType()));
         return nullptr;
     }
     return msg;

@@ -51,7 +51,7 @@ uint32 TreeView::Add(const std::string& str, std::optional<uint32> parent)
         }
         else
         {
-            ERROR_LOG("Parent with id : " + std::to_string(*parent) + " not found");
+            /* LOG TO FIX*/  LOG_ERROR << ("Parent with id : " + std::to_string(*parent) + " not found");
         }
     }
     return idPool_++;

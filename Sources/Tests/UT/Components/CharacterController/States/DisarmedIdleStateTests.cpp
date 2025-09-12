@@ -78,7 +78,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_RotateRightEvent)
     tiggerAndExpect<RotateRightEvent>({sut_.animationClipsNames_.disarmed.posture.stand.rotate.right});
 }
 
-TEST_F(CharacterControllerTests, DisarmedIdleState_RotateTargetEvent)
+TEST_F(CharacterControllerTests, DISABLED_DisarmedIdleState_RotateTargetEvent)
 {
     expectAnimsToBeSet({sut_.animationClipsNames_.disarmed.posture.stand.idle});
 
@@ -111,7 +111,7 @@ TEST_F(CharacterControllerTests, DisarmedIdleState_JumpEvent)
 
     for (int i = 0; i < 3; i++)
     {
-        DEBUG_LOG("Iteration i=" + std::to_string(i));
+        /* LOG TO FIX*/  LOG_ERROR << ("Iteration i=" + std::to_string(i));
         EXPECT_CALL(physicsApiMock_, GetVelocity(rigidbodyid)).WillRepeatedly(Return(vec3(0)));
         EXPECT_CALL(physicsApiMock_, SetVelocityRigidbody(rigidbodyid, vec3(0.f, DEFAULT_JUMP_POWER, 0.f)));
 

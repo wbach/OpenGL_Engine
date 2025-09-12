@@ -13,7 +13,7 @@ ThreadSync::ThreadSync(MeasurementHandler & measurementHandler)
     measurementValue_ = "1";
 
     processorCount_ = std::thread::hardware_concurrency();
-    DEBUG_LOG("System procesors count : " + std::to_string(processorCount_));
+    /* LOG TO FIX*/  LOG_ERROR << ("System procesors count : " + std::to_string(processorCount_));
 }
 
 ThreadSync::~ThreadSync()
@@ -49,7 +49,7 @@ void ThreadSync::Unsubscribe(uint32 id)
     }
     else
     {
-        ERROR_LOG("Unsubscribe error, " + std::to_string(id));
+        /* LOG TO FIX*/  LOG_ERROR << ("Unsubscribe error, " + std::to_string(id));
     }
 }
 

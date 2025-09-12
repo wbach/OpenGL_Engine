@@ -44,7 +44,7 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
 {
     if (not model_)
     {
-        ERROR_LOG("Model not created. Please parse file first.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Model not created. Please parse file first.");
         return nullptr;
     }
     return std::move(model_);
@@ -89,7 +89,7 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
     auto partialSize         = heightMapResolution / partsCount;
     auto rest                = heightMapResolution - (partsCount * partialSize);
 
-    DEBUG_LOG("Rest : " + std::to_string(rest));
+    /* LOG TO FIX*/  LOG_ERROR << ("Rest : " + std::to_string(rest));
 
     vec3 modelBoundingBoxMin(-0.5f, std::numeric_limits<float>::max(), -0.5f);
     vec3 modelBoundingBoxMax(0.5f, -std::numeric_limits<float>::max(), 0.5f);
@@ -162,7 +162,7 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
             vec3 normal  = tools.GetNormal(j, i);
             vec3 tangnet = tools.GetTangent(normal);
 
-            // DEBUG_LOG("normal : " + std::to_string(normal));
+            // /* LOG TO FIX*/  LOG_ERROR << ("normal : " + std::to_string(normal));
 
             normals.push_back(normal.x);
             normals.push_back(normal.y);

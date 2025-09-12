@@ -68,7 +68,7 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
 
     if (not terrain or not terrain->GetHeightMap())
     {
-        ERROR_LOG("No terrain or height map in terrain.");
+        /* LOG TO FIX*/  LOG_ERROR << ("No terrain or height map in terrain.");
         return false;
     }
     TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(),

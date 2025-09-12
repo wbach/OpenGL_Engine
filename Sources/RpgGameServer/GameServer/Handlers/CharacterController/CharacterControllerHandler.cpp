@@ -27,7 +27,7 @@ void CharacterControllerHandler::ProcessMessage(uint32 userId, const Network::IM
 
     if (!characterId)
     {
-        ERROR_LOG("CharacterControllerHandler::ProcessMessage receive message for not user who didnt select character yet.");
+        /* LOG TO FIX*/  LOG_ERROR << ("CharacterControllerHandler::ProcessMessage receive message for not user who didnt select character yet.");
         return;
     }
 
@@ -35,7 +35,7 @@ void CharacterControllerHandler::ProcessMessage(uint32 userId, const Network::IM
 
     if (hero == nullptr)
     {
-        ERROR_LOG("CharacterControllerHandler::ProcessMessage cant get character by id.");
+        /* LOG TO FIX*/  LOG_ERROR << ("CharacterControllerHandler::ProcessMessage cant get character by id.");
         return;
     }
 
@@ -43,7 +43,7 @@ void CharacterControllerHandler::ProcessMessage(uint32 userId, const Network::IM
 
     if (controller == nullptr)
     {
-        ERROR_LOG("CharacterControllerHandler::ProcessMessage character controller not found in character.");
+        /* LOG TO FIX*/  LOG_ERROR << ("CharacterControllerHandler::ProcessMessage character controller not found in character.");
         return;
     }
 

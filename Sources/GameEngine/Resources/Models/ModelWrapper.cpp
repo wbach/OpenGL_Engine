@@ -22,7 +22,7 @@ void ModelWrapper::Update(Model* model, LevelOfDetail lvl)
     }
     else
     {
-        ERROR_LOG("Can not update, model not found");
+        /* LOG TO FIX*/  LOG_ERROR << ("Can not update, model not found");
     }
 }
 Model* ModelWrapper::Get(LevelOfDetail lvl)

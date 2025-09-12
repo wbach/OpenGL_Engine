@@ -58,7 +58,7 @@ std::optional<GLuint> ShaderManager::CreateShaderProgram()
     auto id = glCreateProgram();
     if (id == 0)
     {
-        ERROR_LOG("Error creating shader program.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Error creating shader program.");
         return std::optional<GLuint>();
     }
     return id;
@@ -66,12 +66,12 @@ std::optional<GLuint> ShaderManager::CreateShaderProgram()
 
 GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
 {
-    DEBUG_LOG("Create shader, type : " + std::to_string(static_cast<int>(shaderType)));
+    /* LOG TO FIX*/  LOG_ERROR << ("Create shader, type : " + std::to_string(static_cast<int>(shaderType)));
 
     auto files = GetShaderFiles(shaderType);
     if (not files)
     {
-        ERROR_LOG("Expected files not found for shader type " + std::to_string(static_cast<int>(shaderType)));
+        /* LOG TO FIX*/  LOG_ERROR << ("Expected files not found for shader type " + std::to_string(static_cast<int>(shaderType)));
         return std::nullopt;
     }
 
@@ -80,7 +80,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     {
         logFilesString += " " + f.second;
     }
-    DEBUG_LOG("Shader files :" + logFilesString);
+    /* LOG TO FIX*/  LOG_ERROR << ("Shader files :" + logFilesString);
 
     auto program = CreateShaderProgram();
 
@@ -102,7 +102,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     if (not FinalizeShader(shaderPrograms_.at(uId)))
         return {};
 
-    DEBUG_LOG("Shader succesful created. Id : " + std::to_string(uId));
+    /* LOG TO FIX*/  LOG_ERROR << ("Shader succesful created. Id : " + std::to_string(uId));
 
     return uId;
 }
@@ -124,7 +124,7 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
     if (id == 0)
     {
         CheckAndPrintGLError(shaderProgram);
-        ERROR_LOG("Error creating shader type " + std::to_string(static_cast<int>(shaderTypeMap.at(mode))));
+        /* LOG TO FIX*/  LOG_ERROR << ("Error creating shader type " + std::to_string(static_cast<int>(shaderTypeMap.at(mode))));
         return false;
     }
 
@@ -144,7 +144,7 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
         char err[1000];
         int length = 0;
         glGetShaderInfoLog(id, 1000, &length, err);
-        ERROR_LOG("ERRORS in Shader! \nFile name:\t" + filename + "\nCompile status: \n\n" + err);
+        /* LOG TO FIX*/  LOG_ERROR << ("ERRORS in Shader! \nFile name:\t" + filename + "\nCompile status: \n\n" + err);
         CheckAndPrintGLError(shaderProgram);
         return false;
     }
@@ -168,7 +168,7 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram)
     {
         CheckAndPrintGLError(shaderProgram);
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), nullptr, ErrorLog);
-        ERROR_LOG("Error linking shader program: " + shaderProgram.name + " : " + std::string(ErrorLog));
+        /* LOG TO FIX*/  LOG_ERROR << ("Error linking shader program: " + shaderProgram.name + " : " + std::string(ErrorLog));
         return false;
     }
 
@@ -181,7 +181,7 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram)
     {
         CheckAndPrintGLError(shaderProgram);
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), nullptr, ErrorLog);
-        ERROR_LOG("Invalid shader program : " + shaderProgram.name + " : " + std::string(ErrorLog));
+        /* LOG TO FIX*/  LOG_ERROR << ("Invalid shader program : " + shaderProgram.name + " : " + std::string(ErrorLog));
         return false;
     }
 
@@ -225,7 +225,7 @@ void ShaderManager::CheckAndPrintGLError(OpenGLShaderProgram& shaderProgram)
 
     if (not errorString.empty())
     {
-        ERROR_LOG("GlError : " + errorString + ", Shaderprogram : " + shaderProgram.name + " (" +
+        /* LOG TO FIX*/  LOG_ERROR << ("GlError : " + errorString + ", Shaderprogram : " + shaderProgram.name + " (" +
                   std::to_string(shaderProgram.id) + ")");
     }
 }

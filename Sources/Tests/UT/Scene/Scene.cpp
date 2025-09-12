@@ -26,7 +26,7 @@ struct SceneTest : public Scene
 
     ~SceneTest()
     {
-        DEBUG_LOG("");
+        /* LOG TO FIX*/  LOG_ERROR << ("");
     }
 
     GraphicsApi::WindowApiMock windowApiMock_;
@@ -42,7 +42,7 @@ struct SceneShould : public ::testing::Test
 
     ~SceneShould()
     {
-        DEBUG_LOG("");
+        /* LOG TO FIX*/  LOG_ERROR << ("");
     }
 
     GraphicsApi::WindowApiMock windowApiMock_;

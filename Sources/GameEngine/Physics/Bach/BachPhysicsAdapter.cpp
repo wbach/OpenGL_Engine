@@ -137,7 +137,7 @@ BachPhysicsAdapter::BachPhysicsAdapter()
 }
 BachPhysicsAdapter::~BachPhysicsAdapter()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 }
 void BachPhysicsAdapter::Simulate(float)
 {

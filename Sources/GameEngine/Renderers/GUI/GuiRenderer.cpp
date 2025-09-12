@@ -51,7 +51,7 @@ void GUIRenderer::Init()
     shader_.Init();
 
     isInit_ = true;
-    DEBUG_LOG("GUIRenderer is initialize status : " + std::to_string(isInit_));
+    /* LOG TO FIX*/  LOG_ERROR << ("GUIRenderer is initialize status : " + std::to_string(isInit_));
 }
 
 void GUIRenderer::render()
@@ -91,7 +91,7 @@ void GUIRenderer::render()
 
         if (subscriber->GetZValue() > min)
         {
-            DEBUG_LOG("Sort needed");
+            /* LOG TO FIX*/  LOG_ERROR << ("Sort needed");
             sortNeeded = true;
         }
         min = subscriber->GetZValue();
@@ -123,7 +123,7 @@ void GUIRenderer::Subscribe(GuiElement& element)
 
         if (iter != subscribers_.end())
         {
-            ERROR_LOG("Try duplicate subscribe element");
+            /* LOG TO FIX*/  LOG_ERROR << ("Try duplicate subscribe element");
             return;
         }
         std::lock_guard<std::mutex> lk(subscriberMutex);
@@ -133,7 +133,7 @@ void GUIRenderer::Subscribe(GuiElement& element)
     }
     else
     {
-        ERROR_LOG("Wrong type gui element, id: " + std::to_string(element.GetId()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Wrong type gui element, id: " + std::to_string(element.GetId()));
     }
 }
 

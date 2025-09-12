@@ -1,4 +1,5 @@
 #pragma once
+#include <Logger/Log.h>
 #include <Utils/MeasurementHandler.h>
 #include <Utils/ThreadSync.h>
 #include <Utils/Time/TimerService.h>

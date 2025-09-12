@@ -115,7 +115,7 @@ public:
         {
             if (defaultValueIndex_ > defaultValues_.size())
             {
-                WARNING_LOG("Param index out of range");
+                /* LOG TO FIX*/  LOG_ERROR << ("Param index out of range");
                 return;
             }
             set(defaultValues_[defaultValueIndex_]);

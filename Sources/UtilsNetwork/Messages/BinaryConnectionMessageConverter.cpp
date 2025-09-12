@@ -14,7 +14,7 @@ namespace Network
 {
 BinaryConnectionMessageConverter::BinaryConnectionMessageConverter()
 {
-    DEBUG_LOG("");
+    /* LOG TO FIX*/  LOG_ERROR << ("");
 }
 
 bool BinaryConnectionMessageConverter::IsValid(IMessageFormat format, IMessageType type) const
@@ -33,7 +33,7 @@ std::unique_ptr<IMessage> BinaryConnectionMessageConverter::Convert(IMessageType
         case Network::MessageTypes::Text:
             return ConvertMessage<Network::TextMessage>(message);
         default:
-            DEBUG_LOG("Convert to IMessage. Unsuporrted message.");
+            /* LOG TO FIX*/  LOG_ERROR << ("Convert to IMessage. Unsuporrted message.");
     }
 
     return nullptr;
@@ -51,7 +51,7 @@ IMessageData BinaryConnectionMessageConverter::Convert(const IMessage& message)
             return ConvertMessage<Network::TextMessage>(message);
     }
 
-    DEBUG_LOG("Convert to binary. Unsuporrted message.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Convert to binary. Unsuporrted message.");
     return {};
 }
 }  // namespace Network

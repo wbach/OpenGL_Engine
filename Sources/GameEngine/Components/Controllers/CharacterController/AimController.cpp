@@ -14,6 +14,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -24,8 +25,8 @@ namespace
 const mat4 matrixRotationOffset(glm::rotate(mat4(1.0f), ToRadians(-90.f), glm::vec3(0.f, 1.f, 0.f)));
 }  // namespace
 
-AimController::AimController(Scene& scene, GameObject& gameObject, Input::InputManager& inputManager,
-                             Animation::Joint& joint, const std::string& drawArrowAnimName)
+AimController::AimController(Scene& scene, GameObject& gameObject, Input::InputManager& inputManager, Animation::Joint& joint,
+                             const std::string& drawArrowAnimName)
     : inputManager{inputManager}
     , joint{joint}
     , scene{scene}
@@ -152,7 +153,7 @@ void AimController::createArrowObject()
     auto path = Utils::GetAbsolutePath(EngineConf.files.data) + "/mixamo.com/arrow2.obj";
     if (not Utils::CheckFileExist(path))
     {
-        WARNING_LOG("arrow model path not found. Path: \"" + path + "\"");
+        LOG_WARN << "arrow model path not found. Path: \"" << path << "\"";
         return;
     }
 
@@ -161,8 +162,8 @@ void AimController::createArrowObject()
         return;
     }
 
-    //auto id = arrowIds.getId();
-    // auto arrowObject = scene.CreateGameObject(gameObject.GetName() + "_Arrow_" + std::to_string(id));
+    // auto id = arrowIds.getId();
+    //  auto arrowObject = scene.CreateGameObject(gameObject.GetName() + "_Arrow_" + std::to_string(id));
     auto arrowObject = scene.CreateGameObject("_Arrow_");
     arrowObject->AddComponent<Components::RendererComponent>().AddModel(path);
     arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
@@ -176,7 +177,7 @@ void AimController::createArrowObject()
 
         if (not rendererCopmponent)
         {
-            WARNING_LOG("RendererComponent not found");
+            LOG_WARN << "RendererComponent not found";
             return;
         }
 
@@ -184,12 +185,12 @@ void AimController::createArrowObject()
 
         if (not model or model->GetMeshes().empty())
         {
-            WARNING_LOG("Mesh not found");
+            LOG_WARN << "Mesh not found";
             return;
         }
         auto meshTransform = model->GetMeshes().front().GetMeshTransform();
 
-        jointPoseUpdater = std::make_unique<Components::JointPoseUpdater>(*arrowGameObject, joint, meshTransform);
+        jointPoseUpdater        = std::make_unique<Components::JointPoseUpdater>(*arrowGameObject, joint, meshTransform);
         updateJointBufferSubId_ = animator->subscribeForPoseBufferUpdate(
             [this]()
             {
@@ -197,7 +198,7 @@ void AimController::createArrowObject()
                     jointPoseUpdater->updateGameObjectTransform();
             });
     }
-    DEBUG_LOG("Add to gameobject: " + gameObject.GetName());
+    LOG_DEBUG << "Add to gameobject: " << gameObject.GetName();
 }
 
 vec2 AimController::calculateMouseMove()

@@ -20,12 +20,12 @@ SceneWrapper::SceneWrapper(ISceneFactory& sceneFactory, GraphicsApi::IGraphicsAp
 
 SceneWrapper::~SceneWrapper()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 }
 
 void SceneWrapper::Set(uint32 id, AddEvent sceneEventCallback)
 {
-    DEBUG_LOG("Set id");
+    /* LOG TO FIX*/  LOG_ERROR << ("Set id");
     Reset();
     sceneToLoad_          = id;
     addSceneEventCallback = sceneEventCallback;
@@ -34,7 +34,7 @@ void SceneWrapper::Set(uint32 id, AddEvent sceneEventCallback)
 
 void SceneWrapper::Set(const std::string& name, AddEvent sceneEventCallback)
 {
-    DEBUG_LOG("Set name");
+    /* LOG TO FIX*/  LOG_ERROR << ("Set name");
     Reset();
     sceneToLoad_          = name;
     addSceneEventCallback = sceneEventCallback;
@@ -47,7 +47,7 @@ void SceneWrapper::Init(std::function<void()> onLoadDone)
 
     if (SafeGetState() != SceneWrapperState::ReadyToInitialized)
     {
-        ERROR_LOG("SceneWrapper::Init() Wrong state.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneWrapper::Init() Wrong state.");
         return;
     }
 
@@ -87,7 +87,7 @@ SceneWrapperState SceneWrapper::SafeGetState()
 
 void SceneWrapper::SafeSetState(SceneWrapperState state)
 {
-    DEBUG_LOG("SetState = " + std::to_string(static_cast<int>(state)));
+    /* LOG TO FIX*/  LOG_ERROR << ("SetState = " + std::to_string(static_cast<int>(state)));
     std::lock_guard<std::mutex> lk(stateMutex_);
     state_ = state;
 }
@@ -96,7 +96,7 @@ Scene* SceneWrapper::Get()
 {
     if (SafeGetState() == SceneWrapperState::SceneNotSet)
     {
-        ERROR_LOG("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+        /* LOG TO FIX*/  LOG_ERROR << ("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
     }
 
     return activeScene.get();

@@ -53,7 +53,7 @@ std::unique_ptr<Scene> SceneLoader::Load(uint32 id)
     Init();
     IsLoading(true);
 
-    DEBUG_LOG("Load scene :" + std::to_string(id));
+    /* LOG TO FIX*/  LOG_ERROR << ("Load scene :" + std::to_string(id));
 
     std::unique_ptr<Scene> scene;
     std::thread loadingThread([&]() { scene = LoadScene(id); });
@@ -69,10 +69,10 @@ std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
     Init();
     IsLoading(true);
 
-    DEBUG_LOG("Load scene :" + name);
+    /* LOG TO FIX*/  LOG_ERROR << ("Load scene :" + name);
     std::unique_ptr<Scene> scene;
     std::thread loadingThread([&]() { scene = LoadScene(name); });
-    DEBUG_LOG("loadingThread done: " + name);
+    /* LOG TO FIX*/  LOG_ERROR << ("loadingThread done: " + name);
     ScreenRenderLoop();
     loadingThread.join();
 
@@ -82,11 +82,11 @@ std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
 template <typename T>
 std::unique_ptr<Scene> SceneLoader::LoadScene(T t)
 {
-    DEBUG_LOG("Load scene thread started.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Load scene thread started.");
     Utils::Timer timer;
     auto scene = sceneFactory_.Create(t);
     scene->Init();
-    DEBUG_LOG("Scene loading time: " + std::to_string(timer.GetTimeMiliSeconds()) + "ms.");
+    /* LOG TO FIX*/  LOG_ERROR << ("Scene loading time: " + std::to_string(timer.GetTimeMiliSeconds()) + "ms.");
     IsLoading(false);
     return scene;
 }
@@ -111,7 +111,7 @@ void SceneLoader::Init()
     }
     else
     {
-        ERROR_LOG("background or circle texure creatrion error.");
+        /* LOG TO FIX*/  LOG_ERROR << ("background or circle texure creatrion error.");
     }
 }
 

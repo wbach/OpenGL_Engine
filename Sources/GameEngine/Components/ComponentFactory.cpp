@@ -29,11 +29,11 @@ std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameO
         if (iter != ReadFunctions::instance().componentsReadFunctions.end())
             return iter->second(context_, node, gameObject);
 
-        WARNING_LOG("Read function not find for component name : " + componentName);
+        LOG_WARN << "Read function not find for component name : " << componentName;
     }
     else
     {
-        ERROR_LOG("Component type not found in component node attribute.");
+        LOG_ERROR << "Component type not found in component node attribute.";
     }
 
     return nullptr;

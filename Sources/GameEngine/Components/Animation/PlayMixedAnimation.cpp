@@ -154,7 +154,7 @@ void PlayMixedAnimation::increaseAnimationTime(float deltaTime)
                 if (name != toRemoveName)
                 {
                     CurrentGroupsPlayingInfo info{group.clipInfo, group.time, {name}};
-                    DEBUG_LOG("increaseAnimationTime AnimationTransitionMixedToSingle");
+                    LOG_DEBUG << "increaseAnimationTime AnimationTransitionMixedToSingle";
                     context_.machine.transitionTo<AnimationTransitionMixedToSingle>(context_, info);
                     return;
                 }

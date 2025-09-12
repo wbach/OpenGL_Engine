@@ -12,7 +12,7 @@ CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const Tex
 {
     if (images_.size() != 6)
     {
-        DEBUG_LOG("Cube map texture need 6 texutres : " + name);
+        /* LOG TO FIX*/  LOG_ERROR << ("Cube map texture need 6 texutres : " + name);
     }
 }
 
@@ -20,7 +20,7 @@ void CubeMapTexture::GpuLoadingPass()
 {
     if (graphicsObjectId_ or images_.size() != 6)
     {
-        ERROR_LOG("There was an error loading the texture : " + name_ +
+        /* LOG TO FIX*/  LOG_ERROR << ("There was an error loading the texture : " + name_ +
                   ". data is null or is initialized.");
         return;
     }
@@ -29,11 +29,11 @@ void CubeMapTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        DEBUG_LOG("File " + name_ + " is in GPU.");
+        /* LOG TO FIX*/  LOG_ERROR << ("File " + name_ + " is in GPU.");
     }
     else
     {
-        ERROR_LOG("Texutre not created. Filename : " + name_);
+        /* LOG TO FIX*/  LOG_ERROR << ("Texutre not created. Filename : " + name_);
     }
 
     for (auto& i : images_)

@@ -70,7 +70,6 @@ Animator& Animator::SetAnimation(const std::string& name)
 }
 void Animator::StopAnimation(std::optional<std::string> maybeJoingGroupName)
 {
-    DEBUG_LOG("StopAnimationEvent " + std::to_string(maybeJoingGroupName));
     machine_.handle(StopAnimationEvent{maybeJoingGroupName});
 }
 GraphicsApi::ID Animator::getPerPoseBufferId() const
@@ -103,12 +102,12 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
             subscribers.push_back({id, function, frameTimeStamp});
             animationClipInfoSubscriptions_.insert({id, &subscribers});
 
-            DEBUG_LOG("SubscribeForAnimationFrame " + animName + " id : " + std::to_string(id));
+            LOG_DEBUG << "SubscribeForAnimationFrame " << animName << " id : " << id;
             return id;
         }
     }
 
-    WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found or frames are empty!");
+    LOG_WARN << "SubscribeForAnimationFrame, animation " << animName << " not found or frames are empty!";
     return 0;
 }
 IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::function<void()> function, float frameTimeStamp)
@@ -127,16 +126,16 @@ IdType Animator::SubscribeForAnimationFrame(const std::string& animName, std::fu
         subscribers.push_back({id, function, frameTimeStamp});
         animationClipInfoSubscriptions_.insert({id, &subscribers});
 
-        DEBUG_LOG("SubscribeForAnimationFrame " + animName + " id : " + std::to_string(id));
+        LOG_DEBUG << "SubscribeForAnimationFrame " << animName << " id : " << id;
         return id;
     }
 
-    WARNING_LOG("SubscribeForAnimationFrame, animation " + animName + " not found or frames are empty!");
+    LOG_WARN << "SubscribeForAnimationFrame, animation " << animName << " not found or frames are empty!";
     return 0;
 }
 void Animator::UnSubscribeForAnimationFrame(IdType id)
 {
-    DEBUG_LOG("Try UnSubscribeForAnimationFrame " + std::to_string(id));
+    LOG_DEBUG << "Try UnSubscribeForAnimationFrame " << id;
     auto iter = animationClipInfoSubscriptions_.find(id);
     if (iter != animationClipInfoSubscriptions_.end())
     {
@@ -144,7 +143,7 @@ void Animator::UnSubscribeForAnimationFrame(IdType id)
         auto subIter      = std::find_if(subscribers.begin(), subscribers.end(),
                                          [id](const auto& sub)
                                          {
-                                        DEBUG_LOG("UnSubscribeForAnimationFrame " + std::to_string(id));
+                                        LOG_DEBUG << "UnSubscribeForAnimationFrame " << id;
                                         return sub.id == id;
                                     });
 
@@ -200,7 +199,7 @@ void Animator::alignAnimations(const std::string& animName1, const std::string& 
 
     if (clipIter1 == animationClipInfo_.end() or clipIter2 == animationClipInfo_.end())
     {
-        WARNING_LOG("Align not found animation!  : " + animName1 + " or " + animName2);
+        LOG_WARN << "Align not found animation!  : " << animName1 << " or " << animName2;
         return;
     }
     auto& clip1       = clipIter1->second.clip;
@@ -211,7 +210,7 @@ void Animator::alignAnimations(const std::string& animName1, const std::string& 
 
     if (clip1Frames.empty() or clip2Frames.empty())
     {
-        WARNING_LOG("Align empty frames!  : " + animName1 + " or " + animName2);
+        LOG_WARN << "Align empty frames!  : " << animName1 << " or " << animName2;
         return;
     }
 
@@ -223,9 +222,9 @@ void Animator::alignAnimations(const std::string& animName1, const std::string& 
     }
     else
     {
-        WARNING_LOG("Last frame not found!");
+        LOG_WARN << "Last frame not found!";
     }
-    DEBUG_LOG("Aligned animations: " + animName1 + " and " + animName2);
+    LOG_DEBUG << "Aligned animations: " << animName1 << " and " << animName2;
 }
 
 bool Animator::isAnimationPlaying(const std::string& name) const
@@ -251,13 +250,13 @@ void Animator::ChangeAnimation(const std::string& name, AnimationChangeType chan
 
     if (clipIter == animationClipInfo_.end())
     {
-        DEBUG_LOG("Not found!  : " + name);
+        LOG_WARN << "Not found!  : " << name;
         return;
     }
 
     if (changeType == AnimationChangeType::direct)
     {
-        DEBUG_LOG(" AnimationChangeType::direct not implemnted go to smooth");
+        LOG_DEBUG << " AnimationChangeType::direct not implemnted go to smooth";
     }
 
     jointData_.rootMontion = clipIter->second.rootMontion;
@@ -270,13 +269,13 @@ void Animator::ChangeAnimation(const IdType& id, AnimationChangeType changeType,
 
     if (clipIter == animationClipInfoById_.end())
     {
-        DEBUG_LOG("ChangeAnimation not found animation with id  : " + std::to_string(id));
+        LOG_DEBUG << "ChangeAnimation not found animation with id  : " << id;
         return;
     }
 
     if (changeType == AnimationChangeType::direct)
     {
-        DEBUG_LOG(" AnimationChangeType::direct not implemnted go to smooth");
+        LOG_DEBUG << " AnimationChangeType::direct not implemnted go to smooth";
     }
 
     jointData_.rootMontion = clipIter->second->rootMontion;
@@ -312,7 +311,7 @@ void Animator::GetSkeletonAndAnimations()
 
             if (jointGroups_.empty())
             {
-                DEBUG_LOG("create default joint group");
+                LOG_DEBUG << "create default joint group";
                 createDefaultJointGroup(jointGroups_["deafult"], jointData_.rootJoint);
             }
 
@@ -329,18 +328,18 @@ void Animator::GetSkeletonAndAnimations()
                     }
                 }
             }
-            DEBUG_LOG("Skeleton of: " + model->GetFile().GetBaseName());
+            LOG_DEBUG << "Skeleton of: " << model->GetFile().GetBaseName();
             printSkeleton(jointData_.rootJoint);
 
             montionJoint_ = GetJoint(montionJointName);
             if (montionJoint_)
             {
-                DEBUG_LOG("Montion joint found : " + montionJointName);
+                LOG_DEBUG << "Montion joint found : " << montionJointName;
                 machine_.context_.montionRootJointId = montionJoint_->id;
             }
             else
             {
-                WARNING_LOG("Montion joint not found : " + montionJointName);
+                LOG_WARN << "Montion joint not found : " << montionJointName;
             }
         }
     }
@@ -387,7 +386,7 @@ void Animator::AddAnimationClip(const std::string& name, const Animation::Animat
     }
     else
     {
-        ERROR_LOG("Clip already exist :" + clip.getName());
+        LOG_ERROR << "Clip already exist :" << clip.getName();
     }
 }
 void Animator::applyPoseToJoints(Joint& joint, const mat4& parentTransform)
@@ -430,7 +429,7 @@ void Animator::applyPoseToJoints()
         }
         else
         {
-            DEBUG_LOG("Renderer component not found");
+            LOG_DEBUG << "Renderer component not found";
         }
 
         const auto& boneSpaceMoveVector = machine_.context_.moveVectorForRootMontion;
@@ -452,15 +451,14 @@ void Animator::createShaderJointBuffers()
 {
     if (jointData_.buffer)
     {
-        DEBUG_LOG("ShaderJointBuffer already exist!");
+        LOG_DEBUG << "ShaderJointBuffer already exist!";
         return;
     }
 
     jointData_.buffer =
         std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_, PER_POSE_UPDATE_BIND_LOCATION);
 
-    DEBUG_LOG("Created shader buffer: " + thisObject_.GetName() +
-              ", buffer id: " + std::to_string(jointData_.buffer->GetGpuObjectId()));
+    LOG_DEBUG << "Created shader buffer: " << thisObject_.GetName() << ", buffer id: " << jointData_.buffer->GetGpuObjectId();
 
     auto& bufferData = jointData_.buffer->GetData();
     for (size_t i = 0; i < MAX_BONES; ++i)
@@ -473,7 +471,7 @@ void Animator::initAnimationClips(const Model& model)
 {
     for (const auto& [name, clip] : model.animationClips_)
     {
-        DEBUG_LOG("Add model based clip : " + name);
+        LOG_DEBUG << "Add model based clip : " << name;
         animationClipInfo_.insert({name, AnimationClipInfo{.playSpeed     = 1.f,
                                                            .playType      = AnimationClipInfo::PlayType::loop,
                                                            .playDirection = PlayDirection::forward,
@@ -496,7 +494,7 @@ void Animator::initAnimationClips()
             auto iter = animationClipInfo_.find(animationName);
             if (iter != animationClipInfo_.end())
             {
-                DEBUG_LOG("Update anim info for : " + animationName);
+                LOG_DEBUG << "Update anim info for : " << animationName;
                 auto& [_, info]  = *iter;
                 info.playType    = playType;
                 info.rootMontion = clipToRead.useRootMontion;
@@ -512,7 +510,7 @@ void Animator::initAnimationClips()
         auto iter = animationClipInfo_.find(clipToRead.name);
         if (iter != animationClipInfo_.end())
         {
-            DEBUG_LOG("Update anim info for : " + clipToRead.name);
+            LOG_DEBUG << "Update anim info for : " << clipToRead.name;
             auto& [_, info]  = *iter;
             info.playType    = playType;
             info.rootMontion = clipToRead.useRootMontion;
@@ -526,7 +524,7 @@ void Animator::initAnimationClips()
     }
     else
     {
-        WARNING_LOG("Startup animation not found : " + startupAnimationClipName);
+        LOG_WARN <<"Startup animation not found : " << startupAnimationClipName;
     }
 
     if (animationClipInfo_.size() > 0)
@@ -542,7 +540,7 @@ void Animator::clearAnimationClips()
 
 void Animator::printSkeleton(const Animation::Joint& joint, const std::string& hierarchy)
 {
-    DEBUG_LOG(hierarchy + joint.name);
+    LOG_DEBUG << hierarchy << joint.name;
     const std::string& nextHierarchy{hierarchy + "-"};
     for (const auto& childJoint : joint.children)
     {

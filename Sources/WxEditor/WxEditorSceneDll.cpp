@@ -16,7 +16,7 @@ public:
         camera.UpdateMatrix();
         renderersManager_->GetDebugRenderer().Enable();
 
-        DEBUG_LOG("Hello from WxEditorSceneDll");
+        /* LOG TO FIX*/  LOG_ERROR << ("Hello from WxEditorSceneDll");
 
         return 0;
     }

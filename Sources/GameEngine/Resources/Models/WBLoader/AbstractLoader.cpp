@@ -33,7 +33,7 @@ void AbstractLoader::Parse(const File& file, const LoadingParameters& loadingPar
         ReadBinFile(binFile, textureLoader_);
         loadedFromBin_ = true;
         fileName_      = binFile;
-        DEBUG_LOG("Load from bin file :" + fileName_);
+        /* LOG TO FIX*/  LOG_ERROR << ("Load from bin file :" + fileName_);
     }
     else
     {
@@ -59,7 +59,7 @@ std::unique_ptr<Model> AbstractLoader::Create()
 
     auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    DEBUG_LOG("Model created. " + fileName_ + ". Time : " + std::to_string(duration) +
+    /* LOG TO FIX*/  LOG_ERROR << ("Model created. " + fileName_ + ". Time : " + std::to_string(duration) +
               "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()));
     return newModel;
 }
@@ -72,7 +72,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
     {
         normalizeFactor = 1.f / boundingBox.maxScale();
         boundingBox.scale(vec3(normalizeFactor));
-        DEBUG_LOG("Normalized boundingBox: " + std::to_string(boundingBox.min()) + "-" + std::to_string(boundingBox.max()));
+        /* LOG TO FIX*/  LOG_ERROR << ("Normalized boundingBox: " + std::to_string(boundingBox.min()) + "-" + std::to_string(boundingBox.max()));
     }
 
     auto newModel = std::make_unique<Model>(boundingBox);
@@ -80,13 +80,13 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
     if (objects.empty())
     {
-        ERROR_LOG(fileName_ + ". No object to create!");
+        /* LOG TO FIX*/  LOG_ERROR << (fileName_ + ". No object to create!");
     }
     for (auto& obj : objects)
     {
         if (obj.meshes.empty())
         {
-            ERROR_LOG(fileName_ + ". No meshes in object!");
+            /* LOG TO FIX*/  LOG_ERROR << (fileName_ + ". No meshes in object!");
         }
 
         NormalizeMatrix(obj.transformMatrix, normalizeFactor);
@@ -142,8 +142,8 @@ BoundingBox AbstractLoader::getModelBoundingBox() const
 
     BoundingBox modelBox;
     modelBox.minMax(min, max);
-    DEBUG_LOG("BoundingBox: " + std::to_string(modelBox.min()) + "-" + std::to_string(modelBox.max()));
-    DEBUG_LOG("Normalize factor : " + std::to_string(1.f / modelBox.maxScale()));
+    /* LOG TO FIX*/  LOG_ERROR << ("BoundingBox: " + std::to_string(modelBox.min()) + "-" + std::to_string(modelBox.max()));
+    /* LOG TO FIX*/  LOG_ERROR << ("Normalize factor : " + std::to_string(1.f / modelBox.maxScale()));
     return modelBox;
 }
 }  // namespace WBLoader

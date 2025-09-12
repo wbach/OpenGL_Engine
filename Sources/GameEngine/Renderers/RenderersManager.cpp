@@ -66,7 +66,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
 }
 RenderersManager::~RenderersManager()
 {
-    DEBUG_LOG("destructor");
+    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
 
     EngineConf.renderer.shadows.isEnabled.unsubscribe(shadowEnabledSubscriptionId_);
     EngineConf.renderer.viewDistance.unsubscribe(viewDistanceSubscriptionId_);
@@ -104,7 +104,7 @@ void RenderersManager::createMainRenderer()
 
     if (supportedRenderers.empty())
     {
-        ERROR_LOG("Graphics api not supporting any renderer!");
+        /* LOG TO FIX*/  LOG_ERROR << ("Graphics api not supporting any renderer!");
         return;
     }
 
@@ -113,13 +113,13 @@ void RenderersManager::createMainRenderer()
         auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::SIMPLE);
         if (iter != supportedRenderers.end())
         {
-            DEBUG_LOG("Create base renderer");
+            /* LOG TO FIX*/  LOG_ERROR << ("Create base renderer");
             mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
         }
         else
         {
-            DEBUG_LOG("Graphics api are not supporting SIMPLE renderer try using full");
-            DEBUG_LOG("Create deffered renderer");
+            /* LOG TO FIX*/  LOG_ERROR << ("Graphics api are not supporting SIMPLE renderer try using full");
+            /* LOG TO FIX*/  LOG_ERROR << ("Create deffered renderer");
             mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
         }
         return;
@@ -130,13 +130,13 @@ void RenderersManager::createMainRenderer()
         auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::FULL);
         if (iter != supportedRenderers.end())
         {
-            DEBUG_LOG("Create deffered renderer");
+            /* LOG TO FIX*/  LOG_ERROR << ("Create deffered renderer");
             mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
         }
         else
         {
-            DEBUG_LOG("Graphics api are not supporting FULL renderer try using simple");
-            DEBUG_LOG("Create base renderer");
+            /* LOG TO FIX*/  LOG_ERROR << ("Graphics api are not supporting FULL renderer try using simple");
+            /* LOG TO FIX*/  LOG_ERROR << ("Create base renderer");
             mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
         }
         return;

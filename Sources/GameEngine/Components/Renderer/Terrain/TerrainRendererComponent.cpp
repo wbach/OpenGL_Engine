@@ -46,12 +46,10 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
 {
     if (EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE)
     {
-        DEBUG_LOG("Choosed simple renderer force using terrain mesh renderer.");
         SetRendererType(RendererType::Mesh);
     }
     else if (not componentContext_.resourceManager_.GetGraphicsApi().IsTesselationSupported())
     {
-        DEBUG_LOG("Tessellation is not supported force using terrain mesh renderer.");
         SetRendererType(RendererType::Mesh);
         return;
     }
@@ -63,7 +61,6 @@ TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentCo
 
 TerrainRendererComponent::~TerrainRendererComponent()
 {
-    DEBUG_LOG("destructor " + std::to_string(type_));
 }
 
 void TerrainRendererComponent::CleanUp()
@@ -113,11 +110,9 @@ void TerrainRendererComponent::SetRendererType(TerrainRendererComponent::Rendere
     switch (type)
     {
         case RendererType::Mesh:
-            DEBUG_LOG("Set RendererType::Mesh");
             terrainComponent_ = std::make_unique<TerrainMeshRendererComponent>(componentContext_, thisObject_);
             break;
         case RendererType::Tessellation:
-            DEBUG_LOG("Set RendererType::Tessellation");
             terrainComponent_ = std::make_unique<TerrainTessellationRendererComponent>(componentContext_, thisObject_);
             break;
     }
@@ -138,7 +133,7 @@ TerrainTessellationRendererComponent* TerrainRendererComponent::GetTesselationTe
 {
     if (rendererType_ != RendererType::Tessellation)
     {
-        ERROR_LOG("Get tesselation comonent when rendererType_ != RendererType::Tessellation");
+        LOG_ERROR << "Get tesselation comonent when rendererType_ != RendererType::Tessellation";
         return nullptr;
     }
 
@@ -149,7 +144,7 @@ TerrainMeshRendererComponent* TerrainRendererComponent::GetMeshTerrain()
 {
     if (rendererType_ != RendererType::Mesh)
     {
-        ERROR_LOG("Get tesselation comonent when rendererType_ != RendererType::Mesh");
+        LOG_ERROR << "Get tesselation comonent when rendererType_ != RendererType::Mesh";
         return nullptr;
     }
 
@@ -204,7 +199,7 @@ std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTexture
         if (texture->getChild(CSTR_TEXTURE_TYPE))
             std::from_string(texture->getChild(CSTR_TEXTURE_TYPE)->value_, terrainTexture.type);
         else
-            WARNING_LOG("Read texture without type");
+            LOG_WARN << "Read texture without type";
 
         Read(texture->getChild(CSTR_SCALE), terrainTexture.tiledScale);
 
@@ -271,7 +266,7 @@ void TerrainRendererComponent::write(TreeNode& node) const
         }
         else
         {
-            ERROR_LOG("Heightmap texture cast error");
+            LOG_ERROR << "Heightmap texture cast error";
         }
     }
 
@@ -289,8 +284,8 @@ void TerrainRendererComponent::write(TreeNode& node) const
                 visitor{
                     [&](const std::vector<uint8>& data)
                     { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsolutePath()); },
-                    [](const std::vector<float>& data) { DEBUG_LOG("Float version not implemented."); },
-                    [](const std::monostate&) { ERROR_LOG("Image data is not set!"); },
+                    [](const std::vector<float>& data) { LOG_ERROR << "Float version not implemented."; },
+                    [](const std::monostate&) { LOG_ERROR << "Image data is not set!"; },
                 },
                 image.getImageData());
         }

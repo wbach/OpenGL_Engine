@@ -1,6 +1,7 @@
 #include "XmlMessageConverter.h"
 #include <UtilsNetwork/MessageFormat.h>
 #include <UtilsNetwork/Messages/XmlConverterUtils.h>
+#include "Logger/Log.h"
 #include "MessageTypes.h"
 #include "AvailableComponentMsgIndXmlSerializer.h"
 #include "AvailableComponentMsgIndXmlDeserializer.h"
@@ -59,7 +60,7 @@ bool XmlMessageConverter::IsValid(Network::IMessageFormat format, Network::IMess
 }
 std::unique_ptr<Network::IMessage> XmlMessageConverter::Convert(Network::IMessageType messageType, const Network::IMessageData& message)
 {
-    DEBUG_LOG(Network::Convert(message));
+    LOG_DEBUG << Network::Convert(message);
     Utils::XmlReader reader;
     std::string convertedMessage = Network::Convert(message);
     if (not reader.ReadXml(convertedMessage)) return nullptr;

@@ -139,7 +139,7 @@ void GrassRendererComponent::CreateModelAndSubscribe()
             }
             else
             {
-                ERROR_LOG("Model creation error.");
+                LOG_ERROR << "Model creation error.";
             }
         }
     }
@@ -178,8 +178,6 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
                 mesh = &yMeshBox.at(zIndex);
                 vec3 bbMin(xIndex * BOX_SIZE, yIndex * BOX_SIZE, zIndex * BOX_SIZE);
                 vec3 bbMax((xIndex + 1) * BOX_SIZE, (yIndex + 1) * BOX_SIZE, (zIndex + 1) * BOX_SIZE);
-                DEBUG_LOG("bbMin : " + std::to_string(bbMin));
-                DEBUG_LOG("bbMax : " + std::to_string(bbMax));
                 BoundingBox boundingBox(bbMin * 1.1f, bbMax * 1.1f);
                 mesh->setBoundingBox(boundingBox);
             }
@@ -211,12 +209,10 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
             {
                 for (auto& [_, mesh] : zIndexMap)
                 {
-                    DEBUG_LOG("Mesh positions size : " + std::to_string(mesh.GetMeshDataRef().positions_.size() / 3));
                     result.push_back(std::move(mesh));
                 }
             }
         }
-        DEBUG_LOG("Meshes size : " + std::to_string(result.size()));
     }
     else
     {

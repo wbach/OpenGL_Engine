@@ -13,7 +13,6 @@ AimStateBase::AimStateBase(FsmContext &context, const std::optional<std::string>
 }
 void AimStateBase::onEnter(const AimStartEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter AimStartEvent clip : " + context_.animClipNames.aimIdle);
     setAnim();
 }
 }  // namespace Components

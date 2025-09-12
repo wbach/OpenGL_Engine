@@ -16,7 +16,7 @@ struct TerrainToolsShould : public ::testing::Test
     TerrainToolsShould()
     {
         CLogger::Instance().EnableLogs();
-        CLogger::Instance().ImmeditalyLog();
+        CLogger::Instance().UseAsyncLogging(false);
     }
 
     void SetUp() override
@@ -53,7 +53,7 @@ TEST_F(TerrainToolsShould, vauleInRangeInZeroPos)
     init(terrainScale, image);
 
     auto normal = sut_->GetNormal(0, 0);
-    DEBUG_LOG(std::to_string(normal));
+    LOG_DEBUG << normal;
 
     EXPECT_FLOAT_EQ(normal.x, 0.f);
     EXPECT_FLOAT_EQ(normal.y, 1.f);
@@ -62,7 +62,7 @@ TEST_F(TerrainToolsShould, vauleInRangeInZeroPos)
     auto transformMatrix = Utils::CreateTransformationMatrix(vec3(0), Quaternion(), vec3(1, 2, 1));
 
     auto transformedNormal = glm::normalize(vec3(transformMatrix * vec4(sut_->GetNormal(0, 0), 0.0f)));
-    DEBUG_LOG(std::to_string(transformedNormal));
+    LOG_DEBUG << transformedNormal;
 
     EXPECT_FLOAT_EQ(transformedNormal.x, 0.f);
     EXPECT_FLOAT_EQ(transformedNormal.y, 1.f);

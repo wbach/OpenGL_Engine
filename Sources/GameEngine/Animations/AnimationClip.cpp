@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <Utils/StreamOperators.h>
 
 namespace GameEngine
 {
@@ -89,11 +90,11 @@ string to_string(const GameEngine::Animation::AnimationClip& clip)
     ss << "Animation clip : " << clip.getName() << '\n';
     for (const auto& frame : clip.GetFrames())
     {
-        ss << "frame time : " << std::to_string(frame.timeStamp.value) << '\n';
+        ss << "frame time : " <<  frame.timeStamp.value << '\n';
         for (auto& transform : frame.transforms)
         {
-            ss << "name : " << transform.first << " position : " << std::to_string(transform.second.position)
-               << " rotation : " + std::to_string(transform.second.rotation) << '\n';
+            ss << "name : " << transform.first << " position : " << transform.second.position
+               << " rotation : " << transform.second.rotation << '\n';
         }
         ss << "*********************************************";
     }

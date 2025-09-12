@@ -38,7 +38,7 @@ std::vector<File> ReadCubeMapArray(const TreeNode& node, const std::string& str)
             }
             else
             {
-                ERROR_LOG("To many textures in cubeMap texture.");
+                LOG_ERROR << "To many textures in cubeMap texture.";
             }
         }
     }
@@ -50,7 +50,7 @@ std::optional<std::array<File, 6>> Convert(const std::vector<File>& files)
 {
     if (files.size() != 6)
     {
-        ERROR_LOG("File size != 6. Current size = " + std::to_string(files.size()));
+        LOG_ERROR << "File size != 6. Current size = " << files.size();
         return std::nullopt;
     }
 

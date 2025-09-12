@@ -100,7 +100,7 @@ void ReadFile(std::ifstream& file, Animation::AnimationClip& clip)
     auto diff = fabs(correctLength - clip.GetLength());
     if (diff < std::numeric_limits<float>::epsilon())
     {
-        ERROR_LOG("Animation length is diffrent : " + std::to_string(diff));
+        /* LOG TO FIX*/  LOG_ERROR << ("Animation length is diffrent : " + std::to_string(diff));
     }
 }
 
@@ -160,7 +160,7 @@ std::unique_ptr<Model> ReadBinFile(const std::string& filename, ITextureLoader& 
 
     std::string file_name;
     ReadFile(file, file_name);
-    DEBUG_LOG("file : " + file_name);
+    /* LOG TO FIX*/  LOG_ERROR << ("file : " + file_name);
 
     BoundingBox boundingBox;
     ReadFile(file, boundingBox);

@@ -1,6 +1,9 @@
 #include "TerrainConfiguration.h"
+
 #include <Logger/Log.h>
+
 #include <fstream>
+
 #include "Utils.h"
 
 namespace GameEngine
@@ -14,7 +17,7 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
 
     if (not file.is_open())
     {
-        ERROR_LOG("Can not open file to writing :" + filename);
+        LOG_ERROR << "Can not open file to writing :" << filename;
         return;
     }
 
@@ -23,8 +26,8 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
     file << "# Tesselation terrain parameters\n";
 
     const auto& diplacmentStrength = config.GetPerTerrainBuffer().displacementStrength.value;
-    file << "DisplacmentStrength " << diplacmentStrength.x << " " << diplacmentStrength.y << " " << diplacmentStrength.z
-         << " " << diplacmentStrength.w << "\n";
+    file << "DisplacmentStrength " << diplacmentStrength.x << " " << diplacmentStrength.y << " " << diplacmentStrength.z << " "
+         << diplacmentStrength.w << "\n";
 
     for (size_t i = 0; i < LOD_SIZE; ++i)
     {
@@ -48,7 +51,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
 
     if (not file.is_open())
     {
-        DEBUG_LOG("Terrain config file not found, creating default : " + configFile.GetFilename());
+        LOG_DEBUG << "Terrain config file not found, creating default : " << configFile.GetFilename();
         SaveTerrainConfigurationToFile(config, configFile.GetAbsolutePath());
         return config;
     }
@@ -66,7 +69,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
         {
             if (params.size() < 4)
             {
-                ERROR_LOG("Wrong scale format in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Wrong scale format in line : " << lineNumber;
                 continue;
             }
 
@@ -76,7 +79,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
             }
             catch (...)
             {
-                ERROR_LOG("Read scale error in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Read scale error in line : " << lineNumber;
                 continue;
             }
         }
@@ -84,7 +87,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
         {
             if (params.size() < 3)
             {
-                ERROR_LOG("Wrong lod format in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Wrong lod format in line : " << lineNumber;
                 continue;
             }
 
@@ -94,7 +97,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
             }
             catch (...)
             {
-                ERROR_LOG("Read lod error error in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Read lod error error in line : " << lineNumber;
                 continue;
             }
         }
@@ -102,7 +105,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
         {
             if (params.size() < 5)
             {
-                ERROR_LOG("Wrong DisplacmentStrength format in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Wrong DisplacmentStrength format in line : " << lineNumber;
                 continue;
             }
 
@@ -113,7 +116,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
             }
             catch (...)
             {
-                ERROR_LOG("Read displacmentStrength error error in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Read displacmentStrength error error in line : " << lineNumber;
                 continue;
             }
         }
@@ -121,7 +124,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
         {
             if (params.size() < 2)
             {
-                ERROR_LOG("Wrong PartsCount format in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Wrong PartsCount format in line : " << lineNumber;
                 continue;
             }
 
@@ -130,18 +133,17 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
                 auto partsCount = std::stoi(params[1]);
                 if (partsCount > 1)
                 {
-                    DEBUG_LOG("Terrain parts enabled. " + std::to_string(partsCount) + "x" +
-                              std::to_string(partsCount));
+                    LOG_DEBUG << "Terrain parts enabled. " << partsCount << "x" << partsCount;
                     config.partsCount_ = partsCount;
                 }
                 else
                 {
-                    DEBUG_LOG("Terrain parts disabled.");
+                    LOG_DEBUG << "Terrain parts disabled.";
                 }
             }
             catch (...)
             {
-                ERROR_LOG("Read PartsCount error in line : " + std::to_string(lineNumber));
+                LOG_ERROR << "Read PartsCount error in line : " << lineNumber;
                 continue;
             }
         }
@@ -193,15 +195,14 @@ void TerrainConfiguration::SetTerrainYOffset(float offset)
 // namespace GameEngine
 int32 TerrainConfiguration::updateMorphingArea(uint32 lod)
 {
-    return static_cast<int32>((scale_.x / terrainRootNodesCount_) /
-                              static_cast<float>(pow(2, lod)));
+    return static_cast<int32>((scale_.x / terrainRootNodesCount_) / static_cast<float>(pow(2, lod)));
 }
 
 void TerrainConfiguration::SetLod(uint32 index, uint32 value)
 {
     if (index > LOD_SIZE)
     {
-        ERROR_LOG("Try set lod out of range! max(" + std::to_string(LOD_SIZE) + ")");
+        LOG_ERROR << "Try set lod out of range! max(" << LOD_SIZE <<  ")";
         return;
     }
 

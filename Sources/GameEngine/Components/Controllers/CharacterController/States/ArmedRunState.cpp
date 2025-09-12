@@ -22,25 +22,21 @@ ArmedRunState::handle(const AttackEvent &)
 
     if (clips.empty())
     {
-        DEBUG_LOG("x");
         return Utils::StateMachine::Nothing{};
     }
 
     if (clips.front().stateType == PlayStateType::idle)
     {
-        DEBUG_LOG("idle");
         return Utils::StateMachine::TransitionTo<ArmedAttackState>{};
     }
 
     if (clips.front().stateType == PlayStateType::walk)
     {
-        DEBUG_LOG("walk");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndWalkState>{};
     }
 
     if (clips.front().stateType == PlayStateType::run)
     {
-        DEBUG_LOG("run");
         return Utils::StateMachine::TransitionTo<ArmedAttackAndRunState>{};
     }
 

@@ -22,7 +22,6 @@ JumpState::JumpState(FsmContext &context)
 
 void JumpState::onEnter(const JumpEvent &event)
 {
-    DEBUG_LOG("perform Jump");
     auto velocity = context_.rigidbody.GetVelocity();
     velocity.y += event.power;
     context_.rigidbody.SetVelocity(velocity);
@@ -55,7 +54,6 @@ void JumpState::update(float deltaTime)
         jumpAttemptTimer = jumpAttemptTimer.value() - deltaTime;
         if (jumpAttemptTimer <= 0.f)
         {
-            DEBUG_LOG("JumpTriger timeout");
             context_.characterController.pushEventToFrontQueue(GroundDetectionEvent{});
             context_.isOnAir = false;
             jumpAttemptTimer.reset();
@@ -65,7 +63,6 @@ void JumpState::update(float deltaTime)
 
 void JumpState::onLeave(const GroundDetectionEvent &)
 {
-    DEBUG_LOG("perform GroundDetectionEvent");
     flushEvents();
 }
 
@@ -73,7 +70,6 @@ void JumpState::setAnim()
 {
     if (not animName.empty())
     {
-        DEBUG_LOG(animName);
         const auto &currentClips = context_.animator.getCurrentAnimationName();
 
         auto iter = std::find(currentClips.begin(), currentClips.end(), animName);

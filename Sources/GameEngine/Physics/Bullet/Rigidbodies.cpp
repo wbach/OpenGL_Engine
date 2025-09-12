@@ -41,7 +41,7 @@ void Rigidbodies::erase(IdType rigidbodyId)
     }
     else
     {
-        ERROR_LOG("Rigidbody not found id=" + std::to_string(rigidbodyId));
+        /* LOG TO FIX*/  LOG_ERROR << ("Rigidbody not found id=" + std::to_string(rigidbodyId));
     }
 }
 std::optional<Rigidbodies::IsStatic> Rigidbodies::isStatic(IdType rigidbodyId) const
@@ -51,14 +51,14 @@ std::optional<Rigidbodies::IsStatic> Rigidbodies::isStatic(IdType rigidbodyId) c
         auto [_, is] = *pairPtr;
         return is;
     }
-    
+
     return std::nullopt;
 }
 Rigidbody* Rigidbodies::get(const RigidbodyId& rigidbodyId)
 {
     if (not rigidbodyId)
     {
-        ERROR_LOG("Ivalid rigidbody");
+        /* LOG TO FIX*/  LOG_ERROR << ("Ivalid rigidbody");
         return nullptr;
     }
 
@@ -74,7 +74,7 @@ Rigidbody* Rigidbodies::get(const RigidbodyId& rigidbodyId)
         return maybeRigidBody;
     }
 
-    ERROR_LOG("Rigidbody not found " + std::to_string(*rigidbodyId));
+    /* LOG TO FIX*/  LOG_ERROR << ("Rigidbody not found " + std::to_string(*rigidbodyId));
     return nullptr;
 }
 RigidbodyId Rigidbodies::insert(Rigidbody newBody, Rigidbodies::IsStatic isStatic)

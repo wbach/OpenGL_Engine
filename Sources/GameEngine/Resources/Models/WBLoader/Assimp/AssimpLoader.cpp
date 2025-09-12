@@ -176,7 +176,7 @@ AssimpLoader::AssimpLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
     auto version = std::to_string(aiGetVersionMajor()) + "." + std::to_string(aiGetVersionMinor());
-    DEBUG_LOG("Assimp version : " + version);
+    /* LOG TO FIX*/ LOG_ERROR << ("Assimp version : " + version);
 }
 
 AssimpLoader::~AssimpLoader()
@@ -205,13 +205,13 @@ void AssimpLoader::ParseFile(const File& file)
 
     if (not scene)
     {
-        ERROR_LOG("import file error : " + importer.GetErrorString());
+        LOG_ERROR << "import file error : " << importer.GetErrorString();
         return;
     }
 
     if (scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
     {
-        WARNING_LOG("import scene incomplete");
+        LOG_DEBUG << "import scene incomplete";
     }
 
     currentProcessingFile_ = file;
@@ -237,10 +237,10 @@ void AssimpLoader::ParseFile(const File& file)
 bool AssimpLoader::CheckExtension(const File& file)
 {
     return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
-                             "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
-                             "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
-                             "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
-                             "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
+                          "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
+                          "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
+                          "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
+                          "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
 
     // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ
     // OGRE OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
@@ -395,7 +395,7 @@ void AssimpLoader::loadBonesData(const aiScene& scene, const aiMesh& mesh, Mesh&
         }
         else
         {
-            WARNING_LOG("To many bones per vertex");
+            /* LOG TO FIX*/ LOG_ERROR << ("To many bones per vertex");
         }
         ++i;
     }
@@ -406,14 +406,15 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
     {
         const aiNode& node = *scene.mRootNode;
 
-        DEBUG_LOG("Rootnode bone name: " + std::string(node.mName.data));
+        LOG_DEBUG << "Rootnode bone name: " << node.mName.data;
 
         for (const auto& bone : bones_)
-            DEBUG_LOG(bone.first);
+            LOG_DEBUG << bone.first;
+
         auto armatureNode = findArmatureRootNode(node);
         if (armatureNode)
         {
-            DEBUG_LOG("Root node found : " + armatureNode->mName.data);
+            LOG_DEBUG << "Root node found : " << armatureNode->mName.data;
             createSkeleton(*armatureNode, object_->skeleton_);
         }
     }
@@ -452,7 +453,8 @@ void AssimpLoader::processAnimations(const aiScene& scene)
         std::string name(aiAnim.mName.data);
         if (name.empty())
             name = "noname";
-        DEBUG_LOG("Animation : " + name);
+
+        LOG_DEBUG << "Animation : " << name;
         objects.back().animationClips_.insert({name, processAnimation(aiAnim)});
     }
 }
@@ -503,7 +505,7 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
     }
     if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 1)
     {
-        WARNING_LOG("MultiTexturing not supported.");
+        LOG_DEBUG << "MultiTexturing not supported.";
     }
     for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_DIFFUSE); ++i)
     {
@@ -570,7 +572,8 @@ std::string AssimpLoader::getTexturePath(const std::string& path) const
     if (std::filesystem::exists(path))
         return path;
 
-    LOG_DEBUG << "Texture not found : " << path << ". Searching recursively in model based directory : " << currentProcessingFile_->GetAbsolutePath().parent_path();
+    LOG_DEBUG << "Texture not found : " << path
+              << ". Searching recursively in model based directory : " << currentProcessingFile_->GetAbsolutePath().parent_path();
 
     return Utils::FindFile(File(path).GetFilename(), currentProcessingFile_->GetAbsolutePath().parent_path());
 }
@@ -587,7 +590,7 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
 
         if (not joint)
         {
-            ERROR_LOG("Joint not found in skeleton : " + jointName);
+            LOG_DEBUG << "Joint not found in skeleton : " << jointName;
             continue;
         }
 
@@ -669,7 +672,7 @@ void AssimpLoader::printTree(const aiNode& node, uint32 depth) const
     for (uint32 i = 0; i < depth; ++i)
         str += "---";
 
-    DEBUG_LOG(str + name + "( Depth : " + std::to_string(depth) + ")");
+    /* LOG TO FIX*/ LOG_ERROR << (str + name + "( Depth : " + std::to_string(depth) + ")");
 
     for (uint32 i = 0; i < node.mNumChildren; ++i)
     {

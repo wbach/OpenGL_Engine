@@ -17,14 +17,11 @@ public:
     template <typename Event>
     void pushEventToQueue(const Event& event)
     {
-        DEBUG_LOG("pushEventToQueue: " + typeName<Event>());
         queue_.push_back(event);
     }
     template <typename Event>
     void removeEventFromQueue(const Event& event)
     {
-        DEBUG_LOG("removeEventFromQueue: " + typeName<Event>());
-
         queue_.erase(
             std::remove_if(queue_.begin(), queue_.end(), [](const auto& event) { return std::holds_alternative<Event>(event); }));
     }

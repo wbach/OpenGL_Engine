@@ -31,7 +31,6 @@ void IdleArmedChangeState::onEnter(DisarmedAttackState &, const DrawArrowEvent &
 }
 void IdleArmedChangeState::onEnter(DisarmedIdleState &, const WeaponStateEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter(DisarmedIdleState&, const WeaponStateEvent &)");
     ArmedChangeStateBase::equipWeapon();
 }
 void IdleArmedChangeState::onEnter(DisarmedAttackState &, const WeaponStateEvent &)
@@ -40,7 +39,6 @@ void IdleArmedChangeState::onEnter(DisarmedAttackState &, const WeaponStateEvent
 }
 void IdleArmedChangeState::onEnter(ArmedIdleState &, const WeaponStateEvent &)
 {
-    // /*DISABLED*/ DEBUG_LOG("onEnter(ArmedIdleState&, const WeaponStateEvent &)");
     ArmedChangeStateBase::disarmWeapon();
 }
 void IdleArmedChangeState::onEnter(ArmedAttackState &, const WeaponStateEvent &)

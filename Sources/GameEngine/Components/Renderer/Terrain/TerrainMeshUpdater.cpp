@@ -40,7 +40,6 @@ void TerrainMeshUpdater::create()
 }
 void TerrainMeshUpdater::reCreate()
 {
-    DEBUG_LOG("recreate terrain mesh");
     auto model = modelWrapper_.Get(LevelOfDetail::L1);
     if (model)
     {
@@ -130,7 +129,7 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
     auto& meshes = model->GetMeshes();
     if (meshes.size() != 1)
     {
-        ERROR_LOG("Meshes size inccorect for single terrain mesh.");
+        LOG_ERROR << "Meshes size inccorect for single terrain mesh.";
         return;
     }
 

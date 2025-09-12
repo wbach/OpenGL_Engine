@@ -20,7 +20,6 @@ RotatingMoveState::RotatingMoveState(FsmContext &context, const std::optional<st
 
 void RotatingMoveState::update(float dt)
 {
-    // /*DISABLED*/ DEBUG_LOG("Update");
     moveCameraRotateRigidbody();
 
     if (context_.progress < 1.f)
@@ -52,21 +51,15 @@ void RotatingMoveState::update(const MoveRightEvent &event)
 
 void RotatingMoveState::postEnter()
 {
-    // /*DISABLED*/
-    DEBUG_LOG("postEnter set: " + animationClips_.forward);
-    // prevent to call postEnter from MoveStateBase
     setTargetAngle();
     setAnim(animationClips_.forward);
 }
 
 void RotatingMoveState::postUpdate()
 {
-    // /*DISABLED*/ DEBUG_LOG("postUpdate");
     setTargetAngle();
     if (not context_.moveController.isMoving())
     {
-        // /*DISABLED*/
-        DEBUG_LOG("onMoveInactivity");
         onMoveInactivity();
     }
 }
@@ -100,15 +93,10 @@ void RotatingMoveState::setCharacterRotation(const mat4 &matrixRotation)
     {
         rj->additionalUserMofiyTransform.set(matrixRotation);
     }
-    else
-    {
-        // /*DISABLED*/ DEBUG_LOG("not setCharacterRotation");
-    }
 }
 
 void RotatingMoveState::setTargetAngle()
 {
-    // /*DISABLED*/ DEBUG_LOG("Current dir : " + std::to_string(context_.moveController.getCurrentDir()));
     context_.progress    = 0.f;
     context_.sourceAngle = context_.currentAngle;
     context_.targetAngle = glm::angleAxis(
@@ -119,9 +107,7 @@ void RotatingMoveState::applyCurrentRotation()
 {
     if (context_.moveController.isMoving())
     {
-        // /*DISABLED*/ DEBUG_LOG("Progress " + std::to_string(context_.progress));
         auto progress = context_.progress > 1.f ? 1.f : context_.progress;
-        // /*DISABLED*/ DEBUG_LOG("Progress2 " + std::to_string(progress));
         context_.currentAngle = glm::slerp(context_.currentAngle, context_.targetAngle, progress);
         setCharacterRotation(glm::mat4_cast(context_.currentAngle));
 

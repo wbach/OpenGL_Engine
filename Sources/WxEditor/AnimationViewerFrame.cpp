@@ -632,7 +632,7 @@ void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
     {
         for (const auto& file : files)
         {
-            DEBUG_LOG("Found animation file in subfolders add clip : " + file);
+            /* LOG TO FIX*/  LOG_ERROR << ("Found animation file in subfolders add clip : " + file);
             if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
             {
                 currentGameObject->animator.AddAnimationClip(*animationName, GameEngine::File(file));

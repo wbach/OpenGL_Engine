@@ -27,8 +27,7 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     auto maybeColor = heightMapImage_.getPixel({x, y});
     if (not maybeColor)
     {
-        ERROR_LOG("outOfRange getPoint={" + std::to_string(vec2ui(x, y)) + "} heightMapImage_={" +
-                  std::to_string(heightMapImage_.size()) + "}");
+        LOG_ERROR << "outOfRange getPoint={" << vec2ui(x, y) << "} heightMapImage_={" << heightMapImage_.size() << "}";
         return 0.f;
     }
 
@@ -38,7 +37,6 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
     }
     else
     {
-        // DEBUG_LOG("Multi channel heightmap not implemented.");
         return (maybeColor->value.x) * terrainScale_.y;
     }
 

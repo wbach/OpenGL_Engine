@@ -207,7 +207,7 @@ bool File::openToWrite()
 {
     if (fp_)
     {
-        ERROR_LOG("Can not write to openned file!.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Can not write to openned file!.");
         return false;
     }
 
@@ -224,7 +224,7 @@ bool File::openToRead()
 {
     if (fp_)
     {
-        ERROR_LOG("Can not open to openned file!.");
+        /* LOG TO FIX*/  LOG_ERROR << ("Can not open to openned file!.");
         return false;
     }
 
@@ -272,7 +272,7 @@ void File::ClearSpecialCharacters()
                            if (result)
                            {
                                changeNeeded = true;
-                               DEBUG_LOG(std::string("Remove notAllowed character \"") + c + "\" from file : " + GetFilename());
+                               /* LOG TO FIX*/  LOG_ERROR << (std::string("Remove notAllowed character \"") + c + "\" from file : " + GetFilename());
                            }
                            return result;
                        });

@@ -75,7 +75,7 @@ void Json::Write(const std::string& filename, const TreeNode& root)
     std::ofstream file(filename);
     if (!file.is_open())
     {
-        ERROR_LOG("cannot open file " + filename);
+        /* LOG TO FIX*/  LOG_ERROR << ("cannot open file " + filename);
         return;
     }
 
