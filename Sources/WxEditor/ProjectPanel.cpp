@@ -19,7 +19,7 @@ namespace
 {
 bool is3dModelFile(const std::string& fileName)
 {
-    return GameEngine::File(fileName).IsExtension(
+    return GameEngine::File(fileName).IsFormat(
         {"AMF",  "3DS",     "AC",       "ASE",  "ASSBIN", "B3D",   "BVH",     "COLLADA", "DXF", "CSM", "DAE",   "HMP", "IRRMESH",
          "IRR",  "LWO",     "LWS",      "MD2",  "MD3",    "MD5",   "MD5MESH", "MDC",     "MDL", "NFF", "NDO",   "OFF", "OBJ",
          "OGRE", "OPENGEX", "PLY",      "MS3D", "COB",    "BLEND", "IFC",     "XGL",     "FBX", "Q3D", "Q3BSP", "RAW", "SIB",

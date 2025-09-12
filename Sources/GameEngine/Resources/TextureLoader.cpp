@@ -107,10 +107,10 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     if (not inputFileName)
     {
         // WARNING_LOG("File not exist : " + inputFileName.GetAbsolutePath() + " try find it in data directory");
-        auto filename = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
-        if (not filename.empty())
+        auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
+        if (not filepath.empty())
         {
-            inputFile = File(filename);
+            inputFile = File(filepath);
             // DEBUG_LOG("Found texture in : " + inputFile.GetAbsolutePath());
         }
         else
@@ -196,7 +196,7 @@ HeightMap* TextureLoader::LoadHeightMap(const File& inputFileName, const Texture
         return static_cast<HeightMap*>(texture);
     }
 
-    auto isBinnary = inputFileName.IsExtension(".terrain");
+    auto isBinnary = inputFileName.IsFormat(".terrain");
     return isBinnary ? LoadHeightMapBinary(inputFileName, params) : LoadHeightMapTexture(inputFileName, params);
 }
 GeneralTexture* TextureLoader::CreateNormalMap(const HeightMap& heightMap, const vec3& terrainScale)

@@ -17,7 +17,7 @@ void BinaryLoader::ParseFile(const File&)
 
 bool BinaryLoader::CheckExtension(const File& file)
 {
-    return file.IsExtension("bin");
+    return file.IsFormat("bin");
 }
 
 }  // WBLoader

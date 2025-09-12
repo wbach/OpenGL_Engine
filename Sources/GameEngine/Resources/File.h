@@ -29,13 +29,12 @@ public:
     std::string GetBaseName() const;
     std::string GetExtension() const;
     std::string GetFilename() const;
-    std::string GetParentDir() const;
     File CreateFileWithExtension(const std::string&) const;
     void ChangeFileName(const std::string&);
     void ChangeBaseName(const std::string&);
     void AddSuffixToBaseName(const std::string&);
-    bool IsExtension(const std::string&) const;
-    bool IsExtension(const std::vector<std::string>&) const;
+    bool IsFormat(const std::string&) const;
+    bool IsFormat(const std::vector<std::string>&) const;
 
     bool operator==(const File&) const;
     File& operator=(const File&);

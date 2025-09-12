@@ -54,7 +54,7 @@ void ColladaDae::ParseFile(const File& filename)
 }
 bool ColladaDae::CheckExtension(const File& file)
 {
-    return file.IsExtension("dae");
+    return file.IsFormat("dae");
 }
 void ColladaDae::ConstructModel()
 {

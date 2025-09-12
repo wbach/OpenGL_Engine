@@ -21,7 +21,7 @@ struct File
 
 void CreateEmptyFile(const std::string&);
 void RenameFile(const std::string&, const std::string&);
-std::string FindFile(const std::string&, const std::string&);
+std::filesystem::path FindFile(const std::filesystem::path&, const std::filesystem::path&);
 bool IsFileExistsInDir(const std::string&, const std::string&);
 std::vector<std::string> FindFilesWithExtension(const std::string&, const std::string&);
 std::string GetFileName(const std::string&);

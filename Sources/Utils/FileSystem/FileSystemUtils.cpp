@@ -18,11 +18,11 @@ namespace Utils
 {
 namespace fs = std::filesystem;
 
-std::string FindFile(const std::string& filename, const std::string& dir)
+std::filesystem::path FindFile(const std::filesystem::path& filepath, const std::filesystem::path& dir)
 {
     try
     {
-        if (not dir.empty())
+        if (std::filesystem::exists(dir))
         {
             for (auto& p : std::filesystem::directory_iterator(std::filesystem::canonical(dir)))
             {
@@ -30,25 +30,25 @@ std::string FindFile(const std::string& filename, const std::string& dir)
                 {
                     if (p.path().string() != dir)
                     {
-                        auto maybeFileName = FindFile(filename, p.path().string());
+                        auto maybeFileName = FindFile(filepath, p.path());
                         if (not maybeFileName.empty())
                             return maybeFileName;
                     }
                 }
                 else
                 {
-                    if (p.path().filename() == filename)
-                        return Utils::ReplaceSlash(p.path().string());
+                    if (p.path().filename() == filepath)
+                        return p.path();
                 }
             }
         }
     }
     catch (...)
     {
-        ERROR_LOG("Find file error. searching file : " + filename + " in dir : " + dir);
+        LOG_ERROR << "Find file error. searching file : " << filepath << " in dir : " << dir;
     }
 
-    return std::string();
+    return {};
 }
 
 bool IsFileExistsInDir(const std::string& directory, const std::string& filename)

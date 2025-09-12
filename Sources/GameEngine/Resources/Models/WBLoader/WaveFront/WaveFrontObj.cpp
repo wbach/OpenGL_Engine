@@ -29,7 +29,7 @@ void WaveFrontObjLoader::ParseFile(const File& filename)
 }
 bool WaveFrontObjLoader::CheckExtension(const File& filename)
 {
-    return filename.IsExtension("obj");
+    return filename.IsFormat("obj");
 }
 void WaveFrontObjLoader::GetFileData(const File& file)
 {
@@ -39,7 +39,7 @@ void WaveFrontObjLoader::GetFileData(const File& file)
         return;
 
     filename = file.GetFilename();
-    path     = file.GetParentDir();
+    path     = file.GetAbsolutePath().parent_path();
 }
 void WaveFrontObjLoader::ProcessFileData()
 {

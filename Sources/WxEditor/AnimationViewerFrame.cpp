@@ -282,11 +282,11 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
 
 bool AnimationViewerFrame::CheckExtension(const GameEngine::File& file)
 {
-    return file.IsExtension({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
-                             "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
-                             "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
-                             "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
-                             "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
+    return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
+                          "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
+                          "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
+                          "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
+                          "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
 
     // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ
     // OGRE OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
@@ -326,16 +326,16 @@ void AnimationViewerFrame::OnExportToFile(wxCommandEvent& event)
         return;
     }
 
-    wxFileDialog saveFileDialog(this, "Save animation to file", currentGameObject->currentModelFile->GetParentDir(),
-                                selected + ".xml", "Animation files (*.xml)|*.xml|All files (*.*)|*.*",
-                                wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    wxFileDialog saveFileDialog(this, "Save animation to file",
+                                currentGameObject->currentModelFile->GetAbsolutePath().parent_path().string(), selected + ".xml",
+                                "Animation files (*.xml)|*.xml|All files (*.*)|*.*", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (saveFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
     wxString path = saveFileDialog.GetPath();
 
-    LOG_DEBUG << "Exporting animation " << selected.ToStdString() << " to file: " << path.ToStdString();
+    LOG_DEBUG << "Exporting animation " << selected << " to file: " << path;
 
     auto model = currentGameObject->rendererComponent.GetModelWrapper().Get();
     if (model)
@@ -504,14 +504,15 @@ void AnimationViewerFrame::ImportCurrentObject()
         {
             if (texture)
             {
-                auto textureFile =
-                    Utils::FindFile(texture->GetFile()->GetFilename(), currentGameObject->currentModelFile->GetParentDir());
+                auto textureFile = Utils::FindFile(texture->GetFile()->GetFilename(),
+                                                   currentGameObject->currentModelFile->GetAbsolutePath().parent_path());
 
                 const auto fsTargetPath = std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString());
 
                 if (not textureFile.empty())
                 {
-                    auto relPath = Utils::GetRelativePathToFile(currentGameObject->currentModelFile->GetParentDir(), textureFile);
+                    auto relPath = Utils::GetRelativePathToFile(
+                        currentGameObject->currentModelFile->GetAbsolutePath().parent_path(), textureFile);
                     LOG_DEBUG << "relPath : " << relPath;
 
                     if (relPath)
@@ -614,6 +615,7 @@ void AnimationViewerFrame::Clear()
 
 std::string AnimationViewerFrame::GetStartupDialogPathBasedOnCurrent() const
 {
-    return currentGameObject->currentModelFile.has_value() ? currentGameObject->currentModelFile->GetParentDir()
-                                                           : ProjectManager::GetInstance().GetProjectPath();
+    return currentGameObject->currentModelFile.has_value()
+               ? currentGameObject->currentModelFile->GetAbsolutePath().parent_path().string()
+               : ProjectManager::GetInstance().GetProjectPath();
 }

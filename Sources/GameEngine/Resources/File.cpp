@@ -7,6 +7,7 @@
 #include <filesystem>
 
 #include "GameEngine/Engine/Configuration.h"
+#include "Utils.h"
 
 namespace fs = std::filesystem;
 
@@ -66,20 +67,20 @@ void File::Init(const std::filesystem::path &input)
 
 void File::DataRelative(const std::filesystem::path &filename)
 {
-    dataRelative_ = filename;
-    absolutePath_ = std::filesystem::absolute(std::filesystem::path(EngineConf.files.data) / dataRelative_);
+    dataRelative_ = filename.lexically_normal();
+    absolutePath_ = std::filesystem::absolute(std::filesystem::path(EngineConf.files.data) / dataRelative_).lexically_normal();
 }
 
 void File::AbsoultePath(const std::filesystem::path &filename)
 {
-    absolutePath_ = filename;
-    dataRelative_ = fs::relative(absolutePath_, EngineConf.files.data);
+    absolutePath_ = filename.lexically_normal();
+    dataRelative_ = fs::relative(absolutePath_, EngineConf.files.data).lexically_normal();
 }
 
 void File::ChangeExtension(const std::string &extension)
 {
-    absolutePath_ = std::filesystem::path(absolutePath_).replace_extension(extension).string();
-    dataRelative_ = std::filesystem::path(dataRelative_).replace_extension(extension).string();
+    absolutePath_.replace_extension(extension);
+    dataRelative_.replace_extension(extension);
 }
 
 const std::filesystem::path &File::GetDataRelativePath() const
@@ -94,24 +95,17 @@ const std::filesystem::path &File::GetAbsolutePath() const
 
 std::string File::GetBaseName() const
 {
-    return std::filesystem::path(absolutePath_).stem().string();
+    return absolutePath_.stem().string();
 }
 
 std::string File::GetExtension() const
 {
-    auto str = std::filesystem::path(absolutePath_).extension().string();
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-    return str;
+    return absolutePath_.extension().string();
 }
 
 std::string File::GetFilename() const
 {
-    return std::filesystem::path(absolutePath_).filename().string();
-}
-
-std::string File::GetParentDir() const
-{
-    return Utils::GetParent(absolutePath_);
+    return absolutePath_.filename().string();
 }
 
 File File::CreateFileWithExtension(const std::string &extension) const
@@ -123,15 +117,14 @@ File File::CreateFileWithExtension(const std::string &extension) const
 
 void File::ChangeFileName(const std::string &filename)
 {
-    absolutePath_ = std::filesystem::path(absolutePath_).replace_filename(filename).string();
-    dataRelative_ = std::filesystem::path(dataRelative_).replace_filename(filename).string();
+    absolutePath_.replace_filename(filename);
+    dataRelative_.replace_filename(filename);
 }
 
 void File::ChangeBaseName(const std::string &basename)
 {
-    auto filenameWithExtension = basename + GetExtension();
-    absolutePath_              = std::filesystem::path(absolutePath_).replace_filename(filenameWithExtension).string();
-    dataRelative_              = std::filesystem::path(dataRelative_).replace_filename(filenameWithExtension).string();
+    auto filenameWithExtension = basename + absolutePath_.extension().string();
+    ChangeFileName(basename);
 }
 
 void File::AddSuffixToBaseName(const std::string &suffix)
@@ -148,17 +141,17 @@ std::string getExtensionToCompare(std::string input)
     return input;
 }
 
-bool File::IsExtension(const std::string &extension) const
+bool File::IsFormat(const std::string &extension) const
 {
     if (extension.empty())
         return true;
 
-    return GetExtension() == getExtensionToCompare(extension);
+    return Utils::toLower(GetExtension()) == getExtensionToCompare(extension);
 }
 
-bool File::IsExtension(const std::vector<std::string> &extensions) const
+bool File::IsFormat(const std::vector<std::string> &extensions) const
 {
-    auto ext = GetExtension();
+    auto ext = Utils::toLower(GetExtension());
 
     return std::any_of(extensions.begin(), extensions.end(), [&ext](const auto &s) { return getExtensionToCompare(s) == ext; });
 }
@@ -185,7 +178,7 @@ File &File::operator=(const std::string &str)
     Init(str);
     return *this;
 }
-File& File::operator=(const std::filesystem::path& path)
+File &File::operator=(const std::filesystem::path &path)
 {
     Init(path);
     return *this;

@@ -89,9 +89,8 @@ void PreviewRenderer::prepare()
 
         if (model)
         {
-            if (model->GetMeshes().empty() or
-                not std::all_of(model->GetMeshes().begin(), model->GetMeshes().end(),
-                                [](const auto& mesh) { return mesh.GetGraphicsObjectId(); }))
+            if (model->GetMeshes().empty() or not std::all_of(model->GetMeshes().begin(), model->GetMeshes().end(),
+                                                              [](const auto& mesh) { return mesh.GetGraphicsObjectId(); }))
             {
                 continue;
             }
@@ -126,17 +125,16 @@ void PreviewRenderer::prepare()
                 context_.graphicsApi_.BindShaderBuffer(lastBindedShaderBuffer);
             }
 
-            frameBuffer_->TakeSnapshot(subcriber.second->getOutputFile().GetParentDir());
+            frameBuffer_->TakeSnapshot(subcriber.second->getOutputFile().GetAbsolutePath().parent_path());
 
-            auto outputFileName = subcriber.second->getOutputFile().GetParentDir() + "/" +
-                std::to_string(*frameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0)) + ".png";
+            auto outputFileName =
+                subcriber.second->getOutputFile().GetAbsolutePath() /
+                (std::to_string(*frameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0)) + ".png");
 
-            DEBUG_LOG(outputFileName);
+            LOG_DEBUG << outputFileName;
             LOG_DEBUG << subcriber.second->getOutputFile();
 
-            Utils::RenameFile(
-                outputFileName,
-                subcriber.second->getOutputFile().GetAbsolutePath());
+            Utils::RenameFile(outputFileName, subcriber.second->getOutputFile().GetAbsolutePath());
 
             doneObjects.push_back(subcriber.first);
             shader_.Stop();

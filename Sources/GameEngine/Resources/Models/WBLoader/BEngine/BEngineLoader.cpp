@@ -164,7 +164,7 @@ void BEngineLoader::ParseFile(const File& file)
 
 bool BEngineLoader::CheckExtension(const File& file)
 {
-    return file.IsExtension("bengine");
+    return file.IsFormat("bengine");
 }
 
 std::unique_ptr<Model> BEngineLoader::Create()

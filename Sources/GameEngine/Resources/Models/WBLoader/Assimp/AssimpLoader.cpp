@@ -236,7 +236,7 @@ void AssimpLoader::ParseFile(const File& file)
 
 bool AssimpLoader::CheckExtension(const File& file)
 {
-    return file.IsExtension({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
+    return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
                              "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
                              "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
                              "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
@@ -569,15 +569,10 @@ std::string AssimpLoader::getTexturePath(const std::string& path) const
 
     if (std::filesystem::exists(path))
         return path;
-    auto parent = currentProcessingFile_->GetParentDir();
-    if (not parent.empty() and not(parent.ends_with('/') or parent.ends_with('\\')))
-    {
-        parent += '/';
-    }
 
-    LOG_DEBUG << "Texture not found : " << path << ". Searching recursively in model based directory : " << parent;
+    LOG_DEBUG << "Texture not found : " << path << ". Searching recursively in model based directory : " << currentProcessingFile_->GetAbsolutePath().parent_path();
 
-    return Utils::FindFile(File(path).GetFilename(), parent);
+    return Utils::FindFile(File(path).GetFilename(), currentProcessingFile_->GetAbsolutePath().parent_path());
 }
 
 Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAnim)

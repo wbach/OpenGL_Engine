@@ -25,7 +25,7 @@ void AbstractLoader::Parse(const File& file, const LoadingParameters& loadingPar
 {
     loadingParameters_ = loadingParameters;
     fileName_          = file.GetFilename();
-    filePath_          = file.GetParentDir();
+    filePath_          = file.GetAbsolutePath().parent_path();
 
     auto binFile = CreateBinPath(fileName_);
     if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))

@@ -38,7 +38,7 @@ void TerrainMeshLoader::ParseFile(const File& file)
 }
 bool TerrainMeshLoader::CheckExtension(const File& file)
 {
-    return file.IsExtension("terrain");
+    return file.IsFormat("terrain");
 }
 std::unique_ptr<Model> TerrainMeshLoader::Create()
 {

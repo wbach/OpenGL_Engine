@@ -177,7 +177,7 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
         if (TerrainTextureType::heightmap == terrainTexture.type)
         {
             auto heightMap = terrainTexture.file;
-            if (terrainTexture.file.IsExtension("obj"))
+            if (terrainTexture.file.IsFormat("obj"))
             {
                 if (auto maybeFile = ConvertObjectToHeightMap(terrainTexture.file))
                 {

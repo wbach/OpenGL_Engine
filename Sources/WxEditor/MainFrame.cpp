@@ -1011,7 +1011,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
     GameEngine::File file{fullpath.ToStdString()};
     LOG_DEBUG << file;
 
-    auto is3Model = file.IsExtension({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
+    auto is3Model = file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
                                       "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
                                       "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
                                       "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
@@ -1025,7 +1025,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
             UpdateObjectCount();
         }
     }
-    else if (file.IsExtension("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath(), "prefab"))
+    else if (file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath(), "prefab"))
     {
         LoadPrefab(file.GetAbsolutePath());
     }
