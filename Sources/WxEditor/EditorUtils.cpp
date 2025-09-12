@@ -1,4 +1,6 @@
 #include "EditorUitls.h"
+#include <wx/filename.h>
+#include <Utils/XML/XMLUtils.h>
 
 wxImage TrimMargins(const wxImage& img)
 {
@@ -6,7 +8,7 @@ wxImage TrimMargins(const wxImage& img)
         return img;
 
     if (!img.HasAlpha())
-        return img; // bez alfy nie wiemy co jest tłem – można dodać heurystykę
+        return img;  // bez alfy nie wiemy co jest tłem – można dodać heurystykę
 
     int minX = img.GetWidth(), minY = img.GetHeight();
     int maxX = 0, maxY = 0;
@@ -15,28 +17,61 @@ wxImage TrimMargins(const wxImage& img)
     {
         for (int x = 0; x < img.GetWidth(); ++x)
         {
-            if (img.GetAlpha(x, y) > 0) // piksel widoczny
+            if (img.GetAlpha(x, y) > 0)  // piksel widoczny
             {
-                if (x < minX) minX = x;
-                if (y < minY) minY = y;
-                if (x > maxX) maxX = x;
-                if (y > maxY) maxY = y;
+                if (x < minX)
+                    minX = x;
+                if (y < minY)
+                    minY = y;
+                if (x > maxX)
+                    maxX = x;
+                if (y > maxY)
+                    maxY = y;
             }
         }
     }
 
     if (minX > maxX || minY > maxY)
-        return img; // wszystko przezroczyste, nic nie tniemy
+        return img;  // wszystko przezroczyste, nic nie tniemy
 
     return img.GetSubImage(wxRect(minX, minY, maxX - minX + 1, maxY - minY + 1));
 }
-
 
 wxImage createImage(const unsigned char* data, unsigned int len, const wxSize& size)
 {
     auto newBmp = wxBitmap::NewFromPNGData(data, len);
     wxImage img = newBmp.ConvertToImage();
-    img = TrimMargins(img);
+    img         = TrimMargins(img);
     img.Rescale(size.x, size.y, wxIMAGE_QUALITY_HIGH);
     return img;
+}
+
+bool is3dModelFile(const std::string& p)
+{
+    return is3dModelFile(GameEngine::File(p));
+}
+
+bool is3dModelFile(const std::filesystem::path& p)
+{
+    return is3dModelFile(GameEngine::File(p));
+}
+bool is3dModelFile(const GameEngine::File& file)
+{
+    return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
+                          "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
+                          "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
+                          "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
+                          "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
+}
+
+bool isPrefab(const GameEngine::File& file)
+{
+    return file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath(), "prefab");
+}
+
+wxString GetParentPath(const wxString& currentFolderPath)
+{
+    wxFileName fn(currentFolderPath);
+    fn.Normalize();
+    return fn.GetPath();
 }

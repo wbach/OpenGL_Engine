@@ -14,24 +14,10 @@
 #include "Resources/File.h"
 #include "ThumbnailCache.h"
 #include "model3d_icon.h"
+#include "EditorUitls.h"
 
 namespace
 {
-bool is3dModelFile(const std::string& fileName)
-{
-    return GameEngine::File(fileName).IsFormat(
-        {"AMF",  "3DS",     "AC",       "ASE",  "ASSBIN", "B3D",   "BVH",     "COLLADA", "DXF", "CSM", "DAE",   "HMP", "IRRMESH",
-         "IRR",  "LWO",     "LWS",      "MD2",  "MD3",    "MD5",   "MD5MESH", "MDC",     "MDL", "NFF", "NDO",   "OFF", "OBJ",
-         "OGRE", "OPENGEX", "PLY",      "MS3D", "COB",    "BLEND", "IFC",     "XGL",     "FBX", "Q3D", "Q3BSP", "RAW", "SIB",
-         "SMD",  "STL",     "TERRAGEN", "3D",   "X",      "X3D",   "GLTF",    "3MF",     "MMD", "STEP"});
-}
-wxString GetParentPath(const wxString& currentFolderPath)
-{
-    wxFileName fn(currentFolderPath);
-    fn.Normalize();
-    return fn.GetPath();
-}
-
 class FileDropTarget : public wxFileDropTarget
 {
 public:
@@ -416,7 +402,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.AppendSeparator();
     menu.Append(ID_PROPERTIES, "Properties");
 
-    menu.Enable(ID_ANIMATION_VIWER, is3dModelFile(fileName.GetFullPath().ToStdString()));
+    GameEngine::File file(fileName.GetFullPath().ToStdString());
+    menu.Enable(ID_ANIMATION_VIWER, is3dModelFile(file) or isPrefab(file));
 
     auto isCurrentDir = fileName == currentFolderPath;
     auto isRootItem   = fileName == rootFolder;

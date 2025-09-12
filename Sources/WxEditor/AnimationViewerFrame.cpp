@@ -6,6 +6,7 @@
 #include <GameEngine/Engine/Engine.h>
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
+#include <GameEngine/Scene/SceneReader.h>
 #include <wx/defs.h>
 #include <wx/dnd.h>
 #include <wx/gtk/filedlg.h>
@@ -22,6 +23,7 @@
 #include "Input/KeyCodes.h"
 #include "Logger/Log.h"
 #include "ProjectManager.h"
+#include "WxEditor/EditorUitls.h"
 
 namespace
 {
@@ -224,19 +226,31 @@ void AnimationViewerFrame::CreateMainMenu()
     SetMenuBar(menuBar);
 }
 
-void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
+void AnimationViewerFrame::ShowModel(const GameEngine::File& file)
 {
     if (not isInit)
     {
-        showModelAfterInit = modelFile;
+        showModelAfterInit = file;
         return;
     }
 
-    if (not CheckExtension(modelFile))
+    if (is3dModelFile(file))
     {
-        LOG_DEBUG << "Externsion not supporeted.";
+        CreateGameObjectBasedOnModel(file);
         return;
     }
+
+    if (isPrefab(file))
+    {
+        CreateGameObjectBasedOnPrefab(file);
+        return;
+    }
+
+    LOG_DEBUG << "Externsion not supporeted.";
+}
+
+void AnimationViewerFrame::CreateGameObjectBasedOnModel(const GameEngine::File& modelFile)
+{
     auto& scene = canvas->GetScene();
 
     if (currentGameObject)
@@ -271,26 +285,57 @@ void AnimationViewerFrame::ShowModel(const GameEngine::File& modelFile)
 
     scene.AddGameObject(std::move(newGameObject));
 
-    const auto& animationClips = animator.getAnimationClips();
-    for (const auto& [name, _] : animationClips)
+    RefreshAnimationList();
+}
+
+void AnimationViewerFrame::CreateGameObjectBasedOnPrefab(const GameEngine::File& path)
+{
+    auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
+    if (go)
     {
-        animList->Append(name);
+        auto animator          = go->GetComponent<GameEngine::Components::Animator>();
+        auto rendererComponent = go->GetComponent<GameEngine::Components::RendererComponent>();
+
+        if (animator and rendererComponent)
+        {
+            if (auto model = rendererComponent->GetModelWrapper().Get())
+            {
+                if (not model->GetFile().exist())
+                {
+                    wxMessageBox("Model file not exist", "Warning", wxOK | wxICON_WARNING);
+                    return;
+                }
+
+                currentGameObject.emplace(CurrentGameObject{.gameObjectId      = go->GetId(),
+                                                            .currentModelFile  = model->GetFile(),
+                                                            .animator          = *animator,
+                                                            .rendererComponent = *rendererComponent});
+
+                RefreshAnimationList();
+                return;
+            }
+        }
+
+        auto& scene = canvas->GetScene();
+        scene.RemoveGameObject(*go);
     }
 
-    //  scene.getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::OnStart, *gameObjectId);
+    wxMessageBox("Looad prefab error", "Warning", wxOK | wxICON_WARNING);
 }
 
-bool AnimationViewerFrame::CheckExtension(const GameEngine::File& file)
+void AnimationViewerFrame::RefreshAnimationList()
 {
-    return file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
-                          "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
-                          "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
-                          "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
-                          "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
-
-    // AMF 3DS AC ASE ASSBIN B3D BVH COLLADA DXF CSM HMP IRRMESH IRR LWO LWS MD2 MD3 MD5 MDC MDL NFF NDO OFF OBJ
-    // OGRE OPENGEX PLY MS3D COB BLEND IFC XGL FBX Q3D Q3BSP RAW SIB SMD STL TERRAGEN 3D X X3D GLTF 3MF MMD STEP
+    animList->Clear();
+    if (currentGameObject)
+    {
+        const auto& animationClips = currentGameObject->animator.getAnimationClips();
+        for (const auto& [name, _] : animationClips)
+        {
+            animList->Append(name);
+        }
+    }
 }
+
 void AnimationViewerFrame::OnTimer(wxTimerEvent& event)
 {
     if (currentGameObject)

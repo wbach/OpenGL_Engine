@@ -151,8 +151,6 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_COMPONENTS_RELOAD, MainFrame::MenuComponentsReload)
     EVT_TREE_SEL_CHANGED(ID_OBJECT_TREE, MainFrame::OnObjectTreeSelChange)
     EVT_TREE_ITEM_ACTIVATED(ID_OBJECT_TREE, MainFrame::OnObjectTreeActivated)
-//    EVT_TREE_BEGIN_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectDrag)
-//    EVT_TREE_END_DRAG(ID_OBJECT_TREE, MainFrame::OnObjectEndDrag)
     EVT_TREE_BEGIN_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnBeginLabelEdit)
     EVT_TREE_END_LABEL_EDIT(ID_OBJECT_TREE, MainFrame::OnEndLabelEdit)
     EVT_DIRCTRL_SELECTIONCHANGED(ID_FILE_EXPLORER, MainFrame::OnFileSelectChanged)
@@ -1011,12 +1009,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
     GameEngine::File file{fullpath.ToStdString()};
     LOG_DEBUG << file;
 
-    auto is3Model = file.IsFormat({"AMF", "3DS",      "AC",      "ASE", "ASSBIN", "B3D",  "BVH",   "COLLADA", "DXF", "CSM",
-                                      "DAE", "HMP",      "IRRMESH", "IRR", "LWO",    "LWS",  "MD2",   "MD3",     "MD5", "MD5MESH",
-                                      "MDC", "MDL",      "NFF",     "NDO", "OFF",    "OBJ",  "OGRE",  "OPENGEX", "PLY", "MS3D",
-                                      "COB", "BLEND",    "IFC",     "XGL", "FBX",    "Q3D",  "Q3BSP", "RAW",     "SIB", "SMD",
-                                      "STL", "TERRAGEN", "3D",      "X",   "X3D",    "GLTF", "3MF",   "MMD",     "STEP"});
-    if (is3Model)
+    if (is3dModelFile(file))
     {
         auto parentGameObject = GetSelectedGameObject();
         if (auto maybeId = canvas->AddGameObject(file, parentGameObject))
@@ -1025,7 +1018,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
             UpdateObjectCount();
         }
     }
-    else if (file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath(), "prefab"))
+    else if (isPrefab(file))
     {
         LoadPrefab(file.GetAbsolutePath());
     }

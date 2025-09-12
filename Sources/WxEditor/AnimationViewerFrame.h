@@ -25,10 +25,13 @@ public:
     AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     void ShowModel(const GameEngine::File&);
     void SearchAndAddClipsFromDir(const std::string&);
-    static bool CheckExtension(const GameEngine::File& file);
     bool isObjectSelcted() const;
 
 private:
+    void CreateGameObjectBasedOnModel(const GameEngine::File&);
+    void CreateGameObjectBasedOnPrefab(const GameEngine::File&);
+    void RefreshAnimationList();
+
     void Init();
     void CreateMainMenu();
     void OnTimer(wxTimerEvent&);
