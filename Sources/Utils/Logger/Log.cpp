@@ -2,10 +2,20 @@
 
 #include <chrono>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <mutex>
 #include <thread>
+
+namespace
+{
+std::filesystem::path PrepareLoggerPath(const std::filesystem::path& filename)
+{
+    std::filesystem::create_directories("./Logs");
+    return (std::filesystem::absolute("Logs") / filename).lexically_normal();
+}
+}  // namespace
 
 struct CLogger::Impl
 {
@@ -73,13 +83,17 @@ void CLogger::EnableLogs(LoggingLvl lvl)
     }
 
     enabled = true;
-    std::filesystem::create_directories("./Logs");
-    if (filePath_.empty())
-        filePath_ = "Logs/Logs.txt";
+    if (not pImpl->fileStream_.is_open())
+    {
+        if (filePath_.empty())
+            filePath_ = "Logs.txt";
 
-    pImpl->fileStream_.open(filePath_, std::ios::app);
-    if (!pImpl->fileStream_.is_open())
-        throw std::runtime_error("Could not open log file");
+        auto absoluteLogPath = PrepareLoggerPath(filePath_);
+        std::cout << "absoluteLogPath : " << absoluteLogPath << std::endl;
+        pImpl->fileStream_.open(absoluteLogPath, std::ios::app);
+        if (!pImpl->fileStream_.is_open())
+            throw std::runtime_error("Could not open log file");
+    }
 
     if (useAsync_)
         pImpl->loggerThread_ = std::thread(&Impl::ProcessLogs, pImpl, this);
@@ -142,12 +156,17 @@ void CLogger::ClearPrefixes()
 void CLogger::SetLogFilename(const std::filesystem::path& filename)
 {
     std::lock_guard<std::mutex> lk(pImpl->printMutex_);
-    if (pImpl->fileStream_.is_open())
-        pImpl->fileStream_.close();
     filePath_ = filename;
-    pImpl->fileStream_.open(filePath_, std::ios::app);
-    if (!pImpl->fileStream_.is_open())
-        throw std::runtime_error("Log file open error");
+
+    if (pImpl->fileStream_.is_open())
+    {
+        pImpl->fileStream_.close();
+
+        auto absoluteLogPath = PrepareLoggerPath(filePath_);
+        pImpl->fileStream_.open(absoluteLogPath, std::ios::app);
+        if (!pImpl->fileStream_.is_open())
+            throw std::runtime_error("Log file open error");
+    }
 }
 
 void CLogger::LogInternal(const std::string& log)

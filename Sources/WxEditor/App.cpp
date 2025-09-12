@@ -12,6 +12,7 @@ bool App::OnInit()
 
     if (Utils::GetValue(args, "animationViewer"))
     {
+        CLogger::Instance().SetLogFilename("AnimationViewerLogs.txt");
         auto* frame = new AnimationViewerFrame("AnimationViewer", wxPoint(100, 100), wxSize(800, 600));
         SetTopWindow(frame);
         frame->Show(true);
@@ -22,6 +23,7 @@ bool App::OnInit()
         return true;
     }
 
+    CLogger::Instance().SetLogFilename("WxEditorLogs.txt");
     auto* frame = new MainFrame("GameEngine", wxPoint(100, 100), wxSize(1920, 1080));
     SetTopWindow(frame);
     frame->Show(true);  // najpierw nie pokazujemy

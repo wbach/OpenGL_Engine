@@ -4,6 +4,7 @@
 #include <wx/log.h>
 
 #include "App.h"
+#include "Logger/Log.h"
 #include "Utils.h"
 #include "WxEditor/ProjectManager.h"
 
@@ -36,6 +37,7 @@ int main(int argc, char* argv[])
         File file{*value};
         if (file.exist())
         {
+            CLogger::Instance().SetLogFilename("WxEdtiorGameRunnerLogs.txt");
             std::cout << "Starting game engine with scene: " << file << "\n";
             Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<SceneFactory>(file));
             engine.Init();
