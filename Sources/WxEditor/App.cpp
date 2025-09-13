@@ -2,6 +2,7 @@
 #include "App.h"
 
 #include "AnimationViewerFrame.h"
+#include "Logger/Log.h"
 #include "MainFrame.h"
 #include "StartupDialog.h"
 #include "Utils.h"
@@ -13,6 +14,9 @@ bool App::OnInit()
     if (Utils::GetValue(args, "animationViewer"))
     {
         CLogger::Instance().SetLogFilename("AnimationViewerLogs.txt");
+        CLogger::Instance().EnableLogs();
+        LOG_DEBUG << args;
+
         auto* frame = new AnimationViewerFrame("AnimationViewer", wxPoint(100, 100), wxSize(800, 600));
         SetTopWindow(frame);
         frame->Show(true);

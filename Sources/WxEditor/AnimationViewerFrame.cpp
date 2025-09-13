@@ -17,12 +17,14 @@
 #include <cmath>
 #include <filesystem>
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include "Components/FunctionType.h"
 #include "Input/KeyCodes.h"
 #include "Logger/Log.h"
 #include "ProjectManager.h"
+#include "Utils.h"
 #include "WxEditor/EditorUitls.h"
 
 namespace
@@ -290,37 +292,53 @@ void AnimationViewerFrame::CreateGameObjectBasedOnModel(const GameEngine::File& 
 
 void AnimationViewerFrame::CreateGameObjectBasedOnPrefab(const GameEngine::File& path)
 {
-    auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
-    if (go)
+    auto prefabObject = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
+    if (prefabObject)
     {
+        if (prefabObject->GetChildren().empty())
+        {
+            wxMessageBox("Prefab load error. Prefab must contain exactly one root child object.", "Warning",
+                         wxOK | wxICON_WARNING);
+            return;
+        }
+
+        auto& go = prefabObject->GetChildren().front();
         auto animator          = go->GetComponent<GameEngine::Components::Animator>();
         auto rendererComponent = go->GetComponent<GameEngine::Components::RendererComponent>();
 
         if (animator and rendererComponent)
         {
-            if (auto model = rendererComponent->GetModelWrapper().Get())
+            auto files = rendererComponent->GetFiles();
+            auto fileIter = files.find(GameEngine::LevelOfDetail::L1);
+            if (fileIter != files.end())
             {
-                if (not model->GetFile().exist())
-                {
-                    wxMessageBox("Model file not exist", "Warning", wxOK | wxICON_WARNING);
-                    return;
-                }
-
                 currentGameObject.emplace(CurrentGameObject{.gameObjectId      = go->GetId(),
-                                                            .currentModelFile  = model->GetFile(),
+                                                            .currentModelFile  = fileIter->second,
                                                             .animator          = *animator,
                                                             .rendererComponent = *rendererComponent});
 
                 RefreshAnimationList();
                 return;
             }
+            else
+            {
+                LOG_ERROR << "Model file not exist";
+                wxMessageBox("Model file not exist", "Warning", wxOK | wxICON_WARNING);
+            }
+        }
+        else
+        {
+            std::stringstream o;
+            o << "Components get failure animator=" << Utils::BoolToString(animator)
+              << " rendererComponent=" << Utils::BoolToString(rendererComponent);
+            wxMessageBox(o.str(), "Warning", wxOK | wxICON_WARNING);
+            LOG_ERROR << o.str();
         }
 
+        LOG_DEBUG << "Remove object after failures";
         auto& scene = canvas->GetScene();
         scene.RemoveGameObject(*go);
     }
-
-    wxMessageBox("Looad prefab error", "Warning", wxOK | wxICON_WARNING);
 }
 
 void AnimationViewerFrame::RefreshAnimationList()
@@ -632,7 +650,7 @@ void AnimationViewerFrame::SearchAndAddClipsFromDir(const std::string& path)
     {
         for (const auto& file : files)
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Found animation file in subfolders add clip : " + file);
+            /* LOG TO FIX*/ LOG_ERROR << ("Found animation file in subfolders add clip : " + file);
             if (auto animationName = GameEngine::Animation::IsAnimationClip(file))
             {
                 currentGameObject->animator.AddAnimationClip(*animationName, GameEngine::File(file));

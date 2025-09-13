@@ -1,6 +1,10 @@
-#include "EditorUitls.h"
-#include <wx/filename.h>
 #include <Utils/XML/XMLUtils.h>
+#include <wx/filename.h>
+#include <wx/stdpaths.h>
+
+#include "EditorUitls.h"
+#include "Logger/Log.h"
+#include "ProjectManager.h"
 
 wxImage TrimMargins(const wxImage& img)
 {
@@ -74,4 +78,18 @@ wxString GetParentPath(const wxString& currentFolderPath)
     wxFileName fn(currentFolderPath);
     fn.Normalize();
     return fn.GetPath();
+}
+
+void runAnimationViewer(const std::string& extraParam)
+{
+    std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer " +
+                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath() + " " + extraParam;
+
+    long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
+    if (pid == 0)
+    {
+        wxLogError("Run AnimationViewer error!");
+        return;
+    }
+    LOG_DEBUG << "AnimationViewer started PID=" << pid;
 }

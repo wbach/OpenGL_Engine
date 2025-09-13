@@ -52,13 +52,6 @@ template <typename T>
 inline ComponentType GetComponentType()
 {
     static ComponentType type{.id = GetUniqueComponentID(), .name = ComponentNameString<T>()};
-
-    static bool printed = []
-    {
-        std::cout << "Registering component type: " << type.name << " with id: " << type.id << "\n";
-        return true;
-    }();
-
     return type;
 }
 }  // namespace Components

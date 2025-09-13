@@ -1,6 +1,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <filesystem>
+#include <string>
 #include <GameEngine/Resources/File.h>
 
 wxImage createImage(const unsigned char* data, unsigned int len, const wxSize& size);
@@ -9,3 +10,4 @@ bool is3dModelFile(const std::filesystem::path&);
 bool is3dModelFile(const GameEngine::File&);
 bool isPrefab(const GameEngine::File&);
 wxString GetParentPath(const wxString&);
+void runAnimationViewer(const std::string& = std::string());

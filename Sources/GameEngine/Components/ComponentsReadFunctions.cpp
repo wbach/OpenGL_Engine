@@ -38,6 +38,7 @@ void ReadFunctions::RegisterComponent(const ComponentType& type, ComponentReadFu
 {
     componentsReadFunctions.insert({type.id, readFunction});
     typeNameToId.insert({type.name, type.id});
+    LOG_DEBUG << "RegisterComponent: " << type;
 }
 
 void ReadFunctions::UnregisterComponent(const ComponentTypeName& name)

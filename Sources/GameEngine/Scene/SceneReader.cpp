@@ -104,6 +104,7 @@ GameObject* loadPrefab(Scene& scene, const File& file, const std::string& gameOb
 {
     auto gameObject = scene.CreatePrefabGameObject(gameObjectName);
     ReadPrefab(scene, file, *gameObject);
+    LOG_DEBUG << "Prefab components size=" << gameObject->GetComponents().size();
     auto result = gameObject.get();
     scene.AddGameObject(std::move(gameObject));
     return result;

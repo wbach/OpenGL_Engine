@@ -1333,18 +1333,7 @@ void MainFrame::OnToolStop(wxCommandEvent&)
 
 void MainFrame::OnToolAnimationViewer(wxCommandEvent&)
 {
-    std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer " +
-                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
-    ;
-
-    long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
-    if (pid == 0)
-    {
-        wxLogError("Run AnimationViewer error!");
-        return;
-    }
-
-    // wxLogMessage("AnimationViewer started, PID=%ld", pid);
+    runAnimationViewer();
 }
 
 void MainFrame::OnBuildCmponents(wxCommandEvent&)

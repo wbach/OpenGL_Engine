@@ -11,10 +11,10 @@
 #include <filesystem>
 #include <string>
 
+#include "EditorUitls.h"
 #include "Resources/File.h"
 #include "ThumbnailCache.h"
 #include "model3d_icon.h"
-#include "EditorUitls.h"
 
 namespace
 {
@@ -382,7 +382,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     int ID_PASTE           = wxWindow::NewControlId();
     int ID_ANIMATION_VIWER = wxWindow::NewControlId();
     int ID_NEW_FOLDER      = wxWindow::NewControlId();
-    int ID_REFRESH_FOLDER      = wxWindow::NewControlId();
+    int ID_REFRESH_FOLDER  = wxWindow::NewControlId();
     int ID_REMOVE          = wxWindow::NewControlId();
     int ID_PROPERTIES      = wxWindow::NewControlId();
 
@@ -467,18 +467,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
-        [=](wxCommandEvent&)
-        {
-            std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer " +
-                              " --file " + fileName.GetFullPath().ToStdString();
-
-            long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
-            if (pid == 0)
-            {
-                wxLogError("Run AnimationViewer error! " + fileName.GetFullPath());
-            }
-        },
-        ID_ANIMATION_VIWER);
+        [=](wxCommandEvent&) { runAnimationViewer("--file " + fileName.GetFullPath().ToStdString()); }, ID_ANIMATION_VIWER);
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&)
@@ -605,12 +594,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         },
         ID_NEW_FOLDER);
     menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED,
-        [=](wxCommandEvent&)
-        {
-            RefreshAll(currentFolderPath);
-        },
-        ID_REFRESH_FOLDER);
+        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -738,10 +722,10 @@ void ProjectPanel::RefreshCurrent(const wxString& folderPath)
     filePanel->Refresh();
 }
 
- void ProjectPanel::RefreshAll()
- {
+void ProjectPanel::RefreshAll()
+{
     RefreshAll(currentFolderPath);
- }
+}
 
 void ProjectPanel::RefreshAll(const wxString& folderPath)
 {
