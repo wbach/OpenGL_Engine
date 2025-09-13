@@ -2,42 +2,25 @@
 
 #include <Logger/Log.h>
 
+#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Objects/GameObject.h"
-
-namespace
-{
-constexpr uint64_t fnv1a(const char* str)
-{
-    uint64_t hash = 1469598103934665603ULL;
-    while (*str)
-    {
-        hash ^= static_cast<uint64_t>(*str++);
-        hash *= 1099511628211ULL;
-    }
-    return hash;
-}
-}  // namespace
 
 namespace GameEngine
 {
 namespace Components
 {
-IComponent::Type BaseComponent::GetType(const std::string & type)
-{
-    return fnv1a(type.c_str());
-}
-
-BaseComponent::BaseComponent(const std::string& type, ComponentContext& componentContext, GameObject& gameObject)
-    : type_(BaseComponent::GetType(type))
-    , name_{type}
+BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& componentContext,
+                             GameObject& gameObject)
+    : type_(type)
     , thisObject_(gameObject)
     , componentContext_(componentContext)
     , isActive_(true)
     , componentRegistredId_(0)
 {
-    componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_, this);
-    LOG_DEBUG << "Component "  << name_ << " is " << type_;
+    componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
+    LOG_DEBUG << type_;
 }
+
 BaseComponent::~BaseComponent()
 {
     for (const auto& [id, type] : registeredFunctionsIds_)
@@ -47,16 +30,16 @@ BaseComponent::~BaseComponent()
 
     if (componentRegistredId_)
     {
-        componentContext_.componentController_.UnRegisterComponent(type_, *componentRegistredId_);
+        componentContext_.componentController_.UnRegisterComponent(type_.id, *componentRegistredId_);
     }
     else
     {
         LOG_ERROR << "componentRegistredId not set!";
     }
 }
-size_t BaseComponent::GetType() const
+ComponentTypeID BaseComponent::GetTypeId() const
 {
-    return type_;
+    return type_.id;
 }
 void BaseComponent::Activate()
 {
@@ -99,9 +82,9 @@ std::vector<FieldInfo> BaseComponent::GetFields()
     return {};
 }
 
-const std::string& BaseComponent::GetTypeString() const
+const std::string& BaseComponent::GetTypeName() const
 {
-    return name_;
+    return type_.name;
 }
 bool BaseComponent::IsActive() const
 {

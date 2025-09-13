@@ -4,8 +4,10 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <functional>
 
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Components/IComponent.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -29,9 +31,9 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 
 GameObject::~GameObject()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("~GameObject() " + name_);
+    /* LOG TO FIX*/ LOG_ERROR << ("~GameObject() " + name_);
 
-    for (auto& component : components_)
+    for (auto& [_, component] : components_)
     {
         component->CleanUp();
     }
@@ -42,36 +44,40 @@ GameObject::~GameObject()
     if (localTransfromSubscribtion_)
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 
-    /* LOG TO FIX*/  LOG_ERROR << (name_);
+    /* LOG TO FIX*/ LOG_ERROR << (name_);
     if (isStartedSub)
         componentController_.UnRegisterFunction(id_, Components::FunctionType::OnStart, isStartedSub);
     if (isAwakenedSub)
         componentController_.UnRegisterFunction(id_, Components::FunctionType::Awake, isAwakenedSub);
 }
-Components::IComponent* GameObject::InitComponent(const TreeNode& node)
+Components::IComponent* GameObject::AddComponent(const TreeNode& node)
 {
     auto component = componentFactory_.Create(node, *this);
     if (component)
     {
-        components_.push_back(std::move(component));
-        return components_.back().get();
+        auto ptr                            = component.get();
+        components_[component->GetTypeId()] = std::move(component);
+        return ptr;
     }
     return nullptr;
 }
 
-void GameObject::RemoveComponent(Components::IComponent::Type type)
+void GameObject::RemoveComponent(Components::ComponentTypeID type)
 {
-    for (auto iter = components_.begin(); iter != components_.end(); ++iter)
+    if (auto component = GetComponent(type))
     {
-        auto& component = **iter;
-
-        if (component.GetType() == type)
-        {
-            component.CleanUp();
-            components_.erase(iter);
-            return;
-        }
+        component->CleanUp();
+        components_.erase(type);
     }
+}
+
+void GameObject::RemoveAllComponents()
+{
+    for (auto& [_, component] : components_)
+    {
+        component->CleanUp();
+    }
+    components_.clear();
 }
 
 std::unique_ptr<GameObject> GameObject::CreateChild(const std::string& name, const std::optional<uint32>& maybeId)
@@ -115,14 +121,29 @@ bool GameObject::RemoveChild(IdType id)
 
     if (iter != children_.end())
     {
-        for (auto& component : (**iter).GetComponents())
+        auto& child = **iter;
+
+        // rekurencyjna lambda: usuwa wszystkie dzieci + komponenty w poddrzewie
+        auto removeAll = [&](auto&& self, GameObject& gameObject) -> void
         {
-            component->CleanUp();
-        }
+            for (auto& subChild : gameObject.children_)
+            {
+                if (subChild)
+                {
+                    self(self, *subChild);  // rekurencja w głąb
+                }
+            }
+
+            gameObject.children_.clear();
+            gameObject.RemoveAllComponents();
+        };
+
+        removeAll(removeAll, child);
         children_.erase(iter);
         return true;
     }
 
+    // Jeśli nie znaleziono – spróbuj w poddrzewie
     for (auto& child : children_)
     {
         if (child->RemoveChild(id))
@@ -146,7 +167,7 @@ void GameObject::SetParent(GameObject* parent)
     {
         if (parent_ and parentIdTransfromSubscribtion_)
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("UnsubscribeOnWorldTransfromChange");
+            /* LOG TO FIX*/ LOG_ERROR << ("UnsubscribeOnWorldTransfromChange");
             parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
             parent_                        = nullptr;
             parentIdTransfromSubscribtion_ = std::nullopt;
@@ -190,7 +211,7 @@ void GameObject::ChangeParent(GameObject& newParent)
 {
     if (not parent_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Root gameObject can not be moved");
+        /* LOG TO FIX*/ LOG_ERROR << ("Root gameObject can not be moved");
         return;
     }
 
@@ -261,20 +282,20 @@ GameObject* GameObject::GetChild(const std::string& name) const
 
 void GameObject::RegisterComponentFunctions()
 {
-    for (const auto& c : components_)
+    for (const auto& [_, c] : components_)
     {
         c->ReqisterFunctions();
     }
 }
 
-Components::IComponent *GameObject::GetComponent(Components::IComponent::Type type)
+Components::IComponent* GameObject::GetComponent(Components::ComponentTypeID type)
 {
-    auto iter = std::find_if(components_.begin(), components_.end(), [type](const auto& component){ return component->GetType() == type; });
+    auto iter = components_.find(type);
 
-    if (iter != components_.end())
-        return iter->get();
+    if (iter == components_.end())
+        return nullptr;
 
-    return nullptr;
+    return iter->second.get();
 }
 
 common::Transform& GameObject::GetTransform()
@@ -351,7 +372,7 @@ GameObject& GameObject::getRootGameObject()
     {
         go = go->GetParent();
     }
-    /* LOG TO FIX*/  LOG_ERROR << (go->GetName());
+    /* LOG TO FIX*/ LOG_ERROR << (go->GetName());
     return *go;
 }
 

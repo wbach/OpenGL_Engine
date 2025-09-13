@@ -15,7 +15,6 @@ namespace Components
 {
 namespace
 {
-constexpr char COMPONENT_STR[]         = "Renderer";
 constexpr char CSTR_TEXTURE_INDEX[]    = "textureIndex";
 constexpr char CSTR_MODEL_FILE_NAMES[] = "modelFileNames";
 constexpr char MODEL_NORMALIZATION[]   = "modelNormalization";
@@ -24,7 +23,7 @@ const GraphicsApi::ID defaultId;
 }  // namespace
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<RendererComponent>(), componentContext, gameObject)
     , textureIndex(0)
     , isSubscribed_(false)
     , loadingParameters_{DEFAULT_LOADING_PARAMETERS}
@@ -349,7 +348,7 @@ void RendererComponent::registerReadFunctions()
         return component;
     };
 
-    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+    regsiterComponentReadFunction(GetComponentType<RendererComponent>(), readFunc);
 }
 void create(TreeNode& node, const std::filesystem::path& file, LevelOfDetail lvl)
 {
@@ -365,7 +364,7 @@ void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files
 }
 void RendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex));
     node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
     node.addChild(MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));

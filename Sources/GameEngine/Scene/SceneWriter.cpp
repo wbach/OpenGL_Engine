@@ -5,6 +5,7 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -27,10 +28,10 @@ void Create(TreeNode& node, const common::Transform& transform)
     Create(node.addChild(CSTR_ROTATION), transform.GetRotation().GetEulerDegrees().value);
     Create(node.addChild(CSTR_SCALE), transform.GetScale());
 }
-void Create(TreeNode& node, const std::vector<std::unique_ptr<Components::IComponent>>& components)
+void Create(TreeNode& node, const GameObject::ComponentsContainer & components)
 {
     node.attributes_[CSTR_COUNT] = std::to_string(components.size());
-    for (const auto& component : components)
+    for (const auto& [_, component] : components)
     {
         component->write(node.addChild(CSTR_COMPONENT));
     }

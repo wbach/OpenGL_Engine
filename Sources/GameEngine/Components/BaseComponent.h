@@ -2,6 +2,8 @@
 #include <atomic>
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
+#include <string>
+#include <typeinfo>
 
 #include "ComponentContext.h"
 #include "ComponentController.h"
@@ -19,56 +21,64 @@ template <typename Enum>
 FieldInfo MakeEnumField(const char* name, Enum* value)
 {
     // cache nazw dla danego Enum
-    static const std::vector<std::string> cachedNames = [] {
+    static const std::vector<std::string> cachedNames = []
+    {
         std::vector<std::string> result;
         for (auto n : magic_enum::enum_names<Enum>())
             result.emplace_back(n);
         return result;
     }();
 
-    return {
-        .name = name,
-        .type = FieldType::Enum,
-        .ptr  = value,
+    return {.name = name,
+            .type = FieldType::Enum,
+            .ptr  = value,
 
-        // zwracamy kopię – UI może to sobie przechować
-        .enumNames = []() { return cachedNames; },
+            // zwracamy kopię – UI może to sobie przechować
+            .enumNames = []() { return cachedNames; },
 
-        .enumToIndex = [](void* ptr) {
-            auto val = *static_cast<Enum*>(ptr);
-            // nazwa wartości:
-            auto sv  = magic_enum::enum_name(val);
-            LOG_DEBUG << "Value: " << std::string(sv);
+            .enumToIndex =
+                [](void* ptr)
+            {
+                auto val = *static_cast<Enum*>(ptr);
+                // nazwa wartości:
+                auto sv = magic_enum::enum_name(val);
+                LOG_DEBUG << "Value: " << std::string(sv);
 
-            // indeks w zakresie 0..N-1 (nie mylić z underlying!)
-            if (auto idx = magic_enum::enum_index(val); idx.has_value())
-                return static_cast<int>(*idx);
-            // fallback (gdyby wartość była spoza zakresu)
-            return 0;
-        },
+                // indeks w zakresie 0..N-1 (nie mylić z underlying!)
+                if (auto idx = magic_enum::enum_index(val); idx.has_value())
+                    return static_cast<int>(*idx);
+                // fallback (gdyby wartość była spoza zakresu)
+                return 0;
+            },
 
-        .indexToEnum = [](void* ptr, int idx) {
-            LOG_DEBUG << "Idx: " << idx;
-            // clamp na wypadek złego indeksu
-            constexpr int N = static_cast<int>(magic_enum::enum_count<Enum>());
-            if (N > 0) {
-                if (idx < 0) idx = 0;
-                if (idx >= N) idx = N - 1;
-            } else {
-                idx = 0;
-            }
+            .indexToEnum =
+                [](void* ptr, int idx)
+            {
+                LOG_DEBUG << "Idx: " << idx;
+                // clamp na wypadek złego indeksu
+                constexpr int N = static_cast<int>(magic_enum::enum_count<Enum>());
+                if (N > 0)
+                {
+                    if (idx < 0)
+                        idx = 0;
+                    if (idx >= N)
+                        idx = N - 1;
+                }
+                else
+                {
+                    idx = 0;
+                }
 
-            auto val = magic_enum::enum_value<Enum>(idx);
-            *static_cast<Enum*>(ptr) = val;
+                auto val                 = magic_enum::enum_value<Enum>(idx);
+                *static_cast<Enum*>(ptr) = val;
 
-            auto sv = magic_enum::enum_name(val);
-            LOG_DEBUG << "Idx: " << idx << " -> Value: " << std::string(sv);
-        }
-    };
+                auto sv = magic_enum::enum_name(val);
+                LOG_DEBUG << "Idx: " << idx << " -> Value: " << std::string(sv);
+            }};
 }
 
 // Makro – przekazujemy #member (string literal), więc nie ma ryzyka wiszącego wskaźnika:
-//#define FIELD_ENUM(member, EnumT) fields.push_back(MakeEnumField<EnumT>(#member, &(this->member)))
+// #define FIELD_ENUM(member, EnumT) fields.push_back(MakeEnumField<EnumT>(#member, &(this->member)))
 
 }  // namespace Components
 }  // namespace GameEngine
@@ -113,12 +123,9 @@ namespace Components
 class BaseComponent : public IComponent
 {
 public:
-    static Type GetType(const std::string&);
-
-    BaseComponent(const std::string&, ComponentContext&, GameObject&);
+    BaseComponent(const ComponentType&, ComponentContext&, GameObject&);
     ~BaseComponent() override;
 
-    size_t GetType() const override;
     bool IsActive() const override;
     void Activate() override;
     void Deactivate() override;
@@ -127,17 +134,18 @@ public:
     GameObject& GetParentGameObject() override;
     const GameObject& getParentGameObject() const override;
 
-    void write(TreeNode&) const override;
     std::optional<IdType> getRegisteredFunctionId(FunctionType) const override;
     std::vector<FieldInfo> GetFields() override;
-    const std::string& GetTypeString() const override;
+    const std::string& GetTypeName() const override;
+    ComponentTypeID GetTypeId() const override;
+
+    void write(TreeNode&) const override;
 
 protected:
     void RegisterFunction(FunctionType, std::function<void()>);
 
 protected:
-    uint64_t type_;
-    std::string name_;
+    ComponentType type_;
     GameObject& thisObject_;
     ComponentContext& componentContext_;
 

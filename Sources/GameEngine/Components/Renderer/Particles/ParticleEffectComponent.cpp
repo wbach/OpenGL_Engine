@@ -30,7 +30,7 @@ const std::string CSTR_SPEED            = "speed";
 }  // namespace
 
 ParticleEffectComponent::ParticleEffectComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<ParticleEffectComponent>(), componentContext, gameObject)
     , texture_(nullptr)
     , particlesSpeed_(10.f)
     , particlesPerSecond_(10)
@@ -264,7 +264,7 @@ void ParticleEffectComponent::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<ParticleEffectComponent>(), readFunc);
 }
 void ParticleEffectComponent::write(TreeNode& node) const
 {

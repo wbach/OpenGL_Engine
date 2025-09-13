@@ -89,7 +89,7 @@ void read(const TreeNode& node, Components::SkyBoxComponent& component)
 }
 
 SkyBoxComponent::SkyBoxComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(CSTR_COMPONENT_SKYBOX, componentContext, gameObject)
+    : BaseComponent(GetComponentType<SkyBoxComponent>(), componentContext, gameObject)
     , modelFile("Meshes/SkyBox/cube.obj")
     , dayTexture_{nullptr}
     , nightTexture_{nullptr}
@@ -208,13 +208,13 @@ void SkyBoxComponent::LoadTextures()
 
 void SkyBoxComponent::registerReadFunctions()
 {
-    ReadFunctions::instance().componentsReadFunctions.insert(
-        {CSTR_COMPONENT_SKYBOX, [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-         {
-             auto component = std::make_unique<SkyBoxComponent>(componentContext, gameObject);
-             read(node, *component);
-             return component;
-         }});
+    auto func = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
+        auto component = std::make_unique<SkyBoxComponent>(componentContext, gameObject);
+        read(node, *component);
+        return component;
+    };
+    regsiterComponentReadFunction(GetComponentType<SkyBoxComponent>(), func);
 }
 void SkyBoxComponent::write(TreeNode& node) const
 {

@@ -207,7 +207,7 @@ bool File::openToWrite()
 {
     if (fp_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Can not write to openned file!.");
+        /* LOG TO FIX*/ LOG_ERROR << ("Can not write to openned file!.");
         return false;
     }
 
@@ -224,7 +224,7 @@ bool File::openToRead()
 {
     if (fp_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Can not open to openned file!.");
+        /* LOG TO FIX*/ LOG_ERROR << ("Can not open to openned file!.");
         return false;
     }
 
@@ -263,19 +263,19 @@ void File::ClearSpecialCharacters()
     const std::string notAllowed{"<>:\"|?*"};
 
     bool changeNeeded{false};
-    auto fname = GetFilename();
-    auto new_end =
-        std::remove_if(fname.begin(), fname.end(),
-                       [notAllowed, this, &changeNeeded](std::string::value_type c)
-                       {
-                           auto result = notAllowed.find(c) != std::string::npos;
-                           if (result)
-                           {
-                               changeNeeded = true;
-                               /* LOG TO FIX*/  LOG_ERROR << (std::string("Remove notAllowed character \"") + c + "\" from file : " + GetFilename());
-                           }
-                           return result;
-                       });
+    auto fname   = GetFilename();
+    auto new_end = std::remove_if(fname.begin(), fname.end(),
+                                  [notAllowed, this, &changeNeeded](std::string::value_type c)
+                                  {
+                                      auto result = notAllowed.find(c) != std::string::npos;
+                                      if (result)
+                                      {
+                                          changeNeeded = true;
+                                          /* LOG TO FIX*/ LOG_ERROR << (std::string("Remove notAllowed character \"") + c +
+                                                                        "\" from file : " + GetFilename());
+                                      }
+                                      return result;
+                                  });
 
     if (changeNeeded)
     {
@@ -289,8 +289,8 @@ std::ostream &operator<<(std::ostream &os, const GameEngine::File &file)
 {
     os << "File";
     os << "{";
-    os << "absolutePath: " << file.GetAbsolutePath();
-    os << "dataRelative: " << file.GetDataRelativePath();
+    os << "{absolutePath: " << file.GetAbsolutePath() << "}";
+    os << "{dataRelative: " << file.GetDataRelativePath() << "}";
     os << "}";
     return os;
 }

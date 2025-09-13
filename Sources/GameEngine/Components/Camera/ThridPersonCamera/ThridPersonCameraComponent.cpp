@@ -20,7 +20,7 @@ const std::string& COMPONENT_STR{"ThridPersonCamera"};
 }
 
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<ThridPersonCameraComponent>(), componentContext, gameObject)
 {
 }
 
@@ -96,9 +96,10 @@ void ThridPersonCameraComponent::processEvent()
 
 void ThridPersonCameraComponent::registerReadFunctions()
 {
-    ReadFunctions::instance().componentsReadFunctions.insert(
-        {COMPONENT_STR, [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
-         { return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject); }});
+    auto func = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
+    { return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject); };
+
+    regsiterComponentReadFunction(GetComponentType<ThridPersonCameraComponent>(), func);
 }
 
 void ThridPersonCameraComponent::write(TreeNode& node) const

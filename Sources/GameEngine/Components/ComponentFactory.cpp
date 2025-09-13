@@ -25,9 +25,8 @@ std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameO
     auto componentName          = node.getAttributeValue(CSTR_TYPE);
     if (not componentName.empty())
     {
-        auto iter = ReadFunctions::instance().componentsReadFunctions.find(componentName);
-        if (iter != ReadFunctions::instance().componentsReadFunctions.end())
-            return iter->second(context_, node, gameObject);
+        if (auto creationFunc = ReadFunctions::instance().get(componentName))
+            return creationFunc(context_, node, gameObject);
 
         LOG_WARN << "Read function not find for component name : " << componentName;
     }

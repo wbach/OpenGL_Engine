@@ -41,7 +41,7 @@ TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
 }
 
 TerrainRendererComponent::TerrainRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<TerrainRendererComponent>(), componentContext, gameObject)
     , functionsRegistered_(false)
 {
     if (EngineConf.renderer.type == GraphicsApi::RendererType::SIMPLE)
@@ -228,7 +228,7 @@ void TerrainRendererComponent::registerReadFunctions()
         return component;
     };
 
-    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+    regsiterComponentReadFunction(GetComponentType<TerrainRendererComponent>(), readFunc);
 }
 
 namespace

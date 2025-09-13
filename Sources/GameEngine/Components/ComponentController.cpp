@@ -45,7 +45,7 @@ ComponentController::FunctionId ComponentController::RegisterFunction(GameObject
     return id;
 }
 
-ComponentController::ComponentId ComponentController::RegisterComponent(IComponent::Type type, IComponent* component)
+ComponentController::ComponentId ComponentController::RegisterComponent(ComponentTypeID type, IComponent* component)
 {
     auto currentComponentId = componentId++;
 
@@ -53,7 +53,7 @@ ComponentController::ComponentId ComponentController::RegisterComponent(ICompone
     return currentComponentId;
 }
 
-void ComponentController::UnRegisterComponent(IComponent::Type type, ComponentId id)
+void ComponentController::UnRegisterComponent(ComponentTypeID type, ComponentId id)
 {
     auto iter = registredComponents_.find(type);
     if (iter != registredComponents_.end())

@@ -5,6 +5,7 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "Configuration.h"
+#include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 
 #ifdef USE_GNU
@@ -79,7 +80,7 @@ inline std::string LastLibError()
 using FilePath = std::string;
 struct ComponentLib
 {
-    std::string name;
+    GameEngine::Components::ComponentType type;
     std::string cachedName;
     LibHandle handle;
 };
@@ -99,8 +100,8 @@ ExternalComponentsReader::~ExternalComponentsReader()
     LOG_DEBUG << "~ExternalComponentsReader";
     for (auto& [_, lib] : externalLibs)
     {
-        removeAllInstanceOfComponent(Components::BaseComponent::GetType(lib.name));
-        Components::ReadFunctions::instance().componentsReadFunctions.erase(lib.name);
+        removeAllInstanceOfComponent(lib.type.id);
+        Components::unregsiterComponentReadFunction(lib.type.name);
 
         UnloadLib(lib.handle);
 
@@ -158,7 +159,9 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
         if (func)
         {
             auto name = func();
-            externalLibs.insert({inputFile, ComponentLib{.name = name, .cachedName = file, .handle = handle}});
+            auto id   = Components::getComponentTypeIdByName(name);
+            externalLibs.insert(
+                {inputFile, ComponentLib{.type = {.id = *id, .name = name}, .cachedName = file, .handle = handle}});
         }
         else
         {
@@ -179,10 +182,11 @@ void ExternalComponentsReader::Reload(const std::string& path)
     if (iter != externalLibs.end())
     {
         auto& lib = iter->second;
-        LOG_DEBUG << "Reload lib: " << path << " lib name = " << lib.name;
-        auto instances = removeAllInstanceOfComponent(Components::BaseComponent::GetType(lib.name));
+        LOG_DEBUG << "Reload lib: " << path << " lib name = " << lib.type;
+        auto instances = removeAllInstanceOfComponent(lib.type.id);
         LOG_DEBUG << "Instances removed : " << instances;
-        Components::ReadFunctions::instance().componentsReadFunctions.erase(lib.name);
+        Components::unregsiterComponentReadFunction(lib.type.name);
+
         UnloadLib(lib.handle);
         removeCachedFile(lib.cachedName);
         externalLibs.erase(path);
@@ -223,7 +227,7 @@ std::vector<std::pair<std::string, std::string>> ExternalComponentsReader::GetLo
     result.reserve(externalLibs.size());
     for (const auto& lib : externalLibs)
     {
-        result.push_back({lib.first, lib.second.name});
+        result.push_back({lib.first, lib.second.type.name});
     }
     return result;
 }
@@ -263,7 +267,7 @@ void ExternalComponentsReader::recreateAllInstancesOfComponent(const std::vector
     for (auto& instance : instances)
     {
         auto& gameObject = instance.gameObject;
-        if (auto component = gameObject.InitComponent(instance.nodeToRestore))
+        if (auto component = gameObject.AddComponent(instance.nodeToRestore))
         {
             component->ReqisterFunctions();
 

@@ -13,7 +13,7 @@ namespace Components
 std::string CylinderShape::name = {"CylinderShape"};
 
 CylinderShape::CylinderShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(CylinderShape::name, componentContext, gameObject)
+    : CollisionShape(GetComponentType<CylinderShape>(), componentContext, gameObject)
     , size(1.f)
 {
 }
@@ -45,7 +45,7 @@ void CylinderShape::registerReadFunctions()
         component->SetSize(size);
         return component;
     };
-    regsiterComponentReadFunction(CylinderShape::name, readFunc);
+    regsiterComponentReadFunction(GetComponentType<CylinderShape>(), readFunc);
 }
 void CylinderShape::write(TreeNode& node) const
 {

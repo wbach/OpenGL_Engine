@@ -28,7 +28,7 @@ const std::string CSTR_OFFSET_EQUIP_REFERENCE  = "offsetEquipReference";
 
 }  // namespace
 BowPoseUpdater::BowPoseUpdater(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<BowPoseUpdater>(), componentContext, gameObject)
     , currentJointUpdater_{nullptr}
 {
 }
@@ -140,7 +140,7 @@ void BowPoseUpdater::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<BowPoseUpdater>(), readFunc);
 }
 
 void BowPoseUpdater::write(TreeNode& node) const

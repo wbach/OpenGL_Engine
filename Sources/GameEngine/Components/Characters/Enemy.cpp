@@ -25,7 +25,7 @@ const std::string COMPONENT_STR{"Enemy"};
 }  // namespace
 
 Enemy::Enemy(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<Enemy>(), componentContext, gameObject)
     , guiManager_{componentContext.guiElementFactory_.getManager()}
     , animator_{nullptr}
     , characterController_{nullptr}
@@ -52,7 +52,8 @@ void Enemy::Init()
 
     if (animator_ and characterController_)
     {
-        auto attackAction = [this]() {
+        auto attackAction = [this]()
+        {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -78,9 +79,9 @@ void Enemy::Init()
     const vec2 windowSize(0.2f, 0.033f);
     const vec2 windowPosition(0.5f, 1.f - windowSize.y);
 
-    auto window = componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, windowPosition,
-                                                                       windowSize);
-    hud_.window = window.get();
+    auto window =
+        componentContext_.guiElementFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, windowPosition, windowSize);
+    hud_.window         = window.get();
     auto verticalLayout = componentContext_.guiElementFactory_.CreateVerticalLayout();
     verticalLayout->SetAlgin(Layout::Algin::LEFT);
 
@@ -150,10 +151,10 @@ void Enemy::isOnGround()
 }
 void Enemy::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
-        return std::make_unique<Enemy>(componentContext, gameObject);
-    };
-    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
+    { return std::make_unique<Enemy>(componentContext, gameObject); };
+
+    regsiterComponentReadFunction(GetComponentType<Enemy>(), readFunc);
 }
 void Enemy::write(TreeNode& node) const
 {

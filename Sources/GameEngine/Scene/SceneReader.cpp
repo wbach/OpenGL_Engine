@@ -46,7 +46,7 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
     {
         for (const auto& component : componentsNode->getChildren())
         {
-            gameObject.InitComponent(*component);
+            gameObject.AddComponent(*component);
         }
     }
 

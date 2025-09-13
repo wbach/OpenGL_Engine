@@ -19,7 +19,7 @@ const std::string COMPONENT_STR{"PlayerInputController"};
 }  // namespace
 
 PlayerInputController::PlayerInputController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<PlayerInputController>(), componentContext, gameObject)
     , characterController_{nullptr}
     , subscriptions_{componentContext.inputManager_}
 {
@@ -281,7 +281,7 @@ void PlayerInputController::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     { return std::make_unique<PlayerInputController>(componentContext, gameObject); };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<PlayerInputController>(), readFunc);
 }
 
 void PlayerInputController::write(TreeNode& node) const

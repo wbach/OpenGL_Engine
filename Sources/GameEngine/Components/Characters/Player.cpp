@@ -25,7 +25,7 @@ const float ATTACK_RANGE{2.f};
 }  // namespace
 
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<Player>(), componentContext, gameObject)
     , guiManager_{componentContext.guiElementFactory_.getManager()}
     , animator_{nullptr}
     , characterController_{nullptr}
@@ -56,7 +56,8 @@ void Player::Init()
 
     if (animator_ and characterController_)
     {
-        auto attackAction = [this]() {
+        auto attackAction = [this]()
+        {
             auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Enemy>(
                 componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
@@ -149,46 +150,46 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
 
     auto hitTextPtr = hitText.get();
 
-    guiManager_.add(GuiAnimation(
-        std::move(hitText), GuiAnimation::Duration(1.f),
-        [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
-            GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable {
-            if (elapsedTime > 0.5f)
-            {
-                const float speed    = 0.05f;
-                auto currentPosition = text.GetScreenPosition();
-                currentPosition.y += (speed * deltaTime);
-                offset.y += (speed * deltaTime);
-            }
+    guiManager_.add(
+        GuiAnimation(std::move(hitText), GuiAnimation::Duration(1.f),
+                     [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
+                         GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable
+                     {
+                         if (elapsedTime > 0.5f)
+                         {
+                             const float speed    = 0.05f;
+                             auto currentPosition = text.GetScreenPosition();
+                             currentPosition.y += (speed * deltaTime);
+                             offset.y += (speed * deltaTime);
+                         }
 
-            auto hitInfoWorldPoision   = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
-            auto hitInfoScreenPosition = rendererManager.convertToScreenPosition(hitInfoWorldPoision);
-            text.SetScreenPostion(hitInfoScreenPosition + offset);
+                         auto hitInfoWorldPoision = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
+                         auto hitInfoScreenPosition = rendererManager.convertToScreenPosition(hitInfoWorldPoision);
+                         text.SetScreenPostion(hitInfoScreenPosition + offset);
 
-            auto currentColor = hitTextPtr->GetColor();
-            if (elapsedTime < 0.4f)
-            {
-                if (currentColor.a < 1.f)
-                {
-                    currentColor.a += 3.f * deltaTime;
-                }
-            }
-            else if (elapsedTime > 0.6f)
-            {
-                if (currentColor.a > 0.f)
-                {
-                    currentColor.a -= 3.f * deltaTime;
-                }
-            }
-            hitTextPtr->SetColor(currentColor);
-        }));
+                         auto currentColor = hitTextPtr->GetColor();
+                         if (elapsedTime < 0.4f)
+                         {
+                             if (currentColor.a < 1.f)
+                             {
+                                 currentColor.a += 3.f * deltaTime;
+                             }
+                         }
+                         else if (elapsedTime > 0.6f)
+                         {
+                             if (currentColor.a > 0.f)
+                             {
+                                 currentColor.a -= 3.f * deltaTime;
+                             }
+                         }
+                         hitTextPtr->SetColor(currentColor);
+                     }));
 }
 void Player::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
-        return std::make_unique<Player>(componentContext, gameObject);
-    };
-    ReadFunctions::instance().componentsReadFunctions.insert({COMPONENT_STR, readFunc});
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
+    { return std::make_unique<Player>(componentContext, gameObject); };
+    regsiterComponentReadFunction(GetComponentType<Player>(), readFunc);
 }
 void Player::write(TreeNode& node) const
 {

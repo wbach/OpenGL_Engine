@@ -20,7 +20,7 @@ const std::string CSTR_HEIGHT = "height";
 const std::string CapsuleShape::name = "CapsuleShape";
 
 CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(CapsuleShape::name, componentContext, gameObject)
+    : CollisionShape(GetComponentType<CapsuleShape>(), componentContext, gameObject)
     , height{1.f}
     , radius{0.5f}
 {
@@ -66,7 +66,7 @@ void CapsuleShape::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(CapsuleShape::name, readFunc);
+    regsiterComponentReadFunction(GetComponentType<CapsuleShape>(), readFunc);
 }
 void CapsuleShape::write(TreeNode& node) const
 {

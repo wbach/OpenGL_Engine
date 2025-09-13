@@ -92,13 +92,13 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
 }
 GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const TextureParameters& params)
 {
-    auto memoryImagesIter = memoryImages.find(inputFileName.GetBaseName());
+    auto memoryImagesIter = memoryImages.find(inputFileName.GetFilename());
 
     if (memoryImagesIter != memoryImages.end())
     {
-        LOG_DEBUG << "Image found in memoryImages " << inputFileName.GetBaseName();
+        LOG_DEBUG << "Image found in memoryImages " << inputFileName.GetFilename();
         const auto& memoryImage = memoryImagesIter->second;
-        return LoadTexture(inputFileName.GetBaseName(), memoryImage.data, memoryImage.length, params);
+        return LoadTexture(inputFileName.GetFilename(), memoryImage.data, memoryImage.length, params);
     }
 
     std::lock_guard<std::mutex> lk(textureMutex_);

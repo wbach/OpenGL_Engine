@@ -36,7 +36,7 @@ void ComponentPickerPopup::PopulateList(const wxString& filter)
     listBox->Freeze();
     listBox->Clear();
 
-    for (auto [name, _] : GameEngine::Components::ReadFunctions().instance().componentsReadFunctions)
+    for (auto [name, _] : GameEngine::Components::ReadFunctions().instance().getComponentTypeNameToId())
     {
         wxString componentName(name);
         if (filter.IsEmpty() || componentName.Lower().Contains(filter.Lower()))
@@ -56,13 +56,11 @@ void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
 {
     wxString selected = listBox->GetStringSelection();
 
-    const auto& readFunctions = GameEngine::Components::ReadFunctions().instance().componentsReadFunctions;
-    auto readFunctionIter     = readFunctions.find(selected.ToStdString());
-    if (readFunctionIter != readFunctions.end())
+    if (GameEngine::Components::ReadFunctions().instance().isRegistered(selected.ToStdString()))
     {
         TreeNode node("component");
         node.attributes_.insert({GameEngine::Components::CSTR_TYPE, selected.ToStdString()});
-        auto component = gameObject.InitComponent(node);
+        auto component = gameObject.AddComponent(node);
         if (component)
         {
             component->ReqisterFunctions();

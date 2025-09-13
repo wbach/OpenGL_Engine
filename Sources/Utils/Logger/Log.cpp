@@ -90,7 +90,7 @@ void CLogger::EnableLogs(LoggingLvl lvl)
 
         auto absoluteLogPath = PrepareLoggerPath(filePath_);
         std::cout << "absoluteLogPath : " << absoluteLogPath << std::endl;
-        pImpl->fileStream_.open(absoluteLogPath, std::ios::app);
+        pImpl->fileStream_.open(absoluteLogPath);
         if (!pImpl->fileStream_.is_open())
             throw std::runtime_error("Could not open log file");
     }
@@ -163,7 +163,7 @@ void CLogger::SetLogFilename(const std::filesystem::path& filename)
         pImpl->fileStream_.close();
 
         auto absoluteLogPath = PrepareLoggerPath(filePath_);
-        pImpl->fileStream_.open(absoluteLogPath, std::ios::app);
+        pImpl->fileStream_.open(absoluteLogPath);
         if (!pImpl->fileStream_.is_open())
             throw std::runtime_error("Log file open error");
     }

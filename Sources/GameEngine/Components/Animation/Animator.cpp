@@ -9,7 +9,9 @@
 #include "ChangeAnimationEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
@@ -38,8 +40,8 @@ constexpr char CSTR_ANIMATION_PLAY_SPEED[]       = "playSpeed";
 }  // namespace
 
 Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
-    , montionJointName("mixamorig:Hips")
+    : BaseComponent(GetComponentType<Animator>(), componentContext, gameObject)
+    , montionJointName("")
     , jointData_(componentContext_.graphicsApi_)
     , machine_(jointData_.pose, jointGroupsIds_)
     , montionJoint_{nullptr}
@@ -623,7 +625,7 @@ void Animator::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<Animator>(), readFunc);
 }
 
 void write(TreeNode& node, const ReadAnimationInfo& info)

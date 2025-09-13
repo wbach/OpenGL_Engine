@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include "ComponentType.h"
 
 #include "FunctionType.h"
 
@@ -49,8 +50,8 @@ struct FieldInfo
     void* ptr{nullptr};
 
     std::function<std::vector<std::string>()> enumNames = {};
-    std::function<int(void*)> enumToIndex = {};
-    std::function<void(void*, int)> indexToEnum = {};
+    std::function<int(void*)> enumToIndex               = {};
+    std::function<void(void*, int)> indexToEnum         = {};
 };
 
 typedef std::string ParamName;
@@ -58,8 +59,6 @@ typedef std::string ParamName;
 class IComponent
 {
 public:
-    using Type = uint64_t;
-
     virtual ~IComponent()                                                     = default;
     virtual void CleanUp()                                                    = 0;
     virtual void ReqisterFunctions()                                          = 0;
@@ -72,8 +71,8 @@ public:
     virtual void write(TreeNode&) const                                       = 0;
     virtual std::optional<IdType> getRegisteredFunctionId(FunctionType) const = 0;
     virtual std::vector<FieldInfo> GetFields()                                = 0;
-    virtual Type GetType() const                                              = 0;
-    virtual const std::string& GetTypeString() const                          = 0;
+    virtual ComponentTypeID GetTypeId() const                                 = 0;
+    virtual const std::string& GetTypeName() const                            = 0;
 };
 }  // namespace Components
 }  // namespace GameEngine

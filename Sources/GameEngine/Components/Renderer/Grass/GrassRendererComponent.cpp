@@ -22,7 +22,7 @@ const bool DEVIDE_SPACE{false};
 }  // namespace
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<GrassRendererComponent>(), componentContext, gameObject)
     , textureFile("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
     , isSubscribed_(false)
 {
@@ -271,7 +271,7 @@ void GrassRendererComponent::registerReadFunctions()
         }
         return component;
     };
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<GrassRendererComponent>(), readFunc);
 }
 void GrassRendererComponent::write(TreeNode& node) const
 {

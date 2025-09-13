@@ -48,7 +48,7 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParame
                                   : (mesh.GetCMeshDataRef().positions_.size() / 3.f / 3.f);
         }
 
-        LOG_ERROR << "File  creation error: " << file << " Meshes count : " << result->GetMeshes().size()
+        LOG_ERROR << "File  loaded: " << file << " Meshes count : " << result->GetMeshes().size()
                   << ", Total triangles count : " << trianglesCount;
     }
     else

@@ -22,7 +22,7 @@ const std::string CSTR_POSITIONS        = "positions";
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<TreeRendererComponent>(), componentContext, gameObject)
     , isSubsribed_(false)
 {
 }
@@ -189,7 +189,7 @@ void TreeRendererComponent::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<TreeRendererComponent>(), readFunc);
 }
 
 namespace

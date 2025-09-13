@@ -28,7 +28,7 @@ const std::string CSTR_GENERATE_MOVING_PATH_ACTIVE = "active";
 }  // namespace
 
 EnemyController::EnemyController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<EnemyController>(), componentContext, gameObject)
     , enemy_{nullptr}
     , animator_{nullptr}
     , characterController_{nullptr}
@@ -174,7 +174,7 @@ void EnemyController::registerReadFunctions()
         }
         return component;
     };
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<EnemyController>(), readFunc);
 }
 void EnemyController::write(TreeNode& node) const
 {

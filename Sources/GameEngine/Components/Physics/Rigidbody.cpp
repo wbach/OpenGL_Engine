@@ -29,7 +29,7 @@ const std::string CSTR_NO_CONCTACT_RESPONSE = "noConctactResponse";
 }  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<Rigidbody>(), componentContext, gameObject)
     , mass(1.0f)
     , collisionShape_(nullptr)
     , updateRigidbodyOnTransformChange_(false)
@@ -417,7 +417,7 @@ void Rigidbody::registerReadFunctions()
         component->SetCollisionShape(collisionShapeName);
         return component;
     };
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<Rigidbody>(), readFunc);
 }
 void Rigidbody::write(TreeNode& node) const
 {

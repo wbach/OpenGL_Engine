@@ -613,12 +613,9 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const EntryParameter
     if (not gameObject)
         return;
 
-    for (auto &component : gameObject->GetComponents())
+    for (auto &[_, component] : gameObject->GetComponents())
     {
-        TreeNode node("component");
-        component->write(node);
-        DebugNetworkInterface::NewComponentMsgInd componentNameMsg(node.getAttributeValue(Components::CSTR_TYPE),
-                                                                   component->IsActive());
+        DebugNetworkInterface::NewComponentMsgInd componentNameMsg(component->GetTypeName(), component->IsActive());
         gateway_.Send(userId_, componentNameMsg);
     }
 }
@@ -875,7 +872,7 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
 
 void NetworkEditorInterface::GetComponentsList(const EntryParameters &)
 {
-    for (auto [name, func] : Components::ReadFunctions().instance().componentsReadFunctions)
+    for (auto [name, _] : Components::ReadFunctions().instance().getComponentTypeNameToId())
     {
         DebugNetworkInterface::AvailableComponentMsgInd msg(name);
         gateway_.Send(userId_, msg);
@@ -894,13 +891,11 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
         if (not go)
             return;
 
-        const auto &readFunctions = Components::ReadFunctions().instance().componentsReadFunctions;
-        auto readFunctionIter     = readFunctions.find(componentName);
-        if (readFunctionIter != readFunctions.end())
+        if (Components::ReadFunctions().instance().isRegistered(componentName))
         {
             TreeNode node("component");
             node.attributes_.insert({Components::CSTR_TYPE, componentName});
-            auto component = go->InitComponent(node);
+            auto component = go->AddComponent(node);
             if (component)
             {
                 component->ReqisterFunctions();
@@ -943,11 +938,9 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
         return;
 
     Components::IComponent *component{nullptr};
-    for (const auto &c : gameObject->GetComponents())
+    for (const auto &[_, c] : gameObject->GetComponents())
     {
-        TreeNode node("component");
-        c->write(node);
-        if (node.getAttributeValue(CSTR_NAME) == params.at("name"))
+        if (c->GetTypeName() == params.at("name"))
         {
             component = c.get();
             break;
@@ -1430,11 +1423,9 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
         return;
 
     Components::IComponent *component{nullptr};
-    for (const auto &c : gameObject->GetComponents())
+    for (const auto &[_, c] : gameObject->GetComponents())
     {
-        TreeNode node("component");
-        c->write(node);
-        if (node.getAttributeValue(CSTR_NAME) == params.at("name"))
+        if (c->GetTypeName() == params.at("name"))
         {
             component = c.get();
             break;

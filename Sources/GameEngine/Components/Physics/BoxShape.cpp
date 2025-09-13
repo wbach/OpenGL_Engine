@@ -13,7 +13,7 @@ namespace Components
 const std::string BoxShape::name = {"BoxShape"};
 
 BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(BoxShape::name, componentContext, gameObject)
+    : CollisionShape(GetComponentType<BoxShape>(), componentContext, gameObject)
     , size(1.f)
 {
 }
@@ -42,7 +42,7 @@ void BoxShape::registerReadFunctions()
 
         return component;
     };
-    regsiterComponentReadFunction(BoxShape::name, readFunc);
+    regsiterComponentReadFunction(GetComponentType<BoxShape>(), readFunc);
 }
 void BoxShape::write(TreeNode& node) const
 {

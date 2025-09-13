@@ -13,7 +13,7 @@ namespace Components
 std::string SphereShape::name = {"SphereShape"};
 
 SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(SphereShape::name, componentContext, gameObject)
+    : CollisionShape(GetComponentType<SphereShape>(), componentContext, gameObject)
     , radius(1.f)
 {
 }
@@ -46,7 +46,7 @@ void SphereShape::registerReadFunctions()
         component->SetRadius(radius);
         return component;
     };
-    regsiterComponentReadFunction(SphereShape::name, readFunc);
+    regsiterComponentReadFunction(GetComponentType<SphereShape>(), readFunc);
 }
 void SphereShape::write(TreeNode& node) const
 {

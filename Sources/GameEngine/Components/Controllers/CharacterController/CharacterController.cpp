@@ -42,7 +42,7 @@ struct CharacterController::Impl
 };
 
 CharacterController::CharacterController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<CharacterController>(), componentContext, gameObject)
     , upperBodyGroupName{"upperBody"}
     , lowerBodyGroupName{"lowerBody"}
     , equipTimeStamp{-1.0}
@@ -407,7 +407,7 @@ void CharacterController::registerReadFunctions()
         return component;
     };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<CharacterController>(), readFunc);
 }
 
 void CharacterController::write(TreeNode& node) const

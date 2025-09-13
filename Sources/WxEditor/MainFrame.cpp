@@ -586,7 +586,7 @@ GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
 
 void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject)
 {
-    for (auto& component : gameObject.GetComponents())
+    for (auto& [_, component] : gameObject.GetComponents())
     {
         auto* compPanel = new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
                                              canvas->GetScene().getComponentController(), gameObject);

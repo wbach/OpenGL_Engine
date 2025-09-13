@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Physics/SphereShape.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -15,7 +16,7 @@ namespace GameEngine
 namespace Components
 {
 ArrowController::ArrowController(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent("ArrowController", componentContext, gameObject)
+    : BaseComponent(GetComponentType<ArrowController>(), componentContext, gameObject)
     , thridPersonCameraComponent{nullptr}
     , rigidbody{nullptr}
     , physicArrowGameObject{nullptr}

@@ -1,5 +1,6 @@
 #pragma once
 #include <Utils/IdPool.h>
+
 #include <list>
 #include <memory>
 #include <string>
@@ -14,11 +15,13 @@
 namespace GameEngine
 {
 class GameObject;
-typedef std::vector<std::unique_ptr<GameObject>> GameObjects;
+using GameObjects = std::vector<std::unique_ptr<GameObject>>;
 
 class GameObject
 {
 public:
+    using ComponentsContainer = std::unordered_map<Components::ComponentTypeID, std::unique_ptr<Components::IComponent>>;
+
     GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
                const std::optional<uint32>& = std::nullopt);
     GameObject(const GameObject&)  = delete;
@@ -47,24 +50,25 @@ public:
 
     void RegisterComponentFunctions();
 
+    template <class T, typename... Args>
+    T& AddComponent(Args&&...);
+
+    Components::IComponent* AddComponent(const TreeNode&);
+
     template <class T>
     T* GetComponent();
 
-    Components::IComponent* GetComponent(Components::IComponent::Type);
+    Components::IComponent* GetComponent(Components::ComponentTypeID);
 
     template <class T>
     T* GetComponentInChild();
 
-    template <class T, typename... Args>
-    T& AddComponent(Args&&...);
-
-    Components::IComponent* InitComponent(const TreeNode&);
-
     template <class T>
     void RemoveComponent();
-    void RemoveComponent(Components::IComponent::Type);
+    void RemoveComponent(Components::ComponentTypeID);
+    void RemoveAllComponents();
 
-    inline const std::vector<std::unique_ptr<Components::IComponent>>& GetComponents() const;
+    inline const ComponentsContainer& GetComponents() const;
 
     common::Transform& GetTransform();
     const common::Transform& GetTransform() const;
@@ -97,7 +101,7 @@ protected:
     common::Transform worldTransform_;
     GameObject* parent_;
     std::string name_;
-    std::vector<std::unique_ptr<Components::IComponent>> components_;
+    ComponentsContainer components_;
     std::optional<uint32> parentIdTransfromSubscribtion_;
     std::optional<uint32> localTransfromSubscribtion_;
     GameObjects children_;
@@ -128,21 +132,13 @@ uint32 GameObject::GetId() const
 {
     return id_;
 }
+
 template <class T>
 inline T* GameObject::GetComponent()
 {
-    for (auto& componentPtr : components_)
-    {
-        if (componentPtr.get())
-        {
-            auto& component = *componentPtr.get();
-            if (typeid(component) == typeid(T))
-            {
-                return static_cast<T*>(componentPtr.get());
-            }
-        }
-    }
-    return nullptr;
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+    return it != components_.end() ? static_cast<T*>(it->second.get()) : nullptr;
 }
 
 template <class T>
@@ -150,16 +146,9 @@ inline T* GameObject::GetComponentInChild()
 {
     for (auto& child : children_)
     {
-        for (auto& componentPtr : child->GetComponents())
+        if (auto component = child->GetComponent<T>())
         {
-            if (componentPtr.get())
-            {
-                auto& component = *componentPtr.get();
-                if (typeid(component) == typeid(T))
-                {
-                    return static_cast<T*>(componentPtr.get());
-                }
-            }
+            return component;
         }
         return child->GetComponentInChild<T>();
     }
@@ -174,25 +163,21 @@ inline T& GameObject::AddComponent(Args&&... args)
     {
         component->ReqisterFunctions();
     }
-    components_.push_back(std::move(component));
-    return *static_cast<T*>(components_.back().get());
+
+    auto ptr             = component.get();
+    const auto& type     = Components::GetComponentType<T>();
+    components_[type.id] = std::move(component);
+    return *static_cast<T*>(ptr);
 }
+
 template <class T>
 void GameObject::RemoveComponent()
 {
-    for (auto iter = components_.begin(); iter != components_.end(); ++iter)
-    {
-        auto& component = **iter;
-
-        if (typeid(component) == typeid(T))
-        {
-            component.CleanUp();
-            components_.erase(iter);
-            return;
-        }
-    }
+    const auto& type = Components::GetComponentType<T>();
+    components_.erase(type.id);
 }
-const std::vector<std::unique_ptr<Components::IComponent>>& GameObject::GetComponents() const
+
+const GameObject::ComponentsContainer& GameObject::GetComponents() const
 {
     return components_;
 }

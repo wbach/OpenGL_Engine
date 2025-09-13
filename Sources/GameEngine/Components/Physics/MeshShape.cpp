@@ -23,7 +23,7 @@ const std::string CSTR_MODEL_NORMALIZATION = "modelNormalization";
 const std::string CSTR_MESH_OPTIMIZE       = "meshOptimize";
 
 MeshShape::MeshShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(MeshShape::name, componentContext, gameObject)
+    : CollisionShape(GetComponentType<MeshShape>(), componentContext, gameObject)
     , size(1.f)
     , autoOptimization{false}
     , model_(nullptr)
@@ -146,7 +146,7 @@ void MeshShape::registerReadFunctions()
 
         return component;
     };
-    regsiterComponentReadFunction(MeshShape::name, readFunc);
+    regsiterComponentReadFunction(GetComponentType<MeshShape>(), readFunc);
 }
 void MeshShape::write(TreeNode& node) const
 {

@@ -28,7 +28,7 @@ const std::string CSTR_HEIGHTMAP_FILENAME = "heightMapFileName";
 const std::string TerrainShape::name = {"TerrainShape"};
 
 TerrainShape::TerrainShape(ComponentContext& componentContext, GameObject& gameObject)
-    : CollisionShape(TerrainShape::name, componentContext, gameObject)
+    : CollisionShape(GetComponentType<TerrainShape>(), componentContext, gameObject)
     , terrainHeightGetter_(nullptr)
     , terrainRendererComponent_(nullptr)
     , size_(1)
@@ -147,7 +147,7 @@ void TerrainShape::registerReadFunctions()
 
         return component;
     };
-    regsiterComponentReadFunction(TerrainShape::name, readFunc);
+    regsiterComponentReadFunction(GetComponentType<TerrainShape>(), readFunc);
 }
 void TerrainShape::write(TreeNode& node) const
 {

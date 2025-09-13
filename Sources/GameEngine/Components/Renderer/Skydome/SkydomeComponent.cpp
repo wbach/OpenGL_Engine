@@ -14,7 +14,7 @@ const std::string COMPONENT_STR{"Skydome"};
 }  // namespace
 
 SkydomeComponent::SkydomeComponent(ComponentContext& componentContext, GameObject& gameObject)
-    : BaseComponent(COMPONENT_STR, componentContext, gameObject)
+    : BaseComponent(GetComponentType<SkydomeComponent>(), componentContext, gameObject)
     , model_(nullptr)
     , isSubscribed_(false)
 {
@@ -64,7 +64,7 @@ void SkydomeComponent::registerReadFunctions()
         return std::make_unique<SkydomeComponent>(componentContext, gameObject);
     };
 
-    regsiterComponentReadFunction(COMPONENT_STR, readFunc);
+    regsiterComponentReadFunction(GetComponentType<SkydomeComponent>(), readFunc);
 }
 void SkydomeComponent::write(TreeNode& node) const
 {

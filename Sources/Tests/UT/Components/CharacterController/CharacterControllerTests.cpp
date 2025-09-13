@@ -44,7 +44,7 @@ CharacterControllerTests::CharacterControllerTests()
     weaponPtr->AddComponent<BowPoseUpdater>();
     obj_.AddChild(std::move(weaponPtr));
 
-    for (auto& component : obj_.GetComponents())
+    for (auto& [_, component] : obj_.GetComponents())
     {
         component->ReqisterFunctions();
     }

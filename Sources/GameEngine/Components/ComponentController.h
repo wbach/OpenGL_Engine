@@ -58,8 +58,8 @@ public:
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
     void callComponentFunction(GameObjectId, FunctionType, FunctionId);
 
-    ComponentId RegisterComponent(IComponent::Type, IComponent*);
-    void UnRegisterComponent(IComponent::Type, ComponentId);
+    ComponentId RegisterComponent(ComponentTypeID, IComponent*);
+    void UnRegisterComponent(ComponentTypeID, ComponentId);
     void UnRegisterAll();
 
 public:
@@ -73,7 +73,7 @@ public:
 
 private:
     ComponentFunctions functions_;
-    std::unordered_map<IComponent::Type, RegistredComponentsMap> registredComponents_;
+    std::unordered_map<ComponentTypeID, RegistredComponentsMap> registredComponents_;
     Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;
