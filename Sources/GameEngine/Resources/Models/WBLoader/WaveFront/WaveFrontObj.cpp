@@ -33,13 +33,13 @@ bool WaveFrontObjLoader::CheckExtension(const File& filename)
 }
 void WaveFrontObjLoader::GetFileData(const File& file)
 {
-    fileData = Utils::ReadFileLines(file.GetAbsolutePath());
+    fileData = Utils::ReadFileLines(file.GetAbsolutePath().string());
 
     if (fileData.empty())
         return;
 
     filename = file.GetFilename();
-    path     = file.GetAbsolutePath().parent_path();
+    path     = file.GetAbsolutePath().parent_path().string();
 }
 void WaveFrontObjLoader::ProcessFileData()
 {

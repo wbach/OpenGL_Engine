@@ -37,7 +37,7 @@ Model* ResourceManager::LoadModel(const File& file, const LoadingParameters& loa
 {
     auto absoultePath = file.GetAbsolutePath();
     std::lock_guard<std::mutex> lk(modelMutex_);
-    auto iter = models_.find(absoultePath);
+    auto iter = models_.find(absoultePath.string());
 
     if (iter != models_.end())
     {
@@ -59,7 +59,7 @@ Model* ResourceManager::LoadModel(const File& file, const LoadingParameters& loa
         return nullptr;
 
     auto modelPtr = modelInfo.resource_.get();
-    models_.insert({absoultePath, std::move(modelInfo)});
+    models_.insert({absoultePath.string(), std::move(modelInfo)});
 
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
     return modelPtr;
@@ -97,10 +97,10 @@ void ResourceManager::ReleaseModel(Model& model)
 
     auto absoultePath = model.GetFile().GetAbsolutePath();
 
-    if (not models_.count(absoultePath))
+    if (not models_.count(absoultePath.string()))
         return;
 
-    auto& modelInfo = models_.at(absoultePath);
+    auto& modelInfo = models_.at(absoultePath.string());
     --modelInfo.instances_;
 
     if (modelInfo.instances_ > 0 or releaseLockState_)
@@ -112,7 +112,7 @@ void ResourceManager::ReleaseModel(Model& model)
     }
 
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
-    models_.erase(absoultePath);
+    models_.erase(absoultePath.string());
 }
 
 void ResourceManager::LockReleaseResources()

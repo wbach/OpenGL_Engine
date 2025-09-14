@@ -5,6 +5,7 @@
 #include <Logger/Log.h>
 #include <Utils/IdPool.h>
 #include <Windows.h>
+#include <mutex>
 
 #include "DirectXApi/DirectXContext.h"
 #include "XInput/XInputManager.h"
@@ -49,7 +50,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                     fileName              = (wchar_t*)realloc(fileName, longestFileNameLength * sizeof(*fileName));
                 }
                 DragQueryFileW(drop, i, fileName, fileNameLength);
-                LOG_ERROR << "fileName : " + reinterpret_cast<char*>(fileName);
+                LOG_ERROR << "fileName : " << reinterpret_cast<char*>(fileName);
             }
 
             std::lock_guard<std::mutex> lk(eventSubscribersMutex_);

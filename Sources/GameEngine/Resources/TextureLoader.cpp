@@ -120,7 +120,7 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
         }
     }
 
-    if (auto texture = GetTextureIfLoaded(inputFile.GetAbsolutePath(), params))
+    if (auto texture = GetTextureIfLoaded(inputFile.GetAbsolutePath().string(), params))
         return static_cast<GeneralTexture*>(texture);
 
     auto image = ReadFile(inputFile, params);
@@ -130,7 +130,7 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
 
     auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, inputFile);
     auto texturePtr = texture.get();
-    AddTexture(inputFile.GetAbsolutePath(), std::move(texture), params.loadType);
+    AddTexture(inputFile.GetAbsolutePath().string(), std::move(texture), params.loadType);
     return texturePtr;
 }
 
@@ -162,7 +162,7 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
 
     std::ostringstream textureName;
     for (const auto& file : files)
-        textureName << Utils::RemoveSlashes(file.GetAbsolutePath());
+        textureName << Utils::RemoveSlashes(file.GetAbsolutePath().string());
 
     if (auto texture = GetTextureIfLoaded(textureName.str(), params))
     {
@@ -191,7 +191,7 @@ HeightMap* TextureLoader::LoadHeightMap(const File& inputFileName, const Texture
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
-    if (auto texture = GetTextureIfLoaded(inputFileName.GetAbsolutePath(), params))
+    if (auto texture = GetTextureIfLoaded(inputFileName.GetAbsolutePath().string(), params))
     {
         return static_cast<HeightMap*>(texture);
     }
@@ -231,7 +231,7 @@ HeightMap* TextureLoader::CreateHeightMap(const File& filename, const vec2ui& re
     auto heightmapTexturePtr = heightmapTexture.get();
 
     SaveHeightMap(*heightmapTexture, filename);
-    AddTexture(filename.GetAbsolutePath(), std::move(heightmapTexture), params.loadType);
+    AddTexture(filename.GetAbsolutePath().string(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;
 }
 GraphicsApi::IGraphicsApi& TextureLoader::GetGraphicsApi()
@@ -281,7 +281,7 @@ void TextureLoader::UnlockReleaseResources()
 
 HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFile, const TextureParameters& params)
 {
-    auto fp = fopen(inputFile.GetAbsolutePath().c_str(), "rb");
+    auto fp = fopen(inputFile.GetAbsolutePath().string().c_str(), "rb");
 
     if (!fp)
     {
@@ -321,7 +321,7 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFile, const Textu
     auto heightmapTexture = std::make_unique<HeightMap>(graphicsApi_, params, inputFile, std::move(image));
     heightmapTexture->SetScale(header.scale);
     auto heightmapTexturePtr = heightmapTexture.get();
-    AddTexture(inputFile.GetAbsolutePath(), std::move(heightmapTexture), params.loadType);
+    AddTexture(inputFile.GetAbsolutePath().string(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;
 }
 HeightMap* TextureLoader::LoadHeightMapTexture(const File& inputFileName, const TextureParameters& params)
@@ -336,7 +336,7 @@ HeightMap* TextureLoader::LoadHeightMapTexture(const File& inputFileName, const 
     auto& image              = *maybeImage;
     auto heightmapTexture    = std::make_unique<HeightMap>(graphicsApi_, params, inputFileName, std::move(image));
     auto heightmapTexturePtr = heightmapTexture.get();
-    AddTexture(inputFileName.GetAbsolutePath(), std::move(heightmapTexture), params.loadType);
+    AddTexture(inputFileName.GetAbsolutePath().string(), std::move(heightmapTexture), params.loadType);
     return heightmapTexturePtr;
 }
 Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const TextureParameters& params)

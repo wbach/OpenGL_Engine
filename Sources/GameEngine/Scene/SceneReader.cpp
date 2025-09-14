@@ -77,7 +77,7 @@ void ReadPrefab(Scene& scene, const File& file, Prefab& prefabGameObject)
 
     LOG_DEBUG << "LoadPrefabFile : " << file;
     Utils::XmlReader xmlReader;
-    if (not xmlReader.Read(file.GetAbsolutePath()))
+    if (not xmlReader.Read(file.GetAbsolutePath().string()))
     {
         LOG_ERROR << "Prefab read error file: " << file;
         return;
@@ -218,7 +218,7 @@ void readNode(const TreeNode& node, Scene& scene)
 std::optional<TreeNode> loadScene(Scene& scene, const File& file)
 {
     Utils::XmlReader xmlReader;
-    if (not xmlReader.Read(file.GetAbsolutePath()))
+    if (not xmlReader.Read(file.GetAbsolutePath().string()))
         return std::nullopt;
 
     auto sceneNode = xmlReader.Get(CSTR_SCENE);

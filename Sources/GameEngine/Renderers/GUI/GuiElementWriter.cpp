@@ -32,7 +32,7 @@ void writeChildren(TreeNode& node, const GuiElement& element)
 void write(TreeNode& node, const File& v)
 {
     if (not v.empty())
-        node.value_ = v.GetDataRelativePath();
+        node.value_ = Utils::ReplaceSlash(v.GetDataRelativePath().string());
 }
 
 void writeBasicParams(TreeNode& node, const GuiElement& element)

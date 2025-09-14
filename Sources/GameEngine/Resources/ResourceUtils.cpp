@@ -100,7 +100,7 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
         return {};
     }
 
-    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(file.GetAbsolutePath().c_str(), 0);
+    FREE_IMAGE_FORMAT imageFormat = FreeImage_GetFileType(file.GetAbsolutePath().string().c_str(), 0);
 
     if (imageFormat == FIF_UNKNOWN)
     {
@@ -108,7 +108,7 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
         return {};
     }
 
-    FIBITMAP* image = FreeImage_Load(imageFormat, file.GetAbsolutePath().c_str());
+    FIBITMAP* image = FreeImage_Load(imageFormat, file.GetAbsolutePath().string().c_str());
     if (not image)
     {
         LOG_ERROR << "FreeImageLoad load failed: " << file;
@@ -211,7 +211,7 @@ std::vector<float> ConvertHeightData(const std::vector<uint8>& data)
 
 void CreateHeightMap(const File& in, const File& out, const vec3& scale)
 {
-    auto fp = fopen(out.GetAbsolutePath().c_str(), "wb+");
+    auto fp = fopen(out.GetAbsolutePath().string().c_str(), "wb+");
 
     if (!fp)
     {
@@ -254,7 +254,7 @@ void CreateHeightMap(const File& out, const vec2ui& size)
     header.scale  = vec3(1);
     auto dataSize = header.width * header.height;
 
-    auto fp = fopen(out.GetAbsolutePath().c_str(), "wb+");
+    auto fp = fopen(out.GetAbsolutePath().string().c_str(), "wb+");
 
     if (not fp)
     {
@@ -279,8 +279,8 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
         return;
     }
 
-    Utils::CreateBackupFile(outfile.GetAbsolutePath());
-    auto fp = fopen(outfile.GetAbsolutePath().c_str(), "wb");
+    Utils::CreateBackupFile(outfile.GetAbsolutePath().string());
+    auto fp = fopen(outfile.GetAbsolutePath().string().c_str(), "wb");
 
     if (not fp)
     {
@@ -307,7 +307,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                image.getImageData());
     fclose(fp);
 
-    Utils::SaveImage(image, outfile.CreateFileWithExtension("png").GetAbsolutePath());
+    Utils::SaveImage(image, outfile.CreateFileWithExtension("png").GetAbsolutePath().string());
 }
 
 uint8 GetBlendValue(const vec3& normal, const vec2& thresholds)
@@ -387,7 +387,7 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
 
     std::visit(visitor{[&](std::vector<uint8> data)
                        {
-                           Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsolutePath(), vec2(4));
+                           Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsolutePath().string(), vec2(4));
                            for (size_t i = 3; i < data.size(); i += 4)
                                data[i] = 255;
 

@@ -55,7 +55,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     {
         const auto& firstValidDisplayMode = diplayModes.front();
         windowsSize_ = vec2ui{static_cast<uint32>(firstValidDisplayMode.w), static_cast<uint32>(firstValidDisplayMode.h)};
-        /* LOG TO FIX*/  LOG_ERROR << ("Requested window size not avaiable, take first, new size: " + std::to_string(windowsSize_));
+        LOG_DEBUG << "Requested window size not avaiable, take first, new size: " << windowsSize_;
         EngineConf.window.size = windowsSize_;
     }
 
@@ -70,7 +70,7 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
             measurmentValue = std::to_string(timeMeasurer_.GetFps());
         });
 
-    /* LOG TO FIX*/  LOG_ERROR << ("DisplayManager init success");
+    LOG_DEBUG << "DisplayManager init success";
 }
 
 DisplayManager::~DisplayManager()
@@ -79,7 +79,7 @@ DisplayManager::~DisplayManager()
     EngineConf.window.fullScreen.unsubscribe(changeFullScreenSubscription_);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
 
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
     graphicsApi_.DeleteContext();
 }
 
@@ -119,7 +119,7 @@ void DisplayManager::SetFullScreen(bool state)
 
 void DisplayManager::ChangeTimeMultiplayer(float value)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Change time multiplayer = " + std::to_string(value));
+    LOG_DEBUG << "Change time multiplayer = " << value;
     timeMultiplayer_ = value;
 }
 

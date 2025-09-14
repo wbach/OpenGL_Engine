@@ -43,9 +43,6 @@ echo "Generate VisualStudio Common project"
 echo "Generate VisualStudio Game project"
 ./prepareProject.sh Game $GameId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Game/Game.vcxproj
 
-echo "Generate VisualStudio Editor project"
-./prepareProject.sh Editor $EditorId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/Editor/Editor.vcxproj
-
 echo "Generate VisualStudio WxEditor project"
 ./prepareProject.sh WxEditor $WxEditorId Application GameEngine Input DirectXApi OpenGLApi GraphicsApi Utils UtilsNetwork Common > ../Sources/WxEditor/WxEditor.vcxproj
 

@@ -52,7 +52,7 @@ TerrainConfiguration TerrainConfiguration::ReadFromFile(const File& configFile)
     if (not file.is_open())
     {
         LOG_DEBUG << "Terrain config file not found, creating default : " << configFile.GetFilename();
-        SaveTerrainConfigurationToFile(config, configFile.GetAbsolutePath());
+        SaveTerrainConfigurationToFile(config, configFile.GetAbsolutePath().string());
         return config;
     }
 

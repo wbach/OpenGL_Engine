@@ -114,7 +114,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     }
     else
     {
-        font = TTF_OpenFont(filename.GetAbsolutePath().c_str(), static_cast<int>(percentFontSize));
+        font = TTF_OpenFont(filename.GetAbsolutePath().string().c_str(), static_cast<int>(percentFontSize));
     }
 
     if (font)

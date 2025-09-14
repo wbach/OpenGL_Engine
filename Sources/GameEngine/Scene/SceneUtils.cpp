@@ -47,13 +47,13 @@ void saveSceneToFile(Scene& scene, const File& file)
 void saveSceneToFile(const TreeNode& rootNode, const File& file)
 {
     auto path = file.CreateFileWithExtension("xml").GetAbsolutePath();
-    Utils::CreateBackupFile(path);
-    Utils::Xml::Write(path, rootNode);
+    Utils::CreateBackupFile(path.string());
+    Utils::Xml::Write(path.string(), rootNode);
 }
 void createAndSavePrefab(const File& file, const GameObject& gameObject)
 {
     auto prefabRootNode = GameEngine::createPrefab(gameObject);
-    Utils::Xml::Write(file.CreateFileWithExtension("prefab").GetAbsolutePath(), prefabRootNode);
+    Utils::Xml::Write(file.CreateFileWithExtension("prefab").GetAbsolutePath().string(), prefabRootNode);
 }
 GameObject* cloneGameObject(Scene& scene, const GameObject& gameObject)
 {
@@ -80,7 +80,7 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
     {
         scenesNode.addChild(name, file.GetDataRelativePath());
     }
-    Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
+    Utils::Json::Write(inputFile.GetAbsolutePath().string(), rootNode);
 }
 void createScenesFile(const File& inputFile, const std::unordered_map<std::string, std::string>& scenes,
                       const std::string& startupScene)
@@ -92,7 +92,7 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
     {
         scenesNode.addChild(name, file);
     }
-    Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
+    Utils::Json::Write(inputFile.GetAbsolutePath().string(), rootNode);
 }
 void createScenesFile(const File& inputFile)
 {
@@ -100,6 +100,6 @@ void createScenesFile(const File& inputFile)
     rootNode.addChild(CSTR_STARTUP_SCENE_NODE).value_ = "";
     rootNode.addChild(CSTR_SCENES_NODE);
 
-    Utils::Json::Write(inputFile.GetAbsolutePath(), rootNode);
+    Utils::Json::Write(inputFile.GetAbsolutePath().string(), rootNode);
 }
 }  // namespace GameEngine

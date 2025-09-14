@@ -518,7 +518,10 @@ struct MeasurementValue
     std::string value;
 };
 
-// ====== vec2 ======
+namespace glm
+{
+
+// ===== vec2 =====
 inline bool operator==(const vec2& a, const vec2& b)
 {
     return a.x == b.x && a.y == b.y;
@@ -529,10 +532,72 @@ inline bool operator!=(const vec2& a, const vec2& b)
 }
 inline bool operator<(const vec2& a, const vec2& b)
 {
-    return a.x < b.x || (a.x == b.x && a.y < b.y);
+    return (a.x < b.x) || (a.x == b.x && a.y < b.y);
+}
+inline bool operator>(const vec2& a, const vec2& b)
+{
+    return b < a;
+}
+inline bool operator<=(const vec2& a, const vec2& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const vec2& a, const vec2& b)
+{
+    return !(a < b);
 }
 
-// ====== vec3 ======
+inline bool operator==(const ivec2& a, const ivec2& b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline bool operator!=(const ivec2& a, const ivec2& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const ivec2& a, const ivec2& b)
+{
+    return (a.x < b.x) || (a.x == b.x && a.y < b.y);
+}
+inline bool operator>(const ivec2& a, const ivec2& b)
+{
+    return b < a;
+}
+inline bool operator<=(const ivec2& a, const ivec2& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const ivec2& a, const ivec2& b)
+{
+    return !(a < b);
+}
+
+inline bool operator==(const uvec2& a, const uvec2& b)
+{
+    return a.x == b.x && a.y == b.y;
+}
+inline bool operator!=(const uvec2& a, const uvec2& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const uvec2& a, const uvec2& b)
+{
+    return (a.x < b.x) || (a.x == b.x && a.y < b.y);
+}
+inline bool operator>(const uvec2& a, const uvec2& b)
+{
+    return b < a;
+}
+inline bool operator<=(const uvec2& a, const uvec2& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const uvec2& a, const uvec2& b)
+{
+    return !(a < b);
+}
+
+// ===== vec3 =====
 inline bool operator==(const vec3& a, const vec3& b)
 {
     return a.x == b.x && a.y == b.y && a.z == b.z;
@@ -549,8 +614,78 @@ inline bool operator<(const vec3& a, const vec3& b)
         return a.y < b.y;
     return a.z < b.z;
 }
+inline bool operator>(const vec3& a, const vec3& b)
+{
+    return b < a;
+}
+inline bool operator<=(const vec3& a, const vec3& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const vec3& a, const vec3& b)
+{
+    return !(a < b);
+}
 
-// ====== vec4 ======
+inline bool operator==(const ivec3& a, const ivec3& b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline bool operator!=(const ivec3& a, const ivec3& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const ivec3& a, const ivec3& b)
+{
+    if (a.x != b.x)
+        return a.x < b.x;
+    if (a.y != b.y)
+        return a.y < b.y;
+    return a.z < b.z;
+}
+inline bool operator>(const ivec3& a, const ivec3& b)
+{
+    return b < a;
+}
+inline bool operator<=(const ivec3& a, const ivec3& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const ivec3& a, const ivec3& b)
+{
+    return !(a < b);
+}
+
+inline bool operator==(const uvec3& a, const uvec3& b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+inline bool operator!=(const uvec3& a, const uvec3& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const uvec3& a, const uvec3& b)
+{
+    if (a.x != b.x)
+        return a.x < b.x;
+    if (a.y != b.y)
+        return a.y < b.y;
+    return a.z < b.z;
+}
+inline bool operator>(const uvec3& a, const uvec3& b)
+{
+    return b < a;
+}
+inline bool operator<=(const uvec3& a, const uvec3& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const uvec3& a, const uvec3& b)
+{
+    return !(a < b);
+}
+
+// ===== vec4 =====
 inline bool operator==(const vec4& a, const vec4& b)
 {
     return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
@@ -569,6 +704,83 @@ inline bool operator<(const vec4& a, const vec4& b)
         return a.z < b.z;
     return a.w < b.w;
 }
+inline bool operator>(const vec4& a, const vec4& b)
+{
+    return b < a;
+}
+inline bool operator<=(const vec4& a, const vec4& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const vec4& a, const vec4& b)
+{
+    return !(a < b);
+}
+
+inline bool operator==(const ivec4& a, const ivec4& b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline bool operator!=(const ivec4& a, const ivec4& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const ivec4& a, const ivec4& b)
+{
+    if (a.x != b.x)
+        return a.x < b.x;
+    if (a.y != b.y)
+        return a.y < b.y;
+    if (a.z != b.z)
+        return a.z < b.z;
+    return a.w < b.w;
+}
+inline bool operator>(const ivec4& a, const ivec4& b)
+{
+    return b < a;
+}
+inline bool operator<=(const ivec4& a, const ivec4& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const ivec4& a, const ivec4& b)
+{
+    return !(a < b);
+}
+
+inline bool operator==(const uvec4& a, const uvec4& b)
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+inline bool operator!=(const uvec4& a, const uvec4& b)
+{
+    return !(a == b);
+}
+inline bool operator<(const uvec4& a, const uvec4& b)
+{
+    if (a.x != b.x)
+        return a.x < b.x;
+    if (a.y != b.y)
+        return a.y < b.y;
+    if (a.z != b.z)
+        return a.z < b.z;
+    return a.w < b.w;
+}
+inline bool operator>(const uvec4& a, const uvec4& b)
+{
+    return b < a;
+}
+inline bool operator<=(const uvec4& a, const uvec4& b)
+{
+    return !(b < a);
+}
+inline bool operator>=(const uvec4& a, const uvec4& b)
+{
+    return !(a < b);
+}
+
+}  // namespace glm
+
 
 // ====== Color ======
 inline bool operator==(const Color& a, const Color& b)

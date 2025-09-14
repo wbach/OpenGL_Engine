@@ -51,7 +51,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
     TreeNode* sceneNode{nullptr};
     std::unique_ptr<Scene> scene;
 
-    if (xmlReader.Read(file.GetAbsolutePath()))
+    if (xmlReader.Read(file.GetAbsolutePath().string()))
     {
         sceneNode = xmlReader.Get(CSTR_SCENE);
         if (sceneNode)
@@ -72,11 +72,11 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 #ifdef USE_GNU
                     void* sceneLib = dlopen(potentialyLibFile.GetAbsolutePath().c_str(), RTLD_NOW);
 #else
-                    HMODULE sceneLib = LoadLibrary(potentialyLibFile.GetAbsolutePath().c_str());
+                    HMODULE sceneLib = LoadLibrary(potentialyLibFile.GetAbsolutePath().string().c_str());
 #endif
                     if (sceneLib)
                     {
-                        /* LOG TO FIX*/  LOG_ERROR << ("Scene lib found");
+                        LOG_DEBUG << "Scene lib found";
 #ifdef USE_GNU
                         auto create = (CreateSceneFromLib)dlsym(sceneLib, "CreateScene");
 #else
@@ -85,12 +85,12 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
                         if (create)
                         {
                             scene = std::unique_ptr<Scene>(create());
-                            /* LOG TO FIX*/  LOG_ERROR << ("Scene loaded from lib: " + scene->GetName());
+                            LOG_DEBUG << "Scene loaded from lib: " << scene->GetName();
                         }
                     }
                     else
                     {
-                        /* LOG TO FIX*/  LOG_ERROR << ("Scene lib open failed. Using default");
+                        LOG_DEBUG << "Scene lib open failed. Using default";
                     }
                 }
             }

@@ -1,13 +1,14 @@
 #pragma once
 #include <algorithm>
 #include <functional>
+#include "Types.h"
 
 namespace Utils
 {
 template <class T>
 bool ValidateRange(const T& c, std::uint32_t id)
 {
-    return (id >= 0 and id < c.size());
+    return (id >= 0) and (id < c.size());
 }
 template <class Container>
 const typename Container::value_type* get(const Container& container, const typename Container::key_type& key)

@@ -21,7 +21,7 @@ namespace Collada
 {
 void ReadCollada(const File& filename, ColladaData& colladaData)
 {
-    auto fileData = Utils::ReadFile(filename.GetAbsolutePath());
+    auto fileData = Utils::ReadFile(filename.GetAbsolutePath().string());
 
     if (fileData.empty())
         return;

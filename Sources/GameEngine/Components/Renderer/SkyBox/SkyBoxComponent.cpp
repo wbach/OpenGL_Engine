@@ -172,7 +172,7 @@ Model* SkyBoxComponent::GetModel()
 }
 std::string SkyBoxComponent::GetModelFileName() const
 {
-    return modelFile.GetDataRelativePath();
+    return modelFile.GetDataRelativePath().string();
 }
 void SkyBoxComponent::Subscribe()
 {

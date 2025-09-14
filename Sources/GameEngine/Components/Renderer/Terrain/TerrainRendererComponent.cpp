@@ -233,11 +233,11 @@ void TerrainRendererComponent::registerReadFunctions()
 
 namespace
 {
-void create(TreeNode& node, TerrainTextureType type, float scale, const std::string& filename)
+void create(TreeNode& node, TerrainTextureType type, float scale, const std::filesystem::path& filepath)
 {
     ::write(node.addChild(CSTR_TEXTURE_TYPE), std::to_string(type));
     ::write(node.addChild(CSTR_SCALE), std::to_string(scale));
-    ::write(node.addChild(CSTR_TEXTURE_FILENAME), filename);
+    ::write(node.addChild(CSTR_TEXTURE_FILENAME), Utils::ReplaceSlash(filepath.string()));
 }
 
 void create(TreeNode& node, const std::vector<Components::TerrainComponentBase::TerrainTexture>& textures)
@@ -278,12 +278,12 @@ void TerrainRendererComponent::write(TreeNode& node) const
         {
             auto blendMap     = static_cast<GeneralTexture*>(blendMapTexture);
             const auto& image = blendMap->GetImage();
-            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsolutePath());
+            Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsolutePath().string());
 
             std::visit(
                 visitor{
                     [&](const std::vector<uint8>& data)
-                    { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsolutePath()); },
+                    { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsolutePath().string()); },
                     [](const std::vector<float>& data) { LOG_ERROR << "Float version not implemented."; },
                     [](const std::monostate&) { LOG_ERROR << "Image data is not set!"; },
                 },

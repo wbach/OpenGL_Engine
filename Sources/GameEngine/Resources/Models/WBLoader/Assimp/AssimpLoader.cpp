@@ -201,7 +201,7 @@ void AssimpLoader::ParseFile(const File& file)
     }
 
     Assimp::Importer importer;
-    auto scene = importer.ReadFile(file.GetAbsolutePath().c_str(), flags);
+    auto scene = importer.ReadFile(file.GetAbsolutePath().string().c_str(), flags);
 
     if (not scene)
     {
@@ -575,7 +575,7 @@ std::string AssimpLoader::getTexturePath(const std::string& path) const
     LOG_DEBUG << "Texture not found : " << path
               << ". Searching recursively in model based directory : " << currentProcessingFile_->GetAbsolutePath().parent_path();
 
-    return Utils::FindFile(File(path).GetFilename(), currentProcessingFile_->GetAbsolutePath().parent_path());
+    return Utils::FindFile(File(path).GetFilename(), currentProcessingFile_->GetAbsolutePath().parent_path()).string();
 }
 
 Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAnim)
@@ -645,7 +645,7 @@ void AssimpLoader::readAdditionInfoFile(const File& file)
     if (additionInfoFile.exist())
     {
         Utils::XmlReader xmlReader;
-        if (xmlReader.Read(additionInfoFile.GetAbsolutePath()))
+        if (xmlReader.Read(additionInfoFile.GetAbsolutePath().string()))
         {
             auto correction = xmlReader.Get("correction");
             if (correction)

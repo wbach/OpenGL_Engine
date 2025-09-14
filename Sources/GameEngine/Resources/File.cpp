@@ -211,7 +211,7 @@ bool File::openToWrite()
         return false;
     }
 
-    fp_ = fopen(absolutePath_.c_str(), "wb");
+    fp_ = fopen(absolutePath_.string().c_str(), "wb");
 
     if (not fp_)
     {
@@ -234,7 +234,7 @@ bool File::openToRead()
         return false;
     }
 
-    fp_ = fopen(absolutePath_.c_str(), "rb");
+    fp_ = fopen(absolutePath_.string().c_str(), "rb");
 
     if (not fp_)
     {

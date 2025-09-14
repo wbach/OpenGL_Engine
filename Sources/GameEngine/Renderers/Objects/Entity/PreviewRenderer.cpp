@@ -125,7 +125,7 @@ void PreviewRenderer::prepare()
                 context_.graphicsApi_.BindShaderBuffer(lastBindedShaderBuffer);
             }
 
-            frameBuffer_->TakeSnapshot(subcriber.second->getOutputFile().GetAbsolutePath().parent_path());
+            frameBuffer_->TakeSnapshot(subcriber.second->getOutputFile().GetAbsolutePath().parent_path().string());
 
             auto outputFileName =
                 subcriber.second->getOutputFile().GetAbsolutePath() /
@@ -134,7 +134,7 @@ void PreviewRenderer::prepare()
             LOG_DEBUG << outputFileName;
             LOG_DEBUG << subcriber.second->getOutputFile();
 
-            Utils::RenameFile(outputFileName, subcriber.second->getOutputFile().GetAbsolutePath());
+            Utils::RenameFile(outputFileName.string(), subcriber.second->getOutputFile().GetAbsolutePath().string());
 
             doneObjects.push_back(subcriber.first);
             shader_.Stop();
