@@ -295,10 +295,6 @@ void AnimationViewerFrame::CreateGameObjectBasedOnPrefab(const GameEngine::File&
     auto prefabObject = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
     if (prefabObject)
     {
-                auto& s = canvas->GetScene();
-        s.RemoveGameObject(*prefabObject);
-        return;
-
         if (prefabObject->GetChildren().empty())
         {
             wxMessageBox("Prefab load error. Prefab must contain exactly one root child object.", "Warning",
