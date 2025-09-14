@@ -12,7 +12,7 @@ const float DELTA_TIME         = 0.1f;
 struct ParicleComponentTestSchould : public BaseComponentTestSchould
 {
     ParicleComponentTestSchould()
-        : sut_(context_, obj_)
+        : sut_(context_, *obj_)
     {
     }
     void SetUp() override

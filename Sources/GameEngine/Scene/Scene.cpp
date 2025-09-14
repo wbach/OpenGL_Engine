@@ -44,7 +44,7 @@ Scene::~Scene()
         physicsApi_->DisableSimulation();
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 
     networkEditorInterface_.reset();
 
@@ -136,7 +136,7 @@ void Scene::PostUpdate()
 
 void Scene::Start()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Start");
+    LOG_DEBUG << "Start";
     start_.store(true);
     componentController_.OnStart();
 
@@ -146,7 +146,7 @@ void Scene::Start()
 
 void Scene::Stop()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Stop");
+    LOG_DEBUG << "Stop";
     start_.store(false);
     if (physicsApi_)
         physicsApi_->DisableSimulation();
@@ -200,6 +200,11 @@ Light& Scene::AddLight(const Light& light)
 
 void Scene::AddGameObject(std::unique_ptr<GameObject> object)
 {
+    if (not rootGameObject_)
+    {
+        LOG_WARN << "Root object not exist! Addition aborted! Addition object name:" << object->GetName();
+        return;
+    }
     gameObjectsIds_.insert({object->GetId(), object.get()});
     auto& ptr = *object;
     rootGameObject_->AddChild(std::move(object));
@@ -212,7 +217,7 @@ void Scene::ChangeParent(GameObject& gameObject, GameObject& newParent)
 
     if (not currentParent)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Root gameObject can not be moved");
+        LOG_ERROR << "Root gameObject can not be moved";
         return;
     }
 
@@ -236,6 +241,20 @@ bool Scene::RemoveGameObject(IdType id)
 {
     gameObjectIdPool_.releaseId(id);
     gameObjectsIds_.erase(id);
+
+    if (id == 0)
+    {
+        LOG_WARN << "Deleting of root object!";
+        if (rootGameObject_)
+        {
+            rootGameObject_.reset(nullptr);
+            LOG_WARN << "Root object deleted";
+            return true;
+        }
+        LOG_WARN << "RootObject was not set!";
+        return false;
+    }
+
     return rootGameObject_->RemoveChild(id);
 }
 
@@ -243,6 +262,14 @@ bool Scene::RemoveGameObject(GameObject& object)
 {
     gameObjectIdPool_.releaseId(object.GetId());
     gameObjectsIds_.erase(object.GetId());
+
+    if (object.GetId() == 0)
+    {
+        LOG_WARN << "Deleting of root object!";
+        rootGameObject_.reset();
+        return true;
+    }
+
     return rootGameObject_->RemoveChild(object);
 }
 
@@ -250,7 +277,9 @@ void Scene::ClearGameObjects()
 {
     gameObjectIdPool_.clear(1);  // root gameObject stay at id 1
     gameObjectsIds_.clear();
-    rootGameObject_->RemoveAllChildren();
+
+    if (rootGameObject_)
+        rootGameObject_->RemoveAllChildren();
 }
 
 void Scene::SetAddSceneEventCallback(AddEvent func)
@@ -268,14 +297,17 @@ GameObject* Scene::GetGameObject(uint32 id) const
 
 GameObject* Scene::GetGameObject(const std::string& name) const
 {
-    return rootGameObject_->GetChild(name);
+    if (rootGameObject_)
+        return rootGameObject_->GetChild(name);
+
+    return nullptr;
 }
 
 GameObject& Scene::GetRootGameObject()
 {
     if (not rootGameObject_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Something went wrong. Not initilized scene?");
+        LOG_DEBUG << "Something went wrong. Not initilized scene?";
     }
     return *rootGameObject_;
 }

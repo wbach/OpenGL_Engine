@@ -9,8 +9,7 @@ namespace GameEngine
 {
 namespace Components
 {
-BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& componentContext,
-                             GameObject& gameObject)
+BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& componentContext, GameObject& gameObject)
     : type_(type)
     , thisObject_(gameObject)
     , componentContext_(componentContext)

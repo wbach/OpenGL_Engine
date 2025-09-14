@@ -107,8 +107,8 @@ protected:
     GameObjects children_;
     bool isStarted;
     bool isAwakened;
-    IdType isStartedSub;
-    IdType isAwakenedSub;
+    std::optional<IdType> isStartedSub;
+    std::optional<IdType> isAwakenedSub;
 
 private:
     IdType id_;

@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <mutex>
 
 namespace Input
 {
@@ -30,7 +31,7 @@ InputManager::InputManager()
 
 InputManager::~InputManager()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    /* LOG TO FIX*/ LOG_ERROR << ("destructor");
 }
 
 void InputManager::SetDefaultKeys()
@@ -198,7 +199,7 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key)
     auto subscribersKeyIter = subscribers_.keyDownSubscribers_.find(key);
     if (subscribersKeyIter != subscribers_.keyDownSubscribers_.end())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
         return;
     }
     subscribers_.keyDownSubscribers_.erase(subscribersKeyIter);
@@ -213,7 +214,7 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key)
 
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
+        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + "}");
         return;
     }
     subscribers_.keyUpSubscribers_.erase(key);
@@ -230,8 +231,8 @@ void InputManager::UnsubscribeOnKeyDown(KeyCodes::Type key, uint32 id)
 
     if (subscribers_.keyDownSubscribers_.count(key) == 0)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
-                  "}");
+        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " +
+                                      std::to_string(id) + "}");
         return;
     }
     auto& keys = subscribers_.keyDownSubscribers_.at(key);
@@ -249,8 +250,8 @@ void InputManager::UnsubscribeOnKeyUp(KeyCodes::Type key, uint32 id)
 
     if (subscribers_.keyUpSubscribers_.count(key) == 0)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " + std::to_string(id) +
-                  "}");
+        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(static_cast<int>(key)) + ", " +
+                                      std::to_string(id) + "}");
         return;
     }
 
@@ -268,7 +269,7 @@ void InputManager::UnsubscribeAnyKey(uint32 id)
 
     if (subscribers_.keysSubscribers_.count(id) == 0)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(id) + "}");
+        /* LOG TO FIX*/ LOG_ERROR << ("Not existing subscribtion : {" + std::to_string(id) + "}");
         return;
     }
     subscribers_.keysSubscribers_.erase(id);
@@ -282,7 +283,7 @@ uint32 InputManager::SubscribeOnKeyDown(GameAction action, KeyPressedFunc func)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
     return 0;
 }
@@ -295,7 +296,7 @@ uint32 InputManager::SubscribeOnKeyUp(GameAction action, KeyPressedFunc func)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
     return 0;
 }
@@ -308,7 +309,7 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action, uint32 id)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -320,7 +321,7 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action, uint32 id)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -332,7 +333,7 @@ void InputManager::UnsubscribeOnKeyDown(GameAction action)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -344,7 +345,7 @@ void InputManager::UnsubscribeOnKeyUp(GameAction action)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
+        /* LOG TO FIX*/ LOG_ERROR << ("Action not registered. " + std::to_string(static_cast<int>(action)));
     }
 }
 
@@ -352,7 +353,7 @@ void InputManager::StashSubscribers()
 {
     if (stashedSubsribtions_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Multiple stash subscribtions, losing last one");
+        /* LOG TO FIX*/ LOG_ERROR << ("Multiple stash subscribtions, losing last one");
     }
 
     stashedSubsribtions_ = true;
@@ -448,8 +449,7 @@ bool InputManager::FindEvent(uint32 eventType, uint32 key)
 {
     std::lock_guard<std::mutex> lk(keyEventMutex);
 
-    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(),
-                             [eventType, key](const KeyEvent& keyEvent)
+    auto iter = std::find_if(keyEvents_.begin(), keyEvents_.end(), [eventType, key](const KeyEvent& keyEvent)
                              { return keyEvent.first == eventType and key == keyEvent.second; });
 
     return iter != keyEvents_.end();

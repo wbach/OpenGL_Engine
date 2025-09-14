@@ -31,6 +31,7 @@ public:
 
     using ComponentFunctions =
         std::unordered_map<GameObjectId, std::unordered_map<FunctionType, std::vector<ComponentFunction>>>;
+    using ComponentsContainer =  std::unordered_map<ComponentTypeID, RegistredComponentsMap> ;
 
     ComponentController();
     ~ComponentController();
@@ -62,6 +63,9 @@ public:
     void UnRegisterComponent(ComponentTypeID, ComponentId);
     void UnRegisterAll();
 
+    const ComponentFunctions& getComponentFunctions() const {return functions_;}
+    const ComponentsContainer& getComponentsContainer() const {return registredComponents_;}
+
 public:
     void OnObjectCreated(IdType);
     void OnStart();
@@ -73,7 +77,7 @@ public:
 
 private:
     ComponentFunctions functions_;
-    std::unordered_map<ComponentTypeID, RegistredComponentsMap> registredComponents_;
+    ComponentsContainer registredComponents_;
     Utils::IdPool functionIdsPool_;
     uint32 componentId;
     bool isStarted;

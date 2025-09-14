@@ -2,6 +2,8 @@
 #include <GameEngine/Resources/GpuResourceLoader.h>
 #include <gtest/gtest.h>
 
+#include <thread>
+
 #include "Logger/Log.h"
 #include "Resources/GpuObject.h"
 #include "Types.h"

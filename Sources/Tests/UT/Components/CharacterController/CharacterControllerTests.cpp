@@ -10,7 +10,7 @@ MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for Collision
 
 CharacterControllerTests::CharacterControllerTests()
     : BaseComponentTestSchould()
-    , sut_(context_, obj_)
+    , sut_(context_, *obj_)
 {
     CLogger::Instance().EnableLogs();
     CLogger::Instance().UseAsyncLogging(false);
@@ -30,11 +30,11 @@ CharacterControllerTests::CharacterControllerTests()
         setCollisionCallback(_, CollisionDetectionActionMatcher(GameEngine::Physics::CollisionDetection::Action::onEnter)))
         .WillOnce(DoAll(SaveArg<1>(&groundEnterSub.second), Return(groundEnterSub.first)));
 
-    animator_  = &obj_.AddComponent<Animator>();
-    rigidbody_ = &obj_.AddComponent<Rigidbody>();
+    animator_  = &obj_->AddComponent<Animator>();
+    rigidbody_ = &obj_->AddComponent<Rigidbody>();
 
-    obj_.AddComponent<RendererComponent>().AddModel(&model_);
-    obj_.AddComponent<SphereShape>();
+    obj_->AddComponent<RendererComponent>().AddModel(&model_);
+    obj_->AddComponent<SphereShape>();
 
     createDummySkeleton();
     initAnimations();
@@ -42,9 +42,9 @@ CharacterControllerTests::CharacterControllerTests()
     auto weaponPtr =
         std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
     weaponPtr->AddComponent<BowPoseUpdater>();
-    obj_.AddChild(std::move(weaponPtr));
+    obj_->AddChild(std::move(weaponPtr));
 
-    for (auto& [_, component] : obj_.GetComponents())
+    for (auto& [_, component] : obj_->GetComponents())
     {
         component->ReqisterFunctions();
     }

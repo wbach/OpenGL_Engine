@@ -367,7 +367,7 @@ void ProjectPanel::addContextMenu(wxWindow* target, const FileInfo& fileInfo)
                      SelectItem(fileInfo.icon, fileInfo.label);
                      contextMenuTriggerAction(event, target, fileInfo.name);
                  });
-};
+}
 
 void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* target, const wxFileName& fileName, bool removeAble)
 {
@@ -422,8 +422,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Enable(ID_PASTE, canPaste);
 
     // --- Handlery dla menu ---
-    menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
+    menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -593,8 +592,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             RefreshAll(currentFolderPath);
         },
         ID_NEW_FOLDER);
-    menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
+    menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -676,8 +674,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         },
         ID_REMOVE);
 
-    target->Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
+    target->Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
 
     // Popup (ważne: użyj lokalnych współrzędnych → na globalne)
     target->PopupMenu(&menu, event.GetPosition());

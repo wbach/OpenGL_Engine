@@ -1,11 +1,16 @@
 #include <gtest/gtest.h>
 
+#include <string>
+
 #include "Components/Animation/Animator.h"
 #include "Components/ComponentsReadFunctions.h"
 #include "Components/Renderer/Entity/RendererComponent.hpp"
+#include "Logger/Log.h"
 #include "Objects/GameObject.h"
+#include "Scene/Scene.hpp"
 #include "Tests/UT/Components/BaseComponent.h"
 #include "TreeNode.h"
+#include "magic_enum/magic_enum.hpp"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -21,7 +26,7 @@ constexpr char clip[]  = "testClip";
 struct GameObjectTestSchould : public BaseComponentTestSchould
 {
     GameObjectTestSchould()
-        : sut_(obj_)
+        : sut_(*obj_)
     {
     }
     void SetUp() override
@@ -85,4 +90,19 @@ TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
     unregsiterComponentReadFunction("RendererComponent");
 
     EXPECT_TRUE(ReadFunctions::instance().getComponentTypeNameToId().empty());
+}
+
+TEST_F(GameObjectTestSchould, AddRemoveGameObjectStability)
+{
+    for (int i = 0; i < 2; ++i)
+    {
+        auto go = scene.CreateGameObject("TestGameObjectName_" + std::to_string(i));
+        go.reset();
+    }
+
+    obj_.reset();
+    // scene.RemoveGameObject(0); obj_ is 0
+
+    EXPECT_TRUE(componentController_.getComponentFunctions().empty());
+    EXPECT_TRUE(componentController_.getComponentsContainer().empty());
 }

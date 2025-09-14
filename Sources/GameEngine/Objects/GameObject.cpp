@@ -31,8 +31,6 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
 
 GameObject::~GameObject()
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("~GameObject() " + name_);
-
     for (auto& [_, component] : components_)
     {
         component->CleanUp();
@@ -44,11 +42,10 @@ GameObject::~GameObject()
     if (localTransfromSubscribtion_)
         localTransform_.UnsubscribeOnChange(*localTransfromSubscribtion_);
 
-    /* LOG TO FIX*/ LOG_ERROR << (name_);
     if (isStartedSub)
-        componentController_.UnRegisterFunction(id_, Components::FunctionType::OnStart, isStartedSub);
+        componentController_.UnRegisterFunction(id_, Components::FunctionType::OnStart, *isStartedSub);
     if (isAwakenedSub)
-        componentController_.UnRegisterFunction(id_, Components::FunctionType::Awake, isAwakenedSub);
+        componentController_.UnRegisterFunction(id_, Components::FunctionType::Awake, *isAwakenedSub);
 }
 Components::IComponent* GameObject::AddComponent(const TreeNode& node)
 {

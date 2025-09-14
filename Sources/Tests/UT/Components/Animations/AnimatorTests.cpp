@@ -55,7 +55,7 @@ struct AnimatorTestSchould : public BaseComponentTestSchould
 {
     AnimatorTestSchould()
         : BaseComponentTestSchould()
-        , sut_(context_, obj_)
+        , sut_(context_, *obj_)
     {
     }
     virtual void SetUp() override
@@ -164,6 +164,6 @@ TEST_F(AnimatorTestSchould, DISABLED_rootMontion)
     {
         context_.time_.deltaTime = FRAMES_DELTA;
         sut_.Update();
-        LOG_DEBUG << obj_.GetWorldTransform().GetPosition();
+        LOG_DEBUG << obj_->GetWorldTransform().GetPosition();
     }
 }

@@ -1,9 +1,10 @@
+#include <UtilsNetwork/Messages/TextMessage.h>
 #include <gtest/gtest.h>
+
+#include <thread>
+
 #include "../UtilsNetwork/Gateway.h"
 #include "Logger/Log.h"
-
-#include <UtilsNetwork/Messages/TextMessage.h>
-
 
 namespace Network
 {
@@ -58,23 +59,27 @@ public:
             return false;
         }
 
-        serverGateway_.SubscribeOnMessageArrived(MessageTypes::Text, [&](auto, std::unique_ptr<IMessage> imessage) {
-            auto textMessage = castMessageAs<TextMessage>(imessage.get());
-            auto t           = textMessage->GetText();
-            /* LOG TO FIX*/  LOG_ERROR << ("Server recevied message : " + t + " size : " + std::to_string(t.size()));
-            receviedMessage_ = textMessage->GetText();
-
-            if (testShortMessage_ == receviedMessage_)
+        serverGateway_.SubscribeOnMessageArrived(
+            MessageTypes::Text,
+            [&](auto, std::unique_ptr<IMessage> imessage)
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("==");
-            }
-            else {
-                /* LOG TO FIX*/  LOG_ERROR << ("!=");
-            }
-            ++textMessagesRecvCount_;
-            if (textMessagesRecvCount_ >= textMessagesCount_)
-                isRunning_.store(false);
-        });
+                auto textMessage = castMessageAs<TextMessage>(imessage.get());
+                auto t           = textMessage->GetText();
+                /* LOG TO FIX*/ LOG_ERROR << ("Server recevied message : " + t + " size : " + std::to_string(t.size()));
+                receviedMessage_ = textMessage->GetText();
+
+                if (testShortMessage_ == receviedMessage_)
+                {
+                    /* LOG TO FIX*/ LOG_ERROR << ("==");
+                }
+                else
+                {
+                    /* LOG TO FIX*/ LOG_ERROR << ("!=");
+                }
+                ++textMessagesRecvCount_;
+                if (textMessagesRecvCount_ >= textMessagesCount_)
+                    isRunning_.store(false);
+            });
 
         return true;
     }
@@ -86,12 +91,11 @@ public:
             serverGateway_.Update();
         }
 
-        /* LOG TO FIX*/  LOG_ERROR << ("Server closed.");
+        /* LOG TO FIX*/ LOG_ERROR << ("Server closed.");
     }
 
     void SetUp() override
     {
-
     }
     void Start()
     {
@@ -144,6 +148,5 @@ TEST_F(ClientServerTests, FirstConnectionBinaryConverter)
     EXPECT_TRUE(isConnected_);
     EXPECT_EQ(testShortMessage_, receviedMessage_);
 }
-
 
 }  // namespace Network

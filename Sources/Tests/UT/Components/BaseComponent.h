@@ -5,6 +5,8 @@
 #include <Utils/Time/TimerService.h>
 #include <gtest/gtest.h>
 
+#include <memory>
+
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
@@ -60,5 +62,5 @@ public:
     GuiElementFactory guiElementFactory_;
     ComponentContext context_;
     ComponentFactory componentFactory_;
-    GameObject obj_;
+    std::unique_ptr<GameObject> obj_;
 };

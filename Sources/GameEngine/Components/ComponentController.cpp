@@ -23,7 +23,7 @@ ComponentController::~ComponentController()
             LOG_WARN << "Some funstion left. GameObjectId : " << gameObjectId;
             for (const auto& [type, _] : functionMap)
             {
-                LOG_WARN << " GameObjectId : " << gameObjectId << "Function type " << magic_enum::enum_name(type);
+                LOG_WARN << " GameObjectId : " << gameObjectId << ". Function type " << magic_enum::enum_name(type);
             }
         }
     }
@@ -80,13 +80,32 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
             {
                 typeIter->second.erase(functionIter);
             }
+            else
+            {
+                LOG_WARN << "Function not found. Function type = " << magic_enum::enum_name(type) << " funcId = " << id;
+            }
+
+            if (typeIter->second.empty())
+            {
+                iter->second.erase(typeIter);
+            }
 
             functionIdsPool_.releaseId(id);
+        }
+        else
+        {
+            LOG_WARN << "Type not found. Function type = " << magic_enum::enum_name(type) << " funcId = " << id;
+        }
+
+        if (iter->second.empty())
+        {
+            functions_.erase(iter);
         }
     }
     else
     {
-        LOG_WARN << "Function not found.";
+        LOG_WARN << "Unknow gameObject try unregistger function. Function type = " << magic_enum::enum_name(type)
+                 << " funcId = " << id;
     }
 }
 
@@ -108,8 +127,8 @@ void ComponentController::setActivateStateOfComponentFunction(ComponentControlle
             }
             else
             {
-                LOG_ERROR << "Function id=" << id << "of type{"
-                          << magic_enum::enum_name(type) << "} not found for gameObjectId=" << gameObjectId;
+                LOG_ERROR << "Function id=" << id << "of type{" << magic_enum::enum_name(type)
+                          << "} not found for gameObjectId=" << gameObjectId;
             }
         }
         else

@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <list>
+#include <mutex>
 #include <string>
 
 #include "GuiAnimation.h"
@@ -10,6 +11,7 @@
 #include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 #include "Texutre/GuiTextureElement.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -76,13 +78,13 @@ T* GuiManager::Get(uint32 id)
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Can not get " + std::to_string(static_cast<int>(T::type)) +
-                      ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
+            LOG_ERROR << "Can not get " << static_cast<int>(T::type)
+                      << ", because element is type of :" << magic_enum::enum_name(element->GetType());
         }
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Element with id : \"" + std::to_string(id) + "\" not found.");
+        LOG_ERROR << "Element with id : \"" << id << "\" not found.";
     }
     return nullptr;
 }
@@ -100,8 +102,8 @@ T* GuiManager::Get(const std::string& label)
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Can not get " + std::to_string(static_cast<int>(T::type)) +
-                      ", because element is type of :" + std::to_string(static_cast<int>(element->GetType())));
+            LOG_ERROR << "Can not get " << static_cast<int>(T::type)
+                      << ", because element is type of :" << magic_enum::enum_name(element->GetType());
         }
     }
     return nullptr;
