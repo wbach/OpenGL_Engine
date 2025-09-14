@@ -92,6 +92,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/AssimpLoaderTests.c
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/ColladaLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/TextureLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/WaveFrontObjLoaderTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/GpuResourceLoaderTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainToolsTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Camera/CameraFrustrumTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Scene/Scene.cpp

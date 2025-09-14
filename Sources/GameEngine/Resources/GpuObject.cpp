@@ -10,12 +10,11 @@ GpuObject::GpuObject()
     : graphicsObjectId_(std::nullopt)
     , id_(s_Id_++)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("GpuObject craeted. Id=" + std::to_string(id_));
+    LOG_DEBUG << "GpuObject craeted. Id=" << id_;
 }
-
 GpuObject::~GpuObject()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("GpuObject destroyed. Id=" + std::to_string(id_));
+    LOG_DEBUG<< "GpuObject destroyed. Id=" << id_;
 }
 void GpuObject::UpdateGpuPass()
 {
