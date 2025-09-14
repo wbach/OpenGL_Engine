@@ -66,7 +66,7 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
 }
 RenderersManager::~RenderersManager()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 
     EngineConf.renderer.shadows.isEnabled.unsubscribe(shadowEnabledSubscriptionId_);
     EngineConf.renderer.viewDistance.unsubscribe(viewDistanceSubscriptionId_);
@@ -88,7 +88,14 @@ void RenderersManager::Init()
     CreateBuffers();
 
     createMainRenderer();
-    mainRenderer_->init();
+    if (mainRenderer_)
+    {
+        mainRenderer_->init();
+    }
+    else
+    {
+        LOG_ERROR << "Main renderer not set!";
+    }
 }
 void RenderersManager::InitProjection()
 {
@@ -104,7 +111,7 @@ void RenderersManager::createMainRenderer()
 
     if (supportedRenderers.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Graphics api not supporting any renderer!");
+        LOG_ERROR << "Graphics api not supporting any renderer!";
         return;
     }
 
@@ -113,13 +120,13 @@ void RenderersManager::createMainRenderer()
         auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::SIMPLE);
         if (iter != supportedRenderers.end())
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Create base renderer");
+            LOG_DEBUG << "Create base renderer";
             mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Graphics api are not supporting SIMPLE renderer try using full");
-            /* LOG TO FIX*/  LOG_ERROR << ("Create deffered renderer");
+            LOG_DEBUG << "Graphics api are not supporting SIMPLE renderer try using full";
+            LOG_DEBUG << "Create deffered renderer";
             mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
         }
         return;
@@ -130,13 +137,13 @@ void RenderersManager::createMainRenderer()
         auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::FULL);
         if (iter != supportedRenderers.end())
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Create deffered renderer");
+            LOG_DEBUG << "Create deffered renderer";
             mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Graphics api are not supporting FULL renderer try using simple");
-            /* LOG TO FIX*/  LOG_ERROR << ("Create base renderer");
+            LOG_DEBUG << "Graphics api are not supporting FULL renderer try using simple";
+            LOG_DEBUG << "Create base renderer";
             mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
         }
         return;
@@ -158,12 +165,15 @@ void RenderersManager::renderScene(Scene& scene)
     frustrum_.prepareFrame(viewProjectionMatrix_);
     updatePerFrameBuffer(scene);
 
-    mainRenderer_->prepare();
+    if (mainRenderer_)
     {
-        RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
-        graphicsApi_.EnableDepthTest();
-        mainRenderer_->render();
-        mainRenderer_->blendRender();
+        mainRenderer_->prepare();
+        {
+            RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
+            graphicsApi_.EnableDepthTest();
+            mainRenderer_->render();
+            mainRenderer_->blendRender();
+        }
     }
 
     *frustrumCheckCount_ = std::to_string(frustrum_.getIntersectionsCountInFrame());
@@ -195,7 +205,8 @@ void RenderersManager::ReloadShadersExecution()
     if (not markToReloadShaders_.load())
         return;
 
-    mainRenderer_->reloadShaders();
+    if (mainRenderer_)
+        mainRenderer_->reloadShaders();
     guiRenderer_.ReloadShaders();
     debugRenderer_.reloadShaders();
 
@@ -208,7 +219,8 @@ void RenderersManager::Subscribe(GameObject* gameObject)
 
     debugRenderer_.subscribe(*gameObject);
     bufferDataUpdater_.Subscribe(gameObject);
-    mainRenderer_->subscribe(*gameObject);
+    if (mainRenderer_)
+        mainRenderer_->subscribe(*gameObject);
 }
 void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
@@ -216,14 +228,16 @@ void RenderersManager::UnSubscribe(GameObject* gameObject)
     {
         debugRenderer_.unSubscribe(*gameObject);
         bufferDataUpdater_.UnSubscribe(gameObject);
-        mainRenderer_->unSubscribe(*gameObject);
+        if (mainRenderer_)
+            mainRenderer_->unSubscribe(*gameObject);
     }
 }
 
 void RenderersManager::UnSubscribeAll()
 {
     debugRenderer_.unSubscribeAll();
-    mainRenderer_->unSubscribeAll();
+    if (mainRenderer_)
+        mainRenderer_->unSubscribeAll();
     bufferDataUpdater_.UnSubscribeAll();
     guiRenderer_.UnSubscribeAll();
 }
@@ -277,12 +291,11 @@ void RenderersManager::UpdatePerAppBuffer()
         const auto& floraConfig    = EngineConf.renderer.flora;
         const auto& rendererConfig = EngineConf.renderer;
 
-        perApp_.useTextures = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal),
-                                   F(textureConfig.useSpecular), F(textureConfig.useDisplacement));
-        perApp_.shadowVariables =
-            vec4(F(*shadowsConfig.isEnabled), *shadowsConfig.distance, *shadowsConfig.mapSize, 0.f);
-        perApp_.viewDistance = vec4(*rendererConfig.viewDistance, *rendererConfig.normalMappingDistance,
-                                    *floraConfig.viewDistance, *rendererConfig.viewDistance);
+        perApp_.useTextures     = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular),
+                                       F(textureConfig.useDisplacement));
+        perApp_.shadowVariables = vec4(F(*shadowsConfig.isEnabled), *shadowsConfig.distance, *shadowsConfig.mapSize, 0.f);
+        perApp_.viewDistance    = vec4(*rendererConfig.viewDistance, *rendererConfig.normalMappingDistance,
+                                       *floraConfig.viewDistance, *rendererConfig.viewDistance);
 
         perApp_.fogData = vec4(rendererContext_.fogColor_, 3.5f);
         graphicsApi_.UpdateShaderBuffer(*perAppId_, &perApp_);

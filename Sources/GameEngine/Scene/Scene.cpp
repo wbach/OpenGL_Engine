@@ -39,23 +39,33 @@ Scene::Scene(const std::string& name)
 
 Scene::~Scene()
 {
-    if (physicsApi_)
-    {
-        physicsApi_->DisableSimulation();
-    }
-
     LOG_DEBUG << "destructor";
 
-    networkEditorInterface_.reset();
-
-    if (inputManager_ != nullptr)
+    if (physicsApi_)
     {
+        LOG_DEBUG << "physicsApi_->DisableSimulation()";
+        physicsApi_->DisableSimulation();
+        LOG_DEBUG << "physicsApi_->DisableSimulation() end";
+    }
+
+    if (networkEditorInterface_)
+    {
+        LOG_DEBUG << "networkEditorInterface_.reset()";
+        networkEditorInterface_.reset();
+    }
+
+    if (inputManager_)
+    {
+        LOG_DEBUG << "inputManager_->UnsubscribeAll())";
         inputManager_->UnsubscribeAll();
     }
     if (renderersManager_)
     {
+        LOG_DEBUG << "renderersManager_->UnsubscribeAll())";
         renderersManager_->UnSubscribeAll();
     }
+
+    LOG_DEBUG << "destructor done";
 }
 
 void Scene::InitResources(EngineContext& context)

@@ -101,7 +101,7 @@ TEST_F(GameObjectTestSchould, AddRemoveGameObjectStability)
     }
 
     obj_.reset();
-    // scene.RemoveGameObject(0); obj_ is 0
+    scene.RemoveGameObject(0);
 
     EXPECT_TRUE(componentController_.getComponentFunctions().empty());
     EXPECT_TRUE(componentController_.getComponentsContainer().empty());

@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 
 #include "Configuration.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -21,7 +22,7 @@ EngineContext::EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi> graphics
 
 EngineContext::~EngineContext()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
     threadSync_.Stop();
 }
 

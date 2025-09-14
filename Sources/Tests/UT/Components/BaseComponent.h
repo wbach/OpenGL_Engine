@@ -37,6 +37,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    std::vector<GraphicsApi::DisplayMode> displayModes;
     Utils::IdPool gameObjectIdPool;
     ::testing::NiceMock<GpuResourceLoaderMock> gpuResourceLoader_;
     Utils::MeasurementHandler measurementHandler_;
@@ -44,14 +45,15 @@ public:
     GraphicsApi::FrameBufferMock frameBufferMock_;
     Time time_;
     ComponentController componentController_;
-    PhysicsApiMock physicsApiMock_;
     GraphicsApi::WindowApiMock windowApiMock_;
     GuiManager guiManager_;
     Frustrum frustrum_;
 
     Utils::Thread::ThreadSync threadSync_;
     Utils::Time::TimerService timerService_;
-    ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
+    std::unique_ptr<EngineContext> engineContext_;
+    PhysicsApiMock& physicsApiMock_;
+    ::testing::NiceMock<GraphicsApi::GraphicsApiMock>& graphicsApiMock_;
     Scene scene;
     SceneManagerMock sceneManager;
     ResourceManager resourcesManager_;
