@@ -287,7 +287,7 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
         auto& rendererComponent           = newGameObject->AddComponent<Components::RendererComponent>();
         auto& animator                    = newGameObject->AddComponent<Components::Animator>();
         animator.startupAnimationClipName = "noname";
-        rendererComponent.AddModel(file.GetAbsolutePath());
+        rendererComponent.AddModel(file.GetAbsolutePath().string());
 
         vec3 position(0.f);
         position = scene->GetCamera().GetPosition();

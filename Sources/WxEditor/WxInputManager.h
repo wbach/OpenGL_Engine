@@ -1,5 +1,6 @@
 #pragma once
 #include <Input/InputManager.h>
+#include <array>
 
 class wxMouseEvent;
 

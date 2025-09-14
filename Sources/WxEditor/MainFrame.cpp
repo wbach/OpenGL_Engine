@@ -1021,7 +1021,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
     }
     else if (isPrefab(file))
     {
-        LoadPrefab(file.GetAbsolutePath());
+        LoadPrefab(file.GetAbsolutePath().string());
     }
 }
 

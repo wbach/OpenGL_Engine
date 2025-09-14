@@ -9,7 +9,17 @@
 #include <GameEngine/Scene/SceneReader.h>
 #include <wx/defs.h>
 #include <wx/dnd.h>
-#include <wx/gtk/filedlg.h>
+
+#if defined(__WXMSW__)
+#include <wx/filedlg.h>  // Windows, używa backendu MSW
+#elif defined(__WXGTK__)
+#include <wx/filedlg.h>  // Linux GTK, używa backendu GTK
+#elif defined(__WXOSX__)
+#include <wx/filedlg.h>  // macOS, Cocoa
+#else
+#error "Unsupported wxWidgets platform"
+#endif
+#include <wx/filename.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
@@ -270,7 +280,7 @@ void AnimationViewerFrame::CreateGameObjectBasedOnModel(const GameEngine::File& 
     auto& animator          = newGameObject->AddComponent<GameEngine::Components::Animator>();
 
     animator.startupAnimationClipName = "noname";
-    rendererComponent.AddModel(modelFile.GetAbsolutePath());
+    rendererComponent.AddModel(modelFile.GetAbsolutePath().string());
 
     LOG_DEBUG << "Object created. Id = " << newGameObject->GetId();
 
@@ -481,7 +491,7 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
     }
 
     auto isModelInProjectDir = Utils::IsFileExistsInDir(ProjectManager::GetInstance().GetProjectPath(),
-                                                        currentGameObject->currentModelFile->GetAbsolutePath());
+                                                        currentGameObject->currentModelFile->GetAbsolutePath().string());
     if (not isModelInProjectDir)
     {
         int answer = wxMessageBox("Model file is outside the project. To created prefab should be imported. Do you want import?",

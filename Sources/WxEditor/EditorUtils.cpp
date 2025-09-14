@@ -70,7 +70,7 @@ bool is3dModelFile(const GameEngine::File& file)
 
 bool isPrefab(const GameEngine::File& file)
 {
-    return file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath(), "prefab");
+    return file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath().string(), "prefab");
 }
 
 wxString GetParentPath(const wxString& currentFolderPath)

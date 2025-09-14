@@ -12,32 +12,45 @@ includeFilePath="../Solutions/CMake/Includes/"$1"Includes.cmake"
 sourceFilePath="../Solutions/CMake/Sources/"$1"Sources.cmake"
 
 sources=()
-while IFS='' read -r line || [[ -n "$line" ]]; do
-  if [[ $line == *"set"* ]]; then
-    continue
-  fi
-  if [[ $line == *\)* ]]; then
-    continue
-  fi
-  #v=${line::-1}
-  prefix='${CMAKE_CURRENT_SOURCE_DIR}/'
-  filteredFile=${line#"$prefix"}
-  sources+=($filteredFile)
-  #($v)
+while IFS= read -r line || [[ -n "$line" ]]; do
+    # Pomijamy linie zawierające 'set' lub zakończone ')'
+    if [[ $line == *"set"* ]]; then
+        continue
+    fi
+    if [[ $line == *\)* ]]; then
+        continue
+    fi
+
+    # Usuwamy prefix ścieżki CMake
+    prefix='${CMAKE_CURRENT_SOURCE_DIR}/'
+    filteredFile=${line#"$prefix"}
+
+    # Usuwamy końcowe znaki CR/LF
+    filteredFile=$(echo "$filteredFile" | tr -d '\r\n')
+
+    # Dodajemy do tablicy z cudzysłowami, żeby spacje i dziwne znaki nie powodowały problemów
+    sources+=("$filteredFile")
 done < "$sourceFilePath"
 
 headers=()
-while IFS='' read -r line || [[ -n "$line" ]]; do
-  if [[ $line == *"set"* ]]; then
-    continue
-  fi
-  if [[ $line == *\)* ]]; then
-    continue
-  fi
-  #v=#${line::-1}
-  prefix='${CMAKE_CURRENT_SOURCE_DIR}/'
-  filteredFile=${line#"$prefix"}
-  headers+=($filteredFile)
+while IFS= read -r line || [[ -n "$line" ]]; do
+    # Pomijamy linie zawierające 'set' lub zakończone ')'
+    if [[ $line == *"set"* ]]; then
+        continue
+    fi
+    if [[ $line == *\)* ]]; then
+        continue
+    fi
+
+    # Usuwamy prefix ścieżki CMake
+    prefix='${CMAKE_CURRENT_SOURCE_DIR}/'
+    filteredFile=${line#"$prefix"}
+
+    # Usuwamy końcowe znaki CR/LF
+    filteredFile=$(echo "$filteredFile" | tr -d '\r\n')
+
+    # Dodajemy do tablicy z cudzysłowami, aby zachować spacje w nazwach
+    headers+=("$filteredFile")
 done < "$includeFilePath"
 
 sdkVersion="10.0"
@@ -201,7 +214,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -223,7 +236,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
         <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -251,7 +264,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -277,9 +290,9 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <Optimization>MaxSpeed</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/MP$(NUMBER_OF_PROCESSORS) /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -289,22 +302,22 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <AdditionalDependencies>'$additionalReleaseLibs'%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>'$additionalRelease64LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-  </ItemDefinitionGroup><ItemGroup>
-  '
+  </ItemDefinitionGroup>
+  <ItemGroup>'
   for cpp in "${sources[@]}"
   do
-    echo $'<ClCompile Include="'"$vs_s"$cpp'" />'
+    echo $'    <ClCompile Include="'"$vs_s"$cpp'" />'
   done
-  echo '</ItemGroup>'
-  echo '<ItemGroup>'
+  echo '  </ItemGroup>'
+  echo '  <ItemGroup>'
 
   for inc in "${headers[@]}"
   do
-    echo $'<ClInclude Include="'"$vs_s"$inc'" />'
+    echo $'    <ClInclude Include="'"$vs_s"$inc'" />'
   done
 
-  echo '</ItemGroup>'
-  echo '<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
+  echo '  </ItemGroup>'
+  echo '  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><ImportGroup Label="ExtensionTargets"></ImportGroup></Project>'
 
   #\"\'\$\(Configuration\)\|\$\(Platform\)\'==\'Debug\|Win32\'\"
 

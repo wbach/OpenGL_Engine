@@ -12,6 +12,7 @@ additionalIncludesDir='
 '$toolsDir'/common/glm;
 '$toolsDir'/common/bullet/src/;
 '$toolsDir'/common/wxWidgets/include/;
+'$toolsDir'/Windows/wxWidgets/x64/Release/mswu;
 '$toolsDir'/common/magic_enum-v0.9.7/include;
 '$toolsDir'/common/rapidjson-1.1.0/include;
 '$toolsDir'/common/rapidxml-1.13;
@@ -103,29 +104,49 @@ wxWidgetsReleaseLibs='
 wxbase33u.lib
 wxbase33u_net.lib
 wxbase33u_xml.lib
-wxexpat.lib
-wxjpeg.lib
-wxlexilla.lib
+wxbase33u_aui.lib
+wxbase33u_richtext.lib
+wxbase33u_xrc.lib
+wxmsw33u_core.lib
 wxmsw33u_adv.lib
 wxmsw33u_aui.lib
-wxmsw33u_core.lib
-wxmsw33u_gl.lib
 wxmsw33u_html.lib
 wxmsw33u_media.lib
-wxmsw33u_propgrid.lib
-wxmsw33u_qa.lib
 wxmsw33u_ribbon.lib
 wxmsw33u_richtext.lib
-wxmsw33u_stc.lib
-wxmsw33u_webview.lib
 wxmsw33u_xrc.lib
 wxpng.lib
 wxregexu.lib
-wxscintilla.lib
-wxtiff.lib
-wxwebp.lib
 wxzlib.lib
 '
+
+# wxWidgetsReleaseLibs='
+# wxbase33u.lib
+# wxbase33u_net.lib
+# wxbase33u_xml.lib
+# wxexpat.lib
+# wxjpeg.lib
+# wxlexilla.lib
+# wxmsw33u_adv.lib
+# wxmsw33u_aui.lib
+# wxmsw33u_core.lib
+# wxmsw33u_gl.lib
+# wxmsw33u_html.lib
+# wxmsw33u_media.lib
+# wxmsw33u_propgrid.lib
+# wxmsw33u_qa.lib
+# wxmsw33u_ribbon.lib
+# wxmsw33u_richtext.lib
+# wxmsw33u_stc.lib
+# wxmsw33u_webview.lib
+# wxmsw33u_xrc.lib
+# wxpng.lib
+# wxregexu.lib
+# wxscintilla.lib
+# wxtiff.lib
+# wxwebp.lib
+# wxzlib.lib
+# '
 
 bulletReleaseLibs='
 Bullet2FileLoader.lib;

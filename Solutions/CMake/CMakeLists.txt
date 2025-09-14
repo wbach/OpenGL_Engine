@@ -105,6 +105,13 @@ option(BUILD_RPG_GAME_SERVER     "Build RPG game server" OFF)
 option(BUILD_WX_EDITOR           "Build wxEditor" OFF)
 option(BUILD_I386                "32bit build" OFF)
 
+
+message(STATUS "BUILD_UTILS_NETWORK_TESTS: ${BUILD_UTILS_NETWORK_TESTS}")
+message(STATUS "BUILD_WX_EDITOR: ${BUILD_WX_EDITOR}")
+message(STATUS "BUILD_GAME: ${BUILD_GAME}")
+message(STATUS "BUILD_TESTS: ${BUILD_TESTS}")
+message(STATUS "BUILD_GAME_ENGINE: ${BUILD_GAME_ENGINE}")
+
 # --- Makro do włączania komponentów ---
 macro(enable_components)
     foreach(comp ${ARGV})

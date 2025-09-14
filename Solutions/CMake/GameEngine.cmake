@@ -45,6 +45,13 @@ if(BUILD_GAME_ENGINE)
         PRIVATE
             ${BULLET_LIBS}
             assimp
+            OpenGLApiLib
+            GraphicsApiLib
+            InputLib
+            UtilsNetworkLib
+            CommonLib
+            UtilsLib
+            ${UNIX_LINK_LIBS}
     )
 
 endif()

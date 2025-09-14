@@ -2,6 +2,7 @@
 
 #include <wx/settings.h>
 #include <wx/utils.h>
+#include <Types.h>
 
 BuildProcess::BuildProcess(BuildLogFrame* log)
     : wxProcess(log)
