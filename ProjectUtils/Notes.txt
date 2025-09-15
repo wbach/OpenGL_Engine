@@ -1,0 +1,26 @@
+#Budowanie wxWidgets dla VS
+cd wxWidgets
+git clone --recursive https://github.com/wxWidgets/wxWidgets.git
+git submodule update --init --recursive
+
+Jak teraz skompilować wxWidgets w VS
+
+
+Wybierz konfigurację i architekturę
+Statycznie (static) lub dynamicznie (dll)
+Debug/Release
+Win32/x64
+Otwórz Visual Studio
+Otwórz plik build/msw/wx_vc16.sln (lub odpowiedni dla Twojej wersji VS).
+Wybierz konfigurację np. Debug x64 lub Release x64.
+Skopiuj nagłówki i biblioteki do katalogu projektu
+Pliki .lib będą w lib/vc_x64_lib/ lub lib/vc_lib/ dla Win32.
+Pliki nagłówkowe znajdują się w include/ w katalogu głównym wxWidgets.
+
+
+#wszystkie pliki z katalogu w power shell, przyklad
+
+$libs = Get-ChildItem -Filter *.lib | Select-Object -ExpandProperty Name
+"wxWidgetsReleaseLibs='"
+$libs | ForEach-Object { "$_;" }
+"'"
