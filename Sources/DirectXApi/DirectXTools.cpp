@@ -20,7 +20,7 @@ HRESULT CompileShaderFromFile(const std::string& filename, LPCSTR szEntryPoint, 
 #endif
 
     ID3DBlob* pErrorBlob;
-    hr = D3DX11CompileFromFile(filename.c_str(), NULL, NULL, szEntryPoint, szShaderModel, dwShaderFlags, 0, NULL, ppBlobOut,
+    hr = D3DX11CompileFromFileA(filename.c_str(), NULL, NULL, szEntryPoint, szShaderModel, dwShaderFlags, 0, NULL, ppBlobOut,
                                &pErrorBlob, NULL);
     if (FAILED(hr))
     {

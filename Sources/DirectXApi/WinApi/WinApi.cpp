@@ -35,7 +35,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_DROPFILES:
         {
             HDROP drop           = (HDROP)wParam;
-            auto filePathesCount = DragQueryFile(drop, 0xFFFF, (LPSTR)NULL, 0);
+            auto filePathesCount = DragQueryFileA(drop, 0xFFFF, (LPSTR)NULL, 0);
             wchar_t* fileName    = NULL;
 
             // If NULL as the third parameter: return the length of the path, not counting the trailing '0'
@@ -144,13 +144,13 @@ void WinApi::CreateGameWindow(const std::string& window_name, uint32 width, uint
     windowSize   = {width, height};
     impl_->rect_ = r;
     AdjustWindowRect(&impl_->rect_, WS_OVERLAPPEDWINDOW, FALSE);
-    impl_->directXContext_.mainWindow = CreateWindowEx(
+    impl_->directXContext_.mainWindow = CreateWindowExA(
         WS_EX_CLIENTEDGE, impl_->mainWindowClassName_, window_name.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
         impl_->rect_.right - impl_->rect_.left, impl_->rect_.bottom - impl_->rect_.top, NULL, NULL, impl_->hInstance_, NULL);
 
     if (impl_->directXContext_.mainWindow == NULL)
     {
-        MessageBox(NULL, "Can not create a window.", "Error", MB_ICONEXCLAMATION);
+        MessageBoxA(NULL, "Can not create a window.", "Error", MB_ICONEXCLAMATION);
         return;
     }
 
@@ -232,7 +232,7 @@ bool WinApi::RegiesterWindowClass()
 {
     impl_->hInstance_ = GetModuleHandle(0);
 
-    WNDCLASSEX wc;
+    WNDCLASSEXA wc;
     wc.cbSize        = sizeof(WNDCLASSEX);
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc   = WindowProc;
@@ -246,9 +246,9 @@ bool WinApi::RegiesterWindowClass()
     wc.lpszClassName = impl_->mainWindowClassName_;
     wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
 
-    if (!RegisterClassEx(&wc))
+    if (!RegisterClassExA(&wc))
     {
-        MessageBox(NULL, "RegisterClassEx faild", "Error...", MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxA(NULL, "RegisterClassEx faild", "Error...", MB_ICONEXCLAMATION | MB_OK);
         return false;
     }
 
@@ -279,11 +279,11 @@ void WinApi::ProccesSdlKeyDown(uint32 type) const
 }
 void WinApi::ShowMessageBox(const std::string& title, const std::string& msg) const
 {
-    MessageBox(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_OK);
+    MessageBoxA(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_OK);
 }
 void WinApi::ShowMessageBox(const std::string& title, const std::string& msg, std::function<void(bool)> func) const
 {
-    int msgboxID = MessageBox(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_YESNO);
+    int msgboxID = MessageBoxA(NULL, msg.c_str(), title.c_str(), MB_ICONEXCLAMATION | MB_YESNO);
     func(msgboxID == IDYES);
 }
 const std::vector<GraphicsApi::DisplayMode>& WinApi::GetDisplayModes() const

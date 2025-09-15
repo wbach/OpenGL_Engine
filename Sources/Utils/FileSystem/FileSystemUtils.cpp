@@ -139,7 +139,7 @@ std::vector<File> GetFilesInDirectory(const std::string& dirPath)
         DWORD mydrives = 100;
         char tmp[100];
         ZeroMemory(tmp, 100);
-        GetLogicalDriveStrings(mydrives, tmp);
+        GetLogicalDriveStringsA(mydrives, tmp);
         auto drives = Utils::SplitString(tmp, 90, 0);
         for (const auto& c : drives)
         {

@@ -72,7 +72,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 #ifdef USE_GNU
                     void* sceneLib = dlopen(potentialyLibFile.GetAbsolutePath().c_str(), RTLD_NOW);
 #else
-                    HMODULE sceneLib = LoadLibrary(potentialyLibFile.GetAbsolutePath().string().c_str());
+                    HMODULE sceneLib = LoadLibraryA(potentialyLibFile.GetAbsolutePath().string().c_str());
 #endif
                     if (sceneLib)
                     {

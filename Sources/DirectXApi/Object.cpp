@@ -70,7 +70,7 @@ void Object::CreateVertexBuffer(const std::vector<Vertex>& vertexes)
 
     if (FAILED(hr))
     {
-        MessageBox(NULL, "Vertex buffer creation error.", "Error", MB_OK);
+        MessageBoxA(NULL, "Vertex buffer creation error.", "Error", MB_OK);
     }
     BindVertexBuffer();
 }
@@ -97,7 +97,7 @@ void Object::CreateIndiciesBuffer(const std::vector<Index>& indicies)
     auto hr = dxCondext_.dev->CreateBuffer(&bd, &InitData, &indiciesBuffer_.ptr);
     if (FAILED(hr))
     {
-        MessageBox(NULL, "Indicies buffer creation error.", "Error", MB_OK);
+        MessageBoxA(NULL, "Indicies buffer creation error.", "Error", MB_OK);
     }
     Bind();
 }

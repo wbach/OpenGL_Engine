@@ -243,7 +243,7 @@ public:
 
         if (FAILED(hr))
         {
-            MessageBox(NULL, "Create texture error.", "Error", MB_OK);
+            MessageBoxA(NULL, "Create texture error.", "Error", MB_OK);
         }
         samplerStates_.push_back({samplerState, textureInfo});
         return samplerStates_.size() - 1;
@@ -329,7 +329,7 @@ void DirectXApi::Init()
 
     if (FAILED(hr))
     {
-        MessageBox(NULL, "CreateBlendState error.", __FUNCTION__, MB_OK);
+        MessageBoxA(NULL, "CreateBlendState error.", __FUNCTION__, MB_OK);
         return;
     }
 
@@ -382,7 +382,7 @@ void DirectXApi::InitDepthSetncilView()
 
     if (FAILED(hr))
     {
-        MessageBox(NULL, "CreateTexture2D error.", __FUNCTION__, MB_OK);
+        MessageBoxA(NULL, "CreateTexture2D error.", __FUNCTION__, MB_OK);
         return;
     }
 
@@ -395,7 +395,7 @@ void DirectXApi::InitDepthSetncilView()
                                                                                &impl_->dxCondext_.depthStencilView);
     if (FAILED(hr))
     {
-        MessageBox(NULL, "CreateDepthStencilView error.", __FUNCTION__, MB_OK);
+        MessageBoxA(NULL, "CreateDepthStencilView error.", __FUNCTION__, MB_OK);
     }
 }
 
@@ -501,7 +501,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     if (FAILED(hr))
     {
         auto failResult = "Vertex sheder can not be compiled. " + vsShaderFileName;
-        MessageBox(NULL, failResult.c_str(), "Error", MB_OK);
+        MessageBoxA(NULL, failResult.c_str(), "Error", MB_OK);
         return {};
     }
     hr = impl_->dxCondext_.dev->CreateVertexShader(shader.blob_.vertex_->GetBufferPointer(),
@@ -509,7 +509,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     if (FAILED(hr))
     {
         auto failResult = vsShaderFileName + " create vertex shader error";
-        MessageBox(NULL, failResult.c_str(), __FUNCTION__, MB_OK);
+        MessageBoxA(NULL, failResult.c_str(), __FUNCTION__, MB_OK);
         shader.blob_.Release();
         return {};
     }
@@ -529,7 +529,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
                                                   shader.blob_.vertex_->GetBufferSize(), &shader.vertexLayout_);
     if (FAILED(hr))
     {
-        MessageBox(NULL,
+        MessageBoxA(NULL,
                    "Can not create input layout."
                    "FX file.",
                    "Error", MB_OK);
@@ -545,7 +545,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     if (FAILED(hr))
     {
         auto fail = "Fragment sheder can not be compiled. " + fragmentShaderFile;
-        MessageBox(NULL, fail.c_str(), "Error", MB_OK);
+        MessageBoxA(NULL, fail.c_str(), "Error", MB_OK);
         return {};
     }
 
@@ -556,7 +556,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
 
     if (FAILED(hr))
     {
-        MessageBox(NULL, "Can pixel shader error.", __FUNCTION__, MB_OK);
+        MessageBoxA(NULL, "Can pixel shader error.", __FUNCTION__, MB_OK);
         return {};
     }
 
@@ -590,7 +590,7 @@ GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
 
     if (FAILED(result))
     {
-        MessageBox(NULL, "ID3D11Buffer create error.", "Error", MB_OK);
+        MessageBoxA(NULL, "ID3D11Buffer create error.", "Error", MB_OK);
         return {};
     }
 
@@ -602,7 +602,7 @@ void DirectXApi::UpdateShaderBuffer(uint32 id, void const *data)
 {
     if (not Utils::ValidateRange(impl_->buffers_, id))
     {
-        MessageBox(NULL, "ID3D11Buffer update error. Size exceeded", "Error", MB_OK);
+        MessageBoxA(NULL, "ID3D11Buffer update error. Size exceeded", "Error", MB_OK);
         return;
     }
     const auto &buffer = impl_->buffers_[id];
@@ -612,7 +612,7 @@ uint32 DirectXApi::BindShaderBuffer(uint32 id)
 {
     if (not Utils::ValidateRange(impl_->buffers_, id))
     {
-        MessageBox(NULL, "BindShaderBuffer ID3D11Buffer. Size exceeded", "Error", MB_OK);
+        MessageBoxA(NULL, "BindShaderBuffer ID3D11Buffer. Size exceeded", "Error", MB_OK);
         return 0;
     }
     const auto &buffer = impl_->buffers_[id];

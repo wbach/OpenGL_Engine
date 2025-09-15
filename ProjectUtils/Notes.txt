@@ -24,3 +24,7 @@ $libs = Get-ChildItem -Filter *.lib | Select-Object -ExpandProperty Name
 "wxWidgetsReleaseLibs='"
 $libs | ForEach-Object { "$_;" }
 "'"
+
+
+#konwersja utf8 do ascii
+for f in *; do [ -f "$f" ] && enc=$(file -bi "$f" | sed -n 's/.*charset=\(.*\)$/\1/p') && [ "$enc" != "us-ascii" ] && iconv -f utf-8 -t ascii//TRANSLIT "$f" -o tmp && mv tmp "$f"; done
