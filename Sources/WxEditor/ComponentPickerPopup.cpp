@@ -85,5 +85,5 @@ void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
 
 void ComponentPickerPopup::OnDismiss()
 {
-    // Tu możesz coś zrobić po zamknięciu popupu (np. zwolnić zasoby)
+    // Tu mozesz cos zrobic po zamknieciu popupu (np. zwolnic zasoby)
 }

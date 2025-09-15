@@ -23,16 +23,16 @@ set(COMMON_COMPILE_FLAGS
 )
 add_compile_options(${COMMON_COMPILE_FLAGS})
 
-# katalog komponentów
+# katalog komponentow
 if(NOT DEFINED COMPONENTS_DIR)
     set(COMPONENTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Components")
 endif()
 get_filename_component(ABS_COMPONENTS_DIR "${COMPONENTS_DIR}" ABSOLUTE)
-message(STATUS "Katalog komponentów: ${ABS_COMPONENTS_DIR}")
+message(STATUS "Katalog komponentow: ${ABS_COMPONENTS_DIR}")
 
 # katalog silnika gry
 if(NOT DEFINED ENGINE_INCLUDE_DIR)
-    message(FATAL_ERROR "Musisz podać ENGINE_INCLUDE_DIR przy wywołaniu cmake")
+    message(FATAL_ERROR "Musisz podac ENGINE_INCLUDE_DIR przy wywolaniu cmake")
 endif()
 get_filename_component(ABS_ENGINE_INCLUDE_DIR "${ENGINE_INCLUDE_DIR}" ABSOLUTE)
 message(STATUS "Include paths silnika gry: ${ABS_ENGINE_INCLUDE_DIR}")
@@ -60,7 +60,7 @@ if(DEFINED ENV{USERROOT})
     )
 endif()
 
-# wykrywanie i budowanie komponentów
+# wykrywanie i budowanie komponentow
 file(GLOB COMPONENT_SUBDIRS RELATIVE ${ABS_COMPONENTS_DIR} ${ABS_COMPONENTS_DIR}/*)
 
 foreach(COMP_NAME ${COMPONENT_SUBDIRS})
@@ -71,14 +71,14 @@ foreach(COMP_NAME ${COMPONENT_SUBDIRS})
             add_library(${COMP_NAME} SHARED ${SRC_FILES})
             message(STATUS "Dodano komponent: ${COMP_NAME}")
 
-            # kopiowanie do folderu nadrzędnego
+            # kopiowanie do folderu nadrzednego
             set(DEST_DIR "${ABS_COMPONENTS_DIR}")
             add_custom_command(TARGET ${COMP_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${COMP_NAME}> ${DEST_DIR}
-                COMMENT "Kopiuję ${COMP_NAME} do ${DEST_DIR}"
+                COMMENT "Kopiuje ${COMP_NAME} do ${DEST_DIR}"
             )
         else()
-            message(WARNING "Brak plików .cpp w ${COMP_NAME}")
+            message(WARNING "Brak plikow .cpp w ${COMP_NAME}")
         endif()
     endif()
 endforeach()

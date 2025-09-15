@@ -11,9 +11,9 @@
 #include <wx/dnd.h>
 
 #if defined(__WXMSW__)
-#include <wx/filedlg.h>  // Windows, używa backendu MSW
+#include <wx/filedlg.h>  // Windows, uzywa backendu MSW
 #elif defined(__WXGTK__)
-#include <wx/filedlg.h>  // Linux GTK, używa backendu GTK
+#include <wx/filedlg.h>  // Linux GTK, uzywa backendu GTK
 #elif defined(__WXOSX__)
 #include <wx/filedlg.h>  // macOS, Cocoa
 #else
@@ -510,7 +510,7 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
     if (auto maybeGo = scene.GetGameObject(currentGameObject->gameObjectId.value()))
     {
         wxFileDialog fileDialog(this, "Choose prefab file", GetStartupDialogPathBasedOnCurrent(), maybeGo->GetName() + ".prefab",
-                                "Pliki prefabów (*.prefab)|*.prefab", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+                                "Pliki prefabow (*.prefab)|*.prefab", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
         if (fileDialog.ShowModal() == wxID_CANCEL)
             return;

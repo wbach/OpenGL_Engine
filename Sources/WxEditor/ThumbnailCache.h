@@ -54,7 +54,7 @@ public:
             }
         }
 
-        // Dodajemy do cache tylko jeśli mamy bitmapę
+        // Dodajemy do cache tylko jesli mamy bitmape
         if (bmp.IsOk())
         {
             cache[path] = bmp;

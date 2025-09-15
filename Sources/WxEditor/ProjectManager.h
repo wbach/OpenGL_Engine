@@ -195,7 +195,7 @@ public:
                 if (not path.empty() && (path.back() == '/' or path.back() == '\\'))
                     path.pop_back();
 
-                // wyciągamy nazwę projektu z folderu
+                // wyciagamy nazwe projektu z folderu
                 size_t lastSlash = path.find_last_of("/\\");
                 std::string name = (lastSlash != std::string::npos) ? path.substr(lastSlash + 1) : path;
 
@@ -212,12 +212,12 @@ public:
         // Pobieramy ostatnie projekty
         std::vector<RecentProject> projects = GetRecentProjects();
 
-        // Usuń duplikaty po ścieżce
+        // Usun duplikaty po sciezce
         projects.erase(
             std::remove_if(projects.begin(), projects.end(), [&path](const RecentProject& p) { return p.path == path; }),
             projects.end());
 
-        // Dodaj nowy projekt na początek
+        // Dodaj nowy projekt na poczatek
         projects.insert(projects.begin(), {"", path});
 
         // Zachowaj tylko 10 ostatnich

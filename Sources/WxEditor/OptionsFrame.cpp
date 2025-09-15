@@ -39,7 +39,7 @@ OptionsFrame::OptionsFrame(wxWindow* parent)
     mainSizer->Add(notebook, 1, wxEXPAND);
     SetSizer(mainSizer);
 
-    // 🔹 Wymuś przeliczenie layoutu po zbudowaniu całej struktury
+    // ? Wymus przeliczenie layoutu po zbudowaniu calej struktury
     Layout();
 
     Bind(wxEVT_SHOW,
@@ -74,11 +74,11 @@ void OptionsFrame::CreateRenderingOptionsTab(wxNotebook* notebook)
 
     renderingPanel->Layout();
 
-    // Opcjonalnie wymuś odświeżenie rozmiaru wewnętrznego notebooka, jeśli potrzebne:
+    // Opcjonalnie wymus odswiezenie rozmiaru wewnetrznego notebooka, jesli potrzebne:
     renderingNotebook->Layout();
     renderingNotebook->SendSizeEvent();
 
-    // Poinformuj renderingPanel o rozmiarze zawartości:
+    // Poinformuj renderingPanel o rozmiarze zawartosci:
     renderingPanel->FitInside();
 
     notebook->AddPage(renderingPanel, "Rendering Options");
@@ -216,8 +216,8 @@ void OptionsFrame::CreateAdvancedTab(wxNotebook* notebook)
 
 void OptionsFrame::OnClose(wxCloseEvent& event)
 {
-    Hide();        // ukryj zamiast niszczyć
-    event.Veto();  // anuluj zamknięcie
+    Hide();        // ukryj zamiast niszczyc
+    event.Veto();  // anuluj zamkniecie
 }
 
 void OptionsFrame::UpdateSelectedValuesInCtrl()
@@ -233,7 +233,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     wxPanel* panel        = new wxPanel(notebook);
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // ===== Sekcja katalogów =====
+    // ===== Sekcja katalogow =====
     wxStaticBox* folderBox        = new wxStaticBox(panel, wxID_ANY, "Project Paths");
     wxStaticBoxSizer* folderSizer = new wxStaticBoxSizer(folderBox, wxVERTICAL);
 
@@ -272,7 +272,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
                         });
     }
 
-    mainSizer->Add(folderSizer, 0, wxEXPAND | wxALL, 10);  // margines między sekcjami
+    mainSizer->Add(folderSizer, 0, wxEXPAND | wxALL, 10);  // margines miedzy sekcjami
 
     wxLogNull logNo;
     // ===== Sekcja tekstur =====
@@ -292,7 +292,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     {
         wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
-        // pole tekstowe do wyświetlania ścieżki
+        // pole tekstowe do wyswietlania sciezki
         wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, texOpt.path, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
         rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
 
@@ -310,7 +310,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
             new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(100, 100)) : wxNullBitmap);
         textureSizer->Add(thumbnail, 0, wxALL, 5);
 
-        // obsługa kliknięcia "Browse"
+        // obsluga klikniecia "Browse"
         browseBtn->Bind(wxEVT_BUTTON,
                         [=, text = texOpt](wxCommandEvent&)
                         {
@@ -320,7 +320,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
                             if (dlg.ShowModal() == wxID_OK)
                             {
-                                text.path = dlg.GetPath().ToStdString();  // aktualizacja wartości
+                                text.path = dlg.GetPath().ToStdString();  // aktualizacja wartosci
                                 pathCtrl->SetValue(dlg.GetPath());        // aktualizacja pola
                                 wxImage newImg;
                                 if (newImg.LoadFile(EngineConf_GetFullDataPath(text.path), wxBITMAP_TYPE_ANY))
@@ -425,7 +425,7 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
         // Nazwa sceny
         rowSizer->Add(new wxStaticText(parent, wxID_ANY, sceneName), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
-        // TextCtrl pokazujący ścieżkę
+        // TextCtrl pokazujacy sciezke
         wxTextCtrl* pathCtrl = new wxTextCtrl(parent, wxID_ANY, scenePath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
         rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
 
@@ -436,7 +436,7 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
         wxButton* removeBtn = new wxButton(parent, wxID_ANY, "Remove");
         rowSizer->Add(removeBtn, 0, wxALL, 5);
 
-        // Obsługa Browse
+        // Obsluga Browse
         browseBtn->Bind(wxEVT_BUTTON,
                         [=](wxCommandEvent&)
                         {
@@ -451,7 +451,7 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
                             }
                         });
 
-        // Obsługa Remove
+        // Obsluga Remove
         removeBtn->Bind(wxEVT_BUTTON,
                         [=](wxCommandEvent&)
                         {
@@ -463,6 +463,6 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
     }
 
     parent->Layout();
-    parent->FitInside();  // ważne przy scrollowaniu
+    parent->FitInside();  // wazne przy scrollowaniu
     parent->Refresh();
 }

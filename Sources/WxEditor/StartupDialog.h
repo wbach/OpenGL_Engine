@@ -73,13 +73,13 @@ public:
         exitBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnExit, this);
         m_recentList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StartupDialog::OnRecentActivated, this);
 
-        // Podpięcie zdarzenia
+        // Podpiecie zdarzenia
         removeBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnRemoveSelected, this);
 
         Bind(wxEVT_CLOSE_WINDOW,
              [this](wxCloseEvent&)
              {
-                 EndModal(wxID_CANCEL);  // zwraca CANCEL → App::OnInit() zakończy program
+                 EndModal(wxID_CANCEL);  // zwraca CANCEL -> App::OnInit() zakonczy program
              });
     }
 
@@ -246,13 +246,13 @@ private:
             return;
         }
 
-        // Pobierz ścieżkę projektu
+        // Pobierz sciezke projektu
         std::string path = m_recentList->GetItemText(item, 1).ToStdString();
 
-        // Usuń z ProjectManager / wxConfig
+        // Usun z ProjectManager / wxConfig
         ProjectManager::GetInstance().RemoveRecentProject(path);
 
-        // Usuń z listy
+        // Usun z listy
         m_recentList->DeleteItem(item);
     }
 };

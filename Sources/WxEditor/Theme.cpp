@@ -37,7 +37,7 @@ void ApplyTheme(wxWindow &window, const WxTheme &theme)
     {
         list->SetBackgroundColour(theme.txtBg);
         list->SetForegroundColour(theme.fg);
-        // Jeśli chcesz, możesz też ustawić kolory zaznaczenia:
+        // Jesli chcesz, mozesz tez ustawic kolory zaznaczenia:
         // list->SetSelectionBackground(wxColour(100, 100, 100));
         // list->SetSelectionForeground(wxColour(255, 255, 255));
     }

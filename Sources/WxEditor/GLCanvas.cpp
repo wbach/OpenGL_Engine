@@ -78,7 +78,7 @@ const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,   
 // int glAttributes[] = {
 //     WX_GL_RGBA,
 //     WX_GL_DOUBLEBUFFER,
-//     WX_GL_DEPTH_SIZE, 16,  // <--- bufor głębokości
+//     WX_GL_DEPTH_SIZE, 16,  // <--- bufor glebokosci
 //     0
 // };
 
@@ -160,10 +160,10 @@ void GLCanvas::SetCursorToCenter()
     int w, h;
     GetSize(&w, &h);
 
-    // Środek klienta
+    // Srodek klienta
     wxPoint center(w / 2, h / 2);
 
-    // Zamiana na współrzędne ekranowe
+    // Zamiana na wspolrzedne ekranowe
     wxPoint screenPos = ClientToScreen(center);
 
     // Przeniesienie kursora

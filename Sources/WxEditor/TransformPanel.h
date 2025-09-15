@@ -17,7 +17,7 @@ public:
         wxTextCtrl* xCtrl{nullptr};
         wxTextCtrl* yCtrl{nullptr};
         wxTextCtrl* zCtrl{nullptr};
-        wxSizer* sizer{nullptr};  // żeby można było łatwo dodać do layoutu
+        wxSizer* sizer{nullptr};  // zeby mozna bylo latwo dodac do layoutu
         std::string label;
 
         wxString tmpFocusString;

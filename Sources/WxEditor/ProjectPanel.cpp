@@ -38,7 +38,7 @@ public:
             Utils::CopyFileOrFolder(srcPath.ToStdString(), destFolder.ToStdString());
         }
 
-        // Odśwież listę tylko w aktualnym folderze
+        // Odswiez liste tylko w aktualnym folderze
         m_panel->RefreshAll(destFolder);
         return true;
     }
@@ -90,7 +90,7 @@ void ShowProperties(const wxFileName& fn)
 wxBitmap EnsureSize(const wxBitmap& bmp, int w, int h)
 {
     if (bmp.GetWidth() == w && bmp.GetHeight() == h)
-        return bmp;  // już OK
+        return bmp;  // juz OK
 
     wxImage img = bmp.ConvertToImage();
     img         = img.Scale(w, h, wxIMAGE_QUALITY_HIGH);
@@ -156,7 +156,7 @@ ProjectPanel::ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelec
 
                           if (item.IsOk())
                           {
-                              projectTree->SelectItem(item);  // 👈 teraz PPM też zaznacza
+                              projectTree->SelectItem(item);  // ? teraz PPM tez zaznacza
                               auto* data = static_cast<PathData*>(projectTree->GetItemData(item));
                               if (data)
                               {
@@ -200,7 +200,7 @@ void ProjectPanel::AddSubDirs(const wxTreeItemId& parentId, const wxString& absP
         wxTreeItemId childId =
             projectTree->AppendItem(parentId, name, treeFolderClosedIdx, treeFolderOpenIdx, new PathData(full));
 
-        // Rekurencja — dociągamy kolejne poziomy
+        // Rekurencja -- dociagamy kolejne poziomy
         AddSubDirs(childId, full);
 
         cont = dir.GetNext(&name);
@@ -213,8 +213,8 @@ void ProjectPanel::InitFileList()
     fileImageList = new wxImageList(64, 64, true);
     // projectFiles->AssignImageList(fileImageList, wxIMAGE_LIST_NORMAL);
 
-    // Bazowe pozycje zawsze na 0/1 — przy każdym odświeżeniu listy czyścimy tę listę,
-    // więc indeksy są stabilne
+    // Bazowe pozycje zawsze na 0/1 -- przy kazdym odswiezeniu listy czyscimy te liste,
+    // wiec indeksy sa stabilne
     fileImageList->RemoveAll();
     idxFolder      = fileImageList->Add(CreateBitmap(wxART_FOLDER, wxART_OTHER, wxSize(64, 64)));
     idxDefaultFile = fileImageList->Add(CreateBitmap(wxART_NORMAL_FILE, wxART_OTHER, wxSize(64, 64)));
@@ -280,7 +280,7 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
     itemSizer->Add(icon, 0, wxALIGN_CENTER_HORIZONTAL);
     itemSizer->Add(label, 0, wxALIGN_CENTER_HORIZONTAL | wxTOP, 2);
 
-    // Kliknięcie = zaznaczenie
+    // Klikniecie = zaznaczenie
     label->Bind(wxEVT_LEFT_DOWN, [=](wxMouseEvent&) { SelectItem(icon, label); });
     icon->Bind(wxEVT_LEFT_DOWN,
                [=](wxMouseEvent& event)
@@ -306,7 +306,7 @@ wxBoxSizer* ProjectPanel::CreateFileItem(const wxFileName& fn, const wxBitmap& b
 
     icon->Bind(wxEVT_LEFT_UP, [=](wxMouseEvent&) { dragIcon = nullptr; });
 
-    // Podwójny klik – różne akcje dla folderu i pliku
+    // Podwojny klik - rozne akcje dla folderu i pliku
     if (onDClick)
     {
         icon->Bind(wxEVT_LEFT_DCLICK, [=](wxMouseEvent&) { onDClick(); });
@@ -436,7 +436,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             wxExecute("explorer.exe /select,\"" + full + "\"");
 
 #elif defined(__WXGTK__)
-            // Linux - spróbuj kilku menedżerów plików, fallback do xdg-open
+            // Linux - sprobuj kilku menedzerow plikow, fallback do xdg-open
             auto IsCommandAvailable = [](const wxString& cmd) -> bool
             { return wxExecute("command -v " + cmd, wxEXEC_SYNC) == 0; };
 
@@ -500,7 +500,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&)
         {
-            wxString destFolder = GetCurrentFolderPath();  // zakładam, że masz taką funkcję w ProjectPanel
+            wxString destFolder = GetCurrentFolderPath();  // zakladam, ze masz taka funkcje w ProjectPanel
 
             wxFileDialog fileDialog(this, "Select files to import", "", "", "All files (*.*)|*.*",
                                     wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
@@ -515,7 +515,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                     wxFileName src(srcPath);
                     wxFileName dst(destFolder, src.GetFullName());
 
-                    // Obsługa konfliktów nazw
+                    // Obsluga konfliktow nazw
                     if (wxFileExists(dst.GetFullPath()))
                     {
                         wxString base = dst.GetName();
@@ -535,7 +535,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                     }
                 }
 
-                // Odśwież listę po dodaniu plików
+                // Odswiez liste po dodaniu plikow
                 RefreshCurrent(destFolder);
             }
         },
@@ -556,7 +556,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
 
             Utils::CopyFileOrFolder(srcFolder, dstFolder);
 
-            // Odśwież listę plików
+            // Odswiez liste plikow
             RefreshAll(destFolder);
         },
         ID_IMPORT_FOLDER);
@@ -620,7 +620,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                 }
                 wxTheClipboard->Close();
 
-                // Odśwież panel i drzewo
+                // Odswiez panel i drzewo
                 if (isDirCopy)
                     RefreshAll(currentFolderPath);
                 else
@@ -676,7 +676,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
 
     target->Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
 
-    // Popup (ważne: użyj lokalnych współrzędnych → na globalne)
+    // Popup (wazne: uzyj lokalnych wspolrzednych -> na globalne)
     target->PopupMenu(&menu, event.GetPosition());
 }
 
@@ -800,7 +800,7 @@ wxBitmap ProjectPanel::GetThumbnail(const wxFileName& fn, int thumbSize)
     // Sprawdzenie cache globalnego
     wxBitmap bmp = ThumbnailCache::Get().GetThumbnail(key, thumbSize);
 
-    // Jeśli bitmapa jest pusta (nie obraz), stwórz placeholder
+    // Jesli bitmapa jest pusta (nie obraz), stworz placeholder
     if (!bmp.IsOk())
     {
         if (is3dModelFile(fn.GetFullPath().ToStdString()))

@@ -19,7 +19,7 @@ public:
     using FileSelectedCallback = std::function<void(const wxString&)>;
     ProjectPanel(wxWindow* parent, const wxString& rootPath, FileSelectedCallback callback);
 
-    // --- Odświeżanie ---
+    // --- Odswiezanie ---
     void RefreshCurrent(const wxString& folderPath);
     void RefreshAll(const wxString& folderPath);
     void RefreshAll();
@@ -53,7 +53,7 @@ private:
     wxTreeCtrl* projectTree{nullptr};
     wxString rootFolder;
 
-    // --- Dane panelu plików ---
+    // --- Dane panelu plikow ---
     wxScrolledWindow* filePanel{nullptr};
     wxWrapSizer* fileSizer{nullptr};
     wxPoint dragStartPos;

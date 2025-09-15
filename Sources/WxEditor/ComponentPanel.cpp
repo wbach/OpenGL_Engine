@@ -136,11 +136,11 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     headerPanel             = new wxPanel(this);
     wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    // Label z nazwą sekcji
+    // Label z nazwa sekcji
     wxStaticText* title = new wxStaticText(headerPanel, wxID_ANY, "Component name: " + typeName);
     headerSizer->Add(title, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
 
-    // Checkbox aktywności
+    // Checkbox aktywnosci
     {
         auto* activeCheck = new wxCheckBox(headerPanel, wxID_ANY, "Active");
         activeCheck->SetValue(component.IsActive());
@@ -213,7 +213,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     collapsible    = new wxCollapsiblePane(this, wxID_ANY, "");
     wxWindow* pane = collapsible->GetPane();
 
-    // Sizer dla zawartości collapsible
+    // Sizer dla zawartosci collapsible
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     pane->SetSizer(sizer);
 
@@ -222,7 +222,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     pane->Layout();
     sizer->Layout();
 
-    // Dodajemy do głównego sizer
+    // Dodajemy do glownego sizer
     mainSizer->Add(headerPanel, 0, wxEXPAND | wxALL, 0);
     mainSizer->Add(collapsible, 0, wxEXPAND | wxALL, 0);
     collapsible->Collapse(false);
@@ -244,7 +244,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
 
         evt.Skip();
     };
-    // Aktualizacja layoutu po zwinięciu/rozwinieciu
+    // Aktualizacja layoutu po zwinieciu/rozwinieciu
     collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, onCollapsAction);
     if (collapsed)
         collapsible->Collapse(true);
@@ -609,20 +609,20 @@ void ComponentPanel::CreateVectorRow(GameEngine::Components::IComponent& compone
     // Etykieta nad polami
     sizer->Add(new wxStaticText(pane, wxID_ANY, label), 0, wxBOTTOM, 2);
 
-    // Własny panel, żeby odseparować layout od reszty
+    // Wlasny panel, zeby odseparowac layout od reszty
     wxPanel* rowPanel    = new wxPanel(pane);
     wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
     for (int i = 0; i < dimensions; ++i)
     {
-        // Oś
+        // Os
         rowSizer->Add(new wxStaticText(rowPanel, wxID_ANY, axisNames[i]), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
 
-        // Pole - własny startowy rozmiar
+        // Pole - wlasny startowy rozmiar
         CtrlT* ctrl = new CtrlT(rowPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(60, -1), wxSP_ARROW_KEYS);
         setCtrlValue(ctrl, (*vec)[i]);
 
-        // Rozciąganie tylko w obrębie tego wiersza
+        // Rozciaganie tylko w obrebie tego wiersza
         rowSizer->Add(ctrl, 1, wxRIGHT, (i == dimensions - 1 ? 0 : 10));
 
         bindEvent(ctrl,
@@ -702,7 +702,7 @@ void ComponentPanel::CreateUIForVector(
                                }
                            }
                            catch (...)
-                           { /* ignoruj błędy parsowania */
+                           { /* ignoruj bledy parsowania */
                            }
                        });
     }
@@ -1198,7 +1198,7 @@ wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::ICom
 
     auto& clip = (*val)[index];
 
-    // Wykorzystujemy wspólną funkcję do tworzenia pól AnimationClip
+    // Wykorzystujemy wspolna funkcje do tworzenia pol AnimationClip
     auto clipSizer = CreateUIForAnimationClip(component, pane, &clip);
     box->Add(clipSizer, 0, wxEXPAND | wxALL, 2);
 
@@ -1245,7 +1245,7 @@ void ComponentPanel::UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEn
     }
     else
     {
-        // Zakładamy, że masz ikonę wykrzyknika w zasobach lub pliku
+        // Zakladamy, ze masz ikone wykrzyknika w zasobach lub pliku
         auto bmp = wxArtProvider::GetBitmap(wxART_ERROR, wxART_OTHER, wxSize(16, 16));
         warningIcon->SetBitmap(bmp);
         warningIcon->Show();

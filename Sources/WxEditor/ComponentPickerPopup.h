@@ -33,7 +33,7 @@ private:
     void PopulateList(const wxString& filter);
     void OnSearch(wxCommandEvent& evt);
     void OnSelect(wxCommandEvent& evt);  // nadpisujemy event listboxa
-    void OnDismiss() override;           // opcjonalnie, jeśli chcesz reagować na zamknięcie
+    void OnDismiss() override;           // opcjonalnie, jesli chcesz reagowac na zamkniecie
 
     wxDECLARE_EVENT_TABLE();
 };

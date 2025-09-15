@@ -3,9 +3,9 @@
 
 struct WxTheme
 {
-    wxColour bg{30, 30, 30};    // ciemne tło
+    wxColour bg{30, 30, 30};    // ciemne tlo
     wxColour fg{220, 220, 220}; // jasny tekst
-    wxColour txtBg{50, 50, 50}; // tło pól tekstowych
+    wxColour txtBg{50, 50, 50}; // tlo pol tekstowych
 };
 
 extern const WxTheme LIGHT_THEME;

@@ -79,13 +79,13 @@ bool terminateProcessByPID(long pid)
     HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, static_cast<DWORD>(pid));
     if (!hProcess)
     {
-        std::cerr << "Nie można otworzyć procesu, PID=" << pid << "\n";
+        std::cerr << "Nie mozna otworzyc procesu, PID=" << pid << "\n";
         return false;
     }
 
     if (!TerminateProcess(hProcess, 0))
     {
-        std::cerr << "Nie udało się zakończyć procesu, PID=" << pid << "\n";
+        std::cerr << "Nie udalo sie zakonczyc procesu, PID=" << pid << "\n";
         CloseHandle(hProcess);
         return false;
     }
@@ -96,7 +96,7 @@ bool terminateProcessByPID(long pid)
 #else
     if (kill(static_cast<pid_t>(pid), SIGTERM) != 0)
     {
-        perror("Nie udało się zakończyć procesu");
+        perror("Nie udalo sie zakonczyc procesu");
         return false;
     }
     return true;
@@ -176,13 +176,13 @@ void MainFrame::Init()
 {
     wxInitAllImageHandlers();
 
-    // Główny splitter: lewy/prawy
+    // Glowny splitter: lewy/prawy
     wxSplitterWindow* mainSplitter = new wxSplitterWindow(this, wxID_ANY);
 
-    // Lewy splitter: góra/dół
+    // Lewy splitter: gora/dol
     wxSplitterWindow* leftSplitter = new wxSplitterWindow(mainSplitter, wxID_ANY);
 
-    // Góra lewego splittera: tree + canvas
+    // Gora lewego splittera: tree + canvas
     wxSplitterWindow* topSplitter = new wxSplitterWindow(leftSplitter, wxID_ANY);
 
     // === Tree ===
@@ -228,11 +228,11 @@ void MainFrame::Init()
     // Split pionowy: tree + canvas
     topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), canvas, size.x / 8);
 
-    // === Dół: ProjectPanel ===
+    // === Dol: ProjectPanel ===
     auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
     projectPanel = new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
 
-    // Lewy splitter: góra (tree+canvas), dół (projectPanel)
+    // Lewy splitter: gora (tree+canvas), dol (projectPanel)
     leftSplitter->SplitHorizontally(topSplitter, projectPanel, size.y * 3 / 5);
 
     // === Prawa strona: gameObjectPanels ===
@@ -242,7 +242,7 @@ void MainFrame::Init()
     gameObjectPanelsSizer = new wxBoxSizer(wxVERTICAL);
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
 
-    // Tworzymy collapsible, który będzie "kontenerem" dla notebooka
+    // Tworzymy collapsible, ktory bedzie "kontenerem" dla notebooka
     transformsCollapsible = new wxCollapsiblePane(gameObjectPanels, wxID_ANY, "Transform");
     UpdateGameObjectIdOnTransfromLabel();
 
@@ -295,7 +295,7 @@ void MainFrame::Init()
     wxAcceleratorTable accel(1, entries);
     SetAcceleratorTable(accel);
 
-    // Powiązanie zdarzenia z ID_SAVE
+    // Powiazanie zdarzenia z ID_SAVE
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     SaveOsTheme(*this);
     // ApplyTheme(*this);
@@ -626,7 +626,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
                                              {
                                                  int btnIndex = gameObjectPanelsSizer->GetItemCount() - 1;
                                                  if (btnIndex < 0)
-                                                     btnIndex = 0;  // zabezpieczenie, gdyby przycisku jeszcze nie było
+                                                     btnIndex = 0;  // zabezpieczenie, gdyby przycisku jeszcze nie bylo
                                                  gameObjectPanelsSizer->Insert(btnIndex, compPanel, 0, wxEXPAND | wxALL, 0);
 
                                                  gameObjectPanelsSizer->Layout();
@@ -635,10 +635,10 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
                                              });
                                      });
 
-        // Pobieramy pozycję przycisku w globalnych współrzędnych
+        // Pobieramy pozycje przycisku w globalnych wspolrzednych
         wxPoint pos = addComponentButton->GetScreenPosition();
 
-        // Ustawiamy szerokość popupu na szerokość przycisku
+        // Ustawiamy szerokosc popupu na szerokosc przycisku
         int buttonWidth = addComponentButton->GetSize().GetWidth();
         wxSize popupSize(buttonWidth, 2 * popup->GetSize().GetHeight());
         popup->SetSize(popupSize);
@@ -649,7 +649,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     };
     addComponentButton->Bind(wxEVT_BUTTON, action);
 
-    // Odświeżenie layoutu po dodaniu przycisku
+    // Odswiezenie layoutu po dodaniu przycisku
     gameObjectPanelsSizer->Layout();
     gameObjectPanels->FitInside();
     gameObjectPanels->Refresh();
@@ -915,7 +915,7 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->SetToolShortHelp(ID_TOOL_STOP, "Stop scene if started");
     toolbar->SetToolShortHelp(ID_TOOL_ANIMATION_VIEWER, "Start animation viewer tool");
     toolbar->SetToolShortHelp(ID_TOOL_BUILD, "Build projects componets to create shared libs");
-    // Separator żeby odsunąć
+    // Separator zeby odsunac
     toolbar->AddSeparator();
 
     auto* timeLabel = new wxStaticText(toolbar, wxID_ANY, "Game time: ");
@@ -929,7 +929,7 @@ void MainFrame::CreateToolBarForEngine()
     minuteCtrl->SetRange(0, 59);
     toolbar->AddControl(minuteCtrl);
 
-    // Suwak godziny (0–24)
+    // Suwak godziny (0-24)
     timeSlider = new wxSlider(toolbar, wxID_ANY, 0, 0, 1440, wxDefaultPosition, wxSize(200, -1), wxSL_HORIZONTAL);
     toolbar->AddControl(timeSlider);
 
@@ -938,8 +938,8 @@ void MainFrame::CreateToolBarForEngine()
     timeSlider->Bind(wxEVT_SLIDER,
                      [this](wxCommandEvent& evt)
                      {
-                         int minutes      = evt.GetInt();       // 0–1440
-                         float normalized = minutes / 1440.0f;  // w [0.0 – 1.0]
+                         int minutes      = evt.GetInt();       // 0-1440
+                         float normalized = minutes / 1440.0f;  // w [0.0 - 1.0]
                          canvas->GetScene().GetDayNightCycle().SetTime(normalized);
 
                          // (opcjonalnie: update UI, np. status bar)
@@ -1105,7 +1105,7 @@ void MainFrame::OnEndLabelEdit(wxTreeEvent& event)
         if (newLabel.IsEmpty())
         {
             wxMessageBox("Nazwa nie moze byc pusta");
-            event.Veto();  // Anuluj zmianę
+            event.Veto();  // Anuluj zmiane
         }
         else
         {
@@ -1228,7 +1228,7 @@ void MainFrame::OnMakePrefab(wxCommandEvent&)
     if (auto maybeGo = GetSelectedGameObject())
     {
         wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data),
-                                maybeGo->GetName() + ".prefab", "Pliki prefabów (*.prefab)|*.prefab",
+                                maybeGo->GetName() + ".prefab", "Pliki prefabow (*.prefab)|*.prefab",
                                 wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
         if (fileDialog.ShowModal() == wxID_CANCEL)
@@ -1280,7 +1280,7 @@ void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
         transfromSubController->ChangeState(static_cast<TransfromSubController::State>(selection));
     }
     // ... twoja logika ...
-    event.Skip();  // pozwól na dalszą obsługę
+    event.Skip();  // pozwol na dalsza obsluge
 }
 
 void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent)
@@ -1389,11 +1389,11 @@ void MainFrame::OnBuildCmponents(wxCommandEvent&)
 
             if (exitCode == 0)
             {
-                logFrame->AppendLine("✅ Build finished successfully.", *wxGREEN);
+                logFrame->AppendLine("? Build finished successfully.", *wxGREEN);
             }
             else
             {
-                logFrame->AppendLine("⚠️ Build finished with errors.", *wxRED);
+                logFrame->AppendLine("? Build finished with errors.", *wxRED);
             }
 
             projectPanel->RefreshAll();

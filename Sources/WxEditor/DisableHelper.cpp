@@ -43,7 +43,7 @@ void DisableHelper::ApplyRecursive(const wxTreeItemId &item, bool disable)
     // Zapisz stan
     disabledMap[item] = disable;
 
-    // Zmień wygląd
+    // Zmien wyglad
     if (disable)
     {
         tree->SetItemTextColour(item, *wxLIGHT_GREY);

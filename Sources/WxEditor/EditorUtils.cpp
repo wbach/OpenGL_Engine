@@ -12,7 +12,7 @@ wxImage TrimMargins(const wxImage& img)
         return img;
 
     if (!img.HasAlpha())
-        return img;  // bez alfy nie wiemy co jest tłem – można dodać heurystykę
+        return img;  // bez alfy nie wiemy co jest tlem - mozna dodac heurystyke
 
     int minX = img.GetWidth(), minY = img.GetHeight();
     int maxX = 0, maxY = 0;
