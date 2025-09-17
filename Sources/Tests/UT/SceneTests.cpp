@@ -46,3 +46,4 @@ TEST_F(SceneTestSchould, AddRemoveGameObjectStability)
 
     SUCCEED();
 }
+

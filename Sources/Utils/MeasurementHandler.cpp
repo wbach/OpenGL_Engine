@@ -20,4 +20,16 @@ const std::unordered_map<std::string, MeasurementValue> &MeasurementHandler::Get
 {
     return measurements_;
 }
-} // namespace Utils
+
+const MeasurementValue &MeasurementHandler::GetValue(const std::string &key) const
+{
+    auto iter = measurements_.find(key);
+    if (iter != measurements_.end())
+    {
+        return iter->second;
+    }
+
+    static const MeasurementValue EMPTY{};
+    return EMPTY;
+}
+}  // namespace Utils
