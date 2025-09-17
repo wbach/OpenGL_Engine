@@ -31,14 +31,14 @@ ConcreteEntityRenderer::ConcreteEntityRenderer(RendererContext& context)
 
 ConcreteEntityRenderer::~ConcreteEntityRenderer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    LOG_DEBUG << "";
     shader_.Clear();
     instancesShader_.Clear();
 }
 
 void ConcreteEntityRenderer::init()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    LOG_DEBUG << "";
     shader_.Init();
     instancesShader_.Init();
     entityRenderer_.init();
@@ -48,10 +48,13 @@ void ConcreteEntityRenderer::render()
 {
     if (shader_.IsReady())
     {
-        bindShadowMap(CASCADE_INDEX0, 4); // enity bind material texture + 1
-        bindShadowMap(CASCADE_INDEX1, 5);
-        bindShadowMap(CASCADE_INDEX2, 6);
-        bindShadowMap(CASCADE_INDEX3, 7);
+        if (EngineConf.renderer.shadows.isEnabled)
+        {
+            bindShadowMap(CASCADE_INDEX0, 4);  // enity bind material texture + 1
+            bindShadowMap(CASCADE_INDEX1, 5);
+            bindShadowMap(CASCADE_INDEX2, 6);
+            bindShadowMap(CASCADE_INDEX3, 7);
+        }
 
         if (EngineConf.renderer.useInstanceRendering)
         {
@@ -83,7 +86,7 @@ void ConcreteEntityRenderer::unSubscribeAll()
 
 void ConcreteEntityRenderer::reloadShaders()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    LOG_DEBUG << "";
     shader_.Reload();
     instancesShader_.Reload();
 }

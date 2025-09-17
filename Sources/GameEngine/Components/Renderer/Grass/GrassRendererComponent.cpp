@@ -157,6 +157,7 @@ std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& mate
     std::vector<Mesh> result;
     if (DEVIDE_SPACE)
     {
+        result.reserve(meshData_.positions.size() / 3);
         std::unordered_map<int32, std::unordered_map<int32, std::unordered_map<int32, Mesh>>> meshBoxes_;
         size_t sizeAndRotationIndex = 0;
         for (size_t i = 0; i < meshData_.positions.size(); i += 3)
@@ -238,9 +239,7 @@ bool GrassRendererComponent::CreateGrassModel()
 
     auto model    = std::make_unique<Model>();
     auto material = CreateGrassMaterial();
-    auto meshes   = CreateGrassMeshes(material);
-    for (auto& mesh : meshes)
-        model->AddMesh(mesh);
+    model->SetMeshes(CreateGrassMeshes(material));
 
     model_.Add(model.get(), LevelOfDetail::L1);
     model->SetFile(dataFile);

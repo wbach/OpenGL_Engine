@@ -2,26 +2,14 @@
 
 #include <Logger/Log.h>
 
-#include <algorithm>
-#include <sstream>
-
-#include "Assimp/AssimpLoader.h"
-#include "BEngine/BEngineLoader.h"
-#include "Collada/Collada.h"
-#include "GameEngine/Engine/Configuration.h"
-#include "ParseUtils.h"
-#include "Terrain/TerrainMeshLoader.h"
-#include "WaveFront/WaveFrontObj.h"
+#include "AbstractLoader.h"
 
 namespace GameEngine
 {
-LoaderManager::LoaderManager(ITextureLoader& textureloader)
+LoaderManager::LoaderManager(std::unique_ptr<IModelLoaderFactory> factory)
+    : factory_(std::move(factory))
+    , loaders_(factory_->createLoaders())
 {
-    loaders_.emplace_back(new WBLoader::BEngineLoader(textureloader));
-    // loaders_.emplace_back(new WBLoader::WaveFrontObjLoader(textureloader));
-    // loaders_.emplace_back(new WBLoader::ColladaDae(textureloader));
-    loaders_.emplace_back(new WBLoader::TerrainMeshLoader(textureloader));
-    loaders_.emplace_back(new WBLoader::AssimpLoader(textureloader));
 }
 
 std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParameters& loadingParameters)
@@ -30,11 +18,17 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParame
 
     if (loaderPtr == nullptr)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Try parse unkonwn file extension : " + file.GetExtension());
+        LOG_ERROR << "Try parse unkonwn file extension : " << file.GetExtension();
         return nullptr;
     }
 
-    loaderPtr->Parse(file, loadingParameters);
+    auto isSuccessfullyParsed = loaderPtr->Parse(file, loadingParameters);
+    if (not isSuccessfullyParsed)
+    {
+        LOG_ERROR << "Parse failed. File=" << file;
+        return nullptr;
+    }
+
     auto result = loaderPtr->Create();
     if (result)
     {

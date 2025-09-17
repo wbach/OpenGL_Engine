@@ -1,19 +1,15 @@
 #include "ResourceManager.h"
-
 #include <Logger/Log.h>
-
-#include <algorithm>
-
-#include "GpuResourceLoader.h"
-#include "TextureLoader.h"
-
+#include "IGpuResourceLoader.h"
 namespace GameEngine
 {
-ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
+ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
+                                 std::unique_ptr<ITextureLoader> textureLoader,
+                                 std::unique_ptr<IModelLoaderFactory> modelLoaderFactory)
     : graphicsApi_(graphicsApi)
     , gpuResourceLoader_(gpuResourceLoader)
-    , textureLoader_(std::make_unique<TextureLoader>(graphicsApi, gpuResourceLoader_))
-    , loaderManager_(*textureLoader_)
+    , textureLoader_(std::move(textureLoader))
+    , loaderManager_(std::move(modelLoaderFactory))
     , unknowFileNameResourceId_(0)
     , releaseLockState_(false)
 {

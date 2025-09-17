@@ -2,6 +2,7 @@
 #include <atomic>
 #include <functional>
 #include <list>
+#include <memory>
 
 #include "BufferDataUpdater.h"
 #include "DebugElements/DebugRenderer.h"
@@ -10,6 +11,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
+#include "IRendererFactory.h"
 #include "Projection.h"
 #include "RendererContext.h"
 
@@ -33,7 +35,9 @@ namespace Renderer
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&, const Time&);
+    RenderersManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&,
+                     const Time&, std::unique_ptr<IRendererFactory>);
+
     ~RenderersManager();
     void Init();
     const Projection& GetProjection() const;
@@ -71,6 +75,7 @@ private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     IGpuResourceLoader& gpuLoader_;
     Utils::MeasurementHandler& measurmentHandler_;
+    std::unique_ptr<IRendererFactory> rendererFactory;
 
     Frustrum frustrum_;
     Projection projection_;

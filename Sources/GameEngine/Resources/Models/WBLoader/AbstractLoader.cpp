@@ -1,7 +1,5 @@
 #include "AbstractLoader.h"
 
-#include <fstream>
-
 #include "Binary/BinaryReader.h"
 #include "Binary/BinaryWriter.h"
 #include "GameEngine/Animations/AnimationUtils.h"
@@ -21,7 +19,7 @@ AbstractLoader::AbstractLoader(GraphicsApi::IGraphicsApi& graphicsApi, ITextureL
     , loadedFromBin_(false)
 {
 }
-void AbstractLoader::Parse(const File& file, const LoadingParameters& loadingParameters)
+bool AbstractLoader::Parse(const File& file, const LoadingParameters& loadingParameters)
 {
     loadingParameters_ = loadingParameters;
     fileName_          = file.GetFilename();
@@ -30,15 +28,18 @@ void AbstractLoader::Parse(const File& file, const LoadingParameters& loadingPar
     auto binFile = CreateBinPath(fileName_);
     if (EngineConf.useBinaryLoading && Utils::CheckFileExist(binFile))
     {
-        ReadBinFile(binFile, textureLoader_);
-        loadedFromBin_ = true;
-        fileName_      = binFile;
-        /* LOG TO FIX*/  LOG_ERROR << ("Load from bin file :" + fileName_);
+        // loadedFromBin_ = ReadBinFile(binFile, textureLoader_);
+        // if (loadedFromBin_)
+        // {
+        //     fileName_ = binFile;
+        //     LOG_DEBUG << "Load from bin file :" << fileName_;
+        //     return loadedFromBin_;
+        // }
+
+        LOG_DEBUG << "Load from bin error. Fallback to normal.";
     }
-    else
-    {
-        ParseFile(file);
-    }
+
+    return ParseFile(file);
 }
 std::unique_ptr<Model> AbstractLoader::Create()
 {
@@ -59,8 +60,7 @@ std::unique_ptr<Model> AbstractLoader::Create()
 
     auto endTime  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    /* LOG TO FIX*/  LOG_ERROR << ("Model created. " + fileName_ + ". Time : " + std::to_string(duration) +
-              "ms. Meshes : " + std::to_string(newModel->GetMeshes().size()));
+    LOG_DEBUG << "Model created. " << fileName_ << ". Time : " << duration << "ms. Meshes : " << newModel->GetMeshes().size();
     return newModel;
 }
 std::unique_ptr<Model> AbstractLoader::CreateModel()
@@ -72,7 +72,7 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
     {
         normalizeFactor = 1.f / boundingBox.maxScale();
         boundingBox.scale(vec3(normalizeFactor));
-        /* LOG TO FIX*/  LOG_ERROR << ("Normalized boundingBox: " + std::to_string(boundingBox.min()) + "-" + std::to_string(boundingBox.max()));
+        LOG_DEBUG << "Normalized boundingBox: " << boundingBox.min() << "-" << boundingBox.max();
     }
 
     auto newModel = std::make_unique<Model>(boundingBox);
@@ -80,13 +80,13 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
     if (objects.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << (fileName_ + ". No object to create!");
+        LOG_ERROR << fileName_ << ". No object to create!";
     }
     for (auto& obj : objects)
     {
         if (obj.meshes.empty())
         {
-            /* LOG TO FIX*/  LOG_ERROR << (fileName_ + ". No meshes in object!");
+            LOG_ERROR << fileName_ << ". No meshes in object!";
         }
 
         NormalizeMatrix(obj.transformMatrix, normalizeFactor);
@@ -142,8 +142,8 @@ BoundingBox AbstractLoader::getModelBoundingBox() const
 
     BoundingBox modelBox;
     modelBox.minMax(min, max);
-    /* LOG TO FIX*/  LOG_ERROR << ("BoundingBox: " + std::to_string(modelBox.min()) + "-" + std::to_string(modelBox.max()));
-    /* LOG TO FIX*/  LOG_ERROR << ("Normalize factor : " + std::to_string(1.f / modelBox.maxScale()));
+    LOG_DEBUG << "BoundingBox: " << modelBox.min() << "-" << modelBox.max();
+    LOG_DEBUG << "Normalize factor : " << 1.f / modelBox.maxScale();
     return modelBox;
 }
 }  // namespace WBLoader

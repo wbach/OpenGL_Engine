@@ -183,7 +183,7 @@ AssimpLoader::~AssimpLoader()
 {
 }
 
-void AssimpLoader::ParseFile(const File& file)
+bool AssimpLoader::ParseFile(const File& file)
 {
     LOG_DEBUG << file.GetAbsolutePath();
 
@@ -206,7 +206,7 @@ void AssimpLoader::ParseFile(const File& file)
     if (not scene)
     {
         LOG_ERROR << "import file error : " << importer.GetErrorString();
-        return;
+        return false;
     }
 
     if (scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
@@ -232,6 +232,8 @@ void AssimpLoader::ParseFile(const File& file)
     currentProcessingFile_.reset();
 
     LOG_DEBUG << "Done. " << file.GetAbsolutePath();
+
+    return true;
 }
 
 bool AssimpLoader::CheckExtension(const File& file)

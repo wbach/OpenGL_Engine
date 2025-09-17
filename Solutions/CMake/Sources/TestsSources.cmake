@@ -97,6 +97,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/GpuResourceLoaderTe
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainToolsTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Camera/CameraFrustrumTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Scene/Scene.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/EngineBasedTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/TerrainNormalCalulation.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/Gui/HorizontalLayoutTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/Gui/VerticalLayoutTests.cpp

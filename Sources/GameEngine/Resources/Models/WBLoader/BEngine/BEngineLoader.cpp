@@ -17,17 +17,19 @@ std::vector<float> convertFloatNode(const TreeNode& node)
     std::vector<float> result;
     auto v = Utils::SplitString(node.value_, ' ');
 
-    std::transform(v.begin(), v.end(), std::back_inserter(result), [](const std::string& input) -> float {
-        try
-        {
-            return std::stof(input);
-        }
-        catch (...)
-        {
-            /* LOG TO FIX*/  LOG_ERROR << ("convert error");
-            return 0.f;
-        }
-    });
+    std::transform(v.begin(), v.end(), std::back_inserter(result),
+                   [](const std::string& input) -> float
+                   {
+                       try
+                       {
+                           return std::stof(input);
+                       }
+                       catch (...)
+                       {
+                           LOG_ERROR << "convert error";
+                           return 0.f;
+                       }
+                   });
 
     return result;
 }
@@ -36,17 +38,19 @@ std::vector<int32> convertIntNode(const TreeNode& node)
     std::vector<int32> result;
     auto v = Utils::SplitString(node.value_, ' ');
 
-    std::transform(v.begin(), v.end(), std::back_inserter(result), [](const std::string& input) -> int32 {
-        try
-        {
-            return std::stoi(input);
-        }
-        catch (...)
-        {
-            /* LOG TO FIX*/  LOG_ERROR << ("convert error");
-            return 0;
-        }
-    });
+    std::transform(v.begin(), v.end(), std::back_inserter(result),
+                   [](const std::string& input) -> int32
+                   {
+                       try
+                       {
+                           return std::stoi(input);
+                       }
+                       catch (...)
+                       {
+                           LOG_ERROR << "convert error";
+                           return 0;
+                       }
+                   });
 
     return result;
 }
@@ -59,13 +63,13 @@ BEngineLoader::~BEngineLoader()
 {
 }
 
-void BEngineLoader::ParseFile(const File& file)
+bool BEngineLoader::ParseFile(const File& file)
 {
     model_ = std::make_unique<Model>();
     Utils::XmlReader reader;
     if (not reader.Read(file.GetAbsolutePath().string()))
     {
-        return;
+        return false;
     }
 
     for (const auto& meshes : reader.Get()->getChildren())
@@ -79,7 +83,7 @@ void BEngineLoader::ParseFile(const File& file)
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("no vertices in object");
+            LOG_ERROR << "no vertices in object";
             continue;
         }
         auto positionSize = mesh.GetMeshDataRef().positions_.size();
@@ -91,7 +95,7 @@ void BEngineLoader::ParseFile(const File& file)
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("no indices in in object");
+            LOG_ERROR << "no indices in in object";
             continue;
         }
 
@@ -160,6 +164,8 @@ void BEngineLoader::ParseFile(const File& file)
             mesh.GetMeshDataRef().bonesWeights_ = std::vector<float>(positionSize, 0);
         }
     }
+
+    return true;
 }
 
 bool BEngineLoader::CheckExtension(const File& file)

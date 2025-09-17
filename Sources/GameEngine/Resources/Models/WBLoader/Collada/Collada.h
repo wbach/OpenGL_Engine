@@ -14,7 +14,7 @@ class ColladaDae : public AbstractLoader
 {
 public:
     ColladaDae(ITextureLoader& textureLodaer);
-    void ParseFile(const File&) override;
+    bool ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
 
 private:
@@ -22,12 +22,9 @@ private:
     void FillAnimationData();
     void NewGeometry(const Collada::Geometry&);
     void NewMesh(const Collada::Mesh&, const std::string& geometryName);
-    void GetVec2ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId,
-                                    std::vector<vec2>& v);
-    void GetVec3ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId,
-                                    std::vector<vec3>& v);
-    void PrepareMeshData(const Collada::Mesh& colladaMesh, Mesh& newMesh,
-                         const Collada::Input& input);
+    void GetVec2ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId, std::vector<vec2>& v);
+    void GetVec3ArrayFromDataSource(const Collada::Mesh& mesh, const std::string& sourceId, std::vector<vec3>& v);
+    void PrepareMeshData(const Collada::Mesh& colladaMesh, Mesh& newMesh, const Collada::Input& input);
     Collada::DataTypes GetSourceType(const Collada::Source& source) const;
     void CreateSkeleton(const Collada::Node& node, Animation::Joint& joint,
                         const std::unordered_map<std::string, uint32>& joints);
@@ -45,5 +42,5 @@ private:
     Collada::ColladaData data_;
     std::unordered_map<std::string, Mesh*> idToMeshMap_;
 };
-}
+}  // namespace WBLoader
 }  // namespace GameEngine

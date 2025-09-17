@@ -1,10 +1,12 @@
 #pragma once
 #include <memory>
 
-#include "File.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "Models/WBLoader/LoadingParameters.h"
-#include "Types.h"
+
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
 
 namespace GameEngine
 {
@@ -12,6 +14,8 @@ class Model;
 class IGpuResourceLoader;
 class ITextureLoader;
 class Texture;
+class File;
+struct LoadingParameters;
 
 class IResourceManager
 {

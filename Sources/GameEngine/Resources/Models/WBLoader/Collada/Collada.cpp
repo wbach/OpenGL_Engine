@@ -42,15 +42,21 @@ ColladaDae::ColladaDae(ITextureLoader& textureLodaer)
     : AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 {
 }
-void ColladaDae::ParseFile(const File& filename)
+bool ColladaDae::ParseFile(const File& filename)
 {
-    Collada::ReadCollada(filename, data_);
+    if (not Collada::ReadCollada(filename, data_))
+    {
+        return false;
+    }
+
     ConstructModel();
     if (objects.size() > 0)
     {
         FillAnimationData();
     }
     Clear();
+
+    return true;
 }
 bool ColladaDae::CheckExtension(const File& file)
 {
@@ -271,7 +277,7 @@ void ColladaDae::PrepareMeshData(const Collada::Mesh& colladaMesh, Mesh& newMesh
                     }
                     else
                     {
-                        /* LOG TO FIX*/  LOG_ERROR << ("POSITION : Undefined reference to : " + vertInput.sourceId);
+                        LOG_ERROR << "POSITION : Undefined reference to : " << vertInput.sourceId;
                     }
                 }
             }

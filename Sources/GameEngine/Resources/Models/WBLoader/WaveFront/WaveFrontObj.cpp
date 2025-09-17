@@ -1,7 +1,7 @@
 #include "WaveFrontObj.h"
 
-#include <algorithm>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 
 #include "../MeshData.h"
 #include "GameEngine/Engine/Configuration.h"
@@ -17,15 +17,17 @@ WaveFrontObjLoader::WaveFrontObjLoader(ITextureLoader& textureLodaer)
     : AbstractLoader(textureLodaer.GetGraphicsApi(), textureLodaer)
 {
 }
-void WaveFrontObjLoader::ParseFile(const File& filename)
+bool WaveFrontObjLoader::ParseFile(const File& filename)
 {
     GetFileData(filename);
 
     if (fileData.empty())
-        return;
+        return false;
 
     ProcessFileData();
     Clear();
+
+    return true;
 }
 bool WaveFrontObjLoader::CheckExtension(const File& filename)
 {

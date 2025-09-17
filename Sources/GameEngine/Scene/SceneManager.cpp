@@ -2,7 +2,6 @@
 
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "Logger/Log.h"
 #include "Scene.hpp"
 
@@ -18,7 +17,7 @@ SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<ISceneF
     : engineContext_(engineContext)
     , sceneFactory_(setEngineContext(engineContext, std::move(sceneFactory)))
     , sceneWrapper_(*sceneFactory_, engineContext.GetGraphicsApi(), engineContext.GetDisplayManager(),
-                    engineContext.GetGpuResourceLoader())
+                    engineContext.GetGpuResourceLoader(), engineContext.GetResourceManagerFactory())
     , currentSceneId_(0)
     , isRunning_(false)
 {

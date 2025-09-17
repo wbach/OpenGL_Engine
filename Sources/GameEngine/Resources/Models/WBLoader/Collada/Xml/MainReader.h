@@ -6,6 +6,6 @@ namespace GameEngine
 {
 namespace Collada
 {
-void ReadCollada(const File& filename, ColladaData& data);
-}  // Collada
-}  // GameEngine
+bool ReadCollada(const File& filename, ColladaData& data);
+}  // namespace Collada
+}  // namespace GameEngine

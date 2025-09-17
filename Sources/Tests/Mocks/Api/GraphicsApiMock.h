@@ -1,89 +1,96 @@
 #pragma once
 #include <gmock/gmock.h>
+
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/MeshRawData.h"
+#include "Logger/Log.h"
 
 namespace GraphicsApi
 {
 class GraphicsApiMock : public IGraphicsApi
 {
 public:
-    MOCK_METHOD0(GetWindowApi, IWindowApi&());
-    MOCK_METHOD0(Init, void());
-    MOCK_METHOD1(SetShadersFilesLocations, void(const std::string&));
-    MOCK_METHOD1(SetShaderQuaility, void(ShaderQuaility));
-    MOCK_METHOD0(CreateContext, void());
-    MOCK_METHOD0(DeleteContext, void());
-    MOCK_METHOD0(PrintVersion, void());
-    MOCK_CONST_METHOD0(IsTesselationSupported, bool());
-    MOCK_CONST_METHOD0(GetSupportedRenderers, std::vector<RendererType>());
-    MOCK_METHOD0(SetDefaultTarget, void());
-    MOCK_METHOD1(SetBackgroundColor, void(const Color&));
-    MOCK_CONST_METHOD0(GetBackgroundColor, const Color&());
-    MOCK_METHOD0(EnableDepthTest, void());
-    MOCK_METHOD0(DisableDepthTest, void());
-    MOCK_METHOD0(PrepareFrame, void());
-    MOCK_METHOD1(CreateShader, ID(ShaderProgramType));
-    MOCK_METHOD2(CreateShaderBuffer, ID(uint32 bindLocation, uint32 size));
-    MOCK_METHOD2(UpdateShaderBuffer, void(uint32 id, void const* buffer));
-    MOCK_METHOD1(BindShaderBuffer, uint32(uint32));
-    MOCK_METHOD1(UseShader, void(uint32));
-    MOCK_METHOD3(CreateTexture, ID(const Utils::Image&, TextureFilter, TextureMipmap));
-    MOCK_METHOD3(CreateTextureStorage, ID(TextureType, TextureFilter, int32 N));
-    MOCK_METHOD1(CreateCubMapTexture, ID(const std::array<Utils::Image, 6>&));
-    MOCK_METHOD3(UpdateTexture, void(uint32, const vec2ui&, const Utils::Image&));
-    MOCK_METHOD2(UpdateTexture, void(uint32, const Utils::Image&));
-    MOCK_METHOD2(ClearTexture, void(uint32, const Color&));
-    MOCK_METHOD0(EnableBlend, void());
-    MOCK_METHOD0(DisableBlend, void());
-    MOCK_METHOD0(EnableDepthMask, void());
-    MOCK_METHOD0(DisableDepthMask, void());
-    MOCK_METHOD2(ActiveTexture, void(uint32, uint32));
-    MOCK_METHOD1(ActiveTexture, void(uint32));
-    MOCK_METHOD1(DeleteObject, void(uint32));
-    MOCK_METHOD1(DeleteShaderBuffer, void(uint32));
-    MOCK_METHOD0(GetBufferStatus, std::string());
-    MOCK_METHOD1(CreatePatchMesh, ID(const std::vector<float>&));
-    MOCK_METHOD2(CreatePurePatchMeshInstanced, ID(uint32, uint32));
-    MOCK_METHOD2(CreateMesh, ID(const MeshRawData&, RenderType));
-    MOCK_METHOD0(CreateDynamicLineMesh, ID());
-    MOCK_METHOD0(CreateParticle, ID());
-    MOCK_METHOD0(CreateAnimatedParticle, ID());
-    MOCK_METHOD3(Compute, void(uint32, uint32, uint32));
-    MOCK_METHOD1(RenderPurePatchedMeshInstances, void(uint32));
-    MOCK_METHOD1(RenderMesh, void(uint32));
-    MOCK_METHOD1(RenderDebugNormals, void(uint32));
-    MOCK_METHOD1(RenderTriangleStripMesh, void(uint32));
-    MOCK_METHOD2(RenderMeshInstanced, void(uint32, uint32));
-    MOCK_METHOD1(RenderPoints, void(uint32));
-    MOCK_METHOD0(RenderQuad, void());
-    MOCK_METHOD0(RenderQuadTs, void());
-    MOCK_METHOD1(EnableClipingPlane, void(uint32));
-    MOCK_METHOD1(DisableCliping, void(uint32));
-    MOCK_METHOD0(EnableCulling, void());
-    MOCK_METHOD0(DisableCulling, void());
-    MOCK_METHOD4(SetViewPort, void(uint32, uint32, uint32, uint32));
-    MOCK_CONST_METHOD1(BindTexture, void(uint32));
-    MOCK_METHOD2(BindImageTexture, void(uint32, TextureAccess));
-    MOCK_METHOD2(CreateShadowMap, ID(uint32, uint32));
-    MOCK_METHOD0(PolygonModeRender, void());
-    MOCK_METHOD0(LineModeRender, void());
-    MOCK_METHOD1(SetBlendFunction, void(BlendFunctionType));
-    MOCK_METHOD2(UpdateMatrixes, void(uint32, const std::vector<mat4>&));
-    MOCK_METHOD3(UpdateMesh, void(uint32, const MeshRawData&, const std::set<VertexBufferObjects>&));
-    MOCK_METHOD2(UpdateLineMesh, void(uint32, const LineMesh&));
-    MOCK_METHOD2(UpdateOffset, void(uint32, const std::vector<vec4>&));
-    MOCK_METHOD2(UpdateBlend, void(uint32, const std::vector<float>&));
-    MOCK_METHOD1(LoadViewMatrix, void(const mat4&));
-    MOCK_METHOD1(LoadProjectionMatrix, void(const mat4&));
-    MOCK_METHOD3(DrawLine, void(const vec3& color, const vec3& from, const vec3& to));
-    MOCK_METHOD1(PrepareMatrixToLoad, mat4(const mat4&));
-    MOCK_CONST_METHOD1(GetTextureData, std::vector<uint8>(uint32));
-    MOCK_CONST_METHOD1(GetTextureInfo, const TextureInfo&(uint32));
-    MOCK_CONST_METHOD1(TakeSnapshoot, void(const std::string& path));
-    MOCK_METHOD0(BindDefaultFrameBuffer, void());
-    MOCK_METHOD1(CreateFrameBuffer, IFrameBuffer&(const std::vector<FrameBuffer::Attachment>&));
-    MOCK_METHOD1(DeleteFrameBuffer, void(IFrameBuffer&));
+    ~GraphicsApiMock() override
+    {
+        LOG_DEBUG << "~GraphicsApiMock";
+    }
+
+    MOCK_METHOD(IWindowApi&, GetWindowApi, (), (override));
+    MOCK_METHOD(void, Init, (), (override));
+    MOCK_METHOD(void, SetShadersFilesLocations, (const std::string&), (override));
+    MOCK_METHOD(void, SetShaderQuaility, (ShaderQuaility), (override));
+    MOCK_METHOD(void, CreateContext, (), (override));
+    MOCK_METHOD(void, DeleteContext, (), (override));
+    MOCK_METHOD(void, PrintVersion, (), (override));
+    MOCK_METHOD(bool, IsTesselationSupported, (), (const, override));
+    MOCK_METHOD(std::vector<RendererType>, GetSupportedRenderers, (), (const, override));
+    MOCK_METHOD(void, SetDefaultTarget, (), (override));
+    MOCK_METHOD(void, SetBackgroundColor, (const Color&), (override));
+    MOCK_METHOD(const Color&, GetBackgroundColor, (), (const, override));
+    MOCK_METHOD(void, EnableDepthTest, (), (override));
+    MOCK_METHOD(void, DisableDepthTest, (), (override));
+    MOCK_METHOD(void, PrepareFrame, (), (override));
+    MOCK_METHOD(ID, CreateShader, (ShaderProgramType), (override));
+    MOCK_METHOD(ID, CreateShaderBuffer, (uint32 bindLocation, uint32 size), (override));
+    MOCK_METHOD(void, UpdateShaderBuffer, (uint32 id, const void* buffer), (override));
+    MOCK_METHOD(uint32, BindShaderBuffer, (uint32), (override));
+    MOCK_METHOD(void, UseShader, (uint32), (override));
+    MOCK_METHOD(ID, CreateTexture, (const Utils::Image&, TextureFilter, TextureMipmap), (override));
+    MOCK_METHOD(ID, CreateTextureStorage, (TextureType, TextureFilter, int32), (override));
+    MOCK_METHOD(ID, CreateCubMapTexture, (const CubemapImages&), (override));
+    MOCK_METHOD(void, UpdateTexture, (uint32, const vec2ui&, const Utils::Image&), (override));
+    MOCK_METHOD(void, UpdateTexture, (uint32, const Utils::Image&), (override));
+    MOCK_METHOD(void, ClearTexture, (uint32, const Color&), (override));
+    MOCK_METHOD(void, EnableBlend, (), (override));
+    MOCK_METHOD(void, DisableBlend, (), (override));
+    MOCK_METHOD(void, EnableDepthMask, (), (override));
+    MOCK_METHOD(void, DisableDepthMask, (), (override));
+    MOCK_METHOD(void, ActiveTexture, (uint32, uint32), (override));
+    MOCK_METHOD(void, ActiveTexture, (uint32), (override));
+    MOCK_METHOD(void, DeleteObject, (uint32), (override));
+    MOCK_METHOD(void, DeleteShaderBuffer, (uint32), (override));
+    MOCK_METHOD(std::string, GetBufferStatus, (), (override));
+    MOCK_METHOD(ID, CreatePatchMesh, (const std::vector<float>&), (override));
+    MOCK_METHOD(ID, CreatePurePatchMeshInstanced, (uint32, uint32), (override));
+    MOCK_METHOD(ID, CreateMesh, (const MeshRawData&, RenderType), (override));
+    MOCK_METHOD(ID, CreateDynamicLineMesh, (), (override));
+    MOCK_METHOD(ID, CreateParticle, (), (override));
+    MOCK_METHOD(ID, CreateAnimatedParticle, (), (override));
+    MOCK_METHOD(void, Compute, (uint32, uint32, uint32), (override));
+    MOCK_METHOD(void, RenderPurePatchedMeshInstances, (uint32), (override));
+    MOCK_METHOD(void, RenderMesh, (uint32), (override));
+    MOCK_METHOD(void, RenderDebugNormals, (uint32), (override));
+    MOCK_METHOD(void, RenderTriangleStripMesh, (uint32), (override));
+    MOCK_METHOD(void, RenderMeshInstanced, (uint32, uint32), (override));
+    MOCK_METHOD(void, RenderPoints, (uint32), (override));
+    MOCK_METHOD(void, RenderQuad, (), (override));
+    MOCK_METHOD(void, RenderQuadTs, (), (override));
+    MOCK_METHOD(void, EnableClipingPlane, (uint32), (override));
+    MOCK_METHOD(void, DisableCliping, (uint32), (override));
+    MOCK_METHOD(void, EnableCulling, (), (override));
+    MOCK_METHOD(void, DisableCulling, (), (override));
+    MOCK_METHOD(void, SetViewPort, (uint32, uint32, uint32, uint32), (override));
+    MOCK_METHOD(void, BindTexture, (uint32), (const, override));
+    MOCK_METHOD(void, BindImageTexture, (uint32, TextureAccess), (override));
+    MOCK_METHOD(ID, CreateShadowMap, (uint32, uint32), (override));
+    MOCK_METHOD(void, PolygonModeRender, (), (override));
+    MOCK_METHOD(void, LineModeRender, (), (override));
+    MOCK_METHOD(void, SetBlendFunction, (BlendFunctionType), (override));
+    MOCK_METHOD(void, UpdateMatrixes, (uint32, const std::vector<mat4>&), (override));
+    MOCK_METHOD(void, UpdateMesh, (uint32, const MeshRawData&, const std::set<VertexBufferObjects>&), (override));
+    MOCK_METHOD(void, UpdateLineMesh, (uint32, const LineMesh&), (override));
+    MOCK_METHOD(void, UpdateOffset, (uint32, const std::vector<vec4>&), (override));
+    MOCK_METHOD(void, UpdateBlend, (uint32, const std::vector<float>&), (override));
+    MOCK_METHOD(void, LoadViewMatrix, (const mat4&), (override));
+    MOCK_METHOD(void, LoadProjectionMatrix, (const mat4&), (override));
+    MOCK_METHOD(void, DrawLine, (const vec3& color, const vec3& from, const vec3& to), (override));
+    MOCK_METHOD(mat4, PrepareMatrixToLoad, (const mat4&), (override));
+    MOCK_METHOD(std::vector<uint8>, GetTextureData, (uint32), (const, override));
+    MOCK_METHOD(const TextureInfo&, GetTextureInfo, (uint32), (const, override));
+    MOCK_METHOD(void, TakeSnapshoot, (const std::string& path), (const, override));
+    MOCK_METHOD(void, BindDefaultFrameBuffer, (), (override));
+    MOCK_METHOD(IFrameBuffer&, CreateFrameBuffer, (const std::vector<FrameBuffer::Attachment>&), (override));
+    MOCK_METHOD(void, DeleteFrameBuffer, (IFrameBuffer&), (override));
 };
 
 }  // namespace GraphicsApi

@@ -1,18 +1,23 @@
 #pragma once
 #include <memory>
-#include <vector>
+#include <mutex>
+#include <variant>
 
-#include "GraphicsApi/IGraphicsApi.h"
-#include "Mutex.hpp"
 #include "SceneEvents.h"
+
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
 
 namespace GameEngine
 {
 class Scene;
 class ISceneFactory;
-class IGpuResourceLoader;
+class IResourceManagerFactory;
 class DisplayManager;
-typedef std::unique_ptr<Scene> ScenePtr;
+class IGpuResourceLoader;
+using ScenePtr = std::unique_ptr<Scene>;
 
 enum SceneWrapperState
 {
@@ -25,7 +30,7 @@ enum SceneWrapperState
 class SceneWrapper
 {
 public:
-    SceneWrapper(ISceneFactory&, GraphicsApi::IGraphicsApi&, DisplayManager&, IGpuResourceLoader&);
+    SceneWrapper(ISceneFactory&, GraphicsApi::IGraphicsApi&, DisplayManager&, IGpuResourceLoader&, IResourceManagerFactory&);
     ~SceneWrapper();
     Scene* Get();
     SceneWrapperState GetState();
@@ -43,9 +48,11 @@ private:
 
 private:
     ISceneFactory& sceneFactory_;
-    GraphicsApi::IGraphicsApi& graphicsApi_;
-    DisplayManager& displayManager_;
-    IGpuResourceLoader& gpuResourceLoader_;
+    GraphicsApi::IGraphicsApi& graphicsApi;
+    DisplayManager& displayManager;
+    IGpuResourceLoader& gpuResourceLoader;
+    IResourceManagerFactory& resourceManagerFactory;
+
     std::mutex initMutex_;
     std::mutex stateMutex_;
 

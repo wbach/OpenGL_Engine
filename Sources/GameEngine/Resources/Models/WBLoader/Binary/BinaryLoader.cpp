@@ -1,4 +1,5 @@
 #include "BinaryLoader.h"
+
 #include "BinaryReader.h"
 #include "GameEngine/Resources/TextureLoader.h"
 
@@ -11,8 +12,9 @@ BinaryLoader::BinaryLoader(TextureLoader& textureLodaer)
 {
 }
 
-void BinaryLoader::ParseFile(const File&)
+bool BinaryLoader::ParseFile(const File&)
 {
+    return false;
 }
 
 bool BinaryLoader::CheckExtension(const File& file)
@@ -20,5 +22,5 @@ bool BinaryLoader::CheckExtension(const File& file)
     return file.IsFormat("bin");
 }
 
-}  // WBLoader
+}  // namespace WBLoader
 }  // namespace GameEngine

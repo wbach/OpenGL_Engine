@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+
 #include "../AbstractLoader.h"
 
 namespace GameEngine
@@ -12,7 +13,7 @@ class WaveFrontObjLoader : public AbstractLoader
 {
 public:
     WaveFrontObjLoader(ITextureLoader& textureLodaer);
-    void ParseFile(const File&) override;
+    bool ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
 
 private:
@@ -37,5 +38,5 @@ private:
     std::vector<vec2> text_coords;
     std::vector<vec3> normals;
 };
-}
+}  // namespace WBLoader
 }  // namespace GameEngine

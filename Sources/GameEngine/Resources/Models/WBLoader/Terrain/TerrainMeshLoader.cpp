@@ -18,7 +18,7 @@ TerrainMeshLoader::TerrainMeshLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
 }
-void TerrainMeshLoader::ParseFile(const File& file)
+bool TerrainMeshLoader::ParseFile(const File& file)
 {
     TextureParameters params;
     params.loadType = TextureLoadType::None;
@@ -28,13 +28,14 @@ void TerrainMeshLoader::ParseFile(const File& file)
     if (not heightMap)
     {
         LOG_ERROR << "Height mapt not loaded. " << file;
-        return;
+        return false;
     }
 
     auto terrainConfig = TerrainConfiguration::ReadFromFile(file.CreateFileWithExtension("terrainConfig"));
     auto partsCount    = terrainConfig.GetPartsCount();
     model_             = createModel(*heightMap, partsCount);
     textureLoader_.DeleteTexture(*heightMap);
+    return true;
 }
 bool TerrainMeshLoader::CheckExtension(const File& file)
 {
@@ -44,7 +45,7 @@ std::unique_ptr<Model> TerrainMeshLoader::Create()
 {
     if (not model_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Model not created. Please parse file first.");
+        LOG_ERROR << "Model not created. Please parse file first.";
         return nullptr;
     }
     return std::move(model_);
@@ -80,7 +81,7 @@ void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& 
     CreateTerrainVertexes(tools, newMesh, 0, 0, heightMapResolution, heightMapResolution, resolutionDivideFactor);
     CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution / resolutionDivideFactor));
     model.setBoundingBox(newMesh.getBoundingBox());
-    model.AddMesh(newMesh);
+    model.AddMesh(std::move(newMesh));
 }
 
 void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, uint32 partsCount, uint32 resolutionDivideFactor)
@@ -89,7 +90,7 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
     auto partialSize         = heightMapResolution / partsCount;
     auto rest                = heightMapResolution - (partsCount * partialSize);
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Rest : " + std::to_string(rest));
+    LOG_DEBUG << "Rest : " << rest;
 
     vec3 modelBoundingBoxMin(-0.5f, std::numeric_limits<float>::max(), -0.5f);
     vec3 modelBoundingBoxMax(0.5f, -std::numeric_limits<float>::max(), 0.5f);
@@ -108,7 +109,6 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
             ReserveMeshData(newMesh, partialSize + 1);
             CreateTerrainVertexes(tools, newMesh, startX, startY, endX, endY, resolutionDivideFactor);
             CreateIndicies(newMesh, static_cast<IndicesDataType>(partialSize / resolutionDivideFactor + 1));
-            model.AddMesh(newMesh);
 
             auto boundingBox = newMesh.getBoundingBox();
 
@@ -116,6 +116,8 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
                 modelBoundingBoxMin.y = boundingBox.min().y;
             if (boundingBox.max().y > modelBoundingBoxMax.y)
                 modelBoundingBoxMax.y = boundingBox.max().y;
+
+            model.AddMesh(std::move(newMesh));
         }
     }
 
@@ -161,8 +163,6 @@ void TerrainMeshLoader::CreateTerrainVertexes(TerrainHeightTools& tools, GameEng
 
             vec3 normal  = tools.GetNormal(j, i);
             vec3 tangnet = tools.GetTangent(normal);
-
-            // /* LOG TO FIX*/  LOG_ERROR << ("normal : " + std::to_string(normal));
 
             normals.push_back(normal.x);
             normals.push_back(normal.y);

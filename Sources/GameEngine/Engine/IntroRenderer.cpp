@@ -2,27 +2,27 @@
 
 #include <Logger/Log.h>
 
-#include "../Display/DisplayManager.hpp"
-#include "GLM/GLMUtils.h"
+#include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Resources/DefaultFiles/bengineLogo.h"
+#include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
-#include "GameEngine/Resources/DefaultFiles/bengineLogo.h"
 
 namespace GameEngine
 {
 IntroRenderer::IntroRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
-                             DisplayManager& displayManager)
+                             DisplayManager& displayManager, IResourceManagerFactory& resourceManagerFactory)
     : graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
-    , resourceManager_(graphicsApi, gpuResourceLoader)
+    , resourceManager_(resourceManagerFactory.create())
     , shader_(graphicsApi, GraphicsApi::ShaderProgramType::Loading)
     , initialized_(false)
 {
 }
 IntroRenderer::~IntroRenderer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 }
 
 void IntroRenderer::Render()
@@ -45,13 +45,11 @@ void IntroRenderer::Init()
     params.flipMode        = TextureFlip::VERTICAL;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
 
-   // backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("GUI/BENGINE.png", params);
-    backgroundTexture_ = resourceManager_.GetTextureLoader().LoadTexture("BENGINE_LOGO", BENGINE_png, BENGINE_png_len, params);
+    backgroundTexture_ = resourceManager_->GetTextureLoader().LoadTexture("BENGINE_LOGO", BENGINE_png, BENGINE_png_len, params);
 
     if (not perUpdateObjectBuffer_)
     {
-        perUpdateObjectBuffer_ =
-            graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        perUpdateObjectBuffer_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
         PerObjectUpdate perObjectUpdate;
         perObjectUpdate.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));

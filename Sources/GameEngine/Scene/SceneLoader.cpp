@@ -8,41 +8,51 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
-#include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/ITextureLoader.h"
 #include "ISceneFactory.h"
 #include "Scene.hpp"
+#include "Utils.h"
 
 namespace GameEngine
 {
 SceneLoader::SceneLoader(ISceneFactory& factory, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
-                         DisplayManager& displayManager)
+                         DisplayManager& displayManager, IResourceManagerFactory& resourceManagerFactory)
     : sceneFactory_{factory}
     , graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
     , isLoading_(true)
     , objectCount_(0)
     , loadingScreenRenderer(nullptr)
-    , resorceManager_(graphicsApi, gpuResourceLoader)
+    , resourceManager(resourceManagerFactory.create())
     , gpuLoader_(gpuResourceLoader)
     , bgTexture_(nullptr)
     , circleTexture_(nullptr)
 {
+    LOG_DEBUG << "SceneLoader::SceneLoader " << Utils::BoolToString(resourceManager != nullptr);
 }
 
 SceneLoader::~SceneLoader()
 {
+    LOG_DEBUG << "~SceneLoader";
     CleanUp();
 }
 
 void SceneLoader::CleanUp()
 {
-    loadingScreenRenderer->cleanUp();
-    loadingScreenRenderer.reset();
+    if (loadingScreenRenderer)
+    {
+        loadingScreenRenderer->cleanUp();
+        loadingScreenRenderer.reset();
+    }
 
-    if (bgTexture_)
-        resorceManager_.GetTextureLoader().DeleteTexture(*bgTexture_);
-    if (circleTexture_)
-        resorceManager_.GetTextureLoader().DeleteTexture(*circleTexture_);
+    if (resourceManager)
+    {
+        if (bgTexture_)
+            resourceManager->GetTextureLoader().DeleteTexture(*bgTexture_);
+        if (circleTexture_)
+            resourceManager->GetTextureLoader().DeleteTexture(*circleTexture_);
+    }
 
     bgTexture_     = nullptr;
     circleTexture_ = nullptr;
@@ -53,7 +63,7 @@ std::unique_ptr<Scene> SceneLoader::Load(uint32 id)
     Init();
     IsLoading(true);
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Load scene :" + std::to_string(id));
+    LOG_DEBUG << "Load scene :" << id;
 
     std::unique_ptr<Scene> scene;
     std::thread loadingThread([&]() { scene = LoadScene(id); });
@@ -69,10 +79,10 @@ std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
     Init();
     IsLoading(true);
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Load scene :" + name);
+    LOG_DEBUG << "Load scene :" << name;
     std::unique_ptr<Scene> scene;
     std::thread loadingThread([&]() { scene = LoadScene(name); });
-    /* LOG TO FIX*/  LOG_ERROR << ("loadingThread done: " + name);
+    LOG_DEBUG << "loadingThread done: " << name;
     ScreenRenderLoop();
     loadingThread.join();
 
@@ -82,17 +92,18 @@ std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
 template <typename T>
 std::unique_ptr<Scene> SceneLoader::LoadScene(T t)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Load scene thread started.");
+    LOG_DEBUG << "Load scene thread started.";
     Utils::Timer timer;
     auto scene = sceneFactory_.Create(t);
     scene->Init();
-    /* LOG TO FIX*/  LOG_ERROR << ("Scene loading time: " + std::to_string(timer.GetTimeMiliSeconds()) + "ms.");
+    LOG_DEBUG << "Scene loading time: " << timer.GetTimeMiliSeconds() << "ms.";
     IsLoading(false);
     return scene;
 }
 
 void SceneLoader::Init()
 {
+    LOG_DEBUG << "Init LoadingScreenRenderer";
     TextureParameters params;
     params.loadType        = TextureLoadType::Immediately;
     params.flipMode        = TextureFlip::VERTICAL;
@@ -100,7 +111,12 @@ void SceneLoader::Init()
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
     params.mimap           = GraphicsApi::TextureMipmap::LINEAR;
 
-    auto& texureLoader = resorceManager_.GetTextureLoader();
+    if (not resourceManager)
+    {
+        LOG_ERROR << "resourceManager not set!";
+        return;
+    }
+    auto& texureLoader = resourceManager->GetTextureLoader();
     circleTexture_     = texureLoader.LoadTexture(EngineConf.files.loadingScreenCircleTexture, params);
     bgTexture_         = texureLoader.LoadTexture(EngineConf.files.loadingScreenBackgroundTexture, params);
 
@@ -111,7 +127,7 @@ void SceneLoader::Init()
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("background or circle texure creatrion error.");
+        LOG_ERROR << "background or circle texure creatrion error.";
     }
 }
 

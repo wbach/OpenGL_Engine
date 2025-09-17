@@ -5,6 +5,8 @@
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
 
+#include <memory>
+
 #include "Configuration.h"
 #include "EngineContext.h"
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
@@ -129,7 +131,8 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
     : readConfiguration_()
     , engineContext_(graphicsApi ? std::move(graphicsApi) : createGraphicsApi(), std::move(physicsApi), std::move(sceneFactory))
     , externalComponents_(engineContext_.GetSceneManager())
-    , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager())
+    , introRenderer_(engineContext_.GetGraphicsApi(), engineContext_.GetGpuResourceLoader(), engineContext_.GetDisplayManager(),
+                     engineContext_.GetResourceManagerFactory())
     , isRunning_(true)
 {
     LOG_DEBUG << "Start engine.";

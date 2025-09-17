@@ -47,7 +47,7 @@ class AssimpLoader : public AbstractLoader
 public:
     AssimpLoader(ITextureLoader&);
     ~AssimpLoader() override;
-    void ParseFile(const File&) override;
+    bool ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
 
 private:

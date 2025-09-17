@@ -30,6 +30,8 @@ namespace GraphicsApi
 {
 struct MeshRawData;
 
+using CubemapImages = std::array<Utils::Image, 6>;
+
 class IGraphicsApi
 {
 public:
@@ -57,7 +59,7 @@ public:
     virtual void UseShader(uint32)                                                            = 0;
     virtual ID CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)               = 0;
     virtual ID CreateTextureStorage(TextureType, TextureFilter, int32 N)                      = 0;
-    virtual ID CreateCubMapTexture(const std::array<Utils::Image, 6>&)                        = 0;
+    virtual ID CreateCubMapTexture(const CubemapImages&)                                      = 0;
     virtual void UpdateTexture(uint32, const vec2ui&, const Utils::Image&)                    = 0;
     virtual void UpdateTexture(uint32, const Utils::Image&)                                   = 0;
     virtual void ClearTexture(uint32, const Color&)                                           = 0;

@@ -31,7 +31,7 @@ InputManager::InputManager()
 
 InputManager::~InputManager()
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 }
 
 void InputManager::SetDefaultKeys()

@@ -1,17 +1,19 @@
 #pragma once
 #include <memory>
-#include "../Resources/ResourceManager.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "Types.h"
 
 namespace GameEngine
 {
 class DisplayManager;
+class IResourceManagerFactory;
+class GeneralTexture;
 
 class IntroRenderer
 {
 public:
-    IntroRenderer(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&);
+    IntroRenderer(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&, IResourceManagerFactory&);
     ~IntroRenderer();
     void Render();
 
@@ -24,7 +26,7 @@ private:
     GraphicsApi::ID perUpdateObjectBuffer_;
 
     DisplayManager& displayManager_;
-    ResourceManager resourceManager_;
+    std::unique_ptr<IResourceManager> resourceManager_;
 
     ShaderProgram shader_;
     GeneralTexture* backgroundTexture_;

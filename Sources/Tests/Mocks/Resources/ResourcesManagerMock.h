@@ -1,10 +1,10 @@
 #pragma once
 #include <gmock/gmock.h>
+#include <vector>
+#include <memory>
 
-#include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
-#include "GameEngine/Resources/TextureLoader.h"
-#include "Types.h"
 
 namespace GameEngine
 {

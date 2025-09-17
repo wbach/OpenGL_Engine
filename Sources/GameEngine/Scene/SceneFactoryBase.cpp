@@ -20,14 +20,13 @@ typedef GameEngine::Scene* (*CreateSceneFromLib)();
 #include <windows.h>
 #endif
 
-
 namespace GameEngine
 {
 ScenePtr SceneFactoryBase::Create(const std::string& sceneName)
 {
-    if (!IsExist(sceneName))
+    if (not IsExist(sceneName))
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("SceneFactory::Create scene : " + sceneName + " not found.");
+        LOG_DEBUG << "SceneFactory::Create scene : " << sceneName << " not found.";
         return nullptr;
     }
 
@@ -35,9 +34,9 @@ ScenePtr SceneFactoryBase::Create(const std::string& sceneName)
 }
 ScenePtr SceneFactoryBase::Create(uint32 id)
 {
-    if (!IsExist(id))
+    if (not IsExist(id))
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("SceneFactory::Create scene id: " + std::to_string(id) + " not found.");
+        LOG_DEBUG << "SceneFactory::Create scene id: " << id << " not found.";
         return nullptr;
     }
 
@@ -116,17 +115,14 @@ ScenePtr SceneFactoryBase::GetScene(const std::string& name)
     if (iter != scenesMap_.end())
     {
         auto [_, method] = *iter;
-        auto scene       = std::visit(
-            visitor{
-                [&](const CreateFunction& createFunc)
-                {
-                    auto scene = createFunc();
-                    scene->InitResources(*engineContext_);
-                    return scene;
-                },
-                [&](const File& file) { return CreateSceneBasedOnFile(file); }
-            },
-            method);
+        auto scene       = std::visit(visitor{[&](const CreateFunction& createFunc)
+                                        {
+                                            auto scene = createFunc();
+                                            scene->InitResources(*engineContext_);
+                                            return scene;
+                                        },
+                                        [&](const File& file) { return CreateSceneBasedOnFile(file); }},
+                                      method);
 
         return scene;
     }

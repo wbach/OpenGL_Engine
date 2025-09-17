@@ -16,6 +16,8 @@ typedef std::unordered_map<std::string, Animation::AnimationClip> AnimationClips
 class Model : public GpuObject
 {
 public:
+    using Meshes = std::vector<Mesh>;
+
     Model();
     Model(const BoundingBox&);
     Model(const Model&) = delete;
@@ -25,18 +27,23 @@ public:
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
-    Mesh& AddMesh(Mesh&);
-    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
-    Mesh& AddMesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
-                  const mat4& = mat4(1.f), const vec3& = vec3(1.f));
+    Mesh& AddMesh(Mesh&&);
+
+    template <typename... Args>
+    Mesh& AddMesh(Args&&... args)
+    {
+        meshes_.emplace_back(std::forward<Args>(args)...);
+        return meshes_.back();
+    }
+    void SetMeshes(Meshes&&);
     bool IsAnyMeshUseTransform() const;
 
     void setBoundingBox(const BoundingBox&);
     const BoundingBox& getBoundingBox() const;
 
     const File& GetFile() const;
-    inline const std::vector<Mesh>& GetMeshes() const;
-    inline std::vector<Mesh>& GetMeshes();
+    inline const Meshes& GetMeshes() const;
+    inline Meshes& GetMeshes();
 
     inline bool operator==(const Model& q) const;
     inline bool operator==(const File& file) const;
@@ -52,7 +59,7 @@ public:
 
 protected:
     File file_;
-    std::vector<Mesh> meshes_;
+    Meshes meshes_;
     std::vector<mat4> boneTransforms_;
     BoundingBox boundingBox_;
     std::optional<Animation::Joint> skeleton_;

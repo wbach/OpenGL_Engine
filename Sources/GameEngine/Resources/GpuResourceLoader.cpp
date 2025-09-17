@@ -15,7 +15,7 @@ GpuResourceLoader::GpuResourceLoader()
 
 GpuResourceLoader::~GpuResourceLoader()
 {
-    LOG_DEBUG << "";
+    LOG_DEBUG << "~GpuResourceLoader";
 }
 void GpuResourceLoader::AddFunctionToCall(std::function<void()> f)
 {

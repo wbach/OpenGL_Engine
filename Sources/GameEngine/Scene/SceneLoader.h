@@ -1,24 +1,28 @@
 #pragma once
+#include <Types.h>
+
 #include <atomic>
 #include <memory>
-
-#include "GameEngine/Resources/ResourceManager.h"
-#include "GraphicsApi/IGraphicsApi.h"
-#include "Thread.hpp"
-
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
 namespace GameEngine
 {
 class Scene;
 class ISceneFactory;
 class GpuObject;
 class DisplayManager;
-class ResourceManager;
+class IResourceManager;
 class LoadingScreenRenderer;
+class IResourceManagerFactory;
+class IGpuResourceLoader;
+class GeneralTexture;
 
 class SceneLoader
 {
 public:
-    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&);
+    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&, IResourceManagerFactory&);
     ~SceneLoader();
     std::unique_ptr<Scene> Load(uint32);
     std::unique_ptr<Scene> Load(const std::string&);
@@ -44,7 +48,7 @@ private:
 
     size_t objectCount_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
-    ResourceManager resorceManager_;
+    std::unique_ptr<IResourceManager> resourceManager;
     IGpuResourceLoader& gpuLoader_;
 
     GeneralTexture* bgTexture_;

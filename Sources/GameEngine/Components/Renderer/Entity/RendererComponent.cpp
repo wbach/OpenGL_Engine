@@ -115,11 +115,13 @@ void RendererComponent::init()
         }
         else
         {
-            LOG_ERROR << "nullptr";
+            LOG_ERROR << thisObject_.GetName() << " model load error: " << file.GetBaseName();
         }
     }
     if (atLeastOneModelIsCreated)
+    {
         Subscribe();
+    }
 
     //    worldTransformSub_ =
     //        thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { UpdateBuffers(); }); // TO

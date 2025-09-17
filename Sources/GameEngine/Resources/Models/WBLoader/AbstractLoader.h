@@ -1,10 +1,11 @@
 #pragma once
 #include <list>
 #include <string>
+
 #include "../Model.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include "MeshData.h"
 #include "LoadingParameters.h"
+#include "MeshData.h"
 
 namespace GameEngine
 {
@@ -16,14 +17,14 @@ class AbstractLoader
 {
 public:
     AbstractLoader(GraphicsApi::IGraphicsApi&, ITextureLoader&);
-    virtual ~AbstractLoader() = default;
+    virtual ~AbstractLoader()                = default;
     virtual bool CheckExtension(const File&) = 0;
 
-    void Parse(const File&, const LoadingParameters& = DEFAULT_LOADING_PARAMETERS);
+    bool Parse(const File&, const LoadingParameters& = DEFAULT_LOADING_PARAMETERS);
     virtual std::unique_ptr<Model> Create();
 
 protected:
-    virtual void ParseFile(const File&) = 0;
+    virtual bool ParseFile(const File&) = 0;
     std::list<WBLoader::Object> objects;
     std::unique_ptr<Model> CreateModel();
     std::unique_ptr<Model> CreateModelFromBin();
@@ -44,5 +45,5 @@ protected:
 };
 
 typedef std::unique_ptr<WBLoader::AbstractLoader> AbstractLoaderPtr;
-}  // WBLoader
+}  // namespace WBLoader
 }  // namespace GameEngine

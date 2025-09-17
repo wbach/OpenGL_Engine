@@ -11,6 +11,7 @@ BaseBufferObject::BaseBufferObject(GraphicsApi::IGraphicsApi& graphicsApi, uint3
 
 BaseBufferObject::~BaseBufferObject()
 {
+    LOG_DEBUG << ":~BaseBufferObject bindLocation_=" << bindLocation_;
     ReleaseGpuPass();
 }
 
@@ -18,10 +19,9 @@ void BaseBufferObject::ReleaseGpuPass()
 {
     if (graphicsObjectId_)
     {
-       // /* LOG TO FIX*/  LOG_ERROR << ("Clean gpu resources graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
         graphicsApi_.DeleteShaderBuffer(*graphicsObjectId_);
+        graphicsObjectId_ = std::nullopt;
     }
-    GpuObject::ReleaseGpuPass();
 }
 
 void BaseBufferObject::UpdateGpuPass()

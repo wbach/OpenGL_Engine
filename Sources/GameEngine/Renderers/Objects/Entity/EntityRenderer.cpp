@@ -24,7 +24,7 @@ EntityRenderer::EntityRenderer(RendererContext& context)
 
 EntityRenderer::~EntityRenderer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    LOG_DEBUG << "";
     unSubscribeAll();
     cleanUp();
 }
@@ -34,8 +34,7 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
     renderedMeshes_ = 0;
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    if (not subscribes_.empty())
-    {
+
         for (const auto& sub : subscribes_)
         {
             // TO DO : fix
@@ -53,18 +52,16 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
                 }
             }
         }
-    }
+
     return renderedMeshes_;
 }
 
 void EntityRenderer::init()
 {
-    perInstanceBuffer_ =
-        std::make_unique<BufferObject<PerInstances>>(context_.graphicsApi_, PER_INSTANCES_BIND_LOCATION);
+    perInstanceBuffer_ = std::make_unique<BufferObject<PerInstances>>(context_.graphicsApi_, PER_INSTANCES_BIND_LOCATION);
     perInstanceBuffer_->GpuLoadingPass();
 
-    perMeshBuffer_ =
-        std::make_unique<BufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
+    perMeshBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
     perMeshBuffer_->GpuLoadingPass();
 }
 
@@ -95,13 +92,18 @@ void EntityRenderer::subscribe(GameObject& gameObject)
 
     auto model = rendererComponent->GetModelWrapper().Get(LevelOfDetail::L1);
     if (not model)
+    {
+        LOG_ERROR << "Model not exist in RendererComponent! gameObjectId: " << gameObject.GetId();
         return;
+    }
 
     auto animator = gameObject.GetComponent<Components::Animator>();
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.push_back({&gameObject, rendererComponent, animator});
     subscribesIds_.insert(gameObject.GetId());
+
+    LOG_DEBUG << "Subsribed, gameObjectId : " << gameObject.GetId();
 }
 
 void EntityRenderer::unSubscribe(GameObject& gameObject)
@@ -127,7 +129,7 @@ void EntityRenderer::unSubscribe(GameObject& gameObject)
 
 void EntityRenderer::unSubscribeAll()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("subscribes_ size: " + std::to_string(subscribes_.size()) + " subscribes_ clear");
+    LOG_DEBUG << "subscribes_ size: " << subscribes_.size() << " subscribes_ clear";
     subscribes_.clear();
 }
 
@@ -208,7 +210,6 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
 EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
 {
     GroupedEntities result;
-
     for (const auto& sub : subscribes_)
     {
         auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
@@ -250,7 +251,7 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
                 {
                     if (classificatedToSingleIter->second.size() > 1)
                     {
-                        /* LOG TO FIX*/  LOG_ERROR << ("Multiple single should be only for animated models");
+                        LOG_WARN << "Multiple single should be only for animated models";
                         continue;
                     }
 
@@ -294,12 +295,11 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
     }
 
     const auto& meshes = model.GetMeshes();
-
     for (const auto& mesh : meshes)
     {
         if (not mesh.GetGraphicsObjectId())
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("not mesh.GetGraphicsObjectId()");
+            LOG_ERROR << "not mesh.GetGraphicsObjectId()";
             continue;
         }
 
@@ -311,7 +311,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("not meshBuffer");
+            LOG_ERROR << "not meshBuffer";
             continue;
         }
 
@@ -322,19 +322,18 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("not perMeshUpdateBuffer");
+            LOG_ERROR << "not perMeshUpdateBuffer";
             continue;
         }
 
-        const auto& perMeshConstantBuffer =
-            subsriber.renderComponent->GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
+        const auto& perMeshConstantBuffer = subsriber.renderComponent->GetPerObjectConstantsBuffer(mesh.GetGpuObjectId());
         if (perMeshConstantBuffer)
         {
             context_.graphicsApi_.BindShaderBuffer(*perMeshConstantBuffer);
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("not perMeshConstantBuffer");
+            LOG_ERROR << "not perMeshConstantBuffer";
             continue;
         }
 

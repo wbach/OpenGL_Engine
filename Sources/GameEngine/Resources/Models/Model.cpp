@@ -35,22 +35,18 @@ void Model::ReleaseGpuPass()
     for (auto& mesh : meshes_)
         mesh.ReleaseGpuPass();
 }
-Mesh& Model::AddMesh(Mesh& mesh)
+
+Mesh& Model::AddMesh(Mesh&& mesh)
 {
     meshes_.push_back(std::move(mesh));
     return meshes_.back();
 }
-Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api)
+
+void Model::SetMeshes(Meshes&& meshes)
 {
-    meshes_.emplace_back(type, api);
-    return meshes_.back();
+    meshes_ = std::move(meshes);
 }
-Mesh& Model::AddMesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& api, GraphicsApi::MeshRawData data,
-                     const Material& material, const mat4& transformMatix, const vec3& normalizedScale)
-{
-    meshes_.emplace_back(type, api, std::move(data), material, transformMatix, normalizedScale);
-    return meshes_.back();
-}
+
 bool Model::IsAnyMeshUseTransform() const
 {
     for (const auto& mesh : meshes_)

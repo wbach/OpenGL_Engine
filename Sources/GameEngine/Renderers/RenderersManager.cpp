@@ -1,10 +1,7 @@
 
 #include "RenderersManager.h"
 
-#include "DefferedRenderer.h"
 #include "GUI/GuiRenderer.h"
-#include "GameEngine/Camera/Camera.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
@@ -44,10 +41,11 @@ namespace Renderer
 {
 RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
                                    Utils::MeasurementHandler& measurmentHandler, Utils::Thread::ThreadSync& threadSync,
-                                   const Time& renderThreadTime)
+                                   const Time& renderThreadTime, std::unique_ptr<IRendererFactory> rendererFactory)
     : graphicsApi_(graphicsApi)
     , gpuLoader_(gpuLoader)
     , measurmentHandler_(measurmentHandler)
+    , rendererFactory(std::move(rendererFactory))
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
@@ -105,48 +103,11 @@ void RenderersManager::InitProjection()
 void RenderersManager::createMainRenderer()
 {
     graphicsApi_.EnableCulling();
+    mainRenderer_ = rendererFactory->create(rendererContext_);
 
-    const auto rendererType = EngineConf.renderer.type.get();
-    auto supportedRenderers = graphicsApi_.GetSupportedRenderers();
-
-    if (supportedRenderers.empty())
+    if (not mainRenderer_)
     {
-        LOG_ERROR << "Graphics api not supporting any renderer!";
-        return;
-    }
-
-    if (rendererType == GraphicsApi::RendererType::SIMPLE)
-    {
-        auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::SIMPLE);
-        if (iter != supportedRenderers.end())
-        {
-            LOG_DEBUG << "Create base renderer";
-            mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
-        }
-        else
-        {
-            LOG_DEBUG << "Graphics api are not supporting SIMPLE renderer try using full";
-            LOG_DEBUG << "Create deffered renderer";
-            mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
-        }
-        return;
-    }
-
-    if (rendererType == GraphicsApi::RendererType::FULL)
-    {
-        auto iter = std::find(supportedRenderers.begin(), supportedRenderers.end(), GraphicsApi::RendererType::FULL);
-        if (iter != supportedRenderers.end())
-        {
-            LOG_DEBUG << "Create deffered renderer";
-            mainRenderer_ = std::make_unique<DefferedRenderer>(rendererContext_);
-        }
-        else
-        {
-            LOG_DEBUG << "Graphics api are not supporting FULL renderer try using simple";
-            LOG_DEBUG << "Create base renderer";
-            mainRenderer_ = std::make_unique<BaseRenderer>(rendererContext_);
-        }
-        return;
+        LOG_ERROR << "Main renderer creation error!";
     }
 }
 void RenderersManager::InitGuiRenderer()

@@ -2,20 +2,21 @@
 #include <Utils/MeasurementHandler.h>
 #include <gtest/gtest.h>
 
-#include <functional>
+#include <memory>
 
+#include "Camera/Frustrum.h"
+#include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/EngineContext.h"
-#include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
+#include "GameEngine/Renderers/Objects/Entity/ConcreteEntityRenderer.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Tests/Mocks/Api/GraphicsApiMock.h"
-#include "Tests/Mocks/Camera/CameraMock.h"
+#include "Logger/Log.h"
 #include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
-#include "Tests/Mocks/Resources/ResourcesManagerMock.h"
-#include "Tests/UT/Components/BaseComponent.h"
-#include "Tests/Mocks/Scene/SceneFactoryMock.h"
+#include "Tests/UT/EngineBasedTest.h"
+#include "gmock/gmock.h"
+#include <GameEngine/Resources/Models/Model.h>
 
 using namespace testing;
 using namespace GraphicsApi;
@@ -29,87 +30,110 @@ const vec3 MATERIAL_AMBIENT{0.f, 0.f, 1.f};
 const vec3 MATERIAL_DIFFUSE{1.f, 0.f, 1.f};
 const vec3 MATERIAL_SPECULAR{1.f, 1.f, 1.f};
 
-struct EntityRendererShould : public BaseComponentTestSchould
+struct EntityRendererShould : public EngineBasedTest
 {
-    EntityRendererShould()
-        : graphicsMock_(new GraphicsApiMock())
-        , engineContext_(std::unique_ptr<IGraphicsApi>(graphicsMock_), std::make_unique<PhysicsApiMock>(), std::make_unique<SceneFactoryMock>())
-        , scene_("testScene")
-        , mesh_(GraphicsApi::RenderType::TRIANGLES, engineContext_.GetGraphicsApi())
-        , context_(projection_, frustrum_, engineContext_.GetGraphicsApi(), gpuResourceLoaderMock_, measurmentHandler_, time_)
-    {
-    }
     void SetUp()
     {
-        EXPECT_CALL(resourceManagerMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(*graphicsMock_));
-        EXPECT_CALL(*graphicsMock_, GetWindowApi()).WillRepeatedly(ReturnRef(windowApiMock_));
+        EngineBasedTest::SetUp();
 
-        context_.projection_.CreateProjectionMatrix();
+        rendererContext = std::make_unique<RendererContext>(projection_, frustrum, *graphicsApi,
+                                                            engineContext->GetGpuResourceLoader(), measurmentHandler_, time_);
+        rendererContext->projection_.CreateProjectionMatrix();
 
-        scene_.InitResources(engineContext_);
-        scene_.Init();
-        sut_.reset(new EntityRenderer(context_));
-    }
-    void ExpectCalls()
-    {
-    }
-    void ExpectShaderInit()
-    {
+        EXPECT_CALL(*rendererFactory, create(_))
+            .WillOnce(
+                [&](RendererContext& ctx)
+                {
+                    auto concreteEntityRenderer = std::make_unique<ConcreteEntityRenderer>(ctx);
+                    return concreteEntityRenderer;
+                });
+
+        engineContext->GetRenderersManager().Init();
+
+        model_ = CreateModel();
     }
 
     void ExpectRender()
     {
-        EXPECT_CALL(*graphicsMock_, BindShaderBuffer(_)).Times(1);
-        EXPECT_CALL(*graphicsMock_, RenderMesh(_)).Times(1);
+        EXPECT_CALL(*graphicsApi, BindShaderBuffer(_)).Times(AtLeast(1));
+        EXPECT_CALL(*graphicsApi, RenderMesh(_)).Times(AtLeast(1));
     }
 
     void AddGameObject()
     {
-        EXPECT_CALL(*graphicsMock_, PrepareMatrixToLoad(_)).WillRepeatedly(Return(INDENITY_MATRIX));
-        EXPECT_CALL(resourceManagerMock_, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock_));
-        CreateModel();
-        EXPECT_CALL(gpuResourceLoaderMock_, AddObjectToGpuLoadingPass(_)).Times(2);
-        EXPECT_CALL(resourceManagerMock_, LoadModel(_, _)).WillOnce(Return(&model_));
+        assert(model_ != nullptr);
 
-        auto entity = scene_.CreateGameObject();
+        EXPECT_CALL(*graphicsApi, PrepareMatrixToLoad(_)).WillRepeatedly(Return(INDENITY_MATRIX));
+        EXPECT_CALL(*resourceManager, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock));
+        CreateModel();
+
+        EXPECT_CALL(*resourceManager, LoadModel(_, _))
+            .WillOnce(
+                [&](const File&, const LoadingParameters&)
+                {
+                    // During this step object is added to gpu pass
+                    engineContext->GetGpuResourceLoader().AddObjectToGpuLoadingPass(*model_);
+                    return model_.get();
+                });
+
+
+        auto entity = scene->CreateGameObject();
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
-        sut_->subscribe(*entity);
-        transformToShader_ = entity->GetWorldTransform().GetMatrix() * mesh_.GetMeshTransform();
-        scene_.AddGameObject(std::move(entity));
+        transformToShader_ = entity->GetWorldTransform().GetMatrix() * model_->GetMeshes().front().GetMeshTransform();
+        scene->AddGameObject(std::move(entity));
+
+        LOG_DEBUG << "AddGameObject done";
     }
 
-    void CreateModel()
+    std::unique_ptr<Model> CreateModel()
     {
+        auto model = std::make_unique<Model>();
+        Mesh mesh(GraphicsApi::RenderType::TRIANGLES, *graphicsApi);
+
         Material m;
         m.ambient  = MATERIAL_AMBIENT;
         m.diffuse  = MATERIAL_DIFFUSE;
         m.specular = MATERIAL_SPECULAR;
-        mesh_.SetMaterial(m);
-        model_.AddMesh(mesh_);
+        mesh.SetMaterial(m);
+        model->AddMesh(std::move(mesh));
+        return model;
     }
+
+    void LoadAllGpuTask()
+    {
+        auto& gpuLoader = engineContext->GetGpuResourceLoader();
+        while (gpuLoader.CountObjectsToAdd() > 0 or gpuLoader.CountObjectsToUpdate() > 0 or gpuLoader.CountObjectsToRelease() > 0)
+        {
+            engineContext->GetGpuResourceLoader().RuntimeGpuTasks();
+        }
+    }
+
     Time time_;
-    GraphicsApi::GraphicsApiMock* graphicsMock_;
-    EngineContext engineContext_;
-    GpuResourceLoaderMock gpuResourceLoaderMock_;
-    ResourceManagerMock resourceManagerMock_;
+    Frustrum frustrum;
     Projection projection_;
-    GameEngine::Scene scene_;
-    Model model_;
-    Mesh mesh_;
+    GpuResourceLoaderMock gpuResourceLoaderMock;
+
+    std::unique_ptr<Model> model_;
     mat4 transformToShader_;
-    RendererContext context_;
     Utils::MeasurementHandler measurmentHandler_;
-    std::unique_ptr<EntityRenderer> sut_;
+
+    std::unique_ptr<RendererContext> rendererContext;
 };
 
-// TEST_F(EntityRendererShould, RenderWithoutObjectsTest)
-//{
-//    ExpectShaderInit();
-//    sut_->Init();
-//    AddGameObject();
-//    ExpectRender();
-//    sut_->Render(scene_, time_);
-//}
+TEST_F(EntityRendererShould, RenderSingleObject)
+{
+    AddGameObject();
+    EXPECT_CALL(*graphicsApi, CreateMesh(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
+    LoadAllGpuTask();
+
+    ExpectRender();
+
+    LOG_DEBUG << "Render";
+    engineContext->GetRenderersManager().renderScene(*scene);
+    LOG_DEBUG << "Done";
+
+    SUCCEED();
+}
 
 }  // namespace UT
 }  // namespace GameEngine

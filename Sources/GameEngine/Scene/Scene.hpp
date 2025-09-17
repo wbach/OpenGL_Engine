@@ -166,7 +166,6 @@ protected:
     Utils::IdPool gameObjectIdPool_;
 
 private:
-    void CreateResourceManger(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&);
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;

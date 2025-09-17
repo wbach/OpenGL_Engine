@@ -1,5 +1,6 @@
 #pragma once
 #include <list>
+
 #include "../AbstractLoader.h"
 
 namespace GameEngine
@@ -12,8 +13,8 @@ class BinaryLoader : public AbstractLoader
 {
 public:
     BinaryLoader(TextureLoader& textureLodaer);
-    void ParseFile(const File&) override;
+    bool ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
 };
-}
+}  // namespace WBLoader
 }  // namespace GameEngine

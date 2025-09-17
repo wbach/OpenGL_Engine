@@ -26,6 +26,8 @@
 #include "Tests/Mocks/Camera/CameraMock.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
+#include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
+#include "Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "Tests/Mocks/Scene/SceneManagerMock.h"
 
 using namespace GameEngine;
@@ -37,6 +39,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    Scene scene;
     std::vector<GraphicsApi::DisplayMode> displayModes;
     Utils::IdPool gameObjectIdPool;
     ::testing::NiceMock<GpuResourceLoaderMock> gpuResourceLoader_;
@@ -51,12 +54,10 @@ public:
 
     Utils::Thread::ThreadSync threadSync_;
     Utils::Time::TimerService timerService_;
-    std::unique_ptr<EngineContext> engineContext_;
-    PhysicsApiMock& physicsApiMock_;
-    ::testing::NiceMock<GraphicsApi::GraphicsApiMock>& graphicsApiMock_;
-    Scene scene;
+    PhysicsApiMock physicsApiMock_;
+    ResourceManagerMock resourcesManager_;
+    ::testing::NiceMock<GraphicsApi::GraphicsApiMock> graphicsApiMock_;
     SceneManagerMock sceneManager;
-    ResourceManager resourcesManager_;
     Renderer::RenderersManager renderersManager_;
     CameraMock cameraMock_;
     CameraWrapper cameraWrapper_;

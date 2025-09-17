@@ -2,18 +2,19 @@
 #include <Mutex.hpp>
 #include <memory>
 #include <unordered_map>
+
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "IResourceManager.hpp"
 #include "Models/Model.h"
+#include "Models/WBLoader/IModelLoaderFactory.h"
 #include "Models/WBLoader/LoaderManager.h"
 #include "ResourceInfo.h"
-
 namespace GameEngine
 {
 class ResourceManager : public IResourceManager
 {
 public:
-    ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader);
+    ResourceManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, std::unique_ptr<ITextureLoader>, std::unique_ptr<IModelLoaderFactory>);
     ~ResourceManager() override;
 
     Model* LoadModel(const File&, const LoadingParameters&) override;

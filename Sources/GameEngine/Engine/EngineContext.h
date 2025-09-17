@@ -14,6 +14,7 @@
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Scene/SceneManager.h"
 #include "MeasurementHandler.h"
 
@@ -38,7 +39,8 @@ class EngineContext
 {
 public:
     EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>,
-                  std::unique_ptr<ISceneFactory>);
+                  std::unique_ptr<ISceneFactory>, std::unique_ptr<IResourceManagerFactory> = nullptr,
+                  std::unique_ptr<IRendererFactory> = nullptr);
     ~EngineContext();
 
     void AddEngineEvent(EngineEvent);
@@ -54,16 +56,18 @@ public:
     inline Renderer::RenderersManager& GetRenderersManager();
     inline Utils::Time::TimerService& GetTimerService();
     inline ISceneManager& GetSceneManager();
+    inline IResourceManagerFactory& GetResourceManagerFactory();
 
 private:
-    Utils::MeasurementHandler measurmentHandler_;
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
-    std::unique_ptr<Physics::IPhysicsApi> physicsApi_;
+    GpuResourceLoader gpuResourceLoader_;
+    Utils::MeasurementHandler measurmentHandler_;
+    Utils::Thread::ThreadSync threadSync_;
     DisplayManager displayManager_;
     Input::InputManager& inputManager_;
-    Utils::Thread::ThreadSync threadSync_;
+    std::unique_ptr<IResourceManagerFactory> resourceManagerFactory;
+    std::unique_ptr<Physics::IPhysicsApi> physicsApi_;
     Utils::Time::TimerService timerService_;
-    GpuResourceLoader gpuResourceLoader_;
     Renderer::RenderersManager renderersManager_;
     std::unique_ptr<ISceneManager> sceneManager_;
 
@@ -114,8 +118,12 @@ Utils::Time::TimerService& EngineContext::GetTimerService()
 {
     return timerService_;
 }
-ISceneManager &EngineContext::GetSceneManager()
+ISceneManager& EngineContext::GetSceneManager()
 {
     return *sceneManager_;
+}
+IResourceManagerFactory& EngineContext::GetResourceManagerFactory()
+{
+    return *resourceManagerFactory;
 }
 }  // namespace GameEngine

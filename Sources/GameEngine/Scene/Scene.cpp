@@ -31,10 +31,10 @@ Scene::Scene(const std::string& name)
     , name(name)
     , gloabalTime(0.f)
     , directionalLight(vec3(1000.f, 15000.f, 10000.f), vec3(.8f))
+    , dayNightCycle(&directionalLight)
     , simulatePhysics_(true)
     , start_(false)
 {
-    dayNightCycle.SetDirectionalLight(&directionalLight);
 }
 
 Scene::~Scene()
@@ -80,7 +80,11 @@ void Scene::InitResources(EngineContext& context)
     timerService_     = &context.GetTimerService();
     addEngineEvent    = [&context](EngineEvent event) { context.AddEngineEvent(event); };
 
-    CreateResourceManger(context.GetGraphicsApi(), context.GetGpuResourceLoader());
+    resourceManager_ = context.GetResourceManagerFactory().create();
+    if (not resourceManager_)
+    {
+        LOG_ERROR << "resourceManager  creation error!";
+    }
     guiManager_ = std::make_unique<GuiManager>();
     GuiElementFactory::EntryParameters guiFactoryParams{*guiManager_, *inputManager_, *resourceManager_, *renderersManager_};
     guiElementFactory_      = std::make_unique<GuiElementFactory>(guiFactoryParams);
@@ -152,6 +156,7 @@ void Scene::Start()
 
     if (physicsApi_)
         physicsApi_->EnableSimulation();
+    LOG_DEBUG << "Started";
 }
 
 void Scene::Stop()
@@ -170,11 +175,6 @@ bool Scene::isStarted() const
 void Scene::ChangeName(const std::string& name)
 {
     this->name = name;
-}
-
-void Scene::CreateResourceManger(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader)
-{
-    resourceManager_ = std::make_unique<ResourceManager>(graphicsApi, gpuResourceLoader);
 }
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>& maybeId)

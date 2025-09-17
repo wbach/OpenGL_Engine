@@ -8,7 +8,7 @@ namespace GameEngine
 class DayNightCycle : public GameTime
 {
 public:
-    DayNightCycle();
+    DayNightCycle(Light* = nullptr);
     void Update(GameTime::DeltaTime) override;
     void SetTime(GameTime::Time) override;
 

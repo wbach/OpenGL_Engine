@@ -3,7 +3,6 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <rapidxml.hpp>
 
-#include "GameEngine/Engine/Configuration.h"
 #include "GeometryReader.h"
 #include "LibraryAnimationsReader.h"
 #include "LibraryControllersReader.h"
@@ -11,7 +10,6 @@
 #include "LibraryVisualScenesReader.h"
 #include "Logger/Log.h"
 #include "MaterialReader.h"
-#include "Utils.h"
 #include "XML/XMLUtils.h"
 #include "libraryEffectsReader.h"
 
@@ -19,12 +17,15 @@ namespace GameEngine
 {
 namespace Collada
 {
-void ReadCollada(const File& filename, ColladaData& colladaData)
+bool ReadCollada(const File& filename, ColladaData& colladaData)
 {
     auto fileData = Utils::ReadFile(filename.GetAbsolutePath().string());
 
     if (fileData.empty())
-        return;
+    {
+        LOG_ERROR << "Can not parse file " << filename;
+        return false;
+    }
 
     rapidxml::xml_document<> document;
 
@@ -34,40 +35,44 @@ void ReadCollada(const File& filename, ColladaData& colladaData)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Can not parse file " + filename.GetFilename());
-        return;
+        LOG_ERROR << "Can not parse file " << filename;
+        return false;
     }
     auto root = document.first_node();
-    Utils::ForEachSubNode(root, [&](const Utils::RapidNodeData& data, XMLNode* node) {
-        if (data.name == "library_geometries")
-        {
-            LibraryGeometriesReader(colladaData.libraryGeometries_).readGeometries(node);
-        }
-        else if (data.name == "library_materials")
-        {
-            LibraryMaterialReader(colladaData.libraryMaterials_).read(node);
-        }
-        else if (data.name == "library_effects")
-        {
-            LibraryEffectsReader(colladaData.libraryEffects_).read(node);
-        }
-        else if (data.name == "library_images")
-        {
-            LibraryImagesReader(colladaData.libraryImages_).read(node);
-        }
-        else if (data.name == "library_animations")
-        {
-            LibraryAnimationsReader(colladaData.libraryAnimations_).read(node);
-        }
-        else if (data.name == "library_controllers")
-        {
-            LibraryControllersReader(colladaData.libraryControllers_).read(node);
-        }
-        else if (data.name == "library_visual_scenes")
-        {
-            LibraryVisualSceneReader(colladaData.libraryVisualScenes_).read(node);
-        }
-    });
+    Utils::ForEachSubNode(root,
+                          [&](const Utils::RapidNodeData& data, XMLNode* node)
+                          {
+                              if (data.name == "library_geometries")
+                              {
+                                  LibraryGeometriesReader(colladaData.libraryGeometries_).readGeometries(node);
+                              }
+                              else if (data.name == "library_materials")
+                              {
+                                  LibraryMaterialReader(colladaData.libraryMaterials_).read(node);
+                              }
+                              else if (data.name == "library_effects")
+                              {
+                                  LibraryEffectsReader(colladaData.libraryEffects_).read(node);
+                              }
+                              else if (data.name == "library_images")
+                              {
+                                  LibraryImagesReader(colladaData.libraryImages_).read(node);
+                              }
+                              else if (data.name == "library_animations")
+                              {
+                                  LibraryAnimationsReader(colladaData.libraryAnimations_).read(node);
+                              }
+                              else if (data.name == "library_controllers")
+                              {
+                                  LibraryControllersReader(colladaData.libraryControllers_).read(node);
+                              }
+                              else if (data.name == "library_visual_scenes")
+                              {
+                                  LibraryVisualSceneReader(colladaData.libraryVisualScenes_).read(node);
+                              }
+                          });
+
+    return true;
 }
 }  // namespace Collada
 }  // namespace GameEngine

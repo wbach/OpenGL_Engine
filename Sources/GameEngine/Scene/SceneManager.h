@@ -2,8 +2,6 @@
 #include <Mutex.hpp>
 #include <queue>
 
-#include "GameEngine/Engine/EngineEvent.h"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "ISceneManager.h"
 #include "SceneWrapper.h"
 
@@ -15,7 +13,7 @@ class SceneManager : public ISceneManager
 {
 public:
     SceneManager(EngineContext&, std::unique_ptr<ISceneFactory>);
-    ~SceneManager();
+    ~SceneManager() override;
 
     void SetActiveScene(uint32) override;
     void SetActiveScene(const std::string&) override;

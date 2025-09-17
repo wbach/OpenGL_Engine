@@ -29,7 +29,7 @@ GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measur
 
 GuiEngineContextManger::~GuiEngineContextManger()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
     EngineConf.debugParams.showRenderInfo.unsubscribe(isShowSub_);
 }
 

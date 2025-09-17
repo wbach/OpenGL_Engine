@@ -5,9 +5,9 @@
 
 namespace GameEngine
 {
-DayNightCycle::DayNightCycle()
+DayNightCycle::DayNightCycle(Light* directionalLight)
     : GameTime()
-    , directionalLight(nullptr)
+    , directionalLight(directionalLight)
     , sunRiseColor(Utils::RGBtoFloat(253.f, 168.f, 87.f))
     , midDayColor(1.f, 0.784314f, 0.588235)
     , sunSetColor(Utils::RGBtoFloat(253.f, 94.f, 83.f))
@@ -23,8 +23,11 @@ DayNightCycle::DayNightCycle()
     defaultSunPos   = vec3(10000, 15000, 10000);
 
     CalculateBlendFactor();
-    UpdateSunColor();
-    UpdateSunPosition();
+    if (directionalLight)
+    {
+        UpdateSunColor();
+        UpdateSunPosition();
+    }
 }
 void DayNightCycle::Update(GameTime::DeltaTime delta_time)
 {
@@ -46,7 +49,7 @@ void DayNightCycle::UpdateSunColor()
 {
     if (directionalLight == nullptr)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Directional light not set in DayNightCycle but is used.");
+        LOG_WARN << "Directional light not set in DayNightCycle but is used.";
         return;
     }
     if (IsNight())
@@ -95,7 +98,7 @@ void DayNightCycle::UpdateSunPosition()
 {
     if (directionalLight == nullptr)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Directional light not set in DayNightCycle but is used.");
+        LOG_WARN << "Directional light not set in DayNightCycle but is used.";
         return;
     }
     vec3 current_pos = directionalLight->GetPosition();

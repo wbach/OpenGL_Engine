@@ -1,31 +1,32 @@
 #include "SceneWrapper.h"
 
 #include <Logger/Log.h>
-#include <Utils/Variant.h>
 
 #include "Scene.hpp"
 #include "SceneLoader.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
 SceneWrapper::SceneWrapper(ISceneFactory& sceneFactory, GraphicsApi::IGraphicsApi& graphicsApi, DisplayManager& displayManager,
-                           IGpuResourceLoader& gpuResourceLoader)
+                           IGpuResourceLoader& gpuResourceLoader, IResourceManagerFactory& resourceManagerFactory)
     : sceneFactory_{sceneFactory}
-    , graphicsApi_(graphicsApi)
-    , displayManager_(displayManager)
-    , gpuResourceLoader_(gpuResourceLoader)
+    , graphicsApi{graphicsApi}
+    , displayManager{displayManager}
+    , gpuResourceLoader{gpuResourceLoader}
+    , resourceManagerFactory{resourceManagerFactory}
     , state_(SceneWrapperState::SceneNotSet)
 {
 }
 
 SceneWrapper::~SceneWrapper()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 }
 
 void SceneWrapper::Set(uint32 id, AddEvent sceneEventCallback)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Set id");
+    LOG_DEBUG << "Set id: " << id;
     Reset();
     sceneToLoad_          = id;
     addSceneEventCallback = sceneEventCallback;
@@ -34,7 +35,7 @@ void SceneWrapper::Set(uint32 id, AddEvent sceneEventCallback)
 
 void SceneWrapper::Set(const std::string& name, AddEvent sceneEventCallback)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Set name");
+    LOG_DEBUG << "Set name: " << name;
     Reset();
     sceneToLoad_          = name;
     addSceneEventCallback = sceneEventCallback;
@@ -47,22 +48,23 @@ void SceneWrapper::Init(std::function<void()> onLoadDone)
 
     if (SafeGetState() != SceneWrapperState::ReadyToInitialized)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("SceneWrapper::Init() Wrong state.");
+        LOG_ERROR << "SceneWrapper::Init() Wrong state.";
         return;
     }
 
     SafeSetState(SceneWrapperState::Initializing);
-    std::visit(visitor{[&](const auto& s)
-                       {
-                           SceneLoader sceneLoader(sceneFactory_, graphicsApi_, gpuResourceLoader_, displayManager_);
-                           activeScene = sceneLoader.Load(s);
-                           activeScene->SetAddSceneEventCallback(addSceneEventCallback);
-                           if (onLoadDone)
-                           {
-                               onLoadDone();
-                           }
-                       }},
-               sceneToLoad_);
+    std::visit(
+        [&](const auto& s)
+        {
+            SceneLoader sceneLoader(sceneFactory_, graphicsApi, gpuResourceLoader, displayManager, resourceManagerFactory);
+            activeScene = sceneLoader.Load(s);
+            activeScene->SetAddSceneEventCallback(addSceneEventCallback);
+            if (onLoadDone)
+            {
+                onLoadDone();
+            }
+        },
+        sceneToLoad_);
     SafeSetState(SceneWrapperState::Initilaized);
 }
 
@@ -87,7 +89,7 @@ SceneWrapperState SceneWrapper::SafeGetState()
 
 void SceneWrapper::SafeSetState(SceneWrapperState state)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("SetState = " + std::to_string(static_cast<int>(state)));
+    LOG_DEBUG << "SetState = " << magic_enum::enum_name(state);
     std::lock_guard<std::mutex> lk(stateMutex_);
     state_ = state;
 }
@@ -96,7 +98,7 @@ Scene* SceneWrapper::Get()
 {
     if (SafeGetState() == SceneWrapperState::SceneNotSet)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("SceneWrapper::Get() scene is nullptr. Probably are not set active scene.");
+        LOG_ERROR << "SceneWrapper::Get() scene is nullptr. Probably are not set active scene.";
     }
 
     return activeScene.get();
