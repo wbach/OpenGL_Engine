@@ -4,8 +4,13 @@
 
 #include "Engine/EngineContext.h"
 #include "Logger/Log.h"
-#include "Tests/Mocks/Resources/ResourceManagerFactoryMock.h"
+#include "Resources/Models/WBLoader/IModelLoaderFactory.h"
+#include "Resources/ResourceManager.h"
+#include "Resources/TextureLoader.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"
+#include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
+#include "Tests/Mocks/Resources/ResourceManagerFactoryMock.h"
+#include "Tests/Mocks/Resources/TextureLoaderMock.h"
 #include "Tests/Mocks/Scene/SceneFactoryMock.h"
 #include "gmock/gmock.h"
 
@@ -42,13 +47,27 @@ void EngineBasedTest::SetUp()
                                         std::move(resourceManagerFactoryMock), std::move(rendererFactoryMock));
 
     LOG_DEBUG << "EngineBasedTest::CreateScene";
-    auto resourceManagerMock = std::make_unique<ResourceManagerMock>();
-    resourceManager          = resourceManagerMock.get();
+
+    // make real scene maganger to manage model and instances
+    auto modelLoaderFactoryMock = std::make_unique<ModelLoaderFactoryMock>();
+    auto textureLoaderMock      = std::make_unique<TextureLoaderMock>();
+    textureLoader               = textureLoaderMock.get();
+
+ EXPECT_CALL(*modelLoaderFactoryMock, createLoaders())
+    .WillOnce(::testing::Invoke([&]() {
+        auto loader     = std::make_unique<LoaderMock>(*graphicsApi, *textureLoader);
+        modelLoaderMock = loader.get();
+        LoadersVector v;
+        v.push_back(std::move(loader));
+        return v;
+    }));
+    auto resourceManager = std::make_unique<GameEngine::ResourceManager>(
+        *graphicsApi, engineContext->GetGpuResourceLoader(), std::move(textureLoaderMock), std::move(modelLoaderFactoryMock));
 
     auto scenePtr = std::make_unique<Scene>("TestScene");
     // Scene resourceManager
-    EXPECT_CALL(*resourceManagerFactoryMockPtr, create()).WillOnce(Return(ByMove(std::move(resourceManagerMock))));
-    EXPECT_CALL(*resourceManager, GetTextureLoader()).WillRepeatedly(ReturnRef(textureLoaderMock));
+    EXPECT_CALL(*resourceManagerFactoryMockPtr, create()).WillOnce(Return(ByMove(std::move(resourceManager))));
+  //  EXPECT_CALL(*resourceManager, GetTextureLoader()).WillRepeatedly(ReturnRef(*textureLoader));
     scenePtr->InitResources(*engineContext);
 
     LOG_DEBUG << "EngineBasedTest::LoadScene";
@@ -56,8 +75,8 @@ void EngineBasedTest::SetUp()
     auto sceneLoaderResouceManagerPtr = sceneLoaderResouceManager.get();
 
     EXPECT_CALL(*sceneFactoryMockPtr, IsExist(::testing::A<uint32>())).WillRepeatedly(Return(true));
-    EXPECT_CALL(*resourceManagerFactoryMockPtr, create()).WillOnce(Return(ByMove(std::move(resourceManagerMock))));
-    EXPECT_CALL(*sceneLoaderResouceManagerPtr, GetTextureLoader()).WillRepeatedly(ReturnRef(textureLoaderMock));
+    EXPECT_CALL(*resourceManagerFactoryMockPtr, create()).WillOnce(Return(ByMove(std::move(sceneLoaderResouceManager))));
+      EXPECT_CALL(*sceneLoaderResouceManagerPtr, GetTextureLoader()).WillRepeatedly(ReturnRef(*textureLoader));
     EXPECT_CALL(*sceneFactoryMockPtr, Create(::testing::A<uint32>())).WillRepeatedly(Return(ByMove(std::move(scenePtr))));
 
     engineContext->GetSceneManager().SetActiveScene(0);
@@ -70,4 +89,9 @@ void EngineBasedTest::SetUp()
 
 EngineBasedTest::~EngineBasedTest()
 {
+}
+
+void EngineBasedTest::TearDown()
+{
+    engineContext.reset();
 }

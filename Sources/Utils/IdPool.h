@@ -2,6 +2,7 @@
 #include <list>
 #include <optional>
 #include "Types.h"
+#include <mutex>
 
 namespace Utils
 {
@@ -21,6 +22,6 @@ private:
     IdType counter_;
     IdType startupValue_;
     std::list<IdType> freeIds_;
-
+    std::mutex mutex;
 };
 }  // namespace Utils

@@ -264,26 +264,14 @@ void Engine::MainLoop()
 
 void Engine::ProcessEngineEvents()
 {
-    auto incomingEvent = engineContext_.GetEngineEvent();
+    auto events = engineContext_.GetEngineEvents();
 
-    if (not incomingEvent)
-        return;
-
-    switch (*incomingEvent)
+    for (auto& event : events)
     {
-        case EngineEvent::QUIT:
-            Quit();
-            break;
-        case EngineEvent::ASK_QUIT:
-            engineContext_.GetGraphicsApi().GetWindowApi().ShowMessageBox("Quit", "Do you really want exit?",
-                                                                          [this](bool ok)
-                                                                          {
-                                                                              if (ok)
-                                                                              {
-                                                                                  Quit();
-                                                                              }
-                                                                          });
-            break;
+        std::visit(visitor{[&](QuitEvent& e) { Quit(e); },
+                           [&](ChangeSceneEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); },
+                           [&](ChangeSceneConfirmEvent& e) { engineContext_.GetSceneManager().ProcessEvent(e); }},
+                   event);
     }
 }
 
@@ -291,6 +279,27 @@ void Engine::Quit()
 {
     engineContext_.GetSceneManager().StopThread();
     isRunning_ = false;
+}
+
+void Engine::Quit(QuitEvent event)
+{
+    switch (event)
+    {
+        case QuitEvent::QUIT:
+            Quit();
+            break;
+        case QuitEvent::ASK_QUIT:
+            auto& windowApi = engineContext_.GetGraphicsApi().GetWindowApi();
+            windowApi.ShowMessageBox("Quit", "Do you really want exit?",
+                                     [this](bool ok)
+                                     {
+                                         if (ok)
+                                         {
+                                             Quit();
+                                         }
+                                     });
+            break;
+    }
 }
 
 void Engine::Init()

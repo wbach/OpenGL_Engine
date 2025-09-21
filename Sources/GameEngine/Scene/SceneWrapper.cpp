@@ -24,21 +24,19 @@ SceneWrapper::~SceneWrapper()
     LOG_DEBUG << "destructor";
 }
 
-void SceneWrapper::Set(uint32 id, AddEvent sceneEventCallback)
+void SceneWrapper::Set(uint32 id)
 {
     LOG_DEBUG << "Set id: " << id;
     Reset();
-    sceneToLoad_          = id;
-    addSceneEventCallback = sceneEventCallback;
+    sceneToLoad_ = id;
     SafeSetState(SceneWrapperState::ReadyToInitialized);
 }
 
-void SceneWrapper::Set(const std::string& name, AddEvent sceneEventCallback)
+void SceneWrapper::Set(const std::string& name)
 {
     LOG_DEBUG << "Set name: " << name;
     Reset();
-    sceneToLoad_          = name;
-    addSceneEventCallback = sceneEventCallback;
+    sceneToLoad_ = name;
     SafeSetState(SceneWrapperState::ReadyToInitialized);
 }
 
@@ -58,7 +56,6 @@ void SceneWrapper::Init(std::function<void()> onLoadDone)
         {
             SceneLoader sceneLoader(sceneFactory_, graphicsApi, gpuResourceLoader, displayManager, resourceManagerFactory);
             activeScene = sceneLoader.Load(s);
-            activeScene->SetAddSceneEventCallback(addSceneEventCallback);
             if (onLoadDone)
             {
                 onLoadDone();

@@ -36,6 +36,7 @@ void GpuResourceLoader::CallFunctions()
 
 void GpuResourceLoader::AddObjectToGpuLoadingPass(GpuObject& obj)
 {
+    LOG_DEBUG << "AddObjectToGpuLoadingPass :" << obj.GetGpuObjectId();
     std::lock_guard<std::mutex> lock(gpuPassMutex);
     gpuPassLoad.push_back(&obj);
 }
@@ -54,6 +55,7 @@ GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
 
 void GpuResourceLoader::AddObjectToUpdateGpuPass(GpuObject& obj)
 {
+     LOG_DEBUG << "AddObjectToUpdateGpuPass :" << obj.GetGpuObjectId();
     std::lock_guard<std::mutex> lock(updateMutex);
 
     if (not objectsToUpdate.empty())
@@ -84,13 +86,14 @@ GpuObject* GpuResourceLoader::GetObjectToUpdateGpuPass()
 
 void GpuResourceLoader::AddObjectToRelease(std::unique_ptr<GpuObject> object)
 {
+     LOG_DEBUG << "AddObjectToRelease :" << object->GetGpuObjectId();
     if (not object)
         return;
 
     std::scoped_lock lock(gpuPassMutex, updateMutex, releaseMutex);
 
-    IsRemoveObjectIfIsToLoadState(*object);
-    IsRemoveObjectIfIsToUpdateState(*object);
+    RemoveObjectIfIsToLoadState(*object);
+    RemoveObjectIfIsToUpdateState(*object);
 
     objectsToRelease.push_back(std::move(object));
 }
@@ -104,7 +107,7 @@ std::unique_ptr<GpuObject> GpuResourceLoader::GetObjectToRelease()
     objectsToRelease.pop_back();
     return object;
 }
-void GpuResourceLoader::IsRemoveObjectIfIsToUpdateState(GpuObject& obj)
+void GpuResourceLoader::RemoveObjectIfIsToUpdateState(GpuObject& obj)
 {
     if (not objectsToUpdate.empty())
     {
@@ -115,13 +118,13 @@ void GpuResourceLoader::IsRemoveObjectIfIsToUpdateState(GpuObject& obj)
             objectsToUpdate.erase(iter);
     }
 }
-void GpuResourceLoader::IsRemoveObjectIfIsToLoadState(GpuObject& obj)
+void GpuResourceLoader::RemoveObjectIfIsToLoadState(GpuObject& obj)
 {
     if (not gpuPassLoad.empty())
     {
-        auto iter =
-            std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(),
-                         [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
+        auto iter = std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(), [id = obj.GetGpuObjectId()](const auto& gpuObject) {
+            return id == gpuObject->GetGpuObjectId();
+        });
         if (iter != gpuPassLoad.end())
             gpuPassLoad.erase(iter);
     }
@@ -129,6 +132,7 @@ void GpuResourceLoader::IsRemoveObjectIfIsToLoadState(GpuObject& obj)
 
 void GpuResourceLoader::RuntimeGpuTasks()
 {
+    LOG_DEBUG << "RuntimeGpuTasks";
     RuntimeReleaseObjectGpu();
     RuntimeLoadObjectToGpu();
     RuntimeUpdateObjectGpu();

@@ -133,7 +133,7 @@ std::optional<float> MousePicker::Intersect(const GameObject& object, const Mous
 
 float MousePicker::CalculateBoundingSphereRadius(const GameObject& gameObject)
 {
-    auto max = glm::compMax(gameObject.GetTransform().GetScale());
+    auto max = glm::compMax(gameObject.GetLocalTransform().GetScale());
     return max / 2.f;
 }
 

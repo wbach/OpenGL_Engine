@@ -1,6 +1,7 @@
 #include "SceneReader.h"
 
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Prefab.h"
 #include "Logger/Log.h"
 #include "Scene.hpp"
@@ -17,13 +18,13 @@ namespace SceneReader
 {
 std::unique_ptr<Prefab> createPrefabGameObject(const TreeNode&, Scene&);
 
-void Read(const TreeNode& node, common::Transform& tranfsorm)
+void Read(const TreeNode& node, GameObject& gameObject, const common::Transform& tranfsorm)
 {
     vec3 position(0), rotation(0), scale(1);
     Read(node.getChild(CSTR_POSITION), position);
     Read(node.getChild(CSTR_ROTATION), rotation);
     Read(node.getChild(CSTR_SCALE), scale);
-    tranfsorm.SetPositionAndRotationAndScale(position, DegreesVec3(rotation), scale);
+    gameObject.SetLocalPositionRotationScale(position, DegreesVec3(rotation), scale);
 }
 
 template <typename T>
@@ -38,7 +39,7 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
     auto transformNode = node.getChild(CSTR_TRANSFORM);
     if (transformNode)
     {
-        Read(*transformNode, gameObject.GetTransform());
+        Read(*transformNode, gameObject, gameObject.GetLocalTransform());
     }
 
     auto componentsNode = node.getChild(CSTR_COMPONENTS);
@@ -60,12 +61,12 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
                 auto name  = gameObjectNode->getAttributeValue(CSTR_NAME);
                 auto child = scene.CreateGameObject(name);
                 Read(scene, *gameObjectNode, *child);
-                gameObject.AddChild(std::move(child));
+                scene.AddGameObject(gameObject, std::move(child));
             }
             else if (gameObjectNode->name() == CSTR_PREFAB)
             {
                 auto child = createPrefabGameObject(*gameObjectNode, scene);
-                gameObject.AddChild(std::move(child));
+                scene.AddGameObject(gameObject, std::move(child));
             }
         }
     }
@@ -95,9 +96,10 @@ void ReadPrefab(Scene& scene, const File& file, Prefab& prefabGameObject)
         prefabGameObject.SetName(name);
     }
 
-    auto gameObject = prefabGameObject.CreateChild(name);
+
+    auto gameObject =  scene.CreateGameObject(name);
     Read(scene, *maybePrefabNode, *gameObject);
-    prefabGameObject.AddChild(std::move(gameObject));
+    scene.AddGameObject(prefabGameObject, std::move(gameObject));
 }
 
 GameObject* loadPrefab(Scene& scene, const File& file, const std::string& gameObjectName)

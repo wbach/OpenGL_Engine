@@ -29,6 +29,9 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
 }
 void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
 {
+    LOG_DEBUG << "UnSubscribe " << gameObject->GetName();
+    bool result{false};
+
     std::lock_guard<std::mutex> lk(subsribtionMutex_);
     for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
     {
@@ -36,11 +39,18 @@ void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
         {
             gameObject->UnsubscribeOnWorldTransfromChange(iter->transformSubscribtionId);
             iter = subscribers_.erase(iter);
+            LOG_DEBUG << "erase " << gameObject->GetName();
+            result = true;
         }
         else
         {
             ++iter;
         }
+    }
+
+    if (not result)
+    {
+         LOG_DEBUG << "not erase " << gameObject->GetName() << " size = " << subscribers_.size();
     }
 
     for (auto iter = events_.begin(); iter != events_.end();)
@@ -54,6 +64,7 @@ void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
             ++iter;
         }
     }
+    LOG_DEBUG << " BufferDataUpdater end" << gameObject->GetName();
 }
 void BufferDataUpdater::Update()
 {

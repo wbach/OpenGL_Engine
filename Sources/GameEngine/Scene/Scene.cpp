@@ -5,6 +5,8 @@
 #include <Utils/Time/Timer.h>
 
 #include <algorithm>
+#include <mutex>
+#include <utility>
 
 #include "GameEngine/Camera/Camera.h"
 #include "GameEngine/Components/ComponentFactory.h"
@@ -16,6 +18,9 @@
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Scene/SceneEvents.h"
+#include "Types.h"
+#include "Variant.h"
 #include "XmlSceneStorage.h"
 
 namespace GameEngine
@@ -64,6 +69,8 @@ Scene::~Scene()
         LOG_DEBUG << "renderersManager_->UnsubscribeAll())";
         renderersManager_->UnSubscribeAll();
     }
+
+    rootGameObject_.reset();
 
     LOG_DEBUG << "destructor done";
 }
@@ -138,6 +145,8 @@ void Scene::FullUpdate(float deltaTime)
     }
 
     componentController_.AlwaysUpdate();
+
+    ProcessEvents();
 }
 
 void Scene::PostUpdate()
@@ -184,17 +193,23 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+    return std::make_unique<GameObject>(
+        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
+        maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+    return std::make_unique<Prefab>(
+        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
+        maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+    return std::make_unique<Prefab>(
+        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
+        maybeId);
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -208,49 +223,97 @@ Light& Scene::AddLight(const Light& light)
     return lights.back();
 }
 
-void Scene::AddGameObject(std::unique_ptr<GameObject> object)
+void Scene::ProcessEvents()
 {
-    if (not rootGameObject_)
+    LOG_DEBUG << "";
+    Events tmpEvents;
     {
-        LOG_WARN << "Root object not exist! Addition aborted! Addition object name:" << object->GetName();
-        return;
-    }
-    gameObjectsIds_.insert({object->GetId(), object.get()});
-    auto& ptr = *object;
-    rootGameObject_->AddChild(std::move(object));
-    rootGameObject_->NotifyComponentControllerAboutObjectCreation(ptr);
-}
-
-void Scene::ChangeParent(GameObject& gameObject, GameObject& newParent)
-{
-    auto currentParent = gameObject.GetParent();
-
-    if (not currentParent)
-    {
-        LOG_ERROR << "Root gameObject can not be moved";
-        return;
+        std::lock_guard<std::mutex> lk(eventsMutex);
+        tmpEvents = std::move(events);
     }
 
-    auto worldPosition = gameObject.GetWorldTransform().GetPosition();
-    auto worldRotation = gameObject.GetWorldTransform().GetRotation();
-    auto worldScale    = gameObject.GetWorldTransform().GetScale();
-
-    auto freeGameObject = currentParent->MoveChild(gameObject.GetId());
-
-    if (freeGameObject)
+    for (auto&& event : tmpEvents)
     {
-        auto go = freeGameObject.get();
-        newParent.MoveChild(std::move(freeGameObject));
-        go->SetWorldPosition(worldPosition);
-        go->SetWorldRotation(worldRotation);
-        go->SetWorldScale(worldScale);
+        std::visit(visitor{[&](auto&& e) { ProcessEvent(std::forward<decltype(e)>(e)); }}, std::move(event));
     }
 }
 
-bool Scene::RemoveGameObject(IdType id)
+void Scene::ProcessEvent(AddGameObjectEvent&& event)
 {
-    gameObjectIdPool_.releaseId(id);
-    gameObjectsIds_.erase(id);
+    auto parentGameObject = GetGameObject(event.parentGameObject);
+
+    if (not parentGameObject)
+    {
+        LOG_WARN << "Parent object not exist! Addition aborted! Addition object name:" << event.gameObject->GetName();
+        return;
+    }
+    gameObjectsIds_.insert({event.gameObject->GetId(), event.gameObject.get()});
+    auto& ptr = *event.gameObject;
+    parentGameObject->AddChild(std::move(event.gameObject));
+
+    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void {
+        for (auto& subChild : gameObject.children_)
+        {
+            if (subChild)
+            {
+                self(self, *subChild);  // rekurencja
+            }
+        }
+        componentController_.OnObjectCreated(gameObject.GetId());
+    };
+    notifyComponentController(notifyComponentController, ptr);
+
+    LOG_DEBUG << "Game object added. Addition object name:" << ptr.GetName();
+}
+
+void Scene::ProcessEvent(ModifyGameObjectEvent&& event)
+{
+    auto gameObject = GetGameObject(event.gameObjectId);
+    if (not gameObject)
+    {
+        LOG_WARN << "ModifyGameObjectEvent error. GameObject not found: " << event.gameObjectId;
+        return;
+    }
+
+    if (event.worldTransform)
+    {
+        if (event.worldTransform->position)
+        {
+            gameObject->SetWorldPositionImpl(event.worldTransform->position.value());
+        }
+        if (event.worldTransform->rotation)
+        {
+            gameObject->SetWorldRotationImpl(event.worldTransform->rotation.value());
+        }
+        if (event.worldTransform->scale)
+        {
+            gameObject->SetWorldScaleImpl(event.worldTransform->scale.value());
+        }
+    }
+
+    if (event.localTransform)
+    {
+        if (event.localTransform->position)
+        {
+            gameObject->localTransform_.SetPosition(event.localTransform->position.value());
+        }
+        if (event.worldTransform->rotation)
+        {
+            gameObject->localTransform_.SetRotation(event.localTransform->rotation.value());
+        }
+        if (event.worldTransform->scale)
+        {
+            gameObject->localTransform_.SetScale(event.localTransform->scale.value());
+        }
+    }
+
+    LOG_DEBUG << "Game object modified. Object name:" << gameObject->GetName();
+}
+
+void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
+{
+    LOG_DEBUG << "RemoveGameObjectEvent id=" << event.gameObjectId;
+    auto id = event.gameObjectId;
 
     if (id == 0)
     {
@@ -259,31 +322,19 @@ bool Scene::RemoveGameObject(IdType id)
         {
             rootGameObject_.reset(nullptr);
             LOG_WARN << "Root object deleted";
-            return true;
         }
         LOG_WARN << "RootObject was not set!";
-        return false;
     }
 
-    return rootGameObject_->RemoveChild(id);
-}
-
-bool Scene::RemoveGameObject(GameObject& object)
-{
-    gameObjectIdPool_.releaseId(object.GetId());
-    gameObjectsIds_.erase(object.GetId());
-
-    if (object.GetId() == 0)
+    auto ids = rootGameObject_->RemoveChild(id);
+    for (const auto id : ids)
     {
-        LOG_WARN << "Deleting of root object!";
-        rootGameObject_.reset();
-        return true;
+        LOG_DEBUG << "RemoveGameObjectEvent id=" << event.gameObjectId << ", childId= " << id;
+        gameObjectIdPool_.releaseId(id);
+        gameObjectsIds_.erase(id);
     }
-
-    return rootGameObject_->RemoveChild(object);
 }
-
-void Scene::ClearGameObjects()
+void Scene::ProcessEvent(ClearGameObjectsEvent&&)
 {
     gameObjectIdPool_.clear(1);  // root gameObject stay at id 1
     gameObjectsIds_.clear();
@@ -292,15 +343,95 @@ void Scene::ClearGameObjects()
         rootGameObject_->RemoveAllChildren();
 }
 
-void Scene::SetAddSceneEventCallback(AddEvent func)
+void Scene::ProcessEvent(ChangeParentEvent&& event)
 {
-    addSceneEvent = func;
+    auto currentGameObject = GetGameObject(event.gameObjectId);
+    if (not currentGameObject)
+    {
+        LOG_WARN << "Change parent error. GameObject not found: " << event.gameObjectId;
+        return;
+    }
+
+    auto currentParent = currentGameObject->GetParent();
+    if (not currentParent)
+    {
+        LOG_ERROR << "Root gameObject can not be moved";
+        return;
+    }
+
+    auto newParent = GetGameObject(event.newParentId);
+    if (not newParent)
+    {
+        LOG_WARN << "Change parent error. New parent not found: " << event.newParentId;
+        return;
+    }
+
+    const auto& currentWorldTransform = currentGameObject->GetWorldTransform();
+    auto worldPosition                = currentWorldTransform.GetPosition();
+    auto worldRotation                = currentWorldTransform.GetRotation();
+    auto worldScale                   = currentWorldTransform.GetScale();
+
+    auto freeGameObject = currentParent->MoveChild(currentGameObject->GetId());
+
+    if (freeGameObject)
+    {
+        auto go = freeGameObject.get();
+        newParent->MoveChild(std::move(freeGameObject));
+        go->SetWorldPositionRotationScaleImpl(worldPosition, worldRotation, worldScale);
+    }
+}
+
+void Scene::AddGameObject(std::unique_ptr<GameObject> object)
+{
+    LOG_DEBUG << "AddGameObject to queue: " << object->GetName();
+    AddGameObjectEvent event{.parentGameObject = rootGameObject_->GetId(), .gameObject = std::move(object)};
+    SendEvent(std::move(event));
+}
+
+void Scene::AddGameObject(GameObject& parent, std::unique_ptr<GameObject> object)
+{
+    LOG_DEBUG << "AddGameObject to queue: " << object->GetName();
+    AddGameObjectEvent event{.parentGameObject = parent.GetId(), .gameObject = std::move(object)};
+    SendEvent(std::move(event));
+}
+
+void Scene::ChangeParent(IdType gameObject, IdType newParent)
+{
+    SendEvent(ChangeParentEvent{.newParentId = newParent, .gameObjectId = gameObject});
+}
+
+void Scene::ChangeParent(GameObject& gameObject, GameObject& newParent)
+{
+    SendEvent(ChangeParentEvent{.newParentId = newParent.GetId(), .gameObjectId = gameObject.GetId()});
+}
+
+void Scene::RemoveParent(GameObject& gameObject)
+{
+    SendEvent(ChangeParentEvent{.newParentId = rootGameObject_->GetId(), .gameObjectId = gameObject.GetId()});
+}
+
+void Scene::RemoveGameObject(IdType id)
+{
+    SendEvent(RemoveGameObjectEvent{.gameObjectId = id});
+}
+
+void Scene::RemoveGameObject(GameObject& object)
+{
+    SendEvent(RemoveGameObjectEvent{.gameObjectId = object.GetId()});
+}
+
+void Scene::ClearGameObjects()
+{
+    SendEvent(ClearGameObjectsEvent{});
 }
 
 GameObject* Scene::GetGameObject(uint32 id) const
 {
     if (gameObjectsIds_.count(id))
         return gameObjectsIds_.at(id);
+
+    if (id == 0)
+        return rootGameObject_.get();
 
     return rootGameObject_->GetChild(id);
 }
@@ -381,14 +512,15 @@ float Scene::distanceToCamera(const GameObject& gameObject) const
     return glm::length(camera.GetPosition() - gameObject.GetWorldTransform().GetPosition());
 }
 
-void Scene::SendEvent(SceneEvent& event)
+void Scene::SendEvent(SceneEvent&& event)
 {
-    addSceneEvent(event);
+    std::lock_guard<std::mutex> lk(eventsMutex);
+    events.push_back(std::move(event));
 }
 
 void Scene::SendEvent(EngineEvent& event)
 {
-    addEngineEvent(event);
+    engineContext->AddEngineEvent(event);
 }
 
 EngineContext* Scene::getEngineContext()

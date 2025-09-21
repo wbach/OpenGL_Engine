@@ -40,6 +40,8 @@ typedef std::string InputFileName;
 typedef std::string OutputFileName;
 typedef uint32_t IdType;
 
+static constexpr IdType INVALID_ID = std::numeric_limits<IdType>::max();
+
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a) / sizeof(a[0]))
 

@@ -7,11 +7,13 @@
 #include <fstream>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Scene/SceneEvents.h"
 #include "GameEngine/Scene/SceneReader.h"
 #include "GameEngine/Scene/SceneUtils.h"
 #include "Input/KeyCodeToCharConverter.h"
@@ -255,7 +257,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
         {
             try
             {
-                auto position = gameObject->GetTransform().GetPosition();
+                auto position = gameObject->GetLocalTransform().GetPosition();
                 position.x    = std::stof(args[2]);
 
                 if (rigidbody)
@@ -264,7 +266,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->GetTransform().SetPosition(position);
+                    gameObject->SetLocalPosition(position);
                 }
             }
             catch (...)
@@ -276,7 +278,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
         {
             try
             {
-                auto position = gameObject->GetTransform().GetPosition();
+                auto position = gameObject->GetLocalTransform().GetPosition();
                 position.y    = std::stof(args[2]);
                 if (rigidbody)
                 {
@@ -284,7 +286,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->GetTransform().SetPosition(position);
+                    gameObject->SetLocalPosition(position);
                 }
             }
             catch (...)
@@ -296,7 +298,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
         {
             try
             {
-                auto position = gameObject->GetTransform().GetPosition();
+                auto position = gameObject->GetLocalTransform().GetPosition();
                 position.z    = std::stof(args[2]);
 
                 if (rigidbody)
@@ -305,7 +307,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->GetTransform().SetPosition(position);
+                    gameObject->SetLocalPosition(position);
                 }
             }
             catch (...)
@@ -328,7 +330,7 @@ void Console::SetPosition(const std::vector<std::string> &args)
                 }
                 else
                 {
-                    gameObject->GetTransform().SetPosition(position);
+                    gameObject->SetLocalPosition(position);
                 }
             }
             catch (...)
@@ -353,7 +355,7 @@ void Console::PrintPosition(const std::vector<std::string> &args)
 
     if (auto gameObject = GetGameObject(args[0]))
     {
-        PrintMsgInConsole("Local Position of " + args[0] + " : " + std::to_string(gameObject->GetTransform().GetPosition()));
+        PrintMsgInConsole("Local Position of " + args[0] + " : " + std::to_string(gameObject->GetLocalTransform().GetPosition()));
         PrintMsgInConsole("World Position of " + args[0] + " : " + std::to_string(gameObject->GetWorldTransform().GetPosition()));
     }
     else
@@ -393,8 +395,8 @@ void Console::LoadScene(const std::vector<std::string> &params)
     {
         try
         {
-            SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_ID, static_cast<uint32>(std::stoi(params[0])));
-            scene_.addSceneEvent(sceneEvent);
+            scene_.getEngineContext()->AddEngineEvent(
+                ChangeSceneEvent(ChangeSceneEvent::Type::LOAD_SCENE_BY_ID, static_cast<uint32>(std::stoi(params[0]))));
         }
         catch (...)
         {
@@ -403,15 +405,13 @@ void Console::LoadScene(const std::vector<std::string> &params)
     }
     else
     {
-        SceneEvent sceneEvent(SceneEventType::LOAD_SCENE_BY_NAME, params[0]);
-        scene_.addSceneEvent(sceneEvent);
+        scene_.getEngineContext()->AddEngineEvent(ChangeSceneEvent(ChangeSceneEvent::Type::LOAD_SCENE_BY_NAME, params[0]));
     }
 }
 
 void Console::ReloadScene(const std::vector<std::string> &)
 {
-    SceneEvent sceneEvent(SceneEventType::RELOAD_SCENE, 0);
-    scene_.addSceneEvent(sceneEvent);
+    scene_.getEngineContext()->AddEngineEvent(ChangeSceneEvent(ChangeSceneEvent::Type::RELOAD_SCENE, 0));
 }
 
 void Console::UseAsyncLogging(const std::vector<std::string> &params)
@@ -541,7 +541,7 @@ void Console::Help(const std::vector<std::string> &)
 
 void Console::Exit(const std::vector<std::string> &)
 {
-    scene_.addEngineEvent(EngineEvent::ASK_QUIT);
+    scene_.getEngineContext()->AddEngineEvent(EngineEvent{QuitEvent::ASK_QUIT});
 }
 
 std::vector<std::string> Console::GetParams(const std::string &command) const

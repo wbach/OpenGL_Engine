@@ -63,7 +63,7 @@ GameObject* cloneGameObject(Scene& scene, const GameObject& gameObject)
     auto result = clonedGameObject.get();
     if (auto parent = gameObject.GetParent())
     {
-        parent->AddChild(std::move(clonedGameObject));
+        scene.AddGameObject(*parent, std::move(clonedGameObject));
     }
     else
     {

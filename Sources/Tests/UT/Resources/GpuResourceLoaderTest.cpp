@@ -23,39 +23,63 @@ public:
     };
 };
 
+TEST(GpuObjectTest, MoveConstructorTransfersId)
+{
+    TestGpuObject obj1;
+    auto id1 = obj1.GetGpuObjectId();
+
+    TestGpuObject obj2(std::move(obj1));
+
+    EXPECT_EQ(obj2.GetGpuObjectId(), id1) << "New object should take over the ID";
+    EXPECT_EQ(obj1.GetGpuObjectId(), INVALID_ID) << "Old object should be marked as moved-from";
+}
+
+TEST(GpuObjectTest, MoveAssignmentTransfersId)
+{
+    TestGpuObject obj1;
+    TestGpuObject obj2;
+
+    auto id1 = obj1.GetGpuObjectId();
+    auto id2 = obj2.GetGpuObjectId();
+
+    obj2 = std::move(obj1);
+
+    EXPECT_EQ(obj2.GetGpuObjectId(), id1) << "Target object should acquire the source's ID";
+    EXPECT_EQ(obj1.GetGpuObjectId(), INVALID_ID) << "Source object should be marked as moved-from";
+    EXPECT_NE(id2, obj2.GetGpuObjectId()) << "Old ID should be released";
+}
+
 TEST(GpuResourceLoaderTest, ParallelAddRemoveAndRuntimeTasks)
 {
     GpuResourceLoader loader;
     std::atomic<bool> stop{false};
 
-    std::thread gpuThread(
-        [&]()
+    std::thread gpuThread([&]() {
+        while (!stop)
         {
-            while (!stop)
-            {
-                loader.RuntimeGpuTasks();
-                std::this_thread::sleep_for(std::chrono::microseconds(50));
-            }
-        });
+            LOG_DEBUG << "RuntimeGpuTasks";
+            loader.RuntimeGpuTasks();
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
+    });
 
-    std::thread logicThread(
-        [&]()
+    std::thread logicThread([&]() {
+        for (int i = 0; i < 5000; ++i)
         {
-            for (int i = 0; i < 5000; ++i)
-            {
-                auto obj = std::make_unique<TestGpuObject>();
+            auto obj = std::make_unique<TestGpuObject>();
 
-                loader.AddObjectToGpuLoadingPass(*obj);
+            loader.AddObjectToGpuLoadingPass(*obj);
 
-                if (i % 2 == 0)
-                    loader.AddObjectToUpdateGpuPass(*obj);
+            if (i % 2 == 0)
+                loader.AddObjectToUpdateGpuPass(*obj);
 
-                std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100)));
-                loader.AddObjectToRelease(std::move(obj));
-            }
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100)));
+            LOG_DEBUG << "AddObjectToRelease";
+            loader.AddObjectToRelease(std::move(obj));
+        }
 
-            stop = true;
-        });
+        stop = true;
+    });
 
     logicThread.join();
     gpuThread.join();

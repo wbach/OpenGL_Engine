@@ -41,7 +41,7 @@ void JointPoseUpdater::fillOffsets()
     auto worldBoneMatrix = currentParentWorldMatrix * meshTransform * glm::inverse(joint->offset);
     auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);
 
-    owner.GetTransform().SetPositionAndRotation(localPosition, localRotation);
+    owner.SetLocalPositionRotation(localPosition, localRotation);
 
     const auto& position = owner.GetWorldTransform().GetPosition();
     const auto& rotation = owner.GetWorldTransform().GetRotation();

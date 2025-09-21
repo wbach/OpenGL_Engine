@@ -1,5 +1,7 @@
 #include "RendererComponent.hpp"
 
+#include <optional>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -40,10 +42,14 @@ void RendererComponent::CleanUp()
     {
         componentContext_.resourceManager_.ReleaseModel(*model);
     }
+
     ClearShaderBuffers();
 
     if (worldTransformSub_)
+    {
         thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSub_);
+        worldTransformSub_ = std::nullopt;
+    }
 }
 
 void RendererComponent::ReqisterFunctions()
@@ -94,9 +100,11 @@ void RendererComponent::init()
 
         LOG_DEBUG << thisObject_.GetName() << " Load model: " << file.GetBaseName();
         auto model = componentContext_.resourceManager_.LoadModel(file, loadingParameters_);
-
         if (model)
         {
+            LOG_DEBUG << "model bufferId=" << model->GetGpuObjectId();
+            for (auto& mesh : model->GetMeshes())
+                LOG_DEBUG << "mesh bufferId=" << mesh.GetGpuObjectId();
             // ReserveBufferVectors(model->GetMeshes().size());
             CreateBuffers(*model);
 
@@ -192,6 +200,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 
     const mat4 transformMatrix            = thisObject_.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform();
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
+    LOG_DEBUG << "bufferId=" << buffer.GetGpuObjectId();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
@@ -220,6 +229,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 
     buffer.GetData().UseBoneTransform = 0.f;  // mesh.UseArmature();
 
+    LOG_DEBUG << "bufferId=" << buffer.GetGpuObjectId();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
 void RendererComponent::UpdateBuffers()
@@ -281,8 +291,7 @@ std::unordered_map<LevelOfDetail, File> RendererComponent::GetFiles() const
 
 void RendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
-    {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
         auto component = std::make_unique<RendererComponent>(componentContext, gameObject);
 
         auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);

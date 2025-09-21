@@ -4,13 +4,12 @@
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
-#include <Tests/UT/Components/BaseComponent.h>
 #include <Logger/Log.h>
+#include <Tests/UT/Components/BaseComponent.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <gtest/gtest.h>
 
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
-
 
 using namespace ::testing;
 
@@ -21,8 +20,8 @@ namespace GameEngine
 struct TerrainTransitionTests : public BaseComponentTestSchould
 {
     TerrainTransitionTests()
-        : go1("go1", componentController_, componentFactory_, gameObjectIdPool)
-        , go2("go2", componentController_, componentFactory_, gameObjectIdPool)
+        : go1("go1", componentController_, componentFactory_, gameObjectIdPool, [](auto&&) {})
+        , go2("go2", componentController_, componentFactory_, gameObjectIdPool, [](auto&&) {})
     {
         CLogger::Instance().EnableLogs();
         CLogger::Instance().UseAsyncLogging(false);

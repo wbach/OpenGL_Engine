@@ -40,60 +40,45 @@ SceneManager::~SceneManager()
     StopThread();
     SetOnSceneLoadDone(nullptr);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
+    sceneWrapper_.Reset();
 }
 Scene* SceneManager::GetActiveScene()
 {
     return sceneWrapper_.Get();
 }
-
 void SceneManager::SetOnSceneLoadDone(OnSceneLoadDoneCallback callback)
 {
     LOG_DEBUG << "Set new onSceneLoadDoneCallback";
     onSceneLoadDoneCallback = callback;
 }
-
 void SceneManager::Update()
 {
     if (sceneWrapper_.GetState() == SceneWrapperState::ReadyToInitialized)
         sceneWrapper_.Init(onSceneLoadDoneCallback);
-
-    TakeEvents();
-    ProccessEvents();
 }
-void SceneManager::TakeEvents()
+void SceneManager::ProcessEvent(const ChangeSceneEvent& e)
 {
-    auto incomingEvent = GetSceneEvent();
-
-    if (not incomingEvent)
-        return;
-
     StopThread();
-    engineContext_.GetRenderersManager().UnSubscribeAll([&, e = *incomingEvent]() { AddEventToProcess(e); });
+    engineContext_.GetRenderersManager().UnSubscribeAll(
+        [&]() { engineContext_.AddEngineEvent(ChangeSceneConfirmEvent{.event = std::move(e)}); });
 }
-void SceneManager::ProccessEvents()
+void SceneManager::ProcessEvent(const ChangeSceneConfirmEvent& e)
 {
-    auto optionalEvent = GetProcessingEvent();
-
-    if (not optionalEvent)
-        return;
-
-    auto& e = *optionalEvent;
-
-    switch (e.type)
+    switch (e.event.type)
     {
-        case SceneEventType::LOAD_NEXT_SCENE:
+        case ChangeSceneEvent::Type::LOAD_NEXT_SCENE:
             LoadNextScene();
             break;
-        case SceneEventType::LOAD_PREVIOUS_SCENE:
+        case ChangeSceneEvent::Type::LOAD_PREVIOUS_SCENE:
             LoadPreviousScene();
             break;
-        case SceneEventType::LOAD_SCENE_BY_ID:
-            SetSceneToLoad(e.id);
+        case ChangeSceneEvent::Type::LOAD_SCENE_BY_ID:
+            SetSceneToLoad(e.event.id);
             break;
-        case SceneEventType::LOAD_SCENE_BY_NAME:
-            SetSceneToLoad(e.name);
+        case ChangeSceneEvent::Type::LOAD_SCENE_BY_NAME:
+            SetSceneToLoad(e.event.name);
             break;
-        case SceneEventType::RELOAD_SCENE:
+        case ChangeSceneEvent::Type::RELOAD_SCENE:
             SetSceneToLoad(currentSceneId_);
             break;
         default:
@@ -125,42 +110,6 @@ void SceneManager::UpdateScene(float dt)
 
     sceneWrapper_.UpdateScene(dt);
 }
-void SceneManager::AddSceneEvent(const SceneEvent& e)
-{
-    std::lock_guard<std::mutex> lk(eventMutex_);
-    events_.push(e);
-}
-
-void SceneManager::AddEventToProcess(const SceneEvent& e)
-{
-    std::lock_guard<std::mutex> lk(processingEventMutex_);
-    processingEvents_.push(e);
-}
-
-std::optional<GameEngine::SceneEvent> SceneManager::GetSceneEvent()
-{
-    std::lock_guard<std::mutex> lk(eventMutex_);
-
-    if (events_.empty())
-        return std::nullopt;
-
-    auto e = events_.front();
-    events_.pop();
-    return std::move(e);
-}
-
-std::optional<GameEngine::SceneEvent> SceneManager::GetProcessingEvent()
-{
-    std::lock_guard<std::mutex> lk(processingEventMutex_);
-
-    if (processingEvents_.empty())
-        return {};
-
-    auto e = processingEvents_.front();
-    processingEvents_.pop();
-
-    return std::move(e);
-}
 
 void SceneManager::LoadNextScene()
 {
@@ -181,13 +130,6 @@ void SceneManager::LoadPreviousScene()
     SetSceneToLoad(--currentSceneId_);
 }
 
-template <class SceneNameOrId>
-void SceneManager::SetToWrapper(SceneNameOrId sceneNameOrId)
-{
-    sceneWrapper_.Reset();
-    sceneWrapper_.Set(sceneNameOrId, std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
-}
-
 void SceneManager::SetSceneToLoad(uint32 id)
 {
     if (!sceneFactory_->IsExist(id))
@@ -196,7 +138,7 @@ void SceneManager::SetSceneToLoad(uint32 id)
         return;
     }
     currentSceneId_ = id;
-    SetToWrapper<uint32>(id);
+    sceneWrapper_.Set(id);
 }
 
 void SceneManager::SetSceneToLoad(const std::string& name)
@@ -208,11 +150,7 @@ void SceneManager::SetSceneToLoad(const std::string& name)
     }
 
     currentSceneId_ = sceneFactory_->GetSceneId(name);
-    SetToWrapper<const std::string&>(name);
-}
-void SceneManager::SetSceneContext(Scene* scene)
-{
-    scene->SetAddSceneEventCallback(std::bind(&SceneManager::AddSceneEvent, this, std::placeholders::_1));
+    sceneWrapper_.Set(name);
 }
 
 void SceneManager::StartUpdateThreadIfNeeded()

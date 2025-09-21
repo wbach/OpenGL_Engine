@@ -2,6 +2,7 @@
 #include <Input/InputManager.h>
 
 #include "EngineContext.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "IntroRenderer.h"
 #include "ConfigurationReader.h"
 #include "ExternalComponentsReader.h"
@@ -34,6 +35,7 @@ public:
 private:
     void ProcessEngineEvents();
     void Quit();
+    void Quit(QuitEvent);
 
 private:
     ConfigurationReader readConfiguration_;

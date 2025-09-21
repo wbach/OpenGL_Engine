@@ -99,7 +99,7 @@ void TerrainShape::LoadHeightMapIfSet()
     if (terrainRendererComponent_)
     {
         terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(), *heightMap_,
-                                                                     thisObject_.GetTransform().GetPosition());
+                                                                     thisObject_.GetLocalTransform().GetPosition());
     }
     else
     {

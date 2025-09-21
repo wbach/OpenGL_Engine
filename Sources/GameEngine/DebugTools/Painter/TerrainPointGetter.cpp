@@ -73,7 +73,7 @@ bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
     }
     TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(),
                                             *terrain->GetHeightMap(),
-                                            terrain->GetParentGameObject().GetTransform().GetPosition());
+                                            terrain->GetParentGameObject().GetLocalTransform().GetPosition());
 
     auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
 

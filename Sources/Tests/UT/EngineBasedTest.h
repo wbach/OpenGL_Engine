@@ -17,6 +17,7 @@
 #include "Tests/Mocks/Api/InputManagerMock.h"
 #include "Tests/Mocks/Api/WindowApiMock.hpp"
 #include "Tests/Mocks/Renderers/RendererFactoryMock.h"
+#include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "Tests/Mocks/Resources/TextureLoaderMock.h"
 
@@ -30,6 +31,7 @@ public:
     virtual ~EngineBasedTest();
 
     void SetUp() override;
+    void TearDown() override;
 
     using GraphicsApiMock = GraphicsApi::GraphicsApiMock;
 
@@ -41,7 +43,8 @@ public:
     GraphicsApiMock* graphicsApi;
     GraphicsApi::WindowApiMock windowApiMock;
     RendererFactoryMock* rendererFactory;
-    ResourceManagerMock* resourceManager;
-    TextureLoaderMock textureLoaderMock;
+    //ResourceManagerMock* resourceManager;
+    LoaderMock* modelLoaderMock;
+    TextureLoaderMock* textureLoader;
     Scene* scene;
 };

@@ -292,16 +292,17 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
         vec3 position(0.f);
         position = scene->GetCamera().GetPosition();
         position += scene->GetCamera().GetDirection() * 5.f;
-        newGameObject->GetTransform().SetPosition(position);
+        newGameObject->SetLocalPosition(position);
 
         auto result = newGameObject->GetId();
+
         if (not parent)
         {
             scene->AddGameObject(std::move(newGameObject));
         }
         else
         {
-            parent->AddChild(std::move(newGameObject));
+            scene->AddGameObject(*parent, std::move(newGameObject));
         }
         return result;
     }

@@ -6,6 +6,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -28,9 +29,63 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
 {
 }
 
+Mesh::Mesh(Mesh&& other) noexcept
+    : GpuObject(std::move(other))
+    , graphicsApi_(other.graphicsApi_)
+    , meshRawData_(std::move(other.meshRawData_))
+    , renderType_(other.renderType_)
+    , material_(std::move(other.material_))
+    , transform_(std::move(other.transform_))
+    , normalizedScale_(std::move(other.normalizedScale_))
+    , boundingBox_(std::move(other.boundingBox_))
+    , perMeshObjectBuffer_(other.perMeshObjectBuffer_)
+{
+    LOG_DEBUG << "Mesh moved. Id=" << GetGpuObjectId();
+
+    // wyczysczenie aby desturkotr nie zwalanial niczego
+    other.meshRawData_         = GraphicsApi::MeshRawData{};
+    other.transform_           = mat4(1.f);
+    other.normalizedScale_     = vec3(1.f);
+    other.boundingBox_         = BoundingBox{};
+    other.perMeshObjectBuffer_ = INVALID_ID;
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept
+{
+    if (this != &other)
+    {
+        GpuObject::operator=(std::move(other));
+
+        meshRawData_         = std::move(other.meshRawData_);
+        renderType_          = other.renderType_;
+        material_            = std::move(other.material_);
+        transform_           = std::move(other.transform_);
+        normalizedScale_     = std::move(other.normalizedScale_);
+        boundingBox_         = std::move(other.boundingBox_);
+        perMeshObjectBuffer_ = other.perMeshObjectBuffer_;
+
+        LOG_DEBUG << "Mesh move-assigned. Id=" << GetGpuObjectId();
+
+        other.meshRawData_         = GraphicsApi::MeshRawData{};
+        other.transform_           = mat4(1.f);
+        other.normalizedScale_     = vec3(1.f);
+        other.boundingBox_         = BoundingBox{};
+        other.perMeshObjectBuffer_ = INVALID_ID;
+    }
+    return *this;
+}
+
 Mesh::~Mesh()
 {
-    ReleaseGpuPass();
+    if (perMeshObjectBuffer_ != INVALID_ID)
+    {
+        LOG_DEBUG << "Mesh destroyed. Id=" << GetGpuObjectId();
+        ReleaseGpuPass();
+    }
+    else
+    {
+        LOG_DEBUG << "Mesh destroyed (moved-from).";
+    }
 }
 
 void Mesh::GpuLoadingPass()
@@ -47,12 +102,16 @@ void Mesh::ReleaseGpuPass()
     if (graphicsObjectId_)
     {
         graphicsApi_.DeleteObject(*graphicsObjectId_);
+        graphicsObjectId_ = std::nullopt;
     }
+
+    LOG_DEBUG << " Mesh::DeleteShaderBuffer()";
     if (perMeshObjectBuffer_)
     {
         graphicsApi_.DeleteShaderBuffer(*perMeshObjectBuffer_);
+        perMeshObjectBuffer_ = std::nullopt;
     }
-    GpuObject::ReleaseGpuPass();
+    LOG_DEBUG << " Mesh::ReleaseGpuPass() done";
 }
 
 void Mesh::CreateMesh()
@@ -62,6 +121,7 @@ void Mesh::CreateMesh()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
+        LOG_DEBUG << "CreateMesh graphicsObjectId_ := " << graphicsObjectId_;
     }
 }
 
@@ -97,10 +157,10 @@ void Mesh::SetMaterial(const Material& mat)
 
 void Mesh::CreateBufferObject()
 {
-    perMeshObjectBuffer_ =
-        graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
+    perMeshObjectBuffer_ = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
     if (perMeshObjectBuffer_)
     {
+        LOG_DEBUG << "CreateMesh perMeshObjectBuffer_ := " << perMeshObjectBuffer_;
         PerMeshObject perMeshObject;
         perMeshObject.ambient         = ToVec4(material_.ambient);
         perMeshObject.diffuse         = ToVec4(material_.diffuse);

@@ -179,7 +179,7 @@ void RenderersManager::Subscribe(GameObject* gameObject)
         return;
 
     debugRenderer_.subscribe(*gameObject);
-    bufferDataUpdater_.Subscribe(gameObject);
+    //bufferDataUpdater_.Subscribe(gameObject);
     if (mainRenderer_)
         mainRenderer_->subscribe(*gameObject);
 }

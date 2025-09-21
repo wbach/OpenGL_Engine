@@ -1,5 +1,7 @@
 #include "ResourceManager.h"
+
 #include <Logger/Log.h>
+
 #include "IGpuResourceLoader.h"
 namespace GameEngine
 {
@@ -94,19 +96,26 @@ void ResourceManager::ReleaseModel(Model& model)
     auto absoultePath = model.GetFile().GetAbsolutePath();
 
     if (not models_.count(absoultePath.string()))
+    {
+        LOG_WARN << "Model dosent exist! " << absoultePath;
         return;
+    }
 
     auto& modelInfo = models_.at(absoultePath.string());
     --modelInfo.instances_;
 
     if (modelInfo.instances_ > 0 or releaseLockState_)
+    {
+        LOG_DEBUG << "Model "<<  absoultePath <<  " not released. Still using by others. Instances=" << modelInfo.instances_;
         return;
+    }
 
     for (auto& mesh : modelInfo.resource_->GetMeshes())
     {
         DeleteMaterial(mesh.GetMaterial());
     }
 
+    LOG_DEBUG << "Release model :" << absoultePath.string();
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(absoultePath.string());
 }

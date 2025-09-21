@@ -9,6 +9,7 @@
 #include "ChangeAnimationEvent.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/IComponent.h"

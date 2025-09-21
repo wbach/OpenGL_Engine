@@ -41,16 +41,9 @@ void EngineContext::AddEngineEvent(EngineEvent event)
     engineEvents_.push_back(event);
 }
 
-std::optional<EngineEvent> EngineContext::GetEngineEvent()
+EngineContext::EngineEvents EngineContext::GetEngineEvents()
 {
-    if (engineEvents_.empty())
-        return std::nullopt;
-
     std::lock_guard<std::mutex> lk(engineEventsMutex_);
-
-    auto event = engineEvents_.front();
-    engineEvents_.pop_front();
-
-    return event;
+    return std::move(engineEvents_);
 }
 }  // namespace GameEngine

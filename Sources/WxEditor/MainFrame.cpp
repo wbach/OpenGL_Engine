@@ -18,7 +18,6 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
-#include <iostream>
 #include <string>
 
 #include "AnimationViwerIcon.h"
@@ -35,6 +34,7 @@
 #include "ProjectPanel.h"
 #include "Theme.h"
 #include "TransformPanel.h"
+#include "magic_enum/magic_enum.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -386,7 +386,7 @@ void MainFrame::ClearScene()
 
 void MainFrame::OnClose(wxCloseEvent& event)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("OnClose");
+    /* LOG TO FIX*/ LOG_ERROR << ("OnClose");
     isRunning = false;
     if (loadSceneThread.joinable())
     {
@@ -480,7 +480,8 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 
 void MainFrame::MenuFileReloadScene(wxCommandEvent&)
 {
-    canvas->GetScene().addSceneEvent(GameEngine::SceneEventType::RELOAD_SCENE);
+    canvas->GetEngine().GetEngineContext().AddEngineEvent(
+        GameEngine::ChangeSceneEvent{GameEngine::ChangeSceneEvent::Type::RELOAD_SCENE});
 }
 
 void MainFrame::MenuFileSaveScene(wxCommandEvent&)
@@ -520,9 +521,10 @@ void MainFrame::MenuEditCreateObject(wxCommandEvent&)
 
 GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
 {
-    auto gameObject       = canvas->GetScene().CreateGameObject(name);
+    auto& scene           = canvas->GetScene();
+    auto gameObject       = scene.CreateGameObject(name);
     auto result           = gameObject.get();
-    auto parentGameObject = canvas->GetScene().GetGameObject(parentId);
+    auto parentGameObject = scene.GetGameObject(parentId);
 
     if (parentGameObject)
     {
@@ -530,15 +532,16 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
         auto worldPosition = gameObject->GetWorldTransform().GetPosition();
         auto worldRotation = gameObject->GetWorldTransform().GetRotation();
         auto worldScale    = gameObject->GetWorldTransform().GetScale();
-        /* LOG TO FIX*/  LOG_ERROR << ("NewGameObj add");
-        parentGameObject->AddChild(std::move(gameObject));
+        LOG_DEBUG << "NewGameObj add: " << name;
+
+        scene.AddGameObject(*parentGameObject, std::move(gameObject));
         go->SetWorldPosition(worldPosition);
         go->SetWorldRotation(worldRotation);
         go->SetWorldScale(worldScale);
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("NewGameObj add");
+        /* LOG TO FIX*/ LOG_ERROR << ("NewGameObj add");
         canvas->GetScene().AddGameObject(std::move(gameObject));
     }
 
@@ -982,7 +985,7 @@ void MainFrame::UpdateTimeOnToolbar()
     auto [hour, minute, _] = canvas->GetScene().GetDayNightCycle().GetHourMinuteSecond();
     int totalMinutes       = hour * 60 + minute;
 
-    /* LOG TO FIX*/  LOG_ERROR << ("hour: " + std::to_string(hour) + " minute: " + std::to_string(minute));
+    LOG_DEBUG << "hour: " << hour << " minute: " << minute;
     timeSlider->SetValue(totalMinutes);
     hourCtrl->SetValue(hour);
     minuteCtrl->SetValue(minute);
@@ -1044,7 +1047,7 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
     {
         UpdateGameObjectIdOnTransfromLabel(go->GetId());
         worldTransformPanel->set(go->GetWorldTransform());
-        localTransformPanel->set(go->GetTransform());
+        localTransformPanel->set(go->GetLocalTransform());
 
         if (not isGameObjectPrefab(*go->GetParent()))
         {
@@ -1276,7 +1279,7 @@ void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
     int selection = event.GetSelection();  // indeks nowej aktywnej strony
     if (transfromSubController)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("selection = " + std::to_string(selection));
+        LOG_DEBUG << "selection = " << selection;
         transfromSubController->ChangeState(static_cast<TransfromSubController::State>(selection));
     }
     // ... twoja logika ...
@@ -1285,24 +1288,7 @@ void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
 
 void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent)
 {
-    auto currentParent = object.GetParent();
-    if (currentParent and newParent.GetId() != currentParent->GetId())
-    {
-        auto worldPosition = object.GetWorldTransform().GetPosition();
-        auto worldRotation = object.GetWorldTransform().GetRotation();
-        auto worldScale    = object.GetWorldTransform().GetScale();
-
-        auto freeGameObject = currentParent->MoveChild(object.GetId());
-
-        if (freeGameObject)
-        {
-            auto go = freeGameObject.get();
-            newParent.MoveChild(std::move(freeGameObject));
-            go->SetWorldPosition(worldPosition);
-            go->SetWorldRotation(worldRotation);
-            go->SetWorldScale(worldScale);
-        }
-    }
+    canvas->GetScene().ChangeParent(object, newParent);
 }
 
 void MainFrame::OnToolStart(wxCommandEvent& event)
@@ -1311,7 +1297,8 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
     GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
 
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" +
-                      sceneFile.GetAbsolutePath().string() + "\" " + "--projectPath " + ProjectManager::GetInstance().GetProjectPath();
+                      sceneFile.GetAbsolutePath().string() + "\" " + "--projectPath " +
+                      ProjectManager::GetInstance().GetProjectPath();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)
@@ -1478,7 +1465,7 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
     , gameObjectId{goId}
     , state{State::world}
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("SubscribeCurrent");
+    LOG_DEBUG << "SubscribeCurrent";
     SubscribeCurrent();
     for (auto& panel : transformPanels)
     {
@@ -1496,7 +1483,7 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
                         }
                         else
                         {
-                            gameObject->GetTransform().SetPosition(v);
+                            gameObject->SetLocalPosition(v);
                         }
                     }
                     else if (label == LABEL_ROTATION)
@@ -1507,7 +1494,7 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
                         }
                         else
                         {
-                            gameObject->GetTransform().SetRotation(Rotation{DegreesVec3(v)});
+                            gameObject->SetLocalRotation(Rotation{DegreesVec3(v)});
                         }
                     }
                     else if (label == LABEL_SCALE)
@@ -1518,7 +1505,7 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
                         }
                         else
                         {
-                            gameObject->GetTransform().SetScale(v);
+                            gameObject->SetLocalScale(v);
                         }
                     }
                 }
@@ -1535,7 +1522,7 @@ void TransfromSubController::ChangeGameObject(GameObjectId goId)
 {
     if (gameObjectId != goId)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("ChangeGameObject " + std::to_string(goId));
+        LOG_DEBUG << "ChangeGameObject " << goId;
         UnsubscribeCurrent();
         gameObjectId = goId;
         SubscribeCurrent();
@@ -1546,7 +1533,7 @@ void TransfromSubController::ChangeState(State s)
 {
     if (state != s)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("State " + std::to_string(static_cast<int>(s)));
+        LOG_DEBUG << "State " << magic_enum::enum_name(s);
         UnsubscribeCurrent();
         state = s;
         SubscribeCurrent();
@@ -1562,15 +1549,15 @@ void TransfromSubController::SubscribeCurrent()
 
         if (state == State::world)
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Sub world, " + go->GetName());
+            LOG_DEBUG << "Sub world, " << go->GetName();
             subId = go->SubscribeOnWorldTransfomChange(updatePanel);
             transformPanels[state]->set(go->GetWorldTransform());
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Sub local, " + go->GetName());
-            subId = go->GetTransform().SubscribeOnChange(updatePanel);
-            transformPanels[state]->set(go->GetTransform());
+            LOG_DEBUG << "Sub local, " << go->GetName();
+            subId = go->SubscribeOnLocalTransfomChange(updatePanel);
+            transformPanels[state]->set(go->GetLocalTransform());
         }
     }
 }
@@ -1584,13 +1571,13 @@ void TransfromSubController::UnsubscribeCurrent()
         {
             if (state == State::world)
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("Unsub worl, " + go->GetName());
+                LOG_DEBUG << "Unsub worl, " << go->GetName();
                 go->UnsubscribeOnWorldTransfromChange(*subId);
             }
             else
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("Uub local, " + go->GetName());
-                go->GetTransform().UnsubscribeOnChange(*subId);
+                LOG_DEBUG << "Uub local, " << go->GetName();
+                go->UnsubscribeOnLocalTransfromChange(*subId);
             }
         }
     }

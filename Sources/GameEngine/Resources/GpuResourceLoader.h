@@ -35,8 +35,8 @@ private:
     void RuntimeLoadObjectToGpu();
     void RuntimeUpdateObjectGpu();
     void RuntimeReleaseObjectGpu();
-    void IsRemoveObjectIfIsToUpdateState(GpuObject&);
-    void IsRemoveObjectIfIsToLoadState(GpuObject&);
+    void RemoveObjectIfIsToUpdateState(GpuObject&);
+    void RemoveObjectIfIsToLoadState(GpuObject&);
 
 private:
     std::vector<std::function<void()>> functions;

@@ -19,7 +19,8 @@ public:
     Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
          const mat4& = mat4(1.f), const vec3& = vec3(1.f));
     Mesh(const Mesh&) = delete;
-    Mesh(Mesh&&)      = default;
+    Mesh(Mesh&&) noexcept;
+    Mesh& operator=(Mesh&&) noexcept;
     ~Mesh() override;
 
     void GpuLoadingPass() override;

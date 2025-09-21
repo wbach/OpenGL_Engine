@@ -1,5 +1,6 @@
 #pragma once
 #include "IGpuObject.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -10,8 +11,9 @@ public:
     ~GpuObject();
 
     GpuObject(const GpuObject&) = delete;
-    GpuObject(GpuObject&&)      = default;
+    GpuObject(GpuObject&&) noexcept;
     GpuObject& operator=(GpuObject const&) = delete;
+    GpuObject& operator=(GpuObject&&) noexcept;
 
     void GpuLoadingPass() override = 0;
     void UpdateGpuPass() override;
@@ -23,7 +25,6 @@ protected:
     std::optional<uint32> graphicsObjectId_;
 
 private:
-    static uint64 s_Id_;
-    uint64 id_;
+    IdType id_;
 };
 }  // namespace GameEngine

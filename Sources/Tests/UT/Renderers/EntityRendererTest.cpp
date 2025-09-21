@@ -2,9 +2,11 @@
 #include <GameEngine/Resources/Models/Model.h>
 #include <Utils/MeasurementHandler.h>
 #include <gtest/gtest.h>
+#include <unistd.h>
 
 #include <memory>
 #include <mutex>
+#include <optional>
 
 #include "Camera/Frustrum.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -18,6 +20,7 @@
 #include "Objects/GameObject.h"
 #include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "Tests/UT/EngineBasedTest.h"
+#include "Types.h"
 #include "gmock/gmock.h"
 
 using namespace testing;
@@ -34,22 +37,23 @@ const vec3 MATERIAL_SPECULAR{1.f, 1.f, 1.f};
 
 struct EntityRendererShould : public EngineBasedTest
 {
-    void SetUp()
+    void SetUp() override
     {
         EngineBasedTest::SetUp();
 
-        EXPECT_CALL(*rendererFactory, create(_))
-            .WillOnce(
-                [&](RendererContext& ctx)
-                {
-                    rendererContext             = &ctx;
-                    auto concreteEntityRenderer = std::make_unique<ConcreteEntityRenderer>(ctx);
-                    return concreteEntityRenderer;
-                });
+        EXPECT_CALL(*rendererFactory, create(_)).WillOnce([&](RendererContext& ctx) {
+            rendererContext             = &ctx;
+            auto concreteEntityRenderer = std::make_unique<ConcreteEntityRenderer>(ctx);
+            return concreteEntityRenderer;
+        });
 
         engineContext->GetRenderersManager().Init();
+        engineContext->GetThreadSync().Stop();
 
-        model_ = CreateModel();
+        ON_CALL(*graphicsApi, PrepareMatrixToLoad(_)).WillByDefault(Return(INDENITY_MATRIX));
+        ON_CALL(*modelLoaderMock, CheckExtension(_)).WillByDefault(Return(true));
+        ON_CALL(*modelLoaderMock, ParseFile(_)).WillByDefault(Return(true));
+        ON_CALL(*modelLoaderMock, Create()).WillByDefault([&]() { return CreateModel(); });
     }
 
     void ExpectRender()
@@ -58,28 +62,13 @@ struct EntityRendererShould : public EngineBasedTest
         EXPECT_CALL(*graphicsApi, RenderMesh(_)).Times(AtLeast(1));
     }
 
-    GameObject* AddGameObject()
+    GameObject* AddGameObject(const std::string& name = "TestGameObject")
     {
-        assert(model_ != nullptr);
+        LOG_DEBUG << "AddGameObject start";
 
-        EXPECT_CALL(*graphicsApi, PrepareMatrixToLoad(_)).WillRepeatedly(Return(INDENITY_MATRIX));
-        EXPECT_CALL(*resourceManager, GetGpuResourceLoader()).WillRepeatedly(ReturnRef(gpuResourceLoaderMock));
-        CreateModel();
-
-        EXPECT_CALL(*resourceManager, LoadModel(File("Meshes/sphere.obj"), _))
-            .WillRepeatedly(
-                [&](const File&, const LoadingParameters&)
-                {
-                    // During this step object is added to gpu pass
-                    if (not model_->GetGraphicsObjectId())
-                        engineContext->GetGpuResourceLoader().AddObjectToGpuLoadingPass(*model_);
-                    return model_.get();
-                });
-
-        auto entity = scene->CreateGameObject();
+        auto entity = scene->CreateGameObject(name);
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
-        transformToShader_ = entity->GetWorldTransform().GetMatrix() * model_->GetMeshes().front().GetMeshTransform();
-        auto entityPtr     = entity.get();
+        auto entityPtr = entity.get();
         scene->AddGameObject(std::move(entity));
 
         LOG_DEBUG << "AddGameObject done";
@@ -89,6 +78,7 @@ struct EntityRendererShould : public EngineBasedTest
 
     std::unique_ptr<Model> CreateModel()
     {
+        LOG_DEBUG << "CreateModel start";
         auto model = std::make_unique<Model>();
         Mesh mesh(GraphicsApi::RenderType::TRIANGLES, *graphicsApi);
 
@@ -98,16 +88,20 @@ struct EntityRendererShould : public EngineBasedTest
         m.specular = MATERIAL_SPECULAR;
         mesh.SetMaterial(m);
         model->AddMesh(std::move(mesh));
+        LOG_DEBUG << "CreateModel end";
         return model;
     }
 
     void LoadAllGpuTask()
     {
+        LOG_DEBUG << "LoadAllGpuTask";
         auto& gpuLoader = engineContext->GetGpuResourceLoader();
         while (gpuLoader.CountObjectsToAdd() > 0 or gpuLoader.CountObjectsToUpdate() > 0 or gpuLoader.CountObjectsToRelease() > 0)
         {
+            LOG_DEBUG << "RuntimeGpuTasks";
             engineContext->GetGpuResourceLoader().RuntimeGpuTasks();
         }
+        LOG_DEBUG << "LoadAllGpuTask end";
     }
 
     Time time_;
@@ -115,7 +109,7 @@ struct EntityRendererShould : public EngineBasedTest
     Projection projection_;
     GpuResourceLoaderMock gpuResourceLoaderMock;
 
-    std::unique_ptr<Model> model_;
+    //  std::unique_ptr<Model> model_;
     mat4 transformToShader_;
 
     RendererContext* rendererContext;
@@ -123,7 +117,9 @@ struct EntityRendererShould : public EngineBasedTest
 
 TEST_F(EntityRendererShould, RenderSingleObject)
 {
-    AddGameObject();
+    auto go = AddGameObject();
+    go->SetWorldPosition(vec3(10));
+    scene->FullUpdate(0.1f);  // Apply object addition etc
     EXPECT_CALL(*graphicsApi, CreateMesh(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
     LoadAllGpuTask();
 
@@ -136,79 +132,84 @@ TEST_F(EntityRendererShould, RenderSingleObject)
     SUCCEED();
 }
 
-TEST_F(EntityRendererShould, DISABLED_ParallelAddRemove)
+TEST_F(EntityRendererShould, ParallelAddRemove)
 {
+    auto oldVerbose                = ::testing::GMOCK_FLAG(verbose);
+    ::testing::GMOCK_FLAG(verbose) = "error";
+
     AddGameObject();
-    EXPECT_CALL(*graphicsApi, CreateMesh(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
+    ON_CALL(*graphicsApi, CreateMesh(_, _)).WillByDefault(Return(GraphicsApi::ID(IdPool.getId())));
     LoadAllGpuTask();
 
     std::atomic<bool> addStop{false};
     std::atomic<bool> removeStop{false};
 
     std::mutex objectMutex;
-    std::vector<GameObject*> objects;
-    auto popRandomItem = [](std::vector<GameObject*>& vec) -> GameObject*
-    {
-        if (vec.empty())
-            return nullptr;
+    using CreatedObjectContainer = std::vector<std::pair<GameObject*, IdType>>;
+    CreatedObjectContainer objects;
 
-        size_t index = static_cast<size_t>(getRandomFloat() * vec.size());
-        if (index >= vec.size())
-            index = vec.size() - 1;
+  auto popRandomItem = [](CreatedObjectContainer& vec) -> std::optional<std::pair<GameObject*, IdType>> {
+        if (vec.empty()) return std::nullopt;
 
-        GameObject* item = vec[index];
+        float r = std::clamp(getRandomFloat(), 0.f, std::nextafter(1.f, 0.f));
+        size_t index = static_cast<size_t>(r * vec.size());
+
+        auto item = vec[index];
         vec.erase(vec.begin() + index);
         return item;
     };
 
-    std::thread gpuThread(
-        [&]()
+    std::thread gpuThread([&]() {
+        while (!addStop or !removeStop)
         {
-            while (!addStop or !removeStop)
-            {
-                EXPECT_CALL(*graphicsApi, CreateMesh(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
-                LoadAllGpuTask();
-                engineContext->GetRenderersManager().renderScene(*scene);
+            LoadAllGpuTask();
+            engineContext->GetRenderersManager().renderScene(*scene);
 
-                LOG_DEBUG << "EnityRendererdMeshes " << rendererContext->measurmentHandler_.GetValue("EnityRendererdMeshes");
-                std::this_thread::sleep_for(std::chrono::microseconds(50));
-            }
-        });
+            LOG_DEBUG << "EnityRendererdMeshes " << rendererContext->measurmentHandler_.GetValue("EnityRendererdMeshes");
+            std::this_thread::sleep_for(std::chrono::microseconds(50));
+        }
+    });
 
-    std::thread addThread(
-        [&]()
+    std::thread addThread([&]() {
+        for (int i = 0; i < 1000000; ++i)
         {
-            for (int i = 0; i < 100; ++i)
             {
-                {
-                    std::lock_guard<std::mutex> lk(objectMutex);
-                    objects.push_back(AddGameObject());
-                }
-
-                std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100)));
+                std::lock_guard<std::mutex> lk(objectMutex);
+                auto go = AddGameObject();
+                objects.push_back({go, go->GetId()});
+                LOG_DEBUG << "Add go: " << go->GetName() << " id=" << go->GetId();
             }
-            addStop = true;
-        });
 
-    std::thread logicThread(
-        [&]()
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
+        }
+        addStop = true;
+    });
+
+    std::thread logicThread([&]() {
+        while (!addStop or !objects.empty())
         {
-            while (!addStop or !objects.empty())
+            std::optional<std::pair<GameObject*, IdType>> maybeGo;
             {
-                GameObject* go = nullptr;
-                {
-                    std::lock_guard<std::mutex> lk(objectMutex);
-                    go = popRandomItem(objects);
-                }
-                if (go)
-                {
-                    scene->RemoveGameObject(*go);
-                }
-
-                std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
+                std::lock_guard<std::mutex> lk(objectMutex);
+                maybeGo = popRandomItem(objects);
             }
-            removeStop = true;
-        });
+
+            if (maybeGo)
+            {
+                LOG_DEBUG << "Remove go: id=" << maybeGo->second;
+                LOG_DEBUG << "Ptr is set id=" << maybeGo->second;
+                LOG_DEBUG << "Check id=" << maybeGo->first->GetId();
+
+                if (maybeGo->first)
+                {
+                    scene->RemoveGameObject(*maybeGo->first);
+                }
+            }
+            scene->FullUpdate(0.1f);
+            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
+        }
+        removeStop = true;
+    });
 
     addThread.join();
     logicThread.join();
@@ -217,6 +218,8 @@ TEST_F(EntityRendererShould, DISABLED_ParallelAddRemove)
     // Nie sprawdzamy ASSERT_EQ – crash = fail
     LOG_DEBUG << "TestDone";
     SUCCEED();
+
+    ::testing::GMOCK_FLAG(verbose) = oldVerbose;
 }
 }  // namespace UT
 }  // namespace GameEngine

@@ -5,6 +5,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -100,6 +101,8 @@ void LoadingScreenRenderer::CreateBuffers()
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(mat4(1.f));
         graphicsApi_.UpdateShaderBuffer(*backgroundBufferId_, &perObjectUpdate_);
+
+        LOG_DEBUG << "backgroundBufferId_: = " << backgroundBufferId_;
     }
 
     if (not circleBufferId_)
@@ -110,6 +113,8 @@ void LoadingScreenRenderer::CreateBuffers()
         PerObjectUpdate perObjectUpdate_;
         perObjectUpdate_.TransformationMatrix = graphicsApi_.PrepareMatrixToLoad(circleMatrix_);
         graphicsApi_.UpdateShaderBuffer(*circleBufferId_, &perObjectUpdate_);
+
+        LOG_DEBUG << "backgroundBufferId_: = " << circleBufferId_;
     }
 }
 }  // namespace GameEngine

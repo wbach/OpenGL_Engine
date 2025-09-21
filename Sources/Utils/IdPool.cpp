@@ -1,8 +1,10 @@
 #include "IdPool.h"
 
 #include <algorithm>
+#include <mutex>
 
 #include "Logger/Log.h"
+
 
 namespace Utils
 {
@@ -13,6 +15,7 @@ IdPool::IdPool(IdType startupValue)
 }
 IdType IdPool::getId(const std::optional<IdType>& requestedId)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     if (requestedId)
     {
         if (counter_ <= *requestedId)
@@ -37,8 +40,7 @@ IdType IdPool::getId(const std::optional<IdType>& requestedId)
             else
             {
                 auto toReturn = getNextId();
-                /* LOG TO FIX*/  LOG_ERROR << ("Can not allocate id : " + std::to_string(*requestedId) +
-                            " assign new one : " + std::to_string(toReturn));
+                LOG_ERROR << "Can not allocate id : " << *requestedId << " assign new one : " << toReturn;
                 return toReturn;
             }
         }
@@ -61,6 +63,7 @@ IdType IdPool::getNextId()
 
 void IdPool::releaseId(IdType id)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     freeIds_.push_back(id);
     freeIds_.sort();
 }
@@ -70,6 +73,7 @@ void IdPool::clear()
 }
 void IdPool::clear(IdType value)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     counter_ = value;
     freeIds_.clear();
 }

@@ -103,7 +103,7 @@ void AimController::shoot()
         updateJointBufferSubId_.reset();
         jointPoseUpdater.reset();
 
-        arrowGameObject->RemoveParent();
+        scene.RemoveParent(*arrowGameObject);
         arrowGameObject->GetComponent<Components::ArrowController>()->shoot();
         arrowGameObject = nullptr;
     }
@@ -168,7 +168,7 @@ void AimController::createArrowObject()
     arrowObject->AddComponent<Components::RendererComponent>().AddModel(path);
     arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
     arrowGameObject = arrowObject.get();
-    gameObject.AddChild(std::move(arrowObject));
+    scene.AddGameObject(gameObject, std::move(arrowObject));
     arrowGameObject->SetWorldScale(vec3(0.75f));
     auto joint = animator->GetJoint("mixamorig:RightHand");
     if (joint)

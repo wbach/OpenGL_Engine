@@ -1,6 +1,7 @@
 #pragma once
 #include <Utils/IdPool.h>
 
+#include <functional>
 #include <list>
 #include <memory>
 #include <string>
@@ -11,6 +12,8 @@
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Scene/SceneEvents.h"
+#include "Rotation.h"
 
 namespace GameEngine
 {
@@ -22,23 +25,17 @@ class GameObject
 public:
     using ComponentsContainer = std::unordered_map<Components::ComponentTypeID, std::unique_ptr<Components::IComponent>>;
 
-    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
+    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&, AddSceneEvent,
                const std::optional<uint32>& = std::nullopt);
     GameObject(const GameObject&)  = delete;
-    GameObject(const GameObject&&) = delete;
+    GameObject(GameObject&&) = delete;
     virtual ~GameObject();
 
-    std::unique_ptr<GameObject> CreateChild(const std::string&, const std::optional<uint32>& = std::nullopt);
-    void AddChild(std::unique_ptr<GameObject>);
-    bool RemoveChild(IdType);
-    bool RemoveChild(GameObject&);
-    void SetParent(GameObject*);
+    // std::unique_ptr<GameObject> CreateChild(const std::string&, const std::optional<uint32>& = std::nullopt);
+
     GameObject* GetParent() const;
-    GameObject* GetChild(IdType id) const;
-    void RemoveParent();
-    void ChangeParent(GameObject&);
-    void MoveChild(std::unique_ptr<GameObject>);
-    std::unique_ptr<GameObject> MoveChild(IdType);
+    GameObject* GetChild(IdType) const;
+
     // return first child with name
     GameObject* GetChild(const std::string&) const;
     inline const GameObjects& GetChildren() const;
@@ -70,22 +67,31 @@ public:
 
     inline const ComponentsContainer& GetComponents() const;
 
-    common::Transform& GetTransform();
-    const common::Transform& GetTransform() const;
+    const common::Transform& GetLocalTransform() const;
     const common::Transform& GetWorldTransform() const;
 
-    void TakeWorldTransfromSnapshot();
-    uint32 SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)>);
-    void UnsubscribeOnWorldTransfromChange(uint32);
+    void SetLocalPosition(const vec3&);
+    void SetLocalRotation(const Rotation&);
+    void SetLocalScale(const vec3&);
+    void SetLocalMatrix(const mat4&);
+    void SetLocalPositionRotation(const vec3&, const Rotation&);
+    void SetLocalPositionRotationScale(const vec3&, const Rotation&, const vec3&);
+
+    uint32 SubscribeOnLocalTransfomChange(std::function<void(const common::Transform&)>);
+    void UnsubscribeOnLocalTransfromChange(uint32);
 
     void SetWorldPosition(const vec3&);
     void SetWorldRotation(const Rotation&);
     void SetWorldScale(const vec3&);
     void SetWorldMatrix(const mat4&);
-    void SetWorldPositionRotation(const vec3&, const Quaternion&);
-    void SetWorldPositionRotationScale(const vec3&, const Quaternion&, const vec3&);
+    void SetWorldPositionRotation(const vec3&, const Rotation&);
+    void SetWorldPositionRotationScale(const vec3&, const Rotation&, const vec3&);
 
-    void NotifyComponentControllerAboutObjectCreation(GameObject&);
+    void TakeWorldTransfromSnapshot();
+    uint32 SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)>);
+    void UnsubscribeOnWorldTransfromChange(uint32);
+
+    // void NotifyComponentControllerAboutObjectCreation(GameObject&);
 
 private:
     GameObject& getRootGameObject();
@@ -109,11 +115,34 @@ protected:
     bool isAwakened;
     std::optional<IdType> isStartedSub;
     std::optional<IdType> isAwakenedSub;
+    AddSceneEvent addSceneEvent;
+    bool isDirty{false};
 
 private:
     IdType id_;
     Components::ComponentFactory& componentFactory_;
     Components::ComponentController& componentController_;
+
+private:
+    void AddChild(std::unique_ptr<GameObject>);
+    void MoveChild(std::unique_ptr<GameObject>);
+    std::unique_ptr<GameObject> MoveChild(IdType);
+
+    void SetParent(GameObject*);
+    void ChangeParent(GameObject&);
+    void RemoveParent();
+
+    std::vector<IdType> RemoveChild(IdType);
+    std::vector<IdType> RemoveChild(GameObject&);
+
+    void SetWorldPositionImpl(const vec3&);
+    void SetWorldRotationImpl(const Rotation&);
+    void SetWorldScaleImpl(const vec3&);
+    void SetWorldMatrixImpl(const mat4&);
+    void SetWorldPositionRotationImpl(const vec3&, const Rotation&);
+    void SetWorldPositionRotationScaleImpl(const vec3&, const Rotation&, const vec3&);
+
+    friend class Scene;
 };
 
 inline const std::string& GameObject::GetName() const

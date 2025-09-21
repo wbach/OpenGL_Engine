@@ -54,6 +54,7 @@ public:
     void UnSubscribeForUpdate(uint32 id)
     {
         onUpdateCallbacks_.erase(id);
+        updatePoseBufferIdPool_.releaseId(id);
     }
 
     void UpdateGpuPass() override

@@ -13,4 +13,6 @@ public:
     MOCK_METHOD(void, Reset, (), (override));
     MOCK_METHOD(void, StopThread, (), (override));
     MOCK_METHOD(const GameEngine::IdMap&, GetAvaiableScenes, (), (const, override));
+    MOCK_METHOD(void, ProcessEvent, (const GameEngine::ChangeSceneEvent&), (override));
+    MOCK_METHOD(void, ProcessEvent, (const GameEngine::ChangeSceneConfirmEvent&), (override));
 };

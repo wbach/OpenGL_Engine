@@ -1,36 +1,53 @@
 #pragma once
 #include <functional>
+#include <memory>
+#include <optional>
+#include <variant>
+
+#include "Rotation.h"
 #include "Types.h"
 
 namespace GameEngine
 {
-enum SceneEventType
+class GameObject;
+struct AddGameObjectEvent
 {
-    RELOAD_SCENE,
-    LOAD_NEXT_SCENE,
-    LOAD_PREVIOUS_SCENE,
-    LOAD_SCENE_BY_NAME,
-    LOAD_SCENE_BY_ID,
-    LOAD_FROM_FILE
+    IdType parentGameObject{0};
+    std::unique_ptr<GameObject> gameObject;
 };
 
-struct SceneEvent
+struct RemoveGameObjectEvent
 {
-    SceneEvent(SceneEventType t, uint32 id)
-        : SceneEvent(t, "", id)
-    {
-    }
-    SceneEvent(SceneEventType t = SceneEventType::RELOAD_SCENE, const std::string& n = "", uint32 i = 0)
-        : type(t)
-        , name(n)
-        , id(i)
-    {
-    }
-
-    SceneEventType type;
-    std::string name;
-    uint32 id;
+    IdType gameObjectId{0};
 };
 
-typedef std::function<void(const SceneEvent&)> AddEvent;
+struct ClearGameObjectsEvent
+{
+};
+
+struct ChangeParentEvent
+{
+    IdType newParentId{0};
+    IdType gameObjectId{0};
+};
+
+struct ModifyGameObjectEvent
+{
+    struct SetTransform
+    {
+        std::optional<vec3> position;
+        std::optional<Rotation> rotation;
+        std::optional<vec3> scale;
+        std::optional<mat4> matrix;
+    };
+
+    IdType gameObjectId{0};
+    std::optional<SetTransform> localTransform;
+    std::optional<SetTransform> worldTransform;
+};
+
+// ChangeSceneEvent, ChangeSceneConfirmEvent,
+using SceneEvent =
+    std::variant<AddGameObjectEvent, ModifyGameObjectEvent, RemoveGameObjectEvent, ChangeParentEvent, ClearGameObjectsEvent>;
+using AddSceneEvent = std::function<void(SceneEvent&&)>;
 }  // namespace GameEngine

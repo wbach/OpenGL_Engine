@@ -3,8 +3,8 @@
 #include <cstddef>
 #include <optional>
 
-#include "GLM/GLMUtils.h"
 #include "Logger/Log.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -20,10 +20,68 @@ void Model::SetFile(const File& file)
 {
     file_ = file;
 }
+
+Model::Model(Model&& other) noexcept
+    : GpuObject(std::move(other)) // przeniesienie bazy
+    , animationClips_(std::move(other.animationClips_))
+    , file_(std::move(other.file_))
+    , meshes_(std::move(other.meshes_))
+    , boneTransforms_(std::move(other.boneTransforms_))
+    , boundingBox_(std::move(other.boundingBox_))
+    , skeleton_(std::move(other.skeleton_))
+    , normalizedFactor(other.normalizedFactor)
+{
+    LOG_DEBUG << "Model moved. Id=" << GetGpuObjectId();
+
+    other.normalizedFactor = 1.0f;
+    other.meshes_.clear();
+    other.boneTransforms_.clear();
+    other.animationClips_.clear();
+    other.skeleton_.reset();
+    other.boundingBox_ = BoundingBox{};
+    other.file_ = File{};
+}
+
+Model& Model::operator=(Model&& other) noexcept
+{
+    if (this != &other)
+    {
+        GpuObject::operator=(std::move(other));
+
+        animationClips_   = std::move(other.animationClips_);
+        file_             = std::move(other.file_);
+        meshes_           = std::move(other.meshes_);
+        boneTransforms_   = std::move(other.boneTransforms_);
+        boundingBox_      = std::move(other.boundingBox_);
+        skeleton_         = std::move(other.skeleton_);
+        normalizedFactor  = other.normalizedFactor;
+
+        LOG_DEBUG << "Model move-assigned. Id=" << GetGpuObjectId();
+
+        other.normalizedFactor = 1.0f;
+        other.meshes_.clear();
+        other.boneTransforms_.clear();
+        other.animationClips_.clear();
+        other.skeleton_.reset();
+        other.boundingBox_ = BoundingBox{};
+        other.file_ = File{};
+    }
+    return *this;
+}
+
 Model::~Model()
 {
-    LOG_DEBUG << file_.GetDataRelativePath();
+    if (GetGpuObjectId() != INVALID_ID)
+    {
+        LOG_DEBUG << "Model destroyed. Id=" << GetGpuObjectId();
+        ReleaseGpuPass();
+    }
+    else
+    {
+        LOG_DEBUG << "Model destroyed (moved-from).";
+    }
 }
+
 void Model::GpuLoadingPass()
 {
     for (auto& mesh : meshes_)

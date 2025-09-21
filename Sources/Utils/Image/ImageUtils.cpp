@@ -88,9 +88,7 @@ void SaveImage(const Image &image, const std::string &outputFilePath, const std:
                                LOG_DEBUG << "SaveImage for floats for more than 1 channel not implemented";
                            }
                        },
-                       [](std::monostate) { /* LOG TO FIX*/
-                                            LOG_ERROR << ("Data not set!");
-                       }},
+                       [](std::monostate) { LOG_ERROR << "Data not set!"; }},
                image.getImageData());
 }
 }  // namespace Utils

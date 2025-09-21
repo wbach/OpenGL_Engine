@@ -49,6 +49,8 @@ class GuiEngineContextManger;
 class Scene
 {
 public:
+    using Events = std::vector<SceneEvent>;
+
     Scene(const std::string& name);
     virtual ~Scene();
 
@@ -78,11 +80,14 @@ public:
 
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject>);
+    void AddGameObject(GameObject&, std::unique_ptr<GameObject>);
+
+    void ChangeParent(IdType, IdType);
     void ChangeParent(GameObject&, GameObject&);
-    bool RemoveGameObject(IdType);
-    bool RemoveGameObject(GameObject&);
+    void RemoveParent(GameObject&);
+    void RemoveGameObject(IdType);
+    void RemoveGameObject(GameObject&);
     void ClearGameObjects();
-    void SetAddSceneEventCallback(AddEvent func);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
@@ -111,7 +116,7 @@ public:
     std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
     float distanceToCamera(const GameObject&) const;
 
-    void SendEvent(SceneEvent&);
+    void SendEvent(SceneEvent&&);
     void SendEvent(EngineEvent&);
 
     EngineContext* getEngineContext();
@@ -122,7 +127,6 @@ public:
 public:
     uint32 objectCount;
     std::function<void(EngineEvent)> addEngineEvent;
-    AddEvent addSceneEvent;
 
 protected:
     virtual int Initialize();
@@ -166,6 +170,17 @@ protected:
     Utils::IdPool gameObjectIdPool_;
 
 private:
+    void ProcessEvents();
+    void ProcessEvent(AddGameObjectEvent&&);
+    void ProcessEvent(ModifyGameObjectEvent&&);
+    void ProcessEvent(RemoveGameObjectEvent&&);
+    void ProcessEvent(ClearGameObjectsEvent&&);
+    void ProcessEvent(ChangeParentEvent&&);
+
+private:
+    std::mutex eventsMutex;
+    Events events;
+
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
     std::unique_ptr<Debug::Console> console_;

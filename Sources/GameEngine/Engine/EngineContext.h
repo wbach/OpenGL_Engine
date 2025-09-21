@@ -8,6 +8,7 @@
 #include <list>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include "EngineEvent.h"
 #include "GameEngine/Display/DisplayManager.hpp"
@@ -38,13 +39,15 @@ class RenderersManager;
 class EngineContext
 {
 public:
+    using EngineEvents = std::vector<EngineEvent>;
+
     EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>,
                   std::unique_ptr<ISceneFactory>, std::unique_ptr<IResourceManagerFactory> = nullptr,
                   std::unique_ptr<IRendererFactory> = nullptr);
     ~EngineContext();
 
     void AddEngineEvent(EngineEvent);
-    std::optional<EngineEvent> GetEngineEvent();
+    EngineEvents GetEngineEvents();
 
     inline Utils::MeasurementHandler& GetMeasurmentHandler();
     inline DisplayManager& GetDisplayManager();
@@ -72,7 +75,7 @@ private:
     std::unique_ptr<ISceneManager> sceneManager_;
 
     std::mutex engineEventsMutex_;
-    std::list<EngineEvent> engineEvents_;
+    EngineEvents engineEvents_;
 };
 
 Utils::MeasurementHandler& EngineContext::GetMeasurmentHandler()

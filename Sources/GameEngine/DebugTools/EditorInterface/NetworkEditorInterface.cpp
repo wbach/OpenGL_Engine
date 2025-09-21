@@ -27,6 +27,7 @@
 #include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceUtils.h"
@@ -307,7 +308,7 @@ void NetworkEditorInterface::KeysSubscribtions()
         });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        editorActions.at(EXIT), [this]() { scene_.addEngineEvent(EngineEvent::ASK_QUIT); });
+        editorActions.at(EXIT), [this]() { scene_.engineContext->AddEngineEvent(QuitEvent::ASK_QUIT); });
 
     scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(START_SCENE),
                                              [this]() { scene_.inputManager_->AddEvent([&]() { StartScene(); }); });
@@ -344,7 +345,7 @@ void NetworkEditorInterface::NotifSelectedTransformIsChaned()
     {
         std::lock_guard<std::mutex> lk(transformChangedMutex_);
         auto go               = scene_.GetGameObject(*transformChangedToSend_);
-        const auto &transform = go->GetTransform();
+        const auto &transform = go->GetLocalTransform();
         DebugNetworkInterface::Transform msg(*transformChangedToSend_, transform.GetPosition(),
                                              transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
         gateway_.Send(userId_, msg);
@@ -368,18 +369,18 @@ void NetworkEditorInterface::NotifSelectedCameraIsChaned()
 
 void NetworkEditorInterface::SetGameObjectPosition(GameObject &gameObject, const vec3 &position)
 {
-    gameObject.GetTransform().SetPosition(position);
+    gameObject.SetLocalPosition(position);
 }
 
 void NetworkEditorInterface::SetGameObjectRotation(GameObject &gameObject, const vec3 &rotation)
 {
-    gameObject.GetTransform().SetRotation(DegreesVec3(rotation));
+    gameObject.SetLocalRotation(DegreesVec3(rotation));
 }
 
 void NetworkEditorInterface::IncreseGameObjectRotation(GameObject &gameObject, const vec3 &increseValue)
 {
-    vec3 newValue = gameObject.GetTransform().GetRotation().GetEulerDegrees().value + increseValue;
-    gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
+    // vec3 newValue = gameObject.GetTransform().GetRotation().GetEulerDegrees().value + increseValue;
+    // gameObject.GetTransform().SetRotation(DegreesVec3(newValue));
 }
 
 void NetworkEditorInterface::IncreseGameObjectScale(GameObject &gameObject, const vec3 &value)
@@ -585,22 +586,22 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();
 
-    auto &transform                = gameObject->GetTransform();
-    transformChangeSubscription_   = &transform;
-    auto gameObjectId              = gameObject->GetId();
-    transformChangeSubscriptionId_ = transform.SubscribeOnChange(
-        [gameObjectId](const auto &)
-        {
-            if (not transformChangedToSend_)
-            {
-                std::lock_guard<std::mutex> lk(transformChangedMutex_);
-                transformChangedToSend_ = gameObjectId;
-            }
-        });
+    // auto &transform                = gameObject->GetTransform();
+    // transformChangeSubscription_   = &transform;
+    // auto gameObjectId              = gameObject->GetId();
+    // transformChangeSubscriptionId_ = transform.SubscribeOnChange(
+    //     [gameObjectId](const auto &)
+    //     {
+    //         if (not transformChangedToSend_)
+    //         {
+    //             std::lock_guard<std::mutex> lk(transformChangedMutex_);
+    //             transformChangedToSend_ = gameObjectId;
+    //         }
+    //     });
 
-    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
-                                         transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
-    gateway_.Send(userId_, msg);
+    // DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
+    //                                      transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
+    // gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::GetGameObjectComponentsListReq(const EntryParameters &param)
@@ -685,7 +686,7 @@ void NetworkEditorInterface::SetGameObjectScale(const EntryParameters &param)
             try
             {
                 vec3 scale(std::stof(param.at("x")), std::stof(param.at("y")), std::stof(param.at("z")));
-                gameObject->GetTransform().SetScale(scale);
+                gameObject->SetLocalScale(scale);
             }
             catch (...)
             {
@@ -821,8 +822,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
         try
         {
             gameObject->AddComponent<Components::RendererComponent>().AddModel(GetRelativeDataPath(params.at("filename")));
-            gameObject->GetTransform().SetPosition(position);
-            gameObject->GetTransform().SetRotation(DegreesVec3(rotationEulerDegrees));
+            gameObject->SetLocalPositionRotation(position, DegreesVec3(rotationEulerDegrees));
             gameObject->AddComponent<Components::MeshShape>();
             gameObject->AddComponent<Components::Rigidbody>().SetMass(0);
 
@@ -862,7 +862,7 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
         {
             auto position = scene_.camera.GetPosition();
             position += scene_.camera.GetDirection() * 5.f;
-            gameObject->GetTransform().SetPosition(position);
+            gameObject->SetLocalPosition(position);
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
             gateway_.Send(userId_, message);
@@ -1032,16 +1032,16 @@ void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState st
 
 void NetworkEditorInterface::ObjectControlAction(float direction, float rotationSpeed, float moveSpeed, float scaleSpeed)
 {
-    UseSelectedGameObject(
-        [this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject)
-        {
-            IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
-            IncreseGameObjectScale(gameObject, GetScaleChangeValueBasedOnKeys(direction, scaleSpeed));
-            auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
-            moveVector      = gameObject.GetTransform().GetRotation().value_ * moveVector;
-            moveVector      = moveVector + gameObject.GetTransform().GetPosition();
-            gameObject.GetTransform().SetPosition(moveVector);
-        });
+    // UseSelectedGameObject(
+    //     [this, direction, rotationSpeed, moveSpeed, scaleSpeed](auto &gameObject)
+    //     {
+    //         IncreseGameObjectRotation(gameObject, GetRotationValueBasedOnKeys(rotationSpeed, direction));
+    //         IncreseGameObjectScale(gameObject, GetScaleChangeValueBasedOnKeys(direction, scaleSpeed));
+    //         auto moveVector = GetPositionChangeValueBasedOnKeys(moveSpeed, direction);
+    //         moveVector      = gameObject.GetTransform().GetRotation().value_ * moveVector;
+    //         moveVector      = moveVector + gameObject.GetTransform().GetPosition();
+    //         gameObject.GetTransform().SetPosition(moveVector);
+    //     });
 }
 
 void NetworkEditorInterface::CreateDragObject(GameObject &gameObject)
@@ -1554,7 +1554,7 @@ void NetworkEditorInterface::ReloadScene(const EntryParameters &)
 {
     DebugNetworkInterface::ReloadScene msg(scene_.GetName());
     gateway_.Send(userId_, msg);
-    scene_.addSceneEvent(SceneEventType::RELOAD_SCENE);
+    scene_.getEngineContext()->AddEngineEvent(ChangeSceneEvent{ChangeSceneEvent::Type::RELOAD_SCENE});
 }
 
 void NetworkEditorInterface::ClearAll(const EntryParameters &v)
@@ -1878,7 +1878,7 @@ void NetworkEditorInterface::Takesnapshot(const NetworkEditorInterface::EntryPar
 
 void NetworkEditorInterface::Exit(const NetworkEditorInterface::EntryParameters &)
 {
-    scene_.addEngineEvent(EngineEvent(EngineEvent::QUIT));
+    scene_.engineContext->AddEngineEvent(EngineEvent(QuitEvent::QUIT));
 }
 
 void NetworkEditorInterface::MoveObjectToCameraPosition(const EntryParameters &params)
@@ -1918,29 +1918,16 @@ void NetworkEditorInterface::ChangeGameObjectParent(const EntryParameters &param
 
     if (gameObjectIdIter != params.end() and newParentGameObjectIdIter != params.end())
     {
-        auto gameObject = GetGameObject(gameObjectIdIter->second);
-        auto newParent  = GetGameObject(newParentGameObjectIdIter->second);
-
-        if (gameObject and newParent)
+        try
         {
-            auto currentParent = gameObject->GetParent();
-            if (currentParent and newParent->GetId() != currentParent->GetId())
-            {
-                auto worldPosition = gameObject->GetWorldTransform().GetPosition();
-                auto worldRotation = gameObject->GetWorldTransform().GetRotation();
-                auto worldScale    = gameObject->GetWorldTransform().GetScale();
+            auto gameObjectId = std::stoi(gameObjectIdIter->second);
+            auto newParentId  = std::stoi(newParentGameObjectIdIter->second);
 
-                auto freeGameObject = currentParent->MoveChild(gameObject->GetId());
-
-                if (freeGameObject)
-                {
-                    auto go = freeGameObject.get();
-                    newParent->MoveChild(std::move(freeGameObject));
-                    go->SetWorldPosition(worldPosition);
-                    go->SetWorldRotation(worldRotation);
-                    go->SetWorldScale(worldScale);
-                }
-            }
+            scene_.ChangeParent(gameObjectId, newParentId);
+        }
+        catch (...)
+        {
+            LOG_ERROR << "Invalid convert gameObject str to int.";
         }
     }
 }
@@ -1997,9 +1984,9 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
                     auto clonedGameObject = GameEngine::cloneGameObject(scene_, *gameObject);
                     if (clonedGameObject)
                     {
-                        auto freeGameObject = clonedGameObject->GetParent()->MoveChild(clonedGameObject->GetId());
+                        clonedGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
+                        scene_.ChangeParent(*clonedGameObject, *containerPtr);
 
-                        freeGameObject->SetName(gameObject->GetName() + "_instance_" + std::to_string(i));
                         auto x = getRandomFloat(minX, maxX);
                         auto z = getRandomFloat(minZ, maxZ);
                         // auto roatateY = getRandomFloat(0.f, 360.f);
@@ -2012,11 +1999,10 @@ void NetworkEditorInterface::CloneGameObjectInstancesWithRandomPosition(const En
 
                         auto hit = scene_.getHeightPositionInWorld(x, z);
 
-                        freeGameObject->SetWorldPositionRotationScale(
+                        clonedGameObject->SetWorldPositionRotationScale(
                             hit ? (hit->pointWorld - vec3(0, 0.05f * goScale.y, 0)) : vec3(x, 0.f, z), goRotation, goScale);
-                        auto freeGameObjectPtr = freeGameObject.get();
-                        containerPtr->MoveChild(std::move(freeGameObject));
-                        SendObjectCreatedNotf(*freeGameObjectPtr);
+
+                        SendObjectCreatedNotf(*clonedGameObject);
                     }
                 }
             }
@@ -2144,15 +2130,15 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
 
         if (parentGameObject)
         {
-            result             = parentGameObject->GetId();
-            auto go            = gameObject.get();
-            auto worldPosition = gameObject->GetWorldTransform().GetPosition();
-            auto worldRotation = gameObject->GetWorldTransform().GetRotation();
-            auto worldScale    = gameObject->GetWorldTransform().GetScale();
-            parentGameObject->AddChild(std::move(gameObject));
-            go->SetWorldPosition(worldPosition);
-            go->SetWorldRotation(worldRotation);
-            go->SetWorldScale(worldScale);
+            result                = parentGameObject->GetId();
+            auto go               = gameObject.get();
+            const auto &transform = gameObject->GetWorldTransform();
+            auto worldPosition    = transform.GetPosition();
+            auto worldRotation    = transform.GetRotation();
+            auto worldScale       = transform.GetScale();
+
+            scene_.AddGameObject(*parentGameObject, std::move(gameObject));
+            go->SetWorldPositionRotationScale(worldPosition, worldRotation, worldScale);
         }
         else
         {
