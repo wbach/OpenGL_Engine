@@ -20,8 +20,8 @@ namespace GameEngine
 struct TerrainTransitionTests : public BaseComponentTestSchould
 {
     TerrainTransitionTests()
-        : go1("go1", componentController_, componentFactory_, gameObjectIdPool)
-        , go2("go2", componentController_, componentFactory_, gameObjectIdPool)
+        : go1("go1", componentController_, componentFactory_, gameObjectIdPool, [](auto&&) {})
+        , go2("go2", componentController_, componentFactory_, gameObjectIdPool, [](auto&&) {})
     {
         CLogger::Instance().EnableLogs();
         CLogger::Instance().UseAsyncLogging(false);

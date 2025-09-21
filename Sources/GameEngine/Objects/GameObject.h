@@ -28,7 +28,7 @@ class GameObject
 public:
     using ComponentsContainer = std::unordered_map<Components::ComponentTypeID, std::unique_ptr<Components::IComponent>>;
 
-    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
+    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&, AddSceneEvent,
                const std::optional<uint32>& = std::nullopt);
     GameObject(const GameObject&) = delete;
     GameObject(GameObject&&)      = delete;
@@ -115,6 +115,8 @@ protected:
     bool isAwakened;
     std::optional<IdType> isStartedSub;
     std::optional<IdType> isAwakenedSub;
+    AddSceneEvent addSceneEvent;
+    bool isDirty{false};
 
 private:
     IdType id_;

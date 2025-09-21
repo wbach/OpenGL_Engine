@@ -194,17 +194,23 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+    return std::make_unique<GameObject>(
+        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
+        maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+    return std::make_unique<Prefab>(
+        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
+        maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
+    return std::make_unique<Prefab>(
+        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
+        maybeId);
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -322,7 +328,6 @@ void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
         LOG_WARN << "RootObject was not set!";
     }
 
-    LOG_DEBUG << "RemoveChild";
     auto ids = rootGameObject_->RemoveChild(id);
     for (const auto id : ids)
     {
@@ -460,6 +465,9 @@ GameObject* Scene::GetGameObject(uint32 id) const
 
     if (gameObjectsIds_.count(id))
         return gameObjectsIds_.at(id);
+
+    if (id == 0)
+        return rootGameObject_.get();
 
     return rootGameObject_->GetChild(id);
 }
