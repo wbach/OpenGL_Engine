@@ -85,10 +85,10 @@ void BulletAdapter::Simulate(float deltaTime)
 
                 Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
 
-                auto l1 = glm::length(rigidbody.gameObject.GetWorldTransform().GetPosition() - newPosition);
-                auto l2 = glm::length(rigidbody.gameObject.GetWorldTransform().GetRotation().value_ - newRotation);
+                // auto l1 = glm::length(rigidbody.gameObject.GetWorldTransform().GetPosition() - newPosition);
+                // auto l2 = glm::length(rigidbody.gameObject.GetWorldTransform().GetRotation().value_ - newRotation);
 
-                if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
+                // if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
                 {
                     rigidbody.isUpdating_ = true;
                     rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);

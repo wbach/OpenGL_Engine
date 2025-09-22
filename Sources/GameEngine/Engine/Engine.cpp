@@ -196,14 +196,12 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
 
 Engine::~Engine()
 {
-    engineContext_.GetGraphicsApi().GetWindowApi().UnsubscribeForEvent(quitApiSubId_);
+    LOG_DEBUG << "destructor";
     EngineConf.debugParams.showPhycicsVisualization.unsubscribe(showPhycicsVisualizationSub_);
-    engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
-    LOG_DEBUG << "destructor";
-    engineContext_.GetSceneManager().Reset();
     EngineConf_SaveRequiredFiles();
+    LOG_DEBUG << "destructor done";
 }
 
 void Engine::CheckThreadsBeforeQuit()
@@ -228,6 +226,10 @@ void Engine::GameLoop()
     }
 
     CheckThreadsBeforeQuit();
+
+    engineContext_.GetGraphicsApi().GetWindowApi().UnsubscribeForEvent(quitApiSubId_);
+    engineContext_.GetThreadSync().Unsubscribe(physicsThreadId_);
+    engineContext_.GetSceneManager().Reset();
 }
 
 ISceneManager& Engine::GetSceneManager()

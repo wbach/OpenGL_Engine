@@ -96,8 +96,7 @@ void ReadPrefab(Scene& scene, const File& file, Prefab& prefabGameObject)
         prefabGameObject.SetName(name);
     }
 
-
-    auto gameObject =  scene.CreateGameObject(name);
+    auto gameObject = scene.CreateGameObject(name);
     Read(scene, *maybePrefabNode, *gameObject);
     scene.AddGameObject(prefabGameObject, std::move(gameObject));
 }
@@ -202,14 +201,15 @@ void readNode(const TreeNode& node, Scene& scene)
         {
             if (gameObjectNode->name() == CSTR_GAMEOBJECT)
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("read gameobject");
+                LOG_DEBUG << "read gameobject";
                 auto gameObject = createGameObject(*gameObjectNode, scene);
-                Read(scene, *gameObjectNode, *gameObject);
+                auto ptr        = gameObject.get();
                 scene.AddGameObject(std::move(gameObject));
+                Read(scene, *gameObjectNode, *ptr);
             }
             else if (gameObjectNode->name() == CSTR_PREFAB)
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("read prefab");
+                LOG_DEBUG << "read prefab";
                 auto gameObject = createPrefabGameObject(*gameObjectNode, scene);
                 scene.AddGameObject(std::move(gameObject));
             }

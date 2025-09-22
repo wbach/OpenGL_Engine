@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "DisableHelper.h"
+#include "Scene/Scene.hpp"
 
 struct TreeItemIdHasher
 {
@@ -56,6 +57,7 @@ public:
     void OnObjectDrag(wxTreeEvent&);
     void OnObjectEndDrag(wxTreeEvent&);
     void DisableItem(const wxTreeItemId&);
+    void RebuildTree(const GameEngine::Scene&);
 
 private:
     void deleteRecursiveFromMap(const wxTreeItemId& item);

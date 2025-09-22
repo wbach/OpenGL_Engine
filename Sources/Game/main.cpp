@@ -75,10 +75,10 @@ void Start()
         LOG_DEBUG << "Startup scene " << startupScene->value_;
         engine.GetSceneManager().SetActiveScene(startupScene->value_);
     }
-    if (not engine.GetSceneManager().GetActiveScene())
-    {
-        engine.GetSceneManager().SetActiveScene(0);
-    }
+    // if (not engine.GetSceneManager().GetActiveScene())
+    // {
+    //     engine.GetSceneManager().SetActiveScene(0);
+    // }
     engine.GameLoop();
 }
 

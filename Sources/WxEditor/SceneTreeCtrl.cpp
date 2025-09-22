@@ -255,3 +255,26 @@ void SceneTreeCtrl::deleteRecursiveFromMap(const wxTreeItemId &item)
     }
     itemIdToObjectId.Erase(item);
 }
+
+void SceneTreeCtrl::RebuildTree(const GameEngine::Scene &scene)
+{
+    DeleteAllItems();
+
+    auto appendChilds = [&](auto &&self, const auto &itemId, const auto &go) -> void
+    {
+        auto item = AppendItem(itemId, go->GetName(), go->GetId());
+        for (const auto &child : go->GetChildren())
+        {
+            self(self, item, child);
+        }
+    };
+
+    for (auto &go : scene.GetGameObjects())
+    {
+        auto item = AppendItem(gameObjectsView->GetRootItem(), go->GetName(), go->GetId());
+        for (const auto &child : go->GetChildren())
+        {
+            appendChilds(appendChilds, item, child);
+        }
+    }
+}

@@ -10,6 +10,7 @@
 #include <wx/treectrl.h>
 #include <wx/wx.h>
 
+#include <optional>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -174,4 +175,5 @@ private:
     std::unique_ptr<GameEngine::Painter> terrainPainter_;
 
     std::optional<long> startedGameProceesId;
+    std::optional<IdType> sceneEventSubId;
 };

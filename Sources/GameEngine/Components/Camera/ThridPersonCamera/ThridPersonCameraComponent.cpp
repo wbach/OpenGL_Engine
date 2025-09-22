@@ -16,7 +16,7 @@ namespace Components
 using namespace Camera;
 namespace
 {
-const std::string& COMPONENT_STR{"ThridPersonCamera"};
+const std::string& COMPONENT_STR{"ThridPersonCameraComponent"};
 }
 
 ThridPersonCameraComponent::ThridPersonCameraComponent(ComponentContext& componentContext, GameObject& gameObject)

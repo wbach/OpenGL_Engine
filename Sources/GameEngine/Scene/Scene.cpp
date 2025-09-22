@@ -225,7 +225,6 @@ Light& Scene::AddLight(const Light& light)
 
 void Scene::ProcessEvents()
 {
-    LOG_DEBUG << "";
     Events tmpEvents;
     {
         std::lock_guard<std::mutex> lk(eventsMutex);
@@ -235,6 +234,7 @@ void Scene::ProcessEvents()
     for (auto&& event : tmpEvents)
     {
         std::visit(visitor{[&](auto&& e) { ProcessEvent(std::forward<decltype(e)>(e)); }}, std::move(event));
+        NotifySceneEventSubscribers();
     }
 }
 
@@ -251,7 +251,8 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
     auto& ptr = *event.gameObject;
     parentGameObject->AddChild(std::move(event.gameObject));
 
-    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void {
+    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void
+    {
         for (auto& subChild : gameObject.children_)
         {
             if (subChild)
@@ -301,7 +302,7 @@ void Scene::ProcessEvent(ModifyGameObjectEvent&& event)
         {
             gameObject->localTransform_.SetRotation(event.localTransform->rotation.value());
         }
-        if (event.worldTransform->scale)
+        if (event.localTransform->scale)
         {
             gameObject->localTransform_.SetScale(event.localTransform->scale.value());
         }
@@ -379,6 +380,27 @@ void Scene::ProcessEvent(ChangeParentEvent&& event)
         newParent->MoveChild(std::move(freeGameObject));
         go->SetWorldPositionRotationScaleImpl(worldPosition, worldRotation, worldScale);
     }
+}
+
+IdType Scene::SubscribeForSceneEvent(std::function<void()> func)
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex);
+    auto id = eventSubscribersPool.getId();
+    eventSubscribers.insert({id, func});
+    return id;
+}
+
+void Scene::NotifySceneEventSubscribers()
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex);
+    for (auto& [_, sub] : eventSubscribers)
+        sub();
+}
+
+void Scene::UnSubscribeForSceneEvent(IdType id)
+{
+    std::lock_guard<std::mutex> lk(eventSubscribersMutex);
+    eventSubscribers.erase(id);
 }
 
 void Scene::AddGameObject(std::unique_ptr<GameObject> object)

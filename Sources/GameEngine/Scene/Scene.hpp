@@ -6,6 +6,7 @@
 #include <atomic>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 #include "GameEngine/Camera/CameraWrapper.h"
@@ -88,6 +89,10 @@ public:
     void RemoveGameObject(IdType);
     void RemoveGameObject(GameObject&);
     void ClearGameObjects();
+
+    IdType SubscribeForSceneEvent(std::function<void()>);
+    void NotifySceneEventSubscribers();
+    void UnSubscribeForSceneEvent(IdType);
 
     // GetObjects
     inline const GameObjects& GetGameObjects() const;
@@ -180,6 +185,10 @@ private:
 private:
     std::mutex eventsMutex;
     Events events;
+
+    Utils::IdPool eventSubscribersPool;
+    std::mutex eventSubscribersMutex;
+    std::unordered_map<IdType, std::function<void()>> eventSubscribers;
 
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;
