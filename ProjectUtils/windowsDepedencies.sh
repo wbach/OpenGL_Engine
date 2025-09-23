@@ -12,7 +12,6 @@ additionalIncludesDir='
 '$toolsDir'/common/glm;
 '$toolsDir'/common/bullet/src/;
 '$toolsDir'/common/wxWidgets/include/;
-'$toolsDir'/Windows/wxWidgets/x64/Release/mswu;
 '$toolsDir'/common/magic_enum-v0.9.7/include;
 '$toolsDir'/common/rapidjson-1.1.0/include;
 '$toolsDir'/common/rapidxml-1.13;
@@ -30,6 +29,13 @@ additionalIncludesDir='
 '$toolsDir'/Windows/gmock/include;
 '$toolsDir'/Windows/Directx/Include/;
 '
+
+release64IncludesDir=''$additionalIncludesDir'
+'$toolsDir'/Windows/wxWidgets/x64/Release/mswu;'
+
+debug64IncludesDir=''$additionalIncludesDir'
+'$toolsDir'/Windows/wxWidgets/x64/Debug/mswud;'
+
 additionalDebug32LibsDir='
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x86/debug;
 '$toolsDir'/Windows/assimp-5.0.1/lib/x86/release;
@@ -46,6 +52,7 @@ additionalDebug32LibsDir='
 '$toolsDir'/Windows/gmock/lib/x86/Release;
 '$toolsDir'/Windows/Directx/Lib/x86;
 '$toolsDir'/Windows/bullet/x86/Debug;
+'$toolsDir'/Windows/wxWidgets/x86/Debug;
 '
 additionalRelease32LibsDir='
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x86/release;
@@ -63,6 +70,7 @@ additionalRelease32LibsDir='
 '$toolsDir'/Windows/gmock/lib/x86/Release;
 '$toolsDir'/Windows/Directx/Lib/x86;
 '$toolsDir'/Windows/bullet/x86/Release;
+'$toolsDir'/Windows/wxWidgets/x86/Release;
 '
 additionalDebug64LibsDir='
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x64/debug;
@@ -80,6 +88,7 @@ additionalDebug64LibsDir='
 '$toolsDir'/Windows/gmock/lib/x64/Release;
 '$toolsDir'/Windows/Directx/Lib/x64;
 '$toolsDir'/Windows/bullet/x64/Debug;
+'$toolsDir'/Windows/wxWidgets/x64/Debug;
 '
 additionalRelease64LibsDir='
 '$toolsDir'/Windows/fbx_sdk/lib/vs2017/x64/release;
@@ -137,33 +146,33 @@ uuid.lib;
 advapi32.lib;
 '
 
-# wxWidgetsReleaseLibs='
-# wxbase33u.lib
-# wxbase33u_net.lib
-# wxbase33u_xml.lib
-# wxexpat.lib
-# wxjpeg.lib
-# wxlexilla.lib
-# wxmsw33u_adv.lib
-# wxmsw33u_aui.lib
-# wxmsw33u_core.lib
-# wxmsw33u_gl.lib
-# wxmsw33u_html.lib
-# wxmsw33u_media.lib
-# wxmsw33u_propgrid.lib
-# wxmsw33u_qa.lib
-# wxmsw33u_ribbon.lib
-# wxmsw33u_richtext.lib
-# wxmsw33u_stc.lib
-# wxmsw33u_webview.lib
-# wxmsw33u_xrc.lib
-# wxpng.lib
-# wxregexu.lib
-# wxscintilla.lib
-# wxtiff.lib
-# wxwebp.lib
-# wxzlib.lib
-# '
+wxWidgetsDebugLibs='
+wxbase33ud.lib;
+wxbase33ud_net.lib;
+wxbase33ud_xml.lib;
+wxexpatd.lib;
+wxjpegd.lib;
+wxlexillad.lib;
+wxmsw33ud_adv.lib;
+wxmsw33ud_aui.lib;
+wxmsw33ud_core.lib;
+wxmsw33ud_gl.lib;
+wxmsw33ud_html.lib;
+wxmsw33ud_media.lib;
+wxmsw33ud_propgrid.lib;
+wxmsw33ud_qa.lib;
+wxmsw33ud_ribbon.lib;
+wxmsw33ud_richtext.lib;
+wxmsw33ud_stc.lib;
+wxmsw33ud_webview.lib;
+wxmsw33ud_xrc.lib;
+wxpngd.lib;
+wxregexud.lib;
+wxscintillad.lib;
+wxtiffd.lib;
+wxwebpd.lib;
+wxzlibd.lib;
+'
 
 bulletReleaseLibs='
 Bullet2FileLoader.lib;
@@ -209,6 +218,7 @@ BulletInverseDynamics_Debug.lib;
 '
 
 additionalDebugLibs='
+'$wxWidgetsDebugLibs'
 '$bulletDebugLibs'
 libfbxsdk-md.lib;
 libxml2-md.lib;

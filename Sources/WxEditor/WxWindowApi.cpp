@@ -8,7 +8,7 @@ WxWindowApi::WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc
     : inputManager{std::make_unique<WxInputManager>(renderSize, func)}
     , windowSize(renderSize.x, renderSize.y)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Add display mode: " + std::to_string(renderSize));
+    LOG_DEBUG << "Add display mode: " << renderSize;
     displayModes.push_back(GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
 }
 
@@ -27,7 +27,7 @@ void WxWindowApi::Init()
 
 void WxWindowApi::CreateGameWindow(const std::string &, uint32, uint32, GraphicsApi::WindowType)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("CreateGameWindow not needed");
+    LOG_DEBUG << "CreateGameWindow not needed";
 }
 
 void WxWindowApi::SetWindowSize(const vec2ui &)

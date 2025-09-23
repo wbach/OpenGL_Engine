@@ -30,7 +30,7 @@
 #include <sstream>
 #include <string>
 
-#include "Components/FunctionType.h"
+#include "GameEngine/Components/FunctionType.h"
 #include "Input/KeyCodes.h"
 #include "Logger/Log.h"
 #include "ProjectManager.h"

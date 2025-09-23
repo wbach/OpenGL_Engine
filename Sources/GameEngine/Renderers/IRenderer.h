@@ -4,8 +4,9 @@ namespace GameEngine
 {
 class GameObject;
 
-struct IRenderer
+class IRenderer
 {
+public:
     virtual ~IRenderer();
     virtual void init();
     virtual void reloadShaders();

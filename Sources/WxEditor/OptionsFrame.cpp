@@ -10,7 +10,7 @@
 
 #include "Logger/Log.h"
 #include "ProjectManager.h"
-#include "Resources/File.h"
+#include <GameEngine/Resources/File.h>
 #include "Theme.h"
 
 // clang-format off

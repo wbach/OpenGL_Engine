@@ -8,12 +8,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Engine/Configuration.h"
-#include "Engine/ConfigurationReader.h"
-#include "Engine/ConfigurationWriter.h"
-#include "Json/JsonReader.h"
-#include "Json/JsonWriter.h"
-#include "TreeNode.h"
+#include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Engine/ConfigurationReader.h>
+#include <GameEngine/Engine/ConfigurationWriter.h>
+#include <Utils/Json/JsonReader.h>
+#include <Utils/TreeNode.h>
 
 class ProjectManager
 {

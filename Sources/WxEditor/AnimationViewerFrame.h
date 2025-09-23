@@ -11,7 +11,7 @@
 
 #include "GLCanvas.h"
 #include "IdPool.h"
-#include "Resources/File.h"
+#include <GameEngine/Resources/File.h>
 
 namespace GameEngine::Components
 {

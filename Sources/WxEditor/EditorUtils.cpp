@@ -76,7 +76,13 @@ bool isPrefab(const GameEngine::File& file)
 wxString GetParentPath(const wxString& currentFolderPath)
 {
     wxFileName fn(currentFolderPath);
-    fn.Normalize();
+#if defined(_WIN32)
+#define MY_PATH_NORMALIZE_FLAGS (wxPATH_NORM_DOTS | wxPATH_NORM_ABSOLUTE)
+#else
+#define MY_PATH_NORMALIZE_FLAGS (wxPATH_NORM_DOTS | wxPATH_NORM_ABSOLUTE | wxPATH_NORM_TILDE)
+#endif
+
+    fn.Normalize(MY_PATH_NORMALIZE_FLAGS);
     return fn.GetPath();
 }
 

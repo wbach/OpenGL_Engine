@@ -27,7 +27,7 @@
 #include "ComponentPickerPopup.h"
 #include "ControlsIds.h"
 #include "EditorUitls.h"
-#include "Engine/Configuration.h"
+#include <GameEngine/Engine/Configuration.h>
 #include "GLCanvas.h"
 #include "Logger/Log.h"
 #include "OptionsFrame.h"

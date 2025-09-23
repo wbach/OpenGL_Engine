@@ -12,7 +12,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "MyEvents.h"
-#include "Resources/File.h"
+#include <GameEngine/Resources/File.h>
 #include "ThumbnailCache.h"
 
 class MyTextDropTarget : public wxTextDropTarget

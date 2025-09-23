@@ -12,7 +12,7 @@
 #include <string>
 
 #include "EditorUitls.h"
-#include "Resources/File.h"
+#include <GameEngine/Resources/File.h>
 #include "ThumbnailCache.h"
 #include "model3d_icon.h"
 
