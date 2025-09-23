@@ -194,23 +194,17 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    return std::make_unique<GameObject>(
-        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
-        maybeId);
+    return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(
-        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
-        maybeId);
+    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(
-        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
-        maybeId);
+    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -252,8 +246,7 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
     gameObjectsIds_.insert({event.gameObject->GetId(), ptr});
     parentGameObject->AddChild(std::move(event.gameObject));
 
-    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void
-    {
+    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void {
         for (auto& subChild : gameObject.children_)
         {
             if (subChild)
