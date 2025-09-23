@@ -61,12 +61,12 @@ void Read(Scene& scene, const TreeNode& node, GameObject& gameObject)
                 auto name  = gameObjectNode->getAttributeValue(CSTR_NAME);
                 auto child = scene.CreateGameObject(name);
                 Read(scene, *gameObjectNode, *child);
-                scene.AddGameObject(gameObject, std::move(child));
+                gameObject.AddChild(std::move(child));
             }
             else if (gameObjectNode->name() == CSTR_PREFAB)
             {
                 auto child = createPrefabGameObject(*gameObjectNode, scene);
-                scene.AddGameObject(gameObject, std::move(child));
+                gameObject.AddChild(std::move(child));
             }
         }
     }

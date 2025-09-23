@@ -32,6 +32,7 @@ public:
     virtual ~GameObject();
 
     // std::unique_ptr<GameObject> CreateChild(const std::string&, const std::optional<uint32>& = std::nullopt);
+    void AddChild(std::unique_ptr<GameObject>);
 
     GameObject* GetParent() const;
     GameObject* GetChild(IdType) const;
@@ -122,7 +123,6 @@ private:
     Components::ComponentController& componentController_;
 
 private:
-    void AddChild(std::unique_ptr<GameObject>);
     void MoveChild(std::unique_ptr<GameObject>);
     std::unique_ptr<GameObject> MoveChild(IdType);
 
