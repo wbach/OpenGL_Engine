@@ -193,23 +193,17 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>&
 
 std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
-    return std::make_unique<GameObject>(
-        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
-        maybeId);
+    return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(
-        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
-        maybeId);
+    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<uint32>& maybeId)
 {
-    return std::make_unique<Prefab>(
-        name, componentController_, *componentFactory_, gameObjectIdPool_, [&](auto&& event) { SendEvent(std::move(event)); },
-        maybeId);
+    return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
 void Scene::SetDirectionalLightColor(const vec3& color)
@@ -251,8 +245,7 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
     auto& ptr = *event.gameObject;
     parentGameObject->AddChild(std::move(event.gameObject));
 
-    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void
-    {
+    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void {
         for (auto& subChild : gameObject.children_)
         {
             if (subChild)
@@ -280,15 +273,15 @@ void Scene::ProcessEvent(ModifyGameObjectEvent&& event)
     {
         if (event.worldTransform->position)
         {
-            gameObject->SetWorldPositionImpl(event.worldTransform->position.value());
+            gameObject->SetWorldPosition(event.worldTransform->position.value());
         }
         if (event.worldTransform->rotation)
         {
-            gameObject->SetWorldRotationImpl(event.worldTransform->rotation.value());
+            gameObject->SetWorldRotation(event.worldTransform->rotation.value());
         }
         if (event.worldTransform->scale)
         {
-            gameObject->SetWorldScaleImpl(event.worldTransform->scale.value());
+            gameObject->SetWorldScale(event.worldTransform->scale.value());
         }
     }
 
@@ -378,7 +371,7 @@ void Scene::ProcessEvent(ChangeParentEvent&& event)
     {
         auto go = freeGameObject.get();
         newParent->MoveChild(std::move(freeGameObject));
-        go->SetWorldPositionRotationScaleImpl(worldPosition, worldRotation, worldScale);
+        go->SetWorldPositionRotationScale(worldPosition, worldRotation, worldScale);
     }
 }
 

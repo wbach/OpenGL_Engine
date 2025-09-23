@@ -204,8 +204,8 @@ void readNode(const TreeNode& node, Scene& scene)
                 LOG_DEBUG << "read gameobject";
                 auto gameObject = createGameObject(*gameObjectNode, scene);
                 auto ptr        = gameObject.get();
-                scene.AddGameObject(std::move(gameObject));
                 Read(scene, *gameObjectNode, *ptr);
+                scene.AddGameObject(std::move(gameObject));
             }
             else if (gameObjectNode->name() == CSTR_PREFAB)
             {

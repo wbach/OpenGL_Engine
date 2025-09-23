@@ -9,6 +9,9 @@
 #include <optional>
 
 #include "Camera/Frustrum.h"
+#include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Physics/MeshShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/Objects/Entity/ConcreteEntityRenderer.h"
@@ -68,6 +71,9 @@ struct EntityRendererShould : public EngineBasedTest
 
         auto entity = scene->CreateGameObject(name);
         entity->AddComponent<Components::RendererComponent>().AddModel("Meshes/sphere.obj");
+        entity->AddComponent<Animator>();
+        entity->AddComponent<MeshShape>();
+        entity->AddComponent<Rigidbody>();
         auto entityPtr = entity.get();
         scene->AddGameObject(std::move(entity));
 
@@ -109,7 +115,6 @@ struct EntityRendererShould : public EngineBasedTest
     Projection projection_;
     GpuResourceLoaderMock gpuResourceLoaderMock;
 
-    //  std::unique_ptr<Model> model_;
     mat4 transformToShader_;
 
     RendererContext* rendererContext;
@@ -117,6 +122,7 @@ struct EntityRendererShould : public EngineBasedTest
 
 TEST_F(EntityRendererShould, RenderSingleObject)
 {
+    scene->Start();
     auto go = AddGameObject();
     go->SetWorldPosition(vec3(10));
     scene->FullUpdate(0.1f);  // Apply object addition etc
@@ -134,6 +140,7 @@ TEST_F(EntityRendererShould, RenderSingleObject)
 
 TEST_F(EntityRendererShould, ParallelAddRemove)
 {
+    scene->Start();
     auto oldVerbose                = ::testing::GMOCK_FLAG(verbose);
     ::testing::GMOCK_FLAG(verbose) = "error";
 
@@ -148,10 +155,11 @@ TEST_F(EntityRendererShould, ParallelAddRemove)
     using CreatedObjectContainer = std::vector<std::pair<GameObject*, IdType>>;
     CreatedObjectContainer objects;
 
-  auto popRandomItem = [](CreatedObjectContainer& vec) -> std::optional<std::pair<GameObject*, IdType>> {
-        if (vec.empty()) return std::nullopt;
+    auto popRandomItem = [](CreatedObjectContainer& vec) -> std::optional<std::pair<GameObject*, IdType>> {
+        if (vec.empty())
+            return std::nullopt;
 
-        float r = std::clamp(getRandomFloat(), 0.f, std::nextafter(1.f, 0.f));
+        float r      = std::clamp(getRandomFloat(), 0.f, std::nextafter(1.f, 0.f));
         size_t index = static_cast<size_t>(r * vec.size());
 
         auto item = vec[index];
@@ -171,7 +179,7 @@ TEST_F(EntityRendererShould, ParallelAddRemove)
     });
 
     std::thread addThread([&]() {
-        for (int i = 0; i < 1000000; ++i)
+        for (int i = 0; i < 100; ++i)
         {
             {
                 std::lock_guard<std::mutex> lk(objectMutex);

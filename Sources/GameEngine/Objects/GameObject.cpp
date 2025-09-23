@@ -15,14 +15,13 @@
 namespace GameEngine
 {
 GameObject::GameObject(const std::string& name, Components::ComponentController& componentController,
-                       Components::ComponentFactory& componentFactory, Utils::IdPool& idPool, AddSceneEvent addSceneEvent,
+                       Components::ComponentFactory& componentFactory, Utils::IdPool& idPool,
                        const std::optional<uint32>& maybeId)
     : idPool_{idPool}
     , parent_(nullptr)
     , name_(name)
     , isStarted{false}
     , isAwakened{false}
-    , addSceneEvent(addSceneEvent)
     , id_(idPool.getId(maybeId))
     , componentFactory_(componentFactory)
     , componentController_(componentController)
@@ -52,7 +51,7 @@ GameObject::~GameObject()
     if (isAwakenedSub)
         componentController_.UnRegisterFunction(id_, Components::FunctionType::Awake, *isAwakenedSub);
 
-   // idPool_.releaseId(id_);
+    idPool_.releaseId(id_);
 }
 Components::IComponent* GameObject::AddComponent(const TreeNode& node)
 {
@@ -286,19 +285,11 @@ Components::IComponent* GameObject::GetComponent(Components::ComponentTypeID typ
 
 const common::Transform& GameObject::GetLocalTransform() const
 {
-    if (isDirty)
-    {
-        LOG_WARN << name_ << ": transfroms is under change and can be not actual";
-    }
     return localTransform_;
 }
 
 const common::Transform& GameObject::GetWorldTransform() const
 {
-    if (isDirty)
-    {
-        LOG_WARN << name_ << ": transfroms is under change and can be not actual";
-    }
     return worldTransform_;
 }
 
@@ -310,6 +301,31 @@ void GameObject::TakeWorldTransfromSnapshot()
 uint32 GameObject::SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)> f)
 {
     return worldTransform_.SubscribeOnChange(f);
+}
+
+void GameObject::SetLocalPosition(const vec3& pos)
+{
+    localTransform_.SetPosition(pos);
+}
+void GameObject::SetLocalRotation(const Rotation& rot)
+{
+    localTransform_.SetRotation(rot);
+}
+void GameObject::SetLocalScale(const vec3& scale)
+{
+    localTransform_.SetScale(scale);
+}
+void GameObject::SetLocalMatrix(const mat4& m)
+{
+    localTransform_.SetMatrix(m);
+}
+void GameObject::SetLocalPositionRotation(const vec3& pos, const Rotation& rot)
+{
+    localTransform_.SetPositionAndRotation(pos, rot);
+}
+void GameObject::SetLocalPositionRotationScale(const vec3& pos, const Rotation& rot, const vec3& scale)
+{
+    localTransform_.SetPositionAndRotationAndScale(pos, rot, scale);
 }
 
 uint32 GameObject::SubscribeOnLocalTransfomChange(std::function<void(const common::Transform&)> f)
@@ -327,118 +343,41 @@ void GameObject::UnsubscribeOnWorldTransfromChange(uint32 id)
     worldTransform_.UnsubscribeOnChange(id);
 }
 
-void GameObject::SetLocalPosition(const vec3& position)
-{
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .localTransform = {{.position = position}}});
-    isDirty = true;
-}
-void GameObject::SetLocalRotation(const Rotation& rotation)
-{
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .localTransform = {{.rotation = rotation}}});
-    isDirty = true;
-}
-void GameObject::SetLocalScale(const vec3& scale)
-{
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .localTransform = {{.scale = scale}}});
-    isDirty = true;
-}
-void GameObject::SetLocalMatrix(const mat4& matrix)
-{
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .localTransform = {{.matrix = matrix}}});
-    isDirty = true;
-}
-void GameObject::SetLocalPositionRotation(const vec3& position, const Rotation& rotation)
-{
-    addSceneEvent(
-        ModifyGameObjectEvent{.gameObjectId = GetId(), .localTransform = {{.position = position, .rotation = rotation}}});
-    isDirty = true;
-}
-void GameObject::SetLocalPositionRotationScale(const vec3& position, const Rotation& rotation, const vec3& scale)
-{
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId   = GetId(),
-                                        .localTransform = {{.position = position, .rotation = rotation, .scale = scale}}});
-    isDirty = true;
-}
-
 void GameObject::SetWorldPosition(const vec3& worldPosition)
 {
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .worldTransform = {{.position = worldPosition}}});
-    isDirty = true;
+    localTransform_.SetPosition(ConvertWorldToLocalPosition(worldPosition));
 }
 
 void GameObject::SetWorldRotation(const Rotation& rotation)
 {
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .worldTransform = {{.rotation = rotation}}});
-    isDirty = true;
+    localTransform_.SetRotation(ConvertWorldToLocalRotation(rotation.value_));
 }
 
 void GameObject::SetWorldScale(const vec3& worldScale)
 {
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .worldTransform = {{.scale = worldScale}}});
-    isDirty = true;
+    localTransform_.SetScale(ConvertWorldToLocalScale(worldScale));
 }
 
 void GameObject::SetWorldMatrix(const mat4& worldMatrix)
 {
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId = GetId(), .worldTransform = {{.matrix = worldMatrix}}});
-    isDirty = true;
+    localTransform_.SetMatrix(ConvertWorldToLocalMatrix(worldMatrix));
 }
 
 void GameObject::SetWorldPositionRotation(const vec3& position, const Rotation& rotation)
-{
-    addSceneEvent(
-        ModifyGameObjectEvent{.gameObjectId = GetId(), .worldTransform = {{.position = position, .rotation = rotation}}});
-    isDirty = true;
-}
-
-void GameObject::SetWorldPositionRotationScale(const vec3& position, const Rotation& rotation, const vec3& scale)
-{
-    addSceneEvent(ModifyGameObjectEvent{.gameObjectId   = GetId(),
-                                        .worldTransform = {{.position = position, .rotation = rotation, .scale = scale}}});
-    isDirty = true;
-}
-
-void GameObject::SetWorldPositionImpl(const vec3& worldPosition)
-{
-    localTransform_.SetPosition(ConvertWorldToLocalPosition(worldPosition));
-    isDirty = false;
-}
-
-void GameObject::SetWorldRotationImpl(const Rotation& rotation)
-{
-    localTransform_.SetRotation(ConvertWorldToLocalRotation(rotation.value_));
-    isDirty = false;
-}
-
-void GameObject::SetWorldScaleImpl(const vec3& worldScale)
-{
-    localTransform_.SetScale(ConvertWorldToLocalScale(worldScale));
-    isDirty = false;
-}
-
-void GameObject::SetWorldMatrixImpl(const mat4& worldMatrix)
-{
-    localTransform_.SetMatrix(ConvertWorldToLocalMatrix(worldMatrix));
-    isDirty = false;
-}
-
-void GameObject::SetWorldPositionRotationImpl(const vec3& position, const Rotation& rotation)
 {
     auto localPosition = ConvertWorldToLocalPosition(position);
     auto localRotation = ConvertWorldToLocalRotation(rotation.value_);
 
     localTransform_.SetPositionAndRotation(localPosition, localRotation);
-    isDirty = false;
 }
 
-void GameObject::SetWorldPositionRotationScaleImpl(const vec3& position, const Rotation& rotation, const vec3& scale)
+void GameObject::SetWorldPositionRotationScale(const vec3& position, const Rotation& rotation, const vec3& scale)
 {
     auto localPosition = ConvertWorldToLocalPosition(position);
     auto localRotation = ConvertWorldToLocalRotation(rotation.value_);
     auto localScale    = ConvertWorldToLocalScale(scale);
 
     localTransform_.SetPositionAndRotationAndScale(localPosition, localRotation, localScale);
-    isDirty = false;
 }
 
 GameObject& GameObject::getRootGameObject()

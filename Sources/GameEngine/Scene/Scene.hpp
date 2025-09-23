@@ -63,6 +63,7 @@ public:
     void Start();
     void Stop();
     bool isStarted() const;
+    void ProcessEvents();
 
     void ChangeName(const std::string& name);
     inline const std::string& GetName() const;
@@ -175,7 +176,6 @@ protected:
     Utils::IdPool gameObjectIdPool_;
 
 private:
-    void ProcessEvents();
     void ProcessEvent(AddGameObjectEvent&&);
     void ProcessEvent(ModifyGameObjectEvent&&);
     void ProcessEvent(RemoveGameObjectEvent&&);

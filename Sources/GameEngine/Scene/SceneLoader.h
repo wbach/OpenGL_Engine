@@ -45,6 +45,7 @@ private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
     DisplayManager& displayManager_;
     std::atomic_bool isLoading_;
+    std::atomic<Scene*> scene{nullptr};
 
     size_t objectCount_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;

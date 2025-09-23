@@ -55,7 +55,7 @@ BulletAdapter::BulletAdapter()
 }
 BulletAdapter::~BulletAdapter()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    /* LOG TO FIX*/ LOG_ERROR << ("destructor");
     impl_->rigidbodies.foreach ([&](auto, auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
     impl_->rigidbodies.clear();
 }
@@ -75,95 +75,86 @@ void BulletAdapter::Simulate(float deltaTime)
             btDynamicWorld->stepSimulation(deltaTime, 1, deltaTime);
         }
 
-        impl_->rigidbodies.dynamic_.foreach (
-            [](auto, auto& rigidbody)
+        impl_->rigidbodies.dynamic_.foreach ([](auto, auto& rigidbody) {
+            auto rotatedOffset =
+                Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
+
+            auto newPosition = Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() - Convert(rotatedOffset));
+
+            Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
+
+            auto l1 = glm::length(rigidbody.gameObject.GetWorldTransform().GetPosition() - newPosition);
+            auto l2 = glm::length(rigidbody.gameObject.GetWorldTransform().GetRotation().value_ - newRotation);
+
+            if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
             {
-                auto rotatedOffset =
-                    Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation()) * Convert(rigidbody.positionOffset_);
-
-                auto newPosition = Convert(rigidbody.btRigidbody_->getWorldTransform().getOrigin() - Convert(rotatedOffset));
-
-                Quaternion newRotation = Convert(rigidbody.btRigidbody_->getWorldTransform().getRotation());
-
-                // auto l1 = glm::length(rigidbody.gameObject.GetWorldTransform().GetPosition() - newPosition);
-                // auto l2 = glm::length(rigidbody.gameObject.GetWorldTransform().GetRotation().value_ - newRotation);
-
-                // if (l1 > TRANSFROM_CHANGED_EPSILON or l2 > TRANSFROM_CHANGED_EPSILON)
-                {
-                    rigidbody.isUpdating_ = true;
-                    rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
-                    rigidbody.isUpdating_ = false;
-                }
-            });
+                rigidbody.isUpdating_ = true;
+                rigidbody.gameObject.SetWorldPositionRotation(newPosition, newRotation);
+                rigidbody.isUpdating_ = false;
+            }
+        });
 
         std::vector<IdType> idToRemove;
-        impl_->collisionContactInfoSub_.foreach (
-            [this, &idToRemove](auto subId, auto& sub)
+        impl_->collisionContactInfoSub_.foreach ([this, &idToRemove](auto subId, auto& sub) {
+            auto& [rigidbody, collisionDetection] = sub;
+            auto result                           = contactTest(*rigidbody);
+            if (not collisionDetection.ignoredList.empty())
             {
-                auto& [rigidbody, collisionDetection] = sub;
-                auto result                           = contactTest(*rigidbody);
-                if (not collisionDetection.ignoredList.empty())
-                {
-                    result = Utils::Filter(result,
-                                           [&ignoredList = collisionDetection.ignoredList,
-                                            predicate    = collisionDetection.predicate](const auto& collisionInfo)
-                                           {
-                                               auto iter1  = std::find_if(ignoredList.begin(), ignoredList.end(),
-                                                                          [&collisionInfo](auto ignoredRbId) {
-                                                                             return ignoredRbId == collisionInfo.rigidbodyId1 or
-                                                                                    ignoredRbId == collisionInfo.rigidbodyId2;
-                                                                         });
-                                               auto result = (iter1 != ignoredList.end());
-                                               if (result and predicate)
-                                               {
-                                                   return predicate(collisionInfo);
-                                               }
-                                               return result;
-                                           });
-                }
-
-                auto finalCallback = [&, cd = collisionDetection]
-                {
-                    cd.callback(result);
-
-                    if (cd.type == CollisionDetection::Type::single)
+                result = Utils::Filter(result, [&ignoredList = collisionDetection.ignoredList,
+                                                predicate    = collisionDetection.predicate](const auto& collisionInfo) {
+                    auto iter1  = std::find_if(ignoredList.begin(), ignoredList.end(), [&collisionInfo](auto ignoredRbId) {
+                        return ignoredRbId == collisionInfo.rigidbodyId1 or ignoredRbId == collisionInfo.rigidbodyId2;
+                    });
+                    auto result = (iter1 != ignoredList.end());
+                    if (result and predicate)
                     {
-                        idToRemove.push_back(subId);
+                        return predicate(collisionInfo);
                     }
-                };
+                    return result;
+                });
+            }
 
-                switch (collisionDetection.action)
+            auto finalCallback = [&, cd = collisionDetection] {
+                cd.callback(result);
+
+                if (cd.type == CollisionDetection::Type::single)
                 {
-                    case CollisionDetection::Action::any:
-                        finalCallback();
-                        break;
-                    case CollisionDetection::Action::onEnter:
-                        if (not result.empty() and not collisionDetection.lastContactState)
-                        {
-                            finalCallback();
-                        }
-                        break;
-                    case CollisionDetection::Action::onExit:
-                        if (result.empty() and collisionDetection.lastContactState)
-                        {
-                            finalCallback();
-                        }
-                        break;
-                    case CollisionDetection::Action::on:
-                        if (not result.empty())
-                        {
-                            finalCallback();
-                        }
-                        break;
-                    case CollisionDetection::Action::no:
-                        if (result.empty())
-                        {
-                            finalCallback();
-                        }
-                        break;
+                    idToRemove.push_back(subId);
                 }
-                collisionDetection.lastContactState = not result.empty();
-            });
+            };
+
+            switch (collisionDetection.action)
+            {
+                case CollisionDetection::Action::any:
+                    finalCallback();
+                    break;
+                case CollisionDetection::Action::onEnter:
+                    if (not result.empty() and not collisionDetection.lastContactState)
+                    {
+                        finalCallback();
+                    }
+                    break;
+                case CollisionDetection::Action::onExit:
+                    if (result.empty() and collisionDetection.lastContactState)
+                    {
+                        finalCallback();
+                    }
+                    break;
+                case CollisionDetection::Action::on:
+                    if (not result.empty())
+                    {
+                        finalCallback();
+                    }
+                    break;
+                case CollisionDetection::Action::no:
+                    if (result.empty())
+                    {
+                        finalCallback();
+                    }
+                    break;
+            }
+            collisionDetection.lastContactState = not result.empty();
+        });
 
         for (auto id : idToRemove)
         {
@@ -218,17 +209,17 @@ ShapeId BulletAdapter::CreateTerrainColider(const PositionOffset& positionOffset
     auto height = static_cast<int>(heightMap.GetImage().height);
     std::visit(
         visitor{
-            [&](const std::vector<uint8>& data)
-            {
+            [&](const std::vector<uint8>& data) {
                 shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_UCHAR, false));
             },
-            [&](const std::vector<float>& data)
-            {
+            [&](const std::vector<float>& data) {
                 shape->btShape_.reset(new btHeightfieldTerrainShape(width, height, &data[0], 1.f, heightMap.GetMinimumHeight(),
                                                                     heightMap.GetMaximumHeight(), 1, PHY_FLOAT, false));
             },
-            [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Height map data is not set!."); },
+            [](std::monostate) { /* LOG TO FIX*/
+                                 LOG_ERROR << ("Height map data is not set!.");
+            },
         },
         heightMap.GetImage().getImageData());
 
@@ -270,7 +261,7 @@ ShapeId BulletAdapter::CreateMeshCollider(const PositionOffset& positionOffset, 
             }
             else
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("Out of range");
+                /* LOG TO FIX*/ LOG_ERROR << ("Out of range");
             }
         }
 
@@ -305,14 +296,14 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
 {
     if (not shapeId)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Invalid shape id");
+        /* LOG TO FIX*/ LOG_ERROR << ("Invalid shape id");
         return std::nullopt;
     }
 
     auto maybeShape = impl_->shapes_.get(*shapeId);
     if (not maybeShape)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Shape not found");
+        /* LOG TO FIX*/ LOG_ERROR << ("Shape not found");
         return 0;
     }
 
@@ -339,7 +330,7 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
                 isStatic = true;
                 break;
             case RigidbodyProperty::NoContactResponse:
-                /* LOG TO FIX*/  LOG_ERROR << ("NoContactResponse for: " + gameObject.GetName());
+                /* LOG TO FIX*/ LOG_ERROR << ("NoContactResponse for: " + gameObject.GetName());
                 flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
                 break;
         }
@@ -399,7 +390,7 @@ void BulletAdapter::SetAngularFactor(const RigidbodyId& rigidBodyId, float value
     {
         if (compare(value, 0.f))
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
+            /* LOG TO FIX*/ LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
             rigidbody->btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
         }
         rigidbody->btRigidbody_->setAngularFactor(value);
@@ -412,7 +403,7 @@ void BulletAdapter::SetAngularFactor(const RigidbodyId& rigidBodyId, const vec3&
     {
         if (compare(value.x, 0.f) and compare(value.y, 0.f) and compare(value.z, 0.f))
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
+            /* LOG TO FIX*/ LOG_ERROR << ("DISABLE_DEACTIVATION btRigidbody_ : " + std::to_string(*rigidBodyId));
             rigidbody->btRigidbody_->setActivationState(DISABLE_DEACTIVATION);
         }
         rigidbody->btRigidbody_->setAngularFactor(Convert(value));
@@ -431,16 +422,14 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 {
     if (not rigidBodyId)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Ivalid rigidbody");
+        /* LOG TO FIX*/ LOG_ERROR << ("Ivalid rigidbody");
         return;
     }
 
-    auto collisionContactInfoSub = impl_->collisionContactInfoSub_.get(
-        [rigidBodyId](const auto& p)
-        {
-            const auto& [id, _] = p;
-            return rigidBodyId == id;
-        });
+    auto collisionContactInfoSub = impl_->collisionContactInfoSub_.get([rigidBodyId](const auto& p) {
+        const auto& [id, _] = p;
+        return rigidBodyId == id;
+    });
 
     if (collisionContactInfoSub)
     {
@@ -450,7 +439,7 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 
     if (auto rigidBody = impl_->rigidbodies.get(*rigidBodyId))
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("removeRigidBody : " + std::to_string(rigidBodyId));
+        /* LOG TO FIX*/ LOG_ERROR << ("removeRigidBody : " + std::to_string(rigidBodyId));
         clearRigidbody(*rigidBody);
     }
     impl_->rigidbodies.erase(*rigidBodyId);
@@ -464,20 +453,18 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
 {
     if (not shapeId)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Ivalid shapeId");
+        /* LOG TO FIX*/ LOG_ERROR << ("Ivalid shapeId");
         return;
     }
 
     std::unordered_map<uint32, Rigidbody>::iterator iter;
 
-    impl_->rigidbodies.foreach (
-        [shapeId](auto, auto& rigidbody)
+    impl_->rigidbodies.foreach ([shapeId](auto, auto& rigidbody) {
+        if (rigidbody.shapeId == shapeId)
         {
-            if (rigidbody.shapeId == shapeId)
-            {
-                rigidbody.shapeOwner = false;
-            }
-        });
+            rigidbody.shapeOwner = false;
+        }
+    });
     impl_->shapes_.erase(*shapeId);
 }
 void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rotation)
@@ -485,49 +472,41 @@ void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rota
     btQuaternion qt;
     qt.setEuler(rotation.y, rotation.x, rotation.z);
 
-    addTask(
-        [this, rigidBodyId, qt]()
+    addTask([this, rigidBodyId, qt]() {
+        if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
         {
-            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-            {
-                rigidbody->btRigidbody_->getWorldTransform().setRotation(qt);
-            }
-        });
+            rigidbody->btRigidbody_->getWorldTransform().setRotation(qt);
+        }
+    });
 }
 void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const Quaternion& rotation)
 {
-    addTask(
-        [this, rigidBodyId, rotation]()
+    addTask([this, rigidBodyId, rotation]() {
+        if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
         {
-            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-            {
-                rigidbody->btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
-            }
-        });
+            rigidbody->btRigidbody_->getWorldTransform().setRotation(Convert(rotation));
+        }
+    });
 }
 void BulletAdapter::SetPosition(const RigidbodyId& rigidBodyId, const vec3& position)
 {
-    addTask(
-        [this, rigidBodyId, position]()
+    addTask([this, rigidBodyId, position]() {
+        if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
         {
-            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-            {
-                rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
-            }
+            rigidbody->btRigidbody_->getWorldTransform().setOrigin(Convert(position));
+        }
     });
 }
 
-void BulletAdapter::Translate(const RigidbodyId & rigidBodyId, const vec3 & vector)
+void BulletAdapter::Translate(const RigidbodyId& rigidBodyId, const vec3& vector)
 {
-    addTask(
-        [this, rigidBodyId, vector]()
+    addTask([this, rigidBodyId, vector]() {
+        if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
         {
-            if (auto rigidbody = impl_->rigidbodies.get(rigidBodyId))
-            {
-                //rigidbody->btRigidbody_->translate(Convert(vector));
-                auto o = rigidbody->btRigidbody_->getWorldTransform().getOrigin();
-                rigidbody->btRigidbody_->getWorldTransform().setOrigin(o + Convert(vector));
-            }
+            // rigidbody->btRigidbody_->translate(Convert(vector));
+            auto o = rigidbody->btRigidbody_->getWorldTransform().getOrigin();
+            rigidbody->btRigidbody_->getWorldTransform().setOrigin(o + Convert(vector));
+        }
     });
 }
 
@@ -549,7 +528,7 @@ void BulletAdapter::SetShapeScale(const ShapeId& shapeId, const vec3& position)
 {
     if (not shapeId)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Invalid shapeId");
+        /* LOG TO FIX*/ LOG_ERROR << ("Invalid shapeId");
         return;
     }
 
@@ -615,8 +594,7 @@ void BulletAdapter::enableVisualizationForAllRigidbodys()
 {
     impl_->visualizationForAllObjectEnabled = true;
 
-    auto action = [](auto, auto& rigidbody)
-    {
+    auto action = [](auto, auto& rigidbody) {
         auto& body = *rigidbody.btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() & (~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT));
     };
@@ -627,8 +605,7 @@ void BulletAdapter::disableVisualizationForAllRigidbodys()
 {
     impl_->visualizationForAllObjectEnabled = false;
 
-    auto action = [](auto, auto& rigidbody)
-    {
+    auto action = [](auto, auto& rigidbody) {
         auto& body = *rigidbody.btRigidbody_;
         body.setCollisionFlags(body.getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
     };
@@ -643,7 +620,7 @@ CollisionSubId BulletAdapter::setCollisionCallback(const RigidbodyId& rigidBodyI
         return impl_->collisionContactInfoSub_.insert({rb, collision});
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("rigidBodyId not found : " + std::to_string(rigidBodyId));
+    /* LOG TO FIX*/ LOG_ERROR << ("rigidBodyId not found : " + std::to_string(rigidBodyId));
     return {};
 }
 
@@ -654,8 +631,8 @@ void BulletAdapter::celarCollisionCallback(const CollisionSubId& id)
 CollisionContactInfos BulletAdapter::contactTest(const Rigidbody& rigidbody)
 {
     CollisionContactInfos resultCallbackData;
-    CollisionResultCallback singleCollisionCallback([&resultCallbackData](const auto& info)
-                                                    { resultCallbackData.push_back(info); });
+    CollisionResultCallback singleCollisionCallback(
+        [&resultCallbackData](const auto& info) { resultCallbackData.push_back(info); });
     btDynamicWorld->contactTest(&*rigidbody.btRigidbody_, singleCollisionCallback);
     return resultCallbackData;
 }

@@ -25,10 +25,10 @@ class GameObject
 public:
     using ComponentsContainer = std::unordered_map<Components::ComponentTypeID, std::unique_ptr<Components::IComponent>>;
 
-    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&, AddSceneEvent,
+    GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
                const std::optional<uint32>& = std::nullopt);
-    GameObject(const GameObject&)  = delete;
-    GameObject(GameObject&&) = delete;
+    GameObject(const GameObject&) = delete;
+    GameObject(GameObject&&)      = delete;
     virtual ~GameObject();
 
     // std::unique_ptr<GameObject> CreateChild(const std::string&, const std::optional<uint32>& = std::nullopt);
@@ -115,8 +115,6 @@ protected:
     bool isAwakened;
     std::optional<IdType> isStartedSub;
     std::optional<IdType> isAwakenedSub;
-    AddSceneEvent addSceneEvent;
-    bool isDirty{false};
 
 private:
     IdType id_;
@@ -134,13 +132,6 @@ private:
 
     std::vector<IdType> RemoveChild(IdType);
     std::vector<IdType> RemoveChild(GameObject&);
-
-    void SetWorldPositionImpl(const vec3&);
-    void SetWorldRotationImpl(const Rotation&);
-    void SetWorldScaleImpl(const vec3&);
-    void SetWorldMatrixImpl(const mat4&);
-    void SetWorldPositionRotationImpl(const vec3&, const Rotation&);
-    void SetWorldPositionRotationScaleImpl(const vec3&, const Rotation&, const vec3&);
 
     friend class Scene;
 };

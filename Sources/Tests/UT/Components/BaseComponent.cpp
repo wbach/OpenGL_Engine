@@ -21,7 +21,7 @@ BaseComponentTestSchould::BaseComponentTestSchould()
                physicsApiMock_, resourcesManager_, renderersManager_, componentController_, guiElementFactory_, timerService_)
     , componentFactory_(scene, sceneManager, componentController_, graphicsApiMock_, gpuResourceLoader_, time_, inputManagerMock_,
                         resourcesManager_, renderersManager_, cameraWrapper_, physicsApiMock_, guiElementFactory_, timerService_)
-    , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool,  [](auto&&){})}
+    , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {
     EXPECT_CALL(frameBufferMock_, Init()).WillRepeatedly(Return(false));
     EXPECT_CALL(graphicsApiMock_, GetSupportedRenderers())

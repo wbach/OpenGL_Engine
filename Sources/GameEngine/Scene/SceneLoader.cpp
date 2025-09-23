@@ -80,13 +80,13 @@ std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
     IsLoading(true);
 
     LOG_DEBUG << "Load scene :" << name;
-    std::unique_ptr<Scene> scene;
-    std::thread loadingThread([&]() { scene = LoadScene(name); });
+    std::unique_ptr<Scene> result;
+    std::thread loadingThread([&]() { result = LoadScene(name); });
     LOG_DEBUG << "loadingThread done: " << name;
     ScreenRenderLoop();
     loadingThread.join();
 
-    return scene;
+    return result;
 }
 
 template <typename T>
@@ -94,11 +94,11 @@ std::unique_ptr<Scene> SceneLoader::LoadScene(T t)
 {
     LOG_DEBUG << "Load scene thread started.";
     Utils::Timer timer;
-    auto scene = sceneFactory_.Create(t);
-    scene->Init();
+    auto newScene = sceneFactory_.Create(t);
+    newScene->Init();
     LOG_DEBUG << "Scene loading time: " << timer.GetTimeMiliSeconds() << "ms.";
-    IsLoading(false);
-    return scene;
+    this->scene.store(newScene.get());
+    return newScene;
 }
 
 void SceneLoader::Init()
@@ -157,6 +157,11 @@ void SceneLoader::ScreenRenderLoop()
 
     while (IsLoading())
     {
+        if (scene.load(std::memory_order_acquire) != nullptr)
+        {
+            scene.load()->ProcessEvents();
+            IsLoading(false);
+        }
         timeMeasurer.StartFrame();
         displayManager_.ProcessEvents();
         gpuLoader_.RuntimeGpuTasks();
