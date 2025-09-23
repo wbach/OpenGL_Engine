@@ -245,7 +245,8 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
     auto& ptr = *event.gameObject;
     parentGameObject->AddChild(std::move(event.gameObject));
 
-    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void {
+    auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void
+    {
         for (auto& subChild : gameObject.children_)
         {
             if (subChild)

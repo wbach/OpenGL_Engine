@@ -4,6 +4,8 @@
 #include <Utils/Time/TimeMeasurer.h>
 #include <Utils/Time/Timer.h>
 
+#include <optional>
+
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
@@ -12,6 +14,7 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "ISceneFactory.h"
 #include "Scene.hpp"
+#include "Types.h"
 #include "Utils.h"
 
 namespace GameEngine
@@ -154,19 +157,37 @@ void SceneLoader::UpdateScreen()
 void SceneLoader::ScreenRenderLoop()
 {
     Utils::Time::CTimeMeasurer timeMeasurer(30, 1000);
+    std::optional<IdType> sceneEventSubId;
 
-    while (IsLoading())
+    auto updateFrame = [&]()
     {
-        if (scene.load(std::memory_order_acquire) != nullptr)
-        {
-            scene.load()->ProcessEvents();
-            IsLoading(false);
-        }
         timeMeasurer.StartFrame();
         displayManager_.ProcessEvents();
         gpuLoader_.RuntimeGpuTasks();
         UpdateScreen();
         timeMeasurer.EndFrame();
+    };
+
+    while (IsLoading())
+    {
+        if (scene.load(std::memory_order_acquire) != nullptr)
+        {
+            auto& s = *scene.load();
+            if (not sceneEventSubId)
+            {
+                sceneEventSubId = s.SubscribeForSceneEvent(updateFrame);
+            }
+
+            s.ProcessEvents();
+            IsLoading(false);
+            continue;
+        }
+        updateFrame();
+    }
+
+    if (sceneEventSubId)
+    {
+        scene.load()->UnSubscribeForSceneEvent(*sceneEventSubId);
     }
 }
 

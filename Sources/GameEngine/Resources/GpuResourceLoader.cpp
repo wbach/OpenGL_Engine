@@ -132,7 +132,6 @@ void GpuResourceLoader::RemoveObjectIfIsToLoadState(GpuObject& obj)
 
 void GpuResourceLoader::RuntimeGpuTasks()
 {
-    LOG_DEBUG << "RuntimeGpuTasks";
     RuntimeReleaseObjectGpu();
     RuntimeLoadObjectToGpu();
     RuntimeUpdateObjectGpu();
