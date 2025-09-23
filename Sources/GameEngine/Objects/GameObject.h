@@ -122,7 +122,6 @@ private:
     Components::ComponentController& componentController_;
 
 private:
-    void AddChild(std::unique_ptr<GameObject>);
     void MoveChild(std::unique_ptr<GameObject>);
     std::unique_ptr<GameObject> MoveChild(IdType);
 
