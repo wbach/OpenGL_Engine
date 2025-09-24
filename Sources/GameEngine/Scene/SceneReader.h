@@ -1,7 +1,10 @@
 #pragma once
-#include <Utils/TreeNode.h>
 
 #include <string>
+#include <memory>
+#include <optional>
+
+class TreeNode;
 
 namespace common
 {

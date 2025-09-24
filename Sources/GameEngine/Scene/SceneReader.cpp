@@ -10,6 +10,7 @@
 #include "Utils.h"
 #include "Utils/XML/XMLUtils.h"
 #include "Utils/XML/XmlReader.h"
+#include <Utils/TreeNode.h>
 
 using namespace Utils;
 
