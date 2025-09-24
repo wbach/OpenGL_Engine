@@ -34,8 +34,7 @@ private:
     template <typename T>
     std::unique_ptr<Scene> LoadScene(T);
 
-    void IsLoading(bool);
-    bool IsLoading();
+    bool IsGpuLoading();
     void UpdateScreen();
     void ScreenRenderLoop();
     void CheckObjectCount(Scene&);
@@ -44,8 +43,7 @@ private:
     ISceneFactory& sceneFactory_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
     DisplayManager& displayManager_;
-    std::atomic_bool isLoading_;
-    std::atomic<Scene*> scene{nullptr};
+    std::atomic_bool isReading;
 
     size_t objectCount_;
     std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;

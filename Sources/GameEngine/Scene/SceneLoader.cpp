@@ -4,7 +4,10 @@
 #include <Utils/Time/TimeMeasurer.h>
 #include <Utils/Time/Timer.h>
 
+#include <atomic>
+#include <memory>
 #include <optional>
+#include <thread>
 
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
@@ -24,7 +27,7 @@ SceneLoader::SceneLoader(ISceneFactory& factory, GraphicsApi::IGraphicsApi& grap
     : sceneFactory_{factory}
     , graphicsApi_(graphicsApi)
     , displayManager_(displayManager)
-    , isLoading_(true)
+    , isReading(true)
     , objectCount_(0)
     , loadingScreenRenderer(nullptr)
     , resourceManager(resourceManagerFactory.create())
@@ -64,7 +67,7 @@ void SceneLoader::CleanUp()
 std::unique_ptr<Scene> SceneLoader::Load(uint32 id)
 {
     Init();
-    IsLoading(true);
+    isReading.store(true);
 
     LOG_DEBUG << "Load scene :" << id;
 
@@ -80,7 +83,7 @@ std::unique_ptr<Scene> SceneLoader::Load(uint32 id)
 std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
 {
     Init();
-    IsLoading(true);
+    isReading.store(true);
 
     LOG_DEBUG << "Load scene :" << name;
     std::unique_ptr<Scene> result;
@@ -100,7 +103,13 @@ std::unique_ptr<Scene> SceneLoader::LoadScene(T t)
     auto newScene = sceneFactory_.Create(t);
     newScene->Init();
     LOG_DEBUG << "Scene loading time: " << timer.GetTimeMiliSeconds() << "ms.";
-    this->scene.store(newScene.get());
+
+    do
+    {
+        newScene->ProcessEvents();
+    } while (IsGpuLoading());
+
+    isReading.store(false);
     return newScene;
 }
 
@@ -134,15 +143,11 @@ void SceneLoader::Init()
     }
 }
 
-void SceneLoader::IsLoading(bool is)
+bool SceneLoader::IsGpuLoading()
 {
-    isLoading_.store(is);
-}
+    LOG_DEBUG << gpuLoader_.CountOfProcessedTasks();
 
-bool SceneLoader::IsLoading()
-{
-    return isLoading_.load() or gpuLoader_.CountObjectsToAdd() > 0 or gpuLoader_.CountObjectsToRelease() > 0 or
-           gpuLoader_.CountObjectsToUpdate() > 0;
+    return gpuLoader_.CountOfProcessedTasks() > 0;
 }
 
 void SceneLoader::UpdateScreen()
@@ -157,37 +162,15 @@ void SceneLoader::UpdateScreen()
 void SceneLoader::ScreenRenderLoop()
 {
     Utils::Time::CTimeMeasurer timeMeasurer(30, 1000);
-    std::optional<IdType> sceneEventSubId;
+    std::unique_ptr<std::thread> processEvents;
 
-    auto updateFrame = [&]()
+    while (isReading or IsGpuLoading())
     {
         timeMeasurer.StartFrame();
         displayManager_.ProcessEvents();
         gpuLoader_.RuntimeGpuTasks();
         UpdateScreen();
         timeMeasurer.EndFrame();
-    };
-
-    while (IsLoading())
-    {
-        if (scene.load(std::memory_order_acquire) != nullptr)
-        {
-            auto& s = *scene.load();
-            if (not sceneEventSubId)
-            {
-                sceneEventSubId = s.SubscribeForSceneEvent(updateFrame);
-            }
-
-            s.ProcessEvents();
-            IsLoading(false);
-            continue;
-        }
-        updateFrame();
-    }
-
-    if (sceneEventSubId)
-    {
-        scene.load()->UnSubscribeForSceneEvent(*sceneEventSubId);
     }
 }
 

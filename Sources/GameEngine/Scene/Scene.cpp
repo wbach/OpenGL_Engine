@@ -77,6 +77,7 @@ Scene::~Scene()
 
 void Scene::InitResources(EngineContext& context)
 {
+    LOG_DEBUG << "";
     engineContext     = &context;
     graphicsApi_      = &context.GetGraphicsApi();
     inputManager_     = &context.GetInputManager();

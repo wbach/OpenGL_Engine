@@ -31,5 +31,6 @@ public:
     virtual size_t CountObjectsToAdd()     = 0;
     virtual size_t CountObjectsToUpdate()  = 0;
     virtual size_t CountObjectsToRelease() = 0;
+    virtual size_t CountOfProcessedTasks() = 0;
 };
 }  // namespace GameEngine

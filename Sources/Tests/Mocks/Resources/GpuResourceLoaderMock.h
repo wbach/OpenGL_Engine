@@ -22,5 +22,6 @@ public:
     MOCK_METHOD(size_t, CountObjectsToAdd, (), (override));
     MOCK_METHOD(size_t, CountObjectsToUpdate, (), (override));
     MOCK_METHOD(size_t, CountObjectsToRelease, (), (override));
+    MOCK_METHOD(size_t, CountOfProcessedTasks, (), (override));
 };
 }  // namespace GameEngine

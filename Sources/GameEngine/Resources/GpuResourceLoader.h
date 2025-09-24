@@ -28,6 +28,7 @@ public:
     size_t CountObjectsToAdd() override;
     size_t CountObjectsToUpdate() override;
     size_t CountObjectsToRelease() override;
+    size_t CountOfProcessedTasks() override;
 
     void clear();
 

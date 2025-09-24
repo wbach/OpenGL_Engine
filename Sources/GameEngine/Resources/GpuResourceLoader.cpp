@@ -55,7 +55,7 @@ GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
 
 void GpuResourceLoader::AddObjectToUpdateGpuPass(GpuObject& obj)
 {
-     LOG_DEBUG << "AddObjectToUpdateGpuPass :" << obj.GetGpuObjectId();
+    LOG_DEBUG << "AddObjectToUpdateGpuPass :" << obj.GetGpuObjectId();
     std::lock_guard<std::mutex> lock(updateMutex);
 
     if (not objectsToUpdate.empty())
@@ -86,7 +86,7 @@ GpuObject* GpuResourceLoader::GetObjectToUpdateGpuPass()
 
 void GpuResourceLoader::AddObjectToRelease(std::unique_ptr<GpuObject> object)
 {
-     LOG_DEBUG << "AddObjectToRelease :" << object->GetGpuObjectId();
+    LOG_DEBUG << "AddObjectToRelease :" << object->GetGpuObjectId();
     if (not object)
         return;
 
@@ -122,9 +122,9 @@ void GpuResourceLoader::RemoveObjectIfIsToLoadState(GpuObject& obj)
 {
     if (not gpuPassLoad.empty())
     {
-        auto iter = std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(), [id = obj.GetGpuObjectId()](const auto& gpuObject) {
-            return id == gpuObject->GetGpuObjectId();
-        });
+        auto iter =
+            std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(),
+                         [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
         if (iter != gpuPassLoad.end())
             gpuPassLoad.erase(iter);
     }
@@ -140,25 +140,30 @@ void GpuResourceLoader::RuntimeGpuTasks()
 
 size_t GpuResourceLoader::CountObjectsToAdd()
 {
+    std::lock_guard<std::mutex> lock1(gpuPassMutex);
     return gpuPassLoad.size();
 }
 
 size_t GpuResourceLoader::CountObjectsToUpdate()
 {
+    std::lock_guard<std::mutex> lock2(updateMutex);
     return objectsToUpdate.size();
 }
 
 size_t GpuResourceLoader::CountObjectsToRelease()
 {
+    std::lock_guard<std::mutex> lock3(releaseMutex);
     return objectsToRelease.size();
 }
 
+size_t GpuResourceLoader::CountOfProcessedTasks()
+{
+    std::scoped_lock lock(gpuPassMutex, updateMutex, releaseMutex, functionMutex);
+    return objectsToRelease.size() + objectsToUpdate.size() + gpuPassLoad.size() + functions.size();
+}
 void GpuResourceLoader::clear()
 {
-    std::lock_guard<std::mutex> lock1(gpuPassMutex);
-    std::lock_guard<std::mutex> lock2(updateMutex);
-    std::lock_guard<std::mutex> lock3(releaseMutex);
-    std::lock_guard<std::mutex> lock4(functionMutex);
+    std::scoped_lock lock(gpuPassMutex, updateMutex, releaseMutex, functionMutex);
     functions.clear();
     gpuPassLoad.clear();
     objectsToRelease.clear();
