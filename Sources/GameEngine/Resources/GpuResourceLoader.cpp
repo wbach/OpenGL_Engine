@@ -120,9 +120,9 @@ void GpuResourceLoader::RemoveObjectIfIsToLoadState(GpuObject& obj)
 {
     if (not gpuPassLoad.empty())
     {
-        auto iter = std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(), [id = obj.GetGpuObjectId()](const auto& gpuObject) {
-            return id == gpuObject->GetGpuObjectId();
-        });
+        auto iter =
+            std::find_if(gpuPassLoad.begin(), gpuPassLoad.end(),
+                         [id = obj.GetGpuObjectId()](const auto& gpuObject) { return id == gpuObject->GetGpuObjectId(); });
         if (iter != gpuPassLoad.end())
             gpuPassLoad.erase(iter);
     }
