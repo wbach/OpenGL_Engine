@@ -33,7 +33,6 @@ public:
     GameObject(const GameObject&) = delete;
     GameObject(GameObject&&)      = delete;
     virtual ~GameObject();
-    void CleanUp();
 
     GameObject* GetParent() const;
     GameObject* GetChild(IdType) const;
@@ -122,6 +121,7 @@ private:
     Components::ComponentController& componentController_;
 
 private:
+    void AddChild(std::unique_ptr<GameObject>);
     void MoveChild(std::unique_ptr<GameObject>);
     std::unique_ptr<GameObject> MoveChild(IdType);
 
@@ -221,4 +221,3 @@ inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject& 
 }
 
 }  // namespace GameEngine
-

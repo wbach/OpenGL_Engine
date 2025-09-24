@@ -11,6 +11,11 @@ namespace common
 class Transform;
 }
 
+namespace common
+{
+class Transform;
+}
+
 namespace GameEngine
 {
 class Scene;
