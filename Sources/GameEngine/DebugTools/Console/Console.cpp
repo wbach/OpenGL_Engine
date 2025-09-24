@@ -237,7 +237,7 @@ void Console::LoadPrefab(const std::vector<std::string> &params)
     const auto &filename = params[0];
     const auto &name     = params[1];
 
-    GameEngine::SceneReader::loadPrefab(scene_, filename, name);
+    GameEngine::SceneReader(scene_).loadPrefab(filename, name);
 }
 
 void Console::SetPosition(const std::vector<std::string> &args)

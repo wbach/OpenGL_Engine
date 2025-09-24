@@ -704,7 +704,7 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 
 void MainFrame::LoadPrefab(const std::string& path)
 {
-    auto go = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
+    auto go = GameEngine::SceneReader(canvas->GetScene()).loadPrefab(path);
     if (go)
     {
         // auto prefabItemId = gameObjectsView->AppendItemToSelection(go->GetName() + " (prefab)", go->GetId());
@@ -1198,6 +1198,7 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
                 localTransformPanel->lock();
             }
 
+            LOG_DEBUG << "Remove gameObject";
             canvas->GetScene().RemoveGameObject(*gameObjectId);
             gameObjectsView->Delete(sel);
             UpdateObjectCount();

@@ -856,7 +856,7 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
             goName = params.at("name");
         }
 
-        auto gameObject = GameEngine::SceneReader::loadPrefab(scene_, GetRelativeDataPath(params.at("filename")), goName);
+        auto gameObject = GameEngine::SceneReader(scene_).loadPrefab(GetRelativeDataPath(params.at("filename")), goName);
 
         if (gameObject)
         {

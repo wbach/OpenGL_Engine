@@ -105,7 +105,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
 
     if (sceneNode)
     {
-        SceneReader::readNode(*sceneNode, *scene);
+        SceneReader(*scene).readNode(*sceneNode);
     }
     return scene;
 }

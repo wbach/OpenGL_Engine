@@ -21,22 +21,22 @@ XmlSceneStorage::~XmlSceneStorage()
 }
 void XmlSceneStorage::store()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("store");
+    LOG_DEBUG << "store";
     rootNode_ = createTree(scene_);
 }
 void XmlSceneStorage::restore()
 {
     if (rootNode_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("restore");
+        LOG_DEBUG << "restore";
         scene_.ClearGameObjects();
-        /* LOG TO FIX*/  LOG_ERROR << ("clear objects completed");
-        SceneReader::readNode(*rootNode_, scene_);
-        /* LOG TO FIX*/  LOG_ERROR << ("restore completed");
+        LOG_DEBUG << "clear objects completed";
+        SceneReader(scene_).readNode(*rootNode_);
+        LOG_DEBUG << "restore completed";
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("First store scene before read");
+        LOG_DEBUG << "First store scene before read";
     }
 }
 }  // namespace GameEngine

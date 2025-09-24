@@ -302,7 +302,7 @@ void AnimationViewerFrame::CreateGameObjectBasedOnModel(const GameEngine::File& 
 
 void AnimationViewerFrame::CreateGameObjectBasedOnPrefab(const GameEngine::File& path)
 {
-    auto prefabObject = GameEngine::SceneReader::loadPrefab(canvas->GetScene(), path);
+    auto prefabObject = GameEngine::SceneReader(canvas->GetScene()).loadPrefab(path);
     if (prefabObject)
     {
         if (prefabObject->GetChildren().empty())

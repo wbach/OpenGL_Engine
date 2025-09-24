@@ -1,19 +1,42 @@
 #pragma once
 #include <Utils/TreeNode.h>
-#include "GameEngine/Resources/File.h"
+
 #include <string>
+
+namespace common
+{
+class Transform;
+}
 
 namespace GameEngine
 {
 class Scene;
+class File;
 class GameObject;
+class Prefab;
 
-namespace SceneReader
+class SceneReader
 {
-void readNode(const TreeNode& , Scene&);
-std::optional<TreeNode> loadScene(Scene&, const File&);
-GameObject* loadPrefab(Scene&, const File&, const std::string& = "");
-GameObject* createGameObjectFromPrefabNodeInRootNode(Scene&, const TreeNode&, const std::string&);
-std::unique_ptr<GameObject> createGameObjectFromPrefabNode(Scene&, const TreeNode&, const std::string&);
-}  // namespace SceneReader
+public:
+    SceneReader(Scene&);
+
+    void readNode(const TreeNode&);
+    std::optional<TreeNode> loadScene(const File&);
+    GameObject* loadPrefab(const File&, const std::string& = "");
+    GameObject* createGameObjectFromPrefabNodeInRootNode(const TreeNode&, const std::string&);
+    std::unique_ptr<GameObject> createGameObjectFromPrefabNode(const TreeNode&, const std::string&);
+
+private:
+    template <typename T>
+    void AddComponent(const TreeNode&, GameObject&);
+
+    std::unique_ptr<GameObject> createGameObject(const TreeNode&);
+    std::unique_ptr<Prefab> createPrefabGameObject(const TreeNode&);
+    void Read(const TreeNode&, common::Transform&);
+    void Read(const TreeNode&, GameObject&);
+    void ReadPrefab(const File&, Prefab&);
+
+private:
+    Scene& scene;
+};
 }  // namespace GameEngine

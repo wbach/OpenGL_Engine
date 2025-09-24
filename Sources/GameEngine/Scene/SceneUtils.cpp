@@ -57,10 +57,9 @@ void createAndSavePrefab(const File& file, const GameObject& gameObject)
 }
 GameObject* cloneGameObject(Scene& scene, const GameObject& gameObject)
 {
-    auto prefabRootNode = GameEngine::createPrefab(gameObject);
-    auto clonedGameObject =
-        SceneReader::createGameObjectFromPrefabNode(scene, prefabRootNode, "clone_of_" + gameObject.GetName());
-    auto result = clonedGameObject.get();
+    auto prefabRootNode   = GameEngine::createPrefab(gameObject);
+    auto clonedGameObject = SceneReader(scene).createGameObjectFromPrefabNode(prefabRootNode, "clone_of_" + gameObject.GetName());
+    auto result           = clonedGameObject.get();
     if (auto parent = gameObject.GetParent())
     {
         scene.AddGameObject(*parent, std::move(clonedGameObject));

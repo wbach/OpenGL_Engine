@@ -20,6 +20,9 @@ namespace GameEngine
 class GameObject;
 using GameObjects = std::vector<std::unique_ptr<GameObject>>;
 
+class Scene;
+class SceneReader;
+
 class GameObject
 {
 public:
@@ -30,9 +33,6 @@ public:
     GameObject(const GameObject&) = delete;
     GameObject(GameObject&&)      = delete;
     virtual ~GameObject();
-
-    // std::unique_ptr<GameObject> CreateChild(const std::string&, const std::optional<uint32>& = std::nullopt);
-    void AddChild(std::unique_ptr<GameObject>);
 
     GameObject* GetParent() const;
     GameObject* GetChild(IdType) const;
@@ -92,8 +92,6 @@ public:
     uint32 SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)>);
     void UnsubscribeOnWorldTransfromChange(uint32);
 
-    // void NotifyComponentControllerAboutObjectCreation(GameObject&);
-
 private:
     GameObject& getRootGameObject();
     void CalculateWorldTransform();
@@ -123,6 +121,7 @@ private:
     Components::ComponentController& componentController_;
 
 private:
+    void AddChild(std::unique_ptr<GameObject>);
     void MoveChild(std::unique_ptr<GameObject>);
     std::unique_ptr<GameObject> MoveChild(IdType);
 
@@ -134,6 +133,7 @@ private:
     std::vector<IdType> RemoveChild(GameObject&);
 
     friend class Scene;
+    friend class SceneReader;
 };
 
 inline const std::string& GameObject::GetName() const
@@ -205,9 +205,9 @@ const GameObject::ComponentsContainer& GameObject::GetComponents() const
 inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject::ComponentsContainer& components)
 {
     os << "Components(" << components.size() << "){";
-    for(const auto& [_, component] :  components)
+    for (const auto& [_, component] : components)
     {
-        os << "{" << component->GetTypeName() <<"}";
+        os << "{" << component->GetTypeName() << "}";
     }
     os << "}";
 
@@ -221,4 +221,3 @@ inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject& 
 }
 
 }  // namespace GameEngine
-
