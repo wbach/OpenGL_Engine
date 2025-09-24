@@ -53,10 +53,11 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     }
     if (not requestedSizeFoundInAvaiableDisplayMode and not diplayModes.empty())
     {
-        const auto& firstValidDisplayMode = diplayModes.front();
+        const auto& firstValidDisplayMode = diplayModes.back();
         windowsSize_ = vec2ui{static_cast<uint32>(firstValidDisplayMode.w), static_cast<uint32>(firstValidDisplayMode.h)};
-        LOG_DEBUG << "Requested window size not avaiable, take first, new size: " << windowsSize_;
+        LOG_DEBUG << "Requested window size not available, take first, new size: " << windowsSize_;
         EngineConf.window.size = windowsSize_;
+        LOG_DEBUG << "Available " <<  diplayModes;
     }
 
     graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);

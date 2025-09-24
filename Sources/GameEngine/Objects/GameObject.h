@@ -201,4 +201,24 @@ const GameObject::ComponentsContainer& GameObject::GetComponents() const
 {
     return components_;
 }
+
+inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject::ComponentsContainer& components)
+{
+    os << "Components(" << components.size() << "){";
+    for(const auto& [_, component] :  components)
+    {
+        os << "{" << component->GetTypeName() <<"}";
+    }
+    os << "}";
+
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject& go)
+{
+    os << "GameObject{name=" << go.GetName() << ", id= " << go.GetId() << "}";
+    return os;
+}
+
 }  // namespace GameEngine
+

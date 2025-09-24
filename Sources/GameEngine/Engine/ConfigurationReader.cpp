@@ -52,6 +52,7 @@ ConfigurationReader::ConfigurationReader()
 }
 ConfigurationReader::ConfigurationReader(const std::string& filename)
 {
+    LOG_DEBUG << "Read config file: " << filename;
     GameEngine::ReadFromFile(filename);
 
     if (EngineConf.debugParams.logLvl != LoggingLvl::None)

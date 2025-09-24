@@ -8,6 +8,7 @@
 #include "Surface.h"
 #include "Types.h"
 #include "WindowType.h"
+#include "DisplayMode.h"
 
 namespace Input
 {
@@ -16,14 +17,6 @@ class InputManager;
 
 namespace GraphicsApi
 {
-struct DisplayMode
-{
-    int w;
-    int h;
-    int refreshRate;
-    int displayIndex;
-};
-
 struct DropFileEvent
 {
     std::string filename;
@@ -62,3 +55,4 @@ public:
     virtual void BeginFrame() = 0;
 };
 }  // namespace GraphicsApi
+
