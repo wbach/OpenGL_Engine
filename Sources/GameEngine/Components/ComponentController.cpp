@@ -39,7 +39,7 @@ ComponentController::~ComponentController()
     }
 }
 
-ComponentController::FunctionId ComponentController::RegisterFunction(GameObjectId gameObjectId, ComponentTypeID owner,
+ComponentController::FunctionId ComponentController::RegisterFunction(GameObjectId gameObjectId, const ComponentType& owner,
                                                                       FunctionType type, std::function<void()> func,
                                                                       const Dependencies& dependencies)
 {
@@ -291,7 +291,7 @@ std::vector<const ComponentController::ComponentFunction*> ComponentController::
     // 1. Budujemy indegree i mape zaleznosci
     for (auto& func : registeredFunctions)
     {
-        if (func.meta.ownerType == NULL_COMPONENT_ID)
+        if (func.meta.ownerType.id == NULL_COMPONENT_TYPE.id)
         {
             globalFunctions.push_back(&func);
         }
@@ -300,7 +300,7 @@ std::vector<const ComponentController::ComponentFunction*> ComponentController::
             remainingDependenciesCount[&func] = static_cast<int>(func.meta.dependencies.size());
             for (auto dep : func.meta.dependencies)
             {
-                dependentsByComponentType[dep].push_back(&func);
+                dependentsByComponentType[dep.id].push_back(&func);
             }
         }
     }
@@ -322,7 +322,7 @@ std::vector<const ComponentController::ComponentFunction*> ComponentController::
         readyQueue.pop();
         sortedFunctions.push_back(current);
 
-        for (auto dependent : dependentsByComponentType[current->meta.ownerType])
+        for (auto dependent : dependentsByComponentType[current->meta.ownerType.id])
         {
             if (--remainingDependenciesCount[dependent] == 0)
             {
@@ -333,9 +333,50 @@ std::vector<const ComponentController::ComponentFunction*> ComponentController::
 
     if (sortedFunctions.size() + globalFunctions.size() != registeredFunctions.size())
     {
-        throw std::runtime_error("Cyclic dependency detected in component functions!");
-    }
+        std::vector<const ComponentFunction*> unresolved;
+        for (auto& [funcPtr, count] : remainingDependenciesCount)
+        {
+            if (count > 0)
+                unresolved.push_back(funcPtr);
+        }
 
+        std::unordered_set<ComponentType> existingOwners;
+        for (auto& func : registeredFunctions)
+        {
+            if (func.meta.ownerType.id != NULL_COMPONENT_TYPE.id)
+                existingOwners.insert(func.meta.ownerType);
+        }
+
+        std::ostringstream missingMsg;
+        std::ostringstream cycleMsg;
+        bool hasMissingDependency = false;
+        bool hasCycle             = false;
+
+        for (auto* func : unresolved)
+        {
+            for (auto dep : func->meta.dependencies)
+            {
+                if (existingOwners.find(dep) == existingOwners.end())
+                {
+                    hasMissingDependency = true;
+                    missingMsg << "Function " << func->meta.id << " in " << func->meta.ownerType
+                               << " depends on missing " << dep << "\n";
+                }
+                else
+                {
+                    hasCycle = true;
+                    cycleMsg << "Function " << func->meta.id << " in " << func->meta.ownerType
+                             << " participates in cyclic dependency involving " << dep << "\n";
+                }
+            }
+        }
+
+        if (hasMissingDependency)
+            LOG_WARN << "Missing dependencies detected:\n" << missingMsg.str();
+
+        if (hasCycle)
+            throw std::runtime_error("Cyclic dependencies detected:\n" + cycleMsg.str());
+    }
     // 3. Dodajemy na koncu wszystkie funkcje globalne
     sortedFunctions.insert(sortedFunctions.end(), globalFunctions.begin(), globalFunctions.end());
 

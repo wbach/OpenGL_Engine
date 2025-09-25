@@ -6,70 +6,120 @@
 
 using namespace GameEngine::Components;
 
+// -----------------------------------------------------------------------------
+// Stale ComponentType
+// -----------------------------------------------------------------------------
+const ComponentType TRANSFORM{.id = 1, .name = "Transform"};
+const ComponentType RENDERER{.id = 2, .name = "Renderer"};
+const ComponentType ANIMATOR{.id = 3, .name = "Animator"};
+
+// -----------------------------------------------------------------------------
+// TEST: Zaleznosci respektowane w kolejnosci wywolan
+// -----------------------------------------------------------------------------
 TEST(ComponentControllerTest, FunctionExecutionOrder_RespectsDependencies)
 {
     ComponentController controller;
-    std::vector<std::string> callLog;  // tu bedziemy logowac wywolania
-
+    std::vector<std::string> callLog;
     IdType gameObjectId = 1;
 
-    // Zarejestrujmy funkcje komponentow z zaleznosciami
-    controller.RegisterFunction(
-        gameObjectId, ComponentTypeID{1}, FunctionType::Update, [&callLog]() { callLog.push_back("Transform"); },
-        ComponentController::Dependencies{});
+    controller.RegisterFunction(gameObjectId, TRANSFORM, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(TRANSFORM.name); }, {});
 
-    controller.RegisterFunction(
-        gameObjectId, ComponentTypeID{2}, FunctionType::Update, [&callLog]() { callLog.push_back("Renderer"); },
-        ComponentController::Dependencies{1});
+    controller.RegisterFunction(gameObjectId, RENDERER, FunctionType::Update, [&callLog]() { callLog.push_back(RENDERER.name); },
+                                {TRANSFORM});
 
-    controller.RegisterFunction(
-        gameObjectId, ComponentTypeID{3}, FunctionType::Update, [&callLog]() { callLog.push_back("Animator"); },
-        ComponentController::Dependencies{2});
+    controller.RegisterFunction(gameObjectId, ANIMATOR, FunctionType::Update, [&callLog]() { callLog.push_back(ANIMATOR.name); },
+                                {RENDERER});
 
-    // Funkcja globalna (NULL_COMPONENT_ID), powinna byc na koncu
-    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_ID, FunctionType::Update,
-                                [&callLog]() { callLog.push_back("Global"); }, {});
+    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_TYPE, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(NULL_COMPONENT_TYPE.name); }, {});
 
     controller.OnObjectCreated(gameObjectId);
-    // Wywolujemy wszystkie funkcje Update
     controller.CallFunctions(FunctionType::Update);
 
-    // Sprawdzenie kolejnosci
     ASSERT_EQ(callLog.size(), 4u);
-    EXPECT_EQ(callLog[0], "Transform");
-    EXPECT_EQ(callLog[1], "Renderer");
-    EXPECT_EQ(callLog[2], "Animator");
-    EXPECT_EQ(callLog[3], "Global");
+    EXPECT_EQ(callLog[0], TRANSFORM.name);
+    EXPECT_EQ(callLog[1], RENDERER.name);
+    EXPECT_EQ(callLog[2], ANIMATOR.name);
+    EXPECT_EQ(callLog[3], NULL_COMPONENT_TYPE.name);
 }
 
+// -----------------------------------------------------------------------------
+// TEST: Losowa rejestracja, sprawdzenie sortowania zaleznosci
+// -----------------------------------------------------------------------------
 TEST(ComponentControllerTest, FunctionExecutionOrder_RespectsDependencies_RandomRegistration)
 {
     ComponentController controller;
-    std::vector<std::string> callLog;  // tu bedziemy logowac wywolania
-
+    std::vector<std::string> callLog;
     IdType gameObjectId = 1;
 
-    // Rejestracja funkcji w losowej kolejnosci
-    controller.RegisterFunction(gameObjectId, 3, FunctionType::Update, [&callLog]() { callLog.push_back("Animator"); },
-                                {2});  // Animator zalezy od Renderer
+    // Rejestracja w losowej kolejnosci
+    controller.RegisterFunction(gameObjectId, ANIMATOR, FunctionType::Update, [&callLog]() { callLog.push_back(ANIMATOR.name); },
+                                {RENDERER});
 
-    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_ID, FunctionType::Update,
-                                [&callLog]() { callLog.push_back("Global"); }, {});  // globalna, powinna byc na koncu
+    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_TYPE, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(NULL_COMPONENT_TYPE.name); }, {});
 
-    controller.RegisterFunction(gameObjectId, 1, FunctionType::Update, [&callLog]() { callLog.push_back("Transform"); },
-                                {});  // Transform nie zalezy od nikogo
+    controller.RegisterFunction(gameObjectId, TRANSFORM, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(TRANSFORM.name); }, {});
 
-    controller.RegisterFunction(gameObjectId, 2, FunctionType::Update, [&callLog]() { callLog.push_back("Renderer"); },
-                                {1});  // Renderer zalezy od Transform
+    controller.RegisterFunction(gameObjectId, RENDERER, FunctionType::Update, [&callLog]() { callLog.push_back(RENDERER.name); },
+                                {TRANSFORM});
 
     controller.OnObjectCreated(gameObjectId);
-    // Wywolujemy wszystkie funkcje Update
     controller.CallFunctions(FunctionType::Update);
 
-    // Sprawdzenie kolejnosci
     ASSERT_EQ(callLog.size(), 4u);
-    EXPECT_EQ(callLog[0], "Transform");
-    EXPECT_EQ(callLog[1], "Renderer");
-    EXPECT_EQ(callLog[2], "Animator");
-    EXPECT_EQ(callLog[3], "Global");
+    EXPECT_EQ(callLog[0], TRANSFORM.name);
+    EXPECT_EQ(callLog[1], RENDERER.name);
+    EXPECT_EQ(callLog[2], ANIMATOR.name);
+    EXPECT_EQ(callLog[3], NULL_COMPONENT_TYPE.name);
+}
+
+// -----------------------------------------------------------------------------
+// TEST: Brak wymaganej zaleznosci
+// -----------------------------------------------------------------------------
+TEST(ComponentControllerTest, FunctionExecutionOrder_MissingDependency)
+{
+    ComponentController controller;
+    std::vector<std::string> callLog;
+    IdType gameObjectId = 1;
+
+    controller.RegisterFunction(gameObjectId, ANIMATOR, FunctionType::Update, [&callLog]() { callLog.push_back(ANIMATOR.name); },
+                                {RENDERER});  // Renderer nie istnieje
+
+    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_TYPE, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(NULL_COMPONENT_TYPE.name); }, {});
+
+    controller.RegisterFunction(gameObjectId, TRANSFORM, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(TRANSFORM.name); }, {});
+
+    controller.OnObjectCreated(gameObjectId);
+    controller.CallFunctions(FunctionType::Update);
+
+    // Funkcja Animator powinna zostac pominieta
+    ASSERT_EQ(callLog.size(), 2u);
+    EXPECT_EQ(callLog[0], TRANSFORM.name);
+    EXPECT_EQ(callLog[1], NULL_COMPONENT_TYPE.name);
+}
+
+// -----------------------------------------------------------------------------
+// TEST: Wykrywanie cyklicznych zaleznosci
+// -----------------------------------------------------------------------------
+TEST(ComponentControllerTest, FunctionExecutionOrder_CycleDependency)
+{
+    ComponentController controller;
+    std::vector<std::string> callLog;
+    IdType gameObjectId = 1;
+
+    controller.RegisterFunction(gameObjectId, ANIMATOR, FunctionType::Update, [&callLog]() { callLog.push_back(ANIMATOR.name); },
+                                {RENDERER});
+
+    controller.RegisterFunction(gameObjectId, RENDERER, FunctionType::Update, [&callLog]() { callLog.push_back(RENDERER.name); },
+                                {ANIMATOR});  // cykl
+
+    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_TYPE, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(NULL_COMPONENT_TYPE.name); }, {});
+
+    EXPECT_THROW(controller.OnObjectCreated(gameObjectId), std::runtime_error);
 }

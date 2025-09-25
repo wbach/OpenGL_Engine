@@ -22,13 +22,13 @@ public:
     using FunctionId   = IdType;
     using ComponentId  = IdType;
     using GameObjectId = IdType;
-    using Dependencies = std::vector<ComponentTypeID>;
+    using Dependencies = std::vector<ComponentType>;
 
     struct FunctionMeta
     {
         FunctionId id{0};
         bool isActive{true};
-        ComponentTypeID ownerType;
+        ComponentType ownerType;
         Dependencies dependencies;
     };
     struct ComponentFunction
@@ -62,7 +62,7 @@ public:
         return {};
     }
 
-    FunctionId RegisterFunction(GameObjectId, ComponentTypeID, FunctionType, std::function<void()>, const Dependencies& = {});
+    FunctionId RegisterFunction(GameObjectId, const ComponentType&, FunctionType, std::function<void()>, const Dependencies& = {});
     void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
     void callComponentFunction(GameObjectId, FunctionType, FunctionId);

@@ -25,8 +25,8 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
-    isStartedSub  = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_ID, Components::FunctionType::OnStart, [this]() { isStarted = true; });
-    isAwakenedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_ID, Components::FunctionType::Awake, [this]() { isAwakened = true; });
+    isStartedSub  = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::OnStart, [this]() { isStarted = true; });
+    isAwakenedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::Awake, [this]() { isAwakened = true; });
 }
 
 GameObject::~GameObject()
