@@ -8,6 +8,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/FileTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/SceneTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/BaseComponent.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/ComponentControllerTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/GameObjectTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/CharacterControllerMixedTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterController/CharacterControllerTests.cpp

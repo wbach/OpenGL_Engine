@@ -25,8 +25,8 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
-    isStartedSub  = componentController_.RegisterFunction(id_, Components::FunctionType::OnStart, [this]() { isStarted = true; });
-    isAwakenedSub = componentController_.RegisterFunction(id_, Components::FunctionType::Awake, [this]() { isAwakened = true; });
+    isStartedSub  = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_ID, Components::FunctionType::OnStart, [this]() { isStarted = true; });
+    isAwakenedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_ID, Components::FunctionType::Awake, [this]() { isAwakened = true; });
 }
 
 GameObject::~GameObject()
@@ -127,7 +127,7 @@ bool GameObject::RemoveChild(IdType id)
             {
                 if (subChild)
                 {
-                    self(self, *subChild);  // rekurencja w głąb
+                    self(self, *subChild);  // rekurencja w glab
                 }
             }
 
@@ -140,7 +140,7 @@ bool GameObject::RemoveChild(IdType id)
         return true;
     }
 
-    // Jeśli nie znaleziono – spróbuj w poddrzewie
+    // Jesli nie znaleziono - sprobuj w poddrzewie
     for (auto& child : children_)
     {
         if (child->RemoveChild(id))

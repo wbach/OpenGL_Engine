@@ -7,7 +7,7 @@ namespace Components
 {
 ComponentTypeID GetUniqueComponentID()
 {
-    static ComponentTypeID lastID = 0;
+    static ComponentTypeID lastID = 1;
     return lastID++;
 }
 std::ostream& operator<<(std::ostream& os, const ComponentType& type)

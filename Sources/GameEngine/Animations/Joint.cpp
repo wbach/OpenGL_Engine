@@ -105,5 +105,21 @@ const Joint* Joint::getJoint(JointId boneId) const
     }
     return nullptr;
 }
+
+std::ostream& operator<<(std::ostream& os, const Joint& joint)
+{
+    std::function<void(const Joint&, int)> print;
+    print = [&print, &os](const Joint& j, int depth)
+    {
+        for(int i = 0; i < depth; ++i) os << "--";
+        os << j.name << "\n";
+        for(const auto& child : j.children)
+            print(child, depth + 1);
+    };
+
+    print(joint, 0);
+    return os;
+}
+
 }  // namespace Animation
 }  // namespace GameEngine

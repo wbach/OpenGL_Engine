@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <magic_enum/magic_enum.hpp>
+#include <queue>
+#include <stdexcept>
 
 #include "Logger/Log.h"
 
@@ -37,11 +39,13 @@ ComponentController::~ComponentController()
     }
 }
 
-ComponentController::FunctionId ComponentController::RegisterFunction(GameObjectId gameObjectId, FunctionType type,
-                                                                      std::function<void()> func)
+ComponentController::FunctionId ComponentController::RegisterFunction(GameObjectId gameObjectId, ComponentTypeID owner,
+                                                                      FunctionType type, std::function<void()> func,
+                                                                      const Dependencies& dependencies)
 {
     auto id = functionIdsPool_.getId();
-    functions_[gameObjectId][type].push_back({id, true, func});
+    functions_[gameObjectId][type].push_back(ComponentFunction{
+        .function = func, .meta = FunctionMeta{.id = id, .isActive = true, .ownerType = owner, .dependencies = dependencies}});
     return id;
 }
 
@@ -75,7 +79,7 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
         if (typeIter != iter->second.end())
         {
             auto functionIter = std::find_if(typeIter->second.begin(), typeIter->second.end(),
-                                             [id](const auto& componentFunction) { return id == componentFunction.id; });
+                                             [id](const auto& componentFunction) { return id == componentFunction.meta.id; });
             if (functionIter != typeIter->second.end())
             {
                 typeIter->second.erase(functionIter);
@@ -120,10 +124,10 @@ void ComponentController::setActivateStateOfComponentFunction(ComponentControlle
         if (typeIter != iter->second.end())
         {
             auto functionIter = std::find_if(typeIter->second.begin(), typeIter->second.end(),
-                                             [id](const auto& componentFunction) { return id == componentFunction.id; });
+                                             [id](const auto& componentFunction) { return id == componentFunction.meta.id; });
             if (functionIter != typeIter->second.end())
             {
-                functionIter->isActive = activeStatus;
+                functionIter->meta.isActive = activeStatus;
             }
             else
             {
@@ -154,7 +158,7 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
         {
             auto functionIter =
                 std::find_if(typeIter->second.begin(), typeIter->second.end(),
-                             [functionId](const auto& componentFunction) { return functionId == componentFunction.id; });
+                             [functionId](const auto& componentFunction) { return functionId == componentFunction.meta.id; });
 
             if (functionIter != typeIter->second.end() and functionIter->function)
             {
@@ -184,6 +188,8 @@ void ComponentController::UnRegisterAll()
 }
 void ComponentController::OnObjectCreated(IdType gameObjectId)
 {
+    SortAllFunctionsForGameObject(gameObjectId);
+
     CallGameObjectFunctions(FunctionType::Awake, gameObjectId);
 
     if (isStarted)
@@ -220,7 +226,7 @@ void ComponentController::CallFunctions(FunctionType type)
         {
             for (auto& componentFunction : iter->second)
             {
-                if (componentFunction.isActive)
+                if (componentFunction.meta.isActive)
                     componentFunction.function();
             }
         }
@@ -243,5 +249,98 @@ void ComponentController::CallGameObjectFunctions(FunctionType funcType, IdType 
         }
     }
 }
+
+// ------------------------------------------------------------
+// Sortowanie funkcji po zaleznosciach
+// ------------------------------------------------------------
+void ComponentController::SortAllFunctionsForGameObject(IdType gameObjectId)
+{
+    auto objectIter = functions_.find(gameObjectId);
+    if (objectIter == functions_.end())
+        return;  // brak funkcji dla tego obiektu
+
+    FunctionBucket& functionBucket = objectIter->second;
+
+    // Przechodzimy po wszystkich typach funkcji
+    for (auto& [functionType, componentFunctionVec] : functionBucket)
+    {
+        // Wywolujemy prywatna metode SortFunctions, ktora zwraca wektor wskaznikow posortowanych topologicznie
+        std::vector<const ComponentFunction*> sortedFunctionPtrs = SortFunctions(componentFunctionVec);
+
+        // Nadpisujemy oryginalny wektor w bucketcie
+        // Zmieniamy typ z std::vector<ComponentFunction> na std::vector<ComponentFunction> zgodnie z potrzeba
+        std::vector<ComponentFunction> sortedFunctions;
+        sortedFunctions.reserve(sortedFunctionPtrs.size());
+        for (const auto* funcPtr : sortedFunctionPtrs)
+        {
+            sortedFunctions.push_back(*funcPtr);
+        }
+
+        componentFunctionVec = std::move(sortedFunctions);
+    }
+}
+
+std::vector<const ComponentController::ComponentFunction*> ComponentController::SortFunctions(
+    const std::vector<ComponentFunction>& registeredFunctions)
+{
+    std::unordered_map<const ComponentFunction*, int> remainingDependenciesCount;
+    std::unordered_map<ComponentTypeID, std::vector<const ComponentFunction*>> dependentsByComponentType;
+
+    std::vector<const ComponentFunction*> globalFunctions;  // funkcje NULL_COMPONENT_ID
+
+    // 1. Budujemy indegree i mape zaleznosci
+    for (auto& func : registeredFunctions)
+    {
+        if (func.meta.ownerType == NULL_COMPONENT_ID)
+        {
+            globalFunctions.push_back(&func);
+        }
+        else
+        {
+            remainingDependenciesCount[&func] = static_cast<int>(func.meta.dependencies.size());
+            for (auto dep : func.meta.dependencies)
+            {
+                dependentsByComponentType[dep].push_back(&func);
+            }
+        }
+    }
+
+    std::queue<const ComponentFunction*> readyQueue;
+    for (auto& [funcPtr, count] : remainingDependenciesCount)
+    {
+        if (count == 0)
+            readyQueue.push(funcPtr);
+    }
+
+    std::vector<const ComponentFunction*> sortedFunctions;
+    sortedFunctions.reserve(registeredFunctions.size());
+
+    // 2. Topologiczne sortowanie zwyklych komponentow
+    while (!readyQueue.empty())
+    {
+        const ComponentFunction* current = readyQueue.front();
+        readyQueue.pop();
+        sortedFunctions.push_back(current);
+
+        for (auto dependent : dependentsByComponentType[current->meta.ownerType])
+        {
+            if (--remainingDependenciesCount[dependent] == 0)
+            {
+                readyQueue.push(dependent);
+            }
+        }
+    }
+
+    if (sortedFunctions.size() + globalFunctions.size() != registeredFunctions.size())
+    {
+        throw std::runtime_error("Cyclic dependency detected in component functions!");
+    }
+
+    // 3. Dodajemy na koncu wszystkie funkcje globalne
+    sortedFunctions.insert(sortedFunctions.end(), globalFunctions.begin(), globalFunctions.end());
+
+    return sortedFunctions;
+}
+
 }  // namespace Components
 }  // namespace GameEngine

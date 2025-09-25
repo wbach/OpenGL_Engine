@@ -13,6 +13,7 @@ namespace GameEngine
 {
 namespace Components
 {
+
 template <typename T>
 std::string ComponentNameString()
 {
@@ -23,12 +24,12 @@ std::string ComponentNameString()
     std::string full = (status == 0 && demangled) ? demangled : name;
     std::free(demangled);
 #elif defined(_MSC_VER)
-    std::string full = typeid(T).name();  // MSVC już demangluje czytelnie
+    std::string full = typeid(T).name();  // MSVC juz demangluje czytelnie
 #else
     std::string full = typeid(T).name();
 #endif
 
-    // wycięcie ostatniego fragmentu po "::"
+    // wyciecie ostatniego fragmentu po "::"
     auto pos = full.find_last_of(':');
     if (pos != std::string::npos)
         return full.substr(pos + 1);
@@ -37,6 +38,7 @@ std::string ComponentNameString()
 
 using ComponentTypeID   = std::size_t;
 using ComponentTypeName = std::string;
+inline const ComponentTypeID NULL_COMPONENT_ID{0};
 
 struct ComponentType
 {

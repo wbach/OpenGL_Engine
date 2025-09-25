@@ -64,5 +64,7 @@ struct Joint
 };
 Joint* findJointByName(Joint&, const std::string&);
 Joint* findJointById(Joint&, uint32);
+
+std::ostream& operator<<(std::ostream&, const Joint&);
 }  // namespace Animation
 }  // namespace GameEngine

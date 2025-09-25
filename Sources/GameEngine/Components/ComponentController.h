@@ -4,6 +4,7 @@
 #include <functional>
 #include <set>
 #include <unordered_map>
+#include <vector>
 
 #include "FunctionType.h"
 #include "IComponent.h"
@@ -21,17 +22,24 @@ public:
     using FunctionId   = IdType;
     using ComponentId  = IdType;
     using GameObjectId = IdType;
+    using Dependencies = std::vector<ComponentTypeID>;
 
-    struct ComponentFunction
+    struct FunctionMeta
     {
         FunctionId id{0};
         bool isActive{true};
+        ComponentTypeID ownerType;
+        Dependencies dependencies;
+    };
+    struct ComponentFunction
+    {
         std::function<void()> function;
+        FunctionMeta meta;
     };
 
-    using ComponentFunctions =
-        std::unordered_map<GameObjectId, std::unordered_map<FunctionType, std::vector<ComponentFunction>>>;
-    using ComponentsContainer =  std::unordered_map<ComponentTypeID, RegistredComponentsMap> ;
+    using FunctionBucket      = std::unordered_map<FunctionType, std::vector<ComponentFunction>>;
+    using ComponentFunctions  = std::unordered_map<GameObjectId, FunctionBucket>;
+    using ComponentsContainer = std::unordered_map<ComponentTypeID, RegistredComponentsMap>;
 
     ComponentController();
     ~ComponentController();
@@ -54,7 +62,7 @@ public:
         return {};
     }
 
-    FunctionId RegisterFunction(GameObjectId, FunctionType, std::function<void()>);
+    FunctionId RegisterFunction(GameObjectId, ComponentTypeID, FunctionType, std::function<void()>, const Dependencies& = {});
     void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
     void callComponentFunction(GameObjectId, FunctionType, FunctionId);
@@ -63,8 +71,14 @@ public:
     void UnRegisterComponent(ComponentTypeID, ComponentId);
     void UnRegisterAll();
 
-    const ComponentFunctions& getComponentFunctions() const {return functions_;}
-    const ComponentsContainer& getComponentsContainer() const {return registredComponents_;}
+    const ComponentFunctions& getComponentFunctions() const
+    {
+        return functions_;
+    }
+    const ComponentsContainer& getComponentsContainer() const
+    {
+        return registredComponents_;
+    }
 
 public:
     void OnObjectCreated(IdType);
@@ -74,6 +88,10 @@ public:
     void AlwaysUpdate();
     void CallFunctions(FunctionType);
     void CallGameObjectFunctions(FunctionType, IdType);
+
+private:
+    void SortAllFunctionsForGameObject(IdType gameObjectId);
+    std::vector<const ComponentFunction*> SortFunctions(const std::vector<ComponentFunction>& funcs);
 
 private:
     ComponentFunctions functions_;

@@ -56,8 +56,10 @@ void Animator::CleanUp()
 }
 void Animator::ReqisterFunctions()
 {
+    LOG_DEBUG << "ReqisterFunctions";
+    RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this),
+                     {GetComponentType<RendererComponent>().id});
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
-    RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this));
 }
 
 Animator& Animator::SetAnimation(const std::string& name)
@@ -294,16 +296,23 @@ void createDefaultJointGroup(std::vector<std::string>& group, const Animation::J
 }
 void Animator::GetSkeletonAndAnimations()
 {
+    LOG_DEBUG << "";
+
     rendererComponent_ = thisObject_.GetComponent<RendererComponent>();
 
     if (not rendererComponent_)
+    {
+        LOG_ERROR << "RendererComponent is required for Animator";
         return;
+    }
 
     auto model = rendererComponent_->GetModelWrapper().Get(GameEngine::L1);
 
     if (model)
     {
         auto maybeRootJoint = model->getRootJoint();
+
+        LOG_DEBUG << "maybeRootJoint: " << maybeRootJoint;
 
         if (maybeRootJoint)
         {
@@ -344,6 +353,10 @@ void Animator::GetSkeletonAndAnimations()
                 LOG_WARN << "Montion joint not found : " << montionJointName;
             }
         }
+    }
+    else
+    {
+        LOG_ERROR << "Model not existing in RendererComponent";
     }
 }
 void Animator::updateShaderBuffers()
@@ -526,7 +539,7 @@ void Animator::initAnimationClips()
     }
     else
     {
-        LOG_WARN <<"Startup animation not found : " << startupAnimationClipName;
+        LOG_WARN << "Startup animation not found : " << startupAnimationClipName;
     }
 
     if (animationClipInfo_.size() > 0)

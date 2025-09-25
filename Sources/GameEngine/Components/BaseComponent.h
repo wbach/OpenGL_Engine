@@ -33,21 +33,21 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
             .type = FieldType::Enum,
             .ptr  = value,
 
-            // zwracamy kopię – UI może to sobie przechować
+            // zwracamy kopie - UI moze to sobie przechowac
             .enumNames = []() { return cachedNames; },
 
             .enumToIndex =
                 [](void* ptr)
             {
                 auto val = *static_cast<Enum*>(ptr);
-                // nazwa wartości:
+                // nazwa wartosci:
                 auto sv = magic_enum::enum_name(val);
                 LOG_DEBUG << "Value: " << std::string(sv);
 
-                // indeks w zakresie 0..N-1 (nie mylić z underlying!)
+                // indeks w zakresie 0..N-1 (nie mylic z underlying!)
                 if (auto idx = magic_enum::enum_index(val); idx.has_value())
                     return static_cast<int>(*idx);
-                // fallback (gdyby wartość była spoza zakresu)
+                // fallback (gdyby wartosc byla spoza zakresu)
                 return 0;
             },
 
@@ -55,7 +55,7 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
                 [](void* ptr, int idx)
             {
                 LOG_DEBUG << "Idx: " << idx;
-                // clamp na wypadek złego indeksu
+                // clamp na wypadek zlego indeksu
                 constexpr int N = static_cast<int>(magic_enum::enum_count<Enum>());
                 if (N > 0)
                 {
@@ -77,7 +77,7 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
             }};
 }
 
-// Makro – przekazujemy #member (string literal), więc nie ma ryzyka wiszącego wskaźnika:
+// Makro - przekazujemy #member (string literal), wiec nie ma ryzyka wiszacego wskaznika:
 // #define FIELD_ENUM(member, EnumT) fields.push_back(MakeEnumField<EnumT>(#member, &(this->member)))
 
 }  // namespace Components
@@ -142,7 +142,7 @@ public:
     void write(TreeNode&) const override;
 
 protected:
-    void RegisterFunction(FunctionType, std::function<void()>);
+    void RegisterFunction(FunctionType, std::function<void()>, const ComponentController::Dependencies& = {});
 
 protected:
     ComponentType type_;
