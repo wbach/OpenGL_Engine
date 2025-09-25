@@ -31,19 +31,23 @@ struct SceneTestSchould : public EngineBasedTest
 TEST_F(SceneTestSchould, AddRemoveGameObjectStability)
 {
     scene->Start();
+    engineContext->GetSceneManager().StopThread();
+
     for (int i = 0; i < 5000; ++i)
     {
         LOG_DEBUG << "Iteration start: i=" << i;
-        auto go  = scene->CreateGameObject("TestGameObjectName_" + std::to_string(i));
+        auto go = scene->CreateGameObject("TestGameObjectName_" + std::to_string(i + 1));
         EXPECT_NE(go, nullptr);
-        auto ptr = go.get();
+        auto id = go->GetId();
         scene->AddGameObject(std::move(go));
-        auto gameObject = scene->GetGameObject(ptr->GetId());
+        scene->ProcessEvents();
+        LOG_DEBUG << "scene->GetGameObject(id) id =" << id;
+        auto gameObject = scene->GetGameObject(id);
         EXPECT_NE(gameObject, nullptr);
-        scene->RemoveGameObject(*ptr);
+        scene->RemoveGameObject(*gameObject);
+        scene->ProcessEvents();
         LOG_DEBUG << "Iteration end: i=" << i;
     }
 
     SUCCEED();
 }
-

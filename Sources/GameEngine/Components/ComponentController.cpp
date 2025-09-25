@@ -218,11 +218,11 @@ void ComponentController::AlwaysUpdate()
 }
 void ComponentController::CallFunctions(FunctionType type)
 {
-    for (auto& pair : functions_)
+    for (auto& [_, functionBucket] : functions_)
     {
-        auto iter = pair.second.find(type);
+        auto iter = functionBucket.find(type);
 
-        if (iter != pair.second.end())
+        if (iter != functionBucket.end())
         {
             for (auto& componentFunction : iter->second)
             {

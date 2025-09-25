@@ -39,11 +39,12 @@ CharacterControllerTests::CharacterControllerTests()
     createDummySkeleton();
     initAnimations();
 
-    auto weaponPtr = std::make_unique<GameObject>(
-        "WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
-    //  auto weaponPtr = scene.CreateGameObject("WeaponObjName");
+    auto weaponPtr =
+        std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
     weaponPtr->AddComponent<BowPoseUpdater>();
     scene.AddGameObject(*obj_, std::move(weaponPtr));
+
+    scene.ProcessEvents(); // Process Add Go event
 
     for (auto& [_, component] : obj_->GetComponents())
     {

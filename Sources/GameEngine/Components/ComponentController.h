@@ -2,6 +2,7 @@
 #include <Utils/IdPool.h>
 
 #include <functional>
+#include <mutex>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -100,6 +101,7 @@ private:
     uint32 componentId;
     bool isStarted;
     std::set<GameObjectId> startedGameObjects_;
+    std::mutex functionsMutex_;
 
 private:
     const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;

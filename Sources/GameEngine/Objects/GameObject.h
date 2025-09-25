@@ -33,6 +33,7 @@ public:
     GameObject(const GameObject&) = delete;
     GameObject(GameObject&&)      = delete;
     virtual ~GameObject();
+    void CleanUp();
 
     GameObject* GetParent() const;
     GameObject* GetChild(IdType) const;

@@ -139,8 +139,8 @@ std::vector<IdType> GameObject::RemoveChild(IdType id)
                 if (subChild)
                 {
                     self(self, *subChild);  // rekurencja w glab
+                    removedObjects.push_back(subChild->GetId());
                 }
-                removedObjects.push_back(subChild->GetId());
             }
 
             gameObject.children_.clear();
@@ -156,9 +156,15 @@ std::vector<IdType> GameObject::RemoveChild(IdType id)
     // Jesli nie znaleziono - sprobuj w poddrzewie
     for (auto& child : children_)
     {
+        if (!child)
+            continue;
+
         auto result = child->RemoveChild(id);
-        if (not result.empty())
+        if (!result.empty())
+        {
+            removedObjects.insert(removedObjects.end(), result.begin(), result.end());
             return removedObjects;
+        }
     }
 
     return removedObjects;

@@ -242,8 +242,8 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
         LOG_WARN << "Parent object not exist! Addition aborted! Addition object name:" << event.gameObject->GetName();
         return;
     }
-    gameObjectsIds_.insert({event.gameObject->GetId(), event.gameObject.get()});
-    auto& ptr = *event.gameObject;
+    auto ptr = event.gameObject.get();
+    gameObjectsIds_.insert({event.gameObject->GetId(), ptr});
     parentGameObject->AddChild(std::move(event.gameObject));
 
     auto notifyComponentController = [&](auto&& self, GameObject& gameObject) -> void
@@ -257,9 +257,9 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
         }
         componentController_.OnObjectCreated(gameObject.GetId());
     };
-    notifyComponentController(notifyComponentController, ptr);
+    notifyComponentController(notifyComponentController, *ptr);
 
-    LOG_DEBUG << "Game object added. Addition object name:" << ptr.GetName();
+    LOG_DEBUG << "Game object added. Addition object name:" << ptr->GetName();
 }
 
 void Scene::ProcessEvent(ModifyGameObjectEvent&& event)
@@ -322,11 +322,11 @@ void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
         LOG_WARN << "RootObject was not set!";
     }
 
+    LOG_DEBUG << "RemoveChild";
     auto ids = rootGameObject_->RemoveChild(id);
     for (const auto id : ids)
     {
         LOG_DEBUG << "RemoveGameObjectEvent id=" << event.gameObjectId << ", childId= " << id;
-        gameObjectIdPool_.releaseId(id);
         gameObjectsIds_.erase(id);
     }
 }
@@ -408,8 +408,17 @@ void Scene::AddGameObject(std::unique_ptr<GameObject> object)
 void Scene::AddGameObject(GameObject& parent, std::unique_ptr<GameObject> object)
 {
     LOG_DEBUG << "AddGameObject to queue: " << object->GetName();
-    AddGameObjectEvent event{.parentGameObject = parent.GetId(), .gameObject = std::move(object)};
-    SendEvent(std::move(event));
+
+    if (auto isParentGo = GetGameObject(parent.GetId()))
+    {
+        AddGameObjectEvent event{.parentGameObject = parent.GetId(), .gameObject = std::move(object)};
+        SendEvent(std::move(event));
+    }
+    else
+    {
+        LOG_DEBUG << "Parent object is not added to scene. AddChild directly.";
+        parent.AddChild(std::move(object));
+    }
 }
 
 void Scene::ChangeParent(IdType gameObject, IdType newParent)
@@ -444,11 +453,13 @@ void Scene::ClearGameObjects()
 
 GameObject* Scene::GetGameObject(uint32 id) const
 {
-    if (gameObjectsIds_.count(id))
-        return gameObjectsIds_.at(id);
+    LOG_DEBUG << "GetGameObject " << id;
 
     if (id == 0)
         return rootGameObject_.get();
+
+    if (gameObjectsIds_.count(id))
+        return gameObjectsIds_.at(id);
 
     return rootGameObject_->GetChild(id);
 }
