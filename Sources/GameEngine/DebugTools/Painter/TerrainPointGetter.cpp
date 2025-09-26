@@ -29,7 +29,7 @@ TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projec
 
 std::vector<Components::TerrainRendererComponent*> TerrainPointGetter::GetSceneTerrains() const
 {
-    return componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    return componentController_.GetAllComponentsOfType<Components::TerrainRendererComponent>();
 }
 
 std::optional<TerrainPoint> TerrainPointGetter::GetMousePointOnTerrain(const vec2& mousePosition)

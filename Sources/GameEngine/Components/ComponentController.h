@@ -46,24 +46,31 @@ public:
     ~ComponentController();
 
     template <class T>
-    std::vector<T*> GetAllComonentsOfType() const
+    std::vector<T*> GetAllComponentsOfType() const
     {
-        auto iter = registredComponents_.find(typeid(T).hash_code());
+        const ComponentTypeID componentTypeId = GetComponentType<T>().id;
 
-        if (iter != registredComponents_.end())
+        auto registeredComponentsIterator = registredComponents_.find(componentTypeId);
+        if (registeredComponentsIterator == registredComponents_.end())
         {
-            std::vector<T*> result;
-            result.reserve(iter->second.size());
-            for (const auto& [_, component] : iter->second)
-            {
-                result.push_back(static_cast<T*>(component));
-            }
-            return result;
+            return {};
         }
-        return {};
+
+        const RegistredComponentsMap& componentsMap = registeredComponentsIterator->second;
+
+        std::vector<T*> componentsOfType;
+        componentsOfType.reserve(componentsMap.size());
+
+        for (const auto& [componentId, componentPtr] : componentsMap)
+        {
+            componentsOfType.push_back(static_cast<T*>(componentPtr));
+        }
+
+        return componentsOfType;
     }
 
-    FunctionId RegisterFunction(GameObjectId, const ComponentType&, FunctionType, std::function<void()>, const Dependencies& = {});
+    FunctionId RegisterFunction(GameObjectId, const ComponentType&, FunctionType, std::function<void()>,
+                                const Dependencies& = {});
     void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);
     void setActivateStateOfComponentFunction(GameObjectId, FunctionType, FunctionId, bool);
     void callComponentFunction(GameObjectId, FunctionType, FunctionId);

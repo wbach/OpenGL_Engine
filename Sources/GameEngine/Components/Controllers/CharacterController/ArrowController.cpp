@@ -120,7 +120,7 @@ void ArrowController::performCollision(uint32 rigidbodyId)
         return;
     }
 
-    if (rigidbody->GetParentGameObject().GetName() != "Player")  // TO DO : check tag
+    if (rigidbody->GetParentGameObject().GetName() != "Player" and rigidbody->GetParentGameObject().GetId() != physicArrowGameObject->GetId())  // TO DO : check tag
     {
         LOG_DEBUG << "Collision detected with " << rigidbody->GetParentGameObject().GetName();
         componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);
@@ -162,7 +162,7 @@ void ArrowController::subscribeForCollisionDetection()
 
 Rigidbody* ArrowController::findCollidedRigidbody(uint32 rigidbodyId)
 {
-    auto rigidbodies = componentContext_.componentController_.GetAllComonentsOfType<Rigidbody>();
+    auto rigidbodies = componentContext_.componentController_.GetAllComponentsOfType<Rigidbody>();
 
     auto iter = std::find_if(rigidbodies.begin(), rigidbodies.end(),
                              [id = rigidbodyId](const auto& rigidbody) { return id == rigidbody->GetId(); });

@@ -207,7 +207,7 @@ void TerrainHeightGenerator::createSeed()
 
 void TerrainHeightGenerator::getTerrain()
 {
-    const auto& components = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    const auto& components = componentController_.GetAllComponentsOfType<Components::TerrainRendererComponent>();
 
     for (auto& terrain : components)
     {
@@ -218,7 +218,7 @@ void TerrainHeightGenerator::getTerrain()
 
 void TerrainHeightGenerator::getAllSceneTerrains()
 {
-    terrains_ = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    terrains_ = componentController_.GetAllComponentsOfType<Components::TerrainRendererComponent>();
 }
 
 float linearInterpolation(float a, float b, float blend)

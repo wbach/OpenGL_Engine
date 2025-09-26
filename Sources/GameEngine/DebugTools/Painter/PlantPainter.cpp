@@ -145,7 +145,7 @@ std::vector<std::string> PlantPainter::avaiableBrushTypes() const
 }
 void PlantPainter::generatePositions()
 {
-    auto terrainRendererComponents = componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    auto terrainRendererComponents = componentController_.GetAllComponentsOfType<Components::TerrainRendererComponent>();
     const auto range               = static_cast<float>(paintContext_.brushSize / 2);
     const auto numberOfInstances   = getNumberOfInstances();
 

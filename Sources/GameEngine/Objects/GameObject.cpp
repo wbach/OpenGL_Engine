@@ -85,31 +85,6 @@ void GameObject::RemoveAllComponents()
 
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
-    auto findRootNodeInParents = [](auto&& self, GameObject& go) -> bool
-    {
-        if (go.GetId() == 0)
-        {
-            return true;
-        }
-
-        if (go.GetParent())
-        {
-            return self(self, *go.GetParent());
-        }
-        else
-        {
-            return false;
-        }
-    };
-
-    auto isObjectAddedToScene = GetParent() and findRootNodeInParents(findRootNodeInParents, *GetParent());
-
-    if (isObjectAddedToScene)
-    {
-        LOG_WARN << "Object already added to scene. Please use scene add object method with parent";
-        return;
-    }
-
     object->SetParent(this);
     object->RegisterComponentFunctions();
     children_.push_back(std::move(object));

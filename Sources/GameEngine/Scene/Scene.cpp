@@ -408,7 +408,7 @@ void Scene::AddGameObject(GameObject& parent, std::unique_ptr<GameObject> object
 {
     LOG_DEBUG << "AddGameObject to queue: " << object->GetName();
 
-    if (auto isParentGo = GetGameObject(parent.GetId()))
+    if (GetGameObject(parent.GetId()) != nullptr)
     {
         AddGameObjectEvent event{.parentGameObject = parent.GetId(), .gameObject = std::move(object)};
         SendEvent(std::move(event));

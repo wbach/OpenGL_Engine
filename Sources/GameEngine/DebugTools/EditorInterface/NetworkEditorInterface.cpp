@@ -1717,7 +1717,7 @@ void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterf
 }
 void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 {
-    auto terrains = scene_.componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    auto terrains = scene_.componentController_.GetAllComponentsOfType<Components::TerrainRendererComponent>();
 
     for (auto &terrain : terrains)
     {
@@ -1839,7 +1839,7 @@ void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryPa
 
 void NetworkEditorInterface::GenerateTerrainBlendMapToFile()
 {
-    auto terrains = scene_.componentController_.GetAllComonentsOfType<Components::TerrainRendererComponent>();
+    auto terrains = scene_.componentController_.GetAllComponentsOfType<Components::TerrainRendererComponent>();
 
     std::set<std::string> generetedBlendMaps;
 
