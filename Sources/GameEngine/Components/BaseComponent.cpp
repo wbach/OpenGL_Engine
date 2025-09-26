@@ -17,7 +17,6 @@ BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& compon
     , componentRegistredId_(0)
 {
     componentRegistredId_ = componentContext_.componentController_.RegisterComponent(type_.id, this);
-    LOG_DEBUG << type_;
 }
 
 BaseComponent::~BaseComponent()

@@ -1,6 +1,6 @@
 #pragma once
 #include <Mutex.hpp>
-#include <vector>
+#include <deque>
 #include "GpuObject.h"
 #include "IGpuResourceLoader.h"
 
@@ -40,10 +40,10 @@ private:
     void RemoveObjectIfIsToLoadState(GpuObject&);
 
 private:
-    std::vector<std::function<void()>> functions;
-    std::vector<GpuObject*> gpuPassLoad;
-    std::vector<GpuObject*> objectsToUpdate;
-    std::vector<std::unique_ptr<GpuObject>> objectsToRelease;
+    std::deque<std::function<void()>> functions;
+    std::deque<GpuObject*> gpuPassLoad;
+    std::deque<GpuObject*> objectsToUpdate;
+    std::deque<std::unique_ptr<GpuObject>> objectsToRelease;
 
 private:
     std::mutex gpuPassMutex;

@@ -145,8 +145,6 @@ void SceneLoader::Init()
 
 bool SceneLoader::IsGpuLoading()
 {
-    LOG_DEBUG << gpuLoader_.CountOfProcessedTasks();
-
     return gpuLoader_.CountOfProcessedTasks() > 0;
 }
 

@@ -52,8 +52,10 @@ Animator::Animator(ComponentContext& componentContext, GameObject& gameObject)
 void Animator::CleanUp()
 {
     machine_.currentState_.reset();
-    if (jointData_.buffer and jointData_.buffer->GetGraphicsObjectId())
+    if (jointData_.buffer)
+    {
         componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(jointData_.buffer));
+    }
 }
 void Animator::ReqisterFunctions()
 {

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <map>
 #include <unordered_map>
+#include <deque>
 #include <set>
 #include <unordered_set>
 #include <vector>
@@ -41,6 +42,7 @@ template <typename T> inline constexpr bool is_set_v = is_set<T>::value;
 template <typename T> struct is_sequence : std::false_type {};
 template <typename T, typename... Args> struct is_sequence<std::vector<T,Args...>> : std::true_type {};
 template <typename T, typename... Args> struct is_sequence<std::list<T,Args...>> : std::true_type {};
+template <typename T, typename... Args> struct is_sequence<std::deque<T,Args...>>  : std::true_type {};
 template <typename T> inline constexpr bool is_sequence_v = is_sequence<T>::value;
 
 // ------------------ Tryb wypisywania ------------------

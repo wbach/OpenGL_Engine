@@ -9,8 +9,6 @@ namespace GameEngine
 {
 GpuResourceLoader::GpuResourceLoader()
 {
-    gpuPassLoad.reserve(10000);
-    functions.reserve(100000);
 }
 
 GpuResourceLoader::~GpuResourceLoader()
@@ -29,27 +27,24 @@ void GpuResourceLoader::CallFunctions()
     if (functions.empty())
         return;
 
-    auto f = std::move(functions.back());
-    functions.pop_back();
+    auto f = std::move(functions.front());
+    functions.pop_front();
     f();
 }
 
 void GpuResourceLoader::AddObjectToGpuLoadingPass(GpuObject& obj)
 {
-    LOG_DEBUG << "AddObjectToGpuLoadingPass :" << obj.GetGpuObjectId();
     std::lock_guard<std::mutex> lock(gpuPassMutex);
     gpuPassLoad.push_back(&obj);
 }
 
 GpuObject* GpuResourceLoader::GetObjectToGpuLoadingPass()
 {
-    std::lock_guard<std::mutex> lock(gpuPassMutex);
-
     if (gpuPassLoad.empty())
         return nullptr;
 
-    GpuObject* obj = gpuPassLoad.back();
-    gpuPassLoad.pop_back();
+    GpuObject* obj = gpuPassLoad.front();
+    gpuPassLoad.pop_front();
     return obj;
 }
 
@@ -74,12 +69,11 @@ void GpuResourceLoader::AddObjectToUpdateGpuPass(GpuObject& obj)
 
 GpuObject* GpuResourceLoader::GetObjectToUpdateGpuPass()
 {
-    std::lock_guard<std::mutex> lock(updateMutex);
     if (objectsToUpdate.empty())
         return nullptr;
 
-    GpuObject* obj = objectsToUpdate.back();
-    objectsToUpdate.pop_back();
+    GpuObject* obj = objectsToUpdate.front();
+    objectsToUpdate.pop_front();
     return obj;
 }
 
@@ -97,12 +91,11 @@ void GpuResourceLoader::AddObjectToRelease(std::unique_ptr<GpuObject> object)
 }
 std::unique_ptr<GpuObject> GpuResourceLoader::GetObjectToRelease()
 {
-    std::lock_guard<std::mutex> lock(releaseMutex);
     if (objectsToRelease.empty())
         return nullptr;
 
-    auto object = std::move(objectsToRelease.back());
-    objectsToRelease.pop_back();
+    auto object = std::move(objectsToRelease.front());
+    objectsToRelease.pop_front();
     return object;
 }
 void GpuResourceLoader::RemoveObjectIfIsToUpdateState(GpuObject& obj)
@@ -170,53 +163,51 @@ void GpuResourceLoader::clear()
 
 void GpuResourceLoader::RuntimeLoadObjectToGpu()
 {
-    auto obj = GetObjectToGpuLoadingPass();
+    std::lock_guard<std::mutex> lock(gpuPassMutex);
 
-    while (obj)
+    GpuObject* obj{nullptr};
+    do
     {
-        if (not obj->GetGraphicsObjectId())
+        obj = GetObjectToGpuLoadingPass();
+
+        if (obj and not obj->GetGraphicsObjectId())
         {
             obj->GpuLoadingPass();
         }
-        else
-        {
-            LOG_DEBUG << "Is already loaded.";
-        }
 
-        obj = GetObjectToGpuLoadingPass();
-    }
+    } while (obj);
 }
 
 void GpuResourceLoader::RuntimeUpdateObjectGpu()
 {
-    auto obj = GetObjectToUpdateGpuPass();
-
-    while (obj)
+    std::lock_guard<std::mutex> lock(updateMutex);
+    GpuObject* obj{nullptr};
+    do
     {
-        if (obj->GetGraphicsObjectId())
+        obj = GetObjectToUpdateGpuPass();
+
+        if (obj and obj->GetGraphicsObjectId())
         {
             obj->UpdateGpuPass();
         }
-        else
-        {
-            LOG_ERROR << "Object not loaded";
-        }
 
-        obj = GetObjectToUpdateGpuPass();
-    }
+    } while (obj);
 }
 
 void GpuResourceLoader::RuntimeReleaseObjectGpu()
 {
-    auto obj = GetObjectToRelease();
-
-    while (obj)
+    std::lock_guard<std::mutex> lock(releaseMutex);
+    std::unique_ptr<GpuObject> obj{nullptr};
+    do
     {
-        if (obj->GetGraphicsObjectId())
+        obj = GetObjectToRelease();
+
+        if (obj and obj->GetGraphicsObjectId())
         {
             obj->ReleaseGpuPass();
+            obj.reset();
         }
-        obj = GetObjectToRelease();
-    }
+
+    } while (obj);
 }
 }  // namespace GameEngine

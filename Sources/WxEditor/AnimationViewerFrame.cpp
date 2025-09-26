@@ -312,13 +312,13 @@ void AnimationViewerFrame::CreateGameObjectBasedOnPrefab(const GameEngine::File&
             return;
         }
 
-        auto& go = prefabObject->GetChildren().front();
+        auto& go               = prefabObject->GetChildren().front();
         auto animator          = go->GetComponent<GameEngine::Components::Animator>();
         auto rendererComponent = go->GetComponent<GameEngine::Components::RendererComponent>();
 
         if (animator and rendererComponent)
         {
-            auto files = rendererComponent->GetFiles();
+            auto files    = rendererComponent->GetFiles();
             auto fileIter = files.find(GameEngine::LevelOfDetail::L1);
             if (fileIter != files.end())
             {

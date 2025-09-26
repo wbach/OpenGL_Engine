@@ -91,6 +91,7 @@ void runAnimationViewer(const std::string& extraParam)
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer " +
                       "--projectPath " + ProjectManager::GetInstance().GetProjectPath() + " " + extraParam;
 
+    LOG_DEBUG << cmd;
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)
     {
