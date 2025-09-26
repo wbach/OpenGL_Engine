@@ -7,6 +7,7 @@
 #include "Configuration.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Resources/File.h"
 
 #ifdef USE_GNU
 #include <dlfcn.h>
@@ -112,17 +113,7 @@ ExternalComponentsReader::~ExternalComponentsReader()
 
 void ExternalComponentsReader::LoadAll()
 {
-    LOG_DEBUG << "Check for ExternalComponents";
-    std::string libExtension{".so"};
-    const auto componentsDir = EngineConf.files.data + "/Components";
-    if (not Utils::DirectoryExist(componentsDir))
-    {
-        LOG_DEBUG << "Components dir not exist : " << componentsDir;
-        return;
-    }
-
-    const auto& files = Utils::FindFilesWithExtension(componentsDir, libExtension);
-    LOG_DEBUG << "Found files : " << files.size();
+    auto files = getAllComponentFiles();
 
     for (const auto& file : files)
     {
@@ -212,12 +203,40 @@ void ExternalComponentsReader::removeCachedFile(const std::string& cachedName)
     }
 }
 
+std::vector<std::string> ExternalComponentsReader::getAllComponentFiles() const
+{
+    LOG_DEBUG << "Check for ExternalComponents";
+    std::string libExtension{".so"};
+    const auto componentsDir = EngineConf.files.data + "/Components";
+    if (not Utils::DirectoryExist(componentsDir))
+    {
+        LOG_DEBUG << "Components dir not exist : " << componentsDir;
+        return {};
+    }
+
+    return Utils::FindFilesWithExtension(componentsDir, libExtension);
+}
+
 void ExternalComponentsReader::ReloadAll()
 {
+    auto files = getAllComponentFiles();
+
     auto externalLibsCopy = externalLibs;
-    for (const auto& lib : externalLibsCopy)
+    for (const auto& [file, _] : externalLibsCopy)
     {
-        Reload(lib.first);
+        Reload(file);
+
+        auto iter = std::find_if(files.begin(), files.end(), [&file](const auto& path) { return (path == file); });
+
+        if (iter != files.end())
+        {
+            files.erase(iter);
+        }
+    }
+
+    for (const auto& file : files)
+    {
+        LoadSingle(file);
     }
 }
 
