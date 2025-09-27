@@ -4,7 +4,6 @@
 #include <GameEngine/Engine/ExternalComponentsReader.h>
 #include <GameEngine/Objects/GameObject.h>
 #include <Logger/Log.h>
-#include <Utils/TreeNode.h>
 #include <wx/artprov.h>
 #include <wx/dnd.h>
 #include <wx/wx.h>
@@ -134,9 +133,8 @@ void ComponentPanel::ClearComponents()
 void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component, bool collapsed)
 {
     std::lock_guard<std::mutex> lk(mutex);
-    TreeNode node("component");
-    component.write(node);
-    auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);
+
+    const auto& typeName = component.GetTypeName();
 
     headerPanel             = new wxPanel(this);
     wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);

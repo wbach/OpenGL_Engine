@@ -5,9 +5,9 @@
 #include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Characters/Enemy.h"
 #include "Characters/Player.h"
+#include "Controllers/CharacterController/ArrowController.h"
 #include "Controllers/CharacterController/CharacterController.h"
 #include "Controllers/EnemyController.h"
-#include "Controllers/CharacterController/ArrowController.h"
 #include "Input/PlayerInputController.h"
 #include "Physics/BoxShape.h"
 #include "Physics/CapsuleShape.h"
@@ -24,6 +24,7 @@
 #include "Renderer/Terrain/TerrainRendererComponent.h"
 #include "Renderer/Trees/TreeRendererComponent.h"
 #include "Renderer/Water/WaterRendererComponent.h"
+#include "UnknownExternalComponent.h"
 
 namespace GameEngine
 {
@@ -36,6 +37,7 @@ void registerReadFunction()
 }
 void RegisterReadFunctionForDefaultEngineComponents()
 {
+    registerReadFunction<UnknownExternalComponent>();
     registerReadFunction<Animator>();
     registerReadFunction<BowPoseUpdater>();
     registerReadFunction<ThridPersonCameraComponent>();

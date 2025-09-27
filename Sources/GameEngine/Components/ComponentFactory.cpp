@@ -4,6 +4,7 @@
 
 #include "ComponentsReadFunctions.h"
 #include "IComponent.h"
+#include "UnknownExternalComponent.h"
 
 namespace GameEngine
 {
@@ -34,6 +35,9 @@ std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameO
     {
         LOG_ERROR << "Component type not found in component node attribute.";
     }
+
+    if (auto creationFunc = ReadFunctions::instance().get(GetComponentType<UnknownExternalComponent>().name))
+        return creationFunc(context_, node, gameObject);
 
     return nullptr;
 }

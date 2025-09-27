@@ -31,6 +31,7 @@ struct ExternalComponentsReader
 private:
     void removeCachedFile(const std::string&);
     std::vector<std::string> getAllComponentFiles() const;
+    void reloadUnknownComponents();
 
 private:
     ISceneManager& sceneManager;

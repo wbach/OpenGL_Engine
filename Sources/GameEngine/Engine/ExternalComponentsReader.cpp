@@ -3,10 +3,13 @@
 #include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 
 #include "Configuration.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Components/UnknownExternalComponent.h"
 #include "GameEngine/Resources/File.h"
 
 #ifdef USE_GNU
@@ -189,6 +192,59 @@ void ExternalComponentsReader::Reload(const std::string& path)
         LOG_DEBUG << "Component " << path << " not registered. Try load as new one.";
         LoadSingle(path);
     }
+
+    reloadUnknownComponents();
+}
+
+void ExternalComponentsReader::reloadUnknownComponents()
+{
+    if (not sceneManager.GetActiveScene())
+        return;
+
+    auto components =
+        sceneManager.GetActiveScene()->getComponentController().GetAllComponentsOfType<Components::UnknownExternalComponent>();
+
+    LOG_DEBUG << "Found " << components.size() << " unknnown components";
+
+    for (auto& unknowComponent : components)
+    {
+        if (not unknowComponent)
+            continue;
+
+        auto iter = std::find_if(externalLibs.begin(), externalLibs.end(),
+                                 [&unknowComponent](const auto& externalLibPair)
+                                 { return externalLibPair.second.type.name == unknowComponent->GetOrginalComponentName(); });
+
+        if (iter != externalLibs.end())
+        {
+            LOG_DEBUG << unknowComponent->GetTypeName() << " became available. Recreate component of this type.";
+
+            auto goId = unknowComponent->getParentGameObject().GetId();
+            if (auto gameObject = sceneManager.GetActiveScene()->GetGameObject(goId))
+            {
+                TreeNode node("Component");
+                unknowComponent->write(node);
+
+                // TO DO: multiple components per GO
+                gameObject->RemoveComponent<Components::UnknownExternalComponent>();
+
+                if (auto component = gameObject->AddComponent(node))
+                {
+                    component->ReqisterFunctions();
+
+                    if (auto scene = sceneManager.GetActiveScene())
+                    {
+                        auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);
+                        if (maybeId)
+                        {
+                            scene->getComponentController().callComponentFunction(gameObject->GetId(),
+                                                                                  Components::FunctionType::Awake, *maybeId);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ExternalComponentsReader::removeCachedFile(const std::string& cachedName)
@@ -238,6 +294,8 @@ void ExternalComponentsReader::ReloadAll()
     {
         LoadSingle(file);
     }
+
+    reloadUnknownComponents();
 }
 
 std::vector<std::pair<std::string, std::string>> ExternalComponentsReader::GetLoadedLibs() const
