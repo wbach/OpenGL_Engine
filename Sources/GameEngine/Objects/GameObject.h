@@ -26,7 +26,8 @@ class SceneReader;
 class GameObject
 {
 public:
-    using ComponentsContainer = std::unordered_map<Components::ComponentTypeID, std::unique_ptr<Components::IComponent>>;
+    using ComponentsContainer =
+        std::unordered_map<Components::ComponentTypeID, std::vector<std::unique_ptr<Components::IComponent>>>;
 
     GameObject(const std::string&, Components::ComponentController&, Components::ComponentFactory&, Utils::IdPool&,
                const std::optional<uint32>& = std::nullopt);
@@ -63,6 +64,8 @@ public:
 
     template <class T>
     void RemoveComponent();
+    template <class T>
+    void RemoveComponent(T&);
     void RemoveComponent(Components::ComponentTypeID);
     void RemoveAllComponents();
 
@@ -158,7 +161,11 @@ inline T* GameObject::GetComponent()
 {
     const auto& type = Components::GetComponentType<T>();
     auto it          = components_.find(type.id);
-    return it != components_.end() ? static_cast<T*>(it->second.get()) : nullptr;
+
+    if (it == components_.end() or it->second.empty())
+        return nullptr;
+
+    return static_cast<T*>(it->second[0].get());
 }
 
 template <class T>
@@ -184,9 +191,9 @@ inline T& GameObject::AddComponent(Args&&... args)
         component->ReqisterFunctions();
     }
 
-    auto ptr             = component.get();
-    const auto& type     = Components::GetComponentType<T>();
-    components_[type.id] = std::move(component);
+    auto ptr         = component.get();
+    const auto& type = Components::GetComponentType<T>();
+    components_[type.id].push_back(std::move(component));
     return *static_cast<T*>(ptr);
 }
 
@@ -197,6 +204,24 @@ void GameObject::RemoveComponent()
     components_.erase(type.id);
 }
 
+template <class T>
+void GameObject::RemoveComponent(T& component)
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+    if (it == components_.end())
+        return;
+
+    auto& vec = it->second;
+    auto iter = std::find_if(vec.begin(), vec.end(), [&component](const auto& ptr) { return ptr.get() == &component; });
+
+    if (iter != vec.end())
+        vec.erase(iter);
+
+    if (vec.empty())
+        components_.erase(type.id);
+}
+
 const GameObject::ComponentsContainer& GameObject::GetComponents() const
 {
     return components_;
@@ -205,9 +230,9 @@ const GameObject::ComponentsContainer& GameObject::GetComponents() const
 inline std::ostream& operator<<(std::ostream& os, const GameEngine::GameObject::ComponentsContainer& components)
 {
     os << "Components(" << components.size() << "){";
-    for (const auto& [_, component] : components)
+    for (const auto& [_, vectorOfcomponent] : components)
     {
-        os << "{" << component->GetTypeName() << "}";
+        os << "{" << vectorOfcomponent[0]->GetTypeName() << "(" << vectorOfcomponent.size() << ")}";
     }
     os << "}";
 

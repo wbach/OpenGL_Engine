@@ -567,16 +567,19 @@ GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
 
 void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject)
 {
-    for (auto& [_, component] : gameObject.GetComponents())
+    for (auto& [_, vectorOfComponents] : gameObject.GetComponents())
     {
-        auto* compPanel = new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
-                                             canvas->GetScene().getComponentController(), gameObject);
-        compPanel->AddComponent(*component);
-        if (isGameObjectPrefab(gameObject))
+        for (auto& component : vectorOfComponents)
         {
-            compPanel->Lock();
+            auto* compPanel = new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
+                                                 canvas->GetScene().getComponentController(), gameObject);
+            compPanel->AddComponent(*component);
+            if (isGameObjectPrefab(gameObject))
+            {
+                compPanel->Lock();
+            }
+            gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
         }
-        gameObjectPanelsSizer->Add(compPanel, 0, wxEXPAND | wxALL, 0);
     }
 
     if (addComponentButton)

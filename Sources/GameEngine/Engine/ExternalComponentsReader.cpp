@@ -225,8 +225,7 @@ void ExternalComponentsReader::reloadUnknownComponents()
                 TreeNode node("Component");
                 unknowComponent->write(node);
 
-                // TO DO: multiple components per GO
-                gameObject->RemoveComponent<Components::UnknownExternalComponent>();
+                gameObject->RemoveComponent(*unknowComponent);
 
                 if (auto component = gameObject->AddComponent(node))
                 {

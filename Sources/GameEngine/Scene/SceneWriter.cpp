@@ -28,12 +28,15 @@ void Create(TreeNode& node, const common::Transform& transform)
     Create(node.addChild(CSTR_ROTATION), transform.GetRotation().GetEulerDegrees().value);
     Create(node.addChild(CSTR_SCALE), transform.GetScale());
 }
-void Create(TreeNode& node, const GameObject::ComponentsContainer & components)
+void Create(TreeNode& node, const GameObject::ComponentsContainer& components)
 {
     node.attributes_[CSTR_COUNT] = std::to_string(components.size());
-    for (const auto& [_, component] : components)
+    for (const auto& [_, vectorOfComponents] : components)
     {
-        component->write(node.addChild(CSTR_COMPONENT));
+        for (auto& component : vectorOfComponents)
+        {
+            component->write(node.addChild(CSTR_COMPONENT));
+        }
     }
 }
 void CreatePrefabNode(TreeNode& node, const Prefab& gameObject)

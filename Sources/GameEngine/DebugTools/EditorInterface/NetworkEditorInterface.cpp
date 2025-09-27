@@ -614,10 +614,13 @@ void NetworkEditorInterface::GetGameObjectComponentsListReq(const EntryParameter
     if (not gameObject)
         return;
 
-    for (auto &[_, component] : gameObject->GetComponents())
+    for (auto &[_, vectorOfComponents] : gameObject->GetComponents())
     {
-        DebugNetworkInterface::NewComponentMsgInd componentNameMsg(component->GetTypeName(), component->IsActive());
-        gateway_.Send(userId_, componentNameMsg);
+        for (auto &component : vectorOfComponents)
+        {
+            DebugNetworkInterface::NewComponentMsgInd componentNameMsg(component->GetTypeName(), component->IsActive());
+            gateway_.Send(userId_, componentNameMsg);
+        }
     }
 }
 
@@ -938,12 +941,15 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
         return;
 
     Components::IComponent *component{nullptr};
-    for (const auto &[_, c] : gameObject->GetComponents())
+    for (const auto &[_, vectorOfComponents] : gameObject->GetComponents())
     {
-        if (c->GetTypeName() == params.at("name"))
+        for (auto &c : vectorOfComponents)
         {
-            component = c.get();
-            break;
+            if (c->GetTypeName() == params.at("name"))
+            {
+                component = c.get();
+                break;
+            }
         }
     }
 
@@ -1423,12 +1429,15 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
         return;
 
     Components::IComponent *component{nullptr};
-    for (const auto &[_, c] : gameObject->GetComponents())
+    for (const auto &[_, vectorOfComponents] : gameObject->GetComponents())
     {
-        if (c->GetTypeName() == params.at("name"))
+        for (auto &c : vectorOfComponents)
         {
-            component = c.get();
-            break;
+            if (c->GetTypeName() == params.at("name"))
+            {
+                component = c.get();
+                break;
+            }
         }
     }
 

@@ -27,17 +27,20 @@ GameObject::GameObject(const std::string& name, Components::ComponentController&
     , componentController_(componentController)
 {
     localTransfromSubscribtion_ = localTransform_.SubscribeOnChange([this](const auto&) { CalculateWorldTransform(); });
-    isStartedSub  = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::OnStart, [this]() { isStarted = true; });
-    isAwakenedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::Awake, [this]() { isAwakened = true; });
+    isStartedSub  = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::OnStart,
+                                                          [this]() { isStarted = true; });
+    isAwakenedSub = componentController_.RegisterFunction(id_, Components::NULL_COMPONENT_TYPE, Components::FunctionType::Awake,
+                                                          [this]() { isAwakened = true; });
 }
 
 GameObject::~GameObject()
 {
     LOG_DEBUG << "~GameObject: " << id_ << ". Name: " << name_;
 
-    for (auto& [_, component] : components_)
+    for (auto& [_, vectorOfcomponent] : components_)
     {
-        component->CleanUp();
+        for (auto& component : vectorOfcomponent)
+            component->CleanUp();
     }
 
     if (parent_ and parentIdTransfromSubscribtion_)
@@ -58,8 +61,8 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
     auto component = componentFactory_.Create(node, *this);
     if (component)
     {
-        auto ptr                            = component.get();
-        components_[component->GetTypeId()] = std::move(component);
+        auto ptr = component.get();
+        components_[component->GetTypeId()].push_back(std::move(component));
         return ptr;
     }
     return nullptr;
@@ -76,9 +79,10 @@ void GameObject::RemoveComponent(Components::ComponentTypeID type)
 
 void GameObject::RemoveAllComponents()
 {
-    for (auto& [_, component] : components_)
+    for (auto& [_, vectorOfcomponent] : components_)
     {
-        component->CleanUp();
+        for (auto& component : vectorOfcomponent)
+            component->CleanUp();
     }
     components_.clear();
 }
@@ -274,9 +278,10 @@ GameObject* GameObject::GetChild(const std::string& name) const
 
 void GameObject::RegisterComponentFunctions()
 {
-    for (const auto& [_, c] : components_)
+    for (const auto& [_, vectorOfcomponent] : components_)
     {
-        c->ReqisterFunctions();
+        for (auto& component : vectorOfcomponent)
+            component->ReqisterFunctions();
     }
 }
 
@@ -284,10 +289,10 @@ Components::IComponent* GameObject::GetComponent(Components::ComponentTypeID typ
 {
     auto iter = components_.find(type);
 
-    if (iter == components_.end())
+    if (iter == components_.end() or iter->second.empty())
         return nullptr;
 
-    return iter->second.get();
+    return iter->second[0].get();
 }
 
 const common::Transform& GameObject::GetLocalTransform() const
