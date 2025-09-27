@@ -1,5 +1,6 @@
 #include "ProjectPanel.h"
 
+#include <GameEngine/Resources/File.h>
 #include <Logger/Log.h>
 #include <wx/clipbrd.h>
 #include <wx/dnd.h>
@@ -12,7 +13,6 @@
 #include <string>
 
 #include "EditorUitls.h"
-#include <GameEngine/Resources/File.h>
 #include "ThumbnailCache.h"
 #include "model3d_icon.h"
 
@@ -26,6 +26,18 @@ public:
     {
     }
 
+    bool IsSameDirectory(const std::filesystem::path& source, const std::filesystem::path& target)
+    {
+        try
+        {
+            return std::filesystem::equivalent(source.parent_path(), target);
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
     bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
     {
         if (!m_panel)
@@ -35,7 +47,13 @@ public:
 
         for (auto& srcPath : filenames)
         {
-            Utils::CopyFileOrFolder(srcPath.ToStdString(), destFolder.ToStdString());
+            auto fsSourcePath = std::filesystem::path(srcPath.ToStdString());
+            auto fsTargetPath = std::filesystem::path(destFolder.ToStdString());
+
+            if (not IsSameDirectory(fsSourcePath, fsTargetPath))
+            {
+                Utils::CopyFileOrFolder(srcPath.ToStdString(), destFolder.ToStdString());
+            }
         }
 
         // Odswiez liste tylko w aktualnym folderze
@@ -422,7 +440,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Enable(ID_PASTE, canPaste);
 
     // --- Handlery dla menu ---
-    menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { wxLaunchDefaultApplication(fileName.GetFullPath()); }, ID_OPEN);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -592,7 +611,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
             RefreshAll(currentFolderPath);
         },
         ID_NEW_FOLDER);
-    menu.Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent&) { RefreshAll(currentFolderPath); }, ID_REFRESH_FOLDER);
 
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
@@ -674,7 +694,8 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         },
         ID_REMOVE);
 
-    target->Bind(wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
+    target->Bind(
+        wxEVT_COMMAND_MENU_SELECTED, [=](wxCommandEvent& evt) { ShowProperties(fileName); }, ID_PROPERTIES);
 
     // Popup (wazne: uzyj lokalnych wspolrzednych -> na globalne)
     target->PopupMenu(&menu, event.GetPosition());
