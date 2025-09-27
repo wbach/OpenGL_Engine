@@ -142,7 +142,7 @@ public:
     void write(TreeNode&) const override;
 
 protected:
-    void RegisterFunction(FunctionType, std::function<void()>, const ComponentController::Dependencies& = {});
+    void RegisterFunction(FunctionType, std::function<void()>, const Dependencies& = {});
 
 protected:
     ComponentType type_;

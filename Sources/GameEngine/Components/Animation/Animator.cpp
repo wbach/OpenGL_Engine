@@ -61,7 +61,7 @@ void Animator::ReqisterFunctions()
 {
     LOG_DEBUG << "ReqisterFunctions";
     RegisterFunction(FunctionType::Awake, std::bind(&Animator::GetSkeletonAndAnimations, this),
-                     {GetComponentType<RendererComponent>()});
+                     MakeDependencies<RendererComponent>());
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
 }
 

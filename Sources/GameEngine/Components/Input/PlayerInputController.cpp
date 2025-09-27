@@ -31,7 +31,7 @@ void PlayerInputController::CleanUp()
 
 void PlayerInputController::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&PlayerInputController::Init, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&PlayerInputController::Init, this), MakeDependencies<CharacterController>());
 }
 
 void PlayerInputController::Init()
@@ -40,11 +40,12 @@ void PlayerInputController::Init()
 
     if (characterController_)
     {
-        if (not characterController_)
-            return;
-
-        SubscribeForPushActions();
+       SubscribeForPushActions();
         SubscribeForPopActions();
+    }
+    else
+    {
+        LOG_WARN << "CharacterController is required";
     }
 }
 

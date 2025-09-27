@@ -88,7 +88,7 @@ bool BaseComponent::IsActive() const
 {
     return isActive_;
 }
-void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func, const ComponentController::Dependencies& dependencies)
+void BaseComponent::RegisterFunction(FunctionType type, std::function<void()> func, const Dependencies& dependencies)
 {
     registeredFunctionsIds_.insert(
         {componentContext_.componentController_.RegisterFunction(thisObject_.GetId(), type_, type, func, dependencies), type});
