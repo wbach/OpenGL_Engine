@@ -4,9 +4,17 @@
 #include <wx/treectrl.h>
 
 #include <functional>
-
 #include "DisableHelper.h"
-#include "Scene/Scene.hpp"
+
+namespace GameEngine
+{
+class Scene;
+class AddGameObjectNotifEvent;
+class ModifyGameObjectEvent;
+class RemoveGameObjectEvent;
+class ChangeParentEvent;
+class ClearGameObjectsEvent;
+}  // namespace GameEngine
 
 struct TreeItemIdHasher
 {
@@ -33,9 +41,11 @@ public:
 
     void CreateRootGameObject();
     void SelectItem(const wxTreeItemId& item, bool select = true);
+    void SelectItemWhenGameObjectBecomeAvaiable(IdType, bool select = true);
     wxTreeItemId AppendItemToRoot(const wxString& text, IdType id);
     wxTreeItemId AppendItemToSelection(const wxString& text, IdType id);
     wxTreeItemId AppendItem(const wxTreeItemId& parent, const wxString& text, IdType id);
+    wxTreeItemId AppendItem(IdType parent, const wxString& text, IdType id);
     void DeleteAllItems();
     void Delete(const wxTreeItemId& item);
     void SetItemText(const wxTreeItemId& item, const wxString& text);
@@ -58,8 +68,17 @@ public:
     void OnObjectEndDrag(wxTreeEvent&);
     void DisableItem(const wxTreeItemId&);
     void RebuildTree(const GameEngine::Scene&);
+    void SubscribeForSceneEvent(GameEngine::Scene&);
+    void UnSubscribeForSceneEvent();
 
 private:
+    void ProcessEvent(const GameEngine::AddGameObjectNotifEvent&);
+    void ProcessEvent(const GameEngine::RemoveGameObjectEvent&);
+    void ProcessEvent(const GameEngine::ChangeParentEvent&);
+    void ProcessEvent(const GameEngine::ClearGameObjectsEvent&);
+    void ProcessEvent(const GameEngine::ModifyGameObjectEvent&);
+
+    void UpdateObjectCount();
     void deleteRecursiveFromMap(const wxTreeItemId& item);
 
     DisableHelper disableHelper;
@@ -69,4 +88,7 @@ private:
     wxTreeItemId treeRightClickedItem;
     wxTreeCtrl* gameObjectsView{nullptr};
     BidirectionalUnorderedMap<wxTreeItemId, IdType, TreeItemIdHasher, TreeItemIdEqual> itemIdToObjectId;
+    std::optional<IdType> sceneEventSubId;
+    GameEngine::Scene* subscribedScene{nullptr};
+    std::optional<IdType> selectObjectIdWhenBecomeAvailable;
 };

@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <vector>
+#include <mutex>
 
 namespace GameEngine
 {
@@ -28,6 +29,7 @@ public:
     void Lock();
 
 private:
+    std::mutex mutex;
     wxFrame* mainFrame;
     GameEngine::ExternalComponentsReader& externalComponentsReader;
     GameEngine::Components::ComponentController& componentController;

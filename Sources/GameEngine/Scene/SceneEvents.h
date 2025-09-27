@@ -16,6 +16,12 @@ struct AddGameObjectEvent
     std::unique_ptr<GameObject> gameObject;
 };
 
+struct AddGameObjectNotifEvent
+{
+    IdType parentGameObject{0};
+    GameObject* gameObject{nullptr};
+};
+
 struct RemoveGameObjectEvent
 {
     IdType gameObjectId{0};
@@ -49,5 +55,7 @@ struct ModifyGameObjectEvent
 // ChangeSceneEvent, ChangeSceneConfirmEvent,
 using SceneEvent =
     std::variant<AddGameObjectEvent, ModifyGameObjectEvent, RemoveGameObjectEvent, ChangeParentEvent, ClearGameObjectsEvent>;
+using SceneNotifEvent =
+    std::variant<AddGameObjectNotifEvent, ModifyGameObjectEvent, RemoveGameObjectEvent, ChangeParentEvent, ClearGameObjectsEvent>;
 using AddSceneEvent = std::function<void(SceneEvent&&)>;
 }  // namespace GameEngine

@@ -18,6 +18,7 @@
 #include "DisableHelper.h"
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "MyEvents.h"
+#include "Scene/SceneEvents.h"
 #include "SceneTreeCtrl.h"
 #include "TransformPanel.h"
 
@@ -114,8 +115,6 @@ private:
     void OnFileSelectChanged(wxTreeEvent&);
     void OnFileActivated(const wxString&);
 
-    void AddChilds(GameEngine::GameObject&, wxTreeItemId);
-
     void CreateMainMenu();
     wxMenu* CreateFileMenu();
     wxMenu* CreateEditMenu();
@@ -128,7 +127,6 @@ private:
 
     GameEngine::GameObject* AddGameObject(const std::string& = "NewGameObject", IdType = 0);
 
-    void UpdateObjectCount();
     GameEngine::GameObject* GetSelectedGameObject();
     GameEngine::GameObject* GetGameObject(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
@@ -151,6 +149,8 @@ private:
     void LoadPrefab(const std::string&);
 
 private:
+    std::mutex componentsViewMutex;
+
     GLCanvas* canvas{nullptr};
     OptionsFrame* optionsFrame{nullptr};
     ProjectPanel* projectPanel{nullptr};
@@ -175,5 +175,4 @@ private:
     std::unique_ptr<GameEngine::Painter> terrainPainter_;
 
     std::optional<long> startedGameProceesId;
-    std::optional<IdType> sceneEventSubId;
 };

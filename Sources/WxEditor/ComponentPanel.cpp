@@ -10,6 +10,7 @@
 #include <wx/wx.h>
 
 #include <magic_enum/magic_enum.hpp>
+#include <mutex>
 
 #include "MyEvents.h"
 #include <GameEngine/Resources/File.h>
@@ -90,6 +91,7 @@ ComponentPanel::ComponentPanel(wxFrame* mainFrame, wxWindow* parent, GameEngine:
 
 void ComponentPanel::Lock()
 {
+    std::lock_guard<std::mutex> lk(mutex);
     std::function<void(wxWindow*)> lockChildren = [&](wxWindow* parent)
     {
         if (not parent)
@@ -108,6 +110,7 @@ void ComponentPanel::Lock()
 
 void ComponentPanel::Unlock()
 {
+    std::lock_guard<std::mutex> lk(mutex);
     std::function<void(wxWindow*)> enableChildren;
     enableChildren = [&](wxWindow* parent)
     {
@@ -123,12 +126,14 @@ void ComponentPanel::Unlock()
 
 void ComponentPanel::ClearComponents()
 {
+    std::lock_guard<std::mutex> lk(mutex);
     mainSizer->Clear(true);
     Layout();
 }
 
 void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component, bool collapsed)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     TreeNode node("component");
     component.write(node);
     auto typeName = node.getAttributeValue(GameEngine::Components::CSTR_TYPE);

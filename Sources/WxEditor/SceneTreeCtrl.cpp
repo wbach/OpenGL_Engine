@@ -1,10 +1,13 @@
 #include "SceneTreeCtrl.h"
 
 #include <Logger/Log.h>
+#include <Utils/Variant.h>
 #include <wx/menu.h>
 
 #include "ControlsIds.h"
 #include "DisableHelper.h"
+#include "Scene/Scene.hpp"
+#include "WxEditor/EditorUitls.h"
 
 SceneTreeCtrl::SceneTreeCtrl(wxTreeCtrl *tree, ChangeGameObjectParent changeGameObjectParent)
     : disableHelper(tree)
@@ -28,6 +31,17 @@ void SceneTreeCtrl::SelectItem(const wxTreeItemId &item, bool select)
     gameObjectsView->SelectItem(item, select);
 }
 
+void SceneTreeCtrl::SelectItemWhenGameObjectBecomeAvaiable(IdType id, bool select)
+{
+    if (auto item = Get(id))
+    {
+        SelectItem(*item, select);
+        return;
+    }
+
+    selectObjectIdWhenBecomeAvailable = id;
+}
+
 wxTreeItemId SceneTreeCtrl::AppendItemToRoot(const wxString &text, IdType id)
 {
     return AppendItem(treeRootId, text, id);
@@ -43,6 +57,15 @@ wxTreeItemId SceneTreeCtrl::AppendItem(const wxTreeItemId &parent, const wxStrin
     wxTreeItemId item = gameObjectsView->AppendItem(parent, text);
     itemIdToObjectId.Insert(item, id);
     return item;
+}
+
+wxTreeItemId SceneTreeCtrl::AppendItem(IdType parent, const wxString &text, IdType id)
+{
+    if (auto wxParentId = Get(parent))
+    {
+        return AppendItem(*wxParentId, text, id);
+    }
+    return {};
 }
 
 void SceneTreeCtrl::DeleteAllItems()
@@ -277,4 +300,92 @@ void SceneTreeCtrl::RebuildTree(const GameEngine::Scene &scene)
             appendChilds(appendChilds, item, child);
         }
     }
+
+    UpdateObjectCount();
+}
+
+void SceneTreeCtrl::SubscribeForSceneEvent(GameEngine::Scene &scene)
+{
+    if (sceneEventSubId)
+    {
+        LOG_WARN << "Previous scene wasn not unsubscrbed!";
+    }
+
+    sceneEventSubId = scene.SubscribeForSceneEvent(
+        [this](const auto &event)
+        {
+            std::visit(visitor{[this](const auto &e)
+                               {
+                                   // call on wxWdidgets thread
+                                   gameObjectsView->CallAfter([this, e] { ProcessEvent(e); });
+                               }},
+                       event);
+        });
+
+    subscribedScene = &scene;
+}
+
+void SceneTreeCtrl::UnSubscribeForSceneEvent()
+{
+    if (sceneEventSubId)
+    {
+        if (not subscribedScene)
+        {
+            LOG_ERROR << "Something goes wrong, scene not set.";
+            return;
+        }
+
+        subscribedScene->UnSubscribeForSceneEvent(*sceneEventSubId);
+        sceneEventSubId.reset();
+        subscribedScene = nullptr;
+    }
+}
+
+void SceneTreeCtrl::ProcessEvent(const GameEngine::AddGameObjectNotifEvent &event)
+{
+    auto name = event.gameObject->GetName();
+
+    if (isGameObjectPrefab(*event.gameObject))
+    {
+        name += " (prefab)";
+    }
+
+    auto item = AppendItem(event.parentGameObject, name, event.gameObject->GetId());
+    UpdateObjectCount();
+
+    if (selectObjectIdWhenBecomeAvailable and event.gameObject->GetId() == *selectObjectIdWhenBecomeAvailable)
+    {
+        SelectItem(item);
+    }
+}
+void SceneTreeCtrl::ProcessEvent(const GameEngine::RemoveGameObjectEvent &event)
+{
+    if (auto item = Get(event.gameObjectId))
+    {
+        Delete(*item);
+        UpdateObjectCount();
+    }
+}
+void SceneTreeCtrl::ProcessEvent(const GameEngine::ChangeParentEvent &event)
+{
+    if (auto item = Get(event.gameObjectId))
+    {
+        if (auto newParentItem = Get(event.newParentId))
+        {
+            MoveTreeNode(*item, *newParentItem);
+        }
+    }
+}
+void SceneTreeCtrl::ProcessEvent(const GameEngine::ClearGameObjectsEvent &)
+{
+    DeleteAllItems();
+}
+void SceneTreeCtrl::ProcessEvent(const GameEngine::ModifyGameObjectEvent &)
+{
+}
+
+void SceneTreeCtrl::UpdateObjectCount()
+{
+    auto objectCount = GetChildrenCount();
+    SetItemText(treeRootId, "Scene (Objects: " + std::to_string(objectCount) + ")");
 }

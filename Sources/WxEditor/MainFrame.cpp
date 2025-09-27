@@ -2,6 +2,7 @@
 
 #include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
+#include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
@@ -26,7 +27,6 @@
 #include "ComponentPickerPopup.h"
 #include "ControlsIds.h"
 #include "EditorUitls.h"
-#include <GameEngine/Engine/Configuration.h>
 #include "GLCanvas.h"
 #include "Logger/Log.h"
 #include "OptionsFrame.h"
@@ -101,23 +101,6 @@ bool terminateProcessByPID(long pid)
     }
     return true;
 #endif
-}
-
-bool isGameObjectPrefab(const GameEngine::GameObject& go)
-{
-    std::function<bool(const GameEngine::GameObject&)> checkPrefab;
-    checkPrefab = [&checkPrefab](const GameEngine::GameObject& obj) -> bool
-    {
-        if (dynamic_cast<const GameEngine::Prefab*>(&obj) != nullptr)
-            return true;
-
-        if (obj.GetParent() != nullptr)
-            return checkPrefab(*obj.GetParent());
-
-        return false;
-    };
-
-    return checkPrefab(go);
 }
 }  // namespace
 
@@ -210,14 +193,7 @@ void MainFrame::Init()
     auto onStartupDone = [this]()
     {
         UpdateTimeOnToolbar();
-        sceneEventSubId = canvas->GetScene().SubscribeForSceneEvent(
-            [&]()
-            {
-                if (not gameObjectsView)
-                    return;
-
-                gameObjectsView->RebuildTree(canvas->GetScene());
-            });
+        gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
         SetStatusText(EngineConf.files.data);
     };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
@@ -390,17 +366,12 @@ void MainFrame::ClearScene()
     canvas->ResetDragObject();
     transfromSubController.reset();
     RemoveAllComponentPanels();
-
-    if (sceneEventSubId)
-    {
-        canvas->GetScene().UnSubscribeForSceneEvent(*sceneEventSubId);
-        sceneEventSubId.reset();
-    }
+    gameObjectsView->UnSubscribeForSceneEvent();
 }
 
 void MainFrame::OnClose(wxCloseEvent& event)
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("OnClose");
+    LOG_DEBUG << "OnClose";
     isRunning = false;
     if (loadSceneThread.joinable())
     {
@@ -482,20 +453,11 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                       {
                           if (isRunning)
                           {
-                              // AddChilds(canvas->GetRootObject(), gameObjectsView->GetRootItem());
-                              UpdateObjectCount();
                               SetStatusText("Welcome to game editor!");
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
                               canvas->GetScene().GetFile() = path;
-
-                              sceneEventSubId = canvas->GetScene().SubscribeForSceneEvent(
-                                  [&]()
-                                  {
-                                      if (not gameObjectsView)
-                                          return;
-
-                                      gameObjectsView->RebuildTree(canvas->GetScene());
-                                  });
+                              gameObjectsView->RebuildTree(canvas->GetScene());
+                              gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
                           }
                       });
     SetStatusText("Loading file " + file.GetBaseName());
@@ -535,11 +497,7 @@ void MainFrame::MenuEditCreateObject(wxCommandEvent&)
     {
         parentGameObjectId = parentGameObject->GetId();
     }
-    auto gameObject = AddGameObject("NewGameObject", parentGameObjectId);
-    //  auto itemId     = gameObjectsView->AppendItem(gameObjectsView->GetSelection(), gameObject->GetName(),
-    //  gameObject->GetId()); gameObjectsView->SelectItem(itemId);
-    UpdateGameObjectIdOnTransfromLabel(gameObject->GetId());
-    UpdateObjectCount();
+    AddGameObject("NewGameObject", parentGameObjectId);
 }
 
 GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
@@ -558,23 +516,20 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
         LOG_DEBUG << "NewGameObj add: " << name;
 
         scene.AddGameObject(*parentGameObject, std::move(gameObject));
-        go->SetWorldPosition(worldPosition);
-        go->SetWorldRotation(worldRotation);
-        go->SetWorldScale(worldScale);
+        scene.SendEvent(
+            GameEngine::ModifyGameObjectEvent{.gameObjectId   = go->GetId(),
+                                              .worldTransform = GameEngine::ModifyGameObjectEvent::SetTransform{
+                                                  .position = worldPosition, .rotation = worldRotation, .scale = worldScale}});
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("NewGameObj add");
+        LOG_DEBUG << ("NewGameObj add");
         canvas->GetScene().AddGameObject(std::move(gameObject));
     }
 
-    return result;
-}
+    gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(result->GetId());
 
-void MainFrame::UpdateObjectCount()
-{
-    auto objectCount = gameObjectsView->GetChildrenCount();
-    gameObjectsView->SetItemText(gameObjectsView->GetRootItem(), "Scene (Objects: " + std::to_string(objectCount) + ")");
+    return result;
 }
 
 GameEngine::GameObject* MainFrame::GetSelectedGameObject()
@@ -704,28 +659,9 @@ void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 
 void MainFrame::LoadPrefab(const std::string& path)
 {
-    auto go = GameEngine::SceneReader(canvas->GetScene()).loadPrefab(path);
-    if (go)
+    if (auto go = GameEngine::SceneReader(canvas->GetScene()).loadPrefab(path))
     {
-        // auto prefabItemId = gameObjectsView->AppendItemToSelection(go->GetName() + " (prefab)", go->GetId());
-        // gameObjectsView->DisableItem(prefabItemId);
-
-        // // TO DO remove duplicate
-        // std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
-        // addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
-        // {
-        //     const auto& children = go.GetChildren();
-        //     for (const auto& child : children)
-        //     {
-        //         auto childItemId = gameObjectsView->AppendItem(wxId, child->GetName(), child->GetId());
-        //         gameObjectsView->DisableItem(childItemId);
-        //         addChildToWidgets(childItemId, *child);
-        //     }
-        // };
-        // addChildToWidgets(prefabItemId, *go);
-
-        gameObjectsView->RebuildTree(canvas->GetScene());
-        UpdateObjectCount();
+        gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(go->GetId());
     }
 }
 
@@ -1016,19 +952,6 @@ void MainFrame::UpdateTimeOnToolbar()
     minuteCtrl->SetValue(minute);
 }
 
-void MainFrame::AddChilds(GameEngine::GameObject& gameObject, wxTreeItemId parentId)
-{
-    for (const auto& child : gameObject.GetChildren())
-    {
-        auto wxItemId = gameObjectsView->AppendItem(parentId, child->GetName(), child->GetId());
-        if (isGameObjectPrefab(*child))
-        {
-            gameObjectsView->DisableItem(wxItemId);
-        }
-        AddChilds(*child, wxItemId);
-    }
-}
-
 void MainFrame::OnFileSelectChanged(wxTreeEvent& event)
 {
 }
@@ -1041,11 +964,9 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
     if (is3dModelFile(file))
     {
         auto parentGameObject = GetSelectedGameObject();
-        if (auto maybeId = canvas->AddGameObject(file, parentGameObject))
+        if (auto id = canvas->AddGameObject(file, parentGameObject))
         {
-            // gameObjectsView->AppendItemToSelection(file.GetBaseName(), *maybeId);
-            gameObjectsView->RebuildTree(canvas->GetScene());
-            UpdateObjectCount();
+            gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(*id);
         }
     }
     else if (isPrefab(file))
@@ -1056,6 +977,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
 void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 {
+    LOG_DEBUG << "";
     wxTreeItemId itemId = event.GetItem();
     if (not itemId.IsOk())
         return;
@@ -1071,6 +993,8 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
     auto go = GetSelectedGameObject();
     if (go)
     {
+        LOG_DEBUG << "go";
+        LOG_DEBUG << "id =" << go->GetId();
         UpdateGameObjectIdOnTransfromLabel(go->GetId());
         worldTransformPanel->set(go->GetWorldTransform());
         localTransformPanel->set(go->GetLocalTransform());
@@ -1177,31 +1101,29 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
                 return;
             }
 
-            auto parentItem = gameObjectsView->GetItemParent(sel);
-            if (parentItem.IsOk())
-            {
-                gameObjectsView->SelectItem(parentItem);
-                if (auto gameObject = GetGameObject(parentItem))
-                    UpdateGameObjectIdOnTransfromLabel(gameObject->GetId());
-                else
-                {
-                    UpdateGameObjectIdOnTransfromLabel();
-                    worldTransformPanel->lock();
-                    localTransformPanel->lock();
-                }
-            }
-            else
-            {
-                gameObjectsView->SelectItem(gameObjectsView->GetRootItem());
-                UpdateGameObjectIdOnTransfromLabel();
-                worldTransformPanel->lock();
-                localTransformPanel->lock();
-            }
+            // auto parentItem = gameObjectsView->GetItemParent(sel);
+            // if (parentItem.IsOk())
+            // {
+            //     gameObjectsView->SelectItem(parentItem);
+            //     if (auto gameObject = GetGameObject(parentItem))
+            //         UpdateGameObjectIdOnTransfromLabel(gameObject->GetId());
+            //     else
+            //     {
+            //         UpdateGameObjectIdOnTransfromLabel();
+            //         worldTransformPanel->lock();
+            //         localTransformPanel->lock();
+            //     }
+            // }
+            // else
+            // {
+            //     gameObjectsView->SelectItem(gameObjectsView->GetRootItem());
+            //     UpdateGameObjectIdOnTransfromLabel();
+            //     worldTransformPanel->lock();
+            //     localTransformPanel->lock();
+            // }
 
             LOG_DEBUG << "Remove gameObject";
             canvas->GetScene().RemoveGameObject(*gameObjectId);
-            gameObjectsView->Delete(sel);
-            UpdateObjectCount();
             RemoveAllComponentPanels();
         }
         else
@@ -1273,32 +1195,7 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
 {
     if (auto maybeGo = GetSelectedGameObject())
     {
-        auto clonedGo = GameEngine::cloneGameObject(canvas->GetScene(), *maybeGo);
-
-        auto selectedItem = gameObjectsView->GetSelection();
-        if (selectedItem.IsOk())
-        {
-            // wxTreeItemId parentItem = gameObjectsView->GetItemParent(selectedItem);
-            // if (not parentItem.IsOk())
-            // {
-            //     parentItem = selectedItem;
-            // }
-            // auto itemId = gameObjectsView->AppendItem(parentItem, clonedGo->GetName(), clonedGo->GetId());
-
-            // std::function<void(wxTreeItemId, GameEngine::GameObject&)> addChildToWidgets;
-            // addChildToWidgets = [&](wxTreeItemId wxId, GameEngine::GameObject& go)
-            // {
-            //     const auto& children = go.GetChildren();
-            //     for (const auto& child : children)
-            //     {
-            //         auto childItemId = gameObjectsView->AppendItem(wxId, child->GetName(), child->GetId());
-            //         addChildToWidgets(childItemId, *child);
-            //     }
-            // };
-            // addChildToWidgets(itemId, *clonedGo);
-            gameObjectsView->RebuildTree(canvas->GetScene());
-            UpdateObjectCount();
-        }
+        GameEngine::cloneGameObject(canvas->GetScene(), *maybeGo);
     }
 }
 

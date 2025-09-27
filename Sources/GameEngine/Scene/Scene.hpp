@@ -25,6 +25,7 @@
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
+#include "Logger/Log.h"
 #include "SceneEvents.h"
 #include "Types.h"
 
@@ -91,8 +92,8 @@ public:
     void RemoveGameObject(GameObject&);
     void ClearGameObjects();
 
-    IdType SubscribeForSceneEvent(std::function<void()>);
-    void NotifySceneEventSubscribers();
+    IdType SubscribeForSceneEvent(std::function<void(const SceneNotifEvent&)>);
+    void NotifySceneEventSubscribers(const SceneNotifEvent&);
     void UnSubscribeForSceneEvent(IdType);
 
     // GetObjects
@@ -188,7 +189,7 @@ private:
 
     Utils::IdPool eventSubscribersPool;
     std::mutex eventSubscribersMutex;
-    std::unordered_map<IdType, std::function<void()>> eventSubscribers;
+    std::unordered_map<IdType, std::function<void(const SceneNotifEvent&)>> eventSubscribers;
 
     std::atomic_bool start_;
     std::unique_ptr<NetworkEditorInterface> networkEditorInterface_;

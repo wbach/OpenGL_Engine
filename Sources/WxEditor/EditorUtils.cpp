@@ -1,3 +1,5 @@
+#include <GameEngine/Objects/Prefab.h>
+#include <GameEngine/Resources/File.h>
 #include <Utils/XML/XMLUtils.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
@@ -99,4 +101,21 @@ void runAnimationViewer(const std::string& extraParam)
         return;
     }
     LOG_DEBUG << "AnimationViewer started PID=" << pid;
+}
+
+bool isGameObjectPrefab(const GameEngine::GameObject& go)
+{
+    std::function<bool(const GameEngine::GameObject&)> checkPrefab;
+    checkPrefab = [&checkPrefab](const GameEngine::GameObject& obj) -> bool
+    {
+        if (dynamic_cast<const GameEngine::Prefab*>(&obj) != nullptr)
+            return true;
+
+        if (obj.GetParent() != nullptr)
+            return checkPrefab(*obj.GetParent());
+
+        return false;
+    };
+
+    return checkPrefab(go);
 }

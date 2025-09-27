@@ -229,7 +229,6 @@ void Scene::ProcessEvents()
     for (auto&& event : tmpEvents)
     {
         std::visit(visitor{[&](auto&& e) { ProcessEvent(std::forward<decltype(e)>(e)); }}, std::move(event));
-        NotifySceneEventSubscribers();
     }
 }
 
@@ -252,7 +251,7 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
         {
             if (subChild)
             {
-                self(self, *subChild);  // rekurencja
+                self(self, *subChild);
             }
         }
         componentController_.OnObjectCreated(gameObject.GetId());
@@ -260,6 +259,22 @@ void Scene::ProcessEvent(AddGameObjectEvent&& event)
     notifyComponentController(notifyComponentController, *ptr);
 
     LOG_DEBUG << "Game object added. Addition object name:" << ptr->GetName();
+
+    auto notifySceneEventSubscribers = [&](auto&& self, uint32 parentId, GameObject* gameObject) -> void
+    {
+        NotifySceneEventSubscribers(AddGameObjectNotifEvent{.parentGameObject = parentId, .gameObject = gameObject});
+
+        LOG_DEBUG << gameObject->GetName() << " childs " << gameObject->children_.size();
+
+        for (auto& subChild : gameObject->children_)
+        {
+            if (subChild)
+            {
+                self(self, gameObject->GetId(), subChild.get());
+            }
+        }
+    };
+    notifySceneEventSubscribers(notifySceneEventSubscribers, parentGameObject->GetId(), ptr);
 }
 
 void Scene::ProcessEvent(ModifyGameObjectEvent&& event)
@@ -304,6 +319,8 @@ void Scene::ProcessEvent(ModifyGameObjectEvent&& event)
     }
 
     LOG_DEBUG << "Game object modified. Object name:" << gameObject->GetName();
+
+    NotifySceneEventSubscribers(event);
 }
 
 void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
@@ -328,14 +345,18 @@ void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
         LOG_DEBUG << "RemoveGameObjectEvent id=" << event.gameObjectId << ", childId= " << id;
         gameObjectsIds_.erase(id);
     }
+
+    NotifySceneEventSubscribers(event);
 }
-void Scene::ProcessEvent(ClearGameObjectsEvent&&)
+void Scene::ProcessEvent(ClearGameObjectsEvent&& event)
 {
     gameObjectIdPool_.clear(1);  // root gameObject stay at id 1
     gameObjectsIds_.clear();
 
     if (rootGameObject_)
         rootGameObject_->RemoveAllChildren();
+
+    NotifySceneEventSubscribers(event);
 }
 
 void Scene::ProcessEvent(ChangeParentEvent&& event)
@@ -374,9 +395,11 @@ void Scene::ProcessEvent(ChangeParentEvent&& event)
         newParent->MoveChild(std::move(freeGameObject));
         go->SetWorldPositionRotationScale(worldPosition, worldRotation, worldScale);
     }
+
+    NotifySceneEventSubscribers(event);
 }
 
-IdType Scene::SubscribeForSceneEvent(std::function<void()> func)
+IdType Scene::SubscribeForSceneEvent(std::function<void(const SceneNotifEvent&)> func)
 {
     std::lock_guard<std::mutex> lk(eventSubscribersMutex);
     auto id = eventSubscribersPool.getId();
@@ -384,11 +407,11 @@ IdType Scene::SubscribeForSceneEvent(std::function<void()> func)
     return id;
 }
 
-void Scene::NotifySceneEventSubscribers()
+void Scene::NotifySceneEventSubscribers(const SceneNotifEvent& event)
 {
     std::lock_guard<std::mutex> lk(eventSubscribersMutex);
     for (auto& [_, sub] : eventSubscribers)
-        sub();
+        sub(event);
 }
 
 void Scene::UnSubscribeForSceneEvent(IdType id)
