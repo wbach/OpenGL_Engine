@@ -40,25 +40,38 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     graphicsApi_.PrepareFrame();
 
     const auto requestedWindowSize = EngineConf.window.size.get();
+    const auto& displayModes       = graphicsApi_.GetWindowApi().GetDisplayModes();
 
-    bool requestedSizeFoundInAvaiableDisplayMode{false};
-    const auto& diplayModes = graphicsApi_.GetWindowApi().GetDisplayModes();
-    for (const auto& mode : diplayModes)
+    if (displayModes.empty())
+        return;
+
+    const auto* bestMode = &displayModes.front();
+    uint64_t bestDiff    = std::numeric_limits<uint64_t>::max();
+
+    LOG_DEBUG << "Requested: " << requestedWindowSize << ". Available modes: " << displayModes;
+    for (const auto& mode : displayModes)
     {
-        if (static_cast<int>(requestedWindowSize.x) == mode.w and static_cast<int>(requestedWindowSize.y) == mode.h)
+        uint64_t dx   = static_cast<int64_t>(requestedWindowSize.x) - mode.w;
+        uint64_t dy   = static_cast<int64_t>(requestedWindowSize.y) - mode.h;
+        uint64_t diff = dx * dx + dy * dy;
+
+        if (diff == 0)
         {
-            requestedSizeFoundInAvaiableDisplayMode = true;
+            bestMode = &mode;
+            break;
         }
+
+        if (diff < bestDiff)
+        {
+            bestDiff = diff;
+            bestMode = &mode;
+        }
+
         EngineConf.window.size.AddDefaultValue(vec2ui(mode.w, mode.h));
     }
-    if (not requestedSizeFoundInAvaiableDisplayMode and not diplayModes.empty())
-    {
-        const auto& firstValidDisplayMode = diplayModes.back();
-        windowsSize_ = vec2ui{static_cast<uint32>(firstValidDisplayMode.w), static_cast<uint32>(firstValidDisplayMode.h)};
-        LOG_DEBUG << "Requested window size not available, take first, new size: " << windowsSize_;
-        EngineConf.window.size = windowsSize_;
-        LOG_DEBUG << "Available " <<  diplayModes;
-    }
+
+    windowsSize_           = vec2ui{static_cast<uint32_t>(bestMode->w), static_cast<uint32_t>(bestMode->h)};
+    EngineConf.window.size = windowsSize_;
 
     graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
 

@@ -6,6 +6,7 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
 
 using namespace common::Controllers;
 
@@ -40,7 +41,7 @@ void PlayerInputController::Init()
 
     if (characterController_)
     {
-       SubscribeForPushActions();
+        SubscribeForPushActions();
         SubscribeForPopActions();
     }
     else
