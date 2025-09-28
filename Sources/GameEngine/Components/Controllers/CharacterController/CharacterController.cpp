@@ -74,7 +74,7 @@ void CharacterController::CleanUp()
 void CharacterController::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Awake, this), MakeDependencies<CapsuleShape>());
-    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this), MakeDependencies<Rigidbody>());
+    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this));
     RegisterFunction(FunctionType::PostStart, std::bind(&CharacterController::PostStart, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }

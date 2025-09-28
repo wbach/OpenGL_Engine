@@ -94,7 +94,7 @@ private:
     void MenuComponentsRebuild(wxCommandEvent&);
     void MenuComponentsReload(wxCommandEvent&);
 
-    void SetDeubgRendererState(GameEngine::DebugRenderer::RenderState);
+    bool SetDeubgRendererState(GameEngine::DebugRenderer::RenderState);
 
     void OnObjectTreeSelChange(wxTreeEvent&);
     void OnObjectTreeActivated(wxTreeEvent&);

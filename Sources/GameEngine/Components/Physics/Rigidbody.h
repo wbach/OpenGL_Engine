@@ -76,7 +76,7 @@ public:
     const std::optional<uint32>& GetId() const;
 
 private:
-    void OnStart();
+    void Init();
     CollisionShape* GetCollisionShape();
 
 private:

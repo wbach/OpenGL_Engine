@@ -53,6 +53,7 @@ CharacterControllerTests::CharacterControllerTests()
     sut_.ReqisterFunctions();
 
     componentController_.CallFunctions(FunctionType::Awake);
+    componentController_.CallFunctions(FunctionType::LateAwake);
     componentController_.CallFunctions(FunctionType::OnStart);
     componentController_.CallFunctions(FunctionType::PostStart);
 

@@ -710,10 +710,18 @@ void MainFrame::MenuRendererSwap(wxCommandEvent&)
 
 void MainFrame::MenuRendererPhysicsVisualization(wxCommandEvent&)
 {
-    SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Physics);
+    LOG_DEBUG << "";
+    auto set = SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Physics);
+
+    auto& papi = canvas->GetEngine().GetEngineContext().GetPhysicsApi();
+
+    if (set)
+        papi.enableVisualizationForAllRigidbodys();
+    else
+        papi.disableVisualizationForAllRigidbodys();
 }
 
-void MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState state)
+bool MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState state)
 {
     auto& renderesManager = canvas->GetEngine().GetEngineContext().GetRenderersManager();
     bool set              = renderesManager.GetDebugRenderer().IsStateEnabled(state);
@@ -721,10 +729,12 @@ void MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState sta
 
     auto& debugRenderer = renderesManager.GetDebugRenderer();
     set ? debugRenderer.AddState(state) : debugRenderer.RemoveState(state);
+    return set;
 }
 
 void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
 {
+    LOG_DEBUG << "";
     SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Normals);
 }
 

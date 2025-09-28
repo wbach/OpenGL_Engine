@@ -191,6 +191,7 @@ void ComponentController::OnObjectCreated(IdType gameObjectId)
     SortAllFunctionsForGameObject(gameObjectId);
 
     CallGameObjectFunctions(FunctionType::Awake, gameObjectId);
+    CallGameObjectFunctions(FunctionType::LateAwake, gameObjectId);
 
     if (isStarted)
     {

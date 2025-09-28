@@ -4,7 +4,6 @@
 #include "CapsuleShape.h"
 #include "CollisionShape.h"
 #include "CylinderShape.h"
-#include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -20,13 +19,12 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR             = "Rigidbody";
-const std::string CSTR_MASS                 = "mass";
-const std::string CSTR_IS_STATIC            = "isStatic";
-const std::string CSTR_VELOCITY             = "velocity";
-const std::string CSTR_ANGULAR_FACTOR       = "angularFactor";
-const std::string CSTR_COLLISION_SHAPE      = "collisionShape";
-const std::string CSTR_NO_CONCTACT_RESPONSE = "noConctactResponse";
+constexpr char CSTR_MASS[]{"mass"};
+constexpr char CSTR_IS_STATIC[]{"isStatic"};
+constexpr char CSTR_VELOCITY[]{"velocity"};
+constexpr char CSTR_ANGULAR_FACTOR[]{"angularFactor"};
+constexpr char CSTR_COLLISION_SHAPE[]{"collisionShape"};
+constexpr char CSTR_NO_CONCTACT_RESPONSE[]{"noConctactResponse"};
 }  // namespace
 
 Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
@@ -66,11 +64,12 @@ void Rigidbody::CleanUp()
 
 void Rigidbody::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
+    RegisterFunction(FunctionType::LateAwake, std::bind(&Rigidbody::Init, this));
 }
 
-void Rigidbody::OnStart()
+void Rigidbody::Init()
 {
+    LOG_DEBUG << thisObject_.GetName();
     collisionShape_ = GetCollisionShape();
 
     if (not collisionShape_)
@@ -426,7 +425,7 @@ void Rigidbody::registerReadFunctions()
 }
 void Rigidbody::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     ::write(node.addChild(CSTR_MASS), mass);
     ::write(node.addChild(CSTR_IS_STATIC), isStaticObject);
