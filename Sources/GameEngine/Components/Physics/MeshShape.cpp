@@ -4,6 +4,7 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -37,7 +38,7 @@ void MeshShape::CleanUp()
 }
 void MeshShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&MeshShape::OnAwake, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&MeshShape::OnAwake, this), MakeDependencies<RendererComponent>());
 }
 void MeshShape::OnAwake()
 {

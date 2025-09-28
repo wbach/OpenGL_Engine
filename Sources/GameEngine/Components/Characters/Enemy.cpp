@@ -4,6 +4,7 @@
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -42,7 +43,7 @@ void Enemy::CleanUp()
 }
 void Enemy::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
+    RegisterFunction(FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
 void Enemy::Init()

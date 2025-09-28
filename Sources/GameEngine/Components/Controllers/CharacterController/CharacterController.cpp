@@ -4,6 +4,7 @@
 #include "CharacterControllerFsm.h"
 #include "FsmContext.h"
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/CharacterController/AimController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
@@ -72,8 +73,8 @@ void CharacterController::CleanUp()
 }
 void CharacterController::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Awake, this));
-    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&CharacterController::Awake, this), MakeDependencies<CapsuleShape>());
+    RegisterFunction(FunctionType::OnStart, std::bind(&CharacterController::Init, this), MakeDependencies<Rigidbody>());
     RegisterFunction(FunctionType::PostStart, std::bind(&CharacterController::PostStart, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }

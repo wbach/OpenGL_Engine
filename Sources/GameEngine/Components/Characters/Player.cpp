@@ -3,6 +3,7 @@
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentContext.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -46,7 +47,8 @@ void Player::CleanUp()
 }
 void Player::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
+    RegisterFunction(
+        FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
 void Player::Init()

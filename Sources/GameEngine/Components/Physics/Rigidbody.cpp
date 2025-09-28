@@ -5,6 +5,7 @@
 #include "CollisionShape.h"
 #include "CylinderShape.h"
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentType.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -34,15 +35,17 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
     , collisionShape_(nullptr)
     , updateRigidbodyOnTransformChange_(false)
 {
+#define Shape(X) {X::name, GetComponentType<X>().id}
+
     // clang-format off
     nameToTypeMap_ =
     {
-        {BoxShape::name,     typeid(BoxShape).hash_code()},
-        {TerrainShape::name, typeid(TerrainShape).hash_code()},
-        {MeshShape::name,    typeid(MeshShape).hash_code()},
-        {SphereShape::name,  typeid(SphereShape).hash_code()},
-        {CapsuleShape::name, typeid(CapsuleShape).hash_code()},
-        {CylinderShape::name, typeid(CylinderShape).hash_code()},
+        Shape(BoxShape),
+        Shape(TerrainShape),
+        Shape(MeshShape),
+        Shape(SphereShape),
+        Shape(CapsuleShape),
+        Shape(CylinderShape)
     };
     // clang-format on
 }
@@ -60,6 +63,12 @@ void Rigidbody::CleanUp()
         rigidBodyId_ = std::nullopt;
     }
 }
+
+void Rigidbody::ReqisterFunctions()
+{
+    RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
+}
+
 void Rigidbody::OnStart()
 {
     collisionShape_ = GetCollisionShape();
@@ -106,11 +115,7 @@ void Rigidbody::OnStart()
         f();
     }
 
-    LOG_DEBUG << "[" << thisObject_.GetName() << "] Rigidbody created. Id : " << rigidBodyId_;
-}
-void Rigidbody::ReqisterFunctions()
-{
-    RegisterFunction(FunctionType::OnStart, std::bind(&Rigidbody::OnStart, this));
+    LOG_DEBUG << "[" << thisObject_.GetName() << "] Rigidbody created. Id : " << rigidBodyId_ << " isStatic = " << isStaticObject;
 }
 bool Rigidbody::IsReady() const
 {
@@ -332,7 +337,7 @@ void Rigidbody::detectShape()
 
     if (shape)
     {
-        detectedCollisionShapes_.insert({typeid(T).hash_code(), shape});
+        detectedCollisionShapes_.insert({GetComponentType<T>().id, shape});
     }
 }
 

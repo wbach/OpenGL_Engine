@@ -19,6 +19,7 @@ namespace
 const ComponentType TRANSFORM{.id = 1, .name = "Transform"};
 const ComponentType RENDERER{.id = 2, .name = "Renderer"};
 const ComponentType ANIMATOR{.id = 3, .name = "Animator"};
+const ComponentType BOWPOSEUPDATER{.id = 4, .name = "BowPoseUpdater"};
 
 struct Component : public IComponent
 {
@@ -193,6 +194,41 @@ TEST(ComponentControllerTest, FunctionExecutionOrder_CycleDependency)
     EXPECT_THROW(controller.OnObjectCreated(gameObjectId), std::runtime_error);
 }
 
+// -----------------------------------------------------------------------------
+// TEST: Zaleznosc do wielu
+// -----------------------------------------------------------------------------
+TEST(ComponentControllerTest, FunctionExecutionOrder_MultipleDependency)
+{
+    ComponentController controller;
+    std::vector<std::string> callLog;
+    IdType gameObjectId = 1;
+
+    controller.RegisterFunction(gameObjectId, BOWPOSEUPDATER, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(BOWPOSEUPDATER.name); }, {ANIMATOR, TRANSFORM});
+
+    controller.RegisterFunction(gameObjectId, ANIMATOR, FunctionType::Update, [&callLog]() { callLog.push_back(ANIMATOR.name); },
+                                {RENDERER});
+
+    controller.RegisterFunction(gameObjectId, RENDERER, FunctionType::Update, [&callLog]() { callLog.push_back(RENDERER.name); },
+                                {TRANSFORM});
+
+    controller.RegisterFunction(gameObjectId, TRANSFORM, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(TRANSFORM.name); }, {});
+
+    controller.RegisterFunction(gameObjectId, NULL_COMPONENT_TYPE, FunctionType::Update,
+                                [&callLog]() { callLog.push_back(NULL_COMPONENT_TYPE.name); }, {});
+
+    controller.OnObjectCreated(gameObjectId);
+    controller.CallFunctions(FunctionType::Update);
+
+    ASSERT_EQ(callLog.size(), 5u);
+    EXPECT_EQ(callLog[0], TRANSFORM.name);
+    EXPECT_EQ(callLog[1], RENDERER.name);
+    EXPECT_EQ(callLog[2], ANIMATOR.name);
+    EXPECT_EQ(callLog[3], BOWPOSEUPDATER.name);
+    EXPECT_EQ(callLog[4], NULL_COMPONENT_TYPE.name);
+}
+
 TEST(ComponentControllerTest, GetAllComponentsOfType_ReturnsOnlyRequestedType)
 {
     struct RendererComponentTest : public Component
@@ -235,7 +271,6 @@ TEST(ComponentControllerTest, GetAllComponentsOfType_ReturnsOnlyRequestedType)
     controller.RegisterComponent(renderer1->GetTypeId(), renderer1.get());
     controller.RegisterComponent(renderer2->GetTypeId(), renderer2.get());
     controller.RegisterComponent(rigidbody->GetTypeId(), rigidbody.get());
-
 
     auto renderers = controller.GetAllComponentsOfType<RendererComponentTest>();
 

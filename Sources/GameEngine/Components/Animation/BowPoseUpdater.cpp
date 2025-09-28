@@ -4,6 +4,7 @@
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
@@ -43,66 +44,66 @@ void BowPoseUpdater::CleanUp()
 }
 void BowPoseUpdater::ReqisterFunctions()
 {
-    RegisterFunction(
-        FunctionType::OnStart,
-        [this]()
-        {
-            auto parent = thisObject_.GetParent();
+    RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
+}
 
-            if (not parent)
-            {
-                LOG_WARN << "Parent not found.";
-                return;
-            }
+void BowPoseUpdater::Init()
+{
+    auto parent = thisObject_.GetParent();
 
-            auto animator = parent->GetComponent<Animator>();
-            if (not animator)
-            {
-                LOG_WARN << "Animator not found";
-                return;
-            }
-            auto equipJoint = animator->GetJoint(equipJointName_);
+    if (not parent)
+    {
+        LOG_WARN << "Parent not found.";
+        return;
+    }
 
-            if (not equipJoint)
-            {
-                LOG_WARN << "equip joint: \"" << equipJointName_ << "\" not found";
-                return;
-            }
+    auto animator = parent->GetComponent<Animator>();
+    if (not animator)
+    {
+        LOG_WARN << "Animator not found";
+        return;
+    }
+    auto equipJoint = animator->GetJoint(equipJointName_);
 
-            auto disarmJoint = animator->GetJoint(disarmJointName_);
+    if (not equipJoint)
+    {
+        LOG_WARN << "equip joint: \"" << equipJointName_ << "\" not found";
+        return;
+    }
 
-            if (not disarmJoint)
-            {
-                LOG_WARN << "disam joint: \"" << disarmJointName_ << "\" not found";
-                return;
-            }
+    auto disarmJoint = animator->GetJoint(disarmJointName_);
 
-            auto rendererCopmponent = parent->GetComponent<RendererComponent>();
+    if (not disarmJoint)
+    {
+        LOG_WARN << "disam joint: \"" << disarmJointName_ << "\" not found";
+        return;
+    }
 
-            if (not rendererCopmponent)
-            {
-                LOG_WARN << "RendererComponent not found";
-                return;
-            }
+    auto rendererCopmponent = parent->GetComponent<RendererComponent>();
 
-            auto model = rendererCopmponent->GetModelWrapper().Get();
+    if (not rendererCopmponent)
+    {
+        LOG_WARN << "RendererComponent not found";
+        return;
+    }
 
-            if (not model or model->GetMeshes().empty())
-            {
-                LOG_WARN << "Mesh not found";
-                return;
-            }
-            auto meshTransform = model->GetMeshes().front().GetMeshTransform();
-            updateJointBufferSubId_ =
-                animator->subscribeForPoseBufferUpdate([this]() { currentJointUpdater_->updateGameObjectTransform(); });
+    auto model = rendererCopmponent->GetModelWrapper().Get();
 
-            disarmJointUpdater_ =
-                std::make_unique<JointPoseUpdater>(thisObject_, disarmJoint, dLocalPosition, dLocalRotation, meshTransform);
-            equipJointUpdater_ =
-                std::make_unique<JointPoseUpdater>(thisObject_, equipJoint, eLocalPosition, eLocalRotation, meshTransform);
-            currentJointUpdater_ = disarmJointUpdater_.get();
-            setDisarmJointAsCurrent();
-        });
+    if (not model or model->GetMeshes().empty())
+    {
+        LOG_WARN << "Mesh not found";
+        return;
+    }
+    auto meshTransform = model->GetMeshes().front().GetMeshTransform();
+    updateJointBufferSubId_ =
+        animator->subscribeForPoseBufferUpdate([this]() { currentJointUpdater_->updateGameObjectTransform(); });
+
+    disarmJointUpdater_ =
+        std::make_unique<JointPoseUpdater>(thisObject_, disarmJoint, dLocalPosition, dLocalRotation, meshTransform);
+    equipJointUpdater_ =
+        std::make_unique<JointPoseUpdater>(thisObject_, equipJoint, eLocalPosition, eLocalRotation, meshTransform);
+    currentJointUpdater_ = disarmJointUpdater_.get();
+    setDisarmJointAsCurrent();
 }
 
 void BowPoseUpdater::setEquipJointAsCurrent()

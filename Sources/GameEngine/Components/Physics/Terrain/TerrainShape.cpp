@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
@@ -61,7 +62,7 @@ void TerrainShape::CleanUp()
 }
 void TerrainShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&TerrainShape::OnAwake, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&TerrainShape::OnAwake, this), MakeDependencies<TerrainRendererComponent>());
 }
 void TerrainShape::OnAwake()
 {

@@ -23,6 +23,8 @@ public:
     std::string disarmJointName_;
 
 private:
+    void Init();
+
     std::unique_ptr<JointPoseUpdater> equipJointUpdater_;
     std::unique_ptr<JointPoseUpdater> disarmJointUpdater_;
     JointPoseUpdater* currentJointUpdater_;
