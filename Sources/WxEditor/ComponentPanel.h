@@ -8,8 +8,8 @@
 #include <wx/wx.h>
 
 #include <functional>
-#include <vector>
 #include <mutex>
+#include <vector>
 
 namespace GameEngine
 {
@@ -20,8 +20,7 @@ class ExternalComponentsReader;
 class ComponentPanel : public wxPanel
 {
 public:
-    explicit ComponentPanel(wxFrame*, wxWindow*, GameEngine::ExternalComponentsReader&,
-                            GameEngine::Components::ComponentController&, GameEngine::GameObject&);
+    explicit ComponentPanel(wxFrame*, wxWindow*, GameEngine::ExternalComponentsReader&, GameEngine::GameObject&);
 
     void ClearComponents();
     void AddComponent(GameEngine::Components::IComponent&, bool collapsed = true);
@@ -32,7 +31,6 @@ private:
     std::mutex mutex;
     wxFrame* mainFrame;
     GameEngine::ExternalComponentsReader& externalComponentsReader;
-    GameEngine::Components::ComponentController& componentController;
     GameEngine::GameObject& gameObject;
     wxBoxSizer* mainSizer{nullptr};
     wxCollapsiblePane* collapsible{nullptr};

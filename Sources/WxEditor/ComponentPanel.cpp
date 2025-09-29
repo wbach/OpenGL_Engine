@@ -76,12 +76,10 @@ extern const std::string CSTR_TYPE;
 }  // namespace GameEngine
 
 ComponentPanel::ComponentPanel(wxFrame* mainFrame, wxWindow* parent, GameEngine::ExternalComponentsReader& reader,
-                               GameEngine::Components::ComponentController& componentController,
                                GameEngine::GameObject& gameObject)
     : wxPanel(parent, wxID_ANY)
     , mainFrame(mainFrame)
     , externalComponentsReader(reader)
-    , componentController{componentController}
     , gameObject{gameObject}
 {
     mainSizer = new wxBoxSizer(wxVERTICAL);

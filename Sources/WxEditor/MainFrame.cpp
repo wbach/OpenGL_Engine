@@ -25,6 +25,7 @@
 #include "BuildLogFrame.h"
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"
+#include "Components/FunctionType.h"
 #include "ControlsIds.h"
 #include "EditorUitls.h"
 #include "GLCanvas.h"
@@ -571,8 +572,8 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     {
         for (auto& component : vectorOfComponents)
         {
-            auto* compPanel = new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
-                                                 canvas->GetScene().getComponentController(), gameObject);
+            auto* compPanel =
+                new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(), gameObject);
             compPanel->AddComponent(*component);
             if (isGameObjectPrefab(gameObject))
             {
@@ -592,32 +593,36 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
 
     auto action = [&](wxCommandEvent&)
     {
-        auto popup =
-            new ComponentPickerPopup(gameObjectPanels, canvas->GetScene().getComponentController(), gameObject,
-                                     [this, &gameObject](auto& component)
-                                     {
-                                         ComponentPanel* compPanel = new ComponentPanel(
-                                             this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(),
-                                             canvas->GetScene().getComponentController(), gameObject);
-                                         compPanel->AddComponent(component, false);
-                                         if (isGameObjectPrefab(gameObject))
-                                         {
-                                             compPanel->Lock();
-                                         }
+        auto popup = new ComponentPickerPopup(
+            gameObjectPanels, canvas->GetScene().getComponentController(), gameObject,
+            [this, &gameObject](auto& component)
+            {
+                ComponentPanel* compPanel =
+                    new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(), gameObject);
+                compPanel->AddComponent(component, false);
+                canvas->GetScene().getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::Awake,
+                                                                                    gameObject.GetId());
+                canvas->GetScene().getComponentController().CallGameObjectFunctions(
+                    GameEngine::Components::FunctionType::LateAwake, gameObject.GetId());
 
-                                         this->CallAfter(
-                                             [this, compPanel]()
-                                             {
-                                                 int btnIndex = gameObjectPanelsSizer->GetItemCount() - 1;
-                                                 if (btnIndex < 0)
-                                                     btnIndex = 0;  // zabezpieczenie, gdyby przycisku jeszcze nie bylo
-                                                 gameObjectPanelsSizer->Insert(btnIndex, compPanel, 0, wxEXPAND | wxALL, 0);
+                if (isGameObjectPrefab(gameObject))
+                {
+                    compPanel->Lock();
+                }
 
-                                                 gameObjectPanelsSizer->Layout();
-                                                 gameObjectPanels->FitInside();
-                                                 gameObjectPanels->Refresh();
-                                             });
-                                     });
+                this->CallAfter(
+                    [this, compPanel]()
+                    {
+                        int btnIndex = gameObjectPanelsSizer->GetItemCount() - 1;
+                        if (btnIndex < 0)
+                            btnIndex = 0;  // zabezpieczenie, gdyby przycisku jeszcze nie bylo
+                        gameObjectPanelsSizer->Insert(btnIndex, compPanel, 0, wxEXPAND | wxALL, 0);
+
+                        gameObjectPanelsSizer->Layout();
+                        gameObjectPanels->FitInside();
+                        gameObjectPanels->Refresh();
+                    });
+            });
 
         // Pobieramy pozycje przycisku w globalnych wspolrzednych
         wxPoint pos = addComponentButton->GetScreenPosition();
