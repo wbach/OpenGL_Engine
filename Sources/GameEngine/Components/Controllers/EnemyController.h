@@ -26,6 +26,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     void Init();
     void Update();

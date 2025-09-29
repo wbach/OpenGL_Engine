@@ -32,6 +32,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     float moveFactor() const;
     float increaseAndGetMoveFactor(float deltaTime);

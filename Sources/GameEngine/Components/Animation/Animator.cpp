@@ -65,6 +65,11 @@ void Animator::ReqisterFunctions()
     RegisterFunction(FunctionType::Update, std::bind(&Animator::Update, this));
 }
 
+void Animator::Reload()
+{
+    CleanUp();
+    GetSkeletonAndAnimations();
+}
 Animator& Animator::SetAnimation(const std::string& name)
 {
     auto clipIter = animationClipInfo_.find(name);

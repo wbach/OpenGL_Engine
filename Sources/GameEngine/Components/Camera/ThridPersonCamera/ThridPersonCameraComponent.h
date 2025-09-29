@@ -19,6 +19,7 @@ public:
     ThridPersonCameraComponent(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     template <typename Event>
     void handleEvent(const Event& event)

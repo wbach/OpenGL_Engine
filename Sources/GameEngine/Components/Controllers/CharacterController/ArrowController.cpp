@@ -44,6 +44,10 @@ void ArrowController::ReqisterFunctions()
     RegisterFunction(FunctionType::Update, std::bind(&ArrowController::update, this));
 }
 
+void ArrowController::Reload()
+{
+}
+
 void ArrowController::shoot()
 {
     if (not thridPersonCameraComponent)
@@ -120,7 +124,8 @@ void ArrowController::performCollision(uint32 rigidbodyId)
         return;
     }
 
-    if (rigidbody->GetParentGameObject().GetName() != "Player" and rigidbody->GetParentGameObject().GetId() != physicArrowGameObject->GetId())  // TO DO : check tag
+    if (rigidbody->GetParentGameObject().GetName() != "Player" and
+        rigidbody->GetParentGameObject().GetId() != physicArrowGameObject->GetId())  // TO DO : check tag
     {
         LOG_DEBUG << "Collision detected with " << rigidbody->GetParentGameObject().GetName();
         componentContext_.physicsApi_.celarCollisionCallback(collisionSubId);

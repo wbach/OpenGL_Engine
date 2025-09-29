@@ -26,11 +26,13 @@ public:
         MoveSpeed crouchSpeed{DEFAULT_CROUCH_SPEED, DEFAULT_CROUCH_SPEED, DEFAULT_CROUCH_SPEED, DEFAULT_CROUCH_TURN_SPEED};
         float sprintSpeed{DEFAULT_SPRINT_SPEED};
     };
+
     CharacterController(ComponentContext&, GameObject&);
     ~CharacterController();
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     void Awake();
     void Init();

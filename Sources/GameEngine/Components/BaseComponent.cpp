@@ -35,10 +35,6 @@ BaseComponent::~BaseComponent()
         LOG_ERROR << "componentRegistredId not set!";
     }
 }
-void BaseComponent::Reload()
-{
-
-}
 ComponentTypeID BaseComponent::GetTypeId() const
 {
     return type_.id;

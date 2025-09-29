@@ -54,6 +54,7 @@ public:
     Animator(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     void Update();
     void AddAnimationClip(const ReadAnimationInfo&);

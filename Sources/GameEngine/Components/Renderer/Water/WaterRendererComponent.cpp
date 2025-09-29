@@ -34,9 +34,29 @@ WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContex
 WaterRendererComponent::~WaterRendererComponent()
 {
 }
+void WaterRendererComponent::CleanUp()
+{
+    UnSubscribe();
+
+    if (onTransformChangeSubscribtion_)
+    {
+        thisObject_.UnsubscribeOnWorldTransfromChange(*onTransformChangeSubscribtion_);
+    }
+    if (perObjectUpdateBuffer_)
+    {
+        componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(perObjectUpdateBuffer_));
+    }
+
+    DeleteTextures();
+}
 void WaterRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&WaterRendererComponent::OnAwake, this));
+}
+void WaterRendererComponent::Reload()
+{
+    CleanUp();
+    OnAwake();
 }
 const vec4& WaterRendererComponent::GetWaterColor() const
 {
@@ -147,21 +167,6 @@ void WaterRendererComponent::updatePerObjectUpdateBuffer()
     {
         componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*perObjectUpdateBuffer_);
     }
-}
-void WaterRendererComponent::CleanUp()
-{
-    UnSubscribe();
-
-    if (onTransformChangeSubscribtion_)
-    {
-        thisObject_.UnsubscribeOnWorldTransfromChange(*onTransformChangeSubscribtion_);
-    }
-    if (perObjectUpdateBuffer_)
-    {
-        componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(perObjectUpdateBuffer_));
-    }
-
-    DeleteTextures();
 }
 void WaterRendererComponent::DeleteTextures()
 {

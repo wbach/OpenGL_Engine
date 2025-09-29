@@ -39,6 +39,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     RendererComponent& AddModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     RendererComponent& AddModel(const std::string& filename, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);

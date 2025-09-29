@@ -3,12 +3,13 @@
 #include <Common/Controllers/CharacterController/CharacterActions.h>
 #include <GameEngine/Components/Physics/Rigidbody.h>
 
+#include <optional>
+
 #include "Bar.h"
 #include "CharacterStatistic.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
-#include <optional>
 
 namespace GameEngine
 {
@@ -31,6 +32,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     void Init();
     void Update();

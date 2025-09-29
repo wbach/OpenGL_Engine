@@ -17,6 +17,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     std::string GetOrginalComponentName() const ;
 

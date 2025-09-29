@@ -37,7 +37,15 @@ void GrassRendererComponent::CleanUp()
     }
     meshData_ = GrassMeshes();
 }
-
+void GrassRendererComponent::ReqisterFunctions()
+{
+    RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::CreateModelAndSubscribe, this));
+}
+void GrassRendererComponent::Reload()
+{
+    CleanUp();
+    CreateModelAndSubscribe();
+}
 void GrassRendererComponent::UpdateModel()
 {
     auto model = model_.Get(LevelOfDetail::L1);
@@ -98,10 +106,6 @@ GrassRendererComponent& GrassRendererComponent::setTexture(const File& filename)
 {
     textureFile = filename;
     return *this;
-}
-void GrassRendererComponent::ReqisterFunctions()
-{
-    RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::CreateModelAndSubscribe, this));
 }
 void GrassRendererComponent::CreateModelAndSubscribe()
 {

@@ -26,10 +26,23 @@ TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext,
     , isSubsribed_(false)
 {
 }
+void TreeRendererComponent::CleanUp()
+{
+    UnSubscribe();
+    DeleteShaderBuffers();
+    ReleaseModels();
+}
 void TreeRendererComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&TreeRendererComponent::Subscribe, this));
 }
+
+void TreeRendererComponent::Reload()
+{
+    CleanUp();
+    Subscribe();
+}
+
 TreeRendererComponent& TreeRendererComponent::SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d)
 {
     positions_ = positions;
@@ -119,12 +132,6 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
     }
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perInstances_);
-}
-void TreeRendererComponent::CleanUp()
-{
-    UnSubscribe();
-    DeleteShaderBuffers();
-    ReleaseModels();
 }
 void TreeRendererComponent::ReleaseModels()
 {

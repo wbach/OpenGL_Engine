@@ -53,6 +53,9 @@ void ParticleEffectComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Awake, std::bind(&ParticleEffectComponent::Subscribe, this));
     RegisterFunction(FunctionType::Update, std::bind(&ParticleEffectComponent::Update, this));
 }
+void ParticleEffectComponent::Reload()
+{
+}
 void ParticleEffectComponent::Subscribe()
 {
     if (not isSubscribed_)

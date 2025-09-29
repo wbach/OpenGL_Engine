@@ -34,6 +34,11 @@ void SkydomeComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&SkydomeComponent::LoadAndSubscribe, this));
 }
+void SkydomeComponent::Reload()
+{
+    CleanUp();
+    LoadAndSubscribe();
+}
 Model* SkydomeComponent::GetModel()
 {
     return model_;

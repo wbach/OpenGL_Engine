@@ -3,6 +3,7 @@
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Engine/ExternalComponentsReader.h>
 #include <GameEngine/Objects/GameObject.h>
+#include <GameEngine/Resources/File.h>
 #include <Logger/Log.h>
 #include <wx/artprov.h>
 #include <wx/dnd.h>
@@ -12,7 +13,6 @@
 #include <mutex>
 
 #include "MyEvents.h"
-#include <GameEngine/Resources/File.h>
 #include "ThumbnailCache.h"
 
 class MyTextDropTarget : public wxTextDropTarget
@@ -153,7 +153,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                           [this, &component](auto& e)
                           {
                               component.SetActive(e.IsChecked());
-                              reInitComponent(component);
+                              component.Reload();
                           });
     }
 
@@ -290,12 +290,12 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_CHOICE,
-                       [this, &component, ptr = field.ptr, indexToEnum = field.indexToEnum](wxCommandEvent& evt)
+                       [&component, ptr = field.ptr, indexToEnum = field.indexToEnum](wxCommandEvent& evt)
                        {
                            LOG_DEBUG << "OnChoice";
                            indexToEnum(ptr, evt.GetSelection());
                            LOG_DEBUG << "reInit";
-                           reInitComponent(component);
+                           component.Reload();
                        });
 
             break;
@@ -310,7 +310,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         break;
         case GameEngine::Components::FieldType::VectorOfAnimationClips:
             CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(
-                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r, auto del)
                 { return this->CreateAnimationClipItem(component, p, v, i, r, del); });
             break;
         case FieldType::UInt:
@@ -327,10 +328,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_SPINCTRL,
-                       [this, &component, val](auto& evt)
+                       [&component, val](auto& evt)
                        {
                            *val = evt.GetValue();
-                           reInitComponent(component);
+                           component.Reload();
                        });
             break;
         }
@@ -343,10 +344,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                       [this, &component, val](auto& evt)
+                       [&component, val](auto& evt)
                        {
                            *val = static_cast<float>(evt.GetValue());
-                           reInitComponent(component);
+                           component.Reload();
                        });
             break;
         }
@@ -359,10 +360,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(row, 0, wxEXPAND | wxALL, 5);
 
             ctrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, val](auto& evt)
+                       [&component, val](auto& evt)
                        {
                            *val = evt.GetString().ToStdString();
-                           reInitComponent(component);
+                           component.Reload();
                        });
             break;
         }
@@ -375,10 +376,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             sizer->Add(check, 0, wxALL, 5);
 
             check->Bind(wxEVT_CHECKBOX,
-                        [this, val, &component](auto& e)
+                        [val, &component](auto& e)
                         {
                             *val = e.IsChecked();
-                            reInitComponent(component);
+                            component.Reload();
                         });
             break;
         }
@@ -402,7 +403,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](auto& evt)
                                {
                                    val->Init(evt.GetString().ToStdString());
-                                   reInitComponent(component);
+                                   component.Reload();
                                    txt->SetToolTip(txt->GetValue());
                                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                });
@@ -412,7 +413,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                      [this, &component, val, warningIcon = row.warningIcon](const std::string& path)
                                      {
                                          val->Init(path);
-                                         reInitComponent(component);
+                                         component.Reload();
                                          UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                      }));
             break;
@@ -440,7 +441,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                         wxString path = openFileDialog.GetPath();
                                         val->Init(path.ToStdString());
                                         txt->SetValue(val->GetDataRelativePath().string());
-                                        reInitComponent(component);
+                                        component.Reload();
                                         SetPreviewBitmap(prev, GameEngine::File{path.ToStdString()}, pane);
                                         txt->SetToolTip(txt->GetValue());
                                         UpdateFileWarning(warningIcon, val->GetAbsolutePath().string());
@@ -453,7 +454,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                 warningIcon = row.warningIcon](wxCommandEvent& evt)
                                {
                                    val->Init(evt.GetString().ToStdString());
-                                   reInitComponent(component);
+                                   component.Reload();
                                    SetPreviewBitmap(prev, GameEngine::File{evt.GetString().ToStdString()}, pane);
                                    txt->SetToolTip(txt->GetValue());
                                    txt->SetValue(val->GetDataRelativePath().string());
@@ -465,7 +466,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 [this, &component, pane, val, warningIcon = row.warningIcon, prev = row.preview](const std::string& path)
                 {
                     val->Init(path);
-                    reInitComponent(component);
+                    component.Reload();
                     SetPreviewBitmap(prev, *val, pane);
                     UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                 }));
@@ -563,8 +564,9 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                     ctrl->SetIncrement(0.01);
                     ctrl->SetValue(v);
                 },
-                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); }, [](wxSpinCtrlDouble* ctrl, auto handler)
-                { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); }, {"R:", "G:", "B:", "A:"});
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
+                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); },
+                {"R:", "G:", "B:", "A:"});
             break;
         }
         // == Wektory ==
@@ -575,12 +577,14 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
 
         case FieldType::VectorOfInt:
-            CreateUIForVector<int>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<int>(component, pane, sizer, field,
+                                   [this, &component](auto p, auto v, auto i, auto r, auto del)
                                    { return this->CreateIntItem(component, p, v, i, r, del); });
             break;
 
         case FieldType::VectorOfFloat:
-            CreateUIForVector<float>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<float>(component, pane, sizer, field,
+                                     [this, &component](auto p, auto v, auto i, auto r, auto del)
                                      { return this->CreateFloatItem(component, p, v, i, r, del); });
             break;
 
@@ -598,8 +602,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::ConstVectorOfTextures:
             CreateUIForVector<GameEngine::File>(
-                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateTextureItem(component, p, v, i, r, del); }, false);
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r, auto del)
+                { return this->CreateTextureItem(component, p, v, i, r, del); },
+                false);
             break;
     }
 }
@@ -629,10 +635,10 @@ void ComponentPanel::CreateVectorRow(GameEngine::Components::IComponent& compone
         rowSizer->Add(ctrl, 1, wxRIGHT, (i == dimensions - 1 ? 0 : 10));
 
         bindEvent(ctrl,
-                  [this, &component, vec, i, getCtrlValue](auto& evt)
+                  [&component, vec, i, getCtrlValue](auto& evt)
                   {
                       (*vec)[i] = getCtrlValue(evt);
-                      reInitComponent(component);
+                      component.Reload();
                   });
     }
 
@@ -679,7 +685,7 @@ void ComponentPanel::CreateUIForVector(
     {
         mainSizer->Clear(true);
         AddComponent(component);
-        reInitComponent(component);
+        component.Reload();
 
         if (wxWindow* p = this->GetParent())
         {
@@ -705,7 +711,8 @@ void ComponentPanel::CreateUIForVector(
                                }
                            }
                            catch (...)
-                           { /* ignoruj bledy parsowania */
+                           {
+                               LOG_WARN << "Parse error";
                            }
                        });
     }
@@ -746,13 +753,13 @@ wxBoxSizer* ComponentPanel::CreateStringItem(GameEngine::Components::IComponent&
 
     stringCtrl->SetToolTip(stringCtrl->GetValue());
     stringCtrl->Bind(wxEVT_TEXT_ENTER,
-                     [this, &component, val, index, stringCtrl](wxCommandEvent& evt)
+                     [&component, val, index, stringCtrl](wxCommandEvent& evt)
                      {
                          if (index < val->size())
                          {
                              (*val)[index] = evt.GetString().ToStdString();
                              stringCtrl->SetToolTip(evt.GetString().ToStdString());
-                             reInitComponent(component);
+                             component.Reload();
                          }
                          evt.Skip();
                      });
@@ -770,7 +777,7 @@ wxBoxSizer* ComponentPanel::CreateStringItem(GameEngine::Components::IComponent&
                                {
                                    val->erase(val->begin() + index);
                                    this->CallAfter(rebuildUI);
-                                   reInitComponent(component);
+                                   component.Reload();
                                }
                            });
     }
@@ -788,12 +795,12 @@ wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& co
     elemRow->Add(spinCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     spinCtrl->Bind(wxEVT_SPINCTRL,
-                   [this, &component, val, index](wxSpinEvent& evt)
+                   [&component, val, index](wxSpinEvent& evt)
                    {
                        if (index < val->size())
                        {
                            (*val)[index] = evt.GetPosition();
-                           reInitComponent(component);
+                           component.Reload();
                        }
                    });
 
@@ -809,7 +816,7 @@ wxBoxSizer* ComponentPanel::CreateIntItem(GameEngine::Components::IComponent& co
                                if (index < val->size())
                                {
                                    val->erase(val->begin() + index);
-                                   reInitComponent(component);
+                                   component.Reload();
                                    this->CallAfter(rebuildUI);
                                }
                            });
@@ -827,12 +834,12 @@ wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& 
     elemRow->Add(floatCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     floatCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                    [this, &component, val, index](wxSpinDoubleEvent& evt)
+                    [&component, val, index](wxSpinDoubleEvent& evt)
                     {
                         if (index < val->size())
                         {
                             (*val)[index] = static_cast<float>(evt.GetValue());
-                            reInitComponent(component);
+                            component.Reload();
                         }
                     });
 
@@ -848,7 +855,7 @@ wxBoxSizer* ComponentPanel::CreateFloatItem(GameEngine::Components::IComponent& 
                                if (index < val->size())
                                {
                                    val->erase(val->begin() + index);
-                                   reInitComponent(component);
+                                   component.Reload();
                                    this->CallAfter(rebuildUI);
                                }
                            });
@@ -881,7 +888,7 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
                        [this, &component, &editedFile, txt = row.textCtrl, warningIcon = row.warningIcon](wxCommandEvent& evt)
                        {
                            editedFile = GameEngine::File(evt.GetString().ToStdString());
-                           reInitComponent(component);
+                           component.Reload();
                            txt->SetToolTip(txt->GetValue());
                            UpdateFileWarning(warningIcon, txt->GetValue().ToStdString());
                            evt.Skip();
@@ -892,7 +899,7 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
                              {
                                  editedFile = GameEngine::File(path);
                                  UpdateFileWarning(warningIcon, path);
-                                 reInitComponent(component);
+                                 component.Reload();
                              }));
 
     if (canDelete)
@@ -907,7 +914,7 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
                                if (index < val->size())
                                {
                                    val->erase(val->begin() + index);
-                                   reInitComponent(component);
+                                   component.Reload();
                                    this->CallAfter(rebuildUI);
                                }
                            });
@@ -942,7 +949,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                                 editedFile    = GameEngine::File(path.ToStdString());
                                 tr->SetValue(editedFile.GetDataRelativePath().string());
                                 textCtrl->SetToolTip(path.ToStdString());
-                                reInitComponent(component);
+                                component.Reload();
                                 SetPreviewBitmap(prev, editedFile, pane);
                                 UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
                             }
@@ -955,7 +962,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                            editedFile = GameEngine::File(evt.GetString().ToStdString());
                            SetPreviewBitmap(prev, editedFile, pane);
                            textCtrl->SetToolTip(evt.GetString().ToStdString());
-                           reInitComponent(component);
+                           component.Reload();
                            UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
                            evt.Skip();
                        });
@@ -966,7 +973,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
         {
             editedFile = GameEngine::File(path);
             SetPreviewBitmap(prev, editedFile, pane);
-            reInitComponent(component);
+            component.Reload();
             UpdateFileWarning(warningIcon, editedFile.GetAbsolutePath());
         }));
 
@@ -982,19 +989,13 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                                if (index < val->size())
                                {
                                    val->erase(val->begin() + index);
-                                   reInitComponent(component);
+                                   component.Reload();
                                    this->CallAfter(rebuildUI);
                                }
                            });
     }
 
     return elemRow;
-}
-
-void ComponentPanel::reInitComponent(GameEngine::Components::IComponent& component)
-{
-    component.CleanUp();
-    this->componentController.CallGameObjectFunctions(GameEngine::Components::FunctionType::Awake, gameObject.GetId());
 }
 
 void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
@@ -1006,7 +1007,7 @@ void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Compon
         fileCtrl->SetValue(GameEngine::File(openFileDialog.GetPath()).GetDataRelativePath().string());
         fileCtrl->SetToolTip(openFileDialog.GetPath());
         val->Init(openFileDialog.GetPath().ToStdString());
-        reInitComponent(component);
+        component.Reload();
     }
 }
 
@@ -1110,7 +1111,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                    [this, &component, val, ctrl](wxCommandEvent& evt)
                    {
                        val->name = evt.GetString().ToStdString();
-                       reInitComponent(component);
+                       component.Reload();
                        ctrl->SetToolTip(val->name);
                    });
     }
@@ -1131,7 +1132,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                            [this, &component, val, txt = row.textCtrl, warningIcon = row.warningIcon](wxCommandEvent& evt)
                            {
                                val->file.Init(evt.GetString().ToStdString());
-                               reInitComponent(component);
+                               component.Reload();
                                txt->SetToolTip(txt->GetValue());
                                UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
                            });
@@ -1140,7 +1141,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                                  [this, &component, val, warningIcon = row.warningIcon](const std::string& path)
                                  {
                                      val->file.Init(path);
-                                     reInitComponent(component);
+                                     component.Reload();
                                      UpdateFileWarning(warningIcon, val->file.GetAbsolutePath().string());
                                  }));
     }
@@ -1155,7 +1156,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                     [this, &component, val](wxCommandEvent& e)
                     {
                         val->playInLoop = e.IsChecked();
-                        reInitComponent(component);
+                        component.Reload();
                     });
     }
 
@@ -1169,7 +1170,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                     [this, &component, val](wxCommandEvent& e)
                     {
                         val->useRootMontion = e.IsChecked();
-                        reInitComponent(component);
+                        component.Reload();
                     });
     }
 
@@ -1183,7 +1184,7 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                    [this, &component, val](auto& evt)
                    {
                        val->playSpeed = static_cast<float>(evt.GetValue());
-                       reInitComponent(component);
+                       component.Reload();
                    });
     }
 
@@ -1218,7 +1219,7 @@ wxBoxSizer* ComponentPanel::CreateAnimationClipItem(GameEngine::Components::ICom
                                if (index < val->size())
                                {
                                    val->erase(val->begin() + index);
-                                   reInitComponent(component);
+                                   component.Reload();
                                    this->CallAfter(rebuildUI);
                                }
                            });

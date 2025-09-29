@@ -62,6 +62,7 @@ void Rigidbody::CleanUp()
 
 void Rigidbody::Reload()
 {
+    LOG_DEBUG << thisObject_.GetName();
     RemoveRigidbody();
     CreateRigidbody();
 }
@@ -90,6 +91,12 @@ void Rigidbody::ReqisterFunctions()
 
 void Rigidbody::CreateRigidbody()
 {
+    if (not collisionShape_)
+    {
+        LOG_WARN << "Collision shape not set. Try find new one";
+        collisionShape_ = GetCollisionShape();
+        return;
+    }
     auto maybeShapeId = collisionShape_->GetCollisionShapeId();
 
     if (not maybeShapeId)

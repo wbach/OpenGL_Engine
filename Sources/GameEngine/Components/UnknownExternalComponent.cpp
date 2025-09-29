@@ -21,6 +21,10 @@ void UnknownExternalComponent::ReqisterFunctions()
 {
 }
 
+void UnknownExternalComponent::Reload()
+{
+}
+
 std::string UnknownExternalComponent::GetOrginalComponentName() const
 {
     if (orginalNode)

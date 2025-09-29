@@ -29,6 +29,11 @@ void PreviewComponent::ReqisterFunctions()
 {
     RegisterFunction(FunctionType::Awake, std::bind(&PreviewComponent::Subscribe, this));
 }
+
+void PreviewComponent::Reload()
+{
+}
+
 void PreviewComponent::addModel(const File& filename, const File& outputFile)
 {
     if (filename.empty() or outputFile.empty())

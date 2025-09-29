@@ -186,6 +186,10 @@ void TerrainRendererComponent::ReqisterFunctions()
     functionsRegistered_ = true;
 }
 
+void TerrainRendererComponent::Reload()
+{
+}
+
 std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTextures(const TreeNode& node)
 {
     std::vector<Components::TerrainComponentBase::TerrainTexture> result;

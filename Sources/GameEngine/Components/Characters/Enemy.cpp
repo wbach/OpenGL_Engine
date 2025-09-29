@@ -43,8 +43,12 @@ void Enemy::CleanUp()
 }
 void Enemy::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
+    RegisterFunction(
+        FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
+}
+void Enemy::Reload()
+{
 }
 void Enemy::Init()
 {

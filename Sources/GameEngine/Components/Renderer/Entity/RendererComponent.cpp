@@ -57,6 +57,12 @@ void RendererComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Awake, std::bind(&RendererComponent::init, this));
 }
 
+void RendererComponent::Reload()
+{
+    CleanUp();
+    init();
+}
+
 RendererComponent& RendererComponent::AddModel(Model* model, LevelOfDetail i)
 {
     model_.Add(model, i);
@@ -291,7 +297,8 @@ std::unordered_map<LevelOfDetail, File> RendererComponent::GetFiles() const
 
 void RendererComponent::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<RendererComponent>(componentContext, gameObject);
 
         auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);

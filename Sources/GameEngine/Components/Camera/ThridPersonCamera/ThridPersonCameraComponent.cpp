@@ -36,6 +36,10 @@ void ThridPersonCameraComponent::ReqisterFunctions()
     RegisterFunction(FunctionType::Update, [this]() { processEvent(); });
 }
 
+void ThridPersonCameraComponent::Reload()
+{
+}
+
 std::tuple<float, float> ThridPersonCameraComponent::getRotation() const
 {
     if (fsmContext)

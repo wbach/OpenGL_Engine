@@ -51,6 +51,9 @@ void Player::ReqisterFunctions()
         FunctionType::OnStart, [this]() { Init(); }, MakeDependencies<CharacterController>());
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
+void Player::Reload()
+{
+}
 void Player::Init()
 {
     animator_            = thisObject_.GetComponent<Animator>();

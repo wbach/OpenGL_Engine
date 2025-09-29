@@ -78,6 +78,18 @@ void CharacterController::ReqisterFunctions()
     RegisterFunction(FunctionType::PostStart, std::bind(&CharacterController::PostStart, this));
     RegisterFunction(FunctionType::Update, std::bind(&CharacterController::Update, this));
 }
+
+void CharacterController::Reload()
+{
+    if (isInit)
+    {
+        LOG_WARN << "Reload when object started not implmented yet.";
+    }
+
+    CleanUp();
+    Awake();
+}
+
 void CharacterController::Awake()
 {
     if (auto capsuleShape = thisObject_.GetComponent<CapsuleShape>())
@@ -314,49 +326,50 @@ void CharacterController::PostStart()
 
     groundEnterSubId = componentContext_.physicsApi_.setCollisionCallback(
         rigidbody_->GetId(),
-        Physics::CollisionDetection{
-            .action = Physics::CollisionDetection::Action::onEnter,
-            .type   = Physics::CollisionDetection::Type::repeat,
-            .callback =
-                [&](const auto& collisionInfos)
-            {
-                if (not collisionInfos.empty())
-                {
-                    for (const auto& collisionInfo : collisionInfos)
-                    {
-                        if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
-                        {
-                            LOG_DEBUG << "GroundDetectionEvent collisionWith: " << collisionInfo.rigidbodyId2;
-                            pushEventToFrontQueue(GroundDetectionEvent{});
-                            impl->fsmContext->isOnAir = false;
-                            break;
-                        }
-                        else
-                        {
-                            LOG_DEBUG << "GroundDetectionEvent collisionWith: " << collisionInfo.rigidbodyId1;
-                            pushEventToFrontQueue(GroundDetectionEvent{});
-                            impl->fsmContext->isOnAir = false;
-                            break;
-                        }
-                    }
-                }
-            },
-            .ignoredList = {},
-            .predicate =
-                [&, capsuleRadius](const auto& collisionInfo)
-            {
-                const auto& characterPosition     = thisObject_.GetWorldTransform().GetPosition();
-                const auto characterPosWithOffset = characterPosition + vec3(0, capsuleRadius, 0);
+        Physics::CollisionDetection{.action = Physics::CollisionDetection::Action::onEnter,
+                                    .type   = Physics::CollisionDetection::Type::repeat,
+                                    .callback =
+                                        [&](const auto& collisionInfos)
+                                    {
+                                        if (not collisionInfos.empty())
+                                        {
+                                            for (const auto& collisionInfo : collisionInfos)
+                                            {
+                                                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                                                {
+                                                    LOG_DEBUG << "GroundDetectionEvent collisionWith: "
+                                                              << collisionInfo.rigidbodyId2;
+                                                    pushEventToFrontQueue(GroundDetectionEvent{});
+                                                    impl->fsmContext->isOnAir = false;
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                    LOG_DEBUG << "GroundDetectionEvent collisionWith: "
+                                                              << collisionInfo.rigidbodyId1;
+                                                    pushEventToFrontQueue(GroundDetectionEvent{});
+                                                    impl->fsmContext->isOnAir = false;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    .ignoredList = {},
+                                    .predicate =
+                                        [&, capsuleRadius](const auto& collisionInfo)
+                                    {
+                                        const auto& characterPosition     = thisObject_.GetWorldTransform().GetPosition();
+                                        const auto characterPosWithOffset = characterPosition + vec3(0, capsuleRadius, 0);
 
-                if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
-                {
-                    return (collisionInfo.pos2.y <= characterPosWithOffset.y);
-                }
-                else
-                {
-                    return (collisionInfo.pos1.y <= characterPosWithOffset.y);
-                }
-            }});
+                                        if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
+                                        {
+                                            return (collisionInfo.pos2.y <= characterPosWithOffset.y);
+                                        }
+                                        else
+                                        {
+                                            return (collisionInfo.pos1.y <= characterPosWithOffset.y);
+                                        }
+                                    }});
 }
 void CharacterController::processEvent()
 {
@@ -378,12 +391,8 @@ void CharacterController::Update()
 
     if (impl->stateMachine_ and rigidbody_ and rigidbody_->IsReady())
     {
-        std::visit(
-            [&](auto statePtr)
-            {
-                statePtr->update(componentContext_.time_.deltaTime);
-            },
-            impl->stateMachine_->currentState);
+        std::visit([&](auto statePtr) { statePtr->update(componentContext_.time_.deltaTime); },
+                   impl->stateMachine_->currentState);
     }
 }
 void CharacterController::handleEvent(const CharacterControllerEvent& event)

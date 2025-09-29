@@ -130,7 +130,6 @@ public:
     void Activate() override;
     void Deactivate() override;
     void SetActive(bool) override;
-    void Reload() override;
 
     GameObject& GetParentGameObject() override;
     const GameObject& getParentGameObject() const override;

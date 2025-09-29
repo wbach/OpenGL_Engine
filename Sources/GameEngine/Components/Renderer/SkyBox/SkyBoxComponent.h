@@ -32,6 +32,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     SkyBoxComponent& SetDayTexture(const std::vector<File>&);
     SkyBoxComponent& SetNightTexture(const std::vector<File>&);

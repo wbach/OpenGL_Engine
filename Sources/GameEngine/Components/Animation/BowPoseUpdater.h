@@ -14,6 +14,7 @@ public:
     BowPoseUpdater(ComponentContext&, GameObject&);
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     void setEquipJointAsCurrent();
     void setDisarmJointAsCurrent();

@@ -15,6 +15,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     ParticleEffectComponent& SetTexture(const std::string& filename);
     ParticleEffectComponent& SetParticle(const Particle& particle);

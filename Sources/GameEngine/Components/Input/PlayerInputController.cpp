@@ -35,6 +35,12 @@ void PlayerInputController::ReqisterFunctions()
     RegisterFunction(FunctionType::Awake, std::bind(&PlayerInputController::Init, this), MakeDependencies<CharacterController>());
 }
 
+void PlayerInputController::Reload()
+{
+    subscriptions_.Clear();
+    Init();
+}
+
 void PlayerInputController::Init()
 {
     characterController_ = thisObject_.GetComponent<CharacterController>();

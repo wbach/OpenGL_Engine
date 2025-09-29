@@ -89,6 +89,7 @@ std::vector<std::pair<FunctionType, std::function<void()>>> TerrainMeshRendererC
 {
     return {{FunctionType::Awake, [&]() { Subscribe(); }}};
 }
+
 ModelWrapper &TerrainMeshRendererComponent::GetModel()
 {
     return modelWrapper_;

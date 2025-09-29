@@ -109,6 +109,15 @@ void SkyBoxComponent::CleanUp()
     DeleteTexture(dayTexture_);
     DeleteTexture(nightTexture_);
 }
+void SkyBoxComponent::ReqisterFunctions()
+{
+    RegisterFunction(FunctionType::Awake, std::bind(&SkyBoxComponent::Init, this));
+}
+void SkyBoxComponent::Reload()
+{
+    CleanUp();
+    Init();
+}
 void SkyBoxComponent::DeleteTexture(CubeMapTexture*& texture)
 {
     if (texture)
@@ -153,10 +162,6 @@ SkyBoxComponent& SkyBoxComponent::SetModel(const std::string& filename)
 {
     modelFile = filename;
     return *this;
-}
-void SkyBoxComponent::ReqisterFunctions()
-{
-    RegisterFunction(FunctionType::Awake, std::bind(&SkyBoxComponent::Init, this));
 }
 Texture* SkyBoxComponent::GetDayTexture()
 {

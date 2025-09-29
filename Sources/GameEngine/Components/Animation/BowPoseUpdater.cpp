@@ -47,6 +47,8 @@ void BowPoseUpdater::ReqisterFunctions()
     RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
 }
 
+void BowPoseUpdater::Reload(){}
+
 void BowPoseUpdater::Init()
 {
     auto parent = thisObject_.GetParent();

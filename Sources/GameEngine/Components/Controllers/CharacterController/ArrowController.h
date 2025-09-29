@@ -22,6 +22,7 @@ public:
     ArrowController& setCameraComponent(ThridPersonCameraComponent*);
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     void shoot();
 

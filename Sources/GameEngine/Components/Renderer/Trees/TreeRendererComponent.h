@@ -21,6 +21,7 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void Reload() override;
 
     inline ModelWrapper& GetTopModelWrapper();
     inline ModelWrapper& GetBottomModelWrapper();

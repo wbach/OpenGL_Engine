@@ -42,6 +42,9 @@ void EnemyController::ReqisterFunctions()
     RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
     RegisterFunction(FunctionType::Update, [this]() { Update(); });
 }
+void EnemyController::Reload()
+{
+}
 void EnemyController::Init()
 {
     animator_            = thisObject_.GetComponent<Animator>();
@@ -61,19 +64,19 @@ void EnemyController::Update()
     if (not characterController_ or not enemy_)
         return;
 
-    auto [distance, vectorToPlayer, componentPtr] = getComponentsInRange<Player>(
-        componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
+    auto [distance, vectorToPlayer, componentPtr] =
+        getComponentsInRange<Player>(componentContext_.componentController_, thisObject_.GetWorldTransform().GetPosition());
 
     if (componentPtr and distance < playerDetectionRange)
     {
         if (distance < (enemy_->characterStatistic().attackRange + characterController_->getShapeSize()))
         {
             characterController_->pushEventToQueue(EndForwardMoveEvent{});
-            //characterController_->pushEventToQueue(AttackEvent{});
+            // characterController_->pushEventToQueue(AttackEvent{});
         }
         else
         {
-            //characterController_->pushEventToQueue(EndAttackEvent{});
+            // characterController_->pushEventToQueue(EndAttackEvent{});
             characterController_->pushEventToQueue(MoveForwardEvent{});
         }
 
@@ -89,7 +92,7 @@ void EnemyController::Update()
     }
 
     auto vectorToTarget = freeWalkingTargetPoint - thisObject_.GetWorldTransform().GetPosition();
-   // characterController_->pushEventToQueue(EndAttackEvent{});
+    // characterController_->pushEventToQueue(EndAttackEvent{});
     characterController_->pushEventToQueue(RotateTargetEvent{caclulateTargetRotation(vectorToTarget)});
     characterController_->pushEventToQueue(MoveForwardEvent{});
 
@@ -131,7 +134,7 @@ void EnemyController::calculateMovingPoints()
     movingPoints_[3] = position + vec3(-getRandomFloat() * range - offset, 0, getRandomFloat() * range + offset);
 
     // To do : // get height of neigbour moving points?
-    //for (auto& point : movingPoints_)
+    // for (auto& point : movingPoints_)
     //{
     //    auto h = componentContext_.physicsApi_.RayTest(vec3(point.x, 10000, point.z), vec3(point.x, -10000, point.z));
     //    if (h)
