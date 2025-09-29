@@ -1,14 +1,17 @@
 #include "RendererComponent.hpp"
 
+#include <algorithm>
 #include <optional>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Json/JsonReader.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -21,6 +24,7 @@ constexpr char CSTR_TEXTURE_INDEX[]    = "textureIndex";
 constexpr char CSTR_MODEL_FILE_NAMES[] = "modelFileNames";
 constexpr char MODEL_NORMALIZATION[]   = "modelNormalization";
 constexpr char MESH_OPTIMIZE[]         = "meshOptimize";
+constexpr char MATERIALS[]             = "materials";
 const GraphicsApi::ID defaultId;
 }  // namespace
 
@@ -110,7 +114,24 @@ void RendererComponent::init()
         {
             LOG_DEBUG << "model bufferId=" << model->GetGpuObjectId();
             for (auto& mesh : model->GetMeshes())
+            {
                 LOG_DEBUG << "mesh bufferId=" << mesh.GetGpuObjectId();
+
+                auto iter = std::find_if(materials.begin(), materials.end(),
+                                         [name = mesh.GetMaterial().name](const auto& mat) { return mat.name == name; });
+
+                if (iter == materials.end())
+                {
+                    materials.push_back({.name = mesh.GetMaterial().name, .file = {}});
+                }
+                else
+                {
+                    // Update material if custom material file is set
+                    auto material = readMaterialFromFile(iter->file);
+                    mesh.SetMaterial(material);
+                }
+            }
+
             // ReserveBufferVectors(model->GetMeshes().size());
             CreateBuffers(*model);
 
@@ -141,6 +162,78 @@ void RendererComponent::init()
     //        thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { UpdateBuffers(); }); // TO
     //        DO
 }
+
+Material RendererComponent::readMaterialFromFile(const File& file) const
+{
+    if (file.empty())
+        return Material();
+
+    Material material;
+    Utils::JsonReader reader;
+    reader.Read(file.GetAbsolutePath().string());
+
+    if (auto root = reader.Get())
+    {
+        if (auto matNode = reader.Get("diffuseTexture", root))
+        {
+            TextureParameters parameters;
+            material.diffuseTexture =
+                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
+        }
+        if (auto matNode = reader.Get("normalTexture", root))
+        {
+            TextureParameters parameters;
+            material.normalTexture =
+                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
+        }
+        if (auto matNode = reader.Get("specularTexture", root))
+        {
+            TextureParameters parameters;
+            material.specularTexture =
+                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
+        }
+        if (auto matNode = reader.Get("ambientTexture", root))
+        {
+            TextureParameters parameters;
+            material.ambientTexture =
+                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
+        }
+        if (auto matNode = reader.Get("displacementTexture", root))
+        {
+            TextureParameters parameters;
+            material.displacementTexture =
+                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
+        }
+        if (auto node = reader.Get("diffuseColor", root))
+        {
+            try
+            {
+                if (auto xnode = reader.Get("x", node))
+                {
+                    material.diffuse.x = std::stof(xnode->value_);
+                }
+                if (auto ynode = reader.Get("y", node))
+                {
+                    material.diffuse.y = std::stof(ynode->value_);
+                }
+                if (auto znode = reader.Get("z", node))
+                {
+                    material.diffuse.z = std::stof(znode->value_);
+                }
+            }
+            catch (...)
+            {
+            }
+        }
+    }
+    else
+    {
+        LOG_ERROR << "Json root node not found in file: " << file;
+    }
+
+    return material;
+}
+
 void RendererComponent::ClearShaderBuffers()
 {
     for (auto iter = perObjectUpdateBuffer_.begin(); iter != perObjectUpdateBuffer_.end();)
@@ -363,6 +456,20 @@ void RendererComponent::registerReadFunctions()
             }
         }
 
+        auto materialsNode = node.getChild(MATERIALS);
+        if (materialsNode)
+        {
+            for (const auto& materialNode : materialsNode->getChildren())
+            {
+                auto nameNode = materialNode->getChild(CSTR_NAME);
+                auto fileNode = materialNode->getChild(CSTR_FILE_NAME);
+                if (nameNode and fileNode)
+                {
+                    component->materials.push_back({.name = nameNode->value_, .file = fileNode->value_});
+                }
+            }
+        }
+
         return component;
     };
 
@@ -380,6 +487,16 @@ void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files
         create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativePath(), lodLvl);
     }
 }
+void create(TreeNode& materialsNode, const std::vector<MaterialField>& customMaterials)
+{
+    for (const auto& material : customMaterials)
+    {
+        auto& materialNode = materialsNode.addChild("material");
+        materialNode.addChild(CSTR_NAME, material.name);
+        auto value = material.file.empty() ? "" : material.file.GetDataRelativePath();
+        materialNode.addChild(CSTR_FILE_NAME, value);
+    }
+}
 void RendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
@@ -388,6 +505,7 @@ void RendererComponent::write(TreeNode& node) const
     node.addChild(MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));
 
     create(node.addChild(CSTR_MODEL_FILE_NAMES), GetFiles());
+    create(node.addChild(MATERIALS), materials);
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId) const
 {

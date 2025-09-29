@@ -2,6 +2,7 @@
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
+#include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/File.h>
 #include <wx/collpane.h>
 #include <wx/spinctrl.h>
@@ -61,6 +62,8 @@ private:
     wxBoxSizer* CreateAnimationClipItem(GameEngine::Components::IComponent&, wxWindow*,
                                         std::vector<GameEngine::Components::ReadAnimationInfo>*, size_t, std::function<void()>,
                                         bool = true);
+    wxBoxSizer* CreateMaterialItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::MaterialField>*, size_t,
+                                   std::function<void()>, bool = true);
 
     // == Akcje/logika ==
     void reInitComponent(GameEngine::Components::IComponent&);

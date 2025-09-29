@@ -1,10 +1,14 @@
 #pragma once
+#include <vector>
+
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GameEngine/Resources/Models/Material.h"
 
 namespace GameEngine
 {
@@ -21,6 +25,7 @@ public:
     bool modelNormalization;
     bool meshOptimize;
     uint32_t textureIndex;
+    std::vector<MaterialField> materials;
 
 public:
     // clang-format off
@@ -31,6 +36,7 @@ public:
         FIELD_BOOL(modelNormalization)
         FIELD_BOOL(meshOptimize)
         FIELD_UINT(textureIndex)
+        FIELD_CONST_VECTOR_OF_MATERIALS(materials)
     END_FIELDS()
     // clang-format on
 
@@ -64,6 +70,7 @@ private:
     void CreateBuffers(Model&);
     void CreatePerObjectUpdateBuffer(const Mesh&);
     void CreatePerObjectConstantsBuffer(const Mesh&);
+    Material readMaterialFromFile(const File&) const;
 
 private:
     ModelWrapper model_;

@@ -65,7 +65,6 @@ private:
     Animation::KeyFrame& getFrameByTimeStamp(Animation::AnimationClip&, float);
     void readAdditionInfoFile(const File&);
     void printTree(const aiNode&, uint32 = 0) const;
-    std::string getTexturePath(const std::string&) const;
 
 private:
     std::optional<File> currentProcessingFile_;

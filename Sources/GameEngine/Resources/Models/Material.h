@@ -1,12 +1,17 @@
 #pragma once
 #include <string>
-#include <vector>
 
 #include "../Textures/GeneralTexture.h"
 #include "Types.h"
 
 namespace GameEngine
 {
+struct MaterialField
+{
+    std::string name;
+    File file;
+};
+
 struct Material
 {
     std::string name{"noName"};

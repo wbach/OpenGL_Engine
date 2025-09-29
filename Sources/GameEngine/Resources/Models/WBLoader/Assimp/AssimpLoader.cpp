@@ -5,6 +5,10 @@
 #include <XML/XMLUtils.h>
 #include <XML/XmlReader.h>
 
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "magic_enum/magic_enum.hpp"
+
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
@@ -176,7 +180,7 @@ AssimpLoader::AssimpLoader(ITextureLoader& textureLoader)
     : AbstractLoader(textureLoader.GetGraphicsApi(), textureLoader)
 {
     auto version = std::to_string(aiGetVersionMajor()) + "." + std::to_string(aiGetVersionMinor());
-    /* LOG TO FIX*/ LOG_ERROR << ("Assimp version : " + version);
+    LOG_DEBUG << "Assimp version : " << version;
 }
 
 AssimpLoader::~AssimpLoader()
@@ -397,7 +401,7 @@ void AssimpLoader::loadBonesData(const aiScene& scene, const aiMesh& mesh, Mesh&
         }
         else
         {
-            /* LOG TO FIX*/ LOG_ERROR << ("To many bones per vertex");
+            LOG_WARN << "To many bones per vertex : " << currentProcessingFile_;
         }
         ++i;
     }
@@ -408,7 +412,7 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
     {
         const aiNode& node = *scene.mRootNode;
 
-        LOG_DEBUG << "Rootnode bone name: " << node.mName.data;
+        LOG_DEBUG << "Rootnode bone name: " << node.mName.data << " : " << currentProcessingFile_;
 
         for (const auto& bone : bones_)
             LOG_DEBUG << bone.first;
@@ -461,6 +465,46 @@ void AssimpLoader::processAnimations(const aiScene& scene)
     }
 }
 
+std::filesystem::path getTexturePath(const std::optional<File>& currentProcessingFile, const std::string& path)
+{
+    if (std::filesystem::exists(path))
+        return path;
+
+    if (not currentProcessingFile)
+        return path;
+
+    LOG_DEBUG << "Texture not found : " << path
+              << ". Searching recursively in model based directory : " << currentProcessingFile->GetAbsolutePath().parent_path();
+
+    auto parentDirPathTexture =
+        Utils::FindFile(File(path).GetFilename(), currentProcessingFile->GetAbsolutePath().parent_path()).string();
+    if (not parentDirPathTexture.empty())
+        return parentDirPathTexture;
+
+    return Utils::FindFile(File(path).GetFilename(), EngineConf.files.data).string();
+}
+
+GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessingFile, const aiMaterial& material,
+                               ITextureLoader& loader, aiTextureType type)
+{
+    GeneralTexture* texture{nullptr};
+    auto count = material.GetTextureCount(type);
+    if (count > 1)
+    {
+        LOG_DEBUG << "Multiple the same type textures found in one material. Not supported. " << magic_enum::enum_name(type)
+                  << " count: " << count;
+    }
+    for (uint32 i = 0; i < material.GetTextureCount(type); ++i)
+    {
+        aiString path;
+        material.GetTexture(type, i, &path);
+        TextureParameters parameters;
+        const auto& file = getTexturePath(currentProcessingFile, path.C_Str());
+        texture  = loader.LoadTexture(file, parameters);
+    }
+    return texture;
+}
+
 Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh) const
 {
     if (not scene.HasMaterials())
@@ -505,79 +549,15 @@ Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh)
     {
         material.isTransparency = transparent > 0.5f;
     }
-    if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 1)
-    {
-        LOG_DEBUG << "MultiTexturing not supported.";
-    }
-    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_DIFFUSE); ++i)
-    {
-        aiString path;
-        mat->GetTexture(aiTextureType_DIFFUSE, i, &path);
-        TextureParameters parameters;
-        material.diffuseTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
-    }
 
-    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_HEIGHT); i++)
-    {
-        aiString path;
-        mat->GetTexture(aiTextureType_HEIGHT, i, &path);
-        TextureParameters parameters;
-        material.normalTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
-    }
-
-    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_NORMALS); i++)
-    {
-        aiString path;
-        mat->GetTexture(aiTextureType_NORMALS, i, &path);
-
-        LOG_INFO << "Model have normal texture, should be conider as normal map rather than HEIGHT? Path: " << path.C_Str();
-
-        // TextureParameters parameters;
-        // material.normalTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
-    }
-
-    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_SPECULAR); ++i)
-    {
-        aiString path;
-        mat->GetTexture(aiTextureType_SPECULAR, i, &path);
-        TextureParameters parameters;
-        material.specularTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
-    }
-
-    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_AMBIENT); ++i)
-    {
-        aiString path;
-        mat->GetTexture(aiTextureType_AMBIENT, i, &path);
-        TextureParameters parameters;
-        material.ambientTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
-    }
-
-    for (uint32 i = 0; i < mat->GetTextureCount(aiTextureType_DISPLACEMENT); ++i)
-    {
-        aiString path;
-        mat->GetTexture(aiTextureType_DISPLACEMENT, i, &path);
-        TextureParameters parameters;
-        material.displacementTexture = textureLoader_.LoadTexture(getTexturePath(path.C_Str()), parameters);
-    }
+    material.diffuseTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_DIFFUSE);
+    material.normalTexture  = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_HEIGHT);
+    // material.normalTexture  = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_NORMALS);
+    material.specularTexture     = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_SPECULAR);
+    material.ambientTexture      = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_AMBIENT);
+    material.displacementTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_DISPLACEMENT);
 
     return material;
-}
-
-std::string AssimpLoader::getTexturePath(const std::string& path) const
-{
-    if (std::filesystem::exists(path))
-        return path;
-
-    if (not currentProcessingFile_)
-        return path;
-
-    if (std::filesystem::exists(path))
-        return path;
-
-    LOG_DEBUG << "Texture not found : " << path
-              << ". Searching recursively in model based directory : " << currentProcessingFile_->GetAbsolutePath().parent_path();
-
-    return Utils::FindFile(File(path).GetFilename(), currentProcessingFile_->GetAbsolutePath().parent_path()).string();
 }
 
 Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAnim)
