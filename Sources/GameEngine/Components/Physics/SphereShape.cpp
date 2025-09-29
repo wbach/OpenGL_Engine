@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -19,12 +20,20 @@ SphereShape::SphereShape(ComponentContext& componentContext, GameObject& gameObj
 }
 void SphereShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&SphereShape::OnAwake, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&SphereShape::InitShape, this));
 }
-void SphereShape::OnAwake()
+
+void SphereShape::InitShape()
 {
+    if (collisionShapeId_)
+    {
+        LOG_WARN << "Shape already created. Id = " << collisionShapeId_;
+        return;
+    }
+
     collisionShapeId_ = componentContext_.physicsApi_.CreateSphereColider(
         positionOffset, thisObject_.GetWorldTransform().GetScale(), radius / 2.f);
+    LOG_DEBUG << "Created id = " << collisionShapeId_;
 }
 SphereShape& SphereShape::SetRadius(float r)
 {

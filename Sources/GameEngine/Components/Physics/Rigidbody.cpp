@@ -50,15 +50,36 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
 
 void Rigidbody::CleanUp()
 {
+    if (collisionShape_)
+    {
+        collisionShape_->Disconnect();
+        collisionShape_->RemoveShape();
+        collisionShape_ = nullptr;
+    }
+
+    RemoveRigidbody();
+}
+
+void Rigidbody::Reload()
+{
+    RemoveRigidbody();
+    CreateRigidbody();
+}
+
+void Rigidbody::RemoveRigidbody()
+{
+    LOG_DEBUG << thisObject_.GetName();
+
     if (worldTransformSubscriptionId_)
     {
         thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSubscriptionId_);
+        worldTransformSubscriptionId_.reset();
     }
 
     if (rigidBodyId_)
     {
         componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
-        rigidBodyId_ = std::nullopt;
+        rigidBodyId_.reset();
     }
 }
 
@@ -67,17 +88,8 @@ void Rigidbody::ReqisterFunctions()
     RegisterFunction(FunctionType::LateAwake, std::bind(&Rigidbody::Init, this));
 }
 
-void Rigidbody::Init()
+void Rigidbody::CreateRigidbody()
 {
-    LOG_DEBUG << thisObject_.GetName();
-    collisionShape_ = GetCollisionShape();
-
-    if (not collisionShape_)
-    {
-        LOG_ERROR << "Can not create Rigidbody without shape.";
-        return;
-    }
-
     auto maybeShapeId = collisionShape_->GetCollisionShapeId();
 
     if (not maybeShapeId)
@@ -115,6 +127,21 @@ void Rigidbody::Init()
     }
 
     LOG_DEBUG << "[" << thisObject_.GetName() << "] Rigidbody created. Id : " << rigidBodyId_ << " isStatic = " << isStaticObject;
+}
+
+void Rigidbody::Init()
+{
+    LOG_DEBUG << thisObject_.GetName();
+    collisionShape_ = GetCollisionShape();
+
+    if (not collisionShape_)
+    {
+        LOG_ERROR << "Can not create Rigidbody without shape.";
+        return;
+    }
+
+    CreateRigidbody();
+    collisionShape_->Connect(*this);
 }
 bool Rigidbody::IsReady() const
 {

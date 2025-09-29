@@ -27,9 +27,9 @@ CapsuleShape::CapsuleShape(ComponentContext& componentContext, GameObject& gameO
 }
 void CapsuleShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&CapsuleShape::OnAwake, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&CapsuleShape::InitShape, this));
 }
-void CapsuleShape::OnAwake()
+void CapsuleShape::InitShape()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCapsuleColider(
         positionOffset, thisObject_.GetWorldTransform().GetScale(), radius, height);

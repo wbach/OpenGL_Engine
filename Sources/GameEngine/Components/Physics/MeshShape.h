@@ -34,7 +34,7 @@ public:
     MeshShape(ComponentContext& componentContext, GameObject& gameObject);
     void CleanUp() override;
     void ReqisterFunctions() override;
-    void OnAwake();
+    void InitShape() override;
     void setScale(const vec3&) override;
 
 public:

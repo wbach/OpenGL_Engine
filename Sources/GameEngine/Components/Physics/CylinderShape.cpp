@@ -19,9 +19,9 @@ CylinderShape::CylinderShape(ComponentContext& componentContext, GameObject& gam
 }
 void CylinderShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&CylinderShape::OnAwake, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&CylinderShape::InitShape, this));
 }
-void CylinderShape::OnAwake()
+void CylinderShape::InitShape()
 {
     collisionShapeId_ = componentContext_.physicsApi_.CreateCylinderColider(
         positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);

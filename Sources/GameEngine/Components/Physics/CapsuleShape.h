@@ -23,7 +23,7 @@ public:
 public:
     CapsuleShape(ComponentContext& componentContext, GameObject& gameObject);
     void ReqisterFunctions() override;
-    void OnAwake();
+    void InitShape() override;
 
 public:
     CapsuleShape& SetHeight(float h);

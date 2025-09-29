@@ -10,6 +10,7 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "Container.h"
 #include "Converter.h"
+#include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "MeshShape.h"
@@ -55,7 +56,7 @@ BulletAdapter::BulletAdapter()
 }
 BulletAdapter::~BulletAdapter()
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
     impl_->rigidbodies.foreach ([&](auto, auto& body) { btDynamicWorld->removeRigidBody(body.btRigidbody_.get()); });
     impl_->rigidbodies.clear();
 }
@@ -365,7 +366,6 @@ RigidbodyId BulletAdapter::CreateRigidbody(const ShapeId& shapeId, GameObject& g
     Rigidbody body{std::make_unique<btRigidBody>(cInfo), gameObject, shape.positionOffset_, isUpdating, *shapeId};
     body.btRigidbody_->setCollisionFlags(flags);
     body.btRigidbody_->setFriction(1);
-    body.shapeOwner = true;
     std::lock_guard<std::mutex> lk(dynamicWorldMutex);
     btDynamicWorld->addRigidBody(body.btRigidbody_.get());
     btDynamicWorld->updateSingleAabb(body.btRigidbody_.get());
@@ -441,7 +441,7 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 {
     if (not rigidBodyId)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Ivalid rigidbody");
+        LOG_ERROR << "Ivalid rigidbody: " << rigidBodyId;
         return;
     }
 
@@ -460,7 +460,7 @@ void BulletAdapter::RemoveRigidBodyImpl(const RigidbodyId& rigidBodyId)
 
     if (auto rigidBody = impl_->rigidbodies.get(*rigidBodyId))
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("removeRigidBody : " + std::to_string(rigidBodyId));
+        LOG_DEBUG << "removeRigidBody : " << rigidBodyId;
         clearRigidbody(*rigidBody);
     }
     impl_->rigidbodies.erase(*rigidBodyId);
@@ -474,20 +474,17 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
 {
     if (not shapeId)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Ivalid shapeId");
+        LOG_ERROR << "Ivalid shapeId: " << shapeId;
         return;
     }
 
-    std::unordered_map<uint32, Rigidbody>::iterator iter;
+    if (impl_->rigidbodies.get([&shapeId](const auto& pair) -> bool
+                               { return shapeId.value() == pair.second.shapeId; }) != nullptr)
+    {
+        LOG_WARN << "Shape removal without deleting rigidbody!";
+    }
 
-    impl_->rigidbodies.foreach (
-        [shapeId](auto, auto& rigidbody)
-        {
-            if (rigidbody.shapeId == shapeId)
-            {
-                rigidbody.shapeOwner = false;
-            }
-        });
+    std::unordered_map<uint32, Rigidbody>::iterator iter;
     impl_->shapes_.erase(*shapeId);
 }
 void BulletAdapter::SetRotation(const RigidbodyId& rigidBodyId, const vec3& rotation)
@@ -687,11 +684,6 @@ void BulletAdapter::createWorld()
 void BulletAdapter::clearRigidbody(const Rigidbody& rigidbody)
 {
     btDynamicWorld->removeRigidBody(rigidbody.btRigidbody_.get());
-
-    if (rigidbody.shapeOwner)
-    {
-        impl_->shapes_.erase(rigidbody.shapeId);
-    }
 }
 
 IdType BulletAdapter::addTask(Task::Action action, std::optional<IdType> reusedId)

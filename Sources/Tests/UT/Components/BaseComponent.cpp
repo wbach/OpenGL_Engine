@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Engine/EngineContext.h"
+#include "Logger/Log.h"
 #include "Objects/GameObject.h"
 #include "Scene/Scene.hpp"
 #include <GameEngine/Renderers/RendererFactory.h>
@@ -32,4 +33,5 @@ BaseComponentTestSchould::BaseComponentTestSchould()
 
 BaseComponentTestSchould::~BaseComponentTestSchould()
 {
+    LOG_DEBUG << "";
 }

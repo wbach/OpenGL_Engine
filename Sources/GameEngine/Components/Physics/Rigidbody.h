@@ -41,6 +41,9 @@ public:
 
     void CleanUp() override;
     void ReqisterFunctions() override;
+    void CreateRigidbody();
+    void RemoveRigidbody();
+    void Reload() override;
 
 public:
     bool IsReady() const;

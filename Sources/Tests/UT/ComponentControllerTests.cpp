@@ -30,6 +30,9 @@ struct Component : public IComponent
     void CleanUp() override
     {
     }
+    void Reload() override
+    {
+    }
     void ReqisterFunctions() override
     {
     }

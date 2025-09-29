@@ -60,11 +60,14 @@ CharacterControllerTests::CharacterControllerTests()
     sut_.Init();
     gpuResourceLoader_.RuntimeGpuTasks();
 }
-
-void CharacterControllerTests::SetUp()
+CharacterControllerTests::~CharacterControllerTests()
 {
     EXPECT_CALL(physicsApiMock_, RemoveShape(shapeId));
     EXPECT_CALL(physicsApiMock_, RemoveRigidBody(rigidbodyid));
+    LOG_DEBUG << "";
+}
+void CharacterControllerTests::SetUp()
+{
     EXPECT_CALL(inputManagerMock_, CalcualteMouseMove()).WillRepeatedly(Return(vec2i{0, 0}));
 
     Update(ADVANCED_TIME_TRANSITION_TIME);  // To set first anim

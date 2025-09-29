@@ -5,8 +5,8 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include "ComponentType.h"
 
+#include "ComponentType.h"
 #include "FunctionType.h"
 
 class TreeNode;
@@ -61,6 +61,7 @@ class IComponent
 public:
     virtual ~IComponent()                                                     = default;
     virtual void CleanUp()                                                    = 0;
+    virtual void Reload()                                                     = 0;
     virtual void ReqisterFunctions()                                          = 0;
     virtual bool IsActive() const                                             = 0;
     virtual void Activate()                                                   = 0;

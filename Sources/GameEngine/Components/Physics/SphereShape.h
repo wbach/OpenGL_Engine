@@ -20,7 +20,7 @@ public:
 public:
     SphereShape(ComponentContext& componentContext, GameObject& gameObject);
     void ReqisterFunctions() override;
-    void OnAwake();
+    void InitShape() override;
 
 public:
     SphereShape& SetRadius(float size);

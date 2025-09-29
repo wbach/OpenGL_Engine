@@ -16,18 +16,17 @@ using namespace GameEngine;
 using namespace GameEngine::Components;
 using namespace ::testing;
 
-namespace
-{
-const int DUMMY_FRAMES                    = 4;
-const float DUMMY_FRAME_TIME_DELTA        = 0.25f;
-const float DUMMY_CLIP_LENGTH             = DUMMY_FRAME_TIME_DELTA * static_cast<float>(DUMMY_FRAMES);
-const float ADVANCED_TIME_TRANSITION_TIME = DEFAULT_ANIMATION_TRANSITION_TIME + 0.1f;
-const float ADVANCED_TIME_CLIP_TIME       = DUMMY_CLIP_LENGTH + 0.1f;
-}  // namespace
+inline const int DUMMY_FRAMES                    = 4;
+inline const float DUMMY_FRAME_TIME_DELTA        = 0.25f;
+inline const float DUMMY_CLIP_LENGTH             = DUMMY_FRAME_TIME_DELTA * static_cast<float>(DUMMY_FRAMES);
+inline const float ADVANCED_TIME_TRANSITION_TIME = DEFAULT_ANIMATION_TRANSITION_TIME + 0.1f;
+inline const float ADVANCED_TIME_CLIP_TIME       = DUMMY_CLIP_LENGTH + 0.1f;
 
 struct CharacterControllerTests : public BaseComponentTestSchould
 {
     CharacterControllerTests();
+    ~CharacterControllerTests();
+
     virtual void SetUp() override;
     virtual void TearDown() override;
     void createDummySkeleton();
@@ -41,8 +40,6 @@ struct CharacterControllerTests : public BaseComponentTestSchould
     void handleEvent(const Event& event)
     {
         sut_.handleEvent(event);
-        // sut_.pushEventToQueue(event);
-        // Update(0);
     }
 
     template <typename Event>

@@ -21,7 +21,7 @@ public:
 public:
     CylinderShape(ComponentContext&, GameObject&);
     void ReqisterFunctions() override;
-    void OnAwake();
+    void InitShape() override;
 
 public:
     CylinderShape& SetSize(const vec3&);

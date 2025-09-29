@@ -31,7 +31,7 @@ public:
     }
 
 private:
-    void OnAwake();
+    void InitShape() override;
 
 public:
     static void registerReadFunctions();

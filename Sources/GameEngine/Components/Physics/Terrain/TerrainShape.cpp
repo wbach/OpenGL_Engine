@@ -62,9 +62,9 @@ void TerrainShape::CleanUp()
 }
 void TerrainShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&TerrainShape::OnAwake, this), MakeDependencies<TerrainRendererComponent>());
+    RegisterFunction(FunctionType::Awake, std::bind(&TerrainShape::InitShape, this), MakeDependencies<TerrainRendererComponent>());
 }
-void TerrainShape::OnAwake()
+void TerrainShape::InitShape()
 {
     LoadHeightMapIfSet();
     create();

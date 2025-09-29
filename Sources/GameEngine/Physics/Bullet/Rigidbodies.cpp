@@ -41,7 +41,7 @@ void Rigidbodies::erase(IdType rigidbodyId)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Rigidbody not found id=" + std::to_string(rigidbodyId));
+        LOG_WARN << "Rigidbody not found id=" << rigidbodyId;
     }
 }
 std::optional<Rigidbodies::IsStatic> Rigidbodies::isStatic(IdType rigidbodyId) const
@@ -58,7 +58,7 @@ Rigidbody* Rigidbodies::get(const RigidbodyId& rigidbodyId)
 {
     if (not rigidbodyId)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Ivalid rigidbody");
+        LOG_WARN << "Invalid rigidbody: " << rigidbodyId;
         return nullptr;
     }
 
@@ -74,9 +74,29 @@ Rigidbody* Rigidbodies::get(const RigidbodyId& rigidbodyId)
         return maybeRigidBody;
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Rigidbody not found " + std::to_string(*rigidbodyId));
+    LOG_WARN << "Rigidbody not found " << rigidbodyId;
     return nullptr;
 }
+
+Rigidbody* Rigidbodies::get(std::function<bool(const std::pair<const IdType, Rigidbody>&)> predicate)
+{
+    auto maybeRigidBody = dynamic_.get(predicate);
+
+    if (maybeRigidBody)
+    {
+        return &maybeRigidBody->second;
+    }
+
+    maybeRigidBody = static_.get(predicate);
+    if (maybeRigidBody)
+    {
+        return &maybeRigidBody->second;
+    }
+
+    LOG_WARN << "Rigidbody not found with predicate.";
+    return nullptr;
+}
+
 RigidbodyId Rigidbodies::insert(Rigidbody newBody, Rigidbodies::IsStatic isStatic)
 {
     auto btRigidbody = newBody.btRigidbody_.get();

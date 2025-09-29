@@ -38,9 +38,9 @@ void MeshShape::CleanUp()
 }
 void MeshShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&MeshShape::OnAwake, this), MakeDependencies<RendererComponent>());
+    RegisterFunction(FunctionType::Awake, std::bind(&MeshShape::InitShape, this), MakeDependencies<RendererComponent>());
 }
-void MeshShape::OnAwake()
+void MeshShape::InitShape()
 {
     if (not model_)
     {

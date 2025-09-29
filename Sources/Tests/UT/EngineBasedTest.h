@@ -18,7 +18,7 @@
 #include "Tests/Mocks/Api/WindowApiMock.hpp"
 #include "Tests/Mocks/Renderers/RendererFactoryMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
-#include "Tests/Mocks/Resources/ResourcesManagerMock.h"
+#include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/TextureLoaderMock.h"
 
 using namespace GameEngine;
@@ -43,7 +43,7 @@ public:
     GraphicsApiMock* graphicsApi;
     GraphicsApi::WindowApiMock windowApiMock;
     RendererFactoryMock* rendererFactory;
-    //ResourceManagerMock* resourceManager;
+    PhysicsApiMock* physicsApi;
     LoaderMock* modelLoaderMock;
     TextureLoaderMock* textureLoader;
     Scene* scene;

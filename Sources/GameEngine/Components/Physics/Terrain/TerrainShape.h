@@ -41,7 +41,7 @@ public:
     std::optional<float> GetHeightOfTerrain(const vec3&) const;
 
 private:
-    void OnAwake();
+    void InitShape() override;
     void LoadHeightMapIfSet();
     void create();
 

@@ -1,6 +1,7 @@
 #include "CollisionShape.h"
 
 #include <Logger/Log.h>
+#include <optional>
 
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -12,8 +13,9 @@ namespace Components
 {
 CollisionShape::CollisionShape(const ComponentType& componentType, ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(componentType, componentContext, gameObject)
-    , collisionShapeId_(0)
+    , collisionShapeId_(std::nullopt)
     , positionOffset(0.f)
+    , connectedRigidbody{nullptr}
 {
 }
 void CollisionShape::setScale(const vec3& scale)
@@ -27,11 +29,43 @@ const Physics::ShapeId& CollisionShape::GetCollisionShapeId() const
 }
 void CollisionShape::CleanUp()
 {
+    if (connectedRigidbody)
+    {
+        connectedRigidbody->CleanUp();
+    }
+    else
+    {
+        RemoveShape();
+    }
+}
+
+void CollisionShape::RemoveShape()
+{
     if (collisionShapeId_)
     {
         componentContext_.physicsApi_.RemoveShape(*collisionShapeId_);
-        collisionShapeId_ = std::nullopt;
+        collisionShapeId_.reset();
     }
+}
+
+void CollisionShape::Reload()
+{
+    if (connectedRigidbody)
+    {
+        connectedRigidbody->RemoveRigidbody();
+        RemoveShape();
+        InitShape();
+        connectedRigidbody->CreateRigidbody();
+    }
+}
+void CollisionShape::Connect(Rigidbody& rigidbody)
+{
+    connectedRigidbody = &rigidbody;
+}
+
+void CollisionShape::Disconnect()
+{
+    connectedRigidbody = nullptr;
 }
 void CollisionShape::SetPostionOffset(const vec3& position)
 {

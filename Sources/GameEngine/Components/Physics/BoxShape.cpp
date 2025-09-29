@@ -19,9 +19,9 @@ BoxShape::BoxShape(ComponentContext& componentContext, GameObject& gameObject)
 }
 void BoxShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&BoxShape::OnAwake, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&BoxShape::InitShape, this));
 }
-void BoxShape::OnAwake()
+void BoxShape::InitShape()
 {
     collisionShapeId_ =
         componentContext_.physicsApi_.CreateBoxColider(positionOffset, thisObject_.GetWorldTransform().GetScale(), size / 2.f);
