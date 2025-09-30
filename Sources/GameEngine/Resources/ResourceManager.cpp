@@ -3,6 +3,8 @@
 #include <Logger/Log.h>
 
 #include "IGpuResourceLoader.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
+
 namespace GameEngine
 {
 ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,

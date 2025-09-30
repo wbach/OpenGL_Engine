@@ -7,6 +7,8 @@
 
 namespace GameEngine
 {
+class Texture;
+
 namespace Components
 {
 class WaterRendererComponent : public BaseComponent

@@ -1,18 +1,17 @@
 #pragma once
+#include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Engine/ConfigurationReader.h>
+#include <GameEngine/Engine/ConfigurationWriter.h>
 #include <GameEngine/Scene/SceneUtils.h>
+#include <Utils/Json/JsonReader.h>
 #include <Utils/Json/JsonWriter.h>
+#include <Utils/TreeNode.h>
 #include <wx/config.h>
 
 #include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include <GameEngine/Engine/Configuration.h>
-#include <GameEngine/Engine/ConfigurationReader.h>
-#include <GameEngine/Engine/ConfigurationWriter.h>
-#include <Utils/Json/JsonReader.h>
-#include <Utils/TreeNode.h>
 
 class ProjectManager
 {
@@ -158,6 +157,11 @@ public:
     const std::string& GetScenesDir() const
     {
         return projectScenesDirPath;
+    }
+
+    const std::string& GetDataDir() const
+    {
+        return projectDataDirPath;
     }
 
     const std::string& GetEngineIncludesDir() const

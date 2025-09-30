@@ -8,6 +8,7 @@
 
 #include "BoundingBox.h"
 #include "GameEngine/Animations/Joint.h"
+#include "GameEngine/Resources/GpuObject.h"
 #include "Material.h"
 
 namespace GameEngine
@@ -16,8 +17,8 @@ class Mesh : public GpuObject
 {
 public:
     Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
-    Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&,
-         const mat4& = mat4(1.f), const vec3& = vec3(1.f));
+    Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&, const mat4& = mat4(1.f),
+         const vec3& = vec3(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&) noexcept;
     Mesh& operator=(Mesh&&) noexcept;
@@ -65,7 +66,7 @@ const mat4& Mesh::GetMeshTransform() const
     return transform_;
 }
 
-const vec3 &Mesh::GetNormalizedScale() const
+const vec3& Mesh::GetNormalizedScale() const
 {
     return normalizedScale_;
 }

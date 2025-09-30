@@ -33,6 +33,7 @@
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel.h"
+#include "Resources/Models/Material.h"
 #include "Theme.h"
 #include "TransformPanel.h"
 #include "magic_enum/magic_enum.hpp"
@@ -116,6 +117,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
     EVT_MENU(ID_MENU_EDIT_CREATE_OBJECT, MainFrame::MenuEditCreateObject)
     EVT_MENU(ID_MENU_EDIT_CREATE_TERRAIN, MainFrame::MenuEditCreateTerrain)
+    EVT_MENU(ID_MENU_EDIT_CREATE_MATERIAL, MainFrame::MenuEditCreateMaterial)
     EVT_MENU(ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER, MainFrame::MenuEditTerrainHeightPainter)
     EVT_MENU(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, MainFrame::MenuEditTerrainTexturePainter)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
@@ -557,6 +559,18 @@ void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
 {
 }
 
+void MainFrame::MenuEditCreateMaterial(wxCommandEvent&)
+{
+    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetDataDir(), "",
+                            "Pliki materialow (*.json)|*.json", wxFD_SAVE);
+
+    if (fileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString path = fileDialog.GetPath();
+    GameEngine::SaveMaterial(GameEngine::Material{}, path.ToStdString());
+}
+
 GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
 {
     auto& engineContext = canvas->GetEngine().GetEngineContext();
@@ -830,6 +844,7 @@ wxMenu* MainFrame::CreateEditMenu()
     wxMenu* menu = new wxMenu;
     menu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&Create new object\tCtrl-A", "Create empty new object");
     menu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Create terrain\tCtrl-A", "Create gameobject with terrain components");
+    menu->Append(ID_MENU_EDIT_CREATE_MATERIAL, "&Create material\tCtrl-A", "Create new default material");
     menu->Append(ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER, "&Terrain height painter \tCtrl-A", "Enable height painter tool");
     menu->Append(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, "&Terrain texture painter \tCtrl-A",
                  "Enable terrain texture painter tool");

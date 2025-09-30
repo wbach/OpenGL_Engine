@@ -70,7 +70,6 @@ private:
     void CreateBuffers(Model&);
     void CreatePerObjectUpdateBuffer(const Mesh&);
     void CreatePerObjectConstantsBuffer(const Mesh&);
-    Material readMaterialFromFile(const File&) const;
 
 private:
     ModelWrapper model_;

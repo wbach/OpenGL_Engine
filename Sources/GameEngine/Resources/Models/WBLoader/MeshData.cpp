@@ -1,8 +1,11 @@
 #include "MeshData.h"
+
+#include <GraphicsApi/GraphicsApiDef.h>
+#include <GraphicsApi/MeshRawData.h>
+#include <Logger/Log.h>
+
 #include <algorithm>
 #include <numeric>
-#include "GraphicsApi/MeshRawData.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -73,8 +76,7 @@ void ScaleJoint(Animation::Joint& j, float f)
 
 vec3 GetSmoothTanget(const vec3& perTriangleNormal, const vec3 perTriangleTangent, const vec3& perVertexNormal)
 {
-    if (glm::dot(perTriangleNormal, perVertexNormal) > 0.999999f and
-        glm::dot(perTriangleNormal, perVertexNormal) < -0.999999f)
+    if (glm::dot(perTriangleNormal, perVertexNormal) > 0.999999f and glm::dot(perTriangleNormal, perVertexNormal) < -0.999999f)
     {
         return perTriangleTangent;
     }
@@ -85,7 +87,7 @@ vec3 GetSmoothTanget(const vec3& perTriangleNormal, const vec3 perTriangleTangen
     q.y    = a.y;
     q.z    = a.z;
     q.w    = sqrtf((glm::length(perVertexNormal) * glm::length(perVertexNormal)) *
-                (glm::length(perTriangleNormal) * glm::length(perTriangleNormal))) +
+                   (glm::length(perTriangleNormal) * glm::length(perTriangleNormal))) +
           glm::dot(perTriangleNormal, perVertexNormal);
 
     return glm::normalize(q) * perTriangleTangent;

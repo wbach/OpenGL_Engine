@@ -75,6 +75,7 @@ private:
 
     void MenuEditCreateObject(wxCommandEvent&);
     void MenuEditCreateTerrain(wxCommandEvent&);
+    void MenuEditCreateMaterial(wxCommandEvent&);
     void MenuEditTerrainHeightPainter(wxCommandEvent&);
     void MenuEditTerrainTexturePainter(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);

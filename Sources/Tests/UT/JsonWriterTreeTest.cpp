@@ -70,3 +70,48 @@ TEST_F(JsonWriterReaderTest, TreeNodeRoundTrip)
     ASSERT_TRUE(childCubeNode->attributes_.find("name") != childCubeNode->attributes_.end());
     EXPECT_EQ(childCubeNode->attributes_.at("name"), "KartonChild");
 }
+
+TEST_F(JsonWriterReaderTest, ArrayRoundTrip)
+{
+    const char* jsonInput = R"(
+    {
+        "diffuseColor": [1, 0, 0, 1]
+    })";
+
+    // 2. Parsowanie
+    ASSERT_TRUE(reader_.ReadJson(jsonInput));
+    TreeNode* root = reader_.Get();
+    ASSERT_NE(root, nullptr);
+
+    TreeNode* diffuseColor = reader_.Get("diffuseColor", root);
+    ASSERT_NE(diffuseColor, nullptr);
+
+    // 3. Sprawdzenie elementów tablicy
+    ASSERT_EQ(diffuseColor->getChildren().size(), 4);
+
+    EXPECT_EQ(diffuseColor->getChildren()[0]->value_, "1");
+    EXPECT_EQ(diffuseColor->getChildren()[1]->value_, "0");
+    EXPECT_EQ(diffuseColor->getChildren()[2]->value_, "0");
+    EXPECT_EQ(diffuseColor->getChildren()[3]->value_, "1");
+
+    // 4. Serializacja z powrotem do JSON
+    std::string outJson = Utils::Json::Write(*root);
+    ASSERT_FALSE(outJson.empty());
+    LOG_DEBUG << outJson;
+
+    // 5. Ponowne parsowanie JSON-a wygenerowanego przez Writer
+    Utils::JsonReader newReader;
+    ASSERT_TRUE(newReader.ReadJson(outJson));
+
+    TreeNode* newRoot = newReader.Get();
+    ASSERT_NE(newRoot, nullptr);
+
+    TreeNode* newDiffuseColor = newReader.Get("diffuseColor", newRoot);
+    ASSERT_NE(newDiffuseColor, nullptr);
+
+    ASSERT_EQ(newDiffuseColor->getChildren().size(), 4);
+    EXPECT_EQ(newDiffuseColor->getChildren()[0]->value_, "1");
+    EXPECT_EQ(newDiffuseColor->getChildren()[1]->value_, "0");
+    EXPECT_EQ(newDiffuseColor->getChildren()[2]->value_, "0");
+    EXPECT_EQ(newDiffuseColor->getChildren()[3]->value_, "1");
+}

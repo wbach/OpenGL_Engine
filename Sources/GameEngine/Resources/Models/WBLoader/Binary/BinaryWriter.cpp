@@ -7,6 +7,7 @@
 #include "GameEngine/Animations/KeyFrame.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 #include "Types.h"
 
 namespace GameEngine

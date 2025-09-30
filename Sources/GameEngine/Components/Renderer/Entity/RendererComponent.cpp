@@ -11,8 +11,9 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "Json/JsonReader.h"
 #include "Logger/Log.h"
+#include "TreeNode.h"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -26,6 +27,8 @@ constexpr char MODEL_NORMALIZATION[]   = "modelNormalization";
 constexpr char MESH_OPTIMIZE[]         = "meshOptimize";
 constexpr char MATERIALS[]             = "materials";
 const GraphicsApi::ID defaultId;
+
+
 }  // namespace
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -126,9 +129,7 @@ void RendererComponent::init()
                 }
                 else
                 {
-                    // Update material if custom material file is set
-                    auto material = readMaterialFromFile(iter->file);
-                    mesh.SetMaterial(material);
+                    mesh.SetMaterial(ParseMaterial(iter->file, componentContext_.resourceManager_.GetTextureLoader()));
                 }
             }
 
@@ -161,77 +162,6 @@ void RendererComponent::init()
     //    worldTransformSub_ =
     //        thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { UpdateBuffers(); }); // TO
     //        DO
-}
-
-Material RendererComponent::readMaterialFromFile(const File& file) const
-{
-    if (file.empty())
-        return Material();
-
-    Material material;
-    Utils::JsonReader reader;
-    reader.Read(file.GetAbsolutePath().string());
-
-    if (auto root = reader.Get())
-    {
-        if (auto matNode = reader.Get("diffuseTexture", root))
-        {
-            TextureParameters parameters;
-            material.diffuseTexture =
-                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
-        }
-        if (auto matNode = reader.Get("normalTexture", root))
-        {
-            TextureParameters parameters;
-            material.normalTexture =
-                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
-        }
-        if (auto matNode = reader.Get("specularTexture", root))
-        {
-            TextureParameters parameters;
-            material.specularTexture =
-                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
-        }
-        if (auto matNode = reader.Get("ambientTexture", root))
-        {
-            TextureParameters parameters;
-            material.ambientTexture =
-                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
-        }
-        if (auto matNode = reader.Get("displacementTexture", root))
-        {
-            TextureParameters parameters;
-            material.displacementTexture =
-                componentContext_.resourceManager_.GetTextureLoader().LoadTexture(File(matNode->value_), parameters);
-        }
-        if (auto node = reader.Get("diffuseColor", root))
-        {
-            try
-            {
-                if (auto xnode = reader.Get("x", node))
-                {
-                    material.diffuse.x = std::stof(xnode->value_);
-                }
-                if (auto ynode = reader.Get("y", node))
-                {
-                    material.diffuse.y = std::stof(ynode->value_);
-                }
-                if (auto znode = reader.Get("z", node))
-                {
-                    material.diffuse.z = std::stof(znode->value_);
-                }
-            }
-            catch (...)
-            {
-            }
-        }
-    }
-    else
-    {
-        LOG_ERROR << "Json root node not found in file: " << file;
-    }
-
-    return material;
 }
 
 void RendererComponent::ClearShaderBuffers()

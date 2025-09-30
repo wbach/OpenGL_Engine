@@ -1,4 +1,5 @@
 #include "JsonReader.h"
+#include <string>
 
 #ifdef __GNUC__  // GCC i Clang
 #pragma GCC diagnostic push
@@ -29,7 +30,7 @@ void ParseNode(const rapidjson::Value& value, TreeNode& node)
     {
         for (auto it = value.MemberBegin(); it != value.MemberEnd(); ++it)
         {
-            std::string name = it->name.GetString();
+            std::string name          = it->name.GetString();
             const rapidjson::Value& v = it->value;
 
             if (name == "attributes" && v.IsObject())
@@ -80,7 +81,7 @@ void ParseNode(const rapidjson::Value& value, TreeNode& node)
     {
         for (rapidjson::SizeType i = 0; i < value.Size(); ++i)
         {
-            auto& child = node.addChild("element"); // lub inna nazwa dla elementów tablicy
+            auto& child   = node.addChild(std::to_string(i));
             const auto& v = value[i];
 
             if (v.IsString())
@@ -118,7 +119,7 @@ bool JsonReader::Read(const std::string& filename)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Json read error! filename=" + filename);
+        LOG_ERROR << "Json read error! filename=" << filename;
     }
     return false;
 }
@@ -130,9 +131,8 @@ bool JsonReader::ReadJson(const std::string& fileContent)
 
     if (!ok)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("JSON parse error: " + std::string(GetParseError_En(ok.Code())) + " (offset " + std::to_string(ok.Offset()) +
-                  ")");
-        /* LOG TO FIX*/  LOG_ERROR << (fileContent);
+        LOG_ERROR << "JSON parse error: " << GetParseError_En(ok.Code()) << " (offset " << ok.Offset() << ")";
+        LOG_ERROR << fileContent;
         return false;
     }
 

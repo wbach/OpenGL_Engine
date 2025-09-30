@@ -85,10 +85,10 @@ public:
         std::ofstream file(filename.c_str());
         if (!file.is_open())
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("cannot open file " + filename);
+            LOG_ERROR << "cannot open file " << filename;
             return;
         }
-        /* LOG TO FIX*/  LOG_ERROR << ("Xml save : " + filename);
+        LOG_DEBUG << "Xml save : " << filename;
         file << document_;
         file.close();
     }
@@ -120,7 +120,7 @@ void WroteNodeMembers(const TreeNode& parent, XmlNodeWrapper& node)
     }
 }
 
-void WriteNode(const TreeNode &node, XmlNodeWrapper& nodeWrapper)
+void WriteNode(const TreeNode& node, XmlNodeWrapper& nodeWrapper)
 {
     auto child = nodeWrapper.AddChild(node.name(), node.value_);
     WroteNodeMembers(node, child);
