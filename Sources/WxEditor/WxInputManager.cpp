@@ -102,7 +102,6 @@ KeysMap KeyConverter::keys = KeysMap({
 
 KeyCodes::Type KeyConverter::Convert(uint32 type)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Input: " + std::to_string(type) + " /" + std::to_string(uint32('Z')));
     if (keys.Count(type) <= 0)
         return KeyCodes::Type::None;
 

@@ -19,7 +19,7 @@ struct Rigidbody
     btVector3& positionOffset_;
     bool& isUpdating_;
 
-    uint32 shapeId{0};
+    IdType shapeId{0};
     bool shapeOwner{false};
 };
 }  // namespace Bullet

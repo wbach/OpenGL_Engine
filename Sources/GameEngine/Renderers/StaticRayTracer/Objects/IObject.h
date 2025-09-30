@@ -17,7 +17,7 @@ class IObject
 public:
     virtual ~IObject() = default;
 
-    virtual uint32 getId() const                             = 0;
+    virtual IdType getId() const                             = 0;
     virtual std::optional<float> intersect(const Ray&) const = 0;
     virtual const vec3& getNormal() const                    = 0;
     virtual vec3 getNormal(const vec3&) const                = 0;

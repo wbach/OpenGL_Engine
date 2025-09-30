@@ -96,7 +96,7 @@ void TreeRenderer::RenderModel(const Model& model, const TreeSubscriber& sub) co
     {
         if (mesh.GetGraphicsObjectId())
         {
-            const auto& buffer = mesh.getShaderBufferId();
+            const auto& buffer = mesh.GetMaterialShaderBufferId();
             context_.graphicsApi_.BindShaderBuffer(*buffer);
             RenderMesh(mesh, sub.treeRendererComponent_->GetInstancesSize());
         }

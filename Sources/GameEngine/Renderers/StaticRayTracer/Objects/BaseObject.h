@@ -14,14 +14,14 @@ public:
     ~BaseObject() override;
     const vec3& getNormal() const final override;
     const Material& getMaterial() const override;
-    uint32 getId() const override;
+    IdType getId() const override;
     vec3 getNormal(const vec3& intersectPoint) const override;
 
 protected:
     const common::Transform& transform_;
     const Material& material_;
     vec3 normal_;
-    uint32 id_;
+    IdType id_;
 };
 }  // namespace RayTracer
 }  // namespace GameEngine

@@ -5,8 +5,8 @@
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
-#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -39,7 +39,7 @@ Mesh::Mesh(Mesh&& other) noexcept
     , transform_(std::move(other.transform_))
     , normalizedScale_(std::move(other.normalizedScale_))
     , boundingBox_(std::move(other.boundingBox_))
-    , perMeshObjectBuffer_(other.perMeshObjectBuffer_)
+    , materialShaderBuffer_(other.materialShaderBuffer_)
 {
     LOG_DEBUG << "Mesh moved. Id=" << GetGpuObjectId();
 
@@ -48,7 +48,7 @@ Mesh::Mesh(Mesh&& other) noexcept
     other.transform_           = mat4(1.f);
     other.normalizedScale_     = vec3(1.f);
     other.boundingBox_         = BoundingBox{};
-    other.perMeshObjectBuffer_ = INVALID_ID;
+    other.materialShaderBuffer_ = INVALID_ID;
 }
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept
@@ -63,7 +63,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
         transform_           = std::move(other.transform_);
         normalizedScale_     = std::move(other.normalizedScale_);
         boundingBox_         = std::move(other.boundingBox_);
-        perMeshObjectBuffer_ = other.perMeshObjectBuffer_;
+        materialShaderBuffer_ = other.materialShaderBuffer_;
 
         LOG_DEBUG << "Mesh move-assigned. Id=" << GetGpuObjectId();
 
@@ -71,14 +71,14 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
         other.transform_           = mat4(1.f);
         other.normalizedScale_     = vec3(1.f);
         other.boundingBox_         = BoundingBox{};
-        other.perMeshObjectBuffer_ = INVALID_ID;
+        other.materialShaderBuffer_ = INVALID_ID;
     }
     return *this;
 }
 
 Mesh::~Mesh()
 {
-    if (perMeshObjectBuffer_ != INVALID_ID)
+    if (materialShaderBuffer_ != INVALID_ID)
     {
         LOG_DEBUG << "Mesh destroyed. Id=" << GetGpuObjectId();
         ReleaseGpuPass();
@@ -107,10 +107,10 @@ void Mesh::ReleaseGpuPass()
     }
 
     LOG_DEBUG << " Mesh::DeleteShaderBuffer()";
-    if (perMeshObjectBuffer_)
+    if (materialShaderBuffer_)
     {
-        graphicsApi_.DeleteShaderBuffer(*perMeshObjectBuffer_);
-        perMeshObjectBuffer_ = std::nullopt;
+        graphicsApi_.DeleteShaderBuffer(*materialShaderBuffer_);
+        materialShaderBuffer_ = std::nullopt;
     }
     LOG_DEBUG << " Mesh::ReleaseGpuPass() done";
 }
@@ -158,52 +158,18 @@ void Mesh::SetMaterial(const Material& mat)
 
 void Mesh::CreateBufferObject()
 {
-    perMeshObjectBuffer_ = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
-    if (perMeshObjectBuffer_)
+    materialShaderBuffer_ = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
+    if (materialShaderBuffer_)
     {
-        LOG_DEBUG << "CreateMesh perMeshObjectBuffer_ := " << perMeshObjectBuffer_;
-        PerMeshObject perMeshObject;
-        perMeshObject.ambient         = ToVec4(material_.ambient);
-        perMeshObject.diffuse         = ToVec4(material_.diffuse);
-        perMeshObject.specular        = ToVec4(material_.specular);
-        perMeshObject.shineDamper     = material_.shineDamper;
-        perMeshObject.useFakeLighting = material_.useFakeLighting;
-
-        if (material_.diffuseTexture != nullptr)
-        {
-            perMeshObject.numberOfRows    = material_.diffuseTexture->getNumberOfRows();
-            perMeshObject.haveDiffTexture = 1.f;
-        }
-        else
-        {
-            perMeshObject.numberOfRows    = 1;
-            perMeshObject.haveDiffTexture = 0.f;
-        }
-
-        if (material_.normalTexture != nullptr)
-        {
-            perMeshObject.haveNormalMap = 1.f;
-        }
-        else
-        {
-            perMeshObject.haveNormalMap = 0.f;
-        }
-
-        if (material_.specularTexture != nullptr)
-        {
-            perMeshObject.haveSpecularMap = 1.f;
-        }
-        else
-        {
-            perMeshObject.haveSpecularMap = 0.f;
-        }
-        graphicsApi_.UpdateShaderBuffer(*perMeshObjectBuffer_, &perMeshObject);
+        LOG_DEBUG << "CreateMesh perMeshObjectBuffer_ := " << materialShaderBuffer_;
+        auto perMeshObject = createPerMeshObject(material_);
+        graphicsApi_.UpdateShaderBuffer(*materialShaderBuffer_, &perMeshObject);
     }
 }
 
-const GraphicsApi::ID& Mesh::getShaderBufferId() const
+const GraphicsApi::ID& Mesh::GetMaterialShaderBufferId() const
 {
-    return perMeshObjectBuffer_;
+    return materialShaderBuffer_;
 }
 
 void Mesh::ClearData()

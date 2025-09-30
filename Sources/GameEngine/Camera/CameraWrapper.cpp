@@ -211,7 +211,7 @@ void CameraWrapper::SetPosition(const vec3 &position)
     std::lock_guard<std::mutex> m(cameraMutex);
     Get()->SetPosition(position);
 }
-uint32 CameraWrapper::SubscribeOnChange(std::function<void(const ICamera &)> callback)
+IdType CameraWrapper::SubscribeOnChange(std::function<void(const ICamera &)> callback)
 {
     std::lock_guard<std::mutex> m(cameraMutex);
 
@@ -223,7 +223,7 @@ uint32 CameraWrapper::SubscribeOnChange(std::function<void(const ICamera &)> cal
 
     return wrapperSubId;
 }
-void CameraWrapper::UnsubscribeOnChange(uint32 id)
+void CameraWrapper::UnsubscribeOnChange(IdType id)
 {
     std::lock_guard<std::mutex> m(cameraMutex);
 

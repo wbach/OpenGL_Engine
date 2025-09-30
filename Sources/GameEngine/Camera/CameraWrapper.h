@@ -46,7 +46,7 @@ public:
     void SetPosition(const vec3&);
 
     IdType SubscribeOnChange(std::function<void(const ICamera&)>);
-    void UnsubscribeOnChange(uint32);
+    void UnsubscribeOnChange(IdType);
 
 private:
     void notifySubscribersWhenCameraChange();

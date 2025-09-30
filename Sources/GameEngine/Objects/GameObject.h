@@ -14,6 +14,7 @@
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/SceneEvents.h"
 #include "Rotation.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -151,7 +152,7 @@ inline const GameObjects& GameObject::GetChildren() const
 {
     return children_;
 }
-uint32 GameObject::GetId() const
+IdType GameObject::GetId() const
 {
     return id_;
 }

@@ -1,21 +1,46 @@
 #pragma once
+#include <memory>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "GraphicsApi/GraphicsApiDef.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "Types.h"
 
 namespace GameEngine
 {
 class Mesh;
+class PerMeshObject;
 
 namespace Components
 {
+class CustomMaterialData
+{
+public:
+    CustomMaterialData(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, const Material&);
+    ~CustomMaterialData();
+
+    GraphicsApi::ID GetBufferId() const;
+
+public:
+    Material material;
+
+private:
+    void CreateBufferObject(GraphicsApi::IGraphicsApi&);
+    std::unique_ptr<BufferObject<PerMeshObject>> perMeshBuffer;
+
+    IGpuResourceLoader& loader;
+};
+
 class RendererComponent : public BaseComponent
 {
 public:
@@ -59,6 +84,7 @@ public:
     const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint64 meshId) const;
     const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint64 meshId) const;
     std::unordered_map<LevelOfDetail, File> GetFiles() const;
+    const std::unordered_map<IdType, CustomMaterialData>& GetCustomMaterials() const;
 
 private:
     void init();
@@ -76,8 +102,10 @@ private:
     bool isSubscribed_;
     LoadingParameters loadingParameters_;
     std::optional<uint32> worldTransformSub_;
-    std::unordered_map<uint64, std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
-    std::unordered_map<uint64, std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
+    std::unordered_map<IdType, std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    std::unordered_map<IdType, std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
+
+    std::unordered_map<IdType, CustomMaterialData> customMaterials;
 
 public:
     static void registerReadFunctions();

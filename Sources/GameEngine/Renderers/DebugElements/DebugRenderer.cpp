@@ -436,7 +436,7 @@ void DebugRenderer::RenderModel(const Model& model) const
 
 void DebugRenderer::BindMeshBuffers(const Mesh& mesh) const
 {
-    const auto& perMeshObjectBuffer = mesh.getShaderBufferId();
+    const auto& perMeshObjectBuffer = mesh.GetMaterialShaderBufferId();
     if (perMeshObjectBuffer)
     {
         rendererContext_.graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);

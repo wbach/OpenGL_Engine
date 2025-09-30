@@ -15,6 +15,6 @@ public:
     virtual void GpuLoadingPass()                              = 0;
     virtual const GraphicsApi::ID& GetGraphicsObjectId() const = 0;
     virtual void ReleaseGpuPass()                              = 0;
-    virtual uint64 GetGpuObjectId() const                      = 0;
+    virtual IdType GetGpuObjectId() const                      = 0;
 };
 }  // namespace GameEngine

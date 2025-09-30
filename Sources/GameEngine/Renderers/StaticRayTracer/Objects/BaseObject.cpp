@@ -29,7 +29,7 @@ const Material& BaseObject::getMaterial() const
 {
     return material_;
 }
-uint32 BaseObject::getId() const
+IdType BaseObject::getId() const
 {
     return id_;
 }

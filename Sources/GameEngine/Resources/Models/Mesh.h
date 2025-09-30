@@ -28,7 +28,7 @@ public:
     void ReleaseGpuPass() override;
 
     void SetMaterial(const Material& material);
-    const GraphicsApi::ID& getShaderBufferId() const;
+    const GraphicsApi::ID& GetMaterialShaderBufferId() const;
 
     void SetTransformMatrix(const mat4& m);
     bool UseArmature() const;
@@ -58,7 +58,7 @@ private:
     mat4 transform_;
     vec3 normalizedScale_;
     BoundingBox boundingBox_;
-    GraphicsApi::ID perMeshObjectBuffer_;
+    GraphicsApi::ID materialShaderBuffer_;
 };
 
 const mat4& Mesh::GetMeshTransform() const

@@ -3,6 +3,8 @@
 
 namespace GameEngine
 {
+class Material;
+
 struct PerMeshObject
 {
     AlignWrapper<vec4> ambient;
@@ -15,4 +17,6 @@ struct PerMeshObject
     AlignWrapper<float> shineDamper;
     AlignWrapper<float> useFakeLighting;
 };
+
+PerMeshObject createPerMeshObject(const Material&);
 }  // namespace GameEngine

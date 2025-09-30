@@ -3,6 +3,7 @@
 
 #include <Mutex.hpp>
 #include <unordered_map>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerInstances.h"
@@ -61,10 +62,11 @@ private:
     GroupedEntities groupEntities() const;
 
     void renderModel(const EntitySubscriber&, const Model&);
-    void renderMesh(const Mesh&);
+    void renderMesh(const Mesh&,const Material&);
     void bindMaterial(const Material&) const;
     void unBindMaterial(const Material&) const;
     void bindMaterialTexture(uint32, Texture*, bool) const;
+    const std::pair<GraphicsApi::ID, const Material*> getMaterial(const EntitySubscriber&, const Mesh&);
 
 private:
     RendererContext& context_;

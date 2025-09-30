@@ -1,6 +1,7 @@
 #include "RendererComponent.hpp"
 
 #include <algorithm>
+#include <memory>
 #include <optional>
 
 #include "GameEngine/Components/CommonReadDef.h"
@@ -10,6 +11,7 @@
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Logger/Log.h"
 #include "TreeNode.h"
@@ -30,6 +32,32 @@ const GraphicsApi::ID defaultId;
 
 }  // namespace
 
+CustomMaterialData::CustomMaterialData(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& loader,
+                                       const Material& material)
+    : material{material}
+    , loader{loader}
+{
+    CreateBufferObject(graphicsApi);
+}
+
+CustomMaterialData::~CustomMaterialData()
+{
+    loader.AddObjectToRelease(std::move(perMeshBuffer));
+}
+
+void CustomMaterialData::CreateBufferObject(GraphicsApi::IGraphicsApi& graphicsApi)
+{
+    perMeshBuffer =
+        std::make_unique<BufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi, PER_MESH_OBJECT_BIND_LOCATION);
+    LOG_DEBUG << "Create custom material " << material.name;
+    loader.AddObjectToGpuLoadingPass(*perMeshBuffer);
+}
+
+GraphicsApi::ID CustomMaterialData::GetBufferId() const
+{
+    return perMeshBuffer->GetGraphicsObjectId();
+}
+
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<RendererComponent>(), componentContext, gameObject)
     , textureIndex(0)
@@ -43,6 +71,8 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
 void RendererComponent::CleanUp()
 {
     UnSubscribe();
+
+    customMaterials.clear();
 
     for (auto model : model_.PopModels())
     {
@@ -119,13 +149,18 @@ void RendererComponent::init()
             {
                 LOG_DEBUG << "mesh bufferId=" << mesh.GetGpuObjectId();
 
+                LOG_DEBUG << File("default").GetAbsolutePath();
+
                 if (auto iter = materials.find(mesh.GetMaterial().name); iter == materials.end())
                 {
                     materials.insert({mesh.GetMaterial().name, {}});
                 }
-                else
+                else if (not iter->second.empty() and Utils::toLower(iter->second.GetAbsolutePath()) != "default")
                 {
-                    mesh.SetMaterial(ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
+                    LOG_DEBUG << Utils::toLower(iter->second.GetAbsolutePath());
+                    customMaterials.try_emplace(
+                        mesh.GetGpuObjectId(), componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_,
+                        ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
                 }
             }
 
@@ -307,6 +342,11 @@ void RendererComponent::useArmature(bool value)
             }
         }
     }
+}
+
+const std::unordered_map<IdType, CustomMaterialData>& RendererComponent::GetCustomMaterials() const
+{
+    return customMaterials;
 }
 
 std::unordered_map<LevelOfDetail, File> RendererComponent::GetFiles() const

@@ -187,7 +187,7 @@ void Scene::ChangeName(const std::string& name)
     this->name = name;
 }
 
-std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<uint32>& maybeId)
+std::unique_ptr<GameObject> Scene::CreateGameObject(const std::optional<IdType>& maybeId)
 {
     return CreateGameObject("gameObject", maybeId);
 }
@@ -197,12 +197,12 @@ std::unique_ptr<GameObject> Scene::CreateGameObject(const std::string& name, con
     return std::make_unique<GameObject>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
-std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<uint32>& maybeId)
+std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<IdType>& maybeId)
 {
     return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }
 
-std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<uint32>& maybeId)
+std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
     return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
 }

@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "Logger/Log.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -69,7 +70,7 @@ void ComponentController::UnRegisterComponent(ComponentTypeID type, ComponentId 
         LOG_WARN << "ComponentsType not found.";
     }
 }
-void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type, uint32 id)
+void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type, IdType id)
 {
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())

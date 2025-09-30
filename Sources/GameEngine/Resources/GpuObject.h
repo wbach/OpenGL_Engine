@@ -18,7 +18,7 @@ public:
     void GpuLoadingPass() override = 0;
     void UpdateGpuPass() override;
     void ReleaseGpuPass() override = 0;
-    uint64 GetGpuObjectId() const override;
+    IdType GetGpuObjectId() const override;
     const GraphicsApi::ID& GetGraphicsObjectId() const override;
 
 protected:

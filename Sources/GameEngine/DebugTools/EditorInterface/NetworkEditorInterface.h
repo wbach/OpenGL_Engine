@@ -13,6 +13,7 @@
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/Renderers/DebugElements/DebugRenderer.h"
 #include "IEditorInterface.hpp"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -132,7 +133,7 @@ private:
 private:
     void setParamIfExitst(const EntryParameters&, const std::string&, bool&);
     void setParamIfExitst(const EntryParameters&, const std::string&, int&);
-    void setParamIfExitst(const EntryParameters&, const std::string&, uint32&);
+    void setParamIfExitst(const EntryParameters&, const std::string&, IdType&);
     void setParamIfExitst(const EntryParameters&, const std::string&, float&);
     void setParamIfExitst(const EntryParameters&, const std::string&, double&);
 

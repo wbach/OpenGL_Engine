@@ -55,6 +55,7 @@
 #include "Messages/TerrainPainterEnabled.h"
 #include "Messages/Transform.h"
 #include "Messages/XmlMessageConverter.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -1011,6 +1012,8 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
                 break;
             case GameEngine::Components::FieldType::ConstVectorOfTextures:
                 break;
+            case GameEngine::Components::FieldType::ConstMapOfMaterials:
+                break;
         }
         DebugNetworkInterface::Param param(std::string(field.name), value, std::string(magic_enum::enum_name(field.type)));
         componentParams.push_back(param);
@@ -1229,7 +1232,7 @@ void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, con
     }
 }
 
-void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, uint32 &value)
+void NetworkEditorInterface::setParamIfExitst(const EntryParameters &params, const std::string &name, IdType &value)
 {
     auto iter = params.find(name);
     if (iter != params.end())
@@ -1536,6 +1539,8 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
                     case GameEngine::Components::FieldType::VectorOfAnimationClips:
                         break;
                     case GameEngine::Components::FieldType::ConstVectorOfTextures:
+                        break;
+                    case GameEngine::Components::FieldType::ConstMapOfMaterials:
                         break;
                 }
             }

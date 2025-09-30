@@ -73,10 +73,10 @@ public:
     inline void RegisterParticleEmitFunction(const std::string& name, EmitFunction f);
     inline std::optional<EmitFunction> GetParticleEmitFunction(const std::string& name) const;
 
-    std::unique_ptr<GameObject> CreateGameObject(const std::optional<uint32>& = std::nullopt);
-    std::unique_ptr<GameObject> CreateGameObject(const std::string&, const std::optional<uint32>& = std::nullopt);
-    std::unique_ptr<Prefab> CreatePrefabGameObject(const std::optional<uint32>& = std::nullopt);
-    std::unique_ptr<Prefab> CreatePrefabGameObject(const std::string&, const std::optional<uint32>& = std::nullopt);
+    std::unique_ptr<GameObject> CreateGameObject(const std::optional<IdType>& = std::nullopt);
+    std::unique_ptr<GameObject> CreateGameObject(const std::string&, const std::optional<IdType>& = std::nullopt);
+    std::unique_ptr<Prefab> CreatePrefabGameObject(const std::optional<IdType>& = std::nullopt);
+    std::unique_ptr<Prefab> CreatePrefabGameObject(const std::string&, const std::optional<IdType>& = std::nullopt);
 
     void SetDirectionalLightColor(const vec3& color);
     Light& AddLight(const Light& light);

@@ -9,6 +9,7 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -35,23 +36,23 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
 
-        for (const auto& sub : subscribes_)
-        {
-            // TO DO : fix
-            // const auto& objectTransform = sub.gameObject->GetWorldTransform();
-            // auto radius                 = glm::compMax(objectTransform.GetScale());
-            // auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(),
-            // radius);
+    for (const auto& sub : subscribes_)
+    {
+        // TO DO : fix
+        // const auto& objectTransform = sub.gameObject->GetWorldTransform();
+        // auto radius                 = glm::compMax(objectTransform.GetScale());
+        // auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(),
+        // radius);
 
-            // if (isVisible )
+        // if (isVisible )
+        {
+            auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
+            if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
             {
-                auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
-                if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
-                {
-                    renderModel(sub, *model);
-                }
+                renderModel(sub, *model);
             }
         }
+    }
 
     return renderedMeshes_;
 }
@@ -100,7 +101,8 @@ void EntityRenderer::subscribe(GameObject& gameObject)
     auto animator = gameObject.GetComponent<Components::Animator>();
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    subscribes_.push_back({&gameObject, rendererComponent, animator});
+    subscribes_.push_back(
+        EntitySubscriber{.gameObject = &gameObject, .renderComponent = rendererComponent, .animator = animator});
     subscribesIds_.insert(gameObject.GetId());
 
     LOG_DEBUG << "Subsribed, gameObjectId : " << gameObject.GetId();
@@ -178,7 +180,7 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
                         if (not mesh.GetGraphicsObjectId())
                             continue;
 
-                        if (const auto& meshBuffer = mesh.getShaderBufferId())
+                        if (const auto& meshBuffer = mesh.GetMaterialShaderBufferId())
                         {
                             context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
                         }
@@ -187,6 +189,16 @@ uint32 EntityRenderer::renderEntityWithGrouping(ShaderProgram& singleEntityShade
                             context_.graphicsApi_.PrepareMatrixToLoad(mesh.GetMeshTransform());
                         perMeshBuffer_->UpdateGpuPass();
                         context_.graphicsApi_.BindShaderBuffer(*perMeshApiId);
+
+                        for (size_t i = 0; i < subscribers.size(); ++i)
+                        {
+                            auto& sub = subscribers[i];
+                            if (sub->renderComponent->GetCustomMaterials().size() > 0)
+                            {
+                                LOG_WARN << "Custom material not supported with grouping renderer. gameObject: "
+                                         << sub->gameObject->GetName() << ", model :" << model->GetFile().GetFilename();
+                            }
+                        }
 
                         bindMaterial(mesh.GetMaterial());
                         context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(),
@@ -303,11 +315,11 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             continue;
         }
 
-        const auto& meshBuffer = mesh.getShaderBufferId();
+        const auto& [materialShaderBufferId, materialData] = getMaterial(subsriber,  mesh);
 
-        if (meshBuffer)
+        if (materialShaderBufferId)
         {
-            context_.graphicsApi_.BindShaderBuffer(*meshBuffer);
+            context_.graphicsApi_.BindShaderBuffer(*materialShaderBufferId);
         }
         else
         {
@@ -337,16 +349,38 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             continue;
         }
 
-        renderMesh(mesh);
+        if (not materialData)
+        {
+            LOG_WARN << "Something goes wrong, material is empty. Model: " << model.GetFile().GetFilename();
+            continue;
+        }
+
+        renderMesh(mesh, *materialData);
     }
 }
 
-void EntityRenderer::renderMesh(const Mesh& mesh)
+void EntityRenderer::renderMesh(const Mesh& mesh,const Material& material)
 {
     ++renderedMeshes_;
-    bindMaterial(mesh.GetMaterial());
+
+    bindMaterial(material);
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
-    unBindMaterial(mesh.GetMaterial());
+    unBindMaterial(material);
+}
+
+const std::pair<GraphicsApi::ID, const Material*> EntityRenderer::getMaterial(const EntitySubscriber& sub, const Mesh& mesh)
+{
+    std::pair<GraphicsApi::ID, const Material*> result{mesh.GetMaterialShaderBufferId(), &mesh.GetMaterial()};
+
+
+    const auto& customMaterials = sub.renderComponent->GetCustomMaterials();
+    if (auto iter = customMaterials.find(mesh.GetGpuObjectId()); iter != customMaterials.end())
+    {
+        const auto&  customMaterialData = iter->second;
+        return {customMaterialData.GetBufferId(), &customMaterialData.material};
+    }
+
+    return {mesh.GetMaterialShaderBufferId(), &mesh.GetMaterial()};
 }
 
 void EntityRenderer::bindMaterial(const Material& material) const

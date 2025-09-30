@@ -79,7 +79,7 @@ const GraphicsApi::ID& GpuObject::GetGraphicsObjectId() const
 {
     return graphicsObjectId_;
 }
-uint64 GpuObject::GetGpuObjectId() const
+IdType GpuObject::GetGpuObjectId() const
 {
     return id_;
 }
