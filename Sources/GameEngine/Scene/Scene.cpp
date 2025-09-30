@@ -45,12 +45,33 @@ Scene::Scene(const std::string& name)
 Scene::~Scene()
 {
     LOG_DEBUG << "destructor";
+    Stop();
 
-    if (physicsApi_)
+    rootGameObject_->RemoveAllChildren();
+
+    if (guiManager_)
     {
-        LOG_DEBUG << "physicsApi_->DisableSimulation()";
-        physicsApi_->DisableSimulation();
-        LOG_DEBUG << "physicsApi_->DisableSimulation() end";
+        guiManager_.reset();
+    }
+
+    if (guiElementFactory_)
+    {
+        guiElementFactory_.reset();
+    }
+
+    if (guiEngineContextManger_)
+    {
+        guiEngineContextManger_.reset();
+    }
+
+    if (console_)
+    {
+        console_.reset();
+    }
+
+    if (componentFactory_)
+    {
+        componentFactory_.reset();
     }
 
     if (networkEditorInterface_)
