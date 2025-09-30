@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
@@ -8,7 +9,6 @@
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GameEngine/Resources/Models/Material.h"
 
 namespace GameEngine
 {
@@ -25,7 +25,7 @@ public:
     bool modelNormalization;
     bool meshOptimize;
     uint32_t textureIndex;
-    std::vector<MaterialField> materials;
+    MaterialsMap materials;
 
 public:
     // clang-format off
@@ -36,7 +36,7 @@ public:
         FIELD_BOOL(modelNormalization)
         FIELD_BOOL(meshOptimize)
         FIELD_UINT(textureIndex)
-        FIELD_CONST_VECTOR_OF_MATERIALS(materials)
+        FIELD_CONST_MAP_OF_MATERIALS(materials)
     END_FIELDS()
     // clang-format on
 

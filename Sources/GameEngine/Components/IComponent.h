@@ -41,7 +41,7 @@ enum class FieldType
     VectorOfTextures,
     VectorOfAnimationClips,
     ConstVectorOfTextures,
-    ConstVectorOfMaterials
+    ConstMapOfMaterials
 };
 
 struct FieldInfo

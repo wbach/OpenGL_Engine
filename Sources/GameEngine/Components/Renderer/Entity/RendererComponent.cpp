@@ -28,7 +28,6 @@ constexpr char MESH_OPTIMIZE[]         = "meshOptimize";
 constexpr char MATERIALS[]             = "materials";
 const GraphicsApi::ID defaultId;
 
-
 }  // namespace
 
 RendererComponent::RendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -120,16 +119,13 @@ void RendererComponent::init()
             {
                 LOG_DEBUG << "mesh bufferId=" << mesh.GetGpuObjectId();
 
-                auto iter = std::find_if(materials.begin(), materials.end(),
-                                         [name = mesh.GetMaterial().name](const auto& mat) { return mat.name == name; });
-
-                if (iter == materials.end())
+                if (auto iter = materials.find(mesh.GetMaterial().name); iter == materials.end())
                 {
-                    materials.push_back({.name = mesh.GetMaterial().name, .file = {}});
+                    materials.insert({mesh.GetMaterial().name, {}});
                 }
                 else
                 {
-                    mesh.SetMaterial(ParseMaterial(iter->file, componentContext_.resourceManager_.GetTextureLoader()));
+                    mesh.SetMaterial(ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
                 }
             }
 
@@ -395,7 +391,7 @@ void RendererComponent::registerReadFunctions()
                 auto fileNode = materialNode->getChild(CSTR_FILE_NAME);
                 if (nameNode and fileNode)
                 {
-                    component->materials.push_back({.name = nameNode->value_, .file = fileNode->value_});
+                    component->materials.insert({nameNode->value_, fileNode->value_});
                 }
             }
         }
@@ -417,13 +413,13 @@ void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files
         create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativePath(), lodLvl);
     }
 }
-void create(TreeNode& materialsNode, const std::vector<MaterialField>& customMaterials)
+void create(TreeNode& materialsNode, const MaterialsMap& customMaterials)
 {
-    for (const auto& material : customMaterials)
+    for (const auto& [name, file] : customMaterials)
     {
         auto& materialNode = materialsNode.addChild("material");
-        materialNode.addChild(CSTR_NAME, material.name);
-        auto value = material.file.empty() ? "" : material.file.GetDataRelativePath();
+        materialNode.addChild(CSTR_NAME, name);
+        auto value = file.empty() ? "" : file.GetDataRelativePath();
         materialNode.addChild(CSTR_FILE_NAME, value);
     }
 }

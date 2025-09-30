@@ -1,19 +1,13 @@
 #pragma once
 #include <string>
 
-#include "Types.h"
 #include "GameEngine/Resources/File.h"
+#include "Types.h"
 
 namespace GameEngine
 {
 class GeneralTexture;
 class ITextureLoader;
-
-struct MaterialField
-{
-    std::string name;
-    File file;
-};
 
 struct Material
 {
@@ -37,6 +31,7 @@ struct Material
     GeneralTexture* displacementTexture = nullptr;
 };
 
+using MaterialsMap = std::unordered_map<std::string, File>;
 Material ParseMaterial(const File&, ITextureLoader&);
 void SaveMaterial(const Material&, const File&);
 }  // namespace GameEngine

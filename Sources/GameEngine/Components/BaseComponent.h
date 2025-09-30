@@ -109,7 +109,7 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
 #define FIELD_VECTOR_OF_FILES(member) fields.push_back({#member, FieldType::VectorOfFiles, &(this->member)});
 #define FIELD_VECTOR_OF_TEXTURES(member) fields.push_back({#member, FieldType::VectorOfTextures, &(this->member)});
 #define FIELD_CONST_VECTOR_OF_TEXTURES(member) fields.push_back({#member, FieldType::ConstVectorOfTextures, &(this->member)});
-#define FIELD_CONST_VECTOR_OF_MATERIALS(member) fields.push_back({#member, FieldType::ConstVectorOfMaterials, &(this->member)});
+#define FIELD_CONST_MAP_OF_MATERIALS(member) fields.push_back({#member, FieldType::ConstMapOfMaterials, &(this->member)});
 #define FIELD_VECTOR_OF_ANIMATION_CLIPS(member) fields.push_back({#member, FieldType::VectorOfAnimationClips, &(this->member)});
 #define FIELD_ENUM(member) fields.push_back(MakeEnumField(#member, &(this->member)));
 #define END_FIELDS() return fields; }

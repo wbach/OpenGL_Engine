@@ -2,8 +2,8 @@
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
-#include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/File.h>
+#include <GameEngine/Resources/Models/Material.h>
 #include <wx/collpane.h>
 #include <wx/spinctrl.h>
 #include <wx/wx.h>
@@ -62,9 +62,6 @@ private:
     wxBoxSizer* CreateAnimationClipItem(GameEngine::Components::IComponent&, wxWindow*,
                                         std::vector<GameEngine::Components::ReadAnimationInfo>*, size_t, std::function<void()>,
                                         bool = true);
-    wxBoxSizer* CreateMaterialItem(GameEngine::Components::IComponent&, wxWindow*, std::vector<GameEngine::MaterialField>*, size_t,
-                                   std::function<void()>, bool = true);
-
     // == Akcje/logika ==
     void reInitComponent(GameEngine::Components::IComponent&);
     void browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
@@ -103,4 +100,8 @@ private:
                                           int = 3);
 
     void UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEngine::File& file);
+
+    void CreateUIForMaterialsMap(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, GameEngine::MaterialsMap&);
+    wxBoxSizer* CreateMaterialMapItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::MaterialsMap::iterator it,
+                                      std::function<void()>);
 };

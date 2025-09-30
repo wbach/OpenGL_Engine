@@ -11,6 +11,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 #include <mutex>
+#include <utility>
 
 #include "MyEvents.h"
 #include "ThumbnailCache.h"
@@ -606,14 +607,81 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 false);
             break;
 
-        case FieldType::ConstVectorOfMaterials:
-            CreateUIForVector<GameEngine::MaterialField>(
-                component, pane, sizer, field,
-                [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateMaterialItem(component, p, v, i, r, del); },
-                false);
+        case FieldType::ConstMapOfMaterials:
+            auto* materials = static_cast<GameEngine::MaterialsMap*>(field.ptr);
+            CreateUIForMaterialsMap(component, pane, sizer, *materials);
             break;
     }
+}
+
+void ComponentPanel::CreateUIForMaterialsMap(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
+                                             GameEngine::MaterialsMap& materials)
+{
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+    // ---- Label sekcji ----
+    wxStaticText* sectionLabel = new wxStaticText(pane, wxID_ANY, "Materials");
+    sectionLabel->SetFont(sectionLabel->GetFont().MakeBold());  // pogrubienie
+    mainSizer->Add(sectionLabel, 0, wxBOTTOM | wxEXPAND, 5);
+
+    // ---- Elementy mapy ----
+    for (auto it = materials.begin(); it != materials.end(); ++it)
+    {
+        auto row = CreateMaterialMapItem(component, pane, it, []() {});
+        mainSizer->Add(row, 0, wxEXPAND | wxBOTTOM, 3);
+    }
+
+    sizer->Add(mainSizer, 0, wxEXPAND | wxALL, 5);
+}
+
+wxBoxSizer* ComponentPanel::CreateMaterialMapItem(GameEngine::Components::IComponent& component, wxWindow* pane,
+                                                  GameEngine::MaterialsMap::iterator it, std::function<void()> rebuildUI)
+{
+    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+
+    // Klucz – nazwa materiału (readonly)
+    wxTextCtrl* nameCtrl =
+        new wxTextCtrl(pane, wxID_ANY, wxString::FromUTF8(it->first.c_str()), wxDefaultPosition, wxSize(150, -1), wxTE_READONLY);
+    nameCtrl->Enable(false);  // wyszarzone
+    row->Add(nameCtrl, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+
+    // Wartość – File
+    auto initialValue = it->second.empty() ? "default" : it->second.GetDataRelativePath().string();
+    auto rowFile = CreateBrowseFileRow(pane, "File", initialValue);
+    row->Add(rowFile.row, 1, wxEXPAND | wxALL, 0);
+    rowFile.textCtrl->SetToolTip(rowFile.textCtrl->GetValue());
+
+    // Browse button
+    rowFile.browseBtn->Bind(
+        wxEVT_BUTTON,
+        [this, &component, txt = rowFile.textCtrl, val = &it->second, pane, warningIcon = rowFile.warningIcon](auto& evt)
+        {
+            this->browseFileControlAction(evt, component, txt, pane, val);
+            UpdateFileWarning(warningIcon, val->GetAbsolutePath());
+        });
+
+    // Text enter
+    rowFile.textCtrl->Bind(
+        wxEVT_TEXT_ENTER,
+        [this, &component, val = &it->second, txt = rowFile.textCtrl, warningIcon = rowFile.warningIcon](auto& evt)
+        {
+            val->Init(evt.GetString().ToStdString());
+            component.Reload();
+            txt->SetToolTip(txt->GetValue());
+            UpdateFileWarning(warningIcon, val->GetAbsolutePath());
+        });
+
+    // Drag & drop
+    rowFile.textCtrl->SetDropTarget(
+        new MyFileDropTarget(rowFile.textCtrl,
+                             [this, &component, val = &it->second, warningIcon = rowFile.warningIcon](const std::string& path)
+                             {
+                                 val->Init(path);
+                                 component.Reload();
+                                 UpdateFileWarning(warningIcon, val->GetAbsolutePath());
+                             }));
+
+    return row;
 }
 
 template <typename VecT, typename CtrlT, typename BindEvt, typename SetVal, typename GetVal>
@@ -1262,78 +1330,4 @@ void ComponentPanel::UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEn
     }
     if (warningIcon->GetParent())
         warningIcon->GetParent()->Layout();
-}
-
-wxBoxSizer* ComponentPanel::CreateMaterialItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                               std::vector<GameEngine::MaterialField>* val, size_t index,
-                                               std::function<void()> rebuildUI, bool canDelete)
-{
-    wxBoxSizer* elemRow = new wxBoxSizer(wxHORIZONTAL);
-
-    if (index >= val->size())
-        return elemRow;
-
-    auto& material = (*val)[index];
-
-    wxTextCtrl* nameCtrl = new wxTextCtrl(pane, wxID_ANY, wxString::FromUTF8(material.name.c_str()), wxDefaultPosition,
-                                          wxSize(150, -1), wxTE_READONLY);
-    nameCtrl->Enable(false);  // dodatkowo wizualne "wyszarzenie"
-    elemRow->Add(nameCtrl, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
-
-    // Wybór pliku (tak jak w CreateBrowseFileRow)
-    auto row = CreateBrowseFileRow(pane, "File", material.file.GetDataRelativePath().string());
-    elemRow->Add(row.row, 1, wxEXPAND | wxALL, 0);
-    row.textCtrl->SetToolTip(row.textCtrl->GetValue());
-
-    // Obsługa Browse
-    row.browseBtn->Bind(wxEVT_BUTTON,
-                        [this, &component, txt = row.textCtrl, pane, val, index, warningIcon = row.warningIcon](auto& evt)
-                        {
-                            auto& file = (*val)[index].file;
-                            this->browseFileControlAction(evt, component, txt, pane, &file);
-                            UpdateFileWarning(warningIcon, file.GetAbsolutePath());
-                        });
-
-    // Obsługa wpisania ręcznie
-    row.textCtrl->Bind(wxEVT_TEXT_ENTER,
-                       [this, &component, txt = row.textCtrl, val, index, warningIcon = row.warningIcon](auto& evt)
-                       {
-                           auto& file = (*val)[index].file;
-                           file.Init(evt.GetString().ToStdString());
-                           component.Reload();
-                           txt->SetToolTip(txt->GetValue());
-                           UpdateFileWarning(warningIcon, file.GetAbsolutePath());
-                       });
-
-    // Drag & drop
-    row.textCtrl->SetDropTarget(
-        new MyFileDropTarget(row.textCtrl,
-                             [this, &component, val, index, warningIcon = row.warningIcon](const std::string& path)
-                             {
-                                 auto& file = (*val)[index].file;
-                                 file.Init(path);
-                                 component.Reload();
-                                 UpdateFileWarning(warningIcon, file.GetAbsolutePath());
-                             }));
-
-    // Jeśli resizeable (np. VectorOfMaterials), daj przycisk "Delete"
-    if (canDelete)
-    {
-        wxButton* removeButton = new wxButton(pane, wxID_ANY, "Delete");
-        removeButton->SetToolTip("Remove material");
-        elemRow->Add(removeButton, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
-
-        removeButton->Bind(wxEVT_BUTTON,
-                           [this, &component, val, index, rebuildUI](wxCommandEvent&)
-                           {
-                               if (index < val->size())
-                               {
-                                   val->erase(val->begin() + index);
-                                   this->CallAfter(rebuildUI);
-                                   component.Reload();
-                               }
-                           });
-    }
-
-    return elemRow;
 }
