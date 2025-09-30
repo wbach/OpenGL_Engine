@@ -459,8 +459,12 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                               SetStatusText("Welcome to game editor!");
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
                               canvas->GetScene().GetFile() = path;
-                              gameObjectsView->RebuildTree(canvas->GetScene());
-                              gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
+                              this->CallAfter(
+                                  [&]()
+                                  {
+                                      gameObjectsView->RebuildTree(canvas->GetScene());
+                                      gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
+                                  });
                           }
                       });
     SetStatusText("Loading file " + file.GetBaseName());

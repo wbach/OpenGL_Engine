@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "GuiElementWriter.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -18,7 +19,7 @@ GuiManager::GuiManager()
 
 GuiManager::~GuiManager()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 }
 
 GuiLayer& GuiManager::AddLayer(const std::string& name)
@@ -30,7 +31,7 @@ GuiLayer& GuiManager::AddLayer(const std::string& name)
         return layers_.back();
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Layer with name : " + name + " already exist");
+    LOG_WARN << "Layer with name : " << name << " already exist";
     return *iter;
 }
 
@@ -46,7 +47,7 @@ void GuiManager::Add(const std::string& layerName, std::unique_ptr<GuiElement> e
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Layer with name : " + layerName + " not found");
+        LOG_WARN << "Layer with name : " << layerName << " not found";
     }
 }
 
@@ -71,7 +72,7 @@ GuiElement* GuiManager::GetElement(const std::string& label)
         }
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Element with label " + label + " not found");
+    LOG_WARN << "Element with label " << label << " not found";
     return nullptr;
 }
 GuiElement* GuiManager::GetElement(uint32 id)
@@ -139,7 +140,7 @@ ActionFunction GuiManager::GetActionFunction(const std::string& name)
     {
         return registeredActions_.at(DEFAULT_ACTION);
     }
-    return [](auto&) { /* LOG TO FIX*/  LOG_ERROR << ("Button action not found. Default action not set."); };
+    return [](auto&) { LOG_WARN << "Button action not found. Default action not set."; };
 }
 
 void GuiManager::AddTask(std::function<void()> task)
@@ -147,12 +148,6 @@ void GuiManager::AddTask(std::function<void()> task)
     std::lock_guard<std::mutex> lk(taskMutex_);
     tasks_.push_back(task);
 }
-
-// void GuiManager::AddRemoveTask(GuiElement* element)
-// {
-//     std::lock_guard<std::mutex> lk(taskMutex_);
-//     tasks_.push_back([this, element]() { Remove(element->GetId()); });
-// }
 
 void GuiManager::RegisterAction(const std::string& name, ActionFunction action)
 {
@@ -184,10 +179,10 @@ bool GuiManager::SaveToFile(const std::string& filename, const std::string& laye
 void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
 {
     std::lock_guard<std::mutex> lk(elementMutex_);
-    /* LOG TO FIX*/  LOG_ERROR << ("Remove ");
+    LOG_DEBUG << "Remove ";
     if (exceptions.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Remove all");
+        LOG_DEBUG << "Remove all";
         layers_.clear();
     }
     else
@@ -200,7 +195,7 @@ void GuiManager::RemoveLayersExpect(const std::vector<std::string>& exceptions)
 
             if (skip == exceptions.end())
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("Remove " + layerName);
+                LOG_DEBUG << "Remove " << layerName;
                 iter = layers_.erase(iter);
             }
             else
@@ -225,7 +220,7 @@ void GuiManager::Remove(uint32 id)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Element not found");
+        LOG_WARN << "Element not found";
     }
 }
 
@@ -257,7 +252,7 @@ GuiLayer* GuiManager::GetLayer(const std::string& name)
         return &(*iter);
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Layer with name : " + name + " not found");
+    LOG_ERROR << "Layer with name : " << name << " not found";
     return nullptr;
 }
 
