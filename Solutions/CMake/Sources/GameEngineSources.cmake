@@ -78,7 +78,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Common/MouseUtil
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/MousePicker/DragObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/MousePicker/MousePicker.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Display/DisplayManager.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/MoveController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/ArrowController.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Controllers/CharacterController/Serializers/WriteFunctions.cpp
@@ -232,14 +231,16 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/JointD
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PlayMixedAnimation.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/BowPoseUpdater.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentsReadFunctions.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentController.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/UnknownExternalComponent.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ShaderBuffers/PerMeshObject.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Material.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceManagerFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Model.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Bone.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/BoundingBox.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Material.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/ModelWrapper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Collada.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Collada/MergeTool/MergeTool.cpp
@@ -259,10 +260,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/L
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryWriter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryReader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryLoader.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/ModelLoaderFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Assimp/AssimpLoader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/ModelLoaderFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Mesh.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ProgressiveMesh.cpp
@@ -276,7 +277,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuResourceLoader
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/BufferObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/TextureLoader.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceManagerFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/DayNightCycle.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/GameTime.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Camera.cpp
@@ -319,8 +319,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineDef.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/Engine.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/BaseRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/LoadingScreenRenderer.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RenderersManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererFactory.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RenderersManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/Camera.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/Ray.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/StepPooler.cpp
@@ -392,6 +392,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Objects/GameObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/Joint.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/AnimationClip.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/AnimationUtils.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Api/Dummy/DummyInputManager.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.cpp
 )

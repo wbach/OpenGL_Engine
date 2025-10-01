@@ -15,7 +15,6 @@ function createSrc()
 
 createSrc Common
 createSrc DirectXApi
-createSrc Editor
 createSrc Game
 createSrc GameEngine
 createSrc GraphicsApi

@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/RenderType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/FunctionsTypes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/TextureInfo.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/ShaderQuaility.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/DisplayMode.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/TextureParamters.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/BlendFunctionsTypes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/TextureTarget.h

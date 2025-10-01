@@ -3,8 +3,11 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MyEvents.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeCtrl.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewerFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EditorUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame.cpp
@@ -16,7 +19,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPickerPopup.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewerFrame.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EditorUtils.cpp
 )

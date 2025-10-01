@@ -1,4 +1,5 @@
 set(UtilsIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Logger/LogHelpers.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Logger/Log.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Rotation.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Fsm/Fsm.h
@@ -18,6 +19,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ThreadSync.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/TreeNode.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/SingleTon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/BidirectionalUnorderedMap.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/StreamOperators.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Container.h
@@ -44,6 +46,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ParseUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Pathes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Glm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/optional.hpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Windows.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Clock.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Beizer.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Thread.hpp

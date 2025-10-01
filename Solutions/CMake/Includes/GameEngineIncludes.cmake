@@ -230,11 +230,13 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/Terrain/
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/Terrain/TerrainShape.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/CapsuleShape.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Physics/Rigidbody.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/UnknownExternalComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Player.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Enemy.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/Bar.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Characters/CharacterStatistic.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/BaseComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Camera/ThridPersonCamera/Fsm/Context.h
@@ -295,7 +297,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/EmptyS
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/PlayPolicy.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/AnimationTransitionMixedToSingle.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/IComponent.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/FunctionType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/CommonReadDef.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentContext.h
@@ -369,6 +370,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/C
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/MaterialReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/ColladaCommon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Collada/Xml/LibraryVisualScenesReader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/ModelLoaderFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/BEngine/BEngineLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/WaveFront/WaveFrontObj.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/LoadingParameters.h
@@ -377,6 +379,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/B
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Binary/BinaryLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/MeshData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/IModelLoaderFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Assimp/AssimpLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/AbstractLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/LoaderManager.h
@@ -393,11 +396,19 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/TextureLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/IGpuObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/TextureParameters.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceInfo.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DefaultFiles/bengineLogo.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DefaultFiles/segoe-ui.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DefaultFiles/darkGrayButtonActive.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DefaultFiles/darkGrayButtonHover.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DefaultFiles/darkGrayButton.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DefaultFiles/whiteClear.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/DataStorePolicy.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ITextureLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObjectCommon.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/IResourceManagerFactory.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceManagerFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/textureNotFound.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/DayNightCycle.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Time/GameTime.h
@@ -466,6 +477,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/O
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/Objects/BaseObject.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/Objects/Mesh.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/StepPooler.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IRendererFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DefferedRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RenderersManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/BaseRenderer.h
@@ -526,6 +538,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/Deb
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/PhysicsVisualizator.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/BufferDataUpdater.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererContext.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Blur/Blur.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Fxaa/Fxaa.h
@@ -548,9 +561,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/JointId.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/KeyFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/AnimationUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Animations/JointTransform.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Api/Dummy/DummyWindowApi.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Api/Dummy/DummyInputManager.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Api/Dummy/DummyGraphicsApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/IEditorInterface.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Display/DisplayManager.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.hpp
