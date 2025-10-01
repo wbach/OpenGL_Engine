@@ -47,7 +47,13 @@ Scene::~Scene()
     LOG_DEBUG << "destructor";
     Stop();
 
-    rootGameObject_->RemoveAllChildren();
+    if (rootGameObject_)
+    {
+        LOG_DEBUG << "Removing all game objects";
+        rootGameObject_->RemoveAllChildren();
+        LOG_DEBUG << "All game objects removed";
+    }
+    componentController_.UnRegisterAll();
 
     if (guiManager_)
     {
@@ -82,12 +88,12 @@ Scene::~Scene()
 
     if (inputManager_)
     {
-        LOG_DEBUG << "inputManager_->UnsubscribeAll())";
+        LOG_DEBUG << "inputManager_->UnsubscribeAll()";
         inputManager_->UnsubscribeAll();
     }
     if (renderersManager_)
     {
-        LOG_DEBUG << "renderersManager_->UnsubscribeAll())";
+        LOG_DEBUG << "renderersManager_->UnsubscribeAll()";
         renderersManager_->UnSubscribeAll();
     }
 

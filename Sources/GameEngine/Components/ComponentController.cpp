@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <magic_enum/magic_enum.hpp>
+#include <mutex>
 #include <queue>
 #include <stdexcept>
 
@@ -44,6 +45,7 @@ ComponentController::FunctionId ComponentController::RegisterFunction(GameObject
                                                                       FunctionType type, std::function<void()> func,
                                                                       const Dependencies& dependencies)
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     auto id = functionIdsPool_.getId();
     functions_[gameObjectId][type].push_back(ComponentFunction{
         .function = func, .meta = FunctionMeta{.id = id, .isActive = true, .ownerType = owner, .dependencies = dependencies}});
@@ -52,6 +54,7 @@ ComponentController::FunctionId ComponentController::RegisterFunction(GameObject
 
 ComponentController::ComponentId ComponentController::RegisterComponent(ComponentTypeID type, IComponent* component)
 {
+    std::lock_guard<std::mutex> lk(componentsMutex_);
     auto currentComponentId = componentId++;
 
     registredComponents_[type].insert({currentComponentId, component});
@@ -60,6 +63,7 @@ ComponentController::ComponentId ComponentController::RegisterComponent(Componen
 
 void ComponentController::UnRegisterComponent(ComponentTypeID type, ComponentId id)
 {
+    std::lock_guard<std::mutex> lk(componentsMutex_);
     auto iter = registredComponents_.find(type);
     if (iter != registredComponents_.end())
     {
@@ -72,6 +76,7 @@ void ComponentController::UnRegisterComponent(ComponentTypeID type, ComponentId 
 }
 void ComponentController::UnRegisterFunction(ComponentController::GameObjectId gameObjectId, FunctionType type, IdType id)
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
     {
@@ -117,6 +122,7 @@ void ComponentController::UnRegisterFunction(ComponentController::GameObjectId g
 void ComponentController::setActivateStateOfComponentFunction(ComponentController::GameObjectId gameObjectId, FunctionType type,
                                                               FunctionId id, bool activeStatus)
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
     {
@@ -150,6 +156,7 @@ void ComponentController::setActivateStateOfComponentFunction(ComponentControlle
 void ComponentController::callComponentFunction(ComponentController::GameObjectId gameObjectId, FunctionType type,
                                                 ComponentController::FunctionId functionId)
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     auto iter = functions_.find(gameObjectId);
     if (iter != functions_.end())
     {
@@ -184,11 +191,13 @@ void ComponentController::callComponentFunction(ComponentController::GameObjectI
 
 void ComponentController::UnRegisterAll()
 {
+    std::scoped_lock lk(functionsMutex_, componentsMutex_);
     functions_.clear();
     registredComponents_.clear();
 }
 void ComponentController::OnObjectCreated(IdType gameObjectId)
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     SortAllFunctionsForGameObject(gameObjectId);
 
     CallGameObjectFunctions(FunctionType::Awake, gameObjectId);
@@ -202,20 +211,24 @@ void ComponentController::OnObjectCreated(IdType gameObjectId)
 }
 void ComponentController::OnStart()
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::OnStart);
     CallFunctions(FunctionType::PostStart);
     isStarted = true;
 }
 void ComponentController::Update()
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::Update);
 }
 void ComponentController::PostUpdate()
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::PostUpdate);
 }
 void ComponentController::AlwaysUpdate()
 {
+    std::lock_guard<std::mutex> lk(functionsMutex_);
     CallFunctions(FunctionType::AlwaysUpdate);
 }
 void ComponentController::CallFunctions(FunctionType type)

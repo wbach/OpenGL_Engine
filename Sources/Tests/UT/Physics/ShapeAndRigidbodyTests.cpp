@@ -13,6 +13,7 @@
 #include <optional>
 
 #include "Tests/UT/EngineBasedTest.h"
+#include "gmock/gmock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Physics;
@@ -35,14 +36,15 @@ public:
     };
 
     template <class T>
-    Container<T> CreateAndAddGameObjectWithShape()
+    Container<T> CreateAndAddGameObjectWithShape(bool processEvents = true)
     {
         auto go         = scene->CreateGameObject();
         auto ptr        = go.get();
         auto& ref       = go->AddComponent<T>();
         auto& rigidBody = go->AddComponent<Rigidbody>();
         scene->AddGameObject(std::move(go));
-        scene->ProcessEvents();
+        if (processEvents)
+            scene->ProcessEvents();
         return Container<T>{.shape = ref, .rigidBody = rigidBody, .gameObject = *ptr};
     }
 
@@ -115,4 +117,39 @@ TEST_F(ShapeAndRigidbodyTests, RemoveRigidbodyIfShapeStillExist)
 
     EXPECT_NE(shape, nullptr);
     EXPECT_EQ(shape->GetCollisionShapeId(), std::nullopt);
+}
+
+TEST_F(ShapeAndRigidbodyTests, StabilityTestAddRemoveManyObjects)
+{
+    scene->Start();
+    EXPECT_CALL(*physicsApi, CreateBoxColider(_, _, _)).WillRepeatedly(Return(idPool.getId()));
+    EXPECT_CALL(*physicsApi, CreateRigidbody(_, _, _, _, _)).WillRepeatedly(Return(idPool.getId()));
+    EXPECT_CALL(*physicsApi, RemoveShape(_)).Times(AtLeast(1));
+    EXPECT_CALL(*physicsApi, RemoveRigidBody(_)).Times(AtLeast(1));
+    EXPECT_CALL(*physicsApi, SetAngularFactor(_, Matcher<const vec3&>(_))).Times(AtLeast(1));
+
+    std::atomic_bool isrunning{true};
+    std::thread removalThread(
+        [&]()
+        {
+            while (isrunning)
+            {
+
+                scene->FullUpdate(0.1f);
+                std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100.f)));
+            }
+        });
+
+    for (int i = 0; i < 1000; ++i)
+    {
+        auto container = CreateAndAddGameObjectWithShape<BoxShape>(false);
+        std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100.f)));
+        scene->RemoveGameObject(container.gameObject.GetId());
+        std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 100.f)));
+    }
+    isrunning.store(false);
+    removalThread.join();
+
+    LOG_DEBUG << "TestDone";
+    SUCCEED();
 }

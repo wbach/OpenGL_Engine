@@ -148,7 +148,6 @@ void Rigidbody::Init()
     }
 
     CreateRigidbody();
-    collisionShape_->Connect(*this);
 }
 bool Rigidbody::IsReady() const
 {
@@ -387,6 +386,7 @@ CollisionShape* Rigidbody::GetCollisionShape()
     {
         for (auto& pair : detectedCollisionShapes_)
         {
+            pair.second->Connect(*this);
             return pair.second;
         }
         return nullptr;
@@ -403,11 +403,13 @@ CollisionShape* Rigidbody::GetCollisionShape()
     auto shapeDetectedIter = detectedCollisionShapes_.find(shapeType);
     if (shapeDetectedIter != detectedCollisionShapes_.end())
     {
+        shapeDetectedIter->second->Connect(*this);
         return shapeDetectedIter->second;
     }
 
     for (auto& pair : detectedCollisionShapes_)
     {
+        pair.second->Connect(*this);
         return pair.second;
     }
 

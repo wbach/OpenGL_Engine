@@ -58,12 +58,14 @@ void SceneManager::Update()
 }
 void SceneManager::ProcessEvent(const ChangeSceneEvent& e)
 {
+    LOG_DEBUG << "ProcessEvent ChangeSceneEvent : " << magic_enum::enum_name(e.type);
     StopThread();
     engineContext_.GetRenderersManager().UnSubscribeAll(
-        [&]() { engineContext_.AddEngineEvent(ChangeSceneConfirmEvent{.event = std::move(e)}); });
+        [&, changeSceneEvent = e]() { engineContext_.AddEngineEvent(ChangeSceneConfirmEvent{.event = changeSceneEvent}); });
 }
 void SceneManager::ProcessEvent(const ChangeSceneConfirmEvent& e)
 {
+    LOG_DEBUG << "ProcessEvent ChangeSceneConfirmEvent : " << magic_enum::enum_name(e.event.type);
     switch (e.event.type)
     {
         case ChangeSceneEvent::Type::LOAD_NEXT_SCENE:

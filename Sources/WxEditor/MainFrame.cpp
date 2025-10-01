@@ -112,6 +112,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_FILE_NEW_PROJECT, MainFrame::MenuFileNewProject)
     EVT_MENU(ID_MENU_FILE_OPEN_PROJECT, MainFrame::MenuFileOpenProject)
     EVT_MENU(ID_MENU_FILE_OPEN_SCENE, MainFrame::MenuFileOpenScene)
+    EVT_MENU(ID_MENU_FILE_RELOAD_SCENE, MainFrame::MenuFileReloadScene)
     EVT_MENU(ID_MENU_FILE_SAVE_SCENE, MainFrame::MenuFileSaveScene)
     EVT_MENU(ID_MENU_FILE_SAVEAS_SCENE, MainFrame::MenuFileSaveSceneAs)
     EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
@@ -456,6 +457,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                       {
                           if (isRunning)
                           {
+                              LOG_DEBUG << "Scene loaded callback";
                               SetStatusText("Welcome to game editor!");
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
                               canvas->GetScene().GetFile() = path;
@@ -472,6 +474,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 
 void MainFrame::MenuFileReloadScene(wxCommandEvent&)
 {
+    SetStatusText("Reloding scene " + canvas->GetScene().GetName());
     canvas->GetEngine().GetEngineContext().AddEngineEvent(
         GameEngine::ChangeSceneEvent{GameEngine::ChangeSceneEvent::Type::RELOAD_SCENE});
 }

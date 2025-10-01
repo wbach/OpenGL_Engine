@@ -117,6 +117,7 @@ private:
     bool isStarted;
     std::set<GameObjectId> startedGameObjects_;
     std::mutex functionsMutex_;
+    std::mutex componentsMutex_;
 
 private:
     const RegistredComponentsMap DEFAULT_COMPONETNS_MAP;

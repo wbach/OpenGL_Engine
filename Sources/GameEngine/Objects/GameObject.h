@@ -42,7 +42,6 @@ public:
     // return first child with name
     GameObject* GetChild(const std::string&) const;
     inline const GameObjects& GetChildren() const;
-    void RemoveAllChildren();
 
     inline IdType GetId() const;
     inline void SetName(const std::string&);
@@ -135,6 +134,7 @@ private:
 
     std::vector<IdType> RemoveChild(IdType);
     std::vector<IdType> RemoveChild(GameObject&);
+    void RemoveAllChildren();
 
     friend class Scene;
     friend class SceneReader;

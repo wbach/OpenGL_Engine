@@ -37,11 +37,7 @@ GameObject::~GameObject()
 {
     LOG_DEBUG << "~GameObject: " << id_ << ". Name: " << name_;
 
-    for (auto& [_, vectorOfcomponent] : components_)
-    {
-        for (auto& component : vectorOfcomponent)
-            component->CleanUp();
-    }
+    RemoveAllChildren();
 
     if (parent_ and parentIdTransfromSubscribtion_)
         parent_->UnsubscribeOnWorldTransfromChange(*parentIdTransfromSubscribtion_);
@@ -177,7 +173,20 @@ GameObject* GameObject::GetParent() const
 }
 void GameObject::RemoveAllChildren()
 {
-    children_.clear();
+    auto cleanAndRemoveAllChildren = [](auto&& self, GameObject& go) -> void
+    {
+        LOG_DEBUG << "Removing all children of " << go;
+        for (auto& child : go.GetChildren())
+        {
+            self(self, *child);
+        }
+
+        go.RemoveAllComponents();
+        go.children_.clear();
+    };
+
+    LOG_DEBUG << "RemoveAllChildren() of " << *this;
+    cleanAndRemoveAllChildren(cleanAndRemoveAllChildren, *this);
 }
 GameObject* GameObject::GetChild(IdType id) const
 {
