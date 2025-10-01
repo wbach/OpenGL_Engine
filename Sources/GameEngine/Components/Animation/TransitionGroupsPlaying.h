@@ -1,12 +1,13 @@
 #pragma once
-#include <vector>
 #include <functional>
-#include "AnimationClipInfo.h"
+#include <vector>
+#include <string>
 
 namespace GameEngine
 {
 namespace Components
 {
+struct AnimationClipInfo;
 struct TransitionGroupsPlaying
 {
     const AnimationClipInfo& info;

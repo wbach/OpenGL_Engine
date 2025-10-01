@@ -1,13 +1,12 @@
 #pragma once
-#include "AnimationClipInfo.h"
 #include "AnimationStateBase.h"
-#include "Context.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 struct AnimationTransitionEvent;
+struct AnimationClipInfo;
 struct StateMachine;
 
 class AnimationTransition : public AnimationStateBase

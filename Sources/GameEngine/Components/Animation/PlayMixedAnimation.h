@@ -2,8 +2,6 @@
 #include <unordered_map>
 
 #include "AnimationStateBase.h"
-#include "Context.h"
-#include "GameEngine/Animations/AnimationClip.h"
 
 namespace GameEngine
 {

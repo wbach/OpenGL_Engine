@@ -6,7 +6,7 @@
 #include "AnimationTransitionMixedToSingle.h"
 #include "AnimationTransitionToMixed.h"
 #include "EmptyState.h"
-#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
+#include "CurrentGroupsPlayingInfo.h"
 #include "PlayAnimation.h"
 #include "StateMachine.h"
 

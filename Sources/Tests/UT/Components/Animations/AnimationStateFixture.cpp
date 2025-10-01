@@ -1,4 +1,5 @@
 #include "AnimationStateFixture.h"
+#include "GameEngine/Components/Animation/IAnimationState.h"
 
 namespace AnimationStateTests
 {

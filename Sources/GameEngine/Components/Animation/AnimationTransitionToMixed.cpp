@@ -3,7 +3,7 @@
 #include <Logger/Log.h>
 #include <Utils/Container.h>
 
-#include <algorithm>
+#include "Context.h"
 
 #include "AnimationTransition.h"
 #include "AnimationTransitionMixedToSingle.h"
@@ -11,6 +11,9 @@
 #include "PlayAnimation.h"
 #include "PlayMixedAnimation.h"
 #include "StateMachine.h"
+#include "AnimationClipInfo.h"
+#include "CurrentGroupsPlayingInfo.h"
+#include "TransitionGroupsPlaying.h"
 
 namespace GameEngine
 {

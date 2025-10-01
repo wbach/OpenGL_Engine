@@ -1,6 +1,9 @@
 #include "CameraWrapper.h"
 
 #include <Utils/Mutex.hpp>
+#include <memory>
+
+#include "Camera.h"
 
 namespace GameEngine
 {
@@ -9,12 +12,14 @@ namespace
 std::mutex cameraMutex;
 }
 CameraWrapper::CameraWrapper()
-    : setCameras_({&baseCamera_})
+    : baseCamera_(std::make_unique<Camera>())
+    , setCameras_({baseCamera_.get()})
 {
 }
 
 CameraWrapper::CameraWrapper(ICamera &camera)
-    : setCameras_({&baseCamera_, &camera})
+    : baseCamera_(std::make_unique<Camera>())
+    , setCameras_({baseCamera_.get(), &camera})
 {
 }
 
@@ -68,7 +73,7 @@ void CameraWrapper::set(IdType id)
 
 void CameraWrapper::pop()
 {
-    if (setCameras_.empty() or setCameras_.back() == &baseCamera_)
+    if (setCameras_.empty() or setCameras_.back() == baseCamera_.get())
         return;
 
     setCameras_.pop_back();

@@ -419,7 +419,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/ICamera.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/FirstPersonCamera.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Frustrum.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Camera.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Camera2D.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/Plane.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Camera/CustomCamera.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/ISceneStorage.h
@@ -565,7 +564,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Display/DisplayManager.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/RendererComponent.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/IResourceManager.hpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Common/common.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Scene/Scene.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Shadows/IShadowFrameBuffer.hpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.hpp

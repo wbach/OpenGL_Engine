@@ -16,11 +16,11 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "PlayAnimation.h"
 #include "StopAnimationEvent.h"
+#include "GameEngine/Resources/File.h"
+#include "Context.h"
 
 namespace GameEngine
 {
@@ -354,7 +354,7 @@ void Animator::GetSkeletonAndAnimations()
             if (montionJoint_)
             {
                 LOG_DEBUG << "Montion joint found : " << montionJointName;
-                machine_.context_.montionRootJointId = montionJoint_->id;
+                machine_.context_->montionRootJointId = montionJoint_->id;
             }
             else
             {
@@ -455,7 +455,7 @@ void Animator::applyPoseToJoints()
             LOG_DEBUG << "Renderer component not found";
         }
 
-        const auto& boneSpaceMoveVector = machine_.context_.moveVectorForRootMontion;
+        const auto& boneSpaceMoveVector = machine_.context_->moveVectorForRootMontion;
         vec3 worldMoveVector            = thisObject_.GetWorldTransform().GetMatrix() *
                                GetRootJoint()->additionalUserMofiyTransform.getMatrix() * meshTransform *
                                vec4(boneSpaceMoveVector.x, 0.f, boneSpaceMoveVector.z, 0.f);

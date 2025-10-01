@@ -1,5 +1,4 @@
 #pragma once
-#include "Context.h"
 #include "IAnimationState.h"
 
 namespace GameEngine
@@ -10,6 +9,7 @@ struct KeyFrame;
 }  // namespace Animation
 namespace Components
 {
+struct Context;
 struct AnimationClipInfo;
 
 class AnimationStateBase : public IAnimationState

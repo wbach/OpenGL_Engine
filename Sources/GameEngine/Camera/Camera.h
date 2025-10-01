@@ -2,6 +2,7 @@
 #include <functional>
 #include <Utils/IdPool.h>
 #include "ICamera.h"
+#include <Rotation.h>
 
 namespace GameEngine
 {

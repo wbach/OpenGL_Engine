@@ -1,9 +1,10 @@
 #pragma once
-#include <Rotation.h>
-
 #include <functional>
 
 #include "Types.h"
+
+
+struct Rotation;
 
 namespace GameEngine
 {

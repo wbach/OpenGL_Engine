@@ -1,7 +1,4 @@
 #pragma once
-#include "AnimationClipInfo.h"
-#include "Context.h"
-#include "CurrentGroupsPlayingInfo.h"
 #include "AnimationStateBase.h"
 
 namespace GameEngine
@@ -9,6 +6,7 @@ namespace GameEngine
 namespace Components
 {
 struct ChangeAnimationEvent;
+struct CurrentGroupsPlayingInfo;
 
 class AnimationTransitionMixedToSingle : public AnimationStateBase
 {

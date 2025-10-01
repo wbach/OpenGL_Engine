@@ -3,6 +3,7 @@
 
 #include "../BaseComponent.h"
 #include "GameEngine/Components/Animation/Animator.h"
+#include "GameEngine/Components/Animation/Context.h"
 #include "Logger/Log.h"
 
 using namespace GameEngine;

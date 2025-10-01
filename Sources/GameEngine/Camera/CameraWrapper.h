@@ -3,10 +3,12 @@
 
 #include <memory>
 
-#include "Camera.h"
+struct Rotation;
 
 namespace GameEngine
 {
+class ICamera;
+
 class CameraWrapper
 {
 public:
@@ -56,7 +58,7 @@ private:
     void moveSubscribtionsToCurrentCamera(ICamera&, ICamera&);
 
 private:
-    Camera baseCamera_;
+    std::unique_ptr<ICamera> baseCamera_;
     Utils::IdPool camerasIdPool_;
     Utils::IdPool subscribtionsIdPool_;
     std::vector<ICamera*> setCameras_;

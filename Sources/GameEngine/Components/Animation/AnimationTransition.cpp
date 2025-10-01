@@ -3,10 +3,12 @@
 #include <Logger/Log.h>
 
 #include "AnimationTransitionToMixed.h"
+#include "AnimationClipInfo.h"
 #include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "StateMachine.h"
 #include "TransitionGroupsPlaying.h"
+#include "Context.h"
 
 namespace GameEngine
 {

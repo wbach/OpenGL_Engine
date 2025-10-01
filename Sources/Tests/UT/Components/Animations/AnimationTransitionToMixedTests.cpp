@@ -6,6 +6,8 @@
 #include "GameEngine/Components/Animation/EmptyState.h"
 #include "GameEngine/Components/Animation/PlayMixedAnimation.h"
 #include "GameEngine/Components/Animation/AnimationTransitionMixedToSingle.h"
+#include "GameEngine/Components/Animation/TransitionGroupsPlaying.h"
+#include "GameEngine/Components/Animation/CurrentGroupsPlayingInfo.h"
 
 namespace AnimationStateTests
 {

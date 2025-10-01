@@ -1,7 +1,5 @@
 #pragma once
-#include "GameEngine/Animations/AnimationClip.h"
 #include "AnimationStateBase.h"
-
 
 namespace GameEngine
 {

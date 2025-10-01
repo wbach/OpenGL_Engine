@@ -6,6 +6,7 @@
 #include "AnimationTransitionToMixed.h"
 #include "EmptyState.h"
 #include "StateMachine.h"
+#include "CurrentGroupsPlayingInfo.h"
 
 namespace GameEngine
 {

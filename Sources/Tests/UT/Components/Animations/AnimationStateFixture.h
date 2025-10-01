@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include "GameEngine/Components/Animation/StateMachine.h"
+#include "GameEngine/Components/Animation/Context.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
