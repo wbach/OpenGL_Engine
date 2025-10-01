@@ -50,14 +50,15 @@ Rigidbody::Rigidbody(ComponentContext& componentContext, GameObject& gameObject)
 
 void Rigidbody::CleanUp()
 {
+    LOG_DEBUG << thisObject_.GetName();
+    RemoveRigidbody();
+
     if (collisionShape_)
     {
         collisionShape_->Disconnect();
         collisionShape_->RemoveShape();
         collisionShape_ = nullptr;
     }
-
-    RemoveRigidbody();
 }
 
 void Rigidbody::Reload()

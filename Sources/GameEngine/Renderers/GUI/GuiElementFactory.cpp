@@ -52,7 +52,7 @@ GuiElementFactory::GuiElementFactory(GuiElementFactory::EntryParameters &entryPa
 
 GuiElementFactory::~GuiElementFactory()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 }
 
 std::unique_ptr<GuiTextElement> GuiElementFactory::CreateGuiText(const std::string &font, const std::string &text,

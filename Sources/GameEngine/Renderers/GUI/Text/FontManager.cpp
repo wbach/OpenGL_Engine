@@ -4,7 +4,6 @@
 #include <SDL2/SDL_ttf.h>
 #include <Utils/Image/ImageUtils.h>
 
-#include <algorithm>
 #include <filesystem>
 #include <optional>
 
@@ -69,12 +68,13 @@ FontManager::FontManager()
 
     if (not isInit_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Failed to init TTF");
+        LOG_ERROR << "Failed to init TTF";
     }
 }
 
 FontManager::~FontManager()
 {
+    LOG_DEBUG << "destructor";
     impl_->Clear();
     TTF_Quit();
 }
@@ -92,7 +92,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     auto percentFontSize = EngineConf.window.size->y * size / 768;
     // auto percentFontSize = windowSize.y / size;
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Font percent size : " + std::to_string(percentFontSize) + "/" + std::to_string(size));
+    LOG_DEBUG << "Font percent size : " << percentFontSize << "/" << size;
 
     TTF_Font *font{nullptr};
 
@@ -126,7 +126,7 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
         return id;
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Cannot open font : " + filename.GetFilename());
+    /* LOG TO FIX*/ LOG_ERROR << ("Cannot open font : " + filename.GetFilename());
     return {};
 }
 
@@ -156,7 +156,7 @@ std::optional<FontManager::TextureData> FontManager::renderFont(uint32 fontId, c
 
     if (not sdlSurface)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cannot make a text texture" + std::string(SDL_GetError()));
+        LOG_ERROR << "Cannot make a text texture" << SDL_GetError();
         return {};
     }
 

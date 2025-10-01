@@ -35,6 +35,7 @@ void CollisionShape::CleanUp()
     }
     else
     {
+        LOG_DEBUG << "CollisionShape::CleanUp: not connected to rigidbody";
         RemoveShape();
     }
 }
@@ -50,6 +51,7 @@ void CollisionShape::RemoveShape()
 
 void CollisionShape::Reload()
 {
+    LOG_DEBUG << thisObject_.GetName();
     if (connectedRigidbody)
     {
         connectedRigidbody->RemoveRigidbody();
@@ -60,11 +62,13 @@ void CollisionShape::Reload()
 }
 void CollisionShape::Connect(Rigidbody& rigidbody)
 {
+    LOG_DEBUG << "Connecting to rigidbody " << thisObject_.GetName();
     connectedRigidbody = &rigidbody;
 }
 
 void CollisionShape::Disconnect()
 {
+    LOG_DEBUG << "Disconnecting from rigidbody" << thisObject_.GetName();
     connectedRigidbody = nullptr;
 }
 void CollisionShape::SetPostionOffset(const vec3& position)
