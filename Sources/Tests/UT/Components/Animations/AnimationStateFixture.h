@@ -3,6 +3,7 @@
 
 #include "GameEngine/Components/Animation/StateMachine.h"
 #include "GameEngine/Components/Animation/Context.h"
+#include "GameEngine/Components/Animation/AnimationClipInfo.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;

@@ -6,6 +6,7 @@
 
 #include "Common.h"
 #include "PoseUpdateAction.h"
+#include <Utils/Logger/TypeName.h>
 
 namespace GameEngine
 {

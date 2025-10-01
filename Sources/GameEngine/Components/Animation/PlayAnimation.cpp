@@ -7,6 +7,7 @@
 #include "EmptyState.h"
 #include "StateMachine.h"
 #include "CurrentGroupsPlayingInfo.h"
+#include "AnimationClipInfo.h"
 
 namespace GameEngine
 {

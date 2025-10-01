@@ -4,6 +4,7 @@ https://sii.pl/blog/implementing-a-state-machine-in-c17/
 https://github.com/AdamsPL/state-machine
 */
 #include <Logger/Log.h>
+#include <Utils/Logger/TypeName.h>
 
 #include <list>
 #include <tuple>
@@ -47,7 +48,7 @@ public:
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("No previous state!");
+            LOG_ERROR << "No previous state!";
         }
     }
 
@@ -61,7 +62,7 @@ public:
     void handleBy(const Event& event, Machine& machine)
     {
         //#ifdef NOREALTIME_LOG_ENABLED
-        /* LOG TO FIX*/  LOG_ERROR << ("Handle event : " + typeName<Event>());
+        LOG_DEBUG << "Handle event : " << typeName<Event>();
         //#endif
         auto passEventToState = [&machine, &event](auto statePtr)
         {

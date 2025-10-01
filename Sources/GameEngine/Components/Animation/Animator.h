@@ -4,7 +4,6 @@
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "JointData.h"
 #include "PlayDirection.h"
 #include "StateMachine.h"

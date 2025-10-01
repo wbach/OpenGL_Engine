@@ -4,13 +4,10 @@
 
 #include "Components/Controllers/CharacterController/AnimationClipNames.h"
 #include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Animation/BowPoseUpdater.h"
 #include "GameEngine/Components/Animation/Context.h"
 #include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/CharacterController/MoveSpeed.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Components/Physics/SphereShape.h"
-#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "Tests/UT/Components/BaseComponent.h"
 
 using namespace GameEngine;

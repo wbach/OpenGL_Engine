@@ -1,5 +1,6 @@
 #pragma once
 #include <Logger/Log.h>
+#include <Utils/Logger/TypeName.h>
 
 namespace Utils
 {
@@ -25,7 +26,7 @@ private:
     auto update(State& state, const Event& event) -> decltype(state.update(event))
     {
 #ifdef NOREALTIME_LOG_ENABLED
-        /* LOG TO FIX*/  LOG_ERROR << ("Update state: " + typeName<State>() + ", event: " + typeName<Event>());
+        LOG_DEBUG << "Update state: " << typeName<State>() << ", event: " << typeName<Event>();
 #endif
         return state.update(event);
     }
@@ -39,7 +40,7 @@ private:
     auto post(State& state) -> decltype(state.postUpdate())
     {
 #ifdef NOREALTIME_LOG_ENABLED
-        /* LOG TO FIX*/  LOG_ERROR << ("Post update state: " + typeName<State>());
+        LOG_DEBUG << "Post update state: " << typeName<State>();
 #endif
         return state.postUpdate();
     }

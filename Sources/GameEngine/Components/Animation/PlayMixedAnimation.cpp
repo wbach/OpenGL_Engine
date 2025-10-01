@@ -2,11 +2,12 @@
 
 #include <Logger/Log.h>
 
+#include "AnimationClipInfo.h"
 #include "AnimationTransition.h"
 #include "AnimationTransitionMixedToSingle.h"
 #include "AnimationTransitionToMixed.h"
-#include "EmptyState.h"
 #include "CurrentGroupsPlayingInfo.h"
+#include "EmptyState.h"
 #include "PlayAnimation.h"
 #include "StateMachine.h"
 
@@ -32,7 +33,7 @@ PlayMixedAnimation::PlayMixedAnimation(Context& context, const AnimationClipInfo
 }
 bool PlayMixedAnimation::update(float deltaTime)
 {
-    bool rootMontion=false;
+    bool rootMontion = false;
     for (auto& [name, group] : groups_)
     {
         calculateCurrentAnimationPose(context_.currentPose, group.clipInfo.clip, group.time, *group.jointGroup);

@@ -1,7 +1,6 @@
 #pragma once
 #include <Logger/Log.h>
-
-#include <type_traits>
+#include <Utils/Logger/TypeName.h>
 
 namespace Utils
 {

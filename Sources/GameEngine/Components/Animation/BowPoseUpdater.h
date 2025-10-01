@@ -1,13 +1,12 @@
 #pragma once
-#include <unordered_map>
-
 #include "GameEngine/Components/BaseComponent.h"
-#include "JointPoseUpdater.h"
+#include <Rotation.h>
 
 namespace GameEngine
 {
 namespace Components
 {
+class JointPoseUpdater;
 class BowPoseUpdater : public BaseComponent
 {
 public:

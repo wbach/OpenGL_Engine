@@ -1,12 +1,13 @@
 #pragma once
+#include <functional>
 #include <optional>
-
-#include "AnimationClipInfo.h"
+#include <string>
 
 namespace GameEngine
 {
 namespace Components
 {
+struct AnimationClipInfo;
 struct ChangeAnimationEvent
 {
     float startTime{0.f};

@@ -1,7 +1,11 @@
 #include "CharacterControllerTests.h"
 
-#include "GameEngine/Physics/IPhysicsApi.h"
-#include "Logger/Log.h"
+#include <GameEngine/Components/Animation/JointPoseUpdater.h>
+#include <GameEngine/Physics/IPhysicsApi.h>
+#include "GameEngine/Components/Physics/SphereShape.h"
+#include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Animation/BowPoseUpdater.h"
+#include <Logger/Log.h>
 
 MATCHER_P(CollisionDetectionActionMatcher, action, "Action matcher for CollisionDetection")
 {

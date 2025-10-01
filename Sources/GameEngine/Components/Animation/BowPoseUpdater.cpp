@@ -1,15 +1,15 @@
 #include "BowPoseUpdater.h"
 
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/CommonReadDef.h"
-#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/SceneWriter.h"
-#include "Logger/Log.h"
+#include "JointPoseUpdater.h"
 
 namespace GameEngine
 {
@@ -47,7 +47,9 @@ void BowPoseUpdater::ReqisterFunctions()
     RegisterFunction(FunctionType::OnStart, [this]() { Init(); });
 }
 
-void BowPoseUpdater::Reload(){}
+void BowPoseUpdater::Reload()
+{
+}
 
 void BowPoseUpdater::Init()
 {
