@@ -1,16 +1,18 @@
 #pragma once
+#include <Types.h>
+
 #include <list>
-#include "../../Transform.h"
+
 #include "../IController.h"
 #include "CharacterActions.h"
-#include "Types.h"
 
-//#define GetTime()
 #define DurationToDoubleMs(x) std::chrono::duration<double, std::milli>(x).count()
 #define DurationToFloatMs(x) std::chrono::duration<float, std::milli>(x).count()
 
 namespace common
 {
+class Transform;
+
 namespace Controllers
 {
 enum class Direction

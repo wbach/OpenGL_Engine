@@ -1,7 +1,6 @@
 #include "Character.h"
 #include <algorithm>
-#include "Logger/Log.h"
-#include "math.hpp"
+#include "../../Transform.h"
 
 namespace common
 {

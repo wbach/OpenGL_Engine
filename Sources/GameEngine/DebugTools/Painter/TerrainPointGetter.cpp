@@ -8,7 +8,9 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Camera/CameraWrapper.h"
+#include "TerrainPoint.h"
 
 namespace GameEngine
 {

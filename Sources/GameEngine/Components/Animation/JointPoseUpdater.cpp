@@ -1,8 +1,10 @@
 #include "JointPoseUpdater.h"
 
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 #include <Utils/TreeNode.h>
 
+#include "GameEngine/Animations/Joint.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
@@ -16,8 +18,8 @@ JointPoseUpdater::JointPoseUpdater(GameObject& go, Animation::Joint* joint, cons
 {
 }
 
-JointPoseUpdater::JointPoseUpdater(GameObject& go, Animation::Joint* j, const vec3& localPosition,
-                                   const Rotation& localRotation, const mat4& meshTransform)
+JointPoseUpdater::JointPoseUpdater(GameObject& go, Animation::Joint* j, const vec3& localPosition, const Rotation& localRotation,
+                                   const mat4& meshTransform)
     : owner(go)
     , localPosition{localPosition}
     , localRotation{localRotation}
@@ -38,7 +40,7 @@ void JointPoseUpdater::fillOffsets()
 
     auto currentParentWorldMatrix = parent->GetWorldTransform().CalculateCurrentMatrix();
 
-    auto worldBoneMatrix = currentParentWorldMatrix * meshTransform * glm::inverse(joint->offset);
+    auto worldBoneMatrix                           = currentParentWorldMatrix * meshTransform * glm::inverse(joint->offset);
     auto [boneWorldPosition, boneWorldRotation, _] = Utils::decompose(worldBoneMatrix);
 
     owner.SetLocalPositionRotation(localPosition, localRotation);

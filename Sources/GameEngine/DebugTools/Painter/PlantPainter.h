@@ -1,10 +1,13 @@
 #pragma once
-#include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
-#include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "Painter.h"
 
 namespace GameEngine
 {
+class TerrainHeightGetter;
+namespace Components
+{
+class GrassRendererComponent;
+}
 class PlantPainter : public Painter
 {
 public:

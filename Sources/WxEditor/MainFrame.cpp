@@ -1,5 +1,6 @@
 #include "MainFrame.h"
 
+#include <GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
 #include <GameEngine/Engine/Configuration.h>

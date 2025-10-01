@@ -1,7 +1,7 @@
 #pragma once
-#include "Common/Messages/TransformMessages/TransformMessageTypes.h"
 #include "BidirectionalUnorderedMap.h"
 #include "CharacterActions.h"
+#include "Common/Messages/TransformMessages/TransformMessageTypes.h"
 
 namespace common
 {
@@ -11,11 +11,11 @@ typedef BidirectionalUnorderedMap<TransformMessageTypes, common::Controllers::Ch
 
 class NetworkActionsConverter
 {
-   public:
+public:
     static TransformMessageTypes Convert(CharacterActions::Type);
     static CharacterActions::Type Convert(TransformMessageTypes);
 
-   private:
+private:
     static CharacterControllerTypesMap characterControllerTypesMap_;
 };
 }  // namespace Controllers

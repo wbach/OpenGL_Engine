@@ -1,10 +1,11 @@
 #pragma once
-#include "Brushes/Circle/CircleHeightBrushes/CircleHeightBrush.h"
 #include "Painter.h"
+#include "Brushes/HeightBrushType.h"
 
 namespace GameEngine
 {
-class CircleBrushBase;
+class CircleHeightBrush;
+
 class TerrainHeightPainter : public Painter
 {
 public:

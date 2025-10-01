@@ -1,10 +1,16 @@
 #pragma once
-#include "JointData.h"
+#include "Rotation.h"
 #include "Types.h"
 
 namespace GameEngine
 {
 class GameObject;
+
+namespace Animation
+{
+struct Joint;
+}
+
 namespace Components
 {
 class JointPoseUpdater

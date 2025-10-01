@@ -1,9 +1,10 @@
 #pragma once
+#include "Brushes/TextureBrushType.h"
 #include "Painter.h"
-#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 
 namespace GameEngine
 {
+class CircleLinearTextureBrush;
 class TerrainTexturePainter : public Painter
 {
 public:

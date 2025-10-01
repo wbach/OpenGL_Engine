@@ -1,12 +1,8 @@
 #pragma once
 #include <Types.h>
-
-#include <memory>
 #include <optional>
 
 #include "TerrainPointGetter.h"
-#include "Brushes/HeightBrushType.h"
-#include "Brushes/TextureBrushType.h"
 #include "PaintType.h"
 #include "PaintContext.h"
 

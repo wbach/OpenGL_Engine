@@ -1,8 +1,8 @@
 #pragma once
-#include "Logger/Log.h"
+#include <Logger/Log.h>
 #include <UtilsNetwork/NetworkTypes.h>
+
 #include "Common/Messages/MessageTypes.h"
-#include <magic_enum/magic_enum.hpp>
 
 namespace common
 {
@@ -75,4 +75,4 @@ private:
 };
 
 typedef std::shared_ptr<AbstractHandler> AbstractHandlerPtr;
-}  // GameServer
+}  // namespace common

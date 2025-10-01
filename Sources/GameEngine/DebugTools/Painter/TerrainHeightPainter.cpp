@@ -7,6 +7,7 @@
 #include "Brushes/Circle/CircleHeightBrushes/CircleConstantRelativeBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleGaussianHeightBrush.h"
 #include "Brushes/Circle/CircleHeightBrushes/CircleLinearHeightBrush.h"
+#include "Brushes/Circle/CircleHeightBrushes/CircleHeightBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -78,7 +79,7 @@ void TerrainHeightPainter::makeBrush()
 {
     brush_ = std::make_unique<T>(paintContext_);
 }
-float TerrainHeightPainter::getWorldScaleBrushSize() 
+float TerrainHeightPainter::getWorldScaleBrushSize()
 {
     return worldScaleBrushSize_;
 }

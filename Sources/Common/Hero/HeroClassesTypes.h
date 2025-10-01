@@ -2,13 +2,13 @@
 
 namespace common
 {
-	namespace Hero
-	{
-		enum HeroClassesTypes
-		{
-			KNIGHT = 0,
-			WIZARD,
-			ELF
-		};
-	}
+namespace Hero
+{
+enum HeroClassesTypes
+{
+    KNIGHT = 0,
+    WIZARD,
+    ELF
+};
 }
+}  // namespace common

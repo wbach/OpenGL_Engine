@@ -11,7 +11,7 @@
 
 #include "CameraEditor.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
-#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"

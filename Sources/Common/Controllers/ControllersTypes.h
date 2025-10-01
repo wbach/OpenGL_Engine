@@ -2,13 +2,13 @@
 
 namespace common
 {
-	namespace Controllers
-	{
-		enum Types
-		{
-			CharacterControllerType,
-			Collider
-		};
+namespace Controllers
+{
+enum Types
+{
+    CharacterControllerType,
+    Collider
+};
 
-	} // Controllers
-} // common
+}  // namespace Controllers
+}  // namespace common

@@ -7,6 +7,9 @@
 #include <Utils/XML/XmlReader.h>
 #include <Utils/XML/XmlWriter.h>
 
+#include "GameEngine/Resources/File.h"
+#include "Joint.h"
+
 namespace GameEngine
 {
 namespace Animation
@@ -98,7 +101,8 @@ std::optional<AnimationClip> ReadAnimationClip(const File& file, Joint& rootJoin
                 }
                 else
                 {
-                    LOG_ERROR << "Joint \"" << jointName << "\" not found in skeleton. Skeleton root joint name : " << rootJoint.name;
+                    LOG_ERROR << "Joint \"" << jointName
+                              << "\" not found in skeleton. Skeleton root joint name : " << rootJoint.name;
                 }
             }
             animationClip.AddFrame(keyFrame);

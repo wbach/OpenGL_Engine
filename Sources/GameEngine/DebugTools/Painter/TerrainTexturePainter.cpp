@@ -2,8 +2,9 @@
 
 #include "Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 
 #define BRUSH(X) X(stepInterpolation_ == StepInterpolation::Linear, strength_, brushSize_)
 
@@ -58,7 +59,7 @@ void TerrainTexturePainter::createBrush()
 {
     brush_ = std::make_unique<CircleLinearTextureBrush>(paintContext_);
 }
-float TerrainTexturePainter::getWorldScaleBrushSize() 
+float TerrainTexturePainter::getWorldScaleBrushSize()
 {
     return worldScaleBrushSize_;
 }

@@ -2,14 +2,14 @@
 #include <optional>
 
 #include "AnimationClip.h"
-#include "GameEngine/Resources/File.h"
-#include "Joint.h"
 #include "JointTransform.h"
 
 namespace GameEngine
 {
+class File;
 namespace Animation
 {
+struct Joint;
 mat4 GetLocalTransform(const JointTransform& jt);
 JointTransform GetJointTransform(const glm::mat4& m);
 const Joint* GetJoint(const Joint& from, uint32 fid);

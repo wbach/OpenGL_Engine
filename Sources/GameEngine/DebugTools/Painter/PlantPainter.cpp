@@ -1,12 +1,14 @@
 #include "PlantPainter.h"
 
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include <random>
 
+#include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {

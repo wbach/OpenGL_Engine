@@ -1,12 +1,7 @@
 #pragma once
 #include <Types.h>
 
-#include <memory>
 #include <optional>
-
-#include "GameEngine/Camera/CameraWrapper.h"
-#include "GameEngine/Renderers/Projection.h"
-#include "TerrainPoint.h"
 
 namespace common
 {
@@ -17,6 +12,9 @@ namespace GameEngine
 {
 class GameObject;
 class HeightMap;
+class CameraWrapper;
+class Projection;
+class TerrainPoint;
 
 namespace Components
 {
