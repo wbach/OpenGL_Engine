@@ -91,6 +91,8 @@ Mesh::~Mesh()
 
 void Mesh::GpuLoadingPass()
 {
+    LOG_DEBUG << " Mesh::GpuLoadingPass()";
+
     if (graphicsObjectId_)
         return;
 

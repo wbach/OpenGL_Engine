@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "EditorUitls.h"
 #include "Logger/Log.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
@@ -84,10 +85,11 @@ const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,   
 
 }  // namespace WxEditor
 
-GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback)
+GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback, bool addStartupObjects)
     : wxGLCanvas(parent, wxID_ANY, WxEditor::glAttributes)
     , context(nullptr)
     , renderTimer(this)
+    , addStartupObjects{addStartupObjects}
     , onStartupDone{onStartupDone}
     , selectItemInGameObjectTree(callback)
 {
@@ -139,6 +141,12 @@ void GLCanvas::OnPaint(wxPaintEvent&)
             {
                 onStartupDone();
                 SetupCamera();
+
+                if (addStartupObjects)
+                {
+                    addPrimitive(GameEngine::PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
+                    addPrimitive(GameEngine::PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
+                }
             });
     }
     if (engine)
@@ -154,19 +162,44 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     SwapBuffers();
 }
 
+void GLCanvas::addPrimitive(GameEngine::PrimitiveType type, const vec3& pos, const vec3& scale)
+{
+    if (not engine->GetSceneManager().GetActiveScene())
+        return;
+
+    auto& resourceManager = GetScene().GetResourceManager();
+    auto model            = resourceManager.GetPrimitives(type);
+    auto obj              = GetScene().CreateGameObject(std::string(magic_enum::enum_name(type)));
+    obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(model);
+    obj->SetLocalPosition(pos);
+    obj->SetLocalScale(scale);
+    GetScene().AddGameObject(std::move(obj));
+}
+
+void GLCanvas::OnSize(wxSizeEvent& event)
+{
+    if (not engine or not engine->GetSceneManager().GetActiveScene())
+        return;
+
+    int w, h;
+    GetClientSize(&w, &h);
+    if (h <= 0)
+        h = 1;
+
+    SetCurrent(*context);
+
+    EngineConf.window.size = vec2i{w, h};
+    engine->GetEngineContext().GetRenderersManager().setRenderingSize(vec2ui{static_cast<uint32>(w), static_cast<uint32>(h)});
+    Refresh(false);
+    event.Skip();
+}
+
 void GLCanvas::SetCursorToCenter()
 {
-    // Rozmiar canvasu
     int w, h;
     GetSize(&w, &h);
-
-    // Srodek klienta
     wxPoint center(w / 2, h / 2);
-
-    // Zamiana na wspolrzedne ekranowe
     wxPoint screenPos = ClientToScreen(center);
-
-    // Przeniesienie kursora
     this->WarpPointer(screenPos.x, screenPos.y);
 }
 

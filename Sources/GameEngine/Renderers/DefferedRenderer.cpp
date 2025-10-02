@@ -25,14 +25,14 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     windowSizeSubscribtionChange_ = EngineConf.window.size.subscribeForChange(
         [this]()
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Resize mode enabled. Window size :  " + std::to_string(EngineConf.window.size) +
-                      ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
+            LOG_DEBUG << "Resize mode enabled. Window size :  " << EngineConf.window.size.toString()
+                      << ", rendering size : " << context_.projection_.GetRenderingSize();
         });
 }
 
 DefferedRenderer::~DefferedRenderer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    LOG_DEBUG << "destructor";
 
     EngineConf.window.size.unsubscribe(windowSizeSubscribtionChange_);
     if (defferedFrameBuffer_)
@@ -63,14 +63,14 @@ void DefferedRenderer::init()
     const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
     if (context_.projection_.GetRenderingSize() != windowSize)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Resize mode enabled. Window size :  " + std::to_string(windowSize) +
-                  ", rendering size : " + std::to_string(context_.projection_.GetRenderingSize()));
+        LOG_DEBUG << "Resize mode enabled. Window size :  " << windowSize
+                  << ", rendering size : " << context_.projection_.GetRenderingSize();
     }
 
     initRenderers();
     postprocessingRenderersManager_.Init();
 
-    /* LOG TO FIX*/  LOG_ERROR << ("DefferedRenderer initialized.");
+    LOG_DEBUG << "DefferedRenderer initialized.";
 }
 
 void DefferedRenderer::reloadShaders()

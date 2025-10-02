@@ -41,6 +41,7 @@ public:
     ~RenderersManager();
     void Init();
     const Projection& GetProjection() const;
+    void setRenderingSize(const vec2ui&);
     void renderScene(Scene&);
     void ReloadShaders();
     void Subscribe(GameObject* gameObject);
@@ -79,6 +80,10 @@ private:
 
     Frustrum frustrum_;
     Projection projection_;
+
+    std::mutex renderingSizeMutex;
+    std::optional<vec2ui> newRenderingSize_;
+
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;

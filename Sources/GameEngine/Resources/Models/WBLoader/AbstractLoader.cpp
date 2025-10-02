@@ -6,6 +6,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "Logger/Log.h"
 #include "Utils/Utils.h"
 

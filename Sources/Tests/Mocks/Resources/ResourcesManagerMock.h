@@ -1,10 +1,11 @@
 #pragma once
 #include <gmock/gmock.h>
-#include <vector>
-#include <memory>
 
-#include "GameEngine/Resources/Models/Model.h"
+#include <memory>
+#include <vector>
+
 #include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/Models/Model.h"
 
 namespace GameEngine
 {
@@ -12,6 +13,7 @@ class ResourceManagerMock : public IResourceManager
 {
 public:
     MOCK_METHOD2(LoadModel, Model*(const File&, const LoadingParameters&));
+    MOCK_METHOD(Model*, GetPrimitives, (PrimitiveType), (override));
     MOCK_METHOD1(AddModelImpl, Model*(Model*));
     MOCK_METHOD1(ReleaseModel, void(Model&));
     MOCK_METHOD0(GetGpuResourceLoader, IGpuResourceLoader&());

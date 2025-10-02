@@ -99,6 +99,8 @@ private:
     void CreateBuffers(Model&);
     void CreatePerObjectUpdateBuffer(const Mesh&);
     void CreatePerObjectConstantsBuffer(const Mesh&);
+    void PrepareCustomMaterials(const Model&);
+    void ReleaseCustomMaterials(const Model&);
 
 private:
     ModelWrapper model_;

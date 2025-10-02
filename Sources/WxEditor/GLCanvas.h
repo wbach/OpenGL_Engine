@@ -36,9 +36,9 @@ class GLCanvas : public wxGLCanvas
 {
 public:
     using SelectItemInGameObjectTree = std::function<void(uint32, bool)>;
-    using OnStartupDone = std::function<void()>;
-    using PrentWindow = wxWindow*;
-    GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree);
+    using OnStartupDone              = std::function<void()>;
+    using PrentWindow                = wxWindow*;
+    GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree, bool addStartupObjects = true);
     ~GLCanvas();
 
     std::string getGlInfo() const;
@@ -49,6 +49,7 @@ public:
     GameEngine::GameObject& GetRootObject();
     GameEngine::Engine& GetEngine();
     GameEngine::Scene& GetScene();
+    void addPrimitive(GameEngine::PrimitiveType, const vec3& pos = vec3(0.f), const vec3& scale = vec3(1.f));
 
 private:
     wxGLContext* context;
@@ -58,6 +59,7 @@ private:
     void OnShow(wxShowEvent&);
     void OnPaint(wxPaintEvent&);
     void OnTimer(wxTimerEvent&);
+    void OnSize(wxSizeEvent&);
 
     void OnKeyUp(wxKeyEvent&);
     void OnKeyDown(wxKeyEvent&);
@@ -72,6 +74,7 @@ private:
 
     DECLARE_EVENT_TABLE()
 
+    bool addStartupObjects;
     OnStartupDone onStartupDone;
     SelectItemInGameObjectTree selectItemInGameObjectTree;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};

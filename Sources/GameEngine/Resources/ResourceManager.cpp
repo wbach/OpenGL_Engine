@@ -2,11 +2,44 @@
 
 #include <Logger/Log.h>
 
+#include <magic_enum/magic_enum.hpp>
+
 #include "IGpuResourceLoader.h"
-#include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "ResourceUtils.h"
 
 namespace GameEngine
 {
+namespace
+{
+GraphicsApi::MeshRawData GeneratePrimitive(PrimitiveType type)
+{
+    switch (type)
+    {
+        case PrimitiveType::Cube:
+            return GenerateCube();
+        case PrimitiveType::Sphere:
+            return GenerateSphere();
+        case PrimitiveType::Cylinder:
+            return GenerateCylinder();
+        case PrimitiveType::Cone:
+            return GenerateCone();
+        case PrimitiveType::Plane:
+            return GeneratePlane();
+        case PrimitiveType::Torus:
+            return GenerateTorus();
+        case PrimitiveType::Pyramid:
+            return GeneratePyramid();
+        case PrimitiveType::IcoSphere:
+            return GenerateIcoSphere();
+        case PrimitiveType::Triangle:
+            return GenerateTriangle();
+        default:
+            return GraphicsApi::MeshRawData();
+    }
+
+    return GraphicsApi::MeshRawData();
+}
+}  // namespace
 ResourceManager::ResourceManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
                                  std::unique_ptr<ITextureLoader> textureLoader,
                                  std::unique_ptr<IModelLoaderFactory> modelLoaderFactory)
@@ -91,6 +124,38 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
     return modelPtr;
 }
+
+Model* ResourceManager::GetPrimitives(PrimitiveType type)
+{
+    std::lock_guard<std::mutex> lk(modelMutex_);
+
+    auto name = std::string(magic_enum::enum_name(type)) + ".primitive";
+
+    auto iter = models_.find(name);
+    if (iter != models_.end())
+    {
+        auto& modelInfo = iter->second;
+        ++modelInfo.instances_;
+        modelInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
+        return modelInfo.resource_.get();
+    }
+
+    auto primitive = GeneratePrimitive(type);
+
+    auto model    = std::make_unique<GameEngine::Model>(ComputeBoundingBox(primitive));
+    auto modelPtr = model.get();
+    GameEngine::Material material;
+    material.diffuse = vec3(0.8f, 0.8f, 0.8f);
+    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, primitive, material));
+
+    ResourceInfo<Model> modelInfo;
+    modelInfo.resource_ = std::move(model);
+
+    models_.insert({name, std::move(modelInfo)});
+    gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
+    return modelPtr;
+}
+
 void ResourceManager::ReleaseModel(Model& model)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
@@ -108,7 +173,7 @@ void ResourceManager::ReleaseModel(Model& model)
 
     if (modelInfo.instances_ > 0 or releaseLockState_)
     {
-        LOG_DEBUG << "Model "<<  absoultePath <<  " not released. Still using by others. Instances=" << modelInfo.instances_;
+        LOG_DEBUG << "Model " << absoultePath << " not released. Still using by others. Instances=" << modelInfo.instances_;
         return;
     }
 

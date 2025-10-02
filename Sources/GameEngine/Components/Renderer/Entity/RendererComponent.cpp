@@ -16,6 +16,7 @@
 #include "Logger/Log.h"
 #include "TreeNode.h"
 #include "Utils.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -134,7 +135,6 @@ void RendererComponent::init()
     loadingParameters_.modelNormalization = modelNormalization ? ModelNormalization::normalized : ModelNormalization::none;
     loadingParameters_.meshOptimize       = meshOptimize ? MeshOptimize::optimized : MeshOptimize::none;
 
-    bool atLeastOneModelIsCreated{false};
     for (auto& [lvl, file] : GetFiles())
     {
         if (file.empty())
@@ -144,29 +144,6 @@ void RendererComponent::init()
         auto model = componentContext_.resourceManager_.LoadModel(file, loadingParameters_);
         if (model)
         {
-            LOG_DEBUG << "model bufferId=" << model->GetGpuObjectId();
-            for (auto& mesh : model->GetMeshes())
-            {
-                LOG_DEBUG << "mesh bufferId=" << mesh.GetGpuObjectId();
-
-                LOG_DEBUG << File("default").GetAbsolutePath();
-
-                if (auto iter = materials.find(mesh.GetMaterial().name); iter == materials.end())
-                {
-                    materials.insert({mesh.GetMaterial().name, {}});
-                }
-                else if (not iter->second.empty() and Utils::toLower(iter->second.GetAbsolutePath().string()) != "default")
-                {
-                    LOG_DEBUG << Utils::toLower(iter->second.GetAbsolutePath().string());
-                    customMaterials.try_emplace(
-                        mesh.GetGpuObjectId(), componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_,
-                        ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
-                }
-            }
-
-            // ReserveBufferVectors(model->GetMeshes().size());
-            CreateBuffers(*model);
-
             auto existModel = model_.Get(lvl);
             if (not existModel)
             {
@@ -175,24 +152,61 @@ void RendererComponent::init()
             else
             {
                 model_.Update(model, lvl);
+                ReleaseCustomMaterials(*existModel);
                 componentContext_.resourceManager_.ReleaseModel(*existModel);
             }
-
-            atLeastOneModelIsCreated = true;
         }
         else
         {
             LOG_ERROR << thisObject_.GetName() << " model load error: " << file.GetBaseName();
         }
     }
-    if (atLeastOneModelIsCreated)
+
+    bool atLeastOneModel = false;
+    for (uint32 i = 0; i < magic_enum::enum_count<LevelOfDetail>(); ++i)
+    {
+        if (auto lvl = magic_enum::enum_cast<LevelOfDetail>(i))
+        {
+            if (auto model = model_.Get(*lvl))
+            {
+                // ReserveBufferVectors(model->GetMeshes().size());
+                CreateBuffers(*model);
+                PrepareCustomMaterials(*model);
+                atLeastOneModel = true;
+            }
+        }
+    }
+
+    if (atLeastOneModel)
     {
         Subscribe();
     }
+}
 
-    //    worldTransformSub_ =
-    //        thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { UpdateBuffers(); }); // TO
-    //        DO
+void RendererComponent::PrepareCustomMaterials(const Model& model)
+{
+    for (auto& mesh : model.GetMeshes())
+    {
+        if (auto iter = materials.find(mesh.GetMaterial().name); iter == materials.end())
+        {
+            materials.insert({mesh.GetMaterial().name, {}});
+        }
+        else if (not iter->second.empty() and Utils::toLower(iter->second.GetAbsolutePath().string()) != "default")
+        {
+            LOG_DEBUG << Utils::toLower(iter->second.GetAbsolutePath().string());
+            customMaterials.try_emplace(mesh.GetGpuObjectId(), componentContext_.graphicsApi_,
+                                        componentContext_.gpuResourceLoader_,
+                                        ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
+        }
+    }
+}
+
+void RendererComponent::ReleaseCustomMaterials(const Model& model)
+{
+    for (auto& mesh : model.GetMeshes())
+    {
+        customMaterials.erase(mesh.GetGpuObjectId());
+    }
 }
 
 void RendererComponent::ClearShaderBuffers()

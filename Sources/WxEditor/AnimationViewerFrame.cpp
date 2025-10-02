@@ -124,7 +124,7 @@ void AnimationViewerFrame::Init()
     };
     auto selectItemInGameObjectTree = [](uint32, bool) {};
 
-    canvas = new GLCanvas(mainSplitter, onStartupDone, selectItemInGameObjectTree);
+    canvas = new GLCanvas(mainSplitter, onStartupDone, selectItemInGameObjectTree, false);
     canvas->SetDropTarget(new FileDropTarget(this));
 
     wxPanel* rightPanel    = new wxPanel(mainSplitter);

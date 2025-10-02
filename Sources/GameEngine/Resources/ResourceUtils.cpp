@@ -2,6 +2,7 @@
 
 #include <FreeImage.h>
 #include <GameEngine/Engine/Configuration.h>
+#include <GraphicsApi/MeshRawData.h>
 #include <Logger/Log.h>
 #include <Utils/Image/ImageUtils.h>
 #include <Utils/Variant.h>
@@ -22,7 +23,7 @@ FIBITMAP* convertTo32bppIfDifferent(FIBITMAP* image)
 
     if (bpp != 32)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Convert image from " + std::to_string(bpp) + " bpp to 32 bpp");
+        /* LOG TO FIX*/ LOG_ERROR << ("Convert image from " + std::to_string(bpp) + " bpp to 32 bpp");
 
         FIBITMAP* image32bit = FreeImage_ConvertTo32Bits(image);
         FreeImage_Unload(image);
@@ -60,7 +61,8 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
 
         if (resize_texture)
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Resize image from " + std::to_string(vec2ui(w, h)) + " to " + std::to_string(newImageSize));
+            /* LOG TO FIX*/ LOG_ERROR << ("Resize image from " + std::to_string(vec2ui(w, h)) + " to " +
+                                          std::to_string(newImageSize));
 
             auto resizedImage =
                 FreeImage_Rescale(image, static_cast<int>(newImageSize.x), static_cast<int>(newImageSize.y), FILTER_BSPLINE);
@@ -72,7 +74,7 @@ FIBITMAP* resizeImageIfisLimited(FIBITMAP* image, SizeLimitPolicy sizeLimitPolic
             }
             else
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("Resize error.");
+                /* LOG TO FIX*/ LOG_ERROR << ("Resize error.");
             }
         }
     }
@@ -139,8 +141,8 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    /* LOG TO FIX*/  LOG_ERROR << ("File: " + file.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
-              std::to_string(resultImage.height));
+    /* LOG TO FIX*/ LOG_ERROR << ("File: " + file.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
+                                  std::to_string(resultImage.height));
     return std::move(resultImage);
 }
 
@@ -175,7 +177,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
 
     if (not image)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cant convert to 32 bits memory image.");
+        /* LOG TO FIX*/ LOG_ERROR << ("Cant convert to 32 bits memory image.");
         return {};
     }
 
@@ -193,7 +195,8 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    /* LOG TO FIX*/  LOG_ERROR << ("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" + std::to_string(resultImage.height));
+    /* LOG TO FIX*/ LOG_ERROR << ("Image is loaded. Size: " + std::to_string(resultImage.width) + "x" +
+                                  std::to_string(resultImage.height));
     return std::move(resultImage);
 }
 
@@ -241,7 +244,9 @@ void CreateHeightMap(const File& in, const File& out, const vec3& scale)
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
                        [&](const std::vector<float>& data) { fwrite(&data[0], sizeof(float), size, fp); },
-                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Data not set!"); }},
+                       [](std::monostate) { /* LOG TO FIX*/
+                                            LOG_ERROR << ("Data not set!");
+                       }},
                image.getImageData());
     fclose(fp);
 }
@@ -275,7 +280,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
     auto& image = heightmap.GetImage();
     if (image.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Can not save height map without data!");
+        /* LOG TO FIX*/ LOG_ERROR << ("Can not save height map without data!");
         return;
     }
 
@@ -303,7 +308,9 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
                        [&](const std::vector<float>& data) { fwrite(&data[0], sizeof(float), size, fp); },
-                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Data not set!"); }},
+                       [](std::monostate) { /* LOG TO FIX*/
+                                            LOG_ERROR << ("Data not set!");
+                       }},
                image.getImageData());
     fclose(fp);
 
@@ -395,9 +402,45 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                            Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
                                             vec2(4));
                        },
-                       [&](const std::vector<float>&) { /* LOG TO FIX*/  LOG_ERROR << ("GenerateBlendMapImage for floats not implemented"); },
-                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Data not set!"); }},
+                       [&](const std::vector<float>&) { /* LOG TO FIX*/
+                                                        LOG_ERROR << ("GenerateBlendMapImage for floats not implemented");
+                       },
+                       [](std::monostate) { /* LOG TO FIX*/
+                                            LOG_ERROR << ("Data not set!");
+                       }},
                image.getImageData());
+}
+
+GameEngine::BoundingBox ComputeBoundingBox(const GraphicsApi::MeshRawData& mesh)
+{
+    if (mesh.positions_.empty())
+        return GameEngine::BoundingBox();
+
+    vec3 minPos(mesh.positions_[0], mesh.positions_[1], mesh.positions_[2]);
+    vec3 maxPos = minPos;
+
+    for (size_t i = 3; i < mesh.positions_.size(); i += 3)
+    {
+        float x = mesh.positions_[i + 0];
+        float y = mesh.positions_[i + 1];
+        float z = mesh.positions_[i + 2];
+
+        if (x < minPos.x)
+            minPos.x = x;
+        if (y < minPos.y)
+            minPos.y = y;
+        if (z < minPos.z)
+            minPos.z = z;
+
+        if (x > maxPos.x)
+            maxPos.x = x;
+        if (y > maxPos.y)
+            maxPos.y = y;
+        if (z > maxPos.z)
+            maxPos.z = z;
+    }
+
+    return GameEngine::BoundingBox(minPos, maxPos);
 }
 
 }  // namespace GameEngine

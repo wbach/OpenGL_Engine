@@ -10,6 +10,7 @@
 #include "Textures/HeightMap.h"
 #include <Utils/Image/Image.h>
 #include "Textures/GeneralTexture.h"
+#include "Models/BoundingBox.h"
 
 namespace GameEngine
 {
@@ -34,4 +35,6 @@ Utils::Image CreateZerosImage(const vec2ui& size, uint8 channels)
     image.allocateImage<T>();
     return image;
 }
+
+GameEngine::BoundingBox ComputeBoundingBox(const GraphicsApi::MeshRawData&);
 }  // namespace GameEngine

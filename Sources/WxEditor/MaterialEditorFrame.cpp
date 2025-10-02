@@ -3,6 +3,9 @@
 #include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Textures/GeneralTexture.h>
 
+#include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
+
+#include "EditorUitls.h"
 #include "GLCanvas.h"
 
 MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -15,13 +18,13 @@ MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& p
     auto onStartupDone = [this]()
     {
         auto& camera = canvas->GetScene().GetCamera();
-        camera.SetPosition(vec3(-0.75f, 0.5f, 0.75f));
-        camera.LookAt(vec3(0, 0.5f, 0));
+        camera.SetPosition(vec3(-1.75f, 0.0f, 0.0f));
+        camera.LookAt(vec3(0, 0.0f, 0));
         camera.UpdateMatrix();
         Init();
     };
     auto selectItem = [](uint32, bool) {};
-    canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem);
+    canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem, false);
 }
 
 void MaterialEditorFrame::Init()
@@ -45,7 +48,8 @@ void MaterialEditorFrame::Init()
     rightSizer->Add(roughnessSlider, 0, wxEXPAND | wxALL, 5);
     roughnessSlider->Bind(wxEVT_SLIDER, &MaterialEditorFrame::OnRoughnessChanged, this);
 
-    auto& textureLoader = canvas->GetScene().GetResourceManager().GetTextureLoader();
+    auto& scene         = canvas->GetScene();
+    auto& textureLoader = scene.GetResourceManager().GetTextureLoader();
     // textureLoader.LoadTexture(path);
 
     // Diffuse
@@ -78,6 +82,8 @@ void MaterialEditorFrame::Init()
     // Splitter
     auto size = GetSize();
     mainSplitter->SplitVertically(canvas, rightPanel, 3 * size.x / 4);
+
+    canvas->addPrimitive(GameEngine::PrimitiveType::Sphere);
 
     CreateStatusBar();
     SetStatusText("Material Editor ready");

@@ -66,10 +66,19 @@ Projection &Projection::operator=(const Projection &p)
     projectionMatrix_ = p.projectionMatrix_;
     return *this;
 }
+
+void Projection::SetRenderingSize(const vec2ui& newSize)
+{
+    renderingSize_ = newSize;
+    CalculateAspectRatio();
+    CreateProjectionMatrix();
+}
+
 void Projection::Init()
 {
     renderingSize_ = EngineConf.renderer.resolution.get();
     aspectRatio_   = CalculateAspectRatio();
+    CreateProjectionMatrix();
 }
 const mat4 &Projection::GetProjectionMatrix() const
 {

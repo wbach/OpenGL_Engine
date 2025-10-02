@@ -15,6 +15,7 @@ public:
     Projection& operator=(const Projection& p);
 
     void Init();
+    void SetRenderingSize(const vec2ui&);
 
     void CreateProjectionMatrix();
     void OrthographiProjection();
