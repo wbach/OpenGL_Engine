@@ -57,9 +57,9 @@ vec2 Beizer::calculateValue(float t) const
         return result;
 
     float tmp = 0;
-    auto n    = controlPoints_.size();
+    auto n    = static_cast<int>(controlPoints_.size());
 
-    for (size_t i = 0; i < n; ++i)
+    for (int i = 0; i < n; ++i)
     {
         float bm = bernstein(i, n, t);
         tmp += bm;

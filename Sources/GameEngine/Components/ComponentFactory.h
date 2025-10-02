@@ -29,7 +29,7 @@ class RenderersManager;
 
 namespace Physics
 {
-struct IPhysicsApi;
+class IPhysicsApi;
 }  // namespace Physics
 
 namespace Components

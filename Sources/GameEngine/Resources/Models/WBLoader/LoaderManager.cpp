@@ -38,8 +38,8 @@ std::unique_ptr<Model> LoaderManager::Load(const File& file, const LoadingParame
         for (const auto& mesh : result->GetMeshes())
         {
             trianglesCount += (not mesh.GetCMeshDataRef().indices_.empty())
-                                  ? (mesh.GetCMeshDataRef().indices_.size() / 3.f)
-                                  : (mesh.GetCMeshDataRef().positions_.size() / 3.f / 3.f);
+                                  ? (mesh.GetCMeshDataRef().indices_.size() / 3)
+                                  : (mesh.GetCMeshDataRef().positions_.size() / 3 / 3);
         }
 
         LOG_ERROR << "File  loaded: " << file << " Meshes count : " << result->GetMeshes().size()

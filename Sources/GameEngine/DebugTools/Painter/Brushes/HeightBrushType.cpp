@@ -1,6 +1,7 @@
 #include "HeightBrushType.h"
 
 #include <algorithm>
+#include <iterator>
 
 namespace GameEngine
 {

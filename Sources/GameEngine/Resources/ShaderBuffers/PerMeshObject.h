@@ -3,7 +3,7 @@
 
 namespace GameEngine
 {
-class Material;
+struct Material;
 
 struct PerMeshObject
 {

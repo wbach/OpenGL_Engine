@@ -91,36 +91,39 @@ const float* ShadowBox::getLightCascadeDistances() const
 
 void expDistances(float* cascadeDistances)
 {
-    float a = pow(EngineConf.renderer.shadows.distance.get() , 1.f / (EngineConf.renderer.shadows.cascadesSize.get() - 1));
+    float a = pow(EngineConf.renderer.shadows.distance.get(),
+                  1.f / (static_cast<float>(EngineConf.renderer.shadows.cascadesSize.get()) - 1.f));
 
     for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
-        cascadeDistances[i] = pow(a, i);
-        /* LOG TO FIX*/  LOG_ERROR << ("Cascade : " + std::to_string(cascadeDistances[i]));
+        cascadeDistances[i] = powf(a, static_cast<float>(i));
+        LOG_DEBUG << "Cascade : " << cascadeDistances[i];
     }
 }
 
 void quadraticDistances(float* cascadeDistances)
 {
     float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
-    float a  = (*EngineConf.renderer.shadows.distance - s0) / pow(*EngineConf.renderer.shadows.cascadesSize - 1, 2);
+    float a  = (*EngineConf.renderer.shadows.distance - s0) /
+              powf(static_cast<float>(*EngineConf.renderer.shadows.cascadesSize) - 1.f, 2.f);
 
     for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
-        cascadeDistances[i] = a * pow(i, 2) + s0;
-        /* LOG TO FIX*/  LOG_ERROR << ("Cascade : " + std::to_string(cascadeDistances[i]));
+        cascadeDistances[i] = a * powf(static_cast<float>(i), 2.f) + s0;
+        LOG_DEBUG << "Cascade : " << cascadeDistances[i];
     }
 }
 
 void linearDistances(float* cascadeDistances)
 {
     float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
-    float a  = (*EngineConf.renderer.shadows.distance - s0) / (*EngineConf.renderer.shadows.cascadesSize - 1);
+    float a =
+        (*EngineConf.renderer.shadows.distance - s0) / (static_cast<float>(*EngineConf.renderer.shadows.cascadesSize) - 1.f);
 
     for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
     {
         cascadeDistances[i] = a * i + s0;
-        /* LOG TO FIX*/  LOG_ERROR << ("Cascade : " + std::to_string(cascadeDistances[i]));
+        LOG_DEBUG << "Cascade : " << cascadeDistances[i];
     }
 }
 
@@ -131,7 +134,7 @@ void ShadowBox::caclulateCascadeDistances()
         for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
         {
             cascadeDistances_[i] = *EngineConf.renderer.shadows.distance;
-            /* LOG TO FIX*/  LOG_ERROR << ("Cascade : " + std::to_string(cascadeDistances_[i]));
+            LOG_DEBUG << "Cascade : " << cascadeDistances_[i];
         }
         return;
     }

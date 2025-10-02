@@ -1,18 +1,18 @@
 #pragma once
+#include <Types.h>
+
 #include <functional>
-
-#include "Types.h"
-
 
 struct Rotation;
 
 namespace GameEngine
 {
-struct ICamera
+class ICamera
 {
+public:
     virtual ~ICamera() = default;
 
-    virtual void Update() = 0;
+    virtual void Update()     = 0;
     virtual void UpdateImpl() = 0;
 
     virtual void Lock()           = 0;

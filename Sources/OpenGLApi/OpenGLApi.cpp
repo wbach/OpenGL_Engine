@@ -671,7 +671,7 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
-    auto id = impl_->shaderBuffers_.size() - 1;
+    auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
     return id;
 }
 

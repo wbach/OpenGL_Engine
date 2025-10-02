@@ -49,8 +49,9 @@ struct CollisionDetection
     Predicate predicate;
 };
 
-struct IPhysicsApi
+class IPhysicsApi
 {
+public:
     virtual ~IPhysicsApi()                                                                          = default;
     virtual void Simulate(float)                                                                    = 0;
     virtual const GraphicsApi::LineMesh& DebugDraw()                                                = 0;

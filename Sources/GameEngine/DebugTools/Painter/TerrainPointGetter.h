@@ -14,7 +14,7 @@ class GameObject;
 class HeightMap;
 class CameraWrapper;
 class Projection;
-class TerrainPoint;
+struct TerrainPoint;
 
 namespace Components
 {

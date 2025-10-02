@@ -9,7 +9,7 @@
 
 namespace GameEngine
 {
-const size_t LOD_SIZE = 8;
+const uint32 LOD_SIZE = 8;
 
 void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const std::string& filename)
 {
@@ -30,9 +30,9 @@ void SaveTerrainConfigurationToFile(const TerrainConfiguration& config, const st
     file << "DisplacmentStrength " << diplacmentStrength.x << " " << diplacmentStrength.y << " " << diplacmentStrength.z << " "
          << diplacmentStrength.w << "\n";
 
-    for (size_t i = 0; i < LOD_SIZE; ++i)
+    for (uint32 i = 0; i < LOD_SIZE; ++i)
     {
-        file << "SetLod " << std::to_string(i) << " " << config.GetLodRange(i) << "\n";
+        file << "SetLod " << i << " " << config.GetLodRange(i) << "\n";
     }
 
     if (config.GetPartsCount())

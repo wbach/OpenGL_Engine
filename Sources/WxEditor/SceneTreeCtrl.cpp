@@ -4,9 +4,10 @@
 #include <Utils/Variant.h>
 #include <wx/menu.h>
 
+#include <GameEngine/Scene/Scene.hpp>
+
 #include "ControlsIds.h"
 #include "DisableHelper.h"
-#include "Scene/Scene.hpp"
 #include "WxEditor/EditorUitls.h"
 
 SceneTreeCtrl::SceneTreeCtrl(wxTreeCtrl *tree, ChangeGameObjectParent changeGameObjectParent)

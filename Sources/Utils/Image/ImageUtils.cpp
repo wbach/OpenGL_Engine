@@ -38,7 +38,8 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     }
     if (scale)
     {
-        auto scaledBitmap = FreeImage_Rescale(bitmap, size.x * scale->x, size.y * scale->y, FREE_IMAGE_FILTER::FILTER_BICUBIC);
+        auto scaledBitmap = FreeImage_Rescale(bitmap, static_cast<int>(size.x * scale->x), static_cast<int>(size.y * scale->y),
+                                              FREE_IMAGE_FILTER::FILTER_BICUBIC);
 
         FreeImage_Unload(bitmap);
         bitmap = scaledBitmap;

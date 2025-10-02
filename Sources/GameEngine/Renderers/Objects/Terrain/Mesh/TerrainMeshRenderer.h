@@ -1,5 +1,6 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
+#include <mutex>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"

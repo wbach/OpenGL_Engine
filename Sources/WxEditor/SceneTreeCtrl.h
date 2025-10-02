@@ -9,11 +9,11 @@
 namespace GameEngine
 {
 class Scene;
-class AddGameObjectNotifEvent;
-class ModifyGameObjectEvent;
-class RemoveGameObjectEvent;
-class ChangeParentEvent;
-class ClearGameObjectsEvent;
+struct AddGameObjectNotifEvent;
+struct ModifyGameObjectEvent;
+struct RemoveGameObjectEvent;
+struct ChangeParentEvent;
+struct ClearGameObjectsEvent;
 }  // namespace GameEngine
 
 struct TreeItemIdHasher

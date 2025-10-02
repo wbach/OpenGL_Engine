@@ -1,9 +1,11 @@
 #include "MainFrame.h"
 
+#include <GameEngine/Components/FunctionType.h>
 #include <GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
@@ -26,7 +28,6 @@
 #include "BuildLogFrame.h"
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"
-#include "Components/FunctionType.h"
 #include "ControlsIds.h"
 #include "EditorUitls.h"
 #include "GLCanvas.h"
@@ -34,7 +35,6 @@
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel.h"
-#include "Resources/Models/Material.h"
 #include "Theme.h"
 #include "TransformPanel.h"
 #include "magic_enum/magic_enum.hpp"

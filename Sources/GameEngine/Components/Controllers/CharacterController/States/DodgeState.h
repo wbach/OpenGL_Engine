@@ -38,7 +38,7 @@ private:
 
 private:
     std::optional<float> jumpAttemptTimer;
-    std::optional<float> dodgeAnimSubId;
+    std::optional<IdType> dodgeAnimSubId;
 };
 }  // namespace Components
 }  // namespace GameEngine

@@ -4,7 +4,7 @@
 namespace GameEngine
 {
 class Scene;
-class RendererContext;
+struct RendererContext;
 class PostprocessingRenderer
 {
 public:

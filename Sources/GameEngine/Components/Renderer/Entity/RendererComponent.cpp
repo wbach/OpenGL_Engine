@@ -155,9 +155,9 @@ void RendererComponent::init()
                 {
                     materials.insert({mesh.GetMaterial().name, {}});
                 }
-                else if (not iter->second.empty() and Utils::toLower(iter->second.GetAbsolutePath()) != "default")
+                else if (not iter->second.empty() and Utils::toLower(iter->second.GetAbsolutePath().string()) != "default")
                 {
-                    LOG_DEBUG << Utils::toLower(iter->second.GetAbsolutePath());
+                    LOG_DEBUG << Utils::toLower(iter->second.GetAbsolutePath().string());
                     customMaterials.try_emplace(
                         mesh.GetGpuObjectId(), componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_,
                         ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
@@ -473,7 +473,7 @@ void RendererComponent::write(TreeNode& node) const
     create(node.addChild(CSTR_MODEL_FILE_NAMES), GetFiles());
     create(node.addChild(MATERIALS), materials);
 }
-const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId) const
+const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(IdType meshId) const
 {
     auto iter = perObjectUpdateBuffer_.find(meshId);
     if (iter != perObjectUpdateBuffer_.end())
@@ -483,7 +483,7 @@ const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(uint64 meshId
 
     return defaultId;
 }
-const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(uint64 meshId) const
+const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(IdType meshId) const
 {
     auto iter = perObjectConstantsBuffer_.find(meshId);
     if (iter != perObjectConstantsBuffer_.end())

@@ -15,7 +15,7 @@
 namespace GameEngine
 {
 class GameObject;
-class ExternalComponentsReader;
+struct ExternalComponentsReader;
 }  // namespace GameEngine
 
 class ComponentPanel : public wxPanel

@@ -2,6 +2,7 @@
 #include <Common/Transform.h>
 #include "BaseObject.h"
 #include "GameEngine/Resources/Models/Material.h"
+#include <array>
 
 namespace GameEngine
 {

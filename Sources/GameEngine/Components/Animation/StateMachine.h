@@ -14,7 +14,7 @@ namespace Components
 {
 struct Event;
 class IAnimationState;
-class Context;
+struct Context;
 
 struct StateMachine
 {

@@ -8,7 +8,7 @@
 
 namespace GameEngine
 {
-struct ICamera;
+class ICamera;
 class ThirdPersonCamera;
 
 namespace Components

@@ -25,7 +25,7 @@ class ISceneManager;
 
 namespace Physics
 {
-struct IPhysicsApi;
+class IPhysicsApi;
 }  // namespace Physics
 namespace Renderer
 {

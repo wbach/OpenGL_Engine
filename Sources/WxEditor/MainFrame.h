@@ -1,6 +1,8 @@
 
 #pragma once
+#include <GameEngine/DebugTools/Painter/Painter.h>
 #include <GameEngine/Renderers/DebugElements/DebugRenderer.h>
+#include <GameEngine/Scene/SceneEvents.h>
 #include <Types.h>
 #include <wx/frame.h>
 #include <wx/generic/dirctrlg.h>
@@ -16,9 +18,7 @@
 #include <unordered_map>
 
 #include "DisableHelper.h"
-#include "GameEngine/DebugTools/Painter/Painter.h"
 #include "MyEvents.h"
-#include "Scene/SceneEvents.h"
 #include "SceneTreeCtrl.h"
 #include "TransformPanel.h"
 
@@ -142,7 +142,7 @@ private:
     void OnToolAnimationViewer(wxCommandEvent&);
     void OnBuildCmponents(wxCommandEvent&);
 
-    void RunCommand(const std::string& cmd, const std::string& workDir, wxProcess *process = nullptr);
+    void RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process = nullptr);
 
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);

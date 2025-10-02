@@ -256,14 +256,14 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
+      <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING; _CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -291,7 +291,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <MinimalRebuild>false</MinimalRebuild>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
       <AdditionalOptions>/MP$(NUMBER_OF_PROCESSORS) /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

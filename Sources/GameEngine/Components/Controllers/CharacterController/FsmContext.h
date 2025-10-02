@@ -9,7 +9,7 @@
 
 namespace Physics
 {
-struct IPhysicsApi;
+class IPhysicsApi;
 }
 
 namespace GameEngine

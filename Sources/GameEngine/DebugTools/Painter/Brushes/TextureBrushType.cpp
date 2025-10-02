@@ -1,5 +1,6 @@
 #include "TextureBrushType.h"
 #include <algorithm>
+#include <iterator>
 
 namespace GameEngine
 {

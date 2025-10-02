@@ -21,7 +21,7 @@ class IGraphicsApi;
 namespace GameEngine
 {
 class Mesh;
-class PerMeshObject;
+struct PerMeshObject;
 class IGpuResourceLoader;
 
 namespace Components
@@ -84,8 +84,8 @@ public:
 
     inline ModelWrapper& GetModelWrapper();
     inline uint32_t GetTextureIndex() const;
-    const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint64 meshId) const;
-    const GraphicsApi::ID& GetPerObjectConstantsBuffer(uint64 meshId) const;
+    const GraphicsApi::ID& GetPerObjectUpdateBuffer(IdType) const;
+    const GraphicsApi::ID& GetPerObjectConstantsBuffer(IdType) const;
     std::unordered_map<LevelOfDetail, File> GetFiles() const;
     const std::unordered_map<IdType, CustomMaterialData>& GetCustomMaterials() const;
 

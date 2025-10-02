@@ -121,12 +121,12 @@ std::optional<uint32> FontManager::openFont(const File &filename, uint32 size)
     {
         // TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
         impl_->fonts_.push_back(font);
-        auto id = impl_->fonts_.size();
+        auto id = static_cast<uint32>(impl_->fonts_.size());
         fontNameToIdMap_.insert({fname, id});
         return id;
     }
 
-    /* LOG TO FIX*/ LOG_ERROR << ("Cannot open font : " + filename.GetFilename());
+    LOG_ERROR << "Cannot open font : " << filename.GetFilename();
     return {};
 }
 

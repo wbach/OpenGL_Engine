@@ -87,8 +87,8 @@ vec2 CameraEditor::CalcualteMouseMove()
 {
     vec2 result;
     auto currentMousePosition = inputManager_.GetPixelMousePosition();
-    result.x                  = currentMousePosition.x - referenceMousePosition_->x;
-    result.y                  = currentMousePosition.y - referenceMousePosition_->y;
+    result.x                  = static_cast<float>(currentMousePosition.x - referenceMousePosition_->x);
+    result.y                  = static_cast<float>(currentMousePosition.y - referenceMousePosition_->y);
     referenceMousePosition_   = currentMousePosition;
     return result;
 }

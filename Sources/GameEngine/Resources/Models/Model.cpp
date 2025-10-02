@@ -178,7 +178,7 @@ std::optional<GraphicsApi::MeshRawData> Model::getModelRawData() const
         const auto& meshData = mesh.GetCMeshDataRef();
         for (auto& i : meshData.indices_)
         {
-            result.indices_.push_back(i + (result.positions_.size() / 3.f));
+            result.indices_.push_back(i + static_cast<int>((result.positions_.size() / 3)));
         }
         result.positions_.insert(std::end(result.positions_), std::begin(meshData.positions_), std::end(meshData.positions_));
     }
