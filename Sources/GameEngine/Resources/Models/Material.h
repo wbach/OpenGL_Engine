@@ -13,9 +13,9 @@ struct Material
 {
     std::string name{"noName"};
 
-    vec3 ambient  = vec3(0.f);
-    vec3 diffuse  = vec3(.8f);
-    vec3 specular = vec3(0.f);
+    Color ambient{vec4(0.f, 0.f, 0.f, 1.f)};
+    Color diffuse{vec4(0.8f, 0.8f, 0.8f, 1.f)};
+    Color specular{vec4(0.f, 0.f, 0.f, 1.f)};
 
     float shineDamper       = 0.f;
     float reflectivity      = 0.f;

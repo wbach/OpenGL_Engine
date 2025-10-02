@@ -1,0 +1,204 @@
+#include "MaterialEditorFrame.h"
+
+#include <GameEngine/Resources/ITextureLoader.h>
+#include <GameEngine/Resources/Textures/GeneralTexture.h>
+
+#include "GLCanvas.h"
+
+MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
+    : wxFrame(nullptr, wxID_ANY, title, pos, size)
+{
+    wxInitAllImageHandlers();
+    mainSplitter = new wxSplitterWindow(this, wxID_ANY);
+
+    // Canvas renderujący preview materiału
+    auto onStartupDone = [this]()
+    {
+        auto& camera = canvas->GetScene().GetCamera();
+        camera.SetPosition(vec3(-0.75f, 0.5f, 0.75f));
+        camera.LookAt(vec3(0, 0.5f, 0));
+        camera.UpdateMatrix();
+        Init();
+    };
+    auto selectItem = [](uint32, bool) {};
+    canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem);
+}
+
+void MaterialEditorFrame::Init()
+{
+    // Panel boczny z kontrolkami
+    wxPanel* rightPanel    = new wxPanel(mainSplitter);
+    wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
+
+    ambientBtn = AddColorPicker(rightPanel, rightSizer, "Ambient",
+                                [this](wxCommandEvent&) { currentMaterial.ambient = PickColor(currentMaterial.ambient); });
+
+    diffuseBtn = AddColorPicker(rightPanel, rightSizer, "Diffuse",
+                                [this](wxCommandEvent&) { currentMaterial.diffuse = PickColor(currentMaterial.diffuse); });
+
+    specularBtn = AddColorPicker(rightPanel, rightSizer, "Specular",
+                                 [this](wxCommandEvent&) { currentMaterial.specular = PickColor(currentMaterial.specular); });
+
+    // Roughness / ShineDamper
+    rightSizer->Add(new wxStaticText(rightPanel, wxID_ANY, "Shine Damper:"), 0, wxALL, 5);
+    roughnessSlider = new wxSlider(rightPanel, wxID_ANY, static_cast<int>(currentMaterial.shineDamper * 100), 0, 100);
+    rightSizer->Add(roughnessSlider, 0, wxEXPAND | wxALL, 5);
+    roughnessSlider->Bind(wxEVT_SLIDER, &MaterialEditorFrame::OnRoughnessChanged, this);
+
+    auto& textureLoader = canvas->GetScene().GetResourceManager().GetTextureLoader();
+    // textureLoader.LoadTexture(path);
+
+    // Diffuse
+    AddTexturePicker(rightPanel, rightSizer, "Diffuse Texture", diffusePathCtrl,
+                     [this, &textureLoader](const std::string& path)
+                     { currentMaterial.diffuseTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+
+    // Ambient
+    AddTexturePicker(rightPanel, rightSizer, "Ambient Texture", ambientPathCtrl,
+                     [this, &textureLoader](const std::string& path)
+                     { currentMaterial.ambientTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+
+    // Specular
+    AddTexturePicker(rightPanel, rightSizer, "Specular Texture", specularPathCtrl,
+                     [this, &textureLoader](const std::string& path)
+                     { currentMaterial.specularTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+
+    // Normal
+    AddTexturePicker(rightPanel, rightSizer, "Normal Texture", normalPathCtrl,
+                     [this, &textureLoader](const std::string& path)
+                     { currentMaterial.normalTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+
+    // Displacement
+    AddTexturePicker(rightPanel, rightSizer, "Displacement Texture", displacementPathCtrl,
+                     [this, &textureLoader](const std::string& path)
+                     { currentMaterial.displacementTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+
+    rightPanel->SetSizer(rightSizer);
+
+    // Splitter
+    auto size = GetSize();
+    mainSplitter->SplitVertically(canvas, rightPanel, 3 * size.x / 4);
+
+    CreateStatusBar();
+    SetStatusText("Material Editor ready");
+
+    // Timer do odświeżania GLCanvas
+    timer = new wxTimer(this);
+    Bind(wxEVT_TIMER, &MaterialEditorFrame::OnTimer, this);
+    timer->Start(16);
+}
+
+wxButton* MaterialEditorFrame::AddColorPicker(wxPanel* parent, wxBoxSizer* sizer, const wxString& labelText,
+                                              std::function<void(wxCommandEvent&)> onChange)
+{
+    sizer->Add(new wxStaticText(parent, wxID_ANY, labelText), 0, wxALL, 5);
+    wxButton* btn = new wxButton(parent, wxID_ANY, "Choose " + labelText);
+    sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
+
+    // Bind z lambda, która wywoła std::function
+    btn->Bind(wxEVT_BUTTON, onChange);
+
+    return btn;
+}
+
+// Timer do odświeżania podglądu
+void MaterialEditorFrame::OnTimer(wxTimerEvent&)
+{
+    if (canvas)
+        canvas->Refresh();
+}
+
+vec3 MaterialEditorFrame::PickColor(const Color& currentColor)
+{
+    wxColourData data;
+    // ustawienie aktualnego koloru jako startowego
+    data.SetColour(wxColour(currentColor.r(), currentColor.g(), currentColor.b()));
+    wxColourDialog dlg(this, &data);
+    if (dlg.ShowModal() == wxID_OK)
+    {
+        wxColour col = dlg.GetColourData().GetColour();
+        vec3 result(col.Red() / 255.f, col.Green() / 255.f, col.Blue() / 255.f);
+        canvas->Refresh();
+        return result;
+    }
+    return vec3(0.f);
+}
+
+wxBoxSizer* MaterialEditorFrame::AddTexturePicker(wxPanel* parent, wxBoxSizer* sizer, const wxString& labelText,
+                                                  wxTextCtrl*& outTextCtrl,
+                                                  std::function<void(const std::string&)> onTextureChanged)
+{
+    // Label
+    sizer->Add(new wxStaticText(parent, wxID_ANY, labelText), 0, wxALL, 5);
+
+    // HBox z TextCtrl i Browse button
+    wxBoxSizer* texSizer = new wxBoxSizer(wxHORIZONTAL);
+    outTextCtrl          = new wxTextCtrl(parent, wxID_ANY);
+    wxButton* browseBtn  = new wxButton(parent, wxID_ANY, "Browse...");
+    texSizer->Add(outTextCtrl, 1, wxEXPAND | wxALL, 2);
+    texSizer->Add(browseBtn, 0, wxALL, 2);
+    sizer->Add(texSizer, 0, wxEXPAND | wxALL, 5);
+
+    // Obsługa przycisku Browse
+    browseBtn->Bind(wxEVT_BUTTON,
+                    [this, outTextCtrl, onTextureChanged](wxCommandEvent&)
+                    {
+                        wxFileDialog openFileDialog(this, _("Choose texture file"), "", "",
+                                                    "Image files (*.png;*.jpg;*.tga)|*.png;*.jpg;*.tga|All files (*.*)|*.*",
+                                                    wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+                        if (openFileDialog.ShowModal() == wxID_CANCEL)
+                            return;
+
+                        outTextCtrl->SetValue(openFileDialog.GetPath());
+                        onTextureChanged(openFileDialog.GetPath().ToStdString());
+                        canvas->Refresh();
+                    });
+
+    return texSizer;
+}
+
+// Zmiana shineDamper / roughness
+void MaterialEditorFrame::OnRoughnessChanged(wxCommandEvent&)
+{
+    currentMaterial.shineDamper = roughnessSlider->GetValue() / 100.f;
+    LOG_DEBUG << "ShineDamper: " << currentMaterial.shineDamper;
+    canvas->Refresh();
+}
+
+// Wczytanie tekstury diffuse
+void MaterialEditorFrame::OnTextureBrowse(wxCommandEvent&)
+{
+    wxFileDialog openFileDialog(this, _("Choose texture file"), "", "",
+                                "Image files (*.png;*.jpg;*.tga)|*.png;*.jpg;*.tga|All files (*.*)|*.*",
+                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    // texturePathCtrl->SetValue(openFileDialog.GetPath());
+
+    // Załaduj do GeneralTexture i przypisz do materialu
+    // currentMaterial.diffuseTexture = new GeneralTexture(openFileDialog.GetPath().ToStdString());
+    // LOG_DEBUG << "Loaded diffuse texture: " << openFileDialog.GetPath().ToStdString();
+    // canvas->Refresh();
+}
+
+// Wczytanie materiału z pliku
+void MaterialEditorFrame::LoadMaterial(const std::string& file)
+{
+    // TODO: wczytaj materiał z pliku i ustaw currentMaterial
+    // Przykładowo:
+    // currentMaterial = LoadFromFile(file);
+
+    // Ustaw kontrolki zgodnie z currentMaterial
+    roughnessSlider->SetValue(static_cast<int>(currentMaterial.shineDamper * 100));
+    // Kolory można ustawić przyciskiem np. diffuseBtn->SetBackgroundColour(wxColour(...))
+    // Tekstura
+    // if (currentMaterial.diffuseTexture)
+    //     texturePathCtrl->SetValue(currentMaterial.diffuseTexture->GetPath());
+
+    materialLoaded = true;
+    canvas->Refresh();
+    LOG_DEBUG << "Material loaded from: " << file;
+}

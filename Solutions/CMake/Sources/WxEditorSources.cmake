@@ -19,4 +19,5 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditorFrame.cpp
 )

@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -39,7 +40,7 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
         loadTexture("displacementTexture", material.displacementTexture);
 
         // -------------------- KOLORY --------------------
-        auto parseVec3 = [&](const TreeNode* node, vec3& target)
+        auto parseColor = [&](const TreeNode* node, Color& target)
         {
             try
             {
@@ -48,9 +49,11 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
                 const auto& children = node->getChildren();
                 if (children.size() >= 3)
                 {
-                    target.x = std::stof(children[0]->value_);
-                    target.y = std::stof(children[1]->value_);
-                    target.z = std::stof(children[2]->value_);
+                    auto x = std::stof(children[0]->value_);
+                    auto y = std::stof(children[1]->value_);
+                    auto z = std::stof(children[2]->value_);
+                    auto w = std::stof(children[3]->value_);
+                    target = Color(vec4(x, y, z, w));
                 }
             }
             catch (...)
@@ -60,13 +63,13 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
         };
 
         if (auto node = reader.Get("diffuseColor", root))
-            parseVec3(node, material.diffuse);
+            parseColor(node, material.diffuse);
 
         if (auto node = reader.Get("ambientColor", root))
-            parseVec3(node, material.ambient);
+            parseColor(node, material.ambient);
 
         if (auto node = reader.Get("specularColor", root))
-            parseVec3(node, material.specular);
+            parseColor(node, material.specular);
 
         // -------------------- FLOATY --------------------
         if (auto node = reader.Get("shineDamper", root))
@@ -106,7 +109,7 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
         // -------------------- BOOLE --------------------
         if (auto node = reader.Get("isTransparency", root))
         {
-            material.isTransparency =  Utils::StringToBool(node->value_);
+            material.isTransparency = Utils::StringToBool(node->value_);
         }
         if (auto node = reader.Get("useFakeLighting", root))
         {
@@ -131,12 +134,13 @@ void SaveMaterial(const Material& material, const File& requestedFile)
     auto file = requestedFile.CreateFileWithExtension("json");
     auto root = std::make_unique<TreeNode>("Material");
 
-    auto vec3ToNode = [](const std::string& name, const vec3& v) -> std::unique_ptr<TreeNode>
+    auto colorToNode = [](const std::string& name, const Color& v) -> std::unique_ptr<TreeNode>
     {
         auto node = std::make_unique<TreeNode>(name);
-        node->addChild("0", std::to_string(v.x));
-        node->addChild("1", std::to_string(v.y));
-        node->addChild("2", std::to_string(v.z));
+        node->addChild("0", std::to_string(v.value.x));
+        node->addChild("1", std::to_string(v.value.y));
+        node->addChild("2", std::to_string(v.value.z));
+        node->addChild("3", std::to_string(v.value.w));
         return node;
     };
 
@@ -151,9 +155,9 @@ void SaveMaterial(const Material& material, const File& requestedFile)
     root->addChild("name", material.name);
 
     // -------------------- KOLORY --------------------
-    root->addChild(vec3ToNode("diffuseColor", material.diffuse));
-    root->addChild(vec3ToNode("ambientColor", material.ambient));
-    root->addChild(vec3ToNode("specularColor", material.specular));
+    root->addChild(colorToNode("diffuseColor", material.diffuse));
+    root->addChild(colorToNode("ambientColor", material.ambient));
+    root->addChild(colorToNode("specularColor", material.specular));
 
     // -------------------- FLOATY --------------------
     root->addChild("shineDamper", std::to_string(material.shineDamper));

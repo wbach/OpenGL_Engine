@@ -496,6 +496,11 @@ struct Color
         value += v.value;
     }
 
+    vec3 xyz() const
+    {
+        return value;
+    }
+
     vec4 value;
 };
 

@@ -8,9 +8,9 @@ namespace GameEngine
 PerMeshObject createPerMeshObject(const Material& material)
 {
     PerMeshObject perMeshObject;
-    perMeshObject.ambient         = ToVec4(material.ambient);
-    perMeshObject.diffuse         = ToVec4(material.diffuse);
-    perMeshObject.specular        = ToVec4(material.specular);
+    perMeshObject.ambient         = material.ambient.value;
+    perMeshObject.diffuse         = material.diffuse.value;
+    perMeshObject.specular        = material.specular.value;
     perMeshObject.shineDamper     = material.shineDamper;
     perMeshObject.useFakeLighting = material.useFakeLighting;
 

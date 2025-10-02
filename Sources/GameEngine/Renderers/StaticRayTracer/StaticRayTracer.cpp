@@ -255,7 +255,7 @@ vec3 RayTracerEngine::procesLight(const Ray &ray, const Light &light, const vec3
     {
         return vec3(0);
     }
-    vec3 ambient = obj->getMaterial().ambient * light.GetColour();
+    vec3 ambient = obj->getMaterial().ambient.xyz() * light.GetColour();
 
     float intensity = glm::dot(normal, lightDirection);
 
@@ -268,12 +268,12 @@ vec3 RayTracerEngine::procesLight(const Ray &ray, const Light &light, const vec3
     vec3 v  = glm::normalize(ray.getPosition() - intersectionPoint);
     float s = glm::dot(v, r);
 
-    vec3 diffuse = obj->getMaterial().diffuse * intensity;
+    vec3 diffuse = obj->getMaterial().diffuse.xyz() * intensity;
     vec3 specular(0.f);
 
     if (s > 0.f && s < 90.f * M_PI / 180.f)
     {
-        specular = obj->getMaterial().specular * light.GetColour() * powf(s, obj->getMaterial().shineDamper);
+        specular = obj->getMaterial().specular.xyz() * light.GetColour() * powf(s, obj->getMaterial().shineDamper);
     }
 
     return ambient + diffuse + specular;
