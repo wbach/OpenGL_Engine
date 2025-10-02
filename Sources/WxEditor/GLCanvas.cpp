@@ -94,6 +94,7 @@ GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGa
     , selectItemInGameObjectTree(callback)
 {
     context = new wxGLContext(this);
+    Bind(wxEVT_SIZE, &GLCanvas::OnSize, this);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     renderTimer.Start(16);
 }
@@ -188,8 +189,10 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 
     SetCurrent(*context);
 
-    EngineConf.window.size = vec2i{w, h};
-    engine->GetEngineContext().GetRenderersManager().setRenderingSize(vec2ui{static_cast<uint32>(w), static_cast<uint32>(h)});
+    vec2ui newSize{static_cast<uint32>(w), static_cast<uint32>(h)};
+    LOG_DEBUG << "Window resized to: " << newSize;
+    EngineConf.window.size = newSize;
+    engine->GetEngineContext().GetRenderersManager().setRenderingSize(newSize);
     Refresh(false);
     event.Skip();
 }
