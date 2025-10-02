@@ -142,7 +142,7 @@ public:
         }
         updatetValueIndex();
     }
-    void setValueFromIndex(size_t i)
+    void setValueFromIndex(size_t i) override
     {
         defaultValueIndex_ = i;
         apply();

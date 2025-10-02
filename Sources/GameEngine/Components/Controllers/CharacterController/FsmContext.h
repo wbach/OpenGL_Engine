@@ -3,21 +3,25 @@
 
 #include <memory>
 
-#include "AimController.h"
 #include "AnimationClipNames.h"
 #include "CharacterControllerFsm.h"
-#include "GameEngine/Components/Animation/Animator.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "MoveController.h"
-#include "MoveSpeed.h"
+
+namespace Physics
+{
+struct IPhysicsApi;
+}
 
 namespace GameEngine
 {
 namespace Components
 {
+struct MoveSpeed;
 class JointPoseUpdater;
 class CharacterController;
+class Rigidbody;
+class Animator;
+class AimController;
 
 struct AttackStatesContext
 {

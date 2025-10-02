@@ -4,6 +4,8 @@
 
 #include "../FsmContext.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {

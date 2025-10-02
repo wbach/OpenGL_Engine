@@ -1,14 +1,21 @@
 #include "EnemyController.h"
 
+#include <Common/Controllers/CharacterController/Character.h>
+#include <Common/Controllers/CharacterController/CharacterActions.h>
+#include <Utils/TreeNode.h>
+
 #include <Utils/math.hpp>
 
 #include "ControllerUtlis.h"
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine

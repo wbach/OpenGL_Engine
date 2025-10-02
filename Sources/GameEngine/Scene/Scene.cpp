@@ -2,7 +2,9 @@
 
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
+#include <Types.h>
 #include <Utils/Time/Timer.h>
+#include <Variant.h>
 
 #include <algorithm>
 #include <mutex>
@@ -17,10 +19,9 @@
 #include "GameEngine/Renderers/GUI/Text/GuiTextElement.h"
 #include "GameEngine/Renderers/GUI/Window/GuiWindow.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Scene/SceneEvents.h"
-#include "Types.h"
-#include "Variant.h"
 #include "XmlSceneStorage.h"
 
 namespace GameEngine

@@ -1,4 +1,5 @@
 #include "TerrainNode.h"
+#include "TerrainConfiguration.h"
 
 namespace GameEngine
 {

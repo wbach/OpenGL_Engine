@@ -1,10 +1,7 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 
 namespace GameEngine
 {

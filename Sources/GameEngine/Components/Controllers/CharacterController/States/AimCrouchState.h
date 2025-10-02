@@ -1,6 +1,5 @@
 #pragma once
 #include "AimStateBase.h"
-#include "CharacterControllerCommonDefs.h"
 #include "IdleStateBase.h"
 
 namespace GameEngine

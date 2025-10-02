@@ -6,20 +6,23 @@
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
-#include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GraphicsApi/GraphicsApiDef.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "Types.h"
+
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
 
 namespace GameEngine
 {
 class Mesh;
 class PerMeshObject;
+class IGpuResourceLoader;
 
 namespace Components
 {

@@ -9,15 +9,7 @@
 
 #include "LogHelpers.h"
 #include "Utils/StreamOperators.h"
-
-enum class LoggingLvl
-{
-    ErrorWarningInfoDebug,
-    ErrorWarningInfo,
-    ErrorWarning,
-    Error,
-    None
-};
+#include "LoggingLvl.h"
 
 class CLogger
 {

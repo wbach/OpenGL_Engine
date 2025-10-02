@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include "GameEngine/Camera/FirstPersonCamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Engine/EngineEvent.h"
 #include "GameEngine/Renderers/GUI/Layout/VerticalLayout.h"

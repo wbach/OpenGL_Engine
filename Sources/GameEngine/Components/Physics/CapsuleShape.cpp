@@ -1,12 +1,13 @@
 #include "CapsuleShape.h"
 
+#include <Logger/Log.h>
+#include <Utils/TreeNode.h>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-
-#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -51,7 +52,8 @@ CapsuleShape& CapsuleShape::SetRadius(float r)
 }
 void CapsuleShape::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<CapsuleShape>(componentContext, gameObject);
 
         vec3 positionOffset(0.f);

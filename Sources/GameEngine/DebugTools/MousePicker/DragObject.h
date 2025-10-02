@@ -1,19 +1,22 @@
 #pragma once
 #include <Types.h>
 
-#include "GameEngine/Camera/CameraWrapper.h"
-#include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Components/Physics/Rigidbody.h"
-
 namespace Input
 {
 class InputManager;
 }
 
-
 namespace GameEngine
 {
+namespace Components
+{
+class Rigidbody;
+}
+
 class Projection;
+class GameObject;
+class CameraWrapper;
+
 class DragObject
 {
 public:

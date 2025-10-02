@@ -8,6 +8,9 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/IResourceManagerFactory.h"
+
 
 namespace GameEngine
 {

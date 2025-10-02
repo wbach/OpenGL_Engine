@@ -1,7 +1,12 @@
 #pragma once
 #include <Types.h>
-#include <Utils/Image/Image.h>
+
 #include <functional>
+
+namespace Utils
+{
+class Image;
+}
 
 namespace GameEngine
 {

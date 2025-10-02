@@ -1,12 +1,12 @@
 #pragma once
-#include <Utils/TreeNode.h>
-
 #include <functional>
 #include <optional>
 #include <unordered_map>
+#include <memory>
 
 #include "GameEngine/Components/ComponentType.h"
-#include "GameEngine/Components/IComponent.h"
+
+class TreeNode;
 
 namespace GameEngine
 {

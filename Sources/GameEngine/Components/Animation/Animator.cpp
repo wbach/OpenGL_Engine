@@ -2,11 +2,13 @@
 
 #include <Common/Transform.h>
 #include <Logger/Log.h>
+#include <Utils/TreeNode.h>
 
 #include <algorithm>
 #include <string>
 
 #include "ChangeAnimationEvent.h"
+#include "Context.h"
 #include "GameEngine/Animations/AnimationUtils.h"
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentController.h"
@@ -16,11 +18,11 @@
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "PlayAnimation.h"
 #include "StopAnimationEvent.h"
-#include "GameEngine/Resources/File.h"
-#include "Context.h"
 
 namespace GameEngine
 {

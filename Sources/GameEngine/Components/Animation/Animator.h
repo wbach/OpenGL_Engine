@@ -1,9 +1,12 @@
 #pragma once
+#include <GameEngine/Components/Animation/AnimationClipInfo.h>
+
 #include <unordered_map>
 
 #include "Common.h"
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Components/ReadAnimationInfo.h"
 #include "JointData.h"
 #include "PlayDirection.h"
 #include "StateMachine.h"

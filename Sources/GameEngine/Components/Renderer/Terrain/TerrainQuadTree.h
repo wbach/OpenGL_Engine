@@ -1,11 +1,11 @@
 #pragma once
-#include "TerrainConfiguration.h"
 #include "TerrainNode.h"
 
 namespace GameEngine
 {
 typedef std::unique_ptr<TerrainNode> TerrainNodePtr;
 typedef std::vector<TerrainNodePtr> TerrainNodes;
+class TerrainConfiguration;
 
 class TerrainQuadTree
 {

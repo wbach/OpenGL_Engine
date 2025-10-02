@@ -1,20 +1,20 @@
 #pragma once
-#include <math.hpp>
 #include <memory>
 #include <vector>
-#include "Common/Transform.h"
-#include "TerrainConfiguration.h"
-#include "Types.h"
+
 #include "PerNodeBuffer.h"
+#include "Types.h"
 
 namespace GameEngine
 {
+class TerrainConfiguration;
+
 class TerrainNode
 {
 public:
     TerrainNode(const TerrainConfiguration& terrainConfiguration, const vec2& location, int32 lod, const vec2& index);
     TerrainNode(const TerrainNode&&) = delete;
-    TerrainNode(const TerrainNode&) = delete;
+    TerrainNode(const TerrainNode&)  = delete;
     void Update(const vec3& cameraPosition);
     const std::vector<std::unique_ptr<TerrainNode>>& GetChildren() const;
     const PerNode& GetPerNodeBuffer() const;

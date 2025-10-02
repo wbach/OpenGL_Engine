@@ -5,17 +5,13 @@
 #include <Utils/Time/TimerService.h>
 
 #include <Mutex.hpp>
-#include <list>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #include "EngineEvent.h"
 #include "GameEngine/Display/DisplayManager.hpp"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Scene/SceneManager.h"
 #include "MeasurementHandler.h"
 
@@ -30,11 +26,13 @@ class InputManager;
 
 namespace GameEngine
 {
+class IResourceManagerFactory;
 class DisplayManager;
-namespace Renderer
+
+namespace Physics
 {
-class RenderersManager;
-}  // namespace Renderer
+class IPhysicsApi;
+}
 
 class EngineContext
 {

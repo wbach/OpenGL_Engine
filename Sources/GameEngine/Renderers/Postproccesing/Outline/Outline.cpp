@@ -1,6 +1,9 @@
 #include "Outline.h"
 
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 
 namespace GameEngine
 {
@@ -26,8 +29,8 @@ void Outline::Init()
         if (bufferId_)
         {
             Buffer buffer;
-            buffer.screenSize = vec2(rendererContext_.projection_.GetRenderingSize().x,
-                                     rendererContext_.projection_.GetRenderingSize().y);
+            buffer.screenSize =
+                vec2(rendererContext_.projection_.GetRenderingSize().x, rendererContext_.projection_.GetRenderingSize().y);
             rendererContext_.graphicsApi_.UpdateShaderBuffer(*bufferId_, &buffer);
         }
     }

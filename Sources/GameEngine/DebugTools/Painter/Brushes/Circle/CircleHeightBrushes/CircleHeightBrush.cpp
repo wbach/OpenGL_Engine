@@ -1,6 +1,7 @@
 #include "CircleHeightBrush.h"
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/DebugTools/Painter/PaintContext.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine

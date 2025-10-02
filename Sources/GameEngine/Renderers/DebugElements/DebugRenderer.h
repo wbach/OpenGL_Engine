@@ -2,12 +2,15 @@
 #include <Mutex.hpp>
 
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "PhysicsVisualizator.h"
+
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
 
 namespace common
 {
@@ -23,6 +26,7 @@ class Entity;
 class Projection;
 class ModelWrapper;
 struct Material;
+struct RendererContext;
 
 namespace Components
 {

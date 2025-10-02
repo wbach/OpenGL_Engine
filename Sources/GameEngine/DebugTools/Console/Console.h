@@ -9,7 +9,6 @@
 #include <unordered_map>
 #include <vector>
 #include <Input/KeysSubscriptionsManager.h>
-#include "GameEngine/Camera/FirstPersonCamera.h"
 
 namespace GameEngine
 {

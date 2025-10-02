@@ -1,7 +1,12 @@
 #pragma once
-#include <GraphicsApi/IGraphicsApi.h>
 #include <atomic>
+
 #include "GameEngine/Shaders/ShaderProgram.h"
+
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
 
 namespace Utils
 {
@@ -9,7 +14,7 @@ namespace Thread
 {
 class Worker;
 class ThreadSync;
-}
+}  // namespace Thread
 }  // namespace Utils
 
 namespace GameEngine

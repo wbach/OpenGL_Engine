@@ -1,5 +1,9 @@
 #include "Fxaa.h"
+
+#include <GraphicsApi/IGraphicsApi.h>
+
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 
 namespace GameEngine
 {
@@ -24,11 +28,12 @@ void Fxaa::Init()
         if (fxaaBufferId_)
         {
             FxaaBuffer buffer;
-            buffer.invertedScreenSize = vec2(1.f / rendererContext_.projection_.GetRenderingSize().x, 1.f / rendererContext_.projection_.GetRenderingSize().y);
-            float fxaaSpanMax = 8.f;
-            float fxaaReduceMin = 1.f / 128.f;
-            float fxaaReduceMul = 0.f/*1.f / 8.f*/;
-            buffer.fxaaVariables = vec4(fxaaSpanMax, fxaaReduceMin, fxaaReduceMul, 0.f);
+            buffer.invertedScreenSize = vec2(1.f / rendererContext_.projection_.GetRenderingSize().x,
+                                             1.f / rendererContext_.projection_.GetRenderingSize().y);
+            float fxaaSpanMax         = 8.f;
+            float fxaaReduceMin       = 1.f / 128.f;
+            float fxaaReduceMul       = 0.f /*1.f / 8.f*/;
+            buffer.fxaaVariables      = vec4(fxaaSpanMax, fxaaReduceMin, fxaaReduceMul, 0.f);
             rendererContext_.graphicsApi_.UpdateShaderBuffer(*fxaaBufferId_, &buffer);
         }
     }

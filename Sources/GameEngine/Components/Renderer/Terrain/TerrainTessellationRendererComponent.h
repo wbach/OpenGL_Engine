@@ -1,9 +1,6 @@
 #pragma once
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "TerrainComponentBase.h"
-#include "TerrainConfiguration.h"
 #include "TerrainQuadTree.h"
-#include "TerrainTexturesTypes.h"
 
 namespace GameEngine
 {

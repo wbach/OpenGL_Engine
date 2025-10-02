@@ -1,5 +1,7 @@
 #include "ParticleEffectComponent.h"
 
+#include <Utils/TreeNode.h>
+
 #include <algorithm>
 
 #include "GameEngine/Camera/Camera.h"
@@ -7,6 +9,7 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 #include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine

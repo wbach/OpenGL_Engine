@@ -1,6 +1,7 @@
 #include "GuiTextElement.h"
 
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
@@ -40,7 +41,7 @@ GuiTextElement::GuiTextElement(FontManager& fontManager, GUIRenderer& guiRendere
     , algin_(Algin::CENTER)
     , rendererdTextScale_(0)
 {
-    /* LOG TO FIX*/  LOG_ERROR << (text_);
+    /* LOG TO FIX*/ LOG_ERROR << (text_);
     RenderText();
 }
 
@@ -220,7 +221,7 @@ void GuiTextElement::RenderText(bool fontOverride)
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("RenderFont error for : " + text_);
+            /* LOG TO FIX*/ LOG_ERROR << ("RenderFont error for : " + text_);
         }
 
         Show();
@@ -254,7 +255,7 @@ void GuiTextElement::UpdateTexture(FontManager::TextureData data)
     TextureParameters params;
     params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
     params.filter          = GraphicsApi::TextureFilter::LINEAR;
-    auto fontTexture = resourceManager_.GetTextureLoader().CreateTexture(textureName_, params, std::move(data.image));
+    auto fontTexture       = resourceManager_.GetTextureLoader().CreateTexture(textureName_, params, std::move(data.image));
 
     if (fontTexture)
     {

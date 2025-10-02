@@ -1,4 +1,5 @@
 #pragma once
+#include <Types.h>
 #include <Utils/IdPool.h>
 
 #include <functional>
@@ -7,23 +8,15 @@
 #include <unordered_map>
 #include <vector>
 
+#include "ComponentDependencies.h"
 #include "FunctionType.h"
 #include "GameEngine/Components/ComponentType.h"
 #include "IComponent.h"
-#include "Types.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-using Dependencies = std::vector<ComponentType>;
-
-template <typename... T>
-inline Dependencies MakeDependencies()
-{
-    return {Components::GetComponentType<T>()...};
-}
-
 typedef std::unordered_map<uint32, IComponent*> RegistredComponentsMap;
 
 class ComponentController final

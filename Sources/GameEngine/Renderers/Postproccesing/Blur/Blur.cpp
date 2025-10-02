@@ -1,5 +1,9 @@
 #include "Blur.h"
 
+#include <GraphicsApi/IGraphicsApi.h>
+
+#include "GameEngine/Renderers/RendererContext.h"
+
 namespace GameEngine
 {
 Blur::Blur(RendererContext& context)

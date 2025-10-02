@@ -2,6 +2,7 @@
 
 #include <GraphicsApi/ShaderProgramType.h>
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
 #include "GameEngine/Renderers/Projection.h"

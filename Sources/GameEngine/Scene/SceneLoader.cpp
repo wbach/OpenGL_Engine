@@ -1,6 +1,8 @@
 #include "SceneLoader.h"
 
 #include <Logger/Log.h>
+#include <Types.h>
+#include <Utils.h>
 #include <Utils/Time/TimeMeasurer.h>
 #include <Utils/Time/Timer.h>
 
@@ -14,11 +16,10 @@
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "ISceneFactory.h"
 #include "Scene.hpp"
-#include "Types.h"
-#include "Utils.h"
 
 namespace GameEngine
 {

@@ -2,6 +2,7 @@
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/DebugTools/Painter/PaintContext.h"
 
 namespace GameEngine
 {

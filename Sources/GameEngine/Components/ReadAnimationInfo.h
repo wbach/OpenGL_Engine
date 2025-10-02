@@ -1,5 +1,4 @@
 #pragma once
-#include <GameEngine/Components/Animation/AnimationClipInfo.h>
 #include <GameEngine/Resources/File.h>
 
 namespace GameEngine

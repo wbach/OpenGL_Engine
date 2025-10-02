@@ -10,6 +10,7 @@
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/CubeMapTexture.h"
+#include "GameEngine/Components/ComponentContext.h"
 
 namespace GameEngine
 {

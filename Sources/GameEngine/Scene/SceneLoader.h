@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <memory>
+
 namespace GraphicsApi
 {
 class IGraphicsApi;

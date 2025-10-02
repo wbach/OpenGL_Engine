@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/DebugTools/Painter/PaintContext.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -53,18 +54,20 @@ void CircleAverageHeightBrush::calcualteAverage()
     average_ = 0.f;
     float pointsCount{0.f};
 
-    mainLoop([&](const auto& paintedPoint) {
-        const auto heightMap = getHeightMap();
-        if (heightMap)
+    mainLoop(
+        [&](const auto& paintedPoint)
         {
-            auto heightOpt = heightMap->GetHeight(paintedPoint);
-            if (heightOpt)
+            const auto heightMap = getHeightMap();
+            if (heightMap)
             {
-                average_ += *heightOpt;
-                ++pointsCount;
+                auto heightOpt = heightMap->GetHeight(paintedPoint);
+                if (heightOpt)
+                {
+                    average_ += *heightOpt;
+                    ++pointsCount;
+                }
             }
-        }
-    });
+        });
 
     average_ /= pointsCount;
 }

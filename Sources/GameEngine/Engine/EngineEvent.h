@@ -1,7 +1,8 @@
 #pragma once
+#include <Types.h>
+
 #include <variant>
 
-#include "Types.h"
 namespace GameEngine
 {
 enum class QuitEvent

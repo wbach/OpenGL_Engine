@@ -3,6 +3,8 @@
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Components/ComponentContext.h"
+#include <Utils/TreeNode.h>
 
 namespace GameEngine
 {

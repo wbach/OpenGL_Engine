@@ -1,6 +1,5 @@
 #pragma once
 #include "CircleHeightBrush.h"
-#include <optional>
 
 namespace GameEngine
 {

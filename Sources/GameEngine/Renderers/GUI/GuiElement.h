@@ -6,9 +6,7 @@
 #include <optional>
 #include <vector>
 
-#include "GLM/GLMUtils.h"
 #include "GuiElementTypes.h"
-#include "Rect.h"
 
 namespace GameEngine
 {

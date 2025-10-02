@@ -1,5 +1,7 @@
 #include "Rigidbody.h"
 
+#include <Utils/TreeNode.h>
+
 #include "BoxShape.h"
 #include "CapsuleShape.h"
 #include "CollisionShape.h"

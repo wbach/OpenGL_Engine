@@ -1,11 +1,19 @@
 #include "Player.h"
 
+#include <Utils/TreeNode.h>
+
+#include "Common/Controllers/CharacterController/Character.h"
+#include "Common/Controllers/CharacterController/CharacterActions.h"
+#include "Common/Transform.h"
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiAnimation.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"

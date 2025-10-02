@@ -1,15 +1,9 @@
 #pragma once
-#include <Common/Controllers/CharacterController/Character.h>
-#include <Common/Controllers/CharacterController/CharacterActions.h>
-#include <GameEngine/Components/Physics/Rigidbody.h>
-
 #include <optional>
 
 #include "Bar.h"
 #include "CharacterStatistic.h"
-#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 
 namespace GameEngine
 {
@@ -19,6 +13,9 @@ class GuiWindowElement;
 
 namespace Components
 {
+class Animator;
+class CharacterController;
+
 class Enemy : public BaseComponent
 {
     struct HudElements

@@ -1,39 +1,25 @@
 #pragma once
 #include <Common/Transform.h>
 #include <GraphicsApi/LineMesh.h>
+#include <Types.h>
 
 #include <memory>
 #include <optional>
 #include <set>
 #include <vector>
 
-#include "GameEngine/Objects/GameObject.h"
+#include "PhysicsApiTypes.h"
 #include "RayHit.h"
+#include "RigidbodyProperty.h"
 #include "ShapeType.h"
-#include "Types.h"
 
 namespace GameEngine
 {
+class GameObject;
 class HeightMap;
 namespace Physics
 {
-using RigidbodyId    = std::optional<IdType>;
-using ShapeId        = std::optional<IdType>;
-using CollisionSubId = std::optional<IdType>;
-using PositionOffset = vec3;
-using Scale          = vec3;
-using Size           = vec3;
-using Radius         = float;
-
 struct CollisionContactInfo;
-
-enum class RigidbodyProperty
-{
-    NoContactResponse,
-    Static
-};
-
-using RigidbodyProperties = std::set<RigidbodyProperty>;
 
 using CollisionContactInfos = std::vector<CollisionContactInfo>;
 using CollisionsCallback    = std::function<void(const CollisionContactInfos&)>;

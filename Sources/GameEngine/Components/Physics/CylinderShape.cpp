@@ -1,5 +1,7 @@
 #include "CylinderShape.h"
 
+#include <Utils/TreeNode.h>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
@@ -33,7 +35,8 @@ CylinderShape& CylinderShape::SetSize(const vec3& v)
 }
 void CylinderShape::registerReadFunctions()
 {
-    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject) {
+    auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
+    {
         auto component = std::make_unique<CylinderShape>(componentContext, gameObject);
 
         vec3 positionOffset(0.f);

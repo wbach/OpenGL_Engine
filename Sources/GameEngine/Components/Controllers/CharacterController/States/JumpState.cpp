@@ -5,6 +5,7 @@
 #include "CharacterControllerCommonDefs.h"
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine
 {

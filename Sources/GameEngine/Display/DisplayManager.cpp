@@ -1,10 +1,10 @@
 #include "DisplayManager.hpp"
 
 #include <Input/InputManager.h>
+#include <Logger/Log.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {

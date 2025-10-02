@@ -1,5 +1,8 @@
 #include "TreeRendererComponent.h"
 
+#include <Utils/GLM/GLMUtils.h>
+#include <Utils/TreeNode.h>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"

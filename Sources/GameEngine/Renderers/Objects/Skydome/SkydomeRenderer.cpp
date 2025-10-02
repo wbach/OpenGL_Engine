@@ -1,5 +1,7 @@
 #include "SkydomeRenderer.h"
 
+#include <Utils/GLM/GLMUtils.h>
+
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Skydome/SkydomeComponent.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -21,8 +23,7 @@ void SkydomRenderer::init()
 
     if (not perObjectUpdateId_)
     {
-        perObjectUpdateId_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        perObjectUpdateId_ = context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
         UpdateBuffer(vec3(0));
     }
 }
@@ -71,7 +72,7 @@ void SkydomRenderer::render()
 void SkydomRenderer::UpdateBuffer(const vec3& cameraPosition)
 {
     vec3 position = cameraPosition;
-    position.y = 0;
+    position.y    = 0;
 
     perObjectUpdate_.TransformationMatrix =
         Utils::CreateTransformationMatrix(position, DegreesVec3(0), vec3(context_.projection_.GetViewDistance()));

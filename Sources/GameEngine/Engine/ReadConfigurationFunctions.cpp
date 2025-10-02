@@ -1,6 +1,8 @@
 #include "ReadConfigurationFunctions.h"
 
 #include <Logger/Log.h>
+#include <Utils.h>
+#include <Utils/XML/XmlReader.h>
 
 #include <filesystem>
 #include <iostream>
@@ -8,8 +10,6 @@
 #include "Configuration.h"
 #include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
-#include "Utils.h"
-#include "Utils/XML/XmlReader.h"
 
 namespace GameEngine
 {
@@ -136,11 +136,11 @@ void Read(TreeNode& node, Params::Shadows& shadows)
     if (*shadows.cascadesSize < 1)
     {
         shadows.cascadesSize = 1;
-        /* LOG TO FIX*/  LOG_ERROR << ("Cascade size must be set minimum to 1");
+        /* LOG TO FIX*/ LOG_ERROR << ("Cascade size must be set minimum to 1");
     }
     if (*shadows.cascadesSize > Params::MAX_SHADOW_MAP_CASADES)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
+        /* LOG TO FIX*/ LOG_ERROR << ("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
         shadows.cascadesSize = Params::MAX_SHADOW_MAP_CASADES;
     }
     if (shadows.firstCascadeDistance < 1.f)
@@ -194,7 +194,7 @@ void Read(TreeNode* node, Params::TerrainType& param)
         return;
 
     std::from_string(node->value_, param);
-    /* LOG TO FIX*/  LOG_ERROR << (node->value_);
+    /* LOG TO FIX*/ LOG_ERROR << (node->value_);
 }
 
 void Read(TreeNode* node, Params::Terrain& param)

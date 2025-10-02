@@ -2,6 +2,9 @@
 
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Logger/Log.h>
+#include <Rotation.h>
+#include <Types.h>
+#include <Utils/Image/ImageUtils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <optional>
@@ -13,15 +16,13 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Rotation.h"
-#include "Types.h"
-#include "Utils/Image/ImageUtils.h"
 
 namespace GameEngine
 {
@@ -226,7 +227,7 @@ const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
     return nullptr;
 }
 
-TerrainComponentBase::TerrainTexture *TerrainComponentBase::getTerrainTexture(TerrainTextureType type)
+TerrainTexture *TerrainComponentBase::getTerrainTexture(TerrainTextureType type)
 {
     auto iter = std::find_if(inputData_.begin(), inputData_.end(), [type](const auto &texture) { return texture.type == type; });
 
@@ -249,7 +250,7 @@ void TerrainComponentBase::setTexture(Texture &texture, float, TerrainTextureTyp
         heightMap_ = static_cast<HeightMap *>(&texture);
 }
 
-const std::vector<TerrainComponentBase::TerrainTexture> &TerrainComponentBase::GetInputDataTextures() const
+const std::vector<TerrainTexture> &TerrainComponentBase::GetInputDataTextures() const
 {
     return inputData_;
 }

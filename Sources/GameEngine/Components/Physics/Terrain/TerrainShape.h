@@ -1,13 +1,12 @@
 #pragma once
-#include <vector>
-
 #include "GameEngine/Components/Physics/CollisionShape.h"
-#include "TerrainHeightGetter.h"
+
 #include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
 class HeightMap;
+class TerrainHeightGetter;
 
 namespace Components
 {

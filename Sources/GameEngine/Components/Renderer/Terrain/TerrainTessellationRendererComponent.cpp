@@ -5,6 +5,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Components/ComponentContext.h"
 
 namespace GameEngine
 {

@@ -1,16 +1,26 @@
 #pragma once
 #include <memory>
 #include <string>
+
 #include "GameEngine/Time/Time.h"
-#include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/WindowType.h"
 #include "Time/TimeMeasurer.h"
 #include "Utils.h"
 
+namespace Input
+{
+class InputManager;
+}
+
+namespace GraphicsApi
+{
+class IGraphicsApi;
+}
+
 namespace Utils
 {
 class MeasurementHandler;
-} // namespace Utils
+}  // namespace Utils
 
 namespace GameEngine
 {

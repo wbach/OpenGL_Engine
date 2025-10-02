@@ -1,6 +1,7 @@
 #include "GuiRendererElementBase.h"
 
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Renderers/GUI/GuiRenderer.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
@@ -8,8 +9,7 @@
 
 namespace GameEngine
 {
-GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager, GUIRenderer& guiRenderer,
-                                               GuiElementTypes type)
+GuiRendererElementBase::GuiRendererElementBase(IResourceManager& resourceManager, GUIRenderer& guiRenderer, GuiElementTypes type)
     : GuiElement(type)
     , resourceManager_(resourceManager)
     , guiRenderer_(guiRenderer)
@@ -69,7 +69,6 @@ mat4 GuiRendererElementBase::GetTransformMatrix() const
 {
     // convert from range 0.f - 1.f to -1.f - 1.f
     // api rendering quad -1 - 1f  (*2f not needed)
-    return Utils::CreateTransformationMatrix(GetScreenPosition() * 2.f - 1.f, GetScreenScale(),
-                                             DegreesFloat(0.f));
+    return Utils::CreateTransformationMatrix(GetScreenPosition() * 2.f - 1.f, GetScreenScale(), DegreesFloat(0.f));
 }
 }  // namespace GameEngine

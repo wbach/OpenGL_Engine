@@ -1,12 +1,17 @@
 #pragma once
-#include <Utils/TreeNode.h>
-#include <Utils/Time/TimerService.h>
-
-#include <functional>
 #include <memory>
-#include <unordered_map>
 
 #include "ComponentContext.h"
+
+class TreeNode;
+
+namespace Utils
+{
+namespace Time
+{
+class TimerService;
+}
+}
 
 namespace GameEngine
 {

@@ -1,6 +1,6 @@
 #pragma once
+#include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "Container.h"
-#include "GameEngine/Physics/IPhysicsApi.h"
 #include "Rigidbody.h"
 
 namespace GameEngine

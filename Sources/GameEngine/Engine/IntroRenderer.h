@@ -1,14 +1,15 @@
 #pragma once
 #include <memory>
-#include "GameEngine/Resources/IResourceManager.hpp"
-#include "GameEngine/Resources/IResourceManagerFactory.h"
+
 #include "GameEngine/Shaders/ShaderProgram.h"
 
 namespace GameEngine
 {
 class DisplayManager;
+class IResourceManager;
 class IResourceManagerFactory;
 class GeneralTexture;
+class IGpuResourceLoader;
 
 class IntroRenderer
 {

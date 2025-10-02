@@ -1,20 +1,22 @@
 #pragma once
-#include <Common/Controllers/CharacterController/Character.h>
-#include <GameEngine/Components/Physics/Rigidbody.h>
 #include <Utils/Time/Timer.h>
 
+#include <deque>
 #include <mutex>
 
 #include "AnimationClipNames.h"
 #include "CharacterControllerEvents.h"
-#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Physics/PhysicsApiTypes.h"
 #include "MoveSpeed.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+class Animator;
+class Rigidbody;
+
 class CharacterController : public BaseComponent
 {
 public:

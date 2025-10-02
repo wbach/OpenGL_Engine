@@ -1,10 +1,14 @@
 #pragma once
 #include <vector>
-
-#include "ConfigurationParams/ConfigurationParam.h"
+#include <string>
 
 namespace GameEngine
 {
+namespace Params
+{
+class IConfigurationParam;
+}
+
 class ConfigurationExplorer
 {
 public:

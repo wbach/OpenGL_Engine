@@ -1,5 +1,4 @@
 #pragma once
-#include <Logger/Log.h>
 #include <Utils/Container.h>
 #include <Utils/IdPool.h>
 

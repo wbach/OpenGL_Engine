@@ -1,11 +1,13 @@
 #include "TerrainRendererComponent.h"
 
 #include <Logger/Log.h>
+#include <Utils/TreeNode.h>
 #include <Utils/Variant.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/ConfigurationParams/RendererParams/TerrainParam/TerrainType.h"
@@ -13,6 +15,7 @@
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 #include "GameEngine/Resources/Textures/Texture.h"
+#include "TerrainConfiguration.h"
 #include "TerrainMeshRendererComponent.h"
 #include "TerrainTessellationRendererComponent.h"
 
@@ -68,8 +71,7 @@ void TerrainRendererComponent::CleanUp()
     terrainComponent_->CleanUp();
 }
 
-TerrainRendererComponent& TerrainRendererComponent::LoadTextures(
-    const std::vector<TerrainComponentBase::TerrainTexture>& textures)
+TerrainRendererComponent& TerrainRendererComponent::LoadTextures(const std::vector<TerrainTexture>& textures)
 {
     terrainComponent_->LoadTextures(textures);
     return *this;
@@ -85,7 +87,7 @@ void TerrainRendererComponent::setTexture(Texture& texture, float tiledSize, Ter
     terrainComponent_->setTexture(texture, tiledSize, type);
 }
 
-const std::vector<TerrainComponentBase::TerrainTexture>& TerrainRendererComponent::GetInputDataTextures() const
+const std::vector<TerrainTexture>& TerrainRendererComponent::GetInputDataTextures() const
 {
     return terrainComponent_->GetInputDataTextures();
 }
@@ -190,13 +192,13 @@ void TerrainRendererComponent::Reload()
 {
 }
 
-std::vector<Components::TerrainComponentBase::TerrainTexture> ReadTerrainTextures(const TreeNode& node)
+std::vector<Components::TerrainTexture> ReadTerrainTextures(const TreeNode& node)
 {
-    std::vector<Components::TerrainComponentBase::TerrainTexture> result;
+    std::vector<Components::TerrainTexture> result;
 
     for (const auto& texture : node.getChildren())
     {
-        Components::TerrainComponentBase::TerrainTexture terrainTexture;
+        Components::TerrainTexture terrainTexture;
         if (texture->getChild(CSTR_TEXTURE_FILENAME))
             terrainTexture.file = File(texture->getChild(CSTR_TEXTURE_FILENAME)->value_);
 
@@ -244,7 +246,7 @@ void create(TreeNode& node, TerrainTextureType type, float scale, const std::fil
     ::write(node.addChild(CSTR_TEXTURE_FILENAME), Utils::ReplaceSlash(filepath.string()));
 }
 
-void create(TreeNode& node, const std::vector<Components::TerrainComponentBase::TerrainTexture>& textures)
+void create(TreeNode& node, const std::vector<Components::TerrainTexture>& textures)
 {
     for (const auto& value : textures)
     {

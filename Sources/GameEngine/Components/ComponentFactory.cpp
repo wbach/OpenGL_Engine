@@ -1,6 +1,7 @@
 #include "ComponentFactory.h"
 
 #include <Logger/Log.h>
+#include <Utils/TreeNode.h>
 
 #include "ComponentsReadFunctions.h"
 #include "IComponent.h"

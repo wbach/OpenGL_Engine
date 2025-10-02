@@ -1,6 +1,7 @@
 #include "PreviewRenderer.h"
 
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 

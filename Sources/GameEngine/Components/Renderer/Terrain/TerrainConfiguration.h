@@ -1,12 +1,13 @@
 #pragma once
-#include <vector>
 #include <optional>
+#include <vector>
+
 #include "PerrTerrainBuffer.h"
 #include "Types.h"
-#include "GameEngine/Resources/File.h"
 
 namespace GameEngine
 {
+class File;
 class TerrainConfiguration
 {
 public:

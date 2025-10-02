@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "Logger/Log.h"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {

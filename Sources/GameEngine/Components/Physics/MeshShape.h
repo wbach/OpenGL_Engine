@@ -1,7 +1,6 @@
 #pragma once
 #include "CollisionShape.h"
 #include "GameEngine/Resources/File.h"
-#include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
 
 namespace GameEngine
 {

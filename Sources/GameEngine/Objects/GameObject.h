@@ -1,20 +1,20 @@
 #pragma once
-#include <Utils/IdPool.h>
+#include <Common/Transform.h>
+#include <Rotation.h>
+#include <Types.h>
 
 #include <functional>
-#include <list>
 #include <memory>
 #include <string>
 
-#include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
-#include "GameEngine/Components/IComponent.h"
-#include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/SceneEvents.h"
-#include "Rotation.h"
-#include "Types.h"
+
+namespace Utils
+{
+class IdPool;
+}
 
 namespace GameEngine
 {
@@ -23,6 +23,12 @@ using GameObjects = std::vector<std::unique_ptr<GameObject>>;
 
 class Scene;
 class SceneReader;
+
+namespace Components
+{
+class IComponent;
+class ComponentController;
+}  // namespace Components
 
 class GameObject
 {

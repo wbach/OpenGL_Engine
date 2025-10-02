@@ -2,6 +2,7 @@
 
 #include <GameEngine/Components/ComponentsReadFunctions.h>
 #include <GameEngine/Objects/GameObject.h>
+#include <Utils/TreeNode.h>
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(ComponentPickerPopup, wxPopupTransientWindow)

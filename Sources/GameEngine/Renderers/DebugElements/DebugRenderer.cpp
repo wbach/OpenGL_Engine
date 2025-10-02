@@ -2,6 +2,7 @@
 
 #include <Common/Transform.h>
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include <algorithm>
 
@@ -11,6 +12,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
@@ -39,10 +41,10 @@ DebugObject::~DebugObject()
 }
 void DebugObject::CreateBuffer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("perObjectBufferId");
+    /* LOG TO FIX*/ LOG_ERROR << ("perObjectBufferId");
     perObjectBufferId = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
-    /* LOG TO FIX*/  LOG_ERROR << ("perObjectBufferId");
+    /* LOG TO FIX*/ LOG_ERROR << ("perObjectBufferId");
     transform_.TakeSnapShoot();
     buffer.TransformationMatrix = transform_.GetMatrix();
     UpdateBuffer();
@@ -83,7 +85,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::Th
 
 DebugRenderer::~DebugRenderer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    /* LOG TO FIX*/ LOG_ERROR << ("");
     if (showPhycicsVisualizationSubId)
         EngineConf.debugParams.showPhycicsVisualization.unsubscribe(*showPhycicsVisualizationSubId);
 }
@@ -102,13 +104,12 @@ void DebugRenderer::init()
     if (gridPerObjectUpdateBufferId_)
     {
         PerObjectUpdate gridPerObjectUpdate;
-        gridPerObjectUpdate.TransformationMatrix =
-            Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(100));
+        gridPerObjectUpdate.TransformationMatrix = Utils::CreateTransformationMatrix(vec3(0), DegreesVec3(-90, 0, 0), vec3(100));
         rendererContext_.graphicsApi_.UpdateShaderBuffer(*gridPerObjectUpdateBufferId_, &gridPerObjectUpdate);
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("gridPerObjectUpdateBufferId_ error!");
+        /* LOG TO FIX*/ LOG_ERROR << ("gridPerObjectUpdateBufferId_ error!");
     }
 
     texturePerObjectUpdateBufferId_ =
@@ -122,11 +123,10 @@ void DebugRenderer::init()
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("texturePerObjectUpdateBufferId_ error!");
+        /* LOG TO FIX*/ LOG_ERROR << ("texturePerObjectUpdateBufferId_ error!");
     }
 
-    textureColorBufferId_ =
-        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
+    textureColorBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
     if (textureColorBufferId_)
     {
         ColorBuffer b;
@@ -248,8 +248,7 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
                 PerObjectUpdate gridPerObjectUpdate;
                 gridPerObjectUpdate.TransformationMatrix = rendererContext_.graphicsApi_.PrepareMatrixToLoad(
                     Utils::CreateTransformationMatrix(pos, size, DegreesFloat(180.f)));
-                rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_,
-                                                                 &gridPerObjectUpdate);
+                rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_, &gridPerObjectUpdate);
 
                 rendererContext_.graphicsApi_.BindTexture(*textureId);
                 rendererContext_.graphicsApi_.RenderQuad();
@@ -408,8 +407,7 @@ void DebugRenderer::DrawNormals()
                     if (meshId)
                     {
                         PerObjectUpdate update{rendererContext_.graphicsApi_.PrepareMatrixToLoad(
-                            debugInfoMesh.gameObject.GetWorldTransform().CalculateCurrentMatrix() *
-                            mesh.GetMeshTransform())};
+                            debugInfoMesh.gameObject.GetWorldTransform().CalculateCurrentMatrix() * mesh.GetMeshTransform())};
 
                         rendererContext_.graphicsApi_.UpdateShaderBuffer(*meshDebugPerObjectBufferId_, &update);
                         rendererContext_.graphicsApi_.BindShaderBuffer(*meshDebugPerObjectBufferId_);

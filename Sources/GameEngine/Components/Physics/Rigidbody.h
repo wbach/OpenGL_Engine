@@ -1,12 +1,10 @@
 #pragma once
-#include <GameEngine/Physics/IPhysicsApi.h>
-
 #include <optional>
 #include <unordered_map>
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Physics/ShapeType.h"
+#include "GameEngine/Physics/RigidbodyProperty.h"
 
 namespace GameEngine
 {

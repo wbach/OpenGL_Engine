@@ -1,5 +1,7 @@
 #include "GrassRendererComponent.h"
 
+#include <Utils/TreeNode.h>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"

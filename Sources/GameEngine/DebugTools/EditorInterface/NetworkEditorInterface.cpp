@@ -2,6 +2,7 @@
 
 #include <Input/InputManager.h>
 #include <Utils.h>
+#include <Utils/TreeNode.h>
 #include <UtilsNetwork/Messages/TextMessage.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -11,16 +12,17 @@
 
 #include "CameraEditor.h"
 #include "GameEngine/Camera/FirstPersonCamera.h"
-#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/Physics/MeshShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/PreviewComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
+#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
 #include "GameEngine/DebugTools/Painter/PlantPainter.h"
 #include "GameEngine/DebugTools/Painter/TerrainHeightGenerator.h"
 #include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
@@ -1833,8 +1835,7 @@ void NetworkEditorInterface::CreateTerrain(const NetworkEditorInterface::EntryPa
     {
         auto &terrainComponent = gameObject->AddComponent<Components::TerrainRendererComponent>();
 
-        std::vector<Components::TerrainComponentBase::TerrainTexture> textures{
-            {heightMapFile, 1.f, TerrainTextureType::heightmap}};
+        std::vector<Components::TerrainTexture> textures{{heightMapFile, 1.f, TerrainTextureType::heightmap}};
         terrainComponent.LoadTextures(textures);
 
         DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());

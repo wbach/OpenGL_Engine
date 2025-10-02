@@ -10,6 +10,7 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "Container.h"
 #include "Converter.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
@@ -478,8 +479,8 @@ void BulletAdapter::RemoveShape(const ShapeId& shapeId)
         return;
     }
 
-    if (impl_->rigidbodies.get([&shapeId](const auto& pair) -> bool
-                               { return shapeId.value() == pair.second.shapeId; }) != nullptr)
+    if (impl_->rigidbodies.get([&shapeId](const auto& pair) -> bool { return shapeId.value() == pair.second.shapeId; }) !=
+        nullptr)
     {
         LOG_WARN << "Shape removal without deleting rigidbody!";
     }

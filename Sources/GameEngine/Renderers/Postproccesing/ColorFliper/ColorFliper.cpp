@@ -1,5 +1,9 @@
 #include "ColorFliper.h"
 
+#include <GraphicsApi/IGraphicsApi.h>
+
+#include "GameEngine/Renderers/RendererContext.h"
+
 namespace GameEngine
 {
 ColorFliper::ColorFliper(RendererContext& context)
@@ -24,4 +28,4 @@ void ColorFliper::ReloadShaders()
 {
     shader_.Reload();
 }
-}  // GameEngine
+}  // namespace GameEngine

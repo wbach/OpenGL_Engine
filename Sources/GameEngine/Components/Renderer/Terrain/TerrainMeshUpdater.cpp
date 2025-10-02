@@ -2,9 +2,11 @@
 
 #include <Logger/Log.h>
 
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"

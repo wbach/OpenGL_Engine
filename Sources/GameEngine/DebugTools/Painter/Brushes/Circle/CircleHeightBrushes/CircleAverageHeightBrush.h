@@ -1,10 +1,11 @@
 #pragma once
 #include "CircleHeightBrush.h"
-#include "../../../PaintContext.h"
 
 namespace GameEngine
 {
 class HeightMap;
+struct PaintContext;
+
 class CircleAverageHeightBrush : public CircleHeightBrush
 {
 public:

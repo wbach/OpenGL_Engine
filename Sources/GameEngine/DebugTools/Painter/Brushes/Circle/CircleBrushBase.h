@@ -1,12 +1,12 @@
 #pragma once
 #include <functional>
-
-#include "GameEngine/DebugTools/Painter/PaintContext.h"
-#include "GameEngine/DebugTools/Painter/TerrainPoint.h"
+#include <Types.h>
 
 namespace GameEngine
 {
 class Texture;
+struct PaintContext;
+struct TerrainPoint;
 
 class CircleBrushBase
 {

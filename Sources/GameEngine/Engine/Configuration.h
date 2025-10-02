@@ -1,6 +1,6 @@
 #pragma once
 #include <GraphicsApi/RendererType.h>
-#include <Logger/Log.h>
+#include <Logger/LoggingLvl.h>
 #include <SingleTon.h>
 #include <Utils.h>
 

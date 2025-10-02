@@ -1,4 +1,5 @@
 #include "TerrainQuadTree.h"
+#include "TerrainConfiguration.h"
 
 namespace GameEngine
 {

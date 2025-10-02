@@ -1,11 +1,15 @@
 #include "Enemy.h"
 
+#include <Utils/TreeNode.h>
+
 #include "GameEngine/Animations/AnimationClip.h"
 #include "GameEngine/Camera/CameraWrapper.h"
+#include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Controllers/CharacterController/CharacterController.h"
 #include "GameEngine/Components/Controllers/ControllerUtlis.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/GUI/GuiElementFactory.h"

@@ -9,12 +9,12 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/File.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/TextureParameters.h"
 #include "PerTerrainTexturesBuffer.h"
 #include "TerrainConfiguration.h"
 #include "TerrainTexturesTypes.h"
+#include "TerrainTexture.h"
 
 namespace GameEngine
 {
@@ -25,13 +25,6 @@ namespace Components
 class TerrainComponentBase
 {
 public:
-    struct TerrainTexture
-    {
-        File file;
-        float tiledScale{1.f};
-        TerrainTextureType type;
-    };
-
     TerrainComponentBase(ComponentContext&, GameObject&);
     virtual ~TerrainComponentBase() = default;
 

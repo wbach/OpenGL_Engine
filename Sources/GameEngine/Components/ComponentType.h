@@ -1,6 +1,4 @@
 #pragma once
-#include <Logger/Log.h>
-
 #include <string>
 
 #if defined(__GNUG__)

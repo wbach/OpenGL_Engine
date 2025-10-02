@@ -3,6 +3,8 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/DebugTools/Painter/PaintContext.h"
+#include "GameEngine/DebugTools/Painter/TerrainPoint.h"
 #include "GameEngine/Resources/Textures/Texture.h"
 
 namespace GameEngine
@@ -14,12 +16,14 @@ CircleBrushBase::CircleBrushBase(PaintContext& context)
 bool CircleBrushBase::paint()
 {
     bool isChanged{false};
-    mainLoop([&](const auto& paintedPoint) {
-        if (main(paintedPoint))
+    mainLoop(
+        [&](const auto& paintedPoint)
         {
-            isChanged = true;
-        }
-    });
+            if (main(paintedPoint))
+            {
+                isChanged = true;
+            }
+        });
     return isChanged;
 }
 vec2ui CircleBrushBase::getBrushPoint(int32 x, int32 y)

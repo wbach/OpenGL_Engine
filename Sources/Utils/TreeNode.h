@@ -11,7 +11,6 @@
 
 typedef std::unordered_map<std::string, std::string> Attributes;
 
-
 class TreeNode
 {
 public:

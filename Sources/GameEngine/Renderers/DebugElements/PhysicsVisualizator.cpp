@@ -1,5 +1,6 @@
 #include "PhysicsVisualizator.h"
 
+#include <GraphicsApi/IGraphicsApi.h>
 #include <Utils/ThreadSync.h>
 
 #include "GameEngine/Engine/Configuration.h"
@@ -42,8 +43,7 @@ void PhysicsVisualizator::Init()
         worker_ = &threadSync_.AddWorker();
 
     PerObjectUpdate buffer;
-    defaultPerObjectUpdateId_ =
-        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    defaultPerObjectUpdateId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
     if (defaultPerObjectUpdateId_)
         graphicsApi_.UpdateShaderBuffer(*defaultPerObjectUpdateId_, &buffer);
@@ -110,7 +110,8 @@ void PhysicsVisualizator::UpdatePhysicsByWorker()
     if (not isUpdated_.load())
         return;
 
-    auto task = [&]() {
+    auto task = [&]()
+    {
         lineMesh_ = &physicsDebugDraw_();
         if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
         {

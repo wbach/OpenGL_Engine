@@ -1,6 +1,7 @@
 #include "BachPhysicsAdapter.h"
 
 #include <Logger/Log.h>
+#include <Types.h>
 
 #include <iomanip>
 #include <optional>
@@ -10,7 +11,7 @@
 
 #include "Common/Transform.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
-#include "Types.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -137,7 +138,7 @@ BachPhysicsAdapter::BachPhysicsAdapter()
 }
 BachPhysicsAdapter::~BachPhysicsAdapter()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("destructor");
+    LOG_DEBUG << "destructor";
 }
 void BachPhysicsAdapter::Simulate(float)
 {
@@ -248,9 +249,8 @@ void BachPhysicsAdapter::SetPosition(const RigidbodyId&, const vec3&)
 {
 }
 
-void BachPhysicsAdapter::Translate(const RigidbodyId &, const vec3 &)
+void BachPhysicsAdapter::Translate(const RigidbodyId&, const vec3&)
 {
-
 }
 void BachPhysicsAdapter::SetRigidbodyScale(const RigidbodyId&, const vec3&)
 {

@@ -11,6 +11,8 @@
 #include "EngineContext.h"
 #include "GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Physics/IPhysicsApi.h"
+#include "GameEngine/Resources/IResourceManagerFactory.h"
 
 #ifndef USE_GNU
 #ifndef USE_MINGW  // TO DO
@@ -94,8 +96,6 @@ namespace GameEngine
 {
 namespace
 {
-const std::string FPS_ENGINE_CONTEXT{"RenderThreadFps"};
-
 std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 {
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi;

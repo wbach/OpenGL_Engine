@@ -1,11 +1,13 @@
 #include "ArmedChangeStateBase.h"
 
+#include <Logger/Log.h>
+#include <Utils.h>
+
 #include "../CharacterController.h"
 #include "../FsmContext.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Animation/BowPoseUpdater.h"
-#include "Logger/Log.h"
-#include "Utils.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -123,8 +125,7 @@ void ArmedChangeStateBase::triggerChange()
             context_.weaponArmedChangeState = FsmContext::WeaponArmedChangeState::None;
         });
 
-    context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward,
-                                      jointGroupName_);
+    context_.animator.ChangeAnimation(animName, Animator::AnimationChangeType::smooth, PlayDirection::forward, jointGroupName_);
 }
 void ArmedChangeStateBase::unsubscribe(std::optional<uint32>& maybeId)
 {

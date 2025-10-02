@@ -6,7 +6,9 @@
 #include <Utils.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -22,7 +24,7 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
 
     mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetWorldTransform().GetPosition());
-    offset_ = gameObject_.GetWorldTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
+    offset_      = gameObject_.GetWorldTransform().GetPosition() - GetMouseAsWorldPoint(input_.GetMousePosition(), mouseZcoord_);
 }
 DragObject::~DragObject()
 {

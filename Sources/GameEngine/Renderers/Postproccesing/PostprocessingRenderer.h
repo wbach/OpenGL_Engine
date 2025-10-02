@@ -1,11 +1,10 @@
 #pragma once
 #include <memory>
 
-#include "GameEngine/Renderers/RendererContext.h"
-#include <GraphicsApi/IGraphicsApi.h>
-
 namespace GameEngine
 {
+class Scene;
+class RendererContext;
 class PostprocessingRenderer
 {
 public:

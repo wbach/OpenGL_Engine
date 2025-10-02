@@ -1,6 +1,7 @@
 #include "TerrainShape.h"
 
 #include <Logger/Log.h>
+#include <Utils/TreeNode.h>
 
 #include <algorithm>
 
@@ -16,6 +17,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/TextureLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include "TerrainHeightGetter.h"
 
 namespace GameEngine
 {
@@ -62,7 +64,8 @@ void TerrainShape::CleanUp()
 }
 void TerrainShape::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&TerrainShape::InitShape, this), MakeDependencies<TerrainRendererComponent>());
+    RegisterFunction(FunctionType::Awake, std::bind(&TerrainShape::InitShape, this),
+                     MakeDependencies<TerrainRendererComponent>());
 }
 void TerrainShape::InitShape()
 {
@@ -99,8 +102,9 @@ void TerrainShape::LoadHeightMapIfSet()
     terrainRendererComponent_ = thisObject_.GetComponent<TerrainRendererComponent>();
     if (terrainRendererComponent_)
     {
-        terrainHeightGetter_ = std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(), *heightMap_,
-                                                                     thisObject_.GetLocalTransform().GetPosition());
+        terrainHeightGetter_ =
+            std::make_unique<TerrainHeightGetter>(thisObject_.GetWorldTransform().GetScale() * heightMap_->GetScale(),
+                                                  *heightMap_, thisObject_.GetLocalTransform().GetPosition());
     }
     else
     {

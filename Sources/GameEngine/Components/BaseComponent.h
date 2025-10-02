@@ -1,15 +1,10 @@
 #pragma once
-#include <atomic>
 #include <magic_enum/magic_enum.hpp>
 #include <memory>
 #include <string>
-#include <typeinfo>
 
-#include "ComponentContext.h"
-#include "ComponentController.h"
-#include "GameEngine/Time/Time.h"
 #include "IComponent.h"
-#include "ReadAnimationInfo.h"
+#include "ComponentDependencies.h"
 
 namespace GameEngine
 {
@@ -42,8 +37,6 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
                 auto val = *static_cast<Enum*>(ptr);
                 // nazwa wartosci:
                 auto sv = magic_enum::enum_name(val);
-                LOG_DEBUG << "Value: " << std::string(sv);
-
                 // indeks w zakresie 0..N-1 (nie mylic z underlying!)
                 if (auto idx = magic_enum::enum_index(val); idx.has_value())
                     return static_cast<int>(*idx);
@@ -54,7 +47,6 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
             .indexToEnum =
                 [](void* ptr, int idx)
             {
-                LOG_DEBUG << "Idx: " << idx;
                 // clamp na wypadek zlego indeksu
                 constexpr int N = static_cast<int>(magic_enum::enum_count<Enum>());
                 if (N > 0)
@@ -73,7 +65,6 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
                 *static_cast<Enum*>(ptr) = val;
 
                 auto sv = magic_enum::enum_name(val);
-                LOG_DEBUG << "Idx: " << idx << " -> Value: " << std::string(sv);
             }};
 }
 
@@ -121,6 +112,8 @@ class GameObject;
 
 namespace Components
 {
+struct ComponentContext;
+
 class BaseComponent : public IComponent
 {
 public:

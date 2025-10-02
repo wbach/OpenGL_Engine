@@ -1,11 +1,12 @@
 #pragma once
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Objects/Particle.h"
-#include "GameEngine/Resources/ResourceManager.h"
-#include "GameEngine/Resources/Textures/Texture.h"
+#include <GraphicsApi/BlendFunctionsTypes.h>
 
 namespace GameEngine
 {
+class Texture;
+
 namespace Components
 {
 class ParticleEffectComponent : public BaseComponent

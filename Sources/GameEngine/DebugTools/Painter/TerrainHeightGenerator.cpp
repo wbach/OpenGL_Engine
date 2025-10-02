@@ -1,7 +1,9 @@
 #include "TerrainHeightGenerator.h"
 
 #include <Logger/Log.h>
+#include <Types.h>
 #include <Utils/Image/ImageFilters.h>
+#include <Utils/Utils.h>
 
 #include <algorithm>
 #include <numeric>
@@ -12,7 +14,6 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "Types.h"
 
 namespace GameEngine
 {
@@ -356,7 +357,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }
-    /* LOG TO FIX*/  LOG_ERROR << ("completed");
+    /* LOG TO FIX*/ LOG_ERROR << ("completed");
 }
 
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
@@ -384,8 +385,8 @@ float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
     if (index < noiseSeed.size())
         return noiseSeed[index];
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
-              std::to_string(noiseSeed.size()) + ")");
+    /* LOG TO FIX*/ LOG_ERROR << ("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
+                                  std::to_string(noiseSeed.size()) + ")");
     return 0.f;
 }
 }  // namespace GameEngine

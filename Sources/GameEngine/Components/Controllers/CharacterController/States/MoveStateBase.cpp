@@ -1,10 +1,11 @@
 ﻿#include "MoveStateBase.h"
 
 #include <GLM/GLMUtils.h>
+#include <Logger/Log.h>
 #include <Types.h>
 
 #include "../FsmContext.h"
-#include "Logger/Log.h"
+#include "GameEngine/Components/Physics/Rigidbody.h"
 
 namespace GameEngine
 {

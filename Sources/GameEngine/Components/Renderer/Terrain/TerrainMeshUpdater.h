@@ -1,12 +1,14 @@
 #pragma once
 #include "GameEngine/Resources/BufferObject.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "TerrainComponentBase.h"
 
 namespace GameEngine
 {
 class TerrainHeightTools;
+class ModelWrapper;
+class Model;
+class Mesh;
 
 namespace Components
 {

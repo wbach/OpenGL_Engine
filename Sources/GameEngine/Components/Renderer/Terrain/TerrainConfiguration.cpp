@@ -4,6 +4,7 @@
 
 #include <fstream>
 
+#include "GameEngine/Resources/File.h"
 #include "Utils.h"
 
 namespace GameEngine
@@ -202,7 +203,7 @@ void TerrainConfiguration::SetLod(uint32 index, uint32 value)
 {
     if (index > LOD_SIZE)
     {
-        LOG_ERROR << "Try set lod out of range! max(" << LOD_SIZE <<  ")";
+        LOG_ERROR << "Try set lod out of range! max(" << LOD_SIZE << ")";
         return;
     }
 

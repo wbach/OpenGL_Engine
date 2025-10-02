@@ -1,6 +1,7 @@
 #include "WaterRenderer.h"
 
 #include <Logger/Log.h>
+#include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -39,8 +40,7 @@ void WaterRenderer::init()
 
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
+        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
 
     waterReflectionRefractionRenderer_.init();
@@ -89,8 +89,7 @@ void WaterRenderer::render()
             waterTileMeshBuffer.isSimpleRender = 1.f;
         }
 
-        waterTileMeshBuffer.tiledValue =
-            DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
+        waterTileMeshBuffer.tiledValue = DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
         waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(context_.time_.deltaTime * WAVE_SPEED);
         waterTileMeshBuffer.waterColor = component.GetWaterColor();
 
@@ -109,8 +108,8 @@ void WaterRenderer::render()
 }
 PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
 {
-    return {context_.graphicsApi_.PrepareMatrixToLoad(
-        Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
+    return {
+        context_.graphicsApi_.PrepareMatrixToLoad(Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
 }
 void WaterRenderer::subscribe(GameObject& gameObject)
 {
