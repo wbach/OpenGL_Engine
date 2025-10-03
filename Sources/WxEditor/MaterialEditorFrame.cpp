@@ -18,7 +18,7 @@ MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& p
     auto onStartupDone = [this]()
     {
         auto& camera = canvas->GetScene().GetCamera();
-        camera.SetPosition(vec3(-1.75f, 0.0f, 0.0f));
+        camera.SetPosition(vec3(-3.0f, 0.0f, 0.0f));
         camera.LookAt(vec3(0, 0.0f, 0));
         camera.UpdateMatrix();
         Init();
@@ -29,10 +29,14 @@ MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& p
 
 void MaterialEditorFrame::Init()
 {
-    // Panel boczny z kontrolkami
-    wxPanel* rightPanel    = new wxPanel(mainSplitter);
+    // Panel boczny z przewijaniem
+    wxScrolledWindow* rightPanel =
+        new wxScrolledWindow(mainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL);
+    rightPanel->SetScrollRate(5, 5);  // ustawienie scroll rate (piksele)
+
     wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
 
+    // --- Kolory ---
     ambientBtn = AddColorPicker(rightPanel, rightSizer, "Ambient",
                                 [this](wxCommandEvent&) { currentMaterial.ambient = PickColor(currentMaterial.ambient); });
 
@@ -42,44 +46,85 @@ void MaterialEditorFrame::Init()
     specularBtn = AddColorPicker(rightPanel, rightSizer, "Specular",
                                  [this](wxCommandEvent&) { currentMaterial.specular = PickColor(currentMaterial.specular); });
 
-    // Roughness / ShineDamper
+    // --- Roughness / ShineDamper ---
     rightSizer->Add(new wxStaticText(rightPanel, wxID_ANY, "Shine Damper:"), 0, wxALL, 5);
     roughnessSlider = new wxSlider(rightPanel, wxID_ANY, static_cast<int>(currentMaterial.shineDamper * 100), 0, 100);
     rightSizer->Add(roughnessSlider, 0, wxEXPAND | wxALL, 5);
     roughnessSlider->Bind(wxEVT_SLIDER, &MaterialEditorFrame::OnRoughnessChanged, this);
 
+    // --- Reflectivity ---
+    rightSizer->Add(new wxStaticText(rightPanel, wxID_ANY, "Reflectivity:"), 0, wxALL, 5);
+    reflectivitySlider = new wxSlider(rightPanel, wxID_ANY, static_cast<int>(currentMaterial.reflectivity * 100), 0, 100);
+    rightSizer->Add(reflectivitySlider, 0, wxEXPAND | wxALL, 5);
+    reflectivitySlider->Bind(wxEVT_SLIDER,
+                             [this](wxCommandEvent&)
+                             {
+                                 currentMaterial.reflectivity = reflectivitySlider->GetValue() / 100.f;
+                                 canvas->Refresh();
+                             });
+
+    // --- Index of Refraction ---
+    rightSizer->Add(new wxStaticText(rightPanel, wxID_ANY, "Index of Refraction:"), 0, wxALL, 5);
+    iorSlider = new wxSlider(rightPanel, wxID_ANY, static_cast<int>(currentMaterial.indexOfRefraction * 100), 0, 500);
+    rightSizer->Add(iorSlider, 0, wxEXPAND | wxALL, 5);
+    iorSlider->Bind(wxEVT_SLIDER,
+                    [this](wxCommandEvent&)
+                    {
+                        currentMaterial.indexOfRefraction = iorSlider->GetValue() / 100.f;
+                        canvas->Refresh();
+                    });
+
+    // --- Transparency ---
+    transparencyCheck = new wxCheckBox(rightPanel, wxID_ANY, "Transparency");
+    transparencyCheck->SetValue(currentMaterial.isTransparency);
+    rightSizer->Add(transparencyCheck, 0, wxALL, 5);
+    transparencyCheck->Bind(wxEVT_CHECKBOX,
+                            [this](wxCommandEvent&)
+                            {
+                                currentMaterial.isTransparency = transparencyCheck->GetValue();
+                                canvas->Refresh();
+                            });
+
+    // --- Use Fake Lighting ---
+    fakeLightingCheck = new wxCheckBox(rightPanel, wxID_ANY, "Use Fake Lighting");
+    fakeLightingCheck->SetValue(currentMaterial.useFakeLighting);
+    rightSizer->Add(fakeLightingCheck, 0, wxALL, 5);
+    fakeLightingCheck->Bind(wxEVT_CHECKBOX,
+                            [this](wxCommandEvent&)
+                            {
+                                currentMaterial.useFakeLighting = fakeLightingCheck->GetValue();
+                                canvas->Refresh();
+                            });
+
+    // --- Tekstury ---
     auto& scene         = canvas->GetScene();
     auto& textureLoader = scene.GetResourceManager().GetTextureLoader();
-    // textureLoader.LoadTexture(path);
 
-    // Diffuse
     AddTexturePicker(rightPanel, rightSizer, "Diffuse Texture", diffusePathCtrl,
                      [this, &textureLoader](const std::string& path)
                      { currentMaterial.diffuseTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
 
-    // Ambient
     AddTexturePicker(rightPanel, rightSizer, "Ambient Texture", ambientPathCtrl,
                      [this, &textureLoader](const std::string& path)
                      { currentMaterial.ambientTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
 
-    // Specular
     AddTexturePicker(rightPanel, rightSizer, "Specular Texture", specularPathCtrl,
                      [this, &textureLoader](const std::string& path)
                      { currentMaterial.specularTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
 
-    // Normal
     AddTexturePicker(rightPanel, rightSizer, "Normal Texture", normalPathCtrl,
                      [this, &textureLoader](const std::string& path)
                      { currentMaterial.normalTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
 
-    // Displacement
     AddTexturePicker(rightPanel, rightSizer, "Displacement Texture", displacementPathCtrl,
                      [this, &textureLoader](const std::string& path)
                      { currentMaterial.displacementTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
 
     rightPanel->SetSizer(rightSizer);
+    rightPanel->FitInside();  // ustawia rozmiar wirtualny na podstawie sizer
+    rightPanel->SetScrollRate(5, 5);
 
-    // Splitter
+    // --- Splitter ---
     auto size = GetSize();
     mainSplitter->SplitVertically(canvas, rightPanel, 3 * size.x / 4);
 

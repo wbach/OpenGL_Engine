@@ -44,6 +44,10 @@ private:
     wxTextCtrl* specularPathCtrl     = nullptr;
     wxTextCtrl* normalPathCtrl       = nullptr;
     wxTextCtrl* displacementPathCtrl = nullptr;
+    wxSlider* reflectivitySlider     = nullptr;
+    wxSlider* iorSlider              = nullptr;
+    wxCheckBox* transparencyCheck    = nullptr;
+    wxCheckBox* fakeLightingCheck    = nullptr;
 
     wxSlider* roughnessSlider = nullptr;
     wxButton* ambientBtn      = nullptr;

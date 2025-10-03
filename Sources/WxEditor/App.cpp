@@ -33,7 +33,7 @@ bool App::OnInit()
         CLogger::Instance().SetLogFilename("MaterialEditorLogs.txt");
         CLogger::Instance().EnableLogs();
         LOG_DEBUG << args;
-        auto* frame = new MaterialEditorFrame("Material Editor", wxPoint(150, 150), wxSize(1000, 800));
+        auto* frame = new MaterialEditorFrame("Material Editor", wxPoint(150, 150), wxSize(1400, 1000));
         SetTopWindow(frame);
         frame->Show(true);
         if (auto file = Utils::GetValue(args, "file"))
