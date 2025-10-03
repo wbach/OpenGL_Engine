@@ -49,7 +49,7 @@ public:
     GameEngine::GameObject& GetRootObject();
     GameEngine::Engine& GetEngine();
     GameEngine::Scene& GetScene();
-    void addPrimitive(GameEngine::PrimitiveType, const vec3& pos = vec3(0.f), const vec3& scale = vec3(1.f));
+    GameEngine::GameObject* addPrimitive(GameEngine::PrimitiveType, const vec3& pos = vec3(0.f), const vec3& scale = vec3(1.f));
 
 private:
     wxGLContext* context;

@@ -4,6 +4,8 @@
 #include <wx/splitter.h>
 #include <wx/wx.h>
 
+#include "Objects/GameObject.h"
+
 class GLCanvas;
 class MaterialPanel;
 
@@ -24,11 +26,14 @@ public:
 
 private:
     void Init();
+    void CreateMainMenu();
+    void OnOpenMaterial(wxCommandEvent&);
+    void OnExit(wxCommandEvent&);
     void OnTimer(wxTimerEvent&);
+    void UpdateMaterialInComponent();
 
     vec3 PickColor(const Color&);
     void OnRoughnessChanged(wxCommandEvent&);
-    void OnTextureBrowse(wxCommandEvent&);
 
     wxButton* AddColorPicker(wxPanel*, wxBoxSizer*, const wxString&, std::function<void(wxCommandEvent&)>);
     wxBoxSizer* AddTexturePicker(wxPanel*, wxBoxSizer*, const wxString&, wxTextCtrl*&, std::function<void(const std::string&)>);
@@ -56,6 +61,7 @@ private:
 
     // Obiekt materiału edytowany w GUI
     GameEngine::Material currentMaterial;
+    GameEngine::GameObject* previwGameObject{nullptr};
 
     bool materialLoaded = false;
 };

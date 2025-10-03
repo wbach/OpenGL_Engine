@@ -68,83 +68,87 @@ bool Is(float v)
 {
     return v > 0.5f;
 }
-
 float CalculateShadowFactorValue(sampler2DShadow cascadeShadowMap, vec3 positionInLightSpace)
 {
-    float texelSize = 1.f / fs_in.shadowMapSize;
+    // Rozmiar pojedynczego texela w UV
+    float texelSize = 1.0 / fs_in.shadowMapSize;
 
-    float factor = 0.0;
+    // Obliczenie adaptacyjnego biasu
+    float distanceToCamera = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
+    float texelWorldSize = 1.0 / fs_in.shadowMapSize;
 
-    // vec3 lightPosition = vec3(100000.f, 150000.f, 100000.f);
-    // vec3 l = normalize(lightPosition - fs_in.worldPos.xyz);
-    // float cosTheta = dot(fs_in.normal, l);
+    // bias rośnie mocniej dla bliskiej kamery
+    float bias = texelWorldSize * 1.5 + 0.005 * max(0.0, 1.0 - distanceToCamera / 75.0);
 
-    // float bias = 0.005*tan(acos(cosTheta)); // cosTheta is dot( n,l ), clamped between 0 and 1
-    // bias = clamp(bias, 0.f, 0.01f);
-    // bias = 0.002f;
+    float shadow = 0.0;
+    const int filterRadius = 3; // 7x7 próbki PCF
+    int sampleCount = 0;
 
-    const int filterSize = 1;
-    float a = 0;
-    for (int y = -filterSize ; y <= filterSize ; y++)
+    for (int y = -filterRadius; y <= filterRadius; y++)
     {
-        for (int x = -filterSize ; x <= filterSize ; x++)
+        for (int x = -filterRadius; x <= filterRadius; x++)
         {
-            vec2 offsets = vec2(float(x) * texelSize, float(y) * texelSize);
-            vec3 uvc = vec3(positionInLightSpace.xy + offsets, positionInLightSpace.z);
-
-            if (uvc.x < 0 || uvc.y < 0 || uvc.x > fs_in.shadowMapSize || uvc.y > fs_in.shadowMapSize)
-            {
-                factor += 1.f;
-            }
-            else
-            {
-                if (texture(cascadeShadowMap, uvc) > 0.f)
-                    //factor += (fs_in.shadowTransition * 0.4f);
-                    factor += 1.f;
-            }
-
-           a++;
+            vec2 offset = vec2(float(x), float(y)) * texelSize;
+            vec3 sampleCoord = vec3(positionInLightSpace.xy + offset, positionInLightSpace.z - bias);
+            shadow += texture(cascadeShadowMap, sampleCoord);
+            sampleCount++;
         }
     }
-    float value = (.7f + (factor / a));
-    if( value > 1.f )
-        value = 1.f ;
 
-    return value ;
+    shadow /= float(sampleCount); // średnia → miękkie cienie
+
+    // Ogólna jasność cienia, zachowujemy trochę „podświetlenia”
+    float finalShadow = clamp(0.7 + shadow, 0.0, 1.0);
+    return finalShadow;
 }
 
 float CalculateShadowFactor()
 {
-    if (!Is(perApp.shadowVariables.x))
+    if (!Is(perApp.shadowVariables.x) || shadowsBuffer.cascadesSize == 0)
         return 1.f;
 
-    if (shadowsBuffer.cascadesSize > 0)
+    float z = fs_in.clipSpaceZ;
+
+    // Kaskada 1
+    if (shadowsBuffer.cascadesSize >= 1 && z < shadowsBuffer.cascadesDistance.x)
     {
-        if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.x && shadowsBuffer.cascadesSize >= 1)
-        {
-            return CalculateShadowFactorValue(ShadowMap, fs_in.positionInLightSpace[0].xyz);
-        }
-        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.y && shadowsBuffer.cascadesSize >= 2 )
-        {
-            return CalculateShadowFactorValue(ShadowMap1, fs_in.positionInLightSpace[1].xyz);
-        }
-        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.z && shadowsBuffer.cascadesSize >= 3)
-        {
-            return CalculateShadowFactorValue(ShadowMap2, fs_in.positionInLightSpace[2].xyz);
-        }
-        else if (fs_in.clipSpaceZ < shadowsBuffer.cascadesDistance.w && shadowsBuffer.cascadesSize >= 4)
-        {
-            return CalculateShadowFactorValue(ShadowMap3, fs_in.positionInLightSpace[3].xyz);
-        }
-        else
-        {
-            return 1.f;
-        }
+        return CalculateShadowFactorValue(ShadowMap, fs_in.positionInLightSpace[0].xyz);
     }
-    else
+    // Kaskada 2 z płynnym przejściem
+    else if (shadowsBuffer.cascadesSize >= 2 && z < shadowsBuffer.cascadesDistance.y)
     {
-        return 1.f;
+        float blendRange = 2.0 / fs_in.shadowMapSize;
+        float factor = smoothstep(shadowsBuffer.cascadesDistance.x - blendRange,
+                                  shadowsBuffer.cascadesDistance.x, z);
+
+        float shadowPrev = CalculateShadowFactorValue(ShadowMap, fs_in.positionInLightSpace[0].xyz);
+        float shadowCurr = CalculateShadowFactorValue(ShadowMap1, fs_in.positionInLightSpace[1].xyz);
+        return mix(shadowPrev, shadowCurr, factor);
     }
+    // Kaskada 3
+    else if (shadowsBuffer.cascadesSize >= 3 && z < shadowsBuffer.cascadesDistance.z)
+    {
+        float blendRange = 2.0 / fs_in.shadowMapSize;
+        float factor = smoothstep(shadowsBuffer.cascadesDistance.y - blendRange,
+                                  shadowsBuffer.cascadesDistance.y, z);
+
+        float shadowPrev = CalculateShadowFactorValue(ShadowMap1, fs_in.positionInLightSpace[1].xyz);
+        float shadowCurr = CalculateShadowFactorValue(ShadowMap2, fs_in.positionInLightSpace[2].xyz);
+        return mix(shadowPrev, shadowCurr, factor);
+    }
+    // Kaskada 4
+    else if (shadowsBuffer.cascadesSize >= 4 && z < shadowsBuffer.cascadesDistance.w)
+    {
+        float blendRange = 2.0 / fs_in.shadowMapSize;
+        float factor = smoothstep(shadowsBuffer.cascadesDistance.z - blendRange,
+                                  shadowsBuffer.cascadesDistance.z, z);
+
+        float shadowPrev = CalculateShadowFactorValue(ShadowMap2, fs_in.positionInLightSpace[2].xyz);
+        float shadowCurr = CalculateShadowFactorValue(ShadowMap3, fs_in.positionInLightSpace[3].xyz);
+        return mix(shadowPrev, shadowCurr, factor);
+    }
+
+    return 1.f;
 }
 
 vec4 CalcBumpedNormal(vec2 text_coords)

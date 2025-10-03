@@ -15,29 +15,36 @@ namespace GameEngine
 Material ParseMaterial(const File& file, ITextureLoader& texLoader)
 {
     Material material;
+
+    LOG_DEBUG << "reader: " << file.GetAbsolutePath();
     Utils::JsonReader reader;
     reader.Read(file.GetAbsolutePath().string());
 
     if (auto root = reader.Get())
     {
-        // -------------------- TEKSTURY --------------------
-        auto loadTexture = [&](const char* key, GeneralTexture*& target)
+        auto loadTexture = [&](const char* key) -> GeneralTexture*
         {
             if (auto node = reader.Get(key, root))
             {
                 if (not node->value_.empty())
                 {
-                    TextureParameters parameters;
-                    target = texLoader.LoadTexture(File(node->value_), parameters);
+                    File file(node->value_);
+                    if (file.exist())
+                    {
+                        TextureParameters parameters;
+                        return texLoader.LoadTexture(File(node->value_), parameters);
+                    }
                 }
             }
+
+            return nullptr;
         };
 
-        loadTexture("diffuseTexture", material.diffuseTexture);
-        loadTexture("normalTexture", material.normalTexture);
-        loadTexture("specularTexture", material.specularTexture);
-        loadTexture("ambientTexture", material.ambientTexture);
-        loadTexture("displacementTexture", material.displacementTexture);
+        material.diffuseTexture = loadTexture("diffuseTexture");
+        material.normalTexture       = loadTexture("normalTexture");
+        material.specularTexture     = loadTexture("specularTexture");
+        material.ambientTexture      = loadTexture("ambientTexture");
+        material.displacementTexture = loadTexture("displacementTexture");
 
         // -------------------- KOLORY --------------------
         auto parseColor = [&](const TreeNode* node, Color& target)
@@ -49,10 +56,12 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
                 const auto& children = node->getChildren();
                 if (children.size() >= 3)
                 {
-                    auto x = std::stof(children[0]->value_);
-                    auto y = std::stof(children[1]->value_);
-                    auto z = std::stof(children[2]->value_);
-                    auto w = std::stof(children[3]->value_);
+                    auto x  = std::stof(children[0]->value_);
+                    auto y  = std::stof(children[1]->value_);
+                    auto z  = std::stof(children[2]->value_);
+                    float w = 1.f;
+                    if (children.size() > 3)
+                        w = std::stof(children[3]->value_);
                     target = Color(vec4(x, y, z, w));
                 }
             }
@@ -126,7 +135,7 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
     {
         LOG_ERROR << "Json root node not found in file: " << file;
     }
-
+    LOG_DEBUG << "return material";
     return material;
 }
 void SaveMaterial(const Material& material, const File& requestedFile)

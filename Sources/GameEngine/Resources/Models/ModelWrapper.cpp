@@ -22,7 +22,7 @@ void ModelWrapper::Update(Model* model, LevelOfDetail lvl)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Can not update, model not found");
+        LOG_ERROR << "Can not update, model not found";
     }
 }
 Model* ModelWrapper::Get(LevelOfDetail lvl)
@@ -38,17 +38,20 @@ Model* ModelWrapper::get(DistanceToCamera distance)
     if (distance < EngineConf.renderer.lodDistance0)
     {
         auto iter = models_.find(LevelOfDetail::L1);
-        if (iter != models_.end()) return iter->second;
+        if (iter != models_.end())
+            return iter->second;
     }
     else if (distance < EngineConf.renderer.lodDistance1)
     {
         auto iter = models_.find(LevelOfDetail::L2);
-        if (iter != models_.end()) return iter->second;
+        if (iter != models_.end())
+            return iter->second;
     }
     else
     {
         auto iter = models_.find(LevelOfDetail::L3);
-        if (iter != models_.end()) return iter->second;
+        if (iter != models_.end())
+            return iter->second;
     }
 
     for (auto& pair : models_)
@@ -74,5 +77,10 @@ std::vector<Model*> ModelWrapper::PopModels()
 void ModelWrapper::clear()
 {
     models_.clear();
+}
+
+void ModelWrapper::clear(LevelOfDetail lod)
+{
+    models_.erase(lod);
 }
 }  // namespace GameEngine

@@ -7,6 +7,10 @@
 
 #include "EditorUitls.h"
 #include "GLCanvas.h"
+#include "Logger/Log.h"
+#include "ProjectManager.h"
+#include "Resources/Models/Material.h"
+#include "Resources/Models/Primitives.h"
 
 MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
@@ -38,13 +42,25 @@ void MaterialEditorFrame::Init()
 
     // --- Kolory ---
     ambientBtn = AddColorPicker(rightPanel, rightSizer, "Ambient",
-                                [this](wxCommandEvent&) { currentMaterial.ambient = PickColor(currentMaterial.ambient); });
+                                [this](wxCommandEvent&)
+                                {
+                                    currentMaterial.ambient = PickColor(currentMaterial.ambient);
+                                    UpdateMaterialInComponent();
+                                });
 
     diffuseBtn = AddColorPicker(rightPanel, rightSizer, "Diffuse",
-                                [this](wxCommandEvent&) { currentMaterial.diffuse = PickColor(currentMaterial.diffuse); });
+                                [this](wxCommandEvent&)
+                                {
+                                    currentMaterial.diffuse = PickColor(currentMaterial.diffuse);
+                                    UpdateMaterialInComponent();
+                                });
 
     specularBtn = AddColorPicker(rightPanel, rightSizer, "Specular",
-                                 [this](wxCommandEvent&) { currentMaterial.specular = PickColor(currentMaterial.specular); });
+                                 [this](wxCommandEvent&)
+                                 {
+                                     currentMaterial.specular = PickColor(currentMaterial.specular);
+                                     UpdateMaterialInComponent();
+                                 });
 
     // --- Roughness / ShineDamper ---
     rightSizer->Add(new wxStaticText(rightPanel, wxID_ANY, "Shine Damper:"), 0, wxALL, 5);
@@ -61,6 +77,7 @@ void MaterialEditorFrame::Init()
                              {
                                  currentMaterial.reflectivity = reflectivitySlider->GetValue() / 100.f;
                                  canvas->Refresh();
+                                 UpdateMaterialInComponent();
                              });
 
     // --- Index of Refraction ---
@@ -72,6 +89,7 @@ void MaterialEditorFrame::Init()
                     {
                         currentMaterial.indexOfRefraction = iorSlider->GetValue() / 100.f;
                         canvas->Refresh();
+                        UpdateMaterialInComponent();
                     });
 
     // --- Transparency ---
@@ -83,6 +101,7 @@ void MaterialEditorFrame::Init()
                             {
                                 currentMaterial.isTransparency = transparencyCheck->GetValue();
                                 canvas->Refresh();
+                                UpdateMaterialInComponent();
                             });
 
     // --- Use Fake Lighting ---
@@ -94,6 +113,7 @@ void MaterialEditorFrame::Init()
                             {
                                 currentMaterial.useFakeLighting = fakeLightingCheck->GetValue();
                                 canvas->Refresh();
+                                UpdateMaterialInComponent();
                             });
 
     // --- Tekstury ---
@@ -102,34 +122,51 @@ void MaterialEditorFrame::Init()
 
     AddTexturePicker(rightPanel, rightSizer, "Diffuse Texture", diffusePathCtrl,
                      [this, &textureLoader](const std::string& path)
-                     { currentMaterial.diffuseTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+                     {
+                         currentMaterial.diffuseTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{});
+                         UpdateMaterialInComponent();
+                     });
 
     AddTexturePicker(rightPanel, rightSizer, "Ambient Texture", ambientPathCtrl,
                      [this, &textureLoader](const std::string& path)
-                     { currentMaterial.ambientTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+                     {
+                         currentMaterial.ambientTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{});
+                         UpdateMaterialInComponent();
+                     });
 
     AddTexturePicker(rightPanel, rightSizer, "Specular Texture", specularPathCtrl,
                      [this, &textureLoader](const std::string& path)
-                     { currentMaterial.specularTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+                     {
+                         currentMaterial.specularTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{});
+                         UpdateMaterialInComponent();
+                     });
 
     AddTexturePicker(rightPanel, rightSizer, "Normal Texture", normalPathCtrl,
                      [this, &textureLoader](const std::string& path)
-                     { currentMaterial.normalTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+                     {
+                         currentMaterial.normalTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{});
+                         UpdateMaterialInComponent();
+                     });
 
     AddTexturePicker(rightPanel, rightSizer, "Displacement Texture", displacementPathCtrl,
                      [this, &textureLoader](const std::string& path)
-                     { currentMaterial.displacementTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{}); });
+                     {
+                         currentMaterial.displacementTexture = textureLoader.LoadTexture(path, GameEngine::TextureParameters{});
+                         UpdateMaterialInComponent();
+                     });
 
     rightPanel->SetSizer(rightSizer);
-    rightPanel->FitInside();  // ustawia rozmiar wirtualny na podstawie sizer
+    rightPanel->FitInside();
     rightPanel->SetScrollRate(5, 5);
 
     // --- Splitter ---
     auto size = GetSize();
     mainSplitter->SplitVertically(canvas, rightPanel, 3 * size.x / 4);
 
-    canvas->addPrimitive(GameEngine::PrimitiveType::Sphere);
+    previwGameObject = canvas->addPrimitive(GameEngine::PrimitiveType::Sphere);
+    UpdateMaterialInComponent();
 
+    CreateMainMenu();
     CreateStatusBar();
     SetStatusText("Material Editor ready");
 
@@ -194,7 +231,8 @@ wxBoxSizer* MaterialEditorFrame::AddTexturePicker(wxPanel* parent, wxBoxSizer* s
     browseBtn->Bind(wxEVT_BUTTON,
                     [this, outTextCtrl, onTextureChanged](wxCommandEvent&)
                     {
-                        wxFileDialog openFileDialog(this, _("Choose texture file"), "", "",
+                        wxFileDialog openFileDialog(this, _("Choose texture file"),
+                                                    ProjectManager::GetInstance().GetProjectPath(), "",
                                                     "Image files (*.png;*.jpg;*.tga)|*.png;*.jpg;*.tga|All files (*.*)|*.*",
                                                     wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
@@ -217,37 +255,118 @@ void MaterialEditorFrame::OnRoughnessChanged(wxCommandEvent&)
     canvas->Refresh();
 }
 
-// Wczytanie tekstury diffuse
-void MaterialEditorFrame::OnTextureBrowse(wxCommandEvent&)
+void MaterialEditorFrame::CreateMainMenu()
 {
-    wxFileDialog openFileDialog(this, _("Choose texture file"), "", "",
-                                "Image files (*.png;*.jpg;*.tga)|*.png;*.jpg;*.tga|All files (*.*)|*.*",
-                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxMenuBar* menuBar = new wxMenuBar();
+
+    // --- File Menu ---
+    wxMenu* fileMenu = new wxMenu();
+    fileMenu->Append(wxID_OPEN, "&Open Material...\tCtrl+O", "Open a material file");
+    fileMenu->AppendSeparator();
+    fileMenu->Append(wxID_EXIT, "E&xit\tAlt+F4", "Exit the application");
+    menuBar->Append(fileMenu, "&File");
+
+    SetMenuBar(menuBar);
+
+    // Bind zdarzenia
+    Bind(wxEVT_MENU, &MaterialEditorFrame::OnOpenMaterial, this, wxID_OPEN);
+    Bind(wxEVT_MENU, &MaterialEditorFrame::OnExit, this, wxID_EXIT);
+}
+
+void MaterialEditorFrame::OnOpenMaterial(wxCommandEvent&)
+{
+    wxFileDialog openFileDialog(this, "Open Material file", ProjectManager::GetInstance().GetProjectPath(), "",
+                                "Material files (*.json)|*.json|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
-    // texturePathCtrl->SetValue(openFileDialog.GetPath());
+    std::string path = openFileDialog.GetPath().ToStdString();
+    LOG_DEBUG << "Load material " << path;
+    LoadMaterial(path);
+    LOG_DEBUG << "Load material done. " << path;
 
-    // Załaduj do GeneralTexture i przypisz do materialu
-    // currentMaterial.diffuseTexture = new GeneralTexture(openFileDialog.GetPath().ToStdString());
-    // LOG_DEBUG << "Loaded diffuse texture: " << openFileDialog.GetPath().ToStdString();
-    // canvas->Refresh();
+    UpdateMaterialInComponent();
+
+    LOG_DEBUG << "OnOpenMaterial done. " << path;
 }
 
-// Wczytanie materiału z pliku
+void MaterialEditorFrame::UpdateMaterialInComponent()
+{
+    if (previwGameObject)
+    {
+        if (auto rendererComponent = previwGameObject->GetComponent<GameEngine::Components::RendererComponent>())
+        {
+            if (auto model = rendererComponent->GetModelWrapper().Get())
+            {
+                if (model->GetMeshes().size() > 0)
+                {
+                    LOG_DEBUG << "UpdateCustomMaterial";
+                    const auto& mesh = model->GetMeshes().front();
+                    rendererComponent->UpdateCustomMaterial(mesh, currentMaterial);
+                }
+            }
+        }
+    }
+}
+
+void MaterialEditorFrame::OnExit(wxCommandEvent&)
+{
+    Close(true);
+}
+
 void MaterialEditorFrame::LoadMaterial(const std::string& file)
 {
-    // TODO: wczytaj materiał z pliku i ustaw currentMaterial
-    // Przykładowo:
-    // currentMaterial = LoadFromFile(file);
+    auto& scene = canvas->GetScene();
 
-    // Ustaw kontrolki zgodnie z currentMaterial
+    auto& textureLoader = scene.GetResourceManager().GetTextureLoader();
+
+    LOG_DEBUG << "Parse material";
+    currentMaterial = GameEngine::ParseMaterial(file, textureLoader);
+    LOG_DEBUG << "Parse material done";
+
+    // --- Kolory ---
+    ambientBtn->SetBackgroundColour(
+        wxColour(currentMaterial.ambient.r(), currentMaterial.ambient.g(), currentMaterial.ambient.b()));
+    diffuseBtn->SetBackgroundColour(
+        wxColour(currentMaterial.diffuse.r(), currentMaterial.diffuse.g(), currentMaterial.diffuse.b()));
+    specularBtn->SetBackgroundColour(
+        wxColour(currentMaterial.specular.r(), currentMaterial.specular.g(), currentMaterial.specular.b()));
+
+    // --- Slidery ---
     roughnessSlider->SetValue(static_cast<int>(currentMaterial.shineDamper * 100));
-    // Kolory można ustawić przyciskiem np. diffuseBtn->SetBackgroundColour(wxColour(...))
-    // Tekstura
-    // if (currentMaterial.diffuseTexture)
-    //     texturePathCtrl->SetValue(currentMaterial.diffuseTexture->GetPath());
+    reflectivitySlider->SetValue(static_cast<int>(currentMaterial.reflectivity * 100));
+    iorSlider->SetValue(static_cast<int>(currentMaterial.indexOfRefraction * 100));
+
+    // --- Checkboxy ---
+    transparencyCheck->SetValue(currentMaterial.isTransparency);
+    fakeLightingCheck->SetValue(currentMaterial.useFakeLighting);
+
+    // --- Tekstury ---
+    if (currentMaterial.diffuseTexture)
+        diffusePathCtrl->SetValue(currentMaterial.diffuseTexture->GetFile()->GetDataRelativePath().string());
+    else
+        diffusePathCtrl->Clear();
+
+    if (currentMaterial.ambientTexture)
+        ambientPathCtrl->SetValue(currentMaterial.ambientTexture->GetFile()->GetDataRelativePath().string());
+    else
+        ambientPathCtrl->Clear();
+
+    if (currentMaterial.specularTexture)
+        specularPathCtrl->SetValue(currentMaterial.specularTexture->GetFile()->GetDataRelativePath().string());
+    else
+        specularPathCtrl->Clear();
+
+    if (currentMaterial.normalTexture)
+        normalPathCtrl->SetValue(currentMaterial.normalTexture->GetFile()->GetDataRelativePath().string());
+    else
+        normalPathCtrl->Clear();
+
+    if (currentMaterial.displacementTexture)
+        displacementPathCtrl->SetValue(currentMaterial.displacementTexture->GetFile()->GetDataRelativePath().string());
+    else
+        displacementPathCtrl->Clear();
 
     materialLoaded = true;
     canvas->Refresh();

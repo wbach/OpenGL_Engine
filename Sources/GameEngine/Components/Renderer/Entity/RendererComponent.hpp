@@ -88,6 +88,8 @@ public:
     const GraphicsApi::ID& GetPerObjectConstantsBuffer(IdType) const;
     std::unordered_map<LevelOfDetail, File> GetFiles() const;
     const std::unordered_map<IdType, CustomMaterialData>& GetCustomMaterials() const;
+    void AddCustomMaterial(const Mesh&, const Material&);
+    void UpdateCustomMaterial(const Mesh&, const Material&);
 
 private:
     void init();
@@ -101,6 +103,7 @@ private:
     void CreatePerObjectConstantsBuffer(const Mesh&);
     void PrepareCustomMaterials(const Model&);
     void ReleaseCustomMaterials(const Model&);
+    void CleanUpWithRestrictions(const std::set<Model*>& = {});
 
 private:
     ModelWrapper model_;
@@ -111,6 +114,7 @@ private:
     std::unordered_map<IdType, std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
 
     std::unordered_map<IdType, CustomMaterialData> customMaterials;
+    std::set<Model*> addedModels;
 
 public:
     static void registerReadFunctions();

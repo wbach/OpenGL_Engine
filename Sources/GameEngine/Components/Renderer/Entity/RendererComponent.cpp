@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
+#include <vector>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -11,6 +12,7 @@
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Logger/Log.h"
@@ -71,13 +73,32 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
 
 void RendererComponent::CleanUp()
 {
+    CleanUpWithRestrictions();
+}
+
+void RendererComponent::CleanUpWithRestrictions(const std::set<Model*>& restrictedModels)
+{
     UnSubscribe();
 
     customMaterials.clear();
 
-    for (auto model : model_.PopModels())
+    std::vector<LevelOfDetail> toRelease;
+    for (auto [lod, model] : model_.GetAll())
     {
-        componentContext_.resourceManager_.ReleaseModel(*model);
+        if (not restrictedModels.contains(model))
+        {
+            componentContext_.resourceManager_.ReleaseModel(*model);
+            toRelease.push_back(lod);
+        }
+        else
+        {
+            LOG_DEBUG << "skip added manually model : " << model->GetFile().GetAbsolutePath();
+        }
+    }
+
+    for (auto lod : toRelease)
+    {
+        model_.clear(lod);
     }
 
     ClearShaderBuffers();
@@ -96,13 +117,14 @@ void RendererComponent::ReqisterFunctions()
 
 void RendererComponent::Reload()
 {
-    CleanUp();
+    CleanUpWithRestrictions(addedModels);
     init();
 }
 
 RendererComponent& RendererComponent::AddModel(Model* model, LevelOfDetail i)
 {
     model_.Add(model, i);
+    addedModels.insert(model);
     return *this;
 }
 
@@ -199,6 +221,18 @@ void RendererComponent::PrepareCustomMaterials(const Model& model)
                                         ParseMaterial(iter->second, componentContext_.resourceManager_.GetTextureLoader()));
         }
     }
+}
+
+void RendererComponent::AddCustomMaterial(const Mesh& mesh, const Material& material)
+{
+    customMaterials.try_emplace(mesh.GetGpuObjectId(), componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_,
+                                material);
+}
+
+void RendererComponent::UpdateCustomMaterial(const Mesh& mesh, const Material& material)
+{
+    customMaterials.erase(mesh.GetGpuObjectId());
+    AddCustomMaterial(mesh, material);
 }
 
 void RendererComponent::ReleaseCustomMaterials(const Model& model)

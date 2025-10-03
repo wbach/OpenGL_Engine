@@ -315,7 +315,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
             continue;
         }
 
-        const auto& [materialShaderBufferId, materialData] = getMaterial(subsriber,  mesh);
+        const auto& [materialShaderBufferId, materialData] = getMaterial(subsriber, mesh);
 
         if (materialShaderBufferId)
         {
@@ -359,7 +359,7 @@ void EntityRenderer::renderModel(const EntitySubscriber& subsriber, const Model&
     }
 }
 
-void EntityRenderer::renderMesh(const Mesh& mesh,const Material& material)
+void EntityRenderer::renderMesh(const Mesh& mesh, const Material& material)
 {
     ++renderedMeshes_;
 
@@ -372,11 +372,10 @@ const std::pair<GraphicsApi::ID, const Material*> EntityRenderer::getMaterial(co
 {
     std::pair<GraphicsApi::ID, const Material*> result{mesh.GetMaterialShaderBufferId(), &mesh.GetMaterial()};
 
-
     const auto& customMaterials = sub.renderComponent->GetCustomMaterials();
     if (auto iter = customMaterials.find(mesh.GetGpuObjectId()); iter != customMaterials.end())
     {
-        const auto&  customMaterialData = iter->second;
+        const auto& customMaterialData = iter->second;
         return {customMaterialData.GetBufferId(), &customMaterialData.material};
     }
 

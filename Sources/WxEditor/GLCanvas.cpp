@@ -11,6 +11,7 @@
 
 #include "EditorUitls.h"
 #include "Logger/Log.h"
+#include "Objects/GameObject.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
@@ -163,10 +164,10 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     SwapBuffers();
 }
 
-void GLCanvas::addPrimitive(GameEngine::PrimitiveType type, const vec3& pos, const vec3& scale)
+GameEngine::GameObject* GLCanvas::addPrimitive(GameEngine::PrimitiveType type, const vec3& pos, const vec3& scale)
 {
     if (not engine->GetSceneManager().GetActiveScene())
-        return;
+        return nullptr;
 
     auto& resourceManager = GetScene().GetResourceManager();
     auto model            = resourceManager.GetPrimitives(type);
@@ -174,7 +175,10 @@ void GLCanvas::addPrimitive(GameEngine::PrimitiveType type, const vec3& pos, con
     obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(model);
     obj->SetLocalPosition(pos);
     obj->SetLocalScale(scale);
+    auto result = obj.get();
     GetScene().AddGameObject(std::move(obj));
+
+    return result;
 }
 
 void GLCanvas::OnSize(wxSizeEvent& event)

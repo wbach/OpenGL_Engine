@@ -23,6 +23,7 @@ public:
     const std::unordered_map<LevelOfDetail, Model*>& GetAll() const;
     std::vector<Model*> PopModels();
     void clear();
+    void clear(LevelOfDetail);
 
 private:
     std::mutex mutex_;
