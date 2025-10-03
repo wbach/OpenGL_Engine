@@ -41,9 +41,10 @@ public:
     GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree, bool addStartupObjects = true);
     ~GLCanvas();
 
+    void CreateNewScene();
+    bool OpenScene(const GameEngine::File&, std::function<void()>);
     std::string getGlInfo() const;
     std::optional<IdType> AddGameObject(const GameEngine::File&, GameEngine::GameObject* = nullptr);
-    bool OpenScene(const GameEngine::File&, std::function<void()>);
     void GameObjectSelectChange(GameEngine::GameObject&);
     void ResetDragObject();
     GameEngine::GameObject& GetRootObject();

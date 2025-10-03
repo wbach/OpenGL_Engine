@@ -65,8 +65,7 @@ public:
     void Init();
 
 private:
-    void MenuFileNewProject(wxCommandEvent&);
-    void MenuFileOpenProject(wxCommandEvent&);
+    void MenuFileNewScene(wxCommandEvent&);
     void MenuFileOpenScene(wxCommandEvent&);
     void MenuFileReloadScene(wxCommandEvent&);
     void MenuFileSaveScene(wxCommandEvent&);

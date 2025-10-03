@@ -213,19 +213,7 @@ void GLCanvas::OnPaint(wxPaintEvent&)
         engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
                                                       std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
-        engine->GetSceneManager().SetActiveScene("NewScene");
-        engine->GetSceneManager().SetOnSceneLoadDone(
-            [this]()
-            {
-                onStartupDone();
-                SetupCamera();
-
-                if (addStartupObjects)
-                {
-                    addPrimitive(GameEngine::PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
-                    addPrimitive(GameEngine::PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
-                }
-            });
+        CreateNewScene();
     }
     if (engine)
     {
@@ -428,6 +416,26 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
         return result;
     }
     return std::nullopt;
+}
+
+void GLCanvas::CreateNewScene()
+{
+    if (engine)
+    {
+        engine->GetSceneManager().SetActiveScene("NewScene");
+        engine->GetSceneManager().SetOnSceneLoadDone(
+            [this]()
+            {
+                onStartupDone();
+                SetupCamera();
+
+                if (addStartupObjects)
+                {
+                    addPrimitive(GameEngine::PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
+                    addPrimitive(GameEngine::PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
+                }
+            });
+    }
 }
 
 bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> callback)

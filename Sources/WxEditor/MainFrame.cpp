@@ -110,8 +110,7 @@ bool terminateProcessByPID(long pid)
 // clang-format off
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_CLOSE(MainFrame::OnClose)
-    EVT_MENU(ID_MENU_FILE_NEW_PROJECT, MainFrame::MenuFileNewProject)
-    EVT_MENU(ID_MENU_FILE_OPEN_PROJECT, MainFrame::MenuFileOpenProject)
+    EVT_MENU(ID_MENU_FILE_NEW_SCENE, MainFrame::MenuFileNewScene)
     EVT_MENU(ID_MENU_FILE_OPEN_SCENE, MainFrame::MenuFileOpenScene)
     EVT_MENU(ID_MENU_FILE_RELOAD_SCENE, MainFrame::MenuFileReloadScene)
     EVT_MENU(ID_MENU_FILE_SAVE_SCENE, MainFrame::MenuFileSaveScene)
@@ -385,51 +384,24 @@ void MainFrame::OnClose(wxCloseEvent& event)
     event.Skip();
 }
 
-void MainFrame::MenuFileNewProject(wxCommandEvent&)
+void MainFrame::MenuFileNewScene(wxCommandEvent&)
 {
-    // Step 1: Ask for project name
-    wxTextEntryDialog nameDialog(this, "Enter project name:", "New Project");
-
-    if (nameDialog.ShowModal() == wxID_CANCEL)
-        return;
-
-    wxString projectName = nameDialog.GetValue();
-    if (projectName.IsEmpty())
+    if (canvas->GetScene().GetGameObjects().size() > 0)
     {
-        wxMessageBox("Project name cannot be empty.", "Error", wxICON_ERROR | wxOK);
-        return;
+        int answer = wxMessageBox("Current scene not empty, close this scene and create new one?", "Confirmation",
+                                  wxYES_NO | wxICON_QUESTION);
+
+        if (answer != wxYES)
+        {
+            return;
+        }
     }
 
-    // Step 2: Choose directory
-    wxDirDialog openDirDialog(this, "Choose a directory for the new project",
-                              Utils::GetAbsolutePath(EngineConf.files.data + "/Scenes"),
-                              wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST | wxDD_NEW_DIR_BUTTON);
-
-    if (openDirDialog.ShowModal() == wxID_CANCEL)
-        return;
-
-    wxString selectedDir = openDirDialog.GetPath();
-
-    // Step 3: Create project subfolder
-    wxString projectDir = selectedDir + "/" + projectName;
-
-    // Step 4: Update ProjectManager
-    auto& pm = ProjectManager::GetInstance();
-    pm.SetProjectPath(projectDir.ToStdString());
-    pm.SetProjectName(projectName.ToStdString());
-
-    auto defualtMainScene = pm.GetScenesDir() + "/main.xml";
-    SaveSceneAs(defualtMainScene);
-    GameEngine::CreateDefaultFile(pm.GetConfigFile());
-    GameEngine::createScenesFile(pm.GetScenesFactoryFile());
-
-    wxMessageBox("Project created at:\n" + projectDir, "Success", wxICON_INFORMATION | wxOK);
+    ClearScene();
+    canvas->CreateNewScene();
+    SetTitle("New scene: not saved");
 }
 
-void MainFrame::MenuFileOpenProject(wxCommandEvent&)
-{
-    wxMessageBox("NotImplemented yet", "Confirmation", wxOK | wxICON_QUESTION);
-}
 void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 {
     if (canvas->GetScene().GetGameObjects().size() > 0)
@@ -842,8 +814,7 @@ void MainFrame::CreateMainMenu()
 wxMenu* MainFrame::CreateFileMenu()
 {
     wxMenu* menuFile = new wxMenu;
-    // menuFile->Append(ID_MENU_FILE_NEW_PROJECT, "&New project", "Create new project");
-    // menuFile->Append(ID_MENU_FILE_OPEN_PROJECT, "&Open project", "Open existing project");
+    menuFile->Append(ID_MENU_FILE_NEW_SCENE, "&New scene", "Create new scene");
     menuFile->Append(ID_MENU_FILE_OPEN_SCENE, "&Open scene", "OpenScene");
     menuFile->Append(ID_MENU_FILE_RELOAD_SCENE, "&Reload scene", "Reload current scene");
     menuFile->Append(ID_MENU_FILE_SAVE_SCENE, "&Save scene\tCtrl-S", "Save scene to known file");
