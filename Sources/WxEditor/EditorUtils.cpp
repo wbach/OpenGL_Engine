@@ -1,5 +1,6 @@
 #include <GameEngine/Objects/Prefab.h>
 #include <GameEngine/Resources/File.h>
+#include <Utils/Json/JsonUtils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
@@ -75,6 +76,12 @@ bool isPrefab(const GameEngine::File& file)
     return file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath().string(), "prefab");
 }
 
+bool isMaterial(const GameEngine::File& file)
+{
+    return file.IsFormat("material") or
+           (file.IsFormat("json") and Utils::isJsonFileOfType(file.GetAbsolutePath().string(), "Material"));
+}
+
 wxString GetParentPath(const wxString& currentFolderPath)
 {
     wxFileName fn(currentFolderPath);
@@ -101,6 +108,21 @@ void runAnimationViewer(const std::string& extraParam)
         return;
     }
     LOG_DEBUG << "AnimationViewer started PID=" << pid;
+}
+
+void runMaterialEditor(const std::string& extraParam)
+{
+    std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --materialEditor " +
+                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath() + " " + extraParam;
+
+    LOG_DEBUG << cmd;
+    long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
+    if (pid == 0)
+    {
+        wxLogError("Run Material editor error!");
+        return;
+    }
+    LOG_DEBUG << "Material editor started PID=" << pid;
 }
 
 bool isGameObjectPrefab(const GameEngine::GameObject& go)

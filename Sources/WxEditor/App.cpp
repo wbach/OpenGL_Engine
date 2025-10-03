@@ -33,13 +33,16 @@ bool App::OnInit()
         CLogger::Instance().SetLogFilename("MaterialEditorLogs.txt");
         CLogger::Instance().EnableLogs();
         LOG_DEBUG << args;
-        auto* frame = new MaterialEditorFrame("Material Editor", wxPoint(150, 150), wxSize(1400, 1000));
+        std::optional<GameEngine::File> file;
+        if (auto f = Utils::GetValue(args, "file"))
+        {
+            file = *f;
+        }
+
+        auto* frame = new MaterialEditorFrame(file, "Material Editor", wxPoint(150, 150), wxSize(1400, 1000));
         SetTopWindow(frame);
         frame->Show(true);
-        if (auto file = Utils::GetValue(args, "file"))
-        {
-            frame->LoadMaterial(*file);
-        }
+
         return true;
     }
 

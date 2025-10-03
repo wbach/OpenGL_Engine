@@ -1,5 +1,6 @@
 set(UtilsIncludes
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Variant.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonWriter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Glm.h

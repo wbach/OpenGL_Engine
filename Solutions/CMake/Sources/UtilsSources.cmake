@@ -2,6 +2,7 @@ set(UtilsSources
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ThreadSubscriber.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/EngineUitls.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonWriter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonReader.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ParseUtils.cpp

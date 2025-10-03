@@ -399,14 +399,16 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     int ID_IMPORT_FOLDER   = wxWindow::NewControlId();
     int ID_PASTE           = wxWindow::NewControlId();
     int ID_ANIMATION_VIWER = wxWindow::NewControlId();
+    int ID_MATERIAL_EDITOR = wxWindow::NewControlId();
     int ID_NEW_FOLDER      = wxWindow::NewControlId();
     int ID_REFRESH_FOLDER  = wxWindow::NewControlId();
     int ID_REMOVE          = wxWindow::NewControlId();
     int ID_PROPERTIES      = wxWindow::NewControlId();
 
     menu.Append(ID_OPEN, "Open");
+    menu.Append(ID_MATERIAL_EDITOR, "Open in material editor");
+    menu.Append(ID_ANIMATION_VIWER, "Open in animation viewer");
     menu.Append(ID_SHOW, "Show in Explorer");
-    menu.Append(ID_ANIMATION_VIWER, "Show in animation viewer");
     menu.AppendSeparator();
     menu.Append(ID_COPY_PATH, "Copy Path");
     menu.AppendSeparator();
@@ -421,6 +423,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Append(ID_PROPERTIES, "Properties");
 
     GameEngine::File file(fileName.GetFullPath().ToStdString());
+    menu.Enable(ID_MATERIAL_EDITOR, isMaterial(file));
     menu.Enable(ID_ANIMATION_VIWER, is3dModelFile(file) or isPrefab(file));
 
     auto isCurrentDir = fileName == currentFolderPath;
@@ -486,6 +489,9 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&) { runAnimationViewer("--file " + fileName.GetFullPath().ToStdString()); }, ID_ANIMATION_VIWER);
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&) { runMaterialEditor("--file " + fileName.GetFullPath().ToStdString()); }, ID_MATERIAL_EDITOR);
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&)

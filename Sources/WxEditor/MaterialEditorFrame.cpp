@@ -12,20 +12,27 @@
 #include "Resources/Models/Material.h"
 #include "Resources/Models/Primitives.h"
 
-MaterialEditorFrame::MaterialEditorFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
+MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title,
+                                         const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 {
     wxInitAllImageHandlers();
     mainSplitter = new wxSplitterWindow(this, wxID_ANY);
 
     // Canvas renderujący preview materiału
-    auto onStartupDone = [this]()
+    auto onStartupDone = [this, file = maybeFile]()
     {
         auto& camera = canvas->GetScene().GetCamera();
         camera.SetPosition(vec3(-3.0f, 0.0f, 0.0f));
         camera.LookAt(vec3(0, 0.0f, 0));
         camera.UpdateMatrix();
         Init();
+
+        if (file)
+        {
+            LoadMaterial(file->GetAbsolutePath().string());
+            SetStatusText(file->GetFilename());
+        }
     };
     auto selectItem = [](uint32, bool) {};
     canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem, false);
@@ -262,6 +269,7 @@ void MaterialEditorFrame::CreateMainMenu()
     // --- File Menu ---
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(wxID_OPEN, "&Open Material...\tCtrl+O", "Open a material file");
+    fileMenu->Append(wxID_SAVE, "&Save Material...\tCtrl+S", "Save a material file");
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_EXIT, "E&xit\tAlt+F4", "Exit the application");
     menuBar->Append(fileMenu, "&File");
@@ -270,6 +278,7 @@ void MaterialEditorFrame::CreateMainMenu()
 
     // Bind zdarzenia
     Bind(wxEVT_MENU, &MaterialEditorFrame::OnOpenMaterial, this, wxID_OPEN);
+    Bind(wxEVT_MENU, &MaterialEditorFrame::OnSaveMaterial, this, wxID_SAVE);
     Bind(wxEVT_MENU, &MaterialEditorFrame::OnExit, this, wxID_EXIT);
 }
 
@@ -287,8 +296,22 @@ void MaterialEditorFrame::OnOpenMaterial(wxCommandEvent&)
     LOG_DEBUG << "Load material done. " << path;
 
     UpdateMaterialInComponent();
+    SetStatusText(GameEngine::File(path).GetFilename());
 
     LOG_DEBUG << "OnOpenMaterial done. " << path;
+}
+
+void MaterialEditorFrame::OnSaveMaterial(wxCommandEvent&)
+{
+    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath(), "",
+                            "Material files (*.json)|*.json|All files (*.*)|*.*", wxFD_SAVE);
+
+    if (fileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    wxString path = fileDialog.GetPath();
+    GameEngine::SaveMaterial(currentMaterial, path.ToStdString());
+    SetStatusText(GameEngine::File(path).GetFilename());
 }
 
 void MaterialEditorFrame::UpdateMaterialInComponent()
@@ -370,5 +393,6 @@ void MaterialEditorFrame::LoadMaterial(const std::string& file)
 
     materialLoaded = true;
     canvas->Refresh();
+    UpdateMaterialInComponent();
     LOG_DEBUG << "Material loaded from: " << file;
 }

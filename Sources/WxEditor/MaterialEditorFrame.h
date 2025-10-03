@@ -12,9 +12,8 @@ class MaterialPanel;
 class MaterialEditorFrame : public wxFrame
 {
 public:
-    MaterialEditorFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    MaterialEditorFrame(const std::optional<GameEngine::File>&, const wxString& title, const wxPoint& pos, const wxSize& size);
 
-    void LoadMaterial(const std::string& file);
     bool IsMaterialLoaded() const
     {
         return materialLoaded;
@@ -27,7 +26,9 @@ public:
 private:
     void Init();
     void CreateMainMenu();
+    void LoadMaterial(const std::string& file);
     void OnOpenMaterial(wxCommandEvent&);
+    void OnSaveMaterial(wxCommandEvent&);
     void OnExit(wxCommandEvent&);
     void OnTimer(wxTimerEvent&);
     void UpdateMaterialInComponent();
