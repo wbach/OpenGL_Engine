@@ -154,8 +154,7 @@ OpenGLApi::OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi> windowApi)
 {
     impl_ = std::make_unique<Pimpl>();
 
-    textureFilterMap_ = {{GraphicsApi::TextureFilter::LINEAR, GL_LINEAR},
-                         {GraphicsApi::TextureFilter::NEAREST, GL_NEAREST}};
+    textureFilterMap_ = {{GraphicsApi::TextureFilter::LINEAR, GL_LINEAR}, {GraphicsApi::TextureFilter::NEAREST, GL_NEAREST}};
 
     renderTypeMap_ = {{GraphicsApi::RenderType::PATCHES, GL_PATCHES},
                       {GraphicsApi::RenderType::POINTS, GL_POINTS},
@@ -234,7 +233,7 @@ void OpenGLApi::PrintVersion()
     LOG_DEBUG << "GL version: " << ver;
 
     std::string glslver(reinterpret_cast<char const*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
-    LOG_DEBUG<< "GLSL version: " << glslver;
+    LOG_DEBUG << "GLSL version: " << glslver;
 
     if (not useLowGLversion_)
     {
@@ -395,8 +394,7 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
         floatdata.resize(4 * textureInfo.size.x * textureInfo.size.y);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &floatdata[0]);
 
-        std::transform(floatdata.begin(), floatdata.end(), data.begin(),
-                       [](float f) { return static_cast<uint8>(255.f * f); });
+        std::transform(floatdata.begin(), floatdata.end(), data.begin(), [](float f) { return static_cast<uint8>(255.f * f); });
     }
     else if (params.dataType == GL_FLOAT and params.format == GL_RGB)
     {
@@ -497,8 +495,7 @@ void OpenGLApi::BindDefaultFrameBuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-OpenGLApi::IFrameBuffer& OpenGLApi::CreateFrameBuffer(
-    const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
+OpenGLApi::IFrameBuffer& OpenGLApi::CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
 {
     impl_->frameBuffers_.push_back(std::make_unique<FrameBuffer>(impl_->idPool_, attachments));
     LOG_DEBUG << impl_->frameBuffers_.back()->GetId();
@@ -511,9 +508,9 @@ void OpenGLApi::DeleteFrameBuffer(OpenGLApi::IFrameBuffer& framebuffer)
     LOG_DEBUG << framebuffer.GetId();
     framebuffer.CleanUp();
 
-    auto& v   = impl_->frameBuffers_;
-    auto iter = std::find_if(v.begin(), v.end(),
-                             [id = framebuffer.GetId()](const auto& object) { return object->GetId() == id; });
+    auto& v = impl_->frameBuffers_;
+    auto iter =
+        std::find_if(v.begin(), v.end(), [id = framebuffer.GetId()](const auto& object) { return object->GetId() == id; });
 
     if (iter != v.end())
     {
@@ -587,8 +584,8 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
             obj.vertexCount = static_cast<GLsizei>(debugNormalMesh.position_.size());
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::POSITION]);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(),
-                         &debugNormalMesh.position_[0], GL_STREAM_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * debugNormalMesh.position_.size(), &debugNormalMesh.position_[0],
+                         GL_STREAM_DRAW);
             obj.sizeInBytes += sizeof(float) * debugNormalMesh.position_.size();
 
             glBindBuffer(GL_ARRAY_BUFFER, obj.vbos[VertexBufferObjects::NORMAL]);
@@ -744,7 +741,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
                         dataTypeSize = sizeof(uint8) * 4;
                         break;
                     default:
-                         LOG_ERROR << "Not implmented.";
+                        LOG_ERROR << "Not implmented.";
                 }
             },
             [&](const std::vector<float>&)
@@ -845,9 +842,8 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<Utils::Image, 6>
 
     for (const auto& image : images)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i++), 0, GL_RGBA,
-                     static_cast<GLsizei>(image.width), static_cast<GLsizei>(image.height), 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, image.getRawDataPtr());
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i++), 0, GL_RGBA, static_cast<GLsizei>(image.width),
+                     static_cast<GLsizei>(image.height), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getRawDataPtr());
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -867,7 +863,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const Utils::Imag
 {
     if (image.empty())
     {
-         LOG_ERROR << "Update image without data";
+        LOG_ERROR << "Update image without data";
         return;
     }
     auto iter = impl_->textureInfos_.find(id);
@@ -881,8 +877,8 @@ void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const Utils::Imag
 
     BindTexture(id);
     glTexSubImage2D(params.target, 0, static_cast<GLint>(offset.x), static_cast<GLint>(offset.y),
-                    static_cast<GLsizei>(image.width), static_cast<GLsizei>(image.height), params.format,
-                    params.dataType, image.getRawDataPtr());
+                    static_cast<GLsizei>(image.width), static_cast<GLsizei>(image.height), params.format, params.dataType,
+                    image.getRawDataPtr());
 }
 void OpenGLApi::UpdateTexture(uint32 id, const Utils::Image& image)
 {
@@ -958,7 +954,7 @@ void OpenGLApi::DeleteObject(uint32 id)
 
     if (createdObjectIds.count(id) == 0)
     {
-        LOG_ERROR << "Delete object error. Object with id : " << id <<  " not created?";
+        LOG_ERROR << "Delete object error. Object with id : " << id << " not created?";
         return;
     }
 
@@ -1017,7 +1013,7 @@ std::string OpenGLApi::GetBufferStatus()
 
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
-        LOG_ERROR << "FB error, status: " <<  status;
+        LOG_ERROR << "FB error, status: " << status;
         return std::to_string(status);
     }
 
@@ -1081,8 +1077,7 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TEXT_COORD, 2, meshRawData.textCoords_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::NORMAL, 3, meshRawData.normals_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::TANGENT, 3, meshRawData.tangents_);
-    vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, GraphicsApi::MAX_BONES_PER_VERTEX,
-                                  meshRawData.bonesWeights_);
+    vaoCreator.AddStaticAttribute(VertexBufferObjects::WEIGHTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.bonesWeights_);
     vaoCreator.AddStaticAttribute(VertexBufferObjects::JOINTS, GraphicsApi::MAX_BONES_PER_VERTEX, meshRawData.joinIds_);
     mesh            = Convert(vaoCreator.Get());
     mesh.renderType = type;
@@ -1208,8 +1203,7 @@ void UpdateVBO(OpenGLMesh& obj, VertexBufferObjects type, const std::vector<floa
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), &data[0], GL_STREAM_DRAW);
 }
 
-void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data,
-                           const std::set<VertexBufferObjects>& buffers)
+void OpenGLApi::UpdateMesh(uint32 objectId, const GraphicsApi::MeshRawData& data, const std::set<VertexBufferObjects>& buffers)
 {
     auto iter = openGlMeshes_.find(objectId);
     if (iter == openGlMeshes_.end())
@@ -1332,8 +1326,7 @@ void OpenGLApi::RenderMeshInstanced(uint32 id, uint32 istanced)
 
     if (mesh.useIndiecies)
     {
-        glDrawElementsInstanced(renderTypeMap_.at(mesh.renderType), mesh.vertexCount, GL_UNSIGNED_INT, nullptr,
-                                istanced);
+        glDrawElementsInstanced(renderTypeMap_.at(mesh.renderType), mesh.vertexCount, GL_UNSIGNED_INT, nullptr, istanced);
     }
     else
     {
@@ -1396,6 +1389,7 @@ void OpenGLApi::DisableCulling()
 
 void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
 {
+   // LOG_DEBUG << "SetViewPort " << x << " " << y << " " << width << " " << height;
     glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLint>(width), static_cast<GLint>(height));
 }
 

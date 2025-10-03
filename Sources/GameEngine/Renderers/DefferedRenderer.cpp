@@ -22,19 +22,12 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     , postprocessingRenderersManager_(context)
     , isReady_(false)
 {
-    windowSizeSubscribtionChange_ = EngineConf.window.size.subscribeForChange(
-        [this]()
-        {
-            LOG_DEBUG << "Resize mode enabled. Window size :  " << EngineConf.window.size.toString()
-                      << ", rendering size : " << context_.projection_.GetRenderingSize();
-        });
 }
 
 DefferedRenderer::~DefferedRenderer()
 {
     LOG_DEBUG << "destructor";
 
-    EngineConf.window.size.unsubscribe(windowSizeSubscribtionChange_);
     if (defferedFrameBuffer_)
         context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
 }
@@ -43,6 +36,8 @@ void DefferedRenderer::render()
 {
     if (isReady_)
     {
+        updateDefferedFrameBufferIfNeeded();
+
         bindDefferedFbo();
         context_.graphicsApi_.EnableDepthTest();
         context_.graphicsApi_.EnableDepthMask();
@@ -60,13 +55,6 @@ void DefferedRenderer::init()
     createFrameBuffer();
     createRenderers();
 
-    const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
-    if (context_.projection_.GetRenderingSize() != windowSize)
-    {
-        LOG_DEBUG << "Resize mode enabled. Window size :  " << windowSize
-                  << ", rendering size : " << context_.projection_.GetRenderingSize();
-    }
-
     initRenderers();
     postprocessingRenderersManager_.Init();
 
@@ -80,16 +68,8 @@ void DefferedRenderer::reloadShaders()
 }
 void DefferedRenderer::setViewPort()
 {
-    const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
-    if (context_.projection_.GetRenderingSize() != windowSize)
-    {
-        const auto& renderingSize = context_.projection_.GetRenderingSize();
-        context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
-    }
-    else
-    {
-        context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
-    }
+    const auto& renderingSize = context_.projection_.GetRenderingSize();
+    context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
 }
 void DefferedRenderer::bindDefferedFbo()
 {
@@ -104,15 +84,36 @@ void DefferedRenderer::unbindDefferedFbo()
 void DefferedRenderer::createFrameBuffer()
 {
     using namespace GraphicsApi::FrameBuffer;
-    const auto& size = context_.projection_.GetRenderingSize();
-    Attachment worldPositionAttachment(size, Type::Color0, Format::Rgba32f);
-    Attachment diffuseAttachment(size, Type::Color1, Format::Rgba8);
-    Attachment normalAttachment(size, Type::Color2, Format::Rgba32f, vec4(0.f, 0.f, 0.f, 1.f));
-    Attachment specularAttachment(size, Type::Color3, Format::Rgba8);
-    Attachment depthAttachment(size, Type::Depth, Format::Depth);
+    defferedFrameBufferSize_ = context_.projection_.GetRenderingSize();
+    Attachment worldPositionAttachment(*defferedFrameBufferSize_, Type::Color0, Format::Rgba32f);
+    Attachment diffuseAttachment(*defferedFrameBufferSize_, Type::Color1, Format::Rgba8);
+    Attachment normalAttachment(*defferedFrameBufferSize_, Type::Color2, Format::Rgba32f, vec4(0.f, 0.f, 0.f, 1.f));
+    Attachment specularAttachment(*defferedFrameBufferSize_, Type::Color3, Format::Rgba8);
+    Attachment depthAttachment(*defferedFrameBufferSize_, Type::Depth, Format::Depth);
 
     defferedFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer(
         {worldPositionAttachment, diffuseAttachment, normalAttachment, specularAttachment, depthAttachment});
     isReady_ = defferedFrameBuffer_->Init();
 }
+
+void DefferedRenderer::updateDefferedFrameBufferIfNeeded()
+{
+    if (not defferedFrameBufferSize_ or not defferedFrameBuffer_)
+        return;
+
+    if (defferedFrameBufferSize_.value() == context_.projection_.GetRenderingSize())
+    {
+        return;
+    }
+
+    LOG_DEBUG << "Update frame buffer size from: " << defferedFrameBufferSize_ << " to "
+              << context_.projection_.GetRenderingSize();
+
+    defferedFrameBufferSize_ = context_.projection_.GetRenderingSize();
+    context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
+    createFrameBuffer();
+
+    postprocessingRenderersManager_.OnSizeChanged();
+}
+
 }  // namespace GameEngine

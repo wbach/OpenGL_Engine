@@ -191,8 +191,10 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 
     vec2ui newSize{static_cast<uint32>(w), static_cast<uint32>(h)};
     LOG_DEBUG << "Window resized to: " << newSize;
-    EngineConf.window.size = newSize;
-    engine->GetEngineContext().GetRenderersManager().setRenderingSize(newSize);
+
+    EngineConf.window.size         = newSize;
+    EngineConf.renderer.resolution = newSize;
+
     Refresh(false);
     event.Skip();
 }

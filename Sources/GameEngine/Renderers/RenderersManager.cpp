@@ -122,15 +122,6 @@ void RenderersManager::renderScene(Scene& scene)
     bufferDataUpdater_.Update();
     scene.UpdateCamera();
 
-    {
-        std::lock_guard<std::mutex> l(renderingSizeMutex);
-        if (newRenderingSize_)
-        {
-            projection_.SetRenderingSize(*newRenderingSize_);
-            newRenderingSize_.reset();
-        }
-    }
-
     viewProjectionMatrix_ = projection_.GetProjectionMatrix() * scene.GetCamera().GetViewMatrix();
     frustrum_.prepareFrame(viewProjectionMatrix_);
     updatePerFrameBuffer(scene);
@@ -314,12 +305,6 @@ void RenderersManager::updatePerFrameBuffer(Scene& scene)
         buffer.clipPlane            = vec4{0.f, 1.f, 0.f, 100000.f};
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
-}
-
-void RenderersManager::setRenderingSize(const vec2ui& newSize)
-{
-    std::lock_guard<std::mutex> l(renderingSizeMutex);
-    newRenderingSize_ = newSize;
 }
 }  // namespace Renderer
 }  // namespace GameEngine

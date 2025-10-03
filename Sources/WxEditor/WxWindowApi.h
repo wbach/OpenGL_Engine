@@ -2,6 +2,7 @@
 #include <GraphicsApi/WindowApi.hpp>
 #include <vector>
 
+#include "Types.h"
 #include "WxInputManager.h"
 
 class wxMouseEvent;
@@ -46,5 +47,6 @@ private:
     std::vector<GraphicsApi::DisplayMode> displayModes;
     std::unique_ptr<WxInputManager> inputManager;
     vec2ui windowSize;
+    IdType windowSizeSub;
 };
 }  // namespace WxEditor

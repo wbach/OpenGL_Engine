@@ -1,5 +1,6 @@
 #include "WxWindowApi.h"
 
+#include <GameEngine/Engine/Configuration.h>
 #include <Logger/Log.h>
 
 namespace WxEditor
@@ -10,13 +11,21 @@ WxWindowApi::WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc
 {
     LOG_DEBUG << "Add display mode: " << renderSize;
     displayModes.push_back(GraphicsApi::DisplayMode{.w = renderSize.x, .h = renderSize.y, .refreshRate = 60, .displayIndex = 0});
+
+    windowSizeSub = EngineConf.window.size.subscribeForChange(
+        [this]()
+        {
+            LOG_DEBUG << "Window size change detected.";
+            windowSize = EngineConf.window.size;
+        });
 }
 
 WxWindowApi::~WxWindowApi()
 {
+    EngineConf.window.size.unsubscribe(windowSizeSub);
 }
 
-void WxWindowApi::OnMouseMove(wxMouseEvent & event)
+void WxWindowApi::OnMouseMove(wxMouseEvent &event)
 {
     inputManager->OnMouseMove(event);
 }

@@ -69,6 +69,7 @@ void BaseRenderer::render()
 }
 void BaseRenderer::setViewPort()
 {
+    LOG_DEBUG << "SetViewPort " << EngineConf.window.size.toString();
     context_.graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
 }
 void BaseRenderer::blendRender()

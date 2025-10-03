@@ -1,5 +1,7 @@
 #include "PostprocessingRenderersManager.h"
+
 #include <Logger/Log.h>
+
 #include "GameEngine/Renderers/Projection.h"
 #include "PostprocessingRenderer.h"
 #include "PostprocessingRenderersFactory.h"
@@ -18,9 +20,8 @@ PostProcessingManager::~PostProcessingManager()
 }
 void PostProcessingManager::Init()
 {
-    GraphicsApi::FrameBuffer::Attachment colorAttachment(context_.projection_.GetRenderingSize(),
-                                                         GraphicsApi::FrameBuffer::Type::Color0,
-                                                         GraphicsApi::FrameBuffer::Format::Rgba8);
+    GraphicsApi::FrameBuffer::Attachment colorAttachment(
+        context_.projection_.GetRenderingSize(), GraphicsApi::FrameBuffer::Type::Color0, GraphicsApi::FrameBuffer::Format::Rgba8);
 
     fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, colorAttachment);
 
@@ -33,14 +34,25 @@ void PostProcessingManager::Init()
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Buffer creation error.");
+        LOG_DEBUG << "Buffer creation error.";
     }
 }
+
+void PostProcessingManager::OnSizeChanged()
+{
+    fboManager_.reset();
+
+    GraphicsApi::FrameBuffer::Attachment colorAttachment(
+        context_.projection_.GetRenderingSize(), GraphicsApi::FrameBuffer::Type::Color0, GraphicsApi::FrameBuffer::Format::Rgba8);
+
+    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, colorAttachment);
+}
+
 void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer, const Scene& scene)
 {
     if (not fboManager_->GetStatus() or postProcessingRenderers_.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("No activePostProcessing effects.");
+        LOG_DEBUG << "No activePostProcessing effects.";
         return;
     }
     fboManager_->StartFrame();
@@ -91,8 +103,8 @@ void PostProcessingManager::AddEffects()
 {
     AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
     // AddEffect(PostprocessingRendererType::COLOR_FLIPER);
-    //AddEffect(PostprocessingRendererType::BLUR);
-   // AddEffect(PostprocessingRendererType::OUTLINE);
+    // AddEffect(PostprocessingRendererType::BLUR);
+    // AddEffect(PostprocessingRendererType::OUTLINE);
     AddEffect(PostprocessingRendererType::FXAA);
 }
 void PostProcessingManager::bindDefaultFrameBuffer()

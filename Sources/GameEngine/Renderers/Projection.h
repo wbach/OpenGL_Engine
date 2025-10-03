@@ -15,7 +15,6 @@ public:
     Projection& operator=(const Projection& p);
 
     void Init();
-    void SetRenderingSize(const vec2ui&);
 
     void CreateProjectionMatrix();
     void OrthographiProjection();
@@ -39,6 +38,7 @@ private:
     float fov_;
     mat4 projectionMatrix_;
     IdType viewDistanceChangeSubscription_;
+    IdType resolutionChangeSubscription_;
 };
 
 float Projection::GetViewDistance() const

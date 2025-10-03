@@ -65,6 +65,7 @@ public:
     PostProcessingManager(RendererContext& context);
     ~PostProcessingManager();
     void Init();
+    void OnSizeChanged();
     void Render(GraphicsApi::IFrameBuffer&, const Scene&);
     void ReloadShaders();
 

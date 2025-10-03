@@ -39,7 +39,17 @@ Projection::Projection(const vec2ui &renderingSize, float near, float far, float
     viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange(
         [this]()
         {
+            LOG_DEBUG << "View distance change, recalculate projection matrix";
             farPlane_ = EngineConf.renderer.viewDistance;
+            CreateProjectionMatrix();
+        });
+
+    resolutionChangeSubscription_ = EngineConf.renderer.resolution.subscribeForChange(
+        [this]()
+        {
+            LOG_DEBUG << "Rendering resolition change, recalculate projection matrix";
+            renderingSize_ = EngineConf.renderer.resolution;
+            CalculateAspectRatio();
             CreateProjectionMatrix();
         });
 }
@@ -55,6 +65,7 @@ Projection::Projection(const Projection &p)
 Projection::~Projection()
 {
     EngineConf.renderer.viewDistance.unsubscribe(viewDistanceChangeSubscription_);
+    EngineConf.renderer.resolution.unsubscribe(resolutionChangeSubscription_);
 }
 Projection &Projection::operator=(const Projection &p)
 {
@@ -65,13 +76,6 @@ Projection &Projection::operator=(const Projection &p)
     fov_              = p.fov_;
     projectionMatrix_ = p.projectionMatrix_;
     return *this;
-}
-
-void Projection::SetRenderingSize(const vec2ui& newSize)
-{
-    renderingSize_ = newSize;
-    CalculateAspectRatio();
-    CreateProjectionMatrix();
 }
 
 void Projection::Init()
