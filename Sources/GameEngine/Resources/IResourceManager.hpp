@@ -17,6 +17,7 @@ class ITextureLoader;
 class Texture;
 class File;
 struct LoadingParameters;
+class Primitive;
 
 class IResourceManager
 {
@@ -25,7 +26,7 @@ public:
 
     virtual Model* LoadModel(const File&, const LoadingParameters& = DEFAULT_LOADING_PARAMETERS) = 0;
     virtual Model* AddModel(std::unique_ptr<Model>)                                              = 0;
-    virtual Model* GetPrimitives(PrimitiveType)                                                  = 0;
+    virtual Primitive* GetPrimitives(PrimitiveType)                                              = 0;
     virtual void ReleaseModel(Model&)                                                            = 0;
     virtual IGpuResourceLoader& GetGpuResourceLoader()                                           = 0;
     virtual ITextureLoader& GetTextureLoader()                                                   = 0;

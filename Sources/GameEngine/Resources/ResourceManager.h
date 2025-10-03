@@ -9,17 +9,20 @@
 #include "Models/WBLoader/IModelLoaderFactory.h"
 #include "Models/WBLoader/LoaderManager.h"
 #include "ResourceInfo.h"
+
 namespace GameEngine
 {
+class Primitive;
 class ResourceManager : public IResourceManager
 {
 public:
-    ResourceManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, std::unique_ptr<ITextureLoader>, std::unique_ptr<IModelLoaderFactory>);
+    ResourceManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, std::unique_ptr<ITextureLoader>,
+                    std::unique_ptr<IModelLoaderFactory>);
     ~ResourceManager() override;
 
     Model* LoadModel(const File&, const LoadingParameters&) override;
     Model* AddModel(std::unique_ptr<Model>) override;
-    Model* GetPrimitives(PrimitiveType) override;
+    Primitive* GetPrimitives(PrimitiveType) override;
     void ReleaseModel(Model&) override;
 
     inline ITextureLoader& GetTextureLoader() override;

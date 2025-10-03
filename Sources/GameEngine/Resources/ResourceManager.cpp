@@ -6,6 +6,7 @@
 
 #include "IGpuResourceLoader.h"
 #include "ResourceUtils.h"
+#include "Models/Primitive.h"
 
 namespace GameEngine
 {
@@ -125,7 +126,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     return modelPtr;
 }
 
-Model* ResourceManager::GetPrimitives(PrimitiveType type)
+Primitive* ResourceManager::GetPrimitives(PrimitiveType type)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
 
@@ -137,12 +138,12 @@ Model* ResourceManager::GetPrimitives(PrimitiveType type)
         auto& modelInfo = iter->second;
         ++modelInfo.instances_;
         modelInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
-        return modelInfo.resource_.get();
+        return dynamic_cast<Primitive*>(modelInfo.resource_.get());
     }
 
     auto primitive = GeneratePrimitive(type);
 
-    auto model    = std::make_unique<GameEngine::Model>(ComputeBoundingBox(primitive));
+    auto model    = std::make_unique<GameEngine::Primitive>(type, ComputeBoundingBox(primitive));
     auto modelPtr = model.get();
     GameEngine::Material material;
     material.diffuse = vec3(0.8f, 0.8f, 0.8f);

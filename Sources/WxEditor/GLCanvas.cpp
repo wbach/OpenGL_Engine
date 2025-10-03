@@ -4,6 +4,7 @@
 #include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 #include <GameEngine/DebugTools/MousePicker/DragObject.h>
 #include <GameEngine/DebugTools/MousePicker/MousePicker.h>
+#include <GameEngine/Resources/Models/Primitive.h>
 #include <wx/dcclient.h>
 
 #include <filesystem>
@@ -35,6 +36,12 @@ END_EVENT_TABLE()
 using namespace GameEngine;
 using namespace GameEngine::Physics;
 
+namespace
+{
+const vec3 defaultCameraPosition = vec3(2.f, 2.f, 2.f);
+const vec3 defaultCameraLookAt   = vec3(0.f, 0.5f, 0.f);
+}  // namespace
+
 namespace WxEditor
 {
 class WxEditorScene : public GameEngine::Scene
@@ -47,8 +54,8 @@ public:
     ~WxEditorScene() override = default;
     int Initialize() override
     {
-        camera.SetPosition(vec3(2, 2, 2));
-        camera.LookAt(vec3(0, 0.5, 0));
+        camera.SetPosition(defaultCameraPosition);
+        camera.LookAt(defaultCameraLookAt);
         camera.UpdateMatrix();
         renderersManager_->GetDebugRenderer().Enable();
 
@@ -398,8 +405,9 @@ void GLCanvas::SetupCamera()
     scene.GetCamera().Lock();
 
     auto cameraEditor = std::make_unique<GameEngine::CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
-    cameraEditor->SetPosition(scene.GetCamera().GetPosition());
-    cameraEditor->SetRotation(scene.GetCamera().GetRotation());
+    cameraEditor->SetPosition(defaultCameraPosition);
+    cameraEditor->LookAt(defaultCameraLookAt);
+    cameraEditor->UpdateMatrix();
     scene.getInputManager()->ShowCursor(true);
     scene.getInputManager()->SetReleativeMouseMode(false);
     cameraId = scene.GetCamera().addAndSet(std::move(cameraEditor));

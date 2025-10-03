@@ -310,6 +310,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/L
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/BoundingBox.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Model.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitive.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitives.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObjectCommon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/GpuObject.h

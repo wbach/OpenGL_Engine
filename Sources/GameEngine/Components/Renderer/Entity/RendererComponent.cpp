@@ -1,6 +1,5 @@
 #include "RendererComponent.hpp"
 
-#include <algorithm>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -13,6 +12,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/Models/Primitive.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Logger/Log.h"
@@ -31,6 +31,8 @@ constexpr char CSTR_MODEL_FILE_NAMES[] = "modelFileNames";
 constexpr char MODEL_NORMALIZATION[]   = "modelNormalization";
 constexpr char MESH_OPTIMIZE[]         = "meshOptimize";
 constexpr char MATERIALS[]             = "materials";
+constexpr char CSTR_PRIMITIVES[]       = "primitives";
+constexpr char CSTR_PRIMITIVE[]        = "primitive";
 const GraphicsApi::ID defaultId;
 
 }  // namespace
@@ -470,6 +472,37 @@ void RendererComponent::registerReadFunctions()
             }
         }
 
+        auto primitivesNode = node.getChild(CSTR_PRIMITIVES);
+        if (primitivesNode)
+        {
+            for (auto& primitiveNode : primitivesNode->getChildren())
+            {
+                if (primitiveNode)
+                {
+                    try
+                    {
+                        auto type = magic_enum::enum_cast<PrimitiveType>(primitiveNode->value_);
+                        if (type)
+                        {
+                            auto primitive = componentContext.resourceManager_.GetPrimitives(*type);
+                            if (primitive)
+                            {
+                                component->AddModel(primitive);
+                            }
+                        }
+                        else
+                        {
+                            LOG_ERROR << "Primitive type \"" + primitiveNode->value_ + "\" not recognized.";
+                        }
+                    }
+                    catch (...)
+                    {
+                        LOG_ERROR << "Set primitive error";
+                    }
+                }
+            }
+        }
+
         auto materialsNode = node.getChild(MATERIALS);
         if (materialsNode)
         {
@@ -501,6 +534,7 @@ void create(TreeNode& node, const std::unordered_map<LevelOfDetail, File>& files
         create(node.addChild(CSTR_MODEL_FILE_NAME), file.GetDataRelativePath(), lodLvl);
     }
 }
+
 void create(TreeNode& materialsNode, const MaterialsMap& customMaterials)
 {
     for (const auto& [name, file] : customMaterials)
@@ -511,6 +545,7 @@ void create(TreeNode& materialsNode, const MaterialsMap& customMaterials)
         materialNode.addChild(CSTR_FILE_NAME, value);
     }
 }
+
 void RendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
@@ -520,6 +555,24 @@ void RendererComponent::write(TreeNode& node) const
 
     create(node.addChild(CSTR_MODEL_FILE_NAMES), GetFiles());
     create(node.addChild(MATERIALS), materials);
+
+    std::vector<Primitive*> primitives;
+    for (auto& model : addedModels)
+    {
+        if (auto primitive = dynamic_cast<Primitive*>(model))
+        {
+            primitives.push_back(primitive);
+        }
+    }
+
+    if (not primitives.empty())
+    {
+        auto& primitivesNode = node.addChild(CSTR_PRIMITIVES);
+        for (auto primitive : primitives)
+        {
+            primitivesNode.addChild(CSTR_PRIMITIVE, magic_enum::enum_name(primitive->GetType()));
+        }
+    }
 }
 const GraphicsApi::ID& RendererComponent::GetPerObjectUpdateBuffer(IdType meshId) const
 {
