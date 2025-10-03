@@ -285,7 +285,8 @@ void MaterialEditorFrame::CreateMainMenu()
 void MaterialEditorFrame::OnOpenMaterial(wxCommandEvent&)
 {
     wxFileDialog openFileDialog(this, "Open Material file", ProjectManager::GetInstance().GetProjectPath(), "",
-                                "Material files (*.json)|*.json|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                                "Material files (*.material)|*.material|Material files (*.json)|*.json|All files (*.*)|*.*",
+                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
@@ -304,7 +305,8 @@ void MaterialEditorFrame::OnOpenMaterial(wxCommandEvent&)
 void MaterialEditorFrame::OnSaveMaterial(wxCommandEvent&)
 {
     wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath(), "",
-                            "Material files (*.json)|*.json|All files (*.*)|*.*", wxFD_SAVE);
+                            "Material files (*.material)|*.material|Material files (*.json)|*.json|All files (*.*)|*.*",
+                            wxFD_SAVE);
 
     if (fileDialog.ShowModal() == wxID_CANCEL)
         return;

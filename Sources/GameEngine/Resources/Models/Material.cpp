@@ -40,7 +40,7 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
             return nullptr;
         };
 
-        material.diffuseTexture = loadTexture("diffuseTexture");
+        material.diffuseTexture      = loadTexture("diffuseTexture");
         material.normalTexture       = loadTexture("normalTexture");
         material.specularTexture     = loadTexture("specularTexture");
         material.ambientTexture      = loadTexture("ambientTexture");
@@ -140,7 +140,7 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
 }
 void SaveMaterial(const Material& material, const File& requestedFile)
 {
-    auto file = requestedFile.CreateFileWithExtension("json");
+    auto file = requestedFile.HasExtension() ? requestedFile : requestedFile.CreateFileWithExtension("material");
     auto root = std::make_unique<TreeNode>("Material");
 
     auto colorToNode = [](const std::string& name, const Color& v) -> std::unique_ptr<TreeNode>

@@ -103,6 +103,11 @@ std::string File::GetExtension() const
     return absolutePath_.extension().string();
 }
 
+bool File::HasExtension() const
+{
+    return absolutePath_.has_extension();
+}
+
 std::string File::GetFilename() const
 {
     return absolutePath_.filename().string();

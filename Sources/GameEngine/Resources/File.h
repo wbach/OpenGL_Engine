@@ -28,6 +28,7 @@ public:
 
     std::string GetBaseName() const;
     std::string GetExtension() const;
+    bool HasExtension() const;
     std::string GetFilename() const;
     File CreateFileWithExtension(const std::string&) const;
     void ChangeFileName(const std::string&);
