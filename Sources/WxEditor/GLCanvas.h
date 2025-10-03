@@ -56,6 +56,7 @@ private:
     wxTimer renderTimer;
     void SetCursorToCenter();
 
+    void addContextMenu(wxMouseEvent&);
     void OnShow(wxShowEvent&);
     void OnPaint(wxPaintEvent&);
     void OnTimer(wxTimerEvent&);
@@ -69,6 +70,8 @@ private:
     void OnMouseRightUp(wxMouseEvent&);
     void OnMouseRightDown(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent&);
+
+    vec3 GetWorldPosFromCamera();
 
     void SetupCamera();
 

@@ -113,6 +113,75 @@ GLCanvas::~GLCanvas()
     delete context;
 }
 
+vec3 GLCanvas::GetWorldPosFromCamera()
+{
+    auto scene = engine->GetSceneManager().GetActiveScene();
+    if (not scene)
+        return vec3(0.f);
+
+    vec3 position(0.f);
+    position = scene->GetCamera().GetPosition();
+    position += scene->GetCamera().GetDirection() * 5.f;
+    return position;
+}
+
+void GLCanvas::addContextMenu(wxMouseEvent& event)
+{
+    wxMenu menu;
+    // --- submenu Add Primitive ---
+    wxMenu* primitiveMenu = new wxMenu();
+
+    // dla każdego typu primitive tworzymy entry
+    auto addPrimitiveItem = [&](PrimitiveType type, const wxString& label)
+    {
+        int id = wxWindow::NewControlId();
+        primitiveMenu->Append(id, label);
+        primitiveMenu->Bind(
+            wxEVT_COMMAND_MENU_SELECTED,
+            [=](wxCommandEvent&)
+            {
+                if (engine && engine->GetSceneManager().GetActiveScene())
+                {
+                    addPrimitive(type, GetWorldPosFromCamera());
+                }
+            },
+            id);
+    };
+
+    // dodajemy wszystkie typy
+    addPrimitiveItem(PrimitiveType::Cube, "Cube");
+    addPrimitiveItem(PrimitiveType::Sphere, "Sphere");
+    addPrimitiveItem(PrimitiveType::Cylinder, "Cylinder");
+    addPrimitiveItem(PrimitiveType::Cone, "Cone");
+    addPrimitiveItem(PrimitiveType::Plane, "Plane");
+    addPrimitiveItem(PrimitiveType::Torus, "Torus");
+    addPrimitiveItem(PrimitiveType::Pyramid, "Pyramid");
+    addPrimitiveItem(PrimitiveType::IcoSphere, "IcoSphere");
+    addPrimitiveItem(PrimitiveType::Triangle, "Triangle");
+
+    // dodajemy submenu do głównego menu
+    menu.AppendSubMenu(primitiveMenu, "Add Primitive");
+
+    // --- opcja Reset Camera ---
+    int ID_RESET_CAMERA = wxWindow::NewControlId();
+    menu.Append(ID_RESET_CAMERA, "Reset Camera");
+    menu.Bind(
+        wxEVT_COMMAND_MENU_SELECTED,
+        [=](wxCommandEvent&)
+        {
+            if (engine && engine->GetSceneManager().GetActiveScene())
+            {
+                auto& scene = GetScene();
+                scene.GetCamera().SetPosition(defaultCameraPosition);
+                scene.GetCamera().LookAt(defaultCameraLookAt);
+                scene.GetCamera().UpdateMatrix();
+            }
+        },
+        ID_RESET_CAMERA);
+    // --- wyświetlenie ---
+    PopupMenu(&menu, event.GetPosition());
+}
+
 void GLCanvas::OnPaint(wxPaintEvent&)
 {
     wxPaintDC dc(this);
@@ -303,6 +372,12 @@ void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
     if (not engine)
         return;
 
+    if (event.ShiftDown())
+    {
+        addContextMenu(event);
+        return;
+    }
+
     SetFocus();
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
@@ -338,10 +413,7 @@ std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, Game
         animator.startupAnimationClipName = "noname";
         rendererComponent.AddModel(file.GetAbsolutePath().string());
 
-        vec3 position(0.f);
-        position = scene->GetCamera().GetPosition();
-        position += scene->GetCamera().GetDirection() * 5.f;
-        newGameObject->SetLocalPosition(position);
+        newGameObject->SetLocalPosition(GetWorldPosFromCamera());
 
         auto result = newGameObject->GetId();
 
