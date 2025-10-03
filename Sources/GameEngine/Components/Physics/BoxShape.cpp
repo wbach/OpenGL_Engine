@@ -33,14 +33,8 @@ void BoxShape::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<BoxShape>(componentContext, gameObject);
-
-        vec3 positionOffset(0.f);
-        ::Read(node.getChild(CSTR_POSITION_OFFSET), positionOffset);
-        component->SetPostionOffset(positionOffset);
-
-        vec3 size(1.f);
-        ::Read(node.getChild(CSTR_SIZE), size);
-        component->SetSize(size);
+        ::Read(node.getChild(CSTR_POSITION_OFFSET), component->positionOffset);
+        ::Read(node.getChild(CSTR_SIZE), component->size);
 
         return component;
     };
@@ -50,8 +44,8 @@ void BoxShape::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, BoxShape::name});
 
-    ::write(node.addChild(CSTR_POSITION_OFFSET), GetPositionOffset());
-    ::write(node.addChild(CSTR_SIZE), GetSize());
+    ::write(node.addChild(CSTR_POSITION_OFFSET), positionOffset);
+    ::write(node.addChild(CSTR_SIZE), size);
 }
 BoxShape& BoxShape::SetSize(const vec3& v)
 {

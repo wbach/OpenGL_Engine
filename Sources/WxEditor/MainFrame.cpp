@@ -448,6 +448,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
 void MainFrame::MenuFileReloadScene(wxCommandEvent&)
 {
     SetStatusText("Reloding scene " + canvas->GetScene().GetName());
+    ClearScene();
     canvas->GetEngine().GetEngineContext().AddEngineEvent(
         GameEngine::ChangeSceneEvent{GameEngine::ChangeSceneEvent::Type::RELOAD_SCENE});
 }
@@ -1236,7 +1237,9 @@ void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngin
 void MainFrame::OnToolStart(wxCommandEvent& event)
 {
     GameEngine::File sceneFile{"editorTmpSceneToRun.xml"};
+    auto orginalFile = canvas->GetScene().GetFile();
     GameEngine::saveSceneToFile(canvas->GetScene(), sceneFile);
+    canvas->GetScene().GetFile() = orginalFile;
 
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" +
                       sceneFile.GetAbsolutePath().string() + "\" " + "--projectPath " +

@@ -44,7 +44,11 @@ void File::Init(const std::string &input)
 void File::Init(const std::filesystem::path &input)
 {
     if (input.empty())
+    {
+        absolutePath_.clear();
+        dataRelative_.clear();
         return;
+    }
 
     try
     {
@@ -170,7 +174,13 @@ File &File::operator=(const File &f)
     if (&f != this)
     {
         Init(f.absolutePath_);
+        LOG_DEBUG << "File  absolutePath_ = " << absolutePath_;
     }
+    else
+    {
+        LOG_ERROR << "Self assignment";
+    }
+
     return *this;
 }
 File &File::operator=(const char *str)
