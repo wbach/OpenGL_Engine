@@ -38,4 +38,6 @@ private:
     vec3 size_{1.f};
     float maxScale_{1.f};
 };
+
+std::ostream& operator<<(std::ostream& os, const BoundingBox& box);
 }  // namespace GameEngine

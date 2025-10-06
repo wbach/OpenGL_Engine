@@ -1,5 +1,7 @@
 #include "BoundingBox.h"
 
+#include <ostream>
+
 namespace GameEngine
 {
 BoundingBox::BoundingBox(NumericLimits)
@@ -46,14 +48,14 @@ void BoundingBox::max(const vec3 &max)
     calculate();
 }
 
-void BoundingBox::scale(const vec3 & scaleFactor)
+void BoundingBox::scale(const vec3 &scaleFactor)
 {
     min_ *= scaleFactor;
     max_ *= scaleFactor;
     calculate();
 }
 
-void BoundingBox::translate(const vec3& translation)
+void BoundingBox::translate(const vec3 &translation)
 {
     min_ += translation;
     max_ += translation;
@@ -92,4 +94,13 @@ void BoundingBox::calculate()
     maxScale_ = glm::compMax(size_);
 }
 
+std::ostream &operator<<(std::ostream &os, const BoundingBox &box)
+{
+    os << "BoundingBox(min: (" << box.min().x << ", " << box.min().y << ", " << box.min().z << "), "
+       << "max: (" << box.max().x << ", " << box.max().y << ", " << box.max().z << "), "
+       << "center: (" << box.center().x << ", " << box.center().y << ", " << box.center().z << "), "
+       << "size: (" << box.size().x << ", " << box.size().y << ", " << box.size().z << "), "
+       << "maxScale: " << box.maxScale() << ")";
+    return os;
+}
 }  // namespace GameEngine

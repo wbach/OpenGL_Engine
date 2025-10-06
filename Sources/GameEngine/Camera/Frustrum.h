@@ -3,6 +3,7 @@
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include <array>
 #include <list>
+#include <vector>
 
 namespace GameEngine
 {
@@ -24,8 +25,10 @@ public:
     uint64 getIntersectionsCountInFrame() const;
     void push(const mat4& projectionViewMatrix);
     void pop();
+    const std::vector<std::array<Plane, 6>>& getPlanes() const;
 
 private:
-    std::list<std::array<Plane, 6>> planes_;
+    std::vector<std::array<Plane, 6>> planes_;
+    mat4 projectionViewMatrix;
 };
 }  // namespace GameEngine

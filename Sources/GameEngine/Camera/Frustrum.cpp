@@ -1,7 +1,10 @@
 #include "Frustrum.h"
+
 #include <Glm.h>
 #include <Logger/Log.h>
+
 #include <algorithm>
+
 #include "Utils.h"
 
 namespace GameEngine
@@ -16,7 +19,7 @@ Frustrum::Frustrum()
 }
 void Frustrum::prepareFrame(const mat4& projectionViewMatrix)
 {
-    auto& planes = planes_.back();
+    auto& planes  = planes_.back();
     const auto& m = projectionViewMatrix;
     // Left clipping plane
     planes[0].normal_.x = m[0][3] + m[0][0];
@@ -57,10 +60,16 @@ void Frustrum::prepareFrame(const mat4& projectionViewMatrix)
 
 Halfspace ClassifyPoint(const Plane& plane, const vec3& pt)
 {
+    float scale = glm::length(pt);
+
+    // float przy wiekszych wartosciach trafil precyzje i zbyt maly epsilon nie dzialal
+    constexpr float EPSILON_FACTOR = 0.0001f;
+    float epsilon                  = scale * EPSILON_FACTOR;
+
     float distance = (plane.normal_.x * pt.x) + (plane.normal_.y * pt.y) + (plane.normal_.z * pt.z) + plane.d_;
-    if (distance < 0)
+    if (distance < -epsilon)
         return Halfspace::NEGATIVE;
-    if (distance > 0)
+    if (distance > epsilon)
         return Halfspace::POSITIVE;
 
     return Halfspace::ON_PLANE;
@@ -131,5 +140,9 @@ void Frustrum::pop()
 {
     if (planes_.size() > 1)
         planes_.pop_back();
+}
+const std::vector<std::array<Plane, 6>>& Frustrum::getPlanes() const
+{
+    return planes_;
 }
 }  // namespace GameEngine
