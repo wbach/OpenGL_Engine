@@ -63,6 +63,9 @@ public:
     template <class T>
     T* GetComponent();
 
+    template <class T>
+    const T* GetComponent() const;
+
     Components::IComponent* GetComponent(Components::ComponentTypeID);
 
     template <class T>
@@ -165,6 +168,18 @@ IdType GameObject::GetId() const
 
 template <class T>
 inline T* GameObject::GetComponent()
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+
+    if (it == components_.end() or it->second.empty())
+        return nullptr;
+
+    return static_cast<T*>(it->second[0].get());
+}
+
+template <class T>
+inline const T* GameObject::GetComponent() const
 {
     const auto& type = Components::GetComponentType<T>();
     auto it          = components_.find(type.id);

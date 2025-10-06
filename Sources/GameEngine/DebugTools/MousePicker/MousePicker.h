@@ -1,7 +1,8 @@
 #pragma once
 #include <Types.h>
-#include <optional>
+
 #include <memory>
+#include <optional>
 
 namespace GameEngine
 {
@@ -25,6 +26,7 @@ private:
     GameObject* Intersect(const std::vector<std::unique_ptr<GameObject>>&, const Ray&);
     std::optional<float> Intersect(const GameObject&, const Ray&);
     float CalculateBoundingSphereRadius(const GameObject&);
+    std::optional<std::pair<GameObject*, float>> IntersectObject(const GameObject*, const MousePicker::Ray&);
 
 private:
     const CameraWrapper& camera_;

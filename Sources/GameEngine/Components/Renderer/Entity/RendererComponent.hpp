@@ -83,6 +83,7 @@ public:
     void UpdateBuffers();  // Call on rendering thread
 
     inline ModelWrapper& GetModelWrapper();
+    inline const ModelWrapper& GetModelWrapper() const;
     inline uint32_t GetTextureIndex() const;
     const GraphicsApi::ID& GetPerObjectUpdateBuffer(IdType) const;
     const GraphicsApi::ID& GetPerObjectConstantsBuffer(IdType) const;
@@ -122,6 +123,10 @@ public:
 };
 
 ModelWrapper& RendererComponent::GetModelWrapper()
+{
+    return model_;
+}
+const ModelWrapper& RendererComponent::GetModelWrapper() const
 {
     return model_;
 }

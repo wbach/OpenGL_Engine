@@ -34,55 +34,46 @@ std::optional<float> SphereIntersect(const MousePicker::Ray& ray, const vec3& ob
     return {};
 }
 
-void swap(float& a, float& b)
+std::optional<float> BoundingBoxIntersect(const MousePicker::Ray& ray, const BoundingBox& box)
 {
-    float tmp = a;
-    a         = b;
-    b         = tmp;
-}
+    const auto& min = box.min();
+    const auto& max = box.max();
 
-bool BoundingBoxIntersect(const MousePicker::Ray& ray, const BoundingBox& boundingBox)
-{
-    const auto& min = boundingBox.min();
-    const auto& max = boundingBox.max();
+    float tmin = -std::numeric_limits<float>::infinity();
+    float tmax = std::numeric_limits<float>::infinity();
 
-    float tmin = (min.x - ray.position.x) / ray.direction.x;
-    float tmax = (max.x - ray.position.x) / ray.direction.x;
+    auto checkAxis = [&](float rayOrigin, float rayDir, float boxMin, float boxMax) -> bool
+    {
+        float t1, t2;
+        if (std::fabs(rayDir) < 1e-8f)
+        {
+            if (rayOrigin < boxMin || rayOrigin > boxMax)
+                return false;
+            t1 = -std::numeric_limits<float>::infinity();
+            t2 = std::numeric_limits<float>::infinity();
+        }
+        else
+        {
+            t1 = (boxMin - rayOrigin) / rayDir;
+            t2 = (boxMax - rayOrigin) / rayDir;
+            if (t1 > t2)
+                std::swap(t1, t2);
+        }
 
-    if (tmin > tmax)
-        swap(tmin, tmax);
+        tmin = std::max(tmin, t1);
+        tmax = std::min(tmax, t2);
 
-    float tymin = (min.y - ray.position.y) / ray.direction.y;
-    float tymax = (max.y - ray.position.y) / ray.direction.y;
+        return tmax >= tmin;
+    };
 
-    if (tymin > tymax)
-        swap(tymin, tymax);
+    if (!checkAxis(ray.position.x, ray.direction.x, min.x, max.x))
+        return std::nullopt;
+    if (!checkAxis(ray.position.y, ray.direction.y, min.y, max.y))
+        return std::nullopt;
+    if (!checkAxis(ray.position.z, ray.direction.z, min.z, max.z))
+        return std::nullopt;
 
-    if ((tmin > tymax) || (tymin > tmax))
-        return false;
-
-    if (tymin > tmin)
-        tmin = tymin;
-
-    if (tymax < tmax)
-        tmax = tymax;
-
-    float tzmin = (min.z - ray.position.z) / ray.direction.z;
-    float tzmax = (max.z - ray.position.z) / ray.direction.z;
-
-    if (tzmin > tzmax)
-        swap(tzmin, tzmax);
-
-    if ((tmin > tzmax) || (tzmin > tmax))
-        return false;
-
-    if (tzmin > tmin)
-        tmin = tzmin;
-
-    if (tzmax < tmax)
-        tmax = tzmax;
-
-    return true;
+    return tmin;
 }
 
 MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projection)
@@ -90,39 +81,62 @@ MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projecti
     , projection_(projection)
 {
 }
-GameObject* MousePicker::SelectObject(const vec2& mousePosition,
-                                      const std::vector<std::unique_ptr<GameObject>>& objectList)
+GameObject* MousePicker::SelectObject(const vec2& mousePosition, const std::vector<std::unique_ptr<GameObject>>& objectList)
 {
     Ray ray{camera_.GetPosition(), CalculateMouseRayDirection(projection_, camera_, mousePosition)};
     return Intersect(objectList, ray);
 }
-GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList,
-                                   const MousePicker::Ray& ray)
+
+std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const GameObject* object, const MousePicker::Ray& ray)
 {
-    for (auto& object : objectList)
+    std::optional<std::pair<GameObject*, float>> closest;
+
+    auto renderComponent = object->GetComponent<Components::RendererComponent>();
+    if (renderComponent)
     {
-        auto child = Intersect(object->GetChildren(), ray);
+        auto model       = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+        auto boundingBox = model->getBoundingBox();
+        boundingBox.translate(object->GetWorldTransform().GetPosition());
+        boundingBox.scale(object->GetWorldTransform().GetScale());
 
-        if (child)
-            return child;
-
-        auto renderComponent = object->GetComponent<Components::RendererComponent>();
-
-        if (not renderComponent)
-            continue;
-
-        //auto model = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-        //auto localBoundingBox = model->getBoundingBox();
-        //BoundingBox worldBoundingBox;
-        //worldBoundingBox.min(object->GetWorldTransform().GetMatrix() * vec4(localBoundingBox.min(), 1.f));
-        //worldBoundingBox.max(object->GetWorldTransform().GetMatrix() * vec4(localBoundingBox.max(), 1.f));
-
-        //auto intersection = BoundingBoxIntersect(ray, worldBoundingBox);
-        auto intersection = Intersect(*object, ray);
-        if (intersection)
-            return object.get();
+        if (auto t = BoundingBoxIntersect(ray, boundingBox))
+        {
+            closest = std::make_pair(const_cast<GameObject*>(object), *t);
+        }
     }
-    return nullptr;
+
+    for (const auto& child : object->GetChildren())
+    {
+        if (auto childClosest = IntersectObject(child.get(), ray))
+        {
+            if (!closest || childClosest->second < closest->second)
+            {
+                closest = childClosest;
+            }
+        }
+    }
+
+    return closest;
+}
+
+GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList, const MousePicker::Ray& ray)
+{
+    GameObject* closestObject = nullptr;
+    float closestT            = std::numeric_limits<float>::infinity();
+
+    for (const auto& object : objectList)
+    {
+        if (auto objClosest = IntersectObject(object.get(), ray))
+        {
+            if (objClosest->second < closestT)
+            {
+                closestT      = objClosest->second;
+                closestObject = objClosest->first;
+            }
+        }
+    }
+
+    return closestObject;
 }
 
 std::optional<float> MousePicker::Intersect(const GameObject& object, const MousePicker::Ray& ray)

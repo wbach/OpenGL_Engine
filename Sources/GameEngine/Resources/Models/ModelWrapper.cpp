@@ -31,6 +31,12 @@ Model* ModelWrapper::Get(LevelOfDetail lvl)
     auto iter = models_.find(lvl);
     return iter != models_.end() ? iter->second : nullptr;
 }
+const Model* ModelWrapper::Get(LevelOfDetail lvl) const
+{
+    std::lock_guard<std::mutex> lk(mutex_);
+    auto iter = models_.find(lvl);
+    return iter != models_.end() ? iter->second : nullptr;
+}
 Model* ModelWrapper::get(DistanceToCamera distance)
 {
     std::lock_guard<std::mutex> lk(mutex_);

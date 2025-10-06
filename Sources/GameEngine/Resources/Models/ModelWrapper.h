@@ -19,6 +19,7 @@ public:
     void Add(Model*, LevelOfDetail);
     void Update(Model*, LevelOfDetail);
     Model* Get(LevelOfDetail lvl = LevelOfDetail::L1);
+    const Model* Get(LevelOfDetail lvl = LevelOfDetail::L1) const;
     Model* get(DistanceToCamera);
     const std::unordered_map<LevelOfDetail, Model*>& GetAll() const;
     std::vector<Model*> PopModels();
@@ -26,7 +27,7 @@ public:
     void clear(LevelOfDetail);
 
 private:
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     std::unordered_map<LevelOfDetail, Model*> models_;
 };
 }  // GameEngine

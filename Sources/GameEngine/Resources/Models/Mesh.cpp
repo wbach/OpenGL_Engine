@@ -2,11 +2,8 @@
 
 #include <Logger/Log.h>
 
-#include "GLM/GLMUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
-#include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "Types.h"
 
 namespace GameEngine
