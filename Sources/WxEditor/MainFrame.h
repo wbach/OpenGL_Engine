@@ -88,6 +88,7 @@ private:
     void MenuRendererPhysicsVisualization(wxCommandEvent&);
     void MenuRendererBoundingBoxVisualization(wxCommandEvent&);
     void MenuRendererNormalsVisualization(wxCommandEvent&);
+    void MenuRendererTextureAmbient(wxCommandEvent&);
     void MenuRendererTextureDiffuse(wxCommandEvent&);
     void MenuRendererTextureNormals(wxCommandEvent&);
     void MenuRendererTextureSpecular(wxCommandEvent&);
@@ -124,6 +125,7 @@ private:
     wxMenu* CreateComponentsMenu();
     wxMenu* CreateAboutMenu();
 
+    void UpdateMainMenuRendererOptionsCheckBoxes();
     void CreateToolBarForEngine();
     void UpdateTimeOnToolbar();
 
@@ -164,6 +166,8 @@ private:
     wxScrolledWindow* gameObjectPanels{nullptr};
     wxButton* addComponentButton{nullptr};
     wxComboBox* addComponentChoice{nullptr};
+    wxMenu* rendererMenu{nullptr};
+    wxMenu* rendererTextureSubMenu{nullptr};
 
     wxSlider* timeSlider{nullptr};
     wxSpinCtrl* hourCtrl{nullptr};

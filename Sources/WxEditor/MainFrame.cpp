@@ -130,6 +130,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, MainFrame::MenuRendererPhysicsVisualization)
     EVT_MENU(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, MainFrame::MenuRendererBoundingBoxVisualization)
     EVT_MENU(ID_MENU_RENDERER_NORMAL_VISUALIZATION, MainFrame::MenuRendererNormalsVisualization)
+    EVT_MENU(ID_MENU_RENDERER_TEXTURE_AMBIENT, MainFrame::MenuRendererTextureAmbient)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_DIFFUSE, MainFrame::MenuRendererTextureDiffuse)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_NORMALS, MainFrame::MenuRendererTextureNormals)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_SPECULAR, MainFrame::MenuRendererTextureSpecular)
@@ -199,6 +200,7 @@ void MainFrame::Init()
     {
         UpdateTimeOnToolbar();
         gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
+        UpdateMainMenuRendererOptionsCheckBoxes();
         SetStatusText(EngineConf.files.data);
     };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
@@ -725,6 +727,8 @@ void MainFrame::MenuRendererPhysicsVisualization(wxCommandEvent&)
         papi.enableVisualizationForAllRigidbodys();
     else
         papi.disableVisualizationForAllRigidbodys();
+
+    rendererMenu->Check(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, set);
 }
 
 bool MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState state)
@@ -740,12 +744,25 @@ bool MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState sta
 
 void MainFrame::MenuRendererBoundingBoxVisualization(wxCommandEvent&)
 {
-    SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::BoundingBox);
+    bool set = SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::BoundingBox);
+    rendererMenu->Check(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, set);
 }
 
 void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
 {
-    SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Normals);
+    bool set = SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Normals);
+    rendererMenu->Check(ID_MENU_RENDERER_NORMAL_VISUALIZATION, set);
+}
+
+void MainFrame::MenuRendererTextureAmbient(wxCommandEvent&)
+{
+    auto& textConf      = EngineConf.renderer.textures;
+    textConf.useAmbient = !textConf.useAmbient;
+
+    canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
+        [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
+
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_AMBIENT, textConf.useAmbient);
 }
 
 void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
@@ -755,6 +772,8 @@ void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
+
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_DIFFUSE, textConf.useDiffuse);
 }
 
 void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
@@ -764,6 +783,8 @@ void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
+
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_NORMALS, textConf.useNormal);
 }
 
 void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
@@ -773,6 +794,8 @@ void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
+
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_SPECULAR, textConf.useSpecular);
 }
 
 void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
@@ -782,6 +805,8 @@ void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
+
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, textConf.useDisplacement);
 }
 
 void MainFrame::MenuComponentsRebuild(wxCommandEvent& evt)
@@ -846,24 +871,48 @@ wxMenu* MainFrame::CreateEditMenu()
 
 wxMenu* MainFrame::CreateRendererMenu()
 {
-    wxMenu* menu = new wxMenu;
-    menu->Append(ID_MENU_RENDERER_RELOAD_SHADERS, "&Reload shaders\tCtrl-A", "Reload current shaders");
-    menu->Append(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, "&Take snapshot\tCtrl-A", "Create snapshot of renderer state");
-    menu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode\tCtrl-A", "Switch between line and fill render mode");
-    menu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics\tCtrl-A", "Enable/Disable of physics visualization");
-    menu->Append(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, "&Visualize gameObject boundig box\tCtrl-A",
-                 "Enable/Disable of bounding box visualization from engine not from rigidbody physics");
-    menu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals\tCtrl-A", "Enable/Disable of normals visualization");
+    rendererMenu = new wxMenu;
+    rendererMenu->Append(ID_MENU_RENDERER_RELOAD_SHADERS, "&Reload shaders\tCtrl-A", "Reload current shaders");
+    rendererMenu->Append(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, "&Take snapshot\tCtrl-A", "Create snapshot of renderer state");
+    rendererMenu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode\tCtrl-A", "Switch between line and fill render mode");
+    rendererMenu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics\tCtrl-A",
+                         "Enable/Disable of physics visualization", wxITEM_CHECK);
+    rendererMenu->Append(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, "&Visualize gameObject boundig box\tCtrl-A",
+                         "Enable/Disable of bounding box visualization from engine not from rigidbody physics", wxITEM_CHECK);
+    rendererMenu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals\tCtrl-A",
+                         "Enable/Disable of normals visualization", wxITEM_CHECK);
 
-    wxMenu* texturesMenu = new wxMenu;
-    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_DIFFUSE, "&Diffuse\tCtrl-A", "Enable/Disable of normals visualization");
-    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_NORMALS, "&Normals\tCtrl-A", "Enable/Disable of normals visualization");
-    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_SPECULAR, "&Specular\tCtrl-A", "Enable/Disable of normals visualization");
-    texturesMenu->Append(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, "&Displacment\tCtrl-A",
-                         "Enable/Disable of normals visualization");
+    rendererTextureSubMenu = new wxMenu;
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_AMBIENT, "&Ambient\tCtrl-A",
+                                   "Enable/Disable of ambient visualization", wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_DIFFUSE, "&Diffuse\tCtrl-A",
+                                   "Enable/Disable of diffuse visualization", wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_NORMALS, "&Normals\tCtrl-A",
+                                   "Enable/Disable of normals visualization", wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_SPECULAR, "&Specular\tCtrl-A",
+                                   "Enable/Disable of specular visualization", wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, "&Displacment\tCtrl-A",
+                                   "Enable/Disable of displacement visualization");
 
-    menu->AppendSubMenu(texturesMenu, "&Texture rendering\tCtrl-A", "Enable/Disable of normals visualization");
-    return menu;
+    rendererMenu->AppendSubMenu(rendererTextureSubMenu, "&Texture rendering\tCtrl-A", "Enable/Disable of normals visualization");
+    return rendererMenu;
+}
+
+void MainFrame::UpdateMainMenuRendererOptionsCheckBoxes()
+{
+    auto& renderesManager = canvas->GetEngine().GetEngineContext().GetRenderersManager();
+    rendererMenu->Check(ID_MENU_RENDERER_PHYSICS_VISUALIZATION,
+                        renderesManager.GetDebugRenderer().IsStateEnabled(GameEngine::DebugRenderer::RenderState::Physics));
+    rendererMenu->Check(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION,
+                        renderesManager.GetDebugRenderer().IsStateEnabled(GameEngine::DebugRenderer::RenderState::BoundingBox));
+    rendererMenu->Check(ID_MENU_RENDERER_NORMAL_VISUALIZATION,
+                        renderesManager.GetDebugRenderer().IsStateEnabled(GameEngine::DebugRenderer::RenderState::Normals));
+
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_AMBIENT, EngineConf.renderer.textures.useAmbient);
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_DIFFUSE, EngineConf.renderer.textures.useDiffuse);
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_NORMALS, EngineConf.renderer.textures.useNormal);
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_SPECULAR, EngineConf.renderer.textures.useSpecular);
+    rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, EngineConf.renderer.textures.useDisplacement);
 }
 
 wxMenu* MainFrame::CreateComponentsMenu()
