@@ -8,8 +8,8 @@ namespace GameEngine
 class Primitive : public Model
 {
 public:
-    Primitive(PrimitiveType type, BoundingBox&& box)
-        : Model(box)
+    Primitive(PrimitiveType type)
+        : Model()
         , type_(type)
     {
     }

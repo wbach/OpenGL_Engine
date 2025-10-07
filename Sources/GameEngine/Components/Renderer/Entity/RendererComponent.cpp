@@ -312,6 +312,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     buffer.GetData().TransformationMatrix = graphicsApi.PrepareMatrixToLoad(transformMatrix);
     LOG_DEBUG << "bufferId=" << buffer.GetGpuObjectId();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
+    calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
@@ -358,6 +359,7 @@ void RendererComponent::UpdateBuffers()
                 buffer.GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
                 buffer.UpdateGpuPass();
                 componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
+                calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
             }
             else
             {
@@ -593,6 +595,19 @@ const GraphicsApi::ID& RendererComponent::GetPerObjectConstantsBuffer(IdType mes
     }
 
     return defaultId;
+}
+
+void RendererComponent::calculateWorldSpaceBoundingBox(const mat4& worldMatrix)
+{
+    if (auto model = model_.Get())
+    {
+        boundingBox = model->transformBoundingBox(worldMatrix);
+    }
+}
+
+const BoundingBox& RendererComponent::getWorldSpaceBoundingBox() const
+{
+    return boundingBox;
 }
 }  // namespace Components
 }  // namespace GameEngine

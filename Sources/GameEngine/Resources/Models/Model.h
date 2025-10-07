@@ -49,7 +49,6 @@ public:
 
     // Queries
     bool IsAnyMeshUseTransform() const;
-    void setBoundingBox(const BoundingBox&);
     const BoundingBox& getBoundingBox() const;
 
     const File& GetFile() const;
@@ -66,6 +65,10 @@ public:
     // Normalization
     void setNormailizedFactor(float);
     float getNormalizedFactor() const;
+
+    void updateBoundingBox();
+
+BoundingBox transformBoundingBox(const glm::mat4& transform);
 
 public:
     AnimationClipsMap animationClips_;

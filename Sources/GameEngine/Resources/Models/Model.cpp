@@ -22,7 +22,7 @@ void Model::SetFile(const File& file)
 }
 
 Model::Model(Model&& other) noexcept
-    : GpuObject(std::move(other)) // przeniesienie bazy
+    : GpuObject(std::move(other))  // przeniesienie bazy
     , animationClips_(std::move(other.animationClips_))
     , file_(std::move(other.file_))
     , meshes_(std::move(other.meshes_))
@@ -39,7 +39,7 @@ Model::Model(Model&& other) noexcept
     other.animationClips_.clear();
     other.skeleton_.reset();
     other.boundingBox_ = BoundingBox{};
-    other.file_ = File{};
+    other.file_        = File{};
 }
 
 Model& Model::operator=(Model&& other) noexcept
@@ -48,13 +48,13 @@ Model& Model::operator=(Model&& other) noexcept
     {
         GpuObject::operator=(std::move(other));
 
-        animationClips_   = std::move(other.animationClips_);
-        file_             = std::move(other.file_);
-        meshes_           = std::move(other.meshes_);
-        boneTransforms_   = std::move(other.boneTransforms_);
-        boundingBox_      = std::move(other.boundingBox_);
-        skeleton_         = std::move(other.skeleton_);
-        normalizedFactor  = other.normalizedFactor;
+        animationClips_  = std::move(other.animationClips_);
+        file_            = std::move(other.file_);
+        meshes_          = std::move(other.meshes_);
+        boneTransforms_  = std::move(other.boneTransforms_);
+        boundingBox_     = std::move(other.boundingBox_);
+        skeleton_        = std::move(other.skeleton_);
+        normalizedFactor = other.normalizedFactor;
 
         LOG_DEBUG << "Model move-assigned. Id=" << GetGpuObjectId();
 
@@ -64,7 +64,7 @@ Model& Model::operator=(Model&& other) noexcept
         other.animationClips_.clear();
         other.skeleton_.reset();
         other.boundingBox_ = BoundingBox{};
-        other.file_ = File{};
+        other.file_        = File{};
     }
     return *this;
 }
@@ -97,12 +97,14 @@ void Model::ReleaseGpuPass()
 Mesh& Model::AddMesh(Mesh&& mesh)
 {
     meshes_.push_back(std::move(mesh));
+    updateBoundingBox();
     return meshes_.back();
 }
 
 void Model::SetMeshes(Meshes&& meshes)
 {
     meshes_ = std::move(meshes);
+    updateBoundingBox();
 }
 
 bool Model::IsAnyMeshUseTransform() const
@@ -115,15 +117,42 @@ bool Model::IsAnyMeshUseTransform() const
     return false;
 }
 
-void Model::setBoundingBox(const BoundingBox& boundingBox)
-{
-    boundingBox_ = boundingBox;
-}
-
 const BoundingBox& Model::getBoundingBox() const
 {
     return boundingBox_;
 }
+
+void Model::updateBoundingBox()
+{
+    if (meshes_.empty())
+    {
+        boundingBox_ = BoundingBox();
+        return;
+    }
+
+    glm::vec3 minPoint = meshes_[0].getBoundingBox().min();
+    glm::vec3 maxPoint = meshes_[0].getBoundingBox().max();
+
+    for (size_t i = 1; i < meshes_.size(); ++i)
+    {
+        const auto& meshBox = meshes_[i].getBoundingBox();
+        const auto& minB    = meshBox.min();
+        const auto& maxB    = meshBox.max();
+
+        minPoint.x = std::min(minPoint.x, minB.x);
+        minPoint.y = std::min(minPoint.y, minB.y);
+        minPoint.z = std::min(minPoint.z, minB.z);
+
+        maxPoint.x = std::max(maxPoint.x, maxB.x);
+        maxPoint.y = std::max(maxPoint.y, maxB.y);
+        maxPoint.z = std::max(maxPoint.z, maxB.z);
+    }
+
+    boundingBox_.minMax(minPoint, maxPoint);
+    boundingBox_.scale(vec3(normalizedFactor));
+    LOG_DEBUG << boundingBox_;
+}
+
 const File& Model::GetFile() const
 {
     return file_;
@@ -141,6 +170,20 @@ const std::optional<Animation::Joint>& Model::getRootJoint() const
 void Model::setNormailizedFactor(float v)
 {
     normalizedFactor = v;
+    LOG_DEBUG << normalizedFactor << " " << file_;
+}
+
+BoundingBox Model::transformBoundingBox(const glm::mat4& transform)
+{
+    BoundingBox result(BoundingBox::NumericLimits{});
+
+    for (const auto& mesh : meshes_)
+    {
+        auto meshBox = mesh.getBoundingBox();
+        glm::mat4 fullTransform = transform * mesh.GetMeshTransform();
+        result.expandToInclude(meshBox.transformed(fullTransform));
+    }
+    return result;
 }
 
 float Model::getNormalizedFactor() const

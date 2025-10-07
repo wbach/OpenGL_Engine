@@ -5,8 +5,6 @@
 
 #include <algorithm>
 
-#include "Utils.h"
-
 namespace GameEngine
 {
 namespace

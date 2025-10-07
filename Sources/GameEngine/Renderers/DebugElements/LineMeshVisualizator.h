@@ -19,19 +19,19 @@ class ThreadSync;
 
 namespace GameEngine
 {
-class PhysicsVisualizator
+class LineMeshVisualizator
 {
 public:
-    PhysicsVisualizator(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
-    ~PhysicsVisualizator();
+    LineMeshVisualizator(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
+    ~LineMeshVisualizator();
     void Init();
     void Render();
-    void SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()>);
+    void SetMeshCreationFunction(std::function<const GraphicsApi::LineMesh&()>);
     void ReloadShader();
 
 private:
-    void UpdatePhycisLineMesh();
-    void UpdatePhysicsByWorker();
+    void UpdateLineMesh();
+    void UpdateByWorker();
     bool IsReady() const;
 
 private:
@@ -40,11 +40,11 @@ private:
     ShaderProgram shader_;
     GraphicsApi::ID defaultPerObjectUpdateId_;
 
-    std::function<const GraphicsApi::LineMesh&()> physicsDebugDraw_;
+    std::function<const GraphicsApi::LineMesh&()> createLineMesh;
 
     uint32 refreshRateStepDown_;
     GraphicsApi::ID lineMeshId_;
-    std::atomic_bool physicsLineMeshReady_;
+    std::atomic_bool lineMeshReady_;
 
     uint32 frameRefreshNumber_;
     Utils::Thread::Worker* worker_;

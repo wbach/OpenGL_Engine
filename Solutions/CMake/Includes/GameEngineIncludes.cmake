@@ -390,7 +390,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IBufferDataUpdate
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Projection.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/LoadingScreenRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/DebugRenderer.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/PhysicsVisualizator.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/LineMeshVisualizator.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Fxaa/Fxaa.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/ColorFliper/ColorFliper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRenderersFactory.h
@@ -418,7 +418,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/I
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationReader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ReadConfigurationFunctions.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/SoundParams/SoundParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/FloraParams/FloraParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ParticlesParams/ParticlesParams.h

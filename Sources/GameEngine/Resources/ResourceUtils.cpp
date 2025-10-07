@@ -414,7 +414,10 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
 GameEngine::BoundingBox ComputeBoundingBox(const GraphicsApi::MeshRawData& mesh)
 {
     if (mesh.positions_.empty())
+    {
+        LOG_DEBUG << "Positons empty return default";
         return GameEngine::BoundingBox();
+    }
 
     vec3 minPos(mesh.positions_[0], mesh.positions_[1], mesh.positions_[2]);
     vec3 maxPos = minPos;

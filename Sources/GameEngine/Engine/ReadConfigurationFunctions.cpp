@@ -10,6 +10,7 @@
 #include "Configuration.h"
 #include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
+#include "GameEngine/Engine/ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h"
 
 namespace GameEngine
 {
@@ -275,14 +276,14 @@ void Read(TreeNode& node, Params::Files& files)
     }
 }
 
-void Read(TreeNode* node, Params::PhysicsVisualizatorParams& params)
+void Read(TreeNode* node, Params::LineMeshVisualizatorParams& params)
 {
     if (not node)
         return;
 
     if (node->attributes_.count(CSTR_USE_WORKER) > 0)
     {
-        params.useWorkredToUpdatePhysicsVisualization_ = Utils::StringToBool(node->attributes_.at(CSTR_USE_WORKER));
+        params.useWorkredToUpdateVisualization_ = Utils::StringToBool(node->attributes_.at(CSTR_USE_WORKER));
     }
 
     if (node->attributes_.count(CSTR_REFRESH_STEP_DOWN) > 0)
@@ -296,9 +297,9 @@ void Read(TreeNode* node, Params::DebugParams& params)
     if (not node)
         return;
 
-    auto pvNode = node->getChild(CSTR_PHYSICS_VISUALIZATION_PARAMS);
+    auto pvNode = node->getChild(CSTR_LINE_MESH_VISUALIZATION_PARAMS);
     if (pvNode)
-        Read(pvNode, params.physicsVisualizator);
+        Read(pvNode, params.linemeshVisualizator);
 
     auto loggingNode = node->getChild(CSTR_LOGGING_LVL);
     if (loggingNode)

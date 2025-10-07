@@ -2,6 +2,9 @@
 
 #include <Logger/Log.h>
 
+#include <cmath>
+
+#include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Types.h"
@@ -25,6 +28,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
     , transform_(transformMatix)
     , normalizedScale_(normalizedScale)
 {
+    updateBoundingBox();
 }
 
 Mesh::Mesh(Mesh&& other) noexcept
@@ -41,10 +45,10 @@ Mesh::Mesh(Mesh&& other) noexcept
     LOG_DEBUG << "Mesh moved. Id=" << GetGpuObjectId();
 
     // wyczysczenie aby desturkotr nie zwalanial niczego
-    other.meshRawData_         = GraphicsApi::MeshRawData{};
-    other.transform_           = mat4(1.f);
-    other.normalizedScale_     = vec3(1.f);
-    other.boundingBox_         = BoundingBox{};
+    other.meshRawData_          = GraphicsApi::MeshRawData{};
+    other.transform_            = mat4(1.f);
+    other.normalizedScale_      = vec3(1.f);
+    other.boundingBox_          = BoundingBox{};
     other.materialShaderBuffer_ = INVALID_ID;
 }
 
@@ -54,20 +58,20 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
     {
         GpuObject::operator=(std::move(other));
 
-        meshRawData_         = std::move(other.meshRawData_);
-        renderType_          = other.renderType_;
-        material_            = std::move(other.material_);
-        transform_           = std::move(other.transform_);
-        normalizedScale_     = std::move(other.normalizedScale_);
-        boundingBox_         = std::move(other.boundingBox_);
+        meshRawData_          = std::move(other.meshRawData_);
+        renderType_           = other.renderType_;
+        material_             = std::move(other.material_);
+        transform_            = std::move(other.transform_);
+        normalizedScale_      = std::move(other.normalizedScale_);
+        boundingBox_          = std::move(other.boundingBox_);
         materialShaderBuffer_ = other.materialShaderBuffer_;
 
         LOG_DEBUG << "Mesh move-assigned. Id=" << GetGpuObjectId();
 
-        other.meshRawData_         = GraphicsApi::MeshRawData{};
-        other.transform_           = mat4(1.f);
-        other.normalizedScale_     = vec3(1.f);
-        other.boundingBox_         = BoundingBox{};
+        other.meshRawData_          = GraphicsApi::MeshRawData{};
+        other.transform_            = mat4(1.f);
+        other.normalizedScale_      = vec3(1.f);
+        other.boundingBox_          = BoundingBox{};
         other.materialShaderBuffer_ = INVALID_ID;
     }
     return *this;
@@ -138,6 +142,11 @@ bool Mesh::UseArmature() const
 void Mesh::setBoundingBox(const BoundingBox& boundingBox)
 {
     boundingBox_ = boundingBox;
+}
+
+void Mesh::updateBoundingBox()
+{
+    boundingBox_ = ComputeBoundingBox(meshRawData_);
 }
 
 void Mesh::SetTransformMatrix(const glm::mat4& m)

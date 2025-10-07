@@ -3,6 +3,7 @@
 #include "Configuration.h"
 #include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
+#include "GameEngine/Engine/ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h"
 #include "Utils/XML/XmlWriter.h"
 
 namespace std
@@ -125,9 +126,9 @@ void Create(TreeNode& node, const Params::Sound& param)
     node.attributes_[CSTR_SOUND_ENABLED] = std::to_string(param.isEnabled);
     node.attributes_[CSTR_SOUND_VOLUME]  = std::to_string(param.volume);
 }
-void Create(TreeNode& node, const Params::PhysicsVisualizatorParams& param)
+void Create(TreeNode& node, const Params::LineMeshVisualizatorParams& param)
 {
-    node.attributes_[CSTR_USE_WORKER]        = Utils::BoolToString(param.useWorkredToUpdatePhysicsVisualization_);
+    node.attributes_[CSTR_USE_WORKER]        = Utils::BoolToString(param.useWorkredToUpdateVisualization_);
     node.attributes_[CSTR_REFRESH_STEP_DOWN] = std::to_string(param.refreshRateStepDown_);
 }
 void Create(TreeNode& node, LoggingLvl param)
@@ -136,7 +137,7 @@ void Create(TreeNode& node, LoggingLvl param)
 }
 void Create(TreeNode& node, const Params::DebugParams& param)
 {
-    Create(node.addChild(CSTR_PHYSICS_VISUALIZATION_PARAMS), param.physicsVisualizator);
+    Create(node.addChild(CSTR_LINE_MESH_VISUALIZATION_PARAMS), param.linemeshVisualizator);
     Create(node.addChild(CSTR_LOGGING_LVL), param.logLvl);
     node.addChild(CSTR_SHOW_RENDER_INFO, Utils::BoolToString(param.showRenderInfo));
 }

@@ -8,6 +8,7 @@ BoundingBox::BoundingBox(NumericLimits)
     : min_(std::numeric_limits<float>::max())
     , max_(-std::numeric_limits<float>::max())
 {
+    calculate();
 }
 
 BoundingBox::BoundingBox(const vec3 &min, const vec3 &max)
@@ -90,8 +91,48 @@ float BoundingBox::maxScale() const
 void BoundingBox::calculate()
 {
     size_     = glm::abs(max_ - min_);
-    center_   = (min_ + min_) * .5f;
+    center_   = (min_ + max_) * .5f;
     maxScale_ = glm::compMax(size_);
+}
+
+BoundingBox BoundingBox::transformed(const glm::mat4& transform) const
+{
+    std::array<glm::vec3, 8> corners = {
+        glm::vec3(min_.x, min_.y, min_.z),
+        glm::vec3(max_.x, min_.y, min_.z),
+        glm::vec3(min_.x, max_.y, min_.z),
+        glm::vec3(max_.x, max_.y, min_.z),
+        glm::vec3(min_.x, min_.y, max_.z),
+        glm::vec3(max_.x, min_.y, max_.z),
+        glm::vec3(min_.x, max_.y, max_.z),
+        glm::vec3(max_.x, max_.y, max_.z)
+    };
+
+    glm::vec3 newMin(std::numeric_limits<float>::max());
+    glm::vec3 newMax(-std::numeric_limits<float>::max());
+
+    for (const auto& c : corners)
+    {
+        glm::vec4 transformed = transform * glm::vec4(c, 1.0f);
+        glm::vec3 p = glm::vec3(transformed);
+        newMin = glm::min(newMin, p);
+        newMax = glm::max(newMax, p);
+    }
+
+    return BoundingBox(newMin, newMax);
+}
+
+void BoundingBox::expandToInclude(const BoundingBox& other)
+{
+    min_.x = std::min(min_.x, other.min_.x);
+    min_.y = std::min(min_.y, other.min_.y);
+    min_.z = std::min(min_.z, other.min_.z);
+
+    max_.x = std::max(max_.x, other.max_.x);
+    max_.y = std::max(max_.y, other.max_.y);
+    max_.z = std::max(max_.z, other.max_.z);
+
+    calculate();
 }
 
 std::ostream &operator<<(std::ostream &os, const BoundingBox &box)

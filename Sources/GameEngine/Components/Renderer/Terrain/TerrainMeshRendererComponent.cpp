@@ -107,6 +107,12 @@ const BoundingBox &TerrainMeshRendererComponent::getMeshBoundingBox(uint32 index
         return defaultBoundingBox;
     return boundingBoxes_[index + 1];
 }
+
+const std::vector<BoundingBox> &TerrainMeshRendererComponent::getMeshesBoundingBoxes() const
+{
+    return boundingBoxes_;
+}
+
 void TerrainMeshRendererComponent::init()
 {
     if (not heightMap_)
@@ -125,13 +131,13 @@ void TerrainMeshRendererComponent::init()
         worldTransfomChangeSubscrbtion_ = thisObject_.SubscribeOnWorldTransfomChange(
             [this, model](const auto &transform)
             {
-                createBoundongBoxes(*model,heightMap_->GetScale());
+                createBoundongBoxes(*model, heightMap_->GetScale());
 
                 for (size_t i = 0; i < model->GetMeshes().size(); ++i)
                 {
                     auto &obj                           = perObjectUpdateBuffer_[i];
                     obj->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(
-                        transform.CalculateCurrentMatrix()* glm::scale(heightMap_->GetScale()));
+                        transform.CalculateCurrentMatrix() * glm::scale(heightMap_->GetScale()));
                     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*obj);
                 }
             });

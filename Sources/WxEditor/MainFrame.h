@@ -86,6 +86,7 @@ private:
     void MenuRendererTakeSnapshot(wxCommandEvent&);
     void MenuRendererSwap(wxCommandEvent&);
     void MenuRendererPhysicsVisualization(wxCommandEvent&);
+    void MenuRendererBoundingBoxVisualization(wxCommandEvent&);
     void MenuRendererNormalsVisualization(wxCommandEvent&);
     void MenuRendererTextureDiffuse(wxCommandEvent&);
     void MenuRendererTextureNormals(wxCommandEvent&);

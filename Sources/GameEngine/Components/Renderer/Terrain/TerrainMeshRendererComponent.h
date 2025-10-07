@@ -25,6 +25,7 @@ public:
     inline const GraphicsApi::ID& GetPerObjectUpdateBuffer(uint32 id) const;
     void HeightMapChanged() override;
     HeightMap* createHeightMap(const vec2ui&) override;
+    const std::vector<BoundingBox>& getMeshesBoundingBoxes() const;
 
 private:
     void init();

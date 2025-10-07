@@ -141,13 +141,13 @@ Primitive* ResourceManager::GetPrimitives(PrimitiveType type)
         return dynamic_cast<Primitive*>(modelInfo.resource_.get());
     }
 
-    auto primitive = GeneratePrimitive(type);
+    auto primitiveData = GeneratePrimitive(type);
 
-    auto model    = std::make_unique<GameEngine::Primitive>(type, ComputeBoundingBox(primitive));
+    auto model    = std::make_unique<GameEngine::Primitive>(type);
     auto modelPtr = model.get();
     GameEngine::Material material;
     material.diffuse = vec3(0.8f, 0.8f, 0.8f);
-    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, primitive, material));
+    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, primitiveData, material));
 
     ResourceInfo<Model> modelInfo;
     modelInfo.resource_ = std::move(model);

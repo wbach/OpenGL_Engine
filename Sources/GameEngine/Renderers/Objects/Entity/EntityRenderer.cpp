@@ -38,16 +38,11 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
 
     for (const auto& sub : subscribes_)
     {
-        // TO DO : fix
-        // const auto& objectTransform = sub.gameObject->GetWorldTransform();
-        // auto radius                 = glm::compMax(objectTransform.GetScale());
-        // auto isVisible              = context_.frustrum_.intersection(objectTransform.GetPosition(),
-        // radius);
-
-        // if (isVisible )
+        auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
+        if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
-            auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
-            if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
+            auto isVisible = context_.frustrum_.intersection(sub.renderComponent->getWorldSpaceBoundingBox());
+            if (isVisible)
             {
                 renderModel(sub, *model);
             }

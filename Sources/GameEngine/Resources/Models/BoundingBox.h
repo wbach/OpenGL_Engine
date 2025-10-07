@@ -27,6 +27,8 @@ public:
     const vec3& center() const;
     const vec3& size() const;
     float maxScale() const;
+    BoundingBox transformed(const glm::mat4&) const;
+    void expandToInclude(const BoundingBox&);
 
 private:
     void calculate();

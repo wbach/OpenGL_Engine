@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 #include "ConfigurationParams/ConfigurationParam.h"
-#include "ConfigurationParams/DebugParams/PhysicsVisualizatorParams.h"
+#include "ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h"
 #include "ConfigurationParams/RendererParams/RendererParams.h"
 #include "ConfigurationParams/SoundParams/SoundParams.h"
 #include "ConfigurationParams/WindowParams/WindowParams.h"
@@ -37,7 +37,7 @@ struct Files
 struct DebugParams
 {
     DebugParams();
-    PhysicsVisualizatorParams physicsVisualizator;
+    LineMeshVisualizatorParams linemeshVisualizator;
     Params::ConfigurationParam<LoggingLvl> logLvl;
     Params::ConfigurationParam<bool> showRenderInfo;
     Params::ConfigurationParam<bool> showPhycicsVisualization;

@@ -6,6 +6,7 @@
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
@@ -91,6 +92,7 @@ public:
     const std::unordered_map<IdType, CustomMaterialData>& GetCustomMaterials() const;
     void AddCustomMaterial(const Mesh&, const Material&);
     void UpdateCustomMaterial(const Mesh&, const Material&);
+    const BoundingBox& getWorldSpaceBoundingBox() const;
 
 private:
     void init();
@@ -105,6 +107,7 @@ private:
     void PrepareCustomMaterials(const Model&);
     void ReleaseCustomMaterials(const Model&);
     void CleanUpWithRestrictions(const std::set<Model*>& = {});
+    void calculateWorldSpaceBoundingBox(const mat4&);
 
 private:
     ModelWrapper model_;
@@ -116,6 +119,7 @@ private:
 
     std::unordered_map<IdType, CustomMaterialData> customMaterials;
     std::set<Model*> addedModels;
+    BoundingBox boundingBox;
 
 public:
     static void registerReadFunctions();

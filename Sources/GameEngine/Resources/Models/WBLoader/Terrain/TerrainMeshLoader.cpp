@@ -80,7 +80,6 @@ void TerrainMeshLoader::CreateAsSingleTerrain(Model& model, TerrainHeightTools& 
     ReserveMeshData(newMesh, heightMapResolution);
     CreateTerrainVertexes(tools, newMesh, 0, 0, heightMapResolution, heightMapResolution, resolutionDivideFactor);
     CreateIndicies(newMesh, static_cast<IndicesDataType>(heightMapResolution / resolutionDivideFactor));
-    model.setBoundingBox(newMesh.getBoundingBox());
     model.AddMesh(std::move(newMesh));
 }
 
@@ -120,8 +119,6 @@ void TerrainMeshLoader::CreatePartial(Model& model, TerrainHeightTools& tools, u
             model.AddMesh(std::move(newMesh));
         }
     }
-
-    model.setBoundingBox(BoundingBox(modelBoundingBoxMin, modelBoundingBoxMax));
 }
 
 void TerrainMeshLoader::ReserveMeshData(GameEngine::Mesh& mesh, uint32 size)

@@ -34,6 +34,7 @@ public:
     bool UseArmature() const;
 
     void setBoundingBox(const BoundingBox&);
+    void updateBoundingBox();
     const BoundingBox& getBoundingBox() const;
 
     const Material& GetMaterial() const;

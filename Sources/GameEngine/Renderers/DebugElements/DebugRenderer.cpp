@@ -3,8 +3,10 @@
 #include <Common/Transform.h>
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
+#include <Utils/Variant.h>
 
 #include <algorithm>
+#include <variant>
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
@@ -14,6 +16,7 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -26,6 +29,69 @@ struct ColorBuffer
 {
     AlignWrapper<vec4> color;
 };
+GraphicsApi::LineMesh CreateLineMeshFromBoundingBox(const GameEngine::BoundingBox& box, const glm::vec3& color = glm::vec3(1.0f))
+{
+    GraphicsApi::LineMesh mesh;
+
+    // 8 wierzchołków AABB
+    glm::vec3 min = box.min();
+    glm::vec3 max = box.max();
+
+    std::vector<glm::vec3> vertices = {
+        {min.x, min.y, min.z},  // 0
+        {max.x, min.y, min.z},  // 1
+        {max.x, max.y, min.z},  // 2
+        {min.x, max.y, min.z},  // 3
+        {min.x, min.y, max.z},  // 4
+        {max.x, min.y, max.z},  // 5
+        {max.x, max.y, max.z},  // 6
+        {min.x, max.y, max.z}   // 7
+    };
+
+    // 12 krawędzi AABB, każda jako dwa wierzchołki
+    std::vector<std::pair<int, int>> edges = {
+        {0, 1}, {1, 2}, {2, 3}, {3, 0},  // dolna płaszczyzna
+        {4, 5}, {5, 6}, {6, 7}, {7, 4},  // górna płaszczyzna
+        {0, 4}, {1, 5}, {2, 6}, {3, 7}   // pionowe krawędzie
+    };
+
+    // wypełniamy LineMesh
+    for (auto& e : edges)
+    {
+        glm::vec3 v0 = vertices[e.first];
+        glm::vec3 v1 = vertices[e.second];
+
+        // pozycje
+        mesh.positions_.push_back(v0.x);
+        mesh.positions_.push_back(v0.y);
+        mesh.positions_.push_back(v0.z);
+        mesh.positions_.push_back(v1.x);
+        mesh.positions_.push_back(v1.y);
+        mesh.positions_.push_back(v1.z);
+
+        // kolory
+        for (int i = 0; i < 2; i++)
+        {
+            mesh.colors_.push_back(color.r);
+            mesh.colors_.push_back(color.g);
+            mesh.colors_.push_back(color.b);
+        }
+    }
+
+    return mesh;
+}
+GraphicsApi::LineMesh appendLineMesh(const GraphicsApi::LineMesh& lineMesh1, const GraphicsApi::LineMesh& lineMesh2)
+{
+    GraphicsApi::LineMesh result = lineMesh1;  // kopiujemy istniejący
+
+    // dodajemy pozycje
+    result.positions_.insert(result.positions_.end(), lineMesh2.positions_.begin(), lineMesh2.positions_.end());
+
+    // dodajemy kolory
+    result.colors_.insert(result.colors_.end(), lineMesh2.colors_.begin(), lineMesh2.colors_.end());
+
+    return result;
+}
 }  // namespace
 DebugObject::DebugObject(GraphicsApi::IGraphicsApi& graphicsApi, Model& model, common::Transform& transform)
     : graphicsApi_(graphicsApi)
@@ -41,10 +107,10 @@ DebugObject::~DebugObject()
 }
 void DebugObject::CreateBuffer()
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("perObjectBufferId");
+    LOG_DEBUG << "perObjectBufferId";
     perObjectBufferId = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
-    /* LOG TO FIX*/ LOG_ERROR << ("perObjectBufferId");
+    LOG_DEBUG << "perObjectBufferId";
     transform_.TakeSnapShoot();
     buffer.TransformationMatrix = transform_.GetMatrix();
     UpdateBuffer();
@@ -76,6 +142,7 @@ void DebugObject::BindBuffer() const
 DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::ThreadSync& threadSync)
     : rendererContext_(rendererContext)
     , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
+    , boundingBoxVisualizator_(rendererContext.graphicsApi_, threadSync)
     , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , debugNormalShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugNormal)
@@ -85,7 +152,7 @@ DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::Th
 
 DebugRenderer::~DebugRenderer()
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("");
+    LOG_DEBUG << "";
     if (showPhycicsVisualizationSubId)
         EngineConf.debugParams.showPhycicsVisualization.unsubscribe(*showPhycicsVisualizationSubId);
 }
@@ -93,10 +160,49 @@ DebugRenderer::~DebugRenderer()
 void DebugRenderer::init()
 {
     physicsVisualizator_.Init();
+    boundingBoxVisualizator_.Init();
     debugObjectShader_.Init();
     gridShader_.Init();
     debugNormalShader_.Init();
     textureShader_.Init();
+
+    boundingBoxVisualizator_.SetMeshCreationFunction(
+        [&]() -> const GraphicsApi::LineMesh&
+        {
+            std::lock_guard<std::mutex> lk(meshInfoDebugObjectsMutex_);
+            static GraphicsApi::LineMesh result;
+            result.positions_.clear();
+            result.colors_.clear();
+
+            for (auto& [_, sub] : meshDebugInfoSubscribers_)
+            {
+                static const vec3 color(1, 0, 0);
+                auto lineMesh = std::visit(
+                    visitor{[](Components::RendererComponent* rc)
+                            {
+                                if (not rc)
+                                    return GraphicsApi::LineMesh{};
+                                return CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), color);
+                            },
+                            [](Components::TerrainRendererComponent* tc)
+                            {
+                                if (tc and tc->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
+                                    return GraphicsApi::LineMesh{};
+
+                                GraphicsApi::LineMesh result;
+
+                                for (const auto& bb : tc->GetMeshTerrain()->getMeshesBoundingBoxes())
+                                {
+                                    result = appendLineMesh(result, CreateLineMeshFromBoundingBox(bb, color));
+                                }
+                                return result;
+                            }},
+                    sub.component);
+
+                result = appendLineMesh(result, lineMesh);
+            }
+            return result;
+        });
 
     gridPerObjectUpdateBufferId_ =
         rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
@@ -156,6 +262,7 @@ void DebugRenderer::reloadShaders()
     debugObjectShader_.Reload();
     gridShader_.Reload();
     physicsVisualizator_.ReloadShader();
+    boundingBoxVisualizator_.ReloadShader();
     debugNormalShader_.Reload();
 }
 
@@ -171,6 +278,9 @@ void DebugRenderer::render()
         {
             case RenderState::Physics:
                 physicsVisualizator_.Render();
+                break;
+            case RenderState::BoundingBox:
+                boundingBoxVisualizator_.Render();
                 break;
             case RenderState::Normals:
                 DrawNormals();
@@ -201,14 +311,17 @@ void DebugRenderer::subscribe(GameObject& gameObject)
         auto terrainMeshComponent = terrain->GetMeshTerrain();
         if (terrainMeshComponent)
         {
-            meshDebugInfoSubscribers_.insert({gameObject.GetId(), {gameObject, terrainMeshComponent->GetModel()}});
+            meshDebugInfoSubscribers_.insert(
+                {gameObject.GetId(),
+                 {.gameObject = gameObject, .modelWrapper = terrainMeshComponent->GetModel(), .component = terrain}});
         }
     }
     auto rc = gameObject.GetComponent<Components::RendererComponent>();
 
     if (rc)
     {
-        meshDebugInfoSubscribers_.insert({gameObject.GetId(), {gameObject, rc->GetModelWrapper()}});
+        meshDebugInfoSubscribers_.insert(
+            {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = rc->GetModelWrapper(), .component = rc}});
     }
 }
 
@@ -261,7 +374,7 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
 
 void DebugRenderer::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
 {
-    physicsVisualizator_.SetPhysicsDebugDraw(func);
+    physicsVisualizator_.SetMeshCreationFunction(func);
 }
 
 void DebugRenderer::AddDebugObject(Model& model, common::Transform& transform)

@@ -96,8 +96,8 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
     {
         auto model       = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
         auto boundingBox = model->getBoundingBox();
-        boundingBox.translate(object->GetWorldTransform().GetPosition());
         boundingBox.scale(object->GetWorldTransform().GetScale());
+        boundingBox.translate(object->GetWorldTransform().GetPosition());
 
         if (auto t = BoundingBoxIntersect(ray, boundingBox))
         {

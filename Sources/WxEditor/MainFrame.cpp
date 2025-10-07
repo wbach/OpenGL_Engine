@@ -128,6 +128,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, MainFrame::MenuRendererTakeSnapshot)
     EVT_MENU(ID_MENU_RENDERER_SWAP, MainFrame::MenuRendererSwap)
     EVT_MENU(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, MainFrame::MenuRendererPhysicsVisualization)
+    EVT_MENU(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, MainFrame::MenuRendererBoundingBoxVisualization)
     EVT_MENU(ID_MENU_RENDERER_NORMAL_VISUALIZATION, MainFrame::MenuRendererNormalsVisualization)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_DIFFUSE, MainFrame::MenuRendererTextureDiffuse)
     EVT_MENU(ID_MENU_RENDERER_TEXTURE_NORMALS, MainFrame::MenuRendererTextureNormals)
@@ -737,9 +738,13 @@ bool MainFrame::SetDeubgRendererState(GameEngine::DebugRenderer::RenderState sta
     return set;
 }
 
+void MainFrame::MenuRendererBoundingBoxVisualization(wxCommandEvent&)
+{
+    SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::BoundingBox);
+}
+
 void MainFrame::MenuRendererNormalsVisualization(wxCommandEvent&)
 {
-    LOG_DEBUG << "";
     SetDeubgRendererState(GameEngine::DebugRenderer::RenderState::Normals);
 }
 
@@ -846,6 +851,8 @@ wxMenu* MainFrame::CreateRendererMenu()
     menu->Append(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, "&Take snapshot\tCtrl-A", "Create snapshot of renderer state");
     menu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode\tCtrl-A", "Switch between line and fill render mode");
     menu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics\tCtrl-A", "Enable/Disable of physics visualization");
+    menu->Append(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, "&Visualize gameObject boundig box\tCtrl-A",
+                 "Enable/Disable of bounding box visualization from engine not from rigidbody physics");
     menu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals\tCtrl-A", "Enable/Disable of normals visualization");
 
     wxMenu* texturesMenu = new wxMenu;

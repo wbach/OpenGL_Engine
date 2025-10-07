@@ -1,11 +1,14 @@
 #pragma once
 #include <Mutex.hpp>
+#include <variant>
 
+#include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Renderers/DebugElements/LineMeshVisualizator.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "PhysicsVisualizator.h"
+#include "LineMeshVisualizator.h"
 
 namespace GraphicsApi
 {
@@ -31,13 +34,14 @@ struct RendererContext;
 namespace Components
 {
 class RendererComponent;
+class TerrainRendererComponent;
 }  // namespace Components
 
-struct DebugRendererSubscriber
-{
-    GameObject* gameObject;
-    Components::RendererComponent* renderComponent;
-};
+// struct DebugRendererSubscriber
+// {
+//     GameObject* gameObject;
+//     Components::RendererComponent* renderComponent;
+// };
 
 struct DebugObject
 {
@@ -60,9 +64,10 @@ struct DebugMeshInfo
 {
     GameObject& gameObject;
     ModelWrapper& modelWrapper;
+    std::variant<Components::RendererComponent*, Components::TerrainRendererComponent*> component;
 };
 
-typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
+//typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;
 
 class DebugRenderer : public IRenderer
 {
@@ -72,7 +77,8 @@ public:
         Physics,
         Grid,
         Objects,
-        Normals
+        Normals,
+        BoundingBox
     };
 
     DebugRenderer(RendererContext&, Utils::Thread::ThreadSync&);
@@ -111,7 +117,8 @@ private:
 
 private:
     RendererContext& rendererContext_;
-    PhysicsVisualizator physicsVisualizator_;
+    LineMeshVisualizator physicsVisualizator_;
+    LineMeshVisualizator boundingBoxVisualizator_;
 
     ShaderProgram debugObjectShader_;
     ShaderProgram gridShader_;

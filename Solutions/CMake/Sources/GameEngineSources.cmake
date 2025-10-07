@@ -262,7 +262,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/Layout/Horizo
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/Layout/VerticalLayout.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/GuiElementTypes.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Projection.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/PhysicsVisualizator.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/LineMeshVisualizator.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DebugElements/DebugRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/DefferedRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/BufferDataUpdater.cpp

@@ -1,4 +1,4 @@
-#include "PhysicsVisualizator.h"
+#include "LineMeshVisualizator.h"
 
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Utils/ThreadSync.h>
@@ -10,7 +10,7 @@
 
 namespace GameEngine
 {
-PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::ThreadSync& threadSync)
+LineMeshVisualizator::LineMeshVisualizator(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::ThreadSync& threadSync)
     : graphicsApi_(graphicsApi)
     , threadSync_(threadSync)
     , shader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
@@ -22,7 +22,7 @@ PhysicsVisualizator::PhysicsVisualizator(GraphicsApi::IGraphicsApi& graphicsApi,
 {
 }
 
-PhysicsVisualizator::~PhysicsVisualizator()
+LineMeshVisualizator::~LineMeshVisualizator()
 {
     if (worker_)
     {
@@ -31,10 +31,10 @@ PhysicsVisualizator::~PhysicsVisualizator()
     }
 }
 
-void PhysicsVisualizator::Init()
+void LineMeshVisualizator::Init()
 {
-    useWorkerToUpdate_   = EngineConf.debugParams.physicsVisualizator.useWorkredToUpdatePhysicsVisualization_;
-    refreshRateStepDown_ = EngineConf.debugParams.physicsVisualizator.refreshRateStepDown_;
+    useWorkerToUpdate_   = EngineConf.debugParams.linemeshVisualizator.useWorkredToUpdateVisualization_;
+    refreshRateStepDown_ = EngineConf.debugParams.linemeshVisualizator.refreshRateStepDown_;
 
     shader_.Init();
     lineMeshId_ = graphicsApi_.CreateDynamicLineMesh();
@@ -49,21 +49,21 @@ void PhysicsVisualizator::Init()
         graphicsApi_.UpdateShaderBuffer(*defaultPerObjectUpdateId_, &buffer);
 }
 
-void PhysicsVisualizator::Render()
+void LineMeshVisualizator::Render()
 {
     if (not IsReady())
         return;
 
     if (useWorkerToUpdate_)
     {
-        UpdatePhysicsByWorker();
+        UpdateByWorker();
     }
     else
     {
-        UpdatePhycisLineMesh();
+        UpdateLineMesh();
     }
 
-    if (physicsLineMeshReady_.load())
+    if (lineMeshReady_.load())
     {
         shader_.Start();
         graphicsApi_.BindShaderBuffer(*defaultPerObjectUpdateId_);
@@ -72,29 +72,29 @@ void PhysicsVisualizator::Render()
     }
 }
 
-void PhysicsVisualizator::SetPhysicsDebugDraw(std::function<const GraphicsApi::LineMesh&()> func)
+void LineMeshVisualizator::SetMeshCreationFunction(std::function<const GraphicsApi::LineMesh&()> func)
 {
-    physicsDebugDraw_ = func;
+    createLineMesh = func;
 }
 
-void PhysicsVisualizator::ReloadShader()
+void LineMeshVisualizator::ReloadShader()
 {
     shader_.Reload();
 }
 
-void PhysicsVisualizator::UpdatePhycisLineMesh()
+void LineMeshVisualizator::UpdateLineMesh()
 {
     if (frameRefreshNumber_ >= refreshRateStepDown_)
     {
-        lineMesh_ = &physicsDebugDraw_();
+        lineMesh_ = &createLineMesh();
         if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
         {
             graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
-            physicsLineMeshReady_.store(true);
+            lineMeshReady_.store(true);
         }
         else
         {
-            physicsLineMeshReady_.store(false);
+            lineMeshReady_.store(false);
         }
 
         frameRefreshNumber_ = 0;
@@ -105,23 +105,23 @@ void PhysicsVisualizator::UpdatePhycisLineMesh()
     }
 }
 
-void PhysicsVisualizator::UpdatePhysicsByWorker()
+void LineMeshVisualizator::UpdateByWorker()
 {
     if (not isUpdated_.load())
         return;
 
     auto task = [&]()
     {
-        lineMesh_ = &physicsDebugDraw_();
+        lineMesh_ = &createLineMesh();
         if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
         {
-            physicsLineMeshReady_.store(true);
+            lineMeshReady_.store(true);
         }
     };
 
     auto callback = [&]() { isUpdated_.store(true); };
 
-    if (physicsLineMeshReady_)
+    if (lineMeshReady_)
     {
         if (not lineMesh_->positions_.empty() and not lineMesh_->colors_.empty())
             graphicsApi_.UpdateLineMesh(*lineMeshId_, *lineMesh_);
@@ -134,9 +134,9 @@ void PhysicsVisualizator::UpdatePhysicsByWorker()
     }
 }
 
-bool PhysicsVisualizator::IsReady() const
+bool LineMeshVisualizator::IsReady() const
 {
-    return physicsDebugDraw_ and lineMeshId_ and defaultPerObjectUpdateId_;
+    return createLineMesh and lineMeshId_ and defaultPerObjectUpdateId_;
 }
 
 }  // namespace GameEngine

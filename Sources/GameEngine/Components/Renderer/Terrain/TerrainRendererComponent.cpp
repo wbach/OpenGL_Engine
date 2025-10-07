@@ -27,7 +27,6 @@ namespace
 {
 const std::string CSTR_TEXTURE_FILENAMES = "textureFileNames";
 const std::string CSTR_TEXTURE_TYPE      = "textureType";
-const std::string COMPONENT_STR          = "TerrainRenderer";
 }  // namespace
 
 TerrainRendererComponent::RendererType Convert(Params::TerrainType type)
@@ -257,7 +256,7 @@ void create(TreeNode& node, const std::vector<Components::TerrainTexture>& textu
 
 void TerrainRendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     create(node.addChild(CSTR_TEXTURE_FILENAMES), GetInputDataTextures());
 

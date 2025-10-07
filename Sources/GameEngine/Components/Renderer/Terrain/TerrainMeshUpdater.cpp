@@ -5,10 +5,10 @@
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h"
-#include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -142,7 +142,7 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
 
     if (mesh.GetGraphicsObjectId() and updatePart(tools, mesh, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
     {
-        model->setBoundingBox(mesh.getBoundingBox());
+        model->updateBoundingBox();
         componentContext_.gpuResourceLoader_.AddFunctionToCall(
             [&graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
                 graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
@@ -153,20 +153,7 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
 
 void TerrainMeshUpdater::updateModelBoundingBox(Model& model)
 {
-    auto modelBoundingBox = model.getBoundingBox();
-    modelBoundingBox.minY(std::numeric_limits<float>::max());
-    modelBoundingBox.maxY(-std::numeric_limits<float>::max());
-
-    for (const auto& mesh : model.GetMeshes())
-    {
-        auto meshBoundingBox = mesh.getBoundingBox();
-
-        if (meshBoundingBox.min().y < modelBoundingBox.min().y)
-            modelBoundingBox.minY(meshBoundingBox.min().y);
-        if (meshBoundingBox.max().y > modelBoundingBox.max().y)
-            modelBoundingBox.maxY(meshBoundingBox.max().y);
-    }
-    model.setBoundingBox(modelBoundingBox);
+    model.updateBoundingBox();
 }
 bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint32 startX, uint32 startY, uint32 endX, uint32 endY)
 {
@@ -202,20 +189,7 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint3
 
     if (isHeightChangedInTerrainPart)
     {
-        auto meshBoundingBox = mesh.getBoundingBox();
-        meshBoundingBox.minY(std::numeric_limits<float>::max());
-        meshBoundingBox.maxY(-std::numeric_limits<float>::max());
-
-        for (size_t i = 1; i < meshData.positions_.size(); i += 3)
-        {
-            float height = meshData.positions_[i];
-
-            if (height < meshBoundingBox.min().y)
-                meshBoundingBox.minY(height);
-            if (height > meshBoundingBox.max().y)
-                meshBoundingBox.maxY(height);
-        }
-        mesh.setBoundingBox(meshBoundingBox);
+        mesh.updateBoundingBox();
     }
 
     return isHeightChangedInTerrainPart;

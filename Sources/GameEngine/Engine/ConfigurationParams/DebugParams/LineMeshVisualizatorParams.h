@@ -5,10 +5,10 @@ namespace GameEngine
 {
 namespace Params
 {
-struct PhysicsVisualizatorParams
+struct LineMeshVisualizatorParams
 {
-    bool useWorkredToUpdatePhysicsVisualization_{false};
-    uint32 refreshRateStepDown_{0}; 
+    bool useWorkredToUpdateVisualization_{false};
+    uint32 refreshRateStepDown_{0};
 };
 }  // namespace Params
 }  // namespace GameEngine
