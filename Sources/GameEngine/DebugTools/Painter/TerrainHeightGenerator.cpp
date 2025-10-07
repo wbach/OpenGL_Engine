@@ -357,7 +357,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         heightMap.setImage(std::move(image));
         terrain->HeightMapChanged();
     }
-    /* LOG TO FIX*/ LOG_ERROR << ("completed");
+    LOG_DEBUG << "completed";
 }
 
 float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
@@ -385,8 +385,7 @@ float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
     if (index < noiseSeed.size())
         return noiseSeed[index];
 
-    /* LOG TO FIX*/ LOG_ERROR << ("Out of range : " + std::to_string(vec2ui(x, y)) + " (" + std::to_string(index) + "/" +
-                                  std::to_string(noiseSeed.size()) + ")");
+    LOG_ERROR << "Out of range : " << vec2ui(x, y) << " (" << index << "/" << noiseSeed.size() << ")";
     return 0.f;
 }
 }  // namespace GameEngine

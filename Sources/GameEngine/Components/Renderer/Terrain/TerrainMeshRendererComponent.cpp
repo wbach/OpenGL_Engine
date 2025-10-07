@@ -41,30 +41,26 @@ void TerrainMeshRendererComponent::RecalculateNormals()
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
-    if (not heightMap_)
-        return;
-
-    UnSubscribe();
-    ReleaseModels();
-    createModels();
-
-    if (modelWrapper_.Get(LevelOfDetail::L1))
+    if (not modelWrapper_.Get(LevelOfDetail::L1) or not heightMap_)
     {
-        Subscribe();
+        return;
     }
-    return;
 
     TerrainMeshUpdater meshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)});
 
     if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
     {
+        LOG_DEBUG << "meshUpdater.update();";
         meshUpdater.update();
     }
     else
     {
+        LOG_DEBUG << "meshUpdater.reCreate();";
         meshUpdater.reCreate();
         heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
     }
+
+    createBoundingBoxes();
     Subscribe();
 }
 HeightMap *TerrainMeshRendererComponent::createHeightMap(const vec2ui &size)
@@ -125,13 +121,13 @@ void TerrainMeshRendererComponent::init()
     auto model = modelWrapper_.Get(LevelOfDetail::L1);
     if (model)
     {
-        createBoundongBoxes(*model, heightMap_->GetScale());
+        createBoundingBoxes();
         CreateShaderBuffers(*model, heightMap_->GetScale());
 
         worldTransfomChangeSubscrbtion_ = thisObject_.SubscribeOnWorldTransfomChange(
             [this, model](const auto &transform)
             {
-                createBoundongBoxes(*model, heightMap_->GetScale());
+                createBoundingBoxes();
 
                 for (size_t i = 0; i < model->GetMeshes().size(); ++i)
                 {
@@ -178,16 +174,24 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
     }
 }
 
-void TerrainMeshRendererComponent::createBoundongBoxes(const GameEngine::Model &model, const vec3 &heightmapScale)
+void TerrainMeshRendererComponent::createBoundingBoxes()
 {
+    auto model = modelWrapper_.Get(LevelOfDetail::L1);
+    if (not model or not heightMap_)
+    {
+        return;
+    }
+
+    vec3 heightmapScale(heightMap_->GetScale());
+
     boundingBoxes_.clear();
 
-    auto boundingBox = model.getBoundingBox();
+    auto boundingBox = model->getBoundingBox();
     boundingBox.scale(thisObject_.GetWorldTransform().GetScale() * heightmapScale);
     boundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
     boundingBoxes_.push_back(boundingBox);
 
-    for (const auto &mesh : model.GetMeshes())
+    for (const auto &mesh : model->GetMeshes())
     {
         auto boundingBox = mesh.getBoundingBox();
         boundingBox.scale(thisObject_.GetWorldTransform().GetScale() * heightmapScale);
@@ -252,7 +256,7 @@ void TerrainMeshRendererComponent::subscribeForEngineConfChange()
                 {
                     auto heightmapScale = heightMap_ ? heightMap_->GetScale() : vec3(1.f);
                     CreateShaderBuffers(*model, heightmapScale);
-                    createBoundongBoxes(*model, heightmapScale);
+                    createBoundingBoxes();
                     Subscribe();
                 }
             }

@@ -189,6 +189,7 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint3
 
     if (isHeightChangedInTerrainPart)
     {
+        LOG_DEBUG << "mesh.updateBoundingBox();";
         mesh.updateBoundingBox();
     }
 

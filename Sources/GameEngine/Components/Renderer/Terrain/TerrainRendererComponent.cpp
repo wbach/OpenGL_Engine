@@ -164,6 +164,7 @@ HeightMap* TerrainRendererComponent::GetHeightMap()
 
 void TerrainRendererComponent::HeightMapChanged()
 {
+    LOG_DEBUG << "";
     terrainComponent_->HeightMapChanged();
 }
 
