@@ -25,6 +25,7 @@
 class GLCanvas;
 class OptionsFrame;
 class ProjectPanel;
+class TerrainToolPanel;
 
 namespace GameEngine
 {
@@ -144,6 +145,7 @@ private:
     void OnToolStop(wxCommandEvent&);
     void OnToolAnimationViewer(wxCommandEvent&);
     void OnBuildCmponents(wxCommandEvent&);
+    void OnToggleTerrainPanel(wxCommandEvent&);
 
     void RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process = nullptr);
 
@@ -162,6 +164,7 @@ private:
     wxCollapsiblePane* transformsCollapsible{nullptr};
     TransformPanel* worldTransformPanel{nullptr};
     TransformPanel* localTransformPanel{nullptr};
+    TerrainToolPanel* terrainPanel{nullptr};
     wxBoxSizer* gameObjectPanelsSizer{nullptr};
     wxScrolledWindow* gameObjectPanels{nullptr};
     wxButton* addComponentButton{nullptr};

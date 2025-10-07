@@ -35,6 +35,7 @@
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel.h"
+#include "TerrainToolPanel.h"
 #include "Theme.h"
 #include "TransformPanel.h"
 #include "magic_enum/magic_enum.hpp"
@@ -150,7 +151,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOOL_STOP, MainFrame::OnToolStop)
     EVT_MENU(ID_TOOL_ANIMATION_VIEWER, MainFrame::OnToolAnimationViewer)
     EVT_MENU(ID_TOOL_BUILD, MainFrame::OnBuildCmponents)
-
+    EVT_MENU(ID_TOOL_TERRAIN_PANEL, MainFrame::OnToggleTerrainPanel)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -945,6 +946,7 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddTool(ID_TOOL_ANIMATION_VIEWER, "Animation Viewer",
                      createImage(AnimationViwerIcon_png, AnimationViwerIcon_png_len, size));
     toolbar->AddTool(ID_TOOL_BUILD, "Build components", wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE));
+    toolbar->AddTool(ID_TOOL_TERRAIN_PANEL, "Terrain Tools", wxArtProvider::GetBitmap(wxART_NORMAL_FILE, wxART_TOOLBAR));
 
     toolbar->SetToolShortHelp(ID_TOOL_OPEN, "Open scene from file");
     toolbar->SetToolShortHelp(ID_TOOL_SAVE, "Save scene");
@@ -953,6 +955,7 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->SetToolShortHelp(ID_TOOL_STOP, "Stop scene if started");
     toolbar->SetToolShortHelp(ID_TOOL_ANIMATION_VIEWER, "Start animation viewer tool");
     toolbar->SetToolShortHelp(ID_TOOL_BUILD, "Build projects componets to create shared libs");
+    toolbar->SetToolShortHelp(ID_TOOL_TERRAIN_PANEL, "Show terrain tool panel");
     // Separator zeby odsunac
     toolbar->AddSeparator();
 
@@ -1425,6 +1428,42 @@ void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir, w
     if (pid == -1)
     {
         wxLogError("Failed to run command: %s", cmd);
+    }
+}
+
+void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
+{
+    if (!terrainPanel)
+    {
+        int width = 300;
+        terrainPanel = new TerrainToolPanel(this, width);
+        terrainPanel->SetPosition(wxPoint(canvas->GetPosition().x + canvas->GetSize().x - width, canvas->GetPosition().y));
+        terrainPanel->SetSize(wxSize(width, canvas->GetSize().y));
+        terrainPanel->Raise();
+        terrainPanel->Show(true);
+
+        // Dopasuj po zmianie rozmiaru
+        canvas->Bind(wxEVT_SIZE,
+                     [this](wxSizeEvent& event)
+                     {
+                         if (terrainPanel && terrainPanel->IsShown())
+                         {
+                             auto canvasPos  = canvas->GetPosition();
+                             auto canvasSize = canvas->GetSize();
+
+                             int panelWidth = terrainPanel->GetSize().x;
+
+                             terrainPanel->SetPosition(wxPoint(canvasPos.x + canvasSize.x - panelWidth, canvasPos.y));
+                             terrainPanel->SetSize(wxSize(panelWidth, canvasSize.y));
+                             terrainPanel->Refresh();
+                             terrainPanel->Update();
+                         }
+                         event.Skip();
+                     });
+    }
+    else
+    {
+        terrainPanel->ShowPanel(!terrainPanel->IsVisible());
     }
 }
 
