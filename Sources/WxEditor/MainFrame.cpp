@@ -1,6 +1,7 @@
 #include "MainFrame.h"
 
 #include <GameEngine/Components/FunctionType.h>
+#include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
@@ -374,6 +375,12 @@ void MainFrame::ClearScene()
     canvas->ResetDragObject();
     transfromSubController.reset();
     RemoveAllComponentPanels();
+
+    if (terrainPanel)
+    {
+        terrainPanel->Destroy();
+        terrainPanel = nullptr;
+    }
 }
 
 void MainFrame::OnClose(wxCloseEvent& event)
@@ -481,12 +488,18 @@ void MainFrame::MenuFileExit(wxCommandEvent&)
 
 void MainFrame::MenuEditCreateObject(wxCommandEvent&)
 {
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter object name:", "Crete new game object", "NewGameObject",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
     auto parentGameObjectId = canvas->GetScene().GetRootGameObject().GetId();
     if (auto parentGameObject = GetSelectedGameObject())
     {
         parentGameObjectId = parentGameObject->GetId();
     }
-    AddGameObject("NewGameObject", parentGameObjectId);
+    AddGameObject(dlg->GetValue().IsEmpty() ? "NewGameObject" : dlg->GetValue().ToStdString(), parentGameObjectId);
 }
 
 GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType parentId)
@@ -543,6 +556,17 @@ GameEngine::GameObject* MainFrame::GetGameObject(wxTreeItemId id)
 
 void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
 {
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter terrain name:", "Crete new terrain object", "MyTerrain",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
+    auto newTerrainGo =
+        canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "Terrain" : dlg->GetValue().ToStdString());
+    auto& tc = newTerrainGo->AddComponent<GameEngine::Components::TerrainRendererComponent>();
+    tc.createHeightMap();
+    canvas->GetScene().AddGameObject(std::move(newTerrainGo));
 }
 
 void MainFrame::MenuEditCreateMaterial(wxCommandEvent&)
@@ -1434,7 +1458,7 @@ void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir, w
 
 void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
 {
-    if (!terrainPanel)
+    if (not terrainPanel)
     {
         int width    = 300;
         terrainPanel = new TerrainToolPanel(this, canvas->GetScene(), width);

@@ -95,8 +95,7 @@ void TerrainHeightGenerator::generateHeightMapsImage()
 
     if (terrains_.size() != 1)
     {
-        LOG_ERROR << "Support only 1 terrain, Current terrain size : " << terrains_.size();
-        return;
+        LOG_WARN << "Multiple terrains generation. Heightmaps could be not correlated right now. Current terrain size : " << terrains_.size();
     }
 
     perlinNoise2D();

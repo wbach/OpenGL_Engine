@@ -1,11 +1,15 @@
 #pragma once
 
+#include <GameEngine/Scene/SceneEvents.h>
+#include <Types.h>
 #include <wx/button.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
 #include <wx/stattext.h>
 #include <wx/wx.h>
+#include <set>
+#include <unordered_map>
 
 namespace GameEngine
 {
@@ -16,7 +20,7 @@ class TerrainToolPanel : public wxScrolledWindow
 {
 public:
     TerrainToolPanel(wxWindow* parent, GameEngine::Scene&, int width);
-    ~TerrainToolPanel() override = default;
+    ~TerrainToolPanel() override;
 
     void ShowPanel(bool show);
     bool IsVisible() const
@@ -30,6 +34,18 @@ private:
     void BuildTerrainGeneratorUI(wxSizer*);
     void BuildTerrainPainterUI(wxSizer*);
     void GenerateTerrain(bool);
+    void GenerateTerrain(bool, const std::optional<IdType>&);
+    void CreateAndGenerateTerrain(bool);
+    void GenerateTerrainForExistObject(bool, IdType);
+    void GenerateForAllTerrains(bool);
+    void RefillTerrainObjectsCtrl();
+    void DetectedTerrainGameObjectsAndAddToChoice();
+
+    template <typename T>
+    void ProcessEvent(const T&)
+    {
+        RefillTerrainObjectsCtrl();
+    }
 
 private:
     GameEngine::Scene& scene;
@@ -37,13 +53,14 @@ private:
 
     struct GeneratorFields
     {
-        wxTextCtrl* gameObjectIdCtrl{nullptr};
+        wxChoice* gameObjectIdCtrl{nullptr};
         wxTextCtrl* biasCtrl{nullptr};
         wxTextCtrl* octavesCtrl{nullptr};
         wxComboBox* widthCtrl{nullptr};
     };
 
     GeneratorFields generatorFields;
+    std::optional<IdType> sceneEventSubId;
 
     wxDECLARE_EVENT_TABLE();
 };

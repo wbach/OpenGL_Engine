@@ -3,6 +3,8 @@
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
+#include <Logger/Log.h>
+#include <Utils/Variant.h>
 #include <wx/collpane.h>
 #include <wx/combobox.h>
 
@@ -10,8 +12,37 @@
 #include <optional>
 
 #include "EditorUitls.h"
-#include "Logger/Log.h"
 #include "Types.h"
+
+namespace
+{
+class TerrainObjectClientData : public wxClientData
+{
+public:
+    enum class Method
+    {
+        createNewTerrainObject,
+        getAllTerrains
+    };
+
+    explicit TerrainObjectClientData(IdType value)
+        : value(value)
+    {
+    }
+    explicit TerrainObjectClientData(Method value)
+        : value(value)
+    {
+    }
+    std::variant<Method, IdType> GetValue() const
+    {
+        return value;
+    }
+
+private:
+    std::variant<Method, IdType> value;
+};
+
+}  // namespace
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(TerrainToolPanel, wxPanel)
@@ -32,6 +63,18 @@ TerrainToolPanel::TerrainToolPanel(wxWindow* parent, GameEngine::Scene& scene, i
 
     Layout();
     FitInside();
+
+    sceneEventSubId = scene.SubscribeForSceneEvent(
+        [this](const auto& event)
+        { std::visit(visitor{[this](const auto& e) { this->CallAfter([this, e] { ProcessEvent(e); }); }}, event); });
+}
+
+TerrainToolPanel::~TerrainToolPanel()
+{
+    if (sceneEventSubId)
+    {
+        scene.UnSubscribeForSceneEvent(*sceneEventSubId);
+    }
 }
 
 void TerrainToolPanel::BuildUI()
@@ -76,8 +119,13 @@ void TerrainToolPanel::BuildTerrainGeneratorUI(wxSizer* parentSizer)
     auto* paneSizer = new wxBoxSizer(wxVERTICAL);
 
     // GameObjectId
-    generatorFields.gameObjectIdCtrl = new wxTextCtrl(pane, wxID_ANY, "---");
-    auto* goSizer                    = new wxStaticBoxSizer(wxVERTICAL, pane, "GameObjectId");
+
+    generatorFields.gameObjectIdCtrl = new wxChoice(pane, wxID_ANY);
+
+    RefillTerrainObjectsCtrl();
+
+    // generatorFields.gameObjectIdCtrl = new wxTextCtrl(pane, wxID_ANY, "---");
+    auto* goSizer = new wxStaticBoxSizer(wxVERTICAL, pane, "GameObject");
     goSizer->Add(generatorFields.gameObjectIdCtrl, 0, wxEXPAND | wxALL, 5);
     paneSizer->Add(goSizer, 0, wxEXPAND | wxALL, 5);
 
@@ -107,7 +155,8 @@ void TerrainToolPanel::BuildTerrainGeneratorUI(wxSizer* parentSizer)
     widthChoices.Add("2048");
     widthChoices.Add("4096");
 
-    generatorFields.widthCtrl = new wxComboBox(pane, wxID_ANY, "512", wxDefaultPosition, wxDefaultSize, widthChoices, wxCB_READONLY);
+    generatorFields.widthCtrl =
+        new wxComboBox(pane, wxID_ANY, "512", wxDefaultPosition, wxDefaultSize, widthChoices, wxCB_READONLY);
     widthSizer->Add(generatorFields.widthCtrl, 1, wxEXPAND | wxRIGHT, 5);
 
     paneSizer->Add(widthSizer, 0, wxEXPAND | wxALL, 5);
@@ -210,63 +259,105 @@ void TerrainToolPanel::OnClose(wxCommandEvent& event)
     ShowPanel(false);
 }
 
+void TerrainToolPanel::RefillTerrainObjectsCtrl()
+{
+    generatorFields.gameObjectIdCtrl->Clear();
+    generatorFields.gameObjectIdCtrl->Append(
+        "Create new terrain object", new TerrainObjectClientData(TerrainObjectClientData::Method::createNewTerrainObject));
+    generatorFields.gameObjectIdCtrl->Append("Detect all terrain objects",
+                                             new TerrainObjectClientData(TerrainObjectClientData::Method::getAllTerrains));
+    DetectedTerrainGameObjectsAndAddToChoice();
+    generatorFields.gameObjectIdCtrl->SetSelection(0);
+}
+
+void TerrainToolPanel::DetectedTerrainGameObjectsAndAddToChoice()
+{
+    auto terrains = scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+    for (const auto& terrain : terrains)
+    {
+        const auto& go = terrain->getParentGameObject();
+        generatorFields.gameObjectIdCtrl->Append(go.GetName() + "(Id: " + std::to_string(go.GetId()) + ")",
+                                                 new TerrainObjectClientData(go.GetId()));
+    }
+}
+
 void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed)
 {
-    std::optional<IdType> gameObjectId;
+    auto selectedGameObjectOptions = generatorFields.gameObjectIdCtrl->GetSelection();
 
-    try
+    if (selectedGameObjectOptions != wxNOT_FOUND)
     {
-        gameObjectId = generatorFields.gameObjectIdCtrl
-                           ? std::make_optional(std::stoi(generatorFields.gameObjectIdCtrl->GetValue().ToStdString()))
-                           : std::nullopt;
-    }
-    catch (...)
-    {
-        LOG_DEBUG << "gameObjectIdCtrl invalid parse.";
-    }
-
-    try
-    {
-        if (not gameObjectId)
+        auto* data =
+            dynamic_cast<TerrainObjectClientData*>(generatorFields.gameObjectIdCtrl->GetClientObject(selectedGameObjectOptions));
+        if (data)
         {
-            auto terrains =
-                scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
-            if (terrains.empty())
-            {
-                auto dlg =
-                    createEntryDialogWithSelectedText(this, "Enter terrain name:", "Any terrain found, create new gameObject",
-                                                      "MyTerrain", wxOK | wxCANCEL | wxCENTRE);
+            std::visit(visitor{[&](TerrainObjectClientData::Method method)
+                               {
+                                   switch (method)
+                                   {
+                                       case TerrainObjectClientData::Method::createNewTerrainObject:
+                                           CreateAndGenerateTerrain(updateNoiseSeed);
+                                           break;
+                                       case TerrainObjectClientData::Method::getAllTerrains:
+                                           GenerateForAllTerrains(updateNoiseSeed);
+                                           break;
+                                   }
+                               },
+                               [&](IdType gameObjectId) { GenerateTerrainForExistObject(updateNoiseSeed, gameObjectId); }},
+                       data->GetValue());
+        }
+    }
+}
 
-                int answer = wxMessageBox("Any terrain found, create new gameObject  with terrain component?", "Confirmation",
-                                          wxYES_NO | wxICON_QUESTION);
+void TerrainToolPanel::GenerateForAllTerrains(bool updateNoiseSeed)
+{
+    auto terrains = scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+    if (terrains.empty())
+    {
+        wxMessageBox("No single terrain object found in scene", "Error", wxICON_WARNING | wxOK);
+        return;
+    }
 
-                if (answer == wxNO)
-                    return;
+    GenerateTerrain(updateNoiseSeed, std::nullopt);
+}
+void TerrainToolPanel::CreateAndGenerateTerrain(bool updateNoiseSeed)
+{
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter terrain name:", "Crete new terrain object", "MyTerrain",
+                                                 wxOK | wxCANCEL | wxCENTRE);
 
-                std::string name{"MyTerrain"};
+    std::string name{"MyTerrain"};
 
-                while (true)
-                {
-                    if (dlg->ShowModal() == wxID_CANCEL)
-                        return;
+    while (true)
+    {
+        if (dlg->ShowModal() == wxID_CANCEL)
+            return;
 
-                    auto value = dlg->GetValue().Trim(true).Trim(false);
-                    if (!value.IsEmpty())
-                    {
-                        name = value.ToStdString();
-                        break;
-                    }
-
-                    wxMessageBox("Value cannot be empty!", "Error", wxICON_WARNING | wxOK, dlg.get());
-                }
-
-                auto newTerrainGo = scene.CreateGameObject(name);
-                newTerrainGo->AddComponent<GameEngine::Components::TerrainRendererComponent>();
-                gameObjectId = newTerrainGo->GetId();
-                scene.AddGameObject(std::move(newTerrainGo));
-            }
+        auto value = dlg->GetValue().Trim(true).Trim(false);
+        if (!value.IsEmpty())
+        {
+            name = value.ToStdString();
+            break;
         }
 
+        wxMessageBox("Value cannot be empty!", "Error", wxICON_WARNING | wxOK, dlg.get());
+    }
+
+    auto newTerrainGo = scene.CreateGameObject(name);
+    newTerrainGo->AddComponent<GameEngine::Components::TerrainRendererComponent>();
+    auto gameObjectId = newTerrainGo->GetId();
+    scene.AddGameObject(std::move(newTerrainGo));
+
+    GenerateTerrain(updateNoiseSeed, gameObjectId);
+}
+void TerrainToolPanel::GenerateTerrainForExistObject(bool updateNoiseSeed, IdType gameObjectId)
+{
+    GenerateTerrain(updateNoiseSeed, gameObjectId);
+}
+
+void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional<IdType>& gameObjectId)
+{
+    try
+    {
         GameEngine::TerrainHeightGenerator::EntryParamters entryParamters{
             .bias    = generatorFields.biasCtrl ? std::stof(generatorFields.biasCtrl->GetValue().ToStdString()) : 2.f,
             .octaves = generatorFields.octavesCtrl ? std::stoi(generatorFields.octavesCtrl->GetValue().ToStdString()) : 9u,
