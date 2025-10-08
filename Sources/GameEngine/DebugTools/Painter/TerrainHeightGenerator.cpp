@@ -301,15 +301,16 @@ void TerrainHeightGenerator::perlinNoise2D()
     auto width  = perTerrainHeightMapsize_.x;
     auto height = perTerrainHeightMapsize_.y;
 
-    LOG_DEBUG << "Start generating terrains.";
+    LOG_DEBUG << "Start generating terrains. Size: " << perTerrainHeightMapsize_ << ". Terrains: " << terrains_.size();
     for (auto& terrain : terrains_)
     {
-        if (not terrain->GetHeightMap())
+        auto heightMap = terrain->GetHeightMap();
+        if (not heightMap)
         {
-            continue;
+            LOG_DEBUG << "heightmap not set, create new.";
+            if (heightMap = terrain->createHeightMap(perTerrainHeightMapsize_); not heightMap)
+                continue;
         }
-
-        auto& heightMap = *terrain->GetHeightMap();
 
         std::vector<float> heights;
         heights.resize(width * height);
@@ -354,7 +355,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         image.moveData(heights);
 
         // image.applyFilter(GraphicsApi::gaussian7x7Filter());
-        heightMap.setImage(std::move(image));
+        heightMap->setImage(std::move(image));
         terrain->HeightMapChanged();
     }
     LOG_DEBUG << "completed";
@@ -387,5 +388,22 @@ float TerrainHeightGenerator::getNoiseSample(uint32 x, uint32 y)
 
     LOG_ERROR << "Out of range : " << vec2ui(x, y) << " (" << index << "/" << noiseSeed.size() << ")";
     return 0.f;
+}
+
+std::ostream& operator<<(std::ostream& os, const TerrainHeightGenerator::EntryParamters& p)
+{
+    os << "EntryParamters{"
+       << "bias=" << p.bias
+       << ", octaves=" << p.octaves
+       << ", perTerrainHeightMapsize=(" << p.perTerrainHeightMapsize.x << ", " << p.perTerrainHeightMapsize.y << ")"
+       << ", gameObjectId=";
+
+    if (p.gameObjectId)
+        os << *p.gameObjectId;
+    else
+        os << "nullopt";
+
+    os << "}";
+    return os;
 }
 }  // namespace GameEngine

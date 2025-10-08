@@ -4,19 +4,13 @@
 
 #include <algorithm>
 
-#include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
-#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Mesh.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
@@ -43,7 +37,10 @@ void TerrainMeshRenderer::renderSubscriber(const Subscriber& subscriber)
     const auto& model = subscriber.component_->GetModel().Get(LevelOfDetail::L1);
 
     if (not model or not subscriber.component_)
+    {
+        LOG_DEBUG << "not model or not subscriber.component_";
         return;
+    }
 
     auto isVisible = context_.frustrum_.intersection(subscriber.component_->getModelBoundingBox());
 
@@ -67,8 +64,7 @@ void TerrainMeshRenderer::renderMesh(const Mesh& mesh, const GraphicsApi::ID& bu
         ++renderedTerrains_;
     }
 }
-void TerrainMeshRenderer::renderTerrainMeshes(const Model& model,
-                                              const Components::TerrainMeshRendererComponent& component)
+void TerrainMeshRenderer::renderTerrainMeshes(const Model& model, const Components::TerrainMeshRendererComponent& component)
 {
     uint32 index = 0;
     for (const auto& mesh : model.GetMeshes())
@@ -110,7 +106,7 @@ void TerrainMeshRenderer::subscribe(GameObject& gameObject)
         if (not terrain or terrain->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
             return;
 
-        /* LOG TO FIX*/  LOG_ERROR << ("Subscribe goId : " + std::to_string(gameObject.GetId()));
+        LOG_DEBUG << "Subscribe goId : " << gameObject.GetId();
         auto terrainMeshComponent = terrain->GetMeshTerrain();
         if (terrainMeshComponent)
         {
@@ -118,7 +114,7 @@ void TerrainMeshRenderer::subscribe(GameObject& gameObject)
         }
         else
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("terrainMeshComponent not exist");
+            LOG_ERROR << "terrainMeshComponent not exist";
         }
     }
 }
@@ -129,14 +125,14 @@ void TerrainMeshRenderer::unSubscribe(GameObject& gameObject)
 
     if (iter != subscribes_.end())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("unSubscribe goId : " + std::to_string(gameObject.GetId()));
+        LOG_DEBUG << "unSubscribe goId : " << gameObject.GetId();
         std::lock_guard<std::mutex> lk(subscriberMutex_);
         subscribes_.erase(iter);
     }
 }
 void TerrainMeshRenderer::unSubscribeAll()
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("");
+    LOG_DEBUG << "";
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     subscribes_.clear();
 }

@@ -41,6 +41,8 @@ void TerrainMeshRendererComponent::RecalculateNormals()
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
+    LOG_DEBUG << "on HeightMapChanged";
+
     if (not modelWrapper_.Get(LevelOfDetail::L1) or not heightMap_)
     {
         return;

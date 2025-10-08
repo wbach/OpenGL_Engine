@@ -318,6 +318,7 @@ void SceneTreeCtrl::SubscribeForSceneEvent(GameEngine::Scene &scene)
             std::visit(visitor{[this](const auto &e)
                                {
                                    // call on wxWdidgets thread
+                                   LOG_DEBUG << "CallAfter process event";
                                    gameObjectsView->CallAfter([this, e] { ProcessEvent(e); });
                                }},
                        event);
@@ -344,6 +345,7 @@ void SceneTreeCtrl::UnSubscribeForSceneEvent()
 
 void SceneTreeCtrl::ProcessEvent(const GameEngine::AddGameObjectNotifEvent &event)
 {
+    LOG_DEBUG << "AddGameObjectNotifEvent process event";
     auto name = event.gameObject->GetName();
 
     if (isGameObjectPrefab(*event.gameObject))

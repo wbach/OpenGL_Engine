@@ -141,3 +141,28 @@ bool isGameObjectPrefab(const GameEngine::GameObject& go)
 
     return checkPrefab(go);
 }
+
+std::unique_ptr<wxTextEntryDialog> createEntryDialogWithSelectedText(wxWindow* parent, const wxString& message,
+                                                                     const wxString& caption, const wxString& value, long style,
+                                                                     const wxPoint& pos)
+{
+    auto dlg = std::make_unique<wxTextEntryDialog>(parent, message, caption, value, style, pos);
+
+    dlg->Bind(wxEVT_INIT_DIALOG,
+              [&](wxInitDialogEvent&)
+              {
+                  wxTextCtrl* txt = nullptr;
+                  for (wxWindow* w : dlg->GetChildren())
+                  {
+                      if ((txt = wxDynamicCast(w, wxTextCtrl)))
+                          break;
+                  }
+                  if (txt)
+                  {
+                      txt->SetSelection(-1, -1);
+                      dlg->CallAfter([txt]() { txt->SetFocus(); });
+                  }
+              });
+
+    return dlg;
+}

@@ -7,10 +7,15 @@
 #include <wx/stattext.h>
 #include <wx/wx.h>
 
+namespace GameEngine
+{
+class Scene;
+}
+
 class TerrainToolPanel : public wxScrolledWindow
 {
 public:
-    TerrainToolPanel(wxWindow* parent, int width);
+    TerrainToolPanel(wxWindow* parent, GameEngine::Scene&, int width);
     ~TerrainToolPanel() override = default;
 
     void ShowPanel(bool show);
@@ -24,14 +29,21 @@ private:
     void BuildUI();
     void BuildTerrainGeneratorUI(wxSizer*);
     void BuildTerrainPainterUI(wxSizer*);
+    void GenerateTerrain(bool);
 
 private:
+    GameEngine::Scene& scene;
     bool isVisible = false;
 
-    wxTextCtrl* gameObjectIdCtrl;
-    wxTextCtrl* biasCtrl;
-    wxTextCtrl* octavesCtrl;
-    wxTextCtrl* widthCtrl;
+    struct GeneratorFields
+    {
+        wxTextCtrl* gameObjectIdCtrl{nullptr};
+        wxTextCtrl* biasCtrl{nullptr};
+        wxTextCtrl* octavesCtrl{nullptr};
+        wxComboBox* widthCtrl{nullptr};
+    };
+
+    GeneratorFields generatorFields;
 
     wxDECLARE_EVENT_TABLE();
 };

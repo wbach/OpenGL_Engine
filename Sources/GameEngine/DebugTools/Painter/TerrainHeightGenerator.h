@@ -45,4 +45,6 @@ private:
 };
 
 void createTerrainTransition(GameObject&, GameObject&, float);
+
+std::ostream& operator<<(std::ostream& os, const TerrainHeightGenerator::EntryParamters& );
 }  // namespace GameEngine

@@ -6,9 +6,10 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h"
-#include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -87,7 +88,7 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
     auto partsCount  = *EngineConf.renderer.terrain.meshPartsCount;
     auto partialSize = heightMap_.GetImage().width / partsCount;
 
-    std::vector<std::pair<uint32, GraphicsApi::MeshRawData*>> meshesToUpdate;
+    std::vector<Mesh*> meshesToUpdate;
 
     TerrainHeightTools tools(scale_, heightMap_.GetImage());
 
@@ -95,17 +96,16 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
     {
         for (uint32 i = 0; i < partsCount; ++i)
         {
-            auto& mesh     = model->GetMeshes()[i + j * partsCount];
-            auto& meshData = mesh.GetMeshDataRef();
+            auto& mesh = model->GetMeshes()[i + j * partsCount];
 
             uint32 startX = i * partialSize;
             uint32 startY = j * partialSize;
             uint32 endX   = (i + 1) * partialSize + 1;
             uint32 endY   = (j + 1) * partialSize + 1;
 
-            if (mesh.GetGraphicsObjectId() and updatePart(tools, mesh, startX, startY, endX, endY))
+            if (updatePart(tools, mesh, startX, startY, endX, endY))
             {
-                meshesToUpdate.push_back({*mesh.GetGraphicsObjectId(), &meshData});
+                meshesToUpdate.push_back(&mesh);
             }
         }
     }
@@ -119,10 +119,19 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
             {
                 for (auto& mesh : meshesToUpdate)
                 {
-                    graphicsApi.UpdateMesh(mesh.first, *mesh.second,
+                    if (not mesh->GetGraphicsObjectId())
+                    {
+                        LOG_WARN << "Object not loaded to gpu!";
+                        continue;
+                    }
+                    graphicsApi.UpdateMesh(*mesh->GetGraphicsObjectId(), mesh->GetCMeshDataRef(),
                                            {VertexBufferObjects::POSITION, VertexBufferObjects::NORMAL});
                 }
             });
+    }
+    else
+    {
+        LOG_DEBUG << "no single mesh to update";
     }
 }
 void TerrainMeshUpdater::updateSingleTerrainMesh()
@@ -189,7 +198,6 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint3
 
     if (isHeightChangedInTerrainPart)
     {
-        LOG_DEBUG << "mesh.updateBoundingBox();";
         mesh.updateBoundingBox();
     }
 

@@ -1,14 +1,26 @@
 #include "TerrainToolPanel.h"
 
+#include <GameEngine/Components/ComponentController.h>
+#include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
+#include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
 #include <wx/collpane.h>
+#include <wx/combobox.h>
+
+#include <GameEngine/Scene/Scene.hpp>
+#include <optional>
+
+#include "EditorUitls.h"
+#include "Logger/Log.h"
+#include "Types.h"
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(TerrainToolPanel, wxPanel)
     EVT_BUTTON(wxID_CLOSE, TerrainToolPanel::OnClose)
 wxEND_EVENT_TABLE()
 
-TerrainToolPanel::TerrainToolPanel(wxWindow* parent, int width)
+TerrainToolPanel::TerrainToolPanel(wxWindow* parent, GameEngine::Scene& scene, int width)
     : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(width, -1), wxBORDER_NONE | wxTAB_TRAVERSAL)
+    , scene{scene}
 // clang-format on
 {
     SetBackgroundColour(wxColour(30, 30, 30));
@@ -57,57 +69,63 @@ void TerrainToolPanel::BuildUI()
 
 void TerrainToolPanel::BuildTerrainGeneratorUI(wxSizer* parentSizer)
 {
-    // Tworzymy collapsible pane
     auto* collapsible =
         new wxCollapsiblePane(this, wxID_ANY, "Terrain Generator", wxDefaultPosition, wxDefaultSize, wxCP_DEFAULT_STYLE);
 
-    // Panel wewnątrz collapsible
     wxWindow* pane  = collapsible->GetPane();
     auto* paneSizer = new wxBoxSizer(wxVERTICAL);
 
     // GameObjectId
-    gameObjectIdCtrl = new wxTextCtrl(pane, wxID_ANY, "---");
-    auto* goSizer    = new wxStaticBoxSizer(wxVERTICAL, pane, "GameObjectId");
-    goSizer->Add(gameObjectIdCtrl, 0, wxEXPAND | wxALL, 5);
+    generatorFields.gameObjectIdCtrl = new wxTextCtrl(pane, wxID_ANY, "---");
+    auto* goSizer                    = new wxStaticBoxSizer(wxVERTICAL, pane, "GameObjectId");
+    goSizer->Add(generatorFields.gameObjectIdCtrl, 0, wxEXPAND | wxALL, 5);
     paneSizer->Add(goSizer, 0, wxEXPAND | wxALL, 5);
 
+    // Sekcja Bias / Octaves w jednej linii
+    auto* noiseRowSizer = new wxStaticBoxSizer(wxHORIZONTAL, pane, "Noise Settings");
+
     // Bias
-    biasCtrl        = new wxTextCtrl(pane, wxID_ANY, "2.0");
-    auto* biasSizer = new wxStaticBoxSizer(wxVERTICAL, pane, "Bias");
-    biasSizer->Add(biasCtrl, 0, wxEXPAND | wxALL, 5);
-    paneSizer->Add(biasSizer, 0, wxEXPAND | wxALL, 5);
+    noiseRowSizer->Add(new wxStaticText(pane, wxID_ANY, "Bias:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    generatorFields.biasCtrl = new wxTextCtrl(pane, wxID_ANY, "2.0", wxDefaultPosition, wxSize(50, -1));
+    noiseRowSizer->Add(generatorFields.biasCtrl, 0, wxRIGHT, 10);
 
     // Octaves
-    octavesCtrl        = new wxTextCtrl(pane, wxID_ANY, "9");
-    auto* octavesSizer = new wxStaticBoxSizer(wxVERTICAL, pane, "Octaves");
-    octavesSizer->Add(octavesCtrl, 0, wxEXPAND | wxALL, 5);
-    paneSizer->Add(octavesSizer, 0, wxEXPAND | wxALL, 5);
+    noiseRowSizer->Add(new wxStaticText(pane, wxID_ANY, "Octaves:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    generatorFields.octavesCtrl = new wxTextCtrl(pane, wxID_ANY, "9", wxDefaultPosition, wxSize(50, -1));
+    noiseRowSizer->Add(generatorFields.octavesCtrl, 0, wxRIGHT, 5);
 
-    // Width
-    widthCtrl        = new wxTextCtrl(pane, wxID_ANY, "512");
-    auto* widthSizer = new wxStaticBoxSizer(wxVERTICAL, pane, "Width");
-    widthSizer->Add(widthCtrl, 0, wxEXPAND | wxALL, 5);
+    paneSizer->Add(noiseRowSizer, 0, wxEXPAND | wxALL, 5);
+
+    // Width w osobnej linii, jako ComboBox
+    auto* widthSizer = new wxStaticBoxSizer(wxHORIZONTAL, pane, "Heightmap Resolution");
+    widthSizer->Add(new wxStaticText(pane, wxID_ANY, "Width:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    wxArrayString widthChoices;
+    widthChoices.Add("256");
+    widthChoices.Add("512");
+    widthChoices.Add("1024");
+    widthChoices.Add("2048");
+    widthChoices.Add("4096");
+
+    generatorFields.widthCtrl = new wxComboBox(pane, wxID_ANY, "512", wxDefaultPosition, wxDefaultSize, widthChoices, wxCB_READONLY);
+    widthSizer->Add(generatorFields.widthCtrl, 1, wxEXPAND | wxRIGHT, 5);
+
     paneSizer->Add(widthSizer, 0, wxEXPAND | wxALL, 5);
 
     // Buttons
     wxButton* btnSameSeed = new wxButton(pane, wxID_ANY, "Generate with the same seed");
-    btnSameSeed->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {});
+    btnSameSeed->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { GenerateTerrain(false); });
     paneSizer->Add(btnSameSeed, 0, wxEXPAND | wxALL, 5);
 
     wxButton* btnNewSeed = new wxButton(pane, wxID_ANY, "Generate terrain with new seed");
-    btnNewSeed->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {});
+    btnNewSeed->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { GenerateTerrain(true); });
     paneSizer->Add(btnNewSeed, 0, wxEXPAND | wxALL, 5);
 
-    // Ustawiamy sizer wewnątrz collapsible pane
     pane->SetSizer(paneSizer);
-
-    // Dodajemy collapsible pane do sizer-a głównego
     parentSizer->Add(collapsible, 0, wxEXPAND | wxALL, 5);
 
-    // Opcjonalnie można rozpocząć z rozwiniętym pane
     collapsible->Collapse(false);
 
-    // Aktualizacja layoutu po zmianie stanu collapsible
     collapsible->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED,
                       [this](wxCollapsiblePaneEvent&)
                       {
@@ -190,4 +208,86 @@ void TerrainToolPanel::ShowPanel(bool show)
 void TerrainToolPanel::OnClose(wxCommandEvent& event)
 {
     ShowPanel(false);
+}
+
+void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed)
+{
+    std::optional<IdType> gameObjectId;
+
+    try
+    {
+        gameObjectId = generatorFields.gameObjectIdCtrl
+                           ? std::make_optional(std::stoi(generatorFields.gameObjectIdCtrl->GetValue().ToStdString()))
+                           : std::nullopt;
+    }
+    catch (...)
+    {
+        LOG_DEBUG << "gameObjectIdCtrl invalid parse.";
+    }
+
+    try
+    {
+        if (not gameObjectId)
+        {
+            auto terrains =
+                scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+            if (terrains.empty())
+            {
+                auto dlg =
+                    createEntryDialogWithSelectedText(this, "Enter terrain name:", "Any terrain found, create new gameObject",
+                                                      "MyTerrain", wxOK | wxCANCEL | wxCENTRE);
+
+                int answer = wxMessageBox("Any terrain found, create new gameObject  with terrain component?", "Confirmation",
+                                          wxYES_NO | wxICON_QUESTION);
+
+                if (answer == wxNO)
+                    return;
+
+                std::string name{"MyTerrain"};
+
+                while (true)
+                {
+                    if (dlg->ShowModal() == wxID_CANCEL)
+                        return;
+
+                    auto value = dlg->GetValue().Trim(true).Trim(false);
+                    if (!value.IsEmpty())
+                    {
+                        name = value.ToStdString();
+                        break;
+                    }
+
+                    wxMessageBox("Value cannot be empty!", "Error", wxICON_WARNING | wxOK, dlg.get());
+                }
+
+                auto newTerrainGo = scene.CreateGameObject(name);
+                newTerrainGo->AddComponent<GameEngine::Components::TerrainRendererComponent>();
+                gameObjectId = newTerrainGo->GetId();
+                scene.AddGameObject(std::move(newTerrainGo));
+            }
+        }
+
+        GameEngine::TerrainHeightGenerator::EntryParamters entryParamters{
+            .bias    = generatorFields.biasCtrl ? std::stof(generatorFields.biasCtrl->GetValue().ToStdString()) : 2.f,
+            .octaves = generatorFields.octavesCtrl ? std::stoi(generatorFields.octavesCtrl->GetValue().ToStdString()) : 9u,
+            .perTerrainHeightMapsize = generatorFields.widthCtrl
+                                           ? vec2ui(std::stoi(generatorFields.widthCtrl->GetValue().ToStdString()))
+                                           : vec2ui{512, 512},
+            .gameObjectId            = gameObjectId};
+
+        LOG_DEBUG << "Generate terrain " << entryParamters;
+
+        GameEngine::TerrainHeightGenerator generator(scene.getComponentController(), entryParamters);
+
+        if (updateNoiseSeed)
+        {
+            generator.generateNoiseSeed();
+        }
+
+        generator.generateHeightMapsImage();
+    }
+    catch (...)
+    {
+        LOG_WARN << "Run TerrainHeightGenerator error.";
+    }
 }

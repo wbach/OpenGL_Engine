@@ -2,15 +2,15 @@
 
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Engine/ConfigurationWriter.h>
+#include <GameEngine/Resources/File.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <wx/filepicker.h>
 #include <wx/spinctrl.h>
 
 #include <functional>
 
-#include "Logger/Log.h"
+#include "EditorUitls.h"
 #include "ProjectManager.h"
-#include <GameEngine/Resources/File.h>
 #include "Theme.h"
 
 // clang-format off
@@ -368,27 +368,11 @@ void OptionsFrame::CreateScenesTab(wxNotebook* notebook)
     addButton->Bind(wxEVT_BUTTON,
                     [=](wxCommandEvent& evt)
                     {
-                        wxTextEntryDialog dlg(panel, "Scene name:", "Add Scene", "NewScene");
+                        auto dlg = createEntryDialogWithSelectedText(panel, "Scene name:", "Add Scene", "NewScene");
 
-                        dlg.Bind(wxEVT_INIT_DIALOG,
-                                 [&](wxInitDialogEvent&)
-                                 {
-                                     wxTextCtrl* txt = nullptr;
-                                     for (wxWindow* w : dlg.GetChildren())
-                                     {
-                                         if ((txt = wxDynamicCast(w, wxTextCtrl)))
-                                             break;
-                                     }
-                                     if (txt)
-                                     {
-                                         txt->SetFocus();
-                                         txt->SetSelection(-1, -1);  // select all
-                                     }
-                                 });
-
-                        if (dlg.ShowModal() == wxID_OK)
+                        if (dlg->ShowModal() == wxID_OK)
                         {
-                            auto name = dlg.GetValue().ToStdString();
+                            auto name = dlg->GetValue().ToStdString();
                             if (!name.empty())
                             {
                                 ProjectManager::GetInstance().AddScene(name, "");

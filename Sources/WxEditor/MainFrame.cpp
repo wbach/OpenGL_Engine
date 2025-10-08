@@ -374,7 +374,6 @@ void MainFrame::ClearScene()
     canvas->ResetDragObject();
     transfromSubController.reset();
     RemoveAllComponentPanels();
-    gameObjectsView->UnSubscribeForSceneEvent();
 }
 
 void MainFrame::OnClose(wxCloseEvent& event)
@@ -426,6 +425,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
         return;
 
     ClearScene();
+    gameObjectsView->UnSubscribeForSceneEvent();
 
     wxString path = openFileDialog.GetPath();
     GameEngine::File file{std::string{path.c_str()}};
@@ -453,6 +453,7 @@ void MainFrame::MenuFileReloadScene(wxCommandEvent&)
 {
     SetStatusText("Reloding scene " + canvas->GetScene().GetName());
     ClearScene();
+    gameObjectsView->UnSubscribeForSceneEvent();
     canvas->GetEngine().GetEngineContext().AddEngineEvent(
         GameEngine::ChangeSceneEvent{GameEngine::ChangeSceneEvent::Type::RELOAD_SCENE});
 }
@@ -1435,8 +1436,8 @@ void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
 {
     if (!terrainPanel)
     {
-        int width = 300;
-        terrainPanel = new TerrainToolPanel(this, width);
+        int width    = 300;
+        terrainPanel = new TerrainToolPanel(this, canvas->GetScene(), width);
         terrainPanel->SetPosition(wxPoint(canvas->GetPosition().x + canvas->GetSize().x - width, canvas->GetPosition().y));
         terrainPanel->SetSize(wxSize(width, canvas->GetSize().y));
         terrainPanel->Raise();

@@ -20,3 +20,8 @@ wxString GetParentPath(const wxString&);
 void runAnimationViewer(const std::string& = std::string());
 void runMaterialEditor(const std::string& = std::string());
 bool isGameObjectPrefab(const GameEngine::GameObject&);
+std::unique_ptr<wxTextEntryDialog> createEntryDialogWithSelectedText(wxWindow* parent, const wxString& message,
+                                                                     const wxString& caption = wxGetTextFromUserPromptStr,
+                                                                     const wxString& value   = wxEmptyString,
+                                                                     long style              = wxTextEntryDialogStyle,
+                                                                     const wxPoint& pos      = wxDefaultPosition);
