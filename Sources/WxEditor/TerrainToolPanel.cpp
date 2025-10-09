@@ -5,6 +5,7 @@
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
+#include <wx/busyinfo.h>
 #include <wx/collpane.h>
 #include <wx/combobox.h>
 
@@ -13,6 +14,7 @@
 
 #include "Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "EditorUitls.h"
+#include "LoadingDialog.h"
 #include "ProjectManager.h"
 #include "Types.h"
 
@@ -369,31 +371,43 @@ void TerrainToolPanel::GenerateTerrainForExistObject(bool updateNoiseSeed, IdTyp
 
 void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional<IdType>& gameObjectId)
 {
-    try
-    {
-        GameEngine::TerrainHeightGenerator::EntryParamters entryParamters{
-            .bias    = generatorFields.biasCtrl ? std::stof(generatorFields.biasCtrl->GetValue().ToStdString()) : 2.f,
-            .octaves = generatorFields.octavesCtrl ? std::stoi(generatorFields.octavesCtrl->GetValue().ToStdString()) : 9u,
-            .perTerrainHeightMapsize = generatorFields.widthCtrl
-                                           ? vec2ui(std::stoi(generatorFields.widthCtrl->GetValue().ToStdString()))
-                                           : vec2ui{512, 512},
-            .gameObjectId            = gameObjectId};
+    auto dlg = std::make_shared<LoadingDialog>(this, "Terrain generator", "Generating terrain...");
 
-        LOG_DEBUG << "Generate terrain " << entryParamters;
-
-        GameEngine::TerrainHeightGenerator generator(scene.getComponentController(), entryParamters);
-
-        if (updateNoiseSeed)
+    std::thread(
+        [=]()
         {
-            generator.generateNoiseSeed();
-        }
+            try
+            {
+                GameEngine::TerrainHeightGenerator::EntryParamters entryParamters{
+                    .bias = generatorFields.biasCtrl ? std::stof(generatorFields.biasCtrl->GetValue().ToStdString()) : 2.f,
+                    .octaves =
+                        generatorFields.octavesCtrl ? std::stoi(generatorFields.octavesCtrl->GetValue().ToStdString()) : 9u,
+                    .perTerrainHeightMapsize = generatorFields.widthCtrl
+                                                   ? vec2ui(std::stoi(generatorFields.widthCtrl->GetValue().ToStdString()))
+                                                   : vec2ui{512, 512},
+                    .gameObjectId            = gameObjectId};
 
-        generator.generateHeightMapsImage();
-    }
-    catch (...)
-    {
-        LOG_WARN << "Run TerrainHeightGenerator error.";
-    }
+                LOG_DEBUG << "Generate terrain " << entryParamters;
+
+                GameEngine::TerrainHeightGenerator generator(scene.getComponentController(), entryParamters);
+
+                if (updateNoiseSeed)
+                {
+                    generator.generateNoiseSeed();
+                }
+
+                generator.generateHeightMapsImage();
+            }
+            catch (...)
+            {
+                LOG_WARN << "Run TerrainHeightGenerator error.";
+            }
+
+            this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
+        })
+        .detach();
+
+    dlg->ShowModal();
 }
 
 void TerrainToolPanel::ImportFromMesh()
@@ -431,12 +445,23 @@ void TerrainToolPanel::ImportFromMesh()
                 LOG_WARN << "heightmapResultuion parse error.";
             }
 
-            auto outputHeightMapPath = saveFileDialog.GetPath();
-            if (auto heightmap = tc->ConvertObjectToHeightMap(file, heightmapResultuion, outputHeightMapPath.ToStdString()))
-            {
-                tc->LoadTextures({GameEngine::Components::TerrainTexture{
-                    .file = *heightmap, .tiledScale = 1.f, .type = GameEngine::TerrainTextureType::heightmap}});
-            }
+            auto dlg = std::make_shared<LoadingDialog>(this, "Mesh converter", "Convert mesh to terrain...");
+
+            std::thread(
+                [=, outputHeightMapPath = saveFileDialog.GetPath()]()
+                {
+                    if (auto heightmap =
+                            tc->ConvertObjectToHeightMap(file, heightmapResultuion, outputHeightMapPath.ToStdString()))
+                    {
+                        tc->LoadTextures({GameEngine::Components::TerrainTexture{
+                            .file = *heightmap, .tiledScale = 1.f, .type = GameEngine::TerrainTextureType::heightmap}});
+
+                        this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
+                    }
+                })
+                .detach();
+
+            dlg->ShowModal();
         }
     }
 }
