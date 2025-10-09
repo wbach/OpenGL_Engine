@@ -425,7 +425,7 @@ void TerrainToolPanel::ImportFromMesh()
             const auto& file = openFileDialog.GetPath().ToStdString();
 
             wxFileDialog saveFileDialog(this, "Save new height map as", ProjectManager::GetInstance().GetDataDir(), "",
-                                        "Terrain files (*.terrain)|*.heightmap|All files (*.*)|*.*", wxFD_SAVE);
+                                        "Terrain files (*.terrain)|*.terrain|All files (*.*)|*.*", wxFD_SAVE);
 
             if (saveFileDialog.ShowModal() == wxID_CANCEL)
                 return;
@@ -455,9 +455,8 @@ void TerrainToolPanel::ImportFromMesh()
                     {
                         tc->LoadTextures({GameEngine::Components::TerrainTexture{
                             .file = *heightmap, .tiledScale = 1.f, .type = GameEngine::TerrainTextureType::heightmap}});
-
-                        this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
                     }
+                    this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
                 })
                 .detach();
 

@@ -685,7 +685,7 @@ void MainFrame::MenuEditMaterialEditor(wxCommandEvent&)
 
 void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 {
-    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetDataDir(), "",
+    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath(), "",
                                 "Pliki prefab (*.prefab)|*.prefab|Pliki prefab (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*",
                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
