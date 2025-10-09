@@ -50,7 +50,7 @@ TextureLoader::~TextureLoader()
     std::vector<Texture*> toRelease;
     for (auto& texture : textures_)
         toRelease.push_back(texture.second.resource_.get());
-    /* LOG TO FIX*/  LOG_ERROR << ("Release not deleted textures. size :" + std::to_string(toRelease.size()));
+    /* LOG TO FIX*/ LOG_ERROR << ("Release not deleted textures. size :" + std::to_string(toRelease.size()));
     for (auto texture : toRelease)
         DeleteTexture(*texture);
 }
@@ -106,7 +106,8 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     File inputFile = inputFileName;
     if (not inputFileName)
     {
-        // /* LOG TO FIX*/  LOG_ERROR << ("File not exist : " + inputFileName.GetAbsolutePath() + " try find it in data directory");
+        // /* LOG TO FIX*/  LOG_ERROR << ("File not exist : " + inputFileName.GetAbsolutePath() + " try find it in data
+        // directory");
         auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
         if (not filepath.empty())
         {
@@ -265,7 +266,7 @@ void TextureLoader::DeleteTexture(Texture& texture)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Texture not found. GpuObjectId=" + std::to_string(texture.GetGpuObjectId()));
+        /* LOG TO FIX*/ LOG_ERROR << ("Texture not found. GpuObjectId=" + std::to_string(texture.GetGpuObjectId()));
     }
 }
 
@@ -297,8 +298,8 @@ HeightMap* TextureLoader::LoadHeightMapBinary(const File& inputFile, const Textu
         LOG_ERROR << "Read file error." << inputFile;
     }
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Size : " + std::to_string(header.width) + "x" + std::to_string(header.height));
-    /* LOG TO FIX*/  LOG_ERROR << ("Height map scale : " + std::to_string(header.scale));
+    LOG_DEBUG << "Size : " << header.width << "x" << header.height;
+    LOG_DEBUG << "Height map scale : " << header.scale;
 
     auto size = header.width * header.height;
     std::vector<float> floatData;
@@ -368,7 +369,7 @@ Texture* TextureLoader::GetTextureIfLoaded(const std::string& name, const Textur
 
 void convertImageToCpp(const Utils::Image& image)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("createCppFile...");
+    /* LOG TO FIX*/ LOG_ERROR << ("createCppFile...");
     std::ofstream ofs("/home/bach/Projects/OpenGL_Engine/Data/textureNotFound.h", std::ofstream::out);
     ofs << "#pragma once\n\n";
     // ofs << "#include <array>\n";

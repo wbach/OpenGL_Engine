@@ -76,6 +76,12 @@ TerrainRendererComponent& TerrainRendererComponent::LoadTextures(const std::vect
     return *this;
 }
 
+std::optional<File> TerrainRendererComponent::ConvertObjectToHeightMap(const File& objectFile, uint32 heightmapResultuion,
+                                                                       const std::optional<File>& outputfile) const
+{
+    return terrainComponent_->ConvertObjectToHeightMap(objectFile, heightmapResultuion, outputfile);
+}
+
 Texture* TerrainRendererComponent::GetTexture(TerrainTextureType type) const
 {
     return terrainComponent_->GetTexture(type);

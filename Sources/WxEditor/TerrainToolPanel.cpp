@@ -11,7 +11,9 @@
 #include <GameEngine/Scene/Scene.hpp>
 #include <optional>
 
+#include "Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "EditorUitls.h"
+#include "ProjectManager.h"
 #include "Types.h"
 
 namespace
@@ -170,6 +172,10 @@ void TerrainToolPanel::BuildTerrainGeneratorUI(wxSizer* parentSizer)
     btnNewSeed->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { GenerateTerrain(true); });
     paneSizer->Add(btnNewSeed, 0, wxEXPAND | wxALL, 5);
 
+    wxButton* btnImportFromMesh = new wxButton(pane, wxID_ANY, "Import from mesh");
+    btnImportFromMesh->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { ImportFromMesh(); });
+    paneSizer->Add(btnImportFromMesh, 0, wxEXPAND | wxALL, 5);
+
     pane->SetSizer(paneSizer);
     parentSizer->Add(collapsible, 0, wxEXPAND | wxALL, 5);
 
@@ -320,7 +326,14 @@ void TerrainToolPanel::GenerateForAllTerrains(bool updateNoiseSeed)
 
     GenerateTerrain(updateNoiseSeed, std::nullopt);
 }
+
 void TerrainToolPanel::CreateAndGenerateTerrain(bool updateNoiseSeed)
+{
+    if (auto gameObject = CreateTerrainObject())
+        GenerateTerrain(updateNoiseSeed, gameObject->GetId());
+}
+
+GameEngine::GameObject* TerrainToolPanel::CreateTerrainObject()
 {
     auto dlg = createEntryDialogWithSelectedText(this, "Enter terrain name:", "Crete new terrain object", "MyTerrain",
                                                  wxOK | wxCANCEL | wxCENTRE);
@@ -330,7 +343,7 @@ void TerrainToolPanel::CreateAndGenerateTerrain(bool updateNoiseSeed)
     while (true)
     {
         if (dlg->ShowModal() == wxID_CANCEL)
-            return;
+            return nullptr;
 
         auto value = dlg->GetValue().Trim(true).Trim(false);
         if (!value.IsEmpty())
@@ -344,10 +357,10 @@ void TerrainToolPanel::CreateAndGenerateTerrain(bool updateNoiseSeed)
 
     auto newTerrainGo = scene.CreateGameObject(name);
     newTerrainGo->AddComponent<GameEngine::Components::TerrainRendererComponent>();
-    auto gameObjectId = newTerrainGo->GetId();
+    auto ptr = newTerrainGo.get();
     scene.AddGameObject(std::move(newTerrainGo));
 
-    GenerateTerrain(updateNoiseSeed, gameObjectId);
+    return ptr;
 }
 void TerrainToolPanel::GenerateTerrainForExistObject(bool updateNoiseSeed, IdType gameObjectId)
 {
@@ -380,5 +393,50 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional
     catch (...)
     {
         LOG_WARN << "Run TerrainHeightGenerator error.";
+    }
+}
+
+void TerrainToolPanel::ImportFromMesh()
+{
+    wxFileDialog openFileDialog(this, "Open mesh to terrain import", ProjectManager::GetInstance().GetDataDir(), "",
+                                "Mesh file (*.obj)|*.obj|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+
+    if (auto gameObject = CreateTerrainObject())
+    {
+        if (auto tc = gameObject->GetComponent<GameEngine::Components::TerrainRendererComponent>())
+        {
+            const auto& file = openFileDialog.GetPath().ToStdString();
+
+            wxFileDialog saveFileDialog(this, "Save new height map as", ProjectManager::GetInstance().GetDataDir(), "",
+                                        "Terrain files (*.terrain)|*.heightmap|All files (*.*)|*.*", wxFD_SAVE);
+
+            if (saveFileDialog.ShowModal() == wxID_CANCEL)
+                return;
+
+            uint32 heightmapResultuion{2048};
+            try
+            {
+                {
+                    if (generatorFields.widthCtrl)
+                    {
+                        heightmapResultuion = std::stoi(generatorFields.widthCtrl->GetValue().ToStdString());
+                    }
+                }
+            }
+            catch (...)
+            {
+                LOG_WARN << "heightmapResultuion parse error.";
+            }
+
+            auto outputHeightMapPath = saveFileDialog.GetPath();
+            if (auto heightmap = tc->ConvertObjectToHeightMap(file, heightmapResultuion, outputHeightMapPath.ToStdString()))
+            {
+                tc->LoadTextures({GameEngine::Components::TerrainTexture{
+                    .file = *heightmap, .tiledScale = 1.f, .type = GameEngine::TerrainTextureType::heightmap}});
+            }
+        }
     }
 }

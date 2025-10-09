@@ -60,7 +60,8 @@ void TerrainComponentBase::BlendMapChanged()
     }
 }
 
-std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &objectFile) const
+std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &objectFile, uint32 heightmapResultuion,
+                                                                   const std::optional<File> &requestedOutputfile) const
 {
     LOG_DEBUG << "Converting to heightmap : " << objectFile.GetAbsolutePath();
     auto model = componentContext_.resourceManager_.LoadModel(
@@ -99,12 +100,18 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
         return std::nullopt;
     }
 
-    uint32 heightmapResultuion = 2048;
     float step                 = 1.f / static_cast<float>(heightmapResultuion);
 
-    auto outputFile = objectFile.CreateFileWithExtension("terrain");
-    auto heightMap  = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
-         outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
+    auto outputFile =
+        requestedOutputfile.has_value() ? requestedOutputfile.value() : objectFile.CreateFileWithExtension("terrain");
+
+    if (not outputFile.HasExtension())
+    {
+        outputFile.ChangeExtension("terrain");
+    }
+
+    auto heightMap = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
+        outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
 
     std::vector<std::vector<float>> heights;
     heights.reserve(heightmapResultuion);

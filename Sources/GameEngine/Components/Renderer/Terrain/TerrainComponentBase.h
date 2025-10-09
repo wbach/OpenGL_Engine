@@ -13,8 +13,8 @@
 #include "GameEngine/Resources/TextureParameters.h"
 #include "PerTerrainTexturesBuffer.h"
 #include "TerrainConfiguration.h"
-#include "TerrainTexturesTypes.h"
 #include "TerrainTexture.h"
+#include "TerrainTexturesTypes.h"
 
 namespace GameEngine
 {
@@ -50,6 +50,8 @@ public:
     HeightMap* GetHeightMap();
     void UpdateTexture(TerrainTextureType, const File&);
     GraphicsApi::ID getPerTerrainTexturesBufferId() const;
+    std::optional<File> ConvertObjectToHeightMap(const File&, uint32 heightmapResultuion = 2048,
+                                                 const std::optional<File>& outputfile = std::nullopt) const;
 
 protected:
     virtual void LoadHeightMap(const File&)   = 0;
@@ -60,7 +62,6 @@ protected:
     void Subscribe();
     void UnSubscribe();
     void updateTerrainTextureBufferData();
-    std::optional<File> ConvertObjectToHeightMap(const File&) const;
 
 private:
     void ReleaseTextures();

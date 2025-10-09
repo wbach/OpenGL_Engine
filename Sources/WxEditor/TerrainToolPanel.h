@@ -10,6 +10,7 @@
 #include <wx/wx.h>
 #include <set>
 #include <unordered_map>
+#include "Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -35,11 +36,13 @@ private:
     void BuildTerrainPainterUI(wxSizer*);
     void GenerateTerrain(bool);
     void GenerateTerrain(bool, const std::optional<IdType>&);
+    GameEngine::GameObject* CreateTerrainObject();
     void CreateAndGenerateTerrain(bool);
     void GenerateTerrainForExistObject(bool, IdType);
     void GenerateForAllTerrains(bool);
     void RefillTerrainObjectsCtrl();
     void DetectedTerrainGameObjectsAndAddToChoice();
+    void ImportFromMesh();
 
     template <typename T>
     void ProcessEvent(const T&)
