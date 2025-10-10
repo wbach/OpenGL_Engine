@@ -8,6 +8,8 @@
 #include <wx/busyinfo.h>
 #include <wx/collpane.h>
 #include <wx/combobox.h>
+#include <wx/simplebook.h>
+#include <wx/wrapsizer.h>
 
 #include <GameEngine/Scene/Scene.hpp>
 #include <optional>
@@ -16,6 +18,7 @@
 #include "EditorUitls.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
+#include "TextureButton.h"
 #include "Types.h"
 
 namespace
@@ -195,54 +198,47 @@ void TerrainToolPanel::BuildTerrainGeneratorUI(wxSizer* parentSizer)
 
 void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
 {
-    // Tworzymy collapsible pane
+    // === Collapsible Pane ===
     auto* collapsible =
         new wxCollapsiblePane(this, wxID_ANY, "Terrain Painter", wxDefaultPosition, wxDefaultSize, wxCP_DEFAULT_STYLE);
-
     wxWindow* pane  = collapsible->GetPane();
     auto* paneSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Brush type (combobox)
-    auto brushTypeCtrl = new wxComboBox(pane, wxID_ANY);
-    auto* brushSizer   = new wxStaticBoxSizer(wxVERTICAL, pane, "Brush Type");
-    brushSizer->Add(brushTypeCtrl, 0, wxEXPAND | wxALL, 5);
-    paneSizer->Add(brushSizer, 0, wxEXPAND | wxALL, 5);
+    // === Painter Type wybór ===
+    auto* painterTypeBox = new wxStaticBoxSizer(wxVERTICAL, pane, "Painter Type");
+    wxArrayString painterTypes;
+    painterTypes.Add("Height");
+    painterTypes.Add("Texture");
+    painterTypes.Add("Plant");
 
-    // Step interpolation (combobox)
-    auto stepInterpolationCtrl = new wxComboBox(pane, wxID_ANY);
-    auto* stepSizer            = new wxStaticBoxSizer(wxVERTICAL, pane, "Step Interpolation");
-    stepSizer->Add(stepInterpolationCtrl, 0, wxEXPAND | wxALL, 5);
-    paneSizer->Add(stepSizer, 0, wxEXPAND | wxALL, 5);
+    auto* painterTypeCombo =
+        new wxComboBox(pane, wxID_ANY, "Height", wxDefaultPosition, wxDefaultSize, painterTypes, wxCB_READONLY);
+    painterTypeBox->Add(painterTypeCombo, 0, wxEXPAND | wxALL, 5);
+    paneSizer->Add(painterTypeBox, 0, wxEXPAND | wxALL, 5);
 
-    // Brush size (slider)
-    auto brushSizeCtrl   = new wxSlider(pane, wxID_ANY, 25, 1, 50);
-    auto* brushSizeSizer = new wxStaticBoxSizer(wxVERTICAL, pane, "Brush Size");
-    brushSizeSizer->Add(brushSizeCtrl, 0, wxEXPAND | wxALL, 5);
-    paneSizer->Add(brushSizeSizer, 0, wxEXPAND | wxALL, 5);
+    // === Dynamiczna sekcja z painterami ===
+    auto* dynamicBook = new wxSimplebook(pane, wxID_ANY);
+    dynamicBook->AddPage(BuildHeightPainterPanel(dynamicBook), "Height");
+    dynamicBook->AddPage(BuildTexturePainterPanel(dynamicBook), "Texture");
+    dynamicBook->AddPage(BuildPlantPainterPanel(dynamicBook), "Plant");
+    paneSizer->Add(dynamicBook, 1, wxEXPAND | wxALL, 5);
 
-    // Strength (text input)
-    auto strengthCtrl   = new wxTextCtrl(pane, wxID_ANY, "1.0");
-    auto* strengthSizer = new wxStaticBoxSizer(wxVERTICAL, pane, "Strength");
-    strengthSizer->Add(strengthCtrl, 0, wxEXPAND | wxALL, 5);
-    paneSizer->Add(strengthSizer, 0, wxEXPAND | wxALL, 5);
+    // === Obsługa zmiany typu painter ===
+    painterTypeCombo->Bind(wxEVT_COMBOBOX,
+                           [dynamicBook](wxCommandEvent& evt)
+                           {
+                               wxString sel = evt.GetString();
+                               if (sel == "Height")
+                                   dynamicBook->SetSelection(0);
+                               else if (sel == "Texture")
+                                   dynamicBook->SetSelection(1);
+                               else if (sel == "Plant")
+                                   dynamicBook->SetSelection(2);
+                           });
 
-    // Buttons (bez akcji)
-    wxButton* btnGenerate = new wxButton(pane, wxID_ANY, "Generate");
-    paneSizer->Add(btnGenerate, 0, wxEXPAND | wxALL, 5);
-
-    wxButton* btnEraseMode = new wxButton(pane, wxID_ANY, "Erase Mode");
-    paneSizer->Add(btnEraseMode, 0, wxEXPAND | wxALL, 5);
-
-    wxButton* btnRecalculateNormals = new wxButton(pane, wxID_ANY, "Recalculate Normals");
-    paneSizer->Add(btnRecalculateNormals, 0, wxEXPAND | wxALL, 5);
-
-    // Ustawiamy sizer w collapsible pane
+    // Ustawiamy i integrujemy sizer
     pane->SetSizer(paneSizer);
-
-    // Dodajemy collapsible pane do głównego sizer-a
     parentSizer->Add(collapsible, 0, wxEXPAND | wxALL, 5);
-
-    // Opcjonalnie można rozpocząć z rozwiniętym pane
     collapsible->Collapse(false);
 
     // Aktualizacja layoutu po zmianie stanu collapsible
@@ -254,6 +250,341 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
                           if (GetParent())
                               GetParent()->Layout();
                       });
+}
+
+wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
+{
+    auto* panel = new wxPanel(parent);
+    auto* sizer = new wxBoxSizer(wxVERTICAL);
+
+    // === Interpolation Method ===
+    {
+        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
+        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        // Placeholder: w przyszłości uzupełnisz metodami np. "Linear", "Smoothstep", "Cubic"...
+        box->Add(combo, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // === Brush Type ===
+    {
+        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
+        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        // Placeholder: np. "Circle", "Square", "Noise", ...
+        box->Add(combo, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // === Brush Size (float slider + text field) ===
+    {
+        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Size");
+
+        auto* slider = new wxSlider(panel, wxID_ANY, 50, 1, 200, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50.0");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+        // --- Synchronizacja slider <-> text ---
+        slider->Bind(wxEVT_SLIDER,
+                     [slider, text](wxCommandEvent&)
+                     {
+                         float val = static_cast<float>(slider->GetValue());
+                         text->ChangeValue(wxString::Format("%.2f", val));
+                     });
+
+        text->Bind(wxEVT_TEXT,
+                   [slider](wxCommandEvent& evt)
+                   {
+                       double val;
+                       if (evt.GetString().ToDouble(&val) && val >= 0.0)
+                           slider->SetValue(wxRound(val));
+                   });
+    }
+
+    // === Strength (float slider + text field, może być ujemne) ===
+    {
+        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Strength");
+
+        auto* slider = new wxSlider(panel, wxID_ANY, 0, -100, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "0.0");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+        // --- Synchronizacja slider <-> text ---
+        slider->Bind(wxEVT_SLIDER,
+                     [slider, text](wxCommandEvent&)
+                     {
+                         float val = static_cast<float>(slider->GetValue()) / 10.0f;  // skala +/-10.0
+                         text->ChangeValue(wxString::Format("%.2f", val));
+                     });
+
+        text->Bind(wxEVT_TEXT,
+                   [slider](wxCommandEvent& evt)
+                   {
+                       double val;
+                       if (evt.GetString().ToDouble(&val))
+                       {
+                           val = std::max(-10.0, std::min(10.0, val));
+                           slider->SetValue(wxRound(val * 10.0));
+                       }
+                   });
+    }
+
+    // === Recalculate Normals ===
+    {
+        auto* btn = new wxButton(panel, wxID_ANY, "Recalculate Normals");
+        sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
+
+        btn->Bind(wxEVT_BUTTON,
+                  [this](wxCommandEvent&)
+                  {
+                      // TODO: tutaj podłącz logikę przeliczenia normalnych w terenie
+                      wxLogMessage("Recalculate normals triggered");
+                  });
+    }
+
+    panel->SetSizer(sizer);
+    return panel;
+}
+
+wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
+{
+    auto* panel = new wxPanel(parent);
+    auto* sizer = new wxBoxSizer(wxVERTICAL);
+
+    // === Interpolation Method ===
+    {
+        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
+        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        // TODO: uzupełnij listę metod w runtime
+        box->Add(combo, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // === Brush Type ===
+    {
+        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
+        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        box->Add(combo, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // === Brush Size ===
+    {
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Size");
+        auto* slider = new wxSlider(panel, wxID_ANY, 50, 1, 200);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50.0");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+        // Synchronizacja slider <-> text
+        slider->Bind(wxEVT_SLIDER,
+                     [slider, text](wxCommandEvent&)
+                     {
+                         float val = static_cast<float>(slider->GetValue());
+                         text->ChangeValue(wxString::Format("%.2f", val));
+                     });
+        text->Bind(wxEVT_TEXT,
+                   [slider](wxCommandEvent& evt)
+                   {
+                       double val;
+                       if (evt.GetString().ToDouble(&val) && val >= 0.0)
+                           slider->SetValue(wxRound(val));
+                   });
+    }
+
+    // === Blend Strength ===
+    {
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Blend Strength");
+        auto* slider = new wxSlider(panel, wxID_ANY, 50, 0, 100);  // reprezentuje 0.0–1.0
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "0.50");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+        // Synchronizacja slider <-> text
+        slider->Bind(wxEVT_SLIDER,
+                     [slider, text](wxCommandEvent&)
+                     {
+                         float val = static_cast<float>(slider->GetValue()) / 100.0f;
+                         text->ChangeValue(wxString::Format("%.2f", val));
+                     });
+        text->Bind(wxEVT_TEXT,
+                   [slider](wxCommandEvent& evt)
+                   {
+                       double val;
+                       if (evt.GetString().ToDouble(&val))
+                       {
+                           val = std::max(0.0, std::min(1.0, val));
+                           slider->SetValue(wxRound(val * 100.0));
+                       }
+                   });
+    }
+
+    // === Clear Blend Map ===
+    {
+        auto* btn = new wxButton(panel, wxID_ANY, "Clear Blend Map");
+        sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
+        btn->Bind(wxEVT_BUTTON,
+                  [this](wxCommandEvent&)
+                  {
+                      wxLogMessage("Clear Blend Map clicked");
+                      // TODO: implement actual clearing logic
+                  });
+    }
+
+    // === Texture selection buttons ===
+    {
+        auto* box       = new wxStaticBoxSizer(wxVERTICAL, panel, "Texture Layers");
+        auto* texPanel  = new wxPanel(panel);
+        auto* wrapSizer = new wxWrapSizer(wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS);
+        texPanel->SetSizer(wrapSizer);
+
+        const int texSize              = 64;
+        std::vector<wxString> texNames = {"Grass", "Rock", "Sand", "Dirt", "Snow"};
+
+        for (int i = 0; i < (int)texNames.size(); ++i)
+        {
+            wxBitmap bmp(texSize, texSize);
+            wxMemoryDC dc(bmp);
+            dc.SetBrush(*wxLIGHT_GREY_BRUSH);
+            dc.Clear();
+            dc.DrawText(texNames[i].Left(1), texSize / 2 - 5, texSize / 2 - 8);
+            dc.SelectObject(wxNullBitmap);
+
+            auto* texBtn = new TextureButton(texPanel, bmp, texNames[i], i);
+            wrapSizer->Add(texBtn, 0, wxALL, 4);
+        }
+
+        texPanel->Layout();
+        box->Add(texPanel, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    panel->SetSizer(sizer);
+    return panel;
+}
+
+wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
+{
+    auto* panel = new wxPanel(parent);
+    auto* sizer = new wxBoxSizer(wxVERTICAL);
+
+    // === Brush Type ===
+    {
+        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
+        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        // TODO: w runtime uzupełnij listę dostępnych typów pędzla
+        box->Add(combo, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // === Plant Texture ===
+    {
+        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
+
+        const int texSize = 64;
+        wxBitmap bmp(texSize, texSize);  // placeholder
+        wxMemoryDC dc(bmp);
+        dc.SetBrush(*wxLIGHT_GREY_BRUSH);
+        dc.Clear();
+        dc.DrawText("P", texSize / 2 - 5, texSize / 2 - 8);
+        dc.SelectObject(wxNullBitmap);
+
+        auto* texBtn = new TextureButton(panel, bmp, "PlantTexture", 0);
+
+        texBtn->Bind(wxEVT_LEFT_DOWN,
+                     [texBtn](wxMouseEvent&)
+                     {
+                         // Otwórz dialog pliku
+                         wxFileDialog openFile(texBtn, "Select Plant Texture", "", "",
+                                               "Images (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                         if (openFile.ShowModal() == wxID_OK)
+                         {
+                             wxString path = openFile.GetPath();
+                             wxBitmap newBmp(path, wxBITMAP_TYPE_ANY);
+                             if (newBmp.IsOk())
+                             {
+                                 texBtn->SetBitmap(newBmp);
+                                 texBtn->SetToolTip(path);
+                                 wxLogMessage("Selected plant texture: %s", path);
+                             }
+                         }
+                     });
+
+        box->Add(texBtn, 0, wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // === Density ===
+    {
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Density");
+        auto* slider = new wxSlider(panel, wxID_ANY, 50, 1, 100);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+        slider->Bind(wxEVT_SLIDER,
+                     [slider, text](wxCommandEvent&) { text->ChangeValue(wxString::Format("%d", slider->GetValue())); });
+        text->Bind(wxEVT_TEXT,
+                   [slider](wxCommandEvent& evt)
+                   {
+                       long val;
+                       if (evt.GetString().ToLong(&val))
+                           slider->SetValue(std::max(1L, std::min(100L, val)));
+                   });
+    }
+
+    // === Randomness ===
+    {
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Randomness (%)");
+        auto* slider = new wxSlider(panel, wxID_ANY, 50, 0, 100);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+        slider->Bind(wxEVT_SLIDER,
+                     [slider, text](wxCommandEvent&) { text->ChangeValue(wxString::Format("%d", slider->GetValue())); });
+        text->Bind(wxEVT_TEXT,
+                   [slider](wxCommandEvent& evt)
+                   {
+                       long val;
+                       if (evt.GetString().ToLong(&val))
+                           slider->SetValue(std::max(0L, std::min(100L, val)));
+                   });
+    }
+
+    panel->SetSizer(sizer);
+    return panel;
 }
 
 void TerrainToolPanel::ShowPanel(bool show)

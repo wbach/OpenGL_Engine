@@ -977,7 +977,7 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddTool(ID_TOOL_ANIMATION_VIEWER, "Animation Viewer",
                      createImage(AnimationViwerIcon_png, AnimationViwerIcon_png_len, size));
     toolbar->AddTool(ID_TOOL_BUILD, "Build components", wxArtProvider::GetBitmap(wxART_EXECUTABLE_FILE));
-    toolbar->AddTool(ID_TOOL_TERRAIN_PANEL, "Terrain Tools", wxArtProvider::GetBitmap(wxART_NORMAL_FILE, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_TERRAIN_PANEL, "Terrain Tools", wxArtProvider::GetBitmap(wxART_HELP_SIDE_PANEL, wxART_TOOLBAR));
 
     toolbar->SetToolShortHelp(ID_TOOL_OPEN, "Open scene from file");
     toolbar->SetToolShortHelp(ID_TOOL_SAVE, "Save scene");

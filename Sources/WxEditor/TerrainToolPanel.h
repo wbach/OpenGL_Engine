@@ -34,6 +34,9 @@ private:
     void BuildUI();
     void BuildTerrainGeneratorUI(wxSizer*);
     void BuildTerrainPainterUI(wxSizer*);
+    wxPanel* BuildHeightPainterPanel(wxWindow*);
+    wxPanel* BuildTexturePainterPanel(wxWindow*);
+    wxPanel* BuildPlantPainterPanel(wxWindow*);
     void GenerateTerrain(bool);
     void GenerateTerrain(bool, const std::optional<IdType>&);
     GameEngine::GameObject* CreateTerrainObject();
