@@ -1,5 +1,6 @@
 #include "EngineBasedTest.h"
 
+#include <future>
 #include <memory>
 
 #include "Engine/EngineContext.h"
@@ -81,10 +82,18 @@ void EngineBasedTest::SetUp()
     EXPECT_CALL(*sceneLoaderResouceManagerPtr, GetTextureLoader()).WillRepeatedly(ReturnRef(*textureLoader));
     EXPECT_CALL(*sceneFactoryMockPtr, Create(::testing::A<uint32>())).WillRepeatedly(Return(ByMove(std::move(scenePtr))));
 
+    std::promise<void> sceneReady;
+    engineContext->GetSceneManager().SetOnSceneLoadDone([&]() { sceneReady.set_value(); });
     engineContext->GetSceneManager().SetActiveScene(0);
-    engineContext->GetSceneManager().Update();
+
+    auto future = sceneReady.get_future();
+    while (future.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+    {
+        engineContext->GetSceneManager().Update();
+    }
     scene = engineContext->GetSceneManager().GetActiveScene();
     EXPECT_NE(scene, nullptr);
+
     engineContext->GetSceneManager().StopThread();
     LOG_DEBUG << "EngineBasedTest::SetUp done";
 }
@@ -97,4 +106,5 @@ EngineBasedTest::~EngineBasedTest()
 void EngineBasedTest::TearDown()
 {
     engineContext.reset();
+    scene = nullptr;
 }

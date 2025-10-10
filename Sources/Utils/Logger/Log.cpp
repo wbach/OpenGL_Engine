@@ -73,9 +73,11 @@ CLogger::~CLogger()
     delete pImpl;
 }
 
-void CLogger::EnableLogs(LoggingLvl lvl)
+void CLogger::EnableLogs(LoggingLvl lvl, LogMode mode)
 {
     logLevel_ = lvl;
+    mode_     = mode;
+
     if (lvl == LoggingLvl::None)
     {
         enabled = false;
@@ -83,7 +85,7 @@ void CLogger::EnableLogs(LoggingLvl lvl)
     }
 
     enabled = true;
-    if (not pImpl->fileStream_.is_open())
+    if (mode_ != LogMode::SCREEN_ONLY and not pImpl->fileStream_.is_open())
     {
         if (filePath_.empty())
             filePath_ = "Logs.txt";
@@ -157,6 +159,9 @@ void CLogger::SetLogFilename(const std::filesystem::path& filename)
 {
     std::lock_guard<std::mutex> lk(pImpl->printMutex_);
     filePath_ = filename;
+
+    if (mode_ == LogMode::SCREEN_ONLY)
+        return;
 
     if (pImpl->fileStream_.is_open())
     {

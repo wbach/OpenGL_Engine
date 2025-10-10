@@ -18,8 +18,6 @@ struct TextureLoaderTest : public ::testing::Test
     {
         const std::string configFile = "./Conf.xml";
         GameEngine::ReadFromFile(configFile);
-        CLogger::Instance().EnableLogs();
-        CLogger::Instance().UseAsyncLogging(false);
     }
 
     virtual void SetUp() override

@@ -5,6 +5,7 @@
 namespace GameEngine
 {
 class EngineContext;
+class SceneLoader;
 
 class SceneManager : public ISceneManager
 {
@@ -30,8 +31,13 @@ private:
 
     void LoadNextScene();
     void LoadPreviousScene();
-    void SetSceneToLoad(const std::string&);
-    void SetSceneToLoad(uint32 id);
+    bool IsGpuLoading() const;
+
+    template<typename T>
+    void SetSceneToLoad(const T&);
+
+
+
     void SetSceneContext(Scene* scene);
 
     void StartUpdateThreadIfNeeded();
@@ -46,5 +52,7 @@ private:
     IdType fpsLimitParamSub_;
     bool isRunning_;
     OnSceneLoadDoneCallback onSceneLoadDoneCallback;
+
+    std::unique_ptr<SceneLoader> sceneLoader;
 };
 }  // namespace GameEngine

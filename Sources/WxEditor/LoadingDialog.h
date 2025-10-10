@@ -18,6 +18,11 @@ public:
         // uruchamiamy timer do animacji
         timer.Bind(wxEVT_TIMER, &LoadingDialog::OnTimer, this);
         timer.Start(50);  // 20 FPS
+
+        Show();
+        Raise();
+        Update();
+        wxYield();
     }
 
     ~LoadingDialog() override

@@ -1,9 +1,8 @@
 #pragma once
+#include <Types.h>
+
 #include <memory>
 #include <mutex>
-#include <variant>
-
-#include "SceneEvents.h"
 
 namespace GraphicsApi
 {
@@ -19,32 +18,16 @@ class DisplayManager;
 class IGpuResourceLoader;
 using ScenePtr = std::unique_ptr<Scene>;
 
-enum SceneWrapperState
-{
-    SceneNotSet,
-    ReadyToInitialized,
-    Initializing,
-    Initilaized
-};
-
 class SceneWrapper
 {
 public:
     SceneWrapper(ISceneFactory&, GraphicsApi::IGraphicsApi&, DisplayManager&, IGpuResourceLoader&, IResourceManagerFactory&);
     ~SceneWrapper();
     Scene* Get();
-    SceneWrapperState GetState();
     void StartActiveScene();
     void Reset();
-    void Set(uint32);
-    void Set(const std::string&);
-    void Init(std::function<void()>);
-    bool IsInitialized();
-    void UpdateScene(float dt);
-
-private:
-    SceneWrapperState SafeGetState();
-    void SafeSetState(SceneWrapperState state);
+    void Set(ScenePtr);
+    void UpdateScene(float);
 
 private:
     ISceneFactory& sceneFactory_;
@@ -52,13 +35,7 @@ private:
     DisplayManager& displayManager;
     IGpuResourceLoader& gpuResourceLoader;
     IResourceManagerFactory& resourceManagerFactory;
-
-    std::mutex initMutex_;
-    std::mutex stateMutex_;
-
     ScenePtr activeScene;
-    SceneWrapperState state_;
-
-    std::variant<uint32, std::string> sceneToLoad_;
+    std::mutex sceneMutex;
 };
 }  // namespace GameEngine

@@ -16,9 +16,6 @@ CharacterControllerTests::CharacterControllerTests()
     : BaseComponentTestSchould()
     , sut_(context_, *obj_)
 {
-    CLogger::Instance().EnableLogs();
-    CLogger::Instance().UseAsyncLogging(false);
-
     LOG_DEBUG << "CharacterControllerTests::CharacterControllerTests";
 
     EXPECT_CALL(physicsApiMock_, SetAngularFactor(_, Matcher<float>(_))).Times(AtLeast(1));

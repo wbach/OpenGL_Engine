@@ -101,8 +101,6 @@ struct AssimpLoaderShould : public ::testing::Test
     AssimpLoaderShould()
     {
         EngineConf.useBinaryLoading = false;
-        CLogger::Instance().EnableLogs(LoggingLvl::ErrorWarningInfoDebug);
-        CLogger::Instance().UseAsyncLogging(false);
     }
 
     void SetUp() override

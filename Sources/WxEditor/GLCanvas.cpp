@@ -426,6 +426,7 @@ void GLCanvas::CreateNewScene()
         engine->GetSceneManager().SetOnSceneLoadDone(
             [this]()
             {
+                LOG_DEBUG << "Load scene callback";
                 onStartupDone();
                 SetupCamera();
 

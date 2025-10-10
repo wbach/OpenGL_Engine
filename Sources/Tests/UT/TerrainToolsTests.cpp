@@ -15,8 +15,6 @@ struct TerrainToolsShould : public ::testing::Test
 {
     TerrainToolsShould()
     {
-        CLogger::Instance().EnableLogs();
-        CLogger::Instance().UseAsyncLogging(false);
     }
 
     void SetUp() override

@@ -32,6 +32,7 @@
 #include "ControlsIds.h"
 #include "EditorUitls.h"
 #include "GLCanvas.h"
+#include "LoadingDialog.h"
 #include "Logger/Log.h"
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
@@ -431,13 +432,16 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
 
+    wxString path = openFileDialog.GetPath();
+    GameEngine::File file{std::string{path.c_str()}};
+
+    auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + file.GetBaseName());
+
     ClearScene();
     gameObjectsView->UnSubscribeForSceneEvent();
 
-    wxString path = openFileDialog.GetPath();
-    GameEngine::File file{std::string{path.c_str()}};
     canvas->OpenScene(file,
-                      [&, path = file.GetDataRelativePath().string()]()
+                      [&, path = file.GetDataRelativePath().string(), loadingDialog = dlg]()
                       {
                           if (isRunning)
                           {
@@ -450,10 +454,12 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                                   {
                                       gameObjectsView->RebuildTree(canvas->GetScene());
                                       gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
+                                      dlg->EndModal(wxID_OK);
                                   });
                           }
                       });
     SetStatusText("Loading file " + file.GetBaseName());
+    dlg->ShowModal();
 }
 
 void MainFrame::MenuFileReloadScene(wxCommandEvent&)

@@ -4,6 +4,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "Logger/Log.h"
 #include "Scene.hpp"
+#include "SceneLoader.h"
 
 namespace GameEngine
 {
@@ -30,8 +31,6 @@ SceneManager::SceneManager(EngineContext& engineContext, std::unique_ptr<ISceneF
             }
         });
 
-    StartUpdateThreadIfNeeded();
-
     SetOnSceneLoadDone([&]() { sceneWrapper_.StartActiveScene(); });
 }
 SceneManager::~SceneManager()
@@ -53,8 +52,26 @@ void SceneManager::SetOnSceneLoadDone(OnSceneLoadDoneCallback callback)
 }
 void SceneManager::Update()
 {
-    if (sceneWrapper_.GetState() == SceneWrapperState::ReadyToInitialized)
-        sceneWrapper_.Init(onSceneLoadDoneCallback);
+    if (sceneLoader != nullptr)
+    {
+        sceneLoader->UpdateLoadingScreen();
+        engineContext_.GetDisplayManager().UpdateWindow();
+
+        if (sceneLoader->IsReading() or IsGpuLoading())
+        {
+            return;
+        }
+
+        sceneWrapper_.Set(sceneLoader->GetResultScene());
+        sceneLoader.reset();
+        LOG_DEBUG << "Scene load done. Callback";
+        if (onSceneLoadDoneCallback)
+        {
+            onSceneLoadDoneCallback();
+        }
+
+        StartUpdateThreadIfNeeded();
+    }
 }
 void SceneManager::ProcessEvent(const ChangeSceneEvent& e)
 {
@@ -86,18 +103,18 @@ void SceneManager::ProcessEvent(const ChangeSceneConfirmEvent& e)
         default:
             break;
     }
-
-    StartUpdateThreadIfNeeded();
 }
 
 void SceneManager::SetActiveScene(const std::string& name)
 {
     SetSceneToLoad(name);
+    currentSceneId_ = sceneFactory_->GetSceneId(name);
 }
 
 void SceneManager::SetActiveScene(uint32 id)
 {
     SetSceneToLoad(id);
+    currentSceneId_ = id;
 }
 
 void SceneManager::Reset()
@@ -107,9 +124,6 @@ void SceneManager::Reset()
 
 void SceneManager::UpdateScene(float dt)
 {
-    if (not sceneWrapper_.IsInitialized())
-        return;
-
     sceneWrapper_.UpdateScene(dt);
 }
 
@@ -120,6 +134,7 @@ void SceneManager::LoadNextScene()
         LOG_WARN << "SceneManager::LoadNextScene() no more scenes found.";
         return;
     }
+
     SetSceneToLoad(++currentSceneId_);
 }
 void SceneManager::LoadPreviousScene()
@@ -132,27 +147,19 @@ void SceneManager::LoadPreviousScene()
     SetSceneToLoad(--currentSceneId_);
 }
 
-void SceneManager::SetSceneToLoad(uint32 id)
+template <typename T>
+void SceneManager::SetSceneToLoad(const T& t)
 {
-    if (!sceneFactory_->IsExist(id))
+    if (not sceneFactory_->IsExist(t))
     {
-        LOG_ERROR << "SceneManager::SetSceneToLoad() no more scenes found.";
+        LOG_ERROR << "SceneManager::SetSceneToLoad() " << t << " not found.";
         return;
     }
-    currentSceneId_ = id;
-    sceneWrapper_.Set(id);
-}
-
-void SceneManager::SetSceneToLoad(const std::string& name)
-{
-    if (!sceneFactory_->IsExist(name))
-    {
-        LOG_ERROR << "SceneManager::SetSceneToLoad() " << name << " not found.";
-        return;
-    }
-
-    currentSceneId_ = sceneFactory_->GetSceneId(name);
-    sceneWrapper_.Set(name);
+    StopThread();
+    sceneWrapper_.Reset();
+    sceneLoader = std::make_unique<SceneLoader>(*sceneFactory_, engineContext_.GetGraphicsApi(),
+                                                engineContext_.GetResourceManagerFactory());
+    sceneLoader->Load(t);
 }
 
 void SceneManager::StartUpdateThreadIfNeeded()
@@ -161,7 +168,7 @@ void SceneManager::StartUpdateThreadIfNeeded()
     {
         LOG_DEBUG << "Starting scene update thread";
         updateSceneThreadId_ = engineContext_.GetThreadSync().Subscribe(
-            std::bind(&SceneManager::UpdateScene, this, std::placeholders::_1), "UpdateScene", EngineConf.renderer.fpsLimt);
+            [this](float deltaTime) { sceneWrapper_.UpdateScene(deltaTime); }, "UpdateScene", EngineConf.renderer.fpsLimt);
         isRunning_ = true;
     }
     else
@@ -188,6 +195,11 @@ void SceneManager::StopThread()
 const IdMap& SceneManager::GetAvaiableScenes() const
 {
     return sceneFactory_->GetAvaiableScenes();
+}
+
+bool SceneManager::IsGpuLoading() const
+{
+    return engineContext_.GetGpuResourceLoader().CountOfProcessedTasks() > 0;
 }
 
 }  // namespace GameEngine

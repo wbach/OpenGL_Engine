@@ -23,33 +23,30 @@ class GeneralTexture;
 class SceneLoader
 {
 public:
-    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, DisplayManager&, IResourceManagerFactory&);
+    SceneLoader(ISceneFactory&, GraphicsApi::IGraphicsApi&, IResourceManagerFactory&);
     ~SceneLoader();
-    std::unique_ptr<Scene> Load(uint32);
-    std::unique_ptr<Scene> Load(const std::string&);
+    void Load(uint32);
+    void Load(const std::string&);
+    void UpdateLoadingScreen();
+    bool IsReading() const;
+    std::unique_ptr<Scene> GetResultScene();
 
 private:
     void Init();
     void CleanUp();
 
     template <typename T>
-    std::unique_ptr<Scene> LoadScene(T);
-
-    bool IsGpuLoading();
-    void UpdateScreen();
-    void ScreenRenderLoop();
-    void CheckObjectCount(Scene&);
+    void LoadScene(const T&);
+    bool IsGpuLoading() const;
 
 private:
     ISceneFactory& sceneFactory_;
-    GraphicsApi::IGraphicsApi& graphicsApi_;
-    DisplayManager& displayManager_;
-    std::atomic_bool isReading;
-
-    size_t objectCount_;
-    std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
     std::unique_ptr<IResourceManager> resourceManager;
-    IGpuResourceLoader& gpuLoader_;
+    GraphicsApi::IGraphicsApi& graphicsApi_;
+
+    std::atomic_bool isReading;
+    std::unique_ptr<LoadingScreenRenderer> loadingScreenRenderer;
+    std::unique_ptr<Scene> resultScene;
 
     GeneralTexture* bgTexture_;
     GeneralTexture* circleTexture_;

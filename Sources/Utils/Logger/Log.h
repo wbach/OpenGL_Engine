@@ -16,7 +16,14 @@ class CLogger
 public:
     static CLogger& Instance();
 
-    void EnableLogs(LoggingLvl lvl = LoggingLvl::ErrorWarningInfoDebug);
+    enum class LogMode
+    {
+        BOTH,
+        FILE_ONLY,
+        SCREEN_ONLY
+    };
+
+    void EnableLogs(LoggingLvl lvl = LoggingLvl::ErrorWarningInfoDebug, LogMode = LogMode::BOTH);
     void DisableLogs();
     void SetLogFilename(const std::filesystem::path& filename);
 
@@ -55,6 +62,7 @@ private:
     Impl* pImpl{nullptr};
 
     std::atomic<bool> running_{true};
+    LogMode mode_;
 
     friend class CLogStream;
 };

@@ -8,31 +8,27 @@
 
 #include <atomic>
 #include <memory>
-#include <optional>
 #include <thread>
 
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/LoadingScreenRenderer.h"
-#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/IResourceManagerFactory.h"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "ISceneFactory.h"
-#include "Scene.hpp"
 
 namespace GameEngine
 {
-SceneLoader::SceneLoader(ISceneFactory& factory, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
-                         DisplayManager& displayManager, IResourceManagerFactory& resourceManagerFactory)
+SceneLoader::SceneLoader(ISceneFactory& factory, GraphicsApi::IGraphicsApi& graphicsApi,
+                         IResourceManagerFactory& resourceManagerFactory)
     : sceneFactory_{factory}
-    , graphicsApi_(graphicsApi)
-    , displayManager_(displayManager)
-    , isReading(true)
-    , objectCount_(0)
-    , loadingScreenRenderer(nullptr)
     , resourceManager(resourceManagerFactory.create())
-    , gpuLoader_(gpuResourceLoader)
+    , graphicsApi_(graphicsApi)
+    , isReading(true)
+    , loadingScreenRenderer(nullptr)
     , bgTexture_(nullptr)
     , circleTexture_(nullptr)
 {
@@ -65,53 +61,35 @@ void SceneLoader::CleanUp()
     circleTexture_ = nullptr;
 }
 
-std::unique_ptr<Scene> SceneLoader::Load(uint32 id)
+void SceneLoader::Load(uint32 id)
 {
-    Init();
-    isReading.store(true);
-
-    LOG_DEBUG << "Load scene :" << id;
-
-    std::unique_ptr<Scene> scene;
-    std::thread loadingThread([&]() { scene = LoadScene(id); });
-
-    ScreenRenderLoop();
-    loadingThread.join();
-
-    return scene;
+    LoadScene(id);
 }
 
-std::unique_ptr<Scene> SceneLoader::Load(const std::string& name)
+void SceneLoader::Load(const std::string& name)
 {
-    Init();
-    isReading.store(true);
-
-    LOG_DEBUG << "Load scene :" << name;
-    std::unique_ptr<Scene> result;
-    std::thread loadingThread([&]() { result = LoadScene(name); });
-    LOG_DEBUG << "loadingThread done: " << name;
-    ScreenRenderLoop();
-    loadingThread.join();
-
-    return result;
+    LoadScene(name);
 }
 
 template <typename T>
-std::unique_ptr<Scene> SceneLoader::LoadScene(T t)
+void SceneLoader::LoadScene(const T& t)
 {
-    LOG_DEBUG << "Load scene thread started.";
-    Utils::Timer timer;
-    auto newScene = sceneFactory_.Create(t);
-    newScene->Init();
-    LOG_DEBUG << "Scene loading time: " << timer.GetTimeMiliSeconds() << "ms.";
-
-    do
-    {
-        newScene->ProcessEvents();
-    } while (IsGpuLoading());
-
-    isReading.store(false);
-    return newScene;
+    LOG_DEBUG << "Load scene :" << t;
+    Init();
+    isReading.store(true);
+    std::thread(
+        [&, requestedScene = t]()
+        {
+            LOG_DEBUG << "Load scene thread started.";
+            Utils::Timer timer;
+            resultScene = sceneFactory_.Create(requestedScene);
+            LOG_DEBUG << "scene created";
+            resultScene->Init();
+            resultScene->ProcessEvents();
+            isReading.store(false);
+            LOG_DEBUG << "Scene read time: " << timer.GetTimeMiliSeconds() << "ms.";
+        })
+        .detach();
 }
 
 void SceneLoader::Init()
@@ -144,39 +122,22 @@ void SceneLoader::Init()
     }
 }
 
-bool SceneLoader::IsGpuLoading()
-{
-    return gpuLoader_.CountOfProcessedTasks() > 0;
-}
-
-void SceneLoader::UpdateScreen()
+void SceneLoader::UpdateLoadingScreen()
 {
     if (loadingScreenRenderer)
     {
         loadingScreenRenderer->render();
     }
-    displayManager_.UpdateWindow();
 }
 
-void SceneLoader::ScreenRenderLoop()
+bool SceneLoader::IsReading() const
 {
-    Utils::Time::CTimeMeasurer timeMeasurer(30, 1000);
-    std::unique_ptr<std::thread> processEvents;
-
-    while (isReading or IsGpuLoading())
-    {
-        timeMeasurer.StartFrame();
-        displayManager_.ProcessEvents();
-        gpuLoader_.RuntimeGpuTasks();
-        UpdateScreen();
-        timeMeasurer.EndFrame();
-    }
+    return isReading;
 }
 
-void SceneLoader::CheckObjectCount(Scene& scene)
+std::unique_ptr<Scene> SceneLoader::GetResultScene()
 {
-    objectCount_ = scene.objectCount;
-    if (objectCount_ <= 0)
-        objectCount_ = 1;
+    return std::move(resultScene);
 }
+
 }  // namespace GameEngine
