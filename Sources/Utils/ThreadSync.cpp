@@ -1,5 +1,7 @@
 #include "ThreadSync.h"
 #include <algorithm>
+#include "Logger/Log.h"
+#include "MeasurementHandler.h"
 
 namespace Utils
 {
@@ -13,7 +15,7 @@ ThreadSync::ThreadSync(MeasurementHandler & measurementHandler)
     measurementValue_ = "1";
 
     processorCount_ = std::thread::hardware_concurrency();
-    /* LOG TO FIX*/  LOG_ERROR << ("System procesors count : " + std::to_string(processorCount_));
+    LOG_DEBUG << "System procesors count : " << processorCount_;
 }
 
 ThreadSync::~ThreadSync()
@@ -25,7 +27,6 @@ uint32 ThreadSync::Subscribe(frameFunc func, const std::string& label, uint32 fp
 {
     auto id = idPool_++;
     subscribers.emplace(std::piecewise_construct, std::forward_as_tuple(id), std::forward_as_tuple(label, func, measurementHandler_, fpsLimit));
-   // subscribers.end()->second.setTimeMultiplayer(timeMultiplayer_);
     UpdateThreadsCountText();
     return id;
 }
@@ -49,7 +50,7 @@ void ThreadSync::Unsubscribe(uint32 id)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Unsubscribe error, " + std::to_string(id));
+       LOG_ERROR << "Unsubscribe error, " << id;
     }
 }
 

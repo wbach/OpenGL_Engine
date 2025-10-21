@@ -12,6 +12,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -80,16 +81,30 @@ GraphicsApi::LineMesh CreateLineMeshFromBoundingBox(const GameEngine::BoundingBo
 
     return mesh;
 }
+GraphicsApi::LineMesh MakeRayLineMesh(const glm::vec3& cameraPos, const glm::vec3& rayDir, float length = 100.0f,
+                                      int segments = 10, const glm::vec3& color = glm::vec3(1.0f, 1.0f, 0.0f))
+{
+    GraphicsApi::LineMesh mesh;
+
+    glm::vec3 dir  = glm::normalize(rayDir);
+    glm::vec3 step = dir * (length / segments);
+
+    for (int i = 0; i < segments; ++i)
+    {
+        glm::vec3 p0 = cameraPos + step * float(i);
+        glm::vec3 p1 = cameraPos + step * float(i + 1);
+
+        mesh.positions_.insert(mesh.positions_.end(), {p0.x, p0.y, p0.z, p1.x, p1.y, p1.z});
+
+        mesh.colors_.insert(mesh.colors_.end(), {color.r, color.g, color.b, color.r, color.g, color.b});
+    }
+    return mesh;
+}
 GraphicsApi::LineMesh appendLineMesh(const GraphicsApi::LineMesh& lineMesh1, const GraphicsApi::LineMesh& lineMesh2)
 {
-    GraphicsApi::LineMesh result = lineMesh1;  // kopiujemy istniejący
-
-    // dodajemy pozycje
+    GraphicsApi::LineMesh result = lineMesh1;
     result.positions_.insert(result.positions_.end(), lineMesh2.positions_.begin(), lineMesh2.positions_.end());
-
-    // dodajemy kolory
     result.colors_.insert(result.colors_.end(), lineMesh2.colors_.begin(), lineMesh2.colors_.end());
-
     return result;
 }
 }  // namespace
@@ -139,10 +154,11 @@ void DebugObject::BindBuffer() const
     }
 }
 
-DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::ThreadSync& threadSync)
+DebugRenderer::DebugRenderer(RendererContext& rendererContext, Utils::Thread::IThreadSync& threadSync)
     : rendererContext_(rendererContext)
     , physicsVisualizator_(rendererContext.graphicsApi_, threadSync)
     , boundingBoxVisualizator_(rendererContext.graphicsApi_, threadSync)
+    , rayVisualizator_(rendererContext.graphicsApi_, threadSync)
     , debugObjectShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugObject)
     , gridShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::Grid)
     , debugNormalShader_(rendererContext.graphicsApi_, GraphicsApi::ShaderProgramType::DebugNormal)
@@ -161,6 +177,7 @@ void DebugRenderer::init()
 {
     physicsVisualizator_.Init();
     boundingBoxVisualizator_.Init();
+    rayVisualizator_.Init();
     debugObjectShader_.Init();
     gridShader_.Init();
     debugNormalShader_.Init();
@@ -204,6 +221,20 @@ void DebugRenderer::init()
             return result;
         });
 
+    rayVisualizator_.SetMeshCreationFunction(
+        [&]() -> const GraphicsApi::LineMesh&
+        {
+            static GraphicsApi::LineMesh result;
+
+            auto rayDir =
+                CalculateMouseRayDirection(rendererContext_.projection_, rendererContext_.scene_->GetCamera(),
+                                           rendererContext_.scene_->getEngineContext()->GetInputManager().GetMousePosition());
+
+            result = MakeRayLineMesh(rendererContext_.scene_->GetCamera().GetPosition(), rayDir, 100.f, 1);
+            LOG_DEBUG << "CamPos: " << rendererContext_.scene_->GetCamera().GetPosition() << " rayDir: " << rayDir;
+            return result;
+        });
+
     gridPerObjectUpdateBufferId_ =
         rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
 
@@ -215,7 +246,7 @@ void DebugRenderer::init()
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("gridPerObjectUpdateBufferId_ error!");
+        LOG_ERROR << "gridPerObjectUpdateBufferId_ error!";
     }
 
     texturePerObjectUpdateBufferId_ =
@@ -229,7 +260,7 @@ void DebugRenderer::init()
     }
     else
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("texturePerObjectUpdateBufferId_ error!");
+        LOG_ERROR << "texturePerObjectUpdateBufferId_ error!";
     }
 
     textureColorBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
@@ -263,6 +294,7 @@ void DebugRenderer::reloadShaders()
     gridShader_.Reload();
     physicsVisualizator_.ReloadShader();
     boundingBoxVisualizator_.ReloadShader();
+    rayVisualizator_.ReloadShader();
     debugNormalShader_.Reload();
 }
 
@@ -281,6 +313,9 @@ void DebugRenderer::render()
                 break;
             case RenderState::BoundingBox:
                 boundingBoxVisualizator_.Render();
+                break;
+            case RenderState::Ray:
+                rayVisualizator_.Render();
                 break;
             case RenderState::Normals:
                 DrawNormals();

@@ -16,9 +16,10 @@
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 #include "Tests/Mocks/Api/InputManagerMock.h"
 #include "Tests/Mocks/Api/WindowApiMock.hpp"
+#include "Tests/Mocks/MockThreadSync.h"
+#include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Renderers/RendererFactoryMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
-#include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/TextureLoaderMock.h"
 
 using namespace GameEngine;
@@ -40,6 +41,7 @@ public:
     std::unique_ptr<EngineContext> engineContext;
     std::vector<GraphicsApi::DisplayMode> displayModes;
 
+    Utils::Thread::MockThreadSync* threadSync;
     GraphicsApiMock* graphicsApi;
     GraphicsApi::WindowApiMock windowApiMock;
     RendererFactoryMock* rendererFactory;

@@ -107,6 +107,7 @@ void Camera::UnsubscribeOnChange(IdType id)
 void Camera::LookAt(const vec3& lookAtPosition)
 {
     rotation_.value_ = Utils::lookAt(lookAtPosition, position_);
+    CalculateDirection();
     NotifySubscribers();
 }
 const vec3& Camera::GetDirection() const
@@ -134,6 +135,7 @@ void Camera::SetPitch(float angle)
     glm::quat pitch  = glm::angleAxis(glm::radians(angle), vec3(1.f, 0.f, 0.f));
     glm::quat yaw    = glm::angleAxis(glm::yaw(rotation_.value_), vec3(0.f, 1.f, 0.f));
     rotation_.value_ = glm::normalize(pitch * yaw);
+    CalculateDirection();
     NotifySubscribers();
 }
 void Camera::SetRotation(const Rotation& rotation)
@@ -150,6 +152,7 @@ void Camera::SetYaw(float angle)
     glm::quat pitch  = glm::angleAxis(glm::pitch(rotation_.value_), vec3(1.f, 0.f, 0.f));
     glm::quat yaw    = glm::angleAxis(glm::radians(angle), vec3(0.f, 1.f, 0.f));
     rotation_.value_ = glm::normalize(pitch * yaw);
+    CalculateDirection();
     NotifySubscribers();
 }
 void Camera::CalculateDirection()
@@ -162,6 +165,7 @@ void Camera::UpdateViewMatrix()
     translationMatrix_ = glm::translate(-position_);
 
     viewMatrix_ = rotationMatrix_ * translationMatrix_;
+    CalculateDirection();
 }
 const mat4& Camera::GetRotationMatrix() const
 {
@@ -174,12 +178,14 @@ const mat4& Camera::GetViewMatrix() const
 void Camera::IncreaseYaw(float yaw)
 {
     rotation_.value_ *= glm::normalize(glm::angleAxis(glm::radians(yaw), glm::vec3(0.f, 1.f, 0.f)));
+    CalculateDirection();
     NotifySubscribers();
 }
 void Camera::IncreasePitch(float pitch)
 {
     glm::quat qPitch = glm::angleAxis(glm::radians(pitch), glm::vec3(1, 0, 0));
     rotation_.value_ = glm::normalize(qPitch * rotation_.value_);
+    CalculateDirection();
     NotifySubscribers();
 }
 void Camera::IncreasePosition(const vec3& v)

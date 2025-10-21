@@ -30,7 +30,9 @@ void EngineBasedTest::SetUp()
     auto sceneFactoryMock           = std::make_unique<SceneFactoryMock>();
     auto resourceManagerFactoryMock = std::make_unique<ResourceManagerFactoryMock>();
     auto rendererFactoryMock        = std::make_unique<RendererFactoryMock>();
+    auto threadSyncMock             = std::make_unique<Utils::Thread::MockThreadSync>();
 
+    threadSync                         = threadSyncMock.get();
     graphicsApi                        = graphicsApiMock.get();
     rendererFactory                    = rendererFactoryMock.get();
     physicsApi                         = physicsApiMock.get();
@@ -44,9 +46,9 @@ void EngineBasedTest::SetUp()
     EXPECT_CALL(*graphicsApi, CreateShader(_)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
 
     LOG_DEBUG << "EngineBasedTest::CreateEngineContext";
-    engineContext =
-        std::make_unique<EngineContext>(std::move(graphicsApiMock), std::move(physicsApiMock), std::move(sceneFactoryMock),
-                                        std::move(resourceManagerFactoryMock), std::move(rendererFactoryMock));
+    engineContext = std::make_unique<EngineContext>(std::move(physicsApiMock), std::move(sceneFactoryMock),
+                                                    std::move(resourceManagerFactoryMock), std::move(rendererFactoryMock),
+                                                    std::move(threadSyncMock), std::move(graphicsApiMock));
 
     LOG_DEBUG << "EngineBasedTest::CreateScene";
 

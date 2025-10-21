@@ -10,13 +10,14 @@ namespace GameEngine
 class GeneralTexture : public Texture
 {
 public:
-    GeneralTexture(GraphicsApi::IGraphicsApi&, Utils::Image, const TextureParameters&,
+    GeneralTexture(GraphicsApi::IGraphicsApi&, Utils::Image&&, const TextureParameters&,
                    const std::optional<File>& = std::nullopt);
     ~GeneralTexture();
     void GpuLoadingPass() override;
     void SetImage(Utils::Image);
     const Utils::Image& GetImage() const;
     void SetPixel(const vec2ui&, const Color&);
+    Utils::Image MoveImage();
 
 private:
     Utils::Image image_;

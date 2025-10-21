@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include <optional>
 #include <variant>
 #include <vector>
@@ -14,7 +15,12 @@ class Image
 {
 public:
     Image() = default;
+    Image(Image&& other) noexcept;
+
     ~Image();
+
+    Image& operator=(Image&& other) noexcept;
+
     uint32 width{0};
     uint32 height{0};
 
@@ -53,5 +59,6 @@ public:
 private:
     uint8 channels_{4};
     ImageData data_;
+    mutable std::mutex mutex;
 };
 }  // namespace Utils

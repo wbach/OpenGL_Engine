@@ -22,7 +22,7 @@ class ITextureLoader
 public:
     virtual ~ITextureLoader() = default;
 
-    virtual GeneralTexture* CreateTexture(const std::string&, const TextureParameters&, const Utils::Image&)              = 0;
+    virtual GeneralTexture* CreateTexture(const std::string&, const TextureParameters&, Utils::Image&&)                   = 0;
     virtual void UpdateTexture(const GeneralTexture&)                                                                     = 0;
     virtual void UpdateTexture(GeneralTexture*&, const std::string&)                                                      = 0;
     virtual GeneralTexture* LoadTexture(const std::string&, const unsigned char*, unsigned int, const TextureParameters&) = 0;

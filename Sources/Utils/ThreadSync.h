@@ -1,40 +1,36 @@
 #pragma once
-#include <atomic>
-#include <iostream>
-#include <list>
 #include <unordered_map>
-#include "Logger/Log.h"
-#include "Mutex.hpp"
-#include "Thread.hpp"
-#include "Time/TimeMeasurer.h"
-#include "Types.h"
-#include "Time/Timer.h"
-#include "Worker.h"
+#include <list>
+
+#include "IThreadSync.h"
 #include "ThreadSubscriber.h"
-#include "MeasurementHandler.h"
+#include "Types.h"
+#include "Worker.h"
 
 namespace Utils
 {
+class MeasurementHandler;
+
 namespace Thread
 {
-class ThreadSync
+class ThreadSync : public IThreadSync
 {
 public:
     ThreadSync(MeasurementHandler&);
     ThreadSync(const ThreadSync&) = delete;
     ThreadSync(ThreadSync&&)      = delete;
-    ~ThreadSync();
+    ~ThreadSync() override;
 
-    uint32 Subscribe(frameFunc func, const std::string& label = "unnamed", uint32 = 60);
-    ThreadSubscriber* GetSubscriber(uint32);
-    void Unsubscribe(uint32 id);
-    void Start();
-    void Stop();
-    size_t SubscribersCount() const;
-    void setTimeMultiplayer(float);
+    uint32 Subscribe(frameFunc func, const std::string& label = "unnamed", uint32 = 60) override;
+    ThreadSubscriber* GetSubscriber(uint32) override;
+    void Unsubscribe(uint32 id) override;
+    void Start() override;
+    void Stop() override;
+    size_t SubscribersCount() const override;
+    void setTimeMultiplayer(float) override;
 
-    Worker& AddWorker();
-    void RemoveWorker(Worker&);
+    Worker& AddWorker() override;
+    void RemoveWorker(Worker&) override;
 
 private:
     void UpdateThreadsCountText();

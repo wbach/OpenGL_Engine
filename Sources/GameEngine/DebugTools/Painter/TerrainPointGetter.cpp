@@ -3,25 +3,24 @@
 #include <Common/Transform.h>
 #include <Logger/Log.h>
 
+#include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
-#include "GameEngine/Components/Physics/Terrain/TerrainShape.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "GameEngine/Camera/CameraWrapper.h"
 #include "TerrainPoint.h"
 
 namespace GameEngine
 {
 namespace
 {
-const uint32 RECURSION_COUNT{200};
-const uint32 RAY_RANGE{100};
+constexpr uint32 RECURSION_COUNT{50};
+constexpr double RAY_RANGE{1000.0};
+using vec3d = glm::dvec3;
 }  // namespace
 
-TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection,
-                                       const vec2ui& windowSize,
+TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize,
                                        const Components::ComponentController& componentController)
     : camera_(camera)
     , projection_(projection)
@@ -40,98 +39,121 @@ std::optional<TerrainPoint> TerrainPointGetter::GetMousePointOnTerrain(const vec
 
     if (not terrains_.empty())
     {
-        auto ray = CalculateMouseRayDirection(projection_, camera_, mousePosition);
+        auto rayDir = CalculateMouseRayDirection(projection_, camera_, mousePosition);
+        vec3d rayDirD{rayDir};
 
-        if (IntersectionInRange(0, RAY_RANGE, ray))
+        if (IntersectionInRange(0.0, RAY_RANGE, rayDirD))
         {
-            return BinarySearch(0, 0, RAY_RANGE, ray);
+            return BinarySearch(0, 0.0, RAY_RANGE, rayDirD);
         }
     }
 
     return std::nullopt;
 }
 
-bool TerrainPointGetter::IntersectionInRange(float start, float finish, const vec3& ray)
+bool TerrainPointGetter::IntersectionInRange(double start, double finish, const vec3d& ray)
 {
     auto startPoint = GetPointOnRay(ray, start);
     auto endPoint   = GetPointOnRay(ray, finish);
-    return (not IsUnderGround(startPoint) and IsUnderGround(endPoint));
+
+    bool startUnder = IsUnderGround(startPoint);
+    bool endUnder   = IsUnderGround(endPoint);
+
+    return (startUnder != endUnder);
 }
 
-vec3 TerrainPointGetter::GetPointOnRay(const vec3& ray, float distance)
+vec3d TerrainPointGetter::GetPointOnRay(const vec3d& ray, double distance)
 {
-    vec3 scaledRay(ray.x * distance, ray.y * distance, ray.z * distance);
-    return (camera_.GetPosition() + scaledRay);
+    vec3 camPos{camera_.GetPosition()};
+    return vec3d(camPos) + ray * distance;
 }
 
-bool TerrainPointGetter::IsUnderGround(const vec3& testPoint)
+bool TerrainPointGetter::IsUnderGround(const vec3d& testPoint)
 {
     const auto& terrain = GetTerrain(testPoint.x, testPoint.z);
-
-    if (not terrain or not terrain->GetHeightMap())
-    {
-        /* LOG TO FIX*/  LOG_ERROR << ("No terrain or height map in terrain.");
+    if (not terrain)
         return false;
-    }
-    TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(),
-                                            *terrain->GetHeightMap(),
-                                            terrain->GetParentGameObject().GetLocalTransform().GetPosition());
 
-    auto height = terrainHeightGetter.GetHeightofTerrain(testPoint.x, testPoint.z);
+    auto maybeHeight =
+        TerrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(), *terrain->GetHeightMap(),
+                            terrain->GetParentGameObject().GetLocalTransform().GetPosition())
+            .GetHeightofTerrain(testPoint.x, testPoint.z);
 
-    if (height)
+    if (not maybeHeight)
     {
-        return (testPoint.y <= *height);
+        // punkt poza terenem → interpretujemy jako "poniżej terenu" jeśli patrzymy w dół,
+        // lub "powyżej" jeśli patrzymy w górę
+        // dla promienia w dół:
+        return testPoint.y <= terrain->getParentGameObject().GetWorldTransform().GetPosition().y;
     }
-    return false;
+
+    return testPoint.y <= *maybeHeight;
 }
 
-TerrainPointGetter::Terrain* TerrainPointGetter::GetTerrain(float worldX, float worldZ)
+TerrainPointGetter::Terrain* TerrainPointGetter::GetTerrain(double worldX, double worldZ)
 {
-    // int x = static_cast<int>(worldX / TERRAIN_SIZE);
-    // int z = static_cast<int>(worldZ / TERRAIN_SIZE);
+    if (terrains_.empty())
+        return nullptr;
 
-    // int i = x + m_TerrainsHeight * z;
-
-    // if (i > terrains_.size() or i < 0)
-    //    return nullptr;
-
+    // TODO: wybór odpowiedniego terenu na podstawie worldX, worldZ
     return terrains_[0];
 }
 
-std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, float start, float finish, const vec3& ray)
+std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, double start, double finish, const vec3d& ray)
 {
-    float half = start + ((finish - start) / 2.0f);
+    double half = start + ((finish - start) / 2.0);
+
     if (count >= RECURSION_COUNT)
     {
         auto worldPointOnTerrain = GetPointOnRay(ray, half);
+        auto terrain             = GetTerrain(worldPointOnTerrain.x, worldPointOnTerrain.z);
 
-        auto terrain = GetTerrain(worldPointOnTerrain.x, worldPointOnTerrain.z);
         if (not terrain)
+        {
             return std::nullopt;
+        }
+
+        TerrainHeightGetter terrainHeightGetter(terrain->getParentGameObject().GetWorldTransform().GetScale(),
+                                                *terrain->GetHeightMap(),
+                                                terrain->getParentGameObject().GetLocalTransform().GetPosition());
+
+        auto terrainHeight = terrainHeightGetter.GetHeightofTerrain(vec2d(worldPointOnTerrain.x, worldPointOnTerrain.z));
+
+        if (terrainHeight)
+            worldPointOnTerrain.y = *terrainHeight;
 
         auto terrainSpacePoint = CastToTerrainSpace(*terrain, worldPointOnTerrain);
-        TerrainPoint result{worldPointOnTerrain, terrainSpacePoint, *terrain};
+
+        if (terrainSpacePoint.x < 0.0 || terrainSpacePoint.x > 1.0 || terrainSpacePoint.y < 0.0 || terrainSpacePoint.y > 1.0)
+        {
+            return std::nullopt;
+        }
+
+        TerrainPoint result{
+            .pointOnTerrain    = vec3(static_cast<float>(worldPointOnTerrain.x), static_cast<float>(worldPointOnTerrain.y),
+                                      static_cast<float>(worldPointOnTerrain.z)),
+            .terrainSpacePoint = vec2(static_cast<float>(terrainSpacePoint.x), static_cast<float>(terrainSpacePoint.y)),
+            .terrainComponent  = terrain};
+
         return result;
     }
+
     if (IntersectionInRange(start, half, ray))
-    {
         return BinarySearch(count + 1, start, half, ray);
-    }
     else
-    {
         return BinarySearch(count + 1, half, finish, ray);
-    }
 }
-vec2 TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3& worldPointOnTerrain)
+
+vec2d TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3d& worldPointOnTerrain)
 {
     const auto& scale = terrain.GetParentGameObject().GetWorldTransform().GetScale();
+    auto terrainPos   = terrain.GetParentGameObject().GetWorldTransform().GetPosition();
+
     vec2 result;
-    auto halfScale       = scale / 2.f;
-    auto terrainPosition = terrain.GetParentGameObject().GetWorldTransform().GetPosition();
-    result.x             = (worldPointOnTerrain.x + halfScale.x + terrainPosition.x) / scale.x;
-    result.y             = (worldPointOnTerrain.z + halfScale.z + terrainPosition.z) / scale.z;
-    // point on terrain in <0, 1>
+    result.x = (worldPointOnTerrain.x - terrainPos.x) / scale.x + 0.5;
+    result.y = (worldPointOnTerrain.z - terrainPos.z) / scale.z + 0.5;
+
     return result;
 }
+
 }  // namespace GameEngine

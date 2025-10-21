@@ -2,6 +2,7 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <magic_enum/magic_enum.hpp>
 #include <unordered_map>
 
 #include "FullDefferedShaderFiles.h"
@@ -58,7 +59,7 @@ std::optional<GLuint> ShaderManager::CreateShaderProgram()
     auto id = glCreateProgram();
     if (id == 0)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Error creating shader program.");
+        LOG_ERROR << "Error creating shader program.";
         return std::optional<GLuint>();
     }
     return id;
@@ -66,12 +67,12 @@ std::optional<GLuint> ShaderManager::CreateShaderProgram()
 
 GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Create shader, type : " + std::to_string(static_cast<int>(shaderType)));
+    LOG_DEBUG << "Create shader, type : " << magic_enum::enum_name(shaderType);
 
     auto files = GetShaderFiles(shaderType);
     if (not files)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Expected files not found for shader type " + std::to_string(static_cast<int>(shaderType)));
+        LOG_ERROR << "Expected files not found for shader type " << magic_enum::enum_name(shaderType);
         return std::nullopt;
     }
 
@@ -80,7 +81,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     {
         logFilesString += " " + f.second;
     }
-    /* LOG TO FIX*/  LOG_ERROR << ("Shader files :" + logFilesString);
+    LOG_DEBUG << "Shader files :" << logFilesString;
 
     auto program = CreateShaderProgram();
 
@@ -102,7 +103,7 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     if (not FinalizeShader(shaderPrograms_.at(uId)))
         return {};
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Shader succesful created. Id : " + std::to_string(uId));
+    LOG_DEBUG << "Shader succesful created. Id : " << uId;
 
     return uId;
 }
@@ -124,7 +125,7 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
     if (id == 0)
     {
         CheckAndPrintGLError(shaderProgram);
-        /* LOG TO FIX*/  LOG_ERROR << ("Error creating shader type " + std::to_string(static_cast<int>(shaderTypeMap.at(mode))));
+        LOG_ERROR << "Error creating shader type " << static_cast<int>(shaderTypeMap.at(mode));
         return false;
     }
 
@@ -144,7 +145,7 @@ bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::str
         char err[1000];
         int length = 0;
         glGetShaderInfoLog(id, 1000, &length, err);
-        /* LOG TO FIX*/  LOG_ERROR << ("ERRORS in Shader! \nFile name:\t" + filename + "\nCompile status: \n\n" + err);
+        LOG_ERROR << "ERRORS in Shader! \nFile name:\t" << filename << "\nCompile status: \n\n" << err;
         CheckAndPrintGLError(shaderProgram);
         return false;
     }
@@ -168,7 +169,7 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram)
     {
         CheckAndPrintGLError(shaderProgram);
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), nullptr, ErrorLog);
-        /* LOG TO FIX*/  LOG_ERROR << ("Error linking shader program: " + shaderProgram.name + " : " + std::string(ErrorLog));
+        LOG_ERROR << "Error linking shader program: " << shaderProgram.name << " : " << ErrorLog;
         return false;
     }
 
@@ -181,7 +182,7 @@ bool ShaderManager::FinalizeShader(OpenGLShaderProgram& shaderProgram)
     {
         CheckAndPrintGLError(shaderProgram);
         glGetProgramInfoLog(shaderProgram.id, sizeof(ErrorLog), nullptr, ErrorLog);
-        /* LOG TO FIX*/  LOG_ERROR << ("Invalid shader program : " + shaderProgram.name + " : " + std::string(ErrorLog));
+        LOG_ERROR << "Invalid shader program : " << shaderProgram.name << " : " << ErrorLog;
         return false;
     }
 
@@ -225,8 +226,7 @@ void ShaderManager::CheckAndPrintGLError(OpenGLShaderProgram& shaderProgram)
 
     if (not errorString.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("GlError : " + errorString + ", Shaderprogram : " + shaderProgram.name + " (" +
-                  std::to_string(shaderProgram.id) + ")");
+        LOG_ERROR << "GlError : " << errorString << ", Shaderprogram : " << shaderProgram.name << " (" << shaderProgram.id << ")";
     }
 }
 

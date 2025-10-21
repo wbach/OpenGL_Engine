@@ -4,6 +4,8 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
+#include <Utils/IThreadSync.h>
+#include <Utils/ThreadSubscriber.h>
 
 #include <memory>
 

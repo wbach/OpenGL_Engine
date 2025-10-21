@@ -211,6 +211,17 @@ void CLogger::LogInternal(const std::string& log)
     }
 }
 
+CLogStream::CLogStream(LoggingLvl lvl)
+    : lvl_(lvl)
+{
+    if (!CLogger::Instance().ShouldLog(lvl_))
+        active_ = false;
+    else
+    {
+        active_ = true;
+    }
+}
+
 CLogStream::CLogStream(LoggingLvl lvl, const char* file, int line, const char* func)
     : lvl_(lvl)
 {

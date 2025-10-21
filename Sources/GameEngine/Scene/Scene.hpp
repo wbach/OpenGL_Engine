@@ -159,7 +159,7 @@ protected:
     DisplayManager* displayManager_{nullptr};
     Renderer::RenderersManager* renderersManager_{nullptr};
     Physics::IPhysicsApi* physicsApi_{nullptr};
-    Utils::Thread::ThreadSync* threadSync_{nullptr};
+    Utils::Thread::IThreadSync* threadSync_{nullptr};
     Utils::Time::TimerService* timerService_{nullptr};
 
     std::string name;

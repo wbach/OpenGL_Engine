@@ -5,14 +5,14 @@
 namespace GameEngine
 {
 CubeMapTexture::CubeMapTexture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& params, const std::string& name,
-                               std::array<Utils::Image, 6> images)
+                               std::array<Utils::Image, 6>&& images)
     : Texture(graphicsApi, params, vec2ui(0, 0), std::nullopt)
     , images_(std::move(images))
     , name_(name)
 {
     if (images_.size() != 6)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cube map texture need 6 texutres : " + name);
+        LOG_WARN << "Cube map texture need 6 texutres : " << name;
     }
 }
 
@@ -20,8 +20,7 @@ void CubeMapTexture::GpuLoadingPass()
 {
     if (graphicsObjectId_ or images_.size() != 6)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("There was an error loading the texture : " + name_ +
-                  ". data is null or is initialized.");
+        LOG_ERROR << "There was an error loading the texture : " << name_ << ". data is null or is initialized.";
         return;
     }
     auto graphicsObjectId = graphicsApi_.CreateCubMapTexture(images_);
@@ -29,11 +28,11 @@ void CubeMapTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        /* LOG TO FIX*/  LOG_ERROR << ("File " + name_ + " is in GPU.");
+        LOG_DEBUG << "File " << name_ << " is in GPU.";
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Texutre not created. Filename : " + name_);
+        LOG_ERROR << "Texutre not created. Filename : " << name_;
     }
 
     for (auto& i : images_)

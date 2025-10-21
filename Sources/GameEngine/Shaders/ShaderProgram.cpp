@@ -1,11 +1,6 @@
 #include "ShaderProgram.h"
 
-#include <fstream>
-#include <string>
-
-#include "../Engine/Configuration.h"
-#include "Logger/Log.h"
-#include "glm/gtc/type_ptr.hpp"
+#include <Logger/Log.h>
 
 namespace GameEngine
 {
@@ -23,7 +18,7 @@ void ShaderProgram::Init()
 {
     if (programID_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Shader program is already initialized.");
+        LOG_DEBUG << "Shader program is already initialized.";
         return;
     }
 

@@ -2,9 +2,6 @@
 
 #include <GameEngine/Components/FunctionType.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
-#include <GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h>
-#include <GameEngine/DebugTools/Painter/TerrainHeightPainter.h>
-#include <GameEngine/DebugTools/Painter/TerrainTexturePainter.h>
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Scene/SceneEvents.h>
@@ -121,8 +118,6 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
     EVT_MENU(ID_MENU_EDIT_CREATE_OBJECT, MainFrame::MenuEditCreateObject)
     EVT_MENU(ID_MENU_EDIT_CREATE_TERRAIN, MainFrame::MenuEditCreateTerrain)
-    EVT_MENU(ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER, MainFrame::MenuEditTerrainHeightPainter)
-    EVT_MENU(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, MainFrame::MenuEditTerrainTexturePainter)
     EVT_MENU(ID_MENU_EDIT_MATERIAL_EDITOR, MainFrame::MenuEditMaterialEditor)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
@@ -587,15 +582,6 @@ void MainFrame::MenuEditCreateMaterial(wxCommandEvent&)
     GameEngine::SaveMaterial(GameEngine::Material{}, path.ToStdString());
 }
 
-GameEngine::Painter::EntryParamters MainFrame::GetPainterEntryParameters()
-{
-    auto& engineContext = canvas->GetEngine().GetEngineContext();
-    auto& scene         = canvas->GetScene();
-    return GameEngine::Painter::EntryParamters{engineContext.GetInputManager(), scene.GetCamera(),
-                                               engineContext.GetRenderersManager().GetProjection(),
-                                               engineContext.GetDisplayManager().GetWindowSize(), scene.getComponentController()};
-}
-
 void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject)
 {
     for (auto& [_, vectorOfComponents] : gameObject.GetComponents())
@@ -672,16 +658,6 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
     gameObjectPanelsSizer->Layout();
     gameObjectPanels->FitInside();
     gameObjectPanels->Refresh();
-}
-
-void MainFrame::MenuEditTerrainHeightPainter(wxCommandEvent&)
-{
-    terrainPainter_ = std::make_unique<GameEngine::TerrainHeightPainter>(GetPainterEntryParameters());
-}
-
-void MainFrame::MenuEditTerrainTexturePainter(wxCommandEvent&)
-{
-    terrainPainter_ = std::make_unique<GameEngine::TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
 }
 
 void MainFrame::MenuEditMaterialEditor(wxCommandEvent&)
@@ -892,9 +868,6 @@ wxMenu* MainFrame::CreateEditMenu()
     menu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&Create new object\tCtrl-A", "Create empty new object");
     menu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Create terrain\tCtrl-A", "Create gameobject with terrain components");
     menu->Append(ID_MENU_EDIT_MATERIAL_EDITOR, "&Material editor\tCtrl-A", "Create new default material");
-    menu->Append(ID_MENU_EDIT_TERRAIN_HEIGHT_PAINTER, "&Terrain height painter \tCtrl-A", "Enable height painter tool");
-    menu->Append(ID_MENU_EDIT_TERRAIN_TEXTURE_PAINTER, "&Terrain texture painter \tCtrl-A",
-                 "Enable terrain texture painter tool");
     menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab\tCtrl-A", "Create new object");
     menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear\tCtrl-A", "Delete all object in scene");
     menu->Append(ID_MENU_EDIT_PREFERENCES, "&Preferences\tCtrl-A", "Change settings");

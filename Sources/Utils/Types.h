@@ -40,6 +40,8 @@ typedef std::string InputFileName;
 typedef std::string OutputFileName;
 typedef uint32_t IdType;
 
+using DeltaTime = float;
+
 static constexpr IdType INVALID_ID = std::numeric_limits<IdType>::max();
 
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
@@ -191,9 +193,11 @@ typedef wb::vec4ui8 vec4ui8;
 
 // ==================== Alias na GLM ====================
 typedef glm::vec2 vec2;
+typedef glm::dvec2 vec2d;
 typedef glm::ivec2 vec2i;
 typedef glm::uvec2 vec2ui;
 typedef glm::vec3 vec3;
+typedef glm::dvec3 vec3d;
 typedef glm::ivec3 vec3i;
 typedef glm::uvec3 vec3ui;
 typedef glm::vec4 vec4;
@@ -529,6 +533,10 @@ namespace glm
 {
 
 // ===== vec2 =====
+inline vec2ui operator+(const vec2ui& a, const vec2ui& b)
+{
+    return vec2ui{a.x + b.x , a.y + b.y};
+}
 inline bool operator==(const vec2& a, const vec2& b)
 {
     return a.x == b.x && a.y == b.y;

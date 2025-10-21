@@ -13,7 +13,7 @@ namespace Utils
 namespace Thread
 {
 class Worker;
-class ThreadSync;
+class IThreadSync;
 }  // namespace Thread
 }  // namespace Utils
 
@@ -22,7 +22,7 @@ namespace GameEngine
 class LineMeshVisualizator
 {
 public:
-    LineMeshVisualizator(GraphicsApi::IGraphicsApi&, Utils::Thread::ThreadSync&);
+    LineMeshVisualizator(GraphicsApi::IGraphicsApi&, Utils::Thread::IThreadSync&);
     ~LineMeshVisualizator();
     void Init();
     void Render();
@@ -36,7 +36,7 @@ private:
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
-    Utils::Thread::ThreadSync& threadSync_;
+    Utils::Thread::IThreadSync& threadSync_;
     ShaderProgram shader_;
     GraphicsApi::ID defaultPerObjectUpdateId_;
 

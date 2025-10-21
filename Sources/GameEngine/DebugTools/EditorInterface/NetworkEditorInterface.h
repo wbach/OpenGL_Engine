@@ -2,7 +2,7 @@
 #include <Common/Transform.h>
 #include <Input/KeysSubscriptionsManager.h>
 #include <Time/Timer.h>
-#include <Utils/ThreadSync.h>
+#include <Utils/IThreadSync.h>
 #include <UtilsNetwork/Gateway.h>
 
 #include <functional>
@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "GameEngine/Camera/ICamera.h"
-#include "GameEngine/DebugTools/Painter/Painter.h"
+//#include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/Renderers/DebugElements/DebugRenderer.h"
 #include "IEditorInterface.hpp"
 #include "Types.h"
@@ -24,7 +24,7 @@ class DragObject;
 class NetworkEditorInterface : public IEditorInterface
 {
 public:
-    NetworkEditorInterface(Scene&, Utils::Thread::ThreadSync&);
+    NetworkEditorInterface(Scene&, Utils::Thread::IThreadSync&);
     ~NetworkEditorInterface();
     virtual void Run() override;
     virtual void AddObject(const std::string&) override;
@@ -115,7 +115,7 @@ private:
     void UnsubscribeCameraUpdateIfExist();
     void SetOrignalCamera();
     std::optional<uint32> AddGameObject(const EntryParameters&, std::unique_ptr<GameObject>&);
-    Painter::EntryParamters GetPainterEntryParameters();
+    //Painter::EntryParamters GetPainterEntryParameters();
     void SetDeubgRendererState(DebugRenderer::RenderState, const EntryParameters&);
     void ObjectControlAction(float direction, float rotationSpeed = 2.f, float moveSpeed = 0.2f,
                              float scaleSpeed = 0.1f);
@@ -142,7 +142,7 @@ private:
 
 private:
     Scene& scene_;
-    Utils::Thread::ThreadSync& threadSync_;
+    Utils::Thread::IThreadSync& threadSync_;
     Network::Gateway gateway_;
     std::unordered_map<std::string, std::function<void(const EntryParameters&)>> commands_;
     std::optional<uint32> transformChangeSubscriptionId_;
@@ -162,7 +162,7 @@ private:
     std::mutex dragObjectMutex_;
     std::unique_ptr<DragObject> dragObject_;
     std::mutex terrainPainterMutex_;
-    std::unique_ptr<Painter> terrainPainter_;
+   // std::unique_ptr<Painter> terrainPainter_;
     Utils::Timer terrainPainterTimer_;
 
     Model* arrowsIndicator_;

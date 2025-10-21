@@ -22,11 +22,11 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/MousePicker/DragObject.h"
 #include "GameEngine/DebugTools/MousePicker/MousePicker.h"
-#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
-#include "GameEngine/DebugTools/Painter/PlantPainter.h"
+//#include "GameEngine/DebugTools/Painter/Brushes/Circle/CircleTextureBrushes/CircleLinearTextureBrush.h"
+//#include "GameEngine/DebugTools/Painter/PlantPainter.h"
 #include "GameEngine/DebugTools/Painter/TerrainHeightGenerator.h"
-#include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
-#include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
+//#include "GameEngine/DebugTools/Painter/TerrainHeightPainter.h"
+//#include "GameEngine/DebugTools/Painter/TerrainTexturePainter.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Engine/EngineEvent.h"
@@ -127,7 +127,7 @@ std::unordered_map<std::string, KeyCodes::Type> editorActions
 // clang-format on
 }  // namespace
 
-NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::ThreadSync &threadSync)
+NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::IThreadSync &threadSync)
     : scene_(scene)
     , threadSync_(threadSync)
     , transformChangeSubscription_{nullptr}
@@ -235,7 +235,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("createPrefabFromObject", CreatePrefabFromObject);
     REGISTER_COMMAND("createTerrainTransition", CreateTerrainTranstion);
 
-    gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
+   // gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 }
 
 #undef REGISTER_COMMAND
@@ -1021,8 +1021,8 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
         componentParams.push_back(param);
     }
 
-    DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")), componentParams);
-    gateway_.Send(userId_, msg);
+    // DebugNetworkInterface::ComponentDataMessage msg(params.at("name"), std::stoi(params.at("gameObjectId")), componentParams);
+    // gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::SetDeubgRendererState(DebugRenderer::RenderState state, const EntryParameters &params)
@@ -1134,7 +1134,7 @@ void NetworkEditorInterface::UseSelectedGameObject(std::function<void(GameObject
 void NetworkEditorInterface::UpdateDragObject()
 {
     std::lock_guard<std::mutex> lk(dragObjectMutex_);
-    if (dragObject_ and not terrainPainter_)
+    if (dragObject_ /*and not terrainPainter_*/)
     {
         dragObject_->Update();
     }
@@ -1142,18 +1142,18 @@ void NetworkEditorInterface::UpdateDragObject()
 
 void NetworkEditorInterface::PaintTerrain()
 {
-    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
-    {
-        auto pointOnTerrain = terrainPainter_->paint();
-        if (pointOnTerrain)
-        {
-            brushCircleTransform_.SetPosition(*pointOnTerrain);
-        }
-        auto worldScaleBrushSize = terrainPainter_->getWorldScaleBrushSize();
-        brushCircleTransform_.SetScale(vec3(worldScaleBrushSize, 1.f, worldScaleBrushSize));
-        terrainPainterTimer_.Reset();
-    }
+    // std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    // if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
+    // {
+    //     auto pointOnTerrain = terrainPainter_->paint(0.1f);
+    //     if (pointOnTerrain)
+    //     {
+    //         brushCircleTransform_.SetPosition(*pointOnTerrain);
+    //     }
+    //     auto worldScaleBrushSize = terrainPainter_->getWorldScaleBrushSize();
+    //     brushCircleTransform_.SetScale(vec3(worldScaleBrushSize, 1.f, worldScaleBrushSize));
+    //     terrainPainterTimer_.Reset();
+    // }
 }
 
 void NetworkEditorInterface::UpdateArrowsIndicatorPosition()
@@ -1591,38 +1591,38 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
     scene_.ClearGameObjects();
 }
 
-DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter, int32 &brushSize)
-{
-    DebugNetworkInterface::TerrainPainterEnabled msg;
-    msg.type               = std::to_string(painter.getPaintType());
-    msg.strength           = painter.strength();
-    msg.brushSize          = painter.brushSize();
-    msg.selectedBrushType  = painter.selectedBrush();
-    msg.stepInterpolation  = std::to_string(painter.stepInterpolation());
-    msg.stepInterpolations = AvaiableStepInterpolationsStrs();
-    msg.brushTypes         = painter.avaiableBrushTypes();
-    brushSize              = painter.brushSize();
-    return msg;
-}
+// DebugNetworkInterface::TerrainPainterEnabled PrepareTerrainPainterEnabledMsg(Painter &painter, int32 &brushSize)
+// {
+//     DebugNetworkInterface::TerrainPainterEnabled msg;
+//     msg.type               = std::to_string(painter.getPaintType());
+//     msg.strength           = painter.strength();
+//     msg.brushSize          = painter.brushSize();
+//     msg.selectedBrushType  = painter.selectedBrush();
+//     msg.stepInterpolation  = std::to_string(painter.stepInterpolation());
+//    // msg.stepInterpolations = AvaiableStepInterpolationsStrs();
+//     msg.brushTypes         = painter.avaiableBrushTypes();
+//     brushSize              = painter.brushSize();
+//     return msg;
+// }
 
-Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
-{
-    return Painter::EntryParamters{*scene_.inputManager_, scene_.camera, scene_.renderersManager_->GetProjection(),
-                                   scene_.displayManager_->GetWindowSize(), scene_.componentController_};
-}
+// Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
+// {
+//     return Painter::EntryParamters{*scene_.inputManager_, threadSync_, scene_.camera, scene_.renderersManager_->GetProjection(),
+//                                    scene_.displayManager_->GetWindowSize(), scene_.componentController_};
+// }
 
 void NetworkEditorInterface::EnableTerrainHeightPainter(const EntryParameters &)
 {
-    DisableTerrainPainter({});
-    terrainPainter_ = std::make_unique<TerrainHeightPainter>(GetPainterEntryParameters());
-    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
+    // DisableTerrainPainter({});
+    // terrainPainter_ = std::make_unique<TerrainHeightPainter>(GetPainterEntryParameters());
+    // gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
 }
 
 void NetworkEditorInterface::EnableTerrainTexturePainter(const EntryParameters &)
 {
-    DisableTerrainPainter({});
-    terrainPainter_ = std::make_unique<TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
-    gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
+    // DisableTerrainPainter({});
+    // terrainPainter_ = std::make_unique<TerrainTexturePainter>(GetPainterEntryParameters(), Color(255, 0, 0));
+    // gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
 }
 
 void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
@@ -1646,90 +1646,90 @@ void NetworkEditorInterface::EnablePlantPainter(const EntryParameters &params)
         }
 
         DisableTerrainPainter({});
-        terrainPainter_ = std::make_unique<PlantPainter>(GetPainterEntryParameters(), *component);
-        gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
+        // terrainPainter_ = std::make_unique<PlantPainter>(GetPainterEntryParameters(), *component);
+        // gateway_.Send(userId_, PrepareTerrainPainterEnabledMsg(*terrainPainter_, brushSize_));
     }
 }
 
 void NetworkEditorInterface::DisableTerrainPainter(const EntryParameters &)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (terrainPainter_)
-    {
-        terrainPainter_.reset(nullptr);
-    }
+    // if (terrainPainter_)
+    // {
+    //     terrainPainter_.reset(nullptr);
+    // }
     brushCircleTransform_.SetPosition(vec3(std::numeric_limits<float>::max()));
 }
 
 void NetworkEditorInterface::UpdateTerrainPainterParam(const NetworkEditorInterface::EntryParameters &params)
 {
     std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_)
-        return;
+    // if (not terrainPainter_)
+    //     return;
 
-    try
-    {
-        if (params.count("strength"))
-        {
-            terrainPainter_->strength(std::stof(params.at("strength")));
-        }
-        if (params.count("brushSize"))
-        {
-            terrainPainter_->brushSize(std::stoi(params.at("brushSize")));
-            brushSize_ = std::stoi(params.at("brushSize"));
-        }
-        if (params.count("stepInterpolation"))
-        {
-            StepInterpolation step;
-            std::from_string(params.at("stepInterpolation"), step);
-            terrainPainter_->stepInterpolation(step);
-        }
-        if (params.count("brushType"))
-        {
-            terrainPainter_->setBrush(params.at("brushType"));
-        }
-        if (params.count("color"))
-        {
-            if (terrainPainter_->getPaintType() != PaintType::BlendMap)
-            {
-                LOG_ERROR << "Incompatible paint mode.";
-                return;
-            }
+    // try
+    // {
+    //     if (params.count("strength"))
+    //     {
+    //         terrainPainter_->strength(std::stof(params.at("strength")));
+    //     }
+    //     if (params.count("brushSize"))
+    //     {
+    //         terrainPainter_->brushSize(std::stoi(params.at("brushSize")));
+    //         brushSize_ = std::stoi(params.at("brushSize"));
+    //     }
+    //     if (params.count("stepInterpolation"))
+    //     {
+    //         StepInterpolation step;
+    //         std::from_string(params.at("stepInterpolation"), step);
+    //         terrainPainter_->stepInterpolation(step);
+    //     }
+    //     if (params.count("brushType"))
+    //     {
+    //         terrainPainter_->setBrush(params.at("brushType"));
+    //     }
+    //     if (params.count("color"))
+    //     {
+    //         if (terrainPainter_->getPaintType() != PaintType::BlendMap)
+    //         {
+    //             LOG_ERROR << "Incompatible paint mode.";
+    //             return;
+    //         }
 
-            auto inputColor = params.at("color");
-            int i           = 0;
-            Color color;
-            for (auto c : inputColor)
-            {
-                if (i < 4)
-                    color[i++] = c == '1' ? 1.f : 0.f;
-                else
-                    LOG_ERROR << "to many bits.";
-            }
-            static_cast<TerrainTexturePainter *>(terrainPainter_.get())->setColor(color);
-        }
-        if (params.count("generate") and terrainPainter_->getPaintType() == PaintType::Plant)
-        {
-            static_cast<PlantPainter *>(terrainPainter_.get())->generatePositions();
-        }
-        if (params.count("eraseMode") and terrainPainter_->getPaintType() == PaintType::Plant)
-        {
-            static_cast<PlantPainter *>(terrainPainter_.get())->eraseMode();
-        }
-    }
-    catch (...)
-    {
-        LOG_ERROR << "Message parsing error.";
-    }
+    //         auto inputColor = params.at("color");
+    //         int i           = 0;
+    //         Color color;
+    //         for (auto c : inputColor)
+    //         {
+    //             if (i < 4)
+    //                 color[i++] = c == '1' ? 1.f : 0.f;
+    //             else
+    //                 LOG_ERROR << "to many bits.";
+    //         }
+    //         static_cast<TerrainTexturePainter *>(terrainPainter_.get())->setColor(color);
+    //     }
+    //     if (params.count("generate") and terrainPainter_->getPaintType() == PaintType::Plant)
+    //     {
+    //         static_cast<PlantPainter *>(terrainPainter_.get())->generatePositions();
+    //     }
+    //     if (params.count("eraseMode") and terrainPainter_->getPaintType() == PaintType::Plant)
+    //     {
+    //         static_cast<PlantPainter *>(terrainPainter_.get())->eraseMode();
+    //     }
+    // }
+    // catch (...)
+    // {
+    //     LOG_ERROR << "Message parsing error.";
+    // }
 }
 
 void NetworkEditorInterface::RecalculateTerrainNormals(const NetworkEditorInterface::EntryParameters &)
 {
-    std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    if (not terrainPainter_ or terrainPainter_->getPaintType() == PaintType::HeightMap)
-        return;
+    // std::lock_guard<std::mutex> lk(terrainPainterMutex_);
+    // if (not terrainPainter_ or terrainPainter_->getPaintType() == PaintType::HeightMap)
+    //     return;
 
-    static_cast<TerrainHeightPainter *>(terrainPainter_.get())->recalculateTerrainNormals();
+    // static_cast<TerrainHeightPainter *>(terrainPainter_.get())->recalculateTerrainNormals();
 }
 void NetworkEditorInterface::ClearTerrainsBlendMap(const EntryParameters &)
 {

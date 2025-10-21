@@ -1,7 +1,7 @@
 set(UtilsIncludes
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Variant.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonReader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Json/JsonWriter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Glm.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/UndifineWindows.h
@@ -24,6 +24,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ThreadSubscriber.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Pathes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Worker.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/SingleTon.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/IThreadSync.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/StreamOperators.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/ThreadSync.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Image/ImageUtils.h

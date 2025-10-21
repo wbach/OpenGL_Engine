@@ -2,6 +2,8 @@
 
 #include <Logger/Log.h>
 
+#include <mutex>
+
 namespace Utils
 {
 struct ImageDataPtrVisitor
@@ -199,8 +201,39 @@ private:
 
 bool Image::setPixel(const vec2ui& position, const Color& color)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     return std::visit(ImageDataSetVisitor(position, color, width, channels_), data_);
 }
+
+Image::Image(Image&& other) noexcept
+    : width(other.width)
+    , height(other.height)
+    , channels_(other.channels_)
+    , data_(std::move(other.data_))
+{
+    other.width     = 0;
+    other.height    = 0;
+    other.channels_ = 4;
+}
+
+Image& Image::operator=(Image&& other) noexcept
+{
+    if (this != &other)
+    {
+        std::scoped_lock lock(mutex, other.mutex);
+        width     = other.width;
+        height    = other.height;
+        channels_ = other.channels_;
+        data_     = std::move(other.data_);
+
+        // reset źródła
+        other.width     = 0;
+        other.height    = 0;
+        other.channels_ = 4;
+    }
+    return *this;
+}
+
 Image::~Image()
 {
 }
@@ -217,6 +250,7 @@ const void* Image::getRawDataPtr() const
 
 std::optional<Color> Image::getPixel(const vec2ui& position) const
 {
+    std::lock_guard<std::mutex> lk(mutex);
     return std::visit(ImageDataGetVisitor(position, width, channels_), data_);
 }
 bool Image::empty() const
@@ -235,8 +269,7 @@ void Image::setChannels(uint8 channels)
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Unsupported channels count :" + std::to_string(channels) +
-                  ", current value : " + std::to_string(channels_));
+        LOG_WARN << "Unsupported channels count :" << channels << ", current value : " << channels_;
     }
 }
 uint8 Image::getChannelsCount() const
@@ -254,10 +287,10 @@ void Image::applyFilter(const ImageFilter& imageFilter)
 
     if (size.x % 2 == 0 or size.y % 2 == 0)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Wrong filter size. Filter not applied");
+        /* LOG TO FIX*/ LOG_ERROR << ("Wrong filter size. Filter not applied");
         return;
     }
-    /* LOG TO FIX*/  LOG_ERROR << ("Applying filter");
+    /* LOG TO FIX*/ LOG_ERROR << ("Applying filter");
     uint32 halfsizeY = size.y / 2;
     uint32 halfsizeX = size.x / 2;
 
@@ -290,4 +323,4 @@ void Image::applyFilter(const ImageFilter& imageFilter)
         }
     }
 }
-}  // namespace GraphicsApi
+}  // namespace Utils

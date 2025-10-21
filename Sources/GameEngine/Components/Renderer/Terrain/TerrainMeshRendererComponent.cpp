@@ -50,12 +50,13 @@ void TerrainMeshRendererComponent::HeightMapChanged()
 
     TerrainMeshUpdater meshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)});
 
-    if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
-    {
-        LOG_DEBUG << "meshUpdater.update();";
-        meshUpdater.update();
-    }
-    else
+    // heap corruption → malloc error.
+    // if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
+    // {
+    //     LOG_DEBUG << "meshUpdater.update();";
+    //     meshUpdater.update();
+    // }
+    // else
     {
         LOG_DEBUG << "meshUpdater.reCreate();";
         meshUpdater.reCreate();

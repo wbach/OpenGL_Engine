@@ -44,11 +44,11 @@ public:
     virtual vec2i GetPixelMousePosition()        = 0;
     virtual vec2 GetMousePosition()              = 0;
 
-    virtual void SetCursorPosition(int x, int y)     = 0;
-    virtual void SetKeyToBuffer(KeyInteger, bool value) {};
-    virtual void ClearKeyBuffer()                    = 0;
-    virtual void GetPressedKeys()                    = 0;
-    virtual void ShowCursor(bool)                    = 0;
+    virtual void SetCursorPosition(int x, int y) = 0;
+    virtual void SetKeyToBuffer(KeyInteger, bool value){};
+    virtual void ClearKeyBuffer() = 0;
+    virtual void GetPressedKeys() = 0;
+    virtual void ShowCursor(bool) = 0;
 
     bool GetKey(GameAction);
 
@@ -87,8 +87,6 @@ protected:
     std::optional<KeyEvent> GetEvent();
     void UpdateMouseState(uint32 code, bool state);
     bool GetMouseState(uint32 code);
-
-private:
     void RegisterGameAction(GameAction, KeyCodes::Type);
     void ExecuteOnKeyDown(KeyCodes::Type);
     void ExecuteOnKeyUp(KeyCodes::Type);

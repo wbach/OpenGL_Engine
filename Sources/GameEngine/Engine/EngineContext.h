@@ -1,7 +1,6 @@
 #pragma once
 #include <Types.h>
 #include <Utils/MeasurementHandler.h>
-#include <Utils/ThreadSync.h>
 #include <Utils/Time/TimerService.h>
 
 #include <Mutex.hpp>
@@ -14,6 +13,14 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Scene/SceneManager.h"
 #include "MeasurementHandler.h"
+
+namespace Utils
+{
+namespace Thread
+{
+class IThreadSync;
+}
+}  // namespace Utils
 
 namespace GraphicsApi
 {
@@ -40,8 +47,12 @@ public:
     using EngineEvents = std::vector<EngineEvent>;
 
     EngineContext(std::unique_ptr<GraphicsApi::IGraphicsApi>, std::unique_ptr<Physics::IPhysicsApi>,
-                  std::unique_ptr<ISceneFactory>, std::unique_ptr<IResourceManagerFactory> = nullptr,
-                  std::unique_ptr<IRendererFactory> = nullptr);
+                  std::unique_ptr<ISceneFactory>);
+
+    EngineContext(std::unique_ptr<Physics::IPhysicsApi>, std::unique_ptr<ISceneFactory>, std::unique_ptr<IResourceManagerFactory>,
+                  std::unique_ptr<IRendererFactory>, std::unique_ptr<Utils::Thread::IThreadSync>,
+                  std::unique_ptr<GraphicsApi::IGraphicsApi>);
+
     ~EngineContext();
 
     void AddEngineEvent(EngineEvent);
@@ -52,7 +63,7 @@ public:
     inline Physics::IPhysicsApi& GetPhysicsApi();
     inline Input::InputManager& GetInputManager();
     inline IGpuResourceLoader& GetGpuResourceLoader();
-    inline Utils::Thread::ThreadSync& GetThreadSync();
+    inline Utils::Thread::IThreadSync& GetThreadSync();
     inline GraphicsApi::IGraphicsApi& GetGraphicsApi();
     inline Renderer::RenderersManager& GetRenderersManager();
     inline Utils::Time::TimerService& GetTimerService();
@@ -63,7 +74,7 @@ private:
     std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi_;
     GpuResourceLoader gpuResourceLoader_;
     Utils::MeasurementHandler measurmentHandler_;
-    Utils::Thread::ThreadSync threadSync_;
+    std::unique_ptr<Utils::Thread::IThreadSync> threadSync_;
     DisplayManager displayManager_;
     Input::InputManager& inputManager_;
     std::unique_ptr<IResourceManagerFactory> resourceManagerFactory;
@@ -101,9 +112,9 @@ IGpuResourceLoader& EngineContext::GetGpuResourceLoader()
     return gpuResourceLoader_;
 }
 
-Utils::Thread::ThreadSync& EngineContext::GetThreadSync()
+Utils::Thread::IThreadSync& EngineContext::GetThreadSync()
 {
-    return threadSync_;
+    return *threadSync_;
 }
 
 GraphicsApi::IGraphicsApi& EngineContext::GetGraphicsApi()

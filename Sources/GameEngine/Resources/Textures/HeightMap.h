@@ -8,7 +8,7 @@ namespace GameEngine
 class HeightMap : public Texture
 {
 public:
-    HeightMap(GraphicsApi::IGraphicsApi&, const TextureParameters&, const File&, Utils::Image);
+    HeightMap(GraphicsApi::IGraphicsApi&, const TextureParameters&, const File&, Utils::Image&&);
 
     void GpuLoadingPass() override;
 
@@ -26,6 +26,7 @@ public:
     const vec3& GetScale() const;
 
 private:
+    mutable std::mutex mutex;
     Utils::Image image_;
     float maximumHeight_;
     float minimumHeight_;

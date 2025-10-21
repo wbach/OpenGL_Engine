@@ -54,14 +54,14 @@ TextureLoader::~TextureLoader()
     for (auto texture : toRelease)
         DeleteTexture(*texture);
 }
-GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params, const Utils::Image& image)
+GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params, Utils::Image&& image)
 {
     std::lock_guard<std::mutex> lk(textureMutex_);
 
     if (auto texture = GetTextureIfLoaded(name, params))
         return static_cast<GeneralTexture*>(texture);
 
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, image, params);
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(image), params);
     auto texturePtr = texture.get();
     AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;
@@ -82,7 +82,7 @@ void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& n
                                  [id = texture->GetGpuObjectId()](const auto& texture)
                                  { return (texture.second.resource_->GetGpuObjectId() == id); });
 
-        texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->GetImage());
+        texture = CreateTexture(newName, iter->second.resource_->getTextureParameters(), texture->MoveImage());
 
         if (iter != textures_.end())
         {
@@ -129,7 +129,7 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     if (not image)
         return GetTextureNotFound();
 
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params, inputFile);
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params, inputFile);
     auto texturePtr = texture.get();
     AddTexture(inputFile.GetAbsolutePath().string(), std::move(texture), params.loadType);
     return texturePtr;
@@ -152,7 +152,7 @@ GeneralTexture* TextureLoader::LoadTexture(const std::string& name, const unsign
     if (not image)
         return GetTextureNotFound();
 
-    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, *image, params);
+    auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(*image), params);
     auto texturePtr = texture.get();
     AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;
@@ -183,7 +183,7 @@ CubeMapTexture* TextureLoader::LoadCubeMap(const std::array<File, 6>& files, con
         images[index++] = std::move(*image);
     }
 
-    auto cubeMap    = std::make_unique<CubeMapTexture>(graphicsApi_, params, textureName.str(), images);
+    auto cubeMap    = std::make_unique<CubeMapTexture>(graphicsApi_, params, textureName.str(), std::move(images));
     auto cubeMapPtr = cubeMap.get();
     AddTexture(textureName.str(), std::move(cubeMap), params.loadType);
     return cubeMapPtr;
@@ -427,7 +427,7 @@ GeneralTexture* TextureLoader::GetTextureNotFound()
     textureNotFoundImage.allocateImage<uint8>();
     textureNotFoundImage.copyImage<uint8>(Resource::TextureNotFound::data);
 
-    auto texture           = std::make_unique<GeneralTexture>(graphicsApi_, textureNotFoundImage, params);
+    auto texture           = std::make_unique<GeneralTexture>(graphicsApi_, std::move(textureNotFoundImage), params);
     textureNotFound_.first = texture.get();
     AddTexture(textureName, std::move(texture), params.loadType);
 

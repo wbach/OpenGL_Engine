@@ -32,12 +32,12 @@ public:
     std::vector<Components::TerrainRendererComponent*> GetSceneTerrains() const;
 
 private:
-    bool IntersectionInRange(float start, float finish, const vec3& ray);
-    vec3 GetPointOnRay(const vec3& ray, float distance);
-    bool IsUnderGround(const vec3& testPoint);
-    Terrain* GetTerrain(float worldX, float worldZ);
-    std::optional<TerrainPoint> BinarySearch(uint32 count, float start, float finish, const vec3& ray);
-    vec2 CastToTerrainSpace(Terrain&, const vec3&);
+    bool IntersectionInRange(double start, double finish, const vec3d& ray);
+    vec3d GetPointOnRay(const vec3d& ray, double distance);
+    bool IsUnderGround(const vec3d& testPoint);
+    Terrain* GetTerrain(double worldX, double worldZ);
+    std::optional<TerrainPoint> BinarySearch(uint32 count, double start, double finish, const vec3d& ray);
+    vec2d CastToTerrainSpace(Terrain&, const vec3d&);
 
 private:
     const CameraWrapper& camera_;

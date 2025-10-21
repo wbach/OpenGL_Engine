@@ -87,6 +87,7 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
     auto model       = modelWrapper_.Get(LevelOfDetail::L1);
     auto partsCount  = *EngineConf.renderer.terrain.meshPartsCount;
     auto partialSize = heightMap_.GetImage().width / partsCount;
+    auto rest = heightMap_.GetImage().width  - (partsCount * partialSize);
 
     std::vector<Mesh*> meshesToUpdate;
 
@@ -102,6 +103,10 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
             uint32 startY = j * partialSize;
             uint32 endX   = (i + 1) * partialSize + 1;
             uint32 endY   = (j + 1) * partialSize + 1;
+
+                        // uwzględnij "rest" na końcach
+            if (i == partsCount - 1) endX += rest;
+            if (j == partsCount - 1) endY += rest;
 
             if (updatePart(tools, mesh, startX, startY, endX, endY))
             {

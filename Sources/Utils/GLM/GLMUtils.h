@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 #include <string>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 #include "../Types.h"
 #include "Glm.h"
@@ -33,6 +33,7 @@ float RGBtoFloat(uint8 rgb);
 glm::vec3 RGBtoFloat(const float& r, const float& g, const float& b);
 glm::vec3 CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b);
 glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
+glm::dvec3 BarryCentricVec3(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, const glm::dvec2& pos);
 glm::vec3 RotateObject(const vec3& center, const vec3& point, float angle);
 
 void CalculateBoudnigBox(const std::vector<float>& positions, glm::vec3& bounding_min, glm::vec3& bounding_max,
@@ -54,7 +55,7 @@ mat4 CreateTransformationMatrix(const vec3& translation, const vec2& scale, Radi
 
 Quaternion Interpolate(const Quaternion& a, const Quaternion& b, float blend);
 float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos);
-
+double BarryCentric(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, const glm::dvec2& pos);
 mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition);
 Quaternion lookAt(const vec3& lookAtPosition, const vec3& position);
 

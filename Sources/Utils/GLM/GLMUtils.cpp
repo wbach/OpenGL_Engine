@@ -74,9 +74,9 @@ bool Compare(const glm::vec3& v1, const glm::vec3& v2)
 
 void PrtintMat4(const glm::mat4& mat)
 {
-    printf("\nMat:\n %f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n\n", mat[0][0], mat[0][1], mat[0][2],
-           mat[0][3], mat[1][0], mat[1][1], mat[1][2], mat[1][3], mat[2][0], mat[2][1], mat[2][2], mat[2][3], mat[3][0],
-           mat[3][1], mat[3][2], mat[3][3]);
+    printf("\nMat:\n %f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n%f,%f,%f,%f\n\n", mat[0][0], mat[0][1], mat[0][2], mat[0][3],
+           mat[1][0], mat[1][1], mat[1][2], mat[1][3], mat[2][0], mat[2][1], mat[2][2], mat[2][3], mat[3][0], mat[3][1],
+           mat[3][2], mat[3][3]);
 }
 
 float GetMaxFromVector(const glm::vec3& vector)
@@ -195,10 +195,19 @@ glm::vec3 CalculateMinimumVector(const glm::vec3& a, const glm::vec3& b)
 
 float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
 {
-    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
-    float l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
-    float l2  = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
-    float l3  = 1.0f - l1 - l2;
+    auto det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    auto l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    auto l2  = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    auto l3  = 1.0f - l1 - l2;
+    return l1 * p1.y + l2 * p2.y + l3 * p3.y;
+}
+
+double BarryCentric(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, const glm::dvec2& pos)
+{
+    double det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    double l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    double l2  = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    double l3  = 1.0 - l1 - l2;
     return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 }
 
@@ -219,11 +228,20 @@ Quaternion lookAt(const vec3& lookAtPosition, const vec3& position)
 
 glm::vec3 BarryCentricVec3(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos)
 {
-    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
-    float l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
-    float l2  = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
-    float l3  = 1.0f - l1 - l2;
+    auto det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    auto l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    auto l2  = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    auto l3  = 1.0f - l1 - l2;
     return glm::vec3(l1, l2, l3);
+}
+
+glm::dvec3 BarryCentricVec3(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, const glm::dvec2& pos)
+{
+    auto det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    auto l1  = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    auto l2  = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    auto l3  = 1.0f - l1 - l2;
+    return glm::dvec3(l1, l2, l3);
 }
 
 glm::vec3 RotateObject(const vec3& center, const vec3& point, float angle)

@@ -82,15 +82,17 @@ public:
         GameEngine::SceneFactoryBase::AddScene(sceneName, file);
     }
 };
-const int glAttributes[] = {WX_GL_RGBA, WX_GL_MIN_RED,    1, WX_GL_MIN_GREEN,    1, WX_GL_MIN_BLUE,
-                            1,          WX_GL_DEPTH_SIZE, 1, WX_GL_DOUBLEBUFFER, 0};
-// int glAttributes[] = {
-//     WX_GL_RGBA,
-//     WX_GL_DOUBLEBUFFER,
-//     WX_GL_DEPTH_SIZE, 16,  // <--- bufor glebokosci
-//     0
-// };
 
+// clang-format off
+const int glAttributes[] = {
+                            WX_GL_RGBA,
+                            WX_GL_DOUBLEBUFFER,
+                            WX_GL_DEPTH_SIZE,24,
+                            WX_GL_CORE_PROFILE,
+                            WX_GL_MAJOR_VERSION,4,
+                            WX_GL_MINOR_VERSION,5,0
+                        };
+// clang-format on
 }  // namespace WxEditor
 
 GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback, bool addStartupObjects)
@@ -331,18 +333,18 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT);
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_LEFT}, true);
 
-    if (engine->GetSceneManager().GetActiveScene() and not mousePicker)
-    {
-        mousePicker          = std::make_unique<GameEngine::MousePicker>(GetScene().GetCamera(),
-                                                                engine->GetEngineContext().GetRenderersManager().GetProjection());
-        auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
-                                                         GetScene().GetGameObjects());
-        if (maybeGameObject)
-        {
-            GameObjectSelectChange(*maybeGameObject);
-            selectItemInGameObjectTree(maybeGameObject->GetId(), true);
-        }
-    }
+    // if (engine->GetSceneManager().GetActiveScene() and not mousePicker)
+    // {
+    //     mousePicker          = std::make_unique<GameEngine::MousePicker>(GetScene().GetCamera(),
+    //                                                             engine->GetEngineContext().GetRenderersManager().GetProjection());
+    //     auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
+    //                                                      GetScene().GetGameObjects());
+    //     if (maybeGameObject)
+    //     {
+    //         GameObjectSelectChange(*maybeGameObject);
+    //         selectItemInGameObjectTree(maybeGameObject->GetId(), true);
+    //     }
+    // }
 }
 
 void GLCanvas::OnMouseRightUp(wxMouseEvent& event)

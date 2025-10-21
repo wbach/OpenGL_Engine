@@ -1,5 +1,8 @@
 #include "SceneManager.h"
 
+#include <Utils/IThreadSync.h>
+#include <Utils/ThreadSubscriber.h>
+
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "Logger/Log.h"

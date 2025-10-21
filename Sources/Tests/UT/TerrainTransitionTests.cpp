@@ -28,8 +28,8 @@ struct TerrainTransitionTests : public BaseComponentTestSchould
 
         Utils::Image image1;
         Utils::Image image2;
-        heightMap1_ = std::make_unique<HeightMap>(graphicsApiMock_, TextureParameters{}, File{}, image1);
-        heightMap2_ = std::make_unique<HeightMap>(graphicsApiMock_, TextureParameters{}, File{}, image2);
+        heightMap1_ = std::make_unique<HeightMap>(graphicsApiMock_, TextureParameters{}, File{}, std::move(image1));
+        heightMap2_ = std::make_unique<HeightMap>(graphicsApiMock_, TextureParameters{}, File{}, std::move(image2));
 
         // terrainComponent1.setTexture(*heightMap1_, textureTiledSize, Components::TerrainTextureType::HeightMap);
         // terrainComponent2.setTexture(*heightMap2_, textureTiledSize, Components::TerrainTextureType::HeightMap);

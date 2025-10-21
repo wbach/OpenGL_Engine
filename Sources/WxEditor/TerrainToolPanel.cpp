@@ -2,7 +2,11 @@
 
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
+#include <GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h>
+#include <GameEngine/DebugTools/Painter/CircleBrush.h>
+#include <GameEngine/DebugTools/Painter/HeightPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
+#include <GameEngine/Resources/Models/Primitive.h>
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
 #include <wx/busyinfo.h>
@@ -11,15 +15,20 @@
 #include <wx/simplebook.h>
 #include <wx/wrapsizer.h>
 
+#include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
 #include <optional>
+#include <stdexcept>
+#include <string>
 
-#include "Components/Renderer/Terrain/TerrainTexturesTypes.h"
+#include "DebugTools/Painter/Interpolation.h"
 #include "EditorUitls.h"
+#include "Engine/EngineContext.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
 #include "TextureButton.h"
 #include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace
 {
@@ -49,6 +58,24 @@ private:
     std::variant<Method, IdType> value;
 };
 
+GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scene& scene)
+{
+    auto engineContext = scene.getEngineContext();
+    if (not engineContext)
+        throw std::runtime_error("Scene not init. engineContext is null");
+
+    return GameEngine::TerrainPainter::Dependencies{engineContext->GetInputManager(),
+                                                    engineContext->GetThreadSync(),
+                                                    scene.GetCamera(),
+                                                    engineContext->GetRenderersManager().GetProjection(),
+                                                    engineContext->GetDisplayManager().GetWindowSize(),
+                                                    scene.getComponentController()};
+}
+
+enum class BrushTypes
+{
+    Circle
+};
 }  // namespace
 
 // clang-format off
@@ -204,6 +231,26 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
     wxWindow* pane  = collapsible->GetPane();
     auto* paneSizer = new wxBoxSizer(wxVERTICAL);
 
+    painterFields.enableDisablePainterButton = new wxButton(pane, wxID_ANY, "Enable painter");
+    paneSizer->Add(painterFields.enableDisablePainterButton, 0, wxEXPAND | wxALL, 5);
+    painterFields.enableDisablePainterButton->Bind(
+        wxEVT_BUTTON,
+        [this](wxCommandEvent& e)
+        {
+            if (painterFields.terrainPainter_)
+            {
+                painterFields.terrainPainter_.reset();
+                painterFields.enableDisablePainterButton->SetLabelText("Enable " + painterFields.painterTypeCtrl->GetValue() +
+                                                                       " painter");
+            }
+            else
+            {
+                EnablePainter();
+            }
+
+            e.Skip();
+        });
+
     // === Painter Type wybór ===
     auto* painterTypeBox = new wxStaticBoxSizer(wxVERTICAL, pane, "Painter Type");
     wxArrayString painterTypes;
@@ -211,10 +258,11 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
     painterTypes.Add("Texture");
     painterTypes.Add("Plant");
 
-    auto* painterTypeCombo =
+    painterFields.painterTypeCtrl =
         new wxComboBox(pane, wxID_ANY, "Height", wxDefaultPosition, wxDefaultSize, painterTypes, wxCB_READONLY);
-    painterTypeBox->Add(painterTypeCombo, 0, wxEXPAND | wxALL, 5);
+    painterTypeBox->Add(painterFields.painterTypeCtrl, 0, wxEXPAND | wxALL, 5);
     paneSizer->Add(painterTypeBox, 0, wxEXPAND | wxALL, 5);
+    painterFields.enableDisablePainterButton->SetLabelText("Enable " + painterFields.painterTypeCtrl->GetValue() + " painter");
 
     // === Dynamiczna sekcja z painterami ===
     auto* dynamicBook = new wxSimplebook(pane, wxID_ANY);
@@ -224,17 +272,19 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
     paneSizer->Add(dynamicBook, 1, wxEXPAND | wxALL, 5);
 
     // === Obsługa zmiany typu painter ===
-    painterTypeCombo->Bind(wxEVT_COMBOBOX,
-                           [dynamicBook](wxCommandEvent& evt)
-                           {
-                               wxString sel = evt.GetString();
-                               if (sel == "Height")
-                                   dynamicBook->SetSelection(0);
-                               else if (sel == "Texture")
-                                   dynamicBook->SetSelection(1);
-                               else if (sel == "Plant")
-                                   dynamicBook->SetSelection(2);
-                           });
+    painterFields.painterTypeCtrl->Bind(wxEVT_COMBOBOX,
+                                        [this, dynamicBook](wxCommandEvent& evt)
+                                        {
+                                            wxString sel = evt.GetString();
+                                            if (sel == "Height")
+                                                dynamicBook->SetSelection(0);
+                                            else if (sel == "Texture")
+                                                dynamicBook->SetSelection(1);
+                                            else if (sel == "Plant")
+                                                dynamicBook->SetSelection(2);
+                                            painterFields.enableDisablePainterButton->SetLabelText(
+                                                "Enable " + painterFields.painterTypeCtrl->GetValue() + " painter");
+                                        });
 
     // Ustawiamy i integrujemy sizer
     pane->SetSizer(paneSizer);
@@ -259,27 +309,85 @@ wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
 
     // === Interpolation Method ===
     {
+        wxArrayString stepInterpolations;
+
+        for (const auto& step : magic_enum::enum_names<GameEngine::InterpolationType>())
+        {
+            LOG_DEBUG << step;
+            stepInterpolations.Add(std::string(step));
+        }
+
+        std::string defaultInterpolationType{magic_enum::enum_name(GameEngine::InterpolationType::Smooth)};
+
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
-        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
-        // Placeholder: w przyszłości uzupełnisz metodami np. "Linear", "Smoothstep", "Cubic"...
+        auto* combo = new wxComboBox(panel, wxID_ANY, defaultInterpolationType, wxDefaultPosition, wxDefaultSize,
+                                     stepInterpolations, wxCB_READONLY);
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.heightPainterFields.interpolation = combo;
+        combo->Bind(wxEVT_COMBOBOX, [this](const auto& event) { OnUpdatePainterParam(); });
     }
 
     // === Brush Type ===
     {
+        wxArrayString heightBrushTypes;
+
+        for (const auto& brush : magic_enum::enum_names<BrushTypes>())
+        {
+            heightBrushTypes.Add(std::string(brush));
+        }
+
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
-        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        auto* combo = new wxComboBox(panel, wxID_ANY, heightBrushTypes.IsEmpty() ? wxString("") : heightBrushTypes.front(),
+                                     wxDefaultPosition, wxDefaultSize, heightBrushTypes, wxCB_READONLY);
         // Placeholder: np. "Circle", "Square", "Noise", ...
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.heightPainterFields.brushType = combo;
+        combo->Bind(wxEVT_COMBOBOX, [this](const auto& event) { OnUpdatePainterParam(); });
     }
 
     // === Brush Size (float slider + text field) ===
     {
         auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Size");
 
-        auto* slider = new wxSlider(panel, wxID_ANY, 50, 1, 200, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+        auto* slider = new wxSlider(panel, wxID_ANY, 1, 1, 20, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "3.0");
+
+        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.heightPainterFields.brushSize = text;
+
+        // --- Synchronizacja slider <-> text ---
+        slider->Bind(wxEVT_SLIDER,
+                     [this, slider, text](wxCommandEvent&)
+                     {
+                         float val = static_cast<float>(slider->GetValue());
+                         text->ChangeValue(wxString::Format("%.2f", val));
+                         OnUpdatePainterParam();
+                     });
+
+        text->Bind(wxEVT_TEXT,
+                   [this, slider](wxCommandEvent& evt)
+                   {
+                       double val;
+                       if (evt.GetString().ToDouble(&val) && val >= 0.0)
+                       {
+                           slider->SetValue(wxRound(val));
+                           OnUpdatePainterParam();
+                       }
+                   });
+    }
+
+    // === Strength (float slider + text field, może być ujemne) ===
+    {
+        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Strength");
+
+        auto* slider = new wxSlider(panel, wxID_ANY, 0, -1000, 1000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
         auto* text   = new wxTextCtrl(panel, wxID_ANY, "50.0");
 
         auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
@@ -288,54 +396,26 @@ wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
 
         box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.heightPainterFields.strength = text;
 
         // --- Synchronizacja slider <-> text ---
         slider->Bind(wxEVT_SLIDER,
-                     [slider, text](wxCommandEvent&)
-                     {
-                         float val = static_cast<float>(slider->GetValue());
-                         text->ChangeValue(wxString::Format("%.2f", val));
-                     });
-
-        text->Bind(wxEVT_TEXT,
-                   [slider](wxCommandEvent& evt)
-                   {
-                       double val;
-                       if (evt.GetString().ToDouble(&val) && val >= 0.0)
-                           slider->SetValue(wxRound(val));
-                   });
-    }
-
-    // === Strength (float slider + text field, może być ujemne) ===
-    {
-        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Strength");
-
-        auto* slider = new wxSlider(panel, wxID_ANY, 0, -100, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "0.0");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-
-        // --- Synchronizacja slider <-> text ---
-        slider->Bind(wxEVT_SLIDER,
-                     [slider, text](wxCommandEvent&)
+                     [this, slider, text](wxCommandEvent&)
                      {
                          float val = static_cast<float>(slider->GetValue()) / 10.0f;  // skala +/-10.0
                          text->ChangeValue(wxString::Format("%.2f", val));
+                         OnUpdatePainterParam();
                      });
 
         text->Bind(wxEVT_TEXT,
-                   [slider](wxCommandEvent& evt)
+                   [this, slider](wxCommandEvent& evt)
                    {
                        double val;
                        if (evt.GetString().ToDouble(&val))
                        {
                            val = std::max(-10.0, std::min(10.0, val));
                            slider->SetValue(wxRound(val * 10.0));
+                           OnUpdatePainterParam();
                        }
                    });
     }
@@ -348,8 +428,10 @@ wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
         btn->Bind(wxEVT_BUTTON,
                   [this](wxCommandEvent&)
                   {
-                      // TODO: tutaj podłącz logikę przeliczenia normalnych w terenie
-                      wxLogMessage("Recalculate normals triggered");
+                      if (auto heightPainter = dynamic_cast<GameEngine::HeightPainter*>(painterFields.terrainPainter_.get()))
+                      {
+                          heightPainter->RecalculateTerrainNormals();
+                      }
                   });
     }
 
@@ -364,8 +446,16 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
     // === Interpolation Method ===
     {
+        wxArrayString stepInterpolations;
+        for (const auto& step : magic_enum::enum_names<GameEngine::InterpolationType>())
+        {
+            LOG_DEBUG << step;
+            stepInterpolations.Add(std::string(step));
+        }
+
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
-        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        auto* combo = new wxComboBox(panel, wxID_ANY, stepInterpolations.IsEmpty() ? wxString("") : stepInterpolations.front(),
+                                     wxDefaultPosition, wxDefaultSize, stepInterpolations, wxCB_READONLY);
         // TODO: uzupełnij listę metod w runtime
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
@@ -373,8 +463,16 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
     // === Brush Type ===
     {
+        wxArrayString textureBrushTypes;
+
+        for (const auto& brush : magic_enum::enum_names<BrushTypes>())
+        {
+            textureBrushTypes.Add(std::string(brush));
+        }
+
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
-        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        auto* combo = new wxComboBox(panel, wxID_ANY, textureBrushTypes.IsEmpty() ? wxString("") : textureBrushTypes.front(),
+                                     wxDefaultPosition, wxDefaultSize, textureBrushTypes, wxCB_READONLY);
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
     }
@@ -491,8 +589,12 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
 
     // === Brush Type ===
     {
+        wxArrayString textureBrushTypes;
+        textureBrushTypes.Add("CircleBrush");
+
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
-        auto* combo = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, nullptr, wxCB_READONLY);
+        auto* combo = new wxComboBox(panel, wxID_ANY, textureBrushTypes.front(), wxDefaultPosition, wxDefaultSize,
+                                     textureBrushTypes, wxCB_READONLY);
         // TODO: w runtime uzupełnij listę dostępnych typów pędzla
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
@@ -794,4 +896,101 @@ void TerrainToolPanel::ImportFromMesh()
             dlg->ShowModal();
         }
     }
+}
+
+void TerrainToolPanel::OnUpdatePainterParam()
+{
+    if (painterFields.terrainPainter_)
+    {
+        painterFields.terrainPainter_.reset();
+        EnablePainter();
+    }
+}
+
+void TerrainToolPanel::EnablePainter()
+{
+    if (painterFields.terrainPainter_)
+    {
+        LOG_WARN << "Painter already enabled.";
+        return;
+    }
+
+    int selection = painterFields.painterTypeCtrl->GetSelection();
+    try
+    {
+        switch (selection)
+        {
+            case 0:
+            {
+                LOG_DEBUG << "EnablePainter";
+
+                const auto& heightPainterFields = painterFields.heightPainterFields;
+
+                GameEngine::InterpolationType interpolation = GameEngine::InterpolationType::Gaussian;
+                if (auto value = magic_enum::enum_cast<GameEngine::InterpolationType>(
+                        heightPainterFields.interpolation->GetValue().ToStdString()))
+                {
+                    interpolation = *value;
+                }
+                else
+                {
+                    LOG_WARN << "StepInterpolation parse error";
+                }
+
+                float strength =
+                    heightPainterFields.strength ? std::stof(heightPainterFields.strength->GetValue().ToStdString()) : 0.f;
+                GameEngine::WorldSpaceBrushRadius radious{std::stof(heightPainterFields.brushSize->GetValue().ToStdString())};
+
+                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation),
+                                                                             radious, strength / 1000.f);
+                painterFields.terrainPainter_ =
+                    std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+                painterFields.terrainPainter_->Start();
+
+                // auto& resourceManager = scene.GetResourceManager();
+                // auto model            = resourceManager.GetPrimitives(GameEngine::PrimitiveType::Sphere);
+                // auto obj              = scene.CreateGameObject(std::string("TerrainHeightPainterVisualization"));
+                // obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(model);
+                // painter.SetVizualizationObject(obj.get());
+                // scene.AddGameObject(std::move(obj));
+
+                // if (auto value = magic_enum::enum_cast<GameEngine::StepInterpolation>(
+                //         heightPainterFields.interpolation->GetValue().ToStdString()))
+                // {
+                //     painter.stepInterpolation(*value);
+                // }
+                // else
+                // {
+                //     LOG_WARN << "StepInterpolation parse error";
+                // }
+            }
+            break;
+            case 1:
+            {
+                // painterFields.terrainPainter_ = std::make_unique<GameEngine::TerrainTexturePainter>(
+                //     GetPainterEntryParameters(scene), Color(1.f, 0.f, 0.f, 0.f));
+            }
+            break;
+            case 2:
+            {
+                // GameEngine::Components::GrassRendererComponent* grassRendererComponent{nullptr};
+                // if (grassRendererComponent)
+                //     painterFields.terrainPainter_ =
+                //         std::make_unique<GameEngine::PlantPainter>(GetPainterEntryParameters(scene), *grassRendererComponent);
+            }
+            break;
+        }
+    }
+    catch (const std::runtime_error& error)
+    {
+        LOG_ERROR << error.what();
+        wxMessageBox(error.what(), "Error", wxICON_WARNING | wxOK);
+    }
+    catch (...)
+    {
+        LOG_ERROR << "Enable painter error";
+        wxMessageBox("Enable painter error", "Error", wxICON_WARNING | wxOK);
+    }
+
+    painterFields.enableDisablePainterButton->SetLabelText("Disable " + painterFields.painterTypeCtrl->GetValue() + " painter");
 }

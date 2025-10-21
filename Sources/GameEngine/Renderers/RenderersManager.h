@@ -1,7 +1,6 @@
 #pragma once
 #include <atomic>
 #include <functional>
-#include <list>
 #include <memory>
 
 #include "BufferDataUpdater.h"
@@ -18,6 +17,11 @@
 namespace Utils
 {
 class MeasurementHandler;
+
+namespace Thread
+{
+class IThreadSync;
+}
 }  // namespace Utils
 
 namespace GameEngine
@@ -35,11 +39,12 @@ namespace Renderer
 class RenderersManager
 {
 public:
-    RenderersManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::ThreadSync&,
+    RenderersManager(GraphicsApi::IGraphicsApi&, IGpuResourceLoader&, Utils::MeasurementHandler&, Utils::Thread::IThreadSync&,
                      const Time&, std::unique_ptr<IRendererFactory>);
 
     ~RenderersManager();
     void Init();
+    Projection& GetProjection();
     const Projection& GetProjection() const;
     void renderScene(Scene&);
     void ReloadShaders();

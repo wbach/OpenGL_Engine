@@ -1,6 +1,5 @@
 
 #pragma once
-#include <GameEngine/DebugTools/Painter/Painter.h>
 #include <GameEngine/Renderers/DebugElements/DebugRenderer.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <Types.h>
@@ -76,8 +75,6 @@ private:
     void MenuEditCreateObject(wxCommandEvent&);
     void MenuEditCreateTerrain(wxCommandEvent&);
     void MenuEditCreateMaterial(wxCommandEvent&);
-    void MenuEditTerrainHeightPainter(wxCommandEvent&);
-    void MenuEditTerrainTexturePainter(wxCommandEvent&);
     void MenuEditMaterialEditor(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);
     void MenuEditClearScene(wxCommandEvent&);
@@ -135,7 +132,6 @@ private:
     GameEngine::GameObject* GetSelectedGameObject();
     GameEngine::GameObject* GetGameObject(wxTreeItemId);
     void ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent);
-    GameEngine::Painter::EntryParamters GetPainterEntryParameters();
     void AddGameObjectComponentsToView(GameEngine::GameObject&);
     void LockAllComponentPanels();
     void UnlockAllComponentPanels();
@@ -181,7 +177,6 @@ private:
     bool isRunning{true};
 
     std::optional<TransfromSubController> transfromSubController;
-    std::unique_ptr<GameEngine::Painter> terrainPainter_;
 
     std::optional<long> startedGameProceesId;
 };

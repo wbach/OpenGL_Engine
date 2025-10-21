@@ -40,7 +40,7 @@ float F(bool v)
 namespace Renderer
 {
 RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuLoader,
-                                   Utils::MeasurementHandler& measurmentHandler, Utils::Thread::ThreadSync& threadSync,
+                                   Utils::MeasurementHandler& measurmentHandler, Utils::Thread::IThreadSync& threadSync,
                                    const Time& renderThreadTime, std::unique_ptr<IRendererFactory> rendererFactory)
     : graphicsApi_(graphicsApi)
     , gpuLoader_(gpuLoader)
@@ -73,6 +73,10 @@ RenderersManager::~RenderersManager()
     {
         graphicsApi_.DeleteShaderBuffer(*perFrameId_);
     }
+}
+Projection& RenderersManager::GetProjection()
+{
+    return projection_;
 }
 const Projection& RenderersManager::GetProjection() const
 {

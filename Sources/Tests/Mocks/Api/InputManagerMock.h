@@ -23,5 +23,14 @@ public:
     MOCK_CONST_METHOD1(ConvertCode, KeyCodes::Type(uint32));
     MOCK_CONST_METHOD1(IsKeyUpEventType, bool(uint32));
     MOCK_CONST_METHOD1(IsKeyDownEventType, bool(uint32));
+
+    void ExecuteOnKeyDown(KeyCodes::Type key)
+    {
+        InputManager::ExecuteOnKeyDown(key);
+    }
+    void ExecuteOnKeyUp(KeyCodes::Type key)
+    {
+        InputManager::ExecuteOnKeyDown(key);
+    }
 };
-} // namespace Input
+}  // namespace Input

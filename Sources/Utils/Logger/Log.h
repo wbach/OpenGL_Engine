@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "LogHelpers.h"
-#include "Utils/StreamOperators.h"
 #include "LoggingLvl.h"
+#include "Utils/StreamOperators.h"
 
 class CLogger
 {
@@ -73,6 +73,7 @@ class CLogStream
 {
 public:
     CLogStream(LoggingLvl lvl, const char* file, int line, const char* func);
+    CLogStream(LoggingLvl lvl);
     ~CLogStream();
 
     template <typename T>
@@ -95,3 +96,4 @@ private:
 #define LOG_WARN CLogStream(LoggingLvl::ErrorWarning, __FILE__, __LINE__, __FUNCTION__)
 #define LOG_ERROR CLogStream(LoggingLvl::Error, __FILE__, __LINE__, __FUNCTION__)
 #define LOG_DEBUG CLogStream(LoggingLvl::ErrorWarningInfoDebug, __FILE__, __LINE__, __FUNCTION__)
+#define LOG_DEBUG_RAW CLogStream(LoggingLvl::ErrorWarningInfoDebug)

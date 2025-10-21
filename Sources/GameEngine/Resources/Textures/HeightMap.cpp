@@ -7,7 +7,8 @@
 
 namespace GameEngine
 {
-HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& params, const File& file, Utils::Image image)
+HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& params, const File& file,
+                     Utils::Image&& image)
     : Texture(graphicsApi, params, vec2ui(image.width, image.height), file)
     , image_(std::move(image))
     , maximumHeight_(0)
@@ -15,7 +16,7 @@ HeightMap::HeightMap(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParame
 {
     if (image_.getChannelsCount() > 1)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Height map shouldbe one channel float data, but is : " + std::to_string(image.getChannelsCount()));
+        LOG_WARN << "Height map shouldbe one channel float data, but is : " << image.getChannelsCount();
     }
 
     UpdateMaximumHeight();
@@ -25,11 +26,11 @@ void HeightMap::GpuLoadingPass()
 {
     if (image_.empty() or graphicsObjectId_)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("There was an error loading the texture : " + file_->GetBaseName() +
-                  ". floatData is null or is initialized.");
+        LOG_ERROR << "There was an error loading the texture : " << file_->GetBaseName()
+                  << ". floatData is null or is initialized.";
         return;
     }
-    /* LOG TO FIX*/  LOG_ERROR << ("Create texutre filneame : " + file_->GetBaseName());
+    LOG_DEBUG << "Create texutre filneame : " << file_->GetBaseName();
 
     auto graphicsObjectId =
         graphicsApi_.CreateTexture(image_, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
@@ -37,11 +38,11 @@ void HeightMap::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
-        /* LOG TO FIX*/  LOG_ERROR << ("File " + file_->GetBaseName() + " is in GPU.");
+        LOG_DEBUG << "File " << file_->GetBaseName() << " is in GPU.";
     }
     else
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Texutre not created. Filename : " + file_->GetBaseName());
+        LOG_ERROR << "Texutre not created. Filename : " << file_->GetBaseName();
     }
 }
 const Utils::Image& HeightMap::GetImage() const
@@ -50,8 +51,9 @@ const Utils::Image& HeightMap::GetImage() const
 }
 void HeightMap::setImage(Utils::Image image)
 {
-    image_ = std::move(image);
-    size_ = vec2ui(image.width, image.height);
+    std::lock_guard<std::mutex> lk(mutex);
+    image_       = std::move(image);
+    size_        = vec2ui(image.width, image.height);
     orginalData_ = false;
 }
 
@@ -72,9 +74,10 @@ float HeightMap::GetDeltaHeight() const
 
 bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     if (image_.getChannelsCount() > 1)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Only one channel in height map is supported");
+        LOG_WARN << "Only one channel in height map is supported";
         return false;
     }
 
@@ -95,6 +98,7 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
 }
 std::optional<float> HeightMap::GetHeight(const vec2ui& cooridnate)
 {
+    std::lock_guard<std::mutex> lk(mutex);
     auto currentValue = image_.getPixel(cooridnate);
 
     if (currentValue)
@@ -107,15 +111,17 @@ bool HeightMap::UpdateMaximumHeight()
     auto maximumHeight{0.f};
     auto minimumHeight{0.f};
 
-    std::visit(visitor{[&](const std::vector<uint8>& data) {
+    std::visit(visitor{[&](const std::vector<uint8>& data)
+                       {
                            maximumHeight = static_cast<float>(*std::max_element(data.begin(), data.end()) / 255.f);
                            minimumHeight = static_cast<float>(*std::min_element(data.begin(), data.end()) / 255.f);
                        },
-                       [&](const std::vector<float>& data) {
+                       [&](const std::vector<float>& data)
+                       {
                            maximumHeight = *std::max_element(data.begin(), data.end());
                            minimumHeight = *std::min_element(data.begin(), data.end());
                        },
-                       [](std::monostate) { /* LOG TO FIX*/  LOG_ERROR << ("Image data not set!."); }},
+                       [](std::monostate) { LOG_ERROR << "Image data not set!."; }},
                image_.getImageData());
 
     if (not compare(maximumHeight_, maximumHeight) or not compare(minimumHeight_, minimumHeight))

@@ -1,7 +1,8 @@
 #include "LineMeshVisualizator.h"
 
 #include <GraphicsApi/IGraphicsApi.h>
-#include <Utils/ThreadSync.h>
+#include <Utils/IThreadSync.h>
+#include <Utils/Worker.h>
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/EngineContext.h"
@@ -10,7 +11,7 @@
 
 namespace GameEngine
 {
-LineMeshVisualizator::LineMeshVisualizator(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::ThreadSync& threadSync)
+LineMeshVisualizator::LineMeshVisualizator(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Thread::IThreadSync& threadSync)
     : graphicsApi_(graphicsApi)
     , threadSync_(threadSync)
     , shader_(graphicsApi_, GraphicsApi::ShaderProgramType::Line)
