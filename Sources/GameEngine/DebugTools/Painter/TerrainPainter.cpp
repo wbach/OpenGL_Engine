@@ -42,6 +42,12 @@ void TerrainPainter::Paint(const DeltaTime& deltaTime)
     // dynamicznie pomiedzy terenami.
     auto currentTerrainPoint = pointGetter_.GetMousePointOnTerrain(inputManager_.GetMousePosition());
 
+    if (onPointChange and lastTerrainPoint != currentTerrainPoint)
+    {
+        lastTerrainPoint = currentTerrainPoint;
+        onPointChange(currentTerrainPoint);
+    }
+
     auto lmouseKeyIsPressed = inputManager_.GetMouseKey(KeyCodes::LMOUSE);
     if (currentTerrainPoint and lmouseKeyIsPressed)
     {
@@ -110,5 +116,9 @@ bool TerrainPainter::IsInRange(const Utils::Image& image, const vec2ui& pixel)
 {
     const auto& size = image.size();
     return pixel.x < size.x && pixel.y < size.y;
+}
+void TerrainPainter::SetOnPointChange(std::function<void(const std::optional<TerrainPoint>&)> func)
+{
+    onPointChange = func;
 }
 }  // namespace GameEngine

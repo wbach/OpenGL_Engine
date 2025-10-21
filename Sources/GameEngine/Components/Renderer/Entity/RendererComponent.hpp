@@ -90,6 +90,7 @@ public:
     const GraphicsApi::ID& GetPerObjectConstantsBuffer(IdType) const;
     std::unordered_map<LevelOfDetail, File> GetFiles() const;
     const std::unordered_map<IdType, CustomMaterialData>& GetCustomMaterials() const;
+    void AddCustomMaterial(const Material&);
     void AddCustomMaterial(const Mesh&, const Material&);
     void UpdateCustomMaterial(const Mesh&, const Material&);
     const BoundingBox& getWorldSpaceBoundingBox() const;

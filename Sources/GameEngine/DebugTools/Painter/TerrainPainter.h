@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
+#include "GameEngine/DebugTools/Painter/TerrainPoint.h"
 #include "Painter.h"
 #include "TerrainPointGetter.h"
 
@@ -51,12 +52,16 @@ public:
     std::optional<vec2ui> GetPaintendPoint(const TerrainPoint& terrainPoint, const Influance& point);
     vec2ui ConvertToPixelSpace(const TerrainPoint& terrainPoint);
     bool IsInRange(const Utils::Image& image, const vec2ui& pixel);
+    void SetOnPointChange(std::function<void(const std::optional<TerrainPoint>&)>);
 
 protected:
     Input::InputManager& inputManager_;
     TerrainPointGetter pointGetter_;
     std::unique_ptr<IBrush> brush_;
     TerrainTextureType textureType_;
+
+    std::optional<TerrainPoint> lastTerrainPoint;
+    std::function<void(const std::optional<TerrainPoint>&)> onPointChange;
 };
 
 }  // namespace GameEngine

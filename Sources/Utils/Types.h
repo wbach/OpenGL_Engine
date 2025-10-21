@@ -529,17 +529,26 @@ struct MeasurementValue
     std::string value;
 };
 
+
 namespace glm
 {
+
+constexpr float EPSILON = 1e-6f;
+
+inline bool float_equal(float a, float b, float eps = EPSILON)
+{
+    return std::fabs(a - b) < eps;
+}
 
 // ===== vec2 =====
 inline vec2ui operator+(const vec2ui& a, const vec2ui& b)
 {
     return vec2ui{a.x + b.x , a.y + b.y};
 }
+
 inline bool operator==(const vec2& a, const vec2& b)
 {
-    return a.x == b.x && a.y == b.y;
+    return float_equal(a.x, b.x) && float_equal(a.y, b.y);
 }
 inline bool operator!=(const vec2& a, const vec2& b)
 {
@@ -547,7 +556,11 @@ inline bool operator!=(const vec2& a, const vec2& b)
 }
 inline bool operator<(const vec2& a, const vec2& b)
 {
-    return (a.x < b.x) || (a.x == b.x && a.y < b.y);
+    if (!float_equal(a.x, b.x))
+        return a.x < b.x;
+    if (!float_equal(a.y, b.y))
+        return a.y < b.y;
+    return false;
 }
 inline bool operator>(const vec2& a, const vec2& b)
 {
@@ -615,7 +628,7 @@ inline bool operator>=(const uvec2& a, const uvec2& b)
 // ===== vec3 =====
 inline bool operator==(const vec3& a, const vec3& b)
 {
-    return a.x == b.x && a.y == b.y && a.z == b.z;
+    return float_equal(a.x, b.x) && float_equal(a.y, b.y) && float_equal(a.z, b.z);
 }
 inline bool operator!=(const vec3& a, const vec3& b)
 {
@@ -623,11 +636,13 @@ inline bool operator!=(const vec3& a, const vec3& b)
 }
 inline bool operator<(const vec3& a, const vec3& b)
 {
-    if (a.x != b.x)
+    if (!float_equal(a.x, b.x))
         return a.x < b.x;
-    if (a.y != b.y)
+    if (!float_equal(a.y, b.y))
         return a.y < b.y;
-    return a.z < b.z;
+    if (!float_equal(a.z, b.z))
+        return a.z < b.z;
+    return false;
 }
 inline bool operator>(const vec3& a, const vec3& b)
 {
@@ -703,7 +718,8 @@ inline bool operator>=(const uvec3& a, const uvec3& b)
 // ===== vec4 =====
 inline bool operator==(const vec4& a, const vec4& b)
 {
-    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+    return float_equal(a.x, b.x) && float_equal(a.y, b.y) &&
+           float_equal(a.z, b.z) && float_equal(a.w, b.w);
 }
 inline bool operator!=(const vec4& a, const vec4& b)
 {
@@ -711,13 +727,15 @@ inline bool operator!=(const vec4& a, const vec4& b)
 }
 inline bool operator<(const vec4& a, const vec4& b)
 {
-    if (a.x != b.x)
+    if (!float_equal(a.x, b.x))
         return a.x < b.x;
-    if (a.y != b.y)
+    if (!float_equal(a.y, b.y))
         return a.y < b.y;
-    if (a.z != b.z)
+    if (!float_equal(a.z, b.z))
         return a.z < b.z;
-    return a.w < b.w;
+    if (!float_equal(a.w, b.w))
+        return a.w < b.w;
+    return false;
 }
 inline bool operator>(const vec4& a, const vec4& b)
 {
@@ -795,6 +813,7 @@ inline bool operator>=(const uvec4& a, const uvec4& b)
 }
 
 }  // namespace glm
+
 
 
 // ====== Color ======

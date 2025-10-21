@@ -51,6 +51,7 @@ private:
     void ImportFromMesh();
     void EnablePainter();
     void OnUpdatePainterParam();
+    GameEngine::GameObject* createPainterVisualizationObject();
 
     template <typename T>
     void ProcessEvent(const T&)
@@ -89,6 +90,8 @@ private:
     PainterFields painterFields;
     GeneratorFields generatorFields;
     std::optional<IdType> sceneEventSubId;
+
+    GameEngine::GameObject* visualizationObject{nullptr};
 
     wxDECLARE_EVENT_TABLE();
 };

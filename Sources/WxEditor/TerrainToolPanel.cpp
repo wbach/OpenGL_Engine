@@ -17,6 +17,7 @@
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
+#include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -26,6 +27,7 @@
 #include "Engine/EngineContext.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
+#include "Resources/Models/Material.h"
 #include "TextureButton.h"
 #include "Types.h"
 #include "magic_enum/magic_enum.hpp"
@@ -242,6 +244,9 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
                 painterFields.terrainPainter_.reset();
                 painterFields.enableDisablePainterButton->SetLabelText("Enable " + painterFields.painterTypeCtrl->GetValue() +
                                                                        " painter");
+
+                if (visualizationObject)
+                    visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
             }
             else
             {
@@ -898,6 +903,19 @@ void TerrainToolPanel::ImportFromMesh()
     }
 }
 
+GameEngine::GameObject* TerrainToolPanel::createPainterVisualizationObject()
+{
+    auto& resourceManager = scene.GetResourceManager();
+    auto model            = resourceManager.GetPrimitives(GameEngine::PrimitiveType::Sphere);
+    auto obj              = scene.CreateGameObject(std::string("TerrainHeightPainterVisualization"));
+    obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(model).AddCustomMaterial(
+        GameEngine::Material{.diffuse = Color(120, 205, 255)});
+    auto result = obj.get();
+    result->SetLocalPosition(vec3(std::numeric_limits<float>::max()));
+    scene.AddGameObject(std::move(obj));
+    return result;
+}
+
 void TerrainToolPanel::OnUpdatePainterParam()
 {
     if (painterFields.terrainPainter_)
@@ -939,30 +957,27 @@ void TerrainToolPanel::EnablePainter()
 
                 float strength =
                     heightPainterFields.strength ? std::stof(heightPainterFields.strength->GetValue().ToStdString()) : 0.f;
-                GameEngine::WorldSpaceBrushRadius radious{std::stof(heightPainterFields.brushSize->GetValue().ToStdString())};
+                GameEngine::WorldSpaceBrushRadius radius{std::stof(heightPainterFields.brushSize->GetValue().ToStdString())};
 
-                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation),
-                                                                             radious, strength / 1000.f);
-                painterFields.terrainPainter_ =
+                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
+                                                                             strength / 1000.f);
+                auto heightPainter =
                     std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+
+                if (not visualizationObject)
+                    visualizationObject = createPainterVisualizationObject();
+
+                visualizationObject->SetWorldScale(vec3(radius.value, 0.1f, radius.value));
+                heightPainter->SetOnPointChange(
+                    [this](const auto& terrainPoint)
+                    {
+                        if (terrainPoint)
+                            visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
+                        else
+                            visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+                    });
+                painterFields.terrainPainter_ = std::move(heightPainter);
                 painterFields.terrainPainter_->Start();
-
-                // auto& resourceManager = scene.GetResourceManager();
-                // auto model            = resourceManager.GetPrimitives(GameEngine::PrimitiveType::Sphere);
-                // auto obj              = scene.CreateGameObject(std::string("TerrainHeightPainterVisualization"));
-                // obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(model);
-                // painter.SetVizualizationObject(obj.get());
-                // scene.AddGameObject(std::move(obj));
-
-                // if (auto value = magic_enum::enum_cast<GameEngine::StepInterpolation>(
-                //         heightPainterFields.interpolation->GetValue().ToStdString()))
-                // {
-                //     painter.stepInterpolation(*value);
-                // }
-                // else
-                // {
-                //     LOG_WARN << "StepInterpolation parse error";
-                // }
             }
             break;
             case 1:

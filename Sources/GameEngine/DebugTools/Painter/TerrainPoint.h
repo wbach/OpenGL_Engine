@@ -17,6 +17,13 @@ struct TerrainPoint
     Components::TerrainRendererComponent* terrainComponent{nullptr};
 };
 
+inline bool operator==(const TerrainPoint& a, const TerrainPoint& b)
+{
+    return (a.pointOnTerrain == b.pointOnTerrain) &&
+           (a.terrainSpacePoint == b.terrainSpacePoint) &&
+           (a.terrainComponent == b.terrainComponent);
+}
+
 inline std::ostream& operator<<(std::ostream& os, const TerrainPoint& tp)
 {
     os << "TerrainPoint { "

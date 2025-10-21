@@ -225,6 +225,17 @@ void RendererComponent::PrepareCustomMaterials(const Model& model)
     }
 }
 
+void RendererComponent::AddCustomMaterial(const Material& material)
+{
+    auto model = model_.Get(L1);
+    if (not model)
+        return;
+    for (auto& mesh : model->GetMeshes())
+    {
+        AddCustomMaterial(mesh, material);
+    }
+}
+
 void RendererComponent::AddCustomMaterial(const Mesh& mesh, const Material& material)
 {
     customMaterials.try_emplace(mesh.GetGpuObjectId(), componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_,
