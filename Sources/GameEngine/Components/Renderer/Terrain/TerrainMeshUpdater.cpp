@@ -17,7 +17,9 @@ namespace GameEngine
 namespace Components
 {
 TerrainMeshUpdater::TerrainMeshUpdater(const EntryParameters& entry)
-    : componentContext_(entry.componentContext_)
+    : graphicsApi_{entry.graphicsApi_}
+    , gpuResourceLoader_{entry.gpuResourceLoader_}
+    , resourceManager_{entry.resourceManager_}
     , modelWrapper_(entry.modelWrapper_)
     , heightMap_(entry.heightMap_)
     , scale_(entry.scale_)
@@ -31,7 +33,7 @@ TerrainMeshUpdater::~TerrainMeshUpdater()
 void TerrainMeshUpdater::create()
 {
     LOG_DEBUG << "Create terrain mesh : " << heightMap_.GetFile();
-    WBLoader::TerrainMeshLoader loader(componentContext_.resourceManager_.GetTextureLoader());
+    WBLoader::TerrainMeshLoader loader(resourceManager_.GetTextureLoader());
     auto newModel = loader.createModel(heightMap_, EngineConf.renderer.terrain.meshPartsCount);
 
     if (heightMap_.GetFile())
@@ -39,14 +41,14 @@ void TerrainMeshUpdater::create()
         newModel->SetFile(*heightMap_.GetFile());
     }
     modelWrapper_.Add(newModel.get(), LevelOfDetail::L1);
-    componentContext_.resourceManager_.AddModel(std::move(newModel));
+    resourceManager_.AddModel(std::move(newModel));
 }
 void TerrainMeshUpdater::reCreate()
 {
     auto model = modelWrapper_.Get(LevelOfDetail::L1);
     if (model)
     {
-        componentContext_.resourceManager_.ReleaseModel(*model);
+        resourceManager_.ReleaseModel(*model);
     }
     modelWrapper_.clear();
     create();
@@ -85,9 +87,17 @@ void TerrainMeshUpdater::recalculateNormals()
 void TerrainMeshUpdater::updatePartialTerrainMeshes()
 {
     auto model       = modelWrapper_.Get(LevelOfDetail::L1);
+    auto& meshes     = model->GetMeshes();
     auto partsCount  = *EngineConf.renderer.terrain.meshPartsCount;
     auto partialSize = heightMap_.GetImage().width / partsCount;
-    auto rest = heightMap_.GetImage().width  - (partsCount * partialSize);
+   // auto rest        = heightMap_.GetImage().width - (partsCount * partialSize);
+
+    if (partsCount >= meshes.size())
+    {
+        LOG_WARN << "Something goes wrong. Expected meshes because of parts is " << partsCount * partsCount
+                 << " but currently is " << meshes.size();
+        return;
+    }
 
     std::vector<Mesh*> meshesToUpdate;
 
@@ -97,16 +107,13 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
     {
         for (uint32 i = 0; i < partsCount; ++i)
         {
-            auto& mesh = model->GetMeshes()[i + j * partsCount];
+            auto index = i + j * partsCount;
+            auto& mesh = meshes[index];
 
             uint32 startX = i * partialSize;
             uint32 startY = j * partialSize;
             uint32 endX   = (i + 1) * partialSize + 1;
             uint32 endY   = (j + 1) * partialSize + 1;
-
-                        // uwzględnij "rest" na końcach
-            if (i == partsCount - 1) endX += rest;
-            if (j == partsCount - 1) endY += rest;
 
             if (updatePart(tools, mesh, startX, startY, endX, endY))
             {
@@ -119,8 +126,8 @@ void TerrainMeshUpdater::updatePartialTerrainMeshes()
     {
         updateModelBoundingBox(*model);
 
-        componentContext_.gpuResourceLoader_.AddFunctionToCall(
-            [&graphicsApi = this->componentContext_.graphicsApi_, meshesToUpdate]()
+        gpuResourceLoader_.AddFunctionToCall(
+            [&graphicsApi = this->graphicsApi_, meshesToUpdate]()
             {
                 for (auto& mesh : meshesToUpdate)
                 {
@@ -157,8 +164,9 @@ void TerrainMeshUpdater::updateSingleTerrainMesh()
     if (mesh.GetGraphicsObjectId() and updatePart(tools, mesh, 0, 0, heightMap_.GetImage().width, heightMap_.GetImage().height))
     {
         model->updateBoundingBox();
-        componentContext_.gpuResourceLoader_.AddFunctionToCall(
-            [&graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]() {
+
+        gpuResourceLoader_.AddFunctionToCall(
+            [&graphicsApi = this->graphicsApi_, &mesh, &meshData]() {
                 graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
                                        {VertexBufferObjects::POSITION, VertexBufferObjects::NORMAL});
             });
@@ -176,11 +184,19 @@ bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint3
     size_t meshVertexIndex = 0;
     bool isHeightChangedInTerrainPart{false};
 
+    // TO DO: resolutionDivideFactor like in loader // for (uint32 i = y_start; i < height; i += resolutionDivideFactor)
     for (uint32 i = startY; i < endY; i++)
     {
         for (uint32 j = startX; j < endX; j++)
         {
-            auto& currentHeight = meshData.positions_[meshVertexIndex + 1];
+            auto hIndex = meshVertexIndex + 1;
+            if (hIndex >= meshData.positions_.size())
+            {
+                LOG_WARN << "Something goes wrong hIndex out of range. hIndex = " << hIndex
+                         << " pos size = " << meshData.positions_.size();
+                continue;
+            }
+            auto& currentHeight = meshData.positions_[hIndex];
             auto newHeightValue = tools.GetHeight(j, i);
 
             if (forceToUpdateMesh_ or not compare(currentHeight, newHeightValue))

@@ -27,8 +27,6 @@ void CircleBrush::createInfluance(bool isEven, float stepX, float stepZ)
 
     localBrushSize = LocalBrushSize{static_cast<uint32>(std::max(1.0, std::round(brushSizeInMap)))};
 
-    LOG_DEBUG << "Pixel space brush size=" << localBrushSize.value;
-
     calculateInfluence(isEven);
 }
 const std::vector<Influance>& CircleBrush::getInfluence() const

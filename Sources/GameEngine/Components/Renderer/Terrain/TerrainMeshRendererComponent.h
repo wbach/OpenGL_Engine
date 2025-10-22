@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
@@ -8,6 +9,7 @@ namespace GameEngine
 {
 namespace Components
 {
+class TerrainMeshUpdater;
 class TerrainMeshRendererComponent : public TerrainComponentBase
 {
 public:
@@ -39,6 +41,7 @@ private:
     void ReleaseModels();
     void ClearShaderBuffers();
     void subscribeForEngineConfChange();
+    std::unique_ptr<TerrainMeshUpdater> createTerrainMeshUpdater();
 
 private:
     std::vector<BoundingBox> boundingBoxes_;

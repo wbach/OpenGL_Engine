@@ -150,7 +150,6 @@ void Model::updateBoundingBox()
 
     boundingBox_.minMax(minPoint, maxPoint);
     boundingBox_.scale(vec3(normalizedFactor));
-    LOG_DEBUG << boundingBox_;
 }
 
 const File& Model::GetFile() const

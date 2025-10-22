@@ -1,5 +1,6 @@
 #include "TerrainMeshRendererComponent.h"
 
+#include <memory>
 #include <string>
 
 #include "GameEngine/Engine/Configuration.h"
@@ -32,34 +33,36 @@ TerrainMeshRendererComponent::~TerrainMeshRendererComponent()
     EngineConf.renderer.terrain.resolutionDivideFactor.unsubscribe(resolutionDivideFactorSubscription_);
     EngineConf.renderer.terrain.meshPartsCount.unsubscribe(partsCountSubscription_);
 }
+std::unique_ptr<TerrainMeshUpdater> TerrainMeshRendererComponent::createTerrainMeshUpdater()
+{
+    return std::make_unique<TerrainMeshUpdater>(
+        TerrainMeshUpdater::EntryParameters{componentContext_.graphicsApi_, componentContext_.gpuResourceLoader_,
+                                            componentContext_.resourceManager_, modelWrapper_, *heightMap_, vec3(1.f)});
+}
 void TerrainMeshRendererComponent::RecalculateNormals()
 {
     if (not heightMap_)
         return;
 
-    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)}).recalculateNormals();
+    if (auto meshUpdater = createTerrainMeshUpdater())
+        meshUpdater->recalculateNormals();
 }
 void TerrainMeshRendererComponent::HeightMapChanged()
 {
-    LOG_DEBUG << "on HeightMapChanged";
-
     if (not modelWrapper_.Get(LevelOfDetail::L1) or not heightMap_)
     {
         return;
     }
 
-    TerrainMeshUpdater meshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)});
+    auto meshUpdater = createTerrainMeshUpdater();
 
-    // heap corruption → malloc error.
-    // if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
-    // {
-    //     LOG_DEBUG << "meshUpdater.update();";
-    //     meshUpdater.update();
-    // }
-    // else
+    if (heightMap_->GetImage().size() == heightMapSizeUsedToTerrainCreation_)
     {
-        LOG_DEBUG << "meshUpdater.reCreate();";
-        meshUpdater.reCreate();
+        meshUpdater->update();
+    }
+    else
+    {
+        meshUpdater->reCreate();
         heightMapSizeUsedToTerrainCreation_ = heightMap_->GetImage().size();
     }
 
@@ -217,7 +220,8 @@ void TerrainMeshRendererComponent::LoadObjectToGpu(GpuObject &obj)
 
 void TerrainMeshRendererComponent::createModels()
 {
-    TerrainMeshUpdater({componentContext_, modelWrapper_, *heightMap_, vec3(1.f)}).create();
+    if (auto meshUpdater = createTerrainMeshUpdater())
+        meshUpdater->create();
 }
 
 void TerrainMeshRendererComponent::ClearShaderBuffers()

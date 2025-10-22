@@ -2,8 +2,6 @@ set(TestsSources
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/MT/GUI/GuiTextTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/Mocks/Api/GraphicsApiMock.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Utils/utilsTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainHeightPainterTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainHeightGetterTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Gui/GuiManagerTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Animations/AnimationStateFixture.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Animations/AnimationTransitionTests.cpp
@@ -89,10 +87,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/GameObjectTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/BaseComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/EngineBasedTest.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/InterpolationTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainToolsTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainPointGetterTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/TerrainTransitionTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/GpuResourceLoaderTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/ColladaLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/WaveFrontObjLoaderTests.cpp
@@ -105,8 +99,15 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/Gui/VerticalLayoutT
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/Gui/HorizontalLayoutTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Renderers/EntityRendererTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/JsonWriterTreeTest.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/CircleBrushTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/ComponentControllerTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainHeightPainterTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainHeightGetterTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainMeshUpdaterTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/InterpolationTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainToolsTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainPointGetterTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainTransitionTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/CircleBrushTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/JsonReaderTreeTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Camera/CameraFrustrumTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/FileTest.cpp
