@@ -1474,6 +1474,17 @@ void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
                          event.Skip();
                      });
 
+        terrainPanel->Bind(wxEVT_BUTTON,
+                           [this](wxCommandEvent& event)
+                           {
+                               if (event.GetId() == wxID_CLOSE)
+                               {
+                                   canvas->EnablePicker();
+                               }
+
+                               event.Skip();
+                           });
+
         canvas->DisablePicker();
     }
     else

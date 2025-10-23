@@ -711,6 +711,7 @@ void TerrainToolPanel::ShowPanel(bool show)
 void TerrainToolPanel::OnClose(wxCommandEvent& event)
 {
     ShowPanel(false);
+    event.Skip();
 }
 
 void TerrainToolPanel::RefillTerrainObjectsCtrl()
