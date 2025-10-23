@@ -1291,14 +1291,14 @@ void MainFrame::CloneGameObject(wxCommandEvent& event)
 
 void MainFrame::OnPageChanged(wxBookCtrlEvent& event)
 {
-    int selection = event.GetSelection();  // indeks nowej aktywnej strony
+    int selection = event.GetSelection();
     if (transfromSubController)
     {
         LOG_DEBUG << "selection = " << selection;
         transfromSubController->ChangeState(static_cast<TransfromSubController::State>(selection));
     }
-    // ... twoja logika ...
-    event.Skip();  // pozwol na dalsza obsluge
+
+    event.Skip();
 }
 
 void MainFrame::ChangeGameObjectParent(GameEngine::GameObject& object, GameEngine::GameObject& newParent)
@@ -1473,10 +1473,21 @@ void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
                          }
                          event.Skip();
                      });
+
+        canvas->DisablePicker();
     }
     else
     {
         terrainPanel->ShowPanel(!terrainPanel->IsVisible());
+
+        if (terrainPanel->IsVisible())
+        {
+            canvas->DisablePicker();
+        }
+        else
+        {
+            canvas->EnablePicker();
+        }
     }
 }
 

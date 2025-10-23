@@ -86,12 +86,11 @@ wxBEGIN_EVENT_TABLE(TerrainToolPanel, wxPanel)
 wxEND_EVENT_TABLE()
 
 TerrainToolPanel::TerrainToolPanel(wxWindow* parent, GameEngine::Scene& scene, int width)
-    : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(width, -1), wxBORDER_NONE | wxTAB_TRAVERSAL)
+    : wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxSize(width, -1), wxBORDER_NONE | wxTAB_TRAVERSAL | wxSTAY_ON_TOP )
     , scene{scene}
 // clang-format on
 {
     SetBackgroundColour(wxColour(30, 30, 30));
-    SetTransparent(200);
 
     BuildUI();
 
