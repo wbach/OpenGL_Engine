@@ -874,41 +874,41 @@ wxMenu* MainFrame::CreateFileMenu()
 wxMenu* MainFrame::CreateEditMenu()
 {
     wxMenu* menu = new wxMenu;
-    menu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&Create new object\tCtrl-A", "Create empty new object");
-    menu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Create terrain\tCtrl-A", "Create gameobject with terrain components");
-    menu->Append(ID_MENU_EDIT_MATERIAL_EDITOR, "&Material editor\tCtrl-A", "Create new default material");
-    menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab\tCtrl-A", "Create new object");
-    menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear\tCtrl-A", "Delete all object in scene");
-    menu->Append(ID_MENU_EDIT_PREFERENCES, "&Preferences\tCtrl-A", "Change settings");
+    menu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&Create new object", "Create empty new object");
+    menu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Create terrain", "Create gameobject with terrain components");
+    menu->Append(ID_MENU_EDIT_MATERIAL_EDITOR, "&Material editor", "Create new default material");
+    menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab", "Create new object");
+    menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear", "Delete all object in scene");
+    menu->Append(ID_MENU_EDIT_PREFERENCES, "&Preferences", "Change settings");
     return menu;
 }
 
 wxMenu* MainFrame::CreateRendererMenu()
 {
     rendererMenu = new wxMenu;
-    rendererMenu->Append(ID_MENU_RENDERER_RELOAD_SHADERS, "&Reload shaders\tCtrl-A", "Reload current shaders");
-    rendererMenu->Append(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, "&Take snapshot\tCtrl-A", "Create snapshot of renderer state");
-    rendererMenu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode\tCtrl-A", "Switch between line and fill render mode");
-    rendererMenu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics\tCtrl-A",
-                         "Enable/Disable of physics visualization", wxITEM_CHECK);
-    rendererMenu->Append(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, "&Visualize gameObject boundig box\tCtrl-A",
+    rendererMenu->Append(ID_MENU_RENDERER_RELOAD_SHADERS, "&Reload shaders", "Reload current shaders");
+    rendererMenu->Append(ID_MENU_RENDERER_TAKE_RENDERER_SNAPSHOT, "&Take snapshot", "Create snapshot of renderer state");
+    rendererMenu->Append(ID_MENU_RENDERER_SWAP, "&Swap render mode", "Switch between line and fill render mode");
+    rendererMenu->Append(ID_MENU_RENDERER_PHYSICS_VISUALIZATION, "&Visualize physics", "Enable/Disable of physics visualization",
+                         wxITEM_CHECK);
+    rendererMenu->Append(ID_MENU_RENDERER_BOUNDING_BOX_VISUALIZATION, "&Visualize gameObject boundig box",
                          "Enable/Disable of bounding box visualization from engine not from rigidbody physics", wxITEM_CHECK);
-    rendererMenu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals\tCtrl-A",
-                         "Enable/Disable of normals visualization", wxITEM_CHECK);
+    rendererMenu->Append(ID_MENU_RENDERER_NORMAL_VISUALIZATION, "&Visualize normals", "Enable/Disable of normals visualization",
+                         wxITEM_CHECK);
 
     rendererTextureSubMenu = new wxMenu;
-    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_AMBIENT, "&Ambient\tCtrl-A",
-                                   "Enable/Disable of ambient visualization", wxITEM_CHECK);
-    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_DIFFUSE, "&Diffuse\tCtrl-A",
-                                   "Enable/Disable of diffuse visualization", wxITEM_CHECK);
-    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_NORMALS, "&Normals\tCtrl-A",
-                                   "Enable/Disable of normals visualization", wxITEM_CHECK);
-    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_SPECULAR, "&Specular\tCtrl-A",
-                                   "Enable/Disable of specular visualization", wxITEM_CHECK);
-    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, "&Displacment\tCtrl-A",
-                                   "Enable/Disable of displacement visualization");
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_AMBIENT, "&Ambient", "Enable/Disable of ambient visualization",
+                                   wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_DIFFUSE, "&Diffuse", "Enable/Disable of diffuse visualization",
+                                   wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_NORMALS, "&Normals", "Enable/Disable of normals visualization",
+                                   wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_SPECULAR, "&Specular", "Enable/Disable of specular visualization",
+                                   wxITEM_CHECK);
+    rendererTextureSubMenu->Append(ID_MENU_RENDERER_TEXTURE_DISPLACEMENT, "&Displacment",
+                                   "Enable/Disable of displacement visualization", wxITEM_CHECK);
 
-    rendererMenu->AppendSubMenu(rendererTextureSubMenu, "&Texture rendering\tCtrl-A", "Enable/Disable of normals visualization");
+    rendererMenu->AppendSubMenu(rendererTextureSubMenu, "&Texture rendering", "Enable/Disable of normals visualization");
     return rendererMenu;
 }
 
