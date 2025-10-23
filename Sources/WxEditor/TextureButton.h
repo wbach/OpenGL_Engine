@@ -2,11 +2,14 @@
 #include <wx/dcbuffer.h>
 #include <wx/wx.h>
 
+#include <functional>
+
 class TextureButton : public wxPanel
 {
 public:
-    TextureButton(wxWindow* parent, const wxBitmap& bmp, const wxString& name, int index)
+    TextureButton(wxWindow* parent, const wxBitmap& bmp, const wxString& name, int index, std::function<void()> onclick)
         : wxPanel(parent, wxID_ANY, wxDefaultPosition, bmp.GetSize())
+        , m_onclick(onclick)
         , m_bitmap(bmp)
         , m_name(name)
         , m_index(index)
@@ -40,6 +43,7 @@ public:
     }
 
 private:
+    std::function<void()> m_onclick;
     wxBitmap m_bitmap;
     wxString m_name;
     int m_index;
@@ -81,7 +85,9 @@ private:
         }
 
         Refresh();
-        wxLogMessage("Selected texture %d: %s", m_index + 1, m_name);
+        //wxLogMessage("Selected texture %d: %s", m_index + 1, m_name);
+        if (m_onclick)
+            m_onclick();
     }
 
     void OnRightClick(wxMouseEvent&)

@@ -7,6 +7,7 @@
 #include <GameEngine/DebugTools/Painter/HeightPainter.h>
 #include <GameEngine/DebugTools/Painter/Interpolation.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
+#include <GameEngine/DebugTools/Painter/TexturePainter.h>
 #include <GameEngine/Engine/EngineContext.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/Primitive.h>
@@ -472,6 +473,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
         // TODO: uzupełnij listę metod w runtime
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.texturePainterFields.interpolation = combo;
     }
 
     // === Brush Type ===
@@ -488,6 +490,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
                                      wxDefaultPosition, wxDefaultSize, textureBrushTypes, wxCB_READONLY);
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.texturePainterFields.brushType = combo;
     }
 
     // === Brush Size ===
@@ -502,6 +505,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
         box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.texturePainterFields.brushSize = text;
 
         // Synchronizacja slider <-> text
         slider->Bind(wxEVT_SLIDER,
@@ -531,6 +535,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
         box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.texturePainterFields.strength = text;
 
         // Synchronizacja slider <-> text
         slider->Bind(wxEVT_SLIDER,
@@ -570,19 +575,21 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
         auto* wrapSizer = new wxWrapSizer(wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS);
         texPanel->SetSizer(wrapSizer);
 
-        const int texSize              = 64;
-        std::vector<wxString> texNames = {"Grass", "Rock", "Sand", "Dirt", "Snow"};
+        const int texSize = 64;
 
-        for (int i = 0; i < (int)texNames.size(); ++i)
+        int i = 0;
+        for (const auto& texture : magic_enum::enum_values<TerrainPainterTexturePlaceHolder>())
         {
             wxBitmap bmp(texSize, texSize);
             wxMemoryDC dc(bmp);
             dc.SetBrush(*wxLIGHT_GREY_BRUSH);
             dc.Clear();
-            dc.DrawText(texNames[i].Left(1), texSize / 2 - 5, texSize / 2 - 8);
+            // dc.DrawText(texNames[i].Left(1), texSize / 2 - 5, texSize / 2 - 8);
             dc.SelectObject(wxNullBitmap);
 
-            auto* texBtn = new TextureButton(texPanel, bmp, texNames[i], i);
+            auto* texBtn =
+                new TextureButton(texPanel, bmp, std::string(magic_enum::enum_name(texture)), i++,
+                                  [this, type = texture]() { painterFields.texturePainterFields.selectedTexture = type; });
             wrapSizer->Add(texBtn, 0, wxALL, 4);
         }
 
@@ -625,7 +632,7 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
         dc.DrawText("P", texSize / 2 - 5, texSize / 2 - 8);
         dc.SelectObject(wxNullBitmap);
 
-        auto* texBtn = new TextureButton(panel, bmp, "PlantTexture", 0);
+        auto* texBtn = new TextureButton(panel, bmp, "PlantTexture", 0, nullptr);
 
         texBtn->Bind(wxEVT_LEFT_DOWN,
                      [texBtn](wxMouseEvent&)
@@ -942,6 +949,49 @@ void TerrainToolPanel::EnablePainter()
         return;
     }
 
+    auto getInterpolation = [&](wxComboBox* interpolationBox)
+    {
+        if (auto value = magic_enum::enum_cast<GameEngine::InterpolationType>(interpolationBox->GetValue().ToStdString()))
+        {
+            return *value;
+        }
+        else
+        {
+            LOG_WARN << "StepInterpolation parse error";
+        }
+
+        return GameEngine::InterpolationType::Smooth;
+    };
+
+    auto getStrength = [&](wxTextCtrl* strengthTextCtrl)
+    {
+        try
+        {
+            return strengthTextCtrl ? std::stof(strengthTextCtrl->GetValue().ToStdString()) : 0.f;
+        }
+        catch (...)
+        {
+            LOG_WARN << "getStrength parse error";
+        }
+        return 0.f;
+    };
+
+    auto getRadius = [&](wxTextCtrl* brushSizeCtrl)
+    {
+        if (not brushSizeCtrl)
+            return GameEngine::WorldSpaceBrushRadius{1.f};
+
+        try
+        {
+            return GameEngine::WorldSpaceBrushRadius{std::stof(brushSizeCtrl->GetValue().ToStdString())};
+        }
+        catch (...)
+        {
+            LOG_WARN << "getStrength parse error";
+        }
+        return GameEngine::WorldSpaceBrushRadius{1.f};
+    };
+
     int selection = painterFields.painterTypeCtrl->GetSelection();
     try
     {
@@ -953,20 +1003,9 @@ void TerrainToolPanel::EnablePainter()
 
                 const auto& heightPainterFields = painterFields.heightPainterFields;
 
-                GameEngine::InterpolationType interpolation = GameEngine::InterpolationType::Gaussian;
-                if (auto value = magic_enum::enum_cast<GameEngine::InterpolationType>(
-                        heightPainterFields.interpolation->GetValue().ToStdString()))
-                {
-                    interpolation = *value;
-                }
-                else
-                {
-                    LOG_WARN << "StepInterpolation parse error";
-                }
-
-                float strength =
-                    heightPainterFields.strength ? std::stof(heightPainterFields.strength->GetValue().ToStdString()) : 0.f;
-                GameEngine::WorldSpaceBrushRadius radius{std::stof(heightPainterFields.brushSize->GetValue().ToStdString())};
+                auto interpolation = getInterpolation(heightPainterFields.interpolation);
+                auto strength      = getStrength(heightPainterFields.strength);
+                auto radius        = getRadius(heightPainterFields.brushSize);
 
                 auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
                                                                              strength / 1000.f);
@@ -991,8 +1030,42 @@ void TerrainToolPanel::EnablePainter()
             break;
             case 1:
             {
-                // painterFields.terrainPainter_ = std::make_unique<GameEngine::TerrainTexturePainter>(
-                //     GetPainterEntryParameters(scene), Color(1.f, 0.f, 0.f, 0.f));
+                const auto& texturePainterFields = painterFields.texturePainterFields;
+                auto interpolation               = getInterpolation(texturePainterFields.interpolation);
+                auto strength                    = getStrength(texturePainterFields.strength);
+                auto radius                      = getRadius(texturePainterFields.brushSize);
+
+                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
+                                                                             strength / 1000.f);
+
+                // TO do : pass file to painter, where will be selection of chanel. If texture will exist in some changel then use
+                // that chanel oterwise if possible load texture and assign free channel. If no space throw a error.
+                Color paintedColor(vec4(0.f, 0.f, 0.f, 0.f));
+                switch (texturePainterFields.selectedTexture)
+                {
+                    case TerrainPainterTexturePlaceHolder::BACKGROUND:
+                        paintedColor = Color(vec4(0.f, 0.f, 0.f, 0.f));
+                        break;
+                    case TerrainPainterTexturePlaceHolder::RED:
+                        paintedColor = Color(vec4(1.f, 0.f, 0.f, 0.f));
+                        break;
+                    case TerrainPainterTexturePlaceHolder::GREEN:
+                        paintedColor = Color(vec4(0.f, 1.f, 0.f, 0.f));
+                        break;
+                    case TerrainPainterTexturePlaceHolder::BLUE:
+                        paintedColor = Color(vec4(0.f, 0.f, 1.f, 0.f));
+                        break;
+                    case TerrainPainterTexturePlaceHolder::ALPHA:
+                        paintedColor = Color(vec4(0.f, 0.f, 0.f, 1.f));
+                        break;
+                }
+
+                LOG_DEBUG << "Painted color: " << paintedColor;
+
+                painterFields.terrainPainter_ = std::make_unique<GameEngine::TexturePainter>(
+                    GetPainterDependencies(scene), std::move(circleBrush), paintedColor);
+
+                painterFields.terrainPainter_->Start();
             }
             break;
             case 2:

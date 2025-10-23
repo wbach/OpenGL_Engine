@@ -10,8 +10,7 @@
 #include <wx/stattext.h>
 #include <wx/wx.h>
 
-#include <set>
-#include <unordered_map>
+#include "TerrainPainterTexturePlaceHolders.h"
 
 namespace GameEngine
 {
@@ -80,12 +79,23 @@ private:
         wxTextCtrl* strength{nullptr};
     };
 
+    struct TexturePainterFields
+    {
+        wxComboBox* interpolation{nullptr};
+        wxComboBox* brushType{nullptr};
+        wxTextCtrl* brushSize{nullptr};
+        wxTextCtrl* strength{nullptr};
+
+        TerrainPainterTexturePlaceHolder selectedTexture{TerrainPainterTexturePlaceHolder::BACKGROUND};
+    };
+
     struct PainterFields
     {
         wxComboBox* painterTypeCtrl;
         wxButton* enableDisablePainterButton{nullptr};
         std::unique_ptr<GameEngine::Painter> terrainPainter_;
         HeightPainterFields heightPainterFields;
+        TexturePainterFields texturePainterFields;
     };
 
     PainterFields painterFields;

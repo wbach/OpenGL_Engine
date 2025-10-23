@@ -86,7 +86,10 @@ inline std::ostream& operator<<(std::ostream& os, const DegreesVec3& dv)
 
 inline std::ostream& operator<<(std::ostream& os, const Color& c)
 {
-    return os << "Color(r=" << c.r() << ", g=" << c.g() << ", b=" << c.b() << ", a=" << c.a() << ")";
+    os << "Color(float: r=" << c.value.x << ", g=" << c.value.y << ", b=" << c.value.z << ", a=" << c.value.w << "; "
+       << "uint8: r=" << static_cast<int>(c.r()) << ", g=" << static_cast<int>(c.g()) << ", b=" << static_cast<int>(c.b())
+       << ", a=" << static_cast<int>(c.a()) << ")";
+    return os;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const MeasurementValue& mv)

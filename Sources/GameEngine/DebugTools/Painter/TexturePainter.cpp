@@ -9,7 +9,7 @@
 
 namespace GameEngine
 {
-TexturePainter::TexturePainter(Dependencies& dependencies, std::unique_ptr<IBrush> brush, const Color& color)
+TexturePainter::TexturePainter(TerrainPainter::Dependencies&& dependencies, std::unique_ptr<IBrush> brush, const Color& color)
     : TerrainPainter(dependencies, std::move(brush), TerrainTextureType::blendMap)
     , paintedColor(color)
 {
