@@ -159,6 +159,10 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     LOG_DEBUG << "xx";
 }
 
+MainFrame::~MainFrame()
+{
+}
+
 void MainFrame::Init()
 {
     wxInitAllImageHandlers();
@@ -381,6 +385,11 @@ void MainFrame::ClearScene()
 
 void MainFrame::OnClose(wxCloseEvent& event)
 {
+    if (terrainPanel)
+    {
+        terrainPanel->Cleanup();
+    }
+
     LOG_DEBUG << "OnClose";
     isRunning = false;
     if (loadSceneThread.joinable())

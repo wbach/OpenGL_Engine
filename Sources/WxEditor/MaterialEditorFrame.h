@@ -1,10 +1,9 @@
 #pragma once
+#include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <wx/colordlg.h>
 #include <wx/splitter.h>
 #include <wx/wx.h>
-
-#include "Objects/GameObject.h"
 
 class GLCanvas;
 class MaterialPanel;

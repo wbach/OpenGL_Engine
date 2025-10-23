@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <Types.h>
 #include <wx/button.h>
@@ -12,8 +13,6 @@
 #include <set>
 #include <unordered_map>
 
-#include "Objects/GameObject.h"
-
 namespace GameEngine
 {
 class Scene;
@@ -25,6 +24,8 @@ class TerrainToolPanel : public wxScrolledWindow
 public:
     TerrainToolPanel(wxWindow* parent, GameEngine::Scene&, int width);
     ~TerrainToolPanel() override;
+
+    void Cleanup();
 
     void ShowPanel(bool show);
     bool IsVisible() const

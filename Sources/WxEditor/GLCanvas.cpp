@@ -4,6 +4,7 @@
 #include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 #include <GameEngine/DebugTools/MousePicker/DragObject.h>
 #include <GameEngine/DebugTools/MousePicker/MousePicker.h>
+#include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Resources/Models/Primitive.h>
 #include <wx/dcclient.h>
 
@@ -12,7 +13,6 @@
 
 #include "EditorUitls.h"
 #include "Logger/Log.h"
-#include "Objects/GameObject.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
@@ -201,8 +201,8 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                    [&](int x, int y)
-                                                                    {
+                                                                            [&](int x, int y)
+                                                                            {
                                                                         if (GetHandle())
                                                                         {
                                                                             WarpPointer(x, y);

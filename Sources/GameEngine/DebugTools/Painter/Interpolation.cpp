@@ -1,6 +1,7 @@
 #include "Interpolation.h"
 
 #include "Types.h"
+#include <algorithm>
 
 namespace GameEngine
 {

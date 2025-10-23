@@ -1,16 +1,16 @@
 #include "MaterialEditorFrame.h"
 
 #include <GameEngine/Resources/ITextureLoader.h>
+#include <GameEngine/Resources/Models/Material.h>
+#include <GameEngine/Resources/Models/Primitives.h>
 #include <GameEngine/Resources/Textures/GeneralTexture.h>
+#include <Logger/Log.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 
 #include "EditorUitls.h"
 #include "GLCanvas.h"
-#include "Logger/Log.h"
 #include "ProjectManager.h"
-#include "Resources/Models/Material.h"
-#include "Resources/Models/Primitives.h"
 
 MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title,
                                          const wxPoint& pos, const wxSize& size)

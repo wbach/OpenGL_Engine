@@ -20,7 +20,7 @@ namespace GameEngine
 class CameraWrapper;
 class Projection;
 class IBrush;
-class Influance;
+struct Influance;
 
 namespace Components
 {

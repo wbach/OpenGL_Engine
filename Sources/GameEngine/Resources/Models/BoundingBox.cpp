@@ -1,6 +1,7 @@
 #include "BoundingBox.h"
 
 #include <ostream>
+#include <array>
 
 namespace GameEngine
 {

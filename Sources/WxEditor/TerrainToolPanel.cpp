@@ -5,9 +5,13 @@
 #include <GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h>
 #include <GameEngine/DebugTools/Painter/CircleBrush.h>
 #include <GameEngine/DebugTools/Painter/HeightPainter.h>
+#include <GameEngine/DebugTools/Painter/Interpolation.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
+#include <GameEngine/Engine/EngineContext.h>
+#include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/Primitive.h>
 #include <Logger/Log.h>
+#include <Types.h>
 #include <Utils/Variant.h>
 #include <wx/busyinfo.h>
 #include <wx/collpane.h>
@@ -18,19 +22,15 @@
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
 #include <limits>
+#include <magic_enum/magic_enum.hpp>
 #include <optional>
 #include <stdexcept>
 #include <string>
 
-#include "DebugTools/Painter/Interpolation.h"
 #include "EditorUitls.h"
-#include "Engine/EngineContext.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
-#include "Resources/Models/Material.h"
 #include "TextureButton.h"
-#include "Types.h"
-#include "magic_enum/magic_enum.hpp"
 
 namespace
 {
@@ -110,6 +110,15 @@ TerrainToolPanel::~TerrainToolPanel()
     if (sceneEventSubId)
     {
         scene.UnSubscribeForSceneEvent(*sceneEventSubId);
+    }
+}
+
+void TerrainToolPanel::Cleanup()
+{
+    if (sceneEventSubId)
+    {
+        scene.UnSubscribeForSceneEvent(*sceneEventSubId);
+        sceneEventSubId.reset();
     }
 }
 
