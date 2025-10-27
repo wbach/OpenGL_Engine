@@ -151,7 +151,7 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
     FIMEMORY* stream = FreeImage_OpenMemory(const_cast<BYTE*>(data), static_cast<DWORD>(len));
     if (not stream)
     {
-        printf("Nie można otworzyć pamięci!\n");
+        printf("Nie mozna otworzyc pamieci!\n");
         return std::nullopt;
     }
 
@@ -162,11 +162,11 @@ std::optional<Utils::Image> ReadImage(const unsigned char* data, unsigned int le
         return std::nullopt;
     }
 
-    // Wczytujemy obraz z pamięci
+    // Wczytujemy obraz z pamieci
     FIBITMAP* image = FreeImage_LoadFromMemory(format, stream, 0);
     if (not image)
     {
-        printf("Nie można wczytać obrazu!\n");
+        printf("Nie mozna wczytac obrazu!\n");
         FreeImage_CloseMemory(stream);
         return std::nullopt;
     }
@@ -402,12 +402,8 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                            Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
                                             vec2(4));
                        },
-                       [&](const std::vector<float>&) { /* LOG TO FIX*/
-                                                        LOG_ERROR << ("GenerateBlendMapImage for floats not implemented");
-                       },
-                       [](std::monostate) { /* LOG TO FIX*/
-                                            LOG_ERROR << ("Data not set!");
-                       }},
+                       [&](const std::vector<float>&) { LOG_WARN << ("GenerateBlendMapImage for floats not implemented"); },
+                       [](std::monostate) { LOG_ERROR << ("Data not set!"); }},
                image.getImageData());
 }
 

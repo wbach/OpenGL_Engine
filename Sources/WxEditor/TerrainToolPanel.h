@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameEngine/Objects/GameObject.h>
+#include <GameEngine/Resources/File.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <Types.h>
 #include <wx/button.h>
@@ -9,14 +10,15 @@
 #include <wx/slider.h>
 #include <wx/stattext.h>
 #include <wx/wx.h>
-
-#include "TerrainPainterTexturePlaceHolders.h"
+#include <optional>
 
 namespace GameEngine
 {
 class Scene;
 class Painter;
 }  // namespace GameEngine
+
+class TextureButton;
 
 class TerrainToolPanel : public wxScrolledWindow
 {
@@ -39,6 +41,7 @@ private:
     void BuildTerrainPainterUI(wxSizer*);
     wxPanel* BuildHeightPainterPanel(wxWindow*);
     wxPanel* BuildTexturePainterPanel(wxWindow*);
+    void BuildTexturePainterPanel(wxWindow* panel, wxSizer* sizer);
     wxPanel* BuildPlantPainterPanel(wxWindow*);
     void GenerateTerrain(bool);
     void GenerateTerrain(bool, const std::optional<IdType>&);
@@ -51,6 +54,7 @@ private:
     void ImportFromMesh();
     void EnablePainter();
     void OnUpdatePainterParam();
+    void SelectedPainterTexture(wxMouseEvent&);
     GameEngine::GameObject* createPainterVisualizationObject();
 
     template <typename T>
@@ -58,6 +62,7 @@ private:
     {
         RefillTerrainObjectsCtrl();
     }
+
 
 private:
     GameEngine::Scene& scene;
@@ -86,7 +91,10 @@ private:
         wxTextCtrl* brushSize{nullptr};
         wxTextCtrl* strength{nullptr};
 
-        TerrainPainterTexturePlaceHolder selectedTexture{TerrainPainterTexturePlaceHolder::BACKGROUND};
+        TextureButton* selectedTextureButton;
+        std::optional<GameEngine::File> selectedTextureFile;
+
+        std::vector<GameEngine::File> textures;
     };
 
     struct PainterFields

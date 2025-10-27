@@ -87,6 +87,11 @@ Texture* TerrainRendererComponent::GetTexture(TerrainTextureType type) const
     return terrainComponent_->GetTexture(type);
 }
 
+const std::vector<std::pair<TerrainTextureType, Texture*>>& TerrainRendererComponent::GetTextures() const
+{
+    return terrainComponent_->GetTextures();
+}
+
 void TerrainRendererComponent::setTexture(Texture& texture, float tiledSize, TerrainTextureType type)
 {
     terrainComponent_->setTexture(texture, tiledSize, type);

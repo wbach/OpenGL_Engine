@@ -173,7 +173,7 @@ void MainFrame::Init()
     // Lewy splitter: gora/dol
     wxSplitterWindow* leftSplitter = new wxSplitterWindow(mainSplitter, wxID_ANY);
 
-    // Gora lewego splittera: tree + canvas
+    // Gora lewego splittera: tree + canvas (+ boczny panel)
     wxSplitterWindow* topSplitter = new wxSplitterWindow(leftSplitter, wxID_ANY);
 
     // === Tree ===
@@ -213,24 +213,35 @@ void MainFrame::Init()
             UpdateGameObjectIdOnTransfromLabel(gameObjectId);
         }
     };
-    canvas = new GLCanvas(topSplitter, onStartupDone, selectItemInGameObjectTree);
 
+    // === Prawy splitter: canvas + panel boczny ===
+    rightSplitter = new wxSplitterWindow(topSplitter, wxID_ANY);
+
+    // GLCanvas -- UWAGA: parent to rightSplitter (nie topSplitter!)
+    canvas = new GLCanvas(rightSplitter, onStartupDone, selectItemInGameObjectTree);
     canvas->SetDropTarget(new GLCanvasDropTarget([this](const auto& file) { OnFileActivated(file); }));
 
+    // Panel boczny obok canvas dla terrain tools
+    rightSplitter->Initialize(canvas);
+    rightSplitter->SetSashGravity(1.0);
+    rightSplitter->SetMinimumPaneSize(300);
+    terrainPanelVisible = false;
+
     auto size = GetSize();
-    // Split pionowy: tree + canvas
-    topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), canvas, size.x / 8);
+
+    // Split pionowy: tree (lewa) + rightSplitter (canvas + panel)
+    topSplitter->SplitVertically(gameObjectsView->GetWxTreeCtrl(), rightSplitter, size.x / 8);
 
     // === Dol: ProjectPanel ===
     auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
     projectPanel = new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
 
-    // Lewy splitter: gora (tree+canvas), dol (projectPanel)
+    // Lewy splitter: gora (tree+canvas+panel), dol (projectPanel)
     leftSplitter->SplitHorizontally(topSplitter, projectPanel, size.y * 3 / 5);
 
     // === Prawa strona: gameObjectPanels ===
     gameObjectPanels = new wxScrolledWindow(mainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL);
-    gameObjectPanels->SetScrollRate(5, 5);  // ustaw scrollowanie
+    gameObjectPanels->SetScrollRate(5, 5);
 
     gameObjectPanelsSizer = new wxBoxSizer(wxVERTICAL);
     gameObjectPanels->SetSizer(gameObjectPanelsSizer);
@@ -241,7 +252,6 @@ void MainFrame::Init()
 
     gameObjectPanelsSizer->Add(transformsCollapsible, 0, wxEXPAND | wxALL, 0);
 
-    // Teraz do collapsible dajemy notebook
     wxWindow* pane = transformsCollapsible->GetPane();
 
     auto transformsNotebook = new wxNotebook(pane, wxID_ANY, wxDefaultPosition, wxDefaultSize);
@@ -291,7 +301,6 @@ void MainFrame::Init()
     // Powiazanie zdarzenia z ID_SAVE
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     SaveOsTheme(*this);
-    // ApplyTheme(*this);
 
     Bind(wxEVT_RELOAD_COMPONENT_LIB_EVENT,
          [this](ReloadComponentLibEvent& event)
@@ -378,6 +387,9 @@ void MainFrame::ClearScene()
 
     if (terrainPanel)
     {
+        rightSplitter->Unsplit(terrainPanel);
+        terrainPanelVisible = false;
+
         terrainPanel->Destroy();
         terrainPanel = nullptr;
     }
@@ -1446,60 +1458,48 @@ void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir, w
 
 void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
 {
+    if (!rightSplitter)
+        return;
+
+    auto onTerrainPanelClose = [this]()
+    {
+        rightSplitter->Unsplit(terrainPanel);
+        terrainPanelVisible = false;
+        canvas->EnablePicker();
+    };
+
     if (not terrainPanel)
     {
         int width    = 300;
-        terrainPanel = new TerrainToolPanel(this, canvas->GetScene(), width);
-        terrainPanel->SetPosition(wxPoint(canvas->GetPosition().x + canvas->GetSize().x - width, canvas->GetPosition().y));
-        terrainPanel->SetSize(wxSize(width, canvas->GetSize().y));
-        terrainPanel->Raise();
-        terrainPanel->Show(true);
-
-        // Dopasuj po zmianie rozmiaru
-        canvas->Bind(wxEVT_SIZE,
-                     [this](wxSizeEvent& event)
-                     {
-                         if (terrainPanel && terrainPanel->IsShown())
-                         {
-                             auto canvasPos  = canvas->GetPosition();
-                             auto canvasSize = canvas->GetSize();
-
-                             int panelWidth = terrainPanel->GetSize().x;
-
-                             terrainPanel->SetPosition(wxPoint(canvasPos.x + canvasSize.x - panelWidth, canvasPos.y));
-                             terrainPanel->SetSize(wxSize(panelWidth, canvasSize.y));
-                             terrainPanel->Refresh();
-                             terrainPanel->Update();
-                         }
-                         event.Skip();
-                     });
-
+        terrainPanel = new TerrainToolPanel(rightSplitter, canvas->GetScene(), width);
         terrainPanel->Bind(wxEVT_BUTTON,
-                           [this](wxCommandEvent& event)
+                           [onTerrainPanelClose](wxCommandEvent& event)
                            {
                                if (event.GetId() == wxID_CLOSE)
                                {
-                                   canvas->EnablePicker();
+                                   onTerrainPanelClose();
                                }
 
                                event.Skip();
                            });
+    }
 
-        canvas->DisablePicker();
+    if (terrainPanelVisible)
+    {
+        onTerrainPanelClose();
     }
     else
     {
-        terrainPanel->ShowPanel(!terrainPanel->IsVisible());
-
-        if (terrainPanel->IsVisible())
-        {
-            canvas->DisablePicker();
-        }
-        else
-        {
-            canvas->EnablePicker();
-        }
+        rightSplitter->SplitVertically(canvas, terrainPanel, GetSize().x - 300);
+        rightSplitter->SetSashGravity(1.0);
+        rightSplitter->SetMinimumPaneSize(300);
+        terrainPanelVisible = true;
+        canvas->DisablePicker();
     }
+
+    rightSplitter->Layout();
+
+    return;
 }
 
 bool MainFrame::SaveSceneAs()

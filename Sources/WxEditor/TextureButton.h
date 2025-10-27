@@ -1,28 +1,34 @@
 #pragma once
+#include <GameEngine/Resources/File.h>
 #include <wx/dcbuffer.h>
+#include <wx/sizer.h>
 #include <wx/wx.h>
 
 #include <functional>
+#include <optional>
 
 class TextureButton : public wxPanel
 {
 public:
-    TextureButton(wxWindow* parent, const wxBitmap& bmp, const wxString& name, int index, std::function<void()> onclick)
-        : wxPanel(parent, wxID_ANY, wxDefaultPosition, bmp.GetSize())
-        , m_onclick(onclick)
-        , m_bitmap(bmp)
-        , m_name(name)
-        , m_index(index)
-    {
-        SetBackgroundStyle(wxBG_STYLE_PAINT);
-        SetToolTip(m_name);
+    using OnClickFunc  = std::function<void(const GameEngine::File&)>;
+    using OnRemoveFunc = std::function<void()>;
 
-        Bind(wxEVT_PAINT, &TextureButton::OnPaint, this);
-        Bind(wxEVT_LEFT_DOWN, &TextureButton::OnClick, this);
-        Bind(wxEVT_ENTER_WINDOW, &TextureButton::OnMouseEnter, this);
-        Bind(wxEVT_LEAVE_WINDOW, &TextureButton::OnMouseLeave, this);
-        Bind(wxEVT_RIGHT_DOWN, &TextureButton::OnRightClick, this);
-    }
+    TextureButton(wxWindow* parent, const std::optional<GameEngine::File>&, bool, OnClickFunc onclick, OnRemoveFunc onRemoveFunc,
+                  const wxSize& = wxSize(64, 64));
+
+    void SetBitmap(const GameEngine::File&);
+    void SetHover(bool hover);
+    void UpdateBitmap();
+    std::optional<GameEngine::File> SelectFileDialog();
+    void Reset();
+
+private:
+    void SetBitmap(const wxBitmap& bmp);
+    void OnPaint(wxPaintEvent&);
+    void OnClick(wxMouseEvent&);
+    void OnRightClick(wxMouseEvent&);
+    void OnMouseEnter(wxMouseEvent&);
+    void OnMouseLeave(wxMouseEvent&);
 
     static int& ActiveIndex()
     {
@@ -30,100 +36,14 @@ public:
         return idx;
     }
 
-    void SetBitmap(const wxBitmap& bmp)
-    {
-        m_bitmap = bmp;
-        Refresh();
-    }
-
-    void SetHover(bool hover)
-    {
-        m_hover = hover;
-        Refresh();
-    }
-
 private:
-    std::function<void()> m_onclick;
+    std::optional<GameEngine::File> textureFile;
+    OnClickFunc m_onclick;
+    OnRemoveFunc onRemove;
+    wxSize size;
     wxBitmap m_bitmap;
     wxString m_name;
     int m_index;
     bool m_hover = false;
-
-    void OnPaint(wxPaintEvent&)
-    {
-        wxAutoBufferedPaintDC dc(this);
-        dc.Clear();
-
-        dc.DrawBitmap(m_bitmap, 0, 0, true);
-        if (ActiveIndex() == m_index)
-        {
-            wxPen pen(*wxBLUE, 3);
-            dc.SetPen(pen);
-            dc.SetBrush(*wxTRANSPARENT_BRUSH);
-            dc.DrawRectangle(1, 1, GetSize().x - 2, GetSize().y - 2);
-        }
-        else if (m_hover)
-        {
-            wxPen pen(*wxLIGHT_GREY, 2);
-            dc.SetPen(pen);
-            dc.SetBrush(*wxTRANSPARENT_BRUSH);
-            dc.DrawRectangle(1, 1, GetSize().x - 2, GetSize().y - 2);
-        }
-    }
-
-    void OnClick(wxMouseEvent&)
-    {
-        ActiveIndex() = m_index;
-
-        for (auto* child : GetParent()->GetChildren())
-        {
-            if (auto* btn = dynamic_cast<TextureButton*>(child))
-            {
-                btn->SetHover(false);
-                btn->Refresh();
-            }
-        }
-
-        Refresh();
-        //wxLogMessage("Selected texture %d: %s", m_index + 1, m_name);
-        if (m_onclick)
-            m_onclick();
-    }
-
-    void OnRightClick(wxMouseEvent&)
-    {
-        wxMenu menu;
-        menu.Append(wxID_ANY, "Change Texture");
-
-        // Obsługa wyboru opcji
-        menu.Bind(wxEVT_COMMAND_MENU_SELECTED,
-                  [this](wxCommandEvent&)
-                  {
-                      // Otwieramy dialog pliku, aby wybrać nową bitmapę
-                      wxFileDialog openFile(this, "Select Texture", "", "", "Images (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                            wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                      if (openFile.ShowModal() == wxID_OK)
-                      {
-                          wxString path = openFile.GetPath();
-                          wxBitmap newBmp(path, wxBITMAP_TYPE_ANY);
-                          if (newBmp.IsOk())
-                          {
-                              SetBitmap(newBmp);
-                              SetToolTip(path);
-                              wxLogMessage("Texture changed to: %s", path);
-                          }
-                      }
-                  });
-
-        PopupMenu(&menu);
-    }
-
-    void OnMouseEnter(wxMouseEvent&)
-    {
-        SetHover(true);
-    }
-    void OnMouseLeave(wxMouseEvent&)
-    {
-        SetHover(false);
-    }
+    bool hasMenu{false};
 };

@@ -42,6 +42,8 @@ public:
                                                  const std::optional<File>& = std::nullopt) const;
     void UpdateTexture(TerrainTextureType, const std::string&);
     Texture* GetTexture(TerrainTextureType) const;
+    const std::vector<std::pair<TerrainTextureType, Texture*>>& GetTextures() const;
+
 
     HeightMap* createHeightMap(const vec2ui& = vec2ui(512));
     HeightMap* GetHeightMap();

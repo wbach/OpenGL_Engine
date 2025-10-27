@@ -25,6 +25,7 @@ public:
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
+    void SetFile(const File&);
     inline const vec2ui& GetSize() const;
     inline const std::optional<File>& GetFile() const;
     inline float GetTextureXOffset(uint32 textureIndex) const;

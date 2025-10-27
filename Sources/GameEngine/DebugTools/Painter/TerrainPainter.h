@@ -45,6 +45,7 @@ public:
     ~TerrainPainter() override;
 
     virtual void Apply(Texture&, const vec2ui&, const Influance&, DeltaTime) = 0;
+    virtual bool PreparePaint(TerrainPoint&);
     virtual void UpdateTexture(Components::TerrainRendererComponent&);
 
     void CreateInfulanceForBrushSizeInTextureSpace(const vec3& terrainScale, const vec2ui& textureSize);

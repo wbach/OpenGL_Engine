@@ -7,6 +7,7 @@
 #include <wx/generic/dirctrlg.h>
 #include <wx/notebook.h>
 #include <wx/spinctrl.h>
+#include <wx/splitter.h>
 #include <wx/treebase.h>
 #include <wx/treectrl.h>
 #include <wx/wx.h>
@@ -168,6 +169,9 @@ private:
     wxComboBox* addComponentChoice{nullptr};
     wxMenu* rendererMenu{nullptr};
     wxMenu* rendererTextureSubMenu{nullptr};
+
+    wxSplitterWindow* rightSplitter = nullptr;
+    bool terrainPanelVisible        = false;
 
     wxSlider* timeSlider{nullptr};
     wxSpinCtrl* hourCtrl{nullptr};

@@ -6,8 +6,6 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 
-#include "GameEngine/Engine/Configuration.h"
-
 namespace GameEngine
 {
 float GetTextureXOffset(uint32 textureIndex, uint32 numberOfRows)
@@ -44,7 +42,8 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters
     graphicsObjectId_ = id;
 }
 
-Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& textureParamters, const vec2ui& size, const std::optional<File>& file)
+Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters& textureParamters, const vec2ui& size,
+                 const std::optional<File>& file)
     : graphicsApi_(graphicsApi)
     , textureParamters_(textureParamters)
     , file_(file)
@@ -75,7 +74,7 @@ void Texture::ReleaseGpuPass()
 
     auto filename = file_ ? file_->GetBaseName() : "";
 
-    /* LOG TO FIX*/  LOG_ERROR << ("Clean gpu resources " + filename + ", graphicsObjectId_=" + std::to_string(*graphicsObjectId_));
+    LOG_DEBUG << "Clean gpu resources " << filename << ", graphicsObjectId_=" << graphicsObjectId_;
 
     graphicsApi_.DeleteObject(*graphicsObjectId_);
     GpuObject::ReleaseGpuPass();
@@ -85,7 +84,7 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
     auto cfile = file;
     std::replace(cfile.begin(), cfile.end(), '\\', '/');
     auto v        = Utils::SplitString(cfile, '/');
-    auto filename = v.empty()? cfile : v.back().substr(0, v.back().find_last_of('.'));
+    auto filename = v.empty() ? cfile : v.back().substr(0, v.back().find_last_of('.'));
 
     auto rowsPos = filename.find("_rows_");
 
@@ -99,6 +98,10 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
     }
 
     return std::nullopt;
+}
+void Texture::SetFile(const File& file)
+{
+    file_ = file;
 }
 bool Texture::IsModified() const
 {

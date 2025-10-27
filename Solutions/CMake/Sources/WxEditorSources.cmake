@@ -4,6 +4,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPickerPopup.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TexturePickerPopup.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MyEvents.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeCtrl.cpp
@@ -20,5 +21,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditorFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TextureButton.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
 )

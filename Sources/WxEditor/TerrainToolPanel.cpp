@@ -17,7 +17,11 @@
 #include <wx/busyinfo.h>
 #include <wx/collpane.h>
 #include <wx/combobox.h>
+#include <wx/gdicmn.h>
+#include <wx/log.h>
+#include <wx/popupwin.h>
 #include <wx/simplebook.h>
+#include <wx/splitter.h>
 #include <wx/wrapsizer.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
@@ -31,7 +35,9 @@
 #include "EditorUitls.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
+#include "Resources/File.h"
 #include "TextureButton.h"
+#include "TexturePickerPopup.h"
 
 namespace
 {
@@ -122,21 +128,54 @@ void TerrainToolPanel::Cleanup()
     }
 }
 
+void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
+{
+    auto onSelect = [this](const GameEngine::File& file)
+    {
+        painterFields.texturePainterFields.selectedTextureButton->SetBitmap(file);
+        painterFields.texturePainterFields.selectedTextureFile = file;
+    };
+
+    auto onAdd = [this]()
+    {
+        if (auto maybeFileSelected = painterFields.texturePainterFields.selectedTextureButton->SelectFileDialog())
+        {
+            SetToolTip(maybeFileSelected->GetBaseName());
+            auto& selectedFile = painterFields.texturePainterFields.selectedTextureFile;
+            selectedFile       = maybeFileSelected;
+
+            painterFields.texturePainterFields.selectedTextureButton->SetBitmap(*selectedFile);
+
+            auto& textures = painterFields.texturePainterFields.textures;
+            if (std::find(textures.begin(), textures.end(), selectedFile) == textures.end())
+                textures.push_back(*selectedFile);
+        }
+    };
+
+    auto onRemove = [this](const GameEngine::File& file)
+    {
+        painterFields.texturePainterFields.selectedTextureButton->Reset();
+        painterFields.texturePainterFields.selectedTextureFile.reset();
+    };
+
+    auto popup = new TexturePickerPopup(this, painterFields.texturePainterFields.textures, onSelect, onAdd, onRemove);
+
+    // Pozycja przy kursrze
+    popup->Position(wxGetMousePosition(), wxSize(0, 0));
+    popup->Popup();
+}
+
 void TerrainToolPanel::BuildUI()
 {
-    // Główny sizer panelu
-    auto* mainSizer = new wxBoxSizer(wxVERTICAL);
-
+    auto* mainSizer   = new wxBoxSizer(wxVERTICAL);
     auto* headerSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    // Tytuł po lewej
     wxStaticText* title = new wxStaticText(this, wxID_ANY, "Terrain Tools");
     headerSizer->Add(title, 0, wxALIGN_CENTER_VERTICAL | wxALL, 2);
 
-    // Rozpycha przycisk w prawą stronę
+    // Rozpycha przycisk w prawa strone
     headerSizer->AddStretchSpacer();
 
-    // Mały przycisk Close
     wxButton* closeBtn = new wxButton(this, wxID_CLOSE, "X", wxDefaultPosition, wxSize(40, 20));
     headerSizer->Add(closeBtn, 0, wxALL, 2);
 
@@ -145,9 +184,7 @@ void TerrainToolPanel::BuildUI()
     // Ramka generatora
     BuildTerrainGeneratorUI(mainSizer);
     BuildTerrainPainterUI(mainSizer);
-
-    // Tutaj można później dodać kolejne sekcje, np. Texture Painter
-    // BuildTexturePainterUI(mainSizer);
+    // BuildPlantPainterUI
 
     SetSizerAndFit(mainSizer);
 
@@ -164,7 +201,6 @@ void TerrainToolPanel::BuildTerrainGeneratorUI(wxSizer* parentSizer)
     auto* paneSizer = new wxBoxSizer(wxVERTICAL);
 
     // GameObjectId
-
     generatorFields.gameObjectIdCtrl = new wxChoice(pane, wxID_ANY);
 
     RefillTerrainObjectsCtrl();
@@ -265,7 +301,7 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
             e.Skip();
         });
 
-    // === Painter Type wybór ===
+    // === Painter Type wybor ===
     auto* painterTypeBox = new wxStaticBoxSizer(wxVERTICAL, pane, "Painter Type");
     wxArrayString painterTypes;
     painterTypes.Add("Height");
@@ -285,7 +321,7 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
     dynamicBook->AddPage(BuildPlantPainterPanel(dynamicBook), "Plant");
     paneSizer->Add(dynamicBook, 1, wxEXPAND | wxALL, 5);
 
-    // === Obsługa zmiany typu painter ===
+    // === Obsluga zmiany typu painter ===
     painterFields.painterTypeCtrl->Bind(wxEVT_COMBOBOX,
                                         [this, dynamicBook](wxCommandEvent& evt)
                                         {
@@ -397,7 +433,7 @@ wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
                    });
     }
 
-    // === Strength (float slider + text field, może być ujemne) ===
+    // === Strength (float slider + text field, moze byc ujemne) ===
     {
         auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Strength");
 
@@ -470,7 +506,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
         auto* combo = new wxComboBox(panel, wxID_ANY, stepInterpolations.IsEmpty() ? wxString("") : stepInterpolations.front(),
                                      wxDefaultPosition, wxDefaultSize, stepInterpolations, wxCB_READONLY);
-        // TODO: uzupełnij listę metod w runtime
+        // TODO: uzupelnij liste metod w runtime
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
         painterFields.texturePainterFields.interpolation = combo;
@@ -526,7 +562,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
     // === Blend Strength ===
     {
         auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Blend Strength");
-        auto* slider = new wxSlider(panel, wxID_ANY, 50, 0, 100);  // reprezentuje 0.0–1.0
+        auto* slider = new wxSlider(panel, wxID_ANY, 50, 0, 100);  // reprezentuje 0.0-1.0
         auto* text   = new wxTextCtrl(panel, wxID_ANY, "0.50");
 
         auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
@@ -556,50 +592,66 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
                    });
     }
 
-    // === Clear Blend Map ===
+    // === Selected Texture ===
     {
-        auto* btn = new wxButton(panel, wxID_ANY, "Clear Blend Map");
-        sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
-        btn->Bind(wxEVT_BUTTON,
-                  [this](wxCommandEvent&)
-                  {
-                      wxLogMessage("Clear Blend Map clicked");
-                      // TODO: implement actual clearing logic
-                  });
-    }
-
-    // === Texture selection buttons ===
-    {
-        auto* box       = new wxStaticBoxSizer(wxVERTICAL, panel, "Texture Layers");
-        auto* texPanel  = new wxPanel(panel);
-        auto* wrapSizer = new wxWrapSizer(wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS);
-        texPanel->SetSizer(wrapSizer);
+        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
 
         const int texSize = 64;
+        wxBitmap bmp(texSize, texSize);  // placeholder
+        wxMemoryDC dc(bmp);
+        dc.SetBrush(*wxLIGHT_GREY_BRUSH);
+        dc.Clear();
+        dc.DrawText("P", texSize / 2 - 5, texSize / 2 - 8);
+        dc.SelectObject(wxNullBitmap);
 
-        int i = 0;
-        for (const auto& texture : magic_enum::enum_values<TerrainPainterTexturePlaceHolder>())
-        {
-            wxBitmap bmp(texSize, texSize);
-            wxMemoryDC dc(bmp);
-            dc.SetBrush(*wxLIGHT_GREY_BRUSH);
-            dc.Clear();
-            // dc.DrawText(texNames[i].Left(1), texSize / 2 - 5, texSize / 2 - 8);
-            dc.SelectObject(wxNullBitmap);
+        auto* texBtn = new TextureButton(
+            panel, std::nullopt, false,
+            [this](const GameEngine::File& file) { painterFields.texturePainterFields.selectedTextureFile = file; }, nullptr);
 
-            auto* texBtn =
-                new TextureButton(texPanel, bmp, std::string(magic_enum::enum_name(texture)), i++,
-                                  [this, type = texture]() { painterFields.texturePainterFields.selectedTexture = type; });
-            wrapSizer->Add(texBtn, 0, wxALL, 4);
-        }
+        texBtn->Bind(wxEVT_LEFT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
+        texBtn->Bind(wxEVT_RIGHT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
 
-        texPanel->Layout();
-        box->Add(texPanel, 0, wxEXPAND | wxALL, 5);
+        box->Add(texBtn, 0, wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+        painterFields.texturePainterFields.selectedTextureButton = texBtn;
     }
 
     panel->SetSizer(sizer);
     return panel;
+}
+
+void TerrainToolPanel::BuildTexturePainterPanel(wxWindow* panel, wxSizer* sizer)
+{
+    // === StaticBox (ramka) ===
+    auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Texture Layers");
+
+    // === Kontener (rosnie dynamicznie w pionie) ===
+    auto* texContainer   = new wxPanel(panel);
+    auto* containerSizer = new wxBoxSizer(wxVERTICAL);
+    texContainer->SetSizer(containerSizer);
+
+    // === Panel z wrapSizerem ===
+    auto* texPanel  = new wxPanel(texContainer);
+    auto* wrapSizer = new wxWrapSizer(wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS);
+    texPanel->SetSizer(wrapSizer);
+
+    // Dodaj texPanel do kontenera z wxEXPAND
+    containerSizer->Add(texPanel, 0, wxEXPAND | wxALL, 0);
+
+    // ? kluczowe: kontener dostaje proportion=1 w boxie
+    box->Add(texContainer, 1, wxEXPAND | wxALL, 5);
+
+    // === Gorny pasek przyciskow ===
+    auto* buttonsSizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* clearBtn     = new wxButton(panel, wxID_ANY, "Clear Blend Map");
+
+    buttonsSizer->Add(clearBtn, 0, wxALL, 5);
+
+    clearBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { LOG_INFO << "Blend map cleared!"; });
+
+    // === Finalne zlozenie ===
+    sizer->Add(buttonsSizer, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
+    sizer->Add(box, 1, wxEXPAND | wxALL, 5);
 }
 
 wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
@@ -615,7 +667,7 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
         auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
         auto* combo = new wxComboBox(panel, wxID_ANY, textureBrushTypes.front(), wxDefaultPosition, wxDefaultSize,
                                      textureBrushTypes, wxCB_READONLY);
-        // TODO: w runtime uzupełnij listę dostępnych typów pędzla
+        // TODO: w runtime uzupelnij liste dostepnych typow pedzla
         box->Add(combo, 0, wxEXPAND | wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
     }
@@ -632,24 +684,20 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
         dc.DrawText("P", texSize / 2 - 5, texSize / 2 - 8);
         dc.SelectObject(wxNullBitmap);
 
-        auto* texBtn = new TextureButton(panel, bmp, "PlantTexture", 0, nullptr);
+        auto* texBtn = new TextureButton(panel, std::nullopt, false, nullptr, nullptr);
 
         texBtn->Bind(wxEVT_LEFT_DOWN,
                      [texBtn](wxMouseEvent&)
                      {
-                         // Otwórz dialog pliku
+                         // Otworz dialog pliku
                          wxFileDialog openFile(texBtn, "Select Plant Texture", "", "",
                                                "Images (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                          if (openFile.ShowModal() == wxID_OK)
                          {
                              wxString path = openFile.GetPath();
-                             wxBitmap newBmp(path, wxBITMAP_TYPE_ANY);
-                             if (newBmp.IsOk())
-                             {
-                                 texBtn->SetBitmap(newBmp);
-                                 texBtn->SetToolTip(path);
-                                 wxLogMessage("Selected plant texture: %s", path);
-                             }
+                             texBtn->SetBitmap(path.ToStdString());
+                             texBtn->SetToolTip(path);
+                             wxLogMessage("Selected plant texture: %s", path);
                          }
                      });
 
@@ -1031,39 +1079,21 @@ void TerrainToolPanel::EnablePainter()
             case 1:
             {
                 const auto& texturePainterFields = painterFields.texturePainterFields;
-                auto interpolation               = getInterpolation(texturePainterFields.interpolation);
-                auto strength                    = getStrength(texturePainterFields.strength);
-                auto radius                      = getRadius(texturePainterFields.brushSize);
+                if (not texturePainterFields.selectedTextureFile)
+                {
+                    LOG_WARN << "No texture file selected.";
+                    return;
+                }
+                auto interpolation = getInterpolation(texturePainterFields.interpolation);
+                auto strength      = getStrength(texturePainterFields.strength);
+                auto radius        = getRadius(texturePainterFields.brushSize);
 
                 auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
                                                                              strength / 1000.f);
 
-                // TO do : pass file to painter, where will be selection of chanel. If texture will exist in some changel then use
-                // that chanel oterwise if possible load texture and assign free channel. If no space throw a error.
-                Color paintedColor(vec4(0.f, 0.f, 0.f, 0.f));
-                switch (texturePainterFields.selectedTexture)
-                {
-                    case TerrainPainterTexturePlaceHolder::BACKGROUND:
-                        paintedColor = Color(vec4(0.f, 0.f, 0.f, 0.f));
-                        break;
-                    case TerrainPainterTexturePlaceHolder::RED:
-                        paintedColor = Color(vec4(1.f, 0.f, 0.f, 0.f));
-                        break;
-                    case TerrainPainterTexturePlaceHolder::GREEN:
-                        paintedColor = Color(vec4(0.f, 1.f, 0.f, 0.f));
-                        break;
-                    case TerrainPainterTexturePlaceHolder::BLUE:
-                        paintedColor = Color(vec4(0.f, 0.f, 1.f, 0.f));
-                        break;
-                    case TerrainPainterTexturePlaceHolder::ALPHA:
-                        paintedColor = Color(vec4(0.f, 0.f, 0.f, 1.f));
-                        break;
-                }
-
-                LOG_DEBUG << "Painted color: " << paintedColor;
-
                 painterFields.terrainPainter_ = std::make_unique<GameEngine::TexturePainter>(
-                    GetPainterDependencies(scene), std::move(circleBrush), paintedColor);
+                    GetPainterDependencies(scene), scene.GetResourceManager().GetTextureLoader(), std::move(circleBrush),
+                    *texturePainterFields.selectedTextureFile);
 
                 painterFields.terrainPainter_->Start();
             }

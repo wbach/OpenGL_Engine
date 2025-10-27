@@ -3,10 +3,12 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TextureButton.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainPainterTexturePlaceHolders.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EditorUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TexturePickerPopup.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxKeyEventType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViwerIcon.h

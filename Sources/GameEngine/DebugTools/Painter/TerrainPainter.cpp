@@ -26,6 +26,10 @@ TerrainPainter::~TerrainPainter()
 {
     LOG_DEBUG << "";
 }
+bool TerrainPainter::PreparePaint(TerrainPoint&)
+{
+    return true;
+}
 void TerrainPainter::UpdateTexture(Components::TerrainRendererComponent&)
 {
 }
@@ -51,6 +55,9 @@ void TerrainPainter::Paint(const DeltaTime& deltaTime)
     auto lmouseKeyIsPressed = inputManager_.GetMouseKey(KeyCodes::LMOUSE);
     if (currentTerrainPoint and lmouseKeyIsPressed)
     {
+        if (not PreparePaint(*currentTerrainPoint))
+            return;
+
         if (not brush_)
         {
             LOG_ERROR << "Brush not set!";
