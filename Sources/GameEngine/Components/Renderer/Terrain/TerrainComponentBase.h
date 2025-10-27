@@ -38,6 +38,7 @@ public:
 
     void updateTerrainTextureBuffer();
     void setTexture(Texture&, float, TerrainTextureType);
+    void LoadTexture(const TerrainTexture&);
     void LoadTextures(const std::vector<TerrainTexture>&);
 
     const File* getTextureFile(TerrainTextureType) const;
@@ -56,6 +57,7 @@ public:
 protected:
     virtual void LoadHeightMap(const File&)   = 0;
     virtual void UpdateHeightMap(const File&) = 0;
+    void LoadTextureImpl(const TerrainTexture&);
     void LoadTerrainConfiguration(const File&);
     void SetTexture(TerrainTextureType, Texture*);
     void UpdateTexture(TerrainTextureType, Texture*);

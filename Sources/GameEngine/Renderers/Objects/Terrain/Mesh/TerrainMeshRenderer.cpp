@@ -79,13 +79,11 @@ void TerrainMeshRenderer::renderTerrainMeshes(const Model& model, const Componen
 }
 void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
-    for (const auto& t : textures)
+    for (const auto& [type, texture] : textures)
     {
-        auto texture = t.second;
-
         if (texture and texture->GetGraphicsObjectId())
         {
-            bindTexture(texture, static_cast<uint32>(t.first));
+            bindTexture(texture, static_cast<uint32>(type));
         }
     }
 }

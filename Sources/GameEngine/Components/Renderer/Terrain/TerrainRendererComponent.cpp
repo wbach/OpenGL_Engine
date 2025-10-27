@@ -70,6 +70,12 @@ void TerrainRendererComponent::CleanUp()
     terrainComponent_->CleanUp();
 }
 
+TerrainRendererComponent& TerrainRendererComponent::LoadTexture(const TerrainTexture& texture)
+{
+    terrainComponent_->LoadTexture(texture);
+    return *this;
+}
+
 TerrainRendererComponent& TerrainRendererComponent::LoadTextures(const std::vector<TerrainTexture>& textures)
 {
     terrainComponent_->LoadTextures(textures);

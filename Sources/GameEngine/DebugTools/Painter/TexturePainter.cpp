@@ -35,28 +35,32 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
 
     if (not requestedFileTexture.exist())
     {
+        LOG_WARN << "File not exist! requestedFileTexture : " << requestedFileTexture;
         return false;
     }
 
     auto tc = point.terrainComponent;
     if (not tc)
     {
+        LOG_WARN << "TerrainComponent not exist! requestedFileTexture : " << requestedFileTexture;
         return false;
     }
 
     if (not tc->GetTexture(TerrainTextureType::blendMap))
     {
-        auto image           = CreateZerosImage<uint8>(vec2ui(4096, 4096), 4);
-        auto textureName     = tc->getParentGameObject().GetName() + "blend_map";
-        auto blendmapTexture = textureLoader.CreateTexture(textureName, TextureParameters{}, std::move(image));
+        auto image       = CreateZerosImage<float>(vec2ui(4096, 4096), 4);
+        auto textureName = tc->getParentGameObject().GetName() + "_blend_map";
+        TextureParameters params;
+        params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+        auto blendmapTexture   = textureLoader.CreateTexture(textureName, params, std::move(image));
         blendmapTexture->SetFile(std::filesystem::path(EngineConf.files.data) / (textureName + ".png"));
         Utils::SaveImage(blendmapTexture->GetImage(), blendmapTexture->GetFile()->GetAbsolutePath());
 
-        tc->LoadTextures({Components::TerrainTexture{
+        tc->LoadTexture(Components::TerrainTexture{
             .file       = blendmapTexture->GetFile()->GetAbsolutePath(),
             .tiledScale = 1.f,
             .type       = TerrainTextureType::blendMap,
-        }});
+        });
     }
 
     auto isPaintAbleTexture = [](TerrainTextureType type)
@@ -162,49 +166,59 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
     {
         if (auto maybeType = getFirstnNewAvailableColorToPaint())
         {
-            tc->LoadTextures({Components::TerrainTexture{
+            tc->LoadTexture(Components::TerrainTexture{
                 .file       = requestedFileTexture,
                 .tiledScale = 1.f,
                 .type       = maybeType.value(),
-            }});
+            });
 
             paintedColor = convertPaintAbleTextureTypeToColor(*maybeType);
             return true;
         }
     }
+
+    LOG_DEBUG << "Paint not available requestedFileTexture : " << requestedFileTexture;
     return false;
 }
 
 void TexturePainter::Apply(Texture& texture, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime)
 {
     if (not paintedColor)
+    {
+        LOG_WARN << "not paintedColor";
         return;
+    }
 
     try
     {
         auto& blendMap = dynamic_cast<GeneralTexture&>(texture);
         if (not IsInRange(blendMap.GetImage(), paintedPoint))
+        {
             return;
+        }
 
         auto currentColor = blendMap.GetImage().getPixel(paintedPoint);
 
         if (currentColor)
         {
-            auto influance = glm::clamp(influancePoint.influance, 0.0f, 1.f);
+            float paintSpeed = influancePoint.influance * deltaTime;
+            paintSpeed       = glm::clamp(paintSpeed, 0.0f, 1.0f);
 
-            // auto inputStrength = strength;
-            // if (inputStrength < 0.1f)
-            //     inputStrength = 0.1f;
-
-            // auto scaledInputColor = glm::mix(currentColor->value, paintedColor.value, inputStrength);
-
-            auto newColor = glm::mix(currentColor->value, paintedColor->value, influance) * deltaTime;
+            auto newColor = glm::mix(currentColor->value, paintedColor->value, paintSpeed);
             blendMap.SetPixel(paintedPoint, Color(newColor));
+        }
+        else
+        {
+            LOG_WARN << "No color in blend map!";
         }
     }
     catch (const std::bad_cast& e)
     {
         LOG_ERROR << "Bad cast: " << e.what();
     }
+}
+void TexturePainter::UpdateTexture(Components::TerrainRendererComponent& tc)
+{
+    tc.BlendMapChanged();
 }
 }  // namespace GameEngine

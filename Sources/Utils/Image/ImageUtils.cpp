@@ -8,7 +8,7 @@
 
 namespace Utils
 {
-void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::string &filename, const std::optional<vec2> &scale)
+void SaveImage(const std::vector<uint8>& data, const vec2ui& size, const std::string& filename, const std::optional<vec2>& scale)
 {
     auto minSize = size.x * size.y * 4;
     if (data.size() < minSize)
@@ -18,7 +18,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     }
 
     LOG_DEBUG << "Save image : " << filename << ", size=" << size.x << "x" << size.y << ":4";
-    FIBITMAP *bitmap = FreeImage_Allocate(static_cast<int>(size.x), static_cast<int>(size.y), 32, 8, 8, 8);
+    FIBITMAP* bitmap = FreeImage_Allocate(static_cast<int>(size.x), static_cast<int>(size.y), 32, 8, 8, 8);
 
     auto width  = FreeImage_GetWidth(bitmap);
     auto height = FreeImage_GetHeight(bitmap);
@@ -26,7 +26,7 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     size_t dataIndex = 0;
     for (uint32 y = 0; y < height; ++y)
     {
-        BYTE *bits = FreeImage_GetScanLine(bitmap, static_cast<int>(y));
+        BYTE* bits = FreeImage_GetScanLine(bitmap, static_cast<int>(y));
         for (uint32 x = 0; x < width; x++)
         {
             bits[2] = data[dataIndex++];  // red
@@ -50,12 +50,157 @@ void SaveImage(const std::vector<uint8> &data, const vec2ui &size, const std::st
     FreeImage_Unload(bitmap);
 }
 
-void SaveImage(const Image &image, const std::string &outputFilePath, const std::optional<vec2> &scale)
+void SaveImage32FEXR(const std::vector<float>& data, const vec3ui& size, const std::string& filename)
 {
+    FreeImage_Initialise();
+
+    FIBITMAP* bitmap = nullptr;
+
+    if (size.z == 1)
+        bitmap = FreeImage_AllocateT(FIT_FLOAT, size.x, size.y, 32);
+    else if (size.z == 3)
+        bitmap = FreeImage_AllocateT(FIT_RGBF, size.x, size.y, 0, 0, 0, 0);
+    else if (size.z == 4)
+        bitmap = FreeImage_AllocateT(FIT_RGBAF, size.x, size.y, 0, 0, 0, 0);
+    else
+    {
+        LOG_ERROR << "Nieobslugiwana liczba kanalow: " << size.z;
+        FreeImage_DeInitialise();
+        return;
+    }
+
+    for (unsigned y = 0; y < size.y; ++y)
+    {
+        if (size.z == 1)
+        {
+            float* scanline = (float*)FreeImage_GetScanLine(bitmap, y);
+            for (unsigned x = 0; x < size.x; ++x)
+                scanline[x] = data[y * size.x + x];
+        }
+        else if (size.z == 3)
+        {
+            FIRGBF* scanline = (FIRGBF*)FreeImage_GetScanLine(bitmap, y);
+            for (unsigned x = 0; x < size.x; ++x)
+            {
+                const float* src  = &data[(y * size.x + x) * 3];
+                scanline[x].red   = src[0];
+                scanline[x].green = src[1];
+                scanline[x].blue  = src[2];
+            }
+        }
+        else if (size.z == 4)
+        {
+            FIRGBAF* scanline = (FIRGBAF*)FreeImage_GetScanLine(bitmap, y);
+            for (unsigned x = 0; x < size.x; ++x)
+            {
+                const float* src  = &data[(y * size.x + x) * 4];
+                scanline[x].red   = src[0];
+                scanline[x].green = src[1];
+                scanline[x].blue  = src[2];
+                scanline[x].alpha = src[3];
+            }
+        }
+    }
+
+    FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.c_str());
+    if (!FreeImage_Save(fif, bitmap, filename.c_str()))
+        LOG_ERROR << "Nie udalo sie zapisac EXR 32-bit: " << filename;
+    else
+        LOG_DEBUG << "EXR 32-bit zapisany pomyslnie: " << filename;
+
+    FreeImage_Unload(bitmap);
+    FreeImage_DeInitialise();
+}
+
+void SaveImage(const std::vector<float>& data, const vec3ui& size, const std::string& filename, const std::optional<vec2>& scale)
+{
+    // Wyciagniecie rozszerzenia
+    std::string ext = filename.substr(filename.find_last_of('.') + 1);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+    if (ext == "exr")
+    {
+        // EXR -> uzyj funkcji 32-bit float
+        SaveImage32FEXR(data, size, filename);
+    }
+    else if (ext == "hdr" || ext == "tiff")
+    {
+        // Pozostale formaty floatowe -> standard FreeImage
+        FreeImage_Initialise();
+
+        FIBITMAP* bitmap = nullptr;
+        if (size.z == 1)
+            bitmap = FreeImage_AllocateT(FIT_FLOAT, size.x, size.y, 32);
+        else if (size.z == 3)
+            bitmap = FreeImage_AllocateT(FIT_RGBF, size.x, size.y, 0, 0, 0, 0);
+        else if (size.z == 4)
+            bitmap = FreeImage_AllocateT(FIT_RGBAF, size.x, size.y, 0, 0, 0, 0);
+        else
+        {
+            LOG_ERROR << "Unsupported channel size " << size.z;
+            FreeImage_DeInitialise();
+            return;
+        }
+
+        for (unsigned y = 0; y < size.y; ++y)
+        {
+            if (size.z == 1)
+            {
+                float* scanline = (float*)FreeImage_GetScanLine(bitmap, y);
+                for (unsigned x = 0; x < size.x; ++x)
+                    scanline[x] = data[y * size.x + x];
+            }
+            else if (size.z == 3)
+            {
+                FIRGBF* scanline = (FIRGBF*)FreeImage_GetScanLine(bitmap, y);
+                for (unsigned x = 0; x < size.x; ++x)
+                {
+                    const float* src  = &data[(y * size.x + x) * 3];
+                    scanline[x].red   = src[0];
+                    scanline[x].green = src[1];
+                    scanline[x].blue  = src[2];
+                }
+            }
+            else if (size.z == 4)
+            {
+                FIRGBAF* scanline = (FIRGBAF*)FreeImage_GetScanLine(bitmap, y);
+                for (unsigned x = 0; x < size.x; ++x)
+                {
+                    const float* src  = &data[(y * size.x + x) * 4];
+                    scanline[x].red   = src[0];
+                    scanline[x].green = src[1];
+                    scanline[x].blue  = src[2];
+                    scanline[x].alpha = src[3];
+                }
+            }
+        }
+
+        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.c_str());
+        if (!FreeImage_Save(fif, bitmap, filename.c_str()))
+            LOG_ERROR << "Save failed: " << filename;
+        else
+            LOG_DEBUG << "Float image saved: " << filename;
+
+        FreeImage_Unload(bitmap);
+        FreeImage_DeInitialise();
+    }
+    else
+    {
+        LOG_WARN << "Format " << ext << " nie wspiera floatow -- konwersja do 8-bit do zaimplementowania.";
+    }
+}
+
+void SaveImage(const Image& image, const std::string& outputFilePath, const std::optional<vec2>& scale)
+{
+    LOG_DEBUG << "Try save to file image. outputFilePath = " << outputFilePath << ", size = " << scale;
+
     std::visit(visitor{[&](std::vector<uint8> data) { SaveImage(data, image.size(), outputFilePath, scale); },
-                       [&](const std::vector<float> &data)
+                       [&](const std::vector<float>& data)
                        {
-                           if (image.getChannelsCount() == 1)
+                           std::string ext = outputFilePath.substr(outputFilePath.find_last_of('.') + 1);
+                           std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+                           if (image.getChannelsCount() == 1 and ext == "png")
                            {
                                LOG_DEBUG << "SaveImage for floats, converting to uint8 image";
 
@@ -86,7 +231,8 @@ void SaveImage(const Image &image, const std::string &outputFilePath, const std:
                            }
                            else
                            {
-                               LOG_DEBUG << "SaveImage for floats for more than 1 channel not implemented";
+                               SaveImage(data, vec3ui(image.size().x, image.size().y, image.getChannelsCount()), outputFilePath,
+                                         scale);
                            }
                        },
                        [](std::monostate) { LOG_ERROR << "Data not set!"; }},

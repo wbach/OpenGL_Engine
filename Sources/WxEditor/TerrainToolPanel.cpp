@@ -22,6 +22,7 @@
 #include <wx/popupwin.h>
 #include <wx/simplebook.h>
 #include <wx/splitter.h>
+#include <wx/textctrl.h>
 #include <wx/wrapsizer.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
@@ -532,8 +533,8 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
     // === Brush Size ===
     {
         auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Size");
-        auto* slider = new wxSlider(panel, wxID_ANY, 50, 1, 200);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50.0");
+        auto* slider = new wxSlider(panel, wxID_ANY, 3, 1, 20);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "3.0");
 
         auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
         hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
@@ -550,7 +551,7 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
                          float val = static_cast<float>(slider->GetValue());
                          text->ChangeValue(wxString::Format("%.2f", val));
                      });
-        text->Bind(wxEVT_TEXT,
+        text->Bind(wxEVT_TEXT_ENTER,
                    [slider](wxCommandEvent& evt)
                    {
                        double val;
@@ -562,8 +563,8 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
     // === Blend Strength ===
     {
         auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Blend Strength");
-        auto* slider = new wxSlider(panel, wxID_ANY, 50, 0, 100);  // reprezentuje 0.0-1.0
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "0.50");
+        auto* slider = new wxSlider(panel, wxID_ANY, 10, 0, 20);
+        auto* text   = new wxTextCtrl(panel, wxID_ANY, "1");
 
         auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
         hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
@@ -577,17 +578,17 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
         slider->Bind(wxEVT_SLIDER,
                      [slider, text](wxCommandEvent&)
                      {
-                         float val = static_cast<float>(slider->GetValue()) / 100.0f;
+                         float val = static_cast<float>(slider->GetValue());
                          text->ChangeValue(wxString::Format("%.2f", val));
                      });
-        text->Bind(wxEVT_TEXT,
+        text->Bind(wxEVT_TEXT_ENTER,
                    [slider](wxCommandEvent& evt)
                    {
                        double val;
                        if (evt.GetString().ToDouble(&val))
                        {
                            val = std::max(0.0, std::min(1.0, val));
-                           slider->SetValue(wxRound(val * 100.0));
+                           slider->SetValue(wxRound(val));
                        }
                    });
     }
@@ -1088,8 +1089,8 @@ void TerrainToolPanel::EnablePainter()
                 auto strength      = getStrength(texturePainterFields.strength);
                 auto radius        = getRadius(texturePainterFields.brushSize);
 
-                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
-                                                                             strength / 1000.f);
+                auto circleBrush =
+                    std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius, strength);
 
                 painterFields.terrainPainter_ = std::make_unique<GameEngine::TexturePainter>(
                     GetPainterDependencies(scene), scene.GetResourceManager().GetTextureLoader(), std::move(circleBrush),

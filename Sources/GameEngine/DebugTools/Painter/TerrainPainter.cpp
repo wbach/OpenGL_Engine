@@ -109,7 +109,7 @@ std::optional<vec2ui> TerrainPainter::GetPaintendPoint(const TerrainPoint& terra
 }
 vec2ui TerrainPainter::ConvertToPixelSpace(const TerrainPoint& terrainPoint)
 {
-    const auto& heightmapSize = terrainPoint.terrainComponent->GetTexture(TerrainTextureType::heightmap)->GetSize();
+    const auto& heightmapSize = terrainPoint.terrainComponent->GetTexture(textureType_)->GetSize();
 
     auto u = terrainPoint.terrainSpacePoint.x;
     auto v = terrainPoint.terrainSpacePoint.y;

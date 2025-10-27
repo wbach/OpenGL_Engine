@@ -37,13 +37,13 @@ public:
 
     void BlendMapChanged();
     void setTexture(Texture&, float, TerrainTextureType);
+    TerrainRendererComponent& LoadTexture(const TerrainTexture&);
     TerrainRendererComponent& LoadTextures(const std::vector<TerrainTexture>&);
     std::optional<File> ConvertObjectToHeightMap(const File&, uint32 heightmapResultuion = 2048,
                                                  const std::optional<File>& = std::nullopt) const;
     void UpdateTexture(TerrainTextureType, const std::string&);
     Texture* GetTexture(TerrainTextureType) const;
     const std::vector<std::pair<TerrainTextureType, Texture*>>& GetTextures() const;
-
 
     HeightMap* createHeightMap(const vec2ui& = vec2ui(512));
     HeightMap* GetHeightMap();

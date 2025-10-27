@@ -15,6 +15,7 @@ public:
 
     bool PreparePaint(TerrainPoint&) override;
     void Apply(Texture&, const vec2ui&, const Influance&, DeltaTime) override;
+    void UpdateTexture(Components::TerrainRendererComponent&) override;
 
 private:
     ITextureLoader& textureLoader;

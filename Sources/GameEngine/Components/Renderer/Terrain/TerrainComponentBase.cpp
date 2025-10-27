@@ -13,6 +13,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/DataStorePolicy.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -57,6 +58,7 @@ void TerrainComponentBase::BlendMapChanged()
     {
         auto general = static_cast<GeneralTexture *>(blendMap);
         componentContext_.resourceManager_.GetTextureLoader().UpdateTexture(*general);
+        LOG_DEBUG << "BlendMapChanged UpdateTexture";
     }
 }
 
@@ -100,7 +102,7 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
         return std::nullopt;
     }
 
-    float step                 = 1.f / static_cast<float>(heightmapResultuion);
+    float step = 1.f / static_cast<float>(heightmapResultuion);
 
     auto outputFile =
         requestedOutputfile.has_value() ? requestedOutputfile.value() : objectFile.CreateFileWithExtension("terrain");
@@ -167,6 +169,13 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     return outputFile;
 }
 
+void TerrainComponentBase::LoadTexture(const TerrainTexture &texture)
+{
+    inputData_.push_back(texture);
+    LoadTextureImpl(texture);
+    updateTerrainTextureBuffer();
+}
+
 void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textures)
 {
     if (textures.empty())
@@ -174,55 +183,61 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
 
     inputData_ = textures;
 
+    for (const auto &terrainTexture : textures)
+    {
+        LoadTextureImpl(terrainTexture);
+    }
+
+    updateTerrainTextureBuffer();
+}
+
+void TerrainComponentBase::LoadTextureImpl(const TerrainTexture &terrainTexture)
+{
     TextureParameters textureParams;
     textureParams.flipMode = TextureFlip::VERTICAL;
     textureParams.mimap    = GraphicsApi::TextureMipmap::LINEAR;
 
-    for (const auto &terrainTexture : textures)
+    if (TerrainTextureType::heightmap == terrainTexture.type)
     {
-        if (TerrainTextureType::heightmap == terrainTexture.type)
+        auto heightMap = terrainTexture.file;
+        if (terrainTexture.file.IsFormat("obj"))
         {
-            auto heightMap = terrainTexture.file;
-            if (terrainTexture.file.IsFormat("obj"))
+            if (auto maybeFile = ConvertObjectToHeightMap(terrainTexture.file))
             {
-                if (auto maybeFile = ConvertObjectToHeightMap(terrainTexture.file))
-                {
-                    heightMap = maybeFile.value();
-                }
-                else
-                {
-                    LOG_ERROR << "Heightmap conversion from object faild";
-                    return;
-                }
+                heightMap = maybeFile.value();
             }
-            LoadHeightMap(heightMap);
-            LoadTerrainConfiguration(heightMap);
-            continue;
+            else
+            {
+                LOG_ERROR << "Heightmap conversion from object faild";
+                return;
+            }
         }
-
-        if (TerrainTextureType::blendMap == terrainTexture.type)
-        {
-            textureParams.dataStorePolicy = DataStorePolicy::Store;
-        }
-        else
-        {
-            textureParams.dataStorePolicy = DataStorePolicy::ToRelease;
-        }
-
-        auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(terrainTexture.file, textureParams);
-
-        if (texture)
-        {
-            SetTexture(terrainTexture.type, texture);
-        }
-        else
-        {
-            LOG_ERROR << "Texture not loaded correctly. " << magic_enum::enum_name(terrainTexture.type)
-                      << ", file : " << terrainTexture.file.GetAbsolutePath();
-        }
+        LoadHeightMap(heightMap);
+        LoadTerrainConfiguration(heightMap);
+        return;
     }
 
-    updateTerrainTextureBuffer();
+    if (TerrainTextureType::blendMap == terrainTexture.type)
+    {
+        textureParams.dataStorePolicy = DataStorePolicy::Store;
+        textureParams.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    }
+    else
+    {
+        textureParams.dataStorePolicy = DataStorePolicy::ToRelease;
+    }
+
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(terrainTexture.file, textureParams);
+
+    if (texture)
+    {
+        SetTexture(terrainTexture.type, texture);
+    }
+    else
+    {
+        LOG_ERROR << "Texture not loaded correctly. " << magic_enum::enum_name(terrainTexture.type)
+                  << ", file : " << terrainTexture.file.GetAbsolutePath();
+    }
 }
 
 const File *TerrainComponentBase::getTextureFile(TerrainTextureType type) const
