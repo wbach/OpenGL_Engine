@@ -3,7 +3,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TextureButton.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainPainterTexturePlaceHolders.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EditorUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditorFrame.h

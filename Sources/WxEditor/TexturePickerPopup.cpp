@@ -69,7 +69,7 @@ void TexturePickerPopup::createTexutreButtons(wxScrolledWindow* scrolledWindow, 
         }
 
         auto* btn = new TextureButton(
-            scrolledWindow, textureFile, true,
+            scrolledWindow, textureFile, TextureButton::MenuOption::ChangeAndRemove,
             [this](const GameEngine::File& f)
             {
                 Dismiss();

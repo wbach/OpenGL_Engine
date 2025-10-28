@@ -2,6 +2,7 @@
 
 #include <GameEngine/Resources/File.h>
 #include <wx/sizer.h>
+
 #include <optional>
 
 #include "ProjectManager.h"
@@ -11,7 +12,7 @@ namespace
 static int textureButtonIndex = 0;
 }
 
-TextureButton::TextureButton(wxWindow* parent, const std::optional<GameEngine::File>& textureFile, bool hasMenu,
+TextureButton::TextureButton(wxWindow* parent, const std::optional<GameEngine::File>& textureFile, MenuOption option,
                              OnClickFunc onclick, OnRemoveFunc onRemoveFunc, const wxSize& size)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, size)
     , textureFile{textureFile}
@@ -19,7 +20,7 @@ TextureButton::TextureButton(wxWindow* parent, const std::optional<GameEngine::F
     , onRemove{onRemoveFunc}
     , size{size}
     , m_index(textureButtonIndex++)
-    , hasMenu{hasMenu}
+    , menuOption(option)
 {
     UpdateBitmap();
 
@@ -30,7 +31,7 @@ TextureButton::TextureButton(wxWindow* parent, const std::optional<GameEngine::F
     Bind(wxEVT_ENTER_WINDOW, &TextureButton::OnMouseEnter, this);
     Bind(wxEVT_LEAVE_WINDOW, &TextureButton::OnMouseLeave, this);
 
-    if (hasMenu)
+    if (menuOption != MenuOption::None)
         Bind(wxEVT_RIGHT_DOWN, &TextureButton::OnRightClick, this);
 }
 
@@ -140,21 +141,23 @@ void TextureButton::OnRightClick(wxMouseEvent&)
 {
     wxMenu menu;
     int ID_CHANGE_TEXTURE = wxWindow::NewControlId();
-    int ID_REMOVE         = wxWindow::NewControlId();
     menu.Append(ID_CHANGE_TEXTURE, "Change Texture");
-    menu.Append(ID_REMOVE, "Remove Texture");
-
     menu.Bind(
         wxEVT_COMMAND_MENU_SELECTED, [this](wxCommandEvent&) { SelectFileDialog(); }, ID_CHANGE_TEXTURE);
 
-    menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED,
-        [this](wxCommandEvent&)
-        {
-            if (onRemove)
-                onRemove();
-        },
-        ID_REMOVE);
+    if (menuOption == MenuOption::ChangeAndRemove)
+    {
+        int ID_REMOVE = wxWindow::NewControlId();
+        menu.Append(ID_REMOVE, "Remove Texture");
+        menu.Bind(
+            wxEVT_COMMAND_MENU_SELECTED,
+            [this](wxCommandEvent&)
+            {
+                if (onRemove)
+                    onRemove();
+            },
+            ID_REMOVE);
+    }
 
     PopupMenu(&menu);
 }

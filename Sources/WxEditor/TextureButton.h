@@ -10,10 +10,16 @@
 class TextureButton : public wxPanel
 {
 public:
+    enum class MenuOption
+    {
+        None,
+        Change,
+        ChangeAndRemove
+    };
     using OnClickFunc  = std::function<void(const GameEngine::File&)>;
     using OnRemoveFunc = std::function<void()>;
 
-    TextureButton(wxWindow* parent, const std::optional<GameEngine::File>&, bool, OnClickFunc onclick, OnRemoveFunc onRemoveFunc,
+    TextureButton(wxWindow* parent, const std::optional<GameEngine::File>&, MenuOption, OnClickFunc onclick, OnRemoveFunc onRemoveFunc,
                   const wxSize& = wxSize(64, 64));
 
     void SetBitmap(const GameEngine::File&);
@@ -45,5 +51,5 @@ private:
     wxString m_name;
     int m_index;
     bool m_hover = false;
-    bool hasMenu{false};
+    MenuOption menuOption;
 };

@@ -89,24 +89,24 @@ template <typename EnumType>
 wxComboBox* CreateEnumComboBox(wxWindow* parent, wxSizer* sizer, const std::string& label, EnumType defaultValue,
                                std::function<void()> onChangeCallback)
 {
-    // 1️⃣ Zbierz nazwy enumów do wxArrayString
+    // 1 Zbierz nazwy enumow do wxArrayString
     wxArrayString items;
     for (const auto& name : magic_enum::enum_names<EnumType>())
     {
         items.Add(std::string(name));
     }
 
-    // 2️⃣ Domyślna wartość
+    // 2 Domyslna wartosc
     std::string defaultName = std::string(magic_enum::enum_name(defaultValue));
 
-    // 3️⃣ Stwórz statyczny box i combo box
+    // 3 Stworz statyczny box i combo box
     auto* box   = new wxStaticBoxSizer(wxVERTICAL, parent, label);
     auto* combo = new wxComboBox(parent, wxID_ANY, defaultName, wxDefaultPosition, wxDefaultSize, items, wxCB_READONLY);
 
     box->Add(combo, 0, wxEXPAND | wxALL, 5);
     sizer->Add(box, 0, wxEXPAND | wxALL, 5);
 
-    // 4️⃣ Podłącz callback
+    // 4 Podlacz callback
     combo->Bind(wxEVT_COMBOBOX, [onChangeCallback](const auto&) { onChangeCallback(); });
 
     return combo;
@@ -118,10 +118,10 @@ wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& la
 {
     static_assert(std::is_arithmetic_v<T>, "CreateSlider requires arithmetic type");
 
-    // 1️⃣ Statyczny box
+    // 1 Statyczny box
     auto* box = new wxStaticBoxSizer(wxVERTICAL, parent, label);
 
-    // 2️⃣ Slider
+    // 2 Slider
     int sliderValue;
     if constexpr (std::is_floating_point_v<T>)
     {
@@ -135,7 +135,7 @@ wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& la
 
     auto* slider = new wxSlider(parent, wxID_ANY, sliderValue, 0, sliderResolution);
 
-    // 3️⃣ TextCtrl z formatowaniem
+    // 3 TextCtrl z formatowaniem
     std::string textValue;
     if constexpr (std::is_integral_v<T>)
     {
@@ -150,7 +150,7 @@ wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& la
 
     auto* text = new wxTextCtrl(parent, wxID_ANY, textValue, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 
-    // 4️⃣ Poziomy sizer
+    // 4 Poziomy sizer
     auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
     hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
     hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
@@ -158,7 +158,7 @@ wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& la
     box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
     sizer->Add(box, 0, wxEXPAND | wxALL, 5);
 
-    // 5️⃣ Synchronizacja slider -> text
+    // 5 Synchronizacja slider -> text
     slider->Bind(wxEVT_SLIDER,
                  [slider, text, minValue, maxValue, sliderResolution, onValueChanged](const auto&)
                  {
@@ -177,7 +177,7 @@ wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& la
                          onValueChanged(val);
                  });
 
-    // 6️⃣ Synchronizacja text -> slider (Enter)
+    // 6 Synchronizacja text -> slider (Enter)
     text->Bind(wxEVT_TEXT_ENTER,
                [slider, minValue, maxValue, sliderResolution, onValueChanged](wxCommandEvent& evt)
                {
@@ -548,18 +548,9 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
     // === Selected Texture ===
     {
-        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
-
-        const int texSize = 64;
-        wxBitmap bmp(texSize, texSize);  // placeholder
-        wxMemoryDC dc(bmp);
-        dc.SetBrush(*wxLIGHT_GREY_BRUSH);
-        dc.Clear();
-        dc.DrawText("P", texSize / 2 - 5, texSize / 2 - 8);
-        dc.SelectObject(wxNullBitmap);
-
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
         auto* texBtn = new TextureButton(
-            panel, std::nullopt, false,
+            panel, std::nullopt, TextureButton::MenuOption::None,
             [this](const GameEngine::File& file) { painterFields.texturePainterFields.selectedTextureFile = file; }, nullptr);
 
         texBtn->Bind(wxEVT_LEFT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
@@ -580,97 +571,30 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     // === Brush Type ===
-    {
-        wxArrayString textureBrushTypes;
-        textureBrushTypes.Add("CircleBrush");
+    painterFields.plantPainterFields.brushType =
+        CreateEnumComboBox<BrushTypes>(panel, sizer, "Brush Type", BrushTypes::Circle, [this]() { OnUpdatePainterParam(); });
 
-        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
-        auto* combo = new wxComboBox(panel, wxID_ANY, textureBrushTypes.front(), wxDefaultPosition, wxDefaultSize,
-                                     textureBrushTypes, wxCB_READONLY);
-        // TODO: w runtime uzupelnij liste dostepnych typow pedzla
-        box->Add(combo, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-    }
+    // === Brush Size ===
+    painterFields.plantPainterFields.brushSize =
+        CreateSlider<float>(panel, sizer, "Brush Size", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
+
+    // === Density ===
+    painterFields.plantPainterFields.density =
+        CreateSlider<float>(panel, sizer, "Density", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
+
+    // === Randomness ===
+    painterFields.plantPainterFields.randomness =
+        CreateSlider<float>(panel, sizer, "Randomness", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
 
     // === Plant Texture ===
     {
-        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
-
-        const int texSize = 64;
-        wxBitmap bmp(texSize, texSize);  // placeholder
-        wxMemoryDC dc(bmp);
-        dc.SetBrush(*wxLIGHT_GREY_BRUSH);
-        dc.Clear();
-        dc.DrawText("P", texSize / 2 - 5, texSize / 2 - 8);
-        dc.SelectObject(wxNullBitmap);
-
-        auto* texBtn = new TextureButton(panel, std::nullopt, false, nullptr, nullptr);
-
-        texBtn->Bind(wxEVT_LEFT_DOWN,
-                     [texBtn](wxMouseEvent&)
-                     {
-                         // Otworz dialog pliku
-                         wxFileDialog openFile(texBtn, "Select Plant Texture", "", "",
-                                               "Images (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-                         if (openFile.ShowModal() == wxID_OK)
-                         {
-                             wxString path = openFile.GetPath();
-                             texBtn->SetBitmap(path.ToStdString());
-                             texBtn->SetToolTip(path);
-                             wxLogMessage("Selected plant texture: %s", path);
-                         }
-                     });
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
+        auto* texBtn = new TextureButton(
+            panel, std::nullopt, TextureButton::MenuOption::Change,
+            [this](const GameEngine::File& file) { painterFields.plantPainterFields.selectedTextureFile = file; }, nullptr);
 
         box->Add(texBtn, 0, wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-    }
-
-    // === Density ===
-    {
-        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Density");
-        auto* slider = new wxSlider(panel, wxID_ANY, 50, 1, 100);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-
-        slider->Bind(wxEVT_SLIDER,
-                     [slider, text](wxCommandEvent&) { text->ChangeValue(wxString::Format("%d", slider->GetValue())); });
-        text->Bind(wxEVT_TEXT,
-                   [slider](wxCommandEvent& evt)
-                   {
-                       long val;
-                       if (evt.GetString().ToLong(&val))
-                           slider->SetValue(std::max(1L, std::min(100L, val)));
-                   });
-    }
-
-    // === Randomness ===
-    {
-        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Randomness (%)");
-        auto* slider = new wxSlider(panel, wxID_ANY, 50, 0, 100);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-
-        slider->Bind(wxEVT_SLIDER,
-                     [slider, text](wxCommandEvent&) { text->ChangeValue(wxString::Format("%d", slider->GetValue())); });
-        text->Bind(wxEVT_TEXT,
-                   [slider](wxCommandEvent& evt)
-                   {
-                       long val;
-                       if (evt.GetString().ToLong(&val))
-                           slider->SetValue(std::max(0L, std::min(100L, val)));
-                   });
     }
 
     panel->SetSizer(sizer);

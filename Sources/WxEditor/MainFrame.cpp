@@ -379,20 +379,23 @@ void MainFrame::RemoveAllComponentPanels()
 
 void MainFrame::ClearScene()
 {
+    if (terrainPanel)
+    {
+        rightSplitter->Unsplit(terrainPanel);
+        terrainPanelVisible = false;
+        canvas->EnablePicker();
+
+        terrainPanel->Destroy();
+        terrainPanel = nullptr;
+
+        rightSplitter->Layout();
+    }
+
     canvas->GetScene().ClearGameObjects();
     gameObjectsView->DeleteAllItems();
     canvas->ResetDragObject();
     transfromSubController.reset();
     RemoveAllComponentPanels();
-
-    if (terrainPanel)
-    {
-        rightSplitter->Unsplit(terrainPanel);
-        terrainPanelVisible = false;
-
-        terrainPanel->Destroy();
-        terrainPanel = nullptr;
-    }
 }
 
 void MainFrame::OnClose(wxCloseEvent& event)

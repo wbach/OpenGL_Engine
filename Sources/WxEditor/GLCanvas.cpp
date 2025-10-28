@@ -260,7 +260,7 @@ void GLCanvas::EnablePicker()
 
 void GLCanvas::OnSize(wxSizeEvent& event)
 {
-    if (not engine or not engine->GetSceneManager().GetActiveScene())
+    if (not engine)
         return;
 
     int w, h;

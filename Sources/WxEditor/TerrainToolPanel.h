@@ -10,6 +10,7 @@
 #include <wx/slider.h>
 #include <wx/stattext.h>
 #include <wx/wx.h>
+
 #include <optional>
 
 namespace GameEngine
@@ -63,7 +64,6 @@ private:
         RefillTerrainObjectsCtrl();
     }
 
-
 private:
     GameEngine::Scene& scene;
     bool isVisible = false;
@@ -97,6 +97,16 @@ private:
         std::vector<GameEngine::File> textures;
     };
 
+    struct PlantPainterFields
+    {
+        wxComboBox* brushType{nullptr};
+        wxTextCtrl* brushSize{nullptr};
+        wxTextCtrl* density{nullptr};
+        wxTextCtrl* randomness{nullptr};
+
+        std::optional<GameEngine::File> selectedTextureFile;
+    };
+
     struct PainterFields
     {
         wxComboBox* painterTypeCtrl;
@@ -104,6 +114,7 @@ private:
         std::unique_ptr<GameEngine::Painter> terrainPainter_;
         HeightPainterFields heightPainterFields;
         TexturePainterFields texturePainterFields;
+        PlantPainterFields plantPainterFields;
     };
 
     PainterFields painterFields;
