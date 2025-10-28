@@ -138,7 +138,7 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
         LOG_WARN << "File not exist! requestedFileTexture : " << requestedFileTexture;
         return false;
     }
-
+    currentPaintingContext.reset();
 
     // Creates a new empty blend map texture if it doesn't exist yet.
     CreateBlendMapIfNeeded(*tc);
