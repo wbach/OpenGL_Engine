@@ -49,6 +49,68 @@ enum class BrushTypes
     Circle
 };
 
+class IntClientData : public wxClientData
+{
+public:
+    IntClientData(int value)
+        : m_value(value)
+    {
+    }
+    int GetValue() const
+    {
+        return m_value;
+    }
+
+private:
+    int m_value;
+};
+
+class RemoveTextureDialog : public wxDialog
+{
+public:
+    RemoveTextureDialog(wxWindow* parent, GameEngine::Components::ComponentController& componentController)
+        : wxDialog(parent, wxID_ANY, "Select", wxDefaultPosition, wxSize(300, 200))
+    {
+        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+
+        wxStaticText* label = new wxStaticText(this, wxID_ANY, "Do you wanna remove this texture from terrain?");
+        vbox->Add(label, 0, wxALL | wxCENTER, 10);
+
+        m_choice = new wxChoice(this, wxID_ANY);
+        m_choice->Append("All terrains", new IntClientData(-1));
+        m_choice->Append("Last painted terrain", new IntClientData(-2));
+
+        auto terrains = componentController.GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+        for (const auto& terrain : terrains)
+        {
+            const auto& parentGo = terrain->GetParentGameObject();
+            m_choice->Append(parentGo.GetName() + "(" + std::to_string(parentGo.GetId()) + ")",
+                             new IntClientData(parentGo.GetId()));
+        }
+
+        vbox->Add(m_choice, 0, wxALL | wxEXPAND, 10);
+        m_choice->SetSelection(0);
+
+        wxBoxSizer* hbox       = new wxBoxSizer(wxHORIZONTAL);
+        wxButton* okButton     = new wxButton(this, wxID_OK, "Yes");
+        wxButton* cancelButton = new wxButton(this, wxID_CANCEL, "No");
+        hbox->Add(okButton, 1, wxALL, 5);
+        hbox->Add(cancelButton, 1, wxALL, 5);
+
+        vbox->Add(hbox, 0, wxALIGN_CENTER);
+
+        SetSizer(vbox);
+        Centre();
+    }
+
+    wxString GetSelection() const
+    {
+        return m_choice->GetStringSelection();
+    }
+
+private:
+    wxChoice* m_choice;
+};
 class TerrainObjectClientData : public wxClientData
 {
 public:
@@ -298,6 +360,14 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         painterFields.texturePainterFields.selectedTextureButton->Reset();
         painterFields.texturePainterFields.selectedTextureFile.reset();
         DisablePainter();
+
+        RemoveTextureDialog dlg(this, scene.getComponentController());
+        if (dlg.ShowModal() == wxID_OK)
+        {
+            wxString choice = dlg.GetSelection();
+            wxMessageBox("Wybrales: " + choice, "Informacja");
+        }
+        return false;
     };
 
     auto popup = new TexturePickerPopup(this, painterFields.texturePainterFields.textures, onSelect, onAdd, onRemove);
@@ -966,11 +1036,7 @@ void TerrainToolPanel::EnablePainter()
 
     if (painterFields.terrainPainter_)
     {
-        painterFields.terrainPainter_->SetNotifyMessageFunc(
-            [](const auto& message)
-            {
-                wxLogMessage(message.c_str());
-            });
+        painterFields.terrainPainter_->SetNotifyMessageFunc([](const auto& message) { wxLogMessage(message.c_str()); });
     }
 
     painterFields.enableDisablePainterButton->SetLabelText("Disable " + painterFields.painterTypeCtrl->GetValue() + " painter");
