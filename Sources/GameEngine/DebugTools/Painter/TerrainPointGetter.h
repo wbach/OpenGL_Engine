@@ -27,7 +27,7 @@ class TerrainPointGetter
     using Terrain = Components::TerrainRendererComponent;
 
 public:
-    TerrainPointGetter(const CameraWrapper&, const Projection&, const vec2ui&, const Components::ComponentController&);
+    TerrainPointGetter(const CameraWrapper&, const Projection&, const Components::ComponentController&);
     std::optional<TerrainPoint> GetMousePointOnTerrain(const vec2& mousePosition);
     std::vector<Components::TerrainRendererComponent*> GetSceneTerrains() const;
 

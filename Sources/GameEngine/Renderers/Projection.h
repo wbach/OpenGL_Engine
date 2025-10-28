@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include "Types.h"
 
 namespace GameEngine
@@ -14,8 +15,6 @@ public:
 
     Projection& operator=(const Projection& p);
 
-    void Init();
-
     void CreateProjectionMatrix();
     void OrthographiProjection();
 
@@ -29,6 +28,8 @@ public:
 
 private:
     float CalculateAspectRatio() const;
+    void Init();
+    void UnsubscribeForEvents();
 
 private:
     vec2ui renderingSize_;
@@ -37,8 +38,8 @@ private:
     float farPlane_;
     float fov_;
     mat4 projectionMatrix_;
-    IdType viewDistanceChangeSubscription_;
-    IdType resolutionChangeSubscription_;
+    std::optional<IdType> viewDistanceChangeSubscription_;
+    std::optional<IdType> resolutionChangeSubscription_;
 };
 
 float Projection::GetViewDistance() const

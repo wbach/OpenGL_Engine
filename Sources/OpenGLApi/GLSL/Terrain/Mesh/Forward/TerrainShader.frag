@@ -48,7 +48,7 @@ const vec2 thresholds = vec2(.9f, .3f);
 
 float GetRockBlendFactor()
 {
-    float value = 1.f - fs_in.normal.y;
+    float value = 1.f - abs(fs_in.normal.y);
 
     if (value > thresholds.x)
     {
@@ -112,15 +112,15 @@ vec4 calculateBackgroundColor(float backTextureAmount)
 
     if (Is(perTerrainTextures.haveTextureBackground.x))
     {
-        backgorundTextureColor = getTriPlanarMappingColor(backgorundTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.x) * backTextureAmount;
+        backgorundTextureColor = getTriPlanarMappingColor(backgorundTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.x);
     }
 
     if (Is(perTerrainTextures.haveTextureRock.x))
     {
-        rockTextureColor = getTriPlanarMappingColor(rockTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.y) * backTextureAmount;
+        rockTextureColor = getTriPlanarMappingColor(rockTexture, fs_in.worldPosition.xyz, perTerrainTextures.backgroundTextureScales.y);
     }
 
-    return (backgorundTextureColor * (1.f - blendFactor)) + (rockTextureColor * blendFactor);
+    return ((backgorundTextureColor * (1.f - blendFactor)) + (rockTextureColor * blendFactor)) * backTextureAmount;
 }
 
 vec4 CalculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
@@ -194,4 +194,6 @@ void main()
 
     const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
     outputColor = mix(fogColor, outputColor, fs_in.visibility);
+
+     //outputColor = texture(blendMap, fs_in.texCoord);
 }

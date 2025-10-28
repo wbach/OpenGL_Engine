@@ -16,7 +16,7 @@ namespace GameEngine
 TerrainPainter::TerrainPainter(Dependencies& dependencies, std::unique_ptr<IBrush> brush, TerrainTextureType type)
     : Painter(dependencies.threadSync)
     , inputManager_(dependencies.inputManager)
-    , pointGetter_(dependencies.camera, dependencies.projection, dependencies.windowSize, dependencies.componentController)
+    , pointGetter_(dependencies.camera, dependencies.projection, dependencies.componentController)
     , brush_{std::move(brush)}
     , textureType_{type}
 
@@ -63,9 +63,11 @@ void TerrainPainter::Paint(const DeltaTime& deltaTime)
             LOG_ERROR << "Brush not set!";
             return;
         }
+        auto& tc = *currentTerrainPoint->terrainComponent;
 
-        const auto& transform = currentTerrainPoint->terrainComponent->getParentGameObject().GetWorldTransform();
-        auto* texture         = currentTerrainPoint->terrainComponent->GetTexture(textureType_);
+        const auto& transform = tc.getParentGameObject().GetWorldTransform();
+        auto* texture         = tc.GetTexture(textureType_);
+
         if (not texture)
         {
             LOG_WARN << "Texture not found. Type = " << magic_enum::enum_name(textureType_);
@@ -73,6 +75,13 @@ void TerrainPainter::Paint(const DeltaTime& deltaTime)
         }
 
         const auto& terrainScale = transform.GetScale();
+
+        auto textureSize = texture->GetSize();
+        if (textureSize.x <= 1 or textureSize.y <= 1)
+        {
+            LOG_WARN << "Wrong " << magic_enum::enum_name(textureType_) << " size ! " << textureSize;
+            return;
+        }
 
         CreateInfulanceForBrushSizeInTextureSpace(terrainScale, texture->GetSize());
 
@@ -90,7 +99,7 @@ void TerrainPainter::Paint(const DeltaTime& deltaTime)
             }
         }
 
-        UpdateTexture(*currentTerrainPoint->terrainComponent);
+        UpdateTexture(tc);
     }
 }
 std::optional<vec2ui> TerrainPainter::GetPaintendPoint(const TerrainPoint& terrainPoint, const Influance& point)

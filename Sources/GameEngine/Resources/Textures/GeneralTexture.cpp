@@ -51,13 +51,18 @@ void GeneralTexture::GpuLoadingPass()
         image_.clearData();
     }
 }
-void GeneralTexture::SetImage(Utils::Image image)
+void GeneralTexture::SetImage(Utils::Image&& image)
 {
-    image_       = std::move(image);
     size_        = vec2ui(image.width, image.height);
+    image_       = std::move(image);
     orginalData_ = false;
 }
 const Utils::Image& GeneralTexture::GetImage() const
+{
+    return image_;
+}
+
+Utils::Image& GeneralTexture::GetImage()
 {
     return image_;
 }

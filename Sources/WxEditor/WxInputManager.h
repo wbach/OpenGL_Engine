@@ -27,13 +27,15 @@ public:
     void GetPressedKeys();
     void ShowCursor(bool);
 
+    void SetWindowSize(const vec2i&);
+
 protected:
     KeyCodes::Type ConvertCode(uint32) const;
     bool IsKeyUpEventType(uint32) const;
     bool IsKeyDownEventType(uint32) const;
 
 private:
-    const vec2i windowSize;
+    vec2i windowSize;
     WrapPointerFunc wrapPointer;
     vec2i lastMousePosition;
     vec2i lastMouseMove;

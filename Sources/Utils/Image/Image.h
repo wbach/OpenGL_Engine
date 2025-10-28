@@ -51,7 +51,7 @@ public:
         data_     = std::vector<T>(buff, buff + len);
     }
     template <typename T>
-    void moveData(std::vector<T> input)
+    void moveData(std::vector<T>&& input)
     {
         data_ = std::move(input);
     }

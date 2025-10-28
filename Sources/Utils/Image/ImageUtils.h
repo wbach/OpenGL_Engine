@@ -49,4 +49,10 @@ void ConvertImageData(const std::vector<T>& inputData, std::vector<uint8>& outpu
 void SaveImage(const std::vector<uint8>&, const vec2ui&, const std::string&, const std::optional<vec2>& = std::nullopt);
 void SaveImage(const std::vector<float>&, const vec3ui&, const std::string&, const std::optional<vec2>&);
 void SaveImage(const Image&, const std::string&, const std::optional<vec2>& = std::nullopt);
+
+template <class T>
+Image cloneImageAs(const Image&);
+
+Image cloneImageAsFloat(const Image&);
+Image cloneImageAsUint8(const Image&);
 }  // namespace Utils

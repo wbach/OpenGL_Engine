@@ -1,8 +1,12 @@
 #pragma once
+#include <memory>
 #include <optional>
+#include <unordered_map>
 
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "Image/Image.h"
 #include "TerrainPainter.h"
 
 namespace GameEngine
@@ -18,8 +22,17 @@ public:
     void UpdateTexture(Components::TerrainRendererComponent&) override;
 
 private:
+    void CreateBlendMapIfNeeded(Components::TerrainRendererComponent&);
+    Utils::Image* GetPaintableImage(Components::TerrainRendererComponent&);
+    std::optional<Color> GetPaintedColor(Components::TerrainRendererComponent&);
+
+private:
     ITextureLoader& textureLoader;
     File requestedFileTexture;
     std::optional<Color> paintedColor;
+
+    std::unordered_map<Components::TerrainRendererComponent*, bool> paintedComponents;
+    std::unordered_map<Components::TerrainRendererComponent*, std::unique_ptr<Utils::Image>> tmpfloatingImages;
+    Utils::Image* paintedImage{nullptr};
 };
 }  // namespace GameEngine

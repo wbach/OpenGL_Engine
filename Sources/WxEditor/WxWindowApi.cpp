@@ -17,6 +17,7 @@ WxWindowApi::WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc
         {
             LOG_DEBUG << "Window size change detected.";
             windowSize = EngineConf.window.size;
+            inputManager->SetWindowSize(windowSize);
         });
 }
 
@@ -39,8 +40,9 @@ void WxWindowApi::CreateGameWindow(const std::string &, uint32, uint32, Graphics
     LOG_DEBUG << "CreateGameWindow not needed";
 }
 
-void WxWindowApi::SetWindowSize(const vec2ui &)
+void WxWindowApi::SetWindowSize(const vec2ui & size)
 {
+    LOG_DEBUG << "Set window size = " << size << " but not implmented";
 }
 
 vec2ui WxWindowApi::GetWindowSize() const

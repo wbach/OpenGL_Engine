@@ -18,7 +18,7 @@ typedef std::vector<RendererPtr> Renderers;
 class BaseRenderer : public IRenderer
 {
 public:
-    BaseRenderer(RendererContext& context);
+    BaseRenderer(RendererContext&);
     ~BaseRenderer();
 
     void init() override;

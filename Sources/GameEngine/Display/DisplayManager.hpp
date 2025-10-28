@@ -57,7 +57,6 @@ private:
     Time time_;
     float timeMultiplayer_;
     bool isFullScreen_;
-    vec2ui windowsSize_;
 
     IdType changeWindowSizeSubscription_;
     IdType changeFullScreenSubscription_;

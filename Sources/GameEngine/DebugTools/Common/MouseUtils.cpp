@@ -3,6 +3,7 @@
 #include <Glm.h>
 #include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {

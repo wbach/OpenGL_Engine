@@ -84,7 +84,6 @@ const Projection& RenderersManager::GetProjection() const
 }
 void RenderersManager::Init()
 {
-    InitProjection();
     InitGuiRenderer();
     debugRenderer_.init();
     CreateBuffers();
@@ -98,11 +97,6 @@ void RenderersManager::Init()
     {
         LOG_ERROR << "Main renderer not set!";
     }
-}
-void RenderersManager::InitProjection()
-{
-    projection_.Init();
-    projection_.CreateProjectionMatrix();
 }
 void RenderersManager::createMainRenderer()
 {

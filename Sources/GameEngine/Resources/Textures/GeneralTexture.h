@@ -14,8 +14,9 @@ public:
                    const std::optional<File>& = std::nullopt);
     ~GeneralTexture();
     void GpuLoadingPass() override;
-    void SetImage(Utils::Image);
+    void SetImage(Utils::Image&&);
     const Utils::Image& GetImage() const;
+    Utils::Image& GetImage();
     void SetPixel(const vec2ui&, const Color&);
     Utils::Image MoveImage();
 

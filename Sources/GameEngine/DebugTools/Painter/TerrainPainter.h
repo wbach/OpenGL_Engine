@@ -37,7 +37,6 @@ public:
         Utils::Thread::IThreadSync& threadSync;
         const CameraWrapper& camera;
         const Projection& projection;
-        const vec2ui& windowSize;
         const Components::ComponentController& componentController;
     };
 

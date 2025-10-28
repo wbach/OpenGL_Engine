@@ -68,7 +68,6 @@ public:
 
 private:
     void ReloadShadersExecution();
-    void InitProjection();
     void createMainRenderer();
     void InitGuiRenderer();
     void CreateBuffers();

@@ -76,7 +76,6 @@ struct TerrainPointGetterShould : public EngineBasedTest, public ::testing::With
     {
         EngineBasedTest::SetUp();
         sut_ = std::make_unique<TerrainPointGetter>(scene->GetCamera(), engineContext->GetRenderersManager().GetProjection(),
-                                                    engineContext->GetDisplayManager().GetWindowSize(),
                                                     scene->getComponentController());
     }
     void TearDown() override

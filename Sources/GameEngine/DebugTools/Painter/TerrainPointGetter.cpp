@@ -20,7 +20,7 @@ constexpr double RAY_RANGE{1000.0};
 using vec3d = glm::dvec3;
 }  // namespace
 
-TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection, const vec2ui& windowSize,
+TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection,
                                        const Components::ComponentController& componentController)
     : camera_(camera)
     , projection_(projection)

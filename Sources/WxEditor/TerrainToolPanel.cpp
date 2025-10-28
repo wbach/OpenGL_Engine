@@ -78,7 +78,6 @@ GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scen
                                                     engineContext->GetThreadSync(),
                                                     scene.GetCamera(),
                                                     engineContext->GetRenderersManager().GetProjection(),
-                                                    engineContext->GetDisplayManager().GetWindowSize(),
                                                     scene.getComponentController()};
 }
 

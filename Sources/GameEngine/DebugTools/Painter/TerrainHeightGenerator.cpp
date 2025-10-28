@@ -351,7 +351,7 @@ void TerrainHeightGenerator::perlinNoise2D()
         image.width  = width;
         image.height = height;
         image.setChannels(1);
-        image.moveData(heights);
+        image.moveData(std::move(heights));
 
         // image.applyFilter(GraphicsApi::gaussian7x7Filter());
         heightMap->setImage(std::move(image));

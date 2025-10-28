@@ -19,7 +19,6 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     , timeMeasurer_(static_cast<uint32>(EngineConf.renderer.fpsLimt))
     , timeMultiplayer_{1.f}
     , isFullScreen_(EngineConf.window.fullScreen)
-    , windowsSize_(EngineConf.window.size)
 {
     changeWindowSizeSubscription_ = EngineConf.window.size.subscribeForChange(
         [this]() { graphicsApi_.GetWindowApi().SetWindowSize(EngineConf.window.size); });
@@ -33,7 +32,8 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
     auto windowType = EngineConf.window.fullScreen ? GraphicsApi::WindowType::FULL_SCREEN : GraphicsApi::WindowType::WINDOW;
 
     graphicsApi_.GetWindowApi().Init();
-    graphicsApi_.GetWindowApi().CreateGameWindow(EngineConf.window.name, windowsSize_.x, windowsSize_.y, windowType);
+    graphicsApi_.GetWindowApi().CreateGameWindow(EngineConf.window.name, EngineConf.window.size->x, EngineConf.window.size->y,
+                                                 windowType);
     graphicsApi_.CreateContext();
     graphicsApi_.Init();
     graphicsApi_.PrintVersion();
@@ -70,10 +70,9 @@ DisplayManager::DisplayManager(GraphicsApi::IGraphicsApi& api, Utils::Measuremen
         EngineConf.window.size.AddDefaultValue(vec2ui(mode.w, mode.h));
     }
 
-    windowsSize_           = vec2ui{static_cast<uint32_t>(bestMode->w), static_cast<uint32_t>(bestMode->h)};
-    EngineConf.window.size = windowsSize_;
+    EngineConf.window.size = vec2ui{static_cast<uint32_t>(bestMode->w), static_cast<uint32_t>(bestMode->h)};
 
-    graphicsApi_.SetViewPort(0, 0, windowsSize_.x, windowsSize_.y);
+    graphicsApi_.SetViewPort(0, 0, EngineConf.window.size->x, EngineConf.window.size->y);
 
     auto& measurmentValue = measurementHandler_.AddNewMeasurment(FPS_ENGINE_CONTEXT);
 
@@ -149,7 +148,7 @@ int DisplayManager::GetFps() const
 
 const vec2ui& DisplayManager::GetWindowSize()
 {
-    return windowsSize_;
+    return *EngineConf.window.size;
 }
 
 void DisplayManager::ShowCoursor(bool show)

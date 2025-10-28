@@ -67,7 +67,6 @@ struct TerrainHeightPainterShould : public EngineBasedTest
             .threadSync          = engineContext->GetThreadSync(),
             .camera              = scene->GetCamera(),
             .projection          = engineContext->GetRenderersManager().GetProjection(),
-            .windowSize          = engineContext->GetDisplayManager().GetWindowSize(),
             .componentController = scene->getComponentController(),
         };
 

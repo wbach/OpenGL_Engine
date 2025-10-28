@@ -34,6 +34,55 @@ Projection::Projection(const vec2ui &renderingSize, float near, float far, float
     , farPlane_(far)
     , fov_(fov)
 {
+    Init();
+}
+
+Projection::Projection(const Projection &p)
+    : renderingSize_(p.renderingSize_)
+    , aspectRatio_(p.aspectRatio_)
+    , nearPlane_(p.nearPlane_)
+    , farPlane_(p.farPlane_)
+    , fov_(p.fov_)
+    , projectionMatrix_(p.projectionMatrix_)
+{
+    Init();
+}
+Projection::~Projection()
+{
+    UnsubscribeForEvents();
+}
+Projection &Projection::operator=(const Projection &p)
+{
+    UnsubscribeForEvents();
+
+    aspectRatio_      = p.aspectRatio_;
+    renderingSize_    = p.renderingSize_;
+    nearPlane_        = p.nearPlane_;
+    farPlane_         = p.farPlane_;
+    fov_              = p.fov_;
+    projectionMatrix_ = p.projectionMatrix_;
+
+    Init();
+
+    return *this;
+}
+
+void Projection::UnsubscribeForEvents()
+{
+    if (viewDistanceChangeSubscription_)
+        EngineConf.renderer.viewDistance.unsubscribe(*viewDistanceChangeSubscription_);
+
+    if (resolutionChangeSubscription_)
+        EngineConf.renderer.resolution.unsubscribe(*resolutionChangeSubscription_);
+
+    viewDistanceChangeSubscription_.reset();
+    resolutionChangeSubscription_.reset();
+}
+
+void Projection::Init()
+{
+    renderingSize_ = EngineConf.renderer.resolution.get();
+    aspectRatio_   = CalculateAspectRatio();
     CreateProjectionMatrix();
 
     viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange(
@@ -47,43 +96,15 @@ Projection::Projection(const vec2ui &renderingSize, float near, float far, float
     resolutionChangeSubscription_ = EngineConf.renderer.resolution.subscribeForChange(
         [this]()
         {
-            LOG_DEBUG << "Rendering resolition change, recalculate projection matrix";
+            LOG_DEBUG << "Rendering resolution change from: " << renderingSize_ << " to " << *EngineConf.renderer.resolution
+                      << ", recalculate projection matrix";
+
             renderingSize_ = EngineConf.renderer.resolution;
-            CalculateAspectRatio();
+            aspectRatio_   = CalculateAspectRatio();
             CreateProjectionMatrix();
         });
 }
-Projection::Projection(const Projection &p)
-    : renderingSize_(p.renderingSize_)
-    , aspectRatio_(p.aspectRatio_)
-    , nearPlane_(p.nearPlane_)
-    , farPlane_(p.farPlane_)
-    , fov_(p.fov_)
-    , projectionMatrix_(p.projectionMatrix_)
-{
-}
-Projection::~Projection()
-{
-    EngineConf.renderer.viewDistance.unsubscribe(viewDistanceChangeSubscription_);
-    EngineConf.renderer.resolution.unsubscribe(resolutionChangeSubscription_);
-}
-Projection &Projection::operator=(const Projection &p)
-{
-    aspectRatio_      = p.aspectRatio_;
-    renderingSize_    = p.renderingSize_;
-    nearPlane_        = p.nearPlane_;
-    farPlane_         = p.farPlane_;
-    fov_              = p.fov_;
-    projectionMatrix_ = p.projectionMatrix_;
-    return *this;
-}
 
-void Projection::Init()
-{
-    renderingSize_ = EngineConf.renderer.resolution.get();
-    aspectRatio_   = CalculateAspectRatio();
-    CreateProjectionMatrix();
-}
 const mat4 &Projection::GetProjectionMatrix() const
 {
     std::lock_guard<std::mutex> l(mmutex);
@@ -92,7 +113,9 @@ const mat4 &Projection::GetProjectionMatrix() const
 
 float Projection::CalculateAspectRatio() const
 {
-    return static_cast<float>(renderingSize_.x) / static_cast<float>(renderingSize_.y);
+    auto result = static_cast<float>(renderingSize_.x) / static_cast<float>(renderingSize_.y);
+    LOG_DEBUG << "New aspect ratio: " << result;
+    return result;
 }
 
 const vec2ui &Projection::GetRenderingSize() const

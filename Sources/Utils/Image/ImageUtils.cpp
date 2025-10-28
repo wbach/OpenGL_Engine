@@ -238,4 +238,70 @@ void SaveImage(const Image& image, const std::string& outputFilePath, const std:
                        [](std::monostate) { LOG_ERROR << "Data not set!"; }},
                image.getImageData());
 }
+
+template <class T>
+Image cloneImageAs(const Image& src)
+{
+    Image dst;
+    dst.width  = src.width;
+    dst.height = src.height;
+    dst.setChannels(src.getChannelsCount());
+
+    const auto& data = src.getImageData();
+
+    // uint8 → T
+    if (std::holds_alternative<std::vector<uint8>>(data))
+    {
+        const auto& s = std::get<std::vector<uint8>>(data);
+        std::vector<T> d;
+        d.resize(s.size());
+
+        if constexpr (std::is_floating_point_v<T>)
+        {
+            for (size_t i = 0; i < s.size(); ++i)
+                d[i] = static_cast<T>(s[i]) / static_cast<T>(255.0);
+        }
+        else
+        {
+            for (size_t i = 0; i < s.size(); ++i)
+                d[i] = static_cast<T>(s[i]);
+        }
+
+        dst.moveData(std::move(d));
+    }
+    // float → T
+    else if (std::holds_alternative<std::vector<float>>(data))
+    {
+        const auto& s = std::get<std::vector<float>>(data);
+        std::vector<T> d;
+        d.resize(s.size());
+
+        if constexpr (std::is_same_v<T, uint8>)
+        {
+            for (size_t i = 0; i < s.size(); ++i)
+                d[i] = static_cast<uint8>(glm::clamp(s[i], 0.0f, 1.0f) * 255.0f);
+        }
+        else
+        {
+            for (size_t i = 0; i < s.size(); ++i)
+                d[i] = static_cast<T>(s[i]);
+        }
+
+        dst.moveData(std::move(d));
+    }
+    else
+    {
+        dst.allocateImage<T>();
+    }
+
+    return dst;
+}
+Image cloneImageAsFloat(const Image& src)
+{
+    return cloneImageAs<float>(src);
+}
+Image cloneImageAsUint8(const Image& src)
+{
+    return cloneImageAs<uint8>(src);
+}
 }  // namespace Utils
