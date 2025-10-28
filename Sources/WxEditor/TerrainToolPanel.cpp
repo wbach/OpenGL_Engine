@@ -27,6 +27,7 @@
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
+#include <algorithm>
 #include <limits>
 #include <magic_enum/magic_enum.hpp>
 #include <optional>
@@ -42,6 +43,11 @@
 
 namespace
 {
+enum class BrushTypes
+{
+    Circle
+};
+
 class TerrainObjectClientData : public wxClientData
 {
 public:
@@ -74,17 +80,149 @@ GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scen
     if (not engineContext)
         throw std::runtime_error("Scene not init. engineContext is null");
 
-    return GameEngine::TerrainPainter::Dependencies{engineContext->GetInputManager(),
-                                                    engineContext->GetThreadSync(),
-                                                    scene.GetCamera(),
-                                                    engineContext->GetRenderersManager().GetProjection(),
+    return GameEngine::TerrainPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(),
+                                                    scene.GetCamera(), engineContext->GetRenderersManager().GetProjection(),
                                                     scene.getComponentController()};
 }
 
-enum class BrushTypes
+template <typename EnumType>
+wxComboBox* CreateEnumComboBox(wxWindow* parent, wxSizer* sizer, const std::string& label, EnumType defaultValue,
+                               std::function<void()> onChangeCallback)
 {
-    Circle
-};
+    // 1️⃣ Zbierz nazwy enumów do wxArrayString
+    wxArrayString items;
+    for (const auto& name : magic_enum::enum_names<EnumType>())
+    {
+        items.Add(std::string(name));
+    }
+
+    // 2️⃣ Domyślna wartość
+    std::string defaultName = std::string(magic_enum::enum_name(defaultValue));
+
+    // 3️⃣ Stwórz statyczny box i combo box
+    auto* box   = new wxStaticBoxSizer(wxVERTICAL, parent, label);
+    auto* combo = new wxComboBox(parent, wxID_ANY, defaultName, wxDefaultPosition, wxDefaultSize, items, wxCB_READONLY);
+
+    box->Add(combo, 0, wxEXPAND | wxALL, 5);
+    sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+    // 4️⃣ Podłącz callback
+    combo->Bind(wxEVT_COMBOBOX, [onChangeCallback](const auto&) { onChangeCallback(); });
+
+    return combo;
+}
+
+template <typename T>
+wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& label, T minValue, T maxValue, T defaultValue,
+                         std::function<void(T)> onValueChanged = nullptr, int sliderResolution = 100)
+{
+    static_assert(std::is_arithmetic_v<T>, "CreateSlider requires arithmetic type");
+
+    // 1️⃣ Statyczny box
+    auto* box = new wxStaticBoxSizer(wxVERTICAL, parent, label);
+
+    // 2️⃣ Slider
+    int sliderValue;
+    if constexpr (std::is_floating_point_v<T>)
+    {
+        sliderValue = static_cast<int>((defaultValue - minValue) / (maxValue - minValue) * sliderResolution);
+    }
+    else
+    {
+        sliderValue      = static_cast<int>(defaultValue - minValue);
+        sliderResolution = static_cast<int>(maxValue - minValue);
+    }
+
+    auto* slider = new wxSlider(parent, wxID_ANY, sliderValue, 0, sliderResolution);
+
+    // 3️⃣ TextCtrl z formatowaniem
+    std::string textValue;
+    if constexpr (std::is_integral_v<T>)
+    {
+        textValue = std::to_string(defaultValue);
+    }
+    else
+    {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%.2f", static_cast<double>(defaultValue));
+        textValue = buf;
+    }
+
+    auto* text = new wxTextCtrl(parent, wxID_ANY, textValue, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+
+    // 4️⃣ Poziomy sizer
+    auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
+    hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
+    hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
+
+    box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
+    sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+    // 5️⃣ Synchronizacja slider -> text
+    slider->Bind(wxEVT_SLIDER,
+                 [slider, text, minValue, maxValue, sliderResolution, onValueChanged](const auto&)
+                 {
+                     T val;
+                     if constexpr (std::is_floating_point_v<T>)
+                     {
+                         val = minValue + static_cast<T>(slider->GetValue()) / sliderResolution * (maxValue - minValue);
+                         text->ChangeValue(wxString::Format("%.2f", static_cast<double>(val)));
+                     }
+                     else
+                     {
+                         val = static_cast<T>(slider->GetValue()) + minValue;
+                         text->ChangeValue(wxString::Format("%d", static_cast<int>(val)));
+                     }
+                     if (onValueChanged)
+                         onValueChanged(val);
+                 });
+
+    // 6️⃣ Synchronizacja text -> slider (Enter)
+    text->Bind(wxEVT_TEXT_ENTER,
+               [slider, minValue, maxValue, sliderResolution, onValueChanged](wxCommandEvent& evt)
+               {
+                   T val{};
+                   bool valid = false;
+
+                   if constexpr (std::is_integral_v<T>)
+                   {
+                       long tmp;
+                       valid = evt.GetString().ToLong(&tmp);
+                       if (valid)
+                           val = static_cast<T>(std::clamp(tmp, static_cast<long>(minValue), static_cast<long>(maxValue)));
+                   }
+                   else
+                   {
+                       double tmp;
+                       valid = evt.GetString().ToDouble(&tmp);
+                       if (valid)
+                           val = static_cast<T>(std::clamp(static_cast<T>(tmp), minValue, maxValue));
+                   }
+
+                   if (valid)
+                   {
+                       int sliderPos;
+                       if constexpr (std::is_floating_point_v<T>)
+                       {
+                           sliderPos = static_cast<int>((val - minValue) / (maxValue - minValue) * sliderResolution);
+                       }
+                       else
+                       {
+                           sliderPos = static_cast<int>(val - minValue);
+                       }
+
+                       if (slider->GetValue() != sliderPos)
+                       {
+                           slider->SetValue(sliderPos);
+                           if (onValueChanged)
+                               onValueChanged(val);
+                       }
+                   }
+               });
+
+    return text;
+}
+
 }  // namespace
 
 // clang-format off
@@ -134,6 +272,7 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
     {
         painterFields.texturePainterFields.selectedTextureButton->SetBitmap(file);
         painterFields.texturePainterFields.selectedTextureFile = file;
+        OnUpdatePainterParam();
     };
 
     auto onAdd = [this]()
@@ -149,6 +288,7 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
             auto& textures = painterFields.texturePainterFields.textures;
             if (std::find(textures.begin(), textures.end(), selectedFile) == textures.end())
                 textures.push_back(*selectedFile);
+            OnUpdatePainterParam();
         }
     };
 
@@ -156,6 +296,7 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
     {
         painterFields.texturePainterFields.selectedTextureButton->Reset();
         painterFields.texturePainterFields.selectedTextureFile.reset();
+        DisablePainter();
     };
 
     auto popup = new TexturePickerPopup(this, painterFields.texturePainterFields.textures, onSelect, onAdd, onRemove);
@@ -280,26 +421,20 @@ void TerrainToolPanel::BuildTerrainPainterUI(wxSizer* parentSizer)
 
     painterFields.enableDisablePainterButton = new wxButton(pane, wxID_ANY, "Enable painter");
     paneSizer->Add(painterFields.enableDisablePainterButton, 0, wxEXPAND | wxALL, 5);
-    painterFields.enableDisablePainterButton->Bind(
-        wxEVT_BUTTON,
-        [this](wxCommandEvent& e)
-        {
-            if (painterFields.terrainPainter_)
-            {
-                painterFields.terrainPainter_.reset();
-                painterFields.enableDisablePainterButton->SetLabelText("Enable " + painterFields.painterTypeCtrl->GetValue() +
-                                                                       " painter");
+    painterFields.enableDisablePainterButton->Bind(wxEVT_BUTTON,
+                                                   [this](wxCommandEvent& e)
+                                                   {
+                                                       if (painterFields.terrainPainter_)
+                                                       {
+                                                           DisablePainter();
+                                                       }
+                                                       else
+                                                       {
+                                                           EnablePainter();
+                                                       }
 
-                if (visualizationObject)
-                    visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
-            }
-            else
-            {
-                EnablePainter();
-            }
-
-            e.Skip();
-        });
+                                                       e.Skip();
+                                                   });
 
     // === Painter Type wybor ===
     auto* painterTypeBox = new wxStaticBoxSizer(wxVERTICAL, pane, "Painter Type");
@@ -359,116 +494,17 @@ wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
 
     // === Interpolation Method ===
     {
-        wxArrayString stepInterpolations;
-
-        for (const auto& step : magic_enum::enum_names<GameEngine::InterpolationType>())
-        {
-            LOG_DEBUG << step;
-            stepInterpolations.Add(std::string(step));
-        }
-
-        std::string defaultInterpolationType{magic_enum::enum_name(GameEngine::InterpolationType::Smooth)};
-
-        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
-        auto* combo = new wxComboBox(panel, wxID_ANY, defaultInterpolationType, wxDefaultPosition, wxDefaultSize,
-                                     stepInterpolations, wxCB_READONLY);
-        box->Add(combo, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.heightPainterFields.interpolation = combo;
-        combo->Bind(wxEVT_COMBOBOX, [this](const auto& event) { OnUpdatePainterParam(); });
+        painterFields.heightPainterFields.interpolation = CreateEnumComboBox<GameEngine::InterpolationType>(
+            panel, sizer, "Interpolation Method", GameEngine::InterpolationType::Smooth, [this]() { OnUpdatePainterParam(); });
     }
 
-    // === Brush Type ===
-    {
-        wxArrayString heightBrushTypes;
+    // === Brush Size ===
+    painterFields.heightPainterFields.brushSize =
+        CreateSlider<float>(panel, sizer, "Brush Size", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
 
-        for (const auto& brush : magic_enum::enum_names<BrushTypes>())
-        {
-            heightBrushTypes.Add(std::string(brush));
-        }
-
-        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
-        auto* combo = new wxComboBox(panel, wxID_ANY, heightBrushTypes.IsEmpty() ? wxString("") : heightBrushTypes.front(),
-                                     wxDefaultPosition, wxDefaultSize, heightBrushTypes, wxCB_READONLY);
-        // Placeholder: np. "Circle", "Square", "Noise", ...
-        box->Add(combo, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.heightPainterFields.brushType = combo;
-        combo->Bind(wxEVT_COMBOBOX, [this](const auto& event) { OnUpdatePainterParam(); });
-    }
-
-    // === Brush Size (float slider + text field) ===
-    {
-        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Size");
-
-        auto* slider = new wxSlider(panel, wxID_ANY, 1, 1, 20, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "3.0");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.heightPainterFields.brushSize = text;
-
-        // --- Synchronizacja slider <-> text ---
-        slider->Bind(wxEVT_SLIDER,
-                     [this, slider, text](wxCommandEvent&)
-                     {
-                         float val = static_cast<float>(slider->GetValue());
-                         text->ChangeValue(wxString::Format("%.2f", val));
-                         OnUpdatePainterParam();
-                     });
-
-        text->Bind(wxEVT_TEXT,
-                   [this, slider](wxCommandEvent& evt)
-                   {
-                       double val;
-                       if (evt.GetString().ToDouble(&val) && val >= 0.0)
-                       {
-                           slider->SetValue(wxRound(val));
-                           OnUpdatePainterParam();
-                       }
-                   });
-    }
-
-    // === Strength (float slider + text field, moze byc ujemne) ===
-    {
-        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Strength");
-
-        auto* slider = new wxSlider(panel, wxID_ANY, 0, -1000, 1000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "50.0");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.heightPainterFields.strength = text;
-
-        // --- Synchronizacja slider <-> text ---
-        slider->Bind(wxEVT_SLIDER,
-                     [this, slider, text](wxCommandEvent&)
-                     {
-                         float val = static_cast<float>(slider->GetValue()) / 10.0f;  // skala +/-10.0
-                         text->ChangeValue(wxString::Format("%.2f", val));
-                         OnUpdatePainterParam();
-                     });
-
-        text->Bind(wxEVT_TEXT,
-                   [this, slider](wxCommandEvent& evt)
-                   {
-                       double val;
-                       if (evt.GetString().ToDouble(&val))
-                       {
-                           val = std::max(-10.0, std::min(10.0, val));
-                           slider->SetValue(wxRound(val * 10.0));
-                           OnUpdatePainterParam();
-                       }
-                   });
-    }
+    // === Blend Strength ===
+    painterFields.heightPainterFields.strength =
+        CreateSlider<float>(panel, sizer, "Brush Strength", -10.0f, 10.0f, 1.f, [this](int val) { OnUpdatePainterParam(); });
 
     // === Recalculate Normals ===
     {
@@ -495,102 +531,20 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
     // === Interpolation Method ===
-    {
-        wxArrayString stepInterpolations;
-        for (const auto& step : magic_enum::enum_names<GameEngine::InterpolationType>())
-        {
-            LOG_DEBUG << step;
-            stepInterpolations.Add(std::string(step));
-        }
-
-        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Interpolation Method");
-        auto* combo = new wxComboBox(panel, wxID_ANY, stepInterpolations.IsEmpty() ? wxString("") : stepInterpolations.front(),
-                                     wxDefaultPosition, wxDefaultSize, stepInterpolations, wxCB_READONLY);
-        // TODO: uzupelnij liste metod w runtime
-        box->Add(combo, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.texturePainterFields.interpolation = combo;
-    }
+    painterFields.texturePainterFields.interpolation = CreateEnumComboBox<GameEngine::InterpolationType>(
+        panel, sizer, "Interpolation Method", GameEngine::InterpolationType::Linear, [this]() { OnUpdatePainterParam(); });
 
     // === Brush Type ===
-    {
-        wxArrayString textureBrushTypes;
-
-        for (const auto& brush : magic_enum::enum_names<BrushTypes>())
-        {
-            textureBrushTypes.Add(std::string(brush));
-        }
-
-        auto* box   = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Type");
-        auto* combo = new wxComboBox(panel, wxID_ANY, textureBrushTypes.IsEmpty() ? wxString("") : textureBrushTypes.front(),
-                                     wxDefaultPosition, wxDefaultSize, textureBrushTypes, wxCB_READONLY);
-        box->Add(combo, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.texturePainterFields.brushType = combo;
-    }
+    painterFields.texturePainterFields.brushType =
+        CreateEnumComboBox<BrushTypes>(panel, sizer, "Brush Type", BrushTypes::Circle, [this]() { OnUpdatePainterParam(); });
 
     // === Brush Size ===
-    {
-        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Brush Size");
-        auto* slider = new wxSlider(panel, wxID_ANY, 3, 1, 20);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "3.0");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.texturePainterFields.brushSize = text;
-
-        // Synchronizacja slider <-> text
-        slider->Bind(wxEVT_SLIDER,
-                     [slider, text](wxCommandEvent&)
-                     {
-                         float val = static_cast<float>(slider->GetValue());
-                         text->ChangeValue(wxString::Format("%.2f", val));
-                     });
-        text->Bind(wxEVT_TEXT_ENTER,
-                   [slider](wxCommandEvent& evt)
-                   {
-                       double val;
-                       if (evt.GetString().ToDouble(&val) && val >= 0.0)
-                           slider->SetValue(wxRound(val));
-                   });
-    }
+    painterFields.texturePainterFields.brushSize =
+        CreateSlider<float>(panel, sizer, "Brush Size", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
 
     // === Blend Strength ===
-    {
-        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Blend Strength");
-        auto* slider = new wxSlider(panel, wxID_ANY, 10, 0, 20);
-        auto* text   = new wxTextCtrl(panel, wxID_ANY, "1");
-
-        auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-        hsizer->Add(slider, 1, wxEXPAND | wxRIGHT, 5);
-        hsizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
-
-        box->Add(hsizer, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-        painterFields.texturePainterFields.strength = text;
-
-        // Synchronizacja slider <-> text
-        slider->Bind(wxEVT_SLIDER,
-                     [slider, text](wxCommandEvent&)
-                     {
-                         float val = static_cast<float>(slider->GetValue());
-                         text->ChangeValue(wxString::Format("%.2f", val));
-                     });
-        text->Bind(wxEVT_TEXT_ENTER,
-                   [slider](wxCommandEvent& evt)
-                   {
-                       double val;
-                       if (evt.GetString().ToDouble(&val))
-                       {
-                           val = std::max(0.0, std::min(1.0, val));
-                           slider->SetValue(wxRound(val));
-                       }
-                   });
-    }
+    painterFields.texturePainterFields.strength =
+        CreateSlider<float>(panel, sizer, "Brush Strength", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
 
     // === Selected Texture ===
     {
@@ -618,40 +572,6 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
     panel->SetSizer(sizer);
     return panel;
-}
-
-void TerrainToolPanel::BuildTexturePainterPanel(wxWindow* panel, wxSizer* sizer)
-{
-    // === StaticBox (ramka) ===
-    auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Texture Layers");
-
-    // === Kontener (rosnie dynamicznie w pionie) ===
-    auto* texContainer   = new wxPanel(panel);
-    auto* containerSizer = new wxBoxSizer(wxVERTICAL);
-    texContainer->SetSizer(containerSizer);
-
-    // === Panel z wrapSizerem ===
-    auto* texPanel  = new wxPanel(texContainer);
-    auto* wrapSizer = new wxWrapSizer(wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS);
-    texPanel->SetSizer(wrapSizer);
-
-    // Dodaj texPanel do kontenera z wxEXPAND
-    containerSizer->Add(texPanel, 0, wxEXPAND | wxALL, 0);
-
-    // ? kluczowe: kontener dostaje proportion=1 w boxie
-    box->Add(texContainer, 1, wxEXPAND | wxALL, 5);
-
-    // === Gorny pasek przyciskow ===
-    auto* buttonsSizer = new wxBoxSizer(wxHORIZONTAL);
-    auto* clearBtn     = new wxButton(panel, wxID_ANY, "Clear Blend Map");
-
-    buttonsSizer->Add(clearBtn, 0, wxALL, 5);
-
-    clearBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&) { LOG_INFO << "Blend map cleared!"; });
-
-    // === Finalne zlozenie ===
-    sizer->Add(buttonsSizer, 0, wxLEFT | wxRIGHT | wxBOTTOM, 5);
-    sizer->Add(box, 1, wxEXPAND | wxALL, 5);
 }
 
 wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
@@ -1120,4 +1040,13 @@ void TerrainToolPanel::EnablePainter()
     }
 
     painterFields.enableDisablePainterButton->SetLabelText("Disable " + painterFields.painterTypeCtrl->GetValue() + " painter");
+}
+
+void TerrainToolPanel::DisablePainter()
+{
+    painterFields.terrainPainter_.reset();
+    painterFields.enableDisablePainterButton->SetLabelText("Enable " + painterFields.painterTypeCtrl->GetValue() + " painter");
+
+    if (visualizationObject)
+        visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
 }

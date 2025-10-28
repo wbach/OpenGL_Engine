@@ -41,7 +41,6 @@ private:
     void BuildTerrainPainterUI(wxSizer*);
     wxPanel* BuildHeightPainterPanel(wxWindow*);
     wxPanel* BuildTexturePainterPanel(wxWindow*);
-    void BuildTexturePainterPanel(wxWindow* panel, wxSizer* sizer);
     wxPanel* BuildPlantPainterPanel(wxWindow*);
     void GenerateTerrain(bool);
     void GenerateTerrain(bool, const std::optional<IdType>&);
@@ -53,6 +52,7 @@ private:
     void DetectedTerrainGameObjectsAndAddToChoice();
     void ImportFromMesh();
     void EnablePainter();
+    void DisablePainter();
     void OnUpdatePainterParam();
     void SelectedPainterTexture(wxMouseEvent&);
     GameEngine::GameObject* createPainterVisualizationObject();
