@@ -18,6 +18,7 @@
 #include "Image/Image.h"
 #include "Influance.h"
 #include "glm/common.hpp"
+#include "glm/ext/scalar_constants.hpp"
 
 namespace GameEngine
 {
@@ -148,7 +149,21 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
 
     if (paintedImage and paintedColor)
     {
+        if (glm::length(paintedColor->value) < 0.1f)
+        {
+            messageBox("For selected terrain \"" + tc->GetParentGameObject().GetName() +
+                       "\" all textures are occupied and only background texture left this will affect whole "
+                       "terrain");
+        }
+
         currentPaintingContext = PaintedContext{.paintedColor = *paintedColor, .paintedImage = *paintedImage};
+    }
+    else if (not paintedColor and messageBox)
+    {
+        messageBox("For terrain \"" + tc->GetParentGameObject().GetName() + "\" can not get free texture slot for painting " +
+                       requestedFileTexture.GetBaseName() +
+                       ". Please check, only 4 texures per terrain is avaiable to paint + 2 passive texture like background or "
+                       "rockTexture ");
     }
 
     paintedComponents.insert({tc, currentPaintingContext});

@@ -34,6 +34,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "DebugTools/Painter/Painter.h"
 #include "EditorUitls.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
@@ -961,6 +962,15 @@ void TerrainToolPanel::EnablePainter()
     {
         LOG_ERROR << "Enable painter error";
         wxMessageBox("Enable painter error", "Error", wxICON_WARNING | wxOK);
+    }
+
+    if (painterFields.terrainPainter_)
+    {
+        painterFields.terrainPainter_->SetNotifyMessageFunc(
+            [](const auto& message)
+            {
+                wxLogMessage(message.c_str());
+            });
     }
 
     painterFields.enableDisablePainterButton->SetLabelText("Disable " + painterFields.painterTypeCtrl->GetValue() + " painter");
