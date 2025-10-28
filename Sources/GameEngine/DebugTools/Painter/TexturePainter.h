@@ -29,10 +29,16 @@ private:
 private:
     ITextureLoader& textureLoader;
     File requestedFileTexture;
-    std::optional<Color> paintedColor;
 
-    std::unordered_map<Components::TerrainRendererComponent*, bool> paintedComponents;
+    struct PaintedContext
+    {
+        Color paintedColor;
+        std::reference_wrapper<Utils::Image> paintedImage;
+    };
+
+    std::optional<PaintedContext> currentPaintingContext;
+
+    std::unordered_map<Components::TerrainRendererComponent*, std::optional<PaintedContext>> paintedComponents;
     std::unordered_map<Components::TerrainRendererComponent*, std::unique_ptr<Utils::Image>> tmpfloatingImages;
-    Utils::Image* paintedImage{nullptr};
 };
 }  // namespace GameEngine

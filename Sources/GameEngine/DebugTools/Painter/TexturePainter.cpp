@@ -1,6 +1,7 @@
 #include "TexturePainter.h"
 
 #include <Logger/Log.h>
+#include <Utils/Image/ImageUtils.h>
 
 #include <algorithm>
 #include <optional>
@@ -14,9 +15,8 @@
 #include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "IBrush.h"
-#include "Image/ImageUtils.h"
+#include "Image/Image.h"
 #include "Influance.h"
-#include "WxEditor/ProjectManager.h"
 #include "glm/common.hpp"
 
 namespace GameEngine
@@ -130,7 +130,7 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
 
     if (auto iter = paintedComponents.find(tc); iter != paintedComponents.end())
     {
-        return iter->second;
+        return iter->second.has_value();
     }
 
     if (not requestedFileTexture.exist())
@@ -139,43 +139,50 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
         return false;
     }
 
+
     // Creates a new empty blend map texture if it doesn't exist yet.
     CreateBlendMapIfNeeded(*tc);
-    paintedImage = GetPaintableImage(*tc);
-    paintedColor = GetPaintedColor(*tc);
 
-    auto isPaintAvaiable = paintedColor.has_value();
-    paintedComponents.insert({tc, isPaintAvaiable});
+    auto paintedImage = GetPaintableImage(*tc);
+    auto paintedColor = GetPaintedColor(*tc);
 
-    if (not isPaintAvaiable)
+    if (paintedImage and paintedColor)
+    {
+        currentPaintingContext = PaintedContext{.paintedColor = *paintedColor, .paintedImage = *paintedImage};
+    }
+
+    paintedComponents.insert({tc, currentPaintingContext});
+
+    if (not currentPaintingContext.has_value())
     {
         LOG_DEBUG << "Paint not available requestedFileTexture : " << requestedFileTexture;
     }
 
-    return isPaintAvaiable;
+    return currentPaintingContext.has_value();
 }
 
 void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime)
 {
-    if (not paintedColor)
+    if (not currentPaintingContext.has_value())
     {
         LOG_WARN << "not paintedColor";
         return;
     }
 
-    if (not IsInRange(*paintedImage, paintedPoint))
+    Utils::Image& paintedImage = currentPaintingContext->paintedImage;
+    if (not IsInRange(paintedImage, paintedPoint))
     {
         return;
     }
 
-    auto currentColor = paintedImage->getPixel(paintedPoint);
+    auto currentColor = paintedImage.getPixel(paintedPoint);
 
     if (currentColor)
     {
         const float paintSpeed = glm::clamp(influancePoint.influance * deltaTime, 0.0f, 1.0f);
 
-        auto newColor = glm::mix(currentColor->value, paintedColor->value, paintSpeed);
-        paintedImage->setPixel(paintedPoint, Color(newColor));
+        auto newColor = glm::mix(currentColor->value, currentPaintingContext->paintedColor.value, paintSpeed);
+        paintedImage.setPixel(paintedPoint, Color(newColor));
     }
     else
     {
@@ -246,18 +253,15 @@ std::optional<Color> TexturePainter::GetPaintedColor(Components::TerrainRenderer
         return convertPaintAbleTextureTypeToColor(*maybeExistingTexture);
     }
 
-    if (not paintedColor)
+    if (auto maybeType = getFirstnNewAvailableColorToPaint(tc))
     {
-        if (auto maybeType = getFirstnNewAvailableColorToPaint(tc))
-        {
-            tc.LoadTexture(Components::TerrainTexture{
-                .file       = requestedFileTexture,
-                .tiledScale = 1.f,
-                .type       = maybeType.value(),
-            });
+        tc.LoadTexture(Components::TerrainTexture{
+            .file       = requestedFileTexture,
+            .tiledScale = 1.f,
+            .type       = maybeType.value(),
+        });
 
-            return convertPaintAbleTextureTypeToColor(*maybeType);
-        }
+        return convertPaintAbleTextureTypeToColor(*maybeType);
     }
 
     return std::nullopt;
