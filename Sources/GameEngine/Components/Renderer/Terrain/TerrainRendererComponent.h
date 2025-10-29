@@ -25,6 +25,15 @@ public:
     };
 
 public:
+    std::vector<TerrainTexture> inputData;
+
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_VECTOR_OF_TERRAIN_TEXTURES(inputData)
+    END_FIELDS()
+    // clang-format on
+
+public:
     TerrainRendererComponent(ComponentContext&, GameObject&);
     ~TerrainRendererComponent() override;
 

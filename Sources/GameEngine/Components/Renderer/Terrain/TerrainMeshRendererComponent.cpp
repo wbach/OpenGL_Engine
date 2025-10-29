@@ -23,8 +23,9 @@ namespace
 {
 BoundingBox defaultBoundingBox;
 }
-TerrainMeshRendererComponent::TerrainMeshRendererComponent(ComponentContext &componentContext, GameObject &gameObject)
-    : TerrainComponentBase(componentContext, gameObject)
+TerrainMeshRendererComponent::TerrainMeshRendererComponent(ComponentContext &componentContext, GameObject &gameObject,
+                                                           std::vector<TerrainTexture> &inputData)
+    : TerrainComponentBase(componentContext, gameObject, inputData)
 {
     subscribeForEngineConfChange();
 }
@@ -85,6 +86,16 @@ void TerrainMeshRendererComponent::CleanUp()
     if (worldTransfomChangeSubscrbtion_)
     {
         thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransfomChangeSubscrbtion_);
+    }
+}
+void TerrainMeshRendererComponent::Reload()
+{
+    bool isMeshCreated = modelWrapper_.Get(LevelOfDetail::L1) != nullptr;
+    TerrainComponentBase::Reload();
+
+    if (isMeshCreated)
+    {
+        HeightMapChanged();
     }
 }
 std::vector<std::pair<FunctionType, std::function<void()>>> TerrainMeshRendererComponent::FunctionsToRegister()

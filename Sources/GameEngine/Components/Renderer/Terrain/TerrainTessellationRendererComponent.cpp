@@ -1,19 +1,20 @@
 #include "TerrainTessellationRendererComponent.h"
 
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include "GameEngine/Components/ComponentContext.h"
 
 namespace GameEngine
 {
 namespace Components
 {
 TerrainTessellationRendererComponent::TerrainTessellationRendererComponent(ComponentContext& componentContext,
-                                                                           GameObject& gameObject)
-    : TerrainComponentBase(componentContext, gameObject)
+                                                                           GameObject& gameObject,
+                                                                           std::vector<TerrainTexture>& inputData)
+    : TerrainComponentBase(componentContext, gameObject, inputData)
     , terrainQuadTree_(config_)
 {
 }
@@ -34,8 +35,7 @@ void TerrainTessellationRendererComponent::LoadHeightMap(const File& file)
     heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
     TerrainComponentBase::LoadHeightMap(file);
 
-    auto normalMap =
-        componentContext_.resourceManager_.GetTextureLoader().CreateNormalMap(*heightMap_, config_.GetScale());
+    auto normalMap = componentContext_.resourceManager_.GetTextureLoader().CreateNormalMap(*heightMap_, config_.GetScale());
     SetTexture(TerrainTextureType::normalmap, normalMap);
 
     auto yoffset = heightMap_->GetDeltaHeight() / 2.f * config_.GetScale().y;

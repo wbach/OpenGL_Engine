@@ -11,7 +11,7 @@ namespace Components
 class TerrainTessellationRendererComponent : public TerrainComponentBase
 {
 public:
-    TerrainTessellationRendererComponent(ComponentContext&, GameObject&);
+    TerrainTessellationRendererComponent(ComponentContext&, GameObject&, std::vector<TerrainTexture>&);
     ~TerrainTessellationRendererComponent() override;
 
     std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;

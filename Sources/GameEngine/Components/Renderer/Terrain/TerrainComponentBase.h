@@ -25,7 +25,7 @@ namespace Components
 class TerrainComponentBase
 {
 public:
-    TerrainComponentBase(ComponentContext&, GameObject&);
+    TerrainComponentBase(ComponentContext&, GameObject&, std::vector<TerrainTexture>&);
     virtual ~TerrainComponentBase() = default;
 
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() = 0;
@@ -33,6 +33,7 @@ public:
     virtual void RecalculateNormals() = 0;
     virtual void HeightMapChanged()   = 0;
     virtual void CleanUp();
+    virtual void Reload();
 
     void BlendMapChanged();
 
@@ -81,7 +82,7 @@ protected:
     HeightMap* heightMap_;
     bool isSubscribed_;
 
-    std::vector<TerrainTexture> inputData_;
+    std::vector<TerrainTexture>& inputData_;
     std::vector<std::pair<TerrainTextureType, Texture*>> textures_;
 };
 }  // namespace Components

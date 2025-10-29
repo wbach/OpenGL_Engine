@@ -519,6 +519,15 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                 [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); });
             break;
         }
+        case GameEngine::Components::FieldType::VectorOfTerrainTextures:
+        {
+            CreateUIForVector<GameEngine::Components::TerrainTexture>(
+                component, pane, sizer, field,
+                [this, &component](wxWindow* parent, std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
+                                   std::function<void()> onRemove, bool editable)
+                { return this->CreateTerrainTextureItem(component, parent, vec, index, onRemove, editable); });
+            break;
+        }
         case GameEngine::Components::FieldType::Vector4f:
         {
             auto* val = static_cast<vec4*>(field.ptr);
@@ -639,15 +648,15 @@ wxBoxSizer* ComponentPanel::CreateMaterialMapItem(GameEngine::Components::ICompo
 {
     wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
 
-    // Klucz – nazwa materiału (readonly)
+    // Klucz - nazwa materialu (readonly)
     wxTextCtrl* nameCtrl =
         new wxTextCtrl(pane, wxID_ANY, wxString::FromUTF8(it->first.c_str()), wxDefaultPosition, wxSize(150, -1), wxTE_READONLY);
     nameCtrl->Enable(false);  // wyszarzone
     row->Add(nameCtrl, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
 
-    // Wartość – File
+    // Wartosc - File
     auto initialValue = it->second.empty() ? "default" : it->second.GetDataRelativePath().string();
-    auto rowFile = CreateBrowseFileRow(pane, "File", initialValue);
+    auto rowFile      = CreateBrowseFileRow(pane, "File", initialValue);
     row->Add(rowFile.row, 1, wxEXPAND | wxALL, 0);
     rowFile.textCtrl->SetToolTip(rowFile.textCtrl->GetValue());
 
@@ -1330,4 +1339,99 @@ void ComponentPanel::UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEn
     }
     if (warningIcon->GetParent())
         warningIcon->GetParent()->Layout();
+}
+
+wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::IComponent& component, wxWindow* parent,
+                                                     std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
+                                                     std::function<void()> onRemove, bool editable)
+{
+    using namespace GameEngine::Components;
+
+    auto* itemSizer  = new wxBoxSizer(wxVERTICAL);
+    auto& terrainTex = (*vec)[index];
+
+    // --- Texture file ---
+    auto texRow = CreateBrowseTextureRow(parent, "Texture", terrainTex.file.GetDataRelativePath().string());
+    itemSizer->Add(texRow.row, 0, wxEXPAND | wxALL, 3);
+    SetPreviewBitmap(texRow.preview, terrainTex.file, parent);
+    UpdateFileWarning(texRow.warningIcon, terrainTex.file.GetAbsolutePath());
+
+    // Browse button
+    texRow.browseBtn->Bind(wxEVT_BUTTON,
+                           [this, &component, parent, &terrainTex, txt = texRow.textCtrl, prev = texRow.preview,
+                            warn = texRow.warningIcon](wxCommandEvent&)
+                           {
+                               wxFileDialog openFileDialog(parent, "Choose texture", EngineConf.files.data, "",
+                                                           "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                                                           wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                               if (openFileDialog.ShowModal() == wxID_OK)
+                               {
+                                   wxString path = openFileDialog.GetPath();
+                                   terrainTex.file.Init(path.ToStdString());
+                                   txt->SetValue(terrainTex.file.GetDataRelativePath().string());
+                                   txt->SetToolTip(txt->GetValue());
+                                   SetPreviewBitmap(prev, terrainTex.file, parent);
+                                   UpdateFileWarning(warn, terrainTex.file.GetAbsolutePath());
+                                   component.Reload();
+                               }
+                           });
+
+    // --- Tiled Scale ---
+    auto* scaleCtrl = CreateFloatSpinCtrl(parent, terrainTex.tiledScale, 0.01, 1000.0, 0.1, 3);
+    auto* scaleRow  = CreateLabeledRow(parent, "Tiled Scale", scaleCtrl);
+    itemSizer->Add(scaleRow, 0, wxEXPAND | wxALL, 3);
+
+    scaleCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
+                    [&component, &terrainTex](wxSpinDoubleEvent& evt)
+                    {
+                        terrainTex.tiledScale = static_cast<float>(evt.GetValue());
+                        component.Reload();
+                    });
+
+    // --- Type (enum) ---
+    auto enumValues = magic_enum::enum_values<GameEngine::TerrainTextureType>();
+
+    // Wypelnij kontrolke nazwami (kolejnosc odpowiada enumValues)
+    auto* typeCtrl = new wxChoice(parent, wxID_ANY);
+    for (auto v : enumValues)
+    {
+        typeCtrl->Append(wxString::FromUTF8(std::string(magic_enum::enum_name(v)).c_str()));
+    }
+
+    // Znajdz indeks odpowiadajacy aktualnej wartosci terrainTex.type
+    size_t selectedIndex = 0;
+    for (size_t i = 0; i < enumValues.size(); ++i)
+    {
+        if (enumValues[i] == terrainTex.type)
+        {
+            selectedIndex = i;
+            break;
+        }
+    }
+    typeCtrl->SetSelection(static_cast<int>(selectedIndex));
+
+    // Po wybraniu pozycji ustaw enumerator z enumValues wg indeksu
+    auto* typeRow = CreateLabeledRow(parent, "Type", typeCtrl);
+    itemSizer->Add(typeRow, 0, wxEXPAND | wxALL, 3);
+
+    typeCtrl->Bind(wxEVT_CHOICE,
+                   [this, &component, &terrainTex, enumValues](wxCommandEvent& evt)
+                   {
+                       auto sel = static_cast<size_t>(evt.GetSelection());
+                       if (sel < enumValues.size())
+                       {
+                           terrainTex.type = enumValues[sel];
+                           component.Reload();
+                       }
+                   });
+
+    // --- Remove button if editable ---
+    if (editable)
+    {
+        auto* delBtn = new wxButton(parent, wxID_ANY, "Remove");
+        delBtn->Bind(wxEVT_BUTTON, [onRemove](auto&) { onRemove(); });
+        itemSizer->Add(delBtn, 0, wxALIGN_RIGHT | wxALL, 3);
+    }
+
+    return itemSizer;
 }

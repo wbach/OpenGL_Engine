@@ -2,6 +2,7 @@
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/IComponent.h>
 #include <GameEngine/Components/ReadAnimationInfo.h>
+#include <GameEngine/Components/Renderer/Terrain/TerrainTexture.h>
 #include <GameEngine/Resources/File.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <wx/collpane.h>
@@ -104,4 +105,8 @@ private:
     void CreateUIForMaterialsMap(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, GameEngine::MaterialsMap&);
     wxBoxSizer* CreateMaterialMapItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::MaterialsMap::iterator it,
                                       std::function<void()>);
+
+    wxBoxSizer* CreateTerrainTextureItem(GameEngine::Components::IComponent& component, wxWindow* parent,
+                                         std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
+                                         std::function<void()> onRemove, bool editable);
 };

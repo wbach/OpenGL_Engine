@@ -138,10 +138,10 @@ void TerrainRendererComponent::SetRendererType(TerrainRendererComponent::Rendere
     switch (type)
     {
         case RendererType::Mesh:
-            terrainComponent_ = std::make_unique<TerrainMeshRendererComponent>(componentContext_, thisObject_);
+            terrainComponent_ = std::make_unique<TerrainMeshRendererComponent>(componentContext_, thisObject_, inputData);
             break;
         case RendererType::Tessellation:
-            terrainComponent_ = std::make_unique<TerrainTessellationRendererComponent>(componentContext_, thisObject_);
+            terrainComponent_ = std::make_unique<TerrainTessellationRendererComponent>(componentContext_, thisObject_, inputData);
             break;
     }
 
@@ -216,6 +216,7 @@ void TerrainRendererComponent::ReqisterFunctions()
 
 void TerrainRendererComponent::Reload()
 {
+    terrainComponent_->Reload();
 }
 
 std::vector<Components::TerrainTexture> ReadTerrainTextures(const TreeNode& node)

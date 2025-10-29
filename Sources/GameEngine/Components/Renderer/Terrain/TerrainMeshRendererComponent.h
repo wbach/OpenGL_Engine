@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
@@ -13,11 +14,13 @@ class TerrainMeshUpdater;
 class TerrainMeshRendererComponent : public TerrainComponentBase
 {
 public:
-    TerrainMeshRendererComponent(ComponentContext& componentContext, GameObject& gameObject);
+    TerrainMeshRendererComponent(ComponentContext&, GameObject&, std::vector<TerrainTexture>&);
     ~TerrainMeshRendererComponent() override;
 
     void RecalculateNormals() override;
     void CleanUp() override;
+    void Reload() override;
+
     virtual std::vector<std::pair<FunctionType, std::function<void()>>> FunctionsToRegister() override;
 
     ModelWrapper& GetModel();

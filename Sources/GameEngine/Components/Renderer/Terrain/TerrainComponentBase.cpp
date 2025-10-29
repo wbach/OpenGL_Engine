@@ -32,12 +32,14 @@ namespace GameEngine
 {
 namespace Components
 {
-TerrainComponentBase::TerrainComponentBase(ComponentContext &componentContext, GameObject &gameObject)
+TerrainComponentBase::TerrainComponentBase(ComponentContext &componentContext, GameObject &gameObject,
+                                           std::vector<TerrainTexture> &inputData)
     : componentContext_(componentContext)
     , thisObject_(gameObject)
     , perTerrainTexturesBuffer_(std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6))
     , heightMap_(nullptr)
     , isSubscribed_(false)
+    , inputData_(inputData)
 {
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(*perTerrainTexturesBuffer_);
 }
@@ -51,6 +53,12 @@ void TerrainComponentBase::CleanUp()
         componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(perTerrainTexturesBuffer_));
         perTerrainTexturesBuffer_ = nullptr;
     }
+}
+
+void TerrainComponentBase::Reload()
+{
+    ReleaseTextures();
+    LoadTextures(inputData_);
 }
 
 void TerrainComponentBase::BlendMapChanged()
