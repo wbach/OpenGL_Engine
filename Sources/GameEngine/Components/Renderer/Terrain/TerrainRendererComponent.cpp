@@ -98,6 +98,11 @@ const std::vector<std::pair<TerrainTextureType, Texture*>>& TerrainRendererCompo
     return terrainComponent_->GetTextures();
 }
 
+void TerrainRendererComponent::ChangeTexture(const File& old, const File& newFile)
+{
+    terrainComponent_->ChangeTexture(old, newFile);
+}
+
 void TerrainRendererComponent::RemoveTexture(const File& file)
 {
     terrainComponent_->RemoveTexture(file);

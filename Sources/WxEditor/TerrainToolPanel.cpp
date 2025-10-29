@@ -13,6 +13,7 @@
 #include <GameEngine/Resources/File.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/Primitive.h>
+#include <GameEngine/Resources/Textures/GeneralTexture.h>
 #include <Logger/Log.h>
 #include <Types.h>
 #include <Utils/Variant.h>
@@ -67,20 +68,20 @@ private:
     int m_value;
 };
 
-class RemoveTextureDialog : public wxDialog
+class TerrainSelectionDialog : public wxDialog
 {
 public:
-    RemoveTextureDialog(wxWindow* parent, GameEngine::Components::ComponentController& componentController)
+    TerrainSelectionDialog(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
+                           const std::string& labelStr)
         : wxDialog(parent, wxID_ANY, "Select", wxDefaultPosition, wxSize(300, 200))
     {
         wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
 
-        wxStaticText* label = new wxStaticText(this, wxID_ANY, "Do you wanna remove this texture from terrain?");
+        wxStaticText* label = new wxStaticText(this, wxID_ANY, labelStr);
         vbox->Add(label, 0, wxALL | wxCENTER, 10);
 
         m_choice = new wxChoice(this, wxID_ANY);
         m_choice->Append("All terrains", new IntClientData(-1));
-        // m_choice->Append("Last painted terrain", new IntClientData(-2));
 
         auto terrains = componentController.GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
         for (const auto& terrain : terrains)
@@ -123,6 +124,7 @@ public:
 private:
     wxChoice* m_choice;
 };
+
 class TerrainObjectClientData : public wxClientData
 {
 public:
@@ -341,6 +343,21 @@ void TerrainToolPanel::Cleanup()
 
 void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
 {
+    auto getTerrainComponent = [this](int id) -> GameEngine::Components::TerrainRendererComponent*
+    {
+        auto terrains = scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+        auto goId     = static_cast<IdType>(id);
+
+        auto iter = std::find_if(terrains.begin(), terrains.end(),
+                                 [goId](const auto& tc) { return tc->getParentGameObject().GetId() == goId; });
+
+        if (iter != terrains.end())
+        {
+            return (*iter);
+        }
+
+        return nullptr;
+    };
     auto onSelect = [this](const GameEngine::File& file)
     {
         painterFields.texturePainterFields.selectedTextureButton->SetBitmap(file);
@@ -365,24 +382,45 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         }
     };
 
-    auto onRemove = [this](const GameEngine::File& file)
+    auto onChange =
+        [this, getTerrainComponent, onSelect](const std::optional<GameEngine::File>& oldFile, const GameEngine::File& newFile)
     {
-        auto& textures = painterFields.texturePainterFields.textures;
-        auto iter      = std::find(textures.begin(), textures.end(), file);
-        if (iter != textures.end())
+        auto isAnyTerrainUseTexture = [this](const GameEngine::File& file)
         {
-            textures.erase(iter);
-        }
-        else
+            auto terrains =
+                scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+
+            auto iter = std::find_if(terrains.begin(), terrains.end(),
+                                     [&](auto componentPtr)
+                                     {
+                                         const auto& textures = componentPtr->GetTextures();
+
+                                         for (const auto& [type, texture] : textures)
+                                         {
+                                             if (GameEngine::isPaintAbleTexture(type))
+                                             {
+                                                 if (auto gt = dynamic_cast<GameEngine::GeneralTexture*>(texture))
+                                                 {
+                                                     if (gt->GetFile() == file)
+                                                         return true;
+                                                 }
+                                             }
+                                         }
+
+                                         return false;
+                                     });
+
+            return (iter != terrains.end());
+        };
+
+        if (not oldFile or not isAnyTerrainUseTexture(*oldFile))
         {
-            LOG_DEBUG << "texture not found " << file;
+            onSelect(newFile);
+            return;
         }
 
-        painterFields.texturePainterFields.selectedTextureButton->Reset();
-        painterFields.texturePainterFields.selectedTextureFile.reset();
-        DisablePainter();
-
-        RemoveTextureDialog dlg(this, scene.getComponentController());
+        TerrainSelectionDialog dlg(this, scene.getComponentController(),
+                                   "Texture is used in some terrains. What change do you want to do?");
         if (dlg.ShowModal() == wxID_OK)
         {
             auto selection      = dlg.GetChoice()->GetSelection();
@@ -392,7 +430,50 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
                 auto terrains =
                     scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
                 int value = data->GetValue();
-                if (value == -1)  // all terrains
+
+                if (value == -1)
+                {
+                    for (auto& terrain : terrains)
+                    {
+                        terrain->ChangeTexture(*oldFile, newFile);
+                    }
+                }
+                else
+                {
+                    if (auto component = getTerrainComponent(value))
+                    {
+                        component->ChangeTexture(*oldFile, newFile);
+                    }
+                }
+            }
+            onSelect(newFile);
+        }
+    };
+
+    auto onRemove = [this](const GameEngine::File& file)
+    {
+        auto& textures = painterFields.texturePainterFields.textures;
+        auto iter      = std::find(textures.begin(), textures.end(), file);
+        if (iter != textures.end())
+        {
+            textures.erase(iter);
+        }
+
+        painterFields.texturePainterFields.selectedTextureButton->Reset();
+        painterFields.texturePainterFields.selectedTextureFile.reset();
+        DisablePainter();
+
+        TerrainSelectionDialog dlg(this, scene.getComponentController(), "Do you wanna remove this texture from terrain?");
+        if (dlg.ShowModal() == wxID_OK)
+        {
+            auto selection      = dlg.GetChoice()->GetSelection();
+            IntClientData* data = dynamic_cast<IntClientData*>(dlg.GetChoice()->GetClientObject(selection));
+            if (data)
+            {
+                auto terrains =
+                    scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+                int value = data->GetValue();
+                if (value == -1)
                 {
                     for (auto terrain : terrains)
                     {
@@ -417,12 +498,9 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
                 }
             }
         }
-        return false;
     };
 
     std::vector<TexturePickerPopup::TexureInfo> textures;
-    // auto textures = painterFields.texturePainterFields.textures;
-
     for (const auto& texture : painterFields.texturePainterFields.textures)
     {
         textures.push_back(TexturePickerPopup::TexureInfo{.file = texture});
@@ -455,9 +533,8 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         }
     }
 
-    auto popup = new TexturePickerPopup(this, textures, onSelect, onAdd, onRemove);
+    auto popup = new TexturePickerPopup(this, textures, onSelect, onAdd, onChange, onRemove);
 
-    // Pozycja przy kursrze
     popup->Position(wxGetMousePosition(), wxSize(0, 0));
     popup->Popup();
 }
@@ -705,9 +782,9 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
     // === Selected Texture ===
     {
         auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
-        auto* texBtn = new TextureButton(
-            panel, std::nullopt, TextureButton::MenuOption::None,
-            [this](const GameEngine::File& file) { painterFields.texturePainterFields.selectedTextureFile = file; }, nullptr);
+        auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::None,
+                                         [this](const GameEngine::File& file)
+                                         { painterFields.texturePainterFields.selectedTextureFile = file; });
 
         texBtn->Bind(wxEVT_LEFT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
         texBtn->Bind(wxEVT_RIGHT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);

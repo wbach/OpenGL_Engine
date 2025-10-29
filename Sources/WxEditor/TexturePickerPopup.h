@@ -1,16 +1,18 @@
 #pragma once
-#include <vector>
 #include <GameEngine/Resources/File.h>
-#include <wx/wx.h>
-#include <wx/sizer.h>
 #include <wx/popupwin.h>
+#include <wx/sizer.h>
 #include <wx/wrapsizer.h>
+#include <wx/wx.h>
+
+#include <vector>
 
 class TexturePickerPopup : public wxPopupTransientWindow
 {
 public:
     using OnSelectFunc = std::function<void(const GameEngine::File&)>;
     using OnRemoveFunc = std::function<void(const GameEngine::File&)>;
+    using OnChangeFunc = std::function<void(std::optional<GameEngine::File>, const GameEngine::File&)>;
     using OnAddFunc    = std::function<void()>;
 
     struct TexureInfo
@@ -19,8 +21,7 @@ public:
         std::vector<std::string> usedIn;
     };
 
-    TexturePickerPopup(wxWindow* parent, const std::vector<TexureInfo>& textures, OnSelectFunc onSelect, OnAddFunc onAdd,
-                       OnRemoveFunc onRemoveFunc);
+    TexturePickerPopup(wxWindow*, const std::vector<TexureInfo>&, OnSelectFunc, OnAddFunc, OnChangeFunc, OnRemoveFunc);
 
 private:
     void createNewTextureButton(wxScrolledWindow*, wxWrapSizer*);
@@ -31,5 +32,6 @@ private:
     const int texSize = 64;
     OnSelectFunc selectedTextureFunc;
     OnAddFunc addButtonFunc;
+    OnChangeFunc onChangeFunc;
     OnRemoveFunc onRemoveFunc;
 };

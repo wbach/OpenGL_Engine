@@ -5,10 +5,11 @@
 #include "TextureButton.h"
 
 TexturePickerPopup::TexturePickerPopup(wxWindow* parent, const std::vector<TexureInfo>& textures, OnSelectFunc onSelect,
-                                       OnAddFunc onAdd, OnRemoveFunc onRemoveFunc)
+                                       OnAddFunc onAdd, OnChangeFunc onChangeFunc, OnRemoveFunc onRemoveFunc)
     : wxPopupTransientWindow(parent, wxBORDER_SIMPLE)
     , selectedTextureFunc(onSelect)
     , addButtonFunc(onAdd)
+    , onChangeFunc(onChangeFunc)
     , onRemoveFunc(onRemoveFunc)
 {
     wxPanel* panel = new wxPanel(this);
@@ -79,10 +80,16 @@ void TexturePickerPopup::createTexutreButtons(const std::vector<TexureInfo>& tex
                 if (selectedTextureFunc)
                     selectedTextureFunc(f);
             },
+            [this](const auto& oldFile, const auto& newFile)
+            {
+                Dismiss();
+                if (onChangeFunc)
+                    onChangeFunc(oldFile, newFile);
+            },
             [this, file = textureFile]()
             {
-                onRemoveFunc(file);
                 Dismiss();
+                onRemoveFunc(file);
             });
 
         std::stringstream usedInfo;

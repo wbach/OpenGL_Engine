@@ -13,13 +13,14 @@ static int textureButtonIndex = 0;
 }
 
 TextureButton::TextureButton(wxWindow* parent, const std::optional<GameEngine::File>& textureFile, MenuOption option,
-                             OnClickFunc onclick, OnRemoveFunc onRemoveFunc, const wxSize& size)
+                             OnClickFunc onclick, OnChange onchange, OnRemoveFunc onRemoveFunc, const wxSize& size)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, size)
     , textureFile{textureFile}
-    , m_onclick(onclick)
+    , onclick(onclick)
+    , onChange{onchange}
     , onRemove{onRemoveFunc}
     , size{size}
-    , m_index(textureButtonIndex++)
+    , index(textureButtonIndex++)
     , menuOption(option)
 {
     UpdateBitmap();
@@ -45,7 +46,7 @@ void TextureButton::SetBitmap(const wxBitmap& bmp)
 {
     wxImage img = bmp.ConvertToImage();
     img.Rescale(size.x, size.y, wxIMAGE_QUALITY_HIGH);
-    m_bitmap = wxBitmap(img);
+    bitmap = wxBitmap(img);
     Refresh();
 }
 
@@ -81,7 +82,7 @@ void TextureButton::UpdateBitmap()
 }
 void TextureButton::SetHover(bool hover)
 {
-    m_hover = hover;
+    hover = hover;
     Refresh();
 }
 void TextureButton::OnPaint(wxPaintEvent&)
@@ -89,15 +90,15 @@ void TextureButton::OnPaint(wxPaintEvent&)
     wxAutoBufferedPaintDC dc(this);
     dc.Clear();
 
-    dc.DrawBitmap(m_bitmap, 0, 0, true);
-    if (ActiveIndex() == m_index)
+    dc.DrawBitmap(bitmap, 0, 0, true);
+    if (ActiveIndex() == index)
     {
         wxPen pen(*wxBLUE, 3);
         dc.SetPen(pen);
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
         dc.DrawRectangle(1, 1, GetSize().x - 2, GetSize().y - 2);
     }
-    else if (m_hover)
+    else if (hover)
     {
         wxPen pen(*wxLIGHT_GREY, 2);
         dc.SetPen(pen);
@@ -107,7 +108,7 @@ void TextureButton::OnPaint(wxPaintEvent&)
 }
 void TextureButton::OnClick(wxMouseEvent&)
 {
-    ActiveIndex() = m_index;
+    ActiveIndex() = index;
 
     for (auto* child : GetParent()->GetChildren())
     {
@@ -120,8 +121,8 @@ void TextureButton::OnClick(wxMouseEvent&)
 
     Refresh();
 
-    if (m_onclick and textureFile and textureFile->exist())
-        m_onclick(*textureFile);
+    if (onclick and textureFile and textureFile->exist())
+        onclick(*textureFile);
 }
 
 std::optional<GameEngine::File> TextureButton::SelectFileDialog()
@@ -143,7 +144,19 @@ void TextureButton::OnRightClick(wxMouseEvent&)
     int ID_CHANGE_TEXTURE = wxWindow::NewControlId();
     menu.Append(ID_CHANGE_TEXTURE, "Change Texture");
     menu.Bind(
-        wxEVT_COMMAND_MENU_SELECTED, [this](wxCommandEvent&) { SelectFileDialog(); }, ID_CHANGE_TEXTURE);
+        wxEVT_COMMAND_MENU_SELECTED,
+        [this](wxCommandEvent&)
+        {
+            auto oldFile = textureFile;
+
+            auto maybeFile = SelectFileDialog();
+
+            if (onChange)
+            {
+                onChange(oldFile, *maybeFile);
+            }
+        },
+        ID_CHANGE_TEXTURE);
 
     if (menuOption == MenuOption::ChangeAndRemove)
     {

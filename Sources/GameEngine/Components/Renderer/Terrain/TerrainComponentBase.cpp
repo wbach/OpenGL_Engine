@@ -11,6 +11,7 @@
 #include <optional>
 #include <string>
 
+#include "GameEngine/Components/Renderer/Terrain/TerrainTexture.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
@@ -193,6 +194,27 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
     updateTerrainTextureBuffer();
 }
 
+void TerrainComponentBase::ChangeTexture(const File &oldFile, const File &newFile)
+{
+    auto iter =
+        std::find_if(inputData_.begin(), inputData_.end(), [oldFile](const auto &texture) { return oldFile == texture.file; });
+    if (iter != inputData_.end())
+    {
+        auto textureIter = std::find_if(textures_.begin(), textures_.end(),
+                                        [type = iter->type](const auto &pair) { return pair.first == type; });
+
+        auto &currentTerrainTexture = (*iter);
+        currentTerrainTexture.file  = newFile;
+
+        if (textureIter != textures_.end())
+        {
+            componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*textureIter->second);
+            textures_.erase(textureIter);
+            LoadTextureImpl(currentTerrainTexture);
+        }
+    }
+}
+
 void TerrainComponentBase::RemoveTexture(const File &file)
 {
     std::optional<TerrainTextureType> removedType;
@@ -235,7 +257,7 @@ void TerrainComponentBase::RemoveTexture(const File &file)
 
     if (auto blendmap = GetTexture(TerrainTextureType::blendMap))
     {
-        if (auto t = dynamic_cast<GeneralTexture*>(blendmap))
+        if (auto t = dynamic_cast<GeneralTexture *>(blendmap))
         {
             if (auto channel = convertTypeToChannelNumber(*removedType))
             {

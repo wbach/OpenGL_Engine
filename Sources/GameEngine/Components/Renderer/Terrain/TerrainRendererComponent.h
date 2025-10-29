@@ -44,6 +44,7 @@ public:
     void UpdateTexture(TerrainTextureType, const std::string&);
     Texture* GetTexture(TerrainTextureType) const;
     const std::vector<std::pair<TerrainTextureType, Texture*>>& GetTextures() const;
+    void ChangeTexture(const File&, const File&);
     void RemoveTexture(const File&);
 
     HeightMap* createHeightMap(const vec2ui& = vec2ui(512));

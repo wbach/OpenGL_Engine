@@ -17,10 +17,11 @@ public:
         ChangeAndRemove
     };
     using OnClickFunc  = std::function<void(const GameEngine::File&)>;
+    using OnChange     = std::function<void(std::optional<GameEngine::File>, const GameEngine::File&)>;
     using OnRemoveFunc = std::function<void()>;
 
-    TextureButton(wxWindow* parent, const std::optional<GameEngine::File>&, MenuOption, OnClickFunc onclick, OnRemoveFunc onRemoveFunc,
-                  const wxSize& = wxSize(64, 64));
+    TextureButton(wxWindow* parent, const std::optional<GameEngine::File>&, MenuOption, OnClickFunc, OnChange = nullptr,
+                  OnRemoveFunc = nullptr, const wxSize& = wxSize(64, 64));
 
     void SetBitmap(const GameEngine::File&);
     void SetHover(bool hover);
@@ -44,12 +45,13 @@ private:
 
 private:
     std::optional<GameEngine::File> textureFile;
-    OnClickFunc m_onclick;
+    OnClickFunc onclick;
+    OnChange onChange;
     OnRemoveFunc onRemove;
     wxSize size;
-    wxBitmap m_bitmap;
-    wxString m_name;
-    int m_index;
-    bool m_hover = false;
+    wxBitmap bitmap;
+    wxString name;
+    int index;
+    bool hover = false;
     MenuOption menuOption;
 };

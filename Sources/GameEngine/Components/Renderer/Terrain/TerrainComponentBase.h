@@ -41,6 +41,7 @@ public:
     void LoadTexture(const TerrainTexture&);
     void LoadTextures(const std::vector<TerrainTexture>&);
 
+    void ChangeTexture(const File&, const File&);
     void RemoveTexture(const File&);
 
     const File* getTextureFile(TerrainTextureType) const;
