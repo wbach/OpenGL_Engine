@@ -24,8 +24,8 @@ layout (std140, binding = 1) uniform PerFrame
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;
 layout(binding = 2) uniform sampler2D blendMap;
-layout(binding = 4) uniform sampler2D backgorundTexture;
-layout(binding = 5) uniform sampler2D backgorundTextureNormal;
+layout(binding = 4) uniform sampler2D backgroundTexture;
+layout(binding = 5) uniform sampler2D backgroundTextureNormal;
 layout(binding = 7) uniform sampler2D redTexture;
 layout(binding = 8) uniform sampler2D redTextureNormal;
 layout(binding = 10) uniform sampler2D greenTexture;
@@ -135,9 +135,9 @@ float GetRockBlendFactor()
 vec4 CalculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
 {
     float blendFactor = GetRockBlendFactor();
-    vec4 backgorundTextureColor = texture(backgorundTexture, tiledCoords) * backTextureAmount * (1.f - blendFactor);
+    vec4 backgroundTextureColor = texture(backgroundTexture, tiledCoords) * backTextureAmount * (1.f - blendFactor);
     vec4 rockTextureColor       = texture(rockTexture, tiledCoords) * backTextureAmount * blendFactor;
-    return backgorundTextureColor + rockTextureColor;
+    return backgroundTextureColor + rockTextureColor;
 }
 
 vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
@@ -147,19 +147,19 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
         return vec4(.8f, .8f, .8f, 1.f);
     }
 
-    vec4 backgorundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount);
+    vec4 backgroundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount);
     vec4 redTextureColor        = texture(redTexture, tiledCoords) * blendMapColor.r;
     vec4 greenTextureColor      = texture(greenTexture, tiledCoords) * blendMapColor.g;
     vec4 blueTextureColor       = texture(blueTexture, tiledCoords) * blendMapColor.b;
     vec4 alphaTextureColor      = texture(alphaTexture, tiledCoords) * blendMapColor.a;
-    return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
+    return backgroundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
 }
 
 vec4 CalculateTerrainNormal(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
 {
     if (NormalMaping())
     {
-        vec4 backgorundNormalColor   = texture(backgorundTextureNormal, tiledCoords) * backTextureAmount;
+        vec4 backgorundNormalColor   = texture(backgroundTextureNormal, tiledCoords) * backTextureAmount;
         vec4 redNormalTextureColor   = texture(redTextureNormal, tiledCoords) * blendMapColor.r;
         vec4 greenNormalTextureColor = texture(greenTextureNormal, tiledCoords) * blendMapColor.g;
         vec4 blueNormalTextureColor  = texture(blueTextureNormal, tiledCoords) * blendMapColor.b;

@@ -16,8 +16,8 @@ in TES_OUT
 
 uniform sampler2DShadow shadowMap;
 uniform sampler2D blendMap;
-uniform sampler2D backgorundTexture;
-uniform sampler2D backgorundTextureNormal;
+uniform sampler2D backgroundTexture;
+uniform sampler2D backgroundTextureNormal;
 uniform sampler2D redTexture;
 uniform sampler2D redTextureNormal;
 uniform sampler2D greenTexture;
@@ -54,7 +54,7 @@ vec4 CalculateTerrainColor()
        normalFactor = 1;
 
     vec4 backgorund_texture_colour;
-    backgorund_texture_colour = CalculateColor(backgorundTexture, back_texture_amount, tiled_coords, normalFactor);
+    backgorund_texture_colour = CalculateColor(backgroundTexture, back_texture_amount, tiled_coords, normalFactor);
 
     vec4 r_texture_colour = CalculateColor(redTexture, blend_map_colour.r, tiled_coords, normalFactor);
     vec4 g_texture_colour = CalculateColor(greenTexture, blend_map_colour.g, tiled_coords, normalFactor);

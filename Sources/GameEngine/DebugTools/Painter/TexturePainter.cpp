@@ -26,7 +26,7 @@ bool isPaintAbleTexture(TerrainTextureType type)
 {
     return type == TerrainTextureType::redTexture or type == TerrainTextureType::blueTexture or
            type == TerrainTextureType::greenTexture or type == TerrainTextureType::alphaTexture or
-           type == TerrainTextureType::backgorundTexture;
+           type == TerrainTextureType::backgroundTexture;
 };
 namespace
 {
@@ -80,10 +80,10 @@ std::optional<TerrainTextureType> getFirstnNewAvailableColorToPaint(const Compon
         return TerrainTextureType::alphaTexture;
     }
 
-    if (not tc.GetTexture(TerrainTextureType::backgorundTexture))
+    if (not tc.GetTexture(TerrainTextureType::backgroundTexture))
     {
         LOG_DEBUG << "BackgroundTexture choosed. Could be affected whole or bigger part of terrain.";
-        return TerrainTextureType::backgorundTexture;
+        return TerrainTextureType::backgroundTexture;
     }
 
     return std::nullopt;
@@ -100,7 +100,7 @@ std::optional<Color> convertPaintAbleTextureTypeToColor(TerrainTextureType type)
             return Color(0.f, 0.f, 1.f, 0.f);
         case TerrainTextureType::alphaTexture:
             return Color(0.f, 0.f, 0.f, 1.f);
-        case TerrainTextureType::backgorundTexture:
+        case TerrainTextureType::backgroundTexture:
             return Color(0.f, 0.f, 0.f, 0.f);
         default:
             return std::nullopt;

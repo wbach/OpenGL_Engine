@@ -544,11 +544,11 @@ void TerrainComponentBase::updateTerrainTextureBufferData()
                 bufferData.haveTextureA.value.z      = 1.f;
                 bufferData.rgbaTextureScales.value.w = terrainTexture.tiledScale;
                 break;
-            case TerrainTextureType::backgorundTexture:
+            case TerrainTextureType::backgroundTexture:
                 bufferData.haveTextureBackground.value.x = 1.f;
-            case TerrainTextureType::backgorundTextureNormal:
+            case TerrainTextureType::backgroundTextureNormal:
                 bufferData.haveTextureBackground.value.y = 1.f;
-            case TerrainTextureType::backgorundTextureDisplacement:
+            case TerrainTextureType::backgroundTextureDisplacement:
                 bufferData.haveTextureBackground.value.z   = 1.f;
                 bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
                 break;

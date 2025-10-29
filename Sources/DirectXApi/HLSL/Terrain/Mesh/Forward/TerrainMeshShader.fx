@@ -6,9 +6,9 @@ Texture2D shadowMap : register(t0);
 Texture2D heightMap : register(t1);
 Texture2D blendMap : register(t2);
 Texture2D normalMap : register(t3);
-Texture2D backgorundTexture : register(t4);
-Texture2D backgorundTextureNormal : register(t5);
-Texture2D backgorundTextureDisplacment : register(t6);
+Texture2D backgroundTexture : register(t4);
+Texture2D backgroundTextureNormal : register(t5);
+Texture2D backgroundTextureDisplacment : register(t6);
 Texture2D redTexture : register(t7);
 Texture2D redTextureNormal : register(t8);
 Texture2D redTextureDisplacement : register(t9);
@@ -252,9 +252,9 @@ float GetRockBlendFactor(float normalY)
 float4 CalculateBackgroundColor(float2 tiledCoords, float backTextureAmount, float normalY)
 {
     float blendFactor = GetRockBlendFactor(normalY);
-    float4 backgorundTextureColor = textureColor(backgorundTexture, tiledCoords) * backTextureAmount * (1.f - blendFactor);
+    float4 backgroundTextureColor = textureColor(backgroundTexture, tiledCoords) * backTextureAmount * (1.f - blendFactor);
     float4 rockTextureColor       = textureColor(rockTexture, tiledCoords) * backTextureAmount * blendFactor;
-    return backgorundTextureColor + rockTextureColor;
+    return backgroundTextureColor + rockTextureColor;
 }
 
 float4 CalculateTerrainColor(float2 tiledCoords, float4 blendMapColor, float backTextureAmount, float normalY)
@@ -264,12 +264,12 @@ float4 CalculateTerrainColor(float2 tiledCoords, float4 blendMapColor, float bac
     //     return vec4(.8f, .8f, .8f, 1.f);
     // }
 
-    float4 backgorundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount, normalY);
+    float4 backgroundTextureColour = CalculateBackgroundColor(tiledCoords, backTextureAmount, normalY);
     float4 redTextureColor         = textureColor(redTexture, tiledCoords) * blendMapColor.r;
     float4 greenTextureColor       = textureColor(greenTexture, tiledCoords) * blendMapColor.g;
     float4 blueTextureColor        = textureColor(blueTexture, tiledCoords) * blendMapColor.b;
     float4 alphaTextureColor       = textureColor(alphaTexture, tiledCoords) * blendMapColor.a;
-    return backgorundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
+    return backgroundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
 }
 
 
@@ -278,12 +278,12 @@ float4 CalculateTerrainColor(float2 tiledCoords, float4 blendMapColor, float bac
 //     float4 blendMapColour = blendMap.Sample(linearSamplerState, textCoord);
 //     float backTextureAmount = 1.f - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
 //     float2 tiledCoords = textCoord * 40.0f;
-//     float4 backgorundTextureColour = backgorundTexture.Sample(linearSamplerState, tiledCoords) * backTextureAmount;
+//     float4 backgroundTextureColour = backgroundTexture.Sample(linearSamplerState, tiledCoords) * backTextureAmount;
 //     float4 redTextureColour = redTexture.Sample(linearSamplerState, tiledCoords) * blendMapColour.r;
 //     float4 greenTextureColour = greenTexture.Sample(linearSamplerState, tiledCoords) * blendMapColour.g;
 //     float4 blueTextureColour = blueTexture.Sample(linearSamplerState, tiledCoords) * blendMapColour.b;
 
-//     return backgorundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
+//     return backgroundTextureColour + redTextureColour + greenTextureColour + blueTextureColour;
 // }
 
 TerrainData GetTerrainData(float3 normal, float2 texCoord)
