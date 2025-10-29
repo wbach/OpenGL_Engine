@@ -35,9 +35,11 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "EditorUitls.h"
 #include "LoadingDialog.h"
+#include "Objects/GameObject.h"
 #include "ProjectManager.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
@@ -355,6 +357,17 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
 
     auto onRemove = [this](const GameEngine::File& file)
     {
+        auto& textures = painterFields.texturePainterFields.textures;
+        auto iter      = std::find(textures.begin(), textures.end(), file);
+        if (iter != textures.end())
+        {
+            textures.erase(iter);
+        }
+        else
+        {
+            LOG_DEBUG << "texture not found " << file;
+        }
+
         painterFields.texturePainterFields.selectedTextureButton->Reset();
         painterFields.texturePainterFields.selectedTextureFile.reset();
         DisablePainter();
@@ -368,7 +381,42 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         return false;
     };
 
-    auto popup = new TexturePickerPopup(this, painterFields.texturePainterFields.textures, onSelect, onAdd, onRemove);
+    std::vector<TexturePickerPopup::TexureInfo> textures;
+    // auto textures = painterFields.texturePainterFields.textures;
+
+    for (const auto& texture : painterFields.texturePainterFields.textures)
+    {
+        textures.push_back(TexturePickerPopup::TexureInfo{.file = texture});
+    }
+
+    auto getObjectNameWithId = [](const GameEngine::GameObject& go)
+    { return go.GetName() + " (Id: " + std::to_string(go.GetId()) + ")"; };
+
+    auto terrains = scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+    for (const auto& terrain : terrains)
+    {
+        for (const auto& [type, texture] : terrain->GetTextures())
+        {
+            if (GameEngine::isPaintAbleTexture(type) and texture->GetFile())
+            {
+                auto iter = std::find_if(textures.begin(), textures.end(),
+                                         [t = texture->GetFile()](const auto& info)
+                                         { return info.file.GetAbsolutePath() == t->GetAbsolutePath(); });
+
+                if (iter != textures.end())
+                {
+                    iter->usedIn.push_back(getObjectNameWithId(terrain->GetParentGameObject()));
+                }
+                else
+                {
+                    textures.push_back(TexturePickerPopup::TexureInfo{
+                        .file = texture->GetFile().value(), .usedIn = {getObjectNameWithId(terrain->GetParentGameObject())}});
+                }
+            }
+        }
+    }
+
+    auto popup = new TexturePickerPopup(this, textures, onSelect, onAdd, onRemove);
 
     // Pozycja przy kursrze
     popup->Position(wxGetMousePosition(), wxSize(0, 0));

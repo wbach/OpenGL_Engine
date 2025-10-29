@@ -22,14 +22,14 @@
 
 namespace GameEngine
 {
-namespace
-{
 bool isPaintAbleTexture(TerrainTextureType type)
 {
     return type == TerrainTextureType::redTexture or type == TerrainTextureType::blueTexture or
            type == TerrainTextureType::greenTexture or type == TerrainTextureType::alphaTexture or
            type == TerrainTextureType::backgorundTexture;
 };
+namespace
+{
 std::optional<TerrainTextureType> getTextureIfExist(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures,
                                                     const File& requestedFileTexture)
 {
@@ -161,9 +161,9 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
     else if (not paintedColor and messageBox)
     {
         messageBox("For terrain \"" + tc->GetParentGameObject().GetName() + "\" can not get free texture slot for painting " +
-                       requestedFileTexture.GetBaseName() +
-                       ". Please check, only 4 texures per terrain is avaiable to paint + 2 passive texture like background or "
-                       "rockTexture ");
+                   requestedFileTexture.GetBaseName() +
+                   ". Please check, only 4 texures per terrain is avaiable to paint + 2 passive texture like background or "
+                   "rockTexture ");
     }
 
     paintedComponents.insert({tc, currentPaintingContext});

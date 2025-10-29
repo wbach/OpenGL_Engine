@@ -41,4 +41,6 @@ private:
     std::unordered_map<Components::TerrainRendererComponent*, std::optional<PaintedContext>> paintedComponents;
     std::unordered_map<Components::TerrainRendererComponent*, std::unique_ptr<Utils::Image>> tmpfloatingImages;
 };
+
+bool isPaintAbleTexture(TerrainTextureType);
 }  // namespace GameEngine

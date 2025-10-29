@@ -1,11 +1,12 @@
 #include "TexturePickerPopup.h"
 
+#include <sstream>
+
 #include "TextureButton.h"
 
-TexturePickerPopup::TexturePickerPopup(wxWindow* parent, std::vector<GameEngine::File>& textures, OnSelectFunc onSelect,
+TexturePickerPopup::TexturePickerPopup(wxWindow* parent, const std::vector<TexureInfo>& textures, OnSelectFunc onSelect,
                                        OnAddFunc onAdd, OnRemoveFunc onRemoveFunc)
     : wxPopupTransientWindow(parent, wxBORDER_SIMPLE)
-    , textures{textures}
     , selectedTextureFunc(onSelect)
     , addButtonFunc(onAdd)
     , onRemoveFunc(onRemoveFunc)
@@ -19,7 +20,7 @@ TexturePickerPopup::TexturePickerPopup(wxWindow* parent, std::vector<GameEngine:
     // WrapSizer z przyciskami
     wxWrapSizer* wrapSizer = new wxWrapSizer(wxHORIZONTAL);
     createNewTextureButton(scrolledWindow, wrapSizer);
-    createTexutreButtons(scrolledWindow, wrapSizer);
+    createTexutreButtons(textures, scrolledWindow, wrapSizer);
     scrolledWindow->SetSizer(wrapSizer);
     wrapSizer->SetSizeHints(scrolledWindow);
 
@@ -58,10 +59,12 @@ void TexturePickerPopup::createNewTextureButton(wxScrolledWindow* scrolledWindow
                   addButtonFunc();
               });
 }
-void TexturePickerPopup::createTexutreButtons(wxScrolledWindow* scrolledWindow, wxWrapSizer* wrapSizer)
+void TexturePickerPopup::createTexutreButtons(const std::vector<TexureInfo>& textures, wxScrolledWindow* scrolledWindow,
+                                              wxWrapSizer* wrapSizer)
 {
-    for (const auto& textureFile : textures)
+    for (const auto& textureInfo : textures)
     {
+        const auto& textureFile = textureInfo.file;
         if (not textureFile.exist())
         {
             LOG_WARN << "Create texture error, file not exist :" << textureFile;
@@ -78,19 +81,27 @@ void TexturePickerPopup::createTexutreButtons(wxScrolledWindow* scrolledWindow, 
             },
             [this, file = textureFile]()
             {
-                auto iter = std::find(textures.begin(), textures.end(), file);
-                if (iter != textures.end())
-                {
-                    textures.erase(iter);
-                }
-                else
-                {
-                    LOG_DEBUG << "texture not found " << file;
-                }
-                Dismiss();
-
                 onRemoveFunc(file);
+                Dismiss();
             });
+
+        std::stringstream usedInfo;
+        usedInfo << textureFile.GetBaseName();
+
+        if (textureInfo.usedIn.empty())
+        {
+            usedInfo << "\n\nTexture is not used right now.";
+        }
+        else
+        {
+            usedInfo << "\n\nTexture is used in: ";
+            for (const auto& info : textureInfo.usedIn)
+            {
+                usedInfo << "\n" << info;
+            }
+        }
+
+        btn->SetToolTip(usedInfo.str());
 
         wrapSizer->Add(btn, 0, wxALL, spacing);
     }

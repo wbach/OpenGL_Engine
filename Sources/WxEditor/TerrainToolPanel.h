@@ -12,6 +12,10 @@
 #include <wx/wx.h>
 
 #include <optional>
+#include <unordered_map>
+#include <vector>
+
+#include "Components/Renderer/Terrain/TerrainRendererComponent.h"
 
 namespace GameEngine
 {

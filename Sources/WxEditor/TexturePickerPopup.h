@@ -13,15 +13,20 @@ public:
     using OnRemoveFunc = std::function<void(const GameEngine::File&)>;
     using OnAddFunc    = std::function<void()>;
 
-    TexturePickerPopup(wxWindow* parent, std::vector<GameEngine::File>& textures, OnSelectFunc onSelect, OnAddFunc onAdd,
+    struct TexureInfo
+    {
+        GameEngine::File file;
+        std::vector<std::string> usedIn;
+    };
+
+    TexturePickerPopup(wxWindow* parent, const std::vector<TexureInfo>& textures, OnSelectFunc onSelect, OnAddFunc onAdd,
                        OnRemoveFunc onRemoveFunc);
 
 private:
     void createNewTextureButton(wxScrolledWindow*, wxWrapSizer*);
-    void createTexutreButtons(wxScrolledWindow*, wxWrapSizer*);
+    void createTexutreButtons(const std::vector<TexureInfo>&, wxScrolledWindow*, wxWrapSizer*);
 
 private:
-    std::vector<GameEngine::File>& textures;
     int spacing       = 5;
     const int texSize = 64;
     OnSelectFunc selectedTextureFunc;
