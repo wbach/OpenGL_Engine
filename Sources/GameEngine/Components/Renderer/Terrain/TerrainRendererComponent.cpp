@@ -98,6 +98,11 @@ const std::vector<std::pair<TerrainTextureType, Texture*>>& TerrainRendererCompo
     return terrainComponent_->GetTextures();
 }
 
+void TerrainRendererComponent::RemoveTexture(const File& file)
+{
+    terrainComponent_->RemoveTexture(file);
+}
+
 void TerrainRendererComponent::setTexture(Texture& texture, float tiledSize, TerrainTextureType type)
 {
     terrainComponent_->setTexture(texture, tiledSize, type);

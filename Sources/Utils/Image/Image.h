@@ -33,6 +33,7 @@ public:
     void setChannels(uint8);
     uint8 getChannelsCount() const;
     const ImageData& getImageData() const;
+    ImageData& getImageData();
     void applyFilter(const ImageFilter&);
 
     template <typename T>

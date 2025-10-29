@@ -281,6 +281,11 @@ const ImageData& Image::getImageData() const
     return data_;
 }
 
+ImageData& Image::getImageData()
+{
+    return data_;
+}
+
 void Image::applyFilter(const ImageFilter& imageFilter)
 {
     auto& size = imageFilter.size;

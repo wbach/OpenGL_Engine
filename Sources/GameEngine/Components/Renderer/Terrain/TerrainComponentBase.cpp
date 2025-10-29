@@ -7,9 +7,11 @@
 #include <Utils/Image/ImageUtils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 #include <optional>
 #include <string>
 
+#include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -189,6 +191,59 @@ void TerrainComponentBase::LoadTextures(const std::vector<TerrainTexture> &textu
     }
 
     updateTerrainTextureBuffer();
+}
+
+void TerrainComponentBase::RemoveTexture(const File &file)
+{
+    std::optional<TerrainTextureType> removedType;
+    auto iter = std::find_if(inputData_.begin(), inputData_.end(), [file](const auto &texture) { return file == texture.file; });
+    if (iter != inputData_.end())
+    {
+        removedType = iter->type;
+
+        auto textureIter = std::find_if(textures_.begin(), textures_.end(),
+                                        [type = iter->type](const auto &pair) { return pair.first == type; });
+
+        if (textureIter != textures_.end())
+        {
+            componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*textureIter->second);
+            textures_.erase(textureIter);
+        }
+
+        inputData_.erase(iter);
+    }
+
+    if (not removedType)
+        return;
+
+    auto convertTypeToChannelNumber = [](TerrainTextureType type) -> std::optional<uint8>
+    {
+        switch (type)
+        {
+            case TerrainTextureType::redTexture:
+                return 0;
+            case TerrainTextureType::greenTexture:
+                return 1;
+            case TerrainTextureType::blueTexture:
+                return 2;
+            case TerrainTextureType::alphaTexture:
+                return 3;
+            default:
+                return std::nullopt;
+        }
+    };
+
+    if (auto blendmap = GetTexture(TerrainTextureType::blendMap))
+    {
+        if (auto t = dynamic_cast<GeneralTexture*>(blendmap))
+        {
+            if (auto channel = convertTypeToChannelNumber(*removedType))
+            {
+                Utils::ClearChannel(t->GetImage(), *channel);
+                BlendMapChanged();
+            }
+        }
+    }
 }
 
 void TerrainComponentBase::LoadTextureImpl(const TerrainTexture &terrainTexture)

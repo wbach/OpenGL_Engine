@@ -55,4 +55,6 @@ Image cloneImageAs(const Image&);
 
 Image cloneImageAsFloat(const Image&);
 Image cloneImageAsUint8(const Image&);
+
+void ClearChannel(Image&, uint8);
 }  // namespace Utils

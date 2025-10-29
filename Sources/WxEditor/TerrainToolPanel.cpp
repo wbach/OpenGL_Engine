@@ -80,7 +80,7 @@ public:
 
         m_choice = new wxChoice(this, wxID_ANY);
         m_choice->Append("All terrains", new IntClientData(-1));
-        m_choice->Append("Last painted terrain", new IntClientData(-2));
+        // m_choice->Append("Last painted terrain", new IntClientData(-2));
 
         auto terrains = componentController.GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
         for (const auto& terrain : terrains)
@@ -105,9 +105,19 @@ public:
         Centre();
     }
 
-    wxString GetSelection() const
+    wxString GetSelectionStr() const
     {
         return m_choice->GetStringSelection();
+    }
+
+    auto GetSelection() const
+    {
+        return m_choice->GetSelection();
+    }
+
+    wxChoice* GetChoice()
+    {
+        return m_choice;
     }
 
 private:
@@ -375,8 +385,37 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         RemoveTextureDialog dlg(this, scene.getComponentController());
         if (dlg.ShowModal() == wxID_OK)
         {
-            wxString choice = dlg.GetSelection();
-            wxMessageBox("Wybrales: " + choice, "Informacja");
+            auto selection      = dlg.GetChoice()->GetSelection();
+            IntClientData* data = dynamic_cast<IntClientData*>(dlg.GetChoice()->GetClientObject(selection));
+            if (data)
+            {
+                auto terrains =
+                    scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+                int value = data->GetValue();
+                if (value == -1)  // all terrains
+                {
+                    for (auto terrain : terrains)
+                    {
+                        terrain->RemoveTexture(file);
+                    }
+                }
+                else
+                {
+                    auto goId = static_cast<IdType>(value);
+
+                    auto iter = std::find_if(terrains.begin(), terrains.end(),
+                                             [goId](const auto& tc) { return tc->getParentGameObject().GetId() == goId; });
+
+                    if (iter != terrains.end())
+                    {
+                        (**iter).RemoveTexture(file);
+                    }
+                    else
+                    {
+                        wxLogMessage(("Something goes wrong. go with not found! GoId : " + std::to_string(goId)).c_str());
+                    }
+                }
+            }
         }
         return false;
     };

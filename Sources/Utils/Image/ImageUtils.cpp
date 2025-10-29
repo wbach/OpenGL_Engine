@@ -5,6 +5,7 @@
 #include <Utils/Variant.h>
 
 #include <filesystem>
+#include <variant>
 
 namespace Utils
 {
@@ -303,5 +304,27 @@ Image cloneImageAsFloat(const Image& src)
 Image cloneImageAsUint8(const Image& src)
 {
     return cloneImageAs<uint8>(src);
+}
+
+void ClearChannel(Image& image, uint8 channelToClear)
+{
+    if (channelToClear >= image.getChannelsCount())
+        return;
+
+    auto& dataVariant   = image.getImageData();
+    const auto channels = image.getChannelsCount();
+
+    std::visit(visitor{[&](auto& data)
+                       {
+                           using T = typename std::decay_t<decltype(data)>::value_type;
+
+                           for (size_t i = channelToClear; i < data.size(); i += channels)
+                           {
+                               data[i] = static_cast<T>(0);
+                           }
+                       },
+
+                       [](std::monostate) {}},
+               dataVariant);
 }
 }  // namespace Utils
