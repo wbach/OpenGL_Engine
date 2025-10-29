@@ -115,6 +115,7 @@ configurationPlatformStringD32=$'"\'$(Configuration)|$(Platform)\'==\'Debug|Win3
 configurationPlatformStringR32=$'"\'$(Configuration)|$(Platform)\'==\'Release|Win32\'"'
 configurationPlatformStringD64=$'"\'$(Configuration)|$(Platform)\'==\'Debug|x64\'"'
 configurationPlatformStringR64=$'"\'$(Configuration)|$(Platform)\'==\'Release|x64\'"'
+configurationPlatformStringFR64=$'"\'$(Configuration)|$(Platform)\'==\'FinalRelease|x64\'"'
 
 echo '<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -133,6 +134,10 @@ echo '<?xml version="1.0" encoding="utf-8"?>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+	  <ProjectConfiguration Include="FinalRelease|x64">
+      <Configuration>FinalRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -168,6 +173,13 @@ echo '<?xml version="1.0" encoding="utf-8"?>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+    <PropertyGroup Condition='$configurationPlatformStringFR64' Label="Configuration">
+    <ConfigurationType>'$OutputType'</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>'$toolkit'</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -183,6 +195,9 @@ echo '<?xml version="1.0" encoding="utf-8"?>
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition='$configurationPlatformStringR64'>
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
+  </ImportGroup>
+    <ImportGroup Label="PropertySheets" Condition='$configurationPlatformStringFR64'>
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition='$'"exists(\'$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props\')"'' Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -202,6 +217,11 @@ echo '<?xml version="1.0" encoding="utf-8"?>
     <IntDir>'$inDir'\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition='$configurationPlatformStringR64'>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>'$outDir'\</OutDir>
+    <IntDir>'$inDir'\</IntDir>
+  </PropertyGroup>
+   <PropertyGroup Condition='$configurationPlatformStringFR64'>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>'$outDir'\</OutDir>
     <IntDir>'$inDir'\</IntDir>
@@ -231,16 +251,19 @@ echo '<?xml version="1.0" encoding="utf-8"?>
   <ItemDefinitionGroup Condition='$configurationPlatformStringD64'>
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-        <MinimalRebuild>false</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$debug64IncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_MBCS;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -281,24 +304,59 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;NDEBUG;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>'$release64IncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
       <MinimalRebuild>false</MinimalRebuild>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <AdditionalOptions>/MP$(NUMBER_OF_PROCESSORS) /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <AdditionalOptions>/bigobj /Gw /GL %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalDependencies>'$additionalReleaseLibs'%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>'$additionalRelease64LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition='$configurationPlatformStringFR64'>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>FINAL_RELEASE;_CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;NDEBUG;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>'$release64IncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>false</OmitFramePointers>
+      <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <AdditionalOptions>/bigobj /GL /GS /guard:cf %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <AdditionalDependencies>'$additionalReleaseLibs'%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>'$additionalRelease64LibsDir'%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

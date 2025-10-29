@@ -6,9 +6,11 @@
 #include <GameEngine/DebugTools/Painter/CircleBrush.h>
 #include <GameEngine/DebugTools/Painter/HeightPainter.h>
 #include <GameEngine/DebugTools/Painter/Interpolation.h>
+#include <GameEngine/DebugTools/Painter/Painter.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
 #include <GameEngine/DebugTools/Painter/TexturePainter.h>
 #include <GameEngine/Engine/EngineContext.h>
+#include <GameEngine/Resources/File.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/Primitive.h>
 #include <Logger/Log.h>
@@ -34,11 +36,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "DebugTools/Painter/Painter.h"
 #include "EditorUitls.h"
 #include "LoadingDialog.h"
 #include "ProjectManager.h"
-#include "Resources/File.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
 
@@ -298,8 +298,6 @@ TerrainToolPanel::TerrainToolPanel(wxWindow* parent, GameEngine::Scene& scene, i
     , scene{scene}
 // clang-format on
 {
-    SetBackgroundColour(wxColour(30, 30, 30));
-
     BuildUI();
 
     SetScrollRate(5, 5);

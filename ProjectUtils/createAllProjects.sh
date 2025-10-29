@@ -14,13 +14,12 @@ RpgGameServerId='{8F388312-4ADF-43B0-8ED8-609078431905}'
 TestsId='{2BE6755D-3432-439E-B1A0-D39125B16AB9}'
 CommonId='{5ADAA6FD-1BB7-4369-825D-7777126B7817}'
 GameId='{68764853-a2a7-4c1a-97f3-95302edac572}'
-EditorId='{000f8fb9-aaa2-4c7c-8aea-9cf258537f01}'
 WxEditorId='{666240cc-cdf0-45de-bfcb-d198125748fe}'
 
 #ge='GameEngine:'$gameEngineId':'$utilsId
 #./prepareSolution.sh name:id:dependID...:dependId...:..
 echo "Generate VisualStudio solution"
-./prepareSolution.sh 'DirectXApi':$DirectXApiId:$GraphicsApiId:$utilsId 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'Game':$GameId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Editor':$EditorId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'WxEditor':$WxEditorId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Tests:'$TestsId':'$gameEngineId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
+./prepareSolution.sh 'DirectXApi':$DirectXApiId:$GraphicsApiId:$utilsId 'GraphicsApi':$GraphicsApiId::$InputId 'Input':$InputId 'OpenGLApi':$openGlApiId:$utilsId 'RpgGameServer:'$RpgGameServerId':'$utilsId:$utilsNetworkId:$CommonId 'UtilsNetwork':$utilsNetworkId:$utilsId 'Utils:'$utilsId 'GameEngine:'$gameEngineId':'$utilsId 'Game':$GameId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'WxEditor':$WxEditorId':'$gameEngineId:$DirectXApiId:$openGlApiId:$InputId:$utilsId:$utilsNetworkId:$CommonId:$GraphicsApiId 'Tests:'$TestsId':'$gameEngineId 'Common':$CommonId:$utilsId > ../Solutions/VisualStudio/GameEngine.sln
 
 echo "Generate VisualStudio DirectXApi project"
 ./prepareProject.sh DirectXApi $DirectXApiId StaticLibrary > ../Sources/DirectXApi/DirectXApi.vcxproj

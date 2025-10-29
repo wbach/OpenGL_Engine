@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GameEngine/Components/ComponentController.h>
-#include <wx/popupwin.h>
 #include <wx/wx.h>
 
 #include <functional>
@@ -16,12 +15,17 @@ class IComponent;
 }
 }  // namespace GameEngine
 
-class ComponentPickerPopup : public wxPopupTransientWindow
+class ComponentPickerPopup : public wxDialog
 {
 public:
     using SelectCallback = std::function<void(GameEngine::Components::IComponent&)>;
 
-    ComponentPickerPopup(wxWindow*, GameEngine::Components::ComponentController&, GameEngine::GameObject&, SelectCallback);
+    ComponentPickerPopup(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
+                         GameEngine::GameObject& gameObject, SelectCallback onSelect);
+
+    // Pokazuje popup w wybranej pozycji (zachowuje stare wywo³anie Popup)
+    void Popup(const wxPoint& pos);
+
 
 private:
     GameEngine::Components::ComponentController& componentController;
@@ -32,8 +36,7 @@ private:
 
     void PopulateList(const wxString& filter);
     void OnSearch(wxCommandEvent& evt);
-    void OnSelect(wxCommandEvent& evt);  // nadpisujemy event listboxa
-    void OnDismiss() override;           // opcjonalnie, jesli chcesz reagowac na zamkniecie
+    void OnSelect(wxCommandEvent& evt);
 
-    wxDECLARE_EVENT_TABLE();
+    void Dismiss();  // zamkniêcie popupu
 };

@@ -17,14 +17,12 @@ public:
         wxTextCtrl* xCtrl{nullptr};
         wxTextCtrl* yCtrl{nullptr};
         wxTextCtrl* zCtrl{nullptr};
-        wxSizer* sizer{nullptr};  // zeby mozna bylo latwo dodac do layoutu
+        wxSizer* sizer{nullptr};
         std::string label;
 
         wxString tmpFocusString;
 
         void onChanged(wxCommandEvent&);
-        void onFocus(wxFocusEvent&);
-        void onKillFocus(wxFocusEvent&);
         bool isSetBySub{false};
         void Bind();
     };
@@ -37,7 +35,6 @@ public:
     void unlock();
 
 private:
-    void OnPaneChanged(wxCollapsiblePaneEvent&);
     Vector3Controls CreateVector3Controls(wxWindow*, const wxString&);
 
 private:

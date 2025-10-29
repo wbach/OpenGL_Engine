@@ -203,7 +203,7 @@ void MainFrame::Init()
         UpdateTimeOnToolbar();
         gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
         UpdateMainMenuRendererOptionsCheckBoxes();
-        SetStatusText(EngineConf.files.data);
+        SetStatusText(std::filesystem::path(EngineConf.files.data).make_preferred().string());
     };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
@@ -673,8 +673,8 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
         popup->SetSize(popupSize);
 
         // Pozycjonujemy i pokazujemy popup
-        popup->Position(pos, wxSize(0, 0));
-        popup->Popup();
+       // popup->Position(pos, wxSize(0, 0));
+        popup->Popup(pos);
     };
     addComponentButton->Bind(wxEVT_BUTTON, action);
 
@@ -1205,27 +1205,6 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
             {
                 return;
             }
-
-            // auto parentItem = gameObjectsView->GetItemParent(sel);
-            // if (parentItem.IsOk())
-            // {
-            //     gameObjectsView->SelectItem(parentItem);
-            //     if (auto gameObject = GetGameObject(parentItem))
-            //         UpdateGameObjectIdOnTransfromLabel(gameObject->GetId());
-            //     else
-            //     {
-            //         UpdateGameObjectIdOnTransfromLabel();
-            //         worldTransformPanel->lock();
-            //         localTransformPanel->lock();
-            //     }
-            // }
-            // else
-            // {
-            //     gameObjectsView->SelectItem(gameObjectsView->GetRootItem());
-            //     UpdateGameObjectIdOnTransfromLabel();
-            //     worldTransformPanel->lock();
-            //     localTransformPanel->lock();
-            // }
 
             LOG_DEBUG << "Remove gameObject";
             canvas->GetScene().RemoveGameObject(*gameObjectId);

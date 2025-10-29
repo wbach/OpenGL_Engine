@@ -146,44 +146,8 @@ void TransformPanel::Vector3Controls::onChanged(wxCommandEvent& event)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Parse error");
+       LOG_ERROR << "Parse error";
     }
-}
-
-void TransformPanel::Vector3Controls::onFocus(wxFocusEvent& event)
-{
-    if (event.GetEventObject() == xCtrl)
-    {
-        tmpFocusString = xCtrl->GetValue();
-    }
-    else if (event.GetEventObject() == yCtrl)
-    {
-        tmpFocusString = yCtrl->GetValue();
-    }
-    else if (event.GetEventObject() == zCtrl)
-    {
-        tmpFocusString = zCtrl->GetValue();
-    }
-}
-
-void TransformPanel::Vector3Controls::onKillFocus(wxFocusEvent& event)
-{
-    if (tmpFocusString.empty())
-        return;
-
-    if (event.GetEventObject() == xCtrl)
-    {
-        xCtrl->SetValue(tmpFocusString);
-    }
-    else if (event.GetEventObject() == yCtrl)
-    {
-        yCtrl->SetValue(tmpFocusString);
-    }
-    else if (event.GetEventObject() == zCtrl)
-    {
-        zCtrl->SetValue(tmpFocusString);
-    }
-    tmpFocusString.clear();
 }
 
 void TransformPanel::Vector3Controls::Bind()
@@ -191,12 +155,4 @@ void TransformPanel::Vector3Controls::Bind()
     xCtrl->Bind(wxEVT_TEXT_ENTER, &Vector3Controls::onChanged, this);
     yCtrl->Bind(wxEVT_TEXT_ENTER, &Vector3Controls::onChanged, this);
     zCtrl->Bind(wxEVT_TEXT_ENTER, &Vector3Controls::onChanged, this);
-
-    xCtrl->Bind(wxEVT_SET_FOCUS, &Vector3Controls::onFocus, this);
-    yCtrl->Bind(wxEVT_SET_FOCUS, &Vector3Controls::onFocus, this);
-    zCtrl->Bind(wxEVT_SET_FOCUS, &Vector3Controls::onFocus, this);
-
-    xCtrl->Bind(wxEVT_KILL_FOCUS, &Vector3Controls::onKillFocus, this);
-    yCtrl->Bind(wxEVT_KILL_FOCUS, &Vector3Controls::onKillFocus, this);
-    zCtrl->Bind(wxEVT_KILL_FOCUS, &Vector3Controls::onKillFocus, this);
 }

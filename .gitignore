@@ -282,3 +282,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+*.7z
+ProjectUtils/prepareSolution.sh

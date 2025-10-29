@@ -4,18 +4,13 @@
 #include <GameEngine/Objects/GameObject.h>
 #include <Utils/TreeNode.h>
 
-// clang-format off
-wxBEGIN_EVENT_TABLE(ComponentPickerPopup, wxPopupTransientWindow)
-    // eventy bindowane dynamicznie
-wxEND_EVENT_TABLE()
-
-ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::Components::ComponentController& componentController, GameEngine::GameObject& gameObject, SelectCallback onSelect)
-    : wxPopupTransientWindow(parent, wxBORDER_SIMPLE)
+ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
+                                           GameEngine::GameObject& gameObject, SelectCallback onSelect)
+    : wxDialog(parent, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE | wxDIALOG_NO_PARENT | wxSTAY_ON_TOP)
     , componentController{componentController}
     , gameObject{gameObject}
     , selectCallback(onSelect)
 {
-    // clang-format on
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
     searchCtrl = new wxTextCtrl(this, wxID_ANY);
@@ -30,6 +25,16 @@ ComponentPickerPopup::ComponentPickerPopup(wxWindow* parent, GameEngine::Compone
 
     searchCtrl->Bind(wxEVT_TEXT, &ComponentPickerPopup::OnSearch, this);
     listBox->Bind(wxEVT_LISTBOX, &ComponentPickerPopup::OnSelect, this);
+
+    CallAfter([this]() { searchCtrl->SetFocus(); });
+    Bind(wxEVT_CHAR_HOOK,
+         [this](wxKeyEvent& evt)
+         {
+             if (evt.GetKeyCode() == WXK_ESCAPE)
+                 Dismiss();
+             else
+                 evt.Skip();
+         });
 }
 
 void ComponentPickerPopup::PopulateList(const wxString& filter)
@@ -49,8 +54,7 @@ void ComponentPickerPopup::PopulateList(const wxString& filter)
 
 void ComponentPickerPopup::OnSearch(wxCommandEvent& evt)
 {
-    wxString val = searchCtrl->GetValue();
-    PopulateList(val);
+    PopulateList(searchCtrl->GetValue());
 }
 
 void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
@@ -81,10 +85,19 @@ void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
         }
     }
 
-    Dismiss();  // zamykamy popup
+    Dismiss();
 }
 
-void ComponentPickerPopup::OnDismiss()
+void ComponentPickerPopup::Dismiss()
 {
-    // Tu mozesz cos zrobic po zamknieciu popupu (np. zwolnic zasoby)
+    Hide();
+    Destroy();
+}
+
+void ComponentPickerPopup::Popup(const wxPoint& pos)
+{
+    Move(pos);
+    Show();
+    Raise();
+    searchCtrl->SetFocus();
 }

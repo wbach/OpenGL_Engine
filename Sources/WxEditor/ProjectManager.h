@@ -202,7 +202,8 @@ public:
                 size_t lastSlash = path.find_last_of("/\\");
                 std::string name = (lastSlash != std::string::npos) ? path.substr(lastSlash + 1) : path;
 
-                result.push_back({name, path});
+                auto normalizedSlashesPath = std::filesystem::path(path).make_preferred().string();
+                result.push_back({name, normalizedSlashesPath});
             }
         }
         return result;
