@@ -101,6 +101,7 @@ private:
 
     struct PlantPainterFields
     {
+        wxComboBox* mode{nullptr};
         wxComboBox* brushType{nullptr};
         wxTextCtrl* brushSize{nullptr};
         wxTextCtrl* density{nullptr};

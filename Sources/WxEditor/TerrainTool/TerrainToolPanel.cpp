@@ -7,6 +7,7 @@
 #include <GameEngine/DebugTools/Painter/HeightPainter.h>
 #include <GameEngine/DebugTools/Painter/Interpolation.h>
 #include <GameEngine/DebugTools/Painter/Painter.h>
+#include <GameEngine/DebugTools/Painter/PlantPainter.h>
 #include <GameEngine/DebugTools/Painter/TerrainHeightGenerator.h>
 #include <GameEngine/DebugTools/Painter/TexturePainter.h>
 #include <GameEngine/Engine/EngineContext.h>
@@ -70,6 +71,17 @@ GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scen
     return GameEngine::TerrainPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(),
                                                     scene.GetCamera(), engineContext->GetRenderersManager().GetProjection(),
                                                     scene.getComponentController()};
+}
+
+GameEngine::PlantPainter::Dependencies GetPlantPainterDependencies(GameEngine::Scene& scene)
+{
+    auto engineContext = scene.getEngineContext();
+    if (not engineContext)
+        throw std::runtime_error("Scene not init. engineContext is null");
+
+    return GameEngine::PlantPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(),
+                                                  scene.GetCamera(), engineContext->GetRenderersManager().GetProjection(),
+                                                  scene.getComponentController()};
 }
 
 template <typename EnumType>
@@ -716,6 +728,10 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
     auto* panel = new wxPanel(parent);
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
+    // === Mode ===
+    painterFields.plantPainterFields.mode = CreateEnumComboBox<GameEngine::PlantPainter::PaintMode>(
+        panel, sizer, "Mode", GameEngine::PlantPainter::PaintMode::MeshTerrain, [this]() { OnUpdatePainterParam(); });
+
     // === Brush Type ===
     painterFields.plantPainterFields.brushType =
         CreateEnumComboBox<BrushTypes>(panel, sizer, "Brush Type", BrushTypes::Circle, [this]() { OnUpdatePainterParam(); });
@@ -1001,11 +1017,11 @@ void TerrainToolPanel::EnablePainter()
         return GameEngine::InterpolationType::Smooth;
     };
 
-    auto getStrength = [&](wxTextCtrl* strengthTextCtrl)
+    auto getFloatFromCtrl = [&](wxTextCtrl* ctrl)
     {
         try
         {
-            return strengthTextCtrl ? std::stof(strengthTextCtrl->GetValue().ToStdString()) : 0.f;
+            return ctrl ? std::stof(ctrl->GetValue().ToStdString()) : 0.f;
         }
         catch (...)
         {
@@ -1042,7 +1058,7 @@ void TerrainToolPanel::EnablePainter()
                 const auto& heightPainterFields = painterFields.heightPainterFields;
 
                 auto interpolation = getInterpolation(heightPainterFields.interpolation);
-                auto strength      = getStrength(heightPainterFields.strength);
+                auto strength      = getFloatFromCtrl(heightPainterFields.strength);
                 auto radius        = getRadius(heightPainterFields.brushSize);
 
                 auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
@@ -1075,7 +1091,7 @@ void TerrainToolPanel::EnablePainter()
                     return;
                 }
                 auto interpolation = getInterpolation(texturePainterFields.interpolation);
-                auto strength      = getStrength(texturePainterFields.strength);
+                auto strength      = getFloatFromCtrl(texturePainterFields.strength);
                 auto radius        = getRadius(texturePainterFields.brushSize);
 
                 auto circleBrush =
@@ -1090,10 +1106,34 @@ void TerrainToolPanel::EnablePainter()
             break;
             case 2:
             {
-                // GameEngine::Components::GrassRendererComponent* grassRendererComponent{nullptr};
-                // if (grassRendererComponent)
-                //     painterFields.terrainPainter_ =
-                //         std::make_unique<GameEngine::PlantPainter>(GetPainterEntryParameters(scene), *grassRendererComponent);
+                auto engineContext = scene.getEngineContext();
+                if (not engineContext)
+                    throw std::runtime_error("Scene not init. engineContext is null");
+
+                const auto& plantPainterFields = painterFields.plantPainterFields;
+                if (not plantPainterFields.selectedTextureFile)
+                {
+                    LOG_WARN << "No plant file selected.";
+                    return;
+                }
+
+                auto density    = getFloatFromCtrl(plantPainterFields.density);
+                auto randomness = getFloatFromCtrl(plantPainterFields.randomness);
+                auto radius     = getRadius(plantPainterFields.brushSize);
+
+                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(
+                    GameEngine::makeInterpolation(GameEngine::InterpolationType::Linear), radius, 1.f);
+
+                GameEngine::PlantPainter::PaintMode mode(GameEngine::PlantPainter::PaintMode::MeshTerrain);
+                if (auto value = magic_enum::enum_cast<GameEngine::PlantPainter::PaintMode>(
+                        plantPainterFields.mode->GetValue().ToStdString()))
+                {
+                    mode = *value;
+                }
+
+                painterFields.terrainPainter_ = std::make_unique<GameEngine::PlantPainter>(
+                    GetPlantPainterDependencies(scene), std::move(circleBrush), mode, density, randomness);
+                painterFields.terrainPainter_->Start();
             }
             break;
         }

@@ -459,6 +459,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TextureP
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TerrainPointGetter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Influance.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Interpolation.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/PlantPainter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/Messages/TerrainPainterEnabledXmlSerializer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/Messages/PlantBrushEnabledXmlDeserializer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/Messages/NewComponentMsgIndXmlSerializer.h

@@ -3,7 +3,6 @@
 
 namespace GameEngine
 {
-
 class BoundingBox
 {
 public:

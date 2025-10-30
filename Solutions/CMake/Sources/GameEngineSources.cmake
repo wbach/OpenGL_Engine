@@ -322,6 +322,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TextureP
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TerrainHeightGenerator.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/HeightPainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Painter.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/PlantPainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/Messages/ExitRespXmlSerializer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/Messages/SceneStartedNotifMsgXmlSerializer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/EditorInterface/Messages/GameObjectRenamedXmlSerializer.cpp
