@@ -8,9 +8,9 @@
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 
-#include "EditorUitls.h"
 #include "GLCanvas.h"
 #include "ProjectManager.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 
 MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& maybeFile, const wxString& title,
                                          const wxPoint& pos, const wxSize& size)

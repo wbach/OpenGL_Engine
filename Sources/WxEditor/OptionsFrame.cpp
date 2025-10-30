@@ -9,9 +9,9 @@
 
 #include <functional>
 
-#include "EditorUitls.h"
 #include "ProjectManager.h"
 #include "Theme.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 
 // clang-format off
 wxBEGIN_EVENT_TABLE(OptionsFrame, wxFrame)

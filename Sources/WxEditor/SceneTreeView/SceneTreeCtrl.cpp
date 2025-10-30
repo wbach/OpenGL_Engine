@@ -6,9 +6,9 @@
 
 #include <GameEngine/Scene/Scene.hpp>
 
-#include "ControlsIds.h"
 #include "DisableHelper.h"
-#include "WxEditor/EditorUitls.h"
+#include "WxEditor/ControlsIds.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 
 SceneTreeCtrl::SceneTreeCtrl(wxTreeCtrl *tree, ChangeGameObjectParent changeGameObjectParent)
     : disableHelper(tree)

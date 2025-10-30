@@ -19,8 +19,7 @@
 
 #include "ComponentPanel/ReloadComponentLibEvent.h"
 #include "ComponentPanel/TransformPanel.h"
-#include "DisableHelper.h"
-#include "SceneTreeCtrl.h"
+#include "SceneTreeView/SceneTreeCtrl.h"
 
 class GLCanvas;
 class OptionsFrame;

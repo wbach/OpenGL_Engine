@@ -1,13 +1,13 @@
 #include <GameEngine/Objects/Prefab.h>
 #include <GameEngine/Resources/File.h>
+#include <Logger/Log.h>
 #include <Utils/Json/JsonUtils.h>
 #include <Utils/XML/XMLUtils.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 
-#include "EditorUitls.h"
-#include "Logger/Log.h"
-#include "ProjectManager.h"
+#include "WxEditor/ProjectManager.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 
 wxImage TrimMargins(const wxImage& img)
 {

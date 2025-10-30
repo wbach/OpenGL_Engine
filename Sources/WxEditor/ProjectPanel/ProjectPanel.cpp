@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <string>
 
-#include "WxEditor/EditorUitls.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
 #include "model3d_icon.h"
 

@@ -26,9 +26,9 @@
 
 #include "AnimationFileDropTarget.h"
 #include "GameEngine/Components/FunctionType.h"
-#include "WxEditor/EditorUitls.h"
 #include "WxEditor/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 
 AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)

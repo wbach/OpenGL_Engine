@@ -30,7 +30,6 @@
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
 #include "ControlsIds.h"
-#include "EditorUitls.h"
 #include "GLCanvas.h"
 #include "LoadingDialog.h"
 #include "OptionsFrame.h"
@@ -38,6 +37,7 @@
 #include "ProjectPanel/ProjectPanel.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "Theme.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 
 #ifdef _WIN32
 #include <windows.h>

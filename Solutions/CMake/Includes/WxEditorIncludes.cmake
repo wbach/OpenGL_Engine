@@ -1,11 +1,10 @@
 set(WxEditorIncludes
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/EditorUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/ThumbnailCache.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/WxClientData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/FileDropTarget.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/DisableHelper.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EditorUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.h
@@ -17,6 +16,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TexturePickerPopu
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainToolPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainSelectionDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxKeyEventType.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/DisableHelper.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/SceneTreeCtrl.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViwerIcon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.h
@@ -26,7 +27,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/model3d_icon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/LoadingDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxInputManager.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeCtrl.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h

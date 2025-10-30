@@ -6,13 +6,13 @@
 #include <GameEngine/DebugTools/MousePicker/MousePicker.h>
 #include <GameEngine/Objects/GameObject.h>
 #include <GameEngine/Resources/Models/Primitive.h>
+#include <Logger/Log.h>
 #include <wx/dcclient.h>
 
 #include <filesystem>
 #include <memory>
 
-#include "EditorUitls.h"
-#include "Logger/Log.h"
+#include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
@@ -202,8 +202,8 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                            [&](int x, int y)
-                                                                            {
+                                                                    [&](int x, int y)
+                                                                    {
                                                                         if (GetHandle())
                                                                         {
                                                                             WarpPointer(x, y);
@@ -347,7 +347,7 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
     if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker)
     {
         mousePicker          = std::make_unique<GameEngine::MousePicker>(GetScene().GetCamera(),
-                                                                         engine->GetEngineContext().GetRenderersManager().GetProjection());
+                                                                engine->GetEngineContext().GetRenderersManager().GetProjection());
         auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)
