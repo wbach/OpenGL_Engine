@@ -3,7 +3,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/EditorUitls.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/ThumbnailCache.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/WxClientData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/FileDropTarget.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.h
@@ -24,8 +23,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/ProjectPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/model3d_icon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/LoadingDialog.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxInputManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/ProjectsCMakeTemplate.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h
