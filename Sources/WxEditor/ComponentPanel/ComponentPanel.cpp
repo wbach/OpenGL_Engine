@@ -14,8 +14,8 @@
 #include <utility>
 
 #include "ReloadComponentLibEvent.h"
-#include "WxEditor/ThumbnailCache.h"
 #include "WxEditor/WxHelpers/FileDropTarget.h"
+#include "WxEditor/WxHelpers/ThumbnailCache.h"
 
 namespace GameEngine
 {

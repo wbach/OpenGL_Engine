@@ -35,7 +35,7 @@
 #include "LoadingDialog.h"
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
-#include "ProjectPanel.h"
+#include "ProjectPanel/ProjectPanel.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "Theme.h"
 

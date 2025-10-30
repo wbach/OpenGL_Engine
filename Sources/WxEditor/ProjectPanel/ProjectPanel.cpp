@@ -12,8 +12,8 @@
 #include <filesystem>
 #include <string>
 
-#include "EditorUitls.h"
-#include "ThumbnailCache.h"
+#include "WxEditor/EditorUitls.h"
+#include "WxEditor/WxHelpers/ThumbnailCache.h"
 #include "model3d_icon.h"
 
 namespace
