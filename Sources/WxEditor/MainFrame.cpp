@@ -7,6 +7,7 @@
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
+#include <Logger/Log.h>
 #include <Utils/XML/XMLUtils.h>
 #include <wx/artprov.h>
 #include <wx/defs.h>
@@ -20,24 +21,23 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <magic_enum/magic_enum.hpp>
 #include <string>
 
 #include "AnimationViewer/AnimationViwerIcon.h"
 #include "BuildLogFrame.h"
-#include "ComponentPanel.h"
-#include "ComponentPickerPopup.h"
+#include "ComponentPanel/ComponentPanel.h"
+#include "ComponentPanel/ComponentPickerPopup.h"
+#include "ComponentPanel/TransformPanel.h"
 #include "ControlsIds.h"
 #include "EditorUitls.h"
 #include "GLCanvas.h"
 #include "LoadingDialog.h"
-#include "Logger/Log.h"
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "Theme.h"
-#include "TransformPanel.h"
-#include "magic_enum/magic_enum.hpp"
 
 #ifdef _WIN32
 #include <windows.h>

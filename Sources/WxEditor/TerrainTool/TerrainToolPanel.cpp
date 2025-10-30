@@ -44,7 +44,7 @@
 #include "WxEditor/EditorUitls.h"
 #include "WxEditor/LoadingDialog.h"
 #include "WxEditor/ProjectManager.h"
-#include "WxEditor/WxChoiceClientData/WxClientData.h"
+#include "WxEditor/WxHelpers/WxClientData.h"
 
 namespace
 {

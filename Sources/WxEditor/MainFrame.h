@@ -17,10 +17,10 @@
 #include <thread>
 #include <unordered_map>
 
+#include "ComponentPanel/ReloadComponentLibEvent.h"
+#include "ComponentPanel/TransformPanel.h"
 #include "DisableHelper.h"
-#include "MyEvents.h"
 #include "SceneTreeCtrl.h"
-#include "TransformPanel.h"
 
 class GLCanvas;
 class OptionsFrame;

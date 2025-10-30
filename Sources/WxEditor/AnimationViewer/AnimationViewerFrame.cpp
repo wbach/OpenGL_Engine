@@ -30,11 +30,6 @@
 #include "WxEditor/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
 
-namespace
-{
-
-}  // namespace
-
 AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 {

@@ -5,7 +5,7 @@
 
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "WxEditor/WxChoiceClientData/WxClientData.h"
+#include "WxEditor/WxHelpers/WxClientData.h"
 
 TerrainSelectionDialog::TerrainSelectionDialog(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
                                                const std::string& labelStr)

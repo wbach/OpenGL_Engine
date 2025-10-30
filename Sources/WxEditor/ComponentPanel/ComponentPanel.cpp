@@ -13,60 +13,9 @@
 #include <mutex>
 #include <utility>
 
-#include "MyEvents.h"
-#include "ThumbnailCache.h"
-
-class MyTextDropTarget : public wxTextDropTarget
-{
-public:
-    MyTextDropTarget(wxTextCtrl* ctrl)
-        : ctrl(ctrl)
-    {
-    }
-
-    virtual bool OnDropText(wxCoord x, wxCoord y, const wxString& data) override
-    {
-        LOG_DEBUG << "Drop text" << data;
-        if (ctrl)
-        {
-            ctrl->SetValue(data);
-            return true;
-        }
-        return false;
-    }
-
-private:
-    wxTextCtrl* ctrl;
-};
-
-class MyFileDropTarget : public wxFileDropTarget
-{
-public:
-    using Callback = std::function<void(const std::string&)>;
-    MyFileDropTarget(wxTextCtrl* textCtrl, Callback callback)
-        : ctrl(textCtrl)
-        , callback{callback}
-    {
-    }
-
-    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
-    {
-        LOG_DEBUG << "Drop text" << filenames[0];
-        if (ctrl && !filenames.IsEmpty())
-        {
-            ctrl->ChangeValue(GameEngine::File(filenames[0]).GetDataRelativePath().string());
-            ctrl->SetToolTip(filenames[0]);
-
-            if (callback)
-                callback(filenames[0].ToStdString());
-        }
-        return true;
-    }
-
-private:
-    wxTextCtrl* ctrl;
-    Callback callback;
-};
+#include "ReloadComponentLibEvent.h"
+#include "WxEditor/ThumbnailCache.h"
+#include "WxEditor/WxHelpers/FileDropTarget.h"
 
 namespace GameEngine
 {
@@ -407,14 +356,16 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
                                });
 
-            row.textCtrl->SetDropTarget(
-                new MyFileDropTarget(row.textCtrl,
-                                     [this, &component, val, warningIcon = row.warningIcon](const std::string& path)
-                                     {
-                                         val->Init(path);
-                                         component.Reload();
-                                         UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-                                     }));
+            row.textCtrl->SetDropTarget(new FileDropTarget(
+                [this, &component, val, warningIcon = row.warningIcon, ctrl = row.textCtrl](const std::string& path)
+                {
+                    ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
+                    ctrl->SetToolTip(path);
+
+                    val->Init(path);
+                    component.Reload();
+                    UpdateFileWarning(warningIcon, val->GetAbsolutePath());
+                }));
             break;
         }
 
@@ -460,10 +411,13 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                    UpdateFileWarning(warningIcon, val->GetAbsolutePath().string());
                                });
 
-            row.textCtrl->SetDropTarget(new MyFileDropTarget(
-                row.textCtrl,
-                [this, &component, pane, val, warningIcon = row.warningIcon, prev = row.preview](const std::string& path)
+            row.textCtrl->SetDropTarget(new FileDropTarget(
+                [this, &component, pane, val, warningIcon = row.warningIcon, prev = row.preview,
+                 ctrl = row.textCtrl](const std::string& path)
                 {
+                    ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
+                    ctrl->SetToolTip(path);
+
                     val->Init(path);
                     component.Reload();
                     SetPreviewBitmap(prev, *val, pane);
@@ -681,14 +635,16 @@ wxBoxSizer* ComponentPanel::CreateMaterialMapItem(GameEngine::Components::ICompo
         });
 
     // Drag & drop
-    rowFile.textCtrl->SetDropTarget(
-        new MyFileDropTarget(rowFile.textCtrl,
-                             [this, &component, val = &it->second, warningIcon = rowFile.warningIcon](const std::string& path)
-                             {
-                                 val->Init(path);
-                                 component.Reload();
-                                 UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-                             }));
+    rowFile.textCtrl->SetDropTarget(new FileDropTarget(
+        [this, &component, val = &it->second, warningIcon = rowFile.warningIcon, ctrl = rowFile.textCtrl](const std::string& path)
+        {
+            ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
+            ctrl->SetToolTip(path);
+
+            val->Init(path);
+            component.Reload();
+            UpdateFileWarning(warningIcon, val->GetAbsolutePath());
+        }));
 
     return row;
 }
@@ -976,14 +932,16 @@ wxBoxSizer* ComponentPanel::CreateFileItem(GameEngine::Components::IComponent& c
                            UpdateFileWarning(warningIcon, txt->GetValue().ToStdString());
                            evt.Skip();
                        });
-    row.textCtrl->SetDropTarget(
-        new MyFileDropTarget(row.textCtrl,
-                             [this, &component, &editedFile, warningIcon = row.warningIcon](const std::string& path)
-                             {
-                                 editedFile = GameEngine::File(path);
-                                 UpdateFileWarning(warningIcon, path);
-                                 component.Reload();
-                             }));
+    row.textCtrl->SetDropTarget(new FileDropTarget(
+        [this, &component, &editedFile, warningIcon = row.warningIcon, ctrl = row.textCtrl](const std::string& path)
+        {
+            ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
+            ctrl->SetToolTip(path);
+
+            editedFile = GameEngine::File(path);
+            UpdateFileWarning(warningIcon, path);
+            component.Reload();
+        }));
 
     if (canDelete)
     {
@@ -1050,10 +1008,13 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                            evt.Skip();
                        });
 
-    row.textCtrl->SetDropTarget(new MyFileDropTarget(
-        row.textCtrl,
-        [this, &component, &editedFile, prev = row.preview, pane, warningIcon = row.warningIcon](const std::string& path)
+    row.textCtrl->SetDropTarget(new FileDropTarget(
+        [this, &component, &editedFile, prev = row.preview, pane, warningIcon = row.warningIcon,
+         ctrl = row.textCtrl](const std::string& path)
         {
+            ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
+            ctrl->SetToolTip(path);
+
             editedFile = GameEngine::File(path);
             SetPreviewBitmap(prev, editedFile, pane);
             component.Reload();
@@ -1219,14 +1180,16 @@ wxBoxSizer* ComponentPanel::CreateUIForAnimationClip(GameEngine::Components::ICo
                                txt->SetToolTip(txt->GetValue());
                                UpdateFileWarning(warningIcon, val->file.GetAbsolutePath());
                            });
-        row.textCtrl->SetDropTarget(
-            new MyFileDropTarget(row.textCtrl,
-                                 [this, &component, val, warningIcon = row.warningIcon](const std::string& path)
-                                 {
-                                     val->file.Init(path);
-                                     component.Reload();
-                                     UpdateFileWarning(warningIcon, val->file.GetAbsolutePath().string());
-                                 }));
+        row.textCtrl->SetDropTarget(new FileDropTarget(
+            [this, &component, val, warningIcon = row.warningIcon, ctrl = row.textCtrl](const std::string& path)
+            {
+                ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
+                ctrl->SetToolTip(path);
+
+                val->file.Init(path);
+                component.Reload();
+                UpdateFileWarning(warningIcon, val->file.GetAbsolutePath().string());
+            }));
     }
 
     // playInLoop
