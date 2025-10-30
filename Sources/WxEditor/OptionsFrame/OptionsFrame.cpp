@@ -9,8 +9,8 @@
 
 #include <functional>
 
-#include "ProjectManager.h"
 #include "Theme.h"
+#include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 
 // clang-format off

@@ -18,6 +18,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TextureButton.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TexturePickerPopup.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainToolPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainSelectionDialog.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/OptionsFrame.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/Theme.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/DisableHelper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/SceneTreeCtrl.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViwerIcon.h
@@ -32,6 +34,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ControlsIds.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.h
 )

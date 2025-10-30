@@ -14,15 +14,15 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TexturePickerPopu
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainToolPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainSelectionDialog.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TextureButton.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/Theme.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/OptionsFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/SceneTreeCtrl.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/DisableHelper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/ProjectPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
