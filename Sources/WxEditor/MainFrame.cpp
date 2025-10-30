@@ -26,6 +26,7 @@
 
 #include "AnimationViewer/AnimationViwerIcon.h"
 #include "ComponentPanel/BuildComponentLogFrame.h"
+#include "ComponentPanel/BuildProcess.h"
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
