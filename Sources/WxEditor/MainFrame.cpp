@@ -673,7 +673,7 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
         popup->SetSize(popupSize);
 
         // Pozycjonujemy i pokazujemy popup
-       // popup->Position(pos, wxSize(0, 0));
+        // popup->Position(pos, wxSize(0, 0));
         popup->Popup(pos);
     };
     addComponentButton->Bind(wxEVT_BUTTON, action);
@@ -1420,8 +1420,17 @@ void MainFrame::OnBuildCmponents(wxCommandEvent&)
                 });
         });
 
-    std::string cmd =
-        "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";
+    std::string cmd;
+#if defined(_MSC_VER)
+    // MSVC / Windows
+    std::string solutionFile =
+        ProjectManager::GetInstance().GetProjectPath() + "\\" + ProjectManager::GetInstance().GetProjectName() + ".sln";
+    std::string vcvars = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\"";
+
+    cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile + " /t:Build /p:Configuration=Release /p:Platform=x64";
+#else
+    cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";
+#endif
 
     RunCommand(cmd, buildDir, processCmake);
 }

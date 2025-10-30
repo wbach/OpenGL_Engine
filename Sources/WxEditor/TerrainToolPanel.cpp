@@ -729,6 +729,9 @@ wxPanel* TerrainToolPanel::BuildHeightPainterPanel(wxWindow* parent)
         painterFields.heightPainterFields.interpolation = CreateEnumComboBox<GameEngine::InterpolationType>(
             panel, sizer, "Interpolation Method", GameEngine::InterpolationType::Smooth, [this]() { OnUpdatePainterParam(); });
     }
+    // === Brush Type ===
+    painterFields.heightPainterFields.brushType =
+        CreateEnumComboBox<BrushTypes>(panel, sizer, "Brush Type", BrushTypes::Circle, [this]() { OnUpdatePainterParam(); });
 
     // === Brush Size ===
     painterFields.heightPainterFields.brushSize =

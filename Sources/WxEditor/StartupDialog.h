@@ -233,6 +233,7 @@ private:
         }
         m_selectedProject = path.ToStdString();
         ProjectManager::GetInstance().SetProjectPath(m_selectedProject);
+        ProjectManager::GetInstance().SetProjectName(m_recentList->GetItemText(event.GetIndex(), 0).ToStdString());
         ReadSceneFactoryFile();
         EndModal(wxID_OK);
     }

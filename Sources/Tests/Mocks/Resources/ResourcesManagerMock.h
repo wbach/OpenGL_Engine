@@ -6,7 +6,7 @@
 
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/Models/Model.h"
-#include "Resources/Models/Primitive.h"
+#include "GameEngine/Resources/Models/Primitive.h"
 
 namespace GameEngine
 {
