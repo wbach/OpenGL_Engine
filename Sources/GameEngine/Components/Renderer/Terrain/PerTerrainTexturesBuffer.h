@@ -28,4 +28,18 @@ struct PerTerrainTexturesBuffer
         haveBlendMap            = 0.f;
     }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const PerTerrainTexturesBuffer& p)
+{
+    os << "rgbaTextureScales: " << p.rgbaTextureScales.value << "\n";
+    os << "backgroundTextureScales: " << p.backgroundTextureScales.value << "\n";
+    os << "haveTextureR: " << p.haveTextureR.value << "\n";
+    os << "haveTextureG: " << p.haveTextureG.value << "\n";
+    os << "haveTextureB: " << p.haveTextureB.value << "\n";
+    os << "haveTextureA: " << p.haveTextureA.value << "\n";
+    os << "haveTextureRock: " << p.haveTextureRock.value << "\n";
+    os << "haveTextureBackground: " << p.haveTextureBackground.value << "\n";
+    os << "haveBlendMap: " << p.haveBlendMap.value << "\n";
+    return os;
+}
 }  // namespace GameEngine

@@ -4,7 +4,7 @@
 const float EPSILON              = 0.00001f;
 const int MAX_SHADOW_MAP_CASADES = 4;
 const vec4 DEFAULT_COLOR         = vec4(0.8f, 0.8f, 0.8f, 1.f);
-const vec4 DEFAULT_NORMAL_COLOR  = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+const vec4 DEFAULT_NORMAL_COLOR  = vec4(0.5f, 0.5f, 1.0f, 1.0f); // tangent space vec4(0,0,1,1)
 const vec2 thresholds            = vec2(.9f, .3f);
 
 struct TerrainData
@@ -287,20 +287,18 @@ vec4 calculateBackgroundNormal(vec2 tiledCoords, float backTextureAmount)
 
 vec4 CalculateTerrainNormal(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
 {
-    if (NormalMaping())
+    if (!NormalMaping())
     {
-        vec4 backgorundNormalColor   = calculateBackgroundNormal(tiledCoords, backTextureAmount);
-        vec4 redNormalTextureColor   = normalColor(redTextureNormal, tiledCoords, perTerrainTextures.haveTextureR.y) * blendMapColor.r;
-        vec4 greenNormalTextureColor = normalColor(greenTextureNormal, tiledCoords, perTerrainTextures.haveTextureG.y) * blendMapColor.g;
-        vec4 blueNormalTextureColor  = normalColor(blueTextureNormal, tiledCoords, perTerrainTextures.haveTextureB.y) * blendMapColor.b;
-        vec4 alphaNormalTextureColor = normalColor(alphaTextureNormal, tiledCoords, perTerrainTextures.haveTextureA.y) * blendMapColor.a;
-        vec3 normal                  = CalcBumpedNormal(backgorundNormalColor + redNormalTextureColor + greenNormalTextureColor + blueNormalTextureColor + alphaNormalTextureColor);
-        return vec4(normal, 1.f); // w use fog
+        return vec4(normalize(fs_in.normal), 1.f);
     }
-    else
-    {
-       return vec4(normalize(fs_in.normal), 1.f);
-    }
+    
+    vec4 backgorundNormalColor   = calculateBackgroundNormal(tiledCoords, backTextureAmount);
+    vec4 redNormalTextureColor   = normalColor(redTextureNormal, tiledCoords, perTerrainTextures.haveTextureR.y) * blendMapColor.r;
+    vec4 greenNormalTextureColor = normalColor(greenTextureNormal, tiledCoords, perTerrainTextures.haveTextureG.y) * blendMapColor.g;
+    vec4 blueNormalTextureColor  = normalColor(blueTextureNormal, tiledCoords, perTerrainTextures.haveTextureB.y) * blendMapColor.b;
+    vec4 alphaNormalTextureColor = normalColor(alphaTextureNormal, tiledCoords, perTerrainTextures.haveTextureA.y) * blendMapColor.a;
+    vec3 normal                  = CalcBumpedNormal(backgorundNormalColor + redNormalTextureColor + greenNormalTextureColor + blueNormalTextureColor + alphaNormalTextureColor);
+    return vec4(normal, 1.f); // w use fog
 }
 
 TerrainData GetTerrainData()

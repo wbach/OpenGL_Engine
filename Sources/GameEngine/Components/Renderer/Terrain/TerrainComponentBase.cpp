@@ -348,6 +348,7 @@ void TerrainComponentBase::updateTerrainTextureBuffer()
 {
     updateTerrainTextureBufferData();
     componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(*perTerrainTexturesBuffer_);
+    LOG_DEBUG << "Updating perTerrainTexturesBuffer: " << perTerrainTexturesBuffer_->GetData();
 }
 
 void TerrainComponentBase::setTexture(Texture &texture, float, TerrainTextureType type)
@@ -510,6 +511,7 @@ void TerrainComponentBase::UnSubscribe()
 void TerrainComponentBase::updateTerrainTextureBufferData()
 {
     auto &bufferData = perTerrainTexturesBuffer_->GetData();
+    bufferData       = PerTerrainTexturesBuffer();
 
     for (const auto &terrainTexture : inputData_)
     {
@@ -517,59 +519,92 @@ void TerrainComponentBase::updateTerrainTextureBufferData()
         {
             case TerrainTextureType::heightmap:
                 break;
+
             case TerrainTextureType::blendMap:
                 bufferData.haveBlendMap = 1.f;
                 break;
+
             case TerrainTextureType::redTexture:
-                bufferData.haveTextureR.value.x = 1.f;
+                bufferData.haveTextureR.value.x      = 1.f;
+                bufferData.rgbaTextureScales.value.r = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::redTextureNormal:
-                bufferData.haveTextureR.value.y = 1.f;
+                bufferData.haveTextureR.value.y      = 1.f;
+                bufferData.rgbaTextureScales.value.r = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::redTextureDisplacement:
                 bufferData.haveTextureR.value.z      = 1.f;
                 bufferData.rgbaTextureScales.value.r = terrainTexture.tiledScale;
                 break;
+
             case TerrainTextureType::greenTexture:
-                bufferData.haveTextureG.value.x = 1.f;
+                bufferData.haveTextureG.value.x      = 1.f;
+                bufferData.rgbaTextureScales.value.g = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::greenTextureNormal:
-                bufferData.haveTextureG.value.y = 1.f;
+                bufferData.haveTextureG.value.y      = 1.f;
+                bufferData.rgbaTextureScales.value.g = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::greenTextureDisplacement:
                 bufferData.haveTextureG.value.z      = 1.f;
                 bufferData.rgbaTextureScales.value.g = terrainTexture.tiledScale;
                 break;
+
             case TerrainTextureType::blueTexture:
-                bufferData.haveTextureB.value.x = 1.f;
+                bufferData.haveTextureB.value.x      = 1.f;
+                bufferData.rgbaTextureScales.value.b = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::blueTextureNormal:
-                bufferData.haveTextureB.value.y = 1.f;
+                bufferData.haveTextureB.value.y      = 1.f;
+                bufferData.rgbaTextureScales.value.b = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::blueTextureDisplacement:
                 bufferData.haveTextureB.value.z      = 1.f;
                 bufferData.rgbaTextureScales.value.b = terrainTexture.tiledScale;
                 break;
+
             case TerrainTextureType::alphaTexture:
-                bufferData.haveTextureA.value.x = 1.f;
+                bufferData.haveTextureA.value.x      = 1.f;
+                bufferData.rgbaTextureScales.value.w = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::alphaTextureNormal:
-                bufferData.haveTextureA.value.y = 1.f;
+                bufferData.haveTextureA.value.y      = 1.f;
+                bufferData.rgbaTextureScales.value.w = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::alphaTextureDisplacement:
                 bufferData.haveTextureA.value.z      = 1.f;
                 bufferData.rgbaTextureScales.value.w = terrainTexture.tiledScale;
                 break;
+
             case TerrainTextureType::backgroundTexture:
-                bufferData.haveTextureBackground.value.x = 1.f;
+                bufferData.haveTextureBackground.value.x   = 1.f;
+                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::backgroundTextureNormal:
-                bufferData.haveTextureBackground.value.y = 1.f;
+                bufferData.haveTextureBackground.value.y   = 1.f;
+                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::backgroundTextureDisplacement:
                 bufferData.haveTextureBackground.value.z   = 1.f;
                 bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
                 break;
+
             case TerrainTextureType::rockTexture:
-                bufferData.haveTextureRock.value.x = 1.f;
+                bufferData.haveTextureRock.value.x         = 1.f;
+                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::rockTextureNormal:
-                bufferData.haveTextureRock.value.y = 1.f;
+                bufferData.haveTextureRock.value.y         = 1.f;
+                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                break;
             case TerrainTextureType::rockTextureDisplacement:
                 bufferData.haveTextureRock.value.z         = 1.f;
                 bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
                 break;
+
             default:
                 LOG_ERROR << "unknown texture type";
+                break;
         }
     }
 }

@@ -6,13 +6,13 @@
 #include <iostream>
 #include <string>
 
-#include "Engine/Configuration.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Engine/Engine.h"
 #include "GameEngine/Physics/Bullet/BulletAdapter.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/SceneFactoryBase.h"
+#include "GameEngine/Scene/SceneUtils.h"
 #include "Logger/Log.h"
-#include "Scene/SceneUtils.h"
 #include "TreeNode.h"
 
 using namespace GameEngine;
@@ -24,7 +24,6 @@ const std::string CSTR_ROOT_NODE{"projectConfiguration"};
 const std::string CSTR_STARTUP_SCENE_NODE{"startupScene"};
 const std::string CSTR_SCENES_NODE{"scenes"};
 }  // namespace
-
 
 void Start()
 {
