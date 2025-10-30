@@ -1,5 +1,4 @@
 set(WxEditorSources
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewerFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel.cpp
@@ -8,6 +7,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainToolPanel.
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainSelectionDialog.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TextureButton.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPickerPopup.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MyEvents.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeCtrl.cpp

@@ -12,8 +12,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TexturePickerPopu
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainToolPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainSelectionDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxKeyEventType.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViwerIcon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ThumbnailCache.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViwerIcon.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/LoadingDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog.h
@@ -22,7 +24,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxInputManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeCtrl.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxChoiceClientData/WxClientData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPickerPopup.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewerFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h

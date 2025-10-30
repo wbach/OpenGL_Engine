@@ -7,18 +7,12 @@
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Scene/SceneReader.h>
+#include <Input/KeyCodes.h>
+#include <Logger/Log.h>
+#include <Utils.h>
 #include <wx/defs.h>
 #include <wx/dnd.h>
-
-#if defined(__WXMSW__)
-#include <wx/filedlg.h>  // Windows, uzywa backendu MSW
-#elif defined(__WXGTK__)
-#include <wx/filedlg.h>  // Linux GTK, uzywa backendu GTK
-#elif defined(__WXOSX__)
-#include <wx/filedlg.h>  // macOS, Cocoa
-#else
-#error "Unsupported wxWidgets platform"
-#endif
+#include <wx/filedlg.h>
 #include <wx/filename.h>
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
@@ -30,67 +24,15 @@
 #include <sstream>
 #include <string>
 
+#include "AnimationFileDropTarget.h"
 #include "GameEngine/Components/FunctionType.h"
-#include "Input/KeyCodes.h"
-#include "Logger/Log.h"
-#include "ProjectManager.h"
-#include "Utils.h"
 #include "WxEditor/EditorUitls.h"
+#include "WxEditor/GLCanvas.h"
+#include "WxEditor/ProjectManager.h"
 
 namespace
 {
-class FileDropTarget : public wxFileDropTarget
-{
-public:
-    FileDropTarget(AnimationViewerFrame* panel)
-        : viewer(panel)
-    {
-    }
 
-    bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
-    {
-        LOG_DEBUG << "OnDropFiles";
-
-        if (!viewer)
-            return false;
-
-        if (filenames.empty())
-            return false;
-
-        if (filenames.size() > 1)
-        {
-            LOG_DEBUG << "Only one file is supported";
-        }
-
-        const auto& file = filenames[0].ToStdString();
-
-        LOG_DEBUG << "OnDropFiles: " << file;
-
-        if (std::filesystem::is_directory(file))
-        {
-            if (not viewer->isObjectSelcted())
-            {
-                wxMessageBox("Dropp folder, but model not set", "Warning", wxOK | wxICON_WARNING);
-                return false;
-            }
-            int answer = wxMessageBox("Dropp folder, search for animations there?", "Confirmation", wxYES_NO | wxICON_QUESTION);
-
-            if (answer == wxYES)
-            {
-                viewer->SearchAndAddClipsFromDir(file);
-            }
-        }
-        else
-        {
-            viewer->ShowModel(file);
-        }
-
-        return true;
-    }
-
-private:
-    AnimationViewerFrame* viewer;
-};
 }  // namespace
 
 AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -125,7 +67,7 @@ void AnimationViewerFrame::Init()
     auto selectItemInGameObjectTree = [](uint32, bool) {};
 
     canvas = new GLCanvas(mainSplitter, onStartupDone, selectItemInGameObjectTree, false);
-    canvas->SetDropTarget(new FileDropTarget(this));
+    canvas->SetDropTarget(new AnimationFileDropTarget(this));
 
     wxPanel* rightPanel    = new wxPanel(mainSplitter);
     wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);

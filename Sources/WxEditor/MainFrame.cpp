@@ -22,7 +22,7 @@
 #include <filesystem>
 #include <string>
 
-#include "AnimationViwerIcon.h"
+#include "AnimationViewer/AnimationViwerIcon.h"
 #include "BuildLogFrame.h"
 #include "ComponentPanel.h"
 #include "ComponentPickerPopup.h"

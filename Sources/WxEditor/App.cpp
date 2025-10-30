@@ -1,12 +1,13 @@
 
 #include "App.h"
 
-#include "AnimationViewerFrame.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
+#include <Utils.h>
+
+#include "AnimationViewer/AnimationViewerFrame.h"
 #include "MainFrame.h"
-#include "StartupDialog.h"
-#include "Utils.h"
 #include "MaterialEditorFrame.h"
+#include "StartupDialog.h"
 
 bool App::OnInit()
 {

@@ -1,4 +1,5 @@
 #pragma once
+#include <GameEngine/Resources/File.h>
 #include <Types.h>
 #include <wx/listbox.h>
 #include <wx/sizer.h>
@@ -9,10 +10,9 @@
 #include <optional>
 #include <string>
 
-#include "GLCanvas.h"
 #include "IdPool.h"
-#include <GameEngine/Resources/File.h>
 
+class GLCanvas;
 namespace GameEngine::Components
 {
 class Animator;
