@@ -15,8 +15,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Components/Renderer/Terrain/TerrainRendererComponent.h"
-
 namespace GameEngine
 {
 class Scene;

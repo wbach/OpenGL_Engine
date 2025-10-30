@@ -40,7 +40,7 @@
 
 #include "EditorUitls.h"
 #include "LoadingDialog.h"
-#include "Objects/GameObject.h"
+//#include "Objects/GameObject.h"
 #include "ProjectManager.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
