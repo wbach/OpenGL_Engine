@@ -34,7 +34,7 @@
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel.h"
-#include "TerrainToolPanel.h"
+#include "TerrainTool/TerrainToolPanel.h"
 #include "Theme.h"
 #include "TransformPanel.h"
 #include "magic_enum/magic_enum.hpp"

@@ -38,12 +38,12 @@
 #include <string>
 #include <vector>
 
-#include "EditorUitls.h"
-#include "LoadingDialog.h"
-#include "ProjectManager.h"
+#include "TerrainSelectionDialog.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
-#include "WxEditor/TerrainTool/TerrainSelectionDialog.h"
+#include "WxEditor/EditorUitls.h"
+#include "WxEditor/LoadingDialog.h"
+#include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxChoiceClientData/WxClientData.h"
 
 namespace
@@ -762,8 +762,8 @@ void TerrainToolPanel::OnClose(wxCommandEvent& event)
 void TerrainToolPanel::RefillTerrainObjectsCtrl()
 {
     generatorFields.gameObjectIdCtrl->Clear();
-    generatorFields.gameObjectIdCtrl->Append(
-        "Create new terrain object", new TerrainObjectClientData(GenerateTerrainTarget::newTerrain));
+    generatorFields.gameObjectIdCtrl->Append("Create new terrain object",
+                                             new TerrainObjectClientData(GenerateTerrainTarget::newTerrain));
     generatorFields.gameObjectIdCtrl->Append("Detect all terrain objects",
                                              new TerrainObjectClientData(GenerateTerrainTarget::forAllTerrains));
     DetectedTerrainGameObjectsAndAddToChoice();

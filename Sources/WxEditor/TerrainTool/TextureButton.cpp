@@ -5,7 +5,7 @@
 
 #include <optional>
 
-#include "ProjectManager.h"
+#include "WxEditor/ProjectManager.h"
 
 namespace
 {
