@@ -144,8 +144,6 @@ private:
     void OnBuildCmponents(wxCommandEvent&);
     void OnToggleTerrainPanel(wxCommandEvent&);
 
-    void RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process = nullptr);
-
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);
     void UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> = std::nullopt);

@@ -1338,114 +1338,19 @@ void MainFrame::OnToolAnimationViewer(wxCommandEvent&)
 void MainFrame::OnBuildCmponents(wxCommandEvent&)
 {
     LOG_DEBUG << "Build components";
-
-    std::string buildDir          = ProjectManager::GetInstance().GetProjectPath() + "/build";
-    std::string engineIncludesDir = ProjectManager::GetInstance().GetEngineIncludesDir();
-
-    if (not std::filesystem::exists(buildDir))
+    BuildComponentLogFrame::ReloadComponents reloadComponents = [this]()
     {
-        std::filesystem::create_directories(buildDir);
-    }
-    if (engineIncludesDir.empty())
-    {
-        wxLogMessage("engineIncludesDir is empty, check preferences settings. Should be path to engine repo");
-        return;
-    }
+        canvas->GetEngine().getExternalComponentsReader().ReloadAll();
+        RemoveAllComponentPanels();
 
-    LOG_DEBUG << "buildDir : " << buildDir;
-    LOG_DEBUG << "engineIncludesDir : " << engineIncludesDir;
-
-    auto* logFrame = new BuildComponentLogFrame(this);
-    logFrame->Show();
-
-    logFrame->AppendLine("BuildDir: " + buildDir, *wxLIGHT_GREY);
-    logFrame->AppendLine("EngineIncludesDir: " + engineIncludesDir, *wxLIGHT_GREY);
-
-    wxExecuteEnv env;
-    env.cwd = buildDir;
-
-    auto* processCmake = new BuildProcess(logFrame);
-
-    logFrame->Bind(wxEVT_IDLE,
-                   [processCmake](wxIdleEvent& evt)
-                   {
-                       std::lock_guard<std::mutex> lock(processCmake->GetMutex());
-                       if (processCmake->IsRedirected())
-                           processCmake->ReadOutput();
-                       evt.Skip();
-                   });
-
-    logFrame->Bind(
-        wxEVT_END_PROCESS,
-        [=](wxProcessEvent& evt)
+        if (auto gameObject = GetSelectedGameObject())
         {
-            std::lock_guard<std::mutex> lock(processCmake->GetMutex());
-            processCmake->ReadOutput();
-            processCmake->Stop();
-            projectPanel->RefreshAll();
+            AddGameObjectComponentsToView(*gameObject);
+        }
+    };
 
-            int exitCode = evt.GetExitCode();
-
-            if (exitCode == 0)
-            {
-                logFrame->AppendLine("? Build finished successfully.", *wxGREEN);
-            }
-            else
-            {
-                logFrame->AppendLine("? Build finished with errors.", *wxRED);
-            }
-
-            projectPanel->RefreshAll();
-
-            logFrame->CallAfter(
-                [this, exitCode, logFrame]()
-                {
-                    wxString msg =
-                        (exitCode == 0)
-                            ? "Components build finished successfully.\nDo you want to reload the libraries?"
-                            : "Components build finished, but some targets failed.\nDo you still want to reload the libraries?";
-
-                    int answer = wxMessageBox(msg, "Build Finished", wxYES_NO | wxICON_QUESTION, logFrame);
-
-                    if (answer == wxYES)
-                    {
-                        LOG_DEBUG << "Reloading components...";
-                        canvas->GetEngine().getExternalComponentsReader().ReloadAll();
-                        RemoveAllComponentPanels();
-
-                        if (auto gameObject = GetSelectedGameObject())
-                        {
-                            AddGameObjectComponentsToView(*gameObject);
-                        }
-                    }
-                });
-        });
-
-    std::string cmd;
-#if defined(_MSC_VER)
-    // MSVC / Windows
-    std::string solutionFile =
-        ProjectManager::GetInstance().GetProjectPath() + "\\" + ProjectManager::GetInstance().GetProjectName() + ".sln";
-    std::string vcvars = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\"";
-
-    cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile + " /t:Build /p:Configuration=Release /p:Platform=x64";
-#else
-    cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";
-#endif
-
-    RunCommand(cmd, buildDir, processCmake);
-}
-
-void MainFrame::RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process)
-{
-    wxExecuteEnv env;
-    env.cwd = workDir;
-
-    long pid = wxExecute(cmd, wxEXEC_ASYNC, process, &env);
-    if (pid == -1)
-    {
-        wxLogError("Failed to run command: %s", cmd);
-    }
+    auto* logFrame = new BuildComponentLogFrame(this, projectPanel, reloadComponents);
+    logFrame->Build();
 }
 
 void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
