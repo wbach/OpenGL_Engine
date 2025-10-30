@@ -5,7 +5,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/WxClientData.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/FileDropTarget.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ReloadComponentLibEvent.h
@@ -31,6 +30,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ControlsIds.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.h

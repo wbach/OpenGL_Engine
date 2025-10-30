@@ -13,14 +13,8 @@ class MaterialEditorFrame : public wxFrame
 public:
     MaterialEditorFrame(const std::optional<GameEngine::File>&, const wxString& title, const wxPoint& pos, const wxSize& size);
 
-    bool IsMaterialLoaded() const
-    {
-        return materialLoaded;
-    }
-    const GameEngine::Material& GetMaterial() const
-    {
-        return currentMaterial;
-    }
+    bool IsMaterialLoaded() const;
+    const GameEngine::Material& GetMaterial() const;
 
 private:
     void Init();

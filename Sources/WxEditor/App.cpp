@@ -6,7 +6,7 @@
 
 #include "AnimationViewer/AnimationViewerFrame.h"
 #include "MainFrame.h"
-#include "MaterialEditorFrame.h"
+#include "MaterialEditor/MaterialEditorFrame.h"
 #include "StartupDialog.h"
 
 bool App::OnInit()
