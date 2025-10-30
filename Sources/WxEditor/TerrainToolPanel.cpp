@@ -43,6 +43,8 @@
 #include "ProjectManager.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
+#include "WxEditor/TerrainTool/TerrainSelectionDialog.h"
+#include "WxEditor/WxChoiceClientData/WxClientData.h"
 
 namespace
 {
@@ -51,104 +53,13 @@ enum class BrushTypes
     Circle
 };
 
-class IntClientData : public wxClientData
+enum class GenerateTerrainTarget
 {
-public:
-    IntClientData(int value)
-        : m_value(value)
-    {
-    }
-    int GetValue() const
-    {
-        return m_value;
-    }
-
-private:
-    int m_value;
+    newTerrain,
+    forAllTerrains
 };
 
-class TerrainSelectionDialog : public wxDialog
-{
-public:
-    TerrainSelectionDialog(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
-                           const std::string& labelStr)
-        : wxDialog(parent, wxID_ANY, "Select", wxDefaultPosition, wxSize(300, 200))
-    {
-        wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-
-        wxStaticText* label = new wxStaticText(this, wxID_ANY, labelStr);
-        vbox->Add(label, 0, wxALL | wxCENTER, 10);
-
-        m_choice = new wxChoice(this, wxID_ANY);
-        m_choice->Append("All terrains", new IntClientData(-1));
-
-        auto terrains = componentController.GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
-        for (const auto& terrain : terrains)
-        {
-            const auto& parentGo = terrain->GetParentGameObject();
-            m_choice->Append(parentGo.GetName() + "(" + std::to_string(parentGo.GetId()) + ")",
-                             new IntClientData(parentGo.GetId()));
-        }
-
-        vbox->Add(m_choice, 0, wxALL | wxEXPAND, 10);
-        m_choice->SetSelection(0);
-
-        wxBoxSizer* hbox       = new wxBoxSizer(wxHORIZONTAL);
-        wxButton* okButton     = new wxButton(this, wxID_OK, "Yes");
-        wxButton* cancelButton = new wxButton(this, wxID_CANCEL, "No");
-        hbox->Add(okButton, 1, wxALL, 5);
-        hbox->Add(cancelButton, 1, wxALL, 5);
-
-        vbox->Add(hbox, 0, wxALIGN_CENTER);
-
-        SetSizer(vbox);
-        Centre();
-    }
-
-    wxString GetSelectionStr() const
-    {
-        return m_choice->GetStringSelection();
-    }
-
-    auto GetSelection() const
-    {
-        return m_choice->GetSelection();
-    }
-
-    wxChoice* GetChoice()
-    {
-        return m_choice;
-    }
-
-private:
-    wxChoice* m_choice;
-};
-
-class TerrainObjectClientData : public wxClientData
-{
-public:
-    enum class Method
-    {
-        createNewTerrainObject,
-        getAllTerrains
-    };
-
-    explicit TerrainObjectClientData(IdType value)
-        : value(value)
-    {
-    }
-    explicit TerrainObjectClientData(Method value)
-        : value(value)
-    {
-    }
-    std::variant<Method, IdType> GetValue() const
-    {
-        return value;
-    }
-
-private:
-    std::variant<Method, IdType> value;
-};
+using TerrainObjectClientData = WxClientData<std::variant<GenerateTerrainTarget, IdType>>;
 
 GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scene& scene)
 {
@@ -422,8 +333,8 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
                                    "Texture is used in some terrains. What change do you want to do?");
         if (dlg.ShowModal() == wxID_OK)
         {
-            auto selection      = dlg.GetChoice()->GetSelection();
-            IntClientData* data = dynamic_cast<IntClientData*>(dlg.GetChoice()->GetClientObject(selection));
+            auto selection = dlg.GetChoice()->GetSelection();
+            auto* data     = dynamic_cast<WxClientData<int>*>(dlg.GetChoice()->GetClientObject(selection));
             if (data)
             {
                 auto terrains =
@@ -465,8 +376,8 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         TerrainSelectionDialog dlg(this, scene.getComponentController(), "Do you wanna remove this texture from terrain?");
         if (dlg.ShowModal() == wxID_OK)
         {
-            auto selection      = dlg.GetChoice()->GetSelection();
-            IntClientData* data = dynamic_cast<IntClientData*>(dlg.GetChoice()->GetClientObject(selection));
+            auto selection = dlg.GetChoice()->GetSelection();
+            auto* data     = dynamic_cast<WxClientData<int>*>(dlg.GetChoice()->GetClientObject(selection));
             if (data)
             {
                 auto terrains =
@@ -852,9 +763,9 @@ void TerrainToolPanel::RefillTerrainObjectsCtrl()
 {
     generatorFields.gameObjectIdCtrl->Clear();
     generatorFields.gameObjectIdCtrl->Append(
-        "Create new terrain object", new TerrainObjectClientData(TerrainObjectClientData::Method::createNewTerrainObject));
+        "Create new terrain object", new TerrainObjectClientData(GenerateTerrainTarget::newTerrain));
     generatorFields.gameObjectIdCtrl->Append("Detect all terrain objects",
-                                             new TerrainObjectClientData(TerrainObjectClientData::Method::getAllTerrains));
+                                             new TerrainObjectClientData(GenerateTerrainTarget::forAllTerrains));
     DetectedTerrainGameObjectsAndAddToChoice();
     generatorFields.gameObjectIdCtrl->SetSelection(0);
 }
@@ -880,14 +791,14 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed)
             dynamic_cast<TerrainObjectClientData*>(generatorFields.gameObjectIdCtrl->GetClientObject(selectedGameObjectOptions));
         if (data)
         {
-            std::visit(visitor{[&](TerrainObjectClientData::Method method)
+            std::visit(visitor{[&](GenerateTerrainTarget method)
                                {
                                    switch (method)
                                    {
-                                       case TerrainObjectClientData::Method::createNewTerrainObject:
+                                       case GenerateTerrainTarget::newTerrain:
                                            CreateAndGenerateTerrain(updateNoiseSeed);
                                            break;
-                                       case TerrainObjectClientData::Method::getAllTerrains:
+                                       case GenerateTerrainTarget::forAllTerrains:
                                            GenerateForAllTerrains(updateNoiseSeed);
                                            break;
                                    }
