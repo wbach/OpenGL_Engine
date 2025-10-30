@@ -8,7 +8,7 @@
 
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 
-#include "WxEditor/GLCanvas.h"
+#include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 
@@ -397,4 +397,12 @@ void MaterialEditorFrame::LoadMaterial(const std::string& file)
     canvas->Refresh();
     UpdateMaterialInComponent();
     LOG_DEBUG << "Material loaded from: " << file;
+}
+bool MaterialEditorFrame::IsMaterialLoaded() const
+{
+    return materialLoaded;
+}
+const GameEngine::Material& MaterialEditorFrame::GetMaterial() const
+{
+    return currentMaterial;
 }

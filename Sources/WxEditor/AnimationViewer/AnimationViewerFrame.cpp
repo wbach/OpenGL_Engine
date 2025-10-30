@@ -26,7 +26,7 @@
 
 #include "AnimationFileDropTarget.h"
 #include "GameEngine/Components/FunctionType.h"
-#include "WxEditor/GLCanvas.h"
+#include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 

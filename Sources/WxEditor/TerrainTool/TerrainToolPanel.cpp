@@ -41,9 +41,9 @@
 #include "TerrainSelectionDialog.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
-#include "WxEditor/LoadingDialog.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
+#include "WxEditor/WxHelpers/LoadingDialog.h"
 #include "WxEditor/WxHelpers/WxClientData.h"
 
 namespace

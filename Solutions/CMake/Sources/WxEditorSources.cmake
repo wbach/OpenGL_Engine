@@ -2,7 +2,10 @@ set(WxEditorSources
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/FileDropTarget.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/ThumbnailCache.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/EditorUtils.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxOpenGLApiWrapper.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxOpenGLApiWrapper.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxWindowApi.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxInputManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPickerPopup.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/TransformPanel.cpp
@@ -16,10 +19,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/SceneTreeView/DisableHelper.c
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationViewerFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFileDropTarget.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/ProjectPanel.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/GLCanvas.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxEditorSceneDll.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxWindowApi.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxInputManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Theme.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.cpp

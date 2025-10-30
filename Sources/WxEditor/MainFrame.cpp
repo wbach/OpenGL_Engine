@@ -30,14 +30,14 @@
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
 #include "ControlsIds.h"
-#include "GLCanvas.h"
-#include "LoadingDialog.h"
 #include "OptionsFrame.h"
 #include "ProjectManager.h"
 #include "ProjectPanel/ProjectPanel.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "Theme.h"
+#include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
+#include "WxEditor/WxHelpers/LoadingDialog.h"
 
 #ifdef _WIN32
 #include <windows.h>
