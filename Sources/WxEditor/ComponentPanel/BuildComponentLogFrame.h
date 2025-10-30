@@ -1,3 +1,4 @@
+#pragma once
 #include <wx/frame.h>
 #include <wx/process.h>
 #include <wx/textctrl.h>
@@ -5,10 +6,10 @@
 
 #include <mutex>
 
-class BuildLogFrame : public wxFrame
+class BuildComponentLogFrame : public wxFrame
 {
 public:
-    BuildLogFrame(wxWindow* parent);
+    BuildComponentLogFrame(wxWindow* parent);
     void AppendLine(const wxString& line, const wxColour& colour = *wxBLACK);
 
 private:
@@ -18,20 +19,14 @@ private:
 class BuildProcess : public wxProcess
 {
 public:
-    BuildProcess(BuildLogFrame* log);
+    BuildProcess(BuildComponentLogFrame* log);
 
     void ReadOutput();
-    std::mutex& GetMutex()
-    {
-        return mutex;
-    }
-    void Stop()
-    {
-        isRunning = false;
-    }
+    std::mutex& GetMutex();
+    void Stop();
 
 private:
-    BuildLogFrame* log;
+    BuildComponentLogFrame* log;
     std::mutex mutex;
     bool isRunning{true};
 };

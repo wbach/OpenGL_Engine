@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxWindowApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxInputManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/BuildComponentLogFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPickerPopup.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/TransformPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ReloadComponentLibEvent.cpp
@@ -23,7 +24,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/AnimationViewer/AnimationFile
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/ProjectPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp

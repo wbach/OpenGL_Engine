@@ -12,6 +12,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ReloadComponentLibEvent.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/BuildComponentLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPickerPopup.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/TransformPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TextureButton.h
@@ -30,7 +31,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/ProjectPanel.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectPanel/model3d_icon.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/BuildLogFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ControlsIds.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.h

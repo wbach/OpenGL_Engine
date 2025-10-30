@@ -25,7 +25,7 @@
 #include <string>
 
 #include "AnimationViewer/AnimationViwerIcon.h"
-#include "BuildLogFrame.h"
+#include "ComponentPanel/BuildComponentLogFrame.h"
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
@@ -1354,7 +1354,7 @@ void MainFrame::OnBuildCmponents(wxCommandEvent&)
     LOG_DEBUG << "buildDir : " << buildDir;
     LOG_DEBUG << "engineIncludesDir : " << engineIncludesDir;
 
-    auto* logFrame = new BuildLogFrame(this);
+    auto* logFrame = new BuildComponentLogFrame(this);
     logFrame->Show();
 
     logFrame->AppendLine("BuildDir: " + buildDir, *wxLIGHT_GREY);

@@ -1,10 +1,10 @@
-#include "BuildLogFrame.h"
+#include "BuildComponentLogFrame.h"
 
+#include <Types.h>
 #include <wx/settings.h>
 #include <wx/utils.h>
-#include <Types.h>
 
-BuildProcess::BuildProcess(BuildLogFrame* log)
+BuildProcess::BuildProcess(BuildComponentLogFrame* log)
     : wxProcess(log)
     , log(log)
 {
@@ -44,15 +44,23 @@ void BuildProcess::ReadOutput()
     }
 }
 
-BuildLogFrame::BuildLogFrame(wxWindow* parent)
+BuildComponentLogFrame::BuildComponentLogFrame(wxWindow* parent)
     : wxFrame(parent, wxID_ANY, "Build Log", wxDefaultPosition, wxSize(800, 600))
 {
     textCtrl = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,
                               wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxHSCROLL);
 }
 
-void BuildLogFrame::AppendLine(const wxString& line, const wxColour& colour)
+void BuildComponentLogFrame::AppendLine(const wxString& line, const wxColour& colour)
 {
     textCtrl->SetDefaultStyle(wxTextAttr(colour));
     textCtrl->AppendText(line + "\n");
+}
+std::mutex& BuildProcess::GetMutex()
+{
+    return mutex;
+}
+void BuildProcess::Stop()
+{
+    isRunning = false;
 }
