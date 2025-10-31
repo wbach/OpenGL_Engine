@@ -809,7 +809,7 @@ wxTreeItemId ProjectPanel::FindTreeItemByPath(wxTreeItemId parent, const wxStrin
 void ProjectPanel::CreateFilePanel(wxBoxSizer* mainSizer)
 {
     filePanel = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL);
-    fileSizer = new wxWrapSizer(wxHORIZONTAL, wxWRAPSIZER_DEFAULT_FLAGS);
+    fileSizer = new wxWrapSizer(wxHORIZONTAL, wxREMOVE_LEADING_SPACES);
     filePanel->SetSizer(fileSizer);
     filePanel->SetScrollRate(10, 10);
 
