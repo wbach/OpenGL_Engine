@@ -20,7 +20,7 @@ public:
     OpenGLApi(std::unique_ptr<GraphicsApi::IWindowApi>);
     ~OpenGLApi();
     void Init() override;
-    void SetShadersFilesLocations(const std::string& path) override;
+    void SetShadersFilesLocations(const std::filesystem::path&) override;
     void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
     void CreateContext() override;
     void DeleteContext() override;

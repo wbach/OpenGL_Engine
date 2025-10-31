@@ -81,7 +81,7 @@ void createScenesFile(const File& inputFile, const std::unordered_map<std::strin
     }
     Utils::Json::Write(inputFile.GetAbsolutePath().string(), rootNode);
 }
-void createScenesFile(const File& inputFile, const std::unordered_map<std::string, std::string>& scenes,
+void createScenesFile(const File& inputFile, const std::unordered_map<std::string, std::filesystem::path>& scenes,
                       const std::string& startupScene)
 {
     TreeNode rootNode(CSTR_ROOT_NODE);

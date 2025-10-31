@@ -41,7 +41,7 @@ std::string GetCacheLocationFromString(const std::string& str)
     return str;
 }
 
-std::string GetShaderLocationFromString(const std::string& str)
+std::filesystem::path GetShaderLocationFromString(const std::string& str)
 {
     if (str.empty())
         return DEFAULT_SHADERS_PATH;
@@ -83,11 +83,11 @@ std::string GetFullDataPath(const std::string& fileName, bool addToRequierd)
     return path;
 }
 
-std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd)
+std::filesystem::path GetFullShaderPath(const std::string& file_name, bool addToRequierd)
 {
-    auto path = EngineConf.files.shaders + file_name;
+    auto path = EngineConf.files.shaders / file_name;
     if (addToRequierd)
-        requiredFiles.push_back(path);
+        requiredFiles.push_back(path.string());
     return path;
 }
 
@@ -101,8 +101,8 @@ std::string GetFilePatch(const std::string& file_full_path)
 
     if (data_index == std::string::npos)
     {
-        data_index = file_full_path.find(EngineConf.files.shaders);
-        size       = EngineConf.files.shaders.size();
+        data_index = file_full_path.find(EngineConf.files.shaders.string());
+        size       = EngineConf.files.shaders.string().size();
     }
     if (data_index == std::string::npos)
     {

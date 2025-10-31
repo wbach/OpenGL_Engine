@@ -90,7 +90,6 @@ private:
 
     // --- Eventy ---
     void OnTreeSelChanged(wxTreeEvent& e);
-    void OnFileActivated(wxListEvent& e);
 
     void SelectTreeItemByPath(const wxString&);
     wxTreeItemId FindTreeItemByPath(wxTreeItemId parent, const wxString& path);

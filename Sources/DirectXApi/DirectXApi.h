@@ -10,7 +10,7 @@ public:
     DirectXApi();
     ~DirectXApi();
     void Init() override;
-    void SetShadersFilesLocations(const std::string& path) override;
+    void SetShadersFilesLocations(const std::filesystem::path&) override;
     void SetShaderQuaility(GraphicsApi::ShaderQuaility) override;
     void CreateContext() override;
     void DeleteContext() override;
@@ -115,6 +115,6 @@ private:
 private:
     float bgColor_[4];
     Color bgColor;
-    std::string shadersFileLocation_;
+    std::filesystem::path shadersFileLocation_;
 };
 }  // namespace DirectX

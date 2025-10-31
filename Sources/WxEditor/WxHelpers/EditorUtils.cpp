@@ -98,7 +98,7 @@ wxString GetParentPath(const wxString& currentFolderPath)
 void runAnimationViewer(const std::string& extraParam)
 {
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --animationViewer " +
-                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath() + " " + extraParam;
+                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath().string() + " " + extraParam;
 
     LOG_DEBUG << cmd;
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
@@ -113,7 +113,7 @@ void runAnimationViewer(const std::string& extraParam)
 void runMaterialEditor(const std::string& extraParam)
 {
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --materialEditor " +
-                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath() + " " + extraParam;
+                      "--projectPath " + ProjectManager::GetInstance().GetProjectPath().string() + " " + extraParam;
 
     LOG_DEBUG << cmd;
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);

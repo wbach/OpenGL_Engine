@@ -20,7 +20,25 @@
 
 namespace GameEngine
 {
-std::string getConfigFile()
+std::filesystem::path getGlobalConfigDirPath()
+{
+#ifdef USE_GNU
+    struct passwd* pw = getpwuid(getuid());
+    return            = std::string(pw->pw_dir) + "/.config/bengine/";
+#else
+    wchar_t myDocumentsPath[1024];
+    HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
+    if (SUCCEEDED(hr))
+    {
+        char str[1024];
+        wcstombs(str, myDocumentsPath, 1023);
+        return std::string(str) + "\\bengine\\";
+    }
+#endif
+    return "";
+}
+
+std::filesystem::path getConfigFile()
 {
     std::string configFile("./Conf.xml");
     if (std::filesystem::exists(configFile))
@@ -30,24 +48,11 @@ std::string getConfigFile()
     if (std::filesystem::exists(configFile))
         return configFile;
 
-#ifdef USE_GNU
-    struct passwd* pw = getpwuid(getuid());
-    configFile        = std::string(pw->pw_dir) + "/.config/bengine/Conf.xml";
-#else
-    wchar_t myDocumentsPath[1024];
-    HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
-    if (SUCCEEDED(hr))
-    {
-        char str[1024];
-        wcstombs(str, myDocumentsPath, 1023);
-        configFile = std::string(str) + "\\bengine\\Conf.xml";
-    }
-#endif
-    return configFile;
+    return getGlobalConfigDirPath() / "Conf.xml";
 }
 
 ConfigurationReader::ConfigurationReader()
-    : ConfigurationReader(getConfigFile())
+    : ConfigurationReader(getConfigFile().string())
 {
 }
 ConfigurationReader::ConfigurationReader(const std::string& filename)

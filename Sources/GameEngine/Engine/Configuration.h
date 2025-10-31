@@ -13,11 +13,11 @@
 #include "ConfigurationParams/WindowParams/WindowParams.h"
 #include "LoD.h"
 
-const std::string DEFAULT_DATA_PATH          = "../Data/";
-const std::string DEFAULT_SHADERS_PATH       = "../Sources/";
-const std::string DEFAULT_CACHE_PATH         = "../Cache/";
-const std::string DEFAULT_USER_DIR_PATH      = "../User/";
-const std::string DEFAULT_REQUIRED_FILE_NAME = "required_files.inf";
+const std::string DEFAULT_DATA_PATH              = "../Data/";
+const std::filesystem::path DEFAULT_SHADERS_PATH = "../Sources/";
+const std::string DEFAULT_CACHE_PATH             = "../Cache/";
+const std::string DEFAULT_USER_DIR_PATH          = "../User/";
+const std::string DEFAULT_REQUIRED_FILE_NAME     = "required_files.inf";
 
 namespace GameEngine
 {
@@ -26,7 +26,7 @@ namespace Params
 struct Files
 {
     std::string data                    = DEFAULT_DATA_PATH;
-    std::string shaders                 = DEFAULT_SHADERS_PATH;
+    std::filesystem::path shaders       = DEFAULT_SHADERS_PATH;
     std::string cache                   = DEFAULT_CACHE_PATH;
     std::string userDir                 = DEFAULT_USER_DIR_PATH;
     std::string requiredFilesOutputFile = DEFAULT_REQUIRED_FILE_NAME;
@@ -62,11 +62,11 @@ void ReadFromFile(const std::string& filename);
 void CreateDefaultFile(const std::string& filename);
 std::string RemoveDataPath(const std::string&);
 std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
-std::string GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
+std::filesystem::path GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
 std::string GetFilePatch(const std::string& file_full_path);
 std::string GetDataLocationFromString(const std::string& str);
 std::string GetCacheLocationFromString(const std::string& str);
-std::string GetShaderLocationFromString(const std::string& str);
+std::filesystem::path GetShaderLocationFromString(const std::string&);
 std::string GetRelativeDataPath(const std::string&);
 }  // namespace GameEngine
 

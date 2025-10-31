@@ -120,10 +120,10 @@ void StartupDialog::OnNewProject(wxCommandEvent&)
     projectManager.SetProjectName(name);
     projectManager.SaveRecentProject(projectPath);
 
-    GameEngine::CreateDefaultFile(projectManager.GetConfigFile());
+    GameEngine::CreateDefaultFile(projectManager.GetConfigFile().string());
     GameEngine::createScenesFile(projectManager.GetScenesFactoryFile());
 
-    std::ofstream out(projectManager.GetProjectPath() + "CMakeLists.txt");
+    std::ofstream out(projectManager.GetProjectPath() / "CMakeLists.txt");
     if (out)
     {
         out << projectCMakeTemplate;
@@ -135,7 +135,7 @@ void StartupDialog::OnNewProject(wxCommandEvent&)
 void StartupDialog::OnOpenProject(wxCommandEvent&)
 {
     auto& pm = ProjectManager::GetInstance();
-    wxDirDialog dirDlg(this, "Choose project folder:", pm.GetProjectPath(), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxDirDialog dirDlg(this, "Choose project folder:", pm.GetProjectPath().string(), wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
 
     if (dirDlg.ShowModal() != wxID_OK)
         return;
@@ -156,7 +156,7 @@ void StartupDialog::ReadSceneFactoryFile()
     Utils::JsonReader jsonReader;
 
     // wxMessageBox(pm.GetScenesFactoryFile());
-    if (jsonReader.Read(pm.GetScenesFactoryFile()))
+    if (jsonReader.Read(pm.GetScenesFactoryFile().string()))
     {
         const std::string CSTR_ROOT_NODE{"projectConfiguration"};
         const std::string CSTR_STARTUP_SCENE_NODE{"startupScene"};
@@ -192,7 +192,7 @@ void StartupDialog::ReadSceneFactoryFile()
     else
     {
         LOG_DEBUG << "ReadSceneFactoryFile failed: " << pm.GetScenesFactoryFile();
-        wxMessageBox(pm.GetScenesFactoryFile());
+        wxMessageBox(pm.GetScenesFactoryFile().string());
     }
 }
 void StartupDialog::OnExit(wxCommandEvent&)

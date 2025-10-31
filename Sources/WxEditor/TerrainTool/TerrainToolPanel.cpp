@@ -920,7 +920,7 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional
 
 void TerrainToolPanel::ImportFromMesh()
 {
-    wxFileDialog openFileDialog(this, "Open mesh to terrain import", ProjectManager::GetInstance().GetDataDir(), "",
+    wxFileDialog openFileDialog(this, "Open mesh to terrain import", ProjectManager::GetInstance().GetDataDir().string(), "",
                                 "Mesh file (*.obj)|*.obj|All files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
@@ -932,7 +932,7 @@ void TerrainToolPanel::ImportFromMesh()
         {
             const auto& file = openFileDialog.GetPath().ToStdString();
 
-            wxFileDialog saveFileDialog(this, "Save new height map as", ProjectManager::GetInstance().GetDataDir(), "",
+            wxFileDialog saveFileDialog(this, "Save new height map as", ProjectManager::GetInstance().GetDataDir().string(), "",
                                         "Terrain files (*.terrain)|*.terrain|All files (*.*)|*.*", wxFD_SAVE);
 
             if (saveFileDialog.ShowModal() == wxID_CANCEL)

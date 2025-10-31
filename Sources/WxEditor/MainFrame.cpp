@@ -235,7 +235,7 @@ void MainFrame::Init()
 
     // === Dol: ProjectPanel ===
     auto fileSelectedCallback = [this](const wxString& str) { OnFileActivated(str); };
-    projectPanel = new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath(), fileSelectedCallback);
+    projectPanel = new ProjectPanel(leftSplitter, ProjectManager::GetInstance().GetProjectPath().string(), fileSelectedCallback);
 
     // Lewy splitter: gora (tree+canvas+panel), dol (projectPanel)
     leftSplitter->SplitHorizontally(topSplitter, projectPanel, size.y * 3 / 5);
@@ -446,7 +446,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
         }
     }
 
-    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir(), "",
+    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir().string(), "",
                                 "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
     if (openFileDialog.ShowModal() == wxID_CANCEL)
@@ -597,7 +597,7 @@ void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
 
 void MainFrame::MenuEditCreateMaterial(wxCommandEvent&)
 {
-    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetDataDir(), "",
+    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetDataDir().string(), "",
                             "Pliki materialow (*.json)|*.json", wxFD_SAVE);
 
     if (fileDialog.ShowModal() == wxID_CANCEL)
@@ -692,7 +692,7 @@ void MainFrame::MenuEditMaterialEditor(wxCommandEvent&)
 
 void MainFrame::MenuEditLoadPrefab(wxCommandEvent&)
 {
-    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath(), "",
+    wxFileDialog openFileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath().string(), "",
                                 "Pliki prefab (*.prefab)|*.prefab|Pliki prefab (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*",
                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
@@ -1310,7 +1310,7 @@ void MainFrame::OnToolStart(wxCommandEvent& event)
 
     std::string cmd = "\"" + wxStandardPaths::Get().GetExecutablePath().ToStdString() + "\" --scene \"" +
                       sceneFile.GetAbsolutePath().string() + "\" " + "--projectPath " +
-                      ProjectManager::GetInstance().GetProjectPath();
+                      ProjectManager::GetInstance().GetProjectPath().string();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_NOHIDE | wxEXEC_NODISABLE);
     if (pid == 0)
@@ -1401,7 +1401,7 @@ void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
 
 bool MainFrame::SaveSceneAs()
 {
-    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir(), "",
+    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir().string(), "",
                             "Pliki sceny (*.xml)|*.xml|Wszystkie pliki (*.*)|*.*", wxFD_SAVE);
 
     if (fileDialog.ShowModal() == wxID_CANCEL)

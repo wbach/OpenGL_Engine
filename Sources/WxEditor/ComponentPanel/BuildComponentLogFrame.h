@@ -4,6 +4,7 @@
 #include <wx/txtstrm.h>
 
 #include <functional>
+#include <filesystem>
 
 class ProjectPanel;
 
@@ -17,7 +18,7 @@ public:
     void AppendLine(const wxString& line, const wxColour& colour = *wxBLACK);
 
 private:
-    void RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process);
+    void RunCommand(const std::string&, const std::filesystem::path&, wxProcess*);
 
 private:
     wxTextCtrl* textCtrl;

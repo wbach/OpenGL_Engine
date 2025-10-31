@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "Engine/EngineContext.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Renderers/RenderersManager.h"

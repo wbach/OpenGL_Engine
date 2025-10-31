@@ -124,7 +124,7 @@ void AnimationViewerFrame::CreateMainMenu()
         wxEVT_MENU,
         [this](wxCommandEvent&)
         {
-            wxFileDialog dlg(this, "Open mode", ProjectManager::GetInstance().GetProjectPath());
+            wxFileDialog dlg(this, "Open mode", ProjectManager::GetInstance().GetProjectPath().string());
             if (dlg.ShowModal() == wxID_OK)
             {
                 wxString path = dlg.GetPath();
@@ -427,7 +427,7 @@ void AnimationViewerFrame::CreatePrefab(wxCommandEvent& event)
         return;
     }
 
-    auto isModelInProjectDir = Utils::IsFileExistsInDir(ProjectManager::GetInstance().GetProjectPath(),
+    auto isModelInProjectDir = Utils::IsFileExistsInDir(ProjectManager::GetInstance().GetProjectPath().string(),
                                                         currentGameObject->currentModelFile->GetAbsolutePath().string());
     if (not isModelInProjectDir)
     {
@@ -487,7 +487,7 @@ void AnimationViewerFrame::ImportCurrentObject()
         return;
     }
 
-    wxFileDialog fileDialog(this, "Choose prefab file", ProjectManager::GetInstance().GetProjectPath(),
+    wxFileDialog fileDialog(this, "Choose prefab file", ProjectManager::GetInstance().GetProjectPath().string(),
                             currentGameObject->currentModelFile->GetFilename(), "Wszystkie pliki (*.*)|*.*",
                             wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
@@ -627,5 +627,5 @@ std::string AnimationViewerFrame::GetStartupDialogPathBasedOnCurrent() const
 {
     return currentGameObject->currentModelFile.has_value()
                ? currentGameObject->currentModelFile->GetAbsolutePath().parent_path().string()
-               : ProjectManager::GetInstance().GetProjectPath();
+               : ProjectManager::GetInstance().GetProjectPath().string();
 }

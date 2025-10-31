@@ -27,8 +27,8 @@ void BuildComponentLogFrame::AppendLine(const wxString& line, const wxColour& co
 
 void BuildComponentLogFrame::Build()
 {
-    std::string buildDir          = ProjectManager::GetInstance().GetProjectPath() + "/build";
-    std::string engineIncludesDir = ProjectManager::GetInstance().GetEngineIncludesDir();
+    auto buildDir          = ProjectManager::GetInstance().GetProjectPath() / "build";
+    auto engineIncludesDir = ProjectManager::GetInstance().GetEngineIncludesDir();
 
     if (not std::filesystem::exists(buildDir))
     {
@@ -45,8 +45,8 @@ void BuildComponentLogFrame::Build()
 
     Show();
 
-    AppendLine("BuildDir: " + buildDir, *wxLIGHT_GREY);
-    AppendLine("EngineIncludesDir: " + engineIncludesDir, *wxLIGHT_GREY);
+    AppendLine("BuildDir: " + buildDir.string(), *wxLIGHT_GREY);
+    AppendLine("EngineIncludesDir: " + engineIncludesDir.string(), *wxLIGHT_GREY);
 
     wxExecuteEnv env;
     env.cwd = buildDir;
@@ -107,11 +107,12 @@ void BuildComponentLogFrame::Build()
     std::string cmd;
 #if defined(_MSC_VER)
     // MSVC / Windows
-    std::string solutionFile =
-        ProjectManager::GetInstance().GetProjectPath() + "\\" + ProjectManager::GetInstance().GetProjectName() + ".sln";
+    std::filesystem::path solutionFile =
+        ProjectManager::GetInstance().GetProjectPath() / ProjectManager::GetInstance().GetProjectName() / ".sln";
+
     std::string vcvars = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat\"";
 
-    cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile + " /t:Build /p:Configuration=Release /p:Platform=x64";
+    cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile.string() + " /t:Build /p:Configuration=Release /p:Platform=x64";
 #else
     cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";
 #endif
@@ -119,7 +120,7 @@ void BuildComponentLogFrame::Build()
     RunCommand(cmd, buildDir, processCmake);
 }
 
-void BuildComponentLogFrame::RunCommand(const std::string& cmd, const std::string& workDir, wxProcess* process)
+void BuildComponentLogFrame::RunCommand(const std::string& cmd, const std::filesystem::path& workDir, wxProcess* process)
 {
     wxExecuteEnv env;
     env.cwd = workDir;

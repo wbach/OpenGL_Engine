@@ -127,7 +127,7 @@ void TextureButton::OnClick(wxMouseEvent&)
 
 std::optional<GameEngine::File> TextureButton::SelectFileDialog()
 {
-    wxFileDialog openFile(this, "Select Texture", ProjectManager::GetInstance().GetDataDir(), "",
+    wxFileDialog openFile(this, "Select Texture", ProjectManager::GetInstance().GetDataDir().string(), "",
                           "Images (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (openFile.ShowModal() == wxID_OK)
     {

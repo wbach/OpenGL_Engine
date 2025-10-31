@@ -11,6 +11,7 @@
 
 #include "OpenGLShaderProgram.h"
 #include "Types.h"
+#include <filesystem>
 
 namespace OpenGLApi
 {
@@ -22,7 +23,7 @@ public:
     ShaderManager(IdPool& idPool);
     void UseShader(uint32);
     void UseDeprectedShaders();
-    void SetShadersFilesLocations(const std::string& path);
+    void SetShadersFilesLocations(const std::filesystem::path&);
     GraphicsApi::ID Create(GraphicsApi::ShaderProgramType);
     void DeleteShader(uint32 programId);
     void SetShaderQuaility(GraphicsApi::ShaderQuaility);
@@ -41,7 +42,7 @@ private:
     bool useDeprectedShaders_;
     uint32 currentShader_;
     IdPool& idPool_;
-    std::string shadersFileLocation_;
+    std::filesystem::path shadersFileLocation_;
     GraphicsApi::ShaderQuaility shaderQuality_;
     std::unordered_map<GLuint, OpenGLShaderProgram> shaderPrograms_;
 };

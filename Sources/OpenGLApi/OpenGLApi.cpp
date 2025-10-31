@@ -210,7 +210,7 @@ void OpenGLApi::Init()
 
     LOG_DEBUG << "Init done.";
 }
-void OpenGLApi::SetShadersFilesLocations(const std::string& path)
+void OpenGLApi::SetShadersFilesLocations(const std::filesystem::path& path)
 {
     impl_->shaderManager_.SetShadersFilesLocations(path);
 }

@@ -2,6 +2,7 @@
 #include <Types.h>
 #include <Utils/Image/Image.h>
 
+#include <filesystem>
 #include <array>
 #include <functional>
 #include <optional>
@@ -39,7 +40,7 @@ public:
 
     virtual IWindowApi& GetWindowApi()                                                        = 0;
     virtual void Init()                                                                       = 0;
-    virtual void SetShadersFilesLocations(const std::string&)                                 = 0;
+    virtual void SetShadersFilesLocations(const std::filesystem::path&)                       = 0;
     virtual void SetShaderQuaility(ShaderQuaility)                                            = 0;
     virtual void CreateContext()                                                              = 0;
     virtual void DeleteContext()                                                              = 0;

@@ -239,7 +239,7 @@ wxBoxSizer* MaterialEditorFrame::AddTexturePicker(wxPanel* parent, wxBoxSizer* s
                     [this, outTextCtrl, onTextureChanged](wxCommandEvent&)
                     {
                         wxFileDialog openFileDialog(this, _("Choose texture file"),
-                                                    ProjectManager::GetInstance().GetProjectPath(), "",
+                                                    ProjectManager::GetInstance().GetProjectPath().string(), "",
                                                     "Image files (*.png;*.jpg;*.tga)|*.png;*.jpg;*.tga|All files (*.*)|*.*",
                                                     wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
@@ -284,7 +284,7 @@ void MaterialEditorFrame::CreateMainMenu()
 
 void MaterialEditorFrame::OnOpenMaterial(wxCommandEvent&)
 {
-    wxFileDialog openFileDialog(this, "Open Material file", ProjectManager::GetInstance().GetProjectPath(), "",
+    wxFileDialog openFileDialog(this, "Open Material file", ProjectManager::GetInstance().GetProjectPath().string(), "",
                                 "Material files (*.material)|*.material|Material files (*.json)|*.json|All files (*.*)|*.*",
                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
@@ -304,7 +304,7 @@ void MaterialEditorFrame::OnOpenMaterial(wxCommandEvent&)
 
 void MaterialEditorFrame::OnSaveMaterial(wxCommandEvent&)
 {
-    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath(), "",
+    wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetProjectPath().string(), "",
                             "Material files (*.material)|*.material|Material files (*.json)|*.json|All files (*.*)|*.*",
                             wxFD_SAVE);
 

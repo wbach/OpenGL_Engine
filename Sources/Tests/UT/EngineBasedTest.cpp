@@ -3,10 +3,10 @@
 #include <future>
 #include <memory>
 
-#include "Engine/EngineContext.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "Logger/Log.h"
-#include "Resources/Models/WBLoader/IModelLoaderFactory.h"
-#include "Resources/ResourceManager.h"
+#include "GameEngine/Resources/Models/WBLoader/IModelLoaderFactory.h"
+#include "GameEngine/Resources/ResourceManager.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/ResourceManagerFactoryMock.h"

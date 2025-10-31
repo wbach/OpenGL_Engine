@@ -16,5 +16,5 @@ void createAndSavePrefab(const File&, const GameObject&);
 GameObject* cloneGameObject(Scene&, const GameObject&);
 void createScenesFile(const File&);
 void createScenesFile(const File&, const std::unordered_map<std::string, File>&, const std::string&);
-void createScenesFile(const File&, const std::unordered_map<std::string, std::string>&, const std::string&);
+void createScenesFile(const File&, const std::unordered_map<std::string, std::filesystem::path>&, const std::string&);
 }  // namespace GameEngine

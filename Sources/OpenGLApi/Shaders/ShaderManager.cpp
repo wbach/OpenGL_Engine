@@ -49,9 +49,9 @@ void ShaderManager::UseShader(uint32 id)
     glUseProgram(glId);
 }
 
-void ShaderManager::SetShadersFilesLocations(const std::string& path)
+void ShaderManager::SetShadersFilesLocations(const std::filesystem::path& path)
 {
-    shadersFileLocation_ = path + "OpenGLApi/GLSL/";
+    shadersFileLocation_ = path / "OpenGLApi" / "GLSL";
 }
 
 std::optional<GLuint> ShaderManager::CreateShaderProgram()
@@ -110,14 +110,9 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
 
 bool ShaderManager::AddShader(OpenGLShaderProgram& shaderProgram, const std::string& filename, GraphicsApi::ShaderType mode)
 {
-    if (not shadersFileLocation_.empty() and shadersFileLocation_.back() != '/')
-    {
-        shadersFileLocation_ += '/';
-    }
+    auto fullPath = shadersFileLocation_ / filename;
 
-    auto fullPath = shadersFileLocation_ + filename;
-
-    std::string source = Utils::ReadFilesWithIncludes(fullPath);
+    std::string source = Utils::ReadFilesWithIncludes(fullPath.string());
 
     uint32 id;
     id = glCreateShader(shaderTypeMap.at(mode));

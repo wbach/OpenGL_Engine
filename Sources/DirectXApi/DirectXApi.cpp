@@ -424,9 +424,9 @@ void DirectXApi::SetRenderTargets()
     impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView, impl_->dxCondext_.depthStencilView);
 }
 
-void DirectXApi::SetShadersFilesLocations(const std::string &path)
+void DirectXApi::SetShadersFilesLocations(const std::filesystem::path &path)
 {
-    shadersFileLocation_ = path + "DirectXApi/HLSL/";
+    shadersFileLocation_ = path / "DirectXApi" / "HLSL";
 }
 void DirectXApi::SetShaderQuaility(GraphicsApi::ShaderQuaility)
 {
@@ -494,13 +494,13 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
 
     DxShader shader;
 
-    auto vsShaderFileName = shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER);
+    auto vsShaderFileName = shadersFileLocation_ / filenames.at(GraphicsApi::ShaderType::VERTEX_SHADER);
     LOG_DEBUG << "Compiling " << vsShaderFileName << "...";
-    auto hr = CompileShaderFromFile(vsShaderFileName, "VS", "vs_4_0", &shader.blob_.vertex_);
+    auto hr = CompileShaderFromFile(vsShaderFileName.string(), "VS", "vs_4_0", &shader.blob_.vertex_);
 
     if (FAILED(hr))
     {
-        auto failResult = "Vertex sheder can not be compiled. " + vsShaderFileName;
+        auto failResult = "Vertex sheder can not be compiled. " + vsShaderFileName.string();
         MessageBoxA(NULL, failResult.c_str(), "Error", MB_OK);
         return {};
     }
@@ -508,7 +508,7 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
                                                    shader.blob_.vertex_->GetBufferSize(), NULL, &shader.vertex_);
     if (FAILED(hr))
     {
-        auto failResult = vsShaderFileName + " create vertex shader error";
+        auto failResult = vsShaderFileName.string() + " create vertex shader error";
         MessageBoxA(NULL, failResult.c_str(), __FUNCTION__, MB_OK);
         shader.blob_.Release();
         return {};
@@ -538,13 +538,13 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
 
     impl_->dxCondext_.devcon->IASetInputLayout(shader.vertexLayout_);
 
-    auto fragmentShaderFile = shadersFileLocation_ + filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER);
+    auto fragmentShaderFile = shadersFileLocation_ / filenames.at(GraphicsApi::ShaderType::FRAGMENT_SHADER);
     LOG_DEBUG << "Compiling " << fragmentShaderFile << "...";
-    hr = CompileShaderFromFile(fragmentShaderFile, "PS", "ps_4_0", &shader.blob_.pixel_);
+    hr = CompileShaderFromFile(fragmentShaderFile.string(), "PS", "ps_4_0", &shader.blob_.pixel_);
 
     if (FAILED(hr))
     {
-        auto fail = "Fragment sheder can not be compiled. " + fragmentShaderFile;
+        auto fail = "Fragment sheder can not be compiled. " + fragmentShaderFile.string();
         MessageBoxA(NULL, fail.c_str(), "Error", MB_OK);
         return {};
     }

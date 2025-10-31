@@ -17,7 +17,7 @@ public:
 
     MOCK_METHOD(IWindowApi&, GetWindowApi, (), (override));
     MOCK_METHOD(void, Init, (), (override));
-    MOCK_METHOD(void, SetShadersFilesLocations, (const std::string&), (override));
+    MOCK_METHOD(void, SetShadersFilesLocations, (const std::filesystem::path&), (override));
     MOCK_METHOD(void, SetShaderQuaility, (ShaderQuaility), (override));
     MOCK_METHOD(void, CreateContext, (), (override));
     MOCK_METHOD(void, DeleteContext, (), (override));

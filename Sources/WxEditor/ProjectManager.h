@@ -1,4 +1,5 @@
 #pragma once
+
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Engine/ConfigurationReader.h>
 #include <GameEngine/Engine/ConfigurationWriter.h>
@@ -7,6 +8,7 @@
 #include <Utils/Json/JsonWriter.h>
 #include <Utils/TreeNode.h>
 #include <wx/config.h>
+#include <wx/wx.h>
 
 #include <filesystem>
 #include <string>
@@ -22,302 +24,63 @@ public:
         std::string path;
     };
 
-    // Singleton pattern (optional, if you want a single global manager)
-    static ProjectManager& GetInstance()
-    {
-        static ProjectManager instance;
-        return instance;
-    }
+    static ProjectManager& GetInstance();
 
-    // Set current project directory
-    void SetProjectPath(const std::string& path)
-    {
-        projectPath                  = path;
-        lastOpenedPath               = path;
-        projectEditorConfigFilePath  = path + "/editorConfig.json";
-        projectConfigPath            = path + "/config.xml";
-        projectScenesFactoryFilePath = path + "/scenes.json";
-        projectScenesDirPath         = path + "/Scenes/";
-        projectDataDirPath           = path + "/Data/";
-        projectComponentsDirPath     = projectDataDirPath + "Components/";
-        projectCachePath             = path + "/.cache/";
+    void SetProjectName(const std::string&);
+    void SetEngineIncludesDir(const std::filesystem::path&);
+    void SetProjectPath(const std::filesystem::path&);
+    void CreateDirectories();
 
-        CreateDirectories();
+    void AddScene(const std::string& scene, const std::string&);
+    void SetSenePath(const std::string& scene, const std::filesystem::path&);
+    void RemoveScene(const std::string& scene);
+    const std::unordered_map<std::string, std::filesystem::path>& GetScenes() const;
 
-        GameEngine::ConfigurationReader reader(projectConfigPath);
+    void Clear();
 
-        bool needUpdate{false};
-        if (EngineConf.files.data != projectDataDirPath)
-        {
-            EngineConf.files.data = projectDataDirPath;
-            needUpdate            = true;
-        }
-        if (EngineConf.files.cache != projectCachePath)
-        {
-            EngineConf.files.cache = projectCachePath;
-            needUpdate             = true;
-        }
+    const std::string& GetProjectName() const;
+    const std::filesystem::path& GetProjectPath() const;
+    const std::filesystem::path& GetComponentsDirPath() const;
+    const std::filesystem::path& GetLastOpenedPath() const;
+    const std::filesystem::path& GetConfigFile() const;
+    const std::filesystem::path& GetScenesFactoryFile() const;
+    const std::filesystem::path& GetScenesDir() const;
+    const std::filesystem::path& GetDataDir() const;
+    const std::filesystem::path& GetEngineIncludesDir() const;
+    std::filesystem::path& GetEngineIncludesDir();
 
-        if (needUpdate)
-        {
-            GameEngine::WriteConfigurationToFile(EngineConf);
-        }
+    std::vector<RecentProject> GetRecentProjects();
+    void SaveRecentProject(const std::string& path);
+    void RemoveRecentProject(const std::string& path);
 
-        if (std::filesystem::exists(projectEditorConfigFilePath))
-        {
-            ReadEditorConfig();
-        }
-        else
-        {
-            SaveEditorConfig();
-        }
-    }
+    void SetStartupScene(const std::string& name);
+    const std::string& GetStartupScene() const;
 
-    void CreateDirectories()
-    {
-        createDirIfNotExist(projectPath);
-        createDirIfNotExist(projectScenesDirPath);
-        createDirIfNotExist(projectDataDirPath);
-        createDirIfNotExist(projectComponentsDirPath);
-        createDirIfNotExist(projectCachePath);
-    }
-
-    // Get current project directory
-    const std::string& GetProjectPath() const
-    {
-        return projectPath;
-    }
-
-    const std::string& GetComponentsDirPath() const
-    {
-        return projectComponentsDirPath;
-    }
-
-    // Set project name
-    void SetProjectName(const std::string& name)
-    {
-        projectName = name;
-    }
-
-    // Get project name
-    const std::string& GetProjectName() const
-    {
-        return projectName;
-    }
-
-    // Get last opened path
-    const std::string& GetLastOpenedPath() const
-    {
-        return lastOpenedPath;
-    }
-
-    // Add scene to the project
-    void AddScene(const std::string& scene, const std::string& file)
-    {
-        scenes.insert({scene, file});
-        SaveSceneFiles();
-    }
-
-    void SetSenePath(const std::string& scene, const std::string& file)
-    {
-        scenes[scene] = file;
-        SaveSceneFiles();
-    }
-
-    void RemoveScene(const std::string& scene)
-    {
-        scenes.erase(scene);
-        SaveSceneFiles();
-    }
-
-    // Get all scenes
-    const std::unordered_map<std::string, std::string>& GetScenes() const
-    {
-        return scenes;
-    }
-
-    // Clear all project data (for example, when closing project)
-    void Clear()
-    {
-        projectPath.clear();
-        projectName.clear();
-        scenes.clear();
-    }
-
-    const std::string& GetConfigFile() const
-    {
-        return projectConfigPath;
-    }
-
-    const std::string& GetScenesFactoryFile() const
-    {
-        return projectScenesFactoryFilePath;
-    }
-
-    const std::string& GetScenesDir() const
-    {
-        return projectScenesDirPath;
-    }
-
-    const std::string& GetDataDir() const
-    {
-        return projectDataDirPath;
-    }
-
-    const std::string& GetEngineIncludesDir() const
-    {
-        return engineIncludesDir;
-    }
-
-    std::string& GetEngineIncludesDir()
-    {
-        return engineIncludesDir;
-    }
-
-    void SetEngineIncludesDir(const std::string& dir)
-    {
-        engineIncludesDir = dir;
-    }
-
-    std::vector<RecentProject> GetRecentProjects()
-    {
-        wxConfig config("MyEditor");
-        std::vector<RecentProject> result;
-
-        long count = config.ReadLong("Recent/Count", 0);
-        for (long i = 0; i < count; i++)
-        {
-            wxString key;
-            key.Printf("Recent/Project%ld", i);
-
-            wxString wxPath = config.Read(key, "");
-            if (!wxPath.IsEmpty())
-            {
-                std::string path = wxPath.ToStdString();
-
-                if (not path.empty() && (path.back() == '/' or path.back() == '\\'))
-                    path.pop_back();
-
-                // wyciagamy nazwe projektu z folderu
-                size_t lastSlash = path.find_last_of("/\\");
-                std::string name = (lastSlash != std::string::npos) ? path.substr(lastSlash + 1) : path;
-
-                auto normalizedSlashesPath = std::filesystem::path(path).make_preferred().string();
-                result.push_back({name, normalizedSlashesPath});
-            }
-        }
-        return result;
-    }
-
-    void SaveRecentProject(const std::string& path)
-    {
-        wxConfig config("MyEditor");
-
-        // Pobieramy ostatnie projekty
-        std::vector<RecentProject> projects = GetRecentProjects();
-
-        // Usun duplikaty po sciezce
-        projects.erase(
-            std::remove_if(projects.begin(), projects.end(), [&path](const RecentProject& p) { return p.path == path; }),
-            projects.end());
-
-        // Dodaj nowy projekt na poczatek
-        projects.insert(projects.begin(), {"", path});
-
-        // Zachowaj tylko 10 ostatnich
-        if (projects.size() > 10)
-            projects.resize(10);
-
-        // Zapisz do wxConfig
-        config.Write("Recent/Count", (long)projects.size());
-        for (size_t i = 0; i < projects.size(); i++)
-        {
-            wxString key;
-            key.Printf("Recent/Project%zu", i);
-            config.Write(key, wxString(projects[i].path));
-        }
-
-        config.Flush();
-    }
-
-    void RemoveRecentProject(const std::string& path)
-    {
-        wxConfig config("MyEditor");
-        auto recents = GetRecentProjects();
-        recents.erase(std::remove_if(recents.begin(), recents.end(), [&path](const RecentProject& p) { return p.path == path; }),
-                      recents.end());
-
-        config.Write("Recent/Count", (long)recents.size());
-        for (size_t i = 0; i < recents.size(); i++)
-        {
-            wxString key;
-            key.Printf("Recent/Project%zu", i);
-            config.Write(key, wxString(recents[i].path));
-        }
-        config.Flush();
-    }
-
-    void SetStartupScene(const std::string& name)
-    {
-        startupscene = name;
-        SaveSceneFiles();
-    }
-
-    const std::string& GetStartupScene() const
-    {
-        return startupscene;
-    }
-
-    void SaveSceneFiles()
-    {
-        GameEngine::createScenesFile(projectScenesFactoryFilePath, scenes, startupscene);
-    }
-
-    void SaveEditorConfig()
-    {
-        TreeNode node("editorConfig");
-        node.addChild("engineIncludesDir", engineIncludesDir);
-        Utils::Json::Write(projectEditorConfigFilePath, node);
-    }
-
-    void ReadEditorConfig()
-    {
-        Utils::JsonReader json;
-        json.Read(projectEditorConfigFilePath);
-        if (auto engineIncludesDirNode = json.Get("engineIncludesDir"))
-        {
-            engineIncludesDir = engineIncludesDirNode->value_;
-        }
-    }
+    void SaveSceneFiles();
+    void SaveEditorConfig();
+    void ReadEditorConfig();
 
 private:
     ProjectManager()  = default;
     ~ProjectManager() = default;
 
-    // Prevent copying
     ProjectManager(const ProjectManager&)            = delete;
     ProjectManager& operator=(const ProjectManager&) = delete;
 
-    void createDirIfNotExist(const std::string& dir)
-    {
-        if (not std::filesystem::exists(dir))
-        {
-            std::filesystem::create_directory(dir);
-        }
-    }
+    void createDirIfNotExist(const std::filesystem::path&);
 
 private:
-    std::string projectPath;
-    std::string projectConfigPath;
-    std::string projectScenesFactoryFilePath;
-    std::string projectCachePath;
-    std::string projectScenesDirPath;
-    std::string projectDataDirPath;
-    std::string projectComponentsDirPath;
-    std::string projectEditorConfigFilePath;
-    std::string lastOpenedPath;
+    std::filesystem::path projectPath;
+    std::filesystem::path projectConfigPath;
+    std::filesystem::path projectScenesFactoryFilePath;
+    std::filesystem::path projectCachePath;
+    std::filesystem::path projectScenesDirPath;
+    std::filesystem::path projectDataDirPath;
+    std::filesystem::path projectComponentsDirPath;
+    std::filesystem::path projectEditorConfigFilePath;
+    std::filesystem::path lastOpenedPath;
     std::string projectName;
     std::string startupscene;
-    std::string engineIncludesDir;
-    std::unordered_map<std::string, std::string> scenes;
+    std::filesystem::path engineIncludesDir;
+    std::unordered_map<std::string, std::filesystem::path> scenes;
 };

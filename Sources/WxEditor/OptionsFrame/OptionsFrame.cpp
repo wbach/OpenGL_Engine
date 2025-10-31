@@ -249,9 +249,9 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
     std::vector<PathOption> paths = {
         {"Data path:", EngineConf.files.data, saveConfig},
-        {"Shader path:", EngineConf.files.shaders, saveConfig},
+        {"Shader path:", EngineConf.files.shaders.string(), saveConfig},
         {"Cache path:", EngineConf.files.cache, saveConfig},
-        {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir(), saveEditorConfig}};
+        {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir().string(), saveEditorConfig}};
 
     for (auto& pathOpt : paths)
     {
@@ -410,7 +410,8 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
         rowSizer->Add(new wxStaticText(parent, wxID_ANY, sceneName), 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
         // TextCtrl pokazujacy sciezke
-        wxTextCtrl* pathCtrl = new wxTextCtrl(parent, wxID_ANY, scenePath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+        wxTextCtrl* pathCtrl =
+            new wxTextCtrl(parent, wxID_ANY, scenePath.string(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
         rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
 
         // Przyciski "Browse" i "Remove"
@@ -424,7 +425,8 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
         browseBtn->Bind(wxEVT_BUTTON,
                         [=](wxCommandEvent&)
                         {
-                            wxFileDialog dlg(parent, "Select scene file", ProjectManager::GetInstance().GetProjectPath(), "",
+                            wxFileDialog dlg(parent, "Select scene file", ProjectManager::GetInstance().GetProjectPath().string(),
+                                             "",
                                              "*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                             if (dlg.ShowModal() == wxID_OK)
                             {
