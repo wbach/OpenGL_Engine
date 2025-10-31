@@ -140,7 +140,7 @@ void ReadFromFile(const std::filesystem::path& filename)
     }
 
     AddRequiredFile(filename);
-    EngineConf.filename = filename.filename().string();
+    EngineConf.filename = filename.string();
 }
 std::filesystem::path RemoveDataPath(const std::filesystem::path& path)
 {
