@@ -13,7 +13,7 @@ BuildProcess::BuildProcess(BuildComponentLogFrame* log)
 
 void BuildProcess::ReadOutput()
 {
-    if (not isRunning)
+    if (!isRunning)
         return;
 
     if (!IsRedirected())
