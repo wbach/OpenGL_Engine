@@ -54,50 +54,6 @@ std::vector<std::string> SplitString(const std::string& s, char split_char)
     return tokens;
 }
 
-std::string ReadFileBinary(const std::string& file_name)
-{
-    std::ifstream t(file_name, std::ios::binary);
-    if (!t.is_open())
-    {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cannot open file : " + file_name);
-        return std::string();
-    }
-    std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-    t.close();
-    return out;
-}
-
-std::string ReadFile(const std::string& file_name)
-{
-    std::ifstream t(file_name);
-    if (!t.is_open())
-    {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cannot open file : " + file_name);
-        return std::string();
-    }
-    std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-    t.close();
-    return out;
-}
-
-std::vector<std::string> ReadFileLines(const std::string& file_name)
-{
-    std::vector<std::string> output;
-    std::ifstream f(file_name);
-    if (!f.is_open())
-    {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cannot open file : " + file_name);
-        return output;
-    }
-
-    std::string line;
-
-    while (std::getline(f, line))
-        output.push_back(line);
-
-    f.close();
-    return output;
-}
 
 void WrtieToFile(const std::string& filename, const std::string& content)
 {
@@ -207,7 +163,7 @@ int NextP2(int a)
         rval <<= 1;
     return rval;
 }
-bool CheckFileExist(const std::string& file)
+bool CheckFileExist(const std::filesystem::path& file)
 {
     std::ifstream f(file);
     bool exist = f.is_open();

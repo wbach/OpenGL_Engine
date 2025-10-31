@@ -14,9 +14,10 @@ namespace GameEngine
 {
 namespace WBLoader
 {
-std::string CreateBinPath(const std::string& filename)
+std::filesystem::path CreateBinPath(const std::filesystem::path& filename)
 {
-    return EngineConf.files.data + "/Binary/" + filename + ".bin";
+    auto tmpName = filename;
+    return EngineConf.files.data / tmpName.replace_extension(".bin");
 }
 template <class T>
 void WriteToFile(std::fstream& file, const std::vector<T>& v)

@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
+#include <filesystem>
 
 namespace GameEngine
 {
 struct Configuration;
-void ReadConfiguration(Configuration& configuration, const std::string& filename);
+void ReadConfiguration(Configuration& configuration, const std::filesystem::path& filename);
 }  // namespace GameEngine

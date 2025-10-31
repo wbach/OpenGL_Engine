@@ -69,9 +69,9 @@ bool IsFileExistsInDir(const std::string& directory, const std::string& filename
     return false;
 }
 
-std::vector<std::string> FindFilesWithExtension(const std::string& dir, const std::string& extension)
+std::vector<std::filesystem::path> FindFilesWithExtension(const std::filesystem::path& dir, const std::string& extension)
 {
-    std::vector<std::string> result;
+    std::vector<std::filesystem::path> result;
 
     try
     {
@@ -94,7 +94,7 @@ std::vector<std::string> FindFilesWithExtension(const std::string& dir, const st
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Find files error. searching files with extension : " + extension + " in dir : " + dir);
+        LOG_ERROR << "Find files error. searching files with extension : " << extension << " in dir : " << dir;
     }
 
     return result;
@@ -198,7 +198,7 @@ std::string GetCurrentDir()
     return Utils::ReplaceSlash(std::filesystem::path(std::filesystem::current_path()).string());
 }
 
-std::string GetAbsolutePath(const std::string& file)
+std::filesystem::path GetAbsolutePath(const std::filesystem::path& file)
 {
     try
     {
@@ -206,12 +206,12 @@ std::string GetAbsolutePath(const std::string& file)
     }
     catch (const std::filesystem::filesystem_error& e)
     {
-        /* LOG TO FIX*/  LOG_ERROR << (e.what());
+        LOG_ERROR << e.what();
         return file;
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("error " + file);
+        LOG_ERROR << "error " << file;
         return file;
     }
 }
@@ -224,17 +224,17 @@ std::string GetAbsoluteParentPath(const std::string& file)
     }
     catch (const std::filesystem::filesystem_error& e)
     {
-        /* LOG TO FIX*/  LOG_ERROR << (e.what());
+        /* LOG TO FIX*/ LOG_ERROR << (e.what());
         return file;
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("error " + file);
+        /* LOG TO FIX*/ LOG_ERROR << ("error " + file);
         return file;
     }
 }
 
-bool DirectoryExist(const std::string& pathDir)
+bool DirectoryExist(const std::filesystem::path& pathDir)
 {
     try
     {
@@ -270,7 +270,7 @@ bool IsRelativePath(const std::string& path)
     }
 }
 
-std::string GetRelativePath(const std::string& absoultePath, const std::string& workingPath)
+std::filesystem::path GetRelativePath(const std::filesystem::path& absoultePath, const std::filesystem::path& workingPath)
 {
     try
     {
@@ -278,12 +278,12 @@ std::string GetRelativePath(const std::string& absoultePath, const std::string& 
     }
     catch (const std::filesystem::filesystem_error& e)
     {
-        /* LOG TO FIX*/  LOG_ERROR << (e.what());
+        LOG_ERROR << e.what();
         return absoultePath;
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("error " + absoultePath);
+        LOG_ERROR << "error " << absoultePath;
         return absoultePath;
     }
 }
@@ -297,24 +297,24 @@ std::string CreateBackupFile(const std::string& output)
             auto backupFile = output + ".backup";
             if (std::filesystem::exists(backupFile))
             {
-                /* LOG TO FIX*/  LOG_ERROR << ("Remove old backup file " + backupFile);
+                /* LOG TO FIX*/ LOG_ERROR << ("Remove old backup file " + backupFile);
                 std::filesystem::remove(backupFile);
             }
 
             std::filesystem::copy(output, backupFile);
-            /* LOG TO FIX*/  LOG_ERROR << ("Backup created. " + backupFile);
+            /* LOG TO FIX*/ LOG_ERROR << ("Backup created. " + backupFile);
             return backupFile;
         }
         catch (...)
         {
-            /* LOG TO FIX*/  LOG_ERROR << ("Create backup error. " + output);
+            /* LOG TO FIX*/ LOG_ERROR << ("Create backup error. " + output);
         }
     }
 
     return {};
 }
 
-void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& output)
+void ReadFilesWithIncludesImpl(const std::filesystem::path& fullPath, std::stringstream& output)
 {
     const std::string includeStr{"#include"};
 
@@ -331,7 +331,7 @@ void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& o
 
             if (startFileNamePos >= endNamePos)
             {
-                /* LOG TO FIX*/  LOG_ERROR << (fullPath + " : inncorect include line : " + line);
+                LOG_ERROR << fullPath << " : inncorect include line : " << line;
                 continue;
             }
 
@@ -356,7 +356,7 @@ void ReadFilesWithIncludesImpl(const std::string& fullPath, std::stringstream& o
     }
 }
 
-std::string ReadFilesWithIncludes(const std::string& filename)
+std::string ReadFilesWithIncludes(const std::filesystem::path& filename)
 {
     std::stringstream sourceCode;
     try
@@ -365,11 +365,11 @@ std::string ReadFilesWithIncludes(const std::string& filename)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << (filename + " including error");
+        LOG_ERROR << filename << " including error";
     }
     return sourceCode.str();
 }
-void CreateEmptyFile(const std::string& filename)
+void CreateEmptyFile(const std::filesystem::path& filename)
 {
     try
     {
@@ -379,8 +379,52 @@ void CreateEmptyFile(const std::string& filename)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Create file error : " + filename);
+        LOG_ERROR << "Create file error : " << filename;
     }
+}
+std::string ReadFileBinary(const std::filesystem::path& file_name)
+{
+    std::ifstream t(file_name, std::ios::binary);
+    if (!t.is_open())
+    {
+        LOG_ERROR << "Cannot open file : " << file_name;
+        return std::string();
+    }
+    std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    t.close();
+    return out;
+}
+
+std::string ReadFile(const std::filesystem::path& file_name)
+{
+    std::ifstream t(file_name);
+    if (!t.is_open())
+    {
+        LOG_ERROR << "Cannot open file : " << file_name;
+        return std::string();
+    }
+    std::string out = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    t.close();
+    return out;
+}
+
+std::vector<std::string> ReadFileLines(const std::filesystem::path& file_name)
+{
+    std::vector<std::string> output;
+    std::ifstream f(file_name);
+    if (!f.is_open())
+    {
+        LOG_ERROR << "Cannot open file : " << file_name;
+        return output;
+    }
+
+    std::string line;
+
+    while (std::getline(f, line))
+        output.push_back(line);
+
+    f.close();
+    return output;
 }
 void RenameFile(const std::string& path, const std::string& newName)
 {
@@ -390,7 +434,7 @@ void RenameFile(const std::string& path, const std::string& newName)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("rename error");
+        /* LOG TO FIX*/ LOG_ERROR << ("rename error");
     }
 }
 void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::path& destFolder)

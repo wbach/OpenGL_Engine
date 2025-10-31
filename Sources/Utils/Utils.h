@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <filesystem>
 
 namespace Utils
 {
@@ -21,7 +22,7 @@ std::string ReplaceSlash(const std::string& str);
 void RemoveSlashes(std::string& str);
 std::string RemoveSlashes(const std::string&);
 int NextP2(int a);
-bool CheckFileExist(const std::string& file);
+bool CheckFileExist(const std::filesystem::path&);
 bool CheckExtension(const std::string& file, const std::string& ext);
 // catch exception and log
 float StringToFloat(const std::string& str);

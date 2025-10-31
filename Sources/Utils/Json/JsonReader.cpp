@@ -104,7 +104,7 @@ void ParseNode(const rapidjson::Value& value, TreeNode& node)
 }  // namespace
 namespace Utils
 {
-bool JsonReader::Read(const std::string& filename)
+bool JsonReader::Read(const std::filesystem::path& filename)
 {
     try
     {

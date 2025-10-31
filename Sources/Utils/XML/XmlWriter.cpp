@@ -80,9 +80,9 @@ public:
         return root_->AddNode(name, value);
     }
 
-    void Save(const std::string& filename) const
+    void Save(const std::filesystem::path& filename) const
     {
-        std::ofstream file(filename.c_str());
+        std::ofstream file(filename);
         if (!file.is_open())
         {
             LOG_ERROR << "cannot open file " << filename;
@@ -126,7 +126,7 @@ void WriteNode(const TreeNode& node, XmlNodeWrapper& nodeWrapper)
     WroteNodeMembers(node, child);
 }
 
-void Xml::Write(const std::string& filename, const TreeNode& root)
+void Xml::Write(const std::filesystem::path& filename, const TreeNode& root)
 {
     auto parentPath = std::filesystem::path(filename).parent_path();
     if (not std::filesystem::exists(parentPath))

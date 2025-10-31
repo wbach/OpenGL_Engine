@@ -13,11 +13,11 @@
 #include "ConfigurationParams/WindowParams/WindowParams.h"
 #include "LoD.h"
 
-const std::string DEFAULT_DATA_PATH              = "../Data/";
-const std::filesystem::path DEFAULT_SHADERS_PATH = "../Sources/";
-const std::string DEFAULT_CACHE_PATH             = "../Cache/";
-const std::string DEFAULT_USER_DIR_PATH          = "../User/";
-const std::string DEFAULT_REQUIRED_FILE_NAME     = "required_files.inf";
+const std::filesystem::path DEFAULT_DATA_PATH          = "../Data/";
+const std::filesystem::path DEFAULT_SHADERS_PATH       = "../Sources/";
+const std::filesystem::path DEFAULT_CACHE_PATH         = "../Cache/";
+const std::filesystem::path DEFAULT_USER_DIR_PATH      = "../User/";
+const std::filesystem::path DEFAULT_REQUIRED_FILE_NAME = "required_files.inf";
 
 namespace GameEngine
 {
@@ -25,13 +25,13 @@ namespace Params
 {
 struct Files
 {
-    std::string data                    = DEFAULT_DATA_PATH;
-    std::filesystem::path shaders       = DEFAULT_SHADERS_PATH;
-    std::string cache                   = DEFAULT_CACHE_PATH;
-    std::string userDir                 = DEFAULT_USER_DIR_PATH;
-    std::string requiredFilesOutputFile = DEFAULT_REQUIRED_FILE_NAME;
-    std::string loadingScreenCircleTexture{"GUI/aLoadingCircle.png"};
-    std::string loadingScreenBackgroundTexture{"GUI/dark3.png"};
+    std::filesystem::path data                    = DEFAULT_DATA_PATH;
+    std::filesystem::path shaders                 = DEFAULT_SHADERS_PATH;
+    std::filesystem::path cache                   = DEFAULT_CACHE_PATH;
+    std::filesystem::path userDir                 = DEFAULT_USER_DIR_PATH;
+    std::filesystem::path requiredFilesOutputFile = DEFAULT_REQUIRED_FILE_NAME;
+    std::filesystem::path loadingScreenCircleTexture{"GUI/aLoadingCircle.png"};
+    std::filesystem::path loadingScreenBackgroundTexture{"GUI/dark3.png"};
 };
 
 struct DebugParams
@@ -57,17 +57,17 @@ struct Configuration
 };
 
 void SaveRequiredFiles();
-void AddRequiredFile(const std::string& file);
-void ReadFromFile(const std::string& filename);
-void CreateDefaultFile(const std::string& filename);
-std::string RemoveDataPath(const std::string&);
-std::string GetFullDataPath(const std::string& file_name, bool addToRequierd = true);
-std::filesystem::path GetFullShaderPath(const std::string& file_name, bool addToRequierd = true);
-std::string GetFilePatch(const std::string& file_full_path);
-std::string GetDataLocationFromString(const std::string& str);
-std::string GetCacheLocationFromString(const std::string& str);
+void AddRequiredFile(const std::filesystem::path&);
+void ReadFromFile(const std::filesystem::path&);
+void CreateDefaultFile(const std::filesystem::path&);
+std::filesystem::path RemoveDataPath(const std::filesystem::path&);
+std::filesystem::path GetFullDataPath(const std::filesystem::path&, bool addToRequierd = true);
+std::filesystem::path GetFullShaderPath(const std::filesystem::path&, bool addToRequierd = true);
+std::filesystem::path GetFilePatch(const std::filesystem::path&);
+std::filesystem::path GetDataLocationFromString(const std::string&);
+std::filesystem::path GetCacheLocationFromString(const std::string&);
 std::filesystem::path GetShaderLocationFromString(const std::string&);
-std::string GetRelativeDataPath(const std::string&);
+std::filesystem::path GetRelativeDataPath(const std::filesystem::path&);
 }  // namespace GameEngine
 
 #define EngineConf SingleTon<GameEngine::Configuration>::Get()

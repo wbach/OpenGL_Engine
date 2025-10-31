@@ -240,7 +240,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     struct PathOption
     {
         std::string label;
-        std::string& value;
+        std::filesystem::path& value;
         std::function<void()> save;
     };
 
@@ -249,25 +249,25 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
 
     std::vector<PathOption> paths = {
         {"Data path:", EngineConf.files.data, saveConfig},
-        {"Shader path:", EngineConf.files.shaders.string(), saveConfig},
+        {"Shader path:", EngineConf.files.shaders, saveConfig},
         {"Cache path:", EngineConf.files.cache, saveConfig},
-        {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir().string(), saveEditorConfig}};
+        {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir(), saveEditorConfig}};
 
     for (auto& pathOpt : paths)
     {
         folderSizer->Add(new wxStaticText(panel, wxID_ANY, pathOpt.label), 0, wxALL, 5);
 
-        wxDirPickerCtrl* dirPicker = new wxDirPickerCtrl(panel, wxID_ANY, pathOpt.value, "Select a folder");
+        wxDirPickerCtrl* dirPicker = new wxDirPickerCtrl(panel, wxID_ANY, pathOpt.value.string(), "Select a folder");
         folderSizer->Add(dirPicker, 0, wxEXPAND | wxALL, 5);
 
-        wxStaticText* pathDisplay = new wxStaticText(panel, wxID_ANY, pathOpt.value);
+        wxStaticText* pathDisplay = new wxStaticText(panel, wxID_ANY, pathOpt.value.string());
         folderSizer->Add(pathDisplay, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
         dirPicker->Bind(wxEVT_DIRPICKER_CHANGED,
                         [&, option = pathOpt, dirPicker, pathDisplay](wxFileDirPickerEvent& event)
                         {
                             option.value = dirPicker->GetPath().ToStdString();
-                            pathDisplay->SetLabel(option.value);
+                            pathDisplay->SetLabel(option.value.string());
                             option.save();
                         });
     }
@@ -282,7 +282,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
     struct TextureOption
     {
         std::string label;
-        std::string& path;
+        std::filesystem::path& path;
     };
 
     std::vector<TextureOption> textures = {{"Loading screen background:", EngineConf.files.loadingScreenBackgroundTexture},
@@ -293,7 +293,8 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
         wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
         // pole tekstowe do wyswietlania sciezki
-        wxTextCtrl* pathCtrl = new wxTextCtrl(panel, wxID_ANY, texOpt.path, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+        wxTextCtrl* pathCtrl =
+            new wxTextCtrl(panel, wxID_ANY, texOpt.path.string(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
         rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
 
         // przycisk "Browse"
@@ -305,7 +306,7 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
         // Miniatura
         wxImage img;
         if (!texOpt.path.empty())
-            img.LoadFile(EngineConf_GetFullDataPath(texOpt.path), wxBITMAP_TYPE_ANY);
+            img.LoadFile(EngineConf_GetFullDataPath(texOpt.path).string(), wxBITMAP_TYPE_ANY);
         wxStaticBitmap* thumbnail =
             new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(100, 100)) : wxNullBitmap);
         textureSizer->Add(thumbnail, 0, wxALL, 5);
@@ -314,16 +315,16 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
         browseBtn->Bind(wxEVT_BUTTON,
                         [=, text = texOpt](wxCommandEvent&)
                         {
-                            wxString startDir = EngineConf.files.data;  // katalog startowy
+                            wxString startDir = EngineConf.files.data.string();
                             wxFileDialog dlg(panel, "Select texture", startDir, "", "*.png;*.jpg;*.bmp",
                                              wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
                             if (dlg.ShowModal() == wxID_OK)
                             {
-                                text.path = dlg.GetPath().ToStdString();  // aktualizacja wartosci
-                                pathCtrl->SetValue(dlg.GetPath());        // aktualizacja pola
+                                text.path = dlg.GetPath().ToStdString();
+                                pathCtrl->SetValue(dlg.GetPath());
                                 wxImage newImg;
-                                if (newImg.LoadFile(EngineConf_GetFullDataPath(text.path), wxBITMAP_TYPE_ANY))
+                                if (newImg.LoadFile(EngineConf_GetFullDataPath(text.path).string(), wxBITMAP_TYPE_ANY))
                                 {
                                     thumbnail->SetBitmap(wxBitmap(newImg.Scale(100, 100)));
                                     thumbnail->Refresh();
@@ -426,8 +427,7 @@ void OptionsFrame::RebuildScenesList(wxWindow* parent)
                         [=](wxCommandEvent&)
                         {
                             wxFileDialog dlg(parent, "Select scene file", ProjectManager::GetInstance().GetProjectPath().string(),
-                                             "",
-                                             "*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                                             "", "*.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                             if (dlg.ShowModal() == wxID_OK)
                             {
                                 std::string newPath = dlg.GetPath().ToStdString();

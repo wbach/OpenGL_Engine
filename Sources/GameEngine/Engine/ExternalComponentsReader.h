@@ -14,11 +14,11 @@ struct ExternalComponentsReader
     ExternalComponentsReader(ISceneManager&);
     ~ExternalComponentsReader();
     void LoadAll();
-    void LoadSingle(const std::string&);
-    void Reload(const std::string&);
+    void LoadSingle(const std::filesystem::path&);
+    void Reload(const std::filesystem::path&);
     void ReloadAll();
 
-    std::vector<std::pair<std::string, std::string>> GetLoadedLibs() const;
+    std::vector<std::pair<std::filesystem::path, std::string>> GetLoadedLibs() const;
 
     struct ComponentInstance
     {
@@ -29,8 +29,8 @@ struct ExternalComponentsReader
     void recreateAllInstancesOfComponent(const std::vector<ComponentInstance>&);
 
 private:
-    void removeCachedFile(const std::string&);
-    std::vector<std::string> getAllComponentFiles() const;
+    void removeCachedFile(const std::filesystem::path&);
+    std::vector<std::filesystem::path> getAllComponentFiles() const;
     void reloadUnknownComponents();
 
 private:

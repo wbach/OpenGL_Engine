@@ -31,7 +31,7 @@ void Start()
     CLogger::Instance().UseAsyncLogging(false);
 
     Utils::JsonReader jsonReader;
-    const auto& inputFile = EngineConf.files.data + "Projects/avatar.json";
+    const auto& inputFile = EngineConf.files.data / "Projects" / "avatar.json";
     if (not jsonReader.Read(inputFile))
     {
         LOG_DEBUG << inputFile << " read failed";

@@ -39,7 +39,7 @@ void ParseNode(rapidxml::xml_node<>* node, TreeNode& n)
     }
 }
 
-bool XmlReader::Read(const std::string& filename)
+bool XmlReader::Read(const std::filesystem::path& filename)
 {
     try
     {
@@ -54,7 +54,7 @@ bool XmlReader::Read(const std::string& filename)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Xml read error! filename=" + filename);
+        LOG_ERROR << "Xml read error! filename=" << filename;
     }
     return false;
 }
@@ -70,8 +70,8 @@ bool XmlReader::ReadXml(std::string fileContent)
     catch (const rapidxml::parse_error& p)
     {
         std::string out = p.what();
-        /* LOG TO FIX*/  LOG_ERROR << (out);
-        /* LOG TO FIX*/  LOG_ERROR << (fileContent);
+        LOG_ERROR << out;
+        LOG_ERROR << fileContent;
         return false;
     }
     root_ = std::make_unique<TreeNode>(document.first_node()->name());

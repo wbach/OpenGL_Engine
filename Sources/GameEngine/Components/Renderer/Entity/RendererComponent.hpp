@@ -77,7 +77,7 @@ public:
     void Reload() override;
 
     RendererComponent& AddModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
-    RendererComponent& AddModel(const std::string& filename, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    RendererComponent& AddModel(const std::filesystem::path&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     RendererComponent& SetTextureIndex(uint32_t index);
 
     void useArmature(bool);

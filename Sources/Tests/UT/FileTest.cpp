@@ -38,7 +38,7 @@ TEST(FileTests, Empty)
 
 TEST(FileTests, DataPathEmpty)
 {
-    EngineConf.files.data = {};
+    EngineConf.files.data.clear();
     GameEngine::File file("Folder/Blabla/dummy.obj");
     EXPECT_EQ(file.GetAbsolutePath(), std::filesystem::current_path() / "Folder/Blabla/dummy.obj");
 }

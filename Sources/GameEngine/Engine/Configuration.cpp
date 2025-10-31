@@ -12,31 +12,21 @@ namespace GameEngine
 {
 namespace
 {
-std::vector<std::string> requiredFiles;
+std::vector<std::filesystem::path> requiredFiles;
 }
 
-std::string GetDataLocationFromString(const std::string& str)
+std::filesystem::path GetDataLocationFromString(const std::string& str)
 {
     if (str.empty())
         return DEFAULT_DATA_PATH;
 
-    if (str[str.size() - 1] != '/')
-    {
-        return str + '/';
-    }
-
     return str;
 }
 
-std::string GetCacheLocationFromString(const std::string& str)
+std::filesystem::path GetCacheLocationFromString(const std::string& str)
 {
     if (str.empty())
         return DEFAULT_CACHE_PATH;
-
-    if (str[str.size() - 1] != '/')
-    {
-        return str + '/';
-    }
 
     return str;
 }
@@ -46,15 +36,10 @@ std::filesystem::path GetShaderLocationFromString(const std::string& str)
     if (str.empty())
         return DEFAULT_SHADERS_PATH;
 
-    if (str[str.size() - 1] != '/')
-    {
-        return str + '/';
-    }
-
     return str;
 }
 
-void AddToRequierdFilesIfNotExist(const std::string& file)
+void AddToRequierdFilesIfNotExist(const std::filesystem::path& file)
 {
     if (std::find(requiredFiles.begin(), requiredFiles.end(), file) == requiredFiles.end())
     {
@@ -62,56 +47,51 @@ void AddToRequierdFilesIfNotExist(const std::string& file)
     }
 }
 
-std::string GetFullDataPath(const std::string& fileName, bool addToRequierd)
+std::filesystem::path GetFullDataPath(const std::filesystem::path& fileName, bool addToRequierd)
 {
-    auto inputFileName = Utils::ReplaceSlash(fileName);
-
-    std::string path;
-    if (Utils::IsAbsolutePath(inputFileName))
+    std::filesystem::path path;
+    if (fileName.is_absolute())
     {
-        path = inputFileName;
+        path = fileName;
     }
     else
     {
-        path = EngineConf.files.data + inputFileName;
+        path = EngineConf.files.data / fileName;
     }
 
     if (addToRequierd)
     {
-        AddToRequierdFilesIfNotExist(inputFileName);
+        AddToRequierdFilesIfNotExist(fileName);
     }
     return path;
 }
 
-std::filesystem::path GetFullShaderPath(const std::string& file_name, bool addToRequierd)
+std::filesystem::path GetFullShaderPath(const std::filesystem::path& filename, bool addToRequierd)
 {
-    auto path = EngineConf.files.shaders / file_name;
+    auto path = EngineConf.files.shaders / filename;
     if (addToRequierd)
         requiredFiles.push_back(path.string());
     return path;
 }
 
-std::string GetFilePatch(const std::string& file_full_path)
+std::filesystem::path GetFilePatch(const std::filesystem::path& fileFullPath)
 {
-    if (file_full_path.empty())
+    if (fileFullPath.empty())
         return {};
 
-    auto data_index = file_full_path.find(EngineConf.files.data);
-    size_t size     = EngineConf.files.data.size();
+    const std::filesystem::path data_root    = EngineConf.files.data;
+    const std::filesystem::path shaders_root = EngineConf.files.shaders;
 
-    if (data_index == std::string::npos)
-    {
-        data_index = file_full_path.find(EngineConf.files.shaders.string());
-        size       = EngineConf.files.shaders.string().size();
-    }
-    if (data_index == std::string::npos)
-    {
-        return file_full_path;
-    }
-    return file_full_path.substr(data_index + size);
+    if (fileFullPath.string().starts_with(data_root.string()))
+        return std::filesystem::relative(fileFullPath, data_root);
+
+    if (fileFullPath.string().starts_with(shaders_root.string()))
+        return std::filesystem::relative(fileFullPath, shaders_root);
+
+    return fileFullPath;
 }
 
-void AddRequiredFile(const std::string& file)
+void AddRequiredFile(const std::filesystem::path& file)
 {
     AddToRequierdFilesIfNotExist(file);
 }
@@ -122,7 +102,7 @@ void SaveRequiredFiles()
 
     if (!output.is_open())
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Cant open file : " + GetFullDataPath(EngineConf.files.requiredFilesOutputFile));
+        LOG_ERROR << "Cant open file : " << GetFullDataPath(EngineConf.files.requiredFilesOutputFile);
         return;
     }
 
@@ -133,9 +113,9 @@ void SaveRequiredFiles()
     output.close();
 }
 
-void CreateDefaultFile(const std::string& filename)
+void CreateDefaultFile(const std::filesystem::path& filename)
 {
-    auto parentPath = std::filesystem::path(filename).parent_path();
+    auto parentPath = filename.parent_path();
     if (not std::filesystem::exists(parentPath))
     {
         std::filesystem::create_directories(parentPath);
@@ -143,7 +123,7 @@ void CreateDefaultFile(const std::string& filename)
     WriteConfigurationToFile(EngineConf, filename);
 }
 
-void ReadFromFile(const std::string& filename)
+void ReadFromFile(const std::filesystem::path& filename)
 {
     if (not EngineConf.filename.empty())
     {
@@ -160,14 +140,14 @@ void ReadFromFile(const std::string& filename)
     }
 
     AddRequiredFile(filename);
-    EngineConf.filename = filename;
+    EngineConf.filename = filename.filename().string();
 }
-std::string RemoveDataPath(const std::string& path)
+std::filesystem::path RemoveDataPath(const std::filesystem::path& path)
 {
     return GetFilePatch(path);
 }
 
-std::string GetRelativeDataPath(const std::string& str)
+std::filesystem::path GetRelativeDataPath(const std::filesystem::path& str)
 {
     auto absoluteDataPath = Utils::GetAbsolutePath(EngineConf.files.data);
     return Utils::GetRelativePath(str, absoluteDataPath);

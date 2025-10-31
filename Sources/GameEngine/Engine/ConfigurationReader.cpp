@@ -24,7 +24,7 @@ std::filesystem::path getGlobalConfigDirPath()
 {
 #ifdef USE_GNU
     struct passwd* pw = getpwuid(getuid());
-    return            = std::string(pw->pw_dir) + "/.config/bengine/";
+    return std::filesystem::path(pw->pw_dir) / ".config" / "bengine";
 #else
     wchar_t myDocumentsPath[1024];
     HRESULT hr = SHGetFolderPathW(0, CSIDL_MYDOCUMENTS, 0, 0, myDocumentsPath);
@@ -32,7 +32,7 @@ std::filesystem::path getGlobalConfigDirPath()
     {
         char str[1024];
         wcstombs(str, myDocumentsPath, 1023);
-        return std::string(str) + "\\bengine\\";
+        return std::filesystem::path(str) / "bengine";
     }
 #endif
     return "";

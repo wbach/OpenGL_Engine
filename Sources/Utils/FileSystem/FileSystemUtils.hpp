@@ -19,11 +19,11 @@ struct File
     std::string name;
 };
 
-void CreateEmptyFile(const std::string&);
+void CreateEmptyFile(const std::filesystem::path&);
 void RenameFile(const std::string&, const std::string&);
 std::filesystem::path FindFile(const std::filesystem::path&, const std::filesystem::path&);
 bool IsFileExistsInDir(const std::string&, const std::string&);
-std::vector<std::string> FindFilesWithExtension(const std::string&, const std::string&);
+std::vector<std::filesystem::path> FindFilesWithExtension(const std::filesystem::path&, const std::string&);
 std::string GetFileName(const std::string&);
 std::string GetExtension(const std::string&);
 std::string GetFileBaseName(const std::string&);
@@ -31,17 +31,17 @@ void PrintFilesInDirectory(const std::string& dirPath, const std::string& t = ""
 std::vector<File> GetFilesInDirectory(const std::string& dirPath);
 std::string GetParent(const std::string&);
 std::string GetCurrentDir();
-std::string GetAbsolutePath(const std::string&);
+std::filesystem::path GetAbsolutePath(const std::filesystem::path&);
 std::string GetAbsoluteParentPath(const std::string&);
-std::string GetRelativePath(const std::string&, const std::string&);
+std::filesystem::path GetRelativePath(const std::filesystem::path&, const std::filesystem::path&);
 bool IsAbsolutePath(const std::string&);
-bool DirectoryExist(const std::string&);
+bool DirectoryExist(const std::filesystem::path&);
 bool IsRelativePath(const std::string&);
 std::string CreateBackupFile(const std::string&);
-std::string ReadFileBinary(const std::string& file_name);
-std::string ReadFile(const std::string& file_name);
-std::string ReadFilesWithIncludes(const std::string& filename);
-std::vector<std::string> ReadFileLines(const std::string& file_name);
+std::string ReadFileBinary(const std::filesystem::path& file_name);
+std::string ReadFile(const std::filesystem::path& file_name);
+std::string ReadFilesWithIncludes(const std::filesystem::path& filename);
+std::vector<std::string> ReadFileLines(const std::filesystem::path& file_name);
 void WrtieToFile(const std::string& filename, const std::string& content);
 void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::path& destFolder);
 std::optional<std::filesystem::path> MoveFileToDirectory(const std::filesystem::path&, const std::filesystem::path&);

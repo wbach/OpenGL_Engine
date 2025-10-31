@@ -1264,7 +1264,7 @@ void MainFrame::OnMakePrefab(wxCommandEvent&)
 {
     if (auto maybeGo = GetSelectedGameObject())
     {
-        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data),
+        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data).string(),
                                 maybeGo->GetName() + ".prefab", "Pliki prefabow (*.prefab)|*.prefab",
                                 wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 

@@ -49,7 +49,7 @@ void BuildComponentLogFrame::Build()
     AppendLine("EngineIncludesDir: " + engineIncludesDir.string(), *wxLIGHT_GREY);
 
     wxExecuteEnv env;
-    env.cwd = buildDir;
+    env.cwd = buildDir.string();
 
     auto* processCmake = new BuildProcess(this);
 
@@ -114,7 +114,7 @@ void BuildComponentLogFrame::Build()
 
     cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile.string() + " /t:Build /p:Configuration=Release /p:Platform=x64";
 #else
-    cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir + " && cmake --build .\"";
+    cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir.string() + " && cmake --build .\"";
 #endif
 
     RunCommand(cmd, buildDir, processCmake);
@@ -123,7 +123,7 @@ void BuildComponentLogFrame::Build()
 void BuildComponentLogFrame::RunCommand(const std::string& cmd, const std::filesystem::path& workDir, wxProcess* process)
 {
     wxExecuteEnv env;
-    env.cwd = workDir;
+    env.cwd = workDir.string();
 
     long pid = wxExecute(cmd, wxEXEC_ASYNC, process, &env);
     if (pid == -1)

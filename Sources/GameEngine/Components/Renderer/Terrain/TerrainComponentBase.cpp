@@ -385,8 +385,8 @@ const TerrainConfiguration &TerrainComponentBase::GetConfiguration() const
 
 HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
 {
-    auto filename = EngineConf.files.data + "/heightmap_" + componentContext_.scene_.GetName() + "_" +
-                    std::to_string(thisObject_.GetId()) + ".terrain";
+    auto filename = EngineConf.files.data /
+                    ("heightmap_" + componentContext_.scene_.GetName() + "_" + std::to_string(thisObject_.GetId()) + ".terrain");
 
     Utils::CreateEmptyFile(filename);
     File file(filename);

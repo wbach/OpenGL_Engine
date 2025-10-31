@@ -130,7 +130,7 @@ RendererComponent& RendererComponent::AddModel(Model* model, LevelOfDetail i)
     return *this;
 }
 
-RendererComponent& RendererComponent::AddModel(const std::string& filename, GameEngine::LevelOfDetail lvl)
+RendererComponent& RendererComponent::AddModel(const std::filesystem::path& filename, GameEngine::LevelOfDetail lvl)
 {
     if (filename.empty())
         return *this;
@@ -138,13 +138,13 @@ RendererComponent& RendererComponent::AddModel(const std::string& filename, Game
     switch (lvl)
     {
         case GameEngine::LevelOfDetail::L1:
-            fileName_LOD1 = Utils::ReplaceSlash(filename);
+            fileName_LOD1 = filename;
             break;
         case GameEngine::LevelOfDetail::L2:
-            fileName_LOD2 = Utils::ReplaceSlash(filename);
+            fileName_LOD2 = filename;
             break;
         case GameEngine::LevelOfDetail::L3:
-            fileName_LOD3 = Utils::ReplaceSlash(filename);
+            fileName_LOD3 = filename;
             break;
     }
     return *this;

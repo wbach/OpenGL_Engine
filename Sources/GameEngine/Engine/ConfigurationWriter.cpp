@@ -149,7 +149,7 @@ void WriteConfigurationToFile(const Configuration& configuration)
 {
     WriteConfigurationToFile(configuration, configuration.filename);
 }
-void WriteConfigurationToFile(const Configuration& configuration, const std::string& filename)
+void WriteConfigurationToFile(const Configuration& configuration, const std::filesystem::path& filename)
 {
     TreeNode config(CSTR_CONFIG);
 

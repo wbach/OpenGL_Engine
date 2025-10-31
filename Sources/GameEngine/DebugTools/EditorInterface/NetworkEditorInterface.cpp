@@ -235,7 +235,7 @@ void NetworkEditorInterface::DefineCommands()
     REGISTER_COMMAND("createPrefabFromObject", CreatePrefabFromObject);
     REGISTER_COMMAND("createTerrainTransition", CreateTerrainTranstion);
 
-   // gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
+    // gateway_.AddMessageConverter(std::make_unique<DebugNetworkInterface::XmlMessageConverter>());
 }
 
 #undef REGISTER_COMMAND
@@ -1010,6 +1010,8 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
                 break;
             case GameEngine::Components::FieldType::VectorOfTextures:
                 break;
+            case GameEngine::Components::FieldType::VectorOfTerrainTextures:
+                break;
             case GameEngine::Components::FieldType::VectorOfAnimationClips:
                 break;
             case GameEngine::Components::FieldType::ConstVectorOfTextures:
@@ -1528,6 +1530,8 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
                         break;
                     case GameEngine::Components::FieldType::ColorRGBA:
                         break;
+                    case GameEngine::Components::FieldType::VectorOfTerrainTextures:
+                        break;
                     case GameEngine::Components::FieldType::VectorOfStrings:
                         break;
                     case GameEngine::Components::FieldType::VectorOfInt:
@@ -1607,7 +1611,8 @@ void NetworkEditorInterface::ClearAllGameObjects(const EntryParameters &)
 
 // Painter::EntryParamters NetworkEditorInterface::GetPainterEntryParameters()
 // {
-//     return Painter::EntryParamters{*scene_.inputManager_, threadSync_, scene_.camera, scene_.renderersManager_->GetProjection(),
+//     return Painter::EntryParamters{*scene_.inputManager_, threadSync_, scene_.camera,
+//     scene_.renderersManager_->GetProjection(),
 //                                    scene_.displayManager_->GetWindowSize(), scene_.componentController_};
 // }
 

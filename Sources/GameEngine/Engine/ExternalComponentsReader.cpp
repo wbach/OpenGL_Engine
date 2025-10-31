@@ -52,9 +52,9 @@ inline std::string LastLibError()
 }
 #else
 using LibHandle = HMODULE;
-inline LibHandle LoadLib(const std::string& file)
+inline LibHandle LoadLib(const std::filesystem::path& file)
 {
-    return LoadLibraryA(file.c_str());  // wymuszamy wersj� ANSI
+    return LoadLibraryA(file.string().c_str());  // wymuszamy wersj� ANSI
 }
 inline void UnloadLib(LibHandle lib)
 {
@@ -81,7 +81,7 @@ inline std::string LastLibError()
 }
 #endif
 
-using FilePath = std::string;
+using FilePath = std::filesystem::path;
 struct ComponentLib
 {
     GameEngine::Components::ComponentType type;
@@ -124,7 +124,7 @@ void ExternalComponentsReader::LoadAll()
     }
 }
 
-void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
+void ExternalComponentsReader::LoadSingle(const std::filesystem::path& inputFile)
 {
     LOG_DEBUG << "Component file detected : " << inputFile;
     if (not std::filesystem::exists(inputFile))
@@ -135,8 +135,7 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
     auto now = system_clock::now();
     auto ms  = duration_cast<milliseconds>(now.time_since_epoch()).count();
 
-    std::string file =
-        EngineConf.files.cache + "/" + std::to_string(ms) + "_" + std::filesystem::path(inputFile).filename().string();
+    auto file = EngineConf.files.cache / (std::to_string(ms) + "_" + std::filesystem::path(inputFile).filename().string());
     std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
     LOG_DEBUG << "LoadLib cached: " << file;
     LibHandle handle = LoadLib(file);
@@ -155,7 +154,7 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
             auto name = func();
             auto id   = Components::getComponentTypeIdByName(name);
             externalLibs.insert(
-                {inputFile, ComponentLib{.type = {.id = *id, .name = name}, .cachedName = file, .handle = handle}});
+                {inputFile, ComponentLib{.type = {.id = *id, .name = name}, .cachedName = file.filename().string(), .handle = handle}});
         }
         else
         {
@@ -170,7 +169,7 @@ void ExternalComponentsReader::LoadSingle(const std::string& inputFile)
     }
 }
 
-void ExternalComponentsReader::Reload(const std::string& path)
+void ExternalComponentsReader::Reload(const std::filesystem::path& path)
 {
     auto iter = externalLibs.find(path);
     if (iter != externalLibs.end())
@@ -246,7 +245,7 @@ void ExternalComponentsReader::reloadUnknownComponents()
     }
 }
 
-void ExternalComponentsReader::removeCachedFile(const std::string& cachedName)
+void ExternalComponentsReader::removeCachedFile(const std::filesystem::path& cachedName)
 {
     try
     {
@@ -258,11 +257,11 @@ void ExternalComponentsReader::removeCachedFile(const std::string& cachedName)
     }
 }
 
-std::vector<std::string> ExternalComponentsReader::getAllComponentFiles() const
+std::vector<std::filesystem::path> ExternalComponentsReader::getAllComponentFiles() const
 {
     LOG_DEBUG << "Check for ExternalComponents";
     std::string libExtension{".so"};
-    const auto componentsDir = EngineConf.files.data + "/Components";
+    const auto componentsDir = EngineConf.files.data / "Components";
     if (not Utils::DirectoryExist(componentsDir))
     {
         LOG_DEBUG << "Components dir not exist : " << componentsDir;
@@ -297,9 +296,9 @@ void ExternalComponentsReader::ReloadAll()
     reloadUnknownComponents();
 }
 
-std::vector<std::pair<std::string, std::string>> ExternalComponentsReader::GetLoadedLibs() const
+std::vector<std::pair<std::filesystem::path, std::string>> ExternalComponentsReader::GetLoadedLibs() const
 {
-    std::vector<std::pair<std::string, std::string>> result;
+    std::vector<std::pair<std::filesystem::path, std::string>> result;
     result.reserve(externalLibs.size());
     for (const auto& lib : externalLibs)
     {
