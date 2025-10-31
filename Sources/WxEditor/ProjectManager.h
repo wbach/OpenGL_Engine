@@ -67,8 +67,6 @@ private:
     ProjectManager(const ProjectManager&)            = delete;
     ProjectManager& operator=(const ProjectManager&) = delete;
 
-    void createDirIfNotExist(const std::filesystem::path&);
-
 private:
     std::filesystem::path projectPath;
     std::filesystem::path projectConfigPath;

@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include <filesystem>
 
 namespace GameEngine
@@ -7,7 +6,7 @@ namespace GameEngine
 struct ConfigurationReader
 {
     ConfigurationReader();
-    ConfigurationReader(const std::string&);
+    ConfigurationReader(const std::filesystem::path&);
 };
 std::filesystem::path getGlobalConfigDirPath();
 }  // namespace GameEngine

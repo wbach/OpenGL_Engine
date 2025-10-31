@@ -118,7 +118,7 @@ void CreateDefaultFile(const std::filesystem::path& filename)
     auto parentPath = filename.parent_path();
     if (not std::filesystem::exists(parentPath))
     {
-        std::filesystem::create_directories(parentPath);
+        Utils::CreateDirectories(parentPath);
     }
     WriteConfigurationToFile(EngineConf, filename);
 }

@@ -528,7 +528,7 @@ void AnimationViewerFrame::ImportCurrentObject()
                     if (relPath)
                     {
                         auto targetTexturePath = fsTargetPath / relPath.value();
-                        std::filesystem::create_directories(targetTexturePath);
+                        Utils::CreateDirectories(targetTexturePath);
                         auto copiedFile = Utils::CopyFileToDirectory(textureFile, targetTexturePath);
                     }
                     else
@@ -555,7 +555,7 @@ void AnimationViewerFrame::ImportCurrentObject()
             std::filesystem::path(wxFileName(targetPath).GetPath().ToStdString()) / "AnimationClips/";
         if (not std::filesystem::exists(targetClipsFolder))
         {
-            std::filesystem::create_directories(targetClipsFolder);
+            Utils::CreateDirectories(targetClipsFolder);
         }
 
         for (auto& clip : currentGameObject->animator.animationClips)

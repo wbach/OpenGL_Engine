@@ -55,7 +55,7 @@ ConfigurationReader::ConfigurationReader()
     : ConfigurationReader(getConfigFile().string())
 {
 }
-ConfigurationReader::ConfigurationReader(const std::string& filename)
+ConfigurationReader::ConfigurationReader(const std::filesystem::path& filename)
 {
     LOG_DEBUG << "Read config file: " << filename;
     GameEngine::ReadFromFile(filename);

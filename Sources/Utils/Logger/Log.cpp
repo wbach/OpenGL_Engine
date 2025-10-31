@@ -8,11 +8,13 @@
 #include <mutex>
 #include <thread>
 
+#include "Utils/FileSystem/FileSystemUtils.hpp"
+
 namespace
 {
 std::filesystem::path PrepareLoggerPath(const std::filesystem::path& filename)
 {
-    std::filesystem::create_directories("./Logs");
+    Utils::CreateDirectories("./Logs");
     return (std::filesystem::absolute("Logs") / filename).lexically_normal();
 }
 }  // namespace

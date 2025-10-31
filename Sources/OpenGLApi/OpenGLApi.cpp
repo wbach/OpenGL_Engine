@@ -4,6 +4,7 @@
 #include <Utils/Image/ImageUtils.h>
 #include <Utils/Variant.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
@@ -459,7 +460,7 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                 const auto& textureInfo    = GetTextureInfo(object.first);
                 auto resultData            = GetTextureData(object.first);
                 const std::string fullPath = path + "/Textures2d/";
-                std::filesystem::create_directories(fullPath);
+                Utils::CreateDirectories(fullPath);
                 Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
             }
             break;
@@ -479,7 +480,8 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
 
                 const std::string fullPath =
                     path + "/FrameBuffersTextures/FrameBuffer_" + std::to_string(frameBuffer->GetId()) + "/";
-                std::filesystem::create_directories(fullPath);
+
+                Utils::CreateDirectories(fullPath);
                 impl_->frameBuffers_.at(object.first)->TakeSnapshot(fullPath);
             }
             break;
@@ -1389,7 +1391,7 @@ void OpenGLApi::DisableCulling()
 
 void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
 {
-   // LOG_DEBUG << "SetViewPort " << x << " " << y << " " << width << " " << height;
+    // LOG_DEBUG << "SetViewPort " << x << " " << y << " " << width << " " << height;
     glViewport(static_cast<GLint>(x), static_cast<GLint>(y), static_cast<GLint>(width), static_cast<GLint>(height));
 }
 

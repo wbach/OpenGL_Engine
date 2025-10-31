@@ -7,6 +7,7 @@
 #include <wx/defs.h>
 #include <wx/log.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 #include <fstream>
 
@@ -113,7 +114,9 @@ void StartupDialog::OnNewProject(wxCommandEvent&)
     std::string folder      = dirDlg.GetPath().ToStdString();
     std::string projectPath = folder + "/" + name;
     if (not std::filesystem::exists(projectPath))
-        std::filesystem::create_directories(projectPath);
+    {
+        Utils::CreateDirectories(projectPath);
+    }
 
     auto& projectManager = ProjectManager::GetInstance();
     projectManager.SetProjectPath(projectPath);

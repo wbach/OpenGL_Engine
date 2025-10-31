@@ -461,7 +461,7 @@ void CopyFileOrFolder(const std::filesystem::path& src, const std::filesystem::p
             std::function<void(const std::filesystem::path&, const std::filesystem::path&)> copyRecursive;
             copyRecursive = [&](const std::filesystem::path& srcDir, const std::filesystem::path& dstDir)
             {
-                std::filesystem::create_directories(dstDir);
+                Utils::CreateDirectories(dstDir);
                 for (auto& entry : std::filesystem::directory_iterator(srcDir))
                 {
                     auto dstEntry = dstDir / entry.path().filename();
@@ -590,5 +590,32 @@ std::optional<std::filesystem::path> GetRelativePathToFile(const std::filesystem
     }
 
     return relative;
+}
+bool CreateDirectories(const std::filesystem::path& path)
+{
+    try
+    {
+        if (std::filesystem::exists(path))
+        {
+            LOG_DEBUG << "Path already exists: " << path;
+            return true;
+        }
+
+        if (std::filesystem::create_directories(path))
+        {
+            LOG_DEBUG << "Directories created: " << path;
+            return true;
+        }
+        else
+        {
+            LOG_ERROR << "Failed to create directories: " << path;
+            return false;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERROR << "Error creating directories (" << path << "): " << e.what();
+        return false;
+    }
 }
 }  // namespace Utils

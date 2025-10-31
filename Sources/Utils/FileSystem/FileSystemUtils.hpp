@@ -20,6 +20,7 @@ struct File
 };
 
 void CreateEmptyFile(const std::filesystem::path&);
+bool CreateDirectories(const std::filesystem::path&);
 void RenameFile(const std::string&, const std::string&);
 std::filesystem::path FindFile(const std::filesystem::path&, const std::filesystem::path&);
 bool IsFileExistsInDir(const std::string&, const std::string&);

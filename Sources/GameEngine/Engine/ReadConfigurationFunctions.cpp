@@ -4,6 +4,7 @@
 #include <Utils.h>
 #include <Utils/XML/XmlReader.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 #include <iostream>
 
@@ -137,11 +138,11 @@ void Read(TreeNode& node, Params::Shadows& shadows)
     if (*shadows.cascadesSize < 1)
     {
         shadows.cascadesSize = 1;
-        /* LOG TO FIX*/ LOG_ERROR << ("Cascade size must be set minimum to 1");
+        LOG_WARN << "Cascade size must be set minimum to 1";
     }
     if (*shadows.cascadesSize > Params::MAX_SHADOW_MAP_CASADES)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Set to many cascades, limit is : " + std::to_string(Params::MAX_SHADOW_MAP_CASADES));
+        LOG_WARN << "Set to many cascades, limit is : " << Params::MAX_SHADOW_MAP_CASADES;
         shadows.cascadesSize = Params::MAX_SHADOW_MAP_CASADES;
     }
     if (shadows.firstCascadeDistance < 1.f)
@@ -195,7 +196,6 @@ void Read(TreeNode* node, Params::TerrainType& param)
         return;
 
     std::from_string(node->value_, param);
-    /* LOG TO FIX*/ LOG_ERROR << (node->value_);
 }
 
 void Read(TreeNode* node, Params::Terrain& param)
@@ -268,11 +268,11 @@ void Read(TreeNode& node, Params::Files& files)
 
     if (not std::filesystem::exists(files.cache))
     {
-        std::filesystem::create_directories(files.cache);
+        Utils::CreateDirectories(files.cache);
     }
     if (not std::filesystem::exists(files.data))
     {
-        std::filesystem::create_directories(files.data);
+        Utils::CreateDirectories(files.cache);
     }
 }
 

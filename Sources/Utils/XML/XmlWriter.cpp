@@ -5,6 +5,7 @@
 #include <list>
 
 #include "Logger/Log.h"
+#include "Utils/FileSystem/FileSystemUtils.hpp"
 #include "rapidxml.hpp"
 #include "rapidxml_print.hpp"
 
@@ -128,18 +129,34 @@ void WriteNode(const TreeNode& node, XmlNodeWrapper& nodeWrapper)
 
 void Xml::Write(const std::filesystem::path& filename, const TreeNode& root)
 {
-    auto parentPath = std::filesystem::path(filename).parent_path();
-    if (not std::filesystem::exists(parentPath))
+    try
     {
-        std::filesystem::create_directories(parentPath);
+        std::filesystem::path parentPath = ".";
+
+        if (filename.has_parent_path())
+        {
+            parentPath = filename.parent_path();
+        }
+
+        if (not std::filesystem::exists(parentPath))
+        {
+            if (not Utils::CreateDirectories(parentPath))
+            {
+                return;
+            }
+        }
+
+        XmlCreator creator;
+        auto& builderRoot = creator.CreateRoot(root.name(), root.value_);
+
+        WroteNodeMembers(root, builderRoot);
+
+        creator.Save(filename);
     }
-
-    XmlCreator creator;
-    auto& builderRoot = creator.CreateRoot(root.name(), root.value_);
-
-    WroteNodeMembers(root, builderRoot);
-
-    creator.Save(filename);
+    catch (...)
+    {
+        LOG_ERROR << "Write to file error : " << filename;
+    }
 }
 
 std::string Xml::Write(const TreeNode& root)

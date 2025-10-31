@@ -6,6 +6,8 @@
 #include <wx/utils.h>
 #include <wx/wx.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "BuildProcess.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/ProjectPanel/ProjectPanel.h"
@@ -32,7 +34,7 @@ void BuildComponentLogFrame::Build()
 
     if (not std::filesystem::exists(buildDir))
     {
-        std::filesystem::create_directories(buildDir);
+        Utils::CreateDirectories(buildDir);
     }
     if (engineIncludesDir.empty())
     {
@@ -114,7 +116,8 @@ void BuildComponentLogFrame::Build()
 
     cmd = "cmd /c call " + vcvars + " && msbuild " + solutionFile.string() + " /t:Build /p:Configuration=Release /p:Platform=x64";
 #else
-    cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir.string() + " && cmake --build .\"";
+    cmd = "sh -c \"cmake .. -DCOMPONENTS_DIR=Data/Components -DENGINE_INCLUDE_DIR=" + engineIncludesDir.string() +
+          " && cmake --build .\"";
 #endif
 
     RunCommand(cmd, buildDir, processCmake);

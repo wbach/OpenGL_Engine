@@ -1,5 +1,7 @@
 #include "ProjectManager.h"
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+
 ProjectManager& ProjectManager::GetInstance()
 {
     static ProjectManager instance;
@@ -22,18 +24,18 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
 
     LOG_DEBUG << "projectEditorConfigFilePath : " << projectEditorConfigFilePath;
 
-    GameEngine::ConfigurationReader reader(projectConfigPath.string());
+    GameEngine::ConfigurationReader reader(projectConfigPath);
 
     bool needUpdate{false};
 
-    if (EngineConf.files.data != projectDataDirPath.string())
+    if (EngineConf.files.data != projectDataDirPath)
     {
-        EngineConf.files.data = projectDataDirPath.string();
+        EngineConf.files.data = projectDataDirPath;
         needUpdate            = true;
     }
-    if (EngineConf.files.cache != projectCachePath.string())
+    if (EngineConf.files.cache != projectCachePath)
     {
-        EngineConf.files.cache = projectCachePath.string();
+        EngineConf.files.cache = projectCachePath;
         needUpdate             = true;
     }
 
@@ -67,16 +69,15 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
 
         SaveEditorConfig();
     }
-
 }
 
 void ProjectManager::CreateDirectories()
 {
-    createDirIfNotExist(projectPath);
-    createDirIfNotExist(projectScenesDirPath);
-    createDirIfNotExist(projectDataDirPath);
-    createDirIfNotExist(projectComponentsDirPath);
-    createDirIfNotExist(projectCachePath);
+    Utils::CreateDirectories(projectPath);
+    Utils::CreateDirectories(projectScenesDirPath);
+    Utils::CreateDirectories(projectDataDirPath);
+    Utils::CreateDirectories(projectComponentsDirPath);
+    Utils::CreateDirectories(projectCachePath);
 }
 
 const std::filesystem::path& ProjectManager::GetProjectPath() const
@@ -248,11 +249,4 @@ void ProjectManager::RemoveRecentProject(const std::string& path)
         config.Write(key, wxString(recents[i].path));
     }
     config.Flush();
-}
-void ProjectManager::createDirIfNotExist(const std::filesystem::path& dir)
-{
-    if (!std::filesystem::exists(dir))
-    {
-        std::filesystem::create_directory(dir);
-    }
 }

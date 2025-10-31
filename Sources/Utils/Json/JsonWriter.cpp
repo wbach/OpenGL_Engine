@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 #include <fstream>
 
@@ -64,12 +65,12 @@ std::string Json::Write(const TreeNode& root)
     return buffer.GetString();
 }
 
-void Json::Write(const std::string& filename, const TreeNode& root)
+void Json::Write(const std::filesystem::path& filename, const TreeNode& root)
 {
-    auto parentPath = std::filesystem::path(filename).parent_path();
+    auto parentPath = filename.parent_path();
     if (!parentPath.empty() && !std::filesystem::exists(parentPath))
     {
-        std::filesystem::create_directories(parentPath);
+        Utils::CreateDirectories(parentPath);
     }
 
     std::ofstream file(filename);
