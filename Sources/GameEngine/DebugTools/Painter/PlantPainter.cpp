@@ -4,19 +4,26 @@
 #include <Logger/Log.h>
 
 #include <magic_enum/magic_enum.hpp>
+#include <random>
 
+#include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
+#include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/DebugTools/Painter/Painter.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/StaticRayTracer/Ray.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "IBrush.h"
 #include "TerrainPoint.h"
 #include "TerrainPointGetter.h"
+#include "Types.h"
 
 namespace GameEngine
 {
 namespace
 {
+constexpr char PLANTS_GAMEOBJECT_NAME[] = "Plants";
+
 struct Ray
 {
     vec3 origin;
@@ -62,15 +69,41 @@ std::optional<glm::vec3> RayHitPoint(const Ray& ray, const BoundingBox& box)
     return std::nullopt;
 }
 }  // namespace
-PlantPainter::PlantPainter(Dependencies&& dependencies, std::unique_ptr<IBrush> brush, PaintMode mode, float density,
-                           float randomness)
+PlantPainter::PlantPainter(Dependencies&& dependencies, const File& plantTexture, std::unique_ptr<IBrush> brush, PaintMode mode,
+                           float density, float randomness)
     : Painter(dependencies.threadSync)
+    , plantTexture(plantTexture)
     , dependencies(std::move(dependencies))
     , mode(mode)
     , brush(std::move(brush))
     , density(density)
     , randomness(randomness)
 {
+    const auto& plantObjectName = plantTexture.GetFilename();
+    auto& scene                 = dependencies.scene;
+    if (auto plantObject = scene.GetGameObject(plantObjectName))
+    {
+        plantComponent = plantObject->GetComponent<Components::GrassRendererComponent>();
+
+        if (not plantComponent)
+        {
+            plantComponent = &plantObject->AddComponent<Components::GrassRendererComponent>().setTexture(plantTexture);
+        }
+    }
+    else
+    {
+        GameObject* gruppingGameObject = scene.GetGameObject(PLANTS_GAMEOBJECT_NAME);
+        if (not gruppingGameObject)
+        {
+            auto newGrouppingObject = scene.CreateGameObject(PLANTS_GAMEOBJECT_NAME);
+            gruppingGameObject      = newGrouppingObject.get();
+            scene.AddGameObject(std::move(newGrouppingObject));
+        }
+
+        auto newPlantObject = scene.CreateGameObject(plantObjectName);
+        plantComponent      = &plantObject->AddComponent<Components::GrassRendererComponent>().setTexture(plantTexture);
+        scene.AddGameObject(std::move(newPlantObject));
+    }
 }
 PlantPainter::~PlantPainter()
 {
@@ -92,6 +125,53 @@ void PlantPainter::Paint(const DeltaTime&)
             if (currentTerrainPoint)
             {
                 LOG_DEBUG << currentTerrainPoint;
+
+                const auto& points = brush->getInfluence();
+                if (points.empty())
+                {
+                    LOG_WARN << "Influance points empty";
+                }
+
+                Components::GrassRendererComponent::GrassMeshData pointMeshData;
+
+                try
+                {
+                    auto randomVec2 = [](float randomness, float density) -> glm::vec2
+                    {
+                        static std::mt19937 rng(std::random_device{}());
+                        std::uniform_real_distribution<float> dist(-randomness, randomness);
+
+                        float x = dist(rng) * density;
+                        float y = dist(rng) * density;
+
+                        return glm::vec2(x, y);
+                    };
+
+                    TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
+                    for (const auto& point : points)
+                    {
+                        auto randomOffset    = randomVec2(randomness, density);
+                        auto worldSpacePoint = vec3(static_cast<float>(point.point.x) / density + randomOffset.x, 0.f,
+                                                    static_cast<float>(point.point.y) * density + randomOffset.y) +
+                                               currentTerrainPoint->pointOnTerrain;
+
+                        auto maybeHeight = heightGetter.GetHeightofTerrain(worldSpacePoint.x, worldSpacePoint.z);
+                        auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
+
+                        if (maybeHeight and maybeNormal)
+                        {
+                            pointMeshData.position        = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
+                            pointMeshData.normal          = *maybeNormal;
+                            pointMeshData.color           = Color(vec4(1.f));
+                            pointMeshData.sizeAndRotation = vec2(1.f, 0.f);
+                            plantComponent->AddGrassMesh(pointMeshData);
+                        }
+                    }
+                }
+                catch (std::runtime_error err)
+                {
+                    LOG_DEBUG << err.what();
+                }
             }
         }
         break;

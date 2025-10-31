@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <optional>
+#include <random>
 
 #ifndef USE_GNU
 #include <windows.h>
@@ -368,6 +369,28 @@ std::string ReadFilesWithIncludes(const std::filesystem::path& filename)
         LOG_ERROR << filename << " including error";
     }
     return sourceCode.str();
+}
+std::string CreateUniqueFilename()
+{
+    auto now  = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(now);
+    auto ms   = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+    std::tm localTime;
+#ifdef _WIN32
+    localtime_s(&localTime, &time);
+#else
+    localtime_r(&time, &localTime);
+#endif
+
+    std::ostringstream oss;
+    oss << std::put_time(&localTime, "%Y%m%d_%H%M%S") << '_' << std::setfill('0') << std::setw(3) << ms.count();
+
+    static std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<int> dist(1000, 9999);
+    oss << '_' << dist(rng);
+
+    return oss.str();
 }
 void CreateEmptyFile(const std::filesystem::path& filename)
 {

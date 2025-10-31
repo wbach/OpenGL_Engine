@@ -63,6 +63,7 @@ private:
     std::vector<Mesh> CreateGrassMeshes(const Material& material) const;
     void CopyDataToMesh(Mesh&) const;
     bool CreateGrassModel();
+    void CreateDataFile();
 
 private:
     ModelWrapper model_;

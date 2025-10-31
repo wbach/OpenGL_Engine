@@ -19,6 +19,7 @@ struct File
     std::string name;
 };
 
+std::string CreateUniqueFilename();
 void CreateEmptyFile(const std::filesystem::path&);
 bool CreateDirectories(const std::filesystem::path&);
 void RenameFile(const std::string&, const std::string&);

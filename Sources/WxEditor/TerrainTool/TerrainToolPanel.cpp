@@ -79,9 +79,12 @@ GameEngine::PlantPainter::Dependencies GetPlantPainterDependencies(GameEngine::S
     if (not engineContext)
         throw std::runtime_error("Scene not init. engineContext is null");
 
-    return GameEngine::PlantPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(),
-                                                  scene.GetCamera(), engineContext->GetRenderersManager().GetProjection(),
-                                                  scene.getComponentController()};
+    return GameEngine::PlantPainter::Dependencies{engineContext->GetInputManager(),
+                                                  engineContext->GetThreadSync(),
+                                                  scene.GetCamera(),
+                                                  engineContext->GetRenderersManager().GetProjection(),
+                                                  scene.getComponentController(),
+                                                  scene};
 }
 
 template <typename EnumType>
@@ -1132,7 +1135,8 @@ void TerrainToolPanel::EnablePainter()
                 }
 
                 painterFields.terrainPainter_ = std::make_unique<GameEngine::PlantPainter>(
-                    GetPlantPainterDependencies(scene), std::move(circleBrush), mode, density, randomness);
+                    GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile, std::move(circleBrush), mode,
+                    density, randomness);
                 painterFields.terrainPainter_->Start();
             }
             break;

@@ -6,10 +6,30 @@
 
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainTexturesTypes.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
 {
+TerrainHeightGetter::TerrainHeightGetter(Components::TerrainRendererComponent& component)
+    : TerrainHeightGetter(
+          component.GetParentGameObject().GetWorldTransform().GetScale(),
+          [&]() -> HeightMap&
+          {
+              auto* texture   = component.GetTexture(TerrainTextureType::heightmap);
+              auto* heightMap = dynamic_cast<HeightMap*>(texture);
+
+              if (!heightMap)
+                  throw std::runtime_error("TerrainHeightGetter: heightmap texture is null or invalid type");
+
+              return *heightMap;
+          }(),
+          component.GetParentGameObject().GetWorldTransform().GetPosition())
+{
+}
+
 TerrainHeightGetter::TerrainHeightGetter(const vec3& terrainScale, const HeightMap& heightMap, const vec3& terrainPosition)
     : terrainScale_(terrainScale)
     , heightMap_(heightMap)

@@ -1,17 +1,24 @@
 #pragma once
 #include <optional>
 #include <vector>
-#include "Types.h"
+
 #include "GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h"
+#include "Types.h"
 
 namespace GameEngine
 {
 class HeightMap;
 class TerrainConfiguration;
 
+namespace Components
+{
+class TerrainRendererComponent;
+}
+
 class TerrainHeightGetter
 {
 public:
+    TerrainHeightGetter(Components::TerrainRendererComponent&);
     TerrainHeightGetter(const vec3&, const HeightMap&, const vec3& terrainPosition);
     std::optional<float> GetHeightofTerrain(const vec2& worldPositionXZ) const;
     std::optional<double> GetHeightofTerrain(const vec2d& worldPositionXZ) const;
@@ -23,7 +30,7 @@ private:
     std::optional<vec2ui> GetGridCoord(const vec2d& position) const;
     vec2d GetPositionInQuad(const vec2d& position) const;
     bool IsInLeftTriangle(const vec2d& position) const;
-    bool IsValidGridCoordinate(const vec2i &position) const;
+    bool IsValidGridCoordinate(const vec2i& position) const;
     std::optional<vec2d> GetLocalPositionOnTerrain(const vec2d&) const;
     double GetHeightInTerrainQuad(const vec2ui& gridCoord, const vec2d& localPosition) const;
     vec3d GetNormalInTerrainQuad(const vec2ui& gridCoord, const vec2d& localPosition) const;

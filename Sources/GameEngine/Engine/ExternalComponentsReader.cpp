@@ -131,11 +131,8 @@ void ExternalComponentsReader::LoadSingle(const std::filesystem::path& inputFile
     {
         return;
     }
-    using namespace std::chrono;
-    auto now = system_clock::now();
-    auto ms  = duration_cast<milliseconds>(now.time_since_epoch()).count();
 
-    auto file = EngineConf.files.cache / (std::to_string(ms) + "_" + std::filesystem::path(inputFile).filename().string());
+    auto file = EngineConf.files.cache / (Utils::CreateUniqueFilename() + "_" + std::filesystem::path(inputFile).filename().string());
     std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
     LOG_DEBUG << "LoadLib cached: " << file;
     LibHandle handle = LoadLib(file);

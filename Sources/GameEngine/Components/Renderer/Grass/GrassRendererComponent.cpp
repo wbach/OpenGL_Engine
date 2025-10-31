@@ -11,6 +11,8 @@
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
+#include <Logger/Log.h>
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 namespace GameEngine
 {
@@ -132,7 +134,7 @@ void GrassRendererComponent::CreateModelAndSubscribe()
         }
         else
         {
-            LOG_DEBUG << "Read data file not exist: " << dataFile;
+            CreateDataFile();
             return;
         }
 
@@ -157,6 +159,10 @@ void GrassRendererComponent::UnSubscribe()
         componentContext_.renderersManager_.UnSubscribe(&thisObject_);
         isSubscribed_ = false;
     }
+}
+void GrassRendererComponent::CreateDataFile()
+{
+    dataFile = EngineConf.files.data / (Utils::CreateUniqueFilename() + ".plantData");
 }
 std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& material) const
 {
@@ -285,27 +291,6 @@ void GrassRendererComponent::write(TreeNode& node) const
     const auto& meshData = GetGrassMeshesData();
 
     auto file = getDataFile();
-    if (file.empty())
-    {
-        std::string newFileName = "Generated/grassMeshData_" + std::to_string(thisObject_.GetId()) + ".bin";
-
-        auto terrainComponent = thisObject_.GetComponent<TerrainRendererComponent>();
-
-        if (terrainComponent)
-        {
-            auto heightMap = terrainComponent->GetHeightMap();
-            if (heightMap)
-            {
-                auto filename = heightMap->GetFile();
-                if (filename)
-                {
-                    newFileName = "Generated/grassMeshData_" + filename->GetBaseName() + ".bin";
-                }
-            }
-        }
-        file.DataRelative(newFileName);
-    }
-
     auto opened = file.openToWrite();
     if (opened)
     {

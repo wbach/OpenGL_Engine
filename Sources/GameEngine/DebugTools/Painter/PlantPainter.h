@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+#include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "Painter.h"
 
 namespace Utils
@@ -41,18 +43,21 @@ public:
         const CameraWrapper& camera;
         const Projection& projection;
         const Components::ComponentController& componentController;
+        GameEngine::Scene& scene;
     };
 
-    PlantPainter(Dependencies&&, std::unique_ptr<IBrush>, PaintMode, float, float);
+    PlantPainter(Dependencies&&, const File&, std::unique_ptr<IBrush>, PaintMode, float, float);
     ~PlantPainter() override;
 
     void Paint(const DeltaTime&) override;
 
 private:
+    File plantTexture;
     Dependencies dependencies;
     PaintMode mode;
     std::unique_ptr<IBrush> brush;
     float density;
     float randomness;
+    Components::GrassRendererComponent* plantComponent;
 };
 }  // namespace GameEngine

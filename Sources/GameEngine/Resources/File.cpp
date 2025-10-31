@@ -222,7 +222,7 @@ bool File::openToWrite()
 {
     if (fp_)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Can not write to openned file!.");
+        LOG_ERROR << "Can not write to openned file!.";
         return false;
     }
 
@@ -239,7 +239,7 @@ bool File::openToRead()
 {
     if (fp_)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Can not open to openned file!.");
+        LOG_ERROR << "Can not open to openned file!.";
         return false;
     }
 
