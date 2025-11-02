@@ -21,6 +21,10 @@ BaseComponent::BaseComponent(const ComponentType& type, ComponentContext& compon
 
 BaseComponent::~BaseComponent()
 {
+    UnregisterFunctions();
+}
+void BaseComponent::UnregisterFunctions()
+{
     for (const auto& [id, type] : registeredFunctionsIds_)
     {
         componentContext_.componentController_.UnRegisterFunction(thisObject_.GetId(), type, id);

@@ -138,6 +138,7 @@ public:
 
 protected:
     void RegisterFunction(FunctionType, std::function<void()>, const Dependencies& = {});
+    void UnregisterFunctions();
 
 protected:
     ComponentType type_;

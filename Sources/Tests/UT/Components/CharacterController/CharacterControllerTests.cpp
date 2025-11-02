@@ -45,12 +45,6 @@ CharacterControllerTests::CharacterControllerTests()
     weaponPtr->AddComponent<BowPoseUpdater>();
     scene.AddGameObject(*obj_, std::move(weaponPtr));
 
-    for (auto& [_, vectorOfComponents] : obj_->GetComponents())
-    {
-        for (auto& component : vectorOfComponents)
-            component->ReqisterFunctions();
-    }
-
     sut_.ReqisterFunctions();
 
     componentController_.CallFunctions(FunctionType::Awake);

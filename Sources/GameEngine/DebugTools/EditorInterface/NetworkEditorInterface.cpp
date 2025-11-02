@@ -904,8 +904,6 @@ void NetworkEditorInterface::AddComponent(const EntryParameters &params)
             auto component = go->AddComponent(node);
             if (component)
             {
-                component->ReqisterFunctions();
-
                 {
                     auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);
                     if (maybeId)

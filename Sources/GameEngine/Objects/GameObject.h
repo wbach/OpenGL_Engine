@@ -229,10 +229,7 @@ template <class T, typename... Args>
 inline T& GameObject::AddComponent(Args&&... args)
 {
     auto component = componentFactory_.Create<T>(*this, std::forward<Args>(args)...);
-    if (isStarted or isAwakened)
-    {
-        component->ReqisterFunctions();
-    }
+    component->ReqisterFunctions();
 
     auto ptr         = component.get();
     const auto& type = Components::GetComponentType<T>();

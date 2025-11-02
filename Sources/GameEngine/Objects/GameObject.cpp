@@ -58,6 +58,7 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
     if (component)
     {
         auto ptr = component.get();
+        ptr->ReqisterFunctions();
         components_[component->GetTypeId()].push_back(std::move(component));
         return ptr;
     }
@@ -86,7 +87,7 @@ void GameObject::RemoveAllComponents()
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
     object->SetParent(this);
-    object->RegisterComponentFunctions();
+    //object->RegisterComponentFunctions();
     children_.push_back(std::move(object));
 }
 

@@ -225,8 +225,6 @@ void ExternalComponentsReader::reloadUnknownComponents()
 
                 if (auto component = gameObject->AddComponent(node))
                 {
-                    component->ReqisterFunctions();
-
                     if (auto scene = sceneManager.GetActiveScene())
                     {
                         auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);
@@ -341,8 +339,6 @@ void ExternalComponentsReader::recreateAllInstancesOfComponent(const std::vector
         auto& gameObject = instance.gameObject;
         if (auto component = gameObject.AddComponent(instance.nodeToRestore))
         {
-            component->ReqisterFunctions();
-
             if (auto scene = sceneManager.GetActiveScene())
             {
                 auto maybeId = component->getRegisteredFunctionId(Components::FunctionType::Awake);

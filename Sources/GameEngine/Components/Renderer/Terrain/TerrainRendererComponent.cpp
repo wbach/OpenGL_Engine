@@ -147,6 +147,7 @@ void TerrainRendererComponent::SetRendererType(TerrainRendererComponent::Rendere
 
     if (functionsRegistered_)
     {
+        UnregisterFunctions();
         ReqisterFunctions();
     }
     rendererType_ = type;
