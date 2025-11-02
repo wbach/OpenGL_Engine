@@ -114,6 +114,7 @@ private:
     vec3 ConvertWorldToLocalScale(const vec3&);
     mat4 ConvertWorldToLocalMatrix(const mat4&);
     Quaternion ConvertWorldToLocalRotation(const Quaternion&);
+    void CallComponentFunctionsIfNeeded();
 
 protected:
     Utils::IdPool& idPool_;
@@ -230,6 +231,8 @@ inline T& GameObject::AddComponent(Args&&... args)
 {
     auto component = componentFactory_.Create<T>(*this, std::forward<Args>(args)...);
     component->ReqisterFunctions();
+
+    CallComponentFunctionsIfNeeded();
 
     auto ptr         = component.get();
     const auto& type = Components::GetComponentType<T>();

@@ -59,6 +59,7 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
     {
         auto ptr = component.get();
         ptr->ReqisterFunctions();
+        CallComponentFunctionsIfNeeded();
         components_[component->GetTypeId()].push_back(std::move(component));
         return ptr;
     }
@@ -87,8 +88,21 @@ void GameObject::RemoveAllComponents()
 void GameObject::AddChild(std::unique_ptr<GameObject> object)
 {
     object->SetParent(this);
-    //object->RegisterComponentFunctions();
     children_.push_back(std::move(object));
+}
+
+void GameObject::CallComponentFunctionsIfNeeded()
+{
+    if (isAwakened)
+    {
+        componentController_.CallGameObjectFunctions(Components::FunctionType::Awake, id_);
+        componentController_.CallGameObjectFunctions(Components::FunctionType::LateAwake, id_);
+    }
+    if (isStarted)
+    {
+        componentController_.CallGameObjectFunctions(Components::FunctionType::OnStart, id_);
+        componentController_.CallGameObjectFunctions(Components::FunctionType::PostStart, id_);
+    }
 }
 
 std::vector<IdType> GameObject::RemoveChild(GameObject& gameObject)

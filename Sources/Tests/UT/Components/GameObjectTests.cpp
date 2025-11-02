@@ -34,7 +34,12 @@ public:
     void ReqisterFunctions() override
     {
         RegisterFunction(FunctionType::Awake, [this]() { onAwakendCalled = true; });
+        RegisterFunction(FunctionType::LateAwake, [this]() { onLateAwakeCalled = true; });
         RegisterFunction(FunctionType::OnStart, [this]() { onStartCalled = true; });
+        RegisterFunction(FunctionType::PostStart, [this]() { onPostStartCalled = true; });
+        RegisterFunction(FunctionType::Update, [this]() { onUpdateCalled = true; });
+        RegisterFunction(FunctionType::PostUpdate, [this]() { onPostUpdateCalled = true; });
+        RegisterFunction(FunctionType::AlwaysUpdate, [this]() { onAlwaysUpdateCalled = true; });
     }
     void CleanUp() override
     {
@@ -44,7 +49,12 @@ public:
     }
 
     bool onAwakendCalled{false};
+    bool onLateAwakeCalled{false};
     bool onStartCalled{false};
+    bool onPostStartCalled{false};
+    bool onUpdateCalled{false};
+    bool onPostUpdateCalled{false};
+    bool onAlwaysUpdateCalled{false};
 };
 }  // namespace
 
@@ -154,8 +164,7 @@ TEST_F(GameObjectTestSchould, CreateDeleteGameObjectStability)
     EXPECT_TRUE(componentController.getComponentsContainer().empty());
 }
 
-// TO DO : fix me
-TEST_F(GameObjectTestSchould, DISABLED_AddComponentToAwaknedObject)
+TEST_F(GameObjectTestSchould, AddComponentToAwaknedObject)
 {
     CreateSut();
 
@@ -163,5 +172,92 @@ TEST_F(GameObjectTestSchould, DISABLED_AddComponentToAwaknedObject)
     CheckComponentRegistration<TestComponent>();
 
     EXPECT_TRUE(test.onAwakendCalled);
+    EXPECT_TRUE(test.onLateAwakeCalled);
     EXPECT_FALSE(test.onStartCalled);
+    EXPECT_FALSE(test.onPostStartCalled);
+}
+
+TEST_F(GameObjectTestSchould, AddComponentToStartedObject)
+{
+    CreateSut();
+    scene->Start();
+
+    auto& test = sut_->AddComponent<TestComponent>();
+    CheckComponentRegistration<TestComponent>();
+
+    EXPECT_TRUE(test.onAwakendCalled);
+    EXPECT_TRUE(test.onStartCalled);
+    EXPECT_TRUE(test.onPostStartCalled);
+    EXPECT_TRUE(test.onLateAwakeCalled);
+}
+
+TEST_F(GameObjectTestSchould, AddObjectToScene)
+{
+    auto go    = scene->CreateGameObject("SUT");
+    sut_       = go.get();
+    auto& test = sut_->AddComponent<TestComponent>();
+
+    // No called when object not added to scene
+    EXPECT_FALSE(test.onAwakendCalled);
+    EXPECT_FALSE(test.onLateAwakeCalled);
+    EXPECT_FALSE(test.onStartCalled);
+    EXPECT_FALSE(test.onPostStartCalled);
+
+    scene->AddGameObject(std::move(go));
+
+    // No called when addition event wasnt processed
+    EXPECT_FALSE(test.onAwakendCalled);
+    EXPECT_FALSE(test.onStartCalled);
+
+    scene->ProcessEvents();
+
+    // Scene is not started. So after event only awake should be called
+    EXPECT_TRUE(test.onAwakendCalled);
+    EXPECT_TRUE(test.onLateAwakeCalled);
+    EXPECT_FALSE(test.onStartCalled);
+    EXPECT_FALSE(test.onPostStartCalled);
+
+    scene->FullUpdate(0.1f);
+    scene->PostUpdate();
+
+    EXPECT_FALSE(test.onUpdateCalled);
+    EXPECT_FALSE(test.onPostUpdateCalled);
+    EXPECT_TRUE(test.onAlwaysUpdateCalled);
+}
+
+TEST_F(GameObjectTestSchould, AddObjectToStartedScene)
+{
+    scene->Start();
+
+    auto go    = scene->CreateGameObject("SUT");
+    sut_       = go.get();
+    auto& test = sut_->AddComponent<TestComponent>();
+
+    // No called when object not added to scene
+    EXPECT_FALSE(test.onAwakendCalled);
+    EXPECT_FALSE(test.onStartCalled);
+
+    scene->AddGameObject(std::move(go));
+
+    // No called when addition event wasnt processed
+    EXPECT_FALSE(test.onAwakendCalled);
+    EXPECT_FALSE(test.onStartCalled);
+
+    scene->ProcessEvents();
+
+    // Scene is started. So after event should be called
+    EXPECT_TRUE(test.onAwakendCalled);
+    EXPECT_TRUE(test.onLateAwakeCalled);
+    EXPECT_TRUE(test.onStartCalled);
+    EXPECT_TRUE(test.onPostStartCalled);
+
+    EXPECT_FALSE(test.onUpdateCalled);
+    EXPECT_FALSE(test.onPostUpdateCalled);
+
+    scene->FullUpdate(0.1f);
+    scene->PostUpdate();
+
+    EXPECT_TRUE(test.onUpdateCalled);
+    EXPECT_TRUE(test.onPostUpdateCalled);
+    EXPECT_TRUE(test.onAlwaysUpdateCalled);
 }
