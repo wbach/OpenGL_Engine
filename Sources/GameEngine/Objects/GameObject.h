@@ -64,6 +64,9 @@ public:
     T* GetComponent();
 
     template <class T>
+    std::vector<T*> GetComponents();
+
+    template <class T>
     const T* GetComponent() const;
 
     Components::IComponent* GetComponent(Components::ComponentTypeID);
@@ -176,6 +179,24 @@ inline T* GameObject::GetComponent()
         return nullptr;
 
     return static_cast<T*>(it->second[0].get());
+}
+
+template <class T>
+std::vector<T*> GameObject::GetComponents()
+{
+    const auto& type = Components::GetComponentType<T>();
+    auto it          = components_.find(type.id);
+
+    if (it == components_.end() or it->second.empty())
+        return {};
+
+    std::vector<T*> result;
+    result.reserve(it->second.size());
+    for (auto& component : it->second)
+    {
+        result.push_back(static_cast<T*>(component.get()));
+    }
+    return result;
 }
 
 template <class T>

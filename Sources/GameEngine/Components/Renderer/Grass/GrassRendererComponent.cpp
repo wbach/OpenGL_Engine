@@ -1,6 +1,9 @@
 #include "GrassRendererComponent.h"
 
+#include <Logger/Log.h>
 #include <Utils/TreeNode.h>
+
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -11,8 +14,6 @@
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
-#include <Logger/Log.h>
-#include <Utils/FileSystem/FileSystemUtils.hpp>
 
 namespace GameEngine
 {
@@ -27,7 +28,7 @@ const bool DEVIDE_SPACE{false};
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<GrassRendererComponent>(), componentContext, gameObject)
-    , textureFile("Textures/Plants/G3_Nature_Plant_Grass_06_Diffuse_01.png")
+    , textureFile("")
     , isSubscribed_(false)
 {
 }
@@ -113,14 +114,15 @@ GrassRendererComponent& GrassRendererComponent::setTexture(const File& filename)
 }
 void GrassRendererComponent::CreateModelAndSubscribe()
 {
+    LOG_DEBUG << "CreateModelAndSubscribe";
     if (EngineConf.renderer.flora.isEnabled)
     {
         if (dataFile.exist())
         {
             auto succes = dataFile.openToRead();
+            LOG_DEBUG << "Read data file: " << dataFile;
             if (succes)
             {
-                LOG_DEBUG << "Read data file: " << dataFile;
                 dataFile.readVectorFromFile(meshData_.positions);
                 dataFile.readVectorFromFile(meshData_.normals);
                 dataFile.readVectorFromFile(meshData_.colors);
@@ -151,6 +153,9 @@ void GrassRendererComponent::CreateModelAndSubscribe()
             }
         }
     }
+    else {
+        LOG_DEBUG << "Flora is disabled.";
+    }
 }
 void GrassRendererComponent::UnSubscribe()
 {
@@ -163,6 +168,7 @@ void GrassRendererComponent::UnSubscribe()
 void GrassRendererComponent::CreateDataFile()
 {
     dataFile = EngineConf.files.data / (Utils::CreateUniqueFilename() + ".plantData");
+    LOG_DEBUG << "Generatefd data file name: " << dataFile;
 }
 std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& material) const
 {
@@ -290,7 +296,7 @@ void GrassRendererComponent::write(TreeNode& node) const
 
     const auto& meshData = GetGrassMeshesData();
 
-    auto file = getDataFile();
+    auto file   = getDataFile();
     auto opened = file.openToWrite();
     if (opened)
     {

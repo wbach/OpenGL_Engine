@@ -8,7 +8,7 @@
 #include "Logger/Log.h"
 #include "Objects/GameObject.h"
 #include "Scene/Scene.hpp"
-#include "Tests/UT/Components/BaseComponent.h"
+#include "Tests/UT/EngineBasedTest.h"
 #include "TreeNode.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -21,22 +21,47 @@ namespace
 {
 constexpr char model[] = "testModel.obj";
 constexpr char clip[]  = "testClip";
+
+class TestComponent : public BaseComponent
+{
+public:
+    TestComponent(ComponentContext& componentContext, GameObject& gameObject)
+        : BaseComponent(GetComponentType<TestComponent>(), componentContext, gameObject)
+    {
+    }
+
+    // TO DO check register functon are properly invoked
+    void ReqisterFunctions() override
+    {
+        RegisterFunction(FunctionType::Awake, [this]() { onAwakendCalled = true; });
+        RegisterFunction(FunctionType::OnStart, [this]() { onStartCalled = true; });
+    }
+    void CleanUp() override
+    {
+    }
+    void Reload() override
+    {
+    }
+
+    bool onAwakendCalled{false};
+    bool onStartCalled{false};
+};
 }  // namespace
 
-struct GameObjectTestSchould : public BaseComponentTestSchould
+struct GameObjectTestSchould : public EngineBasedTest
 {
     GameObjectTestSchould()
-        : sut_(*obj_)
     {
     }
     void SetUp() override
     {
+        EngineBasedTest::SetUp();
     }
 
     void verifyComponents()
     {
-        auto rendererComponent = sut_.GetComponent<RendererComponent>();
-        auto animator          = sut_.GetComponent<Animator>();
+        auto rendererComponent = sut_->GetComponent<RendererComponent>();
+        auto animator          = sut_->GetComponent<Animator>();
 
         EXPECT_TRUE(animator != nullptr);
         EXPECT_TRUE(rendererComponent != nullptr);
@@ -47,19 +72,38 @@ struct GameObjectTestSchould : public BaseComponentTestSchould
                   animator->animationClips.end());
     }
 
-    GameObject& sut_;
+    void CreateSut()
+    {
+        auto go = scene->CreateGameObject("SUT");
+        sut_    = go.get();
+        scene->AddGameObject(std::move(go));
+        scene->ProcessEvents();
+    }
+
+    template <typename ComponentType>
+    void CheckComponentRegistration()
+    {
+        auto rendererComponents = scene->getComponentController().GetAllComponentsOfType<ComponentType>();
+        EXPECT_FALSE(rendererComponents.empty());
+    }
+
+    GameObject* sut_;
 };
 
 TEST_F(GameObjectTestSchould, AddAndGetComponentByTemplete)
 {
-    sut_.AddComponent<RendererComponent>().AddModel(model);
-    sut_.AddComponent<Animator>().AddAnimationClip(clip, "testFile");
+    CreateSut();
+
+    sut_->AddComponent<RendererComponent>().AddModel(model);
+    sut_->AddComponent<Animator>().AddAnimationClip(clip, "testFile");
 
     verifyComponents();
 }
 
 TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
 {
+    CreateSut();
+
     Animator::registerReadFunctions();
     RendererComponent::registerReadFunctions();
 
@@ -69,7 +113,7 @@ TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
         auto& animationClipsNode              = node.addChild("animationClips");
         auto& animationClipNode               = animationClipsNode.addChild("animationClip");
         animationClipNode.attributes_["name"] = clip;
-        sut_.AddComponent(node);
+        sut_->AddComponent(node);
     }
 
     {
@@ -81,7 +125,7 @@ TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
             modelFileNameNode.addChild("fileName", std::string(model));
             modelFileNameNode.addChild("lvlOfDetail", std::string("0"));
         }
-        sut_.AddComponent(node);
+        sut_->AddComponent(node);
     }
 
     verifyComponents();
@@ -92,17 +136,32 @@ TEST_F(GameObjectTestSchould, AddByTreeNodeAndGetComponentByTemplete)
     EXPECT_TRUE(ReadFunctions::instance().getComponentTypeNameToId().empty());
 }
 
-TEST_F(GameObjectTestSchould, AddRemoveGameObjectStability)
+TEST_F(GameObjectTestSchould, CreateDeleteGameObjectStability)
 {
+    CreateSut();
     for (int i = 0; i < 2; ++i)
     {
-        auto go = scene.CreateGameObject("TestGameObjectName_" + std::to_string(i));
+        auto go = scene->CreateGameObject("TestGameObjectName_" + std::to_string(i));
         go.reset();
     }
 
-    obj_.reset();
-    scene.RemoveGameObject(0);
+    // Remove root
+    scene->RemoveGameObject(0);
+    scene->ProcessEvents();
 
-    EXPECT_TRUE(componentController_.getComponentFunctions().empty());
-    EXPECT_TRUE(componentController_.getComponentsContainer().empty());
+    auto& componentController = scene->getComponentController();
+    EXPECT_TRUE(componentController.getComponentFunctions().empty());
+    EXPECT_TRUE(componentController.getComponentsContainer().empty());
+}
+
+// TO DO : fix me
+TEST_F(GameObjectTestSchould, DISABLED_AddComponentToAwaknedObject)
+{
+    CreateSut();
+
+    auto& test = sut_->AddComponent<TestComponent>();
+    CheckComponentRegistration<TestComponent>();
+
+    EXPECT_TRUE(test.onAwakendCalled);
+    EXPECT_FALSE(test.onStartCalled);
 }

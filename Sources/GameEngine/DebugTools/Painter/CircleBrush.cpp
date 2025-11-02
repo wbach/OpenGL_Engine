@@ -6,9 +6,11 @@ namespace GameEngine
 {
 CircleBrush::CircleBrush(Interpolation interpolation, WorldSpaceBrushRadius size, float strength)
     : worldSpaceBrushRadius(size)
+    , localBrushSize{static_cast<uint32>(std::round(size.value))}
     , interpolation{interpolation}
     , strength(strength)
 {
+    calculateInfluence(false);
 }
 void CircleBrush::createInfluance(bool isEven, float stepX, float stepZ)
 {

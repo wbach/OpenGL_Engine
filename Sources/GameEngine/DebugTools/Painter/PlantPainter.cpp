@@ -8,6 +8,7 @@
 
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -79,31 +80,6 @@ PlantPainter::PlantPainter(Dependencies&& dependencies, const File& plantTexture
     , density(density)
     , randomness(randomness)
 {
-    const auto& plantObjectName = plantTexture.GetFilename();
-    auto& scene                 = dependencies.scene;
-    if (auto plantObject = scene.GetGameObject(plantObjectName))
-    {
-        plantComponent = plantObject->GetComponent<Components::GrassRendererComponent>();
-
-        if (not plantComponent)
-        {
-            plantComponent = &plantObject->AddComponent<Components::GrassRendererComponent>().setTexture(plantTexture);
-        }
-    }
-    else
-    {
-        GameObject* gruppingGameObject = scene.GetGameObject(PLANTS_GAMEOBJECT_NAME);
-        if (not gruppingGameObject)
-        {
-            auto newGrouppingObject = scene.CreateGameObject(PLANTS_GAMEOBJECT_NAME);
-            gruppingGameObject      = newGrouppingObject.get();
-            scene.AddGameObject(std::move(newGrouppingObject));
-        }
-
-        auto newPlantObject = scene.CreateGameObject(plantObjectName);
-        plantComponent      = &plantObject->AddComponent<Components::GrassRendererComponent>().setTexture(plantTexture);
-        scene.AddGameObject(std::move(newPlantObject));
-    }
 }
 PlantPainter::~PlantPainter()
 {
@@ -124,6 +100,37 @@ void PlantPainter::Paint(const DeltaTime&)
             auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
             if (currentTerrainPoint)
             {
+                // dla terenow i rysowania mozemy nie jawnie dodawac nowy komponent
+
+                // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
+                auto& parent = currentTerrainPoint->terrainComponent->GetParentGameObject();
+                Components::GrassRendererComponent* plantComponent{nullptr};
+                auto plantComponents = parent.GetComponents<Components::GrassRendererComponent>();
+                if (plantComponents.empty())
+                {
+                    auto& component = parent.AddComponent<Components::GrassRendererComponent>();
+                    component.setTexture(plantTexture);
+                    plantComponent = &component;
+                }
+                else
+                {
+                    // Jesli teren ma jakies  komponenty to szuakmy czy ma jakis dla takiej teksutry, jesli ma to go uzywamy,
+                    // jesli nie towrzymy nowy komponent
+                    auto iter = std::find_if(plantComponents.begin(), plantComponents.end(),
+                                             [this](auto* plantPtr) { return plantPtr->getTextureFile() == plantTexture; });
+
+                    if (iter != plantComponents.end())
+                    {
+                        plantComponent = *iter;
+                    }
+                    else
+                    {
+                        auto& component = parent.AddComponent<Components::GrassRendererComponent>();
+                        component.setTexture(plantTexture);
+                        plantComponent = &component;
+                    }
+                }
+
                 LOG_DEBUG << currentTerrainPoint;
 
                 const auto& points = brush->getInfluence();
@@ -175,8 +182,10 @@ void PlantPainter::Paint(const DeltaTime&)
             }
         }
         break;
-        case PaintMode::Mesh:
-            // auto rayDir        = CalculateMouseRayDirection(dependencies.projection, dependencies.camera, mousePosition);
+        //case PaintMode::Mesh:
+        // zwiazku z tym ze nie chcemy aby kazdy mesz obrywal rysowaniem, oczekujemy jawnego posiadania komponentu przy malowaniu.
+
+        // auto rayDir        = CalculateMouseRayDirection(dependencies.projection, dependencies.camera, mousePosition);
         default:
             LOG_WARN << "Not implented : " << magic_enum::enum_name(mode);
     }

@@ -31,9 +31,9 @@ public:
     enum class PaintMode
     {
         //FreeMeshTerrain,
-        MeshTerrain,
-        Terrain,
-        Mesh
+       // MeshTerrain,
+        Terrain//,
+        //Mesh
     };
 
     struct Dependencies
@@ -58,6 +58,5 @@ private:
     std::unique_ptr<IBrush> brush;
     float density;
     float randomness;
-    Components::GrassRendererComponent* plantComponent;
 };
 }  // namespace GameEngine

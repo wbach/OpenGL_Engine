@@ -733,7 +733,7 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
 
     // === Mode ===
     painterFields.plantPainterFields.mode = CreateEnumComboBox<GameEngine::PlantPainter::PaintMode>(
-        panel, sizer, "Mode", GameEngine::PlantPainter::PaintMode::MeshTerrain, [this]() { OnUpdatePainterParam(); });
+        panel, sizer, "Mode", GameEngine::PlantPainter::PaintMode::Terrain, [this]() { OnUpdatePainterParam(); });
 
     // === Brush Type ===
     painterFields.plantPainterFields.brushType =
@@ -753,10 +753,12 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
 
     // === Plant Texture ===
     {
+        auto onChange = [this](std::optional<GameEngine::File>, const GameEngine::File& file)
+        { painterFields.plantPainterFields.selectedTextureFile = file; };
+        auto onSelect = [this](const GameEngine::File& file) { painterFields.plantPainterFields.selectedTextureFile = file; };
+
         auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
-        auto* texBtn = new TextureButton(
-            panel, std::nullopt, TextureButton::MenuOption::Change,
-            [this](const GameEngine::File& file) { painterFields.plantPainterFields.selectedTextureFile = file; }, nullptr);
+        auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::Change, onSelect, onChange);
 
         box->Add(texBtn, 0, wxALL, 5);
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
@@ -1127,7 +1129,7 @@ void TerrainToolPanel::EnablePainter()
                 auto circleBrush = std::make_unique<GameEngine::CircleBrush>(
                     GameEngine::makeInterpolation(GameEngine::InterpolationType::Linear), radius, 1.f);
 
-                GameEngine::PlantPainter::PaintMode mode(GameEngine::PlantPainter::PaintMode::MeshTerrain);
+                GameEngine::PlantPainter::PaintMode mode(GameEngine::PlantPainter::PaintMode::Terrain);
                 if (auto value = magic_enum::enum_cast<GameEngine::PlantPainter::PaintMode>(
                         plantPainterFields.mode->GetValue().ToStdString()))
                 {

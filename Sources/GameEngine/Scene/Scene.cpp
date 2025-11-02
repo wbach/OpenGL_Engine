@@ -363,6 +363,7 @@ void Scene::ProcessEvent(RemoveGameObjectEvent&& event)
         {
             rootGameObject_.reset(nullptr);
             LOG_WARN << "Root object deleted";
+            return;
         }
         LOG_WARN << "RootObject was not set!";
     }
