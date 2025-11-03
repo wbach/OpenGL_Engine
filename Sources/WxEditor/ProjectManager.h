@@ -71,7 +71,6 @@ private:
     std::filesystem::path projectPath;
     std::filesystem::path projectConfigPath;
     std::filesystem::path projectScenesFactoryFilePath;
-    std::filesystem::path projectCachePath;
     std::filesystem::path projectScenesDirPath;
     std::filesystem::path projectDataDirPath;
     std::filesystem::path projectComponentsDirPath;

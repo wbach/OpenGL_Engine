@@ -15,6 +15,7 @@ const std::string CSTR_SOUND_VOLUME  = "volume";
 // Files
 const std::string CSTR_FILES                     = "Files";
 const std::string CSTR_DATA_LOCATION             = "DataLocation";
+const std::string CSTR_GENERATED_DATA_LOCATION   = "GeneratedDataLocation";
 const std::string CSTR_SHADER_LOCATION           = "ShadersLocation";
 const std::string CSTR_CACHE_LOCATION            = "CacheLocation";
 const std::string CSTR_USER_DIR_LOCATION         = "UserDirLocation";
@@ -76,10 +77,10 @@ const std::string CSTR_TERRAIN_RENDERER_TYPE           = "terrainRenderer";
 const std::string CSTR_TERRAIN_MESH_RESOLUTION_DIVIDER = "terrainRendererMeshResolutionDivider";
 const std::string CSTR_TERRAIN_MESH_PARTS_COUNT        = "partsCount";
 // Other
-const std::string CSTR_ENABLE_BINARY_LOADING        = "EnableBinaryLoading";
-const std::string CSTR_DEBUG_PARAMS                 = "DebugParams";
+const std::string CSTR_ENABLE_BINARY_LOADING          = "EnableBinaryLoading";
+const std::string CSTR_DEBUG_PARAMS                   = "DebugParams";
 const std::string CSTR_LINE_MESH_VISUALIZATION_PARAMS = "LineMeshVisualizator";
-const std::string CSTR_LOGGING_LVL                  = "loggingLvl";
-const std::string CSTR_SHOW_RENDER_INFO             = "showRenderInfo";
-const std::string CSTR_REFRESH_STEP_DOWN            = "refreshStepDown";
-const std::string CSTR_USE_WORKER                   = "useWorker";
+const std::string CSTR_LOGGING_LVL                    = "loggingLvl";
+const std::string CSTR_SHOW_RENDER_INFO               = "showRenderInfo";
+const std::string CSTR_REFRESH_STEP_DOWN              = "refreshStepDown";
+const std::string CSTR_USE_WORKER                     = "useWorker";

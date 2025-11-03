@@ -204,7 +204,7 @@ void MainFrame::Init()
         UpdateTimeOnToolbar();
         gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
         UpdateMainMenuRendererOptionsCheckBoxes();
-        SetStatusText(std::filesystem::path(EngineConf.files.data).make_preferred().string());
+        SetStatusText(std::filesystem::path(EngineConf.files.getDataPath()).make_preferred().string());
     };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
@@ -1264,7 +1264,7 @@ void MainFrame::OnMakePrefab(wxCommandEvent&)
 {
     if (auto maybeGo = GetSelectedGameObject())
     {
-        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.data).string(),
+        wxFileDialog fileDialog(this, "Choose prefab file", Utils::GetAbsolutePath(EngineConf.files.getDataPath()).string(),
                                 maybeGo->GetName() + ".prefab", "Pliki prefabow (*.prefab)|*.prefab",
                                 wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 

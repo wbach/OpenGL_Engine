@@ -18,7 +18,7 @@ void GameEngine::ColladaMergeAnimationClips(const std::vector<std::string>& file
         // colldadaDocuments.emplace_back();
         xml_document<char> document;  // = colldadaDocuments.back();
 
-        auto fullFilePath = EngineConf_GetFullDataPathAddToRequierd(filename);
+        auto fullFilePath = EngineConf.files.getDataPath() / filename;
         auto fileData     = Utils::ReadFile(fullFilePath);
 
         if (fileData.empty())

@@ -417,7 +417,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/S
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/Intersection.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/EngineContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationReader.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ReadConfigurationFunctions.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/SoundParams/SoundParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/FloraParams/FloraParams.h

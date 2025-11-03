@@ -21,7 +21,6 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR{"GrassRenderer"};
 const int32 BOX_SIZE = 100;
 const bool DEVIDE_SPACE{false};
 }  // namespace
@@ -167,7 +166,7 @@ void GrassRendererComponent::UnSubscribe()
 }
 void GrassRendererComponent::CreateDataFile()
 {
-    dataFile = EngineConf.files.data / (Utils::CreateUniqueFilename() + ".plantData");
+    dataFile = EngineConf.files.getGeneratedDirPath() / (Utils::CreateUniqueFilename() + ".plantData");
     LOG_DEBUG << "Generatefd data file name: " << dataFile;
 }
 std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& material) const
@@ -292,7 +291,7 @@ void GrassRendererComponent::registerReadFunctions()
 }
 void GrassRendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     const auto& meshData = GetGrassMeshesData();
 

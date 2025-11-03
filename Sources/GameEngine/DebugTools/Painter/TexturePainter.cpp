@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <Utils/Image/ImageUtils.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <optional>
 
@@ -223,11 +224,11 @@ void TexturePainter::CreateBlendMapIfNeeded(Components::TerrainRendererComponent
     if (not tc.GetTexture(TerrainTextureType::blendMap))
     {
         auto image       = CreateZerosImage<uint8>(vec2ui(2048, 2048), 4);
-        auto textureName = tc.getParentGameObject().GetName() + "_blend_map";
+        auto textureName = "blendmap_" + Utils::CreateUniqueFilename();
         TextureParameters params;
         params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         auto blendmapTexture   = textureLoader.CreateTexture(textureName, params, std::move(image));
-        blendmapTexture->SetFile(std::filesystem::path(EngineConf.files.data) / (textureName + ".png"));
+        blendmapTexture->SetFile(EngineConf.files.getDataPath() / (textureName + ".png"));
         Utils::SaveImage(blendmapTexture->GetImage(), blendmapTexture->GetFile()->GetAbsolutePath().string());
 
         tc.LoadTexture(Components::TerrainTexture{

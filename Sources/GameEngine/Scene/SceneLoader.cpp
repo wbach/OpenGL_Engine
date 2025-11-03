@@ -108,8 +108,8 @@ void SceneLoader::Init()
         return;
     }
     auto& texureLoader = resourceManager->GetTextureLoader();
-    circleTexture_     = texureLoader.LoadTexture(EngineConf.files.loadingScreenCircleTexture, params);
-    bgTexture_         = texureLoader.LoadTexture(EngineConf.files.loadingScreenBackgroundTexture, params);
+    circleTexture_     = texureLoader.LoadTexture(EngineConf.files.getLoadingCirclePath(), params);
+    bgTexture_         = texureLoader.LoadTexture(EngineConf.files.getLoadingBackgroundPath(), params);
 
     if (circleTexture_ and bgTexture_)
     {

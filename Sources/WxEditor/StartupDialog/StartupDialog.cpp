@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include "Engine/Configuration.h"
+#include "Engine/ConfigurationWriter.h"
 #include "ProjectsCMakeTemplate.h"
 #include "WxEditor/ProjectManager.h"
 
@@ -123,7 +125,7 @@ void StartupDialog::OnNewProject(wxCommandEvent&)
     projectManager.SetProjectName(name);
     projectManager.SaveRecentProject(projectPath);
 
-    GameEngine::CreateDefaultFile(projectManager.GetConfigFile().string());
+    GameEngine::WriteConfigurationToFile(EngineConf, projectManager.GetConfigFile().string());
     GameEngine::createScenesFile(projectManager.GetScenesFactoryFile());
 
     std::ofstream out(projectManager.GetProjectPath() / "CMakeLists.txt");

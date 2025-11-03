@@ -81,8 +81,6 @@ void WaveFrontObjLoader::ProcessFileData()
 
 void WaveFrontObjLoader::ReadMaterialFile(const std::string& file_name)
 {
-    EngineConf_AddRequiredFile(file_name);
-
     auto file = Utils::ReadFile(file_name);
 
     std::istringstream f(file);

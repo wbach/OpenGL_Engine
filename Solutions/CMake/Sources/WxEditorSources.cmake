@@ -6,6 +6,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxOpenGLApiWrap
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxWindowApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxInputManager.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/BuildProcess.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/BuildComponentLogFrame.cpp
@@ -28,5 +29,4 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.c
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MaterialEditor/MaterialEditorFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/main.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.cpp
 )

@@ -17,7 +17,7 @@ namespace WBLoader
 std::filesystem::path CreateBinPath(const std::filesystem::path& filename)
 {
     auto tmpName = filename;
-    return EngineConf.files.data / tmpName.replace_extension(".bin");
+    return EngineConf.files.getDataPath() / tmpName.replace_extension(".bin");
 }
 template <class T>
 void WriteToFile(std::fstream& file, const std::vector<T>& v)

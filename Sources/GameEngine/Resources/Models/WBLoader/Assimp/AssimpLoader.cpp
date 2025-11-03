@@ -481,7 +481,7 @@ std::filesystem::path getTexturePath(const std::optional<File>& currentProcessin
     if (not parentDirPathTexture.empty())
         return parentDirPathTexture;
 
-    return Utils::FindFile(File(path).GetFilename(), EngineConf.files.data).string();
+    return Utils::FindFile(File(path).GetFilename(), EngineConf.files.getDataPath()).string();
 }
 
 GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessingFile, const aiMaterial& material,

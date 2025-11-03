@@ -23,6 +23,7 @@
 #include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
 #include "textureNotFound.h"
+#include <Utils.h>
 
 namespace GameEngine
 {
@@ -106,13 +107,10 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     File inputFile = inputFileName;
     if (not inputFileName)
     {
-        // /* LOG TO FIX*/  LOG_ERROR << ("File not exist : " + inputFileName.GetAbsolutePath() + " try find it in data
-        // directory");
-        auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.data);
+        auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.getDataPath());
         if (not filepath.empty())
         {
             inputFile = File(filepath);
-            // /* LOG TO FIX*/  LOG_ERROR << ("Found texture in : " + inputFile.GetAbsolutePath());
         }
         else
         {

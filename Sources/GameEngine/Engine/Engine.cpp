@@ -165,7 +165,7 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
                 physicsSubscriber->SetFpsLimit(EngineConf.renderer.fpsLimt);
         });
 
-    engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.shaders);
+    engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.getShaderPath());
     introRenderer_.Render();
 
     engineContext_.GetPhysicsApi().DisableSimulation();
@@ -202,7 +202,6 @@ Engine::~Engine()
     EngineConf.debugParams.showPhycicsVisualization.unsubscribe(showPhycicsVisualizationSub_);
     EngineConf.debugParams.logLvl.unsubscribe(loggingLvlParamSub_);
     EngineConf.renderer.fpsLimt.unsubscribe(fpsLimitParamSub_);
-    EngineConf_SaveRequiredFiles();
     LOG_DEBUG << "destructor done";
 }
 

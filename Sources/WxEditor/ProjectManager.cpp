@@ -18,7 +18,6 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     projectScenesDirPath         = path / "Scenes";
     projectDataDirPath           = path / "Data";
     projectComponentsDirPath     = projectDataDirPath / "Components";
-    projectCachePath             = path / ".cache";
 
     CreateDirectories();
 
@@ -28,15 +27,10 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
 
     bool needUpdate{false};
 
-    if (EngineConf.files.data != projectDataDirPath)
+    if (EngineConf.files.getDataPath() != projectDataDirPath)
     {
-        EngineConf.files.data = projectDataDirPath;
-        needUpdate            = true;
-    }
-    if (EngineConf.files.cache != projectCachePath)
-    {
-        EngineConf.files.cache = projectCachePath;
-        needUpdate             = true;
+        EngineConf.files.setDataPath(projectDataDirPath);
+        needUpdate = true;
     }
 
     if (needUpdate)
@@ -47,7 +41,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     if (std::filesystem::exists(projectEditorConfigFilePath))
     {
         ReadEditorConfig();
-        EngineConf.files.shaders = engineIncludesDir / "Sources";
+        EngineConf.files.setShaderPath(engineIncludesDir / "Sources");
     }
     else
     {
@@ -56,8 +50,8 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
 
         if (dirDlg.ShowModal() == wxID_OK)
         {
-            engineIncludesDir        = dirDlg.GetPath().ToStdString();
-            EngineConf.files.shaders = engineIncludesDir / "Sources";
+            engineIncludesDir = dirDlg.GetPath().ToStdString();
+            EngineConf.files.setShaderPath(engineIncludesDir / "Sources");
         }
         else
         {
@@ -77,7 +71,6 @@ void ProjectManager::CreateDirectories()
     Utils::CreateDirectories(projectScenesDirPath);
     Utils::CreateDirectories(projectDataDirPath);
     Utils::CreateDirectories(projectComponentsDirPath);
-    Utils::CreateDirectories(projectCachePath);
 }
 
 const std::filesystem::path& ProjectManager::GetProjectPath() const

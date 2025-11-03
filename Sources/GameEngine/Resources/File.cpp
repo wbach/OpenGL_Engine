@@ -72,13 +72,14 @@ void File::Init(const std::filesystem::path &input)
 void File::DataRelative(const std::filesystem::path &filename)
 {
     dataRelative_ = filename.lexically_normal();
-    absolutePath_ = std::filesystem::absolute(std::filesystem::path(EngineConf.files.data) / dataRelative_).lexically_normal();
+    absolutePath_ =
+        std::filesystem::absolute(std::filesystem::path(EngineConf.files.getDataPath()) / dataRelative_).lexically_normal();
 }
 
 void File::AbsoultePath(const std::filesystem::path &filename)
 {
     absolutePath_ = filename.lexically_normal();
-    dataRelative_ = fs::relative(absolutePath_, EngineConf.files.data).lexically_normal();
+    dataRelative_ = fs::relative(absolutePath_, EngineConf.files.getDataPath()).lexically_normal();
 }
 
 void File::ChangeExtension(const std::string &extension)

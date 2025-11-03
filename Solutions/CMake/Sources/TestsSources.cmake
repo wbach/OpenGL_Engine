@@ -107,6 +107,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/InterpolationTests.cp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainToolsTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainPointGetterTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/TerrainTransitionTests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/PlantPainterTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Terrain/CircleBrushTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/JsonReaderTreeTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Camera/CameraFrustrumTests.cpp

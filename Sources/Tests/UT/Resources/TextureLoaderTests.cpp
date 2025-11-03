@@ -14,12 +14,6 @@ namespace GameEngine
 {
 struct TextureLoaderTest : public ::testing::Test
 {
-    TextureLoaderTest()
-    {
-        const std::string configFile = "./Conf.xml";
-        GameEngine::ReadFromFile(configFile);
-    }
-
     virtual void SetUp() override
     {
         sut_.reset(new TextureLoader(apiMock_, gpuLoader_));

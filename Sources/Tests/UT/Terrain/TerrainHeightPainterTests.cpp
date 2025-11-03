@@ -1,4 +1,4 @@
-#include <GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h>
+ #include <GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h>
 
 #include <functional>
 #include <limits>
@@ -136,7 +136,7 @@ void visualizeBrushInWorld(const CircleBrush& brush, const vec3& terrainPosition
         // Skalowanie do world space
         float worldX = terrainPosition.x + u * terrainScale.x - terrainScale.x / 2.0f;
         float worldZ = terrainPosition.z + v * terrainScale.z - terrainScale.z / 2.0f;
-        float worldY = terrainPosition.y;  // wysokość na poziomie terenu, jeśli nie ma jeszcze deformacji
+        float worldY = terrainPosition.y;
 
         LOG_DEBUG << "World point: (" << worldX << ", " << worldY << ", " << worldZ << ") intensity=" << point.influance;
     }
@@ -144,7 +144,7 @@ void visualizeBrushInWorld(const CircleBrush& brush, const vec3& terrainPosition
 
 void visualizeBrushWorldHeights(const CircleBrush& brush, const vec3& terrainCenter, const TerrainHeightGetter& getter,
                                 float worldRadius,
-                                float step = 0.5f)  // krok w jednostkach world
+                                float step = 0.5f)
 {
     LOG_DEBUG << "Visualizing brush (radius=" << worldRadius << ") around center: (" << terrainCenter.x << ", " << terrainCenter.y
               << ", " << terrainCenter.z << ")";

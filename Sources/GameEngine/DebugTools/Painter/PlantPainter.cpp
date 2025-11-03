@@ -131,9 +131,8 @@ void PlantPainter::Paint(const DeltaTime&)
                     }
                 }
 
-                LOG_DEBUG << currentTerrainPoint;
-
                 const auto& points = brush->getInfluence();
+                // LOG_DEBUG << currentTerrainPoint << " points size : " << points.size();
                 if (points.empty())
                 {
                     LOG_WARN << "Influance points empty";
@@ -155,6 +154,7 @@ void PlantPainter::Paint(const DeltaTime&)
                     };
 
                     TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
+                    bool modelChanged{false};
                     for (const auto& point : points)
                     {
                         auto randomOffset    = randomVec2(randomness, density);
@@ -164,15 +164,23 @@ void PlantPainter::Paint(const DeltaTime&)
 
                         auto maybeHeight = heightGetter.GetHeightofTerrain(worldSpacePoint.x, worldSpacePoint.z);
                         auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
-
+                        // LOG_DEBUG << "maybeHeight: " << maybeHeight;
+                        // LOG_DEBUG << "maybeNormal: " << maybeNormal;
                         if (maybeHeight and maybeNormal)
                         {
-                            pointMeshData.position        = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
+                            pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
+                            LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
                             pointMeshData.normal          = *maybeNormal;
                             pointMeshData.color           = Color(vec4(1.f));
                             pointMeshData.sizeAndRotation = vec2(1.f, 0.f);
                             plantComponent->AddGrassMesh(pointMeshData);
+                            modelChanged = true;
                         }
+                    }
+
+                    if (modelChanged)
+                    {
+                        plantComponent->UpdateModel();
                     }
                 }
                 catch (std::runtime_error err)
@@ -182,8 +190,9 @@ void PlantPainter::Paint(const DeltaTime&)
             }
         }
         break;
-        //case PaintMode::Mesh:
-        // zwiazku z tym ze nie chcemy aby kazdy mesz obrywal rysowaniem, oczekujemy jawnego posiadania komponentu przy malowaniu.
+        // case PaintMode::Mesh:
+        //  zwiazku z tym ze nie chcemy aby kazdy mesz obrywal rysowaniem, oczekujemy jawnego posiadania komponentu przy
+        //  malowaniu.
 
         // auto rayDir        = CalculateMouseRayDirection(dependencies.projection, dependencies.camera, mousePosition);
         default:

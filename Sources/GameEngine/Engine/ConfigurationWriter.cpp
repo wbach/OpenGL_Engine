@@ -1,5 +1,7 @@
 #include "ConfigurationWriter.h"
 
+#include <Utils.h>
+
 #include "Configuration.h"
 #include "ConfigurationParams/ParamToString.h"
 #include "EngineDef.h"
@@ -113,13 +115,10 @@ void Create(TreeNode& node, const Params::Window& param)
 }
 void Create(TreeNode& node, const Params::Files& param)
 {
-    node.addChild(CSTR_DATA_LOCATION, param.data);
-    node.addChild(CSTR_SHADER_LOCATION, param.shaders);
-    node.addChild(CSTR_USER_DIR_LOCATION, param.userDir);
-    node.addChild(CSTR_CACHE_LOCATION, param.cache);
-    node.addChild(CSTR_REQUIRED_FILE_OUTPUT, param.requiredFilesOutputFile);
-    node.addChild(CSTR_LOADING_SCREEN_BACKGROUND, param.loadingScreenBackgroundTexture);
-    node.addChild(CSTR_LOADING_SCREEN_CIRCLE, param.loadingScreenCircleTexture);
+    node.addChild(CSTR_DATA_LOCATION, param.getDataPath());
+    node.addChild(CSTR_SHADER_LOCATION, param.getShaderPath());
+    node.addChild(CSTR_LOADING_SCREEN_BACKGROUND, param.getLoadingBackgroundPath());
+    node.addChild(CSTR_LOADING_SCREEN_CIRCLE, param.getLoadingCirclePath());
 }
 void Create(TreeNode& node, const Params::Sound& param)
 {

@@ -288,7 +288,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/I
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/StaticRayTracer/Camera.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/TransformDataEvent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ExternalComponentsReader.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ReadConfigurationFunctions.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/SoundParams/SoundParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/FloraParams/FloraParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ParticlesParams/ParticlesParams.cpp
