@@ -5,6 +5,7 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GrassShaderBuffer.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -45,7 +46,7 @@ private:
     GrassShaderBuffer grassShaderBuffer_;
     GraphicsApi::ID grassShaderBufferId_;
 
-    std::vector<std::pair<uint32_t, Components::GrassRendererComponent*>> subscribes_;
+    std::vector<std::pair<IdType, std::vector<Components::GrassRendererComponent*>>> subscribes_;
     std::mutex subscriberMutex_;
     IdType viewDistanceChangeSubscription_;
 };

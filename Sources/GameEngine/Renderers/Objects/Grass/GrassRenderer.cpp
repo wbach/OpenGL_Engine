@@ -44,7 +44,7 @@ void GrassRenderer::init()
 {
     shader_.Init();
     InitShaderBuffer();
-    /* LOG TO FIX*/  LOG_ERROR << ("Grass renderer initialized.");
+    LOG_DEBUG << "Grass renderer initialized.";
 }
 
 void GrassRenderer::render()
@@ -66,11 +66,11 @@ void GrassRenderer::subscribe(GameObject& gameObject)
 
     if (iter == subscribes_.end())
     {
-        auto grass = gameObject.GetComponent<Components::GrassRendererComponent>();
+        auto grassComponents = gameObject.GetComponents<Components::GrassRendererComponent>();
 
-        if (grass != nullptr)
+        if (not grassComponents.empty())
         {
-            subscribes_.push_back({gameObject.GetId(), grass});
+            subscribes_.push_back({gameObject.GetId(), std::move(grassComponents)});
         }
     }
 }
@@ -100,8 +100,7 @@ void GrassRenderer::reloadShaders()
 
 void GrassRenderer::InitShaderBuffer()
 {
-    grassShaderBufferId_ =
-        context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer));
+    grassShaderBufferId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer));
 
     grassShaderBuffer_.variables.value.x = *EngineConf.renderer.flora.viewDistance;
     grassShaderBuffer_.variables.value.y = 0;
@@ -118,11 +117,14 @@ void GrassRenderer::RenderSubscribes()
 {
     std::lock_guard<std::mutex> lk(subscriberMutex_);
 
-    for (const auto& s : subscribes_)
+    for (const auto& [_, components] : subscribes_)
     {
-        if (auto model = s.second->GetModel().Get())
+        for (const auto& component : components)
         {
-            RenderModel(*model);
+            if (auto model = component->GetModel().Get())
+            {
+                RenderModel(*model);
+            }
         }
     }
 }
