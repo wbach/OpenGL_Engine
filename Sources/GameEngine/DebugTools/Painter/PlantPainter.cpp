@@ -69,14 +69,68 @@ std::optional<glm::vec3> RayHitPoint(const Ray& ray, const BoundingBox& box)
         return ray.origin + ray.direction * tMin;
     return std::nullopt;
 }
+// Globalny / thread_local RNG — seed raz, lepiej niż rand()
+static thread_local std::mt19937 rng{std::random_device{}()};
+static thread_local std::uniform_real_distribution<float> uni01(0.0f, 1.0f);
+
+// Helper zwracający los w [-1, 1]
+inline float randSigned()
+{
+    return uni01(rng) * 2.0f - 1.0f;
+}
+
+// Funkcja aplikująca randomness
+void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshData& pointMeshData,
+                                 const Color& baseColor,
+                                 const vec3& colorRnd,  // colorRandomness.r/g/b (0..1)
+                                 float sizeRandomness)                  // (0..1) oznacza +- %
+{
+    // 1) Kolor - mnożymy proporcjonalnie do wartości bazowej:
+    float rFactor = randSigned() * colorRnd[0];  // w [-colorRnd[0], +colorRnd[0]]
+    float gFactor = randSigned() * colorRnd[1];
+    float bFactor = randSigned() * colorRnd[2];
+
+    float newR = baseColor.value.x * (1.0f + rFactor);
+    float newG = baseColor.value.y * (1.0f + gFactor);
+    float newB = baseColor.value.z * (1.0f + bFactor);
+
+    // clamp do [0,1]
+    newR = std::clamp(newR, 0.0f, 1.0f);
+    newG = std::clamp(newG, 0.0f, 1.0f);
+    newB = std::clamp(newB, 0.0f, 1.0f);
+
+    // zachowaj alfa (w niektórych strukturach alpha może być w .w)
+    pointMeshData.color.value.x = newR;
+    pointMeshData.color.value.y = newG;
+    pointMeshData.color.value.z = newB;
+    // jeżeli masz alpha w baseColor.w:
+    pointMeshData.color.value.w = baseColor.value.w;
+
+    // 2) Wielkość: chcesz scale = 1 ± sizeRandomness
+    float sizeFactor = randSigned() * sizeRandomness;  // [-sizeRandomness, +sizeRandomness]
+    float newScale   = 1.0f + sizeFactor;
+    // minimalny dopuszczalny scale, żeby nie dostać < 0
+    const float MIN_SCALE = 0.0001f;
+    if (newScale < MIN_SCALE)
+        newScale = MIN_SCALE;
+
+    // Przykład: sizeAndRotation.x = scale, .y = rotation (0 tutaj)
+    pointMeshData.sizeAndRotation.x = newScale;
+    pointMeshData.sizeAndRotation.y = 0.0f;
+}
+
 }  // namespace
 PlantPainter::PlantPainter(Dependencies&& dependencies, const File& plantTexture, std::unique_ptr<IBrush> brush, PaintMode mode,
-                           float density, float randomness)
+                           const Color& baseColor, const vec3& colorRandomness, float sizeRandomness, float density,
+                           float randomness)
     : Painter(dependencies.threadSync)
     , plantTexture(plantTexture)
     , dependencies(std::move(dependencies))
     , mode(mode)
     , brush(std::move(brush))
+    , baseColor(baseColor)
+    , colorRandomness(colorRandomness)
+    , sizeRandomness(sizeRandomness)
     , density(density)
     , randomness(randomness)
 {
@@ -170,9 +224,9 @@ void PlantPainter::Paint(const DeltaTime&)
                         {
                             pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
                             LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
-                            pointMeshData.normal          = *maybeNormal;
-                            pointMeshData.color           = Color(vec4(1.f));
-                            pointMeshData.sizeAndRotation = vec2(1.f, 0.f);
+                            pointMeshData.normal = *maybeNormal;
+                            pointMeshData.color  = baseColor;
+                            ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
                             plantComponent->AddGrassMesh(pointMeshData);
                             modelChanged = true;
                         }

@@ -21,6 +21,13 @@ class Scene;
 class Painter;
 }  // namespace GameEngine
 
+struct ColorPickerResult
+{
+    wxPanel* colorPreview;
+    std::array<wxTextCtrl*, 3> randomnessTexts;
+    wxColour currentColor;
+};
+
 class TextureButton;
 
 class TerrainToolPanel : public wxScrolledWindow
@@ -106,6 +113,8 @@ private:
         wxTextCtrl* brushSize{nullptr};
         wxTextCtrl* density{nullptr};
         wxTextCtrl* randomness{nullptr};
+        wxTextCtrl* sizeRandomness{nullptr};
+        ColorPickerResult* baseColor{nullptr};
 
         std::optional<GameEngine::File> selectedTextureFile;
     };

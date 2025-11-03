@@ -20,6 +20,7 @@
 #include <Utils/Variant.h>
 #include <wx/busyinfo.h>
 #include <wx/collpane.h>
+#include <wx/colordlg.h>
 #include <wx/combobox.h>
 #include <wx/gdicmn.h>
 #include <wx/log.h>
@@ -225,6 +226,178 @@ wxTextCtrl* CreateSlider(wxWindow* parent, wxSizer* sizer, const std::string& la
     return text;
 }
 
+ColorPickerResult* CreateColorPickerWithRandomness(wxWindow* parent, wxSizer* sizer, const std::string& label,
+                                                   wxColour defaultColor                      = wxColour(255, 255, 255),
+                                                   std::function<void()> onUpdatePainterParam = nullptr)
+{
+    // --- Box ---
+    auto* box = new wxStaticBoxSizer(wxVERTICAL, parent, label);
+
+    // --- Siatka 3x4 (R/G/B + slider + value + randomness) ---
+    auto* grid = new wxFlexGridSizer(3, 4, 5, 5);
+    grid->AddGrowableCol(1, 1);
+
+    const char* channelNames[] = {"R", "G", "B"};
+
+    std::array<int, 3> rgb = {
+#if wxCHECK_VERSION(3, 1, 0)
+        defaultColor.GetRed(),
+        defaultColor.GetGreen(),
+        defaultColor.GetBlue()
+#else
+        static_cast<int>((defaultColor.GetRGB() >> 16) & 0xFF),
+        static_cast<int>((defaultColor.GetRGB() >> 8) & 0xFF),
+        static_cast<int>(defaultColor.GetRGB() & 0xFF)
+#endif
+    };
+
+    std::array<wxSlider*, 3> sliders;
+    std::array<wxTextCtrl*, 3> texts;
+    std::array<wxTextCtrl*, 3> randomnessFields;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        auto* lbl    = new wxStaticText(parent, wxID_ANY, channelNames[i]);
+        auto* slider = new wxSlider(parent, wxID_ANY, rgb[i], 0, 255);
+        sliders[i]   = slider;
+
+        auto* txt =
+            new wxTextCtrl(parent, wxID_ANY, std::to_string(rgb[i]), wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+        texts[i] = txt;
+
+        auto* randTxt       = new wxTextCtrl(parent, wxID_ANY, "0.0", wxDefaultPosition, wxSize(45, -1), wxTE_PROCESS_ENTER);
+        randomnessFields[i] = randTxt;
+        randTxt->Bind(wxEVT_TEXT_ENTER,
+                      [=](wxCommandEvent& e)
+                      {
+                          double v = 0.0;
+                          if (!randTxt->GetValue().ToDouble(&v))
+                              v = 0.0;
+                          v = std::clamp(v, 0.0, 1.0);
+                          randTxt->ChangeValue(wxString::Format("%.2f", v));
+                          if (onUpdatePainterParam)
+                              onUpdatePainterParam();
+                      });
+
+        grid->Add(lbl, 0, wxALIGN_CENTER_VERTICAL);
+        grid->Add(slider, 1, wxEXPAND);
+        grid->Add(txt, 0, wxALIGN_CENTER_VERTICAL);
+        grid->Add(randTxt, 0, wxALIGN_CENTER_VERTICAL);
+    }
+
+    // --- Panel podglądu i przycisk po prawej ---
+    auto* colorPanel = new wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(50, 25));
+    colorPanel->SetBackgroundColour(defaultColor);
+
+    auto* colorBtn = new wxButton(parent, wxID_ANY, "Wybierz...");
+
+    auto* hSizer = new wxBoxSizer(wxHORIZONTAL);
+    hSizer->Add(grid, 1, wxEXPAND | wxRIGHT, 10);
+
+    auto* rightCol = new wxBoxSizer(wxVERTICAL);
+    rightCol->Add(colorPanel, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 5);
+    rightCol->Add(colorBtn, 0, wxALIGN_CENTER_HORIZONTAL);
+
+    hSizer->Add(rightCol, 0, wxALIGN_CENTER_VERTICAL);
+
+    box->Add(hSizer, 0, wxEXPAND | wxALL, 5);
+    sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+
+    // --- Logika aktualizacji koloru ---
+    auto updateColor = [=]()
+    {
+        wxColour col(sliders[0]->GetValue(), sliders[1]->GetValue(), sliders[2]->GetValue());
+        colorPanel->SetBackgroundColour(col);
+        colorPanel->Refresh();
+
+        if (onUpdatePainterParam)
+            onUpdatePainterParam();
+    };
+
+    auto updateRandomness = [=]()
+    {
+        for (int i = 0; i < 3; ++i)
+        {
+            double v = 0.0;
+            randomnessFields[i]->GetValue().ToDouble(&v);
+            v = std::clamp(v, 0.0, 1.0);
+            randomnessFields[i]->ChangeValue(wxString::Format("%.2f", v));
+        }
+
+        if (onUpdatePainterParam)
+            onUpdatePainterParam();
+    };
+
+    // --- Powiązania zdarzeń ---
+    for (int i = 0; i < 3; ++i)
+    {
+        // Slider -> Text + update color
+        sliders[i]->Bind(wxEVT_SLIDER,
+                         [=](wxCommandEvent&)
+                         {
+                             texts[i]->ChangeValue(std::to_string(sliders[i]->GetValue()));
+                             updateColor();
+                         });
+
+        // Text -> Slider + update color
+        texts[i]->Bind(wxEVT_TEXT_ENTER,
+                       [=](wxCommandEvent& evt)
+                       {
+                           long val;
+                           if (evt.GetString().ToLong(&val))
+                           {
+                               val = std::clamp(val, 0L, 255L);
+                               sliders[i]->SetValue(static_cast<int>(val));
+                               updateColor();
+                           }
+                       });
+
+        // Randomness -> updateRandomness
+        randomnessFields[i]->Bind(wxEVT_TEXT_ENTER, [=](wxCommandEvent&) { updateRandomness(); });
+    }
+
+    // --- Dialog wyboru koloru ---
+    colorBtn->Bind(wxEVT_BUTTON,
+                   [=](wxCommandEvent&)
+                   {
+                       wxColourData data;
+                       data.SetColour(wxColour(sliders[0]->GetValue(), sliders[1]->GetValue(), sliders[2]->GetValue()));
+                       data.SetChooseFull(true);
+
+                       wxColourDialog dlg(parent, &data);
+                       if (dlg.ShowModal() == wxID_OK)
+                       {
+                           wxColour newCol = dlg.GetColourData().GetColour();
+
+#if wxCHECK_VERSION(3, 1, 0)
+                           int r = newCol.GetRed();
+                           int g = newCol.GetGreen();
+                           int b = newCol.GetBlue();
+#else
+                           unsigned long packed = newCol.GetRGB();
+                           int r = (packed >> 16) & 0xFF;
+                           int g = (packed >> 8) & 0xFF;
+                           int b = packed & 0xFF;
+#endif
+
+                           sliders[0]->SetValue(r);
+                           sliders[1]->SetValue(g);
+                           sliders[2]->SetValue(b);
+
+                           texts[0]->ChangeValue(std::to_string(r));
+                           texts[1]->ChangeValue(std::to_string(g));
+                           texts[2]->ChangeValue(std::to_string(b));
+
+                           updateColor();
+                       }
+                   });
+
+    auto* result            = new ColorPickerResult();
+    result->colorPreview    = colorPanel;
+    result->randomnessTexts = randomnessFields;
+    result->currentColor    = defaultColor;
+    return result;
+}
 }  // namespace
 
 // clang-format off
@@ -731,9 +904,21 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
     auto* panel = new wxPanel(parent);
     auto* sizer = new wxBoxSizer(wxVERTICAL);
 
-    // === Mode ===
-    painterFields.plantPainterFields.mode = CreateEnumComboBox<GameEngine::PlantPainter::PaintMode>(
-        panel, sizer, "Mode", GameEngine::PlantPainter::PaintMode::Terrain, [this]() { OnUpdatePainterParam(); });
+    // === Plant Texture ===
+    {
+        auto onChange = [this](std::optional<GameEngine::File>, const GameEngine::File& file)
+        { painterFields.plantPainterFields.selectedTextureFile = file; };
+        auto onSelect = [this](const GameEngine::File& file) { painterFields.plantPainterFields.selectedTextureFile = file; };
+
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
+        auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::Change, onSelect, onChange);
+        box->Add(texBtn, 0, wxALL, 5);
+        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
+    }
+
+    // // === Mode ===
+    // painterFields.plantPainterFields.mode = CreateEnumComboBox<GameEngine::PlantPainter::PaintMode>(
+    //     panel, sizer, "Mode", GameEngine::PlantPainter::PaintMode::Terrain, [this]() { OnUpdatePainterParam(); });
 
     // === Brush Type ===
     painterFields.plantPainterFields.brushType =
@@ -749,20 +934,14 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
 
     // === Randomness ===
     painterFields.plantPainterFields.randomness =
-        CreateSlider<float>(panel, sizer, "Randomness", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
+        CreateSlider<float>(panel, sizer, "Poistion randomness", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
 
-    // === Plant Texture ===
-    {
-        auto onChange = [this](std::optional<GameEngine::File>, const GameEngine::File& file)
-        { painterFields.plantPainterFields.selectedTextureFile = file; };
-        auto onSelect = [this](const GameEngine::File& file) { painterFields.plantPainterFields.selectedTextureFile = file; };
+    // === Size Randomness ===
+    painterFields.plantPainterFields.sizeRandomness =
+        CreateSlider<float>(panel, sizer, "Size randomness", 1.0, 100.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
 
-        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
-        auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::Change, onSelect, onChange);
-
-        box->Add(texBtn, 0, wxALL, 5);
-        sizer->Add(box, 0, wxEXPAND | wxALL, 5);
-    }
+    painterFields.plantPainterFields.baseColor = CreateColorPickerWithRandomness(
+        panel, sizer, "Base Color", wxColour(255, 255, 255), [this]() { OnUpdatePainterParam(); });
 
     panel->SetSizer(sizer);
     return panel;
@@ -1111,6 +1290,8 @@ void TerrainToolPanel::EnablePainter()
             break;
             case 2:
             {
+                LOG_DEBUG << "Enable Plant Painter";
+
                 auto engineContext = scene.getEngineContext();
                 if (not engineContext)
                     throw std::runtime_error("Scene not init. engineContext is null");
@@ -1130,15 +1311,39 @@ void TerrainToolPanel::EnablePainter()
                     GameEngine::makeInterpolation(GameEngine::InterpolationType::Linear), radius, 1.f);
 
                 GameEngine::PlantPainter::PaintMode mode(GameEngine::PlantPainter::PaintMode::Terrain);
-                if (auto value = magic_enum::enum_cast<GameEngine::PlantPainter::PaintMode>(
-                        plantPainterFields.mode->GetValue().ToStdString()))
+                if (plantPainterFields.mode)
                 {
-                    mode = *value;
+                    if (auto value = magic_enum::enum_cast<GameEngine::PlantPainter::PaintMode>(
+                            plantPainterFields.mode->GetValue().ToStdString()))
+                    {
+                        mode = *value;
+                    }
                 }
+
+                const wxColour& wxCol = plantPainterFields.baseColor->currentColor;
+                Color baseColor{vec4ui8(wxCol.Red(), wxCol.Green(), wxCol.Blue(), 255)};
+
+                vec3 colorRandomness(0.f);
+                for (int i = 0; i < 3; ++i)
+                {
+                    double val = 0.0;
+                    plantPainterFields.baseColor->randomnessTexts[i]->GetValue().ToDouble(&val);
+                    colorRandomness[i] = std::clamp(static_cast<float>(val), 0.0f, 1.0f);
+                }
+
+                double sizeVal = 0.0;
+                plantPainterFields.sizeRandomness->GetValue().ToDouble(&sizeVal);
+                float sizeRandomness = std::clamp(static_cast<float>(sizeVal) / 100.0f, 0.0f, 1.0f);
+
+                LOG_DEBUG << " - density: " << density;
+                LOG_DEBUG << " - randomness: " << randomness;
+                LOG_DEBUG << " - sizeRandomness: " << sizeRandomness;
+                LOG_DEBUG << " - baseColor: " << baseColor;
+                LOG_DEBUG << " - colorRandomness: " << colorRandomness;
 
                 painterFields.terrainPainter_ = std::make_unique<GameEngine::PlantPainter>(
                     GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile, std::move(circleBrush), mode,
-                    density, randomness);
+                    baseColor, colorRandomness, sizeRandomness, density, randomness);
                 painterFields.terrainPainter_->Start();
             }
             break;

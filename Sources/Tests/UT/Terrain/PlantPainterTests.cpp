@@ -78,7 +78,8 @@ struct PlantPainterShould : public EngineBasedTest
                                                                      GameEngine::WorldSpaceBrushRadius{WORLD_RADIOUS}, strength);
         brush_           = circleBrush.get();
         sut_             = std::make_unique<PlantPainter>(std::move(parameters), selectedPlantTexture, std::move(circleBrush),
-                                              PlantPainter::PaintMode::Terrain, density, randomness);
+                                              PlantPainter::PaintMode::Terrain, baseColor, colorRandomness, sizeRandomness,
+                                              density, randomness);
 
         sut_->Start();
     }
@@ -113,6 +114,9 @@ struct PlantPainterShould : public EngineBasedTest
     float density{1.f};
     float randomness{1.f};
     GameObject* terrainGameObject;
+    vec3 colorRandomness{vec3(0.0f)};
+    float sizeRandomness{0.0f};
+    Color baseColor{vec4(1.f)};
 };
 
 TEST_F(PlantPainterShould, noPaintWithoutClick)
@@ -147,7 +151,7 @@ TEST_F(PlantPainterShould, PaintInTheMiddle)
     const auto& meshes = plantComponent->GetGrassMeshesData();
 
     bool centralPointFound = false;
-    for (int i = 0; i < meshes.positions.size(); i += 3)
+    for (size_t i = 0; i < meshes.positions.size(); i += 3)
     {
         auto& p = meshes.positions;
         vec3 v(p[i], p[i + 1], p[i + 2]);

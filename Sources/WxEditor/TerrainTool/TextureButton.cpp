@@ -121,8 +121,21 @@ void TextureButton::OnClick(wxMouseEvent&)
 
     Refresh();
 
-    if (onclick and textureFile and textureFile->exist())
-        onclick(*textureFile);
+    if (onclick)
+    {
+        if (textureFile and textureFile->exist())
+        {
+            onclick(*textureFile);
+        }
+        else if (not textureFile and menuOption == MenuOption::Change)
+        {
+            auto maybeFile = SelectFileDialog();
+            if (maybeFile)
+            {
+                onclick(*maybeFile);
+            }
+        }
+    }
 }
 
 std::optional<GameEngine::File> TextureButton::SelectFileDialog()

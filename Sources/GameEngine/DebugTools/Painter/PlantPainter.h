@@ -46,7 +46,7 @@ public:
         GameEngine::Scene& scene;
     };
 
-    PlantPainter(Dependencies&&, const File&, std::unique_ptr<IBrush>, PaintMode, float, float);
+    PlantPainter(Dependencies&&, const File&, std::unique_ptr<IBrush>, PaintMode, const Color&, const vec3&, float, float, float);
     ~PlantPainter() override;
 
     void Paint(const DeltaTime&) override;
@@ -56,6 +56,9 @@ private:
     Dependencies dependencies;
     PaintMode mode;
     std::unique_ptr<IBrush> brush;
+    Color baseColor;
+    vec3 colorRandomness;
+    float sizeRandomness;
     float density;
     float randomness;
 };
