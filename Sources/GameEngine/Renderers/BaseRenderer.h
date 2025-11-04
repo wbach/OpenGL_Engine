@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "GameEngine/Components/IComponent.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "Postproccesing/PostprocessingRenderersManager.h"
@@ -28,6 +29,7 @@ public:
     void blendRender() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
+    void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
 

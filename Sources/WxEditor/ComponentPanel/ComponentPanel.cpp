@@ -136,16 +136,16 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
     wxButton* deleteComponentButton = new wxButton(headerPanel, wxID_ANY, "Delete", wxDefaultPosition, wxSize(60, 20));
     headerSizer->Add(deleteComponentButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 2);
     deleteComponentButton->Bind(wxEVT_BUTTON,
-                                [this, typeId = component.GetTypeId(), typeName](const auto&)
+                                [this, &component, typeName](const auto&)
                                 {
                                     int answer = wxMessageBox("Delete component " + typeName + "?", "Confirmation",
                                                               wxYES_NO | wxICON_QUESTION);
                                     if (answer == wxYES)
                                     {
                                         CallAfter(
-                                            [this, typeId]()
+                                            [this, &component]()
                                             {
-                                                gameObject.RemoveComponent(typeId);
+                                                gameObject.RemoveComponent(component);
                                                 mainSizer->Clear(true);
                                                 this->Layout();
                                                 this->FitInside();

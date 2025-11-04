@@ -43,11 +43,13 @@ public:
     }
     void CleanUp() override
     {
+        cleanUpCalled = true;
     }
     void Reload() override
     {
     }
 
+    bool cleanUpCalled{false};
     bool onAwakendCalled{false};
     bool onLateAwakeCalled{false};
     bool onStartCalled{false};
@@ -260,4 +262,93 @@ TEST_F(GameObjectTestSchould, AddObjectToStartedScene)
     EXPECT_TRUE(test.onUpdateCalled);
     EXPECT_TRUE(test.onPostUpdateCalled);
     EXPECT_TRUE(test.onAlwaysUpdateCalled);
+}
+
+TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByType)
+{
+    CreateSut();
+    scene->Start();
+
+    auto& test = sut_->AddComponent<TestComponent>();
+    sut_->RemoveComponent<TestComponent>();
+
+    EXPECT_TRUE(test.cleanUpCalled);
+}
+
+TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByPtr)
+{
+    CreateSut();
+    scene->Start();
+
+    auto& test = sut_->AddComponent<TestComponent>();
+    sut_->RemoveComponent(test);
+
+    EXPECT_TRUE(test.cleanUpCalled);
+}
+
+TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByTyeId)
+{
+    CreateSut();
+    scene->Start();
+
+    auto& test = sut_->AddComponent<TestComponent>();
+    sut_->RemoveComponent(test.GetTypeId());
+
+    EXPECT_TRUE(test.cleanUpCalled);
+}
+
+TEST_F(GameObjectTestSchould, CleanUpDuingAllComponentsRemoval)
+{
+    CreateSut();
+    scene->Start();
+    auto& test = sut_->AddComponent<TestComponent>();
+    sut_->RemoveAllComponents();
+
+    EXPECT_TRUE(test.cleanUpCalled);
+}
+
+TEST_F(GameObjectTestSchould, CleanUpDuingMultipleTheSameComponentsAllRemoval)
+{
+    CreateSut();
+    scene->Start();
+    auto& test  = sut_->AddComponent<TestComponent>();
+    auto& test2 = sut_->AddComponent<TestComponent>();
+    auto& test3 = sut_->AddComponent<TestComponent>();
+
+    sut_->RemoveAllComponents();
+
+    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(test2.cleanUpCalled);
+    EXPECT_TRUE(test3.cleanUpCalled);
+}
+
+TEST_F(GameObjectTestSchould, CleanUpDuingMultipleTheSameComponentsRemoval)
+{
+    CreateSut();
+    scene->Start();
+    auto& test  = sut_->AddComponent<TestComponent>();
+    auto& test2 = sut_->AddComponent<TestComponent>();
+    auto& test3 = sut_->AddComponent<TestComponent>();
+
+    EXPECT_FALSE(test.cleanUpCalled);
+    EXPECT_FALSE(test2.cleanUpCalled);
+    EXPECT_FALSE(test3.cleanUpCalled);
+
+    sut_->RemoveComponent(test);
+    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_FALSE(test2.cleanUpCalled);
+    EXPECT_FALSE(test3.cleanUpCalled);
+
+    sut_->RemoveComponent(test2);
+
+    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(test2.cleanUpCalled);
+    EXPECT_FALSE(test3.cleanUpCalled);
+    sut_->RemoveComponent(test3);
+
+    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(test2.cleanUpCalled);
+    EXPECT_TRUE(test3.cleanUpCalled);
+
+    EXPECT_TRUE(sut_->GetComponents().empty());
 }

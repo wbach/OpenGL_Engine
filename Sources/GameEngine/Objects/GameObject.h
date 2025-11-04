@@ -76,8 +76,7 @@ public:
 
     template <class T>
     void RemoveComponent();
-    template <class T>
-    void RemoveComponent(T&);
+    void RemoveComponent(const Components::IComponent&);
     void RemoveComponent(Components::ComponentTypeID);
     void RemoveAllComponents();
 
@@ -244,25 +243,14 @@ template <class T>
 void GameObject::RemoveComponent()
 {
     const auto& type = Components::GetComponentType<T>();
-    components_.erase(type.id);
-}
-
-template <class T>
-void GameObject::RemoveComponent(T& component)
-{
-    const auto& type = Components::GetComponentType<T>();
-    auto it          = components_.find(type.id);
-    if (it == components_.end())
-        return;
-
-    auto& vec = it->second;
-    auto iter = std::find_if(vec.begin(), vec.end(), [&component](const auto& ptr) { return ptr.get() == &component; });
-
-    if (iter != vec.end())
-        vec.erase(iter);
-
-    if (vec.empty())
+    if (components_.contains(type.id))
+    {
+        for (const auto& component : components_.at(type.id))
+        {
+            component->CleanUp();
+        }
         components_.erase(type.id);
+    }
 }
 
 const GameObject::ComponentsContainer& GameObject::GetComponents() const

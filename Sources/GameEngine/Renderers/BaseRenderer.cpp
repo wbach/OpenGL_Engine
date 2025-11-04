@@ -46,6 +46,11 @@ void BaseRenderer::unSubscribe(GameObject& gameObject)
     for (auto& r : renderers)
         r->unSubscribe(gameObject);
 }
+void BaseRenderer::unSubscribe(const Components::IComponent& component)
+{
+    for (auto& r : renderers)
+        r->unSubscribe(component);
+}
 void BaseRenderer::unSubscribeAll()
 {
     for (auto& r : renderers)

@@ -304,5 +304,10 @@ void RenderersManager::updatePerFrameBuffer(Scene& scene)
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }
+void RenderersManager::UnSubscribe(const Components::IComponent& component)
+{
+    if (mainRenderer_)
+        mainRenderer_->unSubscribe(component);
+}
 }  // namespace Renderer
 }  // namespace GameEngine

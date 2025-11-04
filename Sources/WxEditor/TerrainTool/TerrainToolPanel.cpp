@@ -907,8 +907,15 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
     // === Plant Texture ===
     {
         auto onChange = [this](std::optional<GameEngine::File>, const GameEngine::File& file)
-        { painterFields.plantPainterFields.selectedTextureFile = file; };
-        auto onSelect = [this](const GameEngine::File& file) { painterFields.plantPainterFields.selectedTextureFile = file; };
+        {
+            painterFields.plantPainterFields.selectedTextureFile = file;
+            OnUpdatePainterParam();
+        };
+        auto onSelect = [this](const GameEngine::File& file)
+        {
+            painterFields.plantPainterFields.selectedTextureFile = file;
+            OnUpdatePainterParam();
+        };
 
         auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Plant Texture");
         auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::Change, onSelect, onChange);

@@ -3,6 +3,10 @@
 namespace GameEngine
 {
 class GameObject;
+namespace Components
+{
+class IComponent;
+}
 
 class IRenderer
 {
@@ -15,6 +19,7 @@ public:
     virtual void blendRender();
     virtual void subscribe(GameObject&);
     virtual void unSubscribe(GameObject&);
+    virtual void unSubscribe(const Components::IComponent&);
     virtual void unSubscribeAll();
     virtual void cleanUp();
 };

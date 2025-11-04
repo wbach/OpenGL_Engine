@@ -26,12 +26,13 @@ void IRenderer::subscribe(GameObject&)
 void IRenderer::unSubscribe(GameObject&)
 {
 }
+void IRenderer::unSubscribe(const Components::IComponent&)
+{
+}
 void IRenderer::unSubscribeAll()
 {
 }
-
 void IRenderer::cleanUp()
 {
-
 }
-} // GameEngine
+}  // namespace GameEngine

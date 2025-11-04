@@ -482,4 +482,23 @@ Quaternion GameObject::ConvertWorldToLocalRotation(const Quaternion& rotatnion)
 
     return rotatnion;
 }
+void GameObject::RemoveComponent(const Components::IComponent& component)
+{
+    const auto& typeId = component.GetTypeId();
+    auto it          = components_.find(typeId);
+    if (it == components_.end())
+        return;
+
+    auto& vec = it->second;
+    auto iter = std::find_if(vec.begin(), vec.end(), [&component](const auto& ptr) { return ptr.get() == &component; });
+
+    if (iter != vec.end())
+    {
+        (*iter)->CleanUp();
+        vec.erase(iter);
+    }
+
+    if (vec.empty())
+        components_.erase(typeId);
+}
 }  // namespace GameEngine

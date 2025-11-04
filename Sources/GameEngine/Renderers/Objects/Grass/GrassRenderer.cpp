@@ -164,4 +164,39 @@ void GrassRenderer::prepareShader()
     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*grassShaderBufferId_);
 }
+void GrassRenderer::unSubscribe(const Components::IComponent& component)
+{
+    const auto& gameObject = component.getParentGameObject();
+    LOG_DEBUG << "Try unSubscribe component " << gameObject.GetName();
+
+    std::lock_guard<std::mutex> lk(subscriberMutex_);
+    // auto iter =
+    //     std::find_if(subscribes_.begin(), subscribes_.end(),
+    //                  [componentToUnsubscribe = &component](const auto& pair)
+    //                  {
+    //                      const auto& [_, components] = pair;
+    //                      return std::find(components.begin(), components.end(), componentToUnsubscribe) != components.end();
+    //                  });
+
+    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
+                             [id = gameObject.GetId()](const auto& pair) { return pair.first == id; });
+
+    if (iter != subscribes_.end())
+    {
+        auto& components = iter->second;
+
+        auto componentIter = std::find(components.begin(), components.end(), &component);
+        if (componentIter != components.end())
+        {
+            LOG_DEBUG << "UnSubscribe component " << (*componentIter)->getTextureFile();
+            components.erase(componentIter);
+        }
+
+        if (components.empty())
+        {
+            LOG_DEBUG << "UnSubscribe last component in object " << gameObject.GetName();
+            subscribes_.erase(iter);
+        }
+    }
+}
 }  // namespace GameEngine

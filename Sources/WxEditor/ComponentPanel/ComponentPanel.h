@@ -30,14 +30,6 @@ public:
     void Lock();
 
 private:
-    std::mutex mutex;
-    wxFrame* mainFrame;
-    GameEngine::ExternalComponentsReader& externalComponentsReader;
-    GameEngine::GameObject& gameObject;
-    wxBoxSizer* mainSizer{nullptr};
-    wxCollapsiblePane* collapsible{nullptr};
-    wxPanel* headerPanel{nullptr};
-
     void CreateUIForComponent(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*);
     void CreateUIForField(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, const GameEngine::Components::FieldInfo&);
 
@@ -109,4 +101,13 @@ private:
     wxBoxSizer* CreateTerrainTextureItem(GameEngine::Components::IComponent& component, wxWindow* parent,
                                          std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
                                          std::function<void()> onRemove, bool editable);
+
+private:
+    std::mutex mutex;
+    wxFrame* mainFrame;
+    GameEngine::ExternalComponentsReader& externalComponentsReader;
+    GameEngine::GameObject& gameObject;
+    wxBoxSizer* mainSizer{nullptr};
+    wxCollapsiblePane* collapsible{nullptr};
+    wxPanel* headerPanel{nullptr};
 };

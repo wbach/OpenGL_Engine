@@ -160,7 +160,7 @@ void GrassRendererComponent::UnSubscribe()
 {
     if (isSubscribed_)
     {
-        componentContext_.renderersManager_.UnSubscribe(&thisObject_);
+        componentContext_.renderersManager_.UnSubscribe(*this);
         isSubscribed_ = false;
     }
 }

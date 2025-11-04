@@ -7,6 +7,7 @@
 #include "DebugElements/DebugRenderer.h"
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Frustrum.h"
+#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
@@ -48,8 +49,9 @@ public:
     const Projection& GetProjection() const;
     void renderScene(Scene&);
     void ReloadShaders();
-    void Subscribe(GameObject* gameObject);
-    void UnSubscribe(GameObject* gameObject);
+    void Subscribe(GameObject*);
+    void UnSubscribe(GameObject*);
+    void UnSubscribe(const Components::IComponent&);
 
     void UnSubscribeAll();
     void UnSubscribeAll(std::function<void()>);

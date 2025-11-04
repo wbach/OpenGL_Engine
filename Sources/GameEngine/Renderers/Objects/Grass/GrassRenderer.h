@@ -1,6 +1,7 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 
+#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
@@ -27,6 +28,7 @@ public:
     void init() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
+    void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
     void render() override;
