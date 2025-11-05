@@ -18,9 +18,6 @@ public:
     void render() override;
 
 private:
-    void bindShadowMap(uint32 id, uint32 nr) const;
-
-private:
     MeasurementValue* measurementValue_;
     RendererContext& context_;
     EntityRenderer entityRenderer_;

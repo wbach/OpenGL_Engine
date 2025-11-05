@@ -170,14 +170,6 @@ void GrassRenderer::unSubscribe(const Components::IComponent& component)
     LOG_DEBUG << "Try unSubscribe component " << gameObject.GetName();
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    // auto iter =
-    //     std::find_if(subscribes_.begin(), subscribes_.end(),
-    //                  [componentToUnsubscribe = &component](const auto& pair)
-    //                  {
-    //                      const auto& [_, components] = pair;
-    //                      return std::find(components.begin(), components.end(), componentToUnsubscribe) != components.end();
-    //                  });
-
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
                              [id = gameObject.GetId()](const auto& pair) { return pair.first == id; });
 

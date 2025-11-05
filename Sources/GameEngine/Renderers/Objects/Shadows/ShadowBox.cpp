@@ -50,9 +50,19 @@ std::vector<vec4> ShadowBox::calculateFrustumPoints(float near, float far)
     // clang-format on
 }
 
-mat4 ShadowBox::createLightViewMatrix(const Light& directionalLight)
+// mat4 ShadowBox::createLightViewMatrix(const Light& directionalLight)
+// {
+//     return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
+// }
+
+mat4 ShadowBox::createLightViewMatrix(const Light& directionalLight, const CameraWrapper& camera)
 {
-    return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
+    //return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
+    vec3 lightDir = normalize(directionalLight.GetPosition()); // lub GetDirection()
+    vec3 cameraPos = camera.GetPosition();
+    return glm::lookAt(cameraPos - lightDir * shadowDistance_ * 0.5f,
+                       cameraPos,
+                       VECTOR_UP);
 }
 
 mat4 ShadowBox::createOrthoProjTransform(const vec3& min, const vec3& max) const
@@ -183,7 +193,7 @@ void ShadowBox::checkMinMax(float& min, float& max, float point)
 void ShadowBox::update(const CameraWrapper& camera, const Light& directionalLight)
 {
     auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
-    auto lightViewMatrix = createLightViewMatrix(directionalLight);
+    auto lightViewMatrix = createLightViewMatrix(directionalLight, camera);
 
     for (uint32 cascadeIndex = 0; cascadeIndex < *EngineConf.renderer.shadows.cascadesSize; ++cascadeIndex)
     {

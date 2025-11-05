@@ -36,6 +36,7 @@ private:
     void PrepareApiStateToRender();
     void RetriveChanges();
     void Convert(const Light& light, int index);
+    void bindShadowMap(uint32 id, uint32 nr) const;
 
 private:
     ShaderProgram shader_;

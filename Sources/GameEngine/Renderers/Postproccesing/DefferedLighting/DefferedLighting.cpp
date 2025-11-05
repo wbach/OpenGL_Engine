@@ -6,6 +6,13 @@
 
 namespace GameEngine
 {
+namespace
+{
+const uint32 CASCADE_INDEX0 = 0;
+const uint32 CASCADE_INDEX1 = 1;
+const uint32 CASCADE_INDEX2 = 2;
+const uint32 CASCADE_INDEX3 = 3;
+}  // namespace
 DefferedLighting::DefferedLighting(RendererContext& context)
     : PostprocessingRenderer(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Deffered)
@@ -22,8 +29,8 @@ void DefferedLighting::Init()
 
     if (not lightPassID_)
     {
-        lightPassID_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION,
-                                                                        sizeof(DefferedLighting::LightPass));
+        lightPassID_ =
+            rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(DefferedLighting::LightPass));
     }
 }
 void DefferedLighting::Prepare()
@@ -35,8 +42,21 @@ void DefferedLighting::Render(const Scene& scene)
     shader_.Start();
     LoadLights(scene);
     rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);
+    bindShadowMap(CASCADE_INDEX0, 5);
+    bindShadowMap(CASCADE_INDEX1, 6);
+    bindShadowMap(CASCADE_INDEX2, 7);
+    bindShadowMap(CASCADE_INDEX3, 8);
     rendererContext_.graphicsApi_.RenderQuad();
     RetriveChanges();
+}
+
+void DefferedLighting::bindShadowMap(uint32 id, uint32 nr) const
+{
+    if (rendererContext_.cascadedShadowMapsIds_[id])
+    {
+        rendererContext_.graphicsApi_.ActiveTexture(nr);
+        rendererContext_.graphicsApi_.BindTexture(*rendererContext_.cascadedShadowMapsIds_[id]);
+    }
 }
 
 void DefferedLighting::ReloadShaders()
