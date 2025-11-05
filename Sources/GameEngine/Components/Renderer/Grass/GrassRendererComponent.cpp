@@ -74,7 +74,10 @@ void GrassRendererComponent::UpdateModel()
     }
     else
     {
-        CreateGrassModel();
+        if (CreateGrassModel())
+        {
+            SubscribeToRenderer();
+        }
     }
 }
 
@@ -143,8 +146,7 @@ void GrassRendererComponent::CreateModelAndSubscribe()
         {
             if (CreateGrassModel())
             {
-                componentContext_.renderersManager_.Subscribe(&thisObject_);
-                isSubscribed_ = true;
+                SubscribeToRenderer();
             }
             else
             {
@@ -152,7 +154,8 @@ void GrassRendererComponent::CreateModelAndSubscribe()
             }
         }
     }
-    else {
+    else
+    {
         LOG_DEBUG << "Flora is disabled.";
     }
 }
@@ -308,6 +311,16 @@ void GrassRendererComponent::write(TreeNode& node) const
 
     ::write(node.addChild(CSTR_FILE_NAME), file.GetDataRelativePath());
     ::write(node.addChild(CSTR_TEXTURE_FILENAME), getTextureFile().GetDataRelativePath());
+}
+void GrassRendererComponent::SubscribeToRenderer()
+{
+    if (isSubscribed_)
+    {
+        LOG_WARN << "Already subscribed to renderer.";
+        return;
+    }
+    componentContext_.renderersManager_.Subscribe(&thisObject_);
+    isSubscribed_ = true;
 }
 }  // namespace Components
 }  // namespace GameEngine

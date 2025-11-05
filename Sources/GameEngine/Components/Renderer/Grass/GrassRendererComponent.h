@@ -58,6 +58,7 @@ public:
 
 private:
     void CreateModelAndSubscribe();
+    void SubscribeToRenderer();
     void UnSubscribe();
     Material CreateGrassMaterial() const;
     std::vector<Mesh> CreateGrassMeshes(const Material& material) const;

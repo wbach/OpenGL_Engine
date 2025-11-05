@@ -23,8 +23,6 @@ namespace GameEngine
 {
 namespace
 {
-constexpr char PLANTS_GAMEOBJECT_NAME[] = "Plants";
-
 struct Ray
 {
     vec3 origin;
@@ -254,8 +252,12 @@ void PlantPainter::Generate(const std::optional<IdType>& maybeGameObjectId)
             Components::GrassRendererComponent::GrassMeshData pointMeshData;
 
             auto plantComponent = getPaintedPlantComponent(gameObject);
+            if (not plantComponent)
+                continue;
 
-            const float step{0.1f};
+            plantComponent->GetGrassMeshesData() = {};
+
+            const float step{2.f / density};
             const auto halfScale = scale / 2.f;
             for (float z = pos.z - halfScale.x; z < pos.z + halfScale.z; z += step)
             {
@@ -268,16 +270,15 @@ void PlantPainter::Generate(const std::optional<IdType>& maybeGameObjectId)
                     if (maybeHeight and maybeNormal)
                     {
                         pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
-                        pointMeshData.normal = *maybeNormal;
-                        pointMeshData.color  = baseColor;
+                        pointMeshData.normal   = *maybeNormal;
+                        pointMeshData.color    = baseColor;
                         ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
                         plantComponent->AddGrassMesh(pointMeshData);
                     }
                 }
             }
 
-            if (plantComponent)
-                plantComponent->UpdateModel();
+            plantComponent->UpdateModel();
         }
     }
     else
