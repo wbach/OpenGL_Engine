@@ -63,6 +63,49 @@ enum class GenerateTerrainTarget
 
 using TerrainObjectClientData = WxClientData<std::variant<GenerateTerrainTarget, IdType>>;
 
+float getFloatFromCtrl(wxTextCtrl* ctrl)
+{
+    try
+    {
+        return ctrl ? std::stof(ctrl->GetValue().ToStdString()) : 0.f;
+    }
+    catch (...)
+    {
+        LOG_WARN << "getStrength parse error";
+    }
+    return 0.f;
+};
+
+GameEngine::WorldSpaceBrushRadius getRadius(wxTextCtrl* brushSizeCtrl)
+{
+    if (not brushSizeCtrl)
+        return GameEngine::WorldSpaceBrushRadius{1.f};
+
+    try
+    {
+        return GameEngine::WorldSpaceBrushRadius{std::stof(brushSizeCtrl->GetValue().ToStdString())};
+    }
+    catch (...)
+    {
+        LOG_WARN << "getStrength parse error";
+    }
+    return GameEngine::WorldSpaceBrushRadius{1.f};
+};
+
+GameEngine::InterpolationType getInterpolation(wxComboBox* interpolationBox)
+{
+    if (auto value = magic_enum::enum_cast<GameEngine::InterpolationType>(interpolationBox->GetValue().ToStdString()))
+    {
+        return *value;
+    }
+    else
+    {
+        LOG_WARN << "StepInterpolation parse error";
+    }
+
+    return GameEngine::InterpolationType::Smooth;
+};
+
 GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scene& scene)
 {
     auto engineContext = scene.getEngineContext();
@@ -923,6 +966,44 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
         sizer->Add(box, 0, wxEXPAND | wxALL, 5);
     }
 
+    // Buttons
+    {
+        auto btn = new wxButton(panel, wxID_ANY, "Terrain specyfic generate");
+        btn->Bind(wxEVT_BUTTON,
+                  [this](auto&)
+                  {
+                      if (auto painter = CreatePlantPainter())
+                      {
+                          TerrainSelectionDialog dialog(this, scene.getComponentController(),
+                                                        "Select terrain to plant generation");
+                          if (dialog.ShowModal() == wxID_OK)
+                          {
+                              auto selection = dialog.GetChoice()->GetSelection();
+                              auto* data     = dynamic_cast<WxClientData<int>*>(dialog.GetChoice()->GetClientObject(selection));
+                              if (data)
+                              {
+                                  int value = data->GetValue();
+                                  if (value == -1)
+                                  {
+                                      painter->Generate(std::nullopt);
+                                  }
+                                  else
+                                  {
+                                      auto goId = static_cast<IdType>(value);
+                                      painter->Generate(goId);
+                                  }
+                              }
+                          }
+                      }
+                  });
+        sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
+    }
+    {
+        auto btn = new wxButton(panel, wxID_ANY, "Texture terrain specyfic generate");
+        btn->Bind(wxEVT_BUTTON, [](auto&) { wxLogMessage("Not implmented"); });
+        sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
+    }
+
     // // === Mode ===
     // painterFields.plantPainterFields.mode = CreateEnumComboBox<GameEngine::PlantPainter::PaintMode>(
     //     panel, sizer, "Mode", GameEngine::PlantPainter::PaintMode::Terrain, [this]() { OnUpdatePainterParam(); });
@@ -1194,49 +1275,6 @@ void TerrainToolPanel::EnablePainter()
         return;
     }
 
-    auto getInterpolation = [&](wxComboBox* interpolationBox)
-    {
-        if (auto value = magic_enum::enum_cast<GameEngine::InterpolationType>(interpolationBox->GetValue().ToStdString()))
-        {
-            return *value;
-        }
-        else
-        {
-            LOG_WARN << "StepInterpolation parse error";
-        }
-
-        return GameEngine::InterpolationType::Smooth;
-    };
-
-    auto getFloatFromCtrl = [&](wxTextCtrl* ctrl)
-    {
-        try
-        {
-            return ctrl ? std::stof(ctrl->GetValue().ToStdString()) : 0.f;
-        }
-        catch (...)
-        {
-            LOG_WARN << "getStrength parse error";
-        }
-        return 0.f;
-    };
-
-    auto getRadius = [&](wxTextCtrl* brushSizeCtrl)
-    {
-        if (not brushSizeCtrl)
-            return GameEngine::WorldSpaceBrushRadius{1.f};
-
-        try
-        {
-            return GameEngine::WorldSpaceBrushRadius{std::stof(brushSizeCtrl->GetValue().ToStdString())};
-        }
-        catch (...)
-        {
-            LOG_WARN << "getStrength parse error";
-        }
-        return GameEngine::WorldSpaceBrushRadius{1.f};
-    };
-
     int selection = painterFields.painterTypeCtrl->GetSelection();
     try
     {
@@ -1244,114 +1282,17 @@ void TerrainToolPanel::EnablePainter()
         {
             case 0:
             {
-                LOG_DEBUG << "EnablePainter";
-
-                const auto& heightPainterFields = painterFields.heightPainterFields;
-
-                auto interpolation = getInterpolation(heightPainterFields.interpolation);
-                auto strength      = getFloatFromCtrl(heightPainterFields.strength);
-                auto radius        = getRadius(heightPainterFields.brushSize);
-
-                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius,
-                                                                             strength / 1000.f);
-                auto heightPainter =
-                    std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
-
-                if (not visualizationObject)
-                    visualizationObject = createPainterVisualizationObject();
-
-                visualizationObject->SetWorldScale(vec3(radius.value, 0.1f, radius.value));
-                heightPainter->SetOnPointChange(
-                    [this](const auto& terrainPoint)
-                    {
-                        if (terrainPoint)
-                            visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
-                        else
-                            visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
-                    });
-                painterFields.terrainPainter_ = std::move(heightPainter);
-                painterFields.terrainPainter_->Start();
+                painterFields.terrainPainter_ = CreateHeightPainter();
             }
             break;
             case 1:
             {
-                const auto& texturePainterFields = painterFields.texturePainterFields;
-                if (not texturePainterFields.selectedTextureFile)
-                {
-                    LOG_WARN << "No texture file selected.";
-                    return;
-                }
-                auto interpolation = getInterpolation(texturePainterFields.interpolation);
-                auto strength      = getFloatFromCtrl(texturePainterFields.strength);
-                auto radius        = getRadius(texturePainterFields.brushSize);
-
-                auto circleBrush =
-                    std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius, strength);
-
-                painterFields.terrainPainter_ = std::make_unique<GameEngine::TexturePainter>(
-                    GetPainterDependencies(scene), scene.GetResourceManager().GetTextureLoader(), std::move(circleBrush),
-                    *texturePainterFields.selectedTextureFile);
-
-                painterFields.terrainPainter_->Start();
+                painterFields.terrainPainter_ = CreateTexturePainter();
             }
             break;
             case 2:
             {
-                LOG_DEBUG << "Enable Plant Painter";
-
-                auto engineContext = scene.getEngineContext();
-                if (not engineContext)
-                    throw std::runtime_error("Scene not init. engineContext is null");
-
-                const auto& plantPainterFields = painterFields.plantPainterFields;
-                if (not plantPainterFields.selectedTextureFile)
-                {
-                    LOG_WARN << "No plant file selected.";
-                    return;
-                }
-
-                auto density    = getFloatFromCtrl(plantPainterFields.density);
-                auto randomness = getFloatFromCtrl(plantPainterFields.randomness);
-                auto radius     = getRadius(plantPainterFields.brushSize);
-
-                auto circleBrush = std::make_unique<GameEngine::CircleBrush>(
-                    GameEngine::makeInterpolation(GameEngine::InterpolationType::Linear), radius, 1.f);
-
-                GameEngine::PlantPainter::PaintMode mode(GameEngine::PlantPainter::PaintMode::Terrain);
-                if (plantPainterFields.mode)
-                {
-                    if (auto value = magic_enum::enum_cast<GameEngine::PlantPainter::PaintMode>(
-                            plantPainterFields.mode->GetValue().ToStdString()))
-                    {
-                        mode = *value;
-                    }
-                }
-
-                const wxColour& wxCol = plantPainterFields.baseColor->currentColor;
-                Color baseColor{vec4ui8(wxCol.Red(), wxCol.Green(), wxCol.Blue(), 255)};
-
-                vec3 colorRandomness(0.f);
-                for (int i = 0; i < 3; ++i)
-                {
-                    double val = 0.0;
-                    plantPainterFields.baseColor->randomnessTexts[i]->GetValue().ToDouble(&val);
-                    colorRandomness[i] = std::clamp(static_cast<float>(val), 0.0f, 1.0f);
-                }
-
-                double sizeVal = 0.0;
-                plantPainterFields.sizeRandomness->GetValue().ToDouble(&sizeVal);
-                float sizeRandomness = std::clamp(static_cast<float>(sizeVal) / 100.0f, 0.0f, 1.0f);
-
-                LOG_DEBUG << " - density: " << density;
-                LOG_DEBUG << " - randomness: " << randomness;
-                LOG_DEBUG << " - sizeRandomness: " << sizeRandomness;
-                LOG_DEBUG << " - baseColor: " << baseColor;
-                LOG_DEBUG << " - colorRandomness: " << colorRandomness;
-
-                painterFields.terrainPainter_ = std::make_unique<GameEngine::PlantPainter>(
-                    GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile, std::move(circleBrush), mode,
-                    baseColor, colorRandomness, sizeRandomness, density, randomness);
-                painterFields.terrainPainter_->Start();
+                painterFields.terrainPainter_ = CreatePlantPainter();
             }
             break;
         }
@@ -1369,6 +1310,7 @@ void TerrainToolPanel::EnablePainter()
 
     if (painterFields.terrainPainter_)
     {
+        painterFields.terrainPainter_->Start();
         painterFields.terrainPainter_->SetNotifyMessageFunc([](const auto& message) { wxLogMessage(message.c_str()); });
     }
 
@@ -1382,4 +1324,111 @@ void TerrainToolPanel::DisablePainter()
 
     if (visualizationObject)
         visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+}
+
+std::unique_ptr<GameEngine::TexturePainter> TerrainToolPanel::CreateTexturePainter()
+{
+    const auto& texturePainterFields = painterFields.texturePainterFields;
+    if (not texturePainterFields.selectedTextureFile)
+    {
+        LOG_WARN << "No texture file selected.";
+        return nullptr;
+    }
+
+    auto interpolation = getInterpolation(texturePainterFields.interpolation);
+    auto strength      = getFloatFromCtrl(texturePainterFields.strength);
+    auto radius        = getRadius(texturePainterFields.brushSize);
+
+    auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius, strength);
+
+    return std::make_unique<GameEngine::TexturePainter>(GetPainterDependencies(scene),
+                                                        scene.GetResourceManager().GetTextureLoader(), std::move(circleBrush),
+                                                        *texturePainterFields.selectedTextureFile);
+}
+
+std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter()
+{
+    LOG_DEBUG << "EnablePainter";
+
+    const auto& heightPainterFields = painterFields.heightPainterFields;
+
+    auto interpolation = getInterpolation(heightPainterFields.interpolation);
+    auto strength      = getFloatFromCtrl(heightPainterFields.strength);
+    auto radius        = getRadius(heightPainterFields.brushSize);
+
+    auto circleBrush =
+        std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius, strength / 1000.f);
+    auto heightPainter = std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+
+    if (not visualizationObject)
+        visualizationObject = createPainterVisualizationObject();
+
+    visualizationObject->SetWorldScale(vec3(radius.value, 0.1f, radius.value));
+    heightPainter->SetOnPointChange(
+        [this](const auto& terrainPoint)
+        {
+            if (terrainPoint)
+                visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
+            else
+                visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+        });
+    return heightPainter;
+}
+
+std::unique_ptr<GameEngine::PlantPainter> TerrainToolPanel::CreatePlantPainter()
+{
+    LOG_DEBUG << "Enable Plant Painter";
+
+    auto engineContext = scene.getEngineContext();
+    if (not engineContext)
+        throw std::runtime_error("Scene not init. engineContext is null");
+
+    const auto& plantPainterFields = painterFields.plantPainterFields;
+    if (not plantPainterFields.selectedTextureFile)
+    {
+        LOG_WARN << "No plant file selected.";
+        return nullptr;
+    }
+
+    auto density    = getFloatFromCtrl(plantPainterFields.density);
+    auto randomness = getFloatFromCtrl(plantPainterFields.randomness);
+    auto radius     = getRadius(plantPainterFields.brushSize);
+
+    auto circleBrush = std::make_unique<GameEngine::CircleBrush>(
+        GameEngine::makeInterpolation(GameEngine::InterpolationType::Linear), radius, 1.f);
+
+    GameEngine::PlantPainter::PaintMode mode(GameEngine::PlantPainter::PaintMode::Terrain);
+    if (plantPainterFields.mode)
+    {
+        if (auto value =
+                magic_enum::enum_cast<GameEngine::PlantPainter::PaintMode>(plantPainterFields.mode->GetValue().ToStdString()))
+        {
+            mode = *value;
+        }
+    }
+
+    const wxColour& wxCol = plantPainterFields.baseColor->currentColor;
+    Color baseColor{vec4ui8(wxCol.Red(), wxCol.Green(), wxCol.Blue(), 255)};
+
+    vec3 colorRandomness(0.f);
+    for (int i = 0; i < 3; ++i)
+    {
+        double val = 0.0;
+        plantPainterFields.baseColor->randomnessTexts[i]->GetValue().ToDouble(&val);
+        colorRandomness[i] = std::clamp(static_cast<float>(val), 0.0f, 1.0f);
+    }
+
+    double sizeVal = 0.0;
+    plantPainterFields.sizeRandomness->GetValue().ToDouble(&sizeVal);
+    float sizeRandomness = std::clamp(static_cast<float>(sizeVal) / 100.0f, 0.0f, 1.0f);
+
+    LOG_DEBUG << " - density: " << density;
+    LOG_DEBUG << " - randomness: " << randomness;
+    LOG_DEBUG << " - sizeRandomness: " << sizeRandomness;
+    LOG_DEBUG << " - baseColor: " << baseColor;
+    LOG_DEBUG << " - colorRandomness: " << colorRandomness;
+
+    return std::make_unique<GameEngine::PlantPainter>(GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile,
+                                                      std::move(circleBrush), mode, baseColor, colorRandomness, sizeRandomness,
+                                                      density, randomness);
 }

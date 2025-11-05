@@ -1,9 +1,12 @@
 #pragma once
 #include <memory>
+#include <optional>
 
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Painter.h"
+#include "Types.h"
 
 namespace Utils
 {
@@ -30,10 +33,10 @@ class PlantPainter : public Painter
 public:
     enum class PaintMode
     {
-        //FreeMeshTerrain,
-       // MeshTerrain,
-        Terrain//,
-        //Mesh
+        // FreeMeshTerrain,
+        //  MeshTerrain,
+        Terrain  //,
+                 // Mesh
     };
 
     struct Dependencies
@@ -50,6 +53,11 @@ public:
     ~PlantPainter() override;
 
     void Paint(const DeltaTime&) override;
+    void Generate(const File&);
+    void Generate(const std::optional<IdType>&);
+
+private:
+    Components::GrassRendererComponent* getPaintedPlantComponent(GameObject&);
 
 private:
     File plantTexture;

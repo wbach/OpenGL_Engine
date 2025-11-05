@@ -19,6 +19,9 @@ namespace GameEngine
 {
 class Scene;
 class Painter;
+class HeightPainter;
+class TexturePainter;
+class PlantPainter;
 }  // namespace GameEngine
 
 struct ColorPickerResult
@@ -63,6 +66,9 @@ private:
     void ImportFromMesh();
     void EnablePainter();
     void DisablePainter();
+    std::unique_ptr<GameEngine::HeightPainter> CreateHeightPainter();
+    std::unique_ptr<GameEngine::TexturePainter> CreateTexturePainter();
+    std::unique_ptr<GameEngine::PlantPainter> CreatePlantPainter();
     void OnUpdatePainterParam();
     void SelectedPainterTexture(wxMouseEvent&);
     GameEngine::GameObject* createPainterVisualizationObject();

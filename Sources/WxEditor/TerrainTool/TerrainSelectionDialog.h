@@ -9,10 +9,10 @@ class ComponentController;
 class TerrainSelectionDialog : public wxDialog
 {
 public:
-    TerrainSelectionDialog(wxWindow*, GameEngine::Components::ComponentController&, const std::string&);
+    TerrainSelectionDialog(wxWindow*, const GameEngine::Components::ComponentController&, const std::string&);
 
     wxString GetSelectionStr() const;
-    auto GetSelection() const;
+    int GetSelection() const;
     wxChoice* GetChoice();
 
 private:

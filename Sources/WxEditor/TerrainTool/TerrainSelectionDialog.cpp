@@ -7,7 +7,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "WxEditor/WxHelpers/WxClientData.h"
 
-TerrainSelectionDialog::TerrainSelectionDialog(wxWindow* parent, GameEngine::Components::ComponentController& componentController,
+TerrainSelectionDialog::TerrainSelectionDialog(wxWindow* parent, const GameEngine::Components::ComponentController& componentController,
                                                const std::string& labelStr)
     : wxDialog(parent, wxID_ANY, "Select", wxDefaultPosition, wxSize(300, 200))
 {
@@ -19,7 +19,7 @@ TerrainSelectionDialog::TerrainSelectionDialog(wxWindow* parent, GameEngine::Com
     choice = new wxChoice(this, wxID_ANY);
     choice->Append("All terrains", new WxClientData<int>(-1));
 
-    auto terrains = componentController.GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+    const auto terrains = componentController.GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
     for (const auto& terrain : terrains)
     {
         const auto& parentGo = terrain->GetParentGameObject();
@@ -45,7 +45,7 @@ wxString TerrainSelectionDialog::GetSelectionStr() const
 {
     return choice->GetStringSelection();
 }
-auto TerrainSelectionDialog::GetSelection() const
+int TerrainSelectionDialog::GetSelection() const
 {
     return choice->GetSelection();
 }

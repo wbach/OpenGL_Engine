@@ -31,6 +31,17 @@ struct Ray
     vec3 direction;
 };
 
+vec2 randomVec2(float randomness, float density)
+{
+    static std::mt19937 rng(std::random_device{}());
+    std::uniform_real_distribution<float> dist(-randomness, randomness);
+
+    float x = dist(rng) * density;
+    float y = dist(rng) * density;
+
+    return vec2(x, y);
+};
+
 bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box, float& tMin, float& tMax)
 {
     tMin = 0.0f;
@@ -80,10 +91,9 @@ inline float randSigned()
 }
 
 // Funkcja aplikująca randomness
-void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshData& pointMeshData,
-                                 const Color& baseColor,
+void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshData& pointMeshData, const Color& baseColor,
                                  const vec3& colorRnd,  // colorRandomness.r/g/b (0..1)
-                                 float sizeRandomness)                  // (0..1) oznacza +- %
+                                 float sizeRandomness)  // (0..1) oznacza +- %
 {
     // 1) Kolor - mnożymy proporcjonalnie do wartości bazowej:
     float rFactor = randSigned() * colorRnd[0];  // w [-colorRnd[0], +colorRnd[0]]
@@ -157,33 +167,7 @@ void PlantPainter::Paint(const DeltaTime&)
                 // dla terenow i rysowania mozemy nie jawnie dodawac nowy komponent
 
                 // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
-                auto& parent = currentTerrainPoint->terrainComponent->GetParentGameObject();
-                Components::GrassRendererComponent* plantComponent{nullptr};
-                auto plantComponents = parent.GetComponents<Components::GrassRendererComponent>();
-                if (plantComponents.empty())
-                {
-                    auto& component = parent.AddComponent<Components::GrassRendererComponent>();
-                    component.setTexture(plantTexture);
-                    plantComponent = &component;
-                }
-                else
-                {
-                    // Jesli teren ma jakies  komponenty to szuakmy czy ma jakis dla takiej teksutry, jesli ma to go uzywamy,
-                    // jesli nie towrzymy nowy komponent
-                    auto iter = std::find_if(plantComponents.begin(), plantComponents.end(),
-                                             [this](auto* plantPtr) { return plantPtr->getTextureFile() == plantTexture; });
-
-                    if (iter != plantComponents.end())
-                    {
-                        plantComponent = *iter;
-                    }
-                    else
-                    {
-                        auto& component = parent.AddComponent<Components::GrassRendererComponent>();
-                        component.setTexture(plantTexture);
-                        plantComponent = &component;
-                    }
-                }
+                auto plantComponent = getPaintedPlantComponent(currentTerrainPoint->terrainComponent->GetParentGameObject());
 
                 const auto& points = brush->getInfluence();
                 // LOG_DEBUG << currentTerrainPoint << " points size : " << points.size();
@@ -196,17 +180,6 @@ void PlantPainter::Paint(const DeltaTime&)
 
                 try
                 {
-                    auto randomVec2 = [](float randomness, float density) -> glm::vec2
-                    {
-                        static std::mt19937 rng(std::random_device{}());
-                        std::uniform_real_distribution<float> dist(-randomness, randomness);
-
-                        float x = dist(rng) * density;
-                        float y = dist(rng) * density;
-
-                        return glm::vec2(x, y);
-                    };
-
                     TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
                     bool modelChanged{false};
                     for (const auto& point : points)
@@ -254,4 +227,92 @@ void PlantPainter::Paint(const DeltaTime&)
     }
 }
 
+void PlantPainter::Generate(const File& terrainTextureFile)
+{
+    LOG_DEBUG << "not implmented yet";
+
+    if (not terrainTextureFile)
+    {
+        // TerrainSelectionDialog dialog(nullptr, dependencies.componentController, "Whole terrain mode selected. Select terrain
+        // to generate plants"); auto selection = dialog.GetSelection();
+    }
+}
+void PlantPainter::Generate(const std::optional<IdType>& maybeGameObjectId)
+{
+    LOG_DEBUG << "Generate terrain specyfic: " << maybeGameObjectId;
+    if (not maybeGameObjectId)
+    {
+        auto terrains = dependencies.componentController.GetAllComponentsOfType<Components::TerrainRendererComponent>();
+        for (const auto& terrainComponent : terrains)
+        {
+            auto& gameObject      = terrainComponent->GetParentGameObject();
+            const auto& transform = gameObject.GetWorldTransform();
+            const auto pos        = transform.GetPosition();
+            const auto scale      = transform.GetScale();
+
+            TerrainHeightGetter heightGetter(scale, *terrainComponent->GetHeightMap(), pos);
+            Components::GrassRendererComponent::GrassMeshData pointMeshData;
+
+            auto plantComponent = getPaintedPlantComponent(gameObject);
+
+            const float step{0.1f};
+            const auto halfScale = scale / 2.f;
+            for (float z = pos.z - halfScale.x; z < pos.z + halfScale.z; z += step)
+            {
+                for (float x = pos.x - halfScale.x; x < pos.x + halfScale.x; x += step)
+                {
+                    auto worldpos    = randomVec2(randomness, density) + vec2(x, z);
+                    auto maybeHeight = heightGetter.GetHeightofTerrain(worldpos.x, worldpos.y);
+                    auto maybeNormal = heightGetter.GetNormalOfTerrain(worldpos.x, worldpos.y);
+
+                    if (maybeHeight and maybeNormal)
+                    {
+                        pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
+                        pointMeshData.normal = *maybeNormal;
+                        pointMeshData.color  = baseColor;
+                        ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
+                        plantComponent->AddGrassMesh(pointMeshData);
+                    }
+                }
+            }
+
+            if (plantComponent)
+                plantComponent->UpdateModel();
+        }
+    }
+    else
+    {
+        LOG_DEBUG << "not implmented yet";
+    }
+}
+Components::GrassRendererComponent* PlantPainter::getPaintedPlantComponent(GameObject& parent)
+{
+    Components::GrassRendererComponent* plantComponent{nullptr};
+    auto plantComponents = parent.GetComponents<Components::GrassRendererComponent>();
+    if (plantComponents.empty())
+    {
+        auto& component = parent.AddComponent<Components::GrassRendererComponent>();
+        component.setTexture(plantTexture);
+        plantComponent = &component;
+    }
+    else
+    {
+        // Jesli teren ma jakies  komponenty to szuakmy czy ma jakis dla takiej teksutry, jesli ma to go uzywamy,
+        // jesli nie towrzymy nowy komponent
+        auto iter = std::find_if(plantComponents.begin(), plantComponents.end(),
+                                 [this](auto* plantPtr) { return plantPtr->getTextureFile() == plantTexture; });
+
+        if (iter != plantComponents.end())
+        {
+            plantComponent = *iter;
+        }
+        else
+        {
+            auto& component = parent.AddComponent<Components::GrassRendererComponent>();
+            component.setTexture(plantTexture);
+            plantComponent = &component;
+        }
+    }
+    return plantComponent;
+}
 }  // namespace GameEngine
