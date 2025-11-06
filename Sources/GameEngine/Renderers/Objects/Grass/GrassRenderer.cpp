@@ -61,17 +61,23 @@ void GrassRenderer::render()
 void GrassRenderer::subscribe(GameObject& gameObject)
 {
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                             [id = gameObject.GetId()](const auto& pair) { return pair.first == id; });
+    auto iter            = std::find_if(subscribes_.begin(), subscribes_.end(),
+                                        [id = gameObject.GetId()](const auto& pair) { return pair.first == id; });
+    auto grassComponents = gameObject.GetComponents<Components::GrassRendererComponent>();
+
+    if (grassComponents.empty())
+    {
+        return;
+    }
 
     if (iter == subscribes_.end())
     {
-        auto grassComponents = gameObject.GetComponents<Components::GrassRendererComponent>();
-
-        if (not grassComponents.empty())
-        {
-            subscribes_.push_back({gameObject.GetId(), std::move(grassComponents)});
-        }
+        subscribes_.push_back({gameObject.GetId(), std::move(grassComponents)});
+    }
+    else
+    {
+        auto& components = iter->second;
+        components       = std::move(grassComponents);
     }
 }
 
