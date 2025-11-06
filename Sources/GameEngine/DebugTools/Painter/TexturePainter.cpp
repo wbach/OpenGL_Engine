@@ -89,24 +89,6 @@ std::optional<TerrainTextureType> getFirstnNewAvailableColorToPaint(const Compon
 
     return std::nullopt;
 };
-std::optional<Color> convertPaintAbleTextureTypeToColor(TerrainTextureType type)
-{
-    switch (type)
-    {
-        case TerrainTextureType::redTexture:
-            return Color(1.f, 0.f, 0.f, 0.f);
-        case TerrainTextureType::greenTexture:
-            return Color(0.f, 1.f, 0.f, 0.f);
-        case TerrainTextureType::blueTexture:
-            return Color(0.f, 0.f, 1.f, 0.f);
-        case TerrainTextureType::alphaTexture:
-            return Color(0.f, 0.f, 0.f, 1.f);
-        case TerrainTextureType::backgroundTexture:
-            return Color(0.f, 0.f, 0.f, 0.f);
-        default:
-            return std::nullopt;
-    }
-};
 bool isFloatingBlendMap(const Utils::Image& image)
 {
     return std::holds_alternative<std::vector<float>>(image.getImageData());

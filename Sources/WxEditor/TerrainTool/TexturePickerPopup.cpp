@@ -50,6 +50,9 @@ TexturePickerPopup::TexturePickerPopup(wxWindow* parent, const std::vector<Texur
 }
 void TexturePickerPopup::createNewTextureButton(wxScrolledWindow* scrolledWindow, wxWrapSizer* wrapSizer)
 {
+    if (not addButtonFunc)
+        return;
+
     wxButton* btn = new wxButton(scrolledWindow, wxID_ANY, "+", wxDefaultPosition, wxSize(texSize, texSize));
     wrapSizer->Add(btn, 0, wxALL, spacing);
 
@@ -72,8 +75,20 @@ void TexturePickerPopup::createTexutreButtons(const std::vector<TexureInfo>& tex
             continue;
         }
 
+        auto getMenuOption = [this, &textureInfo]() -> TextureButton::MenuOption
+        {
+            if (onChangeFunc and onRemoveFunc)
+                return TextureButton::MenuOption::ChangeAndRemove;
+            else if (onChangeFunc)
+                return TextureButton::MenuOption::Change;
+            // else if (onRemoveFunc)
+            //     return TextureButton::MenuOption::Remove;
+            else
+                return TextureButton::MenuOption::None;
+        };
+
         auto* btn = new TextureButton(
-            scrolledWindow, textureFile, TextureButton::MenuOption::ChangeAndRemove,
+            scrolledWindow, textureFile, getMenuOption(),
             [this](const GameEngine::File& f)
             {
                 Dismiss();

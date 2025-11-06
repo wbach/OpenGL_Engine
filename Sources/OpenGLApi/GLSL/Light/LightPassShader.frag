@@ -296,7 +296,6 @@ float CalculateShadowFactor(vec3 worldPos)
 
     if (!Is(perApp.shadowVariables.x) || shadowsBuffer.cascadesSize == 0)
         return 1.f;
-
         vec4 position = perFrame.projectionViewMatrix * vec4(worldPos, 1.f);
         float z = position.z; // clipSpaceZ
 

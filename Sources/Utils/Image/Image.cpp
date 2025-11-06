@@ -292,10 +292,10 @@ void Image::applyFilter(const ImageFilter& imageFilter)
 
     if (size.x % 2 == 0 or size.y % 2 == 0)
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Wrong filter size. Filter not applied");
+        LOG_ERROR << "Wrong filter size. Filter not applied";
         return;
     }
-    /* LOG TO FIX*/ LOG_ERROR << ("Applying filter");
+    LOG_DEBUG << "Applying filter";
     uint32 halfsizeY = size.y / 2;
     uint32 halfsizeX = size.x / 2;
 

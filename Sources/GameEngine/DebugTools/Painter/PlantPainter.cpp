@@ -3,6 +3,7 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
+#include <functional>
 #include <magic_enum/magic_enum.hpp>
 #include <random>
 
@@ -11,13 +12,17 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/DebugTools/Painter/Painter.h"
+#include "GameEngine/DebugTools/Painter/TexturePainter.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/StaticRayTracer/Ray.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "IBrush.h"
+#include "Image/Image.h"
 #include "TerrainPoint.h"
 #include "TerrainPointGetter.h"
 #include "Types.h"
+#include "Utils/Variant.h"
 
 namespace GameEngine
 {
@@ -27,6 +32,15 @@ struct Ray
 {
     vec3 origin;
     vec3 direction;
+};
+
+struct PaintTextureBasedContext
+{
+    Components::TerrainRendererComponent* terrainComponent;
+    std::reference_wrapper<Utils::Image> blendmapImageData;
+    Color paintedColor;
+    vec3 terrainPosition;
+    vec3 terrainScale;
 };
 
 vec2 randomVec2(float randomness, float density)
@@ -39,6 +53,56 @@ vec2 randomVec2(float randomness, float density)
 
     return vec2(x, y);
 };
+
+bool IsInRange(const Utils::Image& image, const vec2ui& pixel)
+{
+    const auto& size = image.size();
+    return pixel.x < size.x && pixel.y < size.y;
+}
+
+bool IsWorldPosInImageColorRange(const PaintTextureBasedContext& context, const vec3& worldPos)
+{
+    const auto& blendMap = context.blendmapImageData.get();
+
+    vec3 localPos = (worldPos - (context.terrainPosition - context.terrainScale * 0.5f)) / context.terrainScale;
+    localPos.x    = std::clamp(localPos.x, 0.0f, 1.0f);
+    localPos.z    = std::clamp(localPos.z, 0.0f, 1.0f);
+
+    auto pixelX = static_cast<uint32>(localPos.x * (blendMap.size().x - 1));
+    auto pixelY = static_cast<uint32>(localPos.z * (blendMap.size().y - 1));
+
+    auto color = blendMap.getPixel(vec2ui(pixelX, pixelY));
+    if (not color)
+    {
+        LOG_WARN << "No color in blend map at pixel (" << pixelX << ", " << pixelY << ")";
+        return false;
+    }
+
+    constexpr float threshold = 0.5f;
+
+    if (context.paintedColor.value.x < threshold && context.paintedColor.value.y < threshold &&
+        context.paintedColor.value.z < threshold && context.paintedColor.value.w < threshold)
+    {
+        const bool isBackground =
+            color->value.x < threshold && color->value.y < threshold && color->value.z < threshold && color->value.w < threshold;
+
+        return isBackground;
+    }
+
+    float colorValue = 0.0f;
+    if (context.paintedColor.value.x > threshold)
+        colorValue = color->value.x;
+    else if (context.paintedColor.value.y > threshold)
+        colorValue = color->value.y;
+    else if (context.paintedColor.value.z > threshold)
+        colorValue = color->value.z;
+    else if (context.paintedColor.value.w > threshold)
+        colorValue = color->value.w;
+    else
+        return false;
+
+    return colorValue > threshold;
+}
 
 bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box, float& tMin, float& tMax)
 {
@@ -227,14 +291,140 @@ void PlantPainter::Paint(const DeltaTime&)
 
 void PlantPainter::Generate(const File& terrainTextureFile)
 {
-    LOG_DEBUG << "not implmented yet";
+    LOG_DEBUG << "Generate";
 
     if (not terrainTextureFile)
     {
-        // TerrainSelectionDialog dialog(nullptr, dependencies.componentController, "Whole terrain mode selected. Select terrain
-        // to generate plants"); auto selection = dialog.GetSelection();
+        LOG_WARN << "No valid terrain texture file provided for generation.";
+        return;
+    }
+
+    std::vector<PaintTextureBasedContext> contexts;
+    // TerrainSelectionDialog dialog(nullptr, dependencies.componentController, "Whole terrain mode selected. Select terrain
+    // to generate plants"); auto selection = dialog.GetSelection();
+    auto terrains = dependencies.componentController.GetAllComponentsOfType<Components::TerrainRendererComponent>();
+    for (const auto& terrainComponent : terrains)
+    {
+        auto textures = terrainComponent->GetTextures();
+
+        auto blendmap = terrainComponent->GetTexture(TerrainTextureType::blendMap);
+        if (not blendmap)
+        {
+            LOG_WARN << "Terrain has no blendmap!";
+            continue;
+        }
+        auto gtBlendmap = dynamic_cast<GameEngine::GeneralTexture*>(blendmap);
+        if (not gtBlendmap)
+        {
+            LOG_WARN << "Blendmap is not GeneralTexture!";
+            continue;
+        }
+
+        LOG_DEBUG << terrainComponent->GetParentGameObject().GetName() << " blendmap size: " << gtBlendmap->GetImage().size().x
+                  << "x" << gtBlendmap->GetImage().size().y;
+        std::visit(visitor{[&](auto& data)
+                           {
+                               LOG_DEBUG << "Blendmap data type: " << typeid(data).name();
+                               LOG_DEBUG << "Blendmap data size: " << data.size();
+                               size_t nonzero = 0;
+                               for (auto& d : data)
+                               {
+                                   if (d > 0)
+                                   {
+                                       ++nonzero;
+                                   }  // just to avoid unused variable warning
+                               }
+                               LOG_DEBUG << "Blendmap non-zero pixels: " << nonzero;
+                           },
+
+                           [](std::monostate) {}},
+                   gtBlendmap->GetImage().getImageData());
+
+        for (const auto& [type, texture] : textures)
+        {
+            if (GameEngine::isPaintAbleTexture(type))
+            {
+                if (texture->GetFile() == terrainTextureFile)
+                {
+                    auto maybeColor = convertPaintAbleTextureTypeToColor(type);
+                    if (not maybeColor)
+                    {
+                        LOG_WARN << "Texture type is not paintable: " << magic_enum::enum_name(type);
+                        continue;
+                    }
+
+                    contexts.push_back(PaintTextureBasedContext{
+                        .terrainComponent  = terrainComponent,
+                        .blendmapImageData = gtBlendmap->GetImage(),
+                        .paintedColor      = *maybeColor,
+                        .terrainPosition   = terrainComponent->GetParentGameObject().GetWorldTransform().GetPosition(),
+                        .terrainScale      = terrainComponent->GetParentGameObject().GetWorldTransform().GetScale()});
+
+                    LOG_DEBUG << "Add PaintTextureBasedContext for texture: " << terrainTextureFile
+                              << " in terrain: " << terrainComponent->GetParentGameObject().GetName()
+                              << " Color texture in blend map: " << maybeColor;
+                }
+            }
+        }
+    }
+
+    LOG_DEBUG << "Found contexts size: " << contexts.size();
+
+    for (const auto& context : contexts)
+    {
+        if (not context.terrainComponent)
+        {
+            LOG_WARN << "No valid terrain component in context";
+            continue;
+        }
+        if (not context.terrainComponent->GetHeightMap())
+        {
+            LOG_WARN << "No valid heightmap in terrain component";
+            continue;
+        }
+
+        TerrainHeightGetter heightGetter(context.terrainScale, *context.terrainComponent->GetHeightMap(),
+                                         context.terrainPosition);
+        Components::GrassRendererComponent::GrassMeshData pointMeshData;
+
+        auto plantComponent = getPaintedPlantComponent(context.terrainComponent->GetParentGameObject());
+        if (not plantComponent)
+            continue;
+
+        plantComponent->GetGrassMeshesData() = {};  // TO DO remove only for specyfic texture
+
+        const float step{2.f / density};
+        const auto halfScale = context.terrainScale / 2.f;
+        for (float z = context.terrainPosition.z - halfScale.x; z < context.terrainPosition.z + halfScale.z; z += step)
+        {
+            for (float x = context.terrainPosition.x - halfScale.x; x < context.terrainPosition.x + halfScale.x; x += step)
+            {
+                auto worldpos = randomVec2(randomness, density) + vec2(x, z);
+
+                if (not IsWorldPosInImageColorRange(context, vec3(worldpos.x, 0.f, worldpos.y)))
+                {
+                    LOG_DEBUG << "World pos not in image color range: " << vec3(worldpos.x, 0.f, worldpos.y);
+                    continue;
+                }
+
+                auto maybeHeight = heightGetter.GetHeightofTerrain(worldpos.x, worldpos.y);
+                auto maybeNormal = heightGetter.GetNormalOfTerrain(worldpos.x, worldpos.y);
+
+                if (maybeHeight and maybeNormal)
+                {
+                    pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
+                    pointMeshData.normal   = *maybeNormal;
+                    pointMeshData.color    = baseColor;
+                    ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
+                    plantComponent->AddGrassMesh(pointMeshData);
+                }
+            }
+        }
+
+        plantComponent->UpdateModel();
     }
 }
+
 void PlantPainter::Generate(const std::optional<IdType>& maybeGameObjectId)
 {
     LOG_DEBUG << "Generate terrain specyfic: " << maybeGameObjectId;

@@ -1,11 +1,11 @@
 #pragma once
 #include <string>
+#include <Types.h>
 
 namespace GameEngine
 {
 enum class TerrainTextureType
 {
-    // shadowMap0                 = 0,
     heightmap                     = 1,
     blendMap                      = 2,
     normalmap                     = 3,
@@ -27,13 +27,11 @@ enum class TerrainTextureType
     rockTexture                   = 19,
     rockTextureNormal             = 20,
     rockTextureDisplacement       = 21
-    // shadowMap1                 = 22,
-    // shadowMap2                 = 23,
-    // shadowMap3                 = 24,
 
 };
 class Texture;
 bool IsTerrainTextureType(const std::string&);
+std::optional<Color> convertPaintAbleTextureTypeToColor(TerrainTextureType);
 }  // namespace GameEngine
 namespace std
 {

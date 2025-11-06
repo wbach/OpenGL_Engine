@@ -972,6 +972,12 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
         btn->Bind(wxEVT_BUTTON,
                   [this](auto&)
                   {
+                      if (not painterFields.plantPainterFields.selectedTextureFile)
+                      {
+                          wxMessageBox("No texture selected for plant painter", "Error", wxOK | wxICON_ERROR);
+                          return;
+                      }
+
                       if (auto painter = CreatePlantPainter())
                       {
                           TerrainSelectionDialog dialog(this, scene.getComponentController(),
@@ -1000,7 +1006,45 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
     }
     {
         auto btn = new wxButton(panel, wxID_ANY, "Texture terrain specyfic generate");
-        btn->Bind(wxEVT_BUTTON, [](auto&) { wxLogMessage("Not implmented"); });
+        btn->Bind(
+            wxEVT_BUTTON,
+            [this](auto&)
+            {
+                if (not painterFields.plantPainterFields.selectedTextureFile)
+                {
+                    wxMessageBox("No texture selected for plant painter", "Error", wxOK | wxICON_ERROR);
+                    return;
+                }
+
+                auto onSelect = [this](const GameEngine::File& file)
+                {
+                    if (auto painter = CreatePlantPainter())
+                    {
+                        painter->Generate(file);
+                    }
+                };
+
+                std::vector<TexturePickerPopup::TexureInfo> textures;
+
+                auto terrains =
+                    scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+                for (const auto& terrain : terrains)
+                {
+                    for (const auto& [type, texture] : terrain->GetTextures())
+                    {
+                        const auto& file = texture->GetFile();
+                        if (GameEngine::isPaintAbleTexture(type) and file and file->exist())
+                        {
+                            textures.push_back(TexturePickerPopup::TexureInfo{.file = *file});
+                        }
+                    }
+                }
+
+                auto popup = new TexturePickerPopup(this, textures, onSelect, nullptr, nullptr, nullptr);
+
+                popup->Position(wxGetMousePosition(), wxSize(0, 0));
+                popup->Popup();
+            });
         sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
     }
 
