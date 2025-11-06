@@ -978,73 +978,22 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
                           return;
                       }
 
-                      if (auto painter = CreatePlantPainter())
-                      {
-                          TerrainSelectionDialog dialog(this, scene.getComponentController(),
-                                                        "Select terrain to plant generation");
-                          if (dialog.ShowModal() == wxID_OK)
-                          {
-                              auto selection = dialog.GetChoice()->GetSelection();
-                              auto* data     = dynamic_cast<WxClientData<int>*>(dialog.GetChoice()->GetClientObject(selection));
-                              if (data)
-                              {
-                                  int value = data->GetValue();
-                                  if (value == -1)
-                                  {
-                                      painter->Generate(std::nullopt);
-                                  }
-                                  else
-                                  {
-                                      auto goId = static_cast<IdType>(value);
-                                      painter->Generate(goId);
-                                  }
-                              }
-                          }
-                      }
+                      GeneratePlantsBasedOnTerrainSpecyfic();
                   });
         sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
     }
     {
         auto btn = new wxButton(panel, wxID_ANY, "Texture terrain specyfic generate");
-        btn->Bind(
-            wxEVT_BUTTON,
-            [this](auto&)
-            {
-                if (not painterFields.plantPainterFields.selectedTextureFile)
-                {
-                    wxMessageBox("No texture selected for plant painter", "Error", wxOK | wxICON_ERROR);
-                    return;
-                }
-
-                auto onSelect = [this](const GameEngine::File& file)
-                {
-                    if (auto painter = CreatePlantPainter())
-                    {
-                        painter->Generate(file);
-                    }
-                };
-
-                std::vector<TexturePickerPopup::TexureInfo> textures;
-
-                auto terrains =
-                    scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
-                for (const auto& terrain : terrains)
-                {
-                    for (const auto& [type, texture] : terrain->GetTextures())
-                    {
-                        const auto& file = texture->GetFile();
-                        if (GameEngine::isPaintAbleTexture(type) and file and file->exist())
-                        {
-                            textures.push_back(TexturePickerPopup::TexureInfo{.file = *file});
-                        }
-                    }
-                }
-
-                auto popup = new TexturePickerPopup(this, textures, onSelect, nullptr, nullptr, nullptr);
-
-                popup->Position(wxGetMousePosition(), wxSize(0, 0));
-                popup->Popup();
-            });
+        btn->Bind(wxEVT_BUTTON,
+                  [this](auto&)
+                  {
+                      if (not painterFields.plantPainterFields.selectedTextureFile)
+                      {
+                          wxMessageBox("No texture selected for plant painter", "Error", wxOK | wxICON_ERROR);
+                          return;
+                      }
+                      GeneratePlantsBasedOnTerrainTexture();
+                  });
         sizer->Add(btn, 0, wxEXPAND | wxALL, 5);
     }
 
@@ -1475,4 +1424,80 @@ std::unique_ptr<GameEngine::PlantPainter> TerrainToolPanel::CreatePlantPainter()
     return std::make_unique<GameEngine::PlantPainter>(GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile,
                                                       std::move(circleBrush), mode, baseColor, colorRandomness, sizeRandomness,
                                                       density, randomness);
+}
+void TerrainToolPanel::GeneratePlantsBasedOnTerrainTexture()
+{
+    auto onSelect = [this](const GameEngine::File& file)
+    {
+        auto dlg = std::make_shared<LoadingDialog>(this, "Plant generator", "Generate plants based on texture...");
+
+        std::thread(
+            [&]()
+            {
+                if (auto painter = CreatePlantPainter())
+                {
+                    painter->Generate(file);
+                }
+                this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
+            })
+            .detach();
+
+        dlg->ShowModal();
+    };
+
+    std::vector<TexturePickerPopup::TexureInfo> textures;
+
+    auto terrains = scene.getComponentController().GetAllComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+    for (const auto& terrain : terrains)
+    {
+        for (const auto& [type, texture] : terrain->GetTextures())
+        {
+            const auto& file = texture->GetFile();
+            if (GameEngine::isPaintAbleTexture(type) and file and file->exist())
+            {
+                textures.push_back(TexturePickerPopup::TexureInfo{.file = *file});
+            }
+        }
+    }
+
+    auto popup = new TexturePickerPopup(this, textures, onSelect, nullptr, nullptr, nullptr);
+
+    popup->Position(wxGetMousePosition(), wxSize(0, 0));
+    popup->Popup();
+}
+void TerrainToolPanel::GeneratePlantsBasedOnTerrainSpecyfic()
+{
+    if (auto painter = CreatePlantPainter())
+    {
+        TerrainSelectionDialog dialog(this, scene.getComponentController(), "Select terrain to plant generation");
+        if (dialog.ShowModal() == wxID_OK)
+        {
+            auto selection = dialog.GetChoice()->GetSelection();
+            auto* data     = dynamic_cast<WxClientData<int>*>(dialog.GetChoice()->GetClientObject(selection));
+            if (data)
+            {
+                int value = data->GetValue();
+
+                auto dlg = std::make_shared<LoadingDialog>(this, "Plant generator", "Generate plants based on terrain specyfic...");
+
+                std::thread(
+                    [&, value, p = std::move(painter)]()
+                    {
+                        if (value == -1)
+                        {
+                            p->Generate(std::nullopt);
+                        }
+                        else
+                        {
+                            auto goId = static_cast<IdType>(value);
+                            p->Generate(goId);
+                        }
+                        this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
+                    })
+                    .detach();
+
+                dlg->ShowModal();
+            }
+        }
+    }
 }

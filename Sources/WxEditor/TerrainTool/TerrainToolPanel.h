@@ -72,6 +72,8 @@ private:
     void OnUpdatePainterParam();
     void SelectedPainterTexture(wxMouseEvent&);
     GameEngine::GameObject* createPainterVisualizationObject();
+    void GeneratePlantsBasedOnTerrainTexture();
+    void GeneratePlantsBasedOnTerrainSpecyfic();
 
     template <typename T>
     void ProcessEvent(const T&)
