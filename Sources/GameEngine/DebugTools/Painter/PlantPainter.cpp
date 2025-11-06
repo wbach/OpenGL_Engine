@@ -192,6 +192,15 @@ void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshDa
 }
 
 }  // namespace
+
+PlantPainter::PlantPainter(Dependencies&& dependencies, std::unique_ptr<IBrush> brush)
+    : Painter(dependencies.threadSync)
+    , dependencies(std::move(dependencies))
+    , mode(PaintMode::Erase)
+    , brush(std::move(brush))
+{
+}
+
 PlantPainter::PlantPainter(Dependencies&& dependencies, const File& plantTexture, std::unique_ptr<IBrush> brush, PaintMode mode,
                            const Color& baseColor, const vec3& colorRandomness, float sizeRandomness, float density,
                            float randomness)
@@ -218,74 +227,13 @@ void PlantPainter::Paint(const DeltaTime&)
     if (not lmouseKeyIsPressed)
         return;
 
-    switch (mode)
+    if (mode == PaintMode::Terrain)
     {
-        case PaintMode::Terrain:
-        {
-            TerrainPointGetter pointGetter(dependencies.camera, dependencies.projection, dependencies.componentController);
-            auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
-            if (currentTerrainPoint)
-            {
-                // dla terenow i rysowania mozemy nie jawnie dodawac nowy komponent
-
-                // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
-                auto plantComponent = getPaintedPlantComponent(currentTerrainPoint->terrainComponent->GetParentGameObject());
-
-                const auto& points = brush->getInfluence();
-                // LOG_DEBUG << currentTerrainPoint << " points size : " << points.size();
-                if (points.empty())
-                {
-                    LOG_WARN << "Influance points empty";
-                }
-
-                Components::GrassRendererComponent::GrassMeshData pointMeshData;
-
-                try
-                {
-                    TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
-                    bool modelChanged{false};
-                    for (const auto& point : points)
-                    {
-                        auto randomOffset    = randomVec2(randomness, density);
-                        auto worldSpacePoint = vec3(static_cast<float>(point.point.x) / density + randomOffset.x, 0.f,
-                                                    static_cast<float>(point.point.y) * density + randomOffset.y) +
-                                               currentTerrainPoint->pointOnTerrain;
-
-                        auto maybeHeight = heightGetter.GetHeightofTerrain(worldSpacePoint.x, worldSpacePoint.z);
-                        auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
-                        // LOG_DEBUG << "maybeHeight: " << maybeHeight;
-                        // LOG_DEBUG << "maybeNormal: " << maybeNormal;
-                        if (maybeHeight and maybeNormal)
-                        {
-                            pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
-                            LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
-                            pointMeshData.normal = *maybeNormal;
-                            pointMeshData.color  = baseColor;
-                            ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
-                            plantComponent->AddGrassMesh(pointMeshData);
-                            modelChanged = true;
-                        }
-                    }
-
-                    if (modelChanged)
-                    {
-                        plantComponent->UpdateModel();
-                    }
-                }
-                catch (std::runtime_error err)
-                {
-                    LOG_DEBUG << err.what();
-                }
-            }
-        }
-        break;
-        // case PaintMode::Mesh:
-        //  zwiazku z tym ze nie chcemy aby kazdy mesz obrywal rysowaniem, oczekujemy jawnego posiadania komponentu przy
-        //  malowaniu.
-
-        // auto rayDir        = CalculateMouseRayDirection(dependencies.projection, dependencies.camera, mousePosition);
-        default:
-            LOG_WARN << "Not implented : " << magic_enum::enum_name(mode);
+        Paint(mousePosition);
+    }
+    else if (mode == PaintMode::Erase)
+    {
+        Erase(mousePosition);
     }
 }
 
@@ -526,4 +474,78 @@ void PlantPainter::GenerateOnTerrain(Components::TerrainRendererComponent* terra
 
     plantComponent->UpdateModel();
 }
+void PlantPainter::Erase(const vec2&)
+{
+    LOG_DEBUG << "Erase not implemented yet.";
+}
+void PlantPainter::Paint(const vec2& mousePosition)
+{
+    switch (mode)
+    {
+        case PaintMode::Terrain:
+        {
+            TerrainPointGetter pointGetter(dependencies.camera, dependencies.projection, dependencies.componentController);
+            auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
+            if (currentTerrainPoint)
+            {
+                // dla terenow i rysowania mozemy nie jawnie dodawac nowy komponent
+                // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
+                auto plantComponent = getPaintedPlantComponent(currentTerrainPoint->terrainComponent->GetParentGameObject());
+
+                const auto& points = brush->getInfluence();
+                if (points.empty())
+                {
+                    LOG_WARN << "Influance points empty";
+                    return;
+                }
+
+                Components::GrassRendererComponent::GrassMeshData pointMeshData;
+
+                try
+                {
+                    TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
+                    bool modelChanged{false};
+                    for (const auto& point : points)
+                    {
+                        auto randomOffset    = randomVec2(randomness, density);
+                        auto worldSpacePoint = vec3(static_cast<float>(point.point.x) / density + randomOffset.x, 0.f,
+                                                    static_cast<float>(point.point.y) * density + randomOffset.y) +
+                                               currentTerrainPoint->pointOnTerrain;
+
+                        auto maybeHeight = heightGetter.GetHeightofTerrain(worldSpacePoint.x, worldSpacePoint.z);
+                        auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
+                        if (maybeHeight and maybeNormal)
+                        {
+                            pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
+                            LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
+                            pointMeshData.normal = *maybeNormal;
+                            pointMeshData.color  = baseColor;
+                            ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
+                            plantComponent->AddGrassMesh(pointMeshData);
+                            modelChanged = true;
+                        }
+                    }
+
+                    if (modelChanged)
+                    {
+                        plantComponent->UpdateModel();
+                    }
+                }
+                catch (std::runtime_error err)
+                {
+                    LOG_DEBUG << err.what();
+                }
+            }
+        }
+        break;
+        // case PaintMode::Mesh:
+        //  zwiazku z tym ze nie chcemy aby kazdy mesz obrywal rysowaniem, oczekujemy jawnego posiadania komponentu przy
+        //  malowaniu.
+
+        // auto rayDir        = CalculateMouseRayDirection(dependencies.projection, dependencies.camera, mousePosition);
+        default:
+            LOG_WARN << "Not implented : " << magic_enum::enum_name(mode);
+    }
+}
+
 }  // namespace GameEngine

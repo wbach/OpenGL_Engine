@@ -35,8 +35,9 @@ public:
     {
         // FreeMeshTerrain,
         //  MeshTerrain,
-        Terrain  //,
-                 // Mesh
+        //,
+        Terrain,
+        Erase
     };
 
     struct Dependencies
@@ -49,6 +50,7 @@ public:
         GameEngine::Scene& scene;
     };
 
+    PlantPainter(Dependencies&&, std::unique_ptr<IBrush>);
     PlantPainter(Dependencies&&, const File&, std::unique_ptr<IBrush>, PaintMode, const Color&, const vec3&, float, float, float);
     ~PlantPainter() override;
 
@@ -57,6 +59,8 @@ public:
     void Generate(const std::optional<IdType>&);
 
 private:
+    void Paint(const vec2&);
+    void Erase(const vec2&);
     void GenerateOnTerrain(Components::TerrainRendererComponent*);
     Components::GrassRendererComponent* getPaintedPlantComponent(GameObject&);
 
