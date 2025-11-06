@@ -67,4 +67,8 @@ void CircleBrush::calculateInfluence(bool isEven)
         }
     }
 }
+const WorldSpaceBrushRadius& CircleBrush::getWorldSpaceBrushRadius() const
+{
+    return worldSpaceBrushRadius;
+}
 }  // namespace GameEngine

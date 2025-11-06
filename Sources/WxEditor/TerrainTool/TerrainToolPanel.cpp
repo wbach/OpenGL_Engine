@@ -1008,7 +1008,7 @@ wxPanel* TerrainToolPanel::BuildPlantPainterPanel(wxWindow* parent)
 
     // === Brush Size ===
     painterFields.plantPainterFields.brushSize =
-        CreateSlider<float>(panel, sizer, "Brush Size", 1.0, 20.0, 1.0, [this](int val) { OnUpdatePainterParam(); });
+        CreateSlider<float>(panel, sizer, "Brush Size", 0.1, 20.0, 0.5, [this](int val) { OnUpdatePainterParam(); });
 
     // === Density ===
     painterFields.plantPainterFields.density =

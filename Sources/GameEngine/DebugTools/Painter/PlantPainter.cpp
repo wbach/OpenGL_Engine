@@ -10,11 +10,9 @@
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/DebugTools/Painter/TexturePainter.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/StaticRayTracer/Ray.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "IBrush.h"
@@ -28,6 +26,8 @@ namespace GameEngine
 {
 namespace
 {
+constexpr float PLANT_STEP = 0.1f;
+
 struct Ray
 {
     vec3 origin;
@@ -190,7 +190,53 @@ void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshDa
     pointMeshData.sizeAndRotation.x = newScale;
     pointMeshData.sizeAndRotation.y = 0.0f;
 }
+bool RemovePointsWithinRadius(std::vector<float>& positions, const glm::vec3& center, float radius)
+{
+    const size_t originalSize = positions.size();
+    if (originalSize % 3 != 0)
+    {
+        LOG_WARN << "Positions size is not a multiple of 3.";
+        return false;
+    }
 
+    const float radiusSquared = radius * radius;
+    size_t writeIndex         = 0;
+
+    for (size_t i = 0; i < originalSize; i += 3)
+    {
+        glm::vec3 p(positions[i], positions[i + 1], positions[i + 2]);
+        const float dist2 = glm::distance2(p, center);
+
+        if (dist2 > radiusSquared)
+        {
+            positions[writeIndex]     = positions[i];
+            positions[writeIndex + 1] = positions[i + 1];
+            positions[writeIndex + 2] = positions[i + 2];
+            writeIndex += 3;
+        }
+    }
+
+    if (writeIndex < originalSize)
+        positions.resize(writeIndex);
+
+    return writeIndex != originalSize;
+}
+float EstimateBrushRadiusFromInfluence(const std::vector<Influance>& points)
+{
+    if (points.empty())
+        return 0.f;
+
+    float maxDist2 = 0.f;
+    for (const auto& p : points)
+    {
+        glm::vec2 pos = glm::vec2(p.point);
+        float dist2   = glm::dot(pos, pos);
+        if (dist2 > maxDist2)
+            maxDist2 = dist2;
+    }
+
+    return std::sqrt(maxDist2);
+}
 }  // namespace
 
 PlantPainter::PlantPainter(Dependencies&& dependencies, std::unique_ptr<IBrush> brush)
@@ -199,6 +245,7 @@ PlantPainter::PlantPainter(Dependencies&& dependencies, std::unique_ptr<IBrush> 
     , mode(PaintMode::Erase)
     , brush(std::move(brush))
 {
+    this->brush->createInfluance(false, PLANT_STEP, PLANT_STEP);
 }
 
 PlantPainter::PlantPainter(Dependencies&& dependencies, const File& plantTexture, std::unique_ptr<IBrush> brush, PaintMode mode,
@@ -474,10 +521,52 @@ void PlantPainter::GenerateOnTerrain(Components::TerrainRendererComponent* terra
 
     plantComponent->UpdateModel();
 }
-void PlantPainter::Erase(const vec2&)
+void PlantPainter::Erase(const vec2& mousePosition)
 {
-    LOG_DEBUG << "Erase not implemented yet.";
+    TerrainPointGetter pointGetter(dependencies.camera, dependencies.projection, dependencies.componentController);
+    auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
+    if (not currentTerrainPoint)
+    {
+        LOG_WARN << "No terrain point under mouse for erasing plants.";
+        return;
+    }
+
+    auto& parent         = currentTerrainPoint->terrainComponent->GetParentGameObject();
+    auto plantComponents = parent.GetComponents<Components::GrassRendererComponent>();
+    if (plantComponents.empty())
+    {
+        LOG_WARN << "No plant components to erase from.";
+        return;
+    }
+
+    const auto& points = brush->getInfluence();
+    if (points.empty())
+    {
+        LOG_WARN << "Influance points empty";
+        return;
+    }
+
+    std::unordered_set<Components::GrassRendererComponent*> modifiedComponents;
+
+    const float radius = EstimateBrushRadiusFromInfluence(points) * PLANT_STEP;
+
+    for (const auto& point : points)
+    {
+        const auto convertedPoint = vec3(static_cast<float>(point.point.x), 0.f, static_cast<float>(point.point.y)) * PLANT_STEP;
+        const glm::vec3 worldSpacePoint = convertedPoint + currentTerrainPoint->pointOnTerrain;
+
+        for (auto* plantComponent : plantComponents)
+        {
+            auto& meshData = plantComponent->GetGrassMeshesData();
+            if (RemovePointsWithinRadius(meshData.positions, worldSpacePoint, radius))
+                modifiedComponents.insert(plantComponent);
+        }
+    }
+
+    for (auto* plantComponent : modifiedComponents)
+        plantComponent->UpdateModel();
 }
+
 void PlantPainter::Paint(const vec2& mousePosition)
 {
     switch (mode)
@@ -486,55 +575,57 @@ void PlantPainter::Paint(const vec2& mousePosition)
         {
             TerrainPointGetter pointGetter(dependencies.camera, dependencies.projection, dependencies.componentController);
             auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
-            if (currentTerrainPoint)
+            if (not currentTerrainPoint)
             {
-                // dla terenow i rysowania mozemy nie jawnie dodawac nowy komponent
-                // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
-                auto plantComponent = getPaintedPlantComponent(currentTerrainPoint->terrainComponent->GetParentGameObject());
+                return;
+            }
 
-                const auto& points = brush->getInfluence();
-                if (points.empty())
+            // dla terenow i rysowania mozemy nie jawnie dodawac nowy komponent
+            // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
+            auto plantComponent = getPaintedPlantComponent(currentTerrainPoint->terrainComponent->GetParentGameObject());
+
+            const auto& points = brush->getInfluence();
+            if (points.empty())
+            {
+                LOG_WARN << "Influance points empty";
+                return;
+            }
+
+            Components::GrassRendererComponent::GrassMeshData pointMeshData;
+
+            try
+            {
+                TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
+                bool modelChanged{false};
+                for (const auto& point : points)
                 {
-                    LOG_WARN << "Influance points empty";
-                    return;
-                }
+                    auto randomOffset    = randomVec2(randomness, density);
+                    auto worldSpacePoint = vec3(static_cast<float>(point.point.x) / density + randomOffset.x, 0.f,
+                                                static_cast<float>(point.point.y) * density + randomOffset.y) +
+                                           currentTerrainPoint->pointOnTerrain;
 
-                Components::GrassRendererComponent::GrassMeshData pointMeshData;
-
-                try
-                {
-                    TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
-                    bool modelChanged{false};
-                    for (const auto& point : points)
+                    auto maybeHeight = heightGetter.GetHeightofTerrain(worldSpacePoint.x, worldSpacePoint.z);
+                    auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
+                    if (maybeHeight and maybeNormal)
                     {
-                        auto randomOffset    = randomVec2(randomness, density);
-                        auto worldSpacePoint = vec3(static_cast<float>(point.point.x) / density + randomOffset.x, 0.f,
-                                                    static_cast<float>(point.point.y) * density + randomOffset.y) +
-                                               currentTerrainPoint->pointOnTerrain;
-
-                        auto maybeHeight = heightGetter.GetHeightofTerrain(worldSpacePoint.x, worldSpacePoint.z);
-                        auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
-                        if (maybeHeight and maybeNormal)
-                        {
-                            pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
-                            LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
-                            pointMeshData.normal = *maybeNormal;
-                            pointMeshData.color  = baseColor;
-                            ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
-                            plantComponent->AddGrassMesh(pointMeshData);
-                            modelChanged = true;
-                        }
-                    }
-
-                    if (modelChanged)
-                    {
-                        plantComponent->UpdateModel();
+                        pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
+                        LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
+                        pointMeshData.normal = *maybeNormal;
+                        pointMeshData.color  = baseColor;
+                        ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
+                        plantComponent->AddGrassMesh(pointMeshData);
+                        modelChanged = true;
                     }
                 }
-                catch (std::runtime_error err)
+
+                if (modelChanged)
                 {
-                    LOG_DEBUG << err.what();
+                    plantComponent->UpdateModel();
                 }
+            }
+            catch (std::runtime_error err)
+            {
+                LOG_DEBUG << err.what();
             }
         }
         break;

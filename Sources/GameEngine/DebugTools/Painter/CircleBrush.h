@@ -14,6 +14,7 @@ public:
     void createInfluance(bool isEvenTextureSize, float stepX, float stepZ) override;
     const std::vector<Influance>& getInfluence() const override;
     const LocalBrushSize& getLocalBrushSize() const;
+    const WorldSpaceBrushRadius& getWorldSpaceBrushRadius() const;
 
 private:
     void calculateInfluence(bool isEven);
