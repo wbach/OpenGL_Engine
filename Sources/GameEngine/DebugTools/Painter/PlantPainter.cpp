@@ -243,47 +243,27 @@ void PlantPainter::Generate(const std::optional<IdType>& maybeGameObjectId)
         auto terrains = dependencies.componentController.GetAllComponentsOfType<Components::TerrainRendererComponent>();
         for (const auto& terrainComponent : terrains)
         {
-            auto& gameObject      = terrainComponent->GetParentGameObject();
-            const auto& transform = gameObject.GetWorldTransform();
-            const auto pos        = transform.GetPosition();
-            const auto scale      = transform.GetScale();
-
-            TerrainHeightGetter heightGetter(scale, *terrainComponent->GetHeightMap(), pos);
-            Components::GrassRendererComponent::GrassMeshData pointMeshData;
-
-            auto plantComponent = getPaintedPlantComponent(gameObject);
-            if (not plantComponent)
-                continue;
-
-            plantComponent->GetGrassMeshesData() = {};
-
-            const float step{2.f / density};
-            const auto halfScale = scale / 2.f;
-            for (float z = pos.z - halfScale.x; z < pos.z + halfScale.z; z += step)
-            {
-                for (float x = pos.x - halfScale.x; x < pos.x + halfScale.x; x += step)
-                {
-                    auto worldpos    = randomVec2(randomness, density) + vec2(x, z);
-                    auto maybeHeight = heightGetter.GetHeightofTerrain(worldpos.x, worldpos.y);
-                    auto maybeNormal = heightGetter.GetNormalOfTerrain(worldpos.x, worldpos.y);
-
-                    if (maybeHeight and maybeNormal)
-                    {
-                        pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
-                        pointMeshData.normal   = *maybeNormal;
-                        pointMeshData.color    = baseColor;
-                        ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
-                        plantComponent->AddGrassMesh(pointMeshData);
-                    }
-                }
-            }
-
-            plantComponent->UpdateModel();
+            GenerateOnTerrain(terrainComponent);
         }
     }
     else
     {
-        LOG_DEBUG << "not implmented yet";
+        if (auto gameObject = dependencies.scene.GetGameObject(*maybeGameObjectId))
+        {
+            auto terrainComponent = gameObject->GetComponent<Components::TerrainRendererComponent>();
+            if (terrainComponent)
+            {
+                GenerateOnTerrain(terrainComponent);
+            }
+            else
+            {
+                LOG_WARN << "GameObject id: " << *maybeGameObjectId << " has no TerrainRendererComponent";
+            }
+        }
+        else
+        {
+            LOG_WARN << "No GameObject with id: " << *maybeGameObjectId;
+        }
     }
 }
 Components::GrassRendererComponent* PlantPainter::getPaintedPlantComponent(GameObject& parent)
@@ -315,5 +295,45 @@ Components::GrassRendererComponent* PlantPainter::getPaintedPlantComponent(GameO
         }
     }
     return plantComponent;
+}
+
+void PlantPainter::GenerateOnTerrain(Components::TerrainRendererComponent* terrainComponent)
+{
+    auto& gameObject      = terrainComponent->GetParentGameObject();
+    const auto& transform = gameObject.GetWorldTransform();
+    const auto pos        = transform.GetPosition();
+    const auto scale      = transform.GetScale();
+
+    TerrainHeightGetter heightGetter(scale, *terrainComponent->GetHeightMap(), pos);
+    Components::GrassRendererComponent::GrassMeshData pointMeshData;
+
+    auto plantComponent = getPaintedPlantComponent(gameObject);
+    if (not plantComponent)
+        return;
+
+    plantComponent->GetGrassMeshesData() = {};
+
+    const float step{2.f / density};
+    const auto halfScale = scale / 2.f;
+    for (float z = pos.z - halfScale.x; z < pos.z + halfScale.z; z += step)
+    {
+        for (float x = pos.x - halfScale.x; x < pos.x + halfScale.x; x += step)
+        {
+            auto worldpos    = randomVec2(randomness, density) + vec2(x, z);
+            auto maybeHeight = heightGetter.GetHeightofTerrain(worldpos.x, worldpos.y);
+            auto maybeNormal = heightGetter.GetNormalOfTerrain(worldpos.x, worldpos.y);
+
+            if (maybeHeight and maybeNormal)
+            {
+                pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
+                pointMeshData.normal   = *maybeNormal;
+                pointMeshData.color    = baseColor;
+                ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
+                plantComponent->AddGrassMesh(pointMeshData);
+            }
+        }
+    }
+
+    plantComponent->UpdateModel();
 }
 }  // namespace GameEngine

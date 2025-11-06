@@ -57,6 +57,7 @@ public:
     void Generate(const std::optional<IdType>&);
 
 private:
+    void GenerateOnTerrain(Components::TerrainRendererComponent*);
     Components::GrassRendererComponent* getPaintedPlantComponent(GameObject&);
 
 private:
