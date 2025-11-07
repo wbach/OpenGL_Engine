@@ -318,7 +318,6 @@ void SceneTreeCtrl::SubscribeForSceneEvent(GameEngine::Scene &scene)
             std::visit(visitor{[this](const auto &e)
                                {
                                    // call on wxWdidgets thread
-                                   LOG_DEBUG << "CallAfter process event";
                                    gameObjectsView->CallAfter([this, e] { ProcessEvent(e); });
                                }},
                        event);

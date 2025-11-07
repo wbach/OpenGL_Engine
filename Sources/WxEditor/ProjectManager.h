@@ -55,10 +55,12 @@ public:
 
     void SetStartupScene(const std::string& name);
     const std::string& GetStartupScene() const;
+    const std::filesystem::path& GetLastOpenedScene() const;
 
     void SaveSceneFiles();
     void SaveEditorConfig();
     void ReadEditorConfig();
+    void SetLastOpenedSceneFile(const std::filesystem::path&);
 
 private:
     ProjectManager()  = default;
@@ -78,6 +80,7 @@ private:
     std::filesystem::path lastOpenedPath;
     std::string projectName;
     std::string startupscene;
+    std::filesystem::path lastOpenedSceneFile;
     std::filesystem::path engineIncludesDir;
     std::unordered_map<std::string, std::filesystem::path> scenes;
 };

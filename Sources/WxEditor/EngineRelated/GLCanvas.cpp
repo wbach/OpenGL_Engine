@@ -12,7 +12,9 @@
 #include <filesystem>
 #include <memory>
 
+#include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
+#include "WxEditor/WxHelpers/LoadingDialog.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
 #include "WxWindowApi.h"
@@ -216,7 +218,24 @@ void GLCanvas::OnPaint(wxPaintEvent&)
         engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
                                                       std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
-        CreateNewScene();
+        const auto& path = ProjectManager::GetInstance().GetLastOpenedScene();
+        if (std::filesystem::exists(path))
+        {
+            LOG_DEBUG << "Last opened scene file exist: " << path;
+            auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + path.string());
+            OpenScene(path,
+                      [loadingDialog = dlg, this]
+                      {
+                          onStartupDone();
+                          loadingDialog->EndModal(wxID_OK);
+                      });
+            dlg->ShowModal();
+        }
+        else
+        {
+            LOG_DEBUG << "Create new scene. Last opened scene file not exist: " << path;
+            CreateNewScene();
+        }
     }
     if (engine)
     {
@@ -469,7 +488,8 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
     engine->GetSceneManager().SetOnSceneLoadDone(
         [this, callback]()
         {
-            callback();
+            if (callback)
+                callback();
             SetupCamera();
         });
     engine->GetSceneManager().SetActiveScene(name);

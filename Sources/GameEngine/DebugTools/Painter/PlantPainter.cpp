@@ -315,26 +315,6 @@ void PlantPainter::Generate(const File& terrainTextureFile)
             continue;
         }
 
-        LOG_DEBUG << terrainComponent->GetParentGameObject().GetName() << " blendmap size: " << gtBlendmap->GetImage().size().x
-                  << "x" << gtBlendmap->GetImage().size().y;
-        std::visit(visitor{[&](auto& data)
-                           {
-                               LOG_DEBUG << "Blendmap data type: " << typeid(data).name();
-                               LOG_DEBUG << "Blendmap data size: " << data.size();
-                               size_t nonzero = 0;
-                               for (auto& d : data)
-                               {
-                                   if (d > 0)
-                                   {
-                                       ++nonzero;
-                                   }  // just to avoid unused variable warning
-                               }
-                               LOG_DEBUG << "Blendmap non-zero pixels: " << nonzero;
-                           },
-
-                           [](std::monostate) {}},
-                   gtBlendmap->GetImage().getImageData());
-
         for (const auto& [type, texture] : textures)
         {
             if (GameEngine::isPaintAbleTexture(type))

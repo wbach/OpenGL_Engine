@@ -1,6 +1,7 @@
 #include "ProjectManager.h"
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
 
 ProjectManager& ProjectManager::GetInstance()
 {
@@ -171,6 +172,7 @@ void ProjectManager::SaveEditorConfig()
 {
     TreeNode node("editorConfig");
     node.addChild("engineIncludesDir", engineIncludesDir);
+    node.addChild("lastOpenedSceneFile", std::filesystem::absolute(lastOpenedSceneFile).lexically_normal());
     Utils::Json::Write(projectEditorConfigFilePath.string(), node);
 }
 void ProjectManager::ReadEditorConfig()
@@ -180,6 +182,10 @@ void ProjectManager::ReadEditorConfig()
     if (auto engineIncludesDirNode = json.Get("engineIncludesDir"))
     {
         engineIncludesDir = engineIncludesDirNode->value_;
+    }
+    if (auto lastOpenedSceneFileNode = json.Get("lastOpenedSceneFile"))
+    {
+        lastOpenedSceneFile = lastOpenedSceneFileNode->value_;
     }
 }
 std::vector<ProjectManager::RecentProject> ProjectManager::GetRecentProjects()
@@ -242,4 +248,12 @@ void ProjectManager::RemoveRecentProject(const std::string& path)
         config.Write(key, wxString(recents[i].path));
     }
     config.Flush();
+}
+const std::filesystem::path& ProjectManager::GetLastOpenedScene() const
+{
+    return lastOpenedSceneFile;
+}
+void ProjectManager::SetLastOpenedSceneFile(const std::filesystem::path& file)
+{
+    lastOpenedSceneFile = file;
 }

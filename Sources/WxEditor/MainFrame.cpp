@@ -201,8 +201,11 @@ void MainFrame::Init()
 
     auto onStartupDone = [this]()
     {
+        auto& scene =  canvas->GetScene();
+        SetTitle("Active scene : " + scene.GetName());
         UpdateTimeOnToolbar();
-        gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
+        gameObjectsView->RebuildTree(scene);
+        gameObjectsView->SubscribeForSceneEvent(scene);
         UpdateMainMenuRendererOptionsCheckBoxes();
         SetStatusText(std::filesystem::path(EngineConf.files.getDataPath()).make_preferred().string());
     };
@@ -461,20 +464,24 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
     gameObjectsView->UnSubscribeForSceneEvent();
 
     canvas->OpenScene(file,
-                      [&, path = file.GetDataRelativePath().string(), loadingDialog = dlg]()
+                      [&, path = file, loadingDialog = dlg]()
                       {
                           if (isRunning)
                           {
                               LOG_DEBUG << "Scene loaded callback";
                               SetStatusText("Welcome to game editor!");
                               SetTitle("Active scene : " + canvas->GetScene().GetName());
-                              canvas->GetScene().GetFile() = path;
+                              canvas->GetScene().GetFile() = path.GetDataRelativePath().string();
                               this->CallAfter(
                                   [&]()
                                   {
-                                      gameObjectsView->RebuildTree(canvas->GetScene());
-                                      gameObjectsView->SubscribeForSceneEvent(canvas->GetScene());
-                                      dlg->EndModal(wxID_OK);
+                                      auto& scene = canvas->GetScene();
+                                      gameObjectsView->RebuildTree(scene);
+                                      gameObjectsView->SubscribeForSceneEvent(scene);
+                                      loadingDialog->EndModal(wxID_OK);
+                                      auto& manager = ProjectManager::GetInstance();
+                                      manager.SetLastOpenedSceneFile(path.GetAbsolutePath());
+                                      manager.SaveEditorConfig();
                                   });
                           }
                       });

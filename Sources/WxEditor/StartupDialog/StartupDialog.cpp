@@ -160,7 +160,6 @@ void StartupDialog::ReadSceneFactoryFile()
     auto& pm = ProjectManager::GetInstance();
     Utils::JsonReader jsonReader;
 
-    // wxMessageBox(pm.GetScenesFactoryFile());
     if (jsonReader.Read(pm.GetScenesFactoryFile().string()))
     {
         const std::string CSTR_ROOT_NODE{"projectConfiguration"};
