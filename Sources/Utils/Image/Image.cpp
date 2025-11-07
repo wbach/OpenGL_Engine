@@ -2,8 +2,6 @@
 
 #include <Logger/Log.h>
 
-#include <mutex>
-
 namespace Utils
 {
 struct ImageDataPtrVisitor
@@ -201,7 +199,6 @@ private:
 
 bool Image::setPixel(const vec2ui& position, const Color& color)
 {
-    std::lock_guard<std::mutex> lk(mutex);
     return std::visit(ImageDataSetVisitor(position, color, width, channels_), data_);
 }
 
@@ -220,7 +217,6 @@ Image& Image::operator=(Image&& other) noexcept
 {
     if (this != &other)
     {
-        std::scoped_lock lock(mutex, other.mutex);
         width     = other.width;
         height    = other.height;
         channels_ = other.channels_;
@@ -250,7 +246,6 @@ const void* Image::getRawDataPtr() const
 
 std::optional<Color> Image::getPixel(const vec2ui& position) const
 {
-    std::lock_guard<std::mutex> lk(mutex);
     return std::visit(ImageDataGetVisitor(position, width, channels_), data_);
 }
 bool Image::empty() const

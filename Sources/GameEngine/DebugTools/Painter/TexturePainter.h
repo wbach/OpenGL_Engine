@@ -2,6 +2,7 @@
 #include <memory>
 #include <optional>
 #include <unordered_map>
+#include <vector>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Resources/File.h"
@@ -33,7 +34,16 @@ private:
     struct PaintedContext
     {
         Color paintedColor;
-        std::reference_wrapper<Utils::Image> paintedImage;
+        std::vector<vec2ui> paintedPoints;
+
+        struct ImageRawAccess
+        {
+            std::vector<float>* imageData;
+            uint32 width;
+            uint32 channels;
+        };
+
+        ImageRawAccess imageDataAccess;
     };
 
     std::optional<PaintedContext> currentPaintingContext;

@@ -1,5 +1,4 @@
 #pragma once
-#include <mutex>
 #include <optional>
 #include <variant>
 #include <vector>
@@ -60,6 +59,5 @@ public:
 private:
     uint8 channels_{4};
     ImageData data_;
-    mutable std::mutex mutex;
 };
 }  // namespace Utils

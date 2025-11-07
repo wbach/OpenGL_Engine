@@ -4,8 +4,8 @@
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
 
+#include <execution>
 #include <filesystem>
-#include <variant>
 
 namespace Utils
 {
@@ -327,4 +327,41 @@ void ClearChannel(Image& image, uint8 channelToClear)
                        [](std::monostate) {}},
                dataVariant);
 }
+
+void FastCopyPixels(const Image& srcImg, Image& dstImg, const std::vector<vec2ui>& points, size_t multiCoreThreshold)
+{
+    if (std::holds_alternative<std::vector<float>>(srcImg.getImageData()) &&
+        std::holds_alternative<std::vector<uint8>>(dstImg.getImageData()))
+    {
+        const auto& srcData  = std::get<std::vector<float>>(srcImg.getImageData());
+        auto& dstData        = std::get<std::vector<uint8>>(dstImg.getImageData());
+        const uint8 channels = std::min(srcImg.getChannelsCount(), dstImg.getChannelsCount());
+        const uint32 width   = srcImg.width;
+
+        auto convertPixel = [&](const vec2ui& p)
+        {
+            size_t idx = (p.x + p.y * width) * channels;
+            if (idx + channels > srcData.size() || idx + channels > dstData.size())
+                return;
+
+            for (uint8 c = 0; c < channels; ++c)
+            {
+                float val        = srcData[idx + c];
+                val              = std::clamp(val, 0.0f, 1.0f);
+                dstData[idx + c] = static_cast<uint8>(val * 255.0f);
+            }
+        };
+        std::for_each(points.begin(), points.end(), convertPixel);
+        // std::for_each(std::execution::par, points.begin(), points.end(), convertPixel);
+    }
+    else
+    {
+        for (const auto& p : points)
+        {
+            if (auto tmpColor = srcImg.getPixel(p))
+                dstImg.setPixel(p, *tmpColor);
+        }
+    }
+}
+
 }  // namespace Utils

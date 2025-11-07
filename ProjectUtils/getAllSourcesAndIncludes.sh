@@ -22,6 +22,7 @@ createSrc Input
 createSrc OpenGLApi
 createSrc RpgGameServer
 createSrc Tests
+createSrc Benchmark
 createSrc Utils
 createSrc UtilsNetwork
 createSrc UtilsNetworkTests

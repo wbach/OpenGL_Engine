@@ -2,6 +2,8 @@
 
 #include <Logger/Log.h>
 
+#include "PainterUtils.h"
+
 namespace GameEngine
 {
 CircleBrush::CircleBrush(Interpolation interpolation, WorldSpaceBrushRadius size, float strength)
@@ -22,6 +24,8 @@ void CircleBrush::createInfluance(bool isEven, float stepX, float stepZ)
         LOG_DEBUG << "Influance vector not change skip";
         return;
     }
+
+    steps = newSteps;
 
     const double brushSizeX     = worldSpaceBrushRadius.value / stepX;
     const double brushSizeZ     = worldSpaceBrushRadius.value / stepZ;
@@ -66,6 +70,7 @@ void CircleBrush::calculateInfluence(bool isEven)
             }
         }
     }
+    sort(influance);
 }
 const WorldSpaceBrushRadius& CircleBrush::getWorldSpaceBrushRadius() const
 {

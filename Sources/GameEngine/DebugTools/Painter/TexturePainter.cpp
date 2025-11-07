@@ -114,7 +114,12 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
 
     if (auto iter = paintedComponents.find(tc); iter != paintedComponents.end())
     {
-        return iter->second.has_value();
+        if (iter->second.has_value())
+        {
+            iter->second->paintedPoints.clear();
+            return true;
+        }
+        return false;
     }
 
     if (not requestedFileTexture.exist())
@@ -139,7 +144,11 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
                        "terrain");
         }
 
-        currentPaintingContext = PaintedContext{.paintedColor = *paintedColor, .paintedImage = *paintedImage};
+        currentPaintingContext = PaintedContext{.paintedColor    = *paintedColor,
+                                                .imageDataAccess = PaintedContext::ImageRawAccess{
+                                                    .imageData = &std::get<std::vector<float>>(paintedImage->getImageData()),
+                                                    .width     = paintedImage->width,
+                                                    .channels  = paintedImage->getChannelsCount()}};
     }
     else if (not paintedColor and messageBox)
     {
@@ -161,32 +170,24 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
 
 void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime)
 {
-    if (not currentPaintingContext.has_value())
-    {
-        LOG_WARN << "not paintedColor";
+    auto& access = currentPaintingContext->imageDataAccess;
+
+    if (paintedPoint.x >= access.width || paintedPoint.y >= access.width)
         return;
-    }
 
-    Utils::Image& paintedImage = currentPaintingContext->paintedImage;
-    if (not IsInRange(paintedImage, paintedPoint))
+    size_t idx = (paintedPoint.x + paintedPoint.y * access.width) * access.channels;
+
+    const float paintSpeed = glm::clamp(influancePoint.influance * deltaTime, 0.0f, 1.0f);
+
+    for (uint8 c = 0; c < access.channels; ++c)
     {
-        return;
+        float& dst = (*access.imageData)[idx + c];
+        dst        = glm::mix(dst, currentPaintingContext->paintedColor.value[c], paintSpeed);
     }
 
-    auto currentColor = paintedImage.getPixel(paintedPoint);
-
-    if (currentColor)
-    {
-        const float paintSpeed = glm::clamp(influancePoint.influance * deltaTime, 0.0f, 1.0f);
-
-        auto newColor = glm::mix(currentColor->value, currentPaintingContext->paintedColor.value, paintSpeed);
-        paintedImage.setPixel(paintedPoint, Color(newColor));
-    }
-    else
-    {
-        LOG_WARN << "No color in blend map!";
-    }
+    currentPaintingContext->paintedPoints.push_back(paintedPoint);
 }
+
 void TexturePainter::UpdateTexture(Components::TerrainRendererComponent& tc)
 {
     auto iter = tmpfloatingImages.find(&tc);
@@ -195,7 +196,9 @@ void TexturePainter::UpdateTexture(Components::TerrainRendererComponent& tc)
         auto blendMap = dynamic_cast<GeneralTexture*>(tc.GetTexture(TerrainTextureType::blendMap));
         if (blendMap)
         {
-            blendMap->SetImage(Utils::cloneImageAs<uint8>(*iter->second));
+            auto& dstImg       = blendMap->GetImage();
+            const auto& srcImg = *iter->second;
+            Utils::FastCopyPixels(srcImg, dstImg, currentPaintingContext->paintedPoints);
         }
     }
 

@@ -603,7 +603,7 @@ void PlantPainter::Paint(const vec2& mousePosition)
                     plantComponent->UpdateModel();
                 }
             }
-            catch (std::runtime_error err)
+            catch (const std::runtime_error& err)
             {
                 LOG_DEBUG << err.what();
             }
