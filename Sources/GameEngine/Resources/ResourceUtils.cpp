@@ -280,7 +280,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
     auto& image = heightmap.GetImage();
     if (image.empty())
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Can not save height map without data!");
+        LOG_ERROR << "Can not save height map without data!";
         return;
     }
 
@@ -308,9 +308,7 @@ void SaveHeightMap(const HeightMap& heightmap, const File& outfile)
                            fwrite(&data[0], sizeof(float), size, fp);
                        },
                        [&](const std::vector<float>& data) { fwrite(&data[0], sizeof(float), size, fp); },
-                       [](std::monostate) { /* LOG TO FIX*/
-                                            LOG_ERROR << ("Data not set!");
-                       }},
+                       [](std::monostate) { LOG_ERROR << "Data not set!"; }},
                image.getImageData());
     fclose(fp);
 

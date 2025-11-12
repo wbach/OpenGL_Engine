@@ -28,7 +28,6 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters
     , textureParamters_(textureParamters)
     , size_(0)
     , numberOfRows_(1)
-    , orginalData_(true)
 {
 }
 
@@ -37,7 +36,6 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters
     , textureParamters_(textureParamters)
     , size_(0)
     , numberOfRows_(1)
-    , orginalData_(true)
 {
     graphicsObjectId_ = id;
 }
@@ -49,7 +47,6 @@ Texture::Texture(GraphicsApi::IGraphicsApi& graphicsApi, const TextureParameters
     , file_(file)
     , size_(size)
     , numberOfRows_(1)
-    , orginalData_(true)
 {
     if (file_)
     {
@@ -102,14 +99,6 @@ std::optional<uint32> Texture::GetNumberOfRowsBasedOnTextureFileName(const std::
 void Texture::SetFile(const File& file)
 {
     file_ = file;
-}
-bool Texture::IsModified() const
-{
-    return not orginalData_;
-}
-void Texture::ResetModifyAcknowlage()
-{
-    orginalData_ = true;
 }
 uint32 Texture::getNumberOfRows() const
 {

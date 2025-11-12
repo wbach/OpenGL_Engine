@@ -72,6 +72,8 @@ private:
     RendererType rendererType_;
     std::unique_ptr<TerrainComponentBase> terrainComponent_;
     bool functionsRegistered_;
+    bool mutable blendmapFileUpdateNeeded{false};
+    bool mutable heightmapFileUpdateNeeded{false};
 
 public:
     static void registerReadFunctions();

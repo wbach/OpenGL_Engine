@@ -193,11 +193,13 @@ HeightMap* TerrainRendererComponent::GetHeightMap()
 void TerrainRendererComponent::HeightMapChanged()
 {
     terrainComponent_->HeightMapChanged();
+    heightmapFileUpdateNeeded = true;
 }
 
 void TerrainRendererComponent::BlendMapChanged()
 {
     terrainComponent_->BlendMapChanged();
+    blendmapFileUpdateNeeded = true;
 }
 
 void TerrainRendererComponent::RecalculateNormals()
@@ -291,12 +293,13 @@ void TerrainRendererComponent::write(TreeNode& node) const
 
     auto heightMapTexture = GetTexture(TerrainTextureType::heightmap);
 
-    if (heightMapTexture and heightMapTexture->IsModified())
+    if (heightMapTexture and heightmapFileUpdateNeeded)
     {
         auto heightMap = static_cast<HeightMap*>(heightMapTexture);
         if (heightMap and heightMap->GetFile())
         {
             SaveHeightMap(*heightMap, heightMap->GetFile()->GetAbsolutePath());
+            heightmapFileUpdateNeeded = false;
         }
         else
         {
@@ -308,20 +311,13 @@ void TerrainRendererComponent::write(TreeNode& node) const
 
     if (blendMapTexture)
     {
-        if (blendMapTexture->IsModified() and blendMapTexture->GetFile())
+        if (blendmapFileUpdateNeeded and blendMapTexture->GetFile())
         {
             auto blendMap     = static_cast<GeneralTexture*>(blendMapTexture);
             const auto& image = blendMap->GetImage();
             Utils::CreateBackupFile(blendMapTexture->GetFile()->GetAbsolutePath().string());
-
-            std::visit(
-                visitor{
-                    [&](const std::vector<uint8>& data)
-                    { Utils::SaveImage(data, image.size(), blendMapTexture->GetFile()->GetAbsolutePath().string()); },
-                    [](const std::vector<float>& data) { LOG_ERROR << "Float version not implemented."; },
-                    [](const std::monostate&) { LOG_ERROR << "Image data is not set!"; },
-                },
-                image.getImageData());
+            Utils::SaveImage(image, blendMapTexture->GetFile()->GetAbsolutePath().string());
+            blendmapFileUpdateNeeded = false;
         }
     }
 }

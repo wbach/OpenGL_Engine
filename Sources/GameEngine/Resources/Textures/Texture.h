@@ -32,8 +32,6 @@ public:
     inline float GetTextureYOffset(uint32 textureIndex) const;
     inline vec2 GetTextureOffset(uint32 textureIndex) const;
     std::optional<uint32> GetNumberOfRowsBasedOnTextureFileName(const std::string& file) const;
-    bool IsModified() const;
-    void ResetModifyAcknowlage();
     uint32 getNumberOfRows() const;
     const TextureParameters& getTextureParameters() const;
 
@@ -43,7 +41,6 @@ protected:
     std::optional<File> file_;
     vec2ui size_;
     uint32 numberOfRows_;
-    bool orginalData_;
 };
 
 const std::optional<File>& Texture::GetFile() const

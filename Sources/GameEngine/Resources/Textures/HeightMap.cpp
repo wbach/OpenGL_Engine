@@ -54,7 +54,6 @@ void HeightMap::setImage(Utils::Image image)
     std::lock_guard<std::mutex> lk(mutex);
     image_       = std::move(image);
     size_        = vec2ui(image.width, image.height);
-    orginalData_ = false;
 }
 
 float HeightMap::GetMaximumHeight() const
@@ -90,7 +89,6 @@ bool HeightMap::SetHeight(const vec2ui& cooridnate, float value)
         if (not compare(actualValue, value))
         {
             image_.setPixel(cooridnate, Color(value));
-            orginalData_ = false;
             return true;
         }
     }
