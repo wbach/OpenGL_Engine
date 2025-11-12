@@ -174,153 +174,6 @@ vec3 ApplyWind(vec3 offset, float heightFactor)
     return offset;
 }
 
-void CreateXYquad(vec4 rotation, int useSegments)
-{
-    float step = 1.0 / float(useSegments);   // wysokość jednego segmentu w geometrii
-
-    for (int i = 0; i < useSegments; i++)
-    {
-        // Y segmentu
-        float y0 = float(i) * step;       // dolny
-        float y1 = float(i+1) * step;     // górny
-
-
-        vec3 v11 = vec3(-0.5f, y1, 0.0f); // górny lewy
-        vec3 v22 = vec3(-0.5f, y0, 0.0f); // dolny lewy
-        vec3 v33 = vec3( 0.5f, y1, 0.0f); // górny prawy
-        vec3 v44 = vec3( 0.5f, y0, 0.0f); // dolny prawy
-
-        v11 = ApplyWind(v11, (i + 1.0) / float(useSegments));
-        v22 = ApplyWind(v22, i / float(useSegments));
-        v33 = ApplyWind(v33, (i + 1.0) / float(useSegments));
-        v44 = ApplyWind(v44, i / float(useSegments));
-
-        float uvLow  = float(i) / float(useSegments);    
-        float uvHigh = float(i+1) / float(useSegments);  
-
-        vec2 quadTextCoord[4];
-        quadTextCoord[0] = vec2(0.0, uvHigh);
-        quadTextCoord[1] = vec2(0.0, uvLow);
-        quadTextCoord[2] = vec2(1.0, uvHigh);
-        quadTextCoord[3] = vec2(1.0, uvLow);
-
-        // Tworzymy segment quada
-        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
-        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
-        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
-        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
-        EndPrimitive();
-    }
-}
-
-void CreateZYquad(vec4 rotation, int useSegments)
-{
-    float step = 1.0 / float(useSegments);
-
-    for (int i = 0; i < useSegments; i++)
-    {
-        float y0 = float(i) * step;
-        float y1 = float(i+1) * step;
-
-        vec3 v11 = vec3(0.0, y1, -0.5f);
-        vec3 v22 = vec3(0.0, y0, -0.5f);
-        vec3 v33 = vec3(0.0, y1,  0.5f);
-        vec3 v44 = vec3(0.0, y0,  0.5f);
-
-        v11 = ApplyWind(v11, (i+1)/float(useSegments));
-        v22 = ApplyWind(v22, i/float(useSegments));
-        v33 = ApplyWind(v33, (i+1)/float(useSegments));
-        v44 = ApplyWind(v44, i/float(useSegments));
-
-        float uvLow  = float(i)/float(useSegments);
-        float uvHigh = float(i+1)/float(useSegments);
-
-        vec2 quadTextCoord[4];
-        quadTextCoord[0] = vec2(0.0, uvHigh);
-        quadTextCoord[1] = vec2(0.0, uvLow);
-        quadTextCoord[2] = vec2(1.0, uvHigh);
-        quadTextCoord[3] = vec2(1.0, uvLow);
-
-        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
-        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
-        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
-        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
-        EndPrimitive();
-    }
-}
-
-void CreateXYZquad(vec4 rotation, int useSegments)
-{
-    float step = 1.0 / float(useSegments);
-
-    for (int i = 0; i < useSegments; i++)
-    {
-        float y0 = float(i) * step;
-        float y1 = float(i+1) * step;
-
-        vec3 v11 = vec3(-0.4f, y1, -0.4f);
-        vec3 v22 = vec3(-0.4f, y0, -0.4f);
-        vec3 v33 = vec3( 0.4f, y1,  0.4f);
-        vec3 v44 = vec3( 0.4f, y0,  0.4f);
-
-        v11 = ApplyWind(v11, (i+1)/float(useSegments));
-        v22 = ApplyWind(v22, i/float(SEGMENTS));
-        v33 = ApplyWind(v33, (i+1)/float(useSegments));
-        v44 = ApplyWind(v44, i/float(useSegments));
-
-        float uvLow  = float(i)/float(useSegments);
-        float uvHigh = float(i+1)/float(useSegments);
-
-        vec2 quadTextCoord[4];
-        quadTextCoord[0] = vec2(0.0, uvHigh);
-        quadTextCoord[1] = vec2(0.0, uvLow);
-        quadTextCoord[2] = vec2(1.0, uvHigh);
-        quadTextCoord[3] = vec2(1.0, uvLow);
-
-        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
-        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
-        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
-        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
-        EndPrimitive();
-    }
-}
-
-void CreateZYXquad(vec4 rotation, int useSegments)
-{
-    float step = 1.0 / float(useSegments);
-
-    for (int i = 0; i < useSegments; i++)
-    {
-        float y0 = float(i) * step;
-        float y1 = float(i+1) * step;
-
-        vec3 v11 = vec3(0.4f, y1, -0.4f);
-        vec3 v22 = vec3(0.4f, y0, -0.4f);
-        vec3 v33 = vec3(-0.4f, y1,  0.4f);
-        vec3 v44 = vec3(-0.4f, y0,  0.4f);
-
-        v11 = ApplyWind(v11, (i+1)/float(useSegments));
-        v22 = ApplyWind(v22, i/float(useSegments));
-        v33 = ApplyWind(v33, (i+1)/float(useSegments));
-        v44 = ApplyWind(v44, i/float(useSegments));
-
-        float uvLow  = float(i)/float(useSegments);
-        float uvHigh = float(i+1)/float(useSegments);
-
-        vec2 quadTextCoord[4];
-        quadTextCoord[0] = vec2(0.0, uvHigh);
-        quadTextCoord[1] = vec2(0.0, uvLow);
-        quadTextCoord[2] = vec2(1.0, uvHigh);
-        quadTextCoord[3] = vec2(1.0, uvLow);
-
-        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
-        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
-        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
-        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
-        EndPrimitive();
-    }
-}
-
 int GetSegmentsByDistance()
 {
     float dist = length(gs_in[0].worldPosition - perFrame.cameraPosition);
@@ -339,21 +192,84 @@ int GetSegmentsByDistance()
     return max(segs, 1); // nigdy nie mniej niż 1
 }
 
+
+void CreateSegmentedQuad(vec4 rotation, vec3 corner0, vec3 corner1, vec3 corner2, vec3 corner3)
+{
+    int segments = GetSegmentsByDistance();
+
+    for (int i = 0; i < segments; i++)
+    {
+        float y0 = float(i) / float(segments);       // dolny segment
+        float y1 = float(i + 1) / float(segments);   // górny segment
+
+        // interpolacja lokalnych cornerów wzdłuż wysokości
+        vec3 v11 = mix(corner0, corner1, y1); // górny lewy
+        vec3 v22 = mix(corner0, corner1, y0); // dolny lewy
+        vec3 v33 = mix(corner2, corner3, y1); // górny prawy
+        vec3 v44 = mix(corner2, corner3, y0); // dolny prawy
+
+        // dodanie wiatru
+        v11 = ApplyWind(v11, y1);
+        v22 = ApplyWind(v22, y0);
+        v33 = ApplyWind(v33, y1);
+        v44 = ApplyWind(v44, y0);
+
+        // UV
+        float uvLow  = float(i) / float(segments);
+        float uvHigh = float(i + 1) / float(segments);
+
+        vec2 quadTextCoord[4];
+        quadTextCoord[0] = vec2(0.0, uvHigh);
+        quadTextCoord[1] = vec2(0.0, uvLow);
+        quadTextCoord[2] = vec2(1.0, uvHigh);
+        quadTextCoord[3] = vec2(1.0, uvLow);
+
+        // emitowanie wierzchołków
+        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
+        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
+        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
+        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
+        EndPrimitive();
+    }
+}
+
+
 void main(void)
 {
     if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < grassShaderBuffer.variables.x)
     {
-       // vec3 normal = vec3(1, 1, 1);
-        //vec3 normal = vec3(0, 1, 0);
         vec4 quaternion = CreateQuaternion(normalize(gs_in[0].normal));
-        int useSegments = GetSegmentsByDistance();
 
-        CreateXYquad(quaternion, useSegments);
-        CreateZYquad(quaternion, useSegments);
-        if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < (grassShaderBuffer.variables.x) / 3.f)
+        // XY quad (pionowy, klasyczny)
+        CreateSegmentedQuad(
+            quaternion,
+            vec3(-0.5, 0.0, 0.0), vec3(-0.5, 1.0, 0.0), // dolny → górny lewy
+            vec3( 0.5, 0.0, 0.0), vec3( 0.5, 1.0, 0.0)  // dolny → górny prawy
+        );
+
+        // ZY quad (prostopadły do XY)
+        CreateSegmentedQuad(
+            quaternion,
+            vec3(0.0, 0.0, -0.5), vec3(0.0, 1.0, -0.5), // dolny → górny lewy
+            vec3(0.0, 0.0,  0.5), vec3(0.0, 1.0,  0.5)  // dolny → górny prawy
+        );
+
+        // Dwa quady po przekątnej dla bliskich źdźbeł
+        if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < (grassShaderBuffer.variables.x) / 3.0)
         {
-            CreateXYZquad(quaternion, useSegments);
-            CreateZYXquad(quaternion, useSegments);
+            // XYZ quad (przekątna)
+            CreateSegmentedQuad(
+                quaternion,
+                vec3(-0.4, 0.0, -0.4), vec3(-0.4, 1.0, -0.4), // dolny → górny lewy
+                vec3( 0.4, 0.0,  0.4), vec3( 0.4, 1.0,  0.4)  // dolny → górny prawy
+            );
+
+            // ZYX quad (druga przekątna)
+            CreateSegmentedQuad(
+                quaternion,
+                vec3( 0.4, 0.0, -0.4), vec3( 0.4, 1.0, -0.4), // dolny → górny lewy
+                vec3(-0.4, 0.0,  0.4), vec3(-0.4, 1.0,  0.4)  // dolny → górny prawy
+            );
         }
     }
 }
