@@ -123,20 +123,7 @@ vec4 calculateBackgroundColor(float backTextureAmount)
     return ((backgroundTextureColor * (1.f - blendFactor)) + (rockTextureColor * blendFactor)) * backTextureAmount;
 }
 
-vec4 CalculateBackgroundColor(vec2 tiledCoords, float backTextureAmount)
-{
-    if (abs(backTextureAmount) < EPSILON)
-    {
-        return vec4(0.f);
-    }
-
-    float blendFactor = GetRockBlendFactor();
-    vec4 backgroundTextureColor = texture(backgroundTexture, tiledCoords) * backTextureAmount * (1.f - blendFactor);
-    vec4 rockTextureColor       = texture(rockTexture, tiledCoords) * backTextureAmount * blendFactor;
-    return backgroundTextureColor + rockTextureColor;
-}
-
-vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextureAmount)
+vec4 CalculateTerrainColor(vec2 textureCoords, vec4 blendMapColor, float backTextureAmount)
 {
     if (!Is(perApp.useTextures.x))
     {
@@ -144,24 +131,23 @@ vec4 CalculateTerrainColor(vec2 tiledCoords, vec4 blendMapColor, float backTextu
     }
 
     vec4 backgroundTextureColour = calculateBackgroundColor(backTextureAmount);
-    vec4 redTextureColor         = textureColor(redTexture, tiledCoords, perTerrainTextures.haveTextureR.x) * blendMapColor.r;
-    vec4 greenTextureColor       = textureColor(greenTexture, tiledCoords, perTerrainTextures.haveTextureG.x) * blendMapColor.g;
-    vec4 blueTextureColor        = textureColor(blueTexture, tiledCoords, perTerrainTextures.haveTextureB.x) * blendMapColor.b;
-    vec4 alphaTextureColor       = textureColor(alphaTexture, tiledCoords, perTerrainTextures.haveTextureA.x) * blendMapColor.a;
+    vec4 redTextureColor         = textureColor(redTexture, textureCoords * perTerrainTextures.rgbaTextureScales.x, perTerrainTextures.haveTextureR.x) * blendMapColor.r;
+    vec4 greenTextureColor       = textureColor(greenTexture, textureCoords * perTerrainTextures.rgbaTextureScales.y, perTerrainTextures.haveTextureG.x) * blendMapColor.g;
+    vec4 blueTextureColor        = textureColor(blueTexture, textureCoords * perTerrainTextures.rgbaTextureScales.z, perTerrainTextures.haveTextureB.x) * blendMapColor.b;
+    vec4 alphaTextureColor       = textureColor(alphaTexture, textureCoords * perTerrainTextures.rgbaTextureScales.w, perTerrainTextures.haveTextureA.x) * blendMapColor.a;
 
     return backgroundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
 }
 
 vec4 CalculateTerrainColor()
 {
-    vec2 tiledCoords        = fs_in.texCoord * 480.0f ;
     vec4 blendMapColor      = vec4(0);
     if (perTerrainTextures.haveBlendMap > 0.5f)
     {
         blendMapColor = texture(blendMap, fs_in.texCoord);
     }
     float backTextureAmount = 1.f - (blendMapColor.r + blendMapColor.g + blendMapColor.b + blendMapColor.a);
-    return CalculateTerrainColor(tiledCoords, blendMapColor, backTextureAmount);
+    return CalculateTerrainColor(fs_in.texCoord, blendMapColor, backTextureAmount);
 }
 
 const vec3 normalizedDummySunVector = vec3(0.5773502691896258, 0.5773502691896258, 0.5773502691896258);
