@@ -5,6 +5,7 @@ namespace GameEngine
 {
 struct GrassShaderBuffer
 {
-    AlignWrapper<vec2> variables;  // x = viewDistance, y - globalTime
+    AlignWrapper<vec4> windParams; // x = windStrength, y = windFrequency, z = windSpeed, w = unused
+    AlignWrapper<vec4> variables;  // x = viewDistance, y - globalTime, z = windDirX, w = windDirZ
 };
 }  // namespace GameEngine

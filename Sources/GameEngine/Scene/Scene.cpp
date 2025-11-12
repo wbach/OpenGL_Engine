@@ -38,6 +38,7 @@ Scene::Scene(const std::string& name)
     , gloabalTime(0.f)
     , directionalLight(vec3(1000.f, 15000.f, 10000.f), vec3(.8f))
     , dayNightCycle(&directionalLight)
+    , windParams(GetWindPreset(2))
     , simulatePhysics_(true)
     , start_(false)
 {
@@ -623,5 +624,13 @@ Input::InputManager* Scene::getInputManager()
 Components::ComponentController& Scene::getComponentController()
 {
     return componentController_;
+}
+const WindParams& Scene::getWindParams() const
+{
+    return windParams;
+}
+void Scene::setWindParams(const WindParams& params)
+{
+    windParams = params;
 }
 }  // namespace GameEngine

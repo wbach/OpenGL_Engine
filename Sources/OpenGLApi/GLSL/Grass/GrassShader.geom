@@ -22,7 +22,8 @@ layout (std140, align=16, binding=1) uniform PerFrame
 
 layout (std140, align=16, binding=6) uniform GrassShaderBuffer
 {
-    vec2 variables; // x = viewDistance, y - globalTime
+    vec4 windParams;
+    vec4 variables; // x = viewDistance, y - globalTime, z,w -dir
 } grassShaderBuffer;
 
 out GS_OUT
@@ -111,41 +112,16 @@ void CreateXYquad3(vec4 rotation, vec2 textCoord[4])
 
 vec3 ApplyWind(vec3 offset, float heightFactor)
 {
-    float t = grassShaderBuffer.variables.y;
-
-    // --- preset wiatru: 0=lekki, 1=średni, 2=wichura ---
-    int windPreset = 2;//int(grassShaderBuffer.variables.x);
+    float t = 6.f *  grassShaderBuffer.variables.y;
 
     // domyślne parametry
-    float windStrength;
-    float bendAmount;
-    float turbulence;
-    float torsion;
-
-    if (windPreset == 0) {
-        // 🌱 Lekki wiatr
-        windStrength = 0.15;
-        bendAmount   = 0.25;
-        turbulence   = 0.3;
-        torsion      = 0.02;
-    } 
-    else if (windPreset == 1) {
-        // 🍃 Średni wiatr
-        windStrength = 0.35;
-        bendAmount   = 0.4;
-        turbulence   = 0.6;
-        torsion      = 0.04;
-    } 
-    else {
-        // 🌪️ Wichura
-        windStrength = 0.8;
-        bendAmount   = 0.7;
-        turbulence   = 1.0;
-        torsion      = 0.08;
-    }
+    float windStrength = grassShaderBuffer.windParams.x;
+    float bendAmount = grassShaderBuffer.windParams.y;
+    float turbulence = grassShaderBuffer.windParams.z;
+    float torsion = grassShaderBuffer.windParams.w;
 
     // --- kierunek wiatru i faza zależna od pozycji w świecie ---
-    vec3 windDir = normalize(vec3(0.7, 0.0, 0.3));
+    vec3 windDir = normalize(vec3(grassShaderBuffer.variables.z, 0.f, grassShaderBuffer.variables.w));//normalize(vec3(0.7, 0.0, 0.3));
     float phase = dot(gs_in[0].worldPosition.xz, vec2(0.21, 0.17));
 
     // --- złożone falowanie w kilku częstotliwościach ---
@@ -155,7 +131,7 @@ vec3 ApplyWind(vec3 offset, float heightFactor)
         sin(t * 3.1 + phase * 0.9) * 0.1;
 
     // --- dodatkowy podmuch przy wichurze ---
-    if (windPreset == 2)
+    if (windStrength > 0.5f)
         windWaves += sin(t * 6.0 + phase * 3.7) * 0.25 * turbulence;
 
     // --- gradient wysokości: dół sztywny, góra elastyczna ---

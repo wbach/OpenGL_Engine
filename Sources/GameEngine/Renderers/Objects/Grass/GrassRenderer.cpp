@@ -166,7 +166,17 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
 void GrassRenderer::prepareShader()
 {
     shader_.Start();
-    grassShaderBuffer_.variables.value.y +=  context_.time_.deltaTime;
+    grassShaderBuffer_.variables.value.y += 0.1f * context_.time_.deltaTime;
+
+    const auto& windParams = context_.scene_->getWindParams();
+
+    grassShaderBuffer_.windParams.value.x = windParams.windStrength;
+    grassShaderBuffer_.windParams.value.y = windParams.bendAmount;
+    grassShaderBuffer_.windParams.value.z = windParams.turbulence;
+    grassShaderBuffer_.windParams.value.w = windParams.torsion;
+    grassShaderBuffer_.variables.value.z  = windParams.windDirection.x;
+    grassShaderBuffer_.variables.value.w  = windParams.windDirection.y;
+
     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*grassShaderBufferId_);
 }

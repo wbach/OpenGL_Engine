@@ -25,7 +25,7 @@
 #include "GameEngine/Renderers/GUI/GuiManager.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Time/DayNightCycle.h"
-#include "Logger/Log.h"
+#include "WindParams.h"
 #include "SceneEvents.h"
 #include "Types.h"
 
@@ -131,6 +131,9 @@ public:
     Input::InputManager* getInputManager();
     Components::ComponentController& getComponentController();
 
+    void setWindParams(const WindParams&);
+    const WindParams& getWindParams() const;
+
 public:
     uint32 objectCount;
     std::function<void(EngineEvent)> addEngineEvent;
@@ -171,6 +174,8 @@ protected:
     Light directionalLight;
     std::vector<Light> lights;
     DayNightCycle dayNightCycle;
+
+    WindParams windParams;
 
     std::atomic_bool simulatePhysics_;
     std::unordered_map<std::string, EmitFunction> emitPatticlesFunctions_;
