@@ -166,7 +166,7 @@ void GrassRenderer::RenderMesh(const Mesh& mesh)
 void GrassRenderer::prepareShader()
 {
     shader_.Start();
-    grassShaderBuffer_.variables.value.y += 0.1f * context_.time_.deltaTime;
+    grassShaderBuffer_.variables.value.y +=  context_.time_.deltaTime;
     context_.graphicsApi_.UpdateShaderBuffer(*grassShaderBufferId_, &grassShaderBuffer_);
     context_.graphicsApi_.BindShaderBuffer(*grassShaderBufferId_);
 }

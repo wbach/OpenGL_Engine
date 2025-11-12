@@ -54,12 +54,40 @@ int CreateVertex(vec3 offset, vec2 textCoord)
     {
         offset.y = gs_in[0].sizeAndRotation.x;
     }
-    if( offset.y > 0.f)
-    {
-        float globalTime = grassShaderBuffer.variables.y;
-        offset.x += 0.1f * sin(globalTime);
-        offset.z += 0.1f * cos(globalTime);
-    }
+if (offset.y > 0.0f)
+{
+    float globalTime = grassShaderBuffer.variables.y;
+
+    // --- Parametry wiatru ---
+    vec3 windDir = normalize(vec3(0.7, 0.0, 0.3)); // kierunek
+    float windStrength = 1.3;                      // globalna siła
+
+    // --- Faza zależna od pozycji (dla zróżnicowania) ---
+    float phase = dot(gs_in[0].worldPosition.xz, vec2(0.21, 0.17));
+
+    // --- "Turbulencja" – kilka częstotliwości ---
+    float windWaves =
+        sin(globalTime * 1.3 + phase) * 0.6 +
+        sin(globalTime * 0.7 + phase * 2.2) * 0.3 +
+        sin(globalTime * 3.1 + phase * 0.9) * 0.1;
+
+    // --- Gradient wysokości: dół sztywny, góra elastyczna ---
+    float heightFactor = pow(clamp(offset.y / gs_in[0].sizeAndRotation.x, 0.0, 1.0), 2.5);
+
+    // --- Ogranicz odchylenie, żeby nie wyglądało "płasko" ---
+    float bendAmount = windStrength * 0.3; // mniejsze = mniej "prostokątne" bujanie
+
+    // --- Efekt wiatr + szarpnięcie (lekki chaos) ---
+    vec3 windOffset = windDir * windWaves * heightFactor * bendAmount;
+
+    // --- Opcjonalny lekki obrót (pseudo-torsja) ---
+    windOffset.xz += 0.05 * vec2(
+        sin(globalTime * 2.1 + phase * 0.8),
+        cos(globalTime * 2.4 + phase * 0.6)
+    ) * heightFactor;
+
+    offset += windOffset;
+}
 
    // const float size = 0.35f;
     vec4 actual_offset = vec4(offset , .0f);
