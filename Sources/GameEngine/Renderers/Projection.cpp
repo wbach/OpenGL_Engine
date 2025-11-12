@@ -4,7 +4,6 @@
 #include <Logger/Log.h>
 #include <Utils.h>
 
-#include <Mutex.hpp>
 #include <math.hpp>
 
 #include "GameEngine/Engine/Configuration.h"
@@ -13,9 +12,6 @@ namespace GameEngine
 {
 namespace
 {
-std::mutex mmutex;
-std::mutex wmutex;
-
 const float DEFAULT_NEAR_PLANE{.3f};
 const float DEFAULT_FOV{60.f};
 }  // namespace
@@ -107,7 +103,6 @@ void Projection::Init()
 
 const mat4 &Projection::GetProjectionMatrix() const
 {
-    std::lock_guard<std::mutex> l(mmutex);
     return projectionMatrix_;
 }
 
@@ -120,7 +115,6 @@ float Projection::CalculateAspectRatio() const
 
 const vec2ui &Projection::GetRenderingSize() const
 {
-    std::lock_guard<std::mutex> l(wmutex);
     return renderingSize_;
 }
 void Projection::CreateProjectionMatrix()

@@ -35,6 +35,7 @@ private:
     {
         Color paintedColor;
         std::vector<vec2ui> paintedPoints;
+        Utils::Image* blendmap;
 
         struct ImageRawAccess
         {

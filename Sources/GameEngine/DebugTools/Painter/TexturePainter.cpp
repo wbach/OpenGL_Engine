@@ -144,7 +144,18 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
                        "terrain");
         }
 
+        auto blendmapTexture = tc->GetTexture(TerrainTextureType::blendMap);
+        auto blendmap        = dynamic_cast<GeneralTexture*>(blendmapTexture);
+        if (not blendmap)
+        {
+            LOG_DEBUG << "Wrong blendmap texture";
+            return false;
+        }
+
+        auto blendmapImage = &blendmap->GetImage();
+
         currentPaintingContext = PaintedContext{.paintedColor    = *paintedColor,
+                                                .blendmap        = blendmapImage,
                                                 .imageDataAccess = PaintedContext::ImageRawAccess{
                                                     .imageData = &std::get<std::vector<float>>(paintedImage->getImageData()),
                                                     .width     = paintedImage->width,
@@ -193,13 +204,9 @@ void TexturePainter::UpdateTexture(Components::TerrainRendererComponent& tc)
     auto iter = tmpfloatingImages.find(&tc);
     if (iter != tmpfloatingImages.end())
     {
-        auto blendMap = dynamic_cast<GeneralTexture*>(tc.GetTexture(TerrainTextureType::blendMap));
-        if (blendMap)
-        {
-            auto& dstImg       = blendMap->GetImage();
-            const auto& srcImg = *iter->second;
-            Utils::FastCopyPixels(srcImg, dstImg, currentPaintingContext->paintedPoints);
-        }
+        auto& dstImg       = *currentPaintingContext->blendmap;
+        const auto& srcImg = *iter->second;
+        Utils::FastCopyPixels(srcImg, dstImg, currentPaintingContext->paintedPoints);
     }
 
     tc.BlendMapChanged();
@@ -213,7 +220,7 @@ void TexturePainter::CreateBlendMapIfNeeded(Components::TerrainRendererComponent
         TextureParameters params;
         params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         auto blendmapTexture   = textureLoader.CreateTexture(textureName, params, std::move(image));
-        blendmapTexture->SetFile(EngineConf.files.getDataPath() / (textureName + ".png"));
+        blendmapTexture->SetFile(EngineConf.files.getGeneratedDirPath() / (textureName + ".png"));
         Utils::SaveImage(blendmapTexture->GetImage(), blendmapTexture->GetFile()->GetAbsolutePath().string());
 
         tc.LoadTexture(Components::TerrainTexture{
