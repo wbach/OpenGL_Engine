@@ -19,11 +19,6 @@ layout (std140, align=16, binding=1) uniform PerFrame
     vec4 clipPlane;
 } perFrame;
 
-layout (std140,binding=7) uniform ShadowsBuffer
-{
-    mat4 directionalLightSpace;
-} shadowsBuffer;
-
 layout (std140, align=16, binding=6) uniform GrassShaderBuffer
 {
     vec2 variables; // x = viewDistance, y - globalTime
@@ -31,9 +26,6 @@ layout (std140, align=16, binding=6) uniform GrassShaderBuffer
 
 out GS_OUT
 {
-    vec4 shadowCoords;
-    float useShadows;
-    float shadowMapSize;
     vec2 texCoord;
     vec4 worldPos;
     vec3 normal;
@@ -101,19 +93,6 @@ if (offset.y > 0.0f)
     gs_out.normal   = gs_in[0].normal;
     gs_out.color    = gs_in[0].color;
 
-    if (perApp.shadowVariables.x > 0.5f)
-    {
-        gs_out.shadowMapSize = perApp.shadowVariables.z;
-
-        float shadow_distance           = perApp.shadowVariables.y;
-        const float transition_distance = 10.f;
-
-        float distance_to_cam   = length(perFrame.cameraPosition - worldPosition.xyz);
-        gs_out.shadowCoords     = shadowsBuffer.directionalLightSpace * worldPosition;
-        distance_to_cam         = distance_to_cam - (shadow_distance - transition_distance);
-        distance_to_cam         = distance_to_cam / shadow_distance;
-        gs_out.shadowCoords.w   = clamp(1.f - distance_to_cam, 0.f, 1.f);
-    }
     EmitVertex();
     return 0;
 }
@@ -215,8 +194,6 @@ void main(void)
 {
     if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < grassShaderBuffer.variables.x)
     {
-        gs_out.useShadows = perApp.shadowVariables.x;
-
         vec2 quadTextCoord[4];
         quadTextCoord[0] = vec2(-1,1);
         quadTextCoord[1] = vec2(-1,-1);
