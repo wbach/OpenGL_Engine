@@ -1,8 +1,9 @@
 #version 440 core
 const vec3 up = vec3(0, 1, 0);
+const int SEGMENTS = 5;
 
 layout (points) in;
-layout (triangle_strip, max_vertices = 16) out;
+layout (triangle_strip, max_vertices = SEGMENTS * 16) out;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
@@ -42,53 +43,13 @@ in VS_OUT
 
 int CreateVertex(vec3 offset, vec2 textCoord)
 {
-    if( offset.y > 0.5f)
-    {
-        offset.y = gs_in[0].sizeAndRotation.x;
-    }
-if (offset.y > 0.0f)
-{
-    float globalTime = grassShaderBuffer.variables.y;
-
-    // --- Parametry wiatru ---
-    vec3 windDir = normalize(vec3(0.7, 0.0, 0.3)); // kierunek
-    float windStrength = 1.3;                      // globalna siła
-
-    // --- Faza zależna od pozycji (dla zróżnicowania) ---
-    float phase = dot(gs_in[0].worldPosition.xz, vec2(0.21, 0.17));
-
-    // --- "Turbulencja" – kilka częstotliwości ---
-    float windWaves =
-        sin(globalTime * 1.3 + phase) * 0.6 +
-        sin(globalTime * 0.7 + phase * 2.2) * 0.3 +
-        sin(globalTime * 3.1 + phase * 0.9) * 0.1;
-
-    // --- Gradient wysokości: dół sztywny, góra elastyczna ---
-    float heightFactor = pow(clamp(offset.y / gs_in[0].sizeAndRotation.x, 0.0, 1.0), 2.5);
-
-    // --- Ogranicz odchylenie, żeby nie wyglądało "płasko" ---
-    float bendAmount = windStrength * 0.3; // mniejsze = mniej "prostokątne" bujanie
-
-    // --- Efekt wiatr + szarpnięcie (lekki chaos) ---
-    vec3 windOffset = windDir * windWaves * heightFactor * bendAmount;
-
-    // --- Opcjonalny lekki obrót (pseudo-torsja) ---
-    windOffset.xz += 0.05 * vec2(
-        sin(globalTime * 2.1 + phase * 0.8),
-        cos(globalTime * 2.4 + phase * 0.6)
-    ) * heightFactor;
-
-    offset += windOffset;
-}
-
-   // const float size = 0.35f;
-    vec4 actual_offset = vec4(offset , .0f);
-    offset.y -= 0.1f;
+    vec4 actual_offset = vec4(offset, .0f);
+    offset.y -= 0.05f;
     vec4 worldPosition = (gl_in[0].gl_Position + actual_offset);
 
     gl_Position = perFrame.projectionViewMatrix * worldPosition;
 
-    gs_out.texCoord = vec2((textCoord.x + 1.0) / 2.0, 1 - (-textCoord.y + 1.0) / 2.0);
+    gs_out.texCoord = textCoord;//vec2((textCoord.x + 1.0) / 2.0, 1 - (-textCoord.y + 1.0) / 2.0);
     gs_out.worldPos = worldPosition;
     gs_out.normal   = gs_in[0].normal;
     gs_out.color    = gs_in[0].color;
@@ -134,7 +95,7 @@ vec3 qtransform( vec4 q, vec3 v )
     return v + 2.0*cross(cross(v, q.xyz ) + q.w*v, q.xyz);
 }
 
-void CreateXYquad(vec4 rotation, vec2 textCoord[4])
+void CreateXYquad3(vec4 rotation, vec2 textCoord[4])
 {
     vec3 v11 = vec3(-0.5f, 1.f, 0.f);
     vec3 v22 = vec3(-0.5f, 0.f, 0.f);
@@ -148,67 +109,251 @@ void CreateXYquad(vec4 rotation, vec2 textCoord[4])
     EndPrimitive();
 }
 
-void CreateZYquad(vec4 rotation, vec2 textCoord[4])
+vec3 ApplyWind(vec3 offset, float heightFactor)
 {
-    vec3 v11 = vec3(0, 1.f, -0.5f);
-    vec3 v22 = vec3(0, 0.f, -0.5f);
-    vec3 v33 = vec3(0, 1.f, 0.5f);
-    vec3 v44 = vec3(0, 0.f, 0.5f);
+    float t = grassShaderBuffer.variables.y;
 
-    CreateVertex(rotate_vector(rotation, v11), textCoord[0]);
-    CreateVertex(rotate_vector(rotation, v22), textCoord[1]);
-    CreateVertex(rotate_vector(rotation, v33), textCoord[2]);
-    CreateVertex(rotate_vector(rotation, v44), textCoord[3]);
-    EndPrimitive();
+    // --- preset wiatru: 0=lekki, 1=średni, 2=wichura ---
+    int windPreset = 2;//int(grassShaderBuffer.variables.x);
+
+    // domyślne parametry
+    float windStrength;
+    float bendAmount;
+    float turbulence;
+    float torsion;
+
+    if (windPreset == 0) {
+        // 🌱 Lekki wiatr
+        windStrength = 0.15;
+        bendAmount   = 0.25;
+        turbulence   = 0.3;
+        torsion      = 0.02;
+    } 
+    else if (windPreset == 1) {
+        // 🍃 Średni wiatr
+        windStrength = 0.35;
+        bendAmount   = 0.4;
+        turbulence   = 0.6;
+        torsion      = 0.04;
+    } 
+    else {
+        // 🌪️ Wichura
+        windStrength = 0.8;
+        bendAmount   = 0.7;
+        turbulence   = 1.0;
+        torsion      = 0.08;
+    }
+
+    // --- kierunek wiatru i faza zależna od pozycji w świecie ---
+    vec3 windDir = normalize(vec3(0.7, 0.0, 0.3));
+    float phase = dot(gs_in[0].worldPosition.xz, vec2(0.21, 0.17));
+
+    // --- złożone falowanie w kilku częstotliwościach ---
+    float windWaves =
+        sin(t * 1.3 + phase) * 0.6 +
+        sin(t * 0.7 + phase * 2.2) * 0.3 +
+        sin(t * 3.1 + phase * 0.9) * 0.1;
+
+    // --- dodatkowy podmuch przy wichurze ---
+    if (windPreset == 2)
+        windWaves += sin(t * 6.0 + phase * 3.7) * 0.25 * turbulence;
+
+    // --- gradient wysokości: dół sztywny, góra elastyczna ---
+    float hFactor = pow(clamp(heightFactor, 0.0, 1.0), 2.5);
+
+    // --- obliczenie przesunięcia ---
+    vec3 windOffset = windDir * windWaves * bendAmount * hFactor * windStrength;
+
+    // --- lekka torsja końcówek ---
+    windOffset.xz += torsion * vec2(
+        sin(t * 2.1 + phase * 0.8),
+        cos(t * 2.4 + phase * 0.6)
+    ) * hFactor;
+
+    offset += windOffset;
+    return offset;
 }
 
-void CreateXYZquad(vec4 rotation, vec2 textCoord[4])
+void CreateXYquad(vec4 rotation, int useSegments)
 {
-    vec3 v11 = vec3(-0.4f, 1.f, -0.4f);
-    vec3 v22 = vec3(-0.4f, 0.f, -0.4f);
-    vec3 v33 = vec3(0.4f, 1.f, 0.4f);
-    vec3 v44 = vec3(0.4f, 0.f, 0.4f);
+    float step = 1.0 / float(useSegments);   // wysokość jednego segmentu w geometrii
 
-    CreateVertex(rotate_vector(rotation, v11), textCoord[0]);
-    CreateVertex(rotate_vector(rotation, v22), textCoord[1]);
-    CreateVertex(rotate_vector(rotation, v33), textCoord[2]);
-    CreateVertex(rotate_vector(rotation, v44), textCoord[3]);
-    EndPrimitive();
+    for (int i = 0; i < useSegments; i++)
+    {
+        // Y segmentu
+        float y0 = float(i) * step;       // dolny
+        float y1 = float(i+1) * step;     // górny
+
+
+        vec3 v11 = vec3(-0.5f, y1, 0.0f); // górny lewy
+        vec3 v22 = vec3(-0.5f, y0, 0.0f); // dolny lewy
+        vec3 v33 = vec3( 0.5f, y1, 0.0f); // górny prawy
+        vec3 v44 = vec3( 0.5f, y0, 0.0f); // dolny prawy
+
+        v11 = ApplyWind(v11, (i + 1.0) / float(useSegments));
+        v22 = ApplyWind(v22, i / float(useSegments));
+        v33 = ApplyWind(v33, (i + 1.0) / float(useSegments));
+        v44 = ApplyWind(v44, i / float(useSegments));
+
+        float uvLow  = float(i) / float(useSegments);    
+        float uvHigh = float(i+1) / float(useSegments);  
+
+        vec2 quadTextCoord[4];
+        quadTextCoord[0] = vec2(0.0, uvHigh);
+        quadTextCoord[1] = vec2(0.0, uvLow);
+        quadTextCoord[2] = vec2(1.0, uvHigh);
+        quadTextCoord[3] = vec2(1.0, uvLow);
+
+        // Tworzymy segment quada
+        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
+        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
+        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
+        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
+        EndPrimitive();
+    }
 }
 
-void CreateZYXquad(vec4 rotation, vec2 textCoord[4])
+void CreateZYquad(vec4 rotation, int useSegments)
 {
-    vec3 v11 = vec3(0.4f, 1.f, -0.4f);
-    vec3 v22 = vec3(0.4f, 0.f, -0.4f);
-    vec3 v33 = vec3(-0.4f, 1.f, 0.4f);
-    vec3 v44 = vec3(-0.4f, 0.f, 0.4f);
+    float step = 1.0 / float(useSegments);
 
-    CreateVertex(rotate_vector(rotation, v11), textCoord[0]);
-    CreateVertex(rotate_vector(rotation, v22), textCoord[1]);
-    CreateVertex(rotate_vector(rotation, v33), textCoord[2]);
-    CreateVertex(rotate_vector(rotation, v44), textCoord[3]);
-    EndPrimitive();
+    for (int i = 0; i < useSegments; i++)
+    {
+        float y0 = float(i) * step;
+        float y1 = float(i+1) * step;
+
+        vec3 v11 = vec3(0.0, y1, -0.5f);
+        vec3 v22 = vec3(0.0, y0, -0.5f);
+        vec3 v33 = vec3(0.0, y1,  0.5f);
+        vec3 v44 = vec3(0.0, y0,  0.5f);
+
+        v11 = ApplyWind(v11, (i+1)/float(useSegments));
+        v22 = ApplyWind(v22, i/float(useSegments));
+        v33 = ApplyWind(v33, (i+1)/float(useSegments));
+        v44 = ApplyWind(v44, i/float(useSegments));
+
+        float uvLow  = float(i)/float(useSegments);
+        float uvHigh = float(i+1)/float(useSegments);
+
+        vec2 quadTextCoord[4];
+        quadTextCoord[0] = vec2(0.0, uvHigh);
+        quadTextCoord[1] = vec2(0.0, uvLow);
+        quadTextCoord[2] = vec2(1.0, uvHigh);
+        quadTextCoord[3] = vec2(1.0, uvLow);
+
+        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
+        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
+        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
+        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
+        EndPrimitive();
+    }
+}
+
+void CreateXYZquad(vec4 rotation, int useSegments)
+{
+    float step = 1.0 / float(useSegments);
+
+    for (int i = 0; i < useSegments; i++)
+    {
+        float y0 = float(i) * step;
+        float y1 = float(i+1) * step;
+
+        vec3 v11 = vec3(-0.4f, y1, -0.4f);
+        vec3 v22 = vec3(-0.4f, y0, -0.4f);
+        vec3 v33 = vec3( 0.4f, y1,  0.4f);
+        vec3 v44 = vec3( 0.4f, y0,  0.4f);
+
+        v11 = ApplyWind(v11, (i+1)/float(useSegments));
+        v22 = ApplyWind(v22, i/float(SEGMENTS));
+        v33 = ApplyWind(v33, (i+1)/float(useSegments));
+        v44 = ApplyWind(v44, i/float(useSegments));
+
+        float uvLow  = float(i)/float(useSegments);
+        float uvHigh = float(i+1)/float(useSegments);
+
+        vec2 quadTextCoord[4];
+        quadTextCoord[0] = vec2(0.0, uvHigh);
+        quadTextCoord[1] = vec2(0.0, uvLow);
+        quadTextCoord[2] = vec2(1.0, uvHigh);
+        quadTextCoord[3] = vec2(1.0, uvLow);
+
+        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
+        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
+        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
+        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
+        EndPrimitive();
+    }
+}
+
+void CreateZYXquad(vec4 rotation, int useSegments)
+{
+    float step = 1.0 / float(useSegments);
+
+    for (int i = 0; i < useSegments; i++)
+    {
+        float y0 = float(i) * step;
+        float y1 = float(i+1) * step;
+
+        vec3 v11 = vec3(0.4f, y1, -0.4f);
+        vec3 v22 = vec3(0.4f, y0, -0.4f);
+        vec3 v33 = vec3(-0.4f, y1,  0.4f);
+        vec3 v44 = vec3(-0.4f, y0,  0.4f);
+
+        v11 = ApplyWind(v11, (i+1)/float(useSegments));
+        v22 = ApplyWind(v22, i/float(useSegments));
+        v33 = ApplyWind(v33, (i+1)/float(useSegments));
+        v44 = ApplyWind(v44, i/float(useSegments));
+
+        float uvLow  = float(i)/float(useSegments);
+        float uvHigh = float(i+1)/float(useSegments);
+
+        vec2 quadTextCoord[4];
+        quadTextCoord[0] = vec2(0.0, uvHigh);
+        quadTextCoord[1] = vec2(0.0, uvLow);
+        quadTextCoord[2] = vec2(1.0, uvHigh);
+        quadTextCoord[3] = vec2(1.0, uvLow);
+
+        CreateVertex(rotate_vector(rotation, v11), quadTextCoord[0]);
+        CreateVertex(rotate_vector(rotation, v22), quadTextCoord[1]);
+        CreateVertex(rotate_vector(rotation, v33), quadTextCoord[2]);
+        CreateVertex(rotate_vector(rotation, v44), quadTextCoord[3]);
+        EndPrimitive();
+    }
+}
+
+int GetSegmentsByDistance()
+{
+    float dist = length(gs_in[0].worldPosition - perFrame.cameraPosition);
+
+    // Zakładamy: maksymalna liczba segmentów w bliskiej odległości
+    int maxSegments = SEGMENTS;
+    int minSegments = 1; // minimum segmentów przy dużym dystansie
+
+    // Możemy skalować liniowo: im dalej, tym mniej segmentów
+    float maxDistance = grassShaderBuffer.variables.x; // np. viewDistance dla trawy
+    float t = clamp(dist / maxDistance, 0.0, 1.0);
+
+    // interpolacja segmentów: blisko = maxSegments, daleko = minSegments
+    int segs = int(round(mix(float(maxSegments), float(minSegments), t)));
+
+    return max(segs, 1); // nigdy nie mniej niż 1
 }
 
 void main(void)
 {
     if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < grassShaderBuffer.variables.x)
     {
-        vec2 quadTextCoord[4];
-        quadTextCoord[0] = vec2(-1,1);
-        quadTextCoord[1] = vec2(-1,-1);
-        quadTextCoord[2] = vec2(1,1);
-        quadTextCoord[3] = vec2(1,-1);
-
        // vec3 normal = vec3(1, 1, 1);
         //vec3 normal = vec3(0, 1, 0);
         vec4 quaternion = CreateQuaternion(normalize(gs_in[0].normal));
-        CreateXYquad(quaternion, quadTextCoord);
-        CreateZYquad(quaternion, quadTextCoord);
+        int useSegments = GetSegmentsByDistance();
+
+        CreateXYquad(quaternion, useSegments);
+        CreateZYquad(quaternion, useSegments);
         if (length(gs_in[0].worldPosition - perFrame.cameraPosition) < (grassShaderBuffer.variables.x) / 3.f)
         {
-            CreateXYZquad(quaternion, quadTextCoord);
-            CreateZYXquad(quaternion, quadTextCoord);
+            CreateXYZquad(quaternion, useSegments);
+            CreateZYXquad(quaternion, useSegments);
         }
     }
 }
