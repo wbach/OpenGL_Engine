@@ -13,6 +13,7 @@
 #include <mutex>
 #include <utility>
 
+#include "Components/Renderer/Terrain/TerrainTexturesTypes.h"
 #include "ReloadComponentLibEvent.h"
 #include "WxEditor/WxHelpers/FileDropTarget.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
@@ -383,8 +384,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                 [this, &component, txt = row.textCtrl, prev = row.preview, pane, val,
                                  warningIcon = row.warningIcon](wxCommandEvent&)
                                 {
-                                    wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.getDataPath().string(), "",
-                                                                "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                                    wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.getDataPath().string(),
+                                                                "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                                     if (openFileDialog.ShowModal() == wxID_OK)
                                     {
@@ -1045,7 +1046,8 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
 void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
                                              wxWindow* pane, GameEngine::File* val)
 {
-    wxFileDialog openFileDialog(pane, "Choose file", EngineConf.files.getDataPath().string(), "", "*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+    wxFileDialog openFileDialog(pane, "Choose file", EngineConf.files.getDataPath().string(), "", "*.*",
+                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (openFileDialog.ShowModal() == wxID_OK)
     {
         fileCtrl->SetValue(GameEngine::File(openFileDialog.GetPath()).GetDataRelativePath().string());
@@ -1339,17 +1341,21 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
                                }
                            });
 
-    // --- Tiled Scale ---
-    auto* scaleCtrl = CreateFloatSpinCtrl(parent, terrainTex.tiledScale, 0.01, 1000.0, 0.1, 3);
-    auto* scaleRow  = CreateLabeledRow(parent, "Tiled Scale", scaleCtrl);
-    itemSizer->Add(scaleRow, 0, wxEXPAND | wxALL, 3);
+    if (terrainTex.type != GameEngine::TerrainTextureType::blendMap and
+        terrainTex.type != GameEngine::TerrainTextureType::heightmap)
+    {
+        // --- Tiled Scale ---
+        auto* scaleCtrl = CreateFloatSpinCtrl(parent, terrainTex.tiledScale, 0.01, 1000.0, 0.1, 3);
+        auto* scaleRow  = CreateLabeledRow(parent, "Tiled Scale", scaleCtrl);
+        itemSizer->Add(scaleRow, 0, wxEXPAND | wxALL, 3);
 
-    scaleCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
-                    [&component, &terrainTex](wxSpinDoubleEvent& evt)
-                    {
-                        terrainTex.tiledScale = static_cast<float>(evt.GetValue());
-                        component.Reload();
-                    });
+        scaleCtrl->Bind(wxEVT_SPINCTRLDOUBLE,
+                        [&component, &terrainTex](wxSpinDoubleEvent& evt)
+                        {
+                            terrainTex.tiledScale = static_cast<float>(evt.GetValue());
+                            component.Reload();
+                        });
+    }
 
     // --- Type (enum) ---
     auto enumValues = magic_enum::enum_values<GameEngine::TerrainTextureType>();
