@@ -68,13 +68,6 @@ void ComponentPickerPopup::OnSelect(wxCommandEvent& evt)
         auto component = gameObject.AddComponent(node);
         if (component)
         {
-            auto maybeAwakeFunc = component->getRegisteredFunctionId(GameEngine::Components::FunctionType::Awake);
-            if (maybeAwakeFunc)
-            {
-                componentController.callComponentFunction(gameObject.GetId(), GameEngine::Components::FunctionType::Awake,
-                                                          *maybeAwakeFunc);
-            }
-
             if (selectCallback)
                 selectCallback(*component);
         }

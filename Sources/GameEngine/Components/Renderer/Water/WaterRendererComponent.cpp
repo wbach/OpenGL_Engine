@@ -10,6 +10,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -17,7 +18,6 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR   = "Water";
 const std::string CSTR_COLOR      = "color";
 const std::string CSTR_WAVE_SPEED = "waveSpeed";
 const std::string CSTR_DUDV_MAP   = "dudv";
@@ -116,6 +116,7 @@ void WaterRendererComponent::SetWaterColor(const vec4& color)
 }
 void WaterRendererComponent::OnAwake()
 {
+    LOG_DEBUG << "OnAwake";
     if (not dudvMap.empty() and not normalMap.empty())
     {
         LoadTextures(dudvMap, normalMap);
@@ -123,6 +124,7 @@ void WaterRendererComponent::OnAwake()
 
     if (not isSubscribed_)
     {
+        LOG_DEBUG << "Subscribe";
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubscribed_ = true;
     }
@@ -206,7 +208,7 @@ void WaterRendererComponent::registerReadFunctions()
 }
 void WaterRendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
     ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());

@@ -59,8 +59,8 @@ Components::IComponent* GameObject::AddComponent(const TreeNode& node)
     {
         auto ptr = component.get();
         ptr->ReqisterFunctions();
-        CallComponentFunctionsIfNeeded();
         components_[component->GetTypeId()].push_back(std::move(component));
+        CallComponentFunctionsIfNeeded();
         return ptr;
     }
     return nullptr;

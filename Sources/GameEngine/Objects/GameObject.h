@@ -231,11 +231,11 @@ inline T& GameObject::AddComponent(Args&&... args)
     auto component = componentFactory_.Create<T>(*this, std::forward<Args>(args)...);
     component->ReqisterFunctions();
 
-    CallComponentFunctionsIfNeeded();
-
     auto ptr         = component.get();
     const auto& type = Components::GetComponentType<T>();
     components_[type.id].push_back(std::move(component));
+
+    CallComponentFunctionsIfNeeded();
     return *static_cast<T*>(ptr);
 }
 

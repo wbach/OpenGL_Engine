@@ -201,7 +201,7 @@ void MainFrame::Init()
 
     auto onStartupDone = [this]()
     {
-        auto& scene =  canvas->GetScene();
+        auto& scene = canvas->GetScene();
         SetTitle("Active scene : " + scene.GetName());
         UpdateTimeOnToolbar();
         gameObjectsView->RebuildTree(scene);
@@ -648,10 +648,6 @@ void MainFrame::AddGameObjectComponentsToView(GameEngine::GameObject& gameObject
                 ComponentPanel* compPanel =
                     new ComponentPanel(this, gameObjectPanels, canvas->GetEngine().getExternalComponentsReader(), gameObject);
                 compPanel->AddComponent(component, false);
-                canvas->GetScene().getComponentController().CallGameObjectFunctions(GameEngine::Components::FunctionType::Awake,
-                                                                                    gameObject.GetId());
-                canvas->GetScene().getComponentController().CallGameObjectFunctions(
-                    GameEngine::Components::FunctionType::LateAwake, gameObject.GetId());
 
                 if (isGameObjectPrefab(gameObject))
                 {
@@ -1416,6 +1412,7 @@ bool MainFrame::SaveSceneAs()
 
     wxString path = fileDialog.GetPath();
     SaveSceneAs(path.ToStdString());
+    ProjectManager::GetInstance().SetLastOpenedSceneFile(GameEngine::File{path.ToStdString()}.GetAbsolutePath());
     return true;
 }
 
