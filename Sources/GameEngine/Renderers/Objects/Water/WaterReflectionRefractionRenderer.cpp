@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -100,8 +101,7 @@ void WaterReflectionRefractionRenderer::initResources()
 
     if (not reflectionPerFrameBuffer_)
     {
-        reflectionPerFrameBuffer_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+        reflectionPerFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
 
         if (not reflectionPerFrameBuffer_)
         {
@@ -112,8 +112,7 @@ void WaterReflectionRefractionRenderer::initResources()
 
     if (not refractionPerFrameBuffer_)
     {
-        refractionPerFrameBuffer_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+        refractionPerFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
 
         if (not refractionPerFrameBuffer_)
         {
@@ -172,15 +171,21 @@ void WaterReflectionRefractionRenderer::prepare()
     context_.graphicsApi_.EnableClipingPlane(0);
 
     std::lock_guard<std::mutex> lk(subscriberMutex_);
-    for (auto& subscriber : subscribers_)
+    for (auto& [gameObjectId, subscriber] : subscribers_)
     {
-        auto fbo = getFbo(subscriber.first, subscriber.second);
+        auto visible = context_.frustrum_.intersection(subscriber.component_->getModelBoundingBox());
+        if (not visible)
+        {
+            continue;
+        }
+
+        auto fbo = getFbo(gameObjectId, subscriber);
 
         if (fbo)
         {
             createReflectionTexture(*fbo);
             createRefractionTexture(*fbo);
-            subscriber.second.waterTextures_ = &fbo->waterTextures_;
+            subscriber.waterTextures_ = &fbo->waterTextures_;
         }
 
         cleanNotUsedFbos();
@@ -201,7 +206,7 @@ void WaterReflectionRefractionRenderer::subscribe(GameObject& gameObject)
     std::lock_guard<std::mutex> lk(subscriberMutex_);
     if (waterComponent)
     {
-        subscribers_.insert({gameObject.GetId(), {gameObject, nullptr, std::nullopt}});
+        subscribers_.insert({gameObject.GetId(), {gameObject, waterComponent, nullptr, std::nullopt}});
     }
 }
 void WaterReflectionRefractionRenderer::unSubscribe(GameObject& gameObject)
@@ -240,8 +245,7 @@ void WaterReflectionRefractionRenderer::reloadShaders()
     instancedEntityShader_.Reload();
     terrainShader_.Reload();
 }
-WaterReflectionRefractionRenderer::WaterTextures* WaterReflectionRefractionRenderer::GetWaterTextures(
-    uint32 gameObjectId) const
+WaterReflectionRefractionRenderer::WaterTextures* WaterReflectionRefractionRenderer::GetWaterTextures(uint32 gameObjectId) const
 {
     if (not isActive_)
         return nullptr;
@@ -434,9 +438,8 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
 
 WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::findFbo(float positionY)
 {
-    auto iter =
-        std::find_if(waterFbos_.begin(), waterFbos_.end(),
-                     [positionY](const auto& fbo) { return compare(positionY, fbo.positionY, POSITION_EPSILON); });
+    auto iter = std::find_if(waterFbos_.begin(), waterFbos_.end(),
+                             [positionY](const auto& fbo) { return compare(positionY, fbo.positionY, POSITION_EPSILON); });
 
     if (iter != waterFbos_.end())
     {
@@ -446,10 +449,9 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
     return nullptr;
 }
 
-WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::createWaterTilesTextures(
-    float positionY)
+WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::createWaterTilesTextures(float positionY)
 {
-    /* LOG TO FIX*/  LOG_ERROR << ("Create new water fbo positionY=" + std::to_string(positionY));
+    /* LOG TO FIX*/ LOG_ERROR << ("Create new water fbo positionY=" + std::to_string(positionY));
     WaterReflectionRefractionRenderer::WaterFbo waterFbo;
     waterFbo.positionY              = positionY;
     waterFbo.reflectionFrameBuffer_ = createWaterFbo(EngineConf.renderer.water.waterReflectionResolution);

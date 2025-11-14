@@ -1,6 +1,7 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 
+#include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
@@ -50,6 +51,7 @@ public:
     struct Subscriber
     {
         GameObject& gameObject;
+        Components::WaterRendererComponent* component_{nullptr};
         WaterTextures* waterTextures_{nullptr};
         std::optional<float> waterFboPositionY;
     };

@@ -75,7 +75,6 @@ void WaterRenderer::render()
 
         if (not isVisible)
         {
-            LOG_DEBUG << "Water tile not visible. Skip rendering.";
             continue;
         }
 
