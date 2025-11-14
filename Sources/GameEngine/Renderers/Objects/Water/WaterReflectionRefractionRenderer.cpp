@@ -269,7 +269,7 @@ GraphicsApi::IFrameBuffer* WaterReflectionRefractionRenderer::createWaterFbo(con
     if (not status)
     {
         context_.graphicsApi_.DeleteFrameBuffer(*result);
-        /* LOG TO FIX*/  LOG_ERROR << ("Shadow framebuffer creation error.");
+        LOG_ERROR << "Shadow framebuffer creation error.";
         return nullptr;
     }
     return result;

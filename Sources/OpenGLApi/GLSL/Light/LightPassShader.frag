@@ -355,7 +355,7 @@ float CalculateShadowFactor(vec3 worldPos)
 
 void main()
 {
-  //  FragColor = texture(ColorMap, tex_coord); return;
+   // FragColor = texture(PositionMap, vs_in.textureCoords); return;
     float distance  = ToZBuffer(DepthTexture, vs_in.textureCoords);
 
     vec4 normal4    = texture(NormalMap, vs_in.textureCoords);

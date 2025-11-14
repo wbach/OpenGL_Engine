@@ -171,6 +171,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         GraphicsApi::ShaderProgramType::Water,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/waterShader.vert"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Water/waterShader.geom"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/waterShader.frag"}
         }
     },

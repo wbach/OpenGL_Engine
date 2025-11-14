@@ -147,6 +147,7 @@ void Mesh::setBoundingBox(const BoundingBox& boundingBox)
 void Mesh::updateBoundingBox()
 {
     boundingBox_ = ComputeBoundingBox(meshRawData_);
+    LOG_DEBUG << "Updated bounding box: " << boundingBox_;
 }
 
 void Mesh::SetTransformMatrix(const glm::mat4& m)

@@ -1,9 +1,16 @@
 #pragma once
+#include <unordered_map>
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
-#include "GameEngine/Resources/ShaderBuffers/PerInstances.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+
+namespace common
+{
+class Transform;
+}
 
 namespace GameEngine
 {
@@ -18,6 +25,7 @@ public:
     vec4 waterColor;
     File dudvMap;
     File normalMap;
+    uint32 meshResolution;
 
 public:
     // clang-format off
@@ -26,6 +34,7 @@ public:
         FIELD_TEXTURE(normalMap)
         FIELD_FLOAT(waveSpeed)
         FIELD_COLOR_RGBA(waterColor)
+        FIELD_UINT(meshResolution)
     END_FIELDS()
     // clang-format on
 public:
@@ -50,10 +59,16 @@ public:
 
     GraphicsApi::ID getPerObjectUpdateBufferId() const;
 
+    Model* GetModel();
+    const BoundingBox& getMeshBoundingBox(const Mesh&) const;
+    const BoundingBox& getModelBoundingBox() const;
+
 private:
     void OnAwake();
     void UnSubscribe();
-    void updatePerObjectUpdateBuffer();
+    void updatePerObjectUpdateBuffer(const common::Transform&);
+    void createModel();
+    void createBoundingBoxes();
 
 private:
     void DeleteTextures();
@@ -67,6 +82,10 @@ private:
     Texture* dudvMap_;
 
     bool isSubscribed_;
+
+    ModelWrapper modelWrapper_;
+    BoundingBox modelBoundingBox_;
+    std::unordered_map<const Mesh*, BoundingBox> meshBoundingBoxes_;
 
 public:
     static void registerReadFunctions();

@@ -5,6 +5,7 @@
 
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Objects/Water/MeshWaterFactory.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
@@ -51,6 +52,9 @@ void WaterRenderer::prepare()
 }
 void WaterRenderer::render()
 {
+    if (subscribers_.empty())
+        return;
+
     context_.graphicsApi_.EnableBlend();
     context_.graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     shader_.Start();
@@ -60,7 +64,20 @@ void WaterRenderer::render()
 
     for (auto& subscriber : subscribers_)
     {
+        auto model = subscriber.second.waterRendererComponent_.GetModel();
+        if (not model)
+        {
+            continue;
+        }
         auto& component = subscriber.second.waterRendererComponent_;
+
+        auto isVisible =  context_.frustrum_.intersection(component.getModelBoundingBox());
+
+        if (not isVisible)
+        {
+            LOG_DEBUG << "Water tile not visible. Skip rendering.";
+            continue;
+        }
 
         auto perObjectBufferId = component.getPerObjectUpdateBufferId();
 
@@ -102,7 +119,14 @@ void WaterRenderer::render()
         if (component.GetDudvTexture() and component.GetDudvTexture()->GetGraphicsObjectId())
             context_.graphicsApi_.ActiveTexture(4, *component.GetDudvTexture()->GetGraphicsObjectId());
 
-        context_.graphicsApi_.RenderQuad();
+        for (const auto& mesh : model->GetMeshes())
+        {
+            auto isVisible =  context_.frustrum_.intersection(component.getMeshBoundingBox(mesh));
+            if (isVisible and mesh.GetGraphicsObjectId())
+            {
+                context_.graphicsApi_.RenderTriangleStripMesh(*mesh.GetGraphicsObjectId());
+            }
+        }
     }
     context_.graphicsApi_.DisableBlend();
 }

@@ -6,6 +6,13 @@ const float reflectivity = 0.6f;
 const float near         = 0.1f;
 const float far          = 1000.0f;
 
+layout (std140,binding=1) uniform PerFrame
+{
+    mat4 projectionViewMatrix;
+    vec3 cameraPosition;
+    vec4 clipPlane;
+} perFrame;
+
 layout (std140, align=16, binding=6) uniform PerMeshObject
 {
     vec4 waterColor;
@@ -14,12 +21,11 @@ layout (std140, align=16, binding=6) uniform PerMeshObject
     float moveFactor;
 } perMeshObject;
 
-in VS_OUT
+in GS_OUT
 {
     vec2 texCoord;
     vec3 normal;
-    vec3 worldPos;
-    vec3 cameraPosition;
+    vec4 worldPos;
     vec4 clipSpace;
 } vs_out;
 
@@ -29,7 +35,7 @@ layout(binding = 2) uniform sampler2D depthMap;
 layout(binding = 3) uniform sampler2D normalMap;
 layout(binding = 4) uniform sampler2D dudvMap;
 
-layout (location = 0) out vec3 WorldPosOut;
+layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
@@ -99,7 +105,7 @@ void main(void)
     refractTexCoords = refractTexCoords + totalDistortion;
     refractTexCoords = clamp(refractTexCoords, 0.001f, 0.999f);
 
-    vec3 toCameraVector = normalize(vs_out.cameraPosition - vs_out.worldPos);
+    vec3 toCameraVector = normalize(perFrame.cameraPosition - vs_out.worldPos.xyz);
 
     float refractiveFactor  = dot(toCameraVector, vec3(0, 1, 0));
     refractiveFactor        = pow(refractiveFactor, 0.2);

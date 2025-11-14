@@ -1,16 +1,19 @@
 #include "WaterRendererComponent.h"
 
+#include <Common/Transform.h>
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <Utils/TreeNode.h>
 
-#include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Objects/Water/MeshWaterFactory.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "GameEngine/Resources/GpuResourceLoader.h"
-#include "GameEngine/Resources/ResourceManager.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
+#include "GameEngine/Resources/IResourceManager.hpp"
+#include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -18,20 +21,23 @@ namespace Components
 {
 namespace
 {
-const std::string CSTR_COLOR      = "color";
-const std::string CSTR_WAVE_SPEED = "waveSpeed";
-const std::string CSTR_DUDV_MAP   = "dudv";
-const std::string CSTR_NORMAL_MAP = "normalMap";
+constexpr char CSTR_COLOR[]           = "color";
+constexpr char CSTR_WAVE_SPEED[]      = "waveSpeed";
+constexpr char CSTR_DUDV_MAP[]        = "dudv";
+constexpr char CSTR_NORMAL_MAP[]      = "normalMap";
+constexpr char CSTR_MESH_RESOLUTION[] = "meshResolution";
 }  // namespace
 
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<WaterRendererComponent>(), componentContext, gameObject)
     , waveSpeed(.1f)
     , waterColor(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
+    , meshResolution{32}
     , moveFactor_(0)
     , normalMap_{nullptr}
     , dudvMap_{nullptr}
     , isSubscribed_(false)
+    , modelBoundingBox_(BoundingBox::NumericLimits::MaxOppositeValues)
 {
 }
 WaterRendererComponent::~WaterRendererComponent()
@@ -40,6 +46,11 @@ WaterRendererComponent::~WaterRendererComponent()
 void WaterRendererComponent::CleanUp()
 {
     UnSubscribe();
+
+    for (auto model : modelWrapper_.PopModels())
+    {
+        componentContext_.resourceManager_.ReleaseModel(*model);
+    }
 
     if (onTransformChangeSubscribtion_)
     {
@@ -133,15 +144,39 @@ void WaterRendererComponent::OnAwake()
     {
         perObjectUpdateBuffer_ =
             std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
-        updatePerObjectUpdateBuffer();
+        updatePerObjectUpdateBuffer(thisObject_.GetWorldTransform());
     }
 
     if (not onTransformChangeSubscribtion_)
     {
-        onTransformChangeSubscribtion_ =
-            thisObject_.SubscribeOnWorldTransfomChange([this](const common::Transform&) { updatePerObjectUpdateBuffer(); });
+        onTransformChangeSubscribtion_ = thisObject_.SubscribeOnWorldTransfomChange(
+            [this](const common::Transform& transfrom)
+            {
+                createBoundingBoxes();
+                updatePerObjectUpdateBuffer(transfrom);
+            });
+    }
+
+    if (meshResolution > 0 and not modelWrapper_.Get(LevelOfDetail::L1))
+    {
+        createModel();
+    }
+    else
+    {
+        LOG_DEBUG << "Model already created. or meshResolution <= 0";
     }
 }
+
+void WaterRendererComponent::createModel()
+{
+    MeshWaterFactory meshFactory;
+    auto model    = meshFactory.CreateAsSingleTile(componentContext_.graphicsApi_, meshResolution);
+    auto modelPtr = model.get();
+    componentContext_.resourceManager_.AddModel(std::move(model));
+    modelWrapper_.Add(modelPtr, LevelOfDetail::L1);
+    createBoundingBoxes();
+}
+
 void WaterRendererComponent::UnSubscribe()
 {
     if (isSubscribed_)
@@ -150,19 +185,13 @@ void WaterRendererComponent::UnSubscribe()
         isSubscribed_ = false;
     }
 }
-void WaterRendererComponent::updatePerObjectUpdateBuffer()
+void WaterRendererComponent::updatePerObjectUpdateBuffer(const common::Transform& transfrom)
 {
     if (not perObjectUpdateBuffer_)
         return;
 
-    const auto& transform = thisObject_.GetWorldTransform();
-
-    auto convertedQuadScale = transform.GetScale();
-    convertedQuadScale.y    = convertedQuadScale.z;
-    convertedQuadScale.z    = 1.f;
-    auto transformMatrix = Utils::CreateTransformationMatrix(transform.GetPosition(), DegreesVec3(-90, 0, 0), convertedQuadScale);
-
-    perObjectUpdateBuffer_->GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatrix);
+    perObjectUpdateBuffer_->GetData().TransformationMatrix =
+        componentContext_.graphicsApi_.PrepareMatrixToLoad(transfrom.CalculateCurrentMatrix());
 
     if (not perObjectUpdateBuffer_->GetGraphicsObjectId())
     {
@@ -197,6 +226,7 @@ void WaterRendererComponent::registerReadFunctions()
         ::Read(node.getChild(CSTR_COLOR), component->waterColor);
         ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
         ::Read(node.getChild(CSTR_NORMAL_MAP), normalMap);
+        ::Read(node.getChild(CSTR_MESH_RESOLUTION), component->meshResolution);
 
         component->dudvMap   = dudvMap;
         component->normalMap = normalMap;
@@ -214,6 +244,48 @@ void WaterRendererComponent::write(TreeNode& node) const
     ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());
     ::write(node.addChild(CSTR_DUDV_MAP), dudvMap.GetDataRelativePath());
     ::write(node.addChild(CSTR_NORMAL_MAP), normalMap.GetDataRelativePath());
+    ::write(node.addChild(CSTR_MESH_RESOLUTION), meshResolution);
+}
+Model* WaterRendererComponent::GetModel()
+{
+    return modelWrapper_.Get(LevelOfDetail::L1);
+}
+void WaterRendererComponent::createBoundingBoxes()
+{
+    auto model = modelWrapper_.Get(LevelOfDetail::L1);
+    if (not model)
+    {
+        return;
+    }
+
+    vec3 wavesScale(1.f, 1.f, 1.f);  // To do get from water parameters
+
+    modelBoundingBox_ = model->getBoundingBox();
+    modelBoundingBox_.scale(thisObject_.GetWorldTransform().GetScale() * wavesScale);
+    modelBoundingBox_.translate(thisObject_.GetWorldTransform().GetPosition());
+
+    meshBoundingBoxes_.clear();
+    for (const auto& mesh : model->GetMeshes())
+    {
+        auto boundingBox = mesh.getBoundingBox();
+        boundingBox.scale(thisObject_.GetWorldTransform().GetScale() * wavesScale);
+        boundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
+        meshBoundingBoxes_.insert({&mesh, boundingBox});
+    }
+}
+const BoundingBox& WaterRendererComponent::getMeshBoundingBox(const Mesh& mesh) const
+{
+    auto iter =
+        std::find_if(meshBoundingBoxes_.begin(), meshBoundingBoxes_.end(), [&](const auto& pair) { return pair.first == &mesh; });
+    if (iter != meshBoundingBoxes_.end())
+        return iter->second;
+
+    static BoundingBox defaultBox(BoundingBox::NumericLimits::MaxOppositeValues);
+    return defaultBox;
+}
+const BoundingBox& WaterRendererComponent::getModelBoundingBox() const
+{
+    return modelBoundingBox_;
 }
 }  // namespace Components
 }  // namespace GameEngine
