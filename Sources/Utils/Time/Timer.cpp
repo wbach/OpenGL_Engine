@@ -1,5 +1,8 @@
 #include "Timer.h"
 
+#include <iomanip>
+#include <sstream>
+
 namespace Utils
 {
 Timer::Timer()
@@ -8,7 +11,7 @@ Timer::Timer()
     Reset();
 }
 
-Timer::Timer(std::chrono::milliseconds time, std::function<void()> callback, bool isPeriodic)
+Timer::Timer(std::chrono::milliseconds time, const std::function<void()>& callback, bool isPeriodic)
     : Timer()
 {
     SetCallback(time, callback, isPeriodic);
@@ -17,14 +20,6 @@ Timer::Timer(std::chrono::milliseconds time, std::function<void()> callback, boo
 void Timer::Reset()
 {
     start_ = std::chrono::high_resolution_clock::now();
-}
-
-void Timer::SetCallback(std::chrono::milliseconds time, std::function<void()> callback, bool isPeriodic)
-{
-    Reset();
-    callbackTime_ = time;
-    callback_     = callback;
-    isPeriodic_   = isPeriodic;
 }
 
 bool Timer::Update()
@@ -54,9 +49,43 @@ uint64 Timer::GetTimeNanoseconds() const
     auto now = std::chrono::high_resolution_clock::now();
     return static_cast<uint64>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - start_).count());
 }
-uint64 Timer::GetTimeMiliSeconds() const
+uint64 Timer::GetTimeMilliseconds() const
 {
     auto now = std::chrono::high_resolution_clock::now();
     return static_cast<uint64>(std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count());
 }
+uint64 Timer::GetTimeMicroseconds() const
+{
+    auto now = std::chrono::high_resolution_clock::now();
+    return static_cast<uint64>(std::chrono::duration_cast<std::chrono::microseconds>(now - start_).count());
+}
+std::string Timer::FormatElapsed() const
+{
+    using namespace std::chrono;
+
+    auto ns = GetTimeNanoseconds();
+
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(2);
+
+    if (ns < 1'000)
+    {
+        return std::to_string(ns) + " ns";
+    }
+    else if (ns < 1'000'000)
+    {
+        ss << (ns / 1'000.0) << " us";
+    }
+    else if (ns < 1'000'000'000)
+    {
+        ss << (ns / 1'000'000.0) << " ms";
+    }
+    else
+    {
+        ss << (ns / 1'000'000'000.0) << " s";
+    }
+
+    return ss.str();
+}
+
 }  // namespace Utils

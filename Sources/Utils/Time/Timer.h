@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <functional>
+
 #include "Types.h"
 
 namespace Utils
@@ -9,14 +10,25 @@ class Timer
 {
 public:
     Timer();
-    Timer(std::chrono::milliseconds, std::function<void()>, bool = false);
+    Timer(std::chrono::milliseconds, const std::function<void()>&, bool = false);
 
+    uint64 GetTimeMilliseconds() const;
+    uint64 GetTimeMicroseconds() const;
     uint64 GetTimeNanoseconds() const;
-    uint64 GetTimeMiliSeconds() const;
+    std::string FormatElapsed() const;
+
     void Reset();
 
     bool Update();
-    void SetCallback(std::chrono::milliseconds, std::function<void()>, bool = false);
+
+    template <typename F>
+    void SetCallback(std::chrono::milliseconds time, F&& callback, bool isPeriodic = false)
+    {
+        Reset();
+        callbackTime_ = time;
+        callback_     = std::forward<F>(callback);
+        isPeriodic_   = isPeriodic;
+    }
 
 private:
     Timepoint start_;

@@ -354,6 +354,12 @@ void Read(TreeNode* node, Params::DebugParams& params)
     {
         params.showRenderInfo = Utils::StringToBool(showRenderInfoNode->value_);
     }
+
+    auto showRenderTimersNode = node->getChild(CSTR_SHOW_RENDER_TIMERS);
+    if (showRenderTimersNode)
+    {
+        params.showRenderersTimers = Utils::StringToBool(showRenderTimersNode->value_);
+    }
 }
 
 void ReadConfiguration(Configuration& configuration, const std::filesystem::path& filename)

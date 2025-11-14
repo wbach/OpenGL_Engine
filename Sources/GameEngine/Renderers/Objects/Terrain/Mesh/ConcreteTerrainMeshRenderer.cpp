@@ -1,15 +1,16 @@
 #include "ConcreteTerrainMeshRenderer.h"
 
 #include <Logger/Log.h>
+#include <Utils/MeasurementHandler.h>
 
-#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
+
 namespace GameEngine
 {
 namespace
 {
-const std::string TERRAIN_MEASURMENT_NAME{"TerrainMeshesRendered"};
+constexpr char TERRAIN_MEASURMENT_NAME[] = {"TerrainMeshesRendered"};
 }  // namespace
 ConcreteTerrainMeshRenderer::ConcreteTerrainMeshRenderer(RendererContext& context)
     : context_(context)

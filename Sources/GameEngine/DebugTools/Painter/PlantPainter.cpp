@@ -13,15 +13,12 @@
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/DebugTools/Painter/TexturePainter.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "IBrush.h"
 #include "Image/Image.h"
 #include "TerrainPoint.h"
 #include "TerrainPointGetter.h"
 #include "Types.h"
-#include "Utils/Variant.h"
-
 namespace GameEngine
 {
 namespace
@@ -53,12 +50,6 @@ vec2 randomVec2(float randomness, float density)
 
     return vec2(x, y);
 };
-
-bool IsInRange(const Utils::Image& image, const vec2ui& pixel)
-{
-    const auto& size = image.size();
-    return pixel.x < size.x && pixel.y < size.y;
-}
 
 bool IsWorldPosInImageColorRange(const PaintTextureBasedContext& context, const vec3& worldPos)
 {
@@ -104,44 +95,44 @@ bool IsWorldPosInImageColorRange(const PaintTextureBasedContext& context, const 
     return colorValue > threshold;
 }
 
-bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box, float& tMin, float& tMax)
-{
-    tMin = 0.0f;
-    tMax = std::numeric_limits<float>::max();
+// bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box, float& tMin, float& tMax)
+// {
+//     tMin = 0.0f;
+//     tMax = std::numeric_limits<float>::max();
 
-    const glm::vec3& boxMin = box.min();
-    const glm::vec3& boxMax = box.max();
+//     const glm::vec3& boxMin = box.min();
+//     const glm::vec3& boxMax = box.max();
 
-    for (int i = 0; i < 3; ++i)
-    {
-        float invD = 1.0f / ray.direction[i];
-        float t0   = (boxMin[i] - ray.origin[i]) * invD;
-        float t1   = (boxMax[i] - ray.origin[i]) * invD;
+//     for (int i = 0; i < 3; ++i)
+//     {
+//         float invD = 1.0f / ray.direction[i];
+//         float t0   = (boxMin[i] - ray.origin[i]) * invD;
+//         float t1   = (boxMax[i] - ray.origin[i]) * invD;
 
-        if (invD < 0.0f)
-            std::swap(t0, t1);
+//         if (invD < 0.0f)
+//             std::swap(t0, t1);
 
-        tMin = std::max(tMin, t0);
-        tMax = std::min(tMax, t1);
+//         tMin = std::max(tMin, t0);
+//         tMax = std::min(tMax, t1);
 
-        if (tMax <= tMin)
-            return false;
-    }
+//         if (tMax <= tMin)
+//             return false;
+//     }
 
-    return true;
-}
-bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box)
-{
-    float tMin, tMax;
-    return IntersectRayWithBoundingBox(ray, box, tMin, tMax);
-}
-std::optional<glm::vec3> RayHitPoint(const Ray& ray, const BoundingBox& box)
-{
-    float tMin, tMax;
-    if (IntersectRayWithBoundingBox(ray, box, tMin, tMax))
-        return ray.origin + ray.direction * tMin;
-    return std::nullopt;
-}
+//     return true;
+// }
+// bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box)
+// {
+//     float tMin, tMax;
+//     return IntersectRayWithBoundingBox(ray, box, tMin, tMax);
+// }
+// std::optional<glm::vec3> RayHitPoint(const Ray& ray, const BoundingBox& box)
+// {
+//     float tMin, tMax;
+//     if (IntersectRayWithBoundingBox(ray, box, tMin, tMax))
+//         return ray.origin + ray.direction * tMin;
+//     return std::nullopt;
+// }
 // Globalny / thread_local RNG — seed raz, lepiej niż rand()
 static thread_local std::mt19937 rng{std::random_device{}()};
 static thread_local std::uniform_real_distribution<float> uni01(0.0f, 1.0f);

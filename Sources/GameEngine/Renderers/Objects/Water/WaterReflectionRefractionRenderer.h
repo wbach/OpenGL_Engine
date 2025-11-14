@@ -71,7 +71,7 @@ public:
 private:
     GraphicsApi::IFrameBuffer* createWaterFbo(const vec2ui&);
     void initResources();
-    void cleanUp();
+    void cleanUp() override;
     void renderScene();
     void createRefractionTexture(WaterFbo&);
     void createReflectionTexture(WaterFbo&);
@@ -102,5 +102,8 @@ private:
 
     bool isInit_;
     bool isActive_;
+
+    uint32 waterTexturesRendererdMeshesCounter_;
+    MeasurementValue* waterTexturesRendererdMeshesMeasurementValue_;
 };
 }  // namespace GameEngine

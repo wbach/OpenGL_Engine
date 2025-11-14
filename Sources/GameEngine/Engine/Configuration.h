@@ -42,6 +42,7 @@ struct DebugParams
     LineMeshVisualizatorParams linemeshVisualizator;
     Params::ConfigurationParam<LoggingLvl> logLvl;
     Params::ConfigurationParam<bool> showRenderInfo;
+    Params::ConfigurationParam<bool> showRenderersTimers;
     Params::ConfigurationParam<bool> showPhycicsVisualization;
 };
 }  // namespace Params

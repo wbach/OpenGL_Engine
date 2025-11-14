@@ -87,7 +87,7 @@ void SceneLoader::LoadScene(const T& t)
             resultScene->Init();
             resultScene->ProcessEvents();
             isReading.store(false);
-            LOG_DEBUG << "Scene read time: " << timer.GetTimeMiliSeconds() << "ms.";
+            LOG_DEBUG << "Scene read time: " << timer.GetTimeMilliseconds() << "ms.";
         })
         .detach();
 }

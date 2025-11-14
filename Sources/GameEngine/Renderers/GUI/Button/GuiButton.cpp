@@ -253,7 +253,7 @@ void GuiButtonElement::UnsubscribeInputAction()
 
 GuiButtonElement::State GuiButtonElement::GetCurrentState() const
 {
-    if (activeTimer_.GetTimeMiliSeconds() < SHOW_ACTIVE_TIME)
+    if (activeTimer_.GetTimeMilliseconds() < SHOW_ACTIVE_TIME)
     {
         return State::Active;
     }

@@ -72,7 +72,7 @@ extern const std::string CSTR_WATER_REFLECTION_HEIGHT;
 extern const std::string CSTR_WATER_REFRACTION;
 extern const std::string CSTR_WATER_REFRACTION_WIDTH;
 extern const std::string CSTR_WATER_REFRACTION_HEIGHT;
-//Terrain
+// Terrain
 extern const std::string CSTR_TERRAIN;
 extern const std::string CSTR_TERRAIN_RENDERER_TYPE;
 extern const std::string CSTR_TERRAIN_MESH_RESOLUTION_DIVIDER;
@@ -83,5 +83,6 @@ extern const std::string CSTR_DEBUG_PARAMS;
 extern const std::string CSTR_LINE_MESH_VISUALIZATION_PARAMS;
 extern const std::string CSTR_LOGGING_LVL;
 extern const std::string CSTR_SHOW_RENDER_INFO;
+extern const std::string CSTR_SHOW_RENDER_TIMERS;
 extern const std::string CSTR_REFRESH_STEP_DOWN;
 extern const std::string CSTR_USE_WORKER;

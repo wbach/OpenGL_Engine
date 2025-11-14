@@ -1,20 +1,34 @@
 #pragma once
+#include <Utils/MeasurementHandler.h>
+#include <Utils/Utils.h>
+
 #include <functional>
 #include <memory>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
 #include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Engine/Engine.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "Postproccesing/PostprocessingRenderersManager.h"
 #include "RendererContext.h"
+#include "Types.h"
 
 namespace GameEngine
 {
 class Projection;
-typedef std::unique_ptr<IRenderer> RendererPtr;
-typedef std::vector<RendererPtr> Renderers;
+using RendererPtr = std::unique_ptr<IRenderer>;
+
+struct RendererInfo
+{
+    MeasurementValue* renderTime{nullptr};
+    MeasurementValue* prepareTime{nullptr};
+    RendererPtr ptr;
+};
+
+using Renderers = std::vector<RendererInfo>;
 
 class BaseRenderer : public IRenderer
 {
@@ -40,7 +54,16 @@ protected:
     template <class T>
     void addRenderer()
     {
-        renderers.push_back(std::make_unique<T>(context_));
+        RendererInfo info{};
+
+        if (EngineConf.debugParams.showRenderersTimers)
+        {
+            info.renderTime  = &context_.measurmentHandler_.AddNewMeasurment(Utils::GetTypeName<T>() + " render time : ", "0");
+            info.prepareTime = &context_.measurmentHandler_.AddNewMeasurment(Utils::GetTypeName<T>() + " prepare time : ", "0");
+        }
+
+        info.ptr = std::make_unique<T>(context_);
+        renderers.push_back(std::move(info));
     }
 
 protected:

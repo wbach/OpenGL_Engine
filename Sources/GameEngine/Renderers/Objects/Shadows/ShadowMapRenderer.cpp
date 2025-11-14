@@ -3,6 +3,7 @@
 #include <GLM/GLMUtils.h>
 #include <GraphicsApi/ShaderProgramType.h>
 #include <Logger/Log.h>
+#include <Utils/Time/Timer.h>
 
 #include <math.hpp>
 
@@ -10,6 +11,7 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {
@@ -48,6 +50,8 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
                     }
                 });
         });
+
+    measurementValue_ = &context.measurmentHandler_.AddNewMeasurment("ShadowMapRendererdMeshes", "0");
 }
 
 ShadowMapRenderer::~ShadowMapRenderer()
@@ -145,12 +149,12 @@ void ShadowMapRenderer::renderScene()
 {
     if (EngineConf.renderer.useInstanceRendering)
     {
-        entityRenderer_.renderEntityWithGrouping(shader_, instancedShader_);
+        rendererdMeshesCounter_ += entityRenderer_.renderEntityWithGrouping(shader_, instancedShader_);
     }
     else
     {
         shader_.Start();
-        entityRenderer_.renderEntitiesWithoutGrouping();
+        rendererdMeshesCounter_ += entityRenderer_.renderEntitiesWithoutGrouping();
         shader_.Stop();
     }
 }
@@ -163,8 +167,13 @@ bool ShadowMapRenderer::isInit() const
 void ShadowMapRenderer::prepare()
 {
     if (not isInit() or not isActive_)
+    {
+        measurementValue_->SetValue("0");
         return;
+    }
 
+    Utils::Timer timer;
+    rendererdMeshesCounter_ = 0;
     prepareFrameBuffer();
 
     uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
@@ -181,6 +190,8 @@ void ShadowMapRenderer::prepare()
     const auto& renderingSize = context_.projection_.GetRenderingSize();
     context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
     context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
+
+    measurementValue_->SetValue(std::to_string(rendererdMeshesCounter_));
 }
 
 void ShadowMapRenderer::subscribe(GameObject& gameObject)

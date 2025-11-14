@@ -1,9 +1,14 @@
 #pragma once
+#include <filesystem>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <unordered_map>
-#include <filesystem>
+#include <vector>
+
+#if defined(__GNUG__)
+#include <cxxabi.h>
+#include <cstdlib>
+#endif
 
 namespace Utils
 {
@@ -64,5 +69,29 @@ const typename Map::mapped_type* GetKey(const Map& map, const Key& key)
         return &iter->second;
     }
     return nullptr;
+}
+template <typename T>
+std::string GetTypeName()
+{
+    std::string full;
+
+#if defined(__GNUG__)
+    const char* name = typeid(T).name();
+    int status       = 0;
+    char* demangled  = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+    full             = (status == 0 && demangled) ? demangled : name;
+    std::free(demangled);
+#elif defined(_MSC_VER)
+    full = typeid(T).name();  // MSVC demangluje dość czytelnie
+#else
+    full = typeid(T).name();
+#endif
+
+    // Usuń namespace → weź nazwę po ostatnich "::"
+    auto pos = full.rfind("::");
+    if (pos != std::string::npos)
+        full = full.substr(pos + 2);
+
+    return full;
 }
 }  // namespace Utils

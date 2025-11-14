@@ -1,8 +1,7 @@
+#include <Logger/Log.h>
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <Logger/Log.h>
-
 
 #include "DebugTools/Painter/Interpolation.h"
 
@@ -103,7 +102,9 @@ TEST(InterpolationTest, SmoothInterpolationProgressive)
 
         // monotonicznie malejące, w zakresie [0,1]
         if (d > 0)
+        {
             EXPECT_LE(val, prev + EPS) << "Value increased at dist=" << d;
+        }
         EXPECT_GE(val, 0.0f - EPS);
         EXPECT_LE(val, 1.0f + EPS);
         prev = val;
@@ -158,7 +159,9 @@ TEST(InterpolationTest, GaussianInterpolationProgressive)
         LOG_DEBUG << "dist=" << d << " -> " << val;
 
         if (d > 0)
+        {
             EXPECT_LE(val, prev + EPS);
+        }
         EXPECT_GE(val, 0.0f - EPS);
         EXPECT_LE(val, 1.0f + EPS);
         prev = val;

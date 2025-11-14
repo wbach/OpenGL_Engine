@@ -15,6 +15,7 @@
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
+#include "Time/Timer.h"
 
 namespace GameEngine
 {
@@ -34,43 +35,53 @@ void BaseRenderer::init()
 void BaseRenderer::prepare()
 {
     for (auto& renderer : renderers)
-        renderer->prepare();
+    {
+        Utils::Timer timer;
+        renderer.ptr->render();
+        if (renderer.prepareTime)
+            renderer.prepareTime->value = timer.FormatElapsed();
+    }
 }
 void BaseRenderer::subscribe(GameObject& gameObject)
 {
     for (auto& renderer : renderers)
-        renderer->subscribe(gameObject);
+        renderer.ptr->subscribe(gameObject);
 }
 void BaseRenderer::unSubscribe(GameObject& gameObject)
 {
-    for (auto& r : renderers)
-        r->unSubscribe(gameObject);
+    for (auto& renderer : renderers)
+        renderer.ptr->unSubscribe(gameObject);
 }
 void BaseRenderer::unSubscribe(const Components::IComponent& component)
 {
-    for (auto& r : renderers)
-        r->unSubscribe(component);
+    for (auto& renderer : renderers)
+        renderer.ptr->unSubscribe(component);
 }
 void BaseRenderer::unSubscribeAll()
 {
-    for (auto& r : renderers)
-        r->unSubscribeAll();
+    for (auto& renderer : renderers)
+        renderer.ptr->unSubscribeAll();
 }
 void BaseRenderer::reloadShaders()
 {
     for (auto& renderer : renderers)
-        renderer->reloadShaders();
+        renderer.ptr->reloadShaders();
 }
 void BaseRenderer::initRenderers()
 {
     for (auto& renderer : renderers)
-        renderer->init();
+        renderer.ptr->init();
 }
 void BaseRenderer::render()
 {
     setViewPort();
     for (auto& renderer : renderers)
-        renderer->render();
+    {
+        Utils::Timer timer;
+        renderer.ptr->render();
+        if (renderer.renderTime)
+            renderer.renderTime->value = timer.FormatElapsed();
+    }
 }
 void BaseRenderer::setViewPort()
 {
@@ -79,7 +90,7 @@ void BaseRenderer::setViewPort()
 void BaseRenderer::blendRender()
 {
     for (auto& renderer : renderers)
-        renderer->blendRender();
+        renderer.ptr->blendRender();
 }
 void BaseRenderer::createRenderers()
 {

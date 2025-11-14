@@ -1,11 +1,12 @@
 ﻿#include "WaterReflectionRefractionRenderer.h"
 
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
+#include <Utils/Time/Timer.h>
 
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -44,6 +45,9 @@ WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererCon
                     }
                 });
         });
+
+    waterTexturesRendererdMeshesMeasurementValue_ =
+        &context.measurmentHandler_.AddNewMeasurment("WaterTexturesRendererdMeshes", "0");
 }
 WaterReflectionRefractionRenderer::~WaterReflectionRefractionRenderer()
 {
@@ -165,8 +169,13 @@ void WaterReflectionRefractionRenderer::cleanUp()
 void WaterReflectionRefractionRenderer::prepare()
 {
     if (not isInit_ or not isActive_)
+    {
+        waterTexturesRendererdMeshesMeasurementValue_->SetValue("0");
         return;
+    }
+    Utils::Timer timer;
 
+    waterTexturesRendererdMeshesCounter_ = 0;
     context_.graphicsApi_.EnableDepthTest();
     context_.graphicsApi_.EnableClipingPlane(0);
 
@@ -194,6 +203,8 @@ void WaterReflectionRefractionRenderer::prepare()
     context_.graphicsApi_.DisableCliping(0);
     const auto& renderingSize = context_.projection_.GetRenderingSize();
     context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
+
+    waterTexturesRendererdMeshesMeasurementValue_->SetValue(std::to_string(waterTexturesRendererdMeshesCounter_));
 }
 void WaterReflectionRefractionRenderer::subscribe(GameObject& gameObject)
 {
@@ -283,19 +294,20 @@ void WaterReflectionRefractionRenderer::renderScene()
 {
     skyBoxShader_.Start();
     skyBoxRenderer_.render();
+    ++waterTexturesRendererdMeshesCounter_;  // Skybox is also counted as rendered mesh
 
     if (EngineConf.renderer.useInstanceRendering)
     {
-        entityRenderer_.renderEntityWithGrouping(entityShader_, instancedEntityShader_);
+        waterTexturesRendererdMeshesCounter_ += entityRenderer_.renderEntityWithGrouping(entityShader_, instancedEntityShader_);
     }
     else
     {
         entityShader_.Start();
-        entityRenderer_.renderEntitiesWithoutGrouping();
+        waterTexturesRendererdMeshesCounter_ += entityRenderer_.renderEntitiesWithoutGrouping();
     }
 
     terrainShader_.Start();
-    terrainMeshRenderer_.renderSubscribers();
+    waterTexturesRendererdMeshesCounter_ += terrainMeshRenderer_.renderSubscribers();
 }
 void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo)
 {

@@ -344,7 +344,7 @@ void NetworkEditorInterface::NotifIfObjectIsChanged()
 
 void NetworkEditorInterface::NotifSelectedTransformIsChaned()
 {
-    if (transformChangedToSend_ and transformTimer_.GetTimeMiliSeconds() > sendChangeTimeInterval)
+    if (transformChangedToSend_ and transformTimer_.GetTimeMilliseconds() > sendChangeTimeInterval)
     {
         std::lock_guard<std::mutex> lk(transformChangedMutex_);
         auto go               = scene_.GetGameObject(*transformChangedToSend_);
@@ -359,7 +359,7 @@ void NetworkEditorInterface::NotifSelectedTransformIsChaned()
 
 void NetworkEditorInterface::NotifSelectedCameraIsChaned()
 {
-    if (cameraChangedToSend_ and cameraTimer_.GetTimeMiliSeconds() > sendChangeTimeInterval)
+    if (cameraChangedToSend_ and cameraTimer_.GetTimeMilliseconds() > sendChangeTimeInterval)
     {
         DebugNetworkInterface::CameraMsg msg;
         msg.position = scene_.GetCamera().GetPosition();
@@ -1145,7 +1145,7 @@ void NetworkEditorInterface::UpdateDragObject()
 void NetworkEditorInterface::PaintTerrain()
 {
     // std::lock_guard<std::mutex> lk(terrainPainterMutex_);
-    // if (terrainPainter_ and terrainPainterTimer_.GetTimeMiliSeconds() > (1000 / 30))
+    // if (terrainPainter_ and terrainPainterTimer_.GetTimeMilliseconds() > (1000 / 30))
     // {
     //     auto pointOnTerrain = terrainPainter_->paint(0.1f);
     //     if (pointOnTerrain)

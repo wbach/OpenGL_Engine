@@ -526,6 +526,10 @@ struct MeasurementValue
     {
         value = v;
     }
+    void SetValue(const std::string& v)
+    {
+        value = v;
+    }
     std::string value;
 };
 

@@ -1,13 +1,12 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
-#include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
+#include <Types.h>
 
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GameEngine/Scene/Scene.hpp"
-#include "GameEngine/Shaders/ShaderProgram.h"
-#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
+#include "GameEngine/Shaders/ShaderProgram.h"
 #include "ShadowBox.h"
 
 namespace GameEngine
@@ -39,7 +38,7 @@ public:
     void prepare() override;
 
 private:
-    void cleanUp();
+    void cleanUp() override;
     void renderScene();
     bool isInit() const;
     void prepareFrameBuffer();
@@ -61,5 +60,7 @@ private:
 
     bool isActive_;
     IdType shadowEnabledSubscriptionId_;
+    MeasurementValue* measurementValue_;
+    uint32 rendererdMeshesCounter_;
 };
 }  // namespace GameEngine

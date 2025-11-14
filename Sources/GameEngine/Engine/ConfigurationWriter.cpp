@@ -139,6 +139,7 @@ void Create(TreeNode& node, const Params::DebugParams& param)
     Create(node.addChild(CSTR_LINE_MESH_VISUALIZATION_PARAMS), param.linemeshVisualizator);
     Create(node.addChild(CSTR_LOGGING_LVL), param.logLvl);
     node.addChild(CSTR_SHOW_RENDER_INFO, Utils::BoolToString(param.showRenderInfo));
+    node.addChild(CSTR_SHOW_RENDER_TIMERS, Utils::BoolToString(param.showRenderersTimers));
 }
 void CreateBinary(TreeNode& node, bool param)
 {

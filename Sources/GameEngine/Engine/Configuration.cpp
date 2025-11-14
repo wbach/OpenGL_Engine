@@ -11,6 +11,7 @@ DebugParams::DebugParams()
              {LoggingLvl::None, LoggingLvl::Error, LoggingLvl::ErrorWarning, LoggingLvl::ErrorWarningInfo,
               LoggingLvl::ErrorWarningInfoDebug}}
     , showRenderInfo{false, {false, true}}
+    , showRenderersTimers{false, {false, true}}
     , showPhycicsVisualization{false, {false, true}}
 {
 }

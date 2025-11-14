@@ -2,20 +2,22 @@
 
 #include <Logger/Log.h>
 
+#include <chrono>
+
 #include "GuiElementFactory.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"
+#include "Types.h"
 #include "Window/GuiWindow.h"
 
 namespace GameEngine
 {
-GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measurementHandler,
-                                               GuiElementFactory& guiFactory)
+GuiEngineContextManger::GuiEngineContextManger(Utils::MeasurementHandler& measurementHandler, GuiElementFactory& guiFactory)
     : measurementHandler_(measurementHandler)
     , guiFactory_(guiFactory)
 {
-    rootWindow_ = guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.85, 1.f), vec2(0.3f, 0),
-                                              vec4(1.f, 1.f, 1.f, 0.5f));
+    rootWindow_ =
+        guiFactory_.CreateGuiWindow(GuiWindowStyle::BACKGROUND_ONLY, vec2(0.85, 1.f), vec2(0.3f, 0), vec4(1.f, 1.f, 1.f, 0.5f));
     rootWindow_->SetZPosition(-11.f);
     rootWindow_->Show(EngineConf.debugParams.showRenderInfo);
     auto verticalLayout = guiFactory_.CreateVerticalLayout();
@@ -35,6 +37,12 @@ GuiEngineContextManger::~GuiEngineContextManger()
 
 void GuiEngineContextManger::Update()
 {
+    if (not rootWindow_->IsShow() or updateTimer.GetTimeMilliseconds() < 100)
+    {
+        return;
+    }
+    updateTimer.Reset();
+
     for (const auto& measurment : measurementHandler_.GetMeasurments())
     {
         auto printedText = measurment.first + " : " + measurment.second.value;
@@ -64,7 +72,7 @@ void GuiEngineContextManger::Update()
 
 void GuiEngineContextManger::AdjustSize(float textYscale)
 {
-    const float childSize = 0.025f;
+    const float childSize = 0.03f;
     auto windowScale      = rootWindow_->GetScreenScale();
     windowScale.y         = verticalLayout_->GetChildren().size() * childSize;
     auto windowPosition   = rootWindow_->GetScreenPosition();
