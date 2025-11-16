@@ -12,6 +12,7 @@ layout (std140, binding=1) uniform PerFrame
 layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
     vec4 waterColor;
+    vec4 tilePosAndScale;
     vec4 params; // x - moveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     vec4 waveParams;
 } waterTileMeshBuffer;
@@ -38,26 +39,32 @@ out GS_OUT
 } gs_out;
 
 
-float waveHeight(vec2 pos, float time, float amplitude)
+float waveHeight(vec2 worldPos, float time, float amplitude)
 {
-    // skaluje pos, żeby uniknąć przeskoków przy większych tile
+    vec2 centerPos = vec2(waterTileMeshBuffer.tilePosAndScale.x,
+                          waterTileMeshBuffer.tilePosAndScale.y);
+
+    vec2 tileScale = vec2(waterTileMeshBuffer.tilePosAndScale.z,
+                          waterTileMeshBuffer.tilePosAndScale.w);
+
+    vec2 d = abs(worldPos - centerPos);
+    float maxDist = tileScale.x * 0.5;
+
+    // Chebyshev distance — kwadrat zamiast okręgu
+    float dist = max(d.x, d.y);
+
+    float edgeFactor = 1.0 - smoothstep(maxDist * 0.75, maxDist, dist);
+
+    // falowanie
     float waveFreq = waterTileMeshBuffer.waveParams.y;
-    vec2 p = pos * waveFreq;  
+    vec2 p = worldPos * waveFreq;
 
-    // fala wzdłuż X
     float wave1 = sin(p.x * 0.5 + time * 1.5) * 0.4;
-
-    // fala wzdłuż Y
     float wave2 = cos(p.y * 0.3 + time * 1.0) * 0.3;
-
-    // poprzeczna fala po skosie x+y
     float wave3 = sin((p.x + p.y) * 0.4 + time * 1.2) * 0.2;
-
-    // poprzeczna fala po przeciwnym skosie x-y
     float wave4 = cos((p.x - p.y) * 0.6 + time * 0.8) * 0.15;
 
-    // suma fal i skalowanie globalne amplitudą
-    return amplitude * (wave1 + wave2 + wave3 + wave4);
+    return amplitude * edgeFactor * (wave1 + wave2 + wave3 + wave4);
 }
 
 // Gerstner Waves

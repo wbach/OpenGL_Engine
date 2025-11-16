@@ -16,6 +16,7 @@ layout (std140,binding=1) uniform PerFrame
 layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
     vec4 waterColor;
+    vec4 tilePosAndScale;
     vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
     vec4 waveParams;
 } waterTileMeshBuffer;

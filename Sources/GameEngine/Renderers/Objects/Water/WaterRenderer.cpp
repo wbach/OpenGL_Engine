@@ -14,6 +14,7 @@ namespace GameEngine
 struct WaterTileMeshBuffer
 {
     AlignWrapper<vec4> waterColor;
+    AlignWrapper<vec4> tilePosAndScale;
     AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     AlignWrapper<vec4> waveParams;
 };
@@ -110,17 +111,21 @@ void WaterRenderer::render()
 
         component.increaseFactors(context_.time_.deltaTime);
 
+        const auto& worldTransfrom         = component.GetParentGameObject().GetWorldTransform();
+        const auto& scale                  = worldTransfrom.GetScale();
+
         waterTileMeshBuffer.waterColor     = component.GetWaterColor();
         waterTileMeshBuffer.params.value.x = component.moveFactor();
         waterTileMeshBuffer.params.value.y = component.waveMoveFactor();
-        waterTileMeshBuffer.params.value.z =
-            DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
+        waterTileMeshBuffer.params.value.z = DEFAULT_TILED_VALUE * scale.x;
 
-        const auto& scale = subscriber.waterRendererComponent_.getParentGameObject().GetWorldTransform().GetScale();
-        waterTileMeshBuffer.waveParams.value.x = component.waveAmplitude;
-        waterTileMeshBuffer.waveParams.value.y = component.waveFrequency;
-        waterTileMeshBuffer.waveParams.value.z = scale.x;
-        waterTileMeshBuffer.waveParams.value.w = scale.z;
+        auto position                               = worldTransfrom.GetPosition();
+        waterTileMeshBuffer.waveParams.value.x      = component.waveAmplitude;
+        waterTileMeshBuffer.waveParams.value.y      = component.waveFrequency;
+        waterTileMeshBuffer.tilePosAndScale.value.x = position.x;
+        waterTileMeshBuffer.tilePosAndScale.value.y = position.y;
+        waterTileMeshBuffer.tilePosAndScale.value.z = scale.x;
+        waterTileMeshBuffer.tilePosAndScale.value.w = scale.z;
 
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);

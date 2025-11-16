@@ -6,6 +6,37 @@
 
 namespace GameEngine
 {
+namespace
+{
+float ComputeEdgeFalloff(uint32 i, uint32 j, uint32 x_start, uint32 y_start, uint32 width, uint32 height)
+{
+    const int blendWidth  = height * 0.1f;
+    const float minHeight = -0.1f;
+    const float maxHeight = 0.f;
+
+    // Liczba „kroków” do najbliższej krawędzi elementu
+    int distLeft   = j - x_start;
+    int distRight  = (width - 1) - j;
+    int distTop    = i - y_start;
+    int distBottom = (height - 1) - i;
+
+    int edgeDist = std::min(std::min(distLeft, distRight), std::min(distTop, distBottom));
+
+    // Jeśli jesteśmy dalej niż blendWidth od krawędzi → płasko
+    if (edgeDist >= blendWidth)
+        return maxHeight;
+
+    // edgeDist == 0 → najwyższy drop (-2)
+    // edgeDist == blendWidth → już wysokość normalna (0)
+    float t = static_cast<float>(edgeDist) / blendWidth;
+
+    // wygładzenie krzywą (można też użyć pow(x,2), sinusa itp.)
+    t = t * t * (3.f - 2.f * t);  // smoothstep
+
+    // interpolacja od -2 → 0
+    return glm::mix(minHeight, maxHeight, t);
+}
+}  // namespace
 std::unique_ptr<Model> MeshWaterFactory::CreateAsSingleTile(GraphicsApi::IGraphicsApi& graphicsApi, uint32 resolution)
 {
     auto model = std::make_unique<Model>();
@@ -46,9 +77,10 @@ void MeshWaterFactory::CreateVertexes(GameEngine::Mesh& mesh, uint32 x_start, ui
             auto x = -0.5f + (gridSize.x * fj);
             auto z = -0.5f + (gridSize.z * fi);
 
-            float height = 0.f;
+            float wheight = ComputeEdgeFalloff(i, j, x_start, y_start, width, height);
+
             vertices.push_back(x);
-            vertices.push_back(height);
+            vertices.push_back(wheight);
             vertices.push_back(z);
 
             vec3 normal(0, 1, 0);
