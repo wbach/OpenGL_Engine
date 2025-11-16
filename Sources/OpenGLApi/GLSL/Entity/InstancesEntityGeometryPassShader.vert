@@ -62,10 +62,6 @@ out VS_OUT
     vec3 normal;
     vec4 worldPos;
     mat3 tbn;
-    float useShadows;
-    float clipSpaceZ;
-    vec4 positionInLightSpace[MAX_SHADOW_MAP_CASADES];
-    float shadowMapSize;
 } vs_out;
 
 struct VertexWorldData
@@ -115,18 +111,6 @@ void main()
         vs_out.tbn = CreateTBNMatrix(vs_out.normal);
     }
 
-    vs_out.useShadows   = perApp.shadowVariables.x;
-    if (Is(vs_out.useShadows))
-    {
-        for (int i = 0 ; i < MAX_SHADOW_MAP_CASADES ; i++)
-        {
-            vs_out.positionInLightSpace[i] = shadowsBuffer.directionalLightSpace[i] * vec4(vs_out.worldPos.xyz, 1.f);
-        }
-
-        vs_out.shadowMapSize  = perApp.shadowVariables.z;
-    }
-
     gl_Position = perFrame.projectionViewMatrix * worldData.worldPosition;
     gl_ClipDistance[0] = dot(worldData.worldPosition, perFrame.clipPlane);
-    vs_out.clipSpaceZ = gl_Position.z;
 }

@@ -21,7 +21,10 @@ namespace Components
 class WaterRendererComponent : public BaseComponent
 {
 public:
-    float waveSpeed;
+    float onPlaneWaveSpeed{1.f};
+    float waveSpeed{1.f};
+    float waveAmplitude{.5f};
+    float waveFrequency{0.5f};
     vec4 waterColor;
     File dudvMap;
     File normalMap;
@@ -32,7 +35,10 @@ public:
     BEGIN_FIELDS()
         FIELD_TEXTURE(dudvMap)
         FIELD_TEXTURE(normalMap)
+        FIELD_FLOAT(waveAmplitude)
+        FIELD_FLOAT(waveFrequency)
         FIELD_FLOAT(waveSpeed)
+        FIELD_FLOAT(onPlaneWaveSpeed)
         FIELD_COLOR_RGBA(waterColor)
         FIELD_UINT(meshResolution)
     END_FIELDS()
@@ -45,8 +51,9 @@ public:
     void ReqisterFunctions() override;
     void Reload() override;
 
+    float waveMoveFactor() const;
     float moveFactor() const;
-    float increaseAndGetMoveFactor(float deltaTime);
+    float increaseFactors(float);
 
     const vec4& GetWaterColor() const;
     float GetWaveSpeed() const;
@@ -78,6 +85,7 @@ private:
     std::optional<uint32> onTransformChangeSubscribtion_;
 
     float moveFactor_;
+    float waveMove_;
     Texture* normalMap_;
     Texture* dudvMap_;
 

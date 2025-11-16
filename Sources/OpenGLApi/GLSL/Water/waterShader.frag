@@ -13,13 +13,12 @@ layout (std140,binding=1) uniform PerFrame
     vec4 clipPlane;
 } perFrame;
 
-layout (std140, align=16, binding=6) uniform PerMeshObject
+layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
     vec4 waterColor;
-    float tiledValue;
-    float isSimpleRender;
-    float moveFactor;
-} perMeshObject;
+    vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
+    vec4 waveParams;
+} waterTileMeshBuffer;
 
 in GS_OUT
 {
@@ -64,8 +63,12 @@ float calculateWaterDepth(vec2 refractTexCoords)
 
 vec2 calculateDisctortionCoords()
 {
-    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * perMeshObject.tiledValue + perMeshObject.moveFactor, vs_out.texCoord.y * perMeshObject.tiledValue)).rg * 0.1f;
-    return vs_out.texCoord * perMeshObject.tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ perMeshObject.moveFactor);
+    float tiledValue = waterTileMeshBuffer.params.z;
+    float moveFactor = waterTileMeshBuffer.params.x;
+    float waveSpeed = waterTileMeshBuffer.params.y;
+
+    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * tiledValue + moveFactor, vs_out.texCoord.y * tiledValue)).rg * 0.1f;
+    return vs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ moveFactor);
 }
 
 vec3 calculateNormal(vec4 normalMapValue)
@@ -76,10 +79,6 @@ vec3 calculateNormal(vec4 normalMapValue)
 
 void main(void)
 {
-    vec2 ndc = (vs_out.clipSpace.xy/vs_out.clipSpace.w) /2.0 + 0.5 ;
-    vec2 refractTexCoords = vec2(ndc.x,ndc.y);
-    vec2 reflectTexCoords = vec2(ndc.x,-ndc.y);
-
     MaterialSpecular = vec4(vec3(1.f), 255.f / 255.f);
     WorldPosOut      = vs_out.worldPos;
     vec2 distortedTexCoords = calculateDisctortionCoords();
@@ -87,12 +86,17 @@ void main(void)
     vec4 normalMapValue = texture(normalMap, distortedTexCoords);
     vec3 normal = calculateNormal(normalMapValue);
 
-    if (Is(perMeshObject.isSimpleRender))
+    float isSimpleRender = waterTileMeshBuffer.params.w;
+    if (Is(isSimpleRender))
     {
-        DiffuseOut       = vec4(perMeshObject.waterColor.xyz, 0.5f) ;//* normalMapValue;
+        DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f) ;//* normalMapValue;
         NormalOut        = vec4(normal, 1.f);
         return;
     }
+
+    vec2 ndc = (vs_out.clipSpace.xy / vs_out.clipSpace.w) / 2.0f + 0.5f ;
+    vec2 refractTexCoords = vec2(ndc.x, ndc.y);
+    vec2 reflectTexCoords = vec2(ndc.x, -ndc.y);
 
     float waterDepth = calculateWaterDepth(refractTexCoords);
     float edgesFactor    = calculateEdgesFactor(waterDepth);
@@ -129,9 +133,10 @@ void main(void)
     }
 
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
-    refractColor      = mix(refractColor, vec4(perMeshObject.waterColor.xyz, 1.f), colorInte);
+    refractColor      = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), colorInte);
 
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
+    // DiffuseOut = reflectColor;
     DiffuseOut        = mix(reflectColor, refractColor, refractiveFactor);
     NormalOut         = vec4(normal, 1.f);
 }

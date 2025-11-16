@@ -37,7 +37,7 @@ void BaseRenderer::prepare()
     for (auto& renderer : renderers)
     {
         Utils::Timer timer;
-        renderer.ptr->render();
+        renderer.ptr->prepare();
         if (renderer.prepareTime)
             renderer.prepareTime->value = timer.FormatElapsed();
     }

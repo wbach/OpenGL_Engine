@@ -7,18 +7,20 @@
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Objects/Water/MeshWaterFactory.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Types.h"
 
 namespace GameEngine
 {
-const float WAVE_SPEED = 0.0025f;
-
 struct WaterTileMeshBuffer
 {
     AlignWrapper<vec4> waterColor;
-    AlignWrapper<float> tiledValue;
-    AlignWrapper<float> isSimpleRender;
-    AlignWrapper<float> moveFactor;
+    AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
+    AlignWrapper<vec4> waveParams;
+    // AlignWrapper<vec4> moveFactors; // x - planeMoveFactor, y - waveFactor
 };
+
+const float useSimpleRender{1.f};
+const float useAdvancedRender{0.f};
 
 const float DEFAULT_TILED_VALUE{0.01f};
 
@@ -41,7 +43,7 @@ void WaterRenderer::init()
 
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
+        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(WATER_TILE_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
     }
 
     waterReflectionRefractionRenderer_.init();
@@ -59,8 +61,10 @@ void WaterRenderer::render()
     context_.graphicsApi_.SetBlendFunction(GraphicsApi::BlendFunctionType::ONE_MINUS_SRC_ALPHA);
     shader_.Start();
 
-    WaterTileMeshBuffer waterTileMeshBuffer;
-    waterTileMeshBuffer.isSimpleRender = 1.f;
+    WaterTileMeshBuffer waterTileMeshBuffer{};
+    waterTileMeshBuffer.waterColor     = vec4(0, 0, 0, 1.f);
+    waterTileMeshBuffer.params         = vec4(0, 0, 0, 0.f);
+    waterTileMeshBuffer.params.value.w = useSimpleRender;
 
     for (auto& subscriber : subscribers_)
     {
@@ -71,7 +75,7 @@ void WaterRenderer::render()
         }
         auto& component = subscriber.second.waterRendererComponent_;
 
-        auto isVisible =  context_.frustrum_.intersection(component.getModelBoundingBox());
+        auto isVisible = context_.frustrum_.intersection(component.getModelBoundingBox());
 
         if (not isVisible)
         {
@@ -98,16 +102,23 @@ void WaterRenderer::render()
             if (waterTextures->waterRefractionDepthTextureId)
                 context_.graphicsApi_.ActiveTexture(2, *waterTextures->waterRefractionDepthTextureId);
 
-            waterTileMeshBuffer.isSimpleRender = 0.f;
+            waterTileMeshBuffer.params.value.w = useAdvancedRender;
         }
         else
         {
-            waterTileMeshBuffer.isSimpleRender = 1.f;
+            waterTileMeshBuffer.params.value.w = useSimpleRender;
         }
 
-        waterTileMeshBuffer.tiledValue = DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
-        waterTileMeshBuffer.moveFactor = component.increaseAndGetMoveFactor(context_.time_.deltaTime * WAVE_SPEED);
-        waterTileMeshBuffer.waterColor = component.GetWaterColor();
+        component.increaseFactors(context_.time_.deltaTime);
+
+        waterTileMeshBuffer.waterColor     = component.GetWaterColor();
+        waterTileMeshBuffer.params.value.x = component.moveFactor();
+        waterTileMeshBuffer.params.value.y = component.waveMoveFactor();
+        waterTileMeshBuffer.params.value.z =
+            DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
+
+        waterTileMeshBuffer.waveParams.value.x = component.waveAmplitude;
+         waterTileMeshBuffer.waveParams.value.y = component.waveFrequency;
 
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);
@@ -120,7 +131,7 @@ void WaterRenderer::render()
 
         for (const auto& mesh : model->GetMeshes())
         {
-            auto isVisible =  context_.frustrum_.intersection(component.getMeshBoundingBox(mesh));
+            auto isVisible = context_.frustrum_.intersection(component.getMeshBoundingBox(mesh));
             if (isVisible and mesh.GetGraphicsObjectId())
             {
                 context_.graphicsApi_.RenderTriangleStripMesh(*mesh.GetGraphicsObjectId());

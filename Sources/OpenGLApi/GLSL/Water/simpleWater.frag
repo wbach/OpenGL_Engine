@@ -7,13 +7,12 @@ const float tiledValue   = 120.f;
 const float near         = 0.1f;
 const float far          = 1000.0f;
 
-layout (std140, align=16, binding=6) uniform PerMeshObject
+layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
     vec4 waterColor;
-    float tiledValue;
-    float isSimpleRender;
-    float moveFactor;
-} perMeshObject;
+    vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
+    vec4 waveParams;
+} waterTileMeshBuffer;
 
 in VS_OUT
 {
@@ -44,8 +43,12 @@ float calculateDistance(float depth)
 
 vec2 calculateDisctortionCoords()
 {
-    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * tiledValue + perMeshObject.moveFactor, vs_out.texCoord.y * tiledValue)).rg * 0.1f;
-    return vs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ perMeshObject.moveFactor);
+    float tiledValue = waterTileMeshBuffer.params.z;
+    float moveFactor = waterTileMeshBuffer.params.x;
+    float waveSpeed = waterTileMeshBuffer.params.y;
+
+    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * tiledValue + moveFactor, vs_out.texCoord.y * tiledValue)).rg * 0.1f;
+    return vs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ moveFactor);
 }
 
 vec3 calculateNormal(vec4 normalMapValue)
@@ -56,7 +59,7 @@ vec3 calculateNormal(vec4 normalMapValue)
 
 void main(void)
 {
-    outputColor  = vec4(perMeshObject.waterColor.xyz, 0.5f);
+    outputColor  = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f);
 
     // const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
     // outputColor = mix(fogColor, outputColor, vs_out.visibility);

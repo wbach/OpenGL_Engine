@@ -21,19 +21,24 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_COLOR[]           = "color";
-constexpr char CSTR_WAVE_SPEED[]      = "waveSpeed";
-constexpr char CSTR_DUDV_MAP[]        = "dudv";
-constexpr char CSTR_NORMAL_MAP[]      = "normalMap";
-constexpr char CSTR_MESH_RESOLUTION[] = "meshResolution";
+constexpr char CSTR_COLOR[]            = "color";
+constexpr char CSTR_PLANE_WAVE_SPEED[] = "planeWaveSpeed";
+constexpr char CSTR_WAVE_SPEED[]       = "waveSpeed";
+constexpr char CSTR_WAVE_AMPLITUDE[]   = "waveAmplitude";
+constexpr char CSTR_WAVE_FREQUENCY[]   = "waveFrequency";
+constexpr char CSTR_DUDV_MAP[]         = "dudv";
+constexpr char CSTR_NORMAL_MAP[]       = "normalMap";
+constexpr char CSTR_MESH_RESOLUTION[]  = "meshResolution";
 }  // namespace
 
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<WaterRendererComponent>(), componentContext, gameObject)
+    , onPlaneWaveSpeed(.1f)
     , waveSpeed(.1f)
     , waterColor(Utils::RGBtoFloat(0.f, 44.f, 82.f), 1.f)
     , meshResolution{32}
     , moveFactor_(0)
+    , waveMove_(0)
     , normalMap_{nullptr}
     , dudvMap_{nullptr}
     , isSubscribed_(false)
@@ -55,10 +60,12 @@ void WaterRendererComponent::CleanUp()
     if (onTransformChangeSubscribtion_)
     {
         thisObject_.UnsubscribeOnWorldTransfromChange(*onTransformChangeSubscribtion_);
+        onTransformChangeSubscribtion_.reset();
     }
     if (perObjectUpdateBuffer_)
     {
         componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(perObjectUpdateBuffer_));
+        perObjectUpdateBuffer_.reset();
     }
 
     DeleteTextures();
@@ -80,10 +87,19 @@ float WaterRendererComponent::moveFactor() const
 {
     return moveFactor_;
 }
-float WaterRendererComponent::increaseAndGetMoveFactor(float deltaTime)
+float WaterRendererComponent::waveMoveFactor() const
 {
-    moveFactor_ += waveSpeed * deltaTime;
+    return waveMove_;
+}
+float WaterRendererComponent::increaseFactors(float deltaTime)
+{
+    moveFactor_ += onPlaneWaveSpeed * deltaTime;
     moveFactor_ = fmodf(moveFactor_, 1.f);
+
+    waveMove_ += deltaTime * waveSpeed;
+    // if (waveMove_ > 2.f * M_PI)
+    //     waveMove_ -= 2.f * M_PI;
+
     return moveFactor_;
 }
 const Texture* WaterRendererComponent::GetDudvTexture() const
@@ -222,11 +238,14 @@ void WaterRendererComponent::registerReadFunctions()
         auto component = std::make_unique<WaterRendererComponent>(componentContext, gameObject);
 
         std::string dudvMap, normalMap;
-        ::Read(node.getChild(CSTR_WAVE_SPEED), component->waveSpeed);
         ::Read(node.getChild(CSTR_COLOR), component->waterColor);
         ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
         ::Read(node.getChild(CSTR_NORMAL_MAP), normalMap);
         ::Read(node.getChild(CSTR_MESH_RESOLUTION), component->meshResolution);
+        ::Read(node.getChild(CSTR_WAVE_SPEED), component->waveSpeed);
+        ::Read(node.getChild(CSTR_WAVE_FREQUENCY), component->waveFrequency);
+        ::Read(node.getChild(CSTR_WAVE_AMPLITUDE), component->waveAmplitude);
+        ::Read(node.getChild(CSTR_PLANE_WAVE_SPEED), component->onPlaneWaveSpeed);
 
         component->dudvMap   = dudvMap;
         component->normalMap = normalMap;
@@ -241,10 +260,13 @@ void WaterRendererComponent::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
-    ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());
     ::write(node.addChild(CSTR_DUDV_MAP), dudvMap.GetDataRelativePath());
     ::write(node.addChild(CSTR_NORMAL_MAP), normalMap.GetDataRelativePath());
     ::write(node.addChild(CSTR_MESH_RESOLUTION), meshResolution);
+    ::write(node.addChild(CSTR_WAVE_SPEED), GetWaveSpeed());
+    ::write(node.addChild(CSTR_WAVE_FREQUENCY), waveFrequency);
+    ::write(node.addChild(CSTR_WAVE_AMPLITUDE), waveAmplitude);
+    ::write(node.addChild(CSTR_PLANE_WAVE_SPEED), onPlaneWaveSpeed);
 }
 Model* WaterRendererComponent::GetModel()
 {
