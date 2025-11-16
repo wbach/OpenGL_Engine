@@ -463,7 +463,7 @@ WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::
 
 WaterReflectionRefractionRenderer::WaterFbo* WaterReflectionRefractionRenderer::createWaterTilesTextures(float positionY)
 {
-    /* LOG TO FIX*/ LOG_ERROR << ("Create new water fbo positionY=" + std::to_string(positionY));
+    LOG_DEBUG << "Create new water fbo positionY=" << positionY;
     WaterReflectionRefractionRenderer::WaterFbo waterFbo;
     waterFbo.positionY              = positionY;
     waterFbo.reflectionFrameBuffer_ = createWaterFbo(EngineConf.renderer.water.waterReflectionResolution);

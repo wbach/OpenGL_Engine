@@ -23,11 +23,13 @@ layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 
 in GS_OUT
 {
+    vec4 worldPos;
     vec2 texCoord;
     vec3 normal;
-    vec4 worldPos;
+    vec3 tangent;
+    vec3 bitangent;
     vec4 clipSpace;
-} vs_out;
+} gs_out;
 
 layout(binding = 0) uniform sampler2D reflectionTexture;
 layout(binding = 1) uniform sampler2D refractionTexture;
@@ -68,34 +70,59 @@ vec2 calculateDisctortionCoords()
     float moveFactor = waterTileMeshBuffer.params.x;
     float waveSpeed = waterTileMeshBuffer.params.y;
 
-    vec2 distortedTexCoords = texture(dudvMap, vec2(vs_out.texCoord.x * tiledValue + moveFactor, vs_out.texCoord.y * tiledValue)).rg * 0.1f;
-    return vs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ moveFactor);
+    vec2 distortedTexCoords = texture(dudvMap, vec2(gs_out.texCoord.x * tiledValue + moveFactor, gs_out.texCoord.y * tiledValue)).rg * 0.1f;
+    return gs_out.texCoord * tiledValue + vec2(distortedTexCoords.x, distortedTexCoords.y+ moveFactor);
 }
 
-vec3 calculateNormal(vec4 normalMapValue)
+vec3 decodeNormal(vec4 normalMapValue)
 {
-    vec3 normal = vec3(normalMapValue.r* 2.0f - 1.0f, normalMapValue.b * 1.0f, normalMapValue.g * 2.0f - 1.0f);
-    return normalize(normal);
+    vec3 n;
+    n.xy = normalMapValue.rg * 2.0 - 1.0;
+    n.z  = normalMapValue.b * 2.0 - 1.0; // jeśli normal mapa ma blue w formacie 0..1 → 0..1
+    return normalize(n);
+}
+
+mat3 getTBN()
+{
+    vec3 T = normalize(gs_out.tangent);
+    vec3 B = normalize(gs_out.bitangent);
+    vec3 N = normalize(gs_out.normal);
+
+    // Gram-Schmidt orthonormalization — poprawia błędy numeryczne
+    T = normalize(T - dot(T, N) * N);
+    B = normalize(cross(N, T)); // zawsze prostopadły
+
+    return mat3(T, B, N);
+}
+
+vec3 calculateWorldNormal(vec4 normalMapValue)
+{
+    vec3 n = decodeNormal(normalMapValue); // tangent space normal
+    mat3 TBN = getTBN();                   // world-space basis
+    return normalize(TBN * n);             // world-space normal
 }
 
 void main(void)
 {
     MaterialSpecular = vec4(vec3(1.f), 255.f / 255.f);
-    WorldPosOut      = vs_out.worldPos;
+    WorldPosOut      = gs_out.worldPos;
     vec2 distortedTexCoords = calculateDisctortionCoords();
 
     vec4 normalMapValue = texture(normalMap, distortedTexCoords);
-    vec3 normal = calculateNormal(normalMapValue);
+    //vec3 normal = gs_out.normal;//calculateNormal(normalMapValue);
+    vec3 normal = calculateWorldNormal(normalMapValue);
+    vec3 normalGS = normalize(gs_out.normal);  
 
     float isSimpleRender = waterTileMeshBuffer.params.w;
     if (Is(isSimpleRender))
     {
-        DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f) ;//* normalMapValue;
+       //DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f);
+        DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 1.0f);
         NormalOut        = vec4(normal, 1.f);
         return;
     }
 
-    vec2 ndc = (vs_out.clipSpace.xy / vs_out.clipSpace.w) / 2.0f + 0.5f ;
+    vec2 ndc = (gs_out.clipSpace.xy / gs_out.clipSpace.w) / 2.0f + 0.5f ;
     vec2 refractTexCoords = vec2(ndc.x, ndc.y);
     vec2 reflectTexCoords = vec2(ndc.x, -ndc.y);
 
@@ -110,7 +137,7 @@ void main(void)
     refractTexCoords = refractTexCoords + totalDistortion;
     refractTexCoords = clamp(refractTexCoords, 0.001f, 0.999f);
 
-    vec3 toCameraVector = normalize(perFrame.cameraPosition - vs_out.worldPos.xyz);
+    vec3 toCameraVector = normalize(perFrame.cameraPosition - gs_out.worldPos.xyz);
 
     float refractiveFactor  = dot(toCameraVector, vec3(0, 1, 0));
     refractiveFactor        = pow(refractiveFactor, 0.2);
@@ -139,5 +166,6 @@ void main(void)
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
     // DiffuseOut = reflectColor;
     DiffuseOut        = mix(reflectColor, refractColor, refractiveFactor);
+    DiffuseOut.a = 1.f;
     NormalOut         = vec4(normal, 1.f);
 }

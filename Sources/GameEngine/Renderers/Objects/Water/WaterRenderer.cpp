@@ -22,8 +22,6 @@ struct WaterTileMeshBuffer
 const float useSimpleRender{1.f};
 const float useAdvancedRender{0.f};
 
-const float DEFAULT_TILED_VALUE{0.01f};
-
 WaterRenderer::WaterRenderer(RendererContext& context)
     : waterReflectionRefractionRenderer_(context)
     , context_(context)
@@ -111,17 +109,17 @@ void WaterRenderer::render()
 
         component.increaseFactors(context_.time_.deltaTime);
 
-        const auto& worldTransfrom         = component.GetParentGameObject().GetWorldTransform();
-        const auto& scale                  = worldTransfrom.GetScale();
-
         waterTileMeshBuffer.waterColor     = component.GetWaterColor();
         waterTileMeshBuffer.params.value.x = component.moveFactor();
         waterTileMeshBuffer.params.value.y = component.waveMoveFactor();
-        waterTileMeshBuffer.params.value.z = DEFAULT_TILED_VALUE * scale.x;
+        waterTileMeshBuffer.params.value.z = component.tiledValue;
 
+        const auto& worldTransfrom                  = component.GetParentGameObject().GetWorldTransform();
+        const auto& scale                           = worldTransfrom.GetScale();
         auto position                               = worldTransfrom.GetPosition();
         waterTileMeshBuffer.waveParams.value.x      = component.waveAmplitude;
         waterTileMeshBuffer.waveParams.value.y      = component.waveFrequency;
+        waterTileMeshBuffer.waveParams.value.z      = component.meshResolution;
         waterTileMeshBuffer.tilePosAndScale.value.x = position.x;
         waterTileMeshBuffer.tilePosAndScale.value.y = position.y;
         waterTileMeshBuffer.tilePosAndScale.value.z = scale.x;

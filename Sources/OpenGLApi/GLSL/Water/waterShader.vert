@@ -25,9 +25,9 @@ layout (std140, binding=3) uniform PerObjectUpdate
 
 out VS_OUT
 {
+    vec4 worldPos;
     vec2 texCoord;
     vec3 normal;
-    vec4 worldPos;
     vec4 clipSpace;
 } vs_out;
 

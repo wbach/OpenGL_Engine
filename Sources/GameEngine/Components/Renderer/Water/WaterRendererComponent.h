@@ -25,6 +25,7 @@ public:
     float waveSpeed{1.f};
     float waveAmplitude{.5f};
     float waveFrequency{0.5f};
+    float tiledValue{1.f};
     vec4 waterColor;
     File dudvMap;
     File normalMap;
@@ -39,6 +40,7 @@ public:
         FIELD_FLOAT(waveFrequency)
         FIELD_FLOAT(waveSpeed)
         FIELD_FLOAT(onPlaneWaveSpeed)
+        FIELD_FLOAT(tiledValue)
         FIELD_COLOR_RGBA(waterColor)
         FIELD_UINT(meshResolution)
     END_FIELDS()
