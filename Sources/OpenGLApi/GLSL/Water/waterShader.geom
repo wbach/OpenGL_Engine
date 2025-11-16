@@ -41,19 +41,20 @@ out GS_OUT
 
 float waveHeight(vec2 worldPos, float time, float amplitude)
 {
-    vec2 centerPos = vec2(waterTileMeshBuffer.tilePosAndScale.x,
-                          waterTileMeshBuffer.tilePosAndScale.y);
-
-    vec2 tileScale = vec2(waterTileMeshBuffer.tilePosAndScale.z,
-                          waterTileMeshBuffer.tilePosAndScale.w);
+    vec2 centerPos = waterTileMeshBuffer.tilePosAndScale.xy;
+    vec2 tileScale = waterTileMeshBuffer.tilePosAndScale.zw;
 
     vec2 d = abs(worldPos - centerPos);
-    float maxDist = tileScale.x * 0.5;
 
-    // Chebyshev distance — kwadrat zamiast okręgu
-    float dist = max(d.x, d.y);
+    // połowa szerokości i wysokości
+    float halfX = tileScale.x * 0.5;
+    float halfY = tileScale.y * 0.5;
 
-    float edgeFactor = 1.0 - smoothstep(maxDist * 0.75, maxDist, dist);
+    // dystans Chebysheva dopasowany do prostokąta
+    float dist = max(d.x / halfX, d.y / halfY);
+
+    // fade-out przy brzegu (0–1 → wewn.:0, krawedz:1)
+    float edgeFactor = 1.0 - smoothstep(0.85, 1.0, dist);
 
     // falowanie
     float waveFreq = waterTileMeshBuffer.waveParams.y;
@@ -66,28 +67,6 @@ float waveHeight(vec2 worldPos, float time, float amplitude)
 
     return amplitude * edgeFactor * (wave1 + wave2 + wave3 + wave4);
 }
-
-// Gerstner Waves
-// float waveHeight(vec2 pos, float time, float amplitude)
-// {
-//     // Skaluje współrzędne, aby argumenty sin/cos były w rozsądnym zakresie
-//     vec2 p = pos * 0.5;
-
-//     // Fala 1 – kierunek X
-//     float wave1 = sin(dot(p, vec2(1.0, 0.0)) * 2.0 + time * 1.5) * 0.4;
-
-//     // Fala 2 – kierunek Y
-//     float wave2 = cos(dot(p, vec2(0.0, 1.0)) * 3.0 + time * 1.0) * 0.3;
-
-//     // Fala 3 – diagonalna x+y
-//     float wave3 = sin(dot(p, vec2(1.0, 1.0)) * 1.5 + time * 1.2) * 0.2;
-
-//     // Fala 4 – diagonalna x-y
-//     float wave4 = cos(dot(p, vec2(1.0, -1.0)) * 2.5 + time * 0.8) * 0.15;
-
-//     // Suma fal i skalowanie globalnym parametrem amplitudy
-//     return amplitude * (wave1 + wave2 + wave3 + wave4);
-// }
 
 vec3 calculateVertexNormal(vec3 worldPos, float time, float amplitude)
 {
