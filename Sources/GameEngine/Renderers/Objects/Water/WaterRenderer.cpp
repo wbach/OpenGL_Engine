@@ -16,7 +16,6 @@ struct WaterTileMeshBuffer
     AlignWrapper<vec4> waterColor;
     AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     AlignWrapper<vec4> waveParams;
-    // AlignWrapper<vec4> moveFactors; // x - planeMoveFactor, y - waveFactor
 };
 
 const float useSimpleRender{1.f};
@@ -66,14 +65,14 @@ void WaterRenderer::render()
     waterTileMeshBuffer.params         = vec4(0, 0, 0, 0.f);
     waterTileMeshBuffer.params.value.w = useSimpleRender;
 
-    for (auto& subscriber : subscribers_)
+    for (auto& [gameObjectId, subscriber] : subscribers_)
     {
-        auto model = subscriber.second.waterRendererComponent_.GetModel();
+        auto model = subscriber.waterRendererComponent_.GetModel();
         if (not model)
         {
             continue;
         }
-        auto& component = subscriber.second.waterRendererComponent_;
+        auto& component = subscriber.waterRendererComponent_;
 
         auto isVisible = context_.frustrum_.intersection(component.getModelBoundingBox());
 
@@ -89,7 +88,7 @@ void WaterRenderer::render()
             context_.graphicsApi_.BindShaderBuffer(*perObjectBufferId);
         }
 
-        const auto waterTextures = waterReflectionRefractionRenderer_.GetWaterTextures(subscriber.first);
+        const auto waterTextures = waterReflectionRefractionRenderer_.GetWaterTextures(gameObjectId);
 
         if (waterTextures)
         {
@@ -117,8 +116,11 @@ void WaterRenderer::render()
         waterTileMeshBuffer.params.value.z =
             DEFAULT_TILED_VALUE * component.GetParentGameObject().GetWorldTransform().GetScale().x;
 
+        const auto& scale = subscriber.waterRendererComponent_.getParentGameObject().GetWorldTransform().GetScale();
         waterTileMeshBuffer.waveParams.value.x = component.waveAmplitude;
-         waterTileMeshBuffer.waveParams.value.y = component.waveFrequency;
+        waterTileMeshBuffer.waveParams.value.y = component.waveFrequency;
+        waterTileMeshBuffer.waveParams.value.z = scale.x;
+        waterTileMeshBuffer.waveParams.value.w = scale.z;
 
         context_.graphicsApi_.UpdateShaderBuffer(*perMeshObjectId_, &waterTileMeshBuffer);
         context_.graphicsApi_.BindShaderBuffer(*perMeshObjectId_);

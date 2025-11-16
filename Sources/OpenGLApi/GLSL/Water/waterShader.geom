@@ -37,11 +37,11 @@ out GS_OUT
     vec4 clipSpace;
 } gs_out;
 
-float waveFreq = 0.5f;
 
 float waveHeight(vec2 pos, float time, float amplitude)
 {
     // skaluje pos, żeby uniknąć przeskoków przy większych tile
+    float waveFreq = waterTileMeshBuffer.waveParams.y;
     vec2 p = pos * waveFreq;  
 
     // fala wzdłuż X
