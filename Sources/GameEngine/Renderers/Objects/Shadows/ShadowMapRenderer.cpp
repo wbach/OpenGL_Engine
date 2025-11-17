@@ -9,9 +9,11 @@
 
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -92,11 +94,10 @@ void ShadowMapRenderer::init()
         auto& shadowFrameBuffer = shadowFrameBuffer_[cascadeIndex];
         shadowFrameBuffer       = &context_.graphicsApi_.CreateFrameBuffer({depthAttachment});
 
-        if (not context_.shadowsBufferId_)
-            context_.shadowsBufferId_ =
-                context_.graphicsApi_.CreateShaderBuffer(SHADOW_BUFFER_BIND_LOCATION, sizeof(ShadowsBuffer));
-        if (context_.shadowsBufferId_)
-            context_.graphicsApi_.BindShaderBuffer(*context_.shadowsBufferId_);
+        if (not shadowsBufferId_)
+            shadowsBufferId_ = context_.graphicsApi_.CreateShaderBuffer(SHADOW_BUFFER_BIND_LOCATION, sizeof(ShadowsBuffer));
+        if (shadowsBufferId_)
+            context_.graphicsApi_.BindShaderBuffer(*shadowsBufferId_);
 
         auto status = shadowFrameBuffer->Init();
 
@@ -109,8 +110,9 @@ void ShadowMapRenderer::init()
             return;
         }
 
-        context_.cascadedShadowMapsIds_[cascadeIndex] =
-            shadowFrameBuffer->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth);
+        auto shadowmapId = shadowFrameBuffer->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth);
+        context_.sharedTextures[magic_enum::enum_index(SharedTextures::shadowCascade0).value() + cascadeIndex] = shadowmapId;
+        LOG_DEBUG << "Shadow map casade : " << cascadeIndex << ", glid = " << shadowmapId;
     }
 
     // relevant to shadowbox
@@ -226,7 +228,7 @@ void ShadowMapRenderer::prepareFrameBuffer()
         buffer_.directionalLightSpace[cascadeIndex] =
             context_.graphicsApi_.PrepareMatrixToLoad(convertNdcToTextureCooridates(shadowMatrices[cascadeIndex]));
     }
-    context_.graphicsApi_.UpdateShaderBuffer(*context_.shadowsBufferId_, &buffer_);
+    context_.graphicsApi_.UpdateShaderBuffer(*shadowsBufferId_, &buffer_);
 }
 
 void ShadowMapRenderer::renderCascades()

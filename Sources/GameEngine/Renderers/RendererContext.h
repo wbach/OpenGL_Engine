@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "GameEngine/Engine/Configuration.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace Utils
 {
@@ -21,6 +22,15 @@ class PostprocessFrameBuffer;
 class Frustrum;
 class GeneralTexture;
 class IGpuResourceLoader;
+
+enum class SharedTextures
+{
+    skyTexture,
+    shadowCascade0,
+    shadowCascade1,
+    shadowCascade2,
+    shadowCascade3
+};
 
 struct RendererContext
 {
@@ -45,7 +55,6 @@ struct RendererContext
     Scene* scene_;
     vec3 fogColor_;
 
-    GraphicsApi::ID cascadedShadowMapsIds_[Params::MAX_SHADOW_MAP_CASADES];
-    GraphicsApi::ID shadowsBufferId_;
+    GraphicsApi::ID sharedTextures[magic_enum::enum_count<SharedTextures>()];
 };
 }  // namespace GameEngine

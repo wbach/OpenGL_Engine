@@ -62,5 +62,6 @@ private:
     IdType shadowEnabledSubscriptionId_;
     MeasurementValue* measurementValue_;
     uint32 rendererdMeshesCounter_;
+    GraphicsApi::ID shadowsBufferId_;
 };
 }  // namespace GameEngine

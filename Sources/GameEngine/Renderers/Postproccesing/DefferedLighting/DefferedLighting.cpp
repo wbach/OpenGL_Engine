@@ -3,6 +3,7 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -42,20 +43,24 @@ void DefferedLighting::Render(const Scene& scene)
     shader_.Start();
     LoadLights(scene);
     rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);
-    bindShadowMap(CASCADE_INDEX0, 5);
-    bindShadowMap(CASCADE_INDEX1, 6);
-    bindShadowMap(CASCADE_INDEX2, 7);
-    bindShadowMap(CASCADE_INDEX3, 8);
+
+    bindShadowMapCascades();
+
     rendererContext_.graphicsApi_.RenderQuad();
     RetriveChanges();
 }
 
-void DefferedLighting::bindShadowMap(uint32 id, uint32 nr) const
+void DefferedLighting::bindShadowMapCascades() const
 {
-    if (rendererContext_.cascadedShadowMapsIds_[id])
+    for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
     {
-        rendererContext_.graphicsApi_.ActiveTexture(nr);
-        rendererContext_.graphicsApi_.BindTexture(*rendererContext_.cascadedShadowMapsIds_[id]);
+        rendererContext_.graphicsApi_.ActiveTexture(5 + cascadeIndex);
+        auto shadomapIndex = magic_enum::enum_index(SharedTextures::shadowCascade0).value() + cascadeIndex;
+        auto shadowmapId   = rendererContext_.sharedTextures[shadomapIndex];
+        if (shadowmapId)
+        {
+            rendererContext_.graphicsApi_.BindTexture(*shadowmapId);
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 #pragma once
+#include "GameEngine/Lights/Light.h"
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "GameEngine/Lights/Light.h"
 
 namespace GameEngine
 {
@@ -26,17 +26,17 @@ private:
 
 public:
     DefferedLighting(RendererContext&);
-    virtual void Init() override;
-    virtual void Prepare() override;
-    virtual void Render(const Scene&) override;
-    virtual void ReloadShaders() override;
+    void Init() override;
+    void Prepare() override;
+    void Render(const Scene&) override;
+    void ReloadShaders() override;
 
 private:
     void LoadLights(const Scene& scene);
     void PrepareApiStateToRender();
     void RetriveChanges();
     void Convert(const Light& light, int index);
-    void bindShadowMap(uint32 id, uint32 nr) const;
+    void bindShadowMapCascades() const;
 
 private:
     ShaderProgram shader_;
