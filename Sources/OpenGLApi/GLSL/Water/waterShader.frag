@@ -139,7 +139,7 @@ void main(void)
 
     vec3 toCameraVector = normalize(perFrame.cameraPosition - gs_out.worldPos.xyz);
 
-    float refractiveFactor  = dot(toCameraVector, vec3(0, 1, 0));
+    float refractiveFactor  = dot(toCameraVector, gs_out.normal);
     refractiveFactor        = pow(refractiveFactor, 0.2);
     refractiveFactor        = clamp(refractiveFactor, 0.0f, 1.0f);
 

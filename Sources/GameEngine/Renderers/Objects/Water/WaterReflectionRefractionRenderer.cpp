@@ -192,8 +192,9 @@ void WaterReflectionRefractionRenderer::prepare()
 
         if (fbo)
         {
-            createReflectionTexture(*fbo);
-            createRefractionTexture(*fbo);
+            auto amplitude = subscriber.component_->waveAmplitude;
+            createReflectionTexture(*fbo, amplitude);
+            createRefractionTexture(*fbo, amplitude);
             subscriber.waterTextures_ = &fbo->waterTextures_;
         }
 
@@ -309,7 +310,7 @@ void WaterReflectionRefractionRenderer::renderScene()
     terrainShader_.Start();
     waterTexturesRendererdMeshesCounter_ += terrainMeshRenderer_.renderSubscribers();
 }
-void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo)
+void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo, float amplitude)
 {
     if (not fbo.refractionFrameBuffer_)
         return;
@@ -323,7 +324,7 @@ void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo)
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = camera.GetPosition();
-    perFrameBuffer.clipPlane            = vec4(0.f, -1.f, 0.f, fbo.positionY);
+    perFrameBuffer.clipPlane            = vec4(0.f, -1.f, 0.f, fbo.positionY + amplitude);
 
     context_.graphicsApi_.UpdateShaderBuffer(*refractionPerFrameBuffer_, &perFrameBuffer);
     auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*refractionPerFrameBuffer_);
@@ -338,7 +339,7 @@ Quaternion filpPitch(const Rotation& rotation)
 {
     return Quaternion(rotation.value_.w, rotation.value_.z, -rotation.value_.y, -rotation.value_.x);
 }
-void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo)
+void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo, float amplitude)
 {
     if (not fbo.reflectionFrameBuffer_)
         return;
@@ -361,7 +362,7 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo)
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = cameraPosition;
-    perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -fbo.positionY);
+    perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -(fbo.positionY - amplitude));
 
     context_.graphicsApi_.UpdateShaderBuffer(*reflectionPerFrameBuffer_, &perFrameBuffer);
     auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*reflectionPerFrameBuffer_);

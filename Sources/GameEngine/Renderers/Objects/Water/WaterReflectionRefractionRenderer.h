@@ -73,8 +73,8 @@ private:
     void initResources();
     void cleanUp() override;
     void renderScene();
-    void createRefractionTexture(WaterFbo&);
-    void createReflectionTexture(WaterFbo&);
+    void createRefractionTexture(WaterFbo&, float);
+    void createReflectionTexture(WaterFbo&, float);
     void cleanNotUsedFbos();
     WaterFbo* getFbo(uint32, Subscriber&);
     WaterFbo* findFbo(float);
