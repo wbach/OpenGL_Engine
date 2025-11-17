@@ -34,9 +34,6 @@ public:
     void render() override;
 
 private:
-    PerObjectUpdate CalculateTransformMatrix(const vec3&, const vec3&) const;
-
-private:
     WaterReflectionRefractionRenderer waterReflectionRefractionRenderer_;
     RendererContext& context_;
     ShaderProgram shader_;

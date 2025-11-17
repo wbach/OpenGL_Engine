@@ -17,6 +17,7 @@ struct WaterTileMeshBuffer
     AlignWrapper<vec4> tilePosAndScale;
     AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     AlignWrapper<vec4> waveParams;
+    AlignWrapper<vec4> projParams;
 };
 
 const float useSimpleRender{1.f};
@@ -63,6 +64,8 @@ void WaterRenderer::render()
     waterTileMeshBuffer.waterColor     = vec4(0, 0, 0, 1.f);
     waterTileMeshBuffer.params         = vec4(0, 0, 0, 0.f);
     waterTileMeshBuffer.params.value.w = useSimpleRender;
+    waterTileMeshBuffer.projParams.value.x = context_.projection_.GetNear();
+    waterTileMeshBuffer.projParams.value.y = context_.projection_.GetFar();
 
     for (auto& [gameObjectId, subscriber] : subscribers_)
     {
@@ -144,11 +147,6 @@ void WaterRenderer::render()
         }
     }
     context_.graphicsApi_.DisableBlend();
-}
-PerObjectUpdate WaterRenderer::CalculateTransformMatrix(const vec3& position, const vec3& scale) const
-{
-    return {
-        context_.graphicsApi_.PrepareMatrixToLoad(Utils::CreateTransformationMatrix(position, DegreesVec3(-90, 0, 0), scale))};
 }
 void WaterRenderer::subscribe(GameObject& gameObject)
 {

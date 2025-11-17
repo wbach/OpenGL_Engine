@@ -3,8 +3,6 @@
 const float waveStrength = 0.02 ;
 const float shineDamper  = 20.0f;
 const float reflectivity = 0.6f;
-const float near         = 0.1f;
-const float far          = 1000.0f;
 
 layout (std140,binding=1) uniform PerFrame
 {
@@ -19,6 +17,7 @@ layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
     vec4 tilePosAndScale;
     vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
     vec4 waveParams;
+    vec4 projParams;
 } waterTileMeshBuffer;
 
 in GS_OUT
@@ -42,6 +41,10 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
+
+const float EDGE_DEPTH_SCALE = 50.0; 
+const float EDGE_MIN_FACTOR  = 0.01;  
+const float EDGE_MAX_FACTOR  = 0.09;  
 bool Is(float v)
 {
     return v > .5f;
@@ -49,14 +52,16 @@ bool Is(float v)
 
 float calculateDistance(float depth)
 {
+    const float near         = waterTileMeshBuffer.projParams.x;
+    const float far          = waterTileMeshBuffer.projParams.y;
     return 2.f * near * far / (far + near - (2.f * depth - 1.f) * (far - near));
 }
 
 float calculateEdgesFactor(float waterDepth)
 {
-    return clamp(waterDepth / 50.f, 0.01f, 0.09f);
+    float factor = waterDepth / EDGE_DEPTH_SCALE;
+    return clamp(factor, EDGE_MIN_FACTOR, EDGE_MAX_FACTOR);
 }
-
 float calculateWaterDepth(vec2 refractTexCoords)
 {
     float floorDistance = calculateDistance(texture(depthMap, refractTexCoords).r);
@@ -113,12 +118,14 @@ void main(void)
     vec3 normal = calculateWorldNormal(normalMapValue);
     vec3 normalGS = normalize(gs_out.normal);  
 
+    DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 1.0f);
+    NormalOut        = vec4(normal, 1.f);
+
+
     float isSimpleRender = waterTileMeshBuffer.params.w;
     if (Is(isSimpleRender))
     {
        //DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f);
-        DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 1.0f);
-        NormalOut        = vec4(normal, 1.f);
         return;
     }
 
@@ -151,7 +158,8 @@ void main(void)
     if (waterDepth < 1)
     {
         colorInte = 0.f;
-    }else if (waterDepth > scaleDepth*maxDepth)
+    }
+    else if (waterDepth > scaleDepth * maxDepth)
     {
         colorInte = 1.f;
     }
@@ -161,11 +169,19 @@ void main(void)
     }
 
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
-    refractColor      = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), colorInte);
-
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
-    // DiffuseOut = reflectColor;
-    DiffuseOut        = mix(reflectColor, refractColor, refractiveFactor);
+
+    const float far          = waterTileMeshBuffer.projParams.y;
+    float depth = calculateWaterDepth(refractTexCoords) / far;
+    bool isUnderwater = depth < 0.5f;
+    if (!isUnderwater)
+    {
+       refractColor = vec4(0, 0 ,0, 1);
+    }
     DiffuseOut.a = 1.f;
-    NormalOut         = vec4(normal, 1.f);
+
+
+    refractColor    = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), colorInte);
+    DiffuseOut      = mix(reflectColor, refractColor, refractiveFactor);
+    DiffuseOut.a    = 1.0;
 }

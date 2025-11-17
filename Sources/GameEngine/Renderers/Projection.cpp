@@ -119,6 +119,8 @@ const vec2ui &Projection::GetRenderingSize() const
 }
 void Projection::CreateProjectionMatrix()
 {
+    LOG_DEBUG << "Create projection matrix. FOV: " << fov_ << ", AR: " << aspectRatio_ << ", NEAR: " << nearPlane_
+              << ", FAR: " << farPlane_;
     projectionMatrix_ = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
 }
 void Projection::OrthographiProjection()
