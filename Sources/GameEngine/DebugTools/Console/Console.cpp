@@ -100,6 +100,7 @@ void Console::RegisterActions()
     commandsActions_.insert({"timespeed", [this](const auto &params) { SetTimeMulitplayer(params); }});
     commandsActions_.insert({"camera", [this](const auto &params) { CameraInfo(params); }});
     commandsActions_.insert({"exit", [this](const auto &params) { Exit(params); }});
+    commandsActions_.insert({"drender", [this](const auto &params) { DebugRender(params); }});
     commandsActions_.insert({"quit", [this](const auto &params) { Exit(params); }});
 }
 
@@ -713,6 +714,23 @@ void Console::PrepareConsoleWindow()
                                                              SubscribeKeys();
                                                          });
                                                  });
+}
+void Console::DebugRender(const std::vector<std::string> &params)
+{
+    if (params.empty())
+    {
+        return;
+    }
+
+    try
+    {
+        auto &debugRenderer = scene_.renderersManager_->GetDebugRenderer();
+        debugRenderer.AddTextureToRender(std::stoi(params[0]));
+    }
+    catch (...)
+    {
+        LOG_ERROR << "DebugRender error";
+    }
 }
 }  // namespace Debug
 }  // namespace GameEngine

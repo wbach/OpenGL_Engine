@@ -328,6 +328,8 @@ void DebugRenderer::render()
                 break;
         }
     }
+
+    renderTextures(texturesToRender);
 }
 
 void DebugRenderer::clear()
@@ -587,5 +589,17 @@ void DebugRenderer::BindMeshBuffers(const Mesh& mesh) const
     {
         rendererContext_.graphicsApi_.BindShaderBuffer(*perMeshObjectBuffer);
     }
+}
+void DebugRenderer::RemoveTextureToRender(GraphicsApi::ID id)
+{
+    auto iter = std::find(texturesToRender.begin(), texturesToRender.end(), id);
+    if (iter != texturesToRender.end())
+    {
+        texturesToRender.erase(iter);
+    }
+}
+void DebugRenderer::AddTextureToRender(GraphicsApi::ID id)
+{
+    texturesToRender.push_back(id);
 }
 }  // namespace GameEngine

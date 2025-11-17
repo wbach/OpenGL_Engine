@@ -45,7 +45,6 @@ class RendererComponent;
 class TerrainRendererComponent;
 }  // namespace Components
 
-
 struct DebugObject
 {
     DebugObject(GraphicsApi::IGraphicsApi&, Model&, common::Transform&);
@@ -107,6 +106,8 @@ public:
     bool IsStateEnabled(RenderState) const;
     const std::vector<RenderState>& GetStates() const;
     void clearDebugObjects();
+    void AddTextureToRender(GraphicsApi::ID id);
+    void RemoveTextureToRender(GraphicsApi::ID id);
 
 private:
     void CreateDebugObjects();
@@ -145,6 +146,8 @@ private:
 
     std::vector<RenderState> states_;
     std::vector<RenderState> stashedStates_;
+
+    std::vector<GraphicsApi::ID> texturesToRender;
 };
 
 }  // namespace GameEngine

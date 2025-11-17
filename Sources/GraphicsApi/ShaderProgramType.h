@@ -19,6 +19,7 @@ enum class ShaderProgramType
     ForwardSkyBox,
     SkyBox,
     Skydome,
+    Sky,
     Terrain,
     TerrainMesh,
     SimpleForwardTerrainMesh,

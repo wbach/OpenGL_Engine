@@ -20,6 +20,7 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     : BaseRenderer(context)
     , defferedFrameBuffer_(nullptr)
     , postprocessingRenderersManager_(context)
+    , skyPassRenderer(context)
     , isReady_(false)
 {
 }
@@ -58,6 +59,8 @@ void DefferedRenderer::init()
     initRenderers();
     postprocessingRenderersManager_.Init();
 
+    skyPassRenderer.Init();
+
     LOG_DEBUG << "DefferedRenderer initialized.";
 }
 
@@ -65,6 +68,7 @@ void DefferedRenderer::reloadShaders()
 {
     BaseRenderer::reloadShaders();
     postprocessingRenderersManager_.ReloadShaders();
+    skyPassRenderer.ReloadShaders();
 }
 void DefferedRenderer::setViewPort()
 {
@@ -78,6 +82,8 @@ void DefferedRenderer::bindDefferedFbo()
 }
 void DefferedRenderer::unbindDefferedFbo()
 {
+    if (auto depthTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth))
+        skyPassRenderer.Render(*depthTextureId);
     postprocessingRenderersManager_.Render(*defferedFrameBuffer_, *context_.scene_);
 }
 

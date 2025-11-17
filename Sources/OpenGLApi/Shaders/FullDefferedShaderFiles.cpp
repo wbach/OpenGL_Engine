@@ -204,6 +204,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::Sky,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Sky/Sky.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/Sky.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::Font,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Font/fontVertex.vert"},

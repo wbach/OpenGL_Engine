@@ -10,11 +10,6 @@ namespace GameEngine
 {
 namespace Components
 {
-namespace
-{
-const std::string COMPONENT_STR{"Skydome"};
-}  // namespace
-
 SkydomeComponent::SkydomeComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<SkydomeComponent>(), componentContext, gameObject)
     , model_(nullptr)
@@ -75,7 +70,7 @@ void SkydomeComponent::registerReadFunctions()
 }
 void SkydomeComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({ CSTR_TYPE, COMPONENT_STR });
+    node.attributes_.insert({ CSTR_TYPE, GetTypeName() });
 }
 }  // namespace Components
 }  // namespace GameEngine

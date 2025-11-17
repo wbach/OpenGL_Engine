@@ -1,7 +1,9 @@
 #pragma once
 #include <optional>
+
 #include "BaseRenderer.h"
 #include "GraphicsApi/IFrameBuffer.h"
+#include "SkyPassRenderer/SkyPassRenderer.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -28,6 +30,8 @@ private:
     GraphicsApi::IFrameBuffer* defferedFrameBuffer_;
     std::optional<vec2ui> defferedFrameBufferSize_;
     PostProcessingManager postprocessingRenderersManager_;
+
+    SkyPassRenderer skyPassRenderer;
     bool isReady_;
 };
 }  // namespace GameEngine
