@@ -8,6 +8,7 @@
 #include "Logger/Log.h"
 #include "Types.h"
 #include "glm/matrix.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -44,6 +45,7 @@ void SkyPassRenderer::Init()
     frameBuffer      = &context.graphicsApi_.CreateFrameBuffer({color});
     isReady          = frameBuffer->Init();
     auto atachmentId = frameBuffer->GetAttachmentTexture(Type::Color0);
+    context.sharedTextures[magic_enum::enum_index(SharedTextures::skyTexture).value()] = atachmentId;
     LOG_DEBUG << "Framebuffer for sky created. Id: " << frameBuffer->GetId() << ", ColorAttachmentId = " << atachmentId;
 }
 void SkyPassRenderer::Prepare()

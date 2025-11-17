@@ -66,10 +66,11 @@ layout(binding = 1) uniform sampler2D ColorMap;
 layout(binding = 2) uniform sampler2D NormalMap;
 layout(binding = 3) uniform sampler2D SpecularMap;
 layout(binding = 4) uniform sampler2D DepthTexture;
-layout(binding = 5) uniform sampler2DShadow shadowMap0;
-layout(binding = 6) uniform sampler2DShadow shadowMap1;
-layout(binding = 7) uniform sampler2DShadow shadowMap2;
-layout(binding = 8) uniform sampler2DShadow shadowMap3;
+layout(binding = 5) uniform sampler2D SkyTexture;
+layout(binding = 6) uniform sampler2DShadow shadowMap0;
+layout(binding = 7) uniform sampler2DShadow shadowMap1;
+layout(binding = 8) uniform sampler2DShadow shadowMap2;
+layout(binding = 9) uniform sampler2DShadow shadowMap3;
 
 in VS_OUT
 {
@@ -355,8 +356,16 @@ float CalculateShadowFactor(vec3 worldPos)
 
 void main()
 {
-   // FragColor = texture(PositionMap, vs_in.textureCoords); return;
+   // FragColor = texture(SkyTexture, vs_in.textureCoords); return;
     float distance  = ToZBuffer(DepthTexture, vs_in.textureCoords);
+
+    float depth = texture(DepthTexture, vs_in.textureCoords).r;
+    if (depth >= 1.0)
+    {
+        vec3 sky = texture(SkyTexture, vs_in.textureCoords).rgb;
+        FragColor = vec4(sky, 1.0);
+        return;
+    }
 
     vec4 normal4    = texture(NormalMap, vs_in.textureCoords);
     vec4 specular   = texture(SpecularMap, vs_in.textureCoords);
