@@ -20,19 +20,17 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLuint> AttachmentType 
     {GraphicsApi::FrameBuffer::Type::Color5, GL_COLOR_ATTACHMENT5},
     {GraphicsApi::FrameBuffer::Type::Depth, GL_DEPTH_ATTACHMENT}};
 
-const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLenum> BufferType = {
-    {GraphicsApi::FrameBuffer::Type::Color0, GL_COLOR},
-    {GraphicsApi::FrameBuffer::Type::Color1, GL_COLOR},
-    {GraphicsApi::FrameBuffer::Type::Color2, GL_COLOR},
-    {GraphicsApi::FrameBuffer::Type::Color3, GL_COLOR},
-    {GraphicsApi::FrameBuffer::Type::Depth, GL_DEPTH}};
+const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLenum> BufferType = {{GraphicsApi::FrameBuffer::Type::Color0, GL_COLOR},
+                                                                               {GraphicsApi::FrameBuffer::Type::Color1, GL_COLOR},
+                                                                               {GraphicsApi::FrameBuffer::Type::Color2, GL_COLOR},
+                                                                               {GraphicsApi::FrameBuffer::Type::Color3, GL_COLOR},
+                                                                               {GraphicsApi::FrameBuffer::Type::Depth, GL_DEPTH}};
 
-const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLint> DrawBufferIndex = {
-    {GraphicsApi::FrameBuffer::Type::Color0, 0},
-    {GraphicsApi::FrameBuffer::Type::Color1, 1},
-    {GraphicsApi::FrameBuffer::Type::Color2, 2},
-    {GraphicsApi::FrameBuffer::Type::Color3, 3},
-    {GraphicsApi::FrameBuffer::Type::Depth, 0}};
+const std::unordered_map<GraphicsApi::FrameBuffer::Type, GLint> DrawBufferIndex = {{GraphicsApi::FrameBuffer::Type::Color0, 0},
+                                                                                   {GraphicsApi::FrameBuffer::Type::Color1, 1},
+                                                                                   {GraphicsApi::FrameBuffer::Type::Color2, 2},
+                                                                                   {GraphicsApi::FrameBuffer::Type::Color3, 3},
+                                                                                   {GraphicsApi::FrameBuffer::Type::Depth, 0}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> InternalFormat = {
     {GraphicsApi::FrameBuffer::Format::Rgba8, GL_RGBA8},
@@ -46,11 +44,10 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> DataType = {
     {GraphicsApi::FrameBuffer::Format::Rgba32f, GL_FLOAT},
     {GraphicsApi::FrameBuffer::Format::Depth, GL_FLOAT}};
 
-const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {
-    {GraphicsApi::FrameBuffer::Format::Rgba8, 4},
-    {GraphicsApi::FrameBuffer::Format::Rgba16f, 4},
-    {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
-    {GraphicsApi::FrameBuffer::Format::Depth, 4}};
+const std::unordered_map<GraphicsApi::FrameBuffer::Format, GLint> Channels = {{GraphicsApi::FrameBuffer::Format::Rgba8, 4},
+                                                                              {GraphicsApi::FrameBuffer::Format::Rgba16f, 4},
+                                                                              {GraphicsApi::FrameBuffer::Format::Rgba32f, 4},
+                                                                              {GraphicsApi::FrameBuffer::Format::Depth, 4}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::CompareMode, GLint> CompareMode = {
     {GraphicsApi::FrameBuffer::CompareMode::None, GL_NONE},
@@ -60,8 +57,7 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Filter, GLint> Filter = {
     {GraphicsApi::FrameBuffer::Filter::Nearest, GL_NEAREST}, {GraphicsApi::FrameBuffer::Filter::Linear, GL_LINEAR}};
 
 const std::unordered_map<GraphicsApi::FrameBuffer::WrapMode, GLint> WrapMode = {
-    {GraphicsApi::FrameBuffer::WrapMode::Repeat, GL_REPEAT},
-    {GraphicsApi::FrameBuffer::WrapMode::ClampToEdge, GL_CLAMP_TO_EDGE}};
+    {GraphicsApi::FrameBuffer::WrapMode::Repeat, GL_REPEAT}, {GraphicsApi::FrameBuffer::WrapMode::ClampToEdge, GL_CLAMP_TO_EDGE}};
 }  // namespace
 
 FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
@@ -73,7 +69,7 @@ FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuf
 
 FrameBuffer::~FrameBuffer()
 {
-    /* LOG TO FIX*/  LOG_ERROR << (std::to_string(GetId()));
+    LOG_DEBUG << GetId();
 }
 
 bool FrameBuffer::Init()
@@ -82,7 +78,7 @@ bool FrameBuffer::Init()
     auto errorString = GetGlError();
     if (not errorString.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << (errorString);
+        LOG_ERROR << errorString;
         return false;
     }
     Bind();
@@ -91,11 +87,11 @@ bool FrameBuffer::Init()
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Framebuffer error, status: " + std::to_string(status));
+        LOG_ERROR << "Framebuffer error, status: " << status;
         UnBind();
         return false;
     }
-    /* LOG TO FIX*/  LOG_ERROR << ("Succesful create framebuffer. " + std::to_string(GetId()) + ", glId :" + std::to_string(glId_));
+    LOG_DEBUG << "Succesful create framebuffer. " << GetId() << ", glId :" << glId_;
     UnBind();
     return true;
 }
@@ -131,7 +127,7 @@ void FrameBuffer::UnBind()
     auto errorString = GetGlError();
     if (not errorString.empty())
     {
-        /* LOG TO FIX*/  LOG_ERROR << (errorString + ", framebuffer id " + std::to_string(GetId()));
+        LOG_ERROR << errorString << ", framebuffer id " << GetId();
     }
 }
 
@@ -195,7 +191,7 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
                     format = GL_RGBA;
                     break;
                 default:
-                    /* LOG TO FIX*/  LOG_ERROR << ("Undef format.");
+                    LOG_ERROR << "Undef format.";
                     continue;
             }
         }
@@ -215,8 +211,7 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
                 std::vector<float> floatdata;
                 floatdata.resize(dataSize);
                 glGetTexImage(GL_TEXTURE_2D, 0, format, GL_FLOAT, &floatdata[0]);
-                Utils::ConvertImageData<float>(floatdata, outputData, static_cast<size_t>(attachment.textureChannels_),
-                                               255.f);
+                Utils::ConvertImageData<float>(floatdata, outputData, static_cast<size_t>(attachment.textureChannels_), 255.f);
             }
             break;
         }
@@ -255,7 +250,7 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         auto errorString = GetGlError();
         if (not errorString.empty())
         {
-            /* LOG TO FIX*/  LOG_ERROR << (errorString);
+            LOG_ERROR << errorString;
             continue;
         }
 
