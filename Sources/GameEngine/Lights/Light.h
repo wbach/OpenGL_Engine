@@ -21,6 +21,7 @@ public:
     vec3 GetDirection() const;
     float GetCutoff() const;
     void SetType(LightType type);
+    void CalculateDirection(const vec3& targetPosition);
 
 private:
     LightType type;

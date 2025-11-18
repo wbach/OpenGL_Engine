@@ -999,7 +999,7 @@ void MainFrame::CreateToolBarForEngine()
     toolbar->AddControl(hourCtrl);
 
     minuteCtrl = new wxSpinCtrl(toolbar, wxID_ANY, "0", wxDefaultPosition, wxSize(50, -1));
-    minuteCtrl->SetRange(0, 59);
+    minuteCtrl->SetRange(-1, 60);
     toolbar->AddControl(minuteCtrl);
 
     // Suwak godziny (0-24)
@@ -1039,9 +1039,49 @@ void MainFrame::CreateToolBarForEngine()
     minuteCtrl->Bind(wxEVT_SPINCTRL,
                      [this](wxSpinEvent& evt)
                      {
+                         int val = evt.GetInt();
+
+                         // -------------------------
+                         // WRAP UP (59 → 60 → 0)
+                         // -------------------------
+                         if (val == 60)
+                         {
+                             minuteCtrl->SetValue(0);
+
+                             int hour = hourCtrl->GetValue();
+                             hour     = (hour + 1) % 24;
+                             hourCtrl->SetValue(hour);
+
+                             int totalMinutes = hour * 60;
+                             float normalized = totalMinutes / 1440.0f;
+                             canvas->GetScene().GetDayNightCycle().SetTime(normalized);
+                             timeSlider->SetValue(totalMinutes);
+                             return;
+                         }
+
+                         // -------------------------
+                         // WRAP DOWN (0 → -1 → 59)
+                         // -------------------------
+                         if (val == -1)
+                         {
+                             minuteCtrl->SetValue(59);
+
+                             int hour = hourCtrl->GetValue();
+                             hour     = (hour - 1 + 24) % 24;
+                             hourCtrl->SetValue(hour);
+
+                             int totalMinutes = hour * 60 + 59;
+                             float normalized = totalMinutes / 1440.0f;
+                             canvas->GetScene().GetDayNightCycle().SetTime(normalized);
+                             timeSlider->SetValue(totalMinutes);
+                             return;
+                         }
+
+                         // -------------------------
+                         // NORMAL CASE
+                         // -------------------------
                          int hour         = hourCtrl->GetValue();
-                         int minute       = evt.GetInt();
-                         int totalMinutes = hour * 60 + minute;
+                         int totalMinutes = hour * 60 + val;
 
                          float normalized = totalMinutes / 1440.0f;
                          canvas->GetScene().GetDayNightCycle().SetTime(normalized);

@@ -3,6 +3,11 @@
 
 namespace GameEngine
 {
+inline float CalculateTime(int hour, int minute)
+{
+    return (hour + minute / 60.0f) / 24.0f;
+}
+
 class GameTime
 {
 public:
@@ -14,7 +19,7 @@ public:
     };
 
     using DeltaTime = float;
-    using Time = float;
+    using Time      = float;
 
     GameTime();
     virtual ~GameTime() = default;
@@ -39,9 +44,9 @@ protected:
 inline GameTime::HourMinuteSecond GameTime::GetHourMinuteSecond() const
 {
     int totalSeconds = static_cast<int>(GetSeconds());
-    int hour   = totalSeconds / 3600;
-    int minute = (totalSeconds % 3600) / 60;
-    int second = totalSeconds % 60;
+    int hour         = totalSeconds / 3600;
+    int minute       = (totalSeconds % 3600) / 60;
+    int second       = totalSeconds % 60;
     return {hour, minute, second};
 }
 inline float GameTime::GetHours() const

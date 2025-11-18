@@ -1,6 +1,7 @@
 #include "DayNightCycle.h"
 
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Time/GameTime.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -13,10 +14,10 @@ DayNightCycle::DayNightCycle(Light* directionalLight)
     , sunSetColor(Utils::RGBtoFloat(253.f, 94.f, 83.f))
     , nightColor(vec3(.01f))
     , dayNightBlendFactor(0.5f)
-    , dayStart(.45f)
-    , dayEnd(.75f)
-    , nightStart(.95f)
-    , nightEnd(0.25f)
+    , dayStart(CalculateTime(9, 00))
+    , dayEnd(CalculateTime(18, 00))
+    , nightStart(CalculateTime(21, 00))
+    , nightEnd(CalculateTime(6, 00))
 {
     morningDuration = dayStart - nightEnd;
     eveningDuration = nightStart - dayEnd;
@@ -94,23 +95,71 @@ void DayNightCycle::UpdateSunColor()
     }
 }
 
+bool inRange(float t, float a, float b)
+{
+    if (a < b)
+        return (t >= a && t <= b);
+    return (t >= a || t <= b); // wrap-around przez zero
+}
+
 void DayNightCycle::UpdateSunPosition()
 {
-    if (directionalLight == nullptr)
-    {
-        LOG_WARN << "Directional light not set in DayNightCycle but is used.";
+    if (!directionalLight)
         return;
-    }
-    vec3 current_pos = directionalLight->GetPosition();
 
-    float m_SunAngle = currentTime_ * 360.f;
-    float rad        = (m_SunAngle) * static_cast<float>(M_PI) / 180.0f + static_cast<float>(M_PI) / 2.f;
-    current_pos.x    = defaultSunPos.x * cos(rad);
-    current_pos.y    = defaultSunPos.y * fabs(cos(rad / 2.f)) + 1000.f;
-    current_pos.z    = defaultSunPos.z * sin(rad);
-    directionalLight->SetPosition(current_pos);
-    // Utils::PrintVector("", current_pos);
-    // std::cout << m_SunAngle << std::endl;
+    float radius = 15000.f;
+    glm::vec3 pos;
+    float angle;
+
+    float offset = 0.f;// CalculateTime(1, 0);
+
+    float nightStartO = fmod(nightStart + offset, 1.f);
+    float nightEndO   = fmod(nightEnd   - offset + 1.f, 1.f);
+
+    bool night = inRange(currentTime_, nightStartO, nightEndO);
+
+    if (!night)
+    {
+        // dzień (poranek + południe + wieczór)
+        float length = (nightStartO - nightEndO + 1.f);
+        if (length > 1.f) length -= 1.f;
+
+        float dayProgress;
+        if (currentTime_ >= nightEndO)
+            dayProgress = (currentTime_ - nightEndO) / length;
+        else
+            dayProgress = (currentTime_ + 1.f - nightEndO) / length;
+
+        angle = glm::pi<float>() * dayProgress;
+
+        pos.x = radius * cos(angle);
+        pos.z = radius * sin(angle);
+        pos.y = radius * sin(angle);
+
+        directionalLight->SetPosition(pos);
+    }
+    else
+    {
+        // noc (księżyc)
+        float length = (nightEndO - nightStartO + 1.f);
+        if (length > 1.f) length -= 1.f;
+
+        float nightProgress;
+        if (currentTime_ >= nightStartO)
+            nightProgress = (currentTime_ - nightStartO) / length;
+        else
+            nightProgress = (currentTime_ + 1.f - nightStartO) / length;
+
+        angle = glm::pi<float>() * (1.0f - nightProgress);
+
+        pos.x = radius * cos(angle);
+        pos.z = radius * sin(angle);
+        pos.y = radius * sin(angle);
+
+        directionalLight->SetPosition(pos);
+    }
+
+    LOG_DEBUG << "directionalLight dir : " << directionalLight->GetDirection();
 }
 
 void DayNightCycle::CalculateBlendFactor()
