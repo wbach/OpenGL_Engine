@@ -164,30 +164,24 @@ void DayNightCycle::UpdateSunPosition()
 
 void DayNightCycle::CalculateBlendFactor()
 {
-    // Full Night : 0.85 - 0.15
-    // Full Day :  0.35 - 0.65
-    // Blend time night-day : 0.15-0.35
-    // Blend time day-night : 0.65-0.85
-    if (IsNight())
+    if (IsMorning())
     {
-        dayNightBlendFactor = 0.f;
+        dayNightBlendFactor = (currentTime_ - nightEnd) / morningDuration;
+    }
+    else if (IsEvening())
+    {
+        dayNightBlendFactor = 1.f - (currentTime_ - dayEnd) / eveningDuration;
     }
     else if (IsDay())
     {
         dayNightBlendFactor = 1.f;
     }
-    else if (IsMorning())
-    {
-        dayNightBlendFactor = (currentTime_ - nightEnd) * 1.f / morningDuration;
-    }
-    else if (IsEvening())
-    {
-        dayNightBlendFactor = 1.f - (currentTime_ - dayEnd) * 1.f / eveningDuration;
-    }
-    else
+    else if (IsNight())
     {
         dayNightBlendFactor = 0.f;
     }
+    auto h = GetHourMinuteSecond();
+    LOG_DEBUG << h.hour << ":" << h.minute << ", dayNightBlendFactor: " << dayNightBlendFactor;
 }
 
 void DayNightCycle::SetDirectionalLight(Light* light)
@@ -207,22 +201,22 @@ const vec2i DayNightCycle::GetCurrentHour() const
 
 bool DayNightCycle::IsDay() const
 {
-    return (currentTime_ > dayStart && currentTime_ < dayEnd);
+    return (currentTime_ > dayStart && currentTime_ <= dayEnd);
 }
 
 bool DayNightCycle::IsNight() const
 {
-    return (currentTime_ > nightStart || currentTime_ < nightEnd);
+    return (currentTime_ > nightStart || currentTime_ <= nightEnd);
 }
 
 bool DayNightCycle::IsMorning() const
 {
-    return (currentTime_ > nightEnd && currentTime_ < dayStart);
+    return (currentTime_ > nightEnd && currentTime_ <= dayStart);
 }
 
 bool DayNightCycle::IsEvening() const
 {
-    return (currentTime_ > dayEnd && currentTime_ < nightStart);
+    return (currentTime_ > dayEnd && currentTime_ <= nightStart);
 }
 
 bool DayNightCycle::IsFirstHalfMorning() const

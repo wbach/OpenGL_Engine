@@ -27,6 +27,30 @@ float smoothSunDisk(float cosAngle, float angularRadius)
     return smoothstep(outer, inner, cosAngle);
 }
 
+float hash12(vec2 p)
+{
+    vec3 p3  = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+float starField(vec3 worldRay)
+{
+    // kąty sferyczne
+    float theta = acos(clamp(worldRay.y, -1.0, 1.0)); // 0..pi
+    float phi   = atan(worldRay.z, worldRay.x);       // -pi..pi
+
+    // siatka
+    float scale = 400.0;
+    vec2 cell = floor(vec2(theta, phi) * scale);
+
+    // hash 2D
+    float h = hash12(cell);
+
+    // próg dla gwiazdy
+    float threshold = 0.9991; // im mniejszy prog tym wiecej gwiazd
+    return step(threshold, h);
+}
 void main()
 {
     vec2 uv = gl_FragCoord.xy / skyBuffer.screenSize.xy;
@@ -47,8 +71,7 @@ void main()
     // --- SUN / MOON DIR & COLORS ---
     vec3 sunDir = normalize(-skyBuffer.sunDirection.xyz); // NOTE: minus!
     vec3 sunCol = skyBuffer.sunColor.rgb;
-    float isNight = skyBuffer.sunColor.a; // 0 = day, 1 = night
-    float dayFactor = 1.0 - isNight;
+    float dayFactor = skyBuffer.sunColor.a;
 
     // sun elevation
     float elevation = clamp(dot(sunDir, vec3(0,1,0)), 0.0, 1.0);
@@ -91,13 +114,24 @@ void main()
     vec3 moonColor = vec3(0.7, 0.75, 1.0);
 
     // finalny kolor tarczy
-    vec3 sunOrMoonColor = mix(sunDayColor, moonColor, isNight);
+    vec3 sunOrMoonColor = mix(sunDayColor, moonColor, 1.f - dayFactor);
 
     vec3 sunFinal = sunOrMoonColor * SUN_INTENSITY * 
                     (sunDisk + sunHalo * haloStrength);
 
-    // --- FINAL COLOR ---
+
     vec3 finalSky = sky + sunFinal;
+
+    sunDir = normalize(skyBuffer.sunDirection.xyz);
+    elevation = sunDir.y;
+
+    // --- gwiazdy ---
+    float starBlend = smoothstep(0.0, 1.2, 1.f - skyBuffer.sunColor.a);
+    float horizonFactor = clamp(worldRay.y, 0.0, 1.0);
+    horizonFactor = pow(horizonFactor, 1.1);
+    vec3 starsColor = vec3(starField(worldRay)) * horizonFactor * starBlend;
+    finalSky = finalSky + starsColor;
+    
 
     outSkyColor = vec4(finalSky, 1.0);
 }

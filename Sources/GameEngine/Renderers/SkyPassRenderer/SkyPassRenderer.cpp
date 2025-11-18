@@ -70,7 +70,7 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
     buffer.screenSize    = vec4(frameBufferSize->x, frameBufferSize->y, 0.0, 0.0);
     const auto& dirLight = context.scene_->GetDirectionalLight();
     buffer.sunDirection  = vec4(glm::normalize(dirLight.GetDirection()), 0.0f);
-    buffer.sunColor      = vec4(dirLight.GetColour(), context.scene_->GetDayNightCycle().IsNight());
+    buffer.sunColor      = vec4(dirLight.GetColour(), context.scene_->GetDayNightCycle().GetDayNightBlendFactor());
 
     context.graphicsApi_.UpdateShaderBuffer(*bufferId, &buffer);
     context.graphicsApi_.BindShaderBuffer(*bufferId);
