@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <Utils/Image/Image.h>
 #include "Texture.h"
+#include <mutex>
 
 namespace GameEngine
 {

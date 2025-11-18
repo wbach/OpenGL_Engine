@@ -1,5 +1,7 @@
 #include "StartupDialog.h"
 
+#include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Engine/ConfigurationWriter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
 #include <GameEngine/Scene/SceneUtils.h>
 #include <Logger/Log.h>
@@ -11,8 +13,6 @@
 #include <filesystem>
 #include <fstream>
 
-#include "Engine/Configuration.h"
-#include "Engine/ConfigurationWriter.h"
 #include "ProjectsCMakeTemplate.h"
 #include "WxEditor/ProjectManager.h"
 

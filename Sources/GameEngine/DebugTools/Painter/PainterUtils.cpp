@@ -1,4 +1,5 @@
 #include "PainterUtils.h"
+#include <algorithm>
 
 namespace GameEngine
 {
