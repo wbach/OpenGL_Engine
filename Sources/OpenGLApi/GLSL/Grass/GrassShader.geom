@@ -1,6 +1,6 @@
 #version 440 core
 const vec3 up = vec3(0, 1, 0);
-const int SEGMENTS = 5;
+const int SEGMENTS = 4; // rtx 4070 tis max_vertices = 64 max
 
 layout (points) in;
 layout (triangle_strip, max_vertices = SEGMENTS * 16) out;
