@@ -35,8 +35,7 @@ public:
         , selectedA{true}
         , status_{fboA.Init() and fboB.Init()}
     {
-        // LOG_DEBUG << "attachment = " << magic_enum::enum_name(attachment.type) << ", format: " <<
-        // magic_enum::enum_name(attachment.format);
+        LOG_DEBUG << "Postprocessing buffer size: " << size;
         LOG_DEBUG << "FrameBuffersManager, fboA id = " << fboA.GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
         LOG_DEBUG << "FrameBuffersManager, fboB id = " << fboB.GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
     }

@@ -119,6 +119,9 @@ void DefferedRenderer::updateDefferedFrameBufferIfNeeded()
     context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
     createFrameBuffer();
 
+    skyPassRenderer.CleanUp();
+    skyPassRenderer.Init();
+
     postprocessingRenderersManager_.OnSizeChanged();
 }
 

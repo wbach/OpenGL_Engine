@@ -3,17 +3,9 @@
 #include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {
-namespace
-{
-const uint32 CASCADE_INDEX0 = 0;
-const uint32 CASCADE_INDEX1 = 1;
-const uint32 CASCADE_INDEX2 = 2;
-const uint32 CASCADE_INDEX3 = 3;
-}  // namespace
 DefferedLighting::DefferedLighting(RendererContext& context)
     : PostprocessingRenderer(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Deffered)

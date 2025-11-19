@@ -10,15 +10,17 @@ class SkyPassRenderer
 {
 public:
     SkyPassRenderer(RendererContext&);
+    ~SkyPassRenderer();
+
     void Init();
-    void Prepare();
+    void CleanUp();
     void Render(uint32);
     void ReloadShaders();
 
 private:
     RendererContext& context;
     ShaderProgram shader;
-    GraphicsApi::IFrameBuffer* frameBuffer;
+    GraphicsApi::IFrameBuffer* frameBuffer{nullptr};
     std::optional<vec2ui> frameBufferSize;
     bool isReady{false};
     std::optional<IdType> bufferId;

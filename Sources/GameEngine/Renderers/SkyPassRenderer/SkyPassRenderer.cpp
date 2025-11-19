@@ -20,7 +20,7 @@ struct SkyPassBuffer
     mat4 invViewRot;
     AlignWrapper<vec4> screenSize;
     AlignWrapper<vec4> sunDirection;
-    AlignWrapper<vec4> sunColor; //w is night
+    AlignWrapper<vec4> sunColor;  // w is night
 };
 
 }  // namespace
@@ -39,19 +39,19 @@ void SkyPassRenderer::Init()
         bufferId = context.graphicsApi_.CreateShaderBuffer(BIND_LOCATION, sizeof(SkyPassBuffer));
     }
 
-    using namespace GraphicsApi::FrameBuffer;
-    const uint32 renderingScale = 1;
-    frameBufferSize             = context.projection_.GetRenderingSize() / renderingScale;
-    Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
+    if (not frameBuffer)
+    {
+        using namespace GraphicsApi::FrameBuffer;
+        const uint32 renderingScale = 1;
+        frameBufferSize             = context.projection_.GetRenderingSize() / renderingScale;
+        Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
 
-    frameBuffer      = &context.graphicsApi_.CreateFrameBuffer({color});
-    isReady          = frameBuffer->Init();
-    auto atachmentId = frameBuffer->GetAttachmentTexture(Type::Color0);
-    context.sharedTextures[magic_enum::enum_index(SharedTextures::skyTexture).value()] = atachmentId;
-    LOG_DEBUG << "Framebuffer for sky created. Id: " << frameBuffer->GetId() << ", ColorAttachmentId = " << atachmentId;
-}
-void SkyPassRenderer::Prepare()
-{
+        frameBuffer      = &context.graphicsApi_.CreateFrameBuffer({color});
+        isReady          = frameBuffer->Init();
+        auto atachmentId = frameBuffer->GetAttachmentTexture(Type::Color0);
+        context.sharedTextures[magic_enum::enum_index(SharedTextures::skyTexture).value()] = atachmentId;
+        LOG_DEBUG << "Framebuffer for sky created. Id: " << frameBuffer->GetId() << ", ColorAttachmentId = " << atachmentId;
+    }
 }
 void SkyPassRenderer::Render(uint32 depthTextureId)
 {
@@ -83,5 +83,25 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
 void SkyPassRenderer::ReloadShaders()
 {
     shader.Reload();
+}
+SkyPassRenderer::~SkyPassRenderer()
+{
+    CleanUp();
+}
+void SkyPassRenderer::CleanUp()
+{
+    if (bufferId)
+    {
+        context.graphicsApi_.DeleteShaderBuffer(*bufferId);
+        bufferId.reset();
+    }
+
+    shader.Clear();
+
+    if (frameBuffer)
+    {
+        context.graphicsApi_.DeleteFrameBuffer(*frameBuffer);
+        frameBuffer = nullptr;
+    }
 }
 }  // namespace GameEngine
