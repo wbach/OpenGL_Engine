@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include "GameEngine/Renderers/Projection.h"
+#include "GraphicsApi/BufferParamters.h"
 #include "PostprocessingRenderer.h"
 #include "PostprocessingRenderersFactory.h"
 
@@ -20,10 +21,7 @@ PostProcessingManager::~PostProcessingManager()
 }
 void PostProcessingManager::Init()
 {
-    GraphicsApi::FrameBuffer::Attachment colorAttachment(
-        context_.projection_.GetRenderingSize(), GraphicsApi::FrameBuffer::Type::Color0, GraphicsApi::FrameBuffer::Format::Rgba8);
-
-    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, colorAttachment);
+    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, context_.projection_.GetRenderingSize());
 
     if (fboManager_->GetStatus())
     {
@@ -42,10 +40,7 @@ void PostProcessingManager::OnSizeChanged()
 {
     fboManager_.reset();
 
-    GraphicsApi::FrameBuffer::Attachment colorAttachment(
-        context_.projection_.GetRenderingSize(), GraphicsApi::FrameBuffer::Type::Color0, GraphicsApi::FrameBuffer::Format::Rgba8);
-
-    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, colorAttachment);
+    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, context_.projection_.GetRenderingSize());
 }
 
 void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer, const Scene& scene)
@@ -102,7 +97,8 @@ bool PostProcessingManager::IsLastRenderer(size_t i)
 void PostProcessingManager::AddEffects()
 {
     AddEffect(PostprocessingRendererType::DEFFERED_LIGHT);
-    // AddEffect(PostprocessingRendererType::COLOR_FLIPER);
+    AddEffect(PostprocessingRendererType::TONE_MAPPING);
+    // AddEffect(PostprocessingRendererType::COLOR_FLIPER);c
     // AddEffect(PostprocessingRendererType::BLUR);
     // AddEffect(PostprocessingRendererType::OUTLINE);
     AddEffect(PostprocessingRendererType::FXAA);

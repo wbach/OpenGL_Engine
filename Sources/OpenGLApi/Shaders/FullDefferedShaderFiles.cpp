@@ -210,6 +210,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/Sky.frag"}
         }
     },
+        {
+        GraphicsApi::ShaderProgramType::ACESFilmicToneMapping,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/ToneMapping/ToneMapping.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/ToneMapping/ToneMapping.frag"}
+        }
+    },
     {
         GraphicsApi::ShaderProgramType::Font,
         {

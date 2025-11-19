@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include <magic_enum/magic_enum.hpp>
 #include <unordered_map>
 
 #include "OpenGLApi/OpenGLUtils.h"
@@ -81,6 +82,8 @@ bool FrameBuffer::Init()
         LOG_ERROR << errorString;
         return false;
     }
+
+    LOG_DEBUG << "Create framebuffer glId = " << glId_;
     Bind();
     CreateGlAttachments(input_);
 
@@ -246,6 +249,8 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         glAttachment.wrapMode_        = WrapMode.at(attachment.wrapMode);
 
         CreateGlAttachment(glAttachment);
+        LOG_DEBUG << "CreateGlAttachment glId = " << glAttachment.glId_ << ", format: " << magic_enum::enum_name(attachment.format)
+                  << ", type " << magic_enum::enum_name(attachment.type);
 
         auto errorString = GetGlError();
         if (not errorString.empty())

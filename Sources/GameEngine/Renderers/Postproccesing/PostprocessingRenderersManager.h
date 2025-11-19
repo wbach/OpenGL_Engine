@@ -1,10 +1,13 @@
 #pragma once
 #include <unordered_map>
+
 #include "GameEngine/Renderers/Postproccesing/IPostprocessingRenderersFactory.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "Logger/Log.h"
 #include "PostprocessingRenderer.h"
 #include "PostprocessingRendererTypes.h"
 #include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -12,16 +15,30 @@ class Scene;
 
 typedef std::vector<PostprocessingRendererPtr> PostprocessingRenderers;
 
+inline GraphicsApi::FrameBuffer::Attachment createColorAttachment(const vec2ui& size)
+{
+    GraphicsApi::FrameBuffer::Attachment colorAttachment;
+    colorAttachment.size   = size;
+    colorAttachment.type   = GraphicsApi::FrameBuffer::Type::Color0;
+    colorAttachment.format = GraphicsApi::FrameBuffer::Format::Rgba32f;
+    colorAttachment.filter = GraphicsApi::FrameBuffer::Filter::Linear;
+    return colorAttachment;
+}
+
 class FrameBuffersManager
 {
 public:
-    FrameBuffersManager(GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::FrameBuffer::Attachment attachment)
+    FrameBuffersManager(GraphicsApi::IGraphicsApi& graphicsApi, const vec2ui& size)
         : graphicsApi_(graphicsApi)
-        , fboA{graphicsApi.CreateFrameBuffer({attachment})}
-        , fboB{graphicsApi.CreateFrameBuffer({attachment})}
+        , fboA{graphicsApi.CreateFrameBuffer({createColorAttachment(size)})}
+        , fboB{graphicsApi.CreateFrameBuffer({createColorAttachment(size)})}
         , selectedA{true}
         , status_{fboA.Init() and fboB.Init()}
     {
+        // LOG_DEBUG << "attachment = " << magic_enum::enum_name(attachment.type) << ", format: " <<
+        // magic_enum::enum_name(attachment.format);
+        LOG_DEBUG << "FrameBuffersManager, fboA id = " << fboA.GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
+        LOG_DEBUG << "FrameBuffersManager, fboB id = " << fboB.GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
     }
     ~FrameBuffersManager()
     {

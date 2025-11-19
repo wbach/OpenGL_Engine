@@ -92,7 +92,7 @@ void DefferedRenderer::createFrameBuffer()
     using namespace GraphicsApi::FrameBuffer;
     defferedFrameBufferSize_ = context_.projection_.GetRenderingSize();
     Attachment worldPositionAttachment(*defferedFrameBufferSize_, Type::Color0, Format::Rgba32f);
-    Attachment diffuseAttachment(*defferedFrameBufferSize_, Type::Color1, Format::Rgba8);
+    Attachment diffuseAttachment(*defferedFrameBufferSize_, Type::Color1, Format::Rgba32f);
     Attachment normalAttachment(*defferedFrameBufferSize_, Type::Color2, Format::Rgba32f, vec4(0.f, 0.f, 0.f, 1.f));
     Attachment specularAttachment(*defferedFrameBufferSize_, Type::Color3, Format::Rgba8);
     Attachment depthAttachment(*defferedFrameBufferSize_, Type::Depth, Format::Depth);

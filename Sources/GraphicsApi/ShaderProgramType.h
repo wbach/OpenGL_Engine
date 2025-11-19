@@ -37,6 +37,7 @@ enum class ShaderProgramType
     DebugNormal,
     Fxaa,
     Sobel,
-    Outline
+    Outline,
+    ACESFilmicToneMapping
 };
 }  // namespace GraphicsApi

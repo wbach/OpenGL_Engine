@@ -328,7 +328,7 @@ void main()
 
     SMaterial material;
     float maxValue = max3(color);
-    float ambientFactor = 0.1;
+    float ambientFactor = 0.2;
 
     float shadowFactor = CalculateShadowFactor(world_pos);
 
