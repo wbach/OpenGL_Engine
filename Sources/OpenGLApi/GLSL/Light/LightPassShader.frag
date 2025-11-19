@@ -5,7 +5,6 @@
 #define LIGHT_TYPE_POINT        1
 #define LIGHT_TYPE_SPOT         2
 
-const float gradient = 2.5;
 const int MAX_SHADOW_MAP_CASADES = 4;
 
 struct SMaterial
@@ -302,6 +301,7 @@ vec4 CreateFog(vec4 finalColor, float fogEnabled)
         // distance-based fog/visibility:
         float viewDist = perApp.viewDistance.x; //lightsPass.viewDistance;
         float zView = ToZBuffer(DepthTexture, vs_in.textureCoords);
+        float gradient = perApp.fogData.w;
         float visibility = exp(-pow((zView * (6 / max(1.0, viewDist))), gradient));
         visibility = clamp(visibility, 0.0, 1.0);
         vec3 sky = texture(SkyTexture, vs_in.textureCoords).rgb;
