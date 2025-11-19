@@ -108,6 +108,7 @@ void DefferedLighting::Convert(const Light& light, int index)
     lightPass_.color_[index]       = light.GetColour();
     lightPass_.cutOff_[index]      = light.GetCutoff();
     lightPass_.position_[index]    = light.GetPosition();
+    lightPass_.direction[index]    = light.GetDirection();
     lightPass_.type_[index]        = static_cast<int>(light.GetType());
 }
 }  // namespace GameEngine

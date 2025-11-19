@@ -56,11 +56,11 @@ void main()
     vec2 uv = gl_FragCoord.xy / skyBuffer.screenSize.xy;
 
     float depth = texture(gDepth, uv).r;
-    if (depth < 1.0)
-    {
-        outSkyColor = vec4(0.0);
-        return;
-    }
+    // if (depth < 1.0) // potrzebujemy niebo nawet dla zaslonietych pikseli zeby liczyc mgle w lightpassie
+    // {
+    //     outSkyColor = vec4(0.0);
+    //     return;
+    // }
 
     // --- RECONSTRUCT WORLD RAY ---
     vec4 ndc = vec4(uv * 2.0 - 1.0, 1.0, 1.0);

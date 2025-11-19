@@ -1,4 +1,5 @@
 #include "Light.h"
+
 #include "GameEngine/Lights/LightTypes.h"
 
 namespace GameEngine
@@ -28,7 +29,7 @@ Light::Light(vec3 position, vec3 colour)
     , attenuation(vec3(1.f, 0.f, 0.f))
     , cutOff(0.f)
 {
-    CalculateDirection(glm::vec3(0.0f, 0.0f, 0.0f));
+    direction = -1.f * glm::normalize(position);
 }
 Light::Light(vec3 colour)
     : type(LightType::DIRECTIONAL_LIGHT)
@@ -37,7 +38,7 @@ Light::Light(vec3 colour)
     , attenuation(vec3(1.f, 0.f, 0.f))
     , cutOff(0.f)
 {
-    CalculateDirection(glm::vec3(0.0f, 0.0f, 0.0f));
+    direction = -1.f * glm::normalize(position);
 }
 Light::Light()
     : type(LightType::DIRECTIONAL_LIGHT)
@@ -46,7 +47,7 @@ Light::Light()
     , attenuation(vec3(1.f, 0.f, 0.f))
     , cutOff(0.f)
 {
-    CalculateDirection(glm::vec3(0.0f, 0.0f, 0.0f));
+    direction = -1.f * glm::normalize(position);
 }
 
 LightType Light::GetType() const
@@ -88,7 +89,7 @@ void Light::SetPosition(const vec3& pos)
     position = pos;
     if (type == LightType::DIRECTIONAL_LIGHT)
     {
-        CalculateDirection(glm::vec3(0.0f, 0.0f, 0.0f));
+        direction = -1.f * glm::normalize(position);
     }
 }
 
@@ -98,7 +99,6 @@ void Light::SetColor(const vec3& c)
 }
 void Light::CalculateDirection(const glm::vec3& targetPosition)
 {
-    //direction = glm::normalize(targetPosition - position);
-    direction = -1.f * glm::normalize(position);
+    direction = glm::normalize(targetPosition - position);
 }
 }  // namespace GameEngine

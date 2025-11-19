@@ -20,6 +20,7 @@ private:
         AlignWrapper<vec3> position_[MAX_LIGHTS];
         AlignWrapper<vec3> color_[MAX_LIGHTS];
         AlignWrapper<vec3> attenuation_[MAX_LIGHTS];
+        AlignWrapper<vec3> direction[MAX_LIGHTS];
         AlignWrapper<float> cutOff_[MAX_LIGHTS];
         AlignWrapper<int> type_[MAX_LIGHTS];
     };
