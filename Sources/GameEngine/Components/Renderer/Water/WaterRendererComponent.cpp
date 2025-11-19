@@ -21,15 +21,17 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_COLOR[]            = "color";
-constexpr char CSTR_TILED_VALUE[]      = "tiledValue";
-constexpr char CSTR_PLANE_WAVE_SPEED[] = "planeWaveSpeed";
-constexpr char CSTR_WAVE_SPEED[]       = "waveSpeed";
-constexpr char CSTR_WAVE_AMPLITUDE[]   = "waveAmplitude";
-constexpr char CSTR_WAVE_FREQUENCY[]   = "waveFrequency";
-constexpr char CSTR_DUDV_MAP[]         = "dudv";
-constexpr char CSTR_NORMAL_MAP[]       = "normalMap";
-constexpr char CSTR_MESH_RESOLUTION[]  = "meshResolution";
+constexpr char CSTR_COLOR[]                = "color";
+constexpr char CSTR_TILED_VALUE[]          = "tiledValue";
+constexpr char CSTR_PLANE_WAVE_SPEED[]     = "planeWaveSpeed";
+constexpr char CSTR_WAVE_SPEED[]           = "waveSpeed";
+constexpr char CSTR_WAVE_AMPLITUDE[]       = "waveAmplitude";
+constexpr char CSTR_WAVE_FREQUENCY[]       = "waveFrequency";
+constexpr char CSTR_MAX_DEPTH_VISIBILITY[] = "maxDepthVisibility";
+constexpr char CSTR_DEPTH_BLEND_SCALE[]    = "depthBlendScale";
+constexpr char CSTR_DUDV_MAP[]             = "dudv";
+constexpr char CSTR_NORMAL_MAP[]           = "normalMap";
+constexpr char CSTR_MESH_RESOLUTION[]      = "meshResolution";
 }  // namespace
 
 WaterRendererComponent::WaterRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -248,6 +250,8 @@ void WaterRendererComponent::registerReadFunctions()
         ::Read(node.getChild(CSTR_WAVE_FREQUENCY), component->waveFrequency);
         ::Read(node.getChild(CSTR_WAVE_AMPLITUDE), component->waveAmplitude);
         ::Read(node.getChild(CSTR_PLANE_WAVE_SPEED), component->onPlaneWaveSpeed);
+        ::Read(node.getChild(CSTR_DEPTH_BLEND_SCALE), component->depthBlendScale);
+        ::Read(node.getChild(CSTR_MAX_DEPTH_VISIBILITY), component->maxDepthVisibility);
 
         component->dudvMap   = dudvMap;
         component->normalMap = normalMap;
@@ -270,6 +274,8 @@ void WaterRendererComponent::write(TreeNode& node) const
     ::write(node.addChild(CSTR_WAVE_FREQUENCY), waveFrequency);
     ::write(node.addChild(CSTR_WAVE_AMPLITUDE), waveAmplitude);
     ::write(node.addChild(CSTR_PLANE_WAVE_SPEED), onPlaneWaveSpeed);
+    ::write(node.addChild(CSTR_MAX_DEPTH_VISIBILITY), maxDepthVisibility);
+    ::write(node.addChild(CSTR_DEPTH_BLEND_SCALE), depthBlendScale);
 }
 Model* WaterRendererComponent::GetModel()
 {

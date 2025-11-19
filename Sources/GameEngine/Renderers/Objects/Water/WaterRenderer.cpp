@@ -18,6 +18,7 @@ struct WaterTileMeshBuffer
     AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     AlignWrapper<vec4> waveParams;
     AlignWrapper<vec4> projParams;
+    AlignWrapper<vec4> waterDepthVisibility; // x - maxVisibleDepth, y = scaleDepth
 };
 
 const float useSimpleRender{1.f};
@@ -116,6 +117,8 @@ void WaterRenderer::render()
         waterTileMeshBuffer.params.value.x = component.moveFactor();
         waterTileMeshBuffer.params.value.y = component.waveMoveFactor();
         waterTileMeshBuffer.params.value.z = component.tiledValue;
+        waterTileMeshBuffer.waterDepthVisibility.value.x = component.maxDepthVisibility;
+        waterTileMeshBuffer.waterDepthVisibility.value.y = component.depthBlendScale;
 
         const auto& worldTransfrom                  = component.GetParentGameObject().GetWorldTransform();
         const auto& scale                           = worldTransfrom.GetScale();

@@ -19,6 +19,7 @@ layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
     vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
     vec4 waveParams;
     vec4 projParams;
+    vec4 waterDepthVisibility; // x - maxVisibleDepth, y = scaleDepth
 } waterTileMeshBuffer;
 
 in GS_OUT
@@ -108,6 +109,30 @@ vec3 calculateWorldNormal(vec4 normalMapValue)
     return normalize(TBN * n);             // world-space normal
 }
 
+float CalculateRefractionWithWaterColorBlendFactor(float waterDepth)
+{
+    float colorInte = 0.f;
+    // float maxDepth = 15.f;
+    // float scaleDepth = 2;
+    float maxDepth = waterTileMeshBuffer.waterDepthVisibility.x;
+    float scaleDepth = waterTileMeshBuffer.waterDepthVisibility.y;
+
+    if (waterDepth < 1)
+    {
+        colorInte = 0.f;
+    }
+    else if (waterDepth > scaleDepth * maxDepth)
+    {
+        colorInte = 1.f;
+    }
+    else
+    {
+        colorInte = waterDepth / maxDepth / scaleDepth;
+    }
+
+    return colorInte;
+}
+
 void main(void)
 {
     MaterialSpecular = vec4(vec3(1.f), 255.f / 255.f);
@@ -151,24 +176,6 @@ void main(void)
     refractiveFactor        = pow(refractiveFactor, 0.2);
     refractiveFactor        = clamp(refractiveFactor, 0.0f, 1.0f);
 
-
-    float colorInte = 0.f;
-    float maxDepth = 15.f;
-    float scaleDepth = 2;
-
-    if (waterDepth < 1)
-    {
-        colorInte = 0.f;
-    }
-    else if (waterDepth > scaleDepth * maxDepth)
-    {
-        colorInte = 1.f;
-    }
-    else
-    {
-        colorInte = waterDepth / maxDepth / scaleDepth;
-    }
-
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
 
@@ -181,8 +188,7 @@ void main(void)
     }
     DiffuseOut.a = 1.f;
 
-
-    refractColor    = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), colorInte);
+    refractColor    = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), CalculateRefractionWithWaterColorBlendFactor(waterDepth));
     DiffuseOut      = mix(reflectColor, refractColor, refractiveFactor);
     DiffuseOut.a    = 1.0;
 }

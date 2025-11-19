@@ -26,6 +26,8 @@ public:
     float waveAmplitude{.5f};
     float waveFrequency{0.5f};
     float tiledValue{1.f};
+    float maxDepthVisibility{15.f};
+    float depthBlendScale{2.f};
     vec4 waterColor;
     File dudvMap;
     File normalMap;
@@ -34,14 +36,16 @@ public:
 public:
     // clang-format off
     BEGIN_FIELDS()
+        FIELD_COLOR_RGBA(waterColor)
         FIELD_TEXTURE(dudvMap)
         FIELD_TEXTURE(normalMap)
+        FIELD_FLOAT(tiledValue)
         FIELD_FLOAT(waveAmplitude)
         FIELD_FLOAT(waveFrequency)
         FIELD_FLOAT(waveSpeed)
         FIELD_FLOAT(onPlaneWaveSpeed)
-        FIELD_FLOAT(tiledValue)
-        FIELD_COLOR_RGBA(waterColor)
+        FIELD_FLOAT(maxDepthVisibility)
+        FIELD_FLOAT(depthBlendScale)
         FIELD_UINT(meshResolution)
     END_FIELDS()
     // clang-format on
