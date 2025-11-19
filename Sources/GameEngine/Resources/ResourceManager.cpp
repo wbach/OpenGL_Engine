@@ -5,8 +5,8 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "IGpuResourceLoader.h"
-#include "ResourceUtils.h"
 #include "Models/Primitive.h"
+#include "ResourceUtils.h"
 
 namespace GameEngine
 {
@@ -107,8 +107,16 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     std::lock_guard<std::mutex> lk(modelMutex_);
 
     auto modelPtr = model.get();
-    auto filename = model->GetFile() ? ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++))
-                                     : model->GetFile().GetAbsolutePath().string();
+    std::string filename;
+
+    if (not model->GetFile() or model->GetFile().empty())
+    {
+        filename = ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++));
+    }
+    else
+    {
+        filename = model->GetFile().GetAbsolutePath();
+    }
 
     auto iter = models_.find(filename);
 

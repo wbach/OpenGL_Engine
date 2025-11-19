@@ -3,6 +3,8 @@
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include <mutex>
+
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Objects/Water/MeshWaterFactory.h"
@@ -18,7 +20,7 @@ struct WaterTileMeshBuffer
     AlignWrapper<vec4> params;  // x - planeMoveFactor, y - waveFactor, z - tiledValue, w - isSimpleRender
     AlignWrapper<vec4> waveParams;
     AlignWrapper<vec4> projParams;
-    AlignWrapper<vec4> waterDepthVisibility; // x - maxVisibleDepth, y = scaleDepth
+    AlignWrapper<vec4> waterDepthVisibility;  // x - maxVisibleDepth, y = scaleDepth
 };
 
 const float useSimpleRender{1.f};
@@ -54,6 +56,7 @@ void WaterRenderer::prepare()
 }
 void WaterRenderer::render()
 {
+    std::lock_guard<std::mutex> lk(subscribersMutex_);
     if (subscribers_.empty())
         return;
 
@@ -62,9 +65,9 @@ void WaterRenderer::render()
     shader_.Start();
 
     WaterTileMeshBuffer waterTileMeshBuffer{};
-    waterTileMeshBuffer.waterColor     = vec4(0, 0, 0, 1.f);
-    waterTileMeshBuffer.params         = vec4(0, 0, 0, 0.f);
-    waterTileMeshBuffer.params.value.w = useSimpleRender;
+    waterTileMeshBuffer.waterColor         = vec4(0, 0, 0, 1.f);
+    waterTileMeshBuffer.params             = vec4(0, 0, 0, 0.f);
+    waterTileMeshBuffer.params.value.w     = useSimpleRender;
     waterTileMeshBuffer.projParams.value.x = context_.projection_.GetNear();
     waterTileMeshBuffer.projParams.value.y = context_.projection_.GetFar();
 
@@ -113,10 +116,10 @@ void WaterRenderer::render()
 
         component.increaseFactors(context_.time_.deltaTime);
 
-        waterTileMeshBuffer.waterColor     = component.GetWaterColor();
-        waterTileMeshBuffer.params.value.x = component.moveFactor();
-        waterTileMeshBuffer.params.value.y = component.waveMoveFactor();
-        waterTileMeshBuffer.params.value.z = component.tiledValue;
+        waterTileMeshBuffer.waterColor                   = component.GetWaterColor();
+        waterTileMeshBuffer.params.value.x               = component.moveFactor();
+        waterTileMeshBuffer.params.value.y               = component.waveMoveFactor();
+        waterTileMeshBuffer.params.value.z               = component.tiledValue;
         waterTileMeshBuffer.waterDepthVisibility.value.x = component.maxDepthVisibility;
         waterTileMeshBuffer.waterDepthVisibility.value.y = component.depthBlendScale;
 
@@ -153,6 +156,7 @@ void WaterRenderer::render()
 }
 void WaterRenderer::subscribe(GameObject& gameObject)
 {
+    std::lock_guard<std::mutex> lk(subscribersMutex_);
     if (subscribers_.find(gameObject.GetId()) != subscribers_.end())
         return;
 
@@ -169,6 +173,7 @@ void WaterRenderer::subscribe(GameObject& gameObject)
 }
 void WaterRenderer::unSubscribe(GameObject& gameObject)
 {
+    std::lock_guard<std::mutex> lk(subscribersMutex_);
     waterReflectionRefractionRenderer_.unSubscribe(gameObject);
 
     auto waterComponent = gameObject.GetComponent<Components::WaterRendererComponent>();
@@ -180,6 +185,7 @@ void WaterRenderer::unSubscribe(GameObject& gameObject)
 }
 void WaterRenderer::unSubscribeAll()
 {
+    std::lock_guard<std::mutex> lk(subscribersMutex_);
     waterReflectionRefractionRenderer_.unSubscribeAll();
     subscribers_.clear();
 }

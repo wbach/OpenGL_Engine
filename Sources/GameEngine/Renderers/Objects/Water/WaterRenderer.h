@@ -37,6 +37,7 @@ private:
     WaterReflectionRefractionRenderer waterReflectionRefractionRenderer_;
     RendererContext& context_;
     ShaderProgram shader_;
+    std::mutex subscribersMutex_;
     std::unordered_map<uint32, Subscriber> subscribers_;
 
     GraphicsApi::ID perMeshObjectId_;
