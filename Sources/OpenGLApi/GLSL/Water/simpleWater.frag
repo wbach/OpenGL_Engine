@@ -4,14 +4,14 @@ const float waveStrength = 0.02 ;
 const float shineDamper  = 20.0f;
 const float reflectivity = 0.6f;
 const float tiledValue   = 120.f;
-const float near         = 0.1f;
-const float far          = 1000.0f;
 
 layout (std140, align=16, binding=8) uniform WaterTileMeshBuffer
 {
     vec4 waterColor;
+    vec4 tilePosAndScale;
     vec4 params; // x - deltaTime, y - waveSpeed, z - tiledValue, w - isSimpleRender
     vec4 waveParams;
+    vec4 projParams;
 } waterTileMeshBuffer;
 
 in VS_OUT
@@ -38,9 +38,10 @@ bool Is(float v)
 
 float calculateDistance(float depth)
 {
+    const float near         = waterTileMeshBuffer.projParams.x;
+    const float far          = waterTileMeshBuffer.projParams.y;
     return 2.f * near * far / (far + near - (2.f * depth - 1.f) * (far - near));
 }
-
 vec2 calculateDisctortionCoords()
 {
     float tiledValue = waterTileMeshBuffer.params.z;

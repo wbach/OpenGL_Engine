@@ -25,6 +25,7 @@ public:
     inline float GetAspectRatio() const;
     const vec2ui& GetRenderingSize() const;
     const mat4& GetProjectionMatrix() const;
+    vec4 getBufferParams() const;
 
 private:
     float CalculateAspectRatio() const;

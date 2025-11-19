@@ -19,6 +19,8 @@ cbuffer PerFrame : register(b1)
 {
     matrix projectionViewMatrix;
     float3 cameraPosition;
+    float4 clipPlane;
+    float4 projection;
 };
 
 cbuffer PerObjectConstants : register(b2)

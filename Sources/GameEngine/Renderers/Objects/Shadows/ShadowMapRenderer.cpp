@@ -241,6 +241,8 @@ void ShadowMapRenderer::renderCascades()
 
         PerFrameBuffer perFrame;
         perFrame.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(lightMatrixes[cascadeIndex]);
+        perFrame.cameraPosition       = context_.scene_->GetCamera().GetPosition();
+        perFrame.projection           = context_.projection_.getBufferParams();
         context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
 
         renderScene();

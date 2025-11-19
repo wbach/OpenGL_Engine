@@ -325,6 +325,7 @@ void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo, f
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = camera.GetPosition();
     perFrameBuffer.clipPlane            = vec4(0.f, -1.f, 0.f, fbo.positionY + amplitude);
+    perFrameBuffer.projection           = context_.projection_.getBufferParams();
 
     context_.graphicsApi_.UpdateShaderBuffer(*refractionPerFrameBuffer_, &perFrameBuffer);
     auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*refractionPerFrameBuffer_);
@@ -362,7 +363,8 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo, f
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = cameraPosition;
-    perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -(fbo.positionY)); // TO DO : amplitude
+    perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -(fbo.positionY));  // TO DO : amplitude
+    perFrameBuffer.projection           = context_.projection_.getBufferParams();
 
     context_.graphicsApi_.UpdateShaderBuffer(*reflectionPerFrameBuffer_, &perFrameBuffer);
     auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*reflectionPerFrameBuffer_);

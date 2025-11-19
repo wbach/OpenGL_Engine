@@ -132,4 +132,8 @@ void Projection::OrthographiProjection()
     projectionMatrix_[2][2] = -2.f / length;
     projectionMatrix_[3][3] = 1.f;
 }
+vec4 Projection::getBufferParams() const
+{
+    return vec4(nearPlane_, farPlane_, fov_, aspectRatio_);
+}
 }  // namespace GameEngine

@@ -52,6 +52,7 @@ layout (std140, binding=1) uniform PerFrame
     mat4 projectionViewMatrix;
     vec3 cameraPosition;
     vec4 clipPlane;
+    vec4 projection; // x - near, y -far
 } perFrame;
 
 layout (std140,binding=7) uniform ShadowsBuffer
@@ -199,12 +200,10 @@ vec4 CalculateColor(SMaterial material, vec3 world_pos, vec3 unit_normal)
 
 float ToZBuffer(sampler2D tex, vec2 coord)
 {
-    float zNear = 0.1f;
-    float zFar = 1000.f;
-    float z_b = texture(tex, coord).x;
-    float z_n = 2.0 * z_b - 1.0;
-    float z_e = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
-    return z_e;
+    const float near    = perFrame.projection.x;
+    const float far     = perFrame.projection.y;
+    const float depth   = texture(tex, coord).r;
+    return 2.f * near * far / (far + near - (2.f * depth - 1.f) * (far - near));
 }
 
 float max3(vec3 v)
@@ -409,10 +408,4 @@ void main()
    const float contrast = 0.15f;
    FragColor.rgb = (FragColor.rgb - .5f) * (1.f + contrast) + .5f;
    FragColor     = mix(vec4(0.8), FragColor, visibility);
-
-
-//return;
-
-    //FragColor = vec4(0, lightsPass.lights[0].type_ == 0, 0, 1.f);
-    //FragColor = vec4(lightsPass.lights[0].color_, 1.f);
 }

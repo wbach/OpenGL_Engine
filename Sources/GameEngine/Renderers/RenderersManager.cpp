@@ -288,6 +288,7 @@ void RenderersManager::CreatePerFrameBuffer()
             projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
         buffer.cameraPosition = vec3(0);
         buffer.clipPlane      = vec4{0.f, 1.f, 0.f, 100000.f};
+        buffer.projection     = projection_.getBufferParams();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
     }
@@ -301,6 +302,7 @@ void RenderersManager::updatePerFrameBuffer(Scene& scene)
         buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
         buffer.cameraPosition       = scene.GetCamera().GetPosition();
         buffer.clipPlane            = vec4{0.f, 1.f, 0.f, 100000.f};
+        buffer.projection           = projection_.getBufferParams();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
     }
 }
