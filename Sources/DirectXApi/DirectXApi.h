@@ -97,7 +97,7 @@ public:
     const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override;
     void TakeSnapshoot(const std::string& path) const override;
 
-    void BindDefaultFrameBuffer() override;
+    GraphicsApi::IFrameBuffer& GetDefaultFrameBuffer() override;
     GraphicsApi::IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override;
     void DeleteFrameBuffer(GraphicsApi::IFrameBuffer&) override;
 

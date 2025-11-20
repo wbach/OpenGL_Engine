@@ -111,6 +111,7 @@ void PostProcessingManager::bindDefaultFrameBuffer()
     {
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
-    context_.graphicsApi_.BindDefaultFrameBuffer();
+
+   context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
 }
 }  // namespace GameEngine

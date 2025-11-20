@@ -335,9 +335,17 @@ void DirectXApi::Init()
 
     impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->quadId = impl_->CreateAndAddDxObject(Quad());
+
+    // TO DO : default frame buffer
+    impl_->frameBuffers_.push_back(std::make_unique<DxFrameBuffer>());
 }
-void DirectXApi::BindDefaultFrameBuffer()
+GraphicsApi::IFrameBuffer &DirectXApi::GetDefaultFrameBuffer()
 {
+    if (impl_->frameBuffers_.empty())
+    {
+        LOG_ERROR << "Framebuffers are empty ! Default frame buffer should be at front!";
+    }
+    return *impl_->frameBuffers_.front();
 }
 GraphicsApi::IFrameBuffer &DirectXApi::CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment> &)
 {
@@ -530,9 +538,9 @@ GraphicsApi::ID DirectXApi::CreateShader(GraphicsApi::ShaderProgramType shaderTy
     if (FAILED(hr))
     {
         MessageBoxA(NULL,
-                   "Can not create input layout."
-                   "FX file.",
-                   "Error", MB_OK);
+                    "Can not create input layout."
+                    "FX file.",
+                    "Error", MB_OK);
         return {};
     }
 

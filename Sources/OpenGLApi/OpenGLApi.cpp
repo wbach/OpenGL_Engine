@@ -15,6 +15,7 @@
 #include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
 #include "Logger/Log.h"
+#include "OpenGLApi/DefaultFrameBuffer.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
 
@@ -123,7 +124,7 @@ struct OpenGLApi::Pimpl
     ShaderManager shaderManager_;
     std::vector<ShaderBuffer> shaderBuffers_;
     std::unordered_map<uint32, GraphicsApi::TextureInfo> textureInfos_;
-    std::vector<std::unique_ptr<FrameBuffer>> frameBuffers_;
+    std::vector<std::unique_ptr<IFrameBuffer>> frameBuffers_;
 
     std::unordered_map<uint64, ObjectType> createdGraphicsObjects_;
 
@@ -208,6 +209,8 @@ void OpenGLApi::Init()
     }
 
     glPolygonOffset(1, 1);
+
+    impl_->frameBuffers_.push_back(std::make_unique<DefaultFrameBuffer>());
 
     LOG_DEBUG << "Init done.";
 }
@@ -494,12 +497,16 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
     }
 }
 
-void OpenGLApi::BindDefaultFrameBuffer()
+GraphicsApi::IFrameBuffer& OpenGLApi::GetDefaultFrameBuffer()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (impl_->frameBuffers_.empty())
+    {
+        LOG_ERROR << "Framebuffers are empty ! Default frame buffer should be at front!";
+    }
+    return *impl_->frameBuffers_.front();
 }
 
-OpenGLApi::IFrameBuffer& OpenGLApi::CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
+GraphicsApi::IFrameBuffer& OpenGLApi::CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
 {
     impl_->frameBuffers_.push_back(std::make_unique<FrameBuffer>(impl_->idPool_, attachments));
     LOG_DEBUG << impl_->frameBuffers_.back()->GetId();

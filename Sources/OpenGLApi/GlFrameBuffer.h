@@ -2,7 +2,9 @@
 #include <GL/glew.h>
 #include <GraphicsApi/IFrameBuffer.h>
 #include <Types.h>
+
 #include <vector>
+
 #include "IdPool.h"
 
 namespace OpenGLApi

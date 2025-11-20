@@ -2,8 +2,8 @@
 #include <Types.h>
 #include <Utils/Image/Image.h>
 
-#include <filesystem>
 #include <array>
+#include <filesystem>
 #include <functional>
 #include <optional>
 #include <set>
@@ -112,7 +112,7 @@ public:
     virtual const TextureInfo& GetTextureInfo(uint32) const                                   = 0;
     virtual void TakeSnapshoot(const std::string& path) const                                 = 0;
 
-    virtual void BindDefaultFrameBuffer()                                                = 0;
+    virtual IFrameBuffer& GetDefaultFrameBuffer()                                        = 0;
     virtual IFrameBuffer& CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>&) = 0;
     virtual void DeleteFrameBuffer(IFrameBuffer&)                                        = 0;
 };

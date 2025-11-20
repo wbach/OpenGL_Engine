@@ -4,6 +4,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/ShaderManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/SimpleForwardShaderFiles.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/SimpleDeprecetedShaders.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/Shaders/FullDefferedShaderFiles.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/DefaultFrameBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/IdPool.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/OpenGLMesh.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/OpenGLApi/SDL2/SdlKeyConverter.h

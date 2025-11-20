@@ -88,7 +88,7 @@ public:
     MOCK_METHOD(std::vector<uint8>, GetTextureData, (uint32), (const, override));
     MOCK_METHOD(const TextureInfo&, GetTextureInfo, (uint32), (const, override));
     MOCK_METHOD(void, TakeSnapshoot, (const std::string& path), (const, override));
-    MOCK_METHOD(void, BindDefaultFrameBuffer, (), (override));
+    MOCK_METHOD(IFrameBuffer&, GetDefaultFrameBuffer, (), (override));
     MOCK_METHOD(IFrameBuffer&, CreateFrameBuffer, (const std::vector<FrameBuffer::Attachment>&), (override));
     MOCK_METHOD(void, DeleteFrameBuffer, (IFrameBuffer&), (override));
 };
