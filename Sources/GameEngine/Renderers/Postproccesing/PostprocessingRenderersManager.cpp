@@ -1,9 +1,12 @@
 #include "PostprocessingRenderersManager.h"
 
+#include <GraphicsApi/BufferParamters.h>
 #include <Logger/Log.h>
 
+#include "FrameBuffersManager.h"
+#include "GameEngine/Renderers/Postproccesing/IPostprocessingRenderersFactory.h"
 #include "GameEngine/Renderers/Projection.h"
-#include "GraphicsApi/BufferParamters.h"
+#include "GameEngine/Renderers/RendererContext.h"
 #include "PostprocessingRenderer.h"
 #include "PostprocessingRenderersFactory.h"
 
@@ -112,6 +115,6 @@ void PostProcessingManager::bindDefaultFrameBuffer()
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
 
-   context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
+    context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
 }
 }  // namespace GameEngine
