@@ -2,12 +2,13 @@
 
 layout(binding = 0) uniform sampler2D HDRBuffer; // HDR input (Rgba32f)
 
+layout (std140, align=16, binding=3) uniform ToneMappingBuffer
+{
+    vec4 param;
+} toneMappingBuffer;
+
 in vec2 textureCoords;
 out vec4 FragColor;
-
-// Exposure i gamma
-uniform float exposure = 0.9;
-uniform float gamma = 2.2;
 
 // ACES-like tonemapping
 vec3 ACESFilmicTonemap(vec3 color)
@@ -28,6 +29,10 @@ vec3 ApplyGamma(vec3 color, float gamma)
 
 void main()
 {
+    // Exposure i gamma
+    const float exposure = toneMappingBuffer.param.y;
+    const float gamma = toneMappingBuffer.param.x;
+
     // 1. Pobranie HDR koloru
     vec3 hdrColor = texture(HDRBuffer, textureCoords).rgb;
 
@@ -38,7 +43,7 @@ void main()
     vec3 ldrColor = ACESFilmicTonemap(hdrColor);
 
     // 4. Gamma correction
-   // ldrColor = ApplyGamma(ldrColor, gamma);
+    ldrColor = ApplyGamma(ldrColor, gamma);
 
     FragColor = vec4(ldrColor, 1.0);
 }

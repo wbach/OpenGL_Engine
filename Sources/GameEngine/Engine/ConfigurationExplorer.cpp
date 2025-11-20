@@ -28,8 +28,10 @@ ConfigurationExplorer::ConfigurationExplorer()
          {
              {"Preset settings", EngineConf.renderer.preset, ApplyPolicy::RestartRequired, ParamsImpact::HasImpact},
              {"Renderer type", EngineConf.renderer.type, ApplyPolicy::RestartRequired},
-             {"UseInstanceRendering", EngineConf.renderer.useInstanceRendering, ApplyPolicy::RestartNotNeeded},
+             //{"UseInstanceRendering", EngineConf.renderer.useInstanceRendering, ApplyPolicy::RestartNotNeeded},
              {"View distance", EngineConf.renderer.viewDistance, ApplyPolicy::RestartNotNeeded},
+             {"Exposure", EngineConf.renderer.exposure, ApplyPolicy::RestartNotNeeded},
+             {"Gamma", EngineConf.renderer.gamma, ApplyPolicy::RestartNotNeeded},
              {"Lod0 distance ", EngineConf.renderer.lodDistance0, ApplyPolicy::RestartNotNeeded},
              {"Lod1 distance", EngineConf.renderer.lodDistance1, ApplyPolicy::RestartNotNeeded},
              //{"Lod2 distance", EngineConf.renderer.lodDistance2, ApplyPolicy::RestartNotNeeded},

@@ -32,6 +32,8 @@ struct Renderer
     ConfigurationParam<GraphicsApi::RendererType> type;
 
     ConfigurationParam<PresetSettings> preset;
+    ConfigurationParam<float> gamma;
+    ConfigurationParam<float> exposure;
     ConfigurationParam<float> viewDistance;
     ConfigurationParam<float> normalMappingDistance;
     ConfigurationParam<uint32> fpsLimt;

@@ -25,6 +25,8 @@ extern const std::string CSTR_LOADING_SCREEN_BACKGROUND;
 extern const std::string CSTR_LOADING_SCREEN_CIRCLE;
 // Renderer
 extern const std::string CSTR_PRESET;
+extern const std::string CSTR_EXPOSURE;
+extern const std::string CSTR_GAMMA;
 extern const std::string CSTR_RENDERER;
 extern const std::string CSTR_USE_ENTITY_INSTANCED_GROUPING;
 extern const std::string CSTR_GRAPHICS_API;

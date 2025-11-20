@@ -29,9 +29,9 @@ std::vector<std::string> avaiablesApis()
 {
     std::vector<std::string> result{{"OpenGL"}};
 #ifndef USE_GNU
-    #ifndef USE_MINGW // TO DO
-        result.push_back({"DirectX11"});
-    #endif
+#ifndef USE_MINGW  // TO DO
+    result.push_back({"DirectX11"});
+#endif
 #endif
     return result;
 }
@@ -40,10 +40,10 @@ Renderer::Renderer()
     : graphicsApi{{"OpenGL"}, avaiablesApis()}
     , type{GraphicsApi::RendererType::FULL, {GraphicsApi::RendererType::SIMPLE, GraphicsApi::RendererType::FULL}}
     , preset{PresetSettings::Ultra,
-             {PresetSettings::UltraLow, PresetSettings::Low, PresetSettings::Medium, PresetSettings::High,
-              PresetSettings::Ultra}}
-    , viewDistance{3000.f,
-                   {50.f, 100.f, 200.f, 400.f, 800.f, 1000.f, 1200.f, 1500.f, 2000.f, 3000.f, 4000.f, 5000.f, 10000.f}}
+             {PresetSettings::UltraLow, PresetSettings::Low, PresetSettings::Medium, PresetSettings::High, PresetSettings::Ultra}}
+    , gamma{1.6f, {1.0f, 1.2f, 1.4f, 1.6f, 1.8f, 2.0f, 2.2f, 2.4f, 2.6f, 2.8f, 3.0f}}
+    , exposure{0.7f, {0.05f, 0.07f, 0.09f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.f}}
+    , viewDistance{2000.f, {50.f, 100.f, 200.f, 400.f, 800.f, 1000.f, 1200.f, 1500.f, 2000.f, 3000.f, 4000.f, 5000.f, 10000.f}}
     , normalMappingDistance{200.f, {100.f, 200.f, 400.f}}
     , fpsLimt{60, {0, 30, 60, 75, 144}}
     , resolution{DEFAULT_WINDOW_SIZE, defaultResolutions()}
@@ -130,7 +130,7 @@ Renderer::Renderer()
                 case PresetSettings::High:
                     type                            = GraphicsApi::RendererType::FULL;
                     useInstanceRendering            = false;
-                    viewDistance                    = 2000.f;
+                    viewDistance                    = 1500.f;
                     lodDistance0                    = 100.f;
                     lodDistance1                    = 200.f;
                     textures.limitTextureSize       = true;
@@ -154,7 +154,7 @@ Renderer::Renderer()
                 case PresetSettings::Ultra:
                     type                            = GraphicsApi::RendererType::FULL;
                     useInstanceRendering            = false;
-                    viewDistance                    = 10000.f;
+                    viewDistance                    = 2000.f;
                     lodDistance0                    = 200.f;
                     lodDistance1                    = 300.f;
                     textures.limitTextureSize       = false;

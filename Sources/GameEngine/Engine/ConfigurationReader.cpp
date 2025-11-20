@@ -277,6 +277,8 @@ void Read(TreeNode& node, Params::Renderer& renderer)
     SetParamIfExist(renderer.useInstanceRendering, node.attributes_, CSTR_USE_ENTITY_INSTANCED_GROUPING);
     SetParamIfExist(renderer.graphicsApi, node.attributes_, CSTR_GRAPHICS_API);
     SetParamIfExist(renderer.viewDistance, node.attributes_, CSTR_RENDERER_VIEW_DISTANCE);
+    SetParamIfExist(renderer.exposure, node.attributes_, CSTR_EXPOSURE);
+    SetParamIfExist(renderer.gamma, node.attributes_, CSTR_GAMMA);
     SetParamIfExist(renderer.normalMappingDistance, node.attributes_, CSTR_RENDERER_NORMALMAPPING_DISTANCE);
     SetParamIfExist(renderer.fpsLimt, node.attributes_, CSTR_RENDERER_FPS_LIMIT);
     SetParamIfExist(renderer.resolution, node.attributes_, CSTR_RENDERER_RESOLUTION_X, CSTR_RENDERER_RESOLUTION_Y);
