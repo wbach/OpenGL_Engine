@@ -12,8 +12,9 @@
 
 namespace GameEngine
 {
-PostProcessingManager::PostProcessingManager(RendererContext& context)
+PostProcessingManager::PostProcessingManager(RendererContext& context, GraphicsApi::IFrameBuffer& target)
     : context_(context)
+    , targetBuffer_{target}
 {
     factory_ = std::make_unique<PostprocessingRenderersFactory>(context_);
     AddEffects();
@@ -115,6 +116,6 @@ void PostProcessingManager::bindDefaultFrameBuffer()
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
 
-    context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
+    targetBuffer_.Bind();
 }
 }  // namespace GameEngine

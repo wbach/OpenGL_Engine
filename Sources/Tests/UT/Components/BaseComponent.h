@@ -19,6 +19,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Time/Time.h"
+#include "GraphicsApi/IFrameBuffer.h"
 #include "Tests/Mocks/Api/FrameBufferMock.h"
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 #include "Tests/Mocks/Api/InputManagerMock.h"
@@ -29,6 +30,7 @@
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/ResourcesManagerMock.h"
 #include "Tests/Mocks/Scene/SceneManagerMock.h"
+#include "Tests/Mocks/Api/FrameBufferMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -39,6 +41,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
+    GraphicsApi::FrameBufferMock defaultFrameBuffer;
     Scene scene;
     std::vector<GraphicsApi::DisplayMode> displayModes;
     Utils::IdPool gameObjectIdPool;

@@ -19,8 +19,9 @@
 
 namespace GameEngine
 {
-BaseRenderer::BaseRenderer(RendererContext& context)
+BaseRenderer::BaseRenderer(RendererContext& context, GraphicsApi::IFrameBuffer& renderTarget)
     : context_(context)
+    , renderTarget(renderTarget)
 {
 }
 BaseRenderer::~BaseRenderer()
@@ -74,14 +75,8 @@ void BaseRenderer::initRenderers()
 }
 void BaseRenderer::render()
 {
-    setViewPort();
-    for (auto& renderer : renderers)
-    {
-        Utils::Timer timer;
-        renderer.ptr->render();
-        if (renderer.renderTime)
-            renderer.renderTime->value = timer.FormatElapsed();
-    }
+    renderTarget.Bind();
+    renderImpl();
 }
 void BaseRenderer::setViewPort()
 {
@@ -105,5 +100,16 @@ void BaseRenderer::createRenderers()
     addRenderer<ParticlesRenderer>();
     addRenderer<WaterRenderer>();
     addRenderer<ShadowMapRenderer>();
+}
+void BaseRenderer::renderImpl()
+{
+    setViewPort();
+    for (auto& renderer : renderers)
+    {
+        Utils::Timer timer;
+        renderer.ptr->render();
+        if (renderer.renderTime)
+            renderer.renderTime->value = timer.FormatElapsed();
+    }
 }
 }  // namespace GameEngine

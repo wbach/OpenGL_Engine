@@ -21,6 +21,7 @@
 #include "Tests/Mocks/Renderers/RendererFactoryMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/TextureLoaderMock.h"
+#include "Tests/Mocks/Api/FrameBufferMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -37,6 +38,7 @@ public:
     using GraphicsApiMock = GraphicsApi::GraphicsApiMock;
 
     Utils::IdPool IdPool;
+    GraphicsApi::FrameBufferMock defaultFrameBuffer;
     Input::InputManagerMock inputManagerMock;
     std::unique_ptr<EngineContext> engineContext;
     std::vector<GraphicsApi::DisplayMode> displayModes;

@@ -12,7 +12,7 @@ struct Time;
 class DefferedRenderer : public BaseRenderer
 {
 public:
-    DefferedRenderer(RendererContext& context);
+    DefferedRenderer(RendererContext&, GraphicsApi::IFrameBuffer&);
     ~DefferedRenderer() override;
 
     void init() override;

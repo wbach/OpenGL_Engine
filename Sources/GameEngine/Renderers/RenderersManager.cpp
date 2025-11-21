@@ -100,8 +100,9 @@ void RenderersManager::Init()
 }
 void RenderersManager::createMainRenderer()
 {
+    LOG_DEBUG << "createMainRenderer";
     graphicsApi_.EnableCulling();
-    mainRenderer_ = rendererFactory->create(rendererContext_);
+    mainRenderer_ = rendererFactory->create(rendererContext_, rendererContext_.graphicsApi_.GetDefaultFrameBuffer());
 
     if (not mainRenderer_)
     {

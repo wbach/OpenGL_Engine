@@ -33,7 +33,7 @@ using Renderers = std::vector<RendererInfo>;
 class BaseRenderer : public IRenderer
 {
 public:
-    BaseRenderer(RendererContext&);
+    BaseRenderer(RendererContext&, GraphicsApi::IFrameBuffer&);
     ~BaseRenderer();
 
     void init() override;
@@ -50,6 +50,7 @@ public:
 protected:
     void initRenderers();
     void createRenderers();
+    void renderImpl();
 
     template <class T>
     void addRenderer()
@@ -68,6 +69,7 @@ protected:
 
 protected:
     RendererContext& context_;
+    GraphicsApi::IFrameBuffer& renderTarget;
     Renderers renderers;
 };
 }  // namespace GameEngine

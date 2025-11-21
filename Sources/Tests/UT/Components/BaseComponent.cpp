@@ -6,6 +6,7 @@
 #include "Logger/Log.h"
 #include "Objects/GameObject.h"
 #include "Scene/Scene.hpp"
+#include "gmock/gmock.h"
 #include <GameEngine/Renderers/RendererFactory.h>
 
 using namespace testing;
@@ -25,6 +26,8 @@ BaseComponentTestSchould::BaseComponentTestSchould()
     , obj_{std::make_unique<GameEngine::GameObject>("Test GameObject", componentController_, componentFactory_, gameObjectIdPool)}
 {
     EXPECT_CALL(frameBufferMock_, Init()).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(graphicsApiMock_, GetDefaultFrameBuffer()).WillRepeatedly(ReturnRef(defaultFrameBuffer));
     EXPECT_CALL(graphicsApiMock_, GetSupportedRenderers())
         .WillOnce(Return(std::vector<GraphicsApi::RendererType>{GraphicsApi::RendererType::SIMPLE}));
     EXPECT_CALL(graphicsApiMock_, CreateFrameBuffer(_)).WillRepeatedly(ReturnRef(frameBufferMock_));

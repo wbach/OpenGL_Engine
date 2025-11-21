@@ -16,10 +16,10 @@
 
 namespace GameEngine
 {
-DefferedRenderer::DefferedRenderer(RendererContext& context)
-    : BaseRenderer(context)
+DefferedRenderer::DefferedRenderer(RendererContext& context, GraphicsApi::IFrameBuffer& renderTarget)
+    : BaseRenderer(context, renderTarget)
     , defferedFrameBuffer_(nullptr)
-    , postprocessingRenderersManager_(context)
+    , postprocessingRenderersManager_(context, renderTarget)
     , skyPassRenderer(context)
     , isReady_(false)
 {
@@ -42,7 +42,7 @@ void DefferedRenderer::render()
         bindDefferedFbo();
         context_.graphicsApi_.EnableDepthTest();
         context_.graphicsApi_.EnableDepthMask();
-        BaseRenderer::render();
+        BaseRenderer::renderImpl();
         context_.graphicsApi_.DisableDepthMask();
         context_.graphicsApi_.DisableDepthTest();
         unbindDefferedFbo();

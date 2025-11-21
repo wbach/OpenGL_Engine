@@ -7,6 +7,6 @@ namespace GameEngine
 class RendererFactoryMock : public IRendererFactory
 {
 public:
-    MOCK_METHOD(std::unique_ptr<IRenderer>, create, (RendererContext&), (const, override));
+    MOCK_METHOD(std::unique_ptr<IRenderer>, create, (RendererContext&, GraphicsApi::IFrameBuffer&), (const, override));
 };
 }  // namespace GameEngine

@@ -13,7 +13,7 @@ class RendererFactory : public IRendererFactory
 {
 public:
     RendererFactory(GraphicsApi::IGraphicsApi&);
-    std::unique_ptr<IRenderer> create(RendererContext&) const override;
+    std::unique_ptr<IRenderer> create(RendererContext&, GraphicsApi::IFrameBuffer&) const override;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi;

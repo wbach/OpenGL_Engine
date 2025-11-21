@@ -44,6 +44,7 @@ void EngineBasedTest::SetUp()
     EXPECT_CALL(windowApiMock, GetInputManager()).WillRepeatedly(ReturnRef(inputManagerMock));
     EXPECT_CALL(*graphicsApi, CreateShaderBuffer(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
     EXPECT_CALL(*graphicsApi, CreateShader(_)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
+    EXPECT_CALL(*graphicsApi, GetDefaultFrameBuffer()).WillRepeatedly(ReturnRef(defaultFrameBuffer));
 
     LOG_DEBUG << "EngineBasedTest::CreateEngineContext";
     engineContext = std::make_unique<EngineContext>(std::move(physicsApiMock), std::move(sceneFactoryMock),

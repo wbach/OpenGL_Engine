@@ -14,12 +14,5 @@ public:
     MOCK_METHOD0(CleanUp, void());
     MOCK_CONST_METHOD1(GetAttachmentTexture, ID(FrameBuffer::Type));
     MOCK_METHOD1(TakeSnapshot, void(const std::string&));
-    //virtual bool Init()                                      = 0;
-    //virtual void Bind(FrameBuffer::BindType)                 = 0;
-    //virtual void UnBind()                                    = 0;
-    //virtual void Clear()                                     = 0;
-    //virtual void CleanUp()                                   = 0;
-    //virtual ID GetAttachmentTexture(FrameBuffer::Type) const = 0;
-    //virtual void TakeSnapshot(const std::string&)            = 0;
 };
 }  // namespace GraphicsApi

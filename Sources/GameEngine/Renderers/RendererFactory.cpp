@@ -11,7 +11,7 @@ RendererFactory::RendererFactory(GraphicsApi::IGraphicsApi& graphicsApi)
     : graphicsApi(graphicsApi)
 {
 }
-std::unique_ptr<IRenderer> RendererFactory::create(RendererContext& rendererContext) const
+std::unique_ptr<IRenderer> RendererFactory::create(RendererContext& rendererContext, GraphicsApi::IFrameBuffer& renderTarget) const
 {
     const auto rendererType = EngineConf.renderer.type.get();
     auto supportedRenderers = graphicsApi.GetSupportedRenderers();
@@ -28,13 +28,13 @@ std::unique_ptr<IRenderer> RendererFactory::create(RendererContext& rendererCont
         if (iter != supportedRenderers.end())
         {
             LOG_DEBUG << "Create base renderer";
-            return std::make_unique<BaseRenderer>(rendererContext);
+            return std::make_unique<BaseRenderer>(rendererContext, renderTarget);
         }
         else
         {
             LOG_DEBUG << "Graphics api are not supporting SIMPLE renderer try using full";
             LOG_DEBUG << "Create deffered renderer";
-            return std::make_unique<DefferedRenderer>(rendererContext);
+            return std::make_unique<DefferedRenderer>(rendererContext, renderTarget);
         }
     }
 
@@ -44,13 +44,13 @@ std::unique_ptr<IRenderer> RendererFactory::create(RendererContext& rendererCont
         if (iter != supportedRenderers.end())
         {
             LOG_DEBUG << "Create deffered renderer";
-            return std::make_unique<DefferedRenderer>(rendererContext);
+            return std::make_unique<DefferedRenderer>(rendererContext, renderTarget);
         }
         else
         {
             LOG_DEBUG << "Graphics api are not supporting FULL renderer try using simple";
             LOG_DEBUG << "Create base renderer";
-            return std::make_unique<BaseRenderer>(rendererContext);
+            return std::make_unique<BaseRenderer>(rendererContext, renderTarget);
         }
     }
     return nullptr;

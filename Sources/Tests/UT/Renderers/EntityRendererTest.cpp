@@ -44,11 +44,14 @@ struct EntityRendererShould : public EngineBasedTest
     {
         EngineBasedTest::SetUp();
 
-        EXPECT_CALL(*rendererFactory, create(_)).WillOnce([&](RendererContext& ctx) {
-            rendererContext             = &ctx;
-            auto concreteEntityRenderer = std::make_unique<ConcreteEntityRenderer>(ctx);
-            return concreteEntityRenderer;
-        });
+        EXPECT_CALL(*rendererFactory, create(_, _))
+            .WillOnce(
+                [&](RendererContext& ctx, GraphicsApi::IFrameBuffer&)
+                {
+                    rendererContext             = &ctx;
+                    auto concreteEntityRenderer = std::make_unique<ConcreteEntityRenderer>(ctx);
+                    return concreteEntityRenderer;
+                });
 
         engineContext->GetRenderersManager().Init();
         engineContext->GetThreadSync().Stop();
@@ -155,7 +158,8 @@ TEST_F(EntityRendererShould, ParallelAddRemove)
     using CreatedObjectContainer = std::vector<std::pair<GameObject*, IdType>>;
     CreatedObjectContainer objects;
 
-    auto popRandomItem = [](CreatedObjectContainer& vec) -> std::optional<std::pair<GameObject*, IdType>> {
+    auto popRandomItem = [](CreatedObjectContainer& vec) -> std::optional<std::pair<GameObject*, IdType>>
+    {
         if (vec.empty())
             return std::nullopt;
 
@@ -167,57 +171,63 @@ TEST_F(EntityRendererShould, ParallelAddRemove)
         return item;
     };
 
-    std::thread gpuThread([&]() {
-        while (!addStop or !removeStop)
+    std::thread gpuThread(
+        [&]()
         {
-            LoadAllGpuTask();
-            engineContext->GetRenderersManager().renderScene(*scene);
-
-            LOG_DEBUG << "EnityRendererdMeshes " << rendererContext->measurmentHandler_.GetValue("EnityRendererdMeshes");
-            std::this_thread::sleep_for(std::chrono::microseconds(50));
-        }
-    });
-
-    std::thread addThread([&]() {
-        for (int i = 0; i < 100; ++i)
-        {
+            while (!addStop or !removeStop)
             {
-                std::lock_guard<std::mutex> lk(objectMutex);
-                auto go = AddGameObject();
-                objects.push_back({go, go->GetId()});
-                LOG_DEBUG << "Add go: " << go->GetName() << " id=" << go->GetId();
+                LoadAllGpuTask();
+                engineContext->GetRenderersManager().renderScene(*scene);
+
+                LOG_DEBUG << "EnityRendererdMeshes " << rendererContext->measurmentHandler_.GetValue("EnityRendererdMeshes");
+                std::this_thread::sleep_for(std::chrono::microseconds(50));
             }
+        });
 
-            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
-        }
-        addStop = true;
-    });
-
-    std::thread logicThread([&]() {
-        while (!addStop or !objects.empty())
+    std::thread addThread(
+        [&]()
         {
-            std::optional<std::pair<GameObject*, IdType>> maybeGo;
+            for (int i = 0; i < 100; ++i)
             {
-                std::lock_guard<std::mutex> lk(objectMutex);
-                maybeGo = popRandomItem(objects);
-            }
-
-            if (maybeGo)
-            {
-                LOG_DEBUG << "Remove go: id=" << maybeGo->second;
-                LOG_DEBUG << "Ptr is set id=" << maybeGo->second;
-                LOG_DEBUG << "Check id=" << maybeGo->first->GetId();
-
-                if (maybeGo->first)
                 {
-                    scene->RemoveGameObject(*maybeGo->first);
+                    std::lock_guard<std::mutex> lk(objectMutex);
+                    auto go = AddGameObject();
+                    objects.push_back({go, go->GetId()});
+                    LOG_DEBUG << "Add go: " << go->GetName() << " id=" << go->GetId();
                 }
+
+                std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
             }
-            scene->FullUpdate(0.1f);
-            std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
-        }
-        removeStop = true;
-    });
+            addStop = true;
+        });
+
+    std::thread logicThread(
+        [&]()
+        {
+            while (!addStop or !objects.empty())
+            {
+                std::optional<std::pair<GameObject*, IdType>> maybeGo;
+                {
+                    std::lock_guard<std::mutex> lk(objectMutex);
+                    maybeGo = popRandomItem(objects);
+                }
+
+                if (maybeGo)
+                {
+                    LOG_DEBUG << "Remove go: id=" << maybeGo->second;
+                    LOG_DEBUG << "Ptr is set id=" << maybeGo->second;
+                    LOG_DEBUG << "Check id=" << maybeGo->first->GetId();
+
+                    if (maybeGo->first)
+                    {
+                        scene->RemoveGameObject(*maybeGo->first);
+                    }
+                }
+                scene->FullUpdate(0.1f);
+                std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int>(getRandomFloat() * 1000)));
+            }
+            removeStop = true;
+        });
 
     addThread.join();
     logicThread.join();
