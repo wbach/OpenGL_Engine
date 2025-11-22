@@ -1,16 +1,15 @@
 
 #include "BaseRenderer.h"
 
+#include <Logger/Log.h>
+
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
-#include "Logger/Log.h"
 #include "Objects/Entity/ConcreteEntityRenderer.h"
 #include "Objects/Entity/PreviewRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
 #include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/ConcreteSkyBoxRenderer.h"
-#include "Objects/Skydome/SkydomeRenderer.h"
 #include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
@@ -19,9 +18,9 @@
 
 namespace GameEngine
 {
-BaseRenderer::BaseRenderer(RendererContext& context, GraphicsApi::IFrameBuffer& renderTarget)
+BaseRenderer::BaseRenderer(RendererContext& context)
     : context_(context)
-    , renderTarget(renderTarget)
+    , renderTarget(nullptr)
 {
 }
 BaseRenderer::~BaseRenderer()
@@ -75,8 +74,15 @@ void BaseRenderer::initRenderers()
 }
 void BaseRenderer::render()
 {
-    renderTarget.Bind();
-    renderImpl();
+    if (context_.camera_)
+    {
+        bindTarget();
+        renderImpl();
+    }
+    else
+    {
+        LOG_ERROR << "Camera not set!";
+    }
 }
 void BaseRenderer::setViewPort()
 {
@@ -91,7 +97,6 @@ void BaseRenderer::createRenderers()
 {
     addRenderer<PreviewRenderer>();
     addRenderer<ConcreteSkyBoxRenderer>();
-    addRenderer<SkydomRenderer>();
     addRenderer<TerrainRenderer>();
     addRenderer<ConcreteTerrainMeshRenderer>();
     addRenderer<TreeRenderer>();
@@ -110,6 +115,21 @@ void BaseRenderer::renderImpl()
         renderer.ptr->render();
         if (renderer.renderTime)
             renderer.renderTime->value = timer.FormatElapsed();
+    }
+}
+void BaseRenderer::setRenderTarget(GraphicsApi::IFrameBuffer* target)
+{
+    renderTarget = target;
+}
+void BaseRenderer::bindTarget()
+{
+    if (renderTarget)
+    {
+        renderTarget->Bind();
+    }
+    else
+    {
+        context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
     }
 }
 }  // namespace GameEngine

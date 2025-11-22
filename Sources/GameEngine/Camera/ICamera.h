@@ -4,9 +4,9 @@
 #include <functional>
 
 struct Rotation;
-
 namespace GameEngine
 {
+class IProjection;
 class ICamera
 {
 public:
@@ -28,9 +28,12 @@ public:
     virtual const vec3& GetPosition() const     = 0;
     virtual const vec3& GetDirection() const    = 0;
 
-    virtual const mat4& GetTranslationMatrix() const = 0;
-    virtual const mat4& GetRotationMatrix() const    = 0;
-    virtual const mat4& GetViewMatrix() const        = 0;
+    virtual const mat4& GetTranslationMatrix() const    = 0;
+    virtual const mat4& GetRotationMatrix() const       = 0;
+    virtual const mat4& GetViewMatrix() const           = 0;
+    virtual const mat4& GetProjectionMatrix() const     = 0;
+    virtual const mat4& GetProjectionViewMatrix() const = 0;
+    virtual const IProjection& GetProjection() const    = 0;
 
     virtual void IncreaseYaw(float yaw)          = 0;
     virtual void IncreasePitch(float pitch)      = 0;

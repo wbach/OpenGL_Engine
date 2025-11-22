@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -76,14 +77,13 @@ std::optional<float> BoundingBoxIntersect(const MousePicker::Ray& ray, const Bou
     return tmin;
 }
 
-MousePicker::MousePicker(const CameraWrapper& camera, const Projection& projection)
+MousePicker::MousePicker(const ICamera& camera)
     : camera_(camera)
-    , projection_(projection)
 {
 }
 GameObject* MousePicker::SelectObject(const vec2& mousePosition, const std::vector<std::unique_ptr<GameObject>>& objectList)
 {
-    Ray ray{camera_.GetPosition(), CalculateMouseRayDirection(projection_, camera_, mousePosition)};
+    Ray ray{camera_.GetPosition(), CalculateMouseRayDirection(camera_, mousePosition)};
     return Intersect(objectList, ray);
 }
 

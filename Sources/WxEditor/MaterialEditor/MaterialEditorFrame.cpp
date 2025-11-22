@@ -22,7 +22,7 @@ MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& 
     // Canvas renderujący preview materiału
     auto onStartupDone = [this, file = maybeFile]()
     {
-        auto& camera = canvas->GetScene().GetCamera();
+        auto& camera = *canvas->GetScene().GetCameraManager().GetMainCamera();
         camera.SetPosition(vec3(-3.0f, 0.0f, 0.0f));
         camera.LookAt(vec3(0, 0.0f, 0));
         camera.UpdateMatrix();

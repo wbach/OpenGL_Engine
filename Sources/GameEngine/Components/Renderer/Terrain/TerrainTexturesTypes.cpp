@@ -45,6 +45,6 @@ std::optional<Color> convertPaintAbleTextureTypeToColor(TerrainTextureType type)
         default:
             return std::nullopt;
     }
-};
+}
 }  // namespace GameEngine
 // clang-format on

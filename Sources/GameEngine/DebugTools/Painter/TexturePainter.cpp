@@ -19,7 +19,6 @@
 #include "Image/Image.h"
 #include "Influance.h"
 #include "glm/common.hpp"
-#include "glm/ext/scalar_constants.hpp"
 
 namespace GameEngine
 {
@@ -28,7 +27,7 @@ bool isPaintAbleTexture(TerrainTextureType type)
     return type == TerrainTextureType::redTexture or type == TerrainTextureType::blueTexture or
            type == TerrainTextureType::greenTexture or type == TerrainTextureType::alphaTexture or
            type == TerrainTextureType::backgroundTexture;
-};
+}
 namespace
 {
 std::optional<TerrainTextureType> getTextureIfExist(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures,
@@ -58,7 +57,7 @@ std::optional<TerrainTextureType> getTextureIfExist(const std::vector<std::pair<
     }
 
     return std::nullopt;
-};
+}
 std::optional<TerrainTextureType> getFirstnNewAvailableColorToPaint(const Components::TerrainRendererComponent& tc)
 {
     if (not tc.GetTexture(TerrainTextureType::redTexture))

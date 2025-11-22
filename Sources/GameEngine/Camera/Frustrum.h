@@ -29,6 +29,5 @@ public:
 
 private:
     std::vector<std::array<Plane, 6>> planes_;
-    mat4 projectionViewMatrix;
 };
 }  // namespace GameEngine

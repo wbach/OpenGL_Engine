@@ -6,11 +6,10 @@
 #include <algorithm>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {

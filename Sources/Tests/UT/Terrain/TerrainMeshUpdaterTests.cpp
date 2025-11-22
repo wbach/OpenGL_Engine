@@ -1,5 +1,6 @@
 #include <GameEngine/Components/Renderer/Terrain/TerrainMeshUpdater.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
+#include <GameEngine/Engine/Configuration.h>
 
 #include <memory>
 
@@ -91,8 +92,8 @@ TEST_F(TerrainMeshUpdaterTest, SimpleHeightMapUpdateCheck)
     const auto& meshes = model->Get()->GetMeshes();
     ASSERT_GE(meshes.size(), 2u);
 
-    const uint32 partsCount = EngineConf.renderer.terrain.meshPartsCount;
-    auto partialSize = heightmap_->GetImage().width / partsCount;
+    const uint32 partsCount   = EngineConf.renderer.terrain.meshPartsCount;
+    auto partialSize          = heightmap_->GetImage().width / partsCount;
     auto checkHeightMapVertex = [&](const vec2ui& point, uint32 meshIndex, float expectedHeight)
     {
         heightmap_->SetHeight(point, expectedHeight);
@@ -100,17 +101,16 @@ TEST_F(TerrainMeshUpdaterTest, SimpleHeightMapUpdateCheck)
 
         auto& meshData = meshes[meshIndex].GetCMeshDataRef();
         EXPECT_NEAR(meshData.positions_[1], expectedHeight, 0.01f)
-            << "Mesh " << meshIndex << ", vertex at (" << point.x << "," << point.y
-            << ") should match height";
+            << "Mesh " << meshIndex << ", vertex at (" << point.x << "," << point.y << ") should match height";
     };
 
-    float newHeightBase = 10.f;
+    float newHeightBase      = 10.f;
     uint32 expectedMeshIndex = 0;
-     for (uint32 j = 0; j < partsCount; ++j)
+    for (uint32 j = 0; j < partsCount; ++j)
     {
         for (uint32 i = 0; i < partsCount; ++i)
         {
-            checkHeightMapVertex({i* partialSize, j * partialSize}, expectedMeshIndex++, newHeightBase);
+            checkHeightMapVertex({i * partialSize, j * partialSize}, expectedMeshIndex++, newHeightBase);
             newHeightBase += newHeightBase;
         }
     }

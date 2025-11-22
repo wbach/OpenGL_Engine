@@ -7,9 +7,9 @@
 
 #include <memory>
 
-#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentFactory.h"
+#include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "IdPool.h"
@@ -21,7 +21,6 @@
 #include "Tests/Mocks/Renderers/RendererFactoryMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/TextureLoaderMock.h"
-#include "Tests/Mocks/Api/FrameBufferMock.h"
 
 using namespace GameEngine;
 using namespace GameEngine::Components;
@@ -38,7 +37,6 @@ public:
     using GraphicsApiMock = GraphicsApi::GraphicsApiMock;
 
     Utils::IdPool IdPool;
-    GraphicsApi::FrameBufferMock defaultFrameBuffer;
     Input::InputManagerMock inputManagerMock;
     std::unique_ptr<EngineContext> engineContext;
     std::vector<GraphicsApi::DisplayMode> displayModes;

@@ -2,15 +2,13 @@
 #include <Utils/MeasurementHandler.h>
 #include <Utils/Utils.h>
 
-#include <functional>
 #include <memory>
-#include <type_traits>
-#include <unordered_map>
 #include <vector>
 
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/IComponent.h"
-#include "GameEngine/Engine/Engine.h"
-#include "GraphicsApi/IGraphicsApi.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GraphicsApi/IFrameBuffer.h"
 #include "IRenderer.h"
 #include "Postproccesing/PostprocessingRenderersManager.h"
 #include "RendererContext.h"
@@ -33,7 +31,7 @@ using Renderers = std::vector<RendererInfo>;
 class BaseRenderer : public IRenderer
 {
 public:
-    BaseRenderer(RendererContext&, GraphicsApi::IFrameBuffer&);
+    BaseRenderer(RendererContext&);
     ~BaseRenderer();
 
     void init() override;
@@ -46,11 +44,13 @@ public:
     void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
+    void setRenderTarget(GraphicsApi::IFrameBuffer*);
 
 protected:
     void initRenderers();
     void createRenderers();
     void renderImpl();
+    void bindTarget();
 
     template <class T>
     void addRenderer()
@@ -69,7 +69,7 @@ protected:
 
 protected:
     RendererContext& context_;
-    GraphicsApi::IFrameBuffer& renderTarget;
+    GraphicsApi::IFrameBuffer* renderTarget;
     Renderers renderers;
 };
 }  // namespace GameEngine

@@ -5,6 +5,7 @@
 
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/Log.h"
 #include "Text/GuiTextElement.h"
 
 namespace GameEngine
@@ -53,7 +54,7 @@ void GUIRenderer::Init()
     shader_.Init();
 
     isInit_ = true;
-    /* LOG TO FIX*/ LOG_ERROR << ("GUIRenderer is initialize status : " + std::to_string(isInit_));
+    LOG_DEBUG << "GUIRenderer is initialize status : " << isInit_;
 }
 
 void GUIRenderer::render()

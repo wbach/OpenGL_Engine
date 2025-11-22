@@ -20,7 +20,6 @@
 #include "Renderer/Grass/GrassRendererComponent.h"
 #include "Renderer/Particles/ParticleEffectComponent.h"
 #include "Renderer/SkyBox/SkyBoxComponent.h"
-#include "Renderer/Skydome/SkydomeComponent.h"
 #include "Renderer/Terrain/TerrainRendererComponent.h"
 #include "Renderer/Trees/TreeRendererComponent.h"
 #include "Renderer/Water/WaterRendererComponent.h"
@@ -58,7 +57,6 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<GrassRendererComponent>();
     registerReadFunction<ParticleEffectComponent>();
     registerReadFunction<SkyBoxComponent>();
-    registerReadFunction<SkydomeComponent>();
     registerReadFunction<TerrainRendererComponent>();
     registerReadFunction<TreeRendererComponent>();
     registerReadFunction<WaterRendererComponent>();

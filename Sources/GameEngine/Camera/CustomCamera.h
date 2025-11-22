@@ -1,6 +1,7 @@
 #pragma once
 #include <Utils/Mutex.hpp>
 #include <functional>
+
 #include "Camera.h"
 
 namespace GameEngine
@@ -8,6 +9,8 @@ namespace GameEngine
 class CustomCamera : public Camera
 {
 public:
+    using Camera::Camera;
+
     void setOnUpdate(std::function<void()> func)
     {
         std::lock_guard<std::mutex> lk(onUpdateMutex);

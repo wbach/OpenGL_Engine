@@ -7,7 +7,7 @@
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 #include "IBrush.h"
 #include "TerrainPoint.h"
 
@@ -16,7 +16,7 @@ namespace GameEngine
 TerrainPainter::TerrainPainter(Dependencies& dependencies, std::unique_ptr<IBrush> brush, TerrainTextureType type)
     : Painter(dependencies.threadSync)
     , inputManager_(dependencies.inputManager)
-    , pointGetter_(dependencies.camera, dependencies.projection, dependencies.componentController)
+    , pointGetter_(dependencies.camera, dependencies.componentController)
     , brush_{std::move(brush)}
     , textureType_{type}
 

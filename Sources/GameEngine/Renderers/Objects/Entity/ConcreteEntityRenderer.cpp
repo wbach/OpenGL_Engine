@@ -71,4 +71,8 @@ void ConcreteEntityRenderer::reloadShaders()
     shader_.Reload();
     instancesShader_.Reload();
 }
+void ConcreteEntityRenderer::unSubscribe(const Components::IComponent& component)
+{
+    entityRenderer_.unSubscribe(component);
+}
 }  // namespace GameEngine

@@ -3,8 +3,6 @@
 #include <GraphicsApi/IGraphicsApi.h>
 #include "GameEngine/Renderers/RendererContext.h"
 
-#include "GameEngine/Renderers/Projection.h"
-
 namespace GameEngine
 {
 SSAORenderer::SSAORenderer(RendererContext& context)

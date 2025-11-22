@@ -5,6 +5,7 @@
 #include <Utils/Time/Timer.h>
 
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
@@ -202,7 +203,7 @@ void WaterReflectionRefractionRenderer::prepare()
     }
 
     context_.graphicsApi_.DisableCliping(0);
-    const auto& renderingSize = context_.projection_.GetRenderingSize();
+    const auto& renderingSize = context_.camera_->GetProjection().GetRenderingSize();
     context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
 
     waterTexturesRendererdMeshesMeasurementValue_->SetValue(std::to_string(waterTexturesRendererdMeshesCounter_));
@@ -318,14 +319,14 @@ void WaterReflectionRefractionRenderer::createRefractionTexture(WaterFbo& fbo, f
     const auto& renderSize = *EngineConf.renderer.water.waterRefractionResolution;
     context_.graphicsApi_.SetViewPort(0, 0, renderSize.x, renderSize.y);
 
-    auto& camera              = context_.scene_->GetCamera();
-    auto projectionViewMatrix = context_.projection_.GetProjectionMatrix() * camera.GetViewMatrix();
+    auto& camera              = *context_.camera_;
+    auto projectionViewMatrix = camera.GetProjectionViewMatrix();
 
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = camera.GetPosition();
     perFrameBuffer.clipPlane            = vec4(0.f, -1.f, 0.f, fbo.positionY + amplitude);
-    perFrameBuffer.projection           = context_.projection_.getBufferParams();
+    perFrameBuffer.projection           = camera.GetProjection().GetBufferParams();
 
     context_.graphicsApi_.UpdateShaderBuffer(*refractionPerFrameBuffer_, &perFrameBuffer);
     auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*refractionPerFrameBuffer_);
@@ -348,7 +349,7 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo, f
     const auto& renderSize = *EngineConf.renderer.water.waterRefractionResolution;
     context_.graphicsApi_.SetViewPort(0, 0, renderSize.x, renderSize.y);
 
-    auto& camera = context_.scene_->GetCamera();
+    auto& camera = *context_.camera_;
 
     auto cameraPosition = camera.GetPosition();
 
@@ -358,13 +359,13 @@ void WaterReflectionRefractionRenderer::createReflectionTexture(WaterFbo& fbo, f
 
     auto rotation             = Utils::lookAt(newforward + cameraPosition, cameraPosition);
     auto viewMatrix           = Utils::createViewMatrix(rotation, cameraPosition);
-    auto projectionViewMatrix = context_.projection_.GetProjectionMatrix() * viewMatrix;
+    auto projectionViewMatrix = camera.GetProjectionMatrix() * viewMatrix;
 
     PerFrameBuffer perFrameBuffer;
     perFrameBuffer.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix);
     perFrameBuffer.cameraPosition       = cameraPosition;
     perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, -(fbo.positionY));  // TO DO : amplitude
-    perFrameBuffer.projection           = context_.projection_.getBufferParams();
+    perFrameBuffer.projection           = camera.GetProjection().GetBufferParams();
 
     context_.graphicsApi_.UpdateShaderBuffer(*reflectionPerFrameBuffer_, &perFrameBuffer);
     auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*reflectionPerFrameBuffer_);

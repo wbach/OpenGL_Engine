@@ -12,7 +12,7 @@ struct Material;
 struct RendererContext;
 class ModelWrapper;
 struct Time;
-class Texture;
+class GeneralTexture;
 
 namespace Components
 {
@@ -45,7 +45,7 @@ private:
     void RenderTrees();
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
-    void BindMaterialTexture(uint32, Texture*, bool) const;
+    void BindMaterialTexture(uint32, GeneralTexture*, bool) const;
 
 private:
     RendererContext& context_;

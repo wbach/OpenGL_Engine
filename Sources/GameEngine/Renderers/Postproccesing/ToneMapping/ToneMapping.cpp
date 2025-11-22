@@ -3,7 +3,6 @@
 #include <GraphicsApi/IGraphicsApi.h>
 
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "Types.h"
 

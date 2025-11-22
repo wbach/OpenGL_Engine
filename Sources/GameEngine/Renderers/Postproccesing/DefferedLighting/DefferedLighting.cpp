@@ -1,6 +1,7 @@
 #include "DefferedLighting.h"
 
-#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Engine/ConfigurationParams/RendererParams/ShadowsParams/ShadowsParams.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
 
@@ -15,10 +16,10 @@ void DefferedLighting::Init()
 {
     shader_.Init();
 
+    const auto& projection  = rendererContext_.camera_->GetProjection();
     lightPass_.skyColor     = vec4(rendererContext_.fogColor_, 1.f);
-    lightPass_.viewDistance = rendererContext_.projection_.GetViewDistance();
-    lightPass_.screenSize =
-        vec2(rendererContext_.projection_.GetRenderingSize().x, rendererContext_.projection_.GetRenderingSize().y);
+    lightPass_.viewDistance = projection.GetViewDistance();
+    lightPass_.screenSize   = vec2(projection.GetRenderingSize().x, projection.GetRenderingSize().y);
 
     if (not lightPassID_)
     {

@@ -6,14 +6,13 @@ namespace GraphicsApi
 {
 class IGraphicsApi;
 }
-
 namespace GameEngine
 {
 class RendererFactory : public IRendererFactory
 {
 public:
     RendererFactory(GraphicsApi::IGraphicsApi&);
-    std::unique_ptr<IRenderer> create(RendererContext&, GraphicsApi::IFrameBuffer&) const override;
+    std::unique_ptr<BaseRenderer> create(RendererContext&) const override;
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi;

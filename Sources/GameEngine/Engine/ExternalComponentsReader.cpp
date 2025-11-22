@@ -11,6 +11,7 @@
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Components/UnknownExternalComponent.h"
 #include "GameEngine/Resources/File.h"
+#include <filesystem>
 
 #ifdef USE_GNU
 #include <dlfcn.h>

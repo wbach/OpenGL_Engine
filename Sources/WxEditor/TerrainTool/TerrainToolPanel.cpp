@@ -111,9 +111,8 @@ GameEngine::TerrainPainter::Dependencies GetPainterDependencies(GameEngine::Scen
     auto engineContext = scene.getEngineContext();
     if (not engineContext)
         throw std::runtime_error("Scene not init. engineContext is null");
-
-    return GameEngine::TerrainPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(),
-                                                    scene.GetCamera(), engineContext->GetRenderersManager().GetProjection(),
+    auto camera = scene.GetCameraManager().GetMainCamera();
+    return GameEngine::TerrainPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(), *camera,
                                                     scene.getComponentController()};
 }
 
@@ -123,12 +122,9 @@ GameEngine::PlantPainter::Dependencies GetPlantPainterDependencies(GameEngine::S
     if (not engineContext)
         throw std::runtime_error("Scene not init. engineContext is null");
 
-    return GameEngine::PlantPainter::Dependencies{engineContext->GetInputManager(),
-                                                  engineContext->GetThreadSync(),
-                                                  scene.GetCamera(),
-                                                  engineContext->GetRenderersManager().GetProjection(),
-                                                  scene.getComponentController(),
-                                                  scene};
+    auto camera = scene.GetCameraManager().GetMainCamera();
+    return GameEngine::PlantPainter::Dependencies{engineContext->GetInputManager(), engineContext->GetThreadSync(), *camera,
+                                                  scene.getComponentController(), scene};
 }
 
 template <typename EnumType>

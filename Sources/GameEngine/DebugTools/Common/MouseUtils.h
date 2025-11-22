@@ -3,8 +3,7 @@
 
 namespace GameEngine
 {
-class Projection;
-class CameraWrapper;
+class ICamera;
 
-vec3 CalculateMouseRayDirection(const Projection&, const CameraWrapper&, const vec2&);
+vec3 CalculateMouseRayDirection(const ICamera&, const vec2&);
 }  // namespace GameEngine

@@ -7,6 +7,7 @@
 #include <Variant.h>
 
 #include <algorithm>
+#include <memory>
 #include <mutex>
 #include <utility>
 
@@ -42,6 +43,10 @@ Scene::Scene(const std::string& name)
     , simulatePhysics_(true)
     , start_(false)
 {
+    // DefaultCamera;
+    defaultCameraId = cameraManager.AddCamera(std::make_unique<Camera>());
+    cameraManager.ActivateCamera(defaultCameraId);
+    cameraManager.SetCameraAsMain(defaultCameraId);
 }
 
 Scene::~Scene()
@@ -131,7 +136,7 @@ void Scene::InitResources(EngineContext& context)
 
     componentFactory_ = std::make_unique<Components::ComponentFactory>(
         *this, context.GetSceneManager(), componentController_, context.GetGraphicsApi(), context.GetGpuResourceLoader(), time_,
-        *inputManager_, *resourceManager_, *renderersManager_, camera, *physicsApi_, *guiElementFactory_, *timerService_);
+        *inputManager_, *resourceManager_, *renderersManager_, *physicsApi_, *guiElementFactory_, *timerService_);
 
     rootGameObject_ = CreateGameObject("root");
 }
@@ -536,20 +541,15 @@ GameObject& Scene::GetRootGameObject()
     return *rootGameObject_;
 }
 
-void Scene::UpdateCamera()
+CameraManager& Scene::GetCameraManager()
 {
-    camera.Update();
+    return cameraManager;
 }
 
-CameraWrapper& Scene::GetCamera()
-{
-    return camera;
-}
-
-const CameraWrapper& Scene::GetCamera() const
-{
-    return camera;
-}
+// void Scene::UpdateCamera()
+// {
+//     camera.Update();
+// }
 
 const Light& Scene::GetDirectionalLight() const
 {
@@ -590,11 +590,6 @@ std::optional<Physics::RayHit> Scene::getHeightPositionInWorld(float x, float z)
 {
     return physicsApi_->RayTest(vec3(x, 10000, z), vec3(x, -10000, z));
 }
-float Scene::distanceToCamera(const GameObject& gameObject) const
-{
-    return glm::length(camera.GetPosition() - gameObject.GetWorldTransform().GetPosition());
-}
-
 void Scene::SendEvent(SceneEvent&& event)
 {
     std::lock_guard<std::mutex> lk(eventsMutex);

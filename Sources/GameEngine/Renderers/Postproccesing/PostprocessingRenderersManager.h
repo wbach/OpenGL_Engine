@@ -21,11 +21,12 @@ typedef std::vector<PostprocessingRendererPtr> PostprocessingRenderers;
 class PostProcessingManager
 {
 public:
-    PostProcessingManager(RendererContext&, GraphicsApi::IFrameBuffer&);
+    PostProcessingManager(RendererContext&);
     ~PostProcessingManager();
+
     void Init();
     void OnSizeChanged();
-    void Render(GraphicsApi::IFrameBuffer&, const Scene&);
+    void Render(GraphicsApi::IFrameBuffer&, GraphicsApi::IFrameBuffer*, const Scene&);
     void ReloadShaders();
 
 private:
@@ -39,6 +40,5 @@ private:
     std::unique_ptr<FrameBuffersManager> fboManager_;
     PostprocessingRenderers postProcessingRenderers_;
     std::unique_ptr<IPostprocessingRenderersFactory> factory_;
-    GraphicsApi::IFrameBuffer& targetBuffer_;
 };
 }  // namespace GameEngine

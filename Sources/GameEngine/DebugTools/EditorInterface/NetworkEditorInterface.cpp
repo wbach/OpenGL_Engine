@@ -130,7 +130,7 @@ std::unordered_map<std::string, KeyCodes::Type> editorActions
 NetworkEditorInterface::NetworkEditorInterface(Scene &scene, Utils::Thread::IThreadSync &threadSync)
     : scene_(scene)
     , threadSync_(threadSync)
-    , transformChangeSubscription_{nullptr}
+    , gameObjectTransformChangeSubscription_{nullptr}
     , selectedGameObject_{nullptr}
     , userId_{0}
     , keysSubscriptionsManager_(*scene_.inputManager_)
@@ -245,14 +245,22 @@ void NetworkEditorInterface::SetupCamera()
     if (cameraEditorId_)
     {
     }
-    scene_.camera.Lock();
+    auto &cameraManager = scene_.GetCameraManager();
+    cameraManager.LockAll();
 
     auto cameraEditor = std::make_unique<CameraEditorType>(*scene_.inputManager_, *scene_.displayManager_);
-    cameraEditor->SetPosition(scene_.camera.GetPosition());
-    cameraEditor->SetRotation(scene_.camera.GetRotation());
+    if (auto mainCamera = cameraManager.GetMainCamera())
+    {
+        cameraEditor->SetPosition(mainCamera->GetPosition());
+        cameraEditor->SetRotation(mainCamera->GetRotation());
+        cameraManager.DeactivateCamera(mainCamera);
+    }
     scene_.inputManager_->ShowCursor(true);
     scene_.inputManager_->SetReleativeMouseMode(false);
-    cameraEditorId_ = scene_.camera.addAndSet(std::move(cameraEditor));
+
+    cameraEditorId_ = cameraManager.AddCamera(std::move(cameraEditor));
+    cameraManager.ActivateCamera(*cameraEditorId_);
+    cameraManager.SetCameraAsMain(*cameraEditorId_);
 }
 
 void NetworkEditorInterface::StartGatway()
@@ -294,21 +302,18 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(-1.f); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        editorActions.at(MOVE_OBJECT),
-        [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(MOVE_OBJECT), [this]() {
+        UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); });
+    });
 
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(MOVE_OBJECT), [this]() { ReleaseDragObject(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
-        editorActions.at(SELECT_OBJECT),
-        [this]()
-        {
-            MousePicker mousePicker(scene_.camera, scene_.renderersManager_->GetProjection());
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(SELECT_OBJECT), [this]() {
+        MousePicker mousePicker(*scene_.GetCameraManager().GetMainCamera());
 
-            SetSelectedGameObject(mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
-        });
+        SetSelectedGameObject(mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
+    });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         editorActions.at(EXIT), [this]() { scene_.engineContext->AddEngineEvent(QuitEvent::ASK_QUIT); });
@@ -321,14 +326,12 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT),
-                                                                         [this]()
-                                                                         {
-                                                                             if (selectedGameObject_)
-                                                                             {
-                                                                                 DeleteGameObject(*selectedGameObject_);
-                                                                             }
-                                                                         });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT), [this]() {
+        if (selectedGameObject_)
+        {
+            DeleteGameObject(*selectedGameObject_);
+        }
+    });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -362,8 +365,9 @@ void NetworkEditorInterface::NotifSelectedCameraIsChaned()
     if (cameraChangedToSend_ and cameraTimer_.GetTimeMilliseconds() > sendChangeTimeInterval)
     {
         DebugNetworkInterface::CameraMsg msg;
-        msg.position = scene_.GetCamera().GetPosition();
-        msg.rotation = scene_.GetCamera().GetRotation().GetEulerDegrees().value;
+        auto camera  = scene_.GetCameraManager().GetMainCamera();
+        msg.position = camera->GetPosition();
+        msg.rotation = camera->GetRotation().GetEulerDegrees().value;
         gateway_.Send(userId_, msg);
         cameraChangedToSend_.store(false);
         cameraTimer_.Reset();
@@ -536,11 +540,12 @@ void NetworkEditorInterface::GetCamera(const EntryParameters &)
     UnsubscribeTransformUpdateIfExist();
 
     DebugNetworkInterface::CameraMsg msg;
-    msg.position = scene_.GetCamera().GetPosition();
-    msg.rotation = scene_.GetCamera().GetRotation().GetEulerDegrees().value;
+    auto camera  = scene_.GetCameraManager().GetMainCamera();
+    msg.position = camera->GetPosition();
+    msg.rotation = camera->GetRotation().GetEulerDegrees().value;
     gateway_.Send(userId_, msg);
 
-    cameraChangeSubscriptionId_ = scene_.camera.SubscribeOnChange([&](const auto &) { cameraChangedToSend_.store(true); });
+    cameraChangeSubscriptionId_ = camera->SubscribeOnChange([&](const auto &) { cameraChangedToSend_.store(true); });
 }
 
 void SendChildrenObjectList(uint32 userId, Network::Gateway &gateway, uint32 parentId,
@@ -589,22 +594,20 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
     UnsubscribeTransformUpdateIfExist();
     UnsubscribeCameraUpdateIfExist();
 
-    // auto &transform                = gameObject->GetTransform();
-    // transformChangeSubscription_   = &transform;
-    // auto gameObjectId              = gameObject->GetId();
-    // transformChangeSubscriptionId_ = transform.SubscribeOnChange(
-    //     [gameObjectId](const auto &)
-    //     {
-    //         if (not transformChangedToSend_)
-    //         {
-    //             std::lock_guard<std::mutex> lk(transformChangedMutex_);
-    //             transformChangedToSend_ = gameObjectId;
-    //         }
-    //     });
+    gameObjectTransformChangeSubscription_ = gameObject;
+    auto gameObjectId                      = gameObject->GetId();
+    transformChangeSubscriptionId_         = gameObject->SubscribeOnLocalTransfomChange([gameObjectId](const auto &) {
+        if (not transformChangedToSend_)
+        {
+            std::lock_guard<std::mutex> lk(transformChangedMutex_);
+            transformChangedToSend_ = gameObjectId;
+        }
+    });
 
-    // DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
-    //                                      transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
-    // gateway_.Send(userId_, msg);
+    auto &transform = gameObject->GetLocalTransform();
+    DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
+                                         transform.GetRotation().GetEulerDegrees().value, transform.GetScale());
+    gateway_.Send(userId_, msg);
 }
 
 void NetworkEditorInterface::GetGameObjectComponentsListReq(const EntryParameters &param)
@@ -637,7 +640,7 @@ void NetworkEditorInterface::SetGameObjectPosition(const EntryParameters &param)
 
             if (param.at("id") == "camera")
             {
-                scene_.camera.SetPosition(position);
+                scene_.GetCameraManager().GetMainCamera()->SetPosition(position);
                 return;
             }
 
@@ -664,7 +667,7 @@ void NetworkEditorInterface::SetGameObjectRotation(const EntryParameters &param)
 
             if (param.at("id") == "camera")
             {
-                scene_.camera.SetRotation(DegreesVec3(rotation));
+                scene_.GetCameraManager().GetMainCamera()->SetRotation(DegreesVec3(rotation));
                 return;
             }
 
@@ -769,8 +772,8 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
     {
         if (params.count("frontCamera"))
         {
-            position = scene_.camera.GetPosition();
-            position += scene_.camera.GetDirection() * 5.f;
+            position = scene_.GetCameraManager().GetMainCamera()->GetPosition();
+            position += scene_.GetCameraManager().GetMainCamera()->GetDirection() * 5.f;
         }
         else
         {
@@ -868,8 +871,8 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
 
         if (gameObject)
         {
-            auto position = scene_.camera.GetPosition();
-            position += scene_.camera.GetDirection() * 5.f;
+            auto position = scene_.GetCameraManager().GetMainCamera()->GetPosition();
+            position += scene_.GetCameraManager().GetMainCamera()->GetDirection() * 5.f;
             gameObject->SetLocalPosition(position);
 
             DebugNetworkInterface::NewGameObjectInd message(gameObject->GetId(), 0, gameObject->GetName());
@@ -1060,8 +1063,7 @@ void NetworkEditorInterface::ObjectControlAction(float direction, float rotation
 void NetworkEditorInterface::CreateDragObject(GameObject &gameObject)
 {
     std::lock_guard<std::mutex> lk(dragObjectMutex_);
-    dragObject_ =
-        std::make_unique<DragObject>(*scene_.inputManager_, gameObject, scene_.camera, scene_.renderersManager_->GetProjection());
+    dragObject_ = std::make_unique<DragObject>(*scene_.inputManager_, gameObject, *scene_.GetCameraManager().GetMainCamera());
 }
 
 void NetworkEditorInterface::ReleaseDragObject()
@@ -1160,12 +1162,10 @@ void NetworkEditorInterface::PaintTerrain()
 
 void NetworkEditorInterface::UpdateArrowsIndicatorPosition()
 {
-    UseSelectedGameObject(
-        [this](auto &gameObject)
-        {
-            arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
-                                                             gameObject.GetWorldTransform().GetRotation());
-        });
+    UseSelectedGameObject([this](auto &gameObject) {
+        arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
+                                                         gameObject.GetWorldTransform().GetRotation());
+    });
 }
 
 void NetworkEditorInterface::SendObjectCreatedNotf(const GameObject &gameObject)
@@ -1316,8 +1316,7 @@ void NetworkEditorInterface::SetPhysicsVisualizationAllObjcts(const EntryParamet
         else
         {
             UseSelectedGameObject(
-                [&](GameObject &go)
-                {
+                [&](GameObject &go) {
                     auto rigidBody = go.GetComponent<Components::Rigidbody>();
                     if (rigidBody)
                     {
@@ -1376,9 +1375,9 @@ void NetworkEditorInterface::GoCameraToObject(const NetworkEditorInterface::Entr
     if (not gameObject)
         return;
 
-    scene_.camera.SetPosition(gameObject->GetWorldTransform().GetPosition() +
-                              (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
-    scene_.camera.LookAt(gameObject->GetWorldTransform().GetPosition());
+    scene_.GetCameraManager().GetMainCamera()->SetPosition(gameObject->GetWorldTransform().GetPosition() +
+                                                           (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
+    scene_.GetCameraManager().GetMainCamera()->LookAt(gameObject->GetWorldTransform().GetPosition());
 }
 
 void NetworkEditorInterface::StartScene(const NetworkEditorInterface::EntryParameters &)
@@ -1404,7 +1403,7 @@ void NetworkEditorInterface::StartScene()
     scene_.inputManager_->StashPopSubscribers();
 
     scene_.Start();
-    scene_.camera.Unlock();
+    scene_.GetCameraManager().UnlockAll();
     gateway_.Send(userId_, DebugNetworkInterface::SceneStartedNotifMsg(scene_.GetName()));
 }
 
@@ -1413,7 +1412,7 @@ void NetworkEditorInterface::StopScene()
     if (not scene_.start_.load())
         return;
 
-    scene_.camera.Lock();
+    scene_.GetCameraManager().LockAll();
     UnsubscribeTransformUpdateIfExist();
     scene_.Stop();
 
@@ -1911,7 +1910,8 @@ void NetworkEditorInterface::MoveObjectToCameraPosition(const EntryParameters &p
 
         if (gameObject)
         {
-            auto newPostion = scene_.GetCamera().GetPosition() + (scene_.GetCamera().GetDirection() * 5.f);
+            auto newPostion = scene_.GetCameraManager().GetMainCamera()->GetPosition() +
+                              (scene_.GetCameraManager().GetMainCamera()->GetDirection() * 5.f);
             gameObject->SetWorldPosition(newPostion);
         }
     }
@@ -2110,15 +2110,15 @@ void NetworkEditorInterface::UnsubscribeTransformUpdateIfExist()
 {
     if (transformChangeSubscriptionId_)
     {
-        if (not transformChangeSubscription_)
+        if (not gameObjectTransformChangeSubscription_)
         {
             LOG_ERROR << "Somthing went wrong. transformChangeSubscription_ is nullptr";
             return;
         }
 
-        transformChangeSubscription_->UnsubscribeOnChange(*transformChangeSubscriptionId_);
-        transformChangeSubscription_   = nullptr;
-        transformChangeSubscriptionId_ = std::nullopt;
+        gameObjectTransformChangeSubscription_->UnsubscribeOnLocalTransfromChange(*transformChangeSubscriptionId_);
+        gameObjectTransformChangeSubscription_ = nullptr;
+        transformChangeSubscriptionId_         = std::nullopt;
     }
 }
 
@@ -2126,7 +2126,7 @@ void NetworkEditorInterface::UnsubscribeCameraUpdateIfExist()
 {
     if (cameraChangeSubscriptionId_)
     {
-        scene_.camera.UnsubscribeOnChange(*cameraChangeSubscriptionId_);
+        scene_.GetCameraManager().GetMainCamera()->UnsubscribeOnChange(*cameraChangeSubscriptionId_);
         cameraChangeSubscriptionId_ = std::nullopt;
     }
 }
@@ -2135,8 +2135,8 @@ void NetworkEditorInterface::SetOrignalCamera()
 {
     if (cameraEditorId_)
     {
-        scene_.camera.remove(*cameraEditorId_);
-        scene_.camera.Unlock();
+        scene_.GetCameraManager().RemoveCamera(*cameraEditorId_);
+        scene_.GetCameraManager().UnlockAll();
         cameraEditorId_ = std::nullopt;
     }
 }

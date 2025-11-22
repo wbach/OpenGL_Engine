@@ -13,24 +13,22 @@ namespace GameEngine
 namespace
 {
 const float DEFAULT_NEAR_PLANE{.3f};
-const float DEFAULT_FOV{60.f};
+
 }  // namespace
 Projection::Projection()
     : Projection({640, 480})
 {
 }
 Projection::Projection(const vec2ui &renderingSize)
-    : Projection(renderingSize, DEFAULT_NEAR_PLANE, EngineConf.renderer.viewDistance, DEFAULT_FOV)
+    : Projection(renderingSize, DEFAULT_NEAR_PLANE, EngineConf.renderer.viewDistance)
 {
 }
-Projection::Projection(const vec2ui &renderingSize, float near, float far, float fov)
+Projection::Projection(const vec2ui &renderingSize, float near, float far)
     : renderingSize_(renderingSize.x, renderingSize.y)
     , aspectRatio_(CalculateAspectRatio())
     , nearPlane_(near)
     , farPlane_(far)
-    , fov_(fov)
 {
-    Init();
 }
 
 Projection::Projection(const Projection &p)
@@ -38,10 +36,8 @@ Projection::Projection(const Projection &p)
     , aspectRatio_(p.aspectRatio_)
     , nearPlane_(p.nearPlane_)
     , farPlane_(p.farPlane_)
-    , fov_(p.fov_)
-    , projectionMatrix_(p.projectionMatrix_)
+    , matrix_(p.matrix_)
 {
-    Init();
 }
 Projection::~Projection()
 {
@@ -51,14 +47,11 @@ Projection &Projection::operator=(const Projection &p)
 {
     UnsubscribeForEvents();
 
-    aspectRatio_      = p.aspectRatio_;
-    renderingSize_    = p.renderingSize_;
-    nearPlane_        = p.nearPlane_;
-    farPlane_         = p.farPlane_;
-    fov_              = p.fov_;
-    projectionMatrix_ = p.projectionMatrix_;
-
-    Init();
+    aspectRatio_   = p.aspectRatio_;
+    renderingSize_ = p.renderingSize_;
+    nearPlane_     = p.nearPlane_;
+    farPlane_      = p.farPlane_;
+    matrix_        = p.matrix_;
 
     return *this;
 }
@@ -79,14 +72,14 @@ void Projection::Init()
 {
     renderingSize_ = EngineConf.renderer.resolution.get();
     aspectRatio_   = CalculateAspectRatio();
-    CreateProjectionMatrix();
+    UpdateMatrix();
 
     viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange(
         [this]()
         {
             LOG_DEBUG << "View distance change, recalculate projection matrix";
             farPlane_ = EngineConf.renderer.viewDistance;
-            CreateProjectionMatrix();
+            UpdateMatrix();
         });
 
     resolutionChangeSubscription_ = EngineConf.renderer.resolution.subscribeForChange(
@@ -97,13 +90,13 @@ void Projection::Init()
 
             renderingSize_ = EngineConf.renderer.resolution;
             aspectRatio_   = CalculateAspectRatio();
-            CreateProjectionMatrix();
+            UpdateMatrix();
         });
 }
 
-const mat4 &Projection::GetProjectionMatrix() const
+const mat4 &Projection::GetMatrix() const
 {
-    return projectionMatrix_;
+    return matrix_;
 }
 
 float Projection::CalculateAspectRatio() const
@@ -117,23 +110,29 @@ const vec2ui &Projection::GetRenderingSize() const
 {
     return renderingSize_;
 }
-void Projection::CreateProjectionMatrix()
+
+vec4 Projection::GetBufferParams() const
 {
-    LOG_DEBUG << "Create projection matrix. FOV: " << fov_ << ", AR: " << aspectRatio_ << ", NEAR: " << nearPlane_
-              << ", FAR: " << farPlane_;
-    projectionMatrix_ = glm::perspective(glm::radians(fov_), aspectRatio_, nearPlane_, farPlane_);
+    return vec4(nearPlane_, farPlane_, renderingSize_.x, renderingSize_.y);
 }
-void Projection::OrthographiProjection()
+
+float Projection::GetViewDistance() const
 {
-    float length            = 100.f;
-    projectionMatrix_       = mat4(1.f);
-    projectionMatrix_[0][0] = 2.f / static_cast<float>(renderingSize_.x);
-    projectionMatrix_[1][1] = 2.f / static_cast<float>(renderingSize_.y);
-    projectionMatrix_[2][2] = -2.f / length;
-    projectionMatrix_[3][3] = 1.f;
+    return 0.95f * farPlane_;
 }
-vec4 Projection::getBufferParams() const
+
+float Projection::GetFar() const
 {
-    return vec4(nearPlane_, farPlane_, fov_, aspectRatio_);
+    return farPlane_;
+}
+
+float Projection::GetNear() const
+{
+    return nearPlane_;
+}
+
+float Projection::GetAspectRatio() const
+{
+    return aspectRatio_;
 }
 }  // namespace GameEngine

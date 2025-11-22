@@ -2,7 +2,8 @@
 
 #include <GraphicsApi/IGraphicsApi.h>
 
-#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 
 namespace GameEngine
@@ -28,9 +29,10 @@ void Outline::Init()
         bufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(Buffer));
         if (bufferId_)
         {
+            const auto& projection  = rendererContext_.camera_->GetProjection();
             Buffer buffer;
             buffer.screenSize =
-                vec2(rendererContext_.projection_.GetRenderingSize().x, rendererContext_.projection_.GetRenderingSize().y);
+                vec2(projection.GetRenderingSize().x, projection.GetRenderingSize().y);
             rendererContext_.graphicsApi_.UpdateShaderBuffer(*bufferId_, &buffer);
         }
     }

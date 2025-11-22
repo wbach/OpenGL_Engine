@@ -7,7 +7,6 @@
 
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"

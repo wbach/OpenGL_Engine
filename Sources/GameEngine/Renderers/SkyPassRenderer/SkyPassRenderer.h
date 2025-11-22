@@ -1,5 +1,6 @@
 #pragma once
 #include <optional>
+
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "Types.h"
@@ -19,11 +20,11 @@ public:
 
 private:
     RendererContext& context;
+
     ShaderProgram shader;
     GraphicsApi::IFrameBuffer* frameBuffer{nullptr};
     std::optional<vec2ui> frameBufferSize;
     bool isReady{false};
     std::optional<IdType> bufferId;
-
 };
 }  // namespace GameEngine

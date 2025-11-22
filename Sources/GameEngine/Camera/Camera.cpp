@@ -5,6 +5,9 @@
 #include <Utils.h>
 
 #include <algorithm>
+#include <memory>
+
+#include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 
 namespace GameEngine
 {
@@ -18,27 +21,36 @@ Camera::Camera()
 {
 }
 Camera::Camera(float pitch, float yaw)
+    : Camera(std::make_unique<PerspectiveProjection>(), pitch, yaw)
+{
+}
+Camera::Camera(const vec3& position, const vec3& lookAt)
+    : Camera(std::make_unique<PerspectiveProjection>(), position, lookAt)
+{
+}
+Camera::Camera(std::unique_ptr<IProjection> projection, float pitch, float yaw)
     : lock_(false)
     , idPool_(0)
     , position_(0.f)
     , rotation_(DegreesVec3(pitch, yaw, 0.f))
+    , projection_(std::move(projection))
     , viewMatrix_(1.f)
     , lastNotifiedPosition_(0.f)
     , lastNotifRotation_(DegreesVec3(0.f))
 {
     UpdateMatrix();
 }
-Camera::Camera(const vec3& position, const vec3& lookAt)
+Camera::Camera(std::unique_ptr<IProjection> projection, const vec3& position, const vec3& lookAt)
     : lock_(false)
     , position_(position)
     , rotation_(DegreesVec3(0.f, 0.f, 0.f))
+    , projection_(std::move(projection))
     , viewMatrix_(1.f)
     , lastNotifiedPosition_(0.f)
     , lastNotifRotation_(DegreesVec3(0.f))
 {
     LookAt(lookAt);
 }
-
 void Camera::UpdateImpl()
 {
     if (not lock_)
@@ -62,7 +74,7 @@ bool Camera::IsLocked() const
 void Camera::UpdateMatrix()
 {
     UpdateViewMatrix();
-    CalculateDirection();
+    projectionViewMatrix_ = projection_->GetMatrix() * viewMatrix_;
 }
 void Camera::SetPosition(const vec3& position)
 {
@@ -94,8 +106,7 @@ void Camera::UnsubscribeOnChange(IdType id)
 {
     if (not subscribers_.empty())
     {
-        auto iter =
-            std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](const auto& p) { return p.first == id; });
 
         if (iter != subscribers_.end())
         {
@@ -108,6 +119,7 @@ void Camera::LookAt(const vec3& lookAtPosition)
 {
     rotation_.value_ = Utils::lookAt(lookAtPosition, position_);
     CalculateDirection();
+    UpdateMatrix();
     NotifySubscribers();
 }
 const vec3& Camera::GetDirection() const
@@ -215,5 +227,17 @@ void Camera::IncreasePositionXZ(const vec2& v)
     position_.x += v.x;
     position_.z += v.y;
     NotifySubscribers();
+}
+const mat4& Camera::GetProjectionMatrix() const
+{
+    return projection_->GetMatrix();
+}
+const mat4& Camera::GetProjectionViewMatrix() const
+{
+    return projectionViewMatrix_;
+}
+const IProjection& Camera::GetProjection() const
+{
+    return *projection_;
 }
 }  // namespace GameEngine

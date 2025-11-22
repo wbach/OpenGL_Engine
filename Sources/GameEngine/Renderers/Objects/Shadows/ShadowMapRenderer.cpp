@@ -8,7 +8,7 @@
 #include <math.hpp>
 
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
@@ -22,7 +22,7 @@ ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     , entityRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
     , instancedShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesShadows)
-    , shadowBox_(context.projection_)
+    , shadowBox_()
     , projectionViewMatrix_(1.f)
     , biasMatrix_(Utils::CreateBiasNdcToTextureCoordinates())
     , isActive_{EngineConf.renderer.shadows.isEnabled}
@@ -189,7 +189,7 @@ void ShadowMapRenderer::prepare()
     context_.graphicsApi_.EnableCulling();
     context_.graphicsApi_.DisableDepthTest();
 
-    const auto& renderingSize = context_.projection_.GetRenderingSize();
+    const auto& renderingSize = context_.camera_->GetProjection().GetRenderingSize();
     context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
     context_.graphicsApi_.BindShaderBuffer(lastBindedPerFrameBuffer);
 
@@ -219,7 +219,7 @@ void ShadowMapRenderer::reloadShaders()
 
 void ShadowMapRenderer::prepareFrameBuffer()
 {
-    shadowBox_.update(context_.scene_->GetCamera(), context_.scene_->GetDirectionalLight());
+    shadowBox_.update(*context_.camera_, context_.scene_->GetDirectionalLight());
 
     const auto& shadowMatrices = shadowBox_.getLightProjectionViewMatrices();
 
@@ -241,8 +241,8 @@ void ShadowMapRenderer::renderCascades()
 
         PerFrameBuffer perFrame;
         perFrame.ProjectionViewMatrix = context_.graphicsApi_.PrepareMatrixToLoad(lightMatrixes[cascadeIndex]);
-        perFrame.cameraPosition       = context_.scene_->GetCamera().GetPosition();
-        perFrame.projection           = context_.projection_.getBufferParams();
+        perFrame.cameraPosition       = context_.camera_->GetPosition();
+        perFrame.projection           = context_.camera_->GetProjection().GetBufferParams();
         context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
 
         renderScene();

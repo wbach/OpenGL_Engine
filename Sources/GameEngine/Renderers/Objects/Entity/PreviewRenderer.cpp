@@ -6,7 +6,9 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
 #include "GameEngine/Components/Renderer/Entity/PreviewComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
@@ -116,7 +118,7 @@ void PreviewRenderer::prepare()
                     context_.graphicsApi_.PrepareMatrixToLoad(projectionViewMatrix * mesh.GetMeshTransform());
                 perFrameBuffer.cameraPosition = cameraPosition;
                 perFrameBuffer.clipPlane      = vec4(0.f, -1.f, 0.f, 10000.f);
-                perFrameBuffer.projection           = context_.projection_.getBufferParams();
+                perFrameBuffer.projection     = context_.camera_->GetProjection().GetBufferParams();
                 context_.graphicsApi_.UpdateShaderBuffer(*perFrameBufferId_, &perFrameBuffer);
                 auto lastBindedShaderBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBufferId_);
 

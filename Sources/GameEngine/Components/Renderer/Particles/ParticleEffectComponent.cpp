@@ -193,7 +193,11 @@ void ParticleEffectComponent::EmitParticles()
 }
 void ParticleEffectComponent::SortParticlesByCameraDistance()
 {
-    auto camPosition = componentContext_.camera_.GetPosition();
+    auto camera = componentContext_.renderersManager_.GetContext().camera_;
+    if (not camera)
+        return;
+
+    auto camPosition = camera->GetPosition();
 
     std::sort(particles_.begin(), particles_.end(),
               [&camPosition](const Particle& l, const Particle& r)

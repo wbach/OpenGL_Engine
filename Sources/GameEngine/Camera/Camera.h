@@ -1,17 +1,24 @@
 #pragma once
-#include <functional>
-#include <Utils/IdPool.h>
-#include "ICamera.h"
 #include <Rotation.h>
+#include <Utils/IdPool.h>
+
+#include <functional>
+#include <memory>
+
+#include "GameEngine/Renderers/Projection/IProjection.h"
+#include "ICamera.h"
 
 namespace GameEngine
 {
+class IProjection;
 class Camera : public ICamera
 {
 public:
     Camera();
     Camera(float pitch, float yaw);
     Camera(const vec3& position, const vec3& lookAt);
+    Camera(std::unique_ptr<IProjection>, float pitch, float yaw);
+    Camera(std::unique_ptr<IProjection>, const vec3& position, const vec3& lookAt);
 
     ~Camera() override = default;
 
@@ -32,6 +39,9 @@ public:
     const mat4& GetTranslationMatrix() const override;
     const mat4& GetRotationMatrix() const override;
     const mat4& GetViewMatrix() const override;
+    const mat4& GetProjectionMatrix() const override;
+    const mat4& GetProjectionViewMatrix() const override;
+    const IProjection& GetProjection() const override;
 
     void IncreaseYaw(float yaw) override;
     void IncreasePitch(float pitch) override;
@@ -66,9 +76,12 @@ private:
     Rotation rotation_;
     vec3 direction_;
 
+    std::unique_ptr<IProjection> projection_;
+    mat4 projectionViewMatrix_;
+    mat4 viewMatrix_;
+
     mat4 translationMatrix_;
     mat4 rotationMatrix_;
-    mat4 viewMatrix_;
 
 private:
     vec3 lastNotifiedPosition_;

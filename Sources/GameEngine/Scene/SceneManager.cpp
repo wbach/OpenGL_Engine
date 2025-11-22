@@ -1,11 +1,12 @@
 #include "SceneManager.h"
 
+#include <Logger/Log.h>
 #include <Utils/IThreadSync.h>
 #include <Utils/ThreadSubscriber.h>
 
 #include "GameEngine/Engine/EngineContext.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RenderersManager.h"
-#include "Logger/Log.h"
 #include "Scene.hpp"
 #include "SceneLoader.h"
 

@@ -16,7 +16,7 @@
 namespace GameEngine
 {
 class Mesh;
-class CameraWrapper;
+class ICamera;
 struct Material;
 class Projection;
 class ShadowFrameBuffer;

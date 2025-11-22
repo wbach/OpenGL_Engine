@@ -1,13 +1,13 @@
 #include "ParticlesRenderer.h"
 
-#include "GLM/GLMUtils.h"
+#include <GraphicsApi/ShaderProgramType.h>
+
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Particles/ParticleEffectComponent.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Scene/Scene.hpp"
-#include "GraphicsApi/ShaderProgramType.h"
+#include "GameEngine/Resources/Textures/Texture.h"
 
 namespace GameEngine
 {
@@ -17,8 +17,7 @@ float quadraticFunction(float blend)
 }
 float polynomialFunction(float blend)
 {
-    auto r = -3.2f * blend * blend * blend * blend + 8.8f * blend * blend * blend - 9.2f * blend * blend +
-             4.6f * blend - 4e-12f;
+    auto r = -3.2f * blend * blend * blend * blend + 8.8f * blend * blend * blend - 9.2f * blend * blend + 4.6f * blend - 4e-12f;
     if (r < 0.f)
         return 0.f;
     if (r > 1.f)
@@ -49,7 +48,7 @@ void ParticlesRenderer::render()
     if (IsInit() and not subscribers_.empty() and context_.scene_)
     {
         PrepareFrame();
-        RenderSubscribes(context_.scene_->GetCamera().GetViewMatrix());
+        RenderSubscribes(context_.camera_->GetViewMatrix());
         ClearFrame();
     }
 }
@@ -63,8 +62,7 @@ void ParticlesRenderer::subscribe(GameObject& gameObject)
     if (effect)
     {
         subscribers_.insert(
-            {gameObject.GetId(),
-             {effect->IsAnimated(), effect->GetTexture(), effect->GetBlendType(), &effect->GetParticles()}});
+            {gameObject.GetId(), {effect->IsAnimated(), effect->GetTexture(), effect->GetBlendType(), &effect->GetParticles()}});
     }
 }
 void ParticlesRenderer::unSubscribe(GameObject& gameObject)
@@ -137,16 +135,13 @@ void ParticlesRenderer::RenderInstances(size_t size)
 bool ParticlesRenderer::IsInit() const
 {
     return shader_.IsReady() and animatedShader_.IsReady() and particleObjecId.has_value() and
-           aniamtedParticleObjecId.has_value() and staticParticleObjecId.has_value() and
-           particleInputBufferId.has_value();
+           aniamtedParticleObjecId.has_value() and staticParticleObjecId.has_value() and particleInputBufferId.has_value();
 }
 void ParticlesRenderer::InitShaderBuffer()
 {
-    particleInputBuffer.projectionMatrix          = context_.projection_.GetProjectionMatrix();
+    particleInputBuffer.projectionMatrix          = glm::mat4(1.f);
     particleInputBuffer.textureNumberOfRows.value = 0;
-
-    particleInputBufferId =
-        context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ParticleInputBuffer));
+    particleInputBufferId = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ParticleInputBuffer));
     context_.graphicsApi_.UpdateShaderBuffer(*particleInputBufferId, &particleInputBuffer);
 }
 void ParticlesRenderer::StartShader()
@@ -188,9 +183,10 @@ void ParticlesRenderer::UpdateTexture(Texture* texture)
 
     if (currentUseAnimation)
     {
-        textureNumberOfrows = texture->getNumberOfRows();
-
-        particleInputBuffer.textureNumberOfRows = static_cast<float>(textureNumberOfrows);
+        textureNumberOfrows                           = texture->getNumberOfRows();
+        particleInputBuffer.projectionMatrix          = context_.camera_->GetProjectionMatrix();
+        particleInputBuffer.textureNumberOfRows.value = 0;
+        particleInputBuffer.textureNumberOfRows       = static_cast<float>(textureNumberOfrows);
         context_.graphicsApi_.UpdateShaderBuffer(*particleInputBufferId, &particleInputBuffer);
         context_.graphicsApi_.BindShaderBuffer(*particleInputBufferId);
     }

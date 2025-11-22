@@ -1,25 +1,21 @@
 #include "DefferedRenderer.h"
 
-#include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
-#include "Logger/Log.h"
+#include <Logger/Log.h>
+
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "Objects/Entity/EntityRenderer.h"
-#include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
-#include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
-#include "Objects/Skydome/SkydomeRenderer.h"
 #include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
-#include "Objects/Water/WaterRenderer.h"
 
 namespace GameEngine
 {
-DefferedRenderer::DefferedRenderer(RendererContext& context, GraphicsApi::IFrameBuffer& renderTarget)
-    : BaseRenderer(context, renderTarget)
+DefferedRenderer::DefferedRenderer(RendererContext& context)
+    : BaseRenderer(context)
     , defferedFrameBuffer_(nullptr)
-    , postprocessingRenderersManager_(context, renderTarget)
+    , postprocessingRenderersManager_(context)
     , skyPassRenderer(context)
     , isReady_(false)
 {
@@ -35,9 +31,9 @@ DefferedRenderer::~DefferedRenderer()
 
 void DefferedRenderer::render()
 {
-    if (isReady_)
+    if (isReady_ and context_.camera_)
     {
-        updateDefferedFrameBufferIfNeeded();
+        createOrUpdateDefferedFrameBufferIfNeeded();
 
         bindDefferedFbo();
         context_.graphicsApi_.EnableDepthTest();
@@ -51,17 +47,11 @@ void DefferedRenderer::render()
 
 void DefferedRenderer::init()
 {
+    LOG_DEBUG << "Init";
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
-
-    createFrameBuffer();
     createRenderers();
-
     initRenderers();
-    postprocessingRenderersManager_.Init();
-
-    skyPassRenderer.Init();
-
-    LOG_DEBUG << "DefferedRenderer initialized.";
+    LOG_DEBUG << "DefferedRenderer renderers initialized.";
 }
 
 void DefferedRenderer::reloadShaders()
@@ -72,7 +62,7 @@ void DefferedRenderer::reloadShaders()
 }
 void DefferedRenderer::setViewPort()
 {
-    const auto& renderingSize = context_.projection_.GetRenderingSize();
+    const auto& renderingSize = context_.camera_->GetProjection().GetRenderingSize();
     context_.graphicsApi_.SetViewPort(0, 0, renderingSize.x, renderingSize.y);
 }
 void DefferedRenderer::bindDefferedFbo()
@@ -84,13 +74,14 @@ void DefferedRenderer::unbindDefferedFbo()
 {
     if (auto depthTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth))
         skyPassRenderer.Render(*depthTextureId);
-    postprocessingRenderersManager_.Render(*defferedFrameBuffer_, *context_.scene_);
+
+    postprocessingRenderersManager_.Render(*defferedFrameBuffer_, renderTarget, *context_.scene_);
 }
 
 void DefferedRenderer::createFrameBuffer()
 {
     using namespace GraphicsApi::FrameBuffer;
-    defferedFrameBufferSize_ = context_.projection_.GetRenderingSize();
+    defferedFrameBufferSize_ = context_.camera_->GetProjection().GetRenderingSize();
     Attachment worldPositionAttachment(*defferedFrameBufferSize_, Type::Color0, Format::Rgba32f);
     Attachment diffuseAttachment(*defferedFrameBufferSize_, Type::Color1, Format::Rgba32f);
     Attachment normalAttachment(*defferedFrameBufferSize_, Type::Color2, Format::Rgba32f, vec4(0.f, 0.f, 0.f, 1.f));
@@ -102,26 +93,30 @@ void DefferedRenderer::createFrameBuffer()
     isReady_ = defferedFrameBuffer_->Init();
 }
 
-void DefferedRenderer::updateDefferedFrameBufferIfNeeded()
+void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
 {
-    if (not defferedFrameBufferSize_ or not defferedFrameBuffer_)
+    if (not defferedFrameBuffer_)
+    {
+        createFrameBuffer();
+        skyPassRenderer.Init();
+        postprocessingRenderersManager_.Init();
         return;
+    }
 
-    if (defferedFrameBufferSize_.value() == context_.projection_.GetRenderingSize())
+    const auto& renderingSize = context_.camera_->GetProjection().GetRenderingSize();
+    if (defferedFrameBufferSize_.value() == renderingSize)
     {
         return;
     }
 
-    LOG_DEBUG << "Update frame buffer size from: " << defferedFrameBufferSize_ << " to "
-              << context_.projection_.GetRenderingSize();
+    LOG_DEBUG << "Update frame buffer size from: " << defferedFrameBufferSize_ << " to " << renderingSize;
 
-    defferedFrameBufferSize_ = context_.projection_.GetRenderingSize();
+    defferedFrameBufferSize_ = renderingSize;
     context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
     createFrameBuffer();
 
     skyPassRenderer.CleanUp();
     skyPassRenderer.Init();
-
     postprocessingRenderersManager_.OnSizeChanged();
 }
 

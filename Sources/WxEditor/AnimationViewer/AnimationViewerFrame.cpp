@@ -49,10 +49,10 @@ void AnimationViewerFrame::Init()
 
     auto onStartupDone = [this]()
     {
-        auto& camera = canvas->GetScene().GetCamera();
-        camera.SetPosition(vec3(-0.75, 0.5, 0.75));
-        camera.LookAt(vec3(0, 0.5, 0));
-        camera.UpdateMatrix();
+        auto camera = canvas->GetScene().GetCameraManager().GetMainCamera();
+        camera->SetPosition(vec3(-0.75, 0.5, 0.75));
+        camera->LookAt(vec3(0, 0.5, 0));
+        camera->UpdateMatrix();
         isInit = true;
         if (showModelAfterInit)
         {

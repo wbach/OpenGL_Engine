@@ -1,10 +1,7 @@
 #pragma once
 #include <Utils/Time/TimerService.h>
 
-#include <memory>
-
 #include "ComponentController.h"
-#include "GameEngine/Camera/CameraWrapper.h"
 #include "GameEngine/Time/Time.h"
 
 namespace Input
@@ -39,7 +36,7 @@ typedef std::unordered_map<uint32, FunctionType> ComponentIdsMap;
 struct ComponentContext
 {
     ComponentContext(Scene& scene, ISceneManager& sceneManager, GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader,
-                     Time& time, Input::InputManager& input, CameraWrapper& camera, Physics::IPhysicsApi& physicsApi,
+                     Time& time, Input::InputManager& input, Physics::IPhysicsApi& physicsApi,
                      IResourceManager& resourceManager, Renderer::RenderersManager& renderersManager,
                      ComponentController& componentController, GuiElementFactory& guiElementFactory, Utils::Time::TimerService& timerService)
         : scene_(scene)
@@ -48,7 +45,6 @@ struct ComponentContext
         , gpuResourceLoader_(gpuResourceLoader)
         , time_(time)
         , inputManager_(input)
-        , camera_(camera)
         , physicsApi_(physicsApi)
         , resourceManager_(resourceManager)
         , componentController_(componentController)
@@ -63,7 +59,6 @@ struct ComponentContext
     IGpuResourceLoader& gpuResourceLoader_;
     Time& time_;
     Input::InputManager& inputManager_;
-    CameraWrapper& camera_;
     Physics::IPhysicsApi& physicsApi_;
     IResourceManager& resourceManager_;
     ComponentController& componentController_;

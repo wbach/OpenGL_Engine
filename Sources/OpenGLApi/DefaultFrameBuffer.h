@@ -3,15 +3,12 @@
 #include <GraphicsApi/IFrameBuffer.h>
 #include <Types.h>
 
-#include <vector>
-
-#include "IdPool.h"
-
 namespace OpenGLApi
 {
 class DefaultFrameBuffer : public GraphicsApi::IFrameBuffer
 {
 public:
+    DefaultFrameBuffer(const vec2ui&);
     bool Init() override;
     void Bind(GraphicsApi::FrameBuffer::BindType) override;
     void UnBind() override;
@@ -19,5 +16,9 @@ public:
     void CleanUp() override;
     GraphicsApi::ID GetAttachmentTexture(GraphicsApi::FrameBuffer::Type) const override;
     void TakeSnapshot(const std::string&) override;
+    const vec2ui& GetSize() const override;
+
+private:
+    vec2ui size;
 };
 }  // namespace OpenGLApi

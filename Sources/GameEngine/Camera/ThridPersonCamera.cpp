@@ -13,7 +13,8 @@ ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const co
 {
 }
 ThirdPersonCamera::ThirdPersonCamera(Input::InputManager& inputManager, const common::Transform& lookAt, const vec3& lookAtOffset)
-    : inputManager_(inputManager)
+    : Camera()
+    , inputManager_(inputManager)
     , lookAtTransform_(lookAt)
     , distanceFromPlayer_(3.f)
     , offset_(0, 0, 1.f)

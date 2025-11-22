@@ -65,8 +65,7 @@ struct TerrainHeightPainterShould : public EngineBasedTest
         HeightPainter::Dependencies parameters{
             .inputManager        = engineContext->GetInputManager(),
             .threadSync          = engineContext->GetThreadSync(),
-            .camera              = scene->GetCamera(),
-            .projection          = engineContext->GetRenderersManager().GetProjection(),
+            .camera              = *scene->GetCameraManager().GetMainCamera(),
             .componentController = scene->getComponentController(),
         };
 
@@ -107,7 +106,7 @@ struct TerrainHeightPainterShould : public EngineBasedTest
 
 TEST_F(TerrainHeightPainterShould, noPaintWithoutClick)
 {
-    auto& camera = scene->GetCamera();
+    auto& camera = *scene->GetCameraManager().GetMainCamera();
     camera.SetPosition(vec3(0, 1, 0));
     camera.LookAt(vec3(0, -1, 0));
     camera.UpdateMatrix();
@@ -189,7 +188,7 @@ void visualizeBrushWorldHeights(const CircleBrush& brush, const vec3& terrainCen
 
 TEST_F(TerrainHeightPainterShould, PaintInTheMiddle)
 {
-    auto& camera = scene->GetCamera();
+    auto& camera = *scene->GetCameraManager().GetMainCamera();
     camera.SetPosition(TERRAIN_POSITION + vec3(0, 1, 0));
     camera.LookAt(TERRAIN_POSITION + vec3(0, -1, 0));
     camera.UpdateMatrix();

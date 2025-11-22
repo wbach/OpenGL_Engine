@@ -1,15 +1,23 @@
 
 #include "RenderersManager.h"
 
+#include <Logger/Log.h>
+
+#include <algorithm>
+
 #include "GUI/GuiRenderer.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/BaseRenderer.h"
+#include "GameEngine/Renderers/DefferedRenderer.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Logger/Log.h"
-
+#include "GraphicsApi/IFrameBuffer.h"
+#include "IRendererFactory.h"
 namespace GameEngine
 {
 struct RenderAsLine
@@ -49,9 +57,8 @@ RenderersManager::RenderersManager(GraphicsApi::IGraphicsApi& graphicsApi, IGpuR
     , renderAsLines(false)
     , markToReloadShaders_(false)
     , guiRenderer_(graphicsApi)
-    , viewProjectionMatrix_(1.f)
     , bufferDataUpdater_()
-    , rendererContext_(projection_, frustrum_, graphicsApi_, gpuLoader_, measurmentHandler_, renderThreadTime)
+    , rendererContext_(frustrum_, graphicsApi_, gpuLoader_, measurmentHandler_, renderThreadTime)
     , debugRenderer_(rendererContext_, threadSync)
 {
     frustrumCheckCount_ = &measurmentHandler_.AddNewMeasurment("FrustrumCheckCount", "0");
@@ -74,37 +81,24 @@ RenderersManager::~RenderersManager()
         graphicsApi_.DeleteShaderBuffer(*perFrameId_);
     }
 }
-Projection& RenderersManager::GetProjection()
-{
-    return projection_;
-}
-const Projection& RenderersManager::GetProjection() const
-{
-    return projection_;
-}
 void RenderersManager::Init()
 {
     InitGuiRenderer();
     debugRenderer_.init();
-    CreateBuffers();
-
+    CreatePerAppBuffer();
     createMainRenderer();
-    if (mainRenderer_)
-    {
-        mainRenderer_->init();
-    }
-    else
-    {
-        LOG_ERROR << "Main renderer not set!";
-    }
 }
 void RenderersManager::createMainRenderer()
 {
     LOG_DEBUG << "createMainRenderer";
     graphicsApi_.EnableCulling();
-    mainRenderer_ = rendererFactory->create(rendererContext_, rendererContext_.graphicsApi_.GetDefaultFrameBuffer());
+    mainCameraRenderer_ = rendererFactory->create(rendererContext_);
 
-    if (not mainRenderer_)
+    if (mainCameraRenderer_)
+    {
+        mainCameraRenderer_->init();
+    }
+    else
     {
         LOG_ERROR << "Main renderer creation error!";
     }
@@ -115,39 +109,64 @@ void RenderersManager::InitGuiRenderer()
 }
 void RenderersManager::renderScene(Scene& scene)
 {
-    rendererContext_.scene_ = &scene;
-
     ReloadShadersExecution();
     bufferDataUpdater_.Update();
-    scene.UpdateCamera();
 
-    viewProjectionMatrix_ = projection_.GetProjectionMatrix() * scene.GetCamera().GetViewMatrix();
-    frustrum_.prepareFrame(viewProjectionMatrix_);
-    updatePerFrameBuffer(scene);
+    auto& cameras           = scene.GetCameraManager().GetActiveCameras();
+    rendererContext_.scene_ = &scene;
 
-    if (mainRenderer_)
+    uint64 frustrumCheckInFrame = 0;
+    ICamera* mainCameraPtr{nullptr};
+
+    auto renderPerCamera = [&](BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget = nullptr)
     {
-        mainRenderer_->prepare();
+        rendererContext_.camera_ = cameraPtr;
+
+        // cameraPtr->Update(); // TO DO?  Update?UpdateImpl?
+        cameraPtr->Update();
+        cameraPtr->UpdateImpl();
+        cameraPtr->UpdateMatrix();
+
+        frustrum_.prepareFrame(cameraPtr->GetProjectionViewMatrix());
+        updatePerFrameBuffer(*cameraPtr);
+
+        renderer.setRenderTarget(renderTarget);
+        renderer.prepare();
         {
             RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
             graphicsApi_.EnableDepthTest();
-            mainRenderer_->render();
-            mainRenderer_->blendRender();
+            renderer.render();
+            renderer.blendRender();
+        }
+
+        frustrumCheckInFrame += frustrum_.getIntersectionsCountInFrame();
+    };
+
+    for (auto& [_, cameraPtr] : cameras)
+    {
+        if (scene.GetCameraManager().GetMainCamera() == cameraPtr)
+        {
+            mainCameraPtr = cameraPtr;
+            continue;
+        }
+        auto rendererContextIter = camerasRenderers.find(cameraPtr);
+        if (rendererContextIter != camerasRenderers.end())
+        {
+            auto& [renderer, renderTarget] = rendererContextIter->second;
+
+            renderPerCamera(*renderer, cameraPtr, renderTarget);
         }
     }
 
-    *frustrumCheckCount_ = std::to_string(frustrum_.getIntersectionsCountInFrame());
+    if (mainCameraRenderer_ and mainCameraPtr)
+    {
+        renderPerCamera(*mainCameraRenderer_, mainCameraPtr);
 
-    debugRenderer_.render();
-    guiRenderer_.render();
+        debugRenderer_.render();
+        guiRenderer_.render();
+    }
 
-    /*debugRenderer_.renderTextures(
-        {rendererContext_.cascadedShadowMapsIds_[0], rendererContext_.cascadedShadowMapsIds_[1],
-         rendererContext_.cascadedShadowMapsIds_[2], rendererContext_.cascadedShadowMapsIds_[3]});*/
-
-    // debugRenderer_.renderTextures({rendererContext_.waterReflectionTextureId_,
-    //                               rendererContext_.waterRefractionTextureId_,
-    //                               rendererContext_.waterRefractionDepthTextureId_});
+    *frustrumCheckCount_ = std::to_string(frustrumCheckInFrame);
 
     if (unsubscribeAllCallback_)
     {
@@ -165,8 +184,15 @@ void RenderersManager::ReloadShadersExecution()
     if (not markToReloadShaders_.load())
         return;
 
-    if (mainRenderer_)
-        mainRenderer_->reloadShaders();
+    if (mainCameraRenderer_)
+        mainCameraRenderer_->reloadShaders();
+
+    for (auto& [_, context] : camerasRenderers)
+    {
+        if (context.renderer)
+            context.renderer->reloadShaders();
+    }
+
     guiRenderer_.ReloadShaders();
     debugRenderer_.reloadShaders();
 
@@ -179,8 +205,15 @@ void RenderersManager::Subscribe(GameObject* gameObject)
 
     debugRenderer_.subscribe(*gameObject);
     bufferDataUpdater_.Subscribe(gameObject);
-    if (mainRenderer_)
-        mainRenderer_->subscribe(*gameObject);
+
+    if (mainCameraRenderer_)
+        mainCameraRenderer_->subscribe(*gameObject);
+
+    for (auto& [_, context] : camerasRenderers)
+    {
+        if (context.renderer)
+            context.renderer->subscribe(*gameObject);
+    }
 }
 void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
@@ -188,16 +221,42 @@ void RenderersManager::UnSubscribe(GameObject* gameObject)
     {
         debugRenderer_.unSubscribe(*gameObject);
         bufferDataUpdater_.UnSubscribe(gameObject);
-        if (mainRenderer_)
-            mainRenderer_->unSubscribe(*gameObject);
+
+        if (mainCameraRenderer_)
+            mainCameraRenderer_->unSubscribe(*gameObject);
+
+        for (auto& [_, context] : camerasRenderers)
+        {
+            if (context.renderer)
+                context.renderer->unSubscribe(*gameObject);
+        }
+    }
+}
+
+void RenderersManager::UnSubscribe(const Components::IComponent& component)
+{
+    if (mainCameraRenderer_)
+        mainCameraRenderer_->unSubscribe(component);
+
+    for (auto& [_, context] : camerasRenderers)
+    {
+        if (context.renderer)
+            context.renderer->unSubscribe(component);
     }
 }
 
 void RenderersManager::UnSubscribeAll()
 {
     debugRenderer_.unSubscribeAll();
-    if (mainRenderer_)
-        mainRenderer_->unSubscribeAll();
+
+    if (mainCameraRenderer_)
+        mainCameraRenderer_->unSubscribeAll();
+
+    for (auto& [_, context] : camerasRenderers)
+    {
+        if (context.renderer)
+            context.renderer->unSubscribeAll();
+    }
     bufferDataUpdater_.UnSubscribeAll();
     guiRenderer_.UnSubscribeAll();
 }
@@ -229,11 +288,6 @@ bool RenderersManager::IsTesselationSupported() const
 {
     return graphicsApi_.IsTesselationSupported();
 }
-void RenderersManager::CreateBuffers()
-{
-    CreatePerAppBuffer();
-    CreatePerFrameBuffer();
-}
 void RenderersManager::CreatePerAppBuffer()
 {
     if (not perAppId_)
@@ -260,57 +314,32 @@ void RenderersManager::UpdatePerAppBuffer()
         perApp_.fogData = vec4(rendererContext_.fogColor_, 3.5f);
         graphicsApi_.UpdateShaderBuffer(*perAppId_, &perApp_);
         graphicsApi_.BindShaderBuffer(*perAppId_);
+
+        LOG_DEBUG << "UpdatePerAppBuffer";
     }
 }
-vec2 RenderersManager::convertToNdcPosition(const vec3& point) const
-{
-    auto clipSpace = viewProjectionMatrix_ * vec4(point, 1.f);
-    return vec2(clipSpace.x, clipSpace.y) / clipSpace.w;
-}
-vec3 RenderersManager::convertToNdcPosition2(const vec3& point) const
-{
-    auto clipSpace = viewProjectionMatrix_ * vec4(point, 1.f);
-    return vec3(clipSpace.x, clipSpace.y, clipSpace.z) / clipSpace.w;
-}
-vec2 RenderersManager::convertToScreenPosition(const vec3& point) const
-{
-    return convertToNdcPosition(point) / 2.f + 0.5f;
-}
-void RenderersManager::CreatePerFrameBuffer()
+
+void RenderersManager::updatePerFrameBuffer(ICamera& camera)
 {
     if (not perFrameId_)
     {
         perFrameId_ = graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
     }
-    if (perFrameId_)
-    {
-        PerFrameBuffer buffer;
-        buffer.ProjectionViewMatrix =
-            projection_.GetProjectionMatrix() * glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
-        buffer.cameraPosition = vec3(0);
-        buffer.clipPlane      = vec4{0.f, 1.f, 0.f, 100000.f};
-        buffer.projection     = projection_.getBufferParams();
-        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
-        graphicsApi_.BindShaderBuffer(*perFrameId_);
-    }
-}
 
-void RenderersManager::updatePerFrameBuffer(Scene& scene)
-{
     if (perFrameId_)
     {
         PerFrameBuffer buffer;
-        buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(viewProjectionMatrix_);
-        buffer.cameraPosition       = scene.GetCamera().GetPosition();
+        buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(camera.GetProjectionViewMatrix());
+        buffer.cameraPosition       = camera.GetPosition();
         buffer.clipPlane            = vec4{0.f, 1.f, 0.f, 100000.f};
-        buffer.projection           = projection_.getBufferParams();
+        buffer.projection           = camera.GetProjection().GetBufferParams();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
+                graphicsApi_.BindShaderBuffer(*perFrameId_);
     }
 }
-void RenderersManager::UnSubscribe(const Components::IComponent& component)
+RendererContext& RenderersManager::GetContext()
 {
-    if (mainRenderer_)
-        mainRenderer_->unSubscribe(component);
+    return rendererContext_;
 }
 }  // namespace Renderer
 }  // namespace GameEngine

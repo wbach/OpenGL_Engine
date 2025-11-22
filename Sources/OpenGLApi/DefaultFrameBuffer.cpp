@@ -5,6 +5,10 @@
 
 namespace OpenGLApi
 {
+DefaultFrameBuffer::DefaultFrameBuffer(const vec2ui& size)
+    : size{size}
+{
+}
 bool DefaultFrameBuffer::Init()
 {
     return true;
@@ -82,4 +86,9 @@ void DefaultFrameBuffer::TakeSnapshot(const std::string& path)
     const std::string file = path + "/default.png";
     Utils::SaveImage(outputData, vec2ui(width, height), file);
 }
+const vec2ui& DefaultFrameBuffer::GetSize() const
+{
+    return size;
+}
+
 }  // namespace OpenGLApi

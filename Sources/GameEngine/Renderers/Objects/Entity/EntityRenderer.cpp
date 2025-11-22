@@ -4,17 +4,19 @@
 
 #include <algorithm>
 
+#include "GameEngine/Camera/Frustrum.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Scene/Scene.hpp"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "GraphicsApi/ShaderProgramType.h"
 
 namespace GameEngine
 {
@@ -38,7 +40,7 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
 
     for (const auto& sub : subscribes_)
     {
-        auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
+        auto distance = glm::length(context_.camera_->GetPosition() - sub.gameObject->GetWorldTransform().GetPosition());
         if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
             auto isVisible = context_.frustrum_.intersection(sub.renderComponent->getWorldSpaceBoundingBox());
@@ -219,7 +221,7 @@ EntityRenderer::GroupedEntities EntityRenderer::groupEntities() const
     GroupedEntities result;
     for (const auto& sub : subscribes_)
     {
-        auto distance = context_.scene_->distanceToCamera(*sub.gameObject);
+        auto distance = glm::length(context_.camera_->GetPosition() - sub.gameObject->GetWorldTransform().GetPosition());
 
         if (auto model = sub.renderComponent->GetModelWrapper().get(distance))
         {
@@ -395,11 +397,14 @@ void EntityRenderer::unBindMaterial(const Material& material) const
         context_.graphicsApi_.EnableCulling();
 }
 
-void EntityRenderer::bindMaterialTexture(uint32 location, Texture* texture, bool enabled) const
+void EntityRenderer::bindMaterialTexture(uint32 location, GeneralTexture* texture, bool enabled) const
 {
     if (enabled and texture and texture->GetGraphicsObjectId())
     {
         context_.graphicsApi_.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
+}
+void EntityRenderer::unSubscribe(const Components::IComponent&)
+{
 }
 }  // namespace GameEngine

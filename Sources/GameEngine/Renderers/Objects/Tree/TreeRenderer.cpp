@@ -3,13 +3,10 @@
 #include <Common/Transform.h>
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GameEngine/Resources/ShaderBuffers/PerInstances.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
-#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/Textures/GeneralTexture.h"
 
 namespace GameEngine
 {
@@ -126,7 +123,7 @@ void TreeRenderer::UnBindMaterial(const Material& material) const
     if (material.isTransparency)
         context_.graphicsApi_.EnableCulling();
 }
-void TreeRenderer::BindMaterialTexture(uint32 location, Texture* texture, bool enabled) const
+void TreeRenderer::BindMaterialTexture(uint32 location, GeneralTexture* texture, bool enabled) const
 {
     if (enabled and texture and texture->GetGraphicsObjectId())
     {

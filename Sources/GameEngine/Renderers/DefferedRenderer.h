@@ -2,6 +2,7 @@
 #include <optional>
 
 #include "BaseRenderer.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "SkyPassRenderer/SkyPassRenderer.h"
 #include "Types.h"
@@ -12,7 +13,7 @@ struct Time;
 class DefferedRenderer : public BaseRenderer
 {
 public:
-    DefferedRenderer(RendererContext&, GraphicsApi::IFrameBuffer&);
+    DefferedRenderer(RendererContext&);
     ~DefferedRenderer() override;
 
     void init() override;
@@ -24,7 +25,7 @@ private:
     void bindDefferedFbo();
     void unbindDefferedFbo();
     void createFrameBuffer();
-    void updateDefferedFrameBufferIfNeeded();
+    void createOrUpdateDefferedFrameBufferIfNeeded();
 
 private:
     GraphicsApi::IFrameBuffer* defferedFrameBuffer_;

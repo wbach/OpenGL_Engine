@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Objects/Water/MeshWaterFactory.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Types.h"
 
@@ -68,8 +69,8 @@ void WaterRenderer::render()
     waterTileMeshBuffer.waterColor         = vec4(0, 0, 0, 1.f);
     waterTileMeshBuffer.params             = vec4(0, 0, 0, 0.f);
     waterTileMeshBuffer.params.value.w     = useSimpleRender;
-    waterTileMeshBuffer.projParams.value.x = context_.projection_.GetNear();
-    waterTileMeshBuffer.projParams.value.y = context_.projection_.GetFar();
+    waterTileMeshBuffer.projParams.value.x = context_.camera_->GetProjection().GetNear();
+    waterTileMeshBuffer.projParams.value.y = context_.camera_->GetProjection().GetFar();
 
     for (auto& [gameObjectId, subscriber] : subscribers_)
     {

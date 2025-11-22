@@ -4,17 +4,17 @@
 #include <Logger/Log.h>
 
 #include "FrameBuffersManager.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Renderers/Postproccesing/IPostprocessingRenderersFactory.h"
-#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "PostprocessingRenderer.h"
 #include "PostprocessingRenderersFactory.h"
 
 namespace GameEngine
 {
-PostProcessingManager::PostProcessingManager(RendererContext& context, GraphicsApi::IFrameBuffer& target)
+PostProcessingManager::PostProcessingManager(RendererContext& context)
     : context_(context)
-    , targetBuffer_{target}
 {
     factory_ = std::make_unique<PostprocessingRenderersFactory>(context_);
     AddEffects();
@@ -25,7 +25,14 @@ PostProcessingManager::~PostProcessingManager()
 }
 void PostProcessingManager::Init()
 {
-    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, context_.projection_.GetRenderingSize());
+    if (not context_.camera_)
+    {
+        LOG_ERROR << "Camera not set during initialization!";
+        return;
+    }
+
+    fboManager_ =
+        std::make_unique<FrameBuffersManager>(context_.graphicsApi_, context_.camera_->GetProjection().GetRenderingSize());
 
     if (fboManager_->GetStatus())
     {
@@ -42,12 +49,20 @@ void PostProcessingManager::Init()
 
 void PostProcessingManager::OnSizeChanged()
 {
+    if (not context_.camera_)
+    {
+        LOG_ERROR << "Camera not set during size update!";
+        return;
+    }
+
     fboManager_.reset();
 
-    fboManager_ = std::make_unique<FrameBuffersManager>(context_.graphicsApi_, context_.projection_.GetRenderingSize());
+    fboManager_ =
+        std::make_unique<FrameBuffersManager>(context_.graphicsApi_, context_.camera_->GetProjection().GetRenderingSize());
 }
 
-void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer, const Scene& scene)
+void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer, GraphicsApi::IFrameBuffer* renderTarget,
+                                   const Scene& scene)
 {
     if (not fboManager_->GetStatus() or postProcessingRenderers_.empty())
     {
@@ -58,7 +73,14 @@ void PostProcessingManager::Render(GraphicsApi::IFrameBuffer& startedFrameBuffer
 
     if (IsLastRenderer(0))
     {
-        bindDefaultFrameBuffer();
+        if (not renderTarget)
+        {
+            bindDefaultFrameBuffer();
+        }
+        else
+        {
+            renderTarget->Bind();
+        }
     }
     else
     {
@@ -109,13 +131,19 @@ void PostProcessingManager::AddEffects()
 }
 void PostProcessingManager::bindDefaultFrameBuffer()
 {
+    if (not context_.camera_)
+    {
+        LOG_ERROR << "Camera not set!";
+        return;
+    }
+
     const auto windowSize = context_.graphicsApi_.GetWindowApi().GetWindowSize();
 
-    if (context_.projection_.GetRenderingSize() != windowSize)
+    if (context_.camera_->GetProjection().GetRenderingSize() != windowSize)
     {
         context_.graphicsApi_.SetViewPort(0, 0, windowSize.x, windowSize.y);
     }
 
-    targetBuffer_.Bind();
+    context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
 }
 }  // namespace GameEngine

@@ -1,9 +1,9 @@
 #include "CameraEditor.h"
 
 #include <Input/InputManager.h>
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 
-#include <Logger/Log.h>
 #include "GameEngine/Display/DisplayManager.hpp"
 
 namespace GameEngine
@@ -22,8 +22,7 @@ CameraEditor::CameraEditor(Input::InputManager& inputManager, DisplayManager& di
     mouseKeyDownSubscribtion_ = inputManager_.SubscribeOnKeyDown(
         KeyCodes::RMOUSE, [&]() { referenceMousePosition_ = inputManager_.GetPixelMousePosition(); });
 
-    mouseKeyUpSubscribtion_ =
-        inputManager_.SubscribeOnKeyUp(KeyCodes::RMOUSE, [&]() { referenceMousePosition_ = std::nullopt; });
+    mouseKeyUpSubscribtion_ = inputManager_.SubscribeOnKeyUp(KeyCodes::RMOUSE, [&]() { referenceMousePosition_ = std::nullopt; });
 }
 
 CameraEditor::~CameraEditor()

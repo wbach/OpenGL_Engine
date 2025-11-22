@@ -147,7 +147,7 @@ private:
     std::unordered_map<std::string, std::function<void(const EntryParameters&)>> commands_;
     std::optional<uint32> transformChangeSubscriptionId_;
     std::optional<uint32> cameraChangeSubscriptionId_;
-    common::Transform* transformChangeSubscription_;
+    GameObject* gameObjectTransformChangeSubscription_;
 
     GameObject* selectedGameObject_;
     uint32 userId_;

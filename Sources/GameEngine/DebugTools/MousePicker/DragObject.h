@@ -15,12 +15,12 @@ class Rigidbody;
 
 class Projection;
 class GameObject;
-class CameraWrapper;
+class ICamera;
 
 class DragObject
 {
 public:
-    DragObject(Input::InputManager&, GameObject&, const CameraWrapper&, const Projection&);
+    DragObject(Input::InputManager&, GameObject&, const ICamera&);
     ~DragObject();
 
     void Update();
@@ -36,8 +36,7 @@ private:
     Input::InputManager& input_;
     GameObject& gameObject_;
     Components::Rigidbody* rigidbody_;
-    const CameraWrapper& camera_;
-    const Projection& projection_;
+    const ICamera& camera_;
     vec3 offset_;
     float mouseZcoord_;
 

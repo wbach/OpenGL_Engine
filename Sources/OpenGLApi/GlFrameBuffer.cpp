@@ -228,6 +228,11 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
 {
     std::vector<GLenum> drawBuffers;
 
+    if (not attachments.empty())
+    {
+        size = attachments.front().size;
+    }
+
     for (auto& attachment : attachments)
     {
         GlAttachment glAttachment;
@@ -290,5 +295,9 @@ void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, attachment.wrapMode_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, attachment.compareMode_);
     glFramebufferTexture(GL_FRAMEBUFFER, attachment.type_, attachment.glId_, 0);
+}
+const vec2ui& FrameBuffer::GetSize() const
+{
+    return size;
 }
 }  // namespace OpenGLApi

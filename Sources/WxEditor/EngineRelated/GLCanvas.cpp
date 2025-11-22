@@ -56,9 +56,10 @@ public:
     ~WxEditorScene() override = default;
     int Initialize() override
     {
-        camera.SetPosition(defaultCameraPosition);
-        camera.LookAt(defaultCameraLookAt);
-        camera.UpdateMatrix();
+        auto camera = GetCameraManager().GetMainCamera();
+        camera->SetPosition(defaultCameraPosition);
+        camera->LookAt(defaultCameraLookAt);
+        camera->UpdateMatrix();
         renderersManager_->GetDebugRenderer().Enable();
 
         return 0;
@@ -125,8 +126,9 @@ vec3 GLCanvas::GetWorldPosFromCamera()
         return vec3(0.f);
 
     vec3 position(0.f);
-    position = scene->GetCamera().GetPosition();
-    position += scene->GetCamera().GetDirection() * 5.f;
+    auto camera = GetScene().GetCameraManager().GetMainCamera();
+    position    = camera->GetPosition();
+    position += camera->GetDirection() * 5.f;
     return position;
 }
 
@@ -176,10 +178,10 @@ void GLCanvas::addContextMenu(wxMouseEvent& event)
         {
             if (engine && engine->GetSceneManager().GetActiveScene())
             {
-                auto& scene = GetScene();
-                scene.GetCamera().SetPosition(defaultCameraPosition);
-                scene.GetCamera().LookAt(defaultCameraLookAt);
-                scene.GetCamera().UpdateMatrix();
+                auto camera = GetScene().GetCameraManager().GetMainCamera();
+                camera->SetPosition(defaultCameraPosition);
+                camera->LookAt(defaultCameraLookAt);
+                camera->UpdateMatrix();
             }
         },
         ID_RESET_CAMERA);
@@ -204,8 +206,8 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                    [&](int x, int y)
-                                                                    {
+                                                                            [&](int x, int y)
+                                                                            {
                                                                         if (GetHandle())
                                                                         {
                                                                             WarpPointer(x, y);
@@ -365,8 +367,7 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
 
     if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker)
     {
-        mousePicker          = std::make_unique<GameEngine::MousePicker>(GetScene().GetCamera(),
-                                                                engine->GetEngineContext().GetRenderersManager().GetProjection());
+        mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera());
         auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)
@@ -501,9 +502,8 @@ void GLCanvas::GameObjectSelectChange(GameEngine::GameObject& gameObject)
 {
     if (engine and engine->GetSceneManager().GetActiveScene())
     {
-        dragGameObject =
-            std::make_unique<GameEngine::DragObject>(*GetScene().getInputManager(), gameObject, GetScene().GetCamera(),
-                                                     engine->GetEngineContext().GetRenderersManager().GetProjection());
+        dragGameObject = std::make_unique<GameEngine::DragObject>(*GetScene().getInputManager(), gameObject,
+                                                                  *GetScene().GetCameraManager().GetMainCamera());
     }
 }
 
@@ -517,16 +517,24 @@ void GLCanvas::SetupCamera()
     if (not engine)
         return;
 
-    auto& scene = GetScene();
-    scene.GetCamera().Lock();
+    auto& scene         = GetScene();
+    auto& cameraManager = scene.GetCameraManager();
+    cameraManager.LockAll();
 
     auto cameraEditor = std::make_unique<GameEngine::CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
+    ;
     cameraEditor->SetPosition(defaultCameraPosition);
     cameraEditor->LookAt(defaultCameraLookAt);
     cameraEditor->UpdateMatrix();
+
     scene.getInputManager()->ShowCursor(true);
     scene.getInputManager()->SetReleativeMouseMode(false);
-    cameraId = scene.GetCamera().addAndSet(std::move(cameraEditor));
+
+     scene.GetCameraManager().DeactivateCamera(scene.GetCameraManager().GetMainCamera()); // stay enable to test purpose
+
+    auto id = cameraManager.AddCamera(std::move(cameraEditor));
+    cameraManager.ActivateCamera(id);
+    cameraManager.SetCameraAsMain(id);
 }
 
 GameObject& GLCanvas::GetRootObject()

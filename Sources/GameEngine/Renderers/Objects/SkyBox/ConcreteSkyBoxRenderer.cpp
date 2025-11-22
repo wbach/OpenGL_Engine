@@ -3,14 +3,7 @@
 #include <GraphicsApi/ShaderProgramType.h>
 #include <Logger/Log.h>
 
-#include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
-#include "GameEngine/Resources/Models/Model.h"
-#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
-#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
-#include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Scene/Scene.hpp"
 
 namespace GameEngine
 {

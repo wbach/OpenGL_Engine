@@ -79,8 +79,11 @@ void TerrainTessellationRendererComponent::CleanUp()
 }
 void TerrainTessellationRendererComponent::Update()
 {
-    const auto& campos = componentContext_.camera_.GetPosition();
-    terrainQuadTree_.Update(campos);
+    if (auto camera = componentContext_.renderersManager_.GetContext().camera_)
+    {
+        const auto& campos = camera->GetPosition();
+        terrainQuadTree_.Update(campos);
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

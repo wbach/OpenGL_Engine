@@ -12,8 +12,7 @@ namespace GameEngine
 {
 class GameObject;
 class HeightMap;
-class CameraWrapper;
-class Projection;
+class ICamera;
 struct TerrainPoint;
 
 namespace Components
@@ -27,7 +26,7 @@ class TerrainPointGetter
     using Terrain = Components::TerrainRendererComponent;
 
 public:
-    TerrainPointGetter(const CameraWrapper&, const Projection&, const Components::ComponentController&);
+    TerrainPointGetter(const ICamera&, const Components::ComponentController&);
     std::optional<TerrainPoint> GetMousePointOnTerrain(const vec2& mousePosition);
     std::vector<Components::TerrainRendererComponent*> GetSceneTerrains() const;
 
@@ -40,8 +39,7 @@ private:
     vec2d CastToTerrainSpace(Terrain&, const vec3d&);
 
 private:
-    const CameraWrapper& camera_;
-    const Projection& projection_;
+    const ICamera& camera_;
     const Components::ComponentController& componentController_;
 
     std::vector<Components::TerrainRendererComponent*> terrains_;

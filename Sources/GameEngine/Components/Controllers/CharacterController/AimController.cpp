@@ -1,6 +1,7 @@
 #include "AimController.h"
 
 #include <Input/InputManager.h>
+#include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 
@@ -12,9 +13,9 @@
 #include "GameEngine/Components/Physics/CapsuleShape.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Logger/Log.h"
 
 namespace GameEngine
 {

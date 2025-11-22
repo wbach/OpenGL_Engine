@@ -3,12 +3,11 @@
 #include <Common/Transform.h>
 #include <Logger/Log.h>
 
-#include "GameEngine/Camera/CameraWrapper.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "TerrainPoint.h"
 
 namespace GameEngine
@@ -20,10 +19,8 @@ constexpr double RAY_RANGE{1000.0};
 using vec3d = glm::dvec3;
 }  // namespace
 
-TerrainPointGetter::TerrainPointGetter(const CameraWrapper& camera, const Projection& projection,
-                                       const Components::ComponentController& componentController)
+TerrainPointGetter::TerrainPointGetter(const ICamera& camera, const Components::ComponentController& componentController)
     : camera_(camera)
-    , projection_(projection)
     , componentController_(componentController)
 {
 }
@@ -39,7 +36,7 @@ std::optional<TerrainPoint> TerrainPointGetter::GetMousePointOnTerrain(const vec
 
     if (not terrains_.empty())
     {
-        auto rayDir = CalculateMouseRayDirection(projection_, camera_, mousePosition);
+        auto rayDir = CalculateMouseRayDirection(camera_, mousePosition);
         vec3d rayDirD{rayDir};
 
         if (IntersectionInRange(0.0, RAY_RANGE, rayDirD))

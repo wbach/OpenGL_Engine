@@ -1,10 +1,8 @@
-#include <GameEngine/Camera/CameraWrapper.h>
 #include <GameEngine/Camera/ICamera.h>
 #include <GameEngine/Components/ComponentController.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h>
 #include <GameEngine/DebugTools/Painter/TerrainPoint.h>
 #include <GameEngine/DebugTools/Painter/TerrainPointGetter.h>
-#include <GameEngine/Renderers/Projection.h>
 #include <GameEngine/Resources/Textures/HeightMap.h>
 #include <Logger/Log.h>
 #include <gtest/gtest.h>
@@ -12,7 +10,6 @@
 #include <memory>
 
 #include "Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "Renderers/Projection.h"
 #include "Tests/Mocks/Api/GraphicsApiMock.h"
 #include "Tests/UT/EngineBasedTest.h"
 #include "gmock/gmock.h"
@@ -75,7 +72,7 @@ struct TerrainPointGetterShould : public EngineBasedTest, public ::testing::With
     void SetUp() override
     {
         EngineBasedTest::SetUp();
-        sut_ = std::make_unique<TerrainPointGetter>(scene->GetCamera(), engineContext->GetRenderersManager().GetProjection(),
+        sut_ = std::make_unique<TerrainPointGetter>(    *scene->GetCameraManager().GetMainCamera(),
                                                     scene->getComponentController());
     }
     void TearDown() override
@@ -106,7 +103,7 @@ struct TerrainPointGetterShould : public EngineBasedTest, public ::testing::With
 
 TEST_F(TerrainPointGetterShould, noTerrainExist)
 {
-    auto& camera = scene->GetCamera();
+    auto& camera =     *scene->GetCameraManager().GetMainCamera();
     camera.SetPosition(vec3(0, 1, 0));
     camera.LookAt(vec3(0, -1, 0));
     camera.UpdateMatrix();
@@ -121,7 +118,7 @@ TEST_F(TerrainPointGetterShould, oneTerrainExist)
 
     PrepareTerrainComponent();
 
-    auto& camera = scene->GetCamera();
+    auto& camera =     *scene->GetCameraManager().GetMainCamera();
     camera.SetPosition(vec3(0, 1, 0));
     camera.LookAt(vec3(0, -1, 0));
     camera.UpdateMatrix();
@@ -141,7 +138,7 @@ TEST_P(TerrainPointGetterShould, DetectTerrainPointCorrectly)
 
     PrepareTerrainComponent();
 
-    auto& camera = scene->GetCamera();
+    auto& camera =     *scene->GetCameraManager().GetMainCamera();
 
     camera.SetPosition(param.cameraPos);
     camera.LookAt(param.lookAt);

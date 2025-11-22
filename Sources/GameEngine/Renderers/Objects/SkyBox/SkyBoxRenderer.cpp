@@ -5,7 +5,8 @@
 #include <Utils/GLM/GLMUtils.h>
 
 #include "GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.h"
-#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
@@ -42,8 +43,6 @@ void SkyBoxRenderer::init()
             context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(SkyBoxRenderer::PerMeshObject));
         perMeshObject_.blendFactor_ = 1.f;
     }
-    // max size : skybox width <= (2 * sqrt(3) / 3)
-    calculateBoxScale();
 }
 
 void SkyBoxRenderer::cleanUp()
@@ -70,7 +69,7 @@ void SkyBoxRenderer::updateBuffer()
 {
     rotation_.y += context_.time_.deltaTime * rotationSpeed_;
 
-    auto position = context_.scene_ ? context_.scene_->GetCamera().GetPosition() : vec3(0);
+    auto position = context_.scene_ ? context_.camera_->GetPosition() : vec3(0);
 
     perObjectUpdateBuffer_.TransformationMatrix =
         context_.graphicsApi_.PrepareMatrixToLoad(Utils::CreateTransformationMatrix(position, DegreesVec3(rotation_), scale_));
@@ -81,7 +80,12 @@ void SkyBoxRenderer::updateBuffer()
 
 void SkyBoxRenderer::calculateBoxScale()
 {
-    scale_ = vec3(context_.projection_.GetViewDistance() * sqrtf(3) / 3.f);
+    if (not context_.camera_)
+    {
+        LOG_ERROR << "Camera not set";
+        return;
+    }
+    scale_ = vec3(context_.camera_->GetProjection().GetViewDistance() * sqrtf(3) / 3.f);
 }
 
 void SkyBoxRenderer::unSubscribeAll()
@@ -94,6 +98,9 @@ void SkyBoxRenderer::render()
 {
     if (subscribes_.empty())
         return;
+
+    // max size : skybox width <= (2 * sqrt(3) / 3)
+    calculateBoxScale();
 
     prepareToRendering();
 

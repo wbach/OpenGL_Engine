@@ -14,11 +14,10 @@ namespace Components
 ComponentFactory::ComponentFactory(Scene& scene, ISceneManager& sceneManager, ComponentController& componentController,
                                    GraphicsApi::IGraphicsApi& graphicsApi, IGpuResourceLoader& gpuResourceLoader, Time& time,
                                    Input::InputManager& input, IResourceManager& resourceManager,
-                                   Renderer::RenderersManager& rendererManager, CameraWrapper& camera,
-                                   Physics::IPhysicsApi& physicsApi, GuiElementFactory& guiElementFactory,
-                                   Utils::Time::TimerService& timerService)
-    : context_(scene, sceneManager, graphicsApi, gpuResourceLoader, time, input, camera, physicsApi, resourceManager,
-               rendererManager, componentController, guiElementFactory, timerService)
+                                   Renderer::RenderersManager& rendererManager, Physics::IPhysicsApi& physicsApi,
+                                   GuiElementFactory& guiElementFactory, Utils::Time::TimerService& timerService)
+    : context_(scene, sceneManager, graphicsApi, gpuResourceLoader, time, input, physicsApi, resourceManager, rendererManager,
+               componentController, guiElementFactory, timerService)
 {
 }
 std::unique_ptr<IComponent> ComponentFactory::Create(const TreeNode& node, GameObject& gameObject)

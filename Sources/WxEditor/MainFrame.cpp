@@ -1183,9 +1183,10 @@ void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
         auto& scene = canvas->GetScene();
         if (auto gameObject = scene.GetGameObject(*maybeGameObjectId))
         {
-            scene.GetCamera().SetPosition(gameObject->GetWorldTransform().GetPosition() +
+            auto& camera = *scene.GetCameraManager().GetMainCamera();
+            camera.SetPosition(gameObject->GetWorldTransform().GetPosition() +
                                           (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
-            scene.GetCamera().LookAt(gameObject->GetWorldTransform().GetPosition());
+            camera.LookAt(gameObject->GetWorldTransform().GetPosition());
         }
     }
 }

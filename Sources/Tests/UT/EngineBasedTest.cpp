@@ -4,9 +4,9 @@
 #include <memory>
 
 #include "GameEngine/Engine/EngineContext.h"
-#include "Logger/Log.h"
 #include "GameEngine/Resources/Models/WBLoader/IModelLoaderFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
+#include "Logger/Log.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"
 #include "Tests/Mocks/Resources/ModelLoaderFactoryMock.h"
 #include "Tests/Mocks/Resources/ResourceManagerFactoryMock.h"
@@ -44,7 +44,6 @@ void EngineBasedTest::SetUp()
     EXPECT_CALL(windowApiMock, GetInputManager()).WillRepeatedly(ReturnRef(inputManagerMock));
     EXPECT_CALL(*graphicsApi, CreateShaderBuffer(_, _)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
     EXPECT_CALL(*graphicsApi, CreateShader(_)).WillRepeatedly(Return(GraphicsApi::ID(IdPool.getId())));
-    EXPECT_CALL(*graphicsApi, GetDefaultFrameBuffer()).WillRepeatedly(ReturnRef(defaultFrameBuffer));
 
     LOG_DEBUG << "EngineBasedTest::CreateEngineContext";
     engineContext = std::make_unique<EngineContext>(std::move(physicsApiMock), std::move(sceneFactoryMock),
@@ -58,16 +57,13 @@ void EngineBasedTest::SetUp()
     auto textureLoaderMock      = std::make_unique<TextureLoaderMock>();
     textureLoader               = textureLoaderMock.get();
 
-    EXPECT_CALL(*modelLoaderFactoryMock, createLoaders())
-        .WillOnce(::testing::Invoke(
-            [&]()
-            {
-                auto loader     = std::make_unique<LoaderMock>(*graphicsApi, *textureLoader);
-                modelLoaderMock = loader.get();
-                LoadersVector v;
-                v.push_back(std::move(loader));
-                return v;
-            }));
+    EXPECT_CALL(*modelLoaderFactoryMock, createLoaders()).WillOnce(::testing::Invoke([&]() {
+        auto loader     = std::make_unique<LoaderMock>(*graphicsApi, *textureLoader);
+        modelLoaderMock = loader.get();
+        LoadersVector v;
+        v.push_back(std::move(loader));
+        return v;
+    }));
     auto resourceManager = std::make_unique<GameEngine::ResourceManager>(
         *graphicsApi, engineContext->GetGpuResourceLoader(), std::move(textureLoaderMock), std::move(modelLoaderFactoryMock));
 

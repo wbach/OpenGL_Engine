@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "Camera/CameraManager.h"
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentController.h"
@@ -41,7 +42,7 @@ public:
     BaseComponentTestSchould();
     virtual ~BaseComponentTestSchould();
 
-    GraphicsApi::FrameBufferMock defaultFrameBuffer;
+    CameraManager cameraManager_;
     Scene scene;
     std::vector<GraphicsApi::DisplayMode> displayModes;
     Utils::IdPool gameObjectIdPool;
@@ -63,7 +64,6 @@ public:
     SceneManagerMock sceneManager;
     Renderer::RenderersManager renderersManager_;
     CameraMock cameraMock_;
-    CameraWrapper cameraWrapper_;
     GuiElementFactory::EntryParameters guiFactoryEntryParameters_;
     GuiElementFactory guiElementFactory_;
     ComponentContext context_;

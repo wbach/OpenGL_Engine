@@ -2,7 +2,8 @@
 
 #include <GraphicsApi/IGraphicsApi.h>
 
-#include "GameEngine/Renderers/Projection.h"
+#include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 
 namespace GameEngine
@@ -27,9 +28,10 @@ void Fxaa::Init()
         fxaaBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(FxaaBuffer));
         if (fxaaBufferId_)
         {
+            const auto& projection  = rendererContext_.camera_->GetProjection();
             FxaaBuffer buffer;
-            buffer.invertedScreenSize = vec2(1.f / rendererContext_.projection_.GetRenderingSize().x,
-                                             1.f / rendererContext_.projection_.GetRenderingSize().y);
+            buffer.invertedScreenSize = vec2(1.f / projection.GetRenderingSize().x,
+                                             1.f / projection.GetRenderingSize().y);
             float fxaaSpanMax         = 8.f;
             float fxaaReduceMin       = 1.f / 128.f;
             float fxaaReduceMul       = 0.f /*1.f / 8.f*/;

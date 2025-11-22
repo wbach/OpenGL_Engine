@@ -210,7 +210,7 @@ void OpenGLApi::Init()
 
     glPolygonOffset(1, 1);
 
-    impl_->frameBuffers_.push_back(std::make_unique<DefaultFrameBuffer>());
+    impl_->frameBuffers_.push_back(std::make_unique<DefaultFrameBuffer>(windowApi_->GetWindowSize()));
 
     LOG_DEBUG << "Init done.";
 }

@@ -494,7 +494,7 @@ void PlantPainter::GenerateOnTerrain(Components::TerrainRendererComponent* terra
 }
 void PlantPainter::Erase(const vec2& mousePosition)
 {
-    TerrainPointGetter pointGetter(dependencies.camera, dependencies.projection, dependencies.componentController);
+    TerrainPointGetter pointGetter(dependencies.camera, dependencies.componentController);
     auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
     if (not currentTerrainPoint)
     {
@@ -544,7 +544,7 @@ void PlantPainter::Paint(const vec2& mousePosition)
     {
         case PaintMode::Terrain:
         {
-            TerrainPointGetter pointGetter(dependencies.camera, dependencies.projection, dependencies.componentController);
+            TerrainPointGetter pointGetter(dependencies.camera, dependencies.componentController);
             auto currentTerrainPoint = pointGetter.GetMousePointOnTerrain(mousePosition);
             if (not currentTerrainPoint)
             {

@@ -67,10 +67,10 @@ struct PlantPainterShould : public EngineBasedTest
                     return idPool_.getId();
                 });
 
+        auto& camera = *scene->GetCameraManager().GetMainCamera();
         PlantPainter::Dependencies parameters{.inputManager        = engineContext->GetInputManager(),
                                               .threadSync          = engineContext->GetThreadSync(),
-                                              .camera              = scene->GetCamera(),
-                                              .projection          = engineContext->GetRenderersManager().GetProjection(),
+                                              .camera              = camera,
                                               .componentController = scene->getComponentController(),
                                               .scene               = *scene};
 
@@ -121,7 +121,7 @@ struct PlantPainterShould : public EngineBasedTest
 
 TEST_F(PlantPainterShould, noPaintWithoutClick)
 {
-    auto& camera = scene->GetCamera();
+    auto& camera = *scene->GetCameraManager().GetMainCamera();
     camera.SetPosition(vec3(0, 1, 0));
     camera.LookAt(vec3(0, -1, 0));
     camera.UpdateMatrix();
@@ -132,7 +132,7 @@ TEST_F(PlantPainterShould, noPaintWithoutClick)
 
 TEST_F(PlantPainterShould, PaintInTheMiddle)
 {
-    auto& camera = scene->GetCamera();
+    auto& camera = *scene->GetCameraManager().GetMainCamera();
     camera.SetPosition(TERRAIN_POSITION + vec3(0, 1, 0));
     camera.LookAt(TERRAIN_POSITION + vec3(0, -1, 0));
     camera.UpdateMatrix();

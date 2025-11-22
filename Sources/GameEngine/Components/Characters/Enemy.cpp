@@ -3,7 +3,7 @@
 #include <Utils/TreeNode.h>
 
 #include "GameEngine/Animations/AnimationClip.h"
-#include "GameEngine/Camera/CameraWrapper.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Characters/Player.h"
 #include "GameEngine/Components/ComponentContext.h"
@@ -109,7 +109,7 @@ void Enemy::Update()
     hud_.hp.update();
     if (hud_.window)
     {
-        auto cameraPostion  = componentContext_.scene_.GetCamera().GetPosition();
+        auto cameraPostion  = componentContext_.scene_.GetCameraManager().GetMainCamera()->GetPosition();
         auto toCameraVector = cameraPostion - thisObject_.GetWorldTransform().GetPosition();
 
         if (glm::length(toCameraVector) > 20.f)

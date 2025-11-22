@@ -4,7 +4,6 @@
 #include <Mutex.hpp>
 #include <functional>
 #include <list>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -17,6 +16,7 @@ class GameObject;
 class GuiTextElement;
 class GuiWindowElement;
 class VerticalLayout;
+class ICamera;
 
 namespace Debug
 {
@@ -83,6 +83,7 @@ private:
     std::unordered_map<std::string, std::function<void(const std::vector<std::string>&)>> commandsActions_;
     int32 commandHistoryIndex_;
     std::optional<IdType> firstPersonCameraId_;
+    ICamera* previousMainCamera_{nullptr};
 
 private:
     Input::KeysSubscriptionsManager keysSubscribtionManager_;

@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "GameEngine/Camera/CameraWrapper.h"
+#include "GameEngine/Camera/CameraManager.h"
 #include "GameEngine/Components/ComponentController.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/DebugTools/Console/Console.h"
@@ -104,9 +104,8 @@ public:
     GameObject& GetRootGameObject();
 
     // Cameras
-    void UpdateCamera();
-    CameraWrapper& GetCamera();
-    const CameraWrapper& GetCamera() const;
+    //void UpdateCamera();
+    CameraManager& GetCameraManager();
 
     // Lights
     const Light& GetDirectionalLight() const;
@@ -121,7 +120,6 @@ public:
     void StopNetworkEditorInterface();
 
     std::optional<Physics::RayHit> getHeightPositionInWorld(float, float) const;
-    float distanceToCamera(const GameObject&) const;
 
     void SendEvent(SceneEvent&&);
     void SendEvent(EngineEvent&);
@@ -145,7 +143,8 @@ protected:
 
 protected:
     std::unique_ptr<IResourceManager> resourceManager_;
-    CameraWrapper camera;
+    CameraManager cameraManager;
+    IdType defaultCameraId;
 
     Components::ComponentController componentController_;
     std::unique_ptr<Components::ComponentFactory> componentFactory_;

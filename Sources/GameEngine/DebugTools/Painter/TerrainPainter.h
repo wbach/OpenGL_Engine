@@ -17,8 +17,8 @@ class InputManager;
 
 namespace GameEngine
 {
-class CameraWrapper;
-class Projection;
+class ICamera;
+class IProjection;
 class IBrush;
 struct Influance;
 
@@ -35,8 +35,7 @@ public:
     {
         Input::InputManager& inputManager;
         Utils::Thread::IThreadSync& threadSync;
-        const CameraWrapper& camera;
-        const Projection& projection;
+        const ICamera& camera;
         const Components::ComponentController& componentController;
     };
 

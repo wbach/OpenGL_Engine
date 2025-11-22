@@ -2,8 +2,7 @@
 
 #include <Logger/Log.h>
 
-#include <chrono>
-
+#include "GameEngine/Engine/Configuration.h"
 #include "GuiElementFactory.h"
 #include "Layout/VerticalLayout.h"
 #include "Text/GuiTextElement.h"

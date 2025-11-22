@@ -4,10 +4,12 @@
 #include <Thread.hpp>
 #include <chrono>
 #include <iostream>
+
 #include "Camera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "Intersection.h"
 #include "Objects/IObject.h"
@@ -105,13 +107,16 @@ void RayTracerEngine::render(const vec2ui &size, float, const File &outputFile)
     image_.setChannels(4);
     image_.allocateImage<uint8>();
 
-    scene_.camera_ = std::make_unique<RayTracer::Camera>(
-        size, glm::radians(rendererContext_.projection_.GetFoV()), vec3(0, 1, 0),
-        rendererContext_.scene_->GetCamera().GetPosition(), rendererContext_.scene_->GetCamera().GetDirection());
+    if (auto projection = dynamic_cast<const PerspectiveProjection*>(&rendererContext_.camera_->GetProjection()))
+    {
+        scene_.camera_ = std::make_unique<RayTracer::Camera>(size, glm::radians(projection->GetFoV()), vec3(0, 1, 0),
+                                                             rendererContext_.camera_->GetPosition(),
+                                                             rendererContext_.camera_->GetDirection());
 
-    multiThreadsRun(threadsCount_);
+        multiThreadsRun(threadsCount_);
 
-    Utils::SaveImage(image_, outputFile.GetAbsolutePath().string());
+        Utils::SaveImage(image_, outputFile.GetAbsolutePath().string());
+    }
 }
 
 void RayTracerEngine::multiThreadsRun(uint32 threadsCount)
@@ -238,8 +243,7 @@ vec3 RayTracerEngine::calculateColor(const Ray &ray, const Intersection &interse
     for (const auto &light : rendererContext_.scene_->GetLights())
     {
         outputColor +=
-            procesLight(ray, light, intersection.getPoint(), intersection.getNormal(), intersection.getObject()) *
-            energy;
+            procesLight(ray, light, intersection.getPoint(), intersection.getNormal(), intersection.getObject()) * energy;
     }
 
     limtColorValue(outputColor);

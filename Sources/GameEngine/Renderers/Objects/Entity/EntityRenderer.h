@@ -17,7 +17,7 @@ class Model;
 class Entity;
 class Projection;
 class ModelWrapper;
-class Texture;
+class GeneralTexture;
 struct RendererContext;
 struct Material;
 class ShaderProgram;
@@ -53,6 +53,7 @@ public:
     void cleanUp();
     void subscribe(GameObject&);
     void unSubscribe(GameObject&);
+    void unSubscribe(const Components::IComponent&);
     void unSubscribeAll();
 
     uint32 renderEntitiesWithoutGrouping();
@@ -65,7 +66,7 @@ private:
     void renderMesh(const Mesh&,const Material&);
     void bindMaterial(const Material&) const;
     void unBindMaterial(const Material&) const;
-    void bindMaterialTexture(uint32, Texture*, bool) const;
+    void bindMaterialTexture(uint32, GeneralTexture*, bool) const;
     const std::pair<GraphicsApi::ID, const Material*> getMaterial(const EntitySubscriber&, const Mesh&);
 
 private:

@@ -6,6 +6,8 @@
 #include "Common/Controllers/CharacterController/CharacterActions.h"
 #include "Common/Transform.h"
 #include "GameEngine/Animations/AnimationClip.h"
+#include "GameEngine/Camera/CameraManager.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Animation/Animator.h"
 #include "GameEngine/Components/Characters/Enemy.h"
 #include "GameEngine/Components/ComponentContext.h"
@@ -31,6 +33,17 @@ namespace
 {
 const std::string COMPONENT_STR{"Player"};
 const float ATTACK_RANGE{2.f};
+
+vec2 convertToNdcPosition(const mat4& viewProjectionMatrix, const vec3& point)
+{
+    auto clipSpace = viewProjectionMatrix * vec4(point, 1.f);
+    return vec2(clipSpace.x, clipSpace.y) / clipSpace.w;
+}
+
+vec2 convertToScreenPosition(const mat4& viewProjectionMatrix, const vec3& point)
+{
+    return convertToNdcPosition(viewProjectionMatrix, point) / 2.f + 0.5f;
+}
 }  // namespace
 
 Player::Player(ComponentContext& componentContext, GameObject& gameObject)
@@ -154,9 +167,15 @@ void Player::hurt(int64 dmg)
 void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
 {
     vec2 offset(getRandomFloat() / 20.f, getRandomFloat() / 20.f);
-    auto hitInfoWorldPoision   = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
-    auto hitInfoScreenPosition = componentContext_.renderersManager_.convertToScreenPosition(hitInfoWorldPoision);
-    auto hitText               = componentContext_.guiElementFactory_.CreateGuiText(std::to_string(dmg));
+    auto hitInfoWorldPoision = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
+    auto camera              = componentContext_.renderersManager_.GetContext().camera_;
+    if (not camera)
+    {
+        return;
+    }
+    const auto& projectionViewMatrix = camera->GetProjectionViewMatrix();
+    auto hitInfoScreenPosition       = convertToScreenPosition(projectionViewMatrix, hitInfoWorldPoision);
+    auto hitText                     = componentContext_.guiElementFactory_.CreateGuiText(std::to_string(dmg));
     hitText->SetScreenScale(vec2(0.05f));
     hitText->SetScreenPostion(hitInfoScreenPosition + offset);
     hitText->SetColor(vec4(1.f, 1.f, 1.f, 0.f));
@@ -165,7 +184,7 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
 
     guiManager_.add(
         GuiAnimation(std::move(hitText), GuiAnimation::Duration(1.f),
-                     [offset, hitTextPtr, &enemyTransform, &rendererManager = componentContext_.renderersManager_](
+                     [offset, hitTextPtr, &enemyTransform, &componentContext = componentContext_](
                          GuiElement& text, GuiAnimation::DeltaTime deltaTime, GuiAnimation::Duration elapsedTime) mutable
                      {
                          if (elapsedTime > 0.5f)
@@ -177,7 +196,14 @@ void Player::renderDmg(const common::Transform& enemyTransform, int64 dmg)
                          }
 
                          auto hitInfoWorldPoision = enemyTransform.GetPosition() + vec3(0, enemyTransform.GetScale().y / 2.f, 0);
-                         auto hitInfoScreenPosition = rendererManager.convertToScreenPosition(hitInfoWorldPoision);
+
+                         auto camera = componentContext.renderersManager_.GetContext().camera_;
+                         if (not camera)
+                         {
+                             return;
+                         }
+                         const auto& projectionViewMatrix = camera->GetProjectionViewMatrix();
+                         auto hitInfoScreenPosition       = convertToScreenPosition(projectionViewMatrix, hitInfoWorldPoision);
                          text.SetScreenPostion(hitInfoScreenPosition + offset);
 
                          auto currentColor = hitTextPtr->GetColor();

@@ -106,9 +106,14 @@ void Console::RegisterActions()
 
 void Console::CameraInfo(const std::vector<std::string> &)
 {
-    PrintMsgInConsole("Camera info: ");
-    PrintMsgInConsole(std::to_string(scene_.camera.GetPosition()));
-    PrintMsgInConsole(std::to_string(scene_.camera.GetRotation().GetEulerDegrees().value));
+    int index = 0;
+    for (const auto &[_, activeCameraPtr] : scene_.GetCameraManager().GetActiveCameras())
+    {
+        PrintMsgInConsole("Active camera: " + std::to_string(index++) + ", info: ");
+
+        PrintMsgInConsole(std::to_string(activeCameraPtr->GetPosition()));
+        PrintMsgInConsole(std::to_string(activeCameraPtr->GetRotation().GetEulerDegrees().value));
+    }
 }
 
 void Console::SetFreeCamera(const std::vector<std::string> &)
@@ -117,16 +122,30 @@ void Console::SetFreeCamera(const std::vector<std::string> &)
         return;
 
     auto firstPersonCamera = std::make_unique<FirstPersonCamera>(*scene_.inputManager_, *scene_.displayManager_);
-    firstPersonCamera->SetPosition(scene_.camera.GetPosition());
-    firstPersonCamera->SetRotation(scene_.camera.GetRotation());
-    scene_.camera.addAndSet(std::move(firstPersonCamera));
+    auto &cameraManager    = scene_.GetCameraManager();
+    if (auto mainCamera = cameraManager.GetMainCamera())
+    {
+        firstPersonCamera->SetPosition(mainCamera->GetPosition());
+        firstPersonCamera->SetRotation(mainCamera->GetRotation());
+        cameraManager.DeactivateCamera(mainCamera);
+        previousMainCamera_ = mainCamera;
+    }
+    auto id = cameraManager.AddCamera(std::move(firstPersonCamera));
+    cameraManager.ActivateCamera(id);
+    cameraManager.SetCameraAsMain(id);
 }
 
 void Console::DisableFreeCam(const std::vector<std::string> &)
 {
     if (firstPersonCameraId_)
     {
-        scene_.camera.remove(*firstPersonCameraId_);
+        auto &cameraManager = scene_.GetCameraManager();
+        cameraManager.RemoveCamera(*firstPersonCameraId_);
+        if (previousMainCamera_)
+        {
+            cameraManager.ActivateCamera(previousMainCamera_);
+            cameraManager.SetCameraAsMain(previousMainCamera_);
+        }
         firstPersonCameraId_ = std::nullopt;
     }
 }
@@ -216,7 +235,7 @@ std::string Console::GetCommandToExecute()
 void Console::CloseConsole()
 {
     window_->Hide();
-    scene_.camera.Unlock();
+    scene_.GetCameraManager().UnlockAll();
 
     if (currentCommand_ and currentCommand_->GetText() != COMMAND_CURRSOR)
     {
@@ -579,91 +598,81 @@ void Console::LoadCommandHistoryFromFile()
 
 void Console::SubscribeKeys()
 {
-    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER,
-                                             [&]()
-                                             {
-                                                 if (not window_->IsShow() or not currentCommand_)
-                                                 {
-                                                     return;
-                                                 }
-                                                 commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
-                                                 AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
-                                                 currentCommand_ = AddOrUpdateGuiText("");
-                                             });
-    scene_.inputManager_->SubscribeOnKeyDown(
-        KeyCodes::DARROW,
-        [this]()
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::ENTER, [&]() {
+        if (not window_->IsShow() or not currentCommand_)
         {
-            if (commandsHistory_.empty())
-                return;
+            return;
+        }
+        commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size() - 1);
+        AddCommand(currentCommand_->GetText().substr(COMMAND_CURRSOR.size()));
+        currentCommand_ = AddOrUpdateGuiText("");
+    });
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::DARROW, [this]() {
+        if (commandsHistory_.empty())
+            return;
 
-            ++commandHistoryIndex_;
+        ++commandHistoryIndex_;
 
-            if (commandHistoryIndex_ < 0)
-            {
-                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-            }
-            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-            {
-                commandHistoryIndex_ = 0;
-            }
-
-            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-        });
-
-    scene_.inputManager_->SubscribeOnKeyDown(
-        KeyCodes::UARROW,
-        [this]()
+        if (commandHistoryIndex_ < 0)
         {
-            if (commandsHistory_.empty())
-                return;
+            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+        }
+        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+        {
+            commandHistoryIndex_ = 0;
+        }
 
-            --commandHistoryIndex_;
+        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+    });
 
-            if (commandHistoryIndex_ < 0)
-            {
-                commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
-            }
-            if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
-            {
-                commandHistoryIndex_ = 0;
-            }
+    scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::UARROW, [this]() {
+        if (commandsHistory_.empty())
+            return;
 
-            currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
-        });
+        --commandHistoryIndex_;
+
+        if (commandHistoryIndex_ < 0)
+        {
+            commandHistoryIndex_ = static_cast<int>(commandsHistory_.size() - 1);
+        }
+        if (commandHistoryIndex_ >= static_cast<int>(commandsHistory_.size()))
+        {
+            commandHistoryIndex_ = 0;
+        }
+
+        currentCommand_->SetText(COMMAND_CURRSOR + commandsHistory_[static_cast<size_t>(commandHistoryIndex_)]);
+    });
 
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::BIG; });
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::LSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
     scene_.inputManager_->SubscribeOnKeyUp(KeyCodes::RSHIFT, [&]() { inputType = Input::SingleCharType::SMALL; });
-    scene_.inputManager_->SubscribeOnAnyKeyPress(
-        [this](KeyCodes::Type key)
+    scene_.inputManager_->SubscribeOnAnyKeyPress([this](KeyCodes::Type key) {
+        if (not window_->IsShow())
+            return;
+
+        switch (key)
         {
-            if (not window_->IsShow())
-                return;
-
-            switch (key)
-            {
-                case KeyCodes::SPACE:
-                    currentCommand_->Append(' ');
-                    break;
-
-                case KeyCodes::BACKSPACE:
-                    if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
-                        currentCommand_->Pop();
-                    break;
-
-                default:
-                {
-                    auto character = Input::KeyCodeToCharConverter::Convert(key, inputType);
-                    if (character)
-                    {
-                        currentCommand_->Append(*character);
-                    }
-                }
+            case KeyCodes::SPACE:
+                currentCommand_->Append(' ');
                 break;
+
+            case KeyCodes::BACKSPACE:
+                if (currentCommand_->GetText().size() > COMMAND_CURRSOR.size())
+                    currentCommand_->Pop();
+                break;
+
+            default:
+            {
+                auto character = Input::KeyCodeToCharConverter::Convert(key, inputType);
+                if (character)
+                {
+                    currentCommand_->Append(*character);
+                }
             }
-        });
+            break;
+        }
+    });
 
     auto closeConsole = [this]() { scene_.inputManager_->AddEvent([&]() { CloseConsole(); }); };
 
@@ -693,27 +702,22 @@ void Console::PrepareConsoleWindow()
 
     scene_.guiManager_->Add(CONSOLE_LAYER_NAME, std::move(window));
 
-    keysSubscribtionManager_ =
-        scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2,
-                                                 [this]()
-                                                 {
-                                                     window_->Show();
-                                                     if (not commandsHistory_.empty())
-                                                         commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
+    keysSubscribtionManager_ = scene_.inputManager_->SubscribeOnKeyDown(KeyCodes::F2, [this]() {
+        window_->Show();
+        if (not commandsHistory_.empty())
+            commandHistoryIndex_ = static_cast<int32>(commandsHistory_.size());
 
-                                                     if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
-                                                         currentCommand_ = AddOrUpdateGuiText("");
+        if (not currentCommand_ or currentCommand_->GetText() != COMMAND_CURRSOR)
+            currentCommand_ = AddOrUpdateGuiText("");
 
-                                                     currentCommand_->Show();
+        currentCommand_->Show();
 
-                                                     scene_.camera.Lock();
-                                                     scene_.inputManager_->AddEvent(
-                                                         [&]()
-                                                         {
-                                                             scene_.inputManager_->StashSubscribers();
-                                                             SubscribeKeys();
-                                                         });
-                                                 });
+        scene_.GetCameraManager().LockAll();
+        scene_.inputManager_->AddEvent([&]() {
+            scene_.inputManager_->StashSubscribers();
+            SubscribeKeys();
+        });
+    });
 }
 void Console::DebugRender(const std::vector<std::string> &params)
 {

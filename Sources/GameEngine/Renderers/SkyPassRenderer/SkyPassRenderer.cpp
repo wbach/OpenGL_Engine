@@ -1,14 +1,16 @@
 #include "SkyPassRenderer.h"
 
 #include <GraphicsApi/IGraphicsApi.h>
+#include <Logger/Log.h>
+#include <Types.h>
 
-#include "GameEngine/Renderers/Projection.h"
+#include <glm/matrix.hpp>
+#include <magic_enum/magic_enum.hpp>
+
+#include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Logger/Log.h"
-#include "Types.h"
-#include "glm/matrix.hpp"
-#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -31,6 +33,11 @@ SkyPassRenderer::SkyPassRenderer(RendererContext& context)
 }
 void SkyPassRenderer::Init()
 {
+    if (not context.camera_)
+    {
+        LOG_ERROR << "Camera not set during intialization!";
+        return;
+    }
     shader.Init();
 
     if (not bufferId)
@@ -43,7 +50,8 @@ void SkyPassRenderer::Init()
     {
         using namespace GraphicsApi::FrameBuffer;
         const uint32 renderingScale = 1;
-        frameBufferSize             = context.projection_.GetRenderingSize() / renderingScale;
+        const auto& camera          = *context.camera_;
+        frameBufferSize             = camera.GetProjection().GetRenderingSize() / renderingScale;
         Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
 
         frameBuffer      = &context.graphicsApi_.CreateFrameBuffer({color});
@@ -58,6 +66,12 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
     if (not isReady)
         return;
 
+    if (not context.camera_)
+    {
+        LOG_ERROR << "Camera not set during render!";
+        return;
+    }
+
     context.graphicsApi_.SetViewPort(0, 0, frameBufferSize->x, frameBufferSize->y);
 
     frameBuffer->Clear();
@@ -65,8 +79,8 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
     shader.Start();
 
     SkyPassBuffer buffer;
-    buffer.invProj       = glm::inverse(context.projection_.GetProjectionMatrix());
-    buffer.invViewRot    = glm::inverse(context.scene_->GetCamera().GetViewMatrix());
+    buffer.invProj       = glm::inverse(context.camera_->GetProjectionMatrix());
+    buffer.invViewRot    = glm::inverse(context.camera_->GetViewMatrix());
     buffer.screenSize    = vec4(frameBufferSize->x, frameBufferSize->y, 0.0, 0.0);
     const auto& dirLight = context.scene_->GetDirectionalLight();
     buffer.sunDirection  = vec4(glm::normalize(dirLight.GetDirection()), 0.0f);

@@ -6,6 +6,7 @@
 #include <Utils/Variant.h>
 
 #include "GameEngine/Camera/CustomCamera.h"
+#include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -70,6 +71,7 @@ void ThridPersonCameraComponent::init()
         LOG_ERROR << "Display manager not set!";
         return;
     }
+    // TO DO: capture existing camera instead creating new one
     auto camera = std::make_unique<CustomCamera>();
     fsmContext.reset(new Context{componentContext_.inputManager_,
                                  *componentContext_.scene_.getDisplayManager(),
@@ -77,7 +79,15 @@ void ThridPersonCameraComponent::init()
                                  *camera,
                                  {},
                                  {vec3{-0.5f, 1.0f, -1.5f}, vec3{-0.25f, 1.f, -0.75f}}});
-    componentContext_.camera_.addAndSet(std::move(camera));
+
+    auto& cameraManager = componentContext_.scene_.GetCameraManager();
+    if (auto mainCamera = cameraManager.GetMainCamera())
+    {
+        cameraManager.DeactivateCamera(mainCamera);
+    }
+    auto id = cameraManager.AddCamera(std::move(camera));
+    cameraManager.ActivateCamera(id);
+    cameraManager.SetCameraAsMain(id);
 
     fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
                                                  AimState(*fsmContext), TransitionState(*fsmContext));
@@ -101,8 +111,9 @@ void ThridPersonCameraComponent::processEvent()
 
 void ThridPersonCameraComponent::registerReadFunctions()
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
-    { return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject); };
+    auto func = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject) {
+        return std::make_unique<ThridPersonCameraComponent>(componentContext, gameObject);
+    };
 
     regsiterComponentReadFunction(GetComponentType<ThridPersonCameraComponent>(), func);
 }

@@ -6,19 +6,17 @@
 #include <Utils.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
-DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, const CameraWrapper& camera,
-                       const Projection& projection)
+DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, const ICamera& camera)
     : input_(manager)
     , gameObject_(gameObject)
     , rigidbody_(nullptr)
     , camera_(camera)
-    , projection_(projection)
     , cameraStartPos_(camera_.GetPosition())
 {
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
@@ -48,12 +46,12 @@ void DragObject::Update()
 }
 vec3 DragObject::WorldToScreenPoint(const vec3& point)
 {
-    return Utils::Vec4ToVec3(projection_.GetProjectionMatrix() * camera_.GetViewMatrix() * vec4(point, 1.f));
+    return Utils::Vec4ToVec3(camera_.GetProjectionViewMatrix() * vec4(point, 1.f));
 }
 vec3 DragObject::ScreenToWorldPoint(const vec3& point)
 {
     vec4 clipCoords(point.x, point.y, -1.0f, 1.0f);
-    auto eyeCoords   = glm::inverse(projection_.GetProjectionMatrix()) * clipCoords;
+    auto eyeCoords   = glm::inverse(camera_.GetProjectionMatrix()) * clipCoords;
     auto coords      = vec4(eyeCoords.x, eyeCoords.y, -1.f, 0.0f);
     auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * coords;
     return Utils::Vec4ToVec3(worldCoords) * point.z;

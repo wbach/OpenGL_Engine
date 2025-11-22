@@ -14,7 +14,6 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
@@ -226,12 +225,16 @@ void DebugRenderer::init()
         {
             static GraphicsApi::LineMesh result;
 
-            auto rayDir =
-                CalculateMouseRayDirection(rendererContext_.projection_, rendererContext_.scene_->GetCamera(),
-                                           rendererContext_.scene_->getEngineContext()->GetInputManager().GetMousePosition());
+            auto camera = rendererContext_.scene_->GetCameraManager().GetMainCamera();
+            if (not camera)
+            {
+                return result;
+            }
+            auto rayDir = CalculateMouseRayDirection(
+                *camera, rendererContext_.scene_->getEngineContext()->GetInputManager().GetMousePosition());
 
-            result = MakeRayLineMesh(rendererContext_.scene_->GetCamera().GetPosition(), rayDir, 100.f, 1);
-            LOG_DEBUG << "CamPos: " << rendererContext_.scene_->GetCamera().GetPosition() << " rayDir: " << rayDir;
+            result = MakeRayLineMesh(camera->GetPosition(), rayDir, 100.f, 1);
+            LOG_DEBUG << "CamPos: " << camera->GetPosition() << " rayDir: " << rayDir;
             return result;
         });
 
@@ -286,6 +289,8 @@ void DebugRenderer::init()
                 RemoveState(DebugRenderer::RenderState::Physics);
             }
         });
+
+    LOG_DEBUG << "Debug renderer initilized.";
 }
 
 void DebugRenderer::reloadShaders()

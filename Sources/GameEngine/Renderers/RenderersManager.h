@@ -2,18 +2,25 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 #include "BufferDataUpdater.h"
 #include "DebugElements/DebugRenderer.h"
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/Frustrum.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/IComponent.h"
+#include "GameEngine/Renderers/BaseRenderer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
-#include "IRendererFactory.h"
-#include "Projection.h"
 #include "RendererContext.h"
+
+namespace GraphicsApi
+{
+class IFrameBuffer;
+}
 
 namespace Utils
 {
@@ -34,6 +41,7 @@ class GuiTextureElement;
 class IFrameBuffer;
 class IShadowFrameBuffer;
 class IGpuResourceLoader;
+class IRendererFactory;
 
 namespace Renderer
 {
@@ -45,8 +53,6 @@ public:
 
     ~RenderersManager();
     void Init();
-    Projection& GetProjection();
-    const Projection& GetProjection() const;
     void renderScene(Scene&);
     void ReloadShaders();
     void Subscribe(GameObject*);
@@ -64,18 +70,14 @@ public:
     bool IsTesselationSupported() const;
     void UpdatePerAppBuffer();
 
-    vec2 convertToNdcPosition(const vec3&) const;
-    vec3 convertToNdcPosition2(const vec3&) const;
-    vec2 convertToScreenPosition(const vec3&) const;
+    RendererContext& GetContext();
 
 private:
     void ReloadShadersExecution();
     void createMainRenderer();
     void InitGuiRenderer();
-    void CreateBuffers();
     void CreatePerAppBuffer();
-    void CreatePerFrameBuffer();
-    void updatePerFrameBuffer(Scene&);
+    void updatePerFrameBuffer(ICamera&);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;
@@ -84,18 +86,26 @@ private:
     std::unique_ptr<IRendererFactory> rendererFactory;
 
     Frustrum frustrum_;
-    Projection projection_;
 
     std::atomic_bool renderAsLines;
     std::atomic_bool markToReloadShaders_;
     std::function<void()> unsubscribeAllCallback_;
 
-    std::unique_ptr<IRenderer> mainRenderer_;
+    std::unique_ptr<BaseRenderer> mainCameraRenderer_;
+
+    struct CameraRendererContext
+    {
+        std::unique_ptr<BaseRenderer> renderer;
+        GraphicsApi::IFrameBuffer* renderTarget;
+    };
+    std::unordered_map<ICamera*, CameraRendererContext> camerasRenderers;
+    //std::vector<GameObject*> subscribedGameObjects;
+
     GUIRenderer guiRenderer_;
 
     GraphicsApi::ID perFrameId_;
     GraphicsApi::ID perAppId_;
-    mat4 viewProjectionMatrix_;
+
     BufferDataUpdater bufferDataUpdater_;
     MeasurementValue* frustrumCheckCount_;
 

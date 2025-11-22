@@ -15,12 +15,12 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Renderers/Objects/Entity/ConcreteEntityRenderer.h"
-#include "GameEngine/Renderers/Projection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Logger/Log.h"
 #include "Objects/GameObject.h"
+#include "Renderers/BaseRenderer.h"
 #include "Tests/Mocks/Resources/GpuResourceLoaderMock.h"
 #include "Tests/UT/EngineBasedTest.h"
 #include "Types.h"
@@ -38,19 +38,71 @@ const vec3 MATERIAL_AMBIENT{0.f, 0.f, 1.f};
 const vec3 MATERIAL_DIFFUSE{1.f, 0.f, 1.f};
 const vec3 MATERIAL_SPECULAR{1.f, 1.f, 1.f};
 
+class RendererContainer : public GameEngine::BaseRenderer
+{
+public:
+    RendererContainer(RendererContext& context)
+        : BaseRenderer(context)
+        , sut_(context)
+    {
+    }
+    void init() override
+    {
+        sut_.init();
+    }
+    void prepare() override
+    {
+        sut_.prepare();
+    }
+    void render() override
+    {
+        LOG_DEBUG << "Render";
+        sut_.render();
+    }
+    void setViewPort() override
+    {
+    }
+    void blendRender() override
+    {
+        sut_.blendRender();
+    }
+    void subscribe(GameObject& o) override
+    {
+        sut_.subscribe(o);
+    }
+    void unSubscribe(GameObject& o) override
+    {
+        sut_.unSubscribe(o);
+    }
+    void unSubscribe(const Components::IComponent& c) override
+    {
+        sut_.unSubscribe(c);
+    }
+    void unSubscribeAll() override
+    {
+        sut_.unSubscribeAll();
+    }
+    void reloadShaders() override
+    {
+        sut_.reloadShaders();
+    }
+
+    ConcreteEntityRenderer sut_;
+};
+
 struct EntityRendererShould : public EngineBasedTest
 {
     void SetUp() override
     {
         EngineBasedTest::SetUp();
 
-        EXPECT_CALL(*rendererFactory, create(_, _))
+        EXPECT_CALL(*rendererFactory, create(_))
             .WillOnce(
-                [&](RendererContext& ctx, GraphicsApi::IFrameBuffer&)
+                [&](RendererContext& ctx)
                 {
                     rendererContext             = &ctx;
-                    auto concreteEntityRenderer = std::make_unique<ConcreteEntityRenderer>(ctx);
-                    return concreteEntityRenderer;
+                    auto concreteEntityRendererWrapper = std::make_unique<RendererContainer>(ctx);
+                    return concreteEntityRendererWrapper;
                 });
 
         engineContext->GetRenderersManager().Init();
@@ -115,7 +167,6 @@ struct EntityRendererShould : public EngineBasedTest
 
     Time time_;
     Frustrum frustrum;
-    Projection projection_;
     GpuResourceLoaderMock gpuResourceLoaderMock;
 
     mat4 transformToShader_;

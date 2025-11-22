@@ -1,14 +1,10 @@
 #pragma once
 #include <memory>
-
-namespace GraphicsApi
-{
-class IFrameBuffer;
-}
+#include "GameEngine/Renderers/BaseRenderer.h"
 
 namespace GameEngine
 {
-class IRenderer;
+class BaseRenderer;
 struct RendererContext;
 
 class IRendererFactory
@@ -16,6 +12,6 @@ class IRendererFactory
 public:
     virtual ~IRendererFactory() = default;
 
-    virtual std::unique_ptr<IRenderer> create(RendererContext&, GraphicsApi::IFrameBuffer&) const = 0;
+    virtual std::unique_ptr<BaseRenderer> create(RendererContext&) const = 0;
 };
 }  // namespace GameEngine

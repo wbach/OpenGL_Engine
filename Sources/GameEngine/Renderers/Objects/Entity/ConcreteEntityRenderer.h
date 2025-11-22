@@ -13,6 +13,7 @@ public:
     void init() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
+    void unSubscribe(const Components::IComponent&) override;
     void unSubscribeAll() override;
     void reloadShaders() override;
     void render() override;
