@@ -530,7 +530,7 @@ void GLCanvas::SetupCamera()
     scene.getInputManager()->ShowCursor(true);
     scene.getInputManager()->SetReleativeMouseMode(false);
 
-     scene.GetCameraManager().DeactivateCamera(scene.GetCameraManager().GetMainCamera()); // stay enable to test purpose
+    // scene.GetCameraManager().DeactivateCamera(scene.GetCameraManager().GetMainCamera()); // stay enable to test purpose
 
     auto id = cameraManager.AddCamera(std::move(cameraEditor));
     cameraManager.ActivateCamera(id);

@@ -132,6 +132,9 @@ public:
     void setWindParams(const WindParams&);
     const WindParams& getWindParams() const;
 
+    const Color& GetBackgroundColor() const;
+    void ChangeBackgroundColor(const Color&);
+
 public:
     uint32 objectCount;
     std::function<void(EngineEvent)> addEngineEvent;
@@ -145,6 +148,7 @@ protected:
     std::unique_ptr<IResourceManager> resourceManager_;
     CameraManager cameraManager;
     IdType defaultCameraId;
+    Color backgroundColor;
 
     Components::ComponentController componentController_;
     std::unique_ptr<Components::ComponentFactory> componentFactory_;

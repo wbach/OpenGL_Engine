@@ -4,6 +4,7 @@
 #include <Logger/Log.h>
 
 #include <algorithm>
+#include <memory>
 
 #include "GUI/GuiRenderer.h"
 #include "GameEngine/Camera/ICamera.h"
@@ -16,6 +17,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "GraphicsApi/BufferParamters.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "IRendererFactory.h"
 namespace GameEngine
@@ -122,7 +124,6 @@ void RenderersManager::renderScene(Scene& scene)
     {
         rendererContext_.camera_ = cameraPtr;
 
-        // cameraPtr->Update(); // TO DO?  Update?UpdateImpl?
         cameraPtr->Update();
         cameraPtr->UpdateImpl();
         cameraPtr->UpdateMatrix();
@@ -153,8 +154,39 @@ void RenderersManager::renderScene(Scene& scene)
         if (rendererContextIter != camerasRenderers.end())
         {
             auto& [renderer, renderTarget] = rendererContextIter->second;
-
             renderPerCamera(*renderer, cameraPtr, renderTarget);
+        }
+        else
+        {
+            using namespace GraphicsApi::FrameBuffer;
+            auto framebufferSize = cameraPtr->GetProjection().GetRenderingSize();
+            Attachment colorAttachment(framebufferSize, Type::Color0, Format::Rgba8);
+            colorAttachment.defaultValue = scene.GetBackgroundColor().value;
+            Attachment depthAttachment(framebufferSize, Type::Depth, Format::Depth);
+
+            CameraRendererContext newCameraRendererContext;
+            newCameraRendererContext.renderTarget = &rendererContext_.graphicsApi_.CreateFrameBuffer({colorAttachment, depthAttachment});
+            auto status                           = newCameraRendererContext.renderTarget->Init();
+            if (not status)
+            {
+                LOG_WARN << "Framebuffer creation error";
+                continue;
+            }
+
+            newCameraRendererContext.renderer = std::make_unique<BaseRenderer>(rendererContext_);
+            newCameraRendererContext.renderer->init();
+
+            for (auto ptr : subscribedGameObjects)
+            {
+                if (ptr)
+                {
+                    newCameraRendererContext.renderer->subscribe(*ptr);
+                }
+            }
+
+            camerasRenderers.insert({cameraPtr, std::move(newCameraRendererContext)});
+
+            LOG_DEBUG << "Create buffer and renderer for camera. Rendering size: " << framebufferSize;
         }
     }
 
@@ -164,6 +196,24 @@ void RenderersManager::renderScene(Scene& scene)
 
         debugRenderer_.render();
         guiRenderer_.render();
+    }
+
+    if (not camerasRenderers.empty())
+    {
+        std::vector<GraphicsApi::ID> textures;
+        textures.reserve(camerasRenderers.size());
+        for (const auto& [_, cameraContext] : camerasRenderers)
+        {
+            if (not cameraContext.renderTarget)
+            {
+                continue;
+            }
+            if (auto id = cameraContext.renderTarget->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0))
+            {
+                textures.push_back(*id);
+            }
+        }
+        debugRenderer_.renderTextures(textures);
     }
 
     *frustrumCheckCount_ = std::to_string(frustrumCheckInFrame);
@@ -214,6 +264,8 @@ void RenderersManager::Subscribe(GameObject* gameObject)
         if (context.renderer)
             context.renderer->subscribe(*gameObject);
     }
+
+    subscribedGameObjects.insert(gameObject);
 }
 void RenderersManager::UnSubscribe(GameObject* gameObject)
 {
@@ -230,6 +282,7 @@ void RenderersManager::UnSubscribe(GameObject* gameObject)
             if (context.renderer)
                 context.renderer->unSubscribe(*gameObject);
         }
+        subscribedGameObjects.erase(gameObject);
     }
 }
 
@@ -259,6 +312,7 @@ void RenderersManager::UnSubscribeAll()
     }
     bufferDataUpdater_.UnSubscribeAll();
     guiRenderer_.UnSubscribeAll();
+    subscribedGameObjects.clear();
 }
 void RenderersManager::UnSubscribeAll(std::function<void()> callback)
 {
@@ -334,7 +388,7 @@ void RenderersManager::updatePerFrameBuffer(ICamera& camera)
         buffer.clipPlane            = vec4{0.f, 1.f, 0.f, 100000.f};
         buffer.projection           = camera.GetProjection().GetBufferParams();
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
-                graphicsApi_.BindShaderBuffer(*perFrameId_);
+        graphicsApi_.BindShaderBuffer(*perFrameId_);
     }
 }
 RendererContext& RenderersManager::GetContext()

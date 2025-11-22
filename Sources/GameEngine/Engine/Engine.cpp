@@ -122,7 +122,6 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
     }
     graphicsApi = std::make_unique<OpenGLApi::OpenGLApi>();
 #endif
-    graphicsApi->SetBackgroundColor(Color(0.18f, 0.27f, 0.47f));
 
     return graphicsApi;
 }

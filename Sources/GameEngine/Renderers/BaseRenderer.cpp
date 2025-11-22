@@ -125,7 +125,8 @@ void BaseRenderer::bindTarget()
 {
     if (renderTarget)
     {
-        renderTarget->Bind();
+        renderTarget->Clear();
+        renderTarget->Bind(GraphicsApi::FrameBuffer::BindType::Write);
     }
     else
     {

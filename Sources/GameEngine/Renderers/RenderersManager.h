@@ -3,7 +3,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
-#include <vector>
+#include <set>
 
 #include "BufferDataUpdater.h"
 #include "DebugElements/DebugRenderer.h"
@@ -99,7 +99,7 @@ private:
         GraphicsApi::IFrameBuffer* renderTarget;
     };
     std::unordered_map<ICamera*, CameraRendererContext> camerasRenderers;
-    //std::vector<GameObject*> subscribedGameObjects;
+    std::set<GameObject*> subscribedGameObjects;
 
     GUIRenderer guiRenderer_;
 

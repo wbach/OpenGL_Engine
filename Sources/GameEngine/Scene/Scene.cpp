@@ -29,6 +29,7 @@ namespace GameEngine
 {
 Scene::Scene(const std::string& name)
     : objectCount(0)
+    , backgroundColor(vec4(0.18f, 0.27f, 0.47f, 1.f))
     , componentFactory_(nullptr)
     , graphicsApi_(nullptr)
     , inputManager_(nullptr)
@@ -44,7 +45,7 @@ Scene::Scene(const std::string& name)
     , start_(false)
 {
     // DefaultCamera;
-    defaultCameraId = cameraManager.AddCamera(std::make_unique<Camera>());
+    defaultCameraId = cameraManager.AddCamera(std::make_unique<Camera>(vec3(2, 2, 2), vec3(0)));
     cameraManager.ActivateCamera(defaultCameraId);
     cameraManager.SetCameraAsMain(defaultCameraId);
 }
@@ -139,6 +140,8 @@ void Scene::InitResources(EngineContext& context)
         *inputManager_, *resourceManager_, *renderersManager_, *physicsApi_, *guiElementFactory_, *timerService_);
 
     rootGameObject_ = CreateGameObject("root");
+
+    graphicsApi_->SetBackgroundColor(backgroundColor);
 }
 
 void Scene::Init()
@@ -627,5 +630,13 @@ const WindParams& Scene::getWindParams() const
 void Scene::setWindParams(const WindParams& params)
 {
     windParams = params;
+}
+void Scene::ChangeBackgroundColor(const Color& color)
+{
+    backgroundColor = color;
+}
+const Color& Scene::GetBackgroundColor() const
+{
+    return backgroundColor;
 }
 }  // namespace GameEngine
