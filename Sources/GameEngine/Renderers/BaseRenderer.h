@@ -45,6 +45,7 @@ public:
     void unSubscribeAll() override;
     void reloadShaders() override;
     void setRenderTarget(GraphicsApi::IFrameBuffer*);
+    void cleanUp() override;
 
 protected:
     void initRenderers();

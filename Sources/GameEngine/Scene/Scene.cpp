@@ -549,10 +549,10 @@ CameraManager& Scene::GetCameraManager()
     return cameraManager;
 }
 
-// void Scene::UpdateCamera()
-// {
-//     camera.Update();
-// }
+const CameraManager& Scene::GetCameraManager() const
+{
+    return cameraManager;
+}
 
 const Light& Scene::GetDirectionalLight() const
 {

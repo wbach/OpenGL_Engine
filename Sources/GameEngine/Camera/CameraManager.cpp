@@ -13,13 +13,19 @@ CameraManager::ActiveCameras& CameraManager::GetActiveCameras()
 IdType CameraManager::AddCamera(std::unique_ptr<ICamera> camera)
 {
     auto id = idPool.getId();
+    camerasView.insert(camera.get());
     cameras.insert({id, std::move(camera)});
     return id;
 }
 void CameraManager::RemoveCamera(IdType id)
 {
     DeactivateCamera(id);
-    cameras.erase(id);
+    auto iter = cameras.find(id);
+    if (iter != cameras.end())
+    {
+        camerasView.erase(iter->second.get());
+        cameras.erase(iter);
+    }
 }
 void CameraManager::ActivateCamera(IdType id)
 {
@@ -133,5 +139,9 @@ void CameraManager::SetCameraAsMain(ICamera* camera)
     {
         mainCamera = camera;
     }
+}
+const CameraManager::CamerasView& CameraManager::GetCameras() const
+{
+    return camerasView;
 }
 }  // namespace GameEngine

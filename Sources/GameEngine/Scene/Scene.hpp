@@ -104,8 +104,8 @@ public:
     GameObject& GetRootGameObject();
 
     // Cameras
-    //void UpdateCamera();
     CameraManager& GetCameraManager();
+    const CameraManager& GetCameraManager() const;
 
     // Lights
     const Light& GetDirectionalLight() const;

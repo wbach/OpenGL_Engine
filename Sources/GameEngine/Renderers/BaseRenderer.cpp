@@ -133,4 +133,9 @@ void BaseRenderer::bindTarget()
         context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
     }
 }
+void BaseRenderer::cleanUp()
+{
+    for (auto& renderer : renderers)
+        renderer.ptr->cleanUp();
+}
 }  // namespace GameEngine

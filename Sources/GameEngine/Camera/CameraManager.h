@@ -1,7 +1,9 @@
 #pragma once
 #include <Utils/IdPool.h>
 
+#include <set>
 #include <memory>
+#include <unordered_map>
 
 #include "Types.h"
 
@@ -16,8 +18,10 @@ class CameraManager
 {
 public:
     using Cameras       = std::unordered_map<IdType, std::unique_ptr<ICamera>>;
+    using CamerasView   = std::set<ICamera*>;
     using ActiveCameras = std::vector<std::pair<IdType, ICamera*>>;
 
+    const CamerasView& GetCameras() const;
     ActiveCameras& GetActiveCameras();
     IdType AddCamera(std::unique_ptr<ICamera>);
     void RemoveCamera(IdType);
@@ -40,6 +44,7 @@ private:
     Utils::IdPool idPool;
 
     Cameras cameras;
+    CamerasView camerasView;
     ActiveCameras activeCameras;
     ICamera* mainCamera;
 };

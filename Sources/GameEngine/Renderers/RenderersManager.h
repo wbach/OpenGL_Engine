@@ -78,6 +78,9 @@ private:
     void InitGuiRenderer();
     void CreatePerAppBuffer();
     void updatePerFrameBuffer(ICamera&);
+    void createPerCameraRenderer(const Scene&, ICamera&);
+    uint64 renderPerCamera(BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget = nullptr);
+    void cleanupCamerasRenderersIfCameraNotExist(const Scene&);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi_;

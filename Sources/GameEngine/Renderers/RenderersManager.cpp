@@ -114,34 +114,13 @@ void RenderersManager::renderScene(Scene& scene)
     ReloadShadersExecution();
     bufferDataUpdater_.Update();
 
+    cleanupCamerasRenderersIfCameraNotExist(scene);
+
     auto& cameras           = scene.GetCameraManager().GetActiveCameras();
     rendererContext_.scene_ = &scene;
 
     uint64 frustrumCheckInFrame = 0;
     ICamera* mainCameraPtr{nullptr};
-
-    auto renderPerCamera = [&](BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget = nullptr)
-    {
-        rendererContext_.camera_ = cameraPtr;
-
-        cameraPtr->Update();
-        cameraPtr->UpdateImpl();
-        cameraPtr->UpdateMatrix();
-
-        frustrum_.prepareFrame(cameraPtr->GetProjectionViewMatrix());
-        updatePerFrameBuffer(*cameraPtr);
-
-        renderer.setRenderTarget(renderTarget);
-        renderer.prepare();
-        {
-            RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
-            graphicsApi_.EnableDepthTest();
-            renderer.render();
-            renderer.blendRender();
-        }
-
-        frustrumCheckInFrame += frustrum_.getIntersectionsCountInFrame();
-    };
 
     for (auto& [_, cameraPtr] : cameras)
     {
@@ -150,49 +129,22 @@ void RenderersManager::renderScene(Scene& scene)
             mainCameraPtr = cameraPtr;
             continue;
         }
+
         auto rendererContextIter = camerasRenderers.find(cameraPtr);
         if (rendererContextIter != camerasRenderers.end())
         {
             auto& [renderer, renderTarget] = rendererContextIter->second;
-            renderPerCamera(*renderer, cameraPtr, renderTarget);
+            frustrumCheckInFrame += renderPerCamera(*renderer, cameraPtr, renderTarget);
         }
         else
         {
-            using namespace GraphicsApi::FrameBuffer;
-            auto framebufferSize = cameraPtr->GetProjection().GetRenderingSize();
-            Attachment colorAttachment(framebufferSize, Type::Color0, Format::Rgba8);
-            colorAttachment.defaultValue = scene.GetBackgroundColor().value;
-            Attachment depthAttachment(framebufferSize, Type::Depth, Format::Depth);
-
-            CameraRendererContext newCameraRendererContext;
-            newCameraRendererContext.renderTarget = &rendererContext_.graphicsApi_.CreateFrameBuffer({colorAttachment, depthAttachment});
-            auto status                           = newCameraRendererContext.renderTarget->Init();
-            if (not status)
-            {
-                LOG_WARN << "Framebuffer creation error";
-                continue;
-            }
-
-            newCameraRendererContext.renderer = std::make_unique<BaseRenderer>(rendererContext_);
-            newCameraRendererContext.renderer->init();
-
-            for (auto ptr : subscribedGameObjects)
-            {
-                if (ptr)
-                {
-                    newCameraRendererContext.renderer->subscribe(*ptr);
-                }
-            }
-
-            camerasRenderers.insert({cameraPtr, std::move(newCameraRendererContext)});
-
-            LOG_DEBUG << "Create buffer and renderer for camera. Rendering size: " << framebufferSize;
+            createPerCameraRenderer(scene, *cameraPtr);
         }
     }
 
     if (mainCameraRenderer_ and mainCameraPtr)
     {
-        renderPerCamera(*mainCameraRenderer_, mainCameraPtr);
+        frustrumCheckInFrame += renderPerCamera(*mainCameraRenderer_, mainCameraPtr);
 
         debugRenderer_.render();
         guiRenderer_.render();
@@ -394,6 +346,87 @@ void RenderersManager::updatePerFrameBuffer(ICamera& camera)
 RendererContext& RenderersManager::GetContext()
 {
     return rendererContext_;
+}
+void RenderersManager::createPerCameraRenderer(const Scene& scene, ICamera& camera)
+{
+    using namespace GraphicsApi::FrameBuffer;
+    auto framebufferSize = camera.GetProjection().GetRenderingSize();
+    Attachment colorAttachment(framebufferSize, Type::Color0, Format::Rgba8);
+    colorAttachment.defaultValue = scene.GetBackgroundColor().value;
+    Attachment depthAttachment(framebufferSize, Type::Depth, Format::Depth);
+
+    CameraRendererContext newCameraRendererContext;
+    newCameraRendererContext.renderTarget = &rendererContext_.graphicsApi_.CreateFrameBuffer({colorAttachment, depthAttachment});
+    auto status                           = newCameraRendererContext.renderTarget->Init();
+    if (not status)
+    {
+        LOG_WARN << "Framebuffer creation error";
+        return;
+    }
+
+    newCameraRendererContext.renderer = std::make_unique<BaseRenderer>(rendererContext_);
+    newCameraRendererContext.renderer->init();
+
+    for (auto ptr : subscribedGameObjects)
+    {
+        if (ptr)
+        {
+            newCameraRendererContext.renderer->subscribe(*ptr);
+        }
+    }
+
+    camerasRenderers.insert({&camera, std::move(newCameraRendererContext)});
+
+    LOG_DEBUG << "Create buffer and renderer for camera. Rendering size: " << framebufferSize;
+}
+uint64 RenderersManager::renderPerCamera(BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget)
+{
+    rendererContext_.camera_ = cameraPtr;
+
+    cameraPtr->Update();
+    cameraPtr->UpdateImpl();
+    cameraPtr->UpdateMatrix();
+
+    frustrum_.prepareFrame(cameraPtr->GetProjectionViewMatrix());
+    updatePerFrameBuffer(*cameraPtr);
+
+    renderer.setRenderTarget(renderTarget);
+    renderer.prepare();
+    {
+        RenderAsLine lineMode(graphicsApi_, renderAsLines.load());
+        graphicsApi_.EnableDepthTest();
+        renderer.render();
+        renderer.blendRender();
+    }
+
+    return frustrum_.getIntersectionsCountInFrame();
+}
+void RenderersManager::cleanupCamerasRenderersIfCameraNotExist(const Scene& scene)
+{
+    auto& cameraManager = scene.GetCameraManager();
+
+    const auto& allcameras = cameraManager.GetCameras();
+    for (auto iter = camerasRenderers.begin(); iter != camerasRenderers.end(); iter++)
+    {
+        auto allcamerasIter = allcameras.find(iter->first);
+        if (allcamerasIter == allcameras.end())
+        {
+            LOG_DEBUG << "Remove unused camera renderer";
+            auto& [renderer, framebuffer] = iter->second;
+            LOG_DEBUG << "Clean up renderer";
+            renderer->unSubscribeAll();
+            renderer->cleanUp();
+            renderer.reset();
+
+            LOG_DEBUG << "Clean up framebuffer";
+            if (framebuffer)
+            {
+                rendererContext_.graphicsApi_.DeleteFrameBuffer(*framebuffer);
+            }
+
+            iter = camerasRenderers.erase(iter);
+        }
+    }
 }
 }  // namespace Renderer
 }  // namespace GameEngine
