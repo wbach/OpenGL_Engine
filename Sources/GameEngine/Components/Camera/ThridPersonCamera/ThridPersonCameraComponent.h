@@ -5,6 +5,7 @@
 #include "Fsm/ThridPersonCameraEvents.h"
 #include "Fsm/ThridPersonCameraFsm.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -36,6 +37,7 @@ public:
 
     void pushEventToQueue(const Camera::Event& event)
     {
+        LOG_DEBUG << "pushEventToQueue";
         eventQueue.push_back(event);
     }
 
@@ -43,6 +45,7 @@ public:
     vec3 getDirection() const;
 
 private:
+    void awake();
     void init();
     void processEvent();
 

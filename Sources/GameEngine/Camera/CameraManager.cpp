@@ -51,6 +51,10 @@ void CameraManager::DeactivateCamera(IdType id)
 
     if (iter != activeCameras.end())
     {
+        if (mainCamera == iter->second)
+        {
+            mainCamera = nullptr;
+        }
         activeCameras.erase(iter);
     }
 }
@@ -143,5 +147,12 @@ void CameraManager::SetCameraAsMain(ICamera* camera)
 const CameraManager::CamerasView& CameraManager::GetCameras() const
 {
     return camerasView;
+}
+void CameraManager::RemoveCamera(ICamera* ptr)
+{
+    if (auto id = GetCameraId(ptr))
+    {
+        RemoveCamera(*id);
+    }
 }
 }  // namespace GameEngine

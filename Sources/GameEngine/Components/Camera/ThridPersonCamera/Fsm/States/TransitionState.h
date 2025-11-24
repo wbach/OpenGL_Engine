@@ -48,6 +48,9 @@ private:
     std::optional<vec4> sourcePosition;
     std::optional<vec4> targetPosition;
 
+    float pitchStart = 0.f;
+    float yawStart = 0.f;
+
     float pitchConversion = 1.f;
 };
 }  // namespace Camera

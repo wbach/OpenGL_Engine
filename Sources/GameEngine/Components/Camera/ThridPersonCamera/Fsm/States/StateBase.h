@@ -21,18 +21,18 @@ public:
 
     void onEnter();
     void setUpdateFunc();
-    virtual void update();
+    virtual void update() = 0;
     void pushEventToQueue(const Camera::Event&) const;
 
 protected:
     void cameraUpdate();
     std::tuple<vec4, vec4, mat4> calculateLocalPosition() const;
+    void updatePitchYaw(const MouseMoveEvent&);
 
 private:
     void lockPitch();
     void updateYaw();
-    vec2 calculateMouseMove() const;
-    void updatePitchYaw(const vec2&);
+    vec2 calculateMouseMove(const vec2i&) const;
 
 protected:
     Context& context;

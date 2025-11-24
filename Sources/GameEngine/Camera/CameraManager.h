@@ -24,6 +24,7 @@ public:
     const CamerasView& GetCameras() const;
     ActiveCameras& GetActiveCameras();
     IdType AddCamera(std::unique_ptr<ICamera>);
+    void RemoveCamera(ICamera*);
     void RemoveCamera(IdType);
     void ActivateCamera(IdType);
     void ActivateCamera(ICamera*);

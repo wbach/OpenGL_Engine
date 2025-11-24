@@ -45,9 +45,9 @@ Scene::Scene(const std::string& name)
     , start_(false)
 {
     // DefaultCamera;
-    defaultCameraId = cameraManager.AddCamera(std::make_unique<Camera>(vec3(2, 2, 2), vec3(0)));
-    cameraManager.ActivateCamera(defaultCameraId);
-    cameraManager.SetCameraAsMain(defaultCameraId);
+    // defaultCameraId = cameraManager.AddCamera(std::make_unique<Camera>(vec3(2, 2, 2), vec3(0)));
+    // cameraManager.ActivateCamera(defaultCameraId);
+    // cameraManager.SetCameraAsMain(defaultCameraId);
 }
 
 Scene::~Scene()

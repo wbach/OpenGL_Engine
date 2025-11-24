@@ -3,8 +3,9 @@
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
 
-#include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/States/StateBase.h"
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -20,27 +21,13 @@ void FollowingState::onEnter()
 {
     StateBase::onEnter();
 }
-//void FollowingState::update()
-//{
-//    if (not triggerEventIfMouseMoveDetect())
-//    {
-//        StateBase::cameraUpdate();
-//    }
-//}
 void FollowingState::update(const InitEvent&)
 {
     StateBase::onEnter();
 }
-
-bool FollowingState::triggerEventIfMouseMoveDetect()
+void FollowingState::update()
 {
-    auto v = context.inputManager.CalcualteMouseMove();
-    if (v.x != 0 or v.y != 0)
-    {
-        pushEventToQueue(MouseMoveEvent{});
-        return true;
-    }
-    return false;
+    StateBase::cameraUpdate();
 }
 }  // namespace Camera
 }  // namespace Components

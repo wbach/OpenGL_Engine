@@ -25,6 +25,7 @@ public:
 
     using StateBase::onEnter;
     void onEnter(const StartAimEvent&);
+    void update() override;
 
 private:
     void setJointIfNeeded(const StartAimEvent&);

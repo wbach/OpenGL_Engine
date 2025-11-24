@@ -24,7 +24,7 @@ struct StopAimEvent
 };
 struct MouseMoveEvent
 {
-    vec2ui move;
+    vec2i move;
 };
 struct MouseInactivityEvent
 {

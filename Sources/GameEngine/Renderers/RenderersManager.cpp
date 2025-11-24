@@ -406,25 +406,27 @@ void RenderersManager::cleanupCamerasRenderersIfCameraNotExist(const Scene& scen
     auto& cameraManager = scene.GetCameraManager();
 
     const auto& allcameras = cameraManager.GetCameras();
-    for (auto iter = camerasRenderers.begin(); iter != camerasRenderers.end(); iter++)
+    for (auto iter = camerasRenderers.begin(); iter != camerasRenderers.end(); )
     {
         auto allcamerasIter = allcameras.find(iter->first);
         if (allcamerasIter == allcameras.end())
         {
             LOG_DEBUG << "Remove unused camera renderer";
             auto& [renderer, framebuffer] = iter->second;
-            LOG_DEBUG << "Clean up renderer";
             renderer->unSubscribeAll();
             renderer->cleanUp();
             renderer.reset();
 
-            LOG_DEBUG << "Clean up framebuffer";
             if (framebuffer)
             {
                 rendererContext_.graphicsApi_.DeleteFrameBuffer(*framebuffer);
             }
 
             iter = camerasRenderers.erase(iter);
+        }
+        else
+        {
+            iter++;
         }
     }
 }

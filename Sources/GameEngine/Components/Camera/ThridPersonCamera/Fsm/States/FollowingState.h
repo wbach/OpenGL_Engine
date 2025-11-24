@@ -29,8 +29,8 @@ public:
 
     void onEnter();
 
-    using StateBase::update;
     void update(const InitEvent&);
+    void update() override;
 
 private:
     bool triggerEventIfMouseMoveDetect();

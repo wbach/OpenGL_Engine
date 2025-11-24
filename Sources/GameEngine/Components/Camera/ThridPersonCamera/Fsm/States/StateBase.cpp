@@ -1,6 +1,7 @@
 #include "StateBase.h"
 
 #include "GameEngine/Camera/CustomCamera.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 
@@ -35,11 +36,6 @@ void StateBase::setUpdateFunc()
     context.camera.setOnUpdate([this]() { update(); });
 }
 
-void StateBase::update()
-{
-    StateBase::cameraUpdate();
-}
-
 void StateBase::pushEventToQueue(const Event& event) const
 {
     if (thridPersonCameraComponent)
@@ -50,10 +46,10 @@ void StateBase::pushEventToQueue(const Event& event) const
 
 void StateBase::cameraUpdate()
 {
-    updatePitchYaw(calculateMouseMove());
-
     auto parentWorldTransform = glm::translate(context.gameObject.GetWorldTransform().GetPosition()) *
                                 glm::scale(context.gameObject.GetWorldTransform().GetScale());
+
+    // auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
 
     auto [relativeCamerePosition, lookAtLocalPosition, yTranslation] = calculateLocalPosition();
 
@@ -77,9 +73,8 @@ std::tuple<vec4, vec4, mat4> StateBase::calculateLocalPosition() const
     return {pos, lpos, ytranslation};
 }
 
-vec2 StateBase::calculateMouseMove() const
+vec2 StateBase::calculateMouseMove(const vec2i& mouseMove) const
 {
-    auto mouseMove = context.inputManager.CalcualteMouseMove();
     return vec2(static_cast<float>(-mouseMove.x) * rotationDir.x, static_cast<float>(mouseMove.y) * rotationDir.y) *
            mouseSensitivity_;
 }
@@ -104,8 +99,9 @@ void StateBase::updateYaw()
     }
 }
 
-void StateBase::updatePitchYaw(const vec2& mouseMove)
+void StateBase::updatePitchYaw(const MouseMoveEvent& event)
 {
+    auto mouseMove = calculateMouseMove(event.move);
     context.yaw += mouseMove.x;
     context.pitch += mouseMove.y;
 

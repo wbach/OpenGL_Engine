@@ -43,6 +43,10 @@ void AimState::setJointIfNeeded(const StartAimEvent& event)
     }
 }
 
+void AimState::update()
+{
+    StateBase::cameraUpdate();
+}
 }  // namespace Camera
 }  // namespace Components
 }  // namespace GameEngine

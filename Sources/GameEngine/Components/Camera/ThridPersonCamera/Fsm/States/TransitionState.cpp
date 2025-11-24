@@ -1,9 +1,13 @@
 #include "TransitionState.h"
 
+#include <variant>
+
 #include "AimState.h"
 #include "GameEngine/Camera/CustomCamera.h"
+#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
 #include "RotateableRunState.h"
 
 namespace GameEngine
@@ -24,7 +28,7 @@ void TransitionState::onEnter()
     progress = 0;
     sourcePosition.reset();
     targetPosition.reset();
-    StateBase::setUpdateFunc();
+    StateBase::onEnter();
 }
 void TransitionState::onEnter(const StartAimEvent& event)
 {
@@ -48,6 +52,9 @@ void TransitionState::onEnter(const StopAimEvent& event)
 void TransitionState::onEnter(const MouseInactivityEvent& event)
 {
     relativeCamerePosition = context.cameraPositions.run;
+
+    pitchStart = context.pitch;
+    yawStart   = context.yaw;
 
     transitionLength = event.transitionLength;
     processingEvent  = event;
@@ -84,12 +91,22 @@ void TransitionState::update()
     }
 
     float smoothProgress = glm::smoothstep(0.f, 1.f, progress);
-    if (sourcePosition and targetPosition)
-        relativeCamerePosition = glm::mix(*sourcePosition, *targetPosition, smoothProgress);
+
+    if (std::holds_alternative<StartAimEvent>(processingEvent) or std::holds_alternative<StopAimEvent>(processingEvent))
+    {
+        if (sourcePosition and targetPosition)
+        {
+            relativeCamerePosition = glm::mix(*sourcePosition, *targetPosition, smoothProgress);
+            StateBase::cameraUpdate();
+        }
+        return;
+    }
+
+    context.pitch = glm::mix(pitchStart, 0.f, smoothProgress);
+    context.yaw   = glm::mix(yawStart, 0.f, smoothProgress);
 
     StateBase::cameraUpdate();
 }
-
 }  // namespace Camera
 }  // namespace Components
 }  // namespace GameEngine
