@@ -152,6 +152,7 @@ void RenderersManager::renderScene(Scene& scene)
 
     if (not camerasRenderers.empty())
     {
+        rendererContext_.graphicsApi_.DisableDepthTest();
         std::vector<GraphicsApi::ID> textures;
         textures.reserve(camerasRenderers.size());
         for (const auto& [_, cameraContext] : camerasRenderers)
@@ -406,7 +407,7 @@ void RenderersManager::cleanupCamerasRenderersIfCameraNotExist(const Scene& scen
     auto& cameraManager = scene.GetCameraManager();
 
     const auto& allcameras = cameraManager.GetCameras();
-    for (auto iter = camerasRenderers.begin(); iter != camerasRenderers.end(); )
+    for (auto iter = camerasRenderers.begin(); iter != camerasRenderers.end();)
     {
         auto allcamerasIter = allcameras.find(iter->first);
         if (allcamerasIter == allcameras.end())

@@ -31,10 +31,13 @@ DefferedRenderer::~DefferedRenderer()
 
 void DefferedRenderer::render()
 {
-    if (isReady_ and context_.camera_)
-    {
-        createOrUpdateDefferedFrameBufferIfNeeded();
+    if (not context_.camera_)
+        return;
 
+    createOrUpdateDefferedFrameBufferIfNeeded();
+
+    if (isReady_)
+    {
         bindDefferedFbo();
         context_.graphicsApi_.EnableDepthTest();
         context_.graphicsApi_.EnableDepthMask();
@@ -91,15 +94,18 @@ void DefferedRenderer::createFrameBuffer()
     defferedFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer(
         {worldPositionAttachment, diffuseAttachment, normalAttachment, specularAttachment, depthAttachment});
     isReady_ = defferedFrameBuffer_->Init();
+    LOG_DEBUG << "DefferedRenderer Framebuffer created. Status : " << isReady_;
 }
 
 void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
 {
     if (not defferedFrameBuffer_)
     {
+        context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
         createFrameBuffer();
         skyPassRenderer.Init();
         postprocessingRenderersManager_.Init();
+        context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
         return;
     }
 

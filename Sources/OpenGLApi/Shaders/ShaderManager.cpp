@@ -72,7 +72,8 @@ GraphicsApi::ID ShaderManager::Create(GraphicsApi::ShaderProgramType shaderType)
     auto files = GetShaderFiles(shaderType);
     if (not files)
     {
-        LOG_ERROR << "Expected files not found for shader type " << magic_enum::enum_name(shaderType);
+        LOG_ERROR << "Expected files not found for shader type " << magic_enum::enum_name(shaderType)
+                  << " | Quality : " << magic_enum::enum_name(shaderQuality_);
         return std::nullopt;
     }
 
