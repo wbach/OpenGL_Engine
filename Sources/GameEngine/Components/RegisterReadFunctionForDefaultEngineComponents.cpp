@@ -3,6 +3,7 @@
 #include "Animation/Animator.h"
 #include "Animation/BowPoseUpdater.h"
 #include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Characters/Enemy.h"
 #include "Characters/Player.h"
 #include "Controllers/CharacterController/ArrowController.h"
@@ -39,6 +40,7 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<UnknownExternalComponent>();
     registerReadFunction<Animator>();
     registerReadFunction<BowPoseUpdater>();
+    registerReadFunction<CameraComponent>();
     registerReadFunction<ThridPersonCameraComponent>();
     registerReadFunction<Enemy>();
     registerReadFunction<Player>();

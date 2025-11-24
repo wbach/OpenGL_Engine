@@ -24,8 +24,6 @@ public:
     MOCK_METHOD(const vec3&, GetPosition, (), (const, override));
     MOCK_METHOD(const vec3&, GetDirection, (), (const, override));
 
-    MOCK_METHOD(const mat4&, GetTranslationMatrix, (), (const, override));
-    MOCK_METHOD(const mat4&, GetRotationMatrix, (), (const, override));
     MOCK_METHOD(const mat4&, GetViewMatrix, (), (const, override));
     MOCK_METHOD(const mat4&, GetProjectionMatrix, (), (const, override));
     MOCK_METHOD(const mat4&, GetProjectionViewMatrix, (), (const, override));

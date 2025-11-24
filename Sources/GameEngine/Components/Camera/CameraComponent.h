@@ -1,26 +1,32 @@
 #pragma once
-#include <Rotation.h>
 #include <Utils/IdPool.h>
+#include <Utils/Rotation.h>
 
-#include <functional>
-#include <memory>
-
+#include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
-#include "ICamera.h"
 
 namespace GameEngine
 {
+class ICamera;
 class IProjection;
-class Camera : public ICamera
+
+namespace Components
+{
+class CameraComponent : public BaseComponent, public ICamera
 {
 public:
-    Camera();
-    Camera(float pitch, float yaw);
-    Camera(const vec3& position, const vec3& lookAt);
-    Camera(std::unique_ptr<IProjection>, float pitch, float yaw);
-    Camera(std::unique_ptr<IProjection>, const vec3& position, const vec3& lookAt);
+    CameraComponent(ComponentContext&, GameObject&);
+    void CleanUp() override;
+    void ReqisterFunctions() override;
+    void Reload() override;
 
-    ~Camera() override = default;
+    const Rotation& GetRotation() const override;
+    const vec3& GetPosition() const override;
+    void UpdateMatrix() override;
+    const mat4& GetProjectionViewMatrix() const override;
+    const mat4& GetViewMatrix() const override;
+    const mat4& GetProjectionMatrix() const override;
 
     void UpdateImpl() override;
     void Update() override;
@@ -28,21 +34,15 @@ public:
     void Unlock() override;
     bool IsLocked() const override;
 
-    void UpdateMatrix() override;
-
     float GetPitch() const override;
     float GetYaw() const override;
 
-    const Rotation& GetRotation() const override;
-    const vec3& GetPosition() const override;
     const vec3& GetDirection() const override;
-    const mat4& GetViewMatrix() const override;
-    const mat4& GetProjectionMatrix() const override;
-    const mat4& GetProjectionViewMatrix() const override;
+
     const IProjection& GetProjection() const override;
 
-    void IncreaseYaw(float yaw) override;
-    void IncreasePitch(float pitch) override;
+    void IncreaseYaw(float) override;
+    void IncreasePitch(float) override;
     void IncreasePosition(const vec3&) override;
     void IncreasePositionX(float) override;
     void IncreasePositionY(float) override;
@@ -50,39 +50,35 @@ public:
     void IncreasePositionXZ(const vec2&) override;
 
     void LookAt(const vec3&) override;
-    void SetYaw(float yaw) override;
-    void SetPitch(float pitch) override;
+    void SetYaw(float) override;
+    void SetPitch(float) override;
     void SetRotation(const Rotation&) override;
     void SetPosition(const vec3&) override;
+
     IdType SubscribeOnChange(std::function<void(const ICamera&)>) override;
     void UnsubscribeOnChange(IdType) override;
 
-    void NotifySubscribers();
-
-protected:
-    void CalculateDirection();
+private:
+    void awake();
     void UpdateViewMatrix();
-
-protected:
-    bool lock_;
+    void CalculateDirection();
 
 private:
     Utils::IdPool idPool_;
     std::vector<std::pair<uint32, std::function<void(const ICamera&)>>> subscribers_;
 
-    vec3 position_;
-    Rotation rotation_;
-    vec3 direction_;
-
     std::unique_ptr<IProjection> projection_;
+
     mat4 projectionViewMatrix_;
     mat4 viewMatrix_;
 
-    mat4 translationMatrix_;
-    mat4 rotationMatrix_;
+    vec3 direction_;
 
-private:
-    vec3 lastNotifiedPosition_;
-    Rotation lastNotifRotation_;
+    bool lock_;
+
+public:
+    static void registerReadFunctions();
+    void write(TreeNode&) const override;
 };
+}  // namespace Components
 }  // namespace GameEngine

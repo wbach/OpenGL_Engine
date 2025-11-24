@@ -126,10 +126,6 @@ const vec3& Camera::GetDirection() const
 {
     return direction_;
 }
-const mat4& Camera::GetTranslationMatrix() const
-{
-    return translationMatrix_;
-}
 const vec3& Camera::GetPosition() const
 {
     return position_;
@@ -178,10 +174,6 @@ void Camera::UpdateViewMatrix()
 
     viewMatrix_ = rotationMatrix_ * translationMatrix_;
     CalculateDirection();
-}
-const mat4& Camera::GetRotationMatrix() const
-{
-    return rotationMatrix_;
 }
 const mat4& Camera::GetViewMatrix() const
 {
