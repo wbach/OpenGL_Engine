@@ -6,12 +6,8 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "Objects/Entity/ConcreteEntityRenderer.h"
 #include "Objects/Entity/PreviewRenderer.h"
-#include "Objects/Grass/GrassRenderer.h"
-#include "Objects/Particles/ParticlesRenderer.h"
-#include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/ConcreteSkyBoxRenderer.h"
 #include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
-#include "Objects/Terrain/TerrainRenderer.h"
 #include "Objects/Tree/TreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
 #include "Time/Timer.h"
@@ -29,7 +25,7 @@ BaseRenderer::~BaseRenderer()
 void BaseRenderer::init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
-    createRenderers();
+    createBaseRenderers();
     initRenderers();
 }
 void BaseRenderer::prepare()
@@ -93,18 +89,14 @@ void BaseRenderer::blendRender()
     for (auto& renderer : renderers)
         renderer.ptr->blendRender();
 }
-void BaseRenderer::createRenderers()
+void BaseRenderer::createBaseRenderers()
 {
-    addRenderer<PreviewRenderer>();
+    //addRenderer<PreviewRenderer>();
     addRenderer<ConcreteSkyBoxRenderer>();
-    addRenderer<TerrainRenderer>();
     addRenderer<ConcreteTerrainMeshRenderer>();
     addRenderer<TreeRenderer>();
-    addRenderer<GrassRenderer>();
     addRenderer<ConcreteEntityRenderer>();
-    addRenderer<ParticlesRenderer>();
     addRenderer<WaterRenderer>();
-    addRenderer<ShadowMapRenderer>();
 }
 void BaseRenderer::renderImpl()
 {

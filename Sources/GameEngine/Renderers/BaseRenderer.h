@@ -49,7 +49,7 @@ public:
 
 protected:
     void initRenderers();
-    void createRenderers();
+    void createBaseRenderers();
     void renderImpl();
     void bindTarget();
 

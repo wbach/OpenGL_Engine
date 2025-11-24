@@ -4,7 +4,9 @@
 
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "Objects/Entity/EntityRenderer.h"
+#include "Objects/Grass/GrassRenderer.h"
 #include "Objects/Particles/ParticlesRenderer.h"
+#include "Objects/Shadows/ShadowMapRenderer.hpp"
 #include "Objects/SkyBox/SkyBoxRenderer.h"
 #include "Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "Objects/Terrain/TerrainRenderer.h"
@@ -52,7 +54,13 @@ void DefferedRenderer::init()
 {
     LOG_DEBUG << "Init";
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
-    createRenderers();
+
+    createBaseRenderers();
+    addRenderer<TerrainRenderer>();
+    addRenderer<ParticlesRenderer>();
+    addRenderer<GrassRenderer>();
+    addRenderer<ShadowMapRenderer>();
+
     initRenderers();
     LOG_DEBUG << "DefferedRenderer renderers initialized.";
 }
