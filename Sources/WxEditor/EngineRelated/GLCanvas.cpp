@@ -1,6 +1,7 @@
 
 #include "GLCanvas.h"
 
+#include <GameEngine/Camera/CameraManager.h>
 #include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 #include <GameEngine/DebugTools/MousePicker/DragObject.h>
 #include <GameEngine/DebugTools/MousePicker/MousePicker.h>
@@ -12,6 +13,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "Components/Camera/CameraComponent.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -56,12 +58,6 @@ public:
     ~WxEditorScene() override = default;
     int Initialize() override
     {
-        auto camera = GetCameraManager().GetMainCamera();
-        camera->SetPosition(defaultCameraPosition);
-        camera->LookAt(defaultCameraLookAt);
-        camera->UpdateMatrix();
-        renderersManager_->GetDebugRenderer().Enable();
-
         return 0;
     }
     void PostInitialize() override
@@ -331,7 +327,6 @@ void GLCanvas::OnKeyDown(wxKeyEvent& event)
 
     if (event.GetKeyCode() == 27)  // ESC
     {
-        /* LOG TO FIX*/ LOG_ERROR << ("Escape");
         GetParent()->SetFocus();
     }
     wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, true);
@@ -469,6 +464,14 @@ void GLCanvas::CreateNewScene()
                 {
                     addPrimitive(GameEngine::PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
                     addPrimitive(GameEngine::PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
+
+                    auto scene              = engine->GetSceneManager().GetActiveScene();
+                    auto defaultSceneCamera = scene->CreateGameObject("DefaultCamera");
+                    auto& cameraComponent   = defaultSceneCamera->AddComponent<Components::CameraComponent>();
+                    cameraComponent.mainCamera = true;
+                    defaultSceneCamera->SetWorldPosition(vec3(2, 2, 2));
+                    cameraComponent.LookAt(vec3(0));
+                    scene->AddGameObject(std::move(defaultSceneCamera));
                 }
             });
     }
@@ -483,7 +486,7 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
     {
         return false;
     }
-
+    cameraEditorPtr = nullptr;
     const auto name = file.GetBaseName();
     wxSceneFactory->AddScene(name, file);
     engine->GetSceneManager().SetOnSceneLoadDone(
@@ -522,7 +525,8 @@ void GLCanvas::SetupCamera()
     cameraManager.LockAll();
 
     auto cameraEditor = std::make_unique<GameEngine::CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
-    ;
+
+    cameraEditorPtr = cameraEditor.get();
     cameraEditor->SetPosition(defaultCameraPosition);
     cameraEditor->LookAt(defaultCameraLookAt);
     cameraEditor->UpdateMatrix();
@@ -530,11 +534,10 @@ void GLCanvas::SetupCamera()
     scene.getInputManager()->ShowCursor(true);
     scene.getInputManager()->SetReleativeMouseMode(false);
 
-    // scene.GetCameraManager().DeactivateCamera(scene.GetCameraManager().GetMainCamera()); // stay enable to test purpose
-
     auto id = cameraManager.AddCamera(std::move(cameraEditor));
     cameraManager.ActivateCamera(id);
     cameraManager.SetCameraAsMain(id);
+    cameraManager.MainCameraCouldbeChange(false);
 }
 
 GameObject& GLCanvas::GetRootObject()

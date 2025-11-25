@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 
+#include "Camera/ICamera.h"
 #include "WxOpenGLApiWrapper.h"
 
 namespace WxEditor
@@ -82,6 +83,7 @@ private:
 
     bool useMousePicker{true};
     bool addStartupObjects;
+    GameEngine::ICamera* cameraEditorPtr{nullptr};
     OnStartupDone onStartupDone;
     SelectItemInGameObjectTree selectItemInGameObjectTree;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};

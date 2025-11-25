@@ -44,6 +44,8 @@ public:
     ICamera* GetActiveCamera(IdType);
     bool IsCameraActive(ICamera*) const;
 
+    void MainCameraCouldbeChange(bool);
+
 private:
     Utils::IdPool idPool;
 
@@ -52,5 +54,7 @@ private:
     CamerasView camerasView;
     ActiveCameras activeCameras;
     ICamera* mainCamera;
+
+    bool mainCameraCouldBeChanged{true};
 };
 }  // namespace GameEngine

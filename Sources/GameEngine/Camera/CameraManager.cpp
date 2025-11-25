@@ -134,6 +134,11 @@ void CameraManager::DeactivateCamera(ICamera* camera)
 
 void CameraManager::SetCameraAsMain(IdType id)
 {
+    if (not mainCameraCouldBeChanged)
+    {
+        LOG_DEBUG << "Main camera could not be changed. Is probably locked by other camera.";
+        return;
+    }
     if (auto camera = GetActiveCamera(id))
     {
         mainCamera = camera;
@@ -141,6 +146,20 @@ void CameraManager::SetCameraAsMain(IdType id)
     else
     {
         LOG_WARN << "Try set no active camera as main";
+    }
+}
+void CameraManager::SetCameraAsMain(ICamera* camera)
+{
+    if (not mainCameraCouldBeChanged)
+    {
+        LOG_DEBUG << "Main camera could not be changed. Is probably locked by other camera.";
+        return;
+    }
+    auto iter = std::find_if(activeCameras.begin(), activeCameras.end(), [camera](auto pair) { return pair.second == camera; });
+
+    if (iter != activeCameras.end())
+    {
+        mainCamera = camera;
     }
 }
 ICamera* CameraManager::GetMainCamera()
@@ -214,15 +233,6 @@ std::optional<IdType> CameraManager::GetCameraId(ICamera* camera)
 
     return {};
 }
-void CameraManager::SetCameraAsMain(ICamera* camera)
-{
-    auto iter = std::find_if(activeCameras.begin(), activeCameras.end(), [camera](auto pair) { return pair.second == camera; });
-
-    if (iter != activeCameras.end())
-    {
-        mainCamera = camera;
-    }
-}
 const CameraManager::CamerasView& CameraManager::GetCameras() const
 {
     return camerasView;
@@ -231,5 +241,9 @@ bool CameraManager::IsCameraActive(ICamera* camera) const
 {
     return activeCameras.end() !=
            std::find_if(activeCameras.begin(), activeCameras.end(), [camera](auto pair) { return pair.second == camera; });
+}
+void CameraManager::MainCameraCouldbeChange(bool v)
+{
+    mainCameraCouldBeChanged = v;
 }
 }  // namespace GameEngine

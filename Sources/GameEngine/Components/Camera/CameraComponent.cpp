@@ -115,7 +115,10 @@ const mat4& CameraComponent::GetProjectionMatrix() const
 void CameraComponent::UpdateMatrix()
 {
     UpdateViewMatrix();
-    projectionViewMatrix_ = projection_->GetMatrix() * viewMatrix_;
+    if (projection_)
+    {
+        projectionViewMatrix_ = projection_->GetMatrix() * viewMatrix_;
+    }
 }
 
 void CameraComponent::UpdateViewMatrix()
