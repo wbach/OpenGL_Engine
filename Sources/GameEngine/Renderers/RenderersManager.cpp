@@ -155,8 +155,12 @@ void RenderersManager::renderScene(Scene& scene)
         rendererContext_.graphicsApi_.DisableDepthTest();
         std::vector<GraphicsApi::ID> textures;
         textures.reserve(camerasRenderers.size());
-        for (const auto& [_, cameraContext] : camerasRenderers)
+
+        for (const auto& [camera, cameraContext] : camerasRenderers)
         {
+            if (not scene.GetCameraManager().IsCameraActive(camera))
+                continue;
+
             if (not cameraContext.renderTarget)
             {
                 continue;

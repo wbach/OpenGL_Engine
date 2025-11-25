@@ -402,7 +402,7 @@ void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
                 auto pos = vec3(-.99f + (size.x), .99f - size.y - (2.f * size.y * i), 0);
                 PerObjectUpdate gridPerObjectUpdate;
                 gridPerObjectUpdate.TransformationMatrix = rendererContext_.graphicsApi_.PrepareMatrixToLoad(
-                    Utils::CreateTransformationMatrix(pos, size, DegreesFloat(180.f)));
+                    Utils::CreateTransformationMatrix(pos, size * vec2(-1, 1), DegreesFloat(180.f)));
                 rendererContext_.graphicsApi_.UpdateShaderBuffer(*texturePerObjectUpdateBufferId_, &gridPerObjectUpdate);
 
                 rendererContext_.graphicsApi_.BindTexture(*textureId);

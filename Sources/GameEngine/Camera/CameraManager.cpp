@@ -2,6 +2,8 @@
 
 #include <Logger/Log.h>
 
+#include <algorithm>
+
 #include "GameEngine/Camera/ICamera.h"
 
 namespace GameEngine
@@ -17,6 +19,13 @@ IdType CameraManager::AddCamera(std::unique_ptr<ICamera> camera)
     cameras.insert({id, std::move(camera)});
     return id;
 }
+IdType CameraManager::AddCamera(ICamera* camera)
+{
+    auto id = idPool.getId();
+    camerasView.insert(camera);
+    notOwnedCameras.insert({id, std::move(camera)});
+    return id;
+}
 void CameraManager::RemoveCamera(IdType id)
 {
     DeactivateCamera(id);
@@ -25,6 +34,33 @@ void CameraManager::RemoveCamera(IdType id)
     {
         camerasView.erase(iter->second.get());
         cameras.erase(iter);
+        return;
+    }
+
+    auto notOwnedCamerasIter = notOwnedCameras.find(id);
+    if (notOwnedCamerasIter != notOwnedCameras.end())
+    {
+        camerasView.erase(notOwnedCamerasIter->second);
+        notOwnedCameras.erase(notOwnedCamerasIter);
+    }
+}
+void CameraManager::RemoveCamera(ICamera* ptr)
+{
+    DeactivateCamera(ptr);
+    camerasView.erase(ptr);
+
+    auto iter = std::find_if(cameras.begin(), cameras.end(), [ptr](const auto& pair) { return pair.second.get() == ptr; });
+    if (iter != cameras.end())
+    {
+        cameras.erase(iter);
+        return;
+    }
+    auto notOwnedIter =
+        std::find_if(notOwnedCameras.begin(), notOwnedCameras.end(), [ptr](const auto& pair) { return pair.second == ptr; });
+    if (notOwnedIter != notOwnedCameras.end())
+    {
+        notOwnedCameras.erase(notOwnedIter);
+        return;
     }
 }
 void CameraManager::ActivateCamera(IdType id)
@@ -33,6 +69,15 @@ void CameraManager::ActivateCamera(IdType id)
     if (iter != cameras.end())
     {
         activeCameras.push_back({id, iter->second.get()});
+        LOG_DEBUG << "Camera activated";
+        return;
+    }
+
+    auto notOwnedIter = notOwnedCameras.find(id);
+    if (notOwnedIter != notOwnedCameras.end())
+    {
+        activeCameras.push_back({id, notOwnedIter->second});
+        LOG_DEBUG << "Camera activated";
     }
 }
 void CameraManager::ActivateCamera(ICamera* ptr)
@@ -42,6 +87,18 @@ void CameraManager::ActivateCamera(ICamera* ptr)
         if (camera.get() == ptr)
         {
             activeCameras.push_back({id, ptr});
+            LOG_DEBUG << "Camera activated";
+            return;
+        }
+    }
+
+    for (auto& [id, camera] : notOwnedCameras)
+    {
+        if (camera == ptr)
+        {
+            activeCameras.push_back({id, ptr});
+            LOG_DEBUG << "Camera activated";
+            return;
         }
     }
 }
@@ -56,6 +113,7 @@ void CameraManager::DeactivateCamera(IdType id)
             mainCamera = nullptr;
         }
         activeCameras.erase(iter);
+        LOG_DEBUG << "Camera deactivated";
     }
 }
 
@@ -65,7 +123,12 @@ void CameraManager::DeactivateCamera(ICamera* camera)
 
     if (iter != activeCameras.end())
     {
+        if (mainCamera == camera)
+        {
+            mainCamera = nullptr;
+        }
         activeCameras.erase(iter);
+        LOG_DEBUG << "Camera deactivated";
     }
 }
 
@@ -96,6 +159,12 @@ ICamera* CameraManager::GetCamera(IdType id)
         return iter->second.get();
     }
 
+    auto niter = notOwnedCameras.find(id);
+    if (niter != notOwnedCameras.end())
+    {
+        return niter->second;
+    }
+
     return nullptr;
 }
 ICamera* CameraManager::GetActiveCamera(IdType id)
@@ -111,16 +180,26 @@ ICamera* CameraManager::GetActiveCamera(IdType id)
 }
 void CameraManager::LockAll()
 {
-    for (auto [_, cameraPtr] : activeCameras)
+    for (auto& [_, camera] : cameras)
     {
-        cameraPtr->Lock();
+        camera->Lock();
+    }
+
+    for (auto& [_, camera] : notOwnedCameras)
+    {
+        camera->Lock();
     }
 }
 void CameraManager::UnlockAll()
 {
-    for (auto [_, cameraPtr] : activeCameras)
+    for (auto& [_, camera] : cameras)
     {
-        cameraPtr->Unlock();
+        camera->Unlock();
+    }
+
+    for (auto& [_, camera] : notOwnedCameras)
+    {
+        camera->Unlock();
     }
 }
 
@@ -148,11 +227,9 @@ const CameraManager::CamerasView& CameraManager::GetCameras() const
 {
     return camerasView;
 }
-void CameraManager::RemoveCamera(ICamera* ptr)
+bool CameraManager::IsCameraActive(ICamera* camera) const
 {
-    if (auto id = GetCameraId(ptr))
-    {
-        RemoveCamera(*id);
-    }
+    return activeCameras.end() !=
+           std::find_if(activeCameras.begin(), activeCameras.end(), [camera](auto pair) { return pair.second == camera; });
 }
 }  // namespace GameEngine

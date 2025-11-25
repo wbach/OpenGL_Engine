@@ -99,7 +99,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
         headerSizer->Add(activeCheck, 0, wxALL, 5);
 
         activeCheck->Bind(wxEVT_CHECKBOX,
-                          [this, &component](auto& e)
+                          [&component](auto& e)
                           {
                               component.SetActive(e.IsChecked());
                               component.Reload();

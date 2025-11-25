@@ -1,10 +1,12 @@
 #pragma once
 #include <Utils/IdPool.h>
 #include <Utils/Rotation.h>
+#include <optional>
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -15,6 +17,15 @@ namespace Components
 {
 class CameraComponent : public BaseComponent, public ICamera
 {
+public:
+    bool mainCamera{false};
+
+    // clang-format off
+    BEGIN_FIELDS()
+        FIELD_BOOL(mainCamera)
+    END_FIELDS()
+    // clang-format on
+
 public:
     CameraComponent(ComponentContext&, GameObject&);
     void CleanUp() override;
@@ -60,8 +71,12 @@ public:
 
 private:
     void awake();
+    void init();
     void UpdateViewMatrix();
     void CalculateDirection();
+    void Activate() override;
+    void Deactivate() override;
+    void SetActive(bool) override;
 
 private:
     Utils::IdPool idPool_;
@@ -75,6 +90,8 @@ private:
     vec3 direction_;
 
     bool lock_;
+
+    std::optional<IdType> cameraId;
 
 public:
     static void registerReadFunctions();

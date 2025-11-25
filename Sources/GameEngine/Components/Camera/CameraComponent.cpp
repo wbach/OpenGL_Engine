@@ -2,26 +2,29 @@
 
 #include <GLM/GLMUtils.h>
 #include <Input/InputManager.h>
+#include <Logger/Log.h>
 #include <Utils/Fsm/Fsm.h>
 #include <Utils/TreeNode.h>
 #include <Utils/Variant.h>
+
 #include <memory>
 
-#include "GameEngine/Camera/CustomCamera.h"
-#include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
+#include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 #include "GameEngine/Scene/Scene.hpp"
-#include "Logger/Log.h"
-#include "glm/glm.hpp"
+#include "Utils.h"
 
 namespace GameEngine
 {
 namespace Components
 {
-using namespace Camera;
+namespace
+{
+constexpr char CSTR_MAIN_CAMERA[] = "mainCamera";
+}
 
 CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<CameraComponent>(), componentContext, gameObject)
@@ -30,29 +33,63 @@ CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject&
 
 void CameraComponent::CleanUp()
 {
-    // componentContext_.scene_.GetCameraManager().RemoveCamera(&fsmContext->camera);
+    componentContext_.scene_.GetCameraManager().RemoveCamera(this);
 }
 
 void CameraComponent::ReqisterFunctions()
 {
-    //RegisterFunction(FunctionType::Awake, [this]() { awake(); });
+    RegisterFunction(FunctionType::Awake, [this]() { awake(); });
 }
 
 void CameraComponent::Reload()
 {
+    if (not IsActive())
+        return;
+
+    auto& manager = componentContext_.scene_.GetCameraManager();
+    init();
+    LOG_DEBUG << "Is main camera : " << Utils::BoolToString(mainCamera);
+    if (mainCamera)
+    {
+        manager.SetCameraAsMain(this);
+    }
+    else
+    {
+        manager.SetCameraAsMain(nullptr);
+    }
 }
 
 void CameraComponent::awake()
 {
+    auto& manager = componentContext_.scene_.GetCameraManager();
+    init();
+    cameraId = manager.AddCamera(this);
+    manager.ActivateCamera(this);
+
+    if (mainCamera)
+    {
+        manager.SetCameraAsMain(this);
+    }
+}
+
+void CameraComponent::init()
+{
     projection_ = std::make_unique<PerspectiveProjection>();
-    //componentContext_.scene_.GetCameraManager().AddCamera(*this); TO DO: add without ownership
     UpdateMatrix();
 }
 
 void CameraComponent::registerReadFunctions()
 {
-    auto func = [](ComponentContext& componentContext, const TreeNode&, GameObject& gameObject)
-    { return std::make_unique<CameraComponent>(componentContext, gameObject); };
+    auto func = [](ComponentContext& componentContext, const TreeNode& cameraNode, GameObject& gameObject)
+    {
+        auto component = std::make_unique<CameraComponent>(componentContext, gameObject);
+
+        if (auto node = cameraNode.getChild(CSTR_MAIN_CAMERA))
+        {
+            component->mainCamera = Utils::StringToBool(node->value_);
+        }
+        return component;
+    };
 
     regsiterComponentReadFunction(GetComponentType<CameraComponent>(), func);
 }
@@ -61,6 +98,7 @@ void CameraComponent::write(TreeNode& node) const
 {
     const std::string CSTR_TYPE = "type";
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
+    node.addChild(CSTR_MAIN_CAMERA, Utils::BoolToString(mainCamera));
 }
 const mat4& CameraComponent::GetProjectionViewMatrix() const
 {
@@ -225,6 +263,43 @@ const IProjection& CameraComponent::GetProjection() const
         LOG_ERROR << "Projection not set!";
     }
     return *projection_;
+}
+void CameraComponent::Activate()
+{
+    if (not projection_ or not cameraId)
+    {
+        LOG_DEBUG << "Camera not init";
+        return;
+    }
+    auto& manager = componentContext_.scene_.GetCameraManager();
+
+    bool isCameraActiveAlready = manager.GetActiveCamera(*cameraId) != nullptr;
+    if (isCameraActiveAlready)
+    {
+        LOG_DEBUG << "Camera is already activated";
+        return;
+    }
+
+    manager.ActivateCamera(this);
+    BaseComponent::Activate();
+}
+void CameraComponent::Deactivate()
+{
+    LOG_DEBUG << "Try deactivate";
+    auto& manager = componentContext_.scene_.GetCameraManager();
+    manager.DeactivateCamera(this);
+    BaseComponent::Deactivate();
+}
+void CameraComponent::SetActive(bool v)
+{
+    if (v)
+    {
+        Activate();
+    }
+    else
+    {
+        Deactivate();
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

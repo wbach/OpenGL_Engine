@@ -1,8 +1,8 @@
 #pragma once
 #include <Utils/IdPool.h>
 
-#include <set>
 #include <memory>
+#include <set>
 #include <unordered_map>
 
 #include "Types.h"
@@ -17,13 +17,15 @@ class IProjection;
 class CameraManager
 {
 public:
-    using Cameras       = std::unordered_map<IdType, std::unique_ptr<ICamera>>;
-    using CamerasView   = std::set<ICamera*>;
-    using ActiveCameras = std::vector<std::pair<IdType, ICamera*>>;
+    using NotOwnedCameras = std::unordered_map<IdType, ICamera*>;
+    using Cameras         = std::unordered_map<IdType, std::unique_ptr<ICamera>>;
+    using CamerasView     = std::set<ICamera*>;
+    using ActiveCameras   = std::vector<std::pair<IdType, ICamera*>>;
 
     const CamerasView& GetCameras() const;
     ActiveCameras& GetActiveCameras();
     IdType AddCamera(std::unique_ptr<ICamera>);
+    IdType AddCamera(ICamera*);
     void RemoveCamera(ICamera*);
     void RemoveCamera(IdType);
     void ActivateCamera(IdType);
@@ -40,11 +42,13 @@ public:
     ICamera* GetMainCamera();
     ICamera* GetCamera(IdType);
     ICamera* GetActiveCamera(IdType);
+    bool IsCameraActive(ICamera*) const;
 
 private:
     Utils::IdPool idPool;
 
     Cameras cameras;
+    NotOwnedCameras notOwnedCameras;
     CamerasView camerasView;
     ActiveCameras activeCameras;
     ICamera* mainCamera;
