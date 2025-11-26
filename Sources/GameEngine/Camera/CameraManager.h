@@ -32,6 +32,7 @@ public:
     void ActivateCamera(ICamera*);
     void DeactivateCamera(IdType);
     void DeactivateCamera(ICamera*);
+    void DeactivateAllAdditionalCameras();
     std::optional<IdType> GetCameraId(ICamera*);
     void LockAll();
     void UnlockAll();

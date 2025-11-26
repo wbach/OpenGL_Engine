@@ -246,4 +246,17 @@ void CameraManager::MainCameraCouldbeChange(bool v)
 {
     mainCameraCouldBeChanged = v;
 }
+void CameraManager::DeactivateAllAdditionalCameras()
+{
+    for (auto iter = activeCameras.begin(); iter != activeCameras.end();)
+    {
+        if (iter->second == mainCamera)
+        {
+            ++iter;
+            continue;
+        }
+
+        iter = activeCameras.erase(iter);
+    }
+}
 }  // namespace GameEngine

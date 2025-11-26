@@ -368,6 +368,7 @@ void MainFrame::RemoveAllComponentPanels()
     if (!gameObjectPanelsSizer)
         return;
 
+    canvas->GetScene().GetCameraManager().DeactivateAllAdditionalCameras();
     auto rendererManager = &canvas->GetEngine().GetEngineContext().GetRenderersManager();
     rendererManager->hideAdditionalCamerasPreview();
 
@@ -1182,8 +1183,14 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 
         if (auto camera = go->GetComponent<GameEngine::Components::CameraComponent>())
         {
-            auto rendererManager = &canvas->GetEngine().GetEngineContext().GetRenderersManager();
-            rendererManager->setAdditionalCameraVisiblity(*camera, true);
+            // To save resources deactive camera to prevent additional render in editor mode
+            if (camera->IsActive())
+            {
+                canvas->GetScene().GetCameraManager().ActivateCamera(camera);
+
+                auto rendererManager = &canvas->GetEngine().GetEngineContext().GetRenderersManager();
+                rendererManager->setAdditionalCameraVisiblity(*camera, true);
+            }
         }
     }
 }
