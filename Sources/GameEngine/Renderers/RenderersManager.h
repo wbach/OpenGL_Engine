@@ -2,8 +2,9 @@
 #include <atomic>
 #include <functional>
 #include <memory>
-#include <unordered_map>
+#include <optional>
 #include <set>
+#include <unordered_map>
 
 #include "BufferDataUpdater.h"
 #include "DebugElements/DebugRenderer.h"
@@ -13,6 +14,7 @@
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Renderers/BaseRenderer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerAppBuffer.h"
+#include "GraphicsApi/GraphicsApiDef.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IRenderer.h"
 #include "RendererContext.h"
@@ -71,6 +73,9 @@ public:
     void UpdatePerAppBuffer();
 
     RendererContext& GetContext();
+    GraphicsApi::ID getCameraTexture(ICamera&) const;
+    void setAdditionalCameraVisiblity(ICamera&, bool);
+    void hideAdditionalCamerasPreview();
 
 private:
     void ReloadShadersExecution();
@@ -98,6 +103,7 @@ private:
 
     struct CameraRendererContext
     {
+        bool isVisible{false};
         std::unique_ptr<BaseRenderer> renderer;
         GraphicsApi::IFrameBuffer* renderTarget;
     };

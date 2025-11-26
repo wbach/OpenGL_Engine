@@ -635,4 +635,8 @@ const Color& Scene::GetBackgroundColor() const
 {
     return backgroundColor;
 }
+GuiElementFactory& Scene::GetGuiElementFactory()
+{
+    return *guiElementFactory_;
+}
 }  // namespace GameEngine

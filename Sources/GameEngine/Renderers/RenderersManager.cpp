@@ -133,7 +133,7 @@ void RenderersManager::renderScene(Scene& scene)
         auto rendererContextIter = camerasRenderers.find(cameraPtr);
         if (rendererContextIter != camerasRenderers.end())
         {
-            auto& [renderer, renderTarget] = rendererContextIter->second;
+            auto& [_, renderer, renderTarget] = rendererContextIter->second;
             frustrumCheckInFrame += renderPerCamera(*renderer, cameraPtr, renderTarget);
         }
         else
@@ -158,7 +158,7 @@ void RenderersManager::renderScene(Scene& scene)
 
         for (const auto& [camera, cameraContext] : camerasRenderers)
         {
-            if (not scene.GetCameraManager().IsCameraActive(camera))
+            if (not cameraContext.isVisible or not scene.GetCameraManager().IsCameraActive(camera))
                 continue;
 
             if (not cameraContext.renderTarget)
@@ -417,7 +417,7 @@ void RenderersManager::cleanupCamerasRenderersIfCameraNotExist(const Scene& scen
         if (allcamerasIter == allcameras.end())
         {
             LOG_DEBUG << "Remove unused camera renderer";
-            auto& [renderer, framebuffer] = iter->second;
+            auto& [_, renderer, framebuffer] = iter->second;
             renderer->unSubscribeAll();
             renderer->cleanUp();
             renderer.reset();
@@ -433,6 +433,31 @@ void RenderersManager::cleanupCamerasRenderersIfCameraNotExist(const Scene& scen
         {
             iter++;
         }
+    }
+}
+GraphicsApi::ID RenderersManager::getCameraTexture(ICamera& camera) const
+{
+    auto iter = camerasRenderers.find(&camera);
+    if (iter != camerasRenderers.end())
+    {
+        return iter->second.renderTarget->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Color0);
+    }
+
+    return std::nullopt;
+}
+void RenderersManager::setAdditionalCameraVisiblity(ICamera& camera, bool v)
+{
+    auto iter = camerasRenderers.find(&camera);
+    if (iter != camerasRenderers.end())
+    {
+        iter->second.isVisible = v;
+    }
+}
+void RenderersManager::hideAdditionalCamerasPreview()
+{
+    for (auto& [_, context] : camerasRenderers)
+    {
+        context.isVisible = false;
     }
 }
 }  // namespace Renderer

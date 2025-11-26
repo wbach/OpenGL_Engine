@@ -3,6 +3,8 @@
 #include <GameEngine/Components/FunctionType.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/Engine/Configuration.h>
+#include <GameEngine/Renderers/GUI/GuiRenderer.h>
+#include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
@@ -30,6 +32,7 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
+#include "Components/Camera/CameraComponent.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -364,6 +367,9 @@ void MainFrame::RemoveAllComponentPanels()
 {
     if (!gameObjectPanelsSizer)
         return;
+
+    auto rendererManager = &canvas->GetEngine().GetEngineContext().GetRenderersManager();
+    rendererManager->hideAdditionalCamerasPreview();
 
     for (int i = gameObjectPanelsSizer->GetItemCount() - 1; i >= 0; --i)
     {
@@ -1173,6 +1179,12 @@ void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
             transfromSubController->ChangeGameObject(go->GetId());
         }
         AddGameObjectComponentsToView(*go);
+
+        if (auto camera = go->GetComponent<GameEngine::Components::CameraComponent>())
+        {
+            auto rendererManager = &canvas->GetEngine().GetEngineContext().GetRenderersManager();
+            rendererManager->setAdditionalCameraVisiblity(*camera, true);
+        }
     }
 }
 
@@ -1185,7 +1197,7 @@ void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
         {
             auto& camera = *scene.GetCameraManager().GetMainCamera();
             camera.SetPosition(gameObject->GetWorldTransform().GetPosition() +
-                                          (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
+                               (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
             camera.LookAt(gameObject->GetWorldTransform().GetPosition());
         }
     }

@@ -128,6 +128,7 @@ public:
     DisplayManager* getDisplayManager();
     Input::InputManager* getInputManager();
     Components::ComponentController& getComponentController();
+    GuiElementFactory& GetGuiElementFactory();
 
     void setWindParams(const WindParams&);
     const WindParams& getWindParams() const;
