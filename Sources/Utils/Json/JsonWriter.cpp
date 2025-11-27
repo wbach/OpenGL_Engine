@@ -67,22 +67,30 @@ std::string Json::Write(const TreeNode& root)
 
 void Json::Write(const std::filesystem::path& filename, const TreeNode& root)
 {
-    auto parentPath = filename.parent_path();
-    if (!parentPath.empty() && !std::filesystem::exists(parentPath))
+    try 
     {
-        Utils::CreateDirectories(parentPath);
-    }
+        auto parentPath = filename.parent_path();
+        if (!parentPath.empty() && !std::filesystem::exists(parentPath))
+        {
+            Utils::CreateDirectories(parentPath);
+        }
 
-    std::ofstream file(filename);
-    if (!file.is_open())
+        std::ofstream file(filename);
+        if (!file.is_open())
+        {
+            LOG_ERROR << "cannot open file " << filename;
+            return;
+        }
+
+        std::string jsonStr = Json::Write(root);
+        file << jsonStr;
+        file.close();
+        LOG_DEBUG << "Json saved: " << filename;
+
+    }
+    catch (...)
     {
-        LOG_ERROR << "cannot open file " << filename;
-        return;
+        LOG_DEBUG << "Json write error. filename: " << filename;
     }
-
-    std::string jsonStr = Json::Write(root);
-    file << jsonStr;
-    file.close();
 }
-
 }  // namespace Utils

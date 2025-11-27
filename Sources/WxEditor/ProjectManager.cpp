@@ -52,7 +52,9 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
         if (dirDlg.ShowModal() == wxID_OK)
         {
             engineIncludesDir = dirDlg.GetPath().ToStdString();
-            EngineConf.files.setShaderPath(engineIncludesDir / "Sources");
+            auto path = engineIncludesDir / "Sources";
+            EngineConf.files.setShaderPath(path);
+            LOG_DEBUG << "Path :" << path;
         }
         else
         {
@@ -170,10 +172,19 @@ void ProjectManager::SaveSceneFiles()
 }
 void ProjectManager::SaveEditorConfig()
 {
-    TreeNode node("editorConfig");
-    node.addChild("engineIncludesDir", engineIncludesDir);
-    node.addChild("lastOpenedSceneFile", std::filesystem::absolute(lastOpenedSceneFile).lexically_normal());
-    Utils::Json::Write(projectEditorConfigFilePath.string(), node);
+    try 
+    {
+        TreeNode node("editorConfig");
+        node.addChild("engineIncludesDir", engineIncludesDir);
+        node.addChild("lastOpenedSceneFile", lastOpenedSceneFile.empty() ? "" : std::filesystem::absolute(lastOpenedSceneFile).lexically_normal());
+        Utils::Json::Write(projectEditorConfigFilePath.string(), node);
+        LOG_DEBUG << "projectEditorConfigFilePath saved";
+
+    } catch (...) 
+    {
+        LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile << ". projectEditorConfigFilePath= " << projectEditorConfigFilePath;
+    }
+    
 }
 void ProjectManager::ReadEditorConfig()
 {
