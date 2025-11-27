@@ -97,6 +97,7 @@ void write(TreeNode&, int);
 void write(TreeNode&, uint32);
 void write(TreeNode&, bool);
 void write(TreeNode&, const std::string&);
+void write(TreeNode&, const std::string_view&);
 void write(TreeNode&, const std::filesystem::path&);
 void write(TreeNode&, const vec2ui&);
 void write(TreeNode&, const vec2&);

@@ -12,10 +12,13 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Projection/OrthographicProjection.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Utils.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -23,8 +26,13 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_MAIN_CAMERA[] = "mainCamera";
-}
+constexpr char CSTR_MAIN_CAMERA[]    = "mainCamera";
+constexpr char CSTR_NEAR[]           = "near";
+constexpr char CSTR_FAR[]            = "far";
+constexpr char CSTR_FOV[]            = "fov";
+constexpr char CSTR_RENDERING_SIZE[] = "renderingSize";
+constexpr char CSTR_SETTINGS[]       = "settings";
+}  // namespace
 
 CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<CameraComponent>(), componentContext, gameObject)
@@ -48,7 +56,7 @@ void CameraComponent::Reload()
 
     auto& manager = componentContext_.scene_.GetCameraManager();
     init();
-    LOG_DEBUG << "Is main camera : " << Utils::BoolToString(mainCamera);
+
     if (mainCamera)
     {
         manager.SetCameraAsMain(this);
@@ -74,7 +82,29 @@ void CameraComponent::awake()
 
 void CameraComponent::init()
 {
-    projection_ = std::make_unique<PerspectiveProjection>();
+    LOG_DEBUG << "renderingSize: " << renderingSize;
+
+    if (settings == Settings::GlobalConfig)
+    {
+        renderingSize = EngineConf.renderer.resolution;
+        far           = EngineConf.renderer.viewDistance;
+        LOG_DEBUG << "GlobalConfig is set. Rendering size and far is used. renderingSize " <<  renderingSize;
+    }
+    switch (type)
+    {
+        case Type::Orthographics:
+            projection_ = std::make_unique<OrthographicProjection>(renderingSize, near, far);
+            break;
+        case Type::Perspective:
+            projection_ = std::make_unique<PerspectiveProjection>(renderingSize, near, far, fov);
+            break;
+    }
+
+    if (settings == Settings::GlobalConfig)
+    {
+        projection_->SubscribeForGlobalConfigChange();
+    }
+
     UpdateMatrix();
 }
 
@@ -84,9 +114,25 @@ void CameraComponent::registerReadFunctions()
     {
         auto component = std::make_unique<CameraComponent>(componentContext, gameObject);
 
-        if (auto node = cameraNode.getChild(CSTR_MAIN_CAMERA))
+        ::Read(cameraNode.getChild(CSTR_MAIN_CAMERA), component->mainCamera);
+        ::Read(cameraNode.getChild(CSTR_RENDERING_SIZE), component->renderingSize);
+        ::Read(cameraNode.getChild(CSTR_NEAR), component->near);
+        ::Read(cameraNode.getChild(CSTR_FAR), component->far);
+        ::Read(cameraNode.getChild(CSTR_FOV), component->fov);
+
+        if (auto node = cameraNode.getChild(CSTR_TYPE))
         {
-            component->mainCamera = Utils::StringToBool(node->value_);
+            if (auto type = magic_enum::enum_cast<Type>(node->value_))
+            {
+                component->type = *type;
+            }
+        }
+        if (auto node = cameraNode.getChild(CSTR_SETTINGS))
+        {
+            if (auto settings = magic_enum::enum_cast<Settings>(node->value_))
+            {
+                component->settings = *settings;
+            }
         }
         return component;
     };
@@ -96,9 +142,15 @@ void CameraComponent::registerReadFunctions()
 
 void CameraComponent::write(TreeNode& node) const
 {
-    const std::string CSTR_TYPE = "type";
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
-    node.addChild(CSTR_MAIN_CAMERA, Utils::BoolToString(mainCamera));
+
+    ::write(node.addChild(CSTR_MAIN_CAMERA), mainCamera);
+    ::write(node.addChild(CSTR_RENDERING_SIZE), renderingSize);
+    ::write(node.addChild(CSTR_NEAR), near);
+    ::write(node.addChild(CSTR_FAR), far);
+    ::write(node.addChild(CSTR_FOV), fov);
+    ::write(node.addChild(CSTR_TYPE), magic_enum::enum_name(type));
+    ::write(node.addChild(CSTR_SETTINGS), magic_enum::enum_name(settings));
 }
 const mat4& CameraComponent::GetProjectionViewMatrix() const
 {

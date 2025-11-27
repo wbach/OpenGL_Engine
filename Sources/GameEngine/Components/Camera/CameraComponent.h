@@ -1,10 +1,12 @@
 #pragma once
 #include <Utils/IdPool.h>
 #include <Utils/Rotation.h>
+
 #include <optional>
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/BaseComponent.h"
+#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "Types.h"
 
@@ -18,11 +20,35 @@ namespace Components
 class CameraComponent : public BaseComponent, public ICamera
 {
 public:
+    enum Type
+    {
+        Orthographics,
+        Perspective
+    };
+    enum Settings
+    {
+        Manual,
+        GlobalConfig
+    };
+
+    Settings settings{Settings::Manual};
+    Type type{Type::Perspective};
+
+    vec2ui renderingSize{EngineConf.renderer.resolution};
+    float near{0.3f};
+    float far{1000.f};
+    float fov{60.f};
     bool mainCamera{false};
 
     // clang-format off
     BEGIN_FIELDS()
+        FIELD_ENUM(settings)
+        FIELD_ENUM(type)
         FIELD_BOOL(mainCamera)
+        FIELD_VECTOR2I(renderingSize)
+        FIELD_FLOAT(near)
+        FIELD_FLOAT(far)
+        FIELD_FLOAT(fov)
     END_FIELDS()
     // clang-format on
 

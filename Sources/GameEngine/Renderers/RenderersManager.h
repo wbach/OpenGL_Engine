@@ -78,12 +78,20 @@ public:
     void hideAdditionalCamerasPreview();
 
 private:
+    struct CameraRendererContext
+    {
+        std::unique_ptr<BaseRenderer> renderer;
+        GraphicsApi::IFrameBuffer* renderTarget;
+        vec2ui renderSize;
+        bool isVisible{false};
+    };
+
     void ReloadShadersExecution();
     void createMainRenderer();
     void InitGuiRenderer();
     void CreatePerAppBuffer();
     void updatePerFrameBuffer(ICamera&);
-    void createPerCameraRenderer(const Scene&, ICamera&);
+    CameraRendererContext* createPerCameraRenderer(const Scene&, ICamera&);
     uint64 renderPerCamera(BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget = nullptr);
     void cleanupCamerasRenderersIfCameraNotExist(const Scene&);
 
@@ -101,12 +109,7 @@ private:
 
     std::unique_ptr<BaseRenderer> mainCameraRenderer_;
 
-    struct CameraRendererContext
-    {
-        bool isVisible{false};
-        std::unique_ptr<BaseRenderer> renderer;
-        GraphicsApi::IFrameBuffer* renderTarget;
-    };
+
     std::unordered_map<ICamera*, CameraRendererContext> camerasRenderers;
     std::set<GameObject*> subscribedGameObjects;
 

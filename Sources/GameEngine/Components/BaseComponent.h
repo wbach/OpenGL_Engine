@@ -1,6 +1,5 @@
 #pragma once
 #include <magic_enum/magic_enum.hpp>
-#include <memory>
 #include <string>
 
 #include "IComponent.h"
@@ -15,7 +14,6 @@ namespace Components
 template <typename Enum>
 FieldInfo MakeEnumField(const char* name, Enum* value)
 {
-    // cache nazw dla danego Enum
     static const std::vector<std::string> cachedNames = []
     {
         std::vector<std::string> result;
@@ -27,27 +25,20 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
     return {.name = name,
             .type = FieldType::Enum,
             .ptr  = value,
-
-            // zwracamy kopie - UI moze to sobie przechowac
             .enumNames = []() { return cachedNames; },
 
             .enumToIndex =
                 [](void* ptr)
             {
                 auto val = *static_cast<Enum*>(ptr);
-                // nazwa wartosci:
-                auto sv = magic_enum::enum_name(val);
-                // indeks w zakresie 0..N-1 (nie mylic z underlying!)
                 if (auto idx = magic_enum::enum_index(val); idx.has_value())
                     return static_cast<int>(*idx);
-                // fallback (gdyby wartosc byla spoza zakresu)
                 return 0;
             },
 
             .indexToEnum =
                 [](void* ptr, int idx)
             {
-                // clamp na wypadek zlego indeksu
                 constexpr int N = static_cast<int>(magic_enum::enum_count<Enum>());
                 if (N > 0)
                 {
@@ -63,14 +54,8 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
 
                 auto val                 = magic_enum::enum_value<Enum>(idx);
                 *static_cast<Enum*>(ptr) = val;
-
-                auto sv = magic_enum::enum_name(val);
             }};
 }
-
-// Makro - przekazujemy #member (string literal), wiec nie ma ryzyka wiszacego wskaznika:
-// #define FIELD_ENUM(member, EnumT) fields.push_back(MakeEnumField<EnumT>(#member, &(this->member)))
-
 }  // namespace Components
 }  // namespace GameEngine
 

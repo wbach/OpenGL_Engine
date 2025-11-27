@@ -38,6 +38,7 @@ Camera::Camera(std::unique_ptr<IProjection> projection, float pitch, float yaw)
     , lastNotifiedPosition_(0.f)
     , lastNotifRotation_(DegreesVec3(0.f))
 {
+    projection_->SubscribeForGlobalConfigChange();
     UpdateMatrix();
 }
 Camera::Camera(std::unique_ptr<IProjection> projection, const vec3& position, const vec3& lookAt)
@@ -49,6 +50,7 @@ Camera::Camera(std::unique_ptr<IProjection> projection, const vec3& position, co
     , lastNotifiedPosition_(0.f)
     , lastNotifRotation_(DegreesVec3(0.f))
 {
+    projection_->SubscribeForGlobalConfigChange();
     LookAt(lookAt);
 }
 void Camera::UpdateImpl()

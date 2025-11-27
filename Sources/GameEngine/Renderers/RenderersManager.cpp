@@ -19,6 +19,7 @@
 #include "GameEngine/Scene/Scene.hpp"
 #include "GraphicsApi/BufferParamters.h"
 #include "GraphicsApi/IFrameBuffer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "IRendererFactory.h"
 namespace GameEngine
 {
@@ -44,6 +45,15 @@ namespace
 float F(bool v)
 {
     return v ? 1.f : 0.f;
+}
+GraphicsApi::IFrameBuffer* createPerCameraFrameBuffer(GraphicsApi::IGraphicsApi& api, const vec2ui& framebufferSize,
+                                                      const Color& backgroundColor)
+{
+    using namespace GraphicsApi::FrameBuffer;
+    Attachment colorAttachment(framebufferSize, Type::Color0, Format::Rgba8);
+    colorAttachment.defaultValue = backgroundColor.value;
+    Attachment depthAttachment(framebufferSize, Type::Depth, Format::Depth);
+    return &api.CreateFrameBuffer({colorAttachment, depthAttachment});
 }
 }  // namespace
 
@@ -133,12 +143,36 @@ void RenderersManager::renderScene(Scene& scene)
         auto rendererContextIter = camerasRenderers.find(cameraPtr);
         if (rendererContextIter != camerasRenderers.end())
         {
-            auto& [_, renderer, renderTarget] = rendererContextIter->second;
-            frustrumCheckInFrame += renderPerCamera(*renderer, cameraPtr, renderTarget);
+            auto& context = rendererContextIter->second;
+            if (context.renderSize != cameraPtr->GetProjection().GetRenderingSize())
+            {
+                if (context.renderTarget)
+                {
+                    LOG_DEBUG << "Percamera resolution changed from: " << context.renderSize << " => "
+                              << cameraPtr->GetProjection().GetRenderingSize();
+
+                    context.renderSize = cameraPtr->GetProjection().GetRenderingSize();
+                    rendererContext_.graphicsApi_.DeleteFrameBuffer(*context.renderTarget);
+                    context.renderTarget = createPerCameraFrameBuffer(
+                        rendererContext_.graphicsApi_, cameraPtr->GetProjection().GetRenderingSize(), scene.GetBackgroundColor());
+                    auto status = context.renderTarget->Init();
+                    if (not status)
+                    {
+                        LOG_WARN << "Framebuffer creation error";
+                        continue;
+                    }
+                }
+            }
+
+            frustrumCheckInFrame += renderPerCamera(*context.renderer, cameraPtr, context.renderTarget);
         }
         else
         {
-            createPerCameraRenderer(scene, *cameraPtr);
+            if (auto newContext = createPerCameraRenderer(scene, *cameraPtr))
+            {
+                auto& context = *newContext;
+                frustrumCheckInFrame += renderPerCamera(*context.renderer, cameraPtr, context.renderTarget);
+            }
         }
     }
 
@@ -352,21 +386,18 @@ RendererContext& RenderersManager::GetContext()
 {
     return rendererContext_;
 }
-void RenderersManager::createPerCameraRenderer(const Scene& scene, ICamera& camera)
+RenderersManager::CameraRendererContext* RenderersManager::createPerCameraRenderer(const Scene& scene, ICamera& camera)
 {
-    using namespace GraphicsApi::FrameBuffer;
     auto framebufferSize = camera.GetProjection().GetRenderingSize();
-    Attachment colorAttachment(framebufferSize, Type::Color0, Format::Rgba8);
-    colorAttachment.defaultValue = scene.GetBackgroundColor().value;
-    Attachment depthAttachment(framebufferSize, Type::Depth, Format::Depth);
-
     CameraRendererContext newCameraRendererContext;
-    newCameraRendererContext.renderTarget = &rendererContext_.graphicsApi_.CreateFrameBuffer({colorAttachment, depthAttachment});
-    auto status                           = newCameraRendererContext.renderTarget->Init();
+    newCameraRendererContext.renderSize = framebufferSize;
+    newCameraRendererContext.renderTarget =
+        createPerCameraFrameBuffer(rendererContext_.graphicsApi_, framebufferSize, scene.GetBackgroundColor());
+    auto status = newCameraRendererContext.renderTarget->Init();
     if (not status)
     {
         LOG_WARN << "Framebuffer creation error";
-        return;
+        return nullptr;
     }
 
     newCameraRendererContext.renderer = std::make_unique<BaseRenderer>(rendererContext_);
@@ -381,8 +412,8 @@ void RenderersManager::createPerCameraRenderer(const Scene& scene, ICamera& came
     }
 
     camerasRenderers.insert({&camera, std::move(newCameraRendererContext)});
-
     LOG_DEBUG << "Create buffer and renderer for camera. Rendering size: " << framebufferSize;
+    return &camerasRenderers.at(&camera);
 }
 uint64 RenderersManager::renderPerCamera(BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget)
 {
@@ -417,7 +448,7 @@ void RenderersManager::cleanupCamerasRenderersIfCameraNotExist(const Scene& scen
         if (allcamerasIter == allcameras.end())
         {
             LOG_DEBUG << "Remove unused camera renderer";
-            auto& [_, renderer, framebuffer] = iter->second;
+            auto& [renderer, framebuffer, renderingSize, _] = iter->second;
             renderer->unSubscribeAll();
             renderer->cleanUp();
             renderer.reset();

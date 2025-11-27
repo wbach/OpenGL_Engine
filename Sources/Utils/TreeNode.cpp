@@ -61,7 +61,7 @@ TreeNode& TreeNode::addChild(const std::string& name, const std::string& value)
 
 TreeNode& TreeNode::addChild(const std::string& name, const std::filesystem::path& value)
 {
-    children_.emplace_back(new TreeNode(name,  Utils::ReplaceSlash(value.string())));
+    children_.emplace_back(new TreeNode(name, Utils::ReplaceSlash(value.string())));
     return *children_.back();
 }
 
@@ -105,7 +105,7 @@ void Read(const TreeNode& node, float& v)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("read error " + node.value_);
+        LOG_ERROR << "read error " << node.value_;
     }
 }
 
@@ -147,7 +147,7 @@ void Read(const TreeNode& node, vec3& v)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Read error");
+        LOG_ERROR << "Read error";
     }
 }
 void Read(const TreeNode& node, vec4& v)
@@ -161,7 +161,7 @@ void Read(const TreeNode& node, vec4& v)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Read error");
+        LOG_ERROR << "Read error";
     }
 }
 
@@ -176,7 +176,7 @@ void Read(const TreeNode& node, Quaternion& v)
     }
     catch (...)
     {
-        /* LOG TO FIX*/  LOG_ERROR << ("Read error");
+        LOG_ERROR << "Read error";
     }
 }
 
@@ -303,6 +303,10 @@ void write(TreeNode& node, bool b)
     node.value_ = Utils::BoolToString(b);
 }
 void write(TreeNode& node, const std::string& str)
+{
+    node.value_ = str;
+}
+void write(TreeNode& node, const std::string_view& str)
 {
     node.value_ = str;
 }

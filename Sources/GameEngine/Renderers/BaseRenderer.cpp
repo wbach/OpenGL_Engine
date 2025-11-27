@@ -100,7 +100,6 @@ void BaseRenderer::createBaseRenderers()
 }
 void BaseRenderer::renderImpl()
 {
-    setViewPort();
     for (auto& renderer : renderers)
     {
         Utils::Timer timer;
@@ -118,10 +117,12 @@ void BaseRenderer::bindTarget()
     if (renderTarget)
     {
         renderTarget->Clear();
+        context_.graphicsApi_.SetViewPort(0, 0, renderTarget->GetSize().x, renderTarget->GetSize().y);
         renderTarget->Bind(GraphicsApi::FrameBuffer::BindType::Write);
     }
     else
     {
+        setViewPort();
         context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
     }
 }

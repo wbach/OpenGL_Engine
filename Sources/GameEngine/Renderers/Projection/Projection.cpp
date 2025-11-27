@@ -70,28 +70,7 @@ void Projection::UnsubscribeForEvents()
 
 void Projection::Init()
 {
-    renderingSize_ = EngineConf.renderer.resolution.get();
-    aspectRatio_   = CalculateAspectRatio();
     UpdateMatrix();
-
-    viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange(
-        [this]()
-        {
-            LOG_DEBUG << "View distance change, recalculate projection matrix";
-            farPlane_ = EngineConf.renderer.viewDistance;
-            UpdateMatrix();
-        });
-
-    resolutionChangeSubscription_ = EngineConf.renderer.resolution.subscribeForChange(
-        [this]()
-        {
-            LOG_DEBUG << "Rendering resolution change from: " << renderingSize_ << " to " << *EngineConf.renderer.resolution
-                      << ", recalculate projection matrix";
-
-            renderingSize_ = EngineConf.renderer.resolution;
-            aspectRatio_   = CalculateAspectRatio();
-            UpdateMatrix();
-        });
 }
 
 const mat4 &Projection::GetMatrix() const
@@ -134,5 +113,29 @@ float Projection::GetNear() const
 float Projection::GetAspectRatio() const
 {
     return aspectRatio_;
+}
+void Projection::SubscribeForGlobalConfigChange()
+{
+    if (viewDistanceChangeSubscription_ or resolutionChangeSubscription_)
+        return;
+
+    viewDistanceChangeSubscription_ = EngineConf.renderer.viewDistance.subscribeForChange(
+        [this]()
+        {
+            LOG_DEBUG << "View distance change, recalculate projection matrix";
+            farPlane_ = EngineConf.renderer.viewDistance;
+            UpdateMatrix();
+        });
+
+    resolutionChangeSubscription_ = EngineConf.renderer.resolution.subscribeForChange(
+        [this]()
+        {
+            LOG_DEBUG << "Rendering resolution change from: " << renderingSize_ << " to " << *EngineConf.renderer.resolution
+                      << ", recalculate projection matrix";
+
+            renderingSize_ = EngineConf.renderer.resolution;
+            aspectRatio_   = CalculateAspectRatio();
+            UpdateMatrix();
+        });
 }
 }  // namespace GameEngine

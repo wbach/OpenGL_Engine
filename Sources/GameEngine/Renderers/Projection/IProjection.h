@@ -16,6 +16,7 @@ public:
     virtual const vec2ui& GetRenderingSize() const = 0;
     virtual float GetViewDistance() const          = 0;
     virtual float GetAspectRatio() const           = 0;
-    virtual vec4 GetBufferParams() const = 0;
+    virtual vec4 GetBufferParams() const           = 0;
+    virtual void SubscribeForGlobalConfigChange()  = 0;
 };
 }  // namespace GameEngine
