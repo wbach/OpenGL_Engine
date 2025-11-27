@@ -40,7 +40,7 @@ yes | $pacman_ -S coreutils tar less findutils diffutils grep sed gawk util-linu
 
 echo "Instaling..."
 #$pacman_ -S --needed --noconfirm base-devel
-yes | $pacman_ -Sy base-devel pkg-config sdl2 git cmake sdl2_net glew sdl2_ttf freetype2 zlib minizip freeimage jsoncpp rhash libuv cppdap gcc make libmpc libisl glfw-x11 glu libgl libpng harfbuzz brotli glib2 libsysprof-capture pcre2 graphite libc++ linux-headers linux-api-headers jxrlib glibc distcc ninja
+yes | $pacman_ -Sy base-devel pkg-config sdl2 git cmake sdl2_net glew sdl2_ttf freetype2 zlib minizip freeimage jsoncpp rhash libuv cppdap gcc make libmpc libisl glfw-x11 glu libgl libpng harfbuzz brotli glib2 libsysprof-capture pcre2 graphite libc++ linux-headers linux-api-headers jxrlib glibc distcc ninja wxwidgets-gtk3
 
 
 
