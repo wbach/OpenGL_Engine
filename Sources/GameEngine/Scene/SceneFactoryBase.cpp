@@ -101,6 +101,7 @@ ScenePtr SceneFactoryBase::CreateSceneBasedOnFile(const File& file)
         scene = std::make_unique<Scene>(sceneName);
     }
 
+    scene->GetFile() = file;
     SetMenagersAndApi(*scene.get());
 
     if (sceneNode)

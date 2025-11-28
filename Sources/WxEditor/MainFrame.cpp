@@ -1473,7 +1473,6 @@ bool MainFrame::SaveSceneAs()
 
     wxString path = fileDialog.GetPath();
     SaveSceneAs(path.ToStdString());
-    ProjectManager::GetInstance().SetLastOpenedSceneFile(GameEngine::File{path.ToStdString()}.GetAbsolutePath());
     return true;
 }
 
@@ -1483,6 +1482,7 @@ void MainFrame::SaveSceneAs(const std::string& path)
     canvas->GetScene().ChangeName(file.GetBaseName());
     SetTitle("Active scene : " + canvas->GetScene().GetName());
     GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
+    ProjectManager::GetInstance().SetLastOpenedSceneFile(GameEngine::File{path}.GetAbsolutePath());
 }
 
 void MainFrame::UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> maybeId)
