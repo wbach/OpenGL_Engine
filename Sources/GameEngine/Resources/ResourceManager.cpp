@@ -115,7 +115,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     }
     else
     {
-        filename = model->GetFile().GetAbsolutePath();
+        filename = model->GetFile().GetAbsolutePath().string();
     }
 
     auto iter = models_.find(filename);

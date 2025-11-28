@@ -42,6 +42,7 @@ struct RendererContext
         , camera_(nullptr)
         , fogColor_(0.8f, 0.8f, 0.8f)
     {
+        sharedTextures.resize(magic_enum::enum_count<SharedTextures>());
     }
     Frustrum& frustrum_;
     GraphicsApi::IGraphicsApi& graphicsApi_;
@@ -52,6 +53,6 @@ struct RendererContext
     ICamera* camera_;
     vec3 fogColor_;
 
-    GraphicsApi::ID sharedTextures[magic_enum::enum_count<SharedTextures>()];
+    std::vector<GraphicsApi::ID> sharedTextures;
 };
 }  // namespace GameEngine

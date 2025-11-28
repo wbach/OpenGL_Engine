@@ -13,5 +13,6 @@ public:
     void CleanUp() override;
     GraphicsApi::ID GetAttachmentTexture(GraphicsApi::FrameBuffer::Type) const override;
     void TakeSnapshot(const std::string&) override;
+    const vec2ui& GetSize() const override;
 };
 }  // namespace DirectX

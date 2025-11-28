@@ -31,4 +31,9 @@ GraphicsApi::ID DxFrameBuffer::GetAttachmentTexture(GraphicsApi::FrameBuffer::Ty
 void DxFrameBuffer::TakeSnapshot(const std::string&)
 {
 }
+const vec2ui& DxFrameBuffer::GetSize() const
+{
+    static vec2ui dummySize(0);
+    return dummySize;
+}
 }  // namespace DirectX

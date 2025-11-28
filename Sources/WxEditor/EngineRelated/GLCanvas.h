@@ -14,10 +14,11 @@
 #include <wx/timer.h>
 // clang-format on
 
+#include <GameEngine/Camera/ICamera.h>
+
 #include <memory>
 #include <string>
 
-#include "Camera/ICamera.h"
 #include "WxOpenGLApiWrapper.h"
 
 namespace WxEditor

@@ -10,6 +10,13 @@
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "Types.h"
 
+#ifndef USE_GNU
+#ifndef USE_MINGW 
+#include <Utils/UndifineWindows.h>
+#endif
+#endif
+
+
 namespace GameEngine
 {
 class ICamera;
@@ -31,14 +38,14 @@ public:
         GlobalConfig
     };
 
-    Settings settings{Settings::Manual};
-    Type type{Type::Perspective};
+    Settings settings;
+    Type type;
 
-    vec2ui renderingSize{EngineConf.renderer.resolution};
-    float near{0.3f};
-    float far{1000.f};
-    float fov{60.f};
-    bool mainCamera{false};
+    vec2ui renderingSize;
+    float near;
+    float far;
+    float fov;
+    bool mainCamera;
 
     // clang-format off
     BEGIN_FIELDS()

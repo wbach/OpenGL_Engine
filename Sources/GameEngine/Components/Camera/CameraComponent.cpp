@@ -36,6 +36,17 @@ constexpr char CSTR_SETTINGS[]       = "settings";
 
 CameraComponent::CameraComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<CameraComponent>(), componentContext, gameObject)
+    , settings{Settings::Manual}
+    , type{Type::Perspective}
+    , renderingSize{EngineConf.renderer.resolution}
+    , near{0.3f}
+    , far{1000.f}
+    , fov{60.f}
+    , mainCamera{false}
+    , projectionViewMatrix_{1.f}
+    , viewMatrix_{1.f}
+    , direction_{0.f}
+    , lock_{false}
 {
 }
 
@@ -88,7 +99,7 @@ void CameraComponent::init()
     {
         renderingSize = EngineConf.renderer.resolution;
         far           = EngineConf.renderer.viewDistance;
-        LOG_DEBUG << "GlobalConfig is set. Rendering size and far is used. renderingSize " <<  renderingSize;
+        LOG_DEBUG << "GlobalConfig is set. Rendering size and far is used. renderingSize " << renderingSize;
     }
     switch (type)
     {
