@@ -33,6 +33,9 @@
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
 #include "Components/Camera/CameraComponent.h"
+#include "Components/Lights/DirectionalLightComponent.h"
+#include "Components/Lights/PointLightComponent.h"
+#include "Components/Lights/SpotLightComponent.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -122,6 +125,10 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
     EVT_MENU(ID_MENU_EDIT_CREATE_OBJECT, MainFrame::MenuEditCreateObject)
     EVT_MENU(ID_MENU_EDIT_CREATE_TERRAIN, MainFrame::MenuEditCreateTerrain)
+    EVT_MENU(ID_MENU_EDIT_CREATE_CAMERA, MainFrame::MenuEditCreateCamera)
+    EVT_MENU(ID_MENU_EDIT_CREATE_DIRECTIONAL_LIGHT, MainFrame::MenuEditCreateDirectionLight)
+    EVT_MENU(ID_MENU_EDIT_CREATE_POINT_LIGHT, MainFrame::MenuEditCreatePointLight)
+    EVT_MENU(ID_MENU_EDIT_CREATE_SPOT_LIGHT, MainFrame::MenuEditCreateSpotLight)
     EVT_MENU(ID_MENU_EDIT_MATERIAL_EDITOR, MainFrame::MenuEditMaterialEditor)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
@@ -485,7 +492,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                                       auto& scene = canvas->GetScene();
                                       gameObjectsView->RebuildTree(scene);
                                       gameObjectsView->SubscribeForSceneEvent(scene);
-                                      //loadingDialog->EndModal(wxID_OK);
+                                      // loadingDialog->EndModal(wxID_OK);
                                       loadingDialog->Close();
                                       auto& manager = ProjectManager::GetInstance();
                                       manager.SetLastOpenedSceneFile(path.GetAbsolutePath());
@@ -901,8 +908,21 @@ wxMenu* MainFrame::CreateFileMenu()
 wxMenu* MainFrame::CreateEditMenu()
 {
     wxMenu* menu = new wxMenu;
-    menu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&Create new object", "Create empty new object");
-    menu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Create terrain", "Create gameobject with terrain components");
+
+    auto createSubMenu = new wxMenu;
+    createSubMenu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&New empty object", "Create empty new object");
+    createSubMenu->Append(ID_MENU_EDIT_CREATE_TERRAIN, "&Base terrain", "Create gameobject with terrain components");
+    createSubMenu->Append(ID_MENU_EDIT_CREATE_CAMERA, "&Default camera", "Create gameobject with camera components");
+
+    auto lightSubMenu = new wxMenu;
+    lightSubMenu->Append(ID_MENU_EDIT_CREATE_DIRECTIONAL_LIGHT, "&Directional",
+                         "Create game object with directional light component");
+    lightSubMenu->Append(ID_MENU_EDIT_CREATE_POINT_LIGHT, "&Point", "Create game object with point light component");
+    lightSubMenu->Append(ID_MENU_EDIT_CREATE_SPOT_LIGHT, "&Spot", "Create game object with spot light component");
+
+    createSubMenu->AppendSubMenu(lightSubMenu, "&Create light", "Create gameobject with light component");
+
+    menu->AppendSubMenu(createSubMenu, "&Create", "Create gameobjects");
     menu->Append(ID_MENU_EDIT_MATERIAL_EDITOR, "&Material editor", "Create new default material");
     menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab", "Create new object");
     menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear", "Delete all object in scene");
@@ -1620,4 +1640,59 @@ void TransfromSubController::UnsubscribeCurrent()
     }
 
     subId.reset();
+}
+void MainFrame::MenuEditCreateCamera(wxCommandEvent&)
+{
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter camera name:", "Crete new camera object", "DefaultCamera",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
+    auto go = canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "Camera" : dlg->GetValue().ToStdString());
+    auto& cameraComponent = go->AddComponent<GameEngine::Components::CameraComponent>();
+    cameraComponent.LookAt(vec3(0));
+    go->SetWorldPosition(vec3(2, 2, 2));
+    canvas->GetScene().AddGameObject(std::move(go));
+}
+void MainFrame::MenuEditCreateDirectionLight(wxCommandEvent&)
+{
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter directional light name:", "Crete new directional light", "Sun",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
+    auto go = canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "Sun" : dlg->GetValue().ToStdString());
+    go->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+    go->SetWorldPosition(vec3(1000, 1500, 1000));
+    canvas->GetScene().AddGameObject(std::move(go));
+}
+void MainFrame::MenuEditCreatePointLight(wxCommandEvent&)
+{
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter point light name:", "Crete new point light", "PointLight",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
+    auto go = canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "PointLight" : dlg->GetValue().ToStdString());
+    go->AddComponent<GameEngine::Components::PointLightComponent>();
+
+    go->SetWorldPosition(canvas->GetWorldPosFromCamera());
+    canvas->GetScene().AddGameObject(std::move(go));
+}
+void MainFrame::MenuEditCreateSpotLight(wxCommandEvent&)
+{
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter spot light name:", "Crete new spot light", "SpotLight",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
+    auto go = canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "SpotLight" : dlg->GetValue().ToStdString());
+    go->AddComponent<GameEngine::Components::SpotLightComponent>();
+
+    go->SetWorldPosition(canvas->GetWorldPosFromCamera());
+    canvas->GetScene().AddGameObject(std::move(go));
 }

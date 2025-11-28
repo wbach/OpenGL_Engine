@@ -76,6 +76,10 @@ private:
     void MenuEditCreateObject(wxCommandEvent&);
     void MenuEditCreateTerrain(wxCommandEvent&);
     void MenuEditCreateMaterial(wxCommandEvent&);
+    void MenuEditCreateCamera(wxCommandEvent&);
+    void MenuEditCreateDirectionLight(wxCommandEvent&);
+    void MenuEditCreatePointLight(wxCommandEvent&);
+    void MenuEditCreateSpotLight(wxCommandEvent&);
     void MenuEditMaterialEditor(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);
     void MenuEditClearScene(wxCommandEvent&);
