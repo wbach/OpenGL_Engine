@@ -29,10 +29,9 @@ void Outline::Init()
         bufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(Buffer));
         if (bufferId_)
         {
-            const auto& projection  = rendererContext_.camera_->GetProjection();
+            const auto& projection = rendererContext_.camera_->GetProjection();
             Buffer buffer;
-            buffer.screenSize =
-                vec2(projection.GetRenderingSize().x, projection.GetRenderingSize().y);
+            buffer.screenSize = vec2(projection.GetRenderingSize().x, projection.GetRenderingSize().y);
             rendererContext_.graphicsApi_.UpdateShaderBuffer(*bufferId_, &buffer);
         }
     }
@@ -53,5 +52,13 @@ void Outline::Render(const Scene&)
 void Outline::ReloadShaders()
 {
     outlineShader_.Reload();
+}
+void Outline::CleanUp()
+{
+    if (bufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*bufferId_);
+        bufferId_.reset();
+    }
 }
 }  // namespace GameEngine

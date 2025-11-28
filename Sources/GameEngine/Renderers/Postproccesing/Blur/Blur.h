@@ -8,10 +8,11 @@ class Blur : public PostprocessingRenderer
 {
 public:
     Blur(RendererContext&);
-    virtual void Init() override;
-    virtual void Prepare() override;
-    virtual void Render(const Scene&) override;
-    virtual void ReloadShaders() override;
+    void Init() override;
+    void Prepare() override;
+    void Render(const Scene&) override;
+    void ReloadShaders() override;
+    void CleanUp() override;
 
 private:
     ShaderProgram shader_;

@@ -2,7 +2,6 @@
 #include <optional>
 
 #include "BaseRenderer.h"
-#include "GameEngine/Camera/ICamera.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "SkyPassRenderer/SkyPassRenderer.h"
 #include "Types.h"
@@ -20,6 +19,7 @@ public:
     void render() override;
     void reloadShaders() override;
     void setViewPort() override;
+    void cleanUp() override;
 
 private:
     void bindDefferedFbo();

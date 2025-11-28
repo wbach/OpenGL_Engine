@@ -619,6 +619,10 @@ Components::ComponentController& Scene::getComponentController()
 {
     return componentController_;
 }
+const Components::ComponentController& Scene::getComponentController() const
+{
+    return componentController_;
+}
 const WindParams& Scene::getWindParams() const
 {
     return windParams;

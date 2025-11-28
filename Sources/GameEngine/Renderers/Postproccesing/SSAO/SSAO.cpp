@@ -22,6 +22,9 @@ void SSAORenderer::Init()
     // ssaoShader_->Load(SSAOShaderUniforms::ProjectionMatrix, rendererContext_->projection_.GetProjectionMatrix());
     ssaoShader_.Stop();
 }
+void SSAORenderer::CleanUp()
+{
+}
 void SSAORenderer::Prepare()
 {
 }

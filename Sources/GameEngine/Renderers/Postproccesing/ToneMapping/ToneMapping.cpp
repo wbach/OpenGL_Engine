@@ -26,14 +26,7 @@ ToneMapping::ToneMapping(RendererContext& context)
 }
 ToneMapping::~ToneMapping()
 {
-    if (gammaSubId_)
-    {
-        EngineConf.renderer.gamma.unsubscribe(*gammaSubId_);
-    }
-    if (exposureSubId_)
-    {
-        EngineConf.renderer.exposure.unsubscribe(*exposureSubId_);
-    }
+    CleanUp();
 }
 void ToneMapping::Init()
 {
@@ -71,6 +64,24 @@ void ToneMapping::UpdateBuffer()
         buffer.param.value.y = EngineConf.renderer.exposure.get();
         rendererContext_.graphicsApi_.BindShaderBuffer(*toneMappingBufferId_);
         rendererContext_.graphicsApi_.UpdateShaderBuffer(*toneMappingBufferId_, &buffer);
+    }
+}
+void ToneMapping::CleanUp()
+{
+    if (toneMappingBufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*toneMappingBufferId_);
+        toneMappingBufferId_.reset();
+    }
+    if (gammaSubId_)
+    {
+        EngineConf.renderer.gamma.unsubscribe(*gammaSubId_);
+        gammaSubId_.reset();
+    }
+    if (exposureSubId_)
+    {
+        EngineConf.renderer.exposure.unsubscribe(*exposureSubId_);
+        exposureSubId_.reset();
     }
 }
 }  // namespace GameEngine

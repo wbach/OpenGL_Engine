@@ -12,6 +12,9 @@ static const uint32 PER_INSTANCES_BIND_LOCATION        = 5;
 static const uint32 PER_MESH_OBJECT_BIND_LOCATION      = 6;
 static const uint32 SHADOW_BUFFER_BIND_LOCATION        = 7;
 static const uint32 WATER_TILE_BIND_LOCATION           = 8;
+static const uint32 DIRECTIONAL_LIGHTS_BIND_LOCATION   = 9;
+static const uint32 POINT_LIGHTS_BIND_LOCATION         = 10;
+static const uint32 SPOT_LIGHTS_BIND_LOCATION          = 11;
 
 static const uint32 PER_TERRAIN_BIND_LOCATION = 3;
 static const uint32 PER_NODE_LOCATION         = 4;

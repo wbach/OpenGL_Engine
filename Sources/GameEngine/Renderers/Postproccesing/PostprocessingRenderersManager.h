@@ -28,6 +28,7 @@ public:
     void OnSizeChanged();
     void Render(GraphicsApi::IFrameBuffer&, GraphicsApi::IFrameBuffer*, const Scene&);
     void ReloadShaders();
+    void CleanUp();
 
 private:
     void AddEffect(PostprocessingRendererType);

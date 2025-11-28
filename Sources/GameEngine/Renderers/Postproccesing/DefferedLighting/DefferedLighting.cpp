@@ -1,9 +1,13 @@
 #include "DefferedLighting.h"
 
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
+#include "GameEngine/Components/Lights/PointLightComponent.h"
+#include "GameEngine/Components/Lights/SpotLightComponent.h"
 #include "GameEngine/Engine/ConfigurationParams/RendererParams/ShadowsParams/ShadowsParams.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -16,17 +20,57 @@ void DefferedLighting::Init()
 {
     shader_.Init();
 
-    const auto& projection  = rendererContext_.camera_->GetProjection();
-    lightPass_.skyColor     = vec4(rendererContext_.fogColor_, 1.f);
-    lightPass_.viewDistance = projection.GetViewDistance();
-    lightPass_.screenSize   = vec2(projection.GetRenderingSize().x, projection.GetRenderingSize().y);
-
     if (not lightPassID_)
     {
         lightPassID_ =
             rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(DefferedLighting::LightPass));
     }
+
+    if (not directionalLightsId_)
+    {
+        directionalLightsId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(DIRECTIONAL_LIGHTS_BIND_LOCATION,
+                                                                                sizeof(DefferedLighting::DirectionalLights));
+    }
+
+    if (not pointLightsId_)
+    {
+        pointLightsId_ =
+            rendererContext_.graphicsApi_.CreateShaderBuffer(POINT_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::PointlLights));
+    }
+
+    if (not spotLightsId_)
+    {
+        spotLightsId_ =
+            rendererContext_.graphicsApi_.CreateShaderBuffer(SPOT_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::SpotLights));
+    }
 }
+void DefferedLighting::CleanUp()
+{
+    if (not lightPassID_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*lightPassID_);
+        lightPassID_.reset();
+    }
+
+    if (not directionalLightsId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*directionalLightsId_);
+        directionalLightsId_.reset();
+    }
+
+    if (not pointLightsId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*pointLightsId_);
+        pointLightsId_.reset();
+    }
+
+    if (not spotLightsId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*spotLightsId_);
+        spotLightsId_.reset();
+    }
+}
+
 void DefferedLighting::Prepare()
 {
 }
@@ -36,6 +80,9 @@ void DefferedLighting::Render(const Scene& scene)
     shader_.Start();
     LoadLights(scene);
     rendererContext_.graphicsApi_.BindShaderBuffer(*lightPassID_);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*directionalLightsId_);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*pointLightsId_);
+    rendererContext_.graphicsApi_.BindShaderBuffer(*spotLightsId_);
 
     const uint32 uniformSkyTextureIndex = 5;
     auto skyTextureId = rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::skyTexture).value()];
@@ -70,16 +117,34 @@ void DefferedLighting::ReloadShaders()
 }
 void DefferedLighting::LoadLights(const Scene& scene)
 {
-    lightPass_.numberOfLights = static_cast<int>(scene.GetLights().size() + 1);
-    Convert(scene.GetDirectionalLight(), 0);
-
-    int i = 1;
-    for (const auto& light : scene.GetLights())
+    if (not rendererContext_.camera_)
     {
-        Convert(light, i++);
+        LOG_ERROR << "Camera not set!";
+        return;
     }
 
+    const auto& projection  = rendererContext_.camera_->GetProjection();
+    lightPass_.skyColor     = vec4(rendererContext_.fogColor_, 1.f);
+    lightPass_.viewDistance = projection.GetViewDistance();
+    lightPass_.screenSize   = vec2(projection.GetRenderingSize().x, projection.GetRenderingSize().y);
+
+    auto& cc                         = scene.getComponentController();
+    auto directionalLightsComponents = cc.GetAllActiveComponentsOfType<Components::DirectionalLightComponent>();
+    auto pointLightsComponents       = cc.GetAllActiveComponentsOfType<Components::PointLightComponent>();
+    auto spotLightsComponents        = cc.GetAllActiveComponentsOfType<Components::SpotLightComponent>();
+
+    lightPass_.numberOfLights =
+        vec3ui(directionalLightsComponents.size(), pointLightsComponents.size(), spotLightsComponents.size());
+
+    FillDirectionalLightsBuffer(directionalLightsComponents);
+    FillPointLightsBuffer(pointLightsComponents);
+    FillSpotLightsBuffer(spotLightsComponents);
+
     rendererContext_.graphicsApi_.UpdateShaderBuffer(*lightPassID_, &lightPass_);
+    rendererContext_.graphicsApi_.UpdateShaderBuffer(*directionalLightsId_, &directionalLights_);
+    rendererContext_.graphicsApi_.UpdateShaderBuffer(*pointLightsId_, &pointLights_);
+    rendererContext_.graphicsApi_.UpdateShaderBuffer(*spotLightsId_, &spotLights_);
+
     lightsInGpu_ = true;
 }
 void DefferedLighting::PrepareApiStateToRender()
@@ -95,13 +160,56 @@ void DefferedLighting::RetriveChanges()
     rendererContext_.graphicsApi_.EnableDepthTest();
     // rendererContext_.graphicsApi_.DisableBlend();
 }
-void DefferedLighting::Convert(const Light& light, int index)
+void DefferedLighting::FillDirectionalLightsBuffer(const std::vector<Components::DirectionalLightComponent*>& directionalLights)
 {
-    lightPass_.attenuation_[index] = light.GetAttenuation();
-    lightPass_.color_[index]       = light.GetColour();
-    lightPass_.cutOff_[index]      = light.GetCutoff();
-    lightPass_.position_[index]    = light.GetPosition();
-    lightPass_.direction[index]    = light.GetDirection();
-    lightPass_.type_[index]        = static_cast<int>(light.GetType());
+    size_t count = std::min(directionalLights.size(), static_cast<size_t>(MAX_DIR_LIGHTS));
+    for (size_t i = 0; i < count; ++i)
+    {
+        directionalLights_.direction[i] = directionalLights[i]->GetDirection();
+        directionalLights_.color[i]     = vec4(directionalLights[i]->color.xyz(), directionalLights[i]->intensity);
+    }
+    // Fill remaining slots with zero
+    for (size_t i = count; i < MAX_DIR_LIGHTS; ++i)
+    {
+        directionalLights_.direction[i] = vec3(0.0f);
+        directionalLights_.color[i]     = vec4(0.0f);
+    }
+}
+void DefferedLighting::FillPointLightsBuffer(const std::vector<Components::PointLightComponent*>& pointLights)
+{
+    size_t count = std::min(pointLights.size(), static_cast<size_t>(MAX_POINT_LIGHTS));
+    for (size_t i = 0; i < count; ++i)
+    {
+        pointLights_.color[i]  = vec4(pointLights[i]->color.xyz(), pointLights[i]->intensity);
+        pointLights_.params[i] = vec4(pointLights[i]->intensity, pointLights[i]->range, pointLights[i]->falloffExponent, 0.0f);
+        pointLights_.worldPosition[i] = vec4(pointLights[i]->GetParentGameObject().GetWorldTransform().GetPosition(), 0.f);
+    }
+    for (size_t i = count; i < MAX_POINT_LIGHTS; ++i)
+    {
+        pointLights_.color[i]         = vec4(0.0f);
+        pointLights_.params[i]        = vec4(0.0f);
+        pointLights_.worldPosition[i] = vec4(0.0f);
+    }
+}
+void DefferedLighting::FillSpotLightsBuffer(const std::vector<Components::SpotLightComponent*>& spotLights)
+{
+    size_t count = std::min(spotLights.size(), static_cast<size_t>(MAX_SPOT_LIGHTS));
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        spotLights_.color[i]         = vec4(spotLights[i]->color.xyz(), spotLights[i]->intensity);
+        spotLights_.params[i]        = vec4(spotLights[i]->intensity, spotLights[i]->range, spotLights[i]->falloffExponent, 0.0f);
+        spotLights_.direction[i]     = spotLights[i]->direction;
+        spotLights_.cutoff[i]        = vec4(spotLights[i]->innerCutoff, spotLights[i]->outerCutoff, 0.0f, 0.0f);
+        spotLights_.worldPosition[i] = vec4(spotLights[i]->GetParentGameObject().GetWorldTransform().GetPosition(), 0.f);
+    }
+    for (size_t i = count; i < MAX_SPOT_LIGHTS; ++i)
+    {
+        spotLights_.color[i]         = vec4(0.0f);
+        spotLights_.params[i]        = vec4(0.0f);
+        spotLights_.direction[i]     = vec3(0.0f);
+        spotLights_.cutoff[i]        = vec4(0.0f);
+        spotLights_.worldPosition[i] = vec4(0.0f);
+    }
 }
 }  // namespace GameEngine

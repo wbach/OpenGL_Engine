@@ -130,6 +130,8 @@ public:
     Components::ComponentController& getComponentController();
     GuiElementFactory& GetGuiElementFactory();
 
+    const Components::ComponentController& getComponentController() const;
+
     void setWindParams(const WindParams&);
     const WindParams& getWindParams() const;
 

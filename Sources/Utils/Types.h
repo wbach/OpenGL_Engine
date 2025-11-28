@@ -68,12 +68,25 @@ template <class T>
 struct alignas(16) AlignWrapper
 {
     T value;
-    AlignWrapper operator=(const T& v)
+
+    AlignWrapper& operator=(const T& v)
     {
-        this->value = v;
+        value = v;
+        return *this;
+    }
+    AlignWrapper& operator=(const AlignWrapper& other)
+    {
+        value = other.value;
         return *this;
     }
 };
+
+template <class T>
+std::ostream& operator<<(std::ostream& os, const AlignWrapper<T>& w)
+{
+    os << w.value;
+    return os;
+}
 
 // ==================== Własne wektory ====================
 namespace wb
@@ -499,6 +512,43 @@ struct Color
     {
         value += v.value;
     }
+    Color& operator=(const Color& other)
+    {
+        value = other.value;
+        return *this;
+    }
+    Color& operator=(const vec4& v)
+    {
+        value = v;
+        return *this;
+    }
+    Color& operator=(const vec3& v)
+    {
+        value = vec4(v, 1.0f);
+        return *this;
+    }
+    Color& operator=(float v)
+    {
+        value = vec4(v);
+        return *this;
+    }
+    Color& operator=(int v)
+    {
+        float fv = static_cast<float>(v) / 255.f;
+        value    = vec4(fv);
+        return *this;
+    }
+    Color& operator=(const vec3ui8& c)
+    {
+        rgb(c);
+        value.w = 1.f;
+        return *this;
+    }
+    Color& operator=(const vec4ui8& c)
+    {
+        rgba(c);
+        return *this;
+    }
 
     vec3 xyz() const
     {
@@ -533,7 +583,6 @@ struct MeasurementValue
     std::string value;
 };
 
-
 namespace glm
 {
 
@@ -547,7 +596,7 @@ inline bool float_equal(float a, float b, float eps = EPSILON)
 // ===== vec2 =====
 inline vec2ui operator+(const vec2ui& a, const vec2ui& b)
 {
-    return vec2ui{a.x + b.x , a.y + b.y};
+    return vec2ui{a.x + b.x, a.y + b.y};
 }
 
 inline bool operator==(const vec2& a, const vec2& b)
@@ -722,8 +771,7 @@ inline bool operator>=(const uvec3& a, const uvec3& b)
 // ===== vec4 =====
 inline bool operator==(const vec4& a, const vec4& b)
 {
-    return float_equal(a.x, b.x) && float_equal(a.y, b.y) &&
-           float_equal(a.z, b.z) && float_equal(a.w, b.w);
+    return float_equal(a.x, b.x) && float_equal(a.y, b.y) && float_equal(a.z, b.z) && float_equal(a.w, b.w);
 }
 inline bool operator!=(const vec4& a, const vec4& b)
 {
@@ -817,8 +865,6 @@ inline bool operator>=(const uvec4& a, const uvec4& b)
 }
 
 }  // namespace glm
-
-
 
 // ====== Color ======
 inline bool operator==(const Color& a, const Color& b)

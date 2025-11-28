@@ -70,6 +70,31 @@ public:
         return componentsOfType;
     }
 
+    template <class T>
+    std::vector<T*> GetAllActiveComponentsOfType() const
+    {
+        const ComponentTypeID componentTypeId = GetComponentType<T>().id;
+
+        auto registeredComponentsIterator = registredComponents_.find(componentTypeId);
+        if (registeredComponentsIterator == registredComponents_.end())
+        {
+            return {};
+        }
+
+        const RegistredComponentsMap& componentsMap = registeredComponentsIterator->second;
+
+        std::vector<T*> componentsOfType;
+        componentsOfType.reserve(componentsMap.size());
+
+        for (const auto& [componentId, componentPtr] : componentsMap)
+        {
+            if (componentPtr->IsActive())
+                componentsOfType.push_back(static_cast<T*>(componentPtr));
+        }
+
+        return componentsOfType;
+    }
+
     FunctionId RegisterFunction(GameObjectId, const ComponentType&, FunctionType, std::function<void()>,
                                 const Dependencies& = {});
     void UnRegisterFunction(GameObjectId, FunctionType, FunctionId);

@@ -54,6 +54,7 @@ void Read(const TreeNode&, vec2&);
 void Read(const TreeNode&, vec2ui&);
 void Read(const TreeNode&, vec3&);
 void Read(const TreeNode&, vec4&);
+void Read(const TreeNode&, Color&);
 void Read(const TreeNode&, Quaternion&);
 void Read(const TreeNode&, std::string&);
 void Read(const TreeNode&, std::vector<vec2>&);
@@ -103,6 +104,7 @@ void write(TreeNode&, const vec2ui&);
 void write(TreeNode&, const vec2&);
 void write(TreeNode&, const vec3&);
 void write(TreeNode&, const vec4&);
+void write(TreeNode&, const Color&);
 void write(TreeNode&, const std::optional<uint32>&);
 void write(TreeNode&, const std::vector<vec3>&);
 

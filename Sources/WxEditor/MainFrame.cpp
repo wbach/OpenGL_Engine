@@ -485,7 +485,8 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                                       auto& scene = canvas->GetScene();
                                       gameObjectsView->RebuildTree(scene);
                                       gameObjectsView->SubscribeForSceneEvent(scene);
-                                      loadingDialog->EndModal(wxID_OK);
+                                      //loadingDialog->EndModal(wxID_OK);
+                                      loadingDialog->Close();
                                       auto& manager = ProjectManager::GetInstance();
                                       manager.SetLastOpenedSceneFile(path.GetAbsolutePath());
                                       manager.SaveEditorConfig();
@@ -493,7 +494,7 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                           }
                       });
     SetStatusText("Loading file " + file.GetBaseName());
-    dlg->ShowModal();
+    dlg->Show();
 }
 
 void MainFrame::MenuFileReloadScene(wxCommandEvent&)

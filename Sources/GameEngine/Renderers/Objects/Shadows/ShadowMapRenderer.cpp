@@ -118,11 +118,8 @@ void ShadowMapRenderer::init()
     // relevant to shadowbox
     const auto& distances = shadowBox_.getLightCascadeDistances();
 
-    buffer_.cascadesSize       = static_cast<float>(*EngineConf.renderer.shadows.cascadesSize);
-    buffer_.cascadesDistance.x = distances[0];
-    buffer_.cascadesDistance.y = distances[1];
-    buffer_.cascadesDistance.z = distances[2];
-    buffer_.cascadesDistance.w = distances[3];
+    buffer_.cascadesSize     = static_cast<float>(*EngineConf.renderer.shadows.cascadesSize);
+    buffer_.cascadesDistance = vec4(distances[0], distances[1], distances[2], distances[3]);
 }
 
 void ShadowMapRenderer::cleanUp()

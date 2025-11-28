@@ -6,8 +6,8 @@ namespace GameEngine
 {
 struct ShadowsBuffer
 {
-    mat4 directionalLightSpace[Params::MAX_SHADOW_MAP_CASADES];
-    vec4 cascadesDistance;
-    float cascadesSize;
+    AlignWrapper<mat4> directionalLightSpace[Params::MAX_SHADOW_MAP_CASADES];
+    AlignWrapper<vec4> cascadesDistance;
+    AlignWrapper<float> cascadesSize;
 };
 }  // namespace GameEngine

@@ -2,14 +2,17 @@
 
 #include "Animation/Animator.h"
 #include "Animation/BowPoseUpdater.h"
-#include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "Characters/Enemy.h"
 #include "Characters/Player.h"
 #include "Controllers/CharacterController/ArrowController.h"
 #include "Controllers/CharacterController/CharacterController.h"
 #include "Controllers/EnemyController.h"
 #include "Input/PlayerInputController.h"
+#include "Lights/DirectionalLightComponent.h"
+#include "Lights/PointLightComponent.h"
+#include "Lights/SpotLightComponent.h"
 #include "Physics/BoxShape.h"
 #include "Physics/CapsuleShape.h"
 #include "Physics/CylinderShape.h"
@@ -62,6 +65,9 @@ void RegisterReadFunctionForDefaultEngineComponents()
     registerReadFunction<TerrainRendererComponent>();
     registerReadFunction<TreeRendererComponent>();
     registerReadFunction<WaterRendererComponent>();
+    registerReadFunction<DirectionalLightComponent>();
+    registerReadFunction<PointLightComponent>();
+    registerReadFunction<SpotLightComponent>();
 }
 }  // namespace Components
 }  // namespace GameEngine

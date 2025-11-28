@@ -54,4 +54,12 @@ void Fxaa::ReloadShaders()
 {
     shader_.Reload();
 }
+void Fxaa::CleanUp()
+{
+    if (fxaaBufferId_)
+    {
+        rendererContext_.graphicsApi_.DeleteShaderBuffer(*fxaaBufferId_);
+        fxaaBufferId_.reset();
+    }
+}
 }  // namespace GameEngine

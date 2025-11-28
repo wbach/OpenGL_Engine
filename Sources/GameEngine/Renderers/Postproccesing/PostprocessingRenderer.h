@@ -19,6 +19,7 @@ public:
     virtual void Prepare()            = 0;
     virtual void Render(const Scene&) = 0;
     virtual void ReloadShaders()      = 0;
+    virtual void CleanUp()            = 0;
 
 protected:
     RendererContext& rendererContext_;

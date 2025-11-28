@@ -28,4 +28,7 @@ void Blur::ReloadShaders()
 {
     shader_.Reload();
 }
+void Blur::CleanUp()
+{
+}
 }  // namespace GameEngine

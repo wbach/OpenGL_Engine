@@ -60,6 +60,7 @@ void BaseRenderer::unSubscribeAll()
 }
 void BaseRenderer::reloadShaders()
 {
+    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
     for (auto& renderer : renderers)
         renderer.ptr->reloadShaders();
 }

@@ -165,6 +165,11 @@ void Read(const TreeNode& node, vec4& v)
     }
 }
 
+void Read(const TreeNode& node, Color& color)
+{
+    Read(node, color.value);
+}
+
 void Read(const TreeNode& node, Quaternion& v)
 {
     try
@@ -336,6 +341,10 @@ void write(TreeNode& node, const vec4& v)
     node.attributes_[CSTR_Y] = std::to_string(v.y);
     node.attributes_[CSTR_Z] = std::to_string(v.z);
     node.attributes_[CSTR_W] = std::to_string(v.w);
+}
+void write(TreeNode& node, const Color& v)
+{
+    write(node, v.value);
 }
 void write(TreeNode& node, const std::optional<uint32>& v)
 {

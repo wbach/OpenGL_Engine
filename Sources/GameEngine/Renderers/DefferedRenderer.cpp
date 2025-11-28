@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include "GameEngine/Renderers/BaseRenderer.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "Objects/Entity/EntityRenderer.h"
 #include "Objects/Grass/GrassRenderer.h"
@@ -65,9 +66,25 @@ void DefferedRenderer::init()
     LOG_DEBUG << "DefferedRenderer renderers initialized.";
 }
 
+void DefferedRenderer::cleanUp()
+{
+    BaseRenderer::cleanUp();
+
+    if (defferedFrameBuffer_)
+    {
+        context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
+        defferedFrameBuffer_ = nullptr;
+    }
+
+    skyPassRenderer.CleanUp();
+    postprocessingRenderersManager_.CleanUp();
+}
+
 void DefferedRenderer::reloadShaders()
 {
-    BaseRenderer::reloadShaders();
+    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
+    for (auto& renderer : renderers)
+        renderer.ptr->reloadShaders();
     postprocessingRenderersManager_.ReloadShaders();
     skyPassRenderer.ReloadShaders();
 }

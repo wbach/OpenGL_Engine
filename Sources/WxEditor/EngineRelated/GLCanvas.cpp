@@ -225,9 +225,9 @@ void GLCanvas::OnPaint(wxPaintEvent&)
                       [loadingDialog = dlg, this]
                       {
                           onStartupDone();
-                          loadingDialog->EndModal(wxID_OK);
+                          loadingDialog->Close();
                       });
-            dlg->ShowModal();
+            dlg->Show();
         }
         else
         {
@@ -496,8 +496,12 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
                 callback();
             SetupCamera();
         });
+
+        LOG_DEBUG << "SetActiveScene: " << name;
     engine->GetSceneManager().SetActiveScene(name);
 
+
+  LOG_DEBUG << "Return : " << (bool) (engine->GetSceneManager().GetActiveScene() != nullptr);
     return engine->GetSceneManager().GetActiveScene() != nullptr;
 }
 

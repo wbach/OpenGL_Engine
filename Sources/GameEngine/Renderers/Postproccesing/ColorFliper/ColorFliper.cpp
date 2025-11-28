@@ -28,4 +28,7 @@ void ColorFliper::ReloadShaders()
 {
     shader_.Reload();
 }
+void ColorFliper::CleanUp()
+{
+}
 }  // namespace GameEngine

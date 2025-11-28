@@ -146,4 +146,11 @@ void PostProcessingManager::bindDefaultFrameBuffer()
 
     context_.graphicsApi_.GetDefaultFrameBuffer().Bind();
 }
+void PostProcessingManager::CleanUp()
+{
+    for (auto& r : postProcessingRenderers_)
+        r->CleanUp();
+
+    fboManager_.reset();
+}
 }  // namespace GameEngine

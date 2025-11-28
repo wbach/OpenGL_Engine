@@ -13,6 +13,7 @@ public:
     void Prepare() override;
     void Render(const Scene&) override;
     void ReloadShaders() override;
+    void CleanUp() override;
 
 private:
     void UpdateBuffer();

@@ -268,6 +268,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Entity/
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ReadAnimationInfo.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentDependencies.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/SpotLightComponent.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/DirectionalLightComponent.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Lights/PointLightComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/RegisterReadFunctionForDefaultEngineComponents.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentController.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Animation/AnimationChangeType.h
