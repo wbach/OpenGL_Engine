@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "Camera.h"
-#include "GameEngine/Lights/Light.h"
 #include "Objects/IObject.h"
 
 namespace GameEngine

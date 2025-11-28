@@ -8,6 +8,7 @@ namespace Components
 class DirectionalLightComponent : public BaseComponent
 {
 public:
+    bool isDayNightCycleControlled;
     Color color;
     float intensity;
 
@@ -16,6 +17,7 @@ public:
     BEGIN_FIELDS()
         FIELD_COLOR_RGB(color)
         FIELD_FLOAT(intensity)
+        FIELD_BOOL(isDayNightCycleControlled)
     END_FIELDS()
     // clang-format on
 public:
@@ -25,7 +27,11 @@ public:
     void CleanUp() override;
     void Reload() override;
 
+    void Init();
     vec3 GetDirection() const;
+
+private:
+    bool isSetInDayNightCycle;
 
 public:
     static void registerReadFunctions();

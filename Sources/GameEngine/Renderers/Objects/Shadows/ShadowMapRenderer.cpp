@@ -7,6 +7,7 @@
 
 #include <math.hpp>
 
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -172,9 +173,14 @@ void ShadowMapRenderer::prepare()
     }
 
     Utils::Timer timer;
-    rendererdMeshesCounter_ = 0;
-    prepareFrameBuffer();
 
+    if (not prepareFrameBuffer())
+    {
+        measurementValue_->SetValue(std::to_string(rendererdMeshesCounter_));
+        return;
+    }
+
+    rendererdMeshesCounter_         = 0;
     uint32 lastBindedPerFrameBuffer = context_.graphicsApi_.BindShaderBuffer(*perFrameBuffer_);
 
     auto shadowMapSize = *EngineConf.renderer.shadows.mapSize;
@@ -214,9 +220,18 @@ void ShadowMapRenderer::reloadShaders()
     instancedShader_.Reload();
 }
 
-void ShadowMapRenderer::prepareFrameBuffer()
+bool ShadowMapRenderer::prepareFrameBuffer()
 {
-    shadowBox_.update(*context_.camera_, context_.scene_->GetDirectionalLight());
+    auto directionalLights =
+        context_.scene_->getComponentController().GetAllActiveComponentsOfType<Components::DirectionalLightComponent>();
+
+    if (directionalLights.empty())
+    {
+        return false;
+    }
+
+    const auto& directionalLight = directionalLights.front();
+    shadowBox_.update(*context_.camera_, *directionalLight);
 
     const auto& shadowMatrices = shadowBox_.getLightProjectionViewMatrices();
 
@@ -226,6 +241,7 @@ void ShadowMapRenderer::prepareFrameBuffer()
             context_.graphicsApi_.PrepareMatrixToLoad(convertNdcToTextureCooridates(shadowMatrices[cascadeIndex]));
     }
     context_.graphicsApi_.UpdateShaderBuffer(*shadowsBufferId_, &buffer_);
+    return true;
 }
 
 void ShadowMapRenderer::renderCascades()

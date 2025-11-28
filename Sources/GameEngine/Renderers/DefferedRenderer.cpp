@@ -85,6 +85,7 @@ void DefferedRenderer::reloadShaders()
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
     for (auto& renderer : renderers)
         renderer.ptr->reloadShaders();
+
     postprocessingRenderersManager_.ReloadShaders();
     skyPassRenderer.ReloadShaders();
 }
@@ -145,10 +146,11 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
     defferedFrameBufferSize_ = renderingSize;
     context_.graphicsApi_.DeleteFrameBuffer(*defferedFrameBuffer_);
     createFrameBuffer();
-
+    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
     skyPassRenderer.CleanUp();
     skyPassRenderer.Init();
     postprocessingRenderersManager_.OnSizeChanged();
+    context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
 }
 
 }  // namespace GameEngine

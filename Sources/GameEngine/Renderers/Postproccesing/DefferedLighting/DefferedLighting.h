@@ -1,5 +1,4 @@
 #pragma once
-#include "GameEngine/Lights/Light.h"
 #include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "Types.h"

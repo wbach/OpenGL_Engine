@@ -16,7 +16,6 @@
 #include "GameEngine/DebugTools/EditorInterface/NetworkEditorInterface.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Engine/EngineEvent.h"
-#include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Particle.h"
 #include "GameEngine/Objects/Prefab.h"
@@ -78,9 +77,6 @@ public:
     std::unique_ptr<Prefab> CreatePrefabGameObject(const std::optional<IdType>& = std::nullopt);
     std::unique_ptr<Prefab> CreatePrefabGameObject(const std::string&, const std::optional<IdType>& = std::nullopt);
 
-    void SetDirectionalLightColor(const vec3& color);
-    Light& AddLight(const Light& light);
-
     // Add Entities
     void AddGameObject(std::unique_ptr<GameObject>);
     void AddGameObject(GameObject&, std::unique_ptr<GameObject>);
@@ -107,9 +103,6 @@ public:
     CameraManager& GetCameraManager();
     const CameraManager& GetCameraManager() const;
 
-    // Lights
-    const Light& GetDirectionalLight() const;
-    const std::vector<Light>& GetLights() const;
     inline const DayNightCycle& GetDayNightCycle() const;
     inline DayNightCycle& GetDayNightCycle();
     inline float GetGlobalTime() const;
@@ -177,8 +170,6 @@ protected:
     // Minimum one light on scene only (night - decrease strength)
     Time time_;
     float gloabalTime = 0.f;
-    Light directionalLight;
-    std::vector<Light> lights;
     DayNightCycle dayNightCycle;
 
     WindParams windParams;

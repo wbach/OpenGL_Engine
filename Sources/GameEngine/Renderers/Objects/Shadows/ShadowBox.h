@@ -8,13 +8,16 @@
 
 namespace GameEngine
 {
-class Light;
+namespace Components
+{
+class DirectionalLightComponent;
+}
 
 class ShadowBox
 {
 public:
     ShadowBox();
-    void update(const ICamera&, const Light&);
+    void update(const ICamera&, const Components::DirectionalLightComponent&);
     const mat4* getLightProjectionViewMatrices() const;
     const float* getLightCascadeDistances() const;
 
@@ -24,7 +27,7 @@ private:
     void checkMinMax(const vec4& point, vec3& min, vec3& max);
     void checkMinMax(float& min, float& max, float point);
     std::vector<vec4> calculateFrustumPoints(const ICamera&, float near, float far);
-    mat4 createLightViewMatrix(const Light&, const ICamera&);
+    mat4 createLightViewMatrix(const Components::DirectionalLightComponent&, const ICamera&);
     mat4 createOrthoProjTransform(const vec3& min, const vec3& max) const;
 
 private:

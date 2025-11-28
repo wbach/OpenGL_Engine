@@ -6,8 +6,8 @@
 #include <iostream>
 
 #include "Camera.h"
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
-#include "GameEngine/Lights/Light.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 #include "GameEngine/Resources/Models/Material.h"
@@ -28,7 +28,7 @@ std::unique_ptr<StepPooler> stepPooler;
 std::mutex stepMutex_;
 }  // namespace
 
-RayTracerEngine::RayTracerEngine(RendererContext &context, uint32 threadsCount)
+RayTracerEngine::RayTracerEngine(RendererContext& context, uint32 threadsCount)
     : rendererContext_{context}
     , threadsCount_{threadsCount}
 {
@@ -38,7 +38,7 @@ RayTracerEngine::~RayTracerEngine()
 {
 }
 
-void RayTracerEngine::subscribe(GameObject &gameObject)
+void RayTracerEngine::subscribe(GameObject& gameObject)
 {
     //    auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
     //                             [id = gameObject.GetId()](const auto &sub) { return sub.gameObject->GetId() == id;
@@ -58,11 +58,11 @@ void RayTracerEngine::subscribe(GameObject &gameObject)
     if (not model or model->GetMeshes().empty())
         return;
 
-    auto &sub = subscribers_[gameObject.GetId()];
+    auto& sub = subscribers_[gameObject.GetId()];
 
-    for (const auto &mesh : model->GetMeshes())
+    for (const auto& mesh : model->GetMeshes())
     {
-        const auto &data = mesh.GetCMeshDataRef();
+        const auto& data = mesh.GetCMeshDataRef();
 
         for (size_t i = 0; i < data.indices_.size(); i += 3)
         {
@@ -81,7 +81,7 @@ void RayTracerEngine::subscribe(GameObject &gameObject)
     }
 }
 
-void RayTracerEngine::unSubscribe(GameObject &gameObject)
+void RayTracerEngine::unSubscribe(GameObject& gameObject)
 {
     auto iter = subscribers_.find(gameObject.GetId());
     if (iter != subscribers_.end())
@@ -89,14 +89,14 @@ void RayTracerEngine::unSubscribe(GameObject &gameObject)
         for (auto id : iter->second)
         {
             auto iter = std::find_if(scene_.objects_.begin(), scene_.objects_.end(),
-                                     [id](const auto &obj) { return id == obj->getId(); });
+                                     [id](const auto& obj) { return id == obj->getId(); });
             // if (iter != scene_.objects_.end())
             scene_.objects_.erase(iter);
         }
     }
 }
 
-void RayTracerEngine::render(const vec2ui &size, float, const File &outputFile)
+void RayTracerEngine::render(const vec2ui& size, float, const File& outputFile)
 {
     stepPooler.reset(new StepPooler(scene_.camera_->getViewPort()));
 
@@ -132,7 +132,7 @@ void RayTracerEngine::multiThreadsRun(uint32 threadsCount)
 
     run();
 
-    for (auto &thread : threads)
+    for (auto& thread : threads)
     {
         thread.join();
     }
@@ -175,7 +175,7 @@ void RayTracerEngine::step(uint32 x, uint32 y)
     image_.setPixel(vec2ui(x, y), Color(color));
 }
 
-vec3 RayTracerEngine::trace(const Ray &ray, float &energy, const IObject *parent)
+vec3 RayTracerEngine::trace(const Ray& ray, float& energy, const IObject* parent)
 {
     auto intersection = findIntersection(ray, parent);
 
@@ -186,7 +186,7 @@ vec3 RayTracerEngine::trace(const Ray &ray, float &energy, const IObject *parent
 
     auto color = calculateColor(ray, intersection, energy);
 
-    const auto &material = intersection.getObject()->getMaterial();
+    const auto& material = intersection.getObject()->getMaterial();
     // energy -= material.absorption_;
     energy -= (1.f - material.reflectivity);
 
@@ -197,7 +197,7 @@ vec3 RayTracerEngine::trace(const Ray &ray, float &energy, const IObject *parent
         return color;
     }
 
-    const auto &normal         = intersection.getNormal();
+    const auto& normal         = intersection.getNormal();
     auto reflectedRayDirection = ray.getDirection() - (2.f * ray.getDirection() * normal) * normal;
     Ray reflectedRay(intersection.getPoint(), reflectedRayDirection, ray.getX(), ray.getY());
 
@@ -205,13 +205,13 @@ vec3 RayTracerEngine::trace(const Ray &ray, float &energy, const IObject *parent
     limtColorValue(totalColor);
     return totalColor;
 }
-Intersection RayTracerEngine::findIntersection(const Ray &ray, const IObject *parent) const
+Intersection RayTracerEngine::findIntersection(const Ray& ray, const IObject* parent) const
 {
     Intersection result;
 
     float t = std::numeric_limits<float>::max();
 
-    for (const auto &obj : scene_.objects_)
+    for (const auto& obj : scene_.objects_)
     {
         if (parent && obj->getId() == parent->getId())
         {
@@ -234,32 +234,34 @@ Intersection RayTracerEngine::findIntersection(const Ray &ray, const IObject *pa
 
     return result;
 }
-vec3 RayTracerEngine::calculateColor(const Ray &ray, const Intersection &intersection, float energy)
+vec3 RayTracerEngine::calculateColor(const Ray& ray, const Intersection& intersection, float energy)
 {
     vec3 outputColor = scene_.bgColor_;
 
     // const auto &normal = intersection.getNormal();
 
-    for (const auto &light : rendererContext_.scene_->GetLights())
+    auto directionalLights =
+        rendererContext_.scene_->getComponentController().GetAllActiveComponentsOfType<Components::DirectionalLightComponent>();
+    for (const auto& light :directionalLights)
     {
         outputColor +=
-            procesLight(ray, light, intersection.getPoint(), intersection.getNormal(), intersection.getObject()) * energy;
+            procesLight(ray, *light, intersection.getPoint(), intersection.getNormal(), intersection.getObject()) * energy;
     }
 
     limtColorValue(outputColor);
     return outputColor;
 }
-vec3 RayTracerEngine::procesLight(const Ray &ray, const Light &light, const vec3 &intersectionPoint, const vec3 &normal,
-                                  const IObject *obj)
+vec3 RayTracerEngine::procesLight(const Ray& ray, const Components::DirectionalLightComponent& light, const vec3& intersectionPoint, const vec3& normal,
+                                  const IObject* obj)
 {
-    auto lightDirection = glm::normalize(light.GetPosition() - intersectionPoint);
+    auto lightDirection = glm::normalize(light.getParentGameObject().GetWorldTransform().GetPosition() - intersectionPoint);
     Ray shadowRay(intersectionPoint, lightDirection, ray.getX(), ray.getY());
 
     if (isShadow(shadowRay))
     {
         return vec3(0);
     }
-    vec3 ambient = obj->getMaterial().ambient.xyz() * light.GetColour();
+    vec3 ambient = obj->getMaterial().ambient.xyz() * light.color.xyz();
 
     float intensity = glm::dot(normal, lightDirection);
 
@@ -277,17 +279,17 @@ vec3 RayTracerEngine::procesLight(const Ray &ray, const Light &light, const vec3
 
     if (s > 0.f && s < 90.f * M_PI / 180.f)
     {
-        specular = obj->getMaterial().specular.xyz() * light.GetColour() * powf(s, obj->getMaterial().shineDamper);
+        specular = obj->getMaterial().specular.xyz() * light.color.xyz() * powf(s, obj->getMaterial().shineDamper);
     }
 
     return ambient + diffuse + specular;
 }
 
-bool RayTracerEngine::isShadow(const Ray &ray) const
+bool RayTracerEngine::isShadow(const Ray& ray) const
 {
-    for (const auto &obj : scene_.objects_)
+    for (const auto& obj : scene_.objects_)
     {
-        const auto &intersectionPoint = obj->intersect(ray);
+        const auto& intersectionPoint = obj->intersect(ray);
 
         if (intersectionPoint)
         {
@@ -297,7 +299,7 @@ bool RayTracerEngine::isShadow(const Ray &ray) const
 
     return false;
 }
-void RayTracerEngine::limtColorValue(vec3 &color) const
+void RayTracerEngine::limtColorValue(vec3& color) const
 {
     if (color.x > 1.f)
     {

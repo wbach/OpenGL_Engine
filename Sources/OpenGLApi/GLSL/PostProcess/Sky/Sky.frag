@@ -55,7 +55,7 @@ void main()
 {
     vec2 uv = gl_FragCoord.xy / skyBuffer.screenSize.xy;
 
-    float depth = texture(gDepth, uv).r;
+    //float depth = texture(gDepth, uv).r;
     // if (depth < 1.0) // potrzebujemy niebo nawet dla zaslonietych pikseli zeby liczyc mgle w lightpassie
     // {
     //     outSkyColor = vec4(0.0);
@@ -67,6 +67,26 @@ void main()
     vec4 viewRay = skyBuffer.invProj * ndc;
     vec3 worldRay = normalize((skyBuffer.invViewRot * vec4(viewRay.xyz, 0.0)).xyz);
     //worldRay *= -1.0;
+
+    //if not directional light exist
+    if (skyBuffer.sunDirection.w < 0.5)
+    {
+        // --- Gradient nieba ---
+        float t = max(worldRay.y * 0.5 + 0.5, 0.0);
+        vec3 topColor    = vec3(0.1, 0.3, 0.8);
+        vec3 bottomColor = vec3(0.6, 0.8, 1.0);
+        vec3 sky = mix(bottomColor, topColor, t);
+
+        // --- Gwiazdy ---
+        float horizonFactor = clamp(worldRay.y, 0.0, 1.0);
+        horizonFactor = pow(horizonFactor, 1.1);
+        vec3 starsColor = vec3(starField(worldRay)) * horizonFactor;
+
+        vec3 finalSky = sky + starsColor;
+
+        outSkyColor = vec4(finalSky, 1.0);
+        return; // koniec, nie ma słońca ani cieni
+    }
 
     // --- SUN / MOON DIR & COLORS ---
     vec3 sunDir = normalize(-skyBuffer.sunDirection.xyz); // NOTE: minus!

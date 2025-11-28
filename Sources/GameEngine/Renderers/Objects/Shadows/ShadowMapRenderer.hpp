@@ -40,7 +40,7 @@ private:
     void cleanUp() override;
     void renderScene();
     bool isInit() const;
-    void prepareFrameBuffer();
+    bool prepareFrameBuffer();
     void renderCascades();
     mat4 convertNdcToTextureCooridates(const mat4&) const;
 

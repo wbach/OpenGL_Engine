@@ -1,15 +1,18 @@
 #include "DayNightCycle.h"
 
+#include <Logger/Log.h>
+#include <Types.h>
+
 #include "GLM/GLMUtils.h"
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Time/GameTime.h"
-#include "Logger/Log.h"
-#include "Types.h"
 
 namespace GameEngine
 {
-DayNightCycle::DayNightCycle(Light* directionalLight)
+DayNightCycle::DayNightCycle()
     : GameTime()
-    , directionalLight(directionalLight)
+    , directionalLight{nullptr}
     , sunRiseColor(vec3(1.000, 0.766, 0.545) * 2.f)
     , midDayColor(vec3(1.000, 0.937, 0.882) * 2.f)
     , sunSetColor(vec3(1.000, 0.720, 0.460) * 2.f)
@@ -25,42 +28,50 @@ DayNightCycle::DayNightCycle(Light* directionalLight)
     defaultSunPos   = vec3(10000, 15000, 10000);
 
     CalculateBlendFactor();
-    if (directionalLight)
-    {
-        UpdateSunColor();
-        UpdateSunPosition();
-    }
 }
 void DayNightCycle::Update(GameTime::DeltaTime delta_time)
 {
     GameTime::Update(delta_time);
     CalculateBlendFactor();
-    UpdateSunColor();
-    UpdateSunPosition();
+    UpdateSunLight();
 }
 
 void DayNightCycle::SetTime(GameTime::Time time)
 {
     GameTime::SetTime(time);
     CalculateBlendFactor();
-    UpdateSunColor();
-    UpdateSunPosition();
+    UpdateSunLight();
+}
+
+void DayNightCycle::UpdateSunLight()
+{
+    if (directionalLight and directionalLight->isDayNightCycleControlled)
+    {
+        UpdateSunColor();
+        UpdateSunPosition();
+    }
+
+    else if (directionalLight)
+    {
+        directionalLight = nullptr;
+        LOG_DEBUG << "Directional light can not be controlled any more by day night cycle.";
+    }
 }
 
 void DayNightCycle::UpdateSunColor()
 {
     if (directionalLight == nullptr)
     {
-        LOG_WARN << "Directional light not set in DayNightCycle but is used.";
         return;
     }
+
     if (IsNight())
     {
-        directionalLight->SetColor(nightColor);
+        directionalLight->color = nightColor;
     }
     if (IsDay())
     {
-        directionalLight->SetColor(midDayColor);
+        directionalLight->color = midDayColor;
     }
     if (IsMorning())
     {
@@ -76,7 +87,7 @@ void DayNightCycle::UpdateSunColor()
             float r = (currentTime_ - nightEnd - half_moorning_duration) * 1.f / half_moorning_duration;
             color   = Utils::ColorLerpRGB(sunRiseColor, midDayColor, r);
         }
-        directionalLight->SetColor(color);
+        directionalLight->color = color;
     }
     if (IsEvening())
     {
@@ -92,7 +103,7 @@ void DayNightCycle::UpdateSunColor()
             float r = (currentTime_ - dayEnd - half_evening) * 1.f / half_evening;
             color   = Utils::ColorLerpRGB(sunSetColor, nightColor, r);
         }
-        directionalLight->SetColor(color);
+        directionalLight->color = color;
     }
 }
 
@@ -137,7 +148,7 @@ void DayNightCycle::UpdateSunPosition()
         pos.z = radius * sin(angle);
         pos.y = radius * sin(angle);
 
-        directionalLight->SetPosition(pos);
+        directionalLight->GetParentGameObject().SetWorldPosition(pos);
     }
     else
     {
@@ -158,7 +169,7 @@ void DayNightCycle::UpdateSunPosition()
         pos.z = radius * sin(angle);
         pos.y = radius * sin(angle);
 
-        directionalLight->SetPosition(pos);
+        directionalLight->GetParentGameObject().SetWorldPosition(pos);
     }
 }
 
@@ -184,10 +195,17 @@ void DayNightCycle::CalculateBlendFactor()
     LOG_DEBUG << h.hour << ":" << h.minute << ", dayNightBlendFactor: " << dayNightBlendFactor;
 }
 
-void DayNightCycle::SetDirectionalLight(Light* light)
+void DayNightCycle::SetDirectionalLight(Components::DirectionalLightComponent* light)
 {
-    defaultSunPos    = light->GetPosition();
+    if (not light->isDayNightCycleControlled)
+    {
+        LOG_DEBUG << "Light can not be controlled by day night cycle.";
+        return;
+    }
+
+    defaultSunPos    = light->GetParentGameObject().GetWorldTransform().GetPosition();
     directionalLight = light;
+    UpdateSunLight();
 }
 
 const vec2i DayNightCycle::GetCurrentHour() const

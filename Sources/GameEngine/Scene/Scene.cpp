@@ -38,8 +38,7 @@ Scene::Scene(const std::string& name)
     , physicsApi_(nullptr)
     , name(name)
     , gloabalTime(0.f)
-    , directionalLight(vec3(1000.f, 1500.f, 1000.f), vec3(.8f))
-    , dayNightCycle(&directionalLight)
+    , dayNightCycle()
     , windParams(GetWindPreset(2))
     , simulatePhysics_(true)
     , start_(false)
@@ -238,17 +237,6 @@ std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::optional<IdType
 std::unique_ptr<Prefab> Scene::CreatePrefabGameObject(const std::string& name, const std::optional<IdType>& maybeId)
 {
     return std::make_unique<Prefab>(name, componentController_, *componentFactory_, gameObjectIdPool_, maybeId);
-}
-
-void Scene::SetDirectionalLightColor(const vec3& color)
-{
-    directionalLight.SetColor(color);
-}
-
-Light& Scene::AddLight(const Light& light)
-{
-    lights.push_back(light);
-    return lights.back();
 }
 
 void Scene::ProcessEvents()
@@ -548,16 +536,6 @@ CameraManager& Scene::GetCameraManager()
 const CameraManager& Scene::GetCameraManager() const
 {
     return cameraManager;
-}
-
-const Light& Scene::GetDirectionalLight() const
-{
-    return directionalLight;
-}
-
-const std::vector<Light>& Scene::GetLights() const
-{
-    return lights;
 }
 
 int Scene::Initialize()

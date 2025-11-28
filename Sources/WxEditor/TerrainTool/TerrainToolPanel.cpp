@@ -280,9 +280,9 @@ ColorPickerResult* CreateColorPickerWithRandomness(wxWindow* parent, wxSizer* si
 
     std::array<int, 3> rgb = {
 #if wxCHECK_VERSION(3, 1, 0)
-        defaultColor.GetRed(),
-        defaultColor.GetGreen(),
-        defaultColor.GetBlue()
+        static_cast<int>(defaultColor.GetRed()),
+        static_cast<int>(defaultColor.GetGreen()),
+        static_cast<int>(defaultColor.GetBlue())
 #else
         static_cast<int>((defaultColor.GetRGB() >> 16) & 0xFF),
         static_cast<int>((defaultColor.GetRGB() >> 8) & 0xFF),

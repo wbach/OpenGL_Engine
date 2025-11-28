@@ -1,21 +1,26 @@
 #pragma once
-#include "../Lights/Light.h"
 #include "GameTime.h"
 #include "Types.h"
 
 namespace GameEngine
 {
+namespace Components
+{
+class DirectionalLightComponent;
+}
+
 class DayNightCycle : public GameTime
 {
 public:
-    DayNightCycle(Light* = nullptr);
+    DayNightCycle();
     void Update(GameTime::DeltaTime) override;
     void SetTime(GameTime::Time) override;
 
+    void UpdateSunLight();
     void UpdateSunColor();
     void UpdateSunPosition();
     void CalculateBlendFactor();
-    void SetDirectionalLight(Light* light);
+    void SetDirectionalLight(Components::DirectionalLightComponent*);
 
     const vec2i GetCurrentHour() const;
     bool IsDay() const;
@@ -27,7 +32,7 @@ public:
     float GetDayNightBlendFactor() const;
 
 private:
-    Light* directionalLight;
+    Components::DirectionalLightComponent* directionalLight;
     vec3 sunRiseColor;
     vec3 midDayColor;
     vec3 sunSetColor;

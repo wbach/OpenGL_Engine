@@ -7,9 +7,10 @@
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Engine/Configuration.h"
-#include "GameEngine/Lights/Light.h"
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
+#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -55,10 +56,10 @@ std::vector<vec4> ShadowBox::calculateFrustumPoints(const ICamera& camera, float
 //     return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
 // }
 
-mat4 ShadowBox::createLightViewMatrix(const Light& directionalLight, const ICamera& camera)
+mat4 ShadowBox::createLightViewMatrix(const Components::DirectionalLightComponent& directionalLight, const ICamera& camera)
 {
     // return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
-    vec3 lightDir  = normalize(directionalLight.GetPosition());  // lub GetDirection()
+    vec3 lightDir  = normalize(directionalLight.getParentGameObject().GetWorldTransform().GetPosition());  // lub GetDirection()
     vec3 cameraPos = camera.GetPosition();
     return glm::lookAt(cameraPos - lightDir * shadowDistance_ * 0.5f, cameraPos, VECTOR_UP);
 }
@@ -195,7 +196,7 @@ void ShadowBox::checkMinMax(float& min, float& max, float point)
     }
 }
 
-void ShadowBox::update(const ICamera& camera, const Light& directionalLight)
+void ShadowBox::update(const ICamera& camera, const Components::DirectionalLightComponent& directionalLight)
 {
     auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
     auto lightViewMatrix = createLightViewMatrix(directionalLight, camera);

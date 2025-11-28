@@ -2,17 +2,21 @@
 #include <Types.h>
 #include <Utils/Image/Image.h>
 #include <Utils/Image/ImageUtils.h>
+
 #include <memory>
+
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "Scene.h"
 
 namespace GameEngine
 {
-class Light;
 class GameObject;
 struct RendererContext;
-
+namespace Components
+{
+class DirectionalLightComponent;
+}
 namespace RayTracer
 {
 class Ray;
@@ -37,8 +41,8 @@ private:
     vec3 trace(const Ray& ray, float& energy, const IObject* parent = nullptr);
     Intersection findIntersection(const Ray& ray, const IObject* parent) const;
     vec3 calculateColor(const Ray& ray, const Intersection& intersection, float energy);
-    vec3 procesLight(const Ray& ray, const Light& light, const vec3& intersectionPoint, const vec3& normal,
-                     const IObject* obj);
+    vec3 procesLight(const Ray& ray, const Components::DirectionalLightComponent& light, const vec3& intersectionPoint,
+                     const vec3& normal, const IObject* obj);
     bool isShadow(const Ray& ray) const;
     void limtColorValue(vec3& color) const;
 

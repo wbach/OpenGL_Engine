@@ -8,6 +8,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -72,19 +73,31 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
         return;
     }
 
+    SkyPassBuffer buffer;
+    buffer.invProj    = glm::inverse(context.camera_->GetProjectionMatrix());
+    buffer.invViewRot = glm::inverse(context.camera_->GetViewMatrix());
+    buffer.screenSize = vec4(frameBufferSize->x, frameBufferSize->y, 0.0, 0.0);
+
+    auto directionalLights =
+        context.scene_->getComponentController().GetAllActiveComponentsOfType<Components::DirectionalLightComponent>();
+
+    if (not directionalLights.empty())
+    {
+        const auto& directionalLight = directionalLights.front();
+        buffer.sunDirection          = vec4(glm::normalize(directionalLight->GetDirection()), 1.0f);
+        buffer.sunColor = vec4(directionalLight->color.xyz(), context.scene_->GetDayNightCycle().GetDayNightBlendFactor());
+    }
+    else
+    {
+        buffer.sunDirection = vec4(0.f);
+        buffer.sunColor = vec4(0.f);
+    }
+
     context.graphicsApi_.SetViewPort(0, 0, frameBufferSize->x, frameBufferSize->y);
 
     frameBuffer->Clear();
     frameBuffer->Bind(GraphicsApi::FrameBuffer::BindType::Write);
     shader.Start();
-
-    SkyPassBuffer buffer;
-    buffer.invProj       = glm::inverse(context.camera_->GetProjectionMatrix());
-    buffer.invViewRot    = glm::inverse(context.camera_->GetViewMatrix());
-    buffer.screenSize    = vec4(frameBufferSize->x, frameBufferSize->y, 0.0, 0.0);
-    const auto& dirLight = context.scene_->GetDirectionalLight();
-    buffer.sunDirection  = vec4(glm::normalize(dirLight.GetDirection()), 0.0f);
-    buffer.sunColor      = vec4(dirLight.GetColour(), context.scene_->GetDayNightCycle().GetDayNightBlendFactor());
 
     context.graphicsApi_.UpdateShaderBuffer(*bufferId, &buffer);
     context.graphicsApi_.BindShaderBuffer(*bufferId);
