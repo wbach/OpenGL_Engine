@@ -4,6 +4,8 @@
 #include <GameEngine/Camera/ThridPersonCamera.h>
 #include <GameEngine/Components/Animation/Animator.h>
 #include <GameEngine/Components/Camera/CameraComponent.h>
+#include <GameEngine/Components/FunctionType.h>
+#include <GameEngine/Components/Lights/DirectionalLightComponent.h>
 #include <GameEngine/Engine/Engine.h>
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
@@ -26,8 +28,6 @@
 #include <string>
 
 #include "AnimationFileDropTarget.h"
-#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
-#include "GameEngine/Components/FunctionType.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"

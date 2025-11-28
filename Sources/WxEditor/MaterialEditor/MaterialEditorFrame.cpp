@@ -1,5 +1,6 @@
 #include "MaterialEditorFrame.h"
 
+#include <GameEngine/Components/Lights/DirectionalLightComponent.h>
 #include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/Primitives.h>
@@ -19,13 +20,15 @@ MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& 
     wxInitAllImageHandlers();
     mainSplitter = new wxSplitterWindow(this, wxID_ANY);
 
-    // Canvas renderujący preview materiału
     auto onStartupDone = [this, file = maybeFile]()
     {
-        auto& camera = *canvas->GetScene().GetCameraManager().GetMainCamera();
-        camera.SetPosition(vec3(-3.0f, 0.0f, 0.0f));
-        camera.LookAt(vec3(0, 0.0f, 0));
-        camera.UpdateMatrix();
+        canvas->SetCameraStartupPosition(vec3(-3.0f, 0.0f, 0.0f), vec3(0, 0.0, 0));
+
+        auto lightGo                             = canvas->GetScene().CreateGameObject("Light");
+        auto& lightComponent                     = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+        lightComponent.isDayNightCycleControlled = false;
+        canvas->GetScene().AddGameObject(std::move(lightGo));
+
         Init();
 
         if (file)
@@ -40,7 +43,6 @@ MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& 
 
 void MaterialEditorFrame::Init()
 {
-    // Panel boczny z przewijaniem
     wxScrolledWindow* rightPanel =
         new wxScrolledWindow(mainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL);
     rightPanel->SetScrollRate(5, 5);  // ustawienie scroll rate (piksele)
