@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "Components/Camera/CameraComponent.h"
+#include "Components/Lights/DirectionalLightComponent.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -465,13 +466,23 @@ void GLCanvas::CreateNewScene()
                     addPrimitive(GameEngine::PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
                     addPrimitive(GameEngine::PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
 
-                    auto scene              = engine->GetSceneManager().GetActiveScene();
-                    auto defaultSceneCamera = scene->CreateGameObject("DefaultCamera");
-                    auto& cameraComponent   = defaultSceneCamera->AddComponent<Components::CameraComponent>();
-                    cameraComponent.mainCamera = true;
-                    defaultSceneCamera->SetWorldPosition(vec3(2, 2, 2));
-                    cameraComponent.LookAt(vec3(0));
-                    scene->AddGameObject(std::move(defaultSceneCamera));
+                    {
+                        auto scene                 = engine->GetSceneManager().GetActiveScene();
+                        auto defaultSceneCamera    = scene->CreateGameObject("DefaultCamera");
+                        auto& cameraComponent      = defaultSceneCamera->AddComponent<Components::CameraComponent>();
+                        cameraComponent.settings = Components::CameraComponent::Settings::GlobalConfig;
+                        cameraComponent.mainCamera = true;
+                        defaultSceneCamera->SetWorldPosition(vec3(2, 2, 2));
+                        cameraComponent.LookAt(vec3(0));
+                        scene->AddGameObject(std::move(defaultSceneCamera));
+                    }
+                    {
+                        auto scene            = engine->GetSceneManager().GetActiveScene();
+                        auto directionLightGo = scene->CreateGameObject("DirectionLight");
+                        directionLightGo->AddComponent<Components::DirectionalLightComponent>();
+                        directionLightGo->SetWorldPosition(vec3(1000, 1500, 1000));
+                        scene->AddGameObject(std::move(directionLightGo));
+                    }
                 }
             });
     }
@@ -497,11 +508,10 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
             SetupCamera();
         });
 
-        LOG_DEBUG << "SetActiveScene: " << name;
+    LOG_DEBUG << "SetActiveScene: " << name;
     engine->GetSceneManager().SetActiveScene(name);
 
-
-  LOG_DEBUG << "Return : " << (bool) (engine->GetSceneManager().GetActiveScene() != nullptr);
+    LOG_DEBUG << "Return : " << (bool)(engine->GetSceneManager().GetActiveScene() != nullptr);
     return engine->GetSceneManager().GetActiveScene() != nullptr;
 }
 
