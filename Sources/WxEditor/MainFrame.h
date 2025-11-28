@@ -80,6 +80,16 @@ private:
     void MenuEditCreateDirectionLight(wxCommandEvent&);
     void MenuEditCreatePointLight(wxCommandEvent&);
     void MenuEditCreateSpotLight(wxCommandEvent&);
+    void MenuEditCreateCube(wxCommandEvent&);
+    void MenuEditCreateSphere(wxCommandEvent&);
+    void MenuEditCreateCylinder(wxCommandEvent&);
+    void MenuEditCreateCone(wxCommandEvent&);
+    void MenuEditCreatePlane(wxCommandEvent&);
+    void MenuEditCreateTorus(wxCommandEvent&);
+    void MenuEditCreatPyramid(wxCommandEvent&);
+    void MenuEditCreateIcoSphere(wxCommandEvent&);
+    void MenuEditCreateTriangle(wxCommandEvent&);
+
     void MenuEditMaterialEditor(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);
     void MenuEditClearScene(wxCommandEvent&);

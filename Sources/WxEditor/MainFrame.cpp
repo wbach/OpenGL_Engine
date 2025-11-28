@@ -129,6 +129,15 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_EDIT_CREATE_DIRECTIONAL_LIGHT, MainFrame::MenuEditCreateDirectionLight)
     EVT_MENU(ID_MENU_EDIT_CREATE_POINT_LIGHT, MainFrame::MenuEditCreatePointLight)
     EVT_MENU(ID_MENU_EDIT_CREATE_SPOT_LIGHT, MainFrame::MenuEditCreateSpotLight)
+    EVT_MENU(ID_MENU_EDIT_CREATE_CUBE, MainFrame::MenuEditCreateCube)
+    EVT_MENU(ID_MENU_EDIT_CREATE_SPHERE, MainFrame::MenuEditCreateSphere)
+    EVT_MENU(ID_MENU_EDIT_CREATE_CYLINDER, MainFrame::MenuEditCreateCylinder)
+    EVT_MENU(ID_MENU_EDIT_CREATE_CONE, MainFrame::MenuEditCreateCone)
+    EVT_MENU(ID_MENU_EDIT_CREATE_PLANE, MainFrame::MenuEditCreatePlane)
+    EVT_MENU(ID_MENU_EDIT_CREATE_TORUS, MainFrame::MenuEditCreateTorus)
+    EVT_MENU(ID_MENU_EDIT_CREATE_PYRAMID, MainFrame::MenuEditCreatPyramid)
+    EVT_MENU(ID_MENU_EDIT_CREATE_ICOSPHERE, MainFrame::MenuEditCreateIcoSphere)
+    EVT_MENU(ID_MENU_EDIT_CREATE_TRIANGLE, MainFrame::MenuEditCreateTriangle)
     EVT_MENU(ID_MENU_EDIT_MATERIAL_EDITOR, MainFrame::MenuEditMaterialEditor)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
@@ -920,7 +929,20 @@ wxMenu* MainFrame::CreateEditMenu()
     lightSubMenu->Append(ID_MENU_EDIT_CREATE_POINT_LIGHT, "&Point", "Create game object with point light component");
     lightSubMenu->Append(ID_MENU_EDIT_CREATE_SPOT_LIGHT, "&Spot", "Create game object with spot light component");
 
-    createSubMenu->AppendSubMenu(lightSubMenu, "&Create light", "Create gameobject with light component");
+    createSubMenu->AppendSubMenu(lightSubMenu, "&Light", "Create gameobject with light component");
+
+    auto primitiveSubMenu = new wxMenu;
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_CUBE, "&Cube", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_SPHERE, "&Sphere", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_CYLINDER, "&Cylinder", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_CONE, "&Cone", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_PLANE, "&Plane", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_TORUS, "&Torus", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_PYRAMID, "&Pyramid", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_ICOSPHERE, "&IcoSphere", "Create game object with renderer component");
+    primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_TRIANGLE, "&Triangle", "Create game object with renderer component");
+
+    createSubMenu->AppendSubMenu(primitiveSubMenu, "&Primitive", "Create gameobject with light component");
 
     menu->AppendSubMenu(createSubMenu, "&Create", "Create gameobjects");
     menu->Append(ID_MENU_EDIT_MATERIAL_EDITOR, "&Material editor", "Create new default material");
@@ -1695,4 +1717,40 @@ void MainFrame::MenuEditCreateSpotLight(wxCommandEvent&)
 
     go->SetWorldPosition(canvas->GetWorldPosFromCamera());
     canvas->GetScene().AddGameObject(std::move(go));
+}
+void MainFrame::MenuEditCreateCube(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Cube, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreateSphere(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Sphere, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreateCylinder(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Cylinder, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreateCone(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Cone, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreatePlane(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Plane, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreateTorus(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Torus, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreatPyramid(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Pyramid, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreateIcoSphere(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::IcoSphere, canvas->GetWorldPosFromCamera());
+}
+void MainFrame::MenuEditCreateTriangle(wxCommandEvent&)
+{
+    canvas->addPrimitive(GameEngine::PrimitiveType::Triangle, canvas->GetWorldPosFromCamera());
 }
