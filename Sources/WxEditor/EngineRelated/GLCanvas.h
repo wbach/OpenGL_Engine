@@ -55,6 +55,7 @@ public:
     void DisablePicker();
     void EnablePicker();
     vec3 GetWorldPosFromCamera();
+    void SetCameraStartupPosition(const vec3&, const vec3&);
 
 private:
     wxGLContext* context;
@@ -75,14 +76,13 @@ private:
     void OnMouseRightUp(wxMouseEvent&);
     void OnMouseRightDown(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent&);
-
-
     void SetupCamera();
 
     DECLARE_EVENT_TABLE()
 
     bool useMousePicker{true};
     bool addStartupObjects;
+
     GameEngine::ICamera* cameraEditorPtr{nullptr};
     OnStartupDone onStartupDone;
     SelectItemInGameObjectTree selectItemInGameObjectTree;
@@ -93,4 +93,7 @@ private:
     std::optional<IdType> cameraId;
     std::unique_ptr<GameEngine::DragObject> dragGameObject;
     std::unique_ptr<GameEngine::MousePicker> mousePicker;
+
+    vec3 cameraPositionStartup = vec3(2.f, 2.f, 2.f);
+    vec3 cameraLookAtStartup   = vec3(0.f, 0.5f, 0.f);
 };

@@ -1,6 +1,10 @@
 #include "MainFrame.h"
 
+#include <GameEngine/Components/Camera/CameraComponent.h>
 #include <GameEngine/Components/FunctionType.h>
+#include <GameEngine/Components/Lights/DirectionalLightComponent.h>
+#include <GameEngine/Components/Lights/PointLightComponent.h>
+#include <GameEngine/Components/Lights/SpotLightComponent.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
@@ -32,10 +36,6 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
-#include "Components/Camera/CameraComponent.h"
-#include "Components/Lights/DirectionalLightComponent.h"
-#include "Components/Lights/PointLightComponent.h"
-#include "Components/Lights/SpotLightComponent.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -945,6 +945,7 @@ wxMenu* MainFrame::CreateEditMenu()
     createSubMenu->AppendSubMenu(primitiveSubMenu, "&Primitive", "Create gameobject with light component");
 
     menu->AppendSubMenu(createSubMenu, "&Create", "Create gameobjects");
+    menu->Append(ID_TOOL_ANIMATION_VIEWER, "&Animation viewer", "Create new default material");
     menu->Append(ID_MENU_EDIT_MATERIAL_EDITOR, "&Material editor", "Create new default material");
     menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab", "Create new object");
     menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear", "Delete all object in scene");

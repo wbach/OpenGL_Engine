@@ -2,6 +2,8 @@
 #include "GLCanvas.h"
 
 #include <GameEngine/Camera/CameraManager.h>
+#include <GameEngine/Components/Camera/CameraComponent.h>
+#include <GameEngine/Components/Lights/DirectionalLightComponent.h>
 #include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 #include <GameEngine/DebugTools/MousePicker/DragObject.h>
 #include <GameEngine/DebugTools/MousePicker/MousePicker.h>
@@ -13,8 +15,6 @@
 #include <filesystem>
 #include <memory>
 
-#include "Components/Camera/CameraComponent.h"
-#include "Components/Lights/DirectionalLightComponent.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -40,12 +40,6 @@ END_EVENT_TABLE()
 
 using namespace GameEngine;
 using namespace GameEngine::Physics;
-
-namespace
-{
-const vec3 defaultCameraPosition = vec3(2.f, 2.f, 2.f);
-const vec3 defaultCameraLookAt   = vec3(0.f, 0.5f, 0.f);
-}  // namespace
 
 namespace WxEditor
 {
@@ -176,8 +170,8 @@ void GLCanvas::addContextMenu(wxMouseEvent& event)
             if (engine && engine->GetSceneManager().GetActiveScene())
             {
                 auto camera = GetScene().GetCameraManager().GetMainCamera();
-                camera->SetPosition(defaultCameraPosition);
-                camera->LookAt(defaultCameraLookAt);
+                camera->SetPosition(cameraPositionStartup);
+                camera->LookAt(cameraLookAtStartup);
                 camera->UpdateMatrix();
             }
         },
@@ -470,7 +464,7 @@ void GLCanvas::CreateNewScene()
                         auto scene                 = engine->GetSceneManager().GetActiveScene();
                         auto defaultSceneCamera    = scene->CreateGameObject("DefaultCamera");
                         auto& cameraComponent      = defaultSceneCamera->AddComponent<Components::CameraComponent>();
-                        cameraComponent.settings = Components::CameraComponent::Settings::GlobalConfig;
+                        cameraComponent.settings   = Components::CameraComponent::Settings::GlobalConfig;
                         cameraComponent.mainCamera = true;
                         defaultSceneCamera->SetWorldPosition(vec3(2, 2, 2));
                         cameraComponent.LookAt(vec3(0));
@@ -541,8 +535,8 @@ void GLCanvas::SetupCamera()
     auto cameraEditor = std::make_unique<GameEngine::CameraEditor>(*scene.getInputManager(), *scene.getDisplayManager());
 
     cameraEditorPtr = cameraEditor.get();
-    cameraEditor->SetPosition(defaultCameraPosition);
-    cameraEditor->LookAt(defaultCameraLookAt);
+    cameraEditor->SetPosition(cameraPositionStartup);
+    cameraEditor->LookAt(cameraLookAtStartup);
     cameraEditor->UpdateMatrix();
 
     scene.getInputManager()->ShowCursor(true);
@@ -577,4 +571,9 @@ Scene& GLCanvas::GetScene()
 
 void GLCanvas::OnShow(wxShowEvent&)
 {
+}
+void GLCanvas::SetCameraStartupPosition(const vec3& position, const vec3& lookAt)
+{
+    cameraPositionStartup = position;
+    cameraLookAtStartup   = lookAt;
 }

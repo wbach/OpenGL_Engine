@@ -3,6 +3,7 @@
 #include <GameEngine/Animations/AnimationUtils.h>
 #include <GameEngine/Camera/ThridPersonCamera.h>
 #include <GameEngine/Components/Animation/Animator.h>
+#include <GameEngine/Components/Camera/CameraComponent.h>
 #include <GameEngine/Engine/Engine.h>
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
@@ -25,6 +26,7 @@
 #include <string>
 
 #include "AnimationFileDropTarget.h"
+#include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Components/FunctionType.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
@@ -49,10 +51,13 @@ void AnimationViewerFrame::Init()
 
     auto onStartupDone = [this]()
     {
-        auto camera = canvas->GetScene().GetCameraManager().GetMainCamera();
-        camera->SetPosition(vec3(-0.75, 0.5, 0.75));
-        camera->LookAt(vec3(0, 0.5, 0));
-        camera->UpdateMatrix();
+        canvas->SetCameraStartupPosition(vec3(-0.75, 0.5, 0.75), vec3(0, 0.5, 0));
+
+        auto lightGo                             = canvas->GetScene().CreateGameObject("Light");
+        auto& lightComponent                     = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+        lightComponent.isDayNightCycleControlled = false;
+        canvas->GetScene().AddGameObject(std::move(lightGo));
+
         isInit = true;
         if (showModelAfterInit)
         {
@@ -155,22 +160,18 @@ void AnimationViewerFrame::CreateMainMenu()
         },
         ID_READ_ANIMATIONS_FOLDER);
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
+    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportToFile(e); }, ID_EXPORT_SELECTED_CLIP);
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
+    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { OnExportAll(e); }, ID_EXPORT_ALL_CLIPS);
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
+    Bind(wxEVT_MENU, [this](wxCommandEvent& e) { CreatePrefab(e); }, ID_CREATE_PREFAB);
 
     fileMenu->AppendSeparator();
     fileMenu->Append(wxID_EXIT);
 
     menuBar->Append(fileMenu, "&File");
 
-    Bind(
-        wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
 
     SetMenuBar(menuBar);
 }
