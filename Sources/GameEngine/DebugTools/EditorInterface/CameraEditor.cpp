@@ -9,6 +9,7 @@
 #include "GameEngine/Display/DisplayManager.hpp"
 #include "GameEngine/Renderers/Projection/OrthographicProjection.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 
 namespace GameEngine
 {
@@ -236,6 +237,9 @@ void CameraEditor::LookAtRight(const std::optional<vec3>& maybeTarget)
 
 void CameraEditor::SetPerspectiveView(const std::optional<vec3>& maybeTarget)
 {
+    if (dynamic_cast<PerspectiveProjection*>(projection_.get()) != nullptr)
+        return;
+
     projection_ = std::make_unique<PerspectiveProjection>();
     projection_->UpdateMatrix();
     rotationEnabled_ = true;
@@ -260,5 +264,25 @@ void CameraEditor::ZoomOut()
         orthographicProjection->SetZoom(orthoZoom_);
         projection_->UpdateMatrix();
     }
+}
+void CameraEditor::SetDistanceToFitBoundingBox(const BoundingBox& bbox)
+{
+    const vec3& size = bbox.size();
+    float maxDim = glm::compMax(size);
+    float margin = 3.0f;
+
+    float newZoom = (maxDim * 0.5f * margin) / 10.f; // 10.f = domyślny halfHeight w OrthographicProjection
+    if (auto ortho = dynamic_cast<OrthographicProjection*>(projection_.get()))
+    {
+        ortho->SetZoom(newZoom);
+        ortho->UpdateMatrix();
+        orthoZoom_ = newZoom;
+    }
+
+    const vec3& target = bbox.center();
+    float distance = glm::length(position_ - lastTarget_);
+    position_ = target - glm::normalize(position_ - target) * distance;
+    LookAt(target);
+    lastTarget_ = target;
 }
 }  // namespace GameEngine

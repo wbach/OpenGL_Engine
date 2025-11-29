@@ -1264,13 +1264,29 @@ void MainFrame::OnObjectTreeActivated(wxTreeEvent& event)
 {
     if (auto maybeGameObjectId = gameObjectsView->Get(event.GetItem().GetID()))
     {
-        auto& scene = canvas->GetScene();
-        if (auto gameObject = scene.GetGameObject(*maybeGameObjectId))
+        if (auto* cameraEditor = canvas->GetCameraEditor())
         {
-            auto& camera = *scene.GetCameraManager().GetMainCamera();
-            camera.SetPosition(gameObject->GetWorldTransform().GetPosition() +
-                               (gameObject->GetWorldTransform().GetScale() + vec3(1.f)));
-            camera.LookAt(gameObject->GetWorldTransform().GetPosition());
+            if (auto gameObject = canvas->GetScene().GetGameObject(*maybeGameObjectId))
+            {
+                cameraEditor->SetPerspectiveView();
+
+                const vec3& target = gameObject->GetWorldTransform().GetPosition();
+                float distance     = 1.f;
+
+                if (auto rc = gameObject->GetComponent<GameEngine::Components::RendererComponent>())
+                {
+                    const auto& bbox   = rc->getWorldSpaceBoundingBox();
+                    const float maxDim = glm::compMax(bbox.size());
+                    const float margin = 2.0f;
+                    distance           = maxDim * margin;
+                }
+
+                const vec3 direction = glm::normalize(vec3(1.f, 1.f, 1.f));
+                const vec3 camPos    = target + direction * distance;
+
+                cameraEditor->SetPosition(camPos);
+                cameraEditor->LookAt(target);
+            }
         }
     }
 }
@@ -1533,7 +1549,17 @@ void MainFrame::OnLookAtTop(wxCommandEvent&)
     {
         auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
                                                  : std::nullopt;
+
         cameraEditor->LookAtTop(targetPos);
+
+        if (auto go = GetSelectedGameObject())
+        {
+            if (auto rc = go->GetComponent<GameEngine::Components::RendererComponent>())
+            {
+                auto boundingBox = rc->getWorldSpaceBoundingBox();
+                cameraEditor->SetDistanceToFitBoundingBox(boundingBox);
+            }
+        }
     }
 }
 
@@ -1544,6 +1570,15 @@ void MainFrame::OnLookAtBottom(wxCommandEvent&)
         auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
                                                  : std::nullopt;
         cameraEditor->LookAtBottom(targetPos);
+
+        if (auto go = GetSelectedGameObject())
+        {
+            if (auto rc = go->GetComponent<GameEngine::Components::RendererComponent>())
+            {
+                auto boundingBox = rc->getWorldSpaceBoundingBox();
+                cameraEditor->SetDistanceToFitBoundingBox(boundingBox);
+            }
+        }
     }
 }
 
@@ -1554,6 +1589,15 @@ void MainFrame::OnLookAtFront(wxCommandEvent&)
         auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
                                                  : std::nullopt;
         cameraEditor->LookAtFront(targetPos);
+
+        if (auto go = GetSelectedGameObject())
+        {
+            if (auto rc = go->GetComponent<GameEngine::Components::RendererComponent>())
+            {
+                auto boundingBox = rc->getWorldSpaceBoundingBox();
+                cameraEditor->SetDistanceToFitBoundingBox(boundingBox);
+            }
+        }
     }
 }
 
@@ -1564,6 +1608,15 @@ void MainFrame::OnLookAtBack(wxCommandEvent&)
         auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
                                                  : std::nullopt;
         cameraEditor->LookAtBack(targetPos);
+
+        if (auto go = GetSelectedGameObject())
+        {
+            if (auto rc = go->GetComponent<GameEngine::Components::RendererComponent>())
+            {
+                auto boundingBox = rc->getWorldSpaceBoundingBox();
+                cameraEditor->SetDistanceToFitBoundingBox(boundingBox);
+            }
+        }
     }
 }
 
@@ -1574,6 +1627,15 @@ void MainFrame::OnLookAtLeft(wxCommandEvent&)
         auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
                                                  : std::nullopt;
         cameraEditor->LookAtLeft(targetPos);
+
+        if (auto go = GetSelectedGameObject())
+        {
+            if (auto rc = go->GetComponent<GameEngine::Components::RendererComponent>())
+            {
+                auto boundingBox = rc->getWorldSpaceBoundingBox();
+                cameraEditor->SetDistanceToFitBoundingBox(boundingBox);
+            }
+        }
     }
 }
 
@@ -1584,6 +1646,15 @@ void MainFrame::OnLookAtRight(wxCommandEvent&)
         auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
                                                  : std::nullopt;
         cameraEditor->LookAtRight(targetPos);
+
+        if (auto go = GetSelectedGameObject())
+        {
+            if (auto rc = go->GetComponent<GameEngine::Components::RendererComponent>())
+            {
+                auto boundingBox = rc->getWorldSpaceBoundingBox();
+                cameraEditor->SetDistanceToFitBoundingBox(boundingBox);
+            }
+        }
     }
 }
 

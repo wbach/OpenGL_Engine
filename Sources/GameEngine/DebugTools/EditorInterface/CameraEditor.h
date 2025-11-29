@@ -13,6 +13,7 @@ class InputManager;
 namespace GameEngine
 {
 class DisplayManager;
+class BoundingBox;
 
 class CameraEditor : public Camera
 {
@@ -30,6 +31,7 @@ public:
     void LookAtRight(const std::optional<vec3>& target = std::nullopt);
     void ZoomIn();
     void ZoomOut();
+    void SetDistanceToFitBoundingBox(const BoundingBox&);
 
 private:
     vec3 CalculateInputs();
