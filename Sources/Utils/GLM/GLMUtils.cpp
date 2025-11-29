@@ -352,4 +352,22 @@ std::tuple<vec3, Quaternion, vec3> decompose(const mat4& matrix)
 
     return {translation, rotation, scale};
 }
+Quaternion createQuaternionFromDirectionUp(const vec3& direction, const vec3& up)
+{
+    glm::vec3 f = glm::normalize(direction);
+    glm::vec3 u = glm::normalize(up);
+    if (glm::abs(glm::dot(f, u)) > 0.9999f)
+    {
+        u = glm::abs(f.y) > 0.9f ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
+    }
+    glm::vec3 r = glm::normalize(glm::cross(u, f));
+    glm::vec3 u2 = glm::cross(f, r);
+
+    glm::mat3 rot;
+    rot[0] = r;   // x – right
+    rot[1] = u2;  // y – up
+    rot[2] = -f;  // z – forward
+
+    return glm::quat_cast(rot);
+}
 }  // namespace Utils

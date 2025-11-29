@@ -157,6 +157,13 @@ private:
     void OnToolAnimationViewer(wxCommandEvent&);
     void OnBuildCmponents(wxCommandEvent&);
     void OnToggleTerrainPanel(wxCommandEvent&);
+    void OnLookAtTop(wxCommandEvent& event);
+    void OnLookAtBottom(wxCommandEvent& event);
+    void OnLookAtFront(wxCommandEvent& event);
+    void OnLookAtBack(wxCommandEvent& event);
+    void OnLookAtLeft(wxCommandEvent& event);
+    void OnLookAtRight(wxCommandEvent& event);
+    void OnLookAtPerspective(wxCommandEvent& event);
 
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);

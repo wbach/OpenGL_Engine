@@ -49,5 +49,7 @@ public:
 
     virtual IdType SubscribeOnChange(std::function<void(const ICamera&)>) = 0;
     virtual void UnsubscribeOnChange(IdType)                              = 0;
+
+    virtual void SetDirectionAndUp(const vec3& dir, const vec3& up) = 0;
 };
 }  // namespace GameEngine

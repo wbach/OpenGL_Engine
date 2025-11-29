@@ -35,6 +35,7 @@ EVT_LEFT_UP(GLCanvas::OnMouseLeftUp)
 EVT_RIGHT_DOWN(GLCanvas::OnMouseRightDown)
 EVT_RIGHT_UP(GLCanvas::OnMouseRightUp)
 EVT_MOTION(GLCanvas::OnMouseMove)
+EVT_MOUSEWHEEL(GLCanvas::OnMouseWheel)
 END_EVENT_TABLE()
 // clang-format on
 
@@ -394,7 +395,7 @@ void GLCanvas::OnMouseRightDown(wxMouseEvent& event)
     SetFocus();
     auto& inputManager = engine->GetEngineContext().GetInputManager();
     inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT);
-    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT}, true);
+    // wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{WxEditor::WxKeySpecialKodes::WX_MOUSE_RIGHT}, true);
 }
 
 void GLCanvas::OnMouseMove(wxMouseEvent& evt)
@@ -405,6 +406,24 @@ void GLCanvas::OnMouseMove(wxMouseEvent& evt)
     if (wxWindowApi)
     {
         wxWindowApi->OnMouseMove(evt);
+    }
+}
+
+void GLCanvas::OnMouseWheel(wxMouseEvent& event)
+{
+    if (not engine)
+        return;
+
+    if (wxWindowApi)
+    {
+        int rotation = event.GetWheelRotation();
+        int delta    = rotation / event.GetWheelDelta();
+
+        auto& inputManager = engine->GetEngineContext().GetInputManager();
+        if (delta > 0)
+            inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, WxEditor::WxKeySpecialKodes::WX_MOUSE_MIDDLE);
+        else
+            inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, WxEditor::WxKeySpecialKodes::WX_MOUSE_MIDDLE);
     }
 }
 
@@ -576,4 +595,8 @@ void GLCanvas::SetCameraStartupPosition(const vec3& position, const vec3& lookAt
 {
     cameraPositionStartup = position;
     cameraLookAtStartup   = lookAt;
+}
+GameEngine::CameraEditor* GLCanvas::GetCameraEditor()
+{
+    return cameraEditorPtr;
 }

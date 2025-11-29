@@ -25,7 +25,7 @@ public:
     float GetViewDistance() const override;
     float GetAspectRatio() const override;
     vec4 GetBufferParams() const override;
-    void SubscribeForGlobalConfigChange();
+    void SubscribeForGlobalConfigChange() override;
 
 protected:
     float CalculateAspectRatio() const;

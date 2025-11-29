@@ -169,14 +169,19 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOOL_ANIMATION_VIEWER, MainFrame::OnToolAnimationViewer)
     EVT_MENU(ID_TOOL_BUILD, MainFrame::OnBuildCmponents)
     EVT_MENU(ID_TOOL_TERRAIN_PANEL, MainFrame::OnToggleTerrainPanel)
+    EVT_MENU(ID_TOOL_LOOK_AT_TOP,        MainFrame::OnLookAtTop)
+    EVT_MENU(ID_TOOL_LOOK_AT_BOTTOM,     MainFrame::OnLookAtBottom)
+    EVT_MENU(ID_TOOL_LOOK_AT_FRONT,      MainFrame::OnLookAtFront)
+    EVT_MENU(ID_TOOL_LOOK_AT_BACK,       MainFrame::OnLookAtBack)
+    EVT_MENU(ID_TOOL_LOOK_AT_LEFT,       MainFrame::OnLookAtLeft)
+    EVT_MENU(ID_TOOL_LOOK_AT_RIGHT,      MainFrame::OnLookAtRight)
+    EVT_MENU(ID_TOOL_LOOK_AT_PERSPECTIVE, MainFrame::OnLookAtPerspective)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 // clang-format on
 {
-    // Init();
-    LOG_DEBUG << "xx";
 }
 
 MainFrame::~MainFrame()
@@ -1057,6 +1062,22 @@ void MainFrame::CreateToolBarForEngine()
     timeSlider = new wxSlider(toolbar, wxID_ANY, 0, 0, 1440, wxDefaultPosition, wxSize(200, -1), wxSL_HORIZONTAL);
     toolbar->AddControl(timeSlider);
 
+    toolbar->AddTool(ID_TOOL_LOOK_AT_TOP, "Top", wxArtProvider::GetBitmap(wxART_GO_UP, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_LOOK_AT_BOTTOM, "Bottom", wxArtProvider::GetBitmap(wxART_GO_DOWN, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_LOOK_AT_FRONT, "Front", wxArtProvider::GetBitmap(wxART_GO_FORWARD, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_LOOK_AT_BACK, "Back", wxArtProvider::GetBitmap(wxART_GO_BACK, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_LOOK_AT_LEFT, "Left", wxArtProvider::GetBitmap(wxART_UNDO, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_LOOK_AT_RIGHT, "Right", wxArtProvider::GetBitmap(wxART_REDO, wxART_TOOLBAR));
+    toolbar->AddTool(ID_TOOL_LOOK_AT_PERSPECTIVE, "Perspective", wxArtProvider::GetBitmap(wxART_FIND, wxART_TOOLBAR));
+
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_TOP, "Look at Top view");
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_BOTTOM, "Look at Bottom view");
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_FRONT, "Look at Front view");
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_BACK, "Look at Back view");
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_LEFT, "Look at Left view");
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_RIGHT, "Look at Right view");
+    toolbar->SetToolShortHelp(ID_TOOL_LOOK_AT_PERSPECTIVE, "Switch to Perspective view");
+
     toolbar->Realize();
 
     timeSlider->Bind(wxEVT_SLIDER,
@@ -1506,6 +1527,75 @@ void MainFrame::OnToggleTerrainPanel(wxCommandEvent& event)
     return;
 }
 
+void MainFrame::OnLookAtTop(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->LookAtTop(targetPos);
+    }
+}
+
+void MainFrame::OnLookAtBottom(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->LookAtBottom(targetPos);
+    }
+}
+
+void MainFrame::OnLookAtFront(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->LookAtFront(targetPos);
+    }
+}
+
+void MainFrame::OnLookAtBack(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->LookAtBack(targetPos);
+    }
+}
+
+void MainFrame::OnLookAtLeft(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->LookAtLeft(targetPos);
+    }
+}
+
+void MainFrame::OnLookAtRight(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->LookAtRight(targetPos);
+    }
+}
+
+void MainFrame::OnLookAtPerspective(wxCommandEvent&)
+{
+    if (auto* cameraEditor = canvas->GetCameraEditor())
+    {
+        auto targetPos = GetSelectedGameObject() ? std::make_optional(GetSelectedGameObject()->GetWorldTransform().GetPosition())
+                                                 : std::nullopt;
+        cameraEditor->SetPerspectiveView(targetPos);
+    }
+}
 bool MainFrame::SaveSceneAs()
 {
     wxFileDialog fileDialog(this, "Wybierz plik", ProjectManager::GetInstance().GetScenesDir().string(), "",

@@ -19,6 +19,7 @@
 #include <memory>
 #include <string>
 
+#include "DebugTools/EditorInterface/CameraEditor.h"
 #include "WxOpenGLApiWrapper.h"
 
 namespace WxEditor
@@ -57,6 +58,7 @@ public:
     void EnablePicker();
     vec3 GetWorldPosFromCamera();
     void SetCameraStartupPosition(const vec3&, const vec3&);
+    GameEngine::CameraEditor* GetCameraEditor();
 
 private:
     wxGLContext* context;
@@ -77,6 +79,8 @@ private:
     void OnMouseRightUp(wxMouseEvent&);
     void OnMouseRightDown(wxMouseEvent&);
     void OnMouseMove(wxMouseEvent&);
+    void OnMouseWheel(wxMouseEvent&);
+
     void SetupCamera();
 
     DECLARE_EVENT_TABLE()
@@ -84,7 +88,7 @@ private:
     bool useMousePicker{true};
     bool addStartupObjects;
 
-    GameEngine::ICamera* cameraEditorPtr{nullptr};
+    GameEngine::CameraEditor* cameraEditorPtr{nullptr};
     OnStartupDone onStartupDone;
     SelectItemInGameObjectTree selectItemInGameObjectTree;
     WxEditor::WxWindowApi* wxWindowApi{nullptr};

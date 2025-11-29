@@ -1,5 +1,6 @@
 #pragma once
 #include <gmock/gmock.h>
+
 #include "GameEngine/Camera/ICamera.h"
 #include "Types.h"
 
@@ -45,5 +46,6 @@ public:
 
     MOCK_METHOD(IdType, SubscribeOnChange, (std::function<void(const ICamera&)>), (override));
     MOCK_METHOD(void, UnsubscribeOnChange, (IdType), (override));
+    MOCK_METHOD(void, SetDirectionAndUp, (const vec3&, const vec3&), (override));
 };
 }  // namespace GameEngine

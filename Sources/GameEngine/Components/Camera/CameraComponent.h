@@ -99,6 +99,8 @@ public:
     void SetRotation(const Rotation&) override;
     void SetPosition(const vec3&) override;
 
+    void SetDirectionAndUp(const vec3& dir, const vec3& up) override;
+
     IdType SubscribeOnChange(std::function<void(const ICamera&)>) override;
     void UnsubscribeOnChange(IdType) override;
 

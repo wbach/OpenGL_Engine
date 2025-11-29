@@ -57,7 +57,11 @@ public:
     IdType SubscribeOnChange(std::function<void(const ICamera&)>) override;
     void UnsubscribeOnChange(IdType) override;
 
+    void SetDirectionAndUp(const vec3& dir, const vec3& up) override;
+
     void NotifySubscribers();
+
+    glm::vec3 GetForward() const;
 
 protected:
     void CalculateDirection();
@@ -66,7 +70,7 @@ protected:
 protected:
     bool lock_;
 
-private:
+protected:
     Utils::IdPool idPool_;
     std::vector<std::pair<uint32, std::function<void(const ICamera&)>>> subscribers_;
 

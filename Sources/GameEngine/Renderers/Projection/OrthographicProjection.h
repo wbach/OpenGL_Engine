@@ -1,5 +1,6 @@
 #pragma once
 #include <Types.h>
+
 #include "Projection.h"
 
 namespace GameEngine
@@ -10,5 +11,11 @@ public:
     using Projection::Projection;
 
     void UpdateMatrix() override;
+    void SetZoom(float );
+    float IncreaseZoom(float);
+    float DecreaseZoom(float);
+
+private:
+    float zoom{1.f};
 };
 }  // namespace GameEngine

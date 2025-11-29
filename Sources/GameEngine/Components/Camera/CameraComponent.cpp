@@ -235,6 +235,7 @@ void CameraComponent::SetPitch(float angle)
 void CameraComponent::SetRotation(const Rotation& rotation)
 {
     thisObject_.SetWorldRotation(rotation);
+    CalculateDirection();
 }
 float CameraComponent::GetYaw() const
 {
@@ -309,6 +310,12 @@ const vec3& CameraComponent::GetPosition() const
 const Rotation& CameraComponent::GetRotation() const
 {
     return thisObject_.GetWorldTransform().GetRotation();
+}
+void CameraComponent::SetDirectionAndUp(const vec3& dir, const vec3& up)
+{
+    auto rotation = Utils::createQuaternionFromDirectionUp(dir, up);
+    SetRotation(rotation);
+    CalculateDirection();
 }
 void CameraComponent::UpdateImpl()
 {

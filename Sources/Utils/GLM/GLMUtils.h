@@ -58,6 +58,7 @@ float BarryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3
 double BarryCentric(const glm::dvec3& p1, const glm::dvec3& p2, const glm::dvec3& p3, const glm::dvec2& pos);
 mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition);
 Quaternion lookAt(const vec3& lookAtPosition, const vec3& position);
+Quaternion createQuaternionFromDirectionUp(const vec3& direction, const vec3& up);
 
 std::tuple<vec3, Quaternion, vec3> decompose(const mat4&);
 std::tuple<vec3, Quaternion, vec3, vec3, vec4> fullDecompose(const mat4&);

@@ -234,4 +234,15 @@ const IProjection& Camera::GetProjection() const
 {
     return *projection_;
 }
+void Camera::SetDirectionAndUp(const vec3& dir, const vec3& up)
+{
+    rotation_.value_ = Utils::createQuaternionFromDirectionUp(dir, up);
+    CalculateDirection();
+    UpdateMatrix();
+    NotifySubscribers();
+}
+glm::vec3 Camera::GetForward() const
+{
+    return rotation_.value_ * glm::vec3(0, 0, -1);
+}
 }  // namespace GameEngine

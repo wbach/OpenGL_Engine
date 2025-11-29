@@ -6,14 +6,27 @@ namespace GameEngine
 {
 void OrthographicProjection::UpdateMatrix()
 {
-    float w = static_cast<float>(renderingSize_.x);
-    float h = static_cast<float>(renderingSize_.y);
+    float halfHeight = zoom * 10.f; // np. 10 jednostek świata
+    float halfWidth  = halfHeight * GetAspectRatio();
 
-    float left   = -w * 0.5f;
-    float right  = w * 0.5f;
-    float bottom = -h * 0.5f;
-    float top    = h * 0.5f;
-
-    matrix_ = glm::ortho(left, right, bottom, top, nearPlane_, farPlane_);
+    matrix_ = glm::ortho(-halfWidth, halfWidth,
+                         -halfHeight, halfHeight,
+                         nearPlane_, farPlane_);
+}
+void OrthographicProjection::SetZoom(float z)
+{
+    zoom = std::max(0.01f, z);
+}
+float OrthographicProjection::IncreaseZoom(float dz)
+{
+    zoom += dz;
+    zoom = std::max(0.01f, zoom);
+    return zoom;
+}
+float OrthographicProjection::DecreaseZoom(float dz)
+{
+    zoom -= dz;
+    zoom = std::max(0.01f, zoom);
+    return zoom;
 }
 }  // namespace GameEngine
