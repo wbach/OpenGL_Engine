@@ -15,6 +15,8 @@
 #include <filesystem>
 #include <memory>
 
+#include "WxEditor/Commands/TransformCommand.h"
+#include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -539,6 +541,13 @@ void GLCanvas::GameObjectSelectChange(GameEngine::GameObject& gameObject)
 
 void GLCanvas::ResetDragObject()
 {
+    if (dragGameObject)
+    {
+        const auto& gameObject = dragGameObject->GetGameObject();
+        auto cmd = std::make_unique<TransformCommand>(GetScene(), gameObject.GetId(), dragGameObject->GetObjectStartupTransfrom(),
+                                                      gameObject.GetLocalTransform());
+        UndoManager::Get().Push(std::move(cmd));
+    }
     dragGameObject.reset();
 }
 

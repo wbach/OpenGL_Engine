@@ -28,9 +28,12 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 #include <magic_enum/magic_enum.hpp>
+#include <memory>
 #include <string>
 
 #include "AnimationViewer/AnimationViwerIcon.h"
+#include "Commands/TransformCommand.h"
+#include "Commands/UndoManager.h"
 #include "ComponentPanel/BuildComponentLogFrame.h"
 #include "ComponentPanel/BuildProcess.h"
 #include "ComponentPanel/ComponentPanel.h"
@@ -42,6 +45,7 @@
 #include "ProjectManager.h"
 #include "ProjectPanel/ProjectPanel.h"
 #include "TerrainTool/TerrainToolPanel.h"
+#include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -338,6 +342,29 @@ void MainFrame::Init()
              canvas->GetEngine().getExternalComponentsReader().Reload(event.GetFile());
              AddGameObjectComponentsToView(event.GetGameObject());
          });
+
+    {
+        wxAcceleratorEntry entries[3];
+        entries[0].Set(wxACCEL_CTRL, (int)'Z', ID_UNDO);
+        entries[1].Set(wxACCEL_CTRL, (int)'Y', ID_REDO);
+        entries[2].Set(wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO);
+        wxAcceleratorTable accel(3, entries);
+        SetAcceleratorTable(accel);
+        Bind(wxEVT_MENU, &MainFrame::OnUndo, this, ID_UNDO);
+        Bind(wxEVT_MENU, &MainFrame::OnRedo, this, ID_REDO);
+    }
+}
+
+void MainFrame::OnUndo(wxCommandEvent& event)
+{
+    LOG_DEBUG << "";
+    UndoManager::Get().Undo();
+}
+
+void MainFrame::OnRedo(wxCommandEvent& event)
+{
+    LOG_DEBUG << "";
+    UndoManager::Get().Redo();
 }
 
 void MainFrame::LockAllComponentPanels()
@@ -1714,6 +1741,8 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
             [&](const auto& label, const auto& v)
             {
                 auto gameObject = canvas.GetScene().GetGameObject(gameObjectId);
+
+                auto oldTransform = gameObject->GetLocalTransform();
                 if (gameObject)
                 {
                     if (label == LABEL_POSITION)
@@ -1750,6 +1779,10 @@ TransfromSubController::TransfromSubController(GLCanvas& canvas, TransformPanel*
                         }
                     }
                 }
+
+                auto cmd = std::make_unique<TransformCommand>(canvas.GetScene(), gameObject->GetId(), oldTransform,
+                                                              gameObject->GetLocalTransform());
+                UndoManager::Get().Push(std::move(cmd));
             });
     }
 }

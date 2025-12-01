@@ -82,6 +82,7 @@ public:
 
     inline const ComponentsContainer& GetComponents() const;
 
+    void SetLocalTransform(const common::Transform&);
     const common::Transform& GetLocalTransform() const;
     const common::Transform& GetWorldTransform() const;
 

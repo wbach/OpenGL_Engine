@@ -164,6 +164,8 @@ private:
     void OnLookAtLeft(wxCommandEvent& event);
     void OnLookAtRight(wxCommandEvent& event);
     void OnLookAtPerspective(wxCommandEvent& event);
+    void OnUndo(wxCommandEvent& event);
+    void OnRedo(wxCommandEvent& event);
 
     bool SaveSceneAs();
     void SaveSceneAs(const std::string&);

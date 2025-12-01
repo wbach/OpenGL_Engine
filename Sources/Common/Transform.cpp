@@ -42,6 +42,16 @@ Transform::Transform(const Transform& t)
 {
 }
 
+Transform& Transform::operator=(const Transform& t)
+{
+    context_     = t.context_;
+    snapshoot_   = t.snapshoot_;
+    matrix_      = t.matrix_;
+    idPool_      = t.idPool_;
+    subscribers_ = t.subscribers_;
+    return *this;
+}
+
 uint32 Transform::SubscribeOnChange(std::function<void(const Transform&)> callback)
 {
     std::lock_guard<std::mutex> lk(subscribeMutex_);
@@ -55,8 +65,7 @@ void Transform::UnsubscribeOnChange(uint32 id)
     if (not subscribers_.empty())
     {
         std::lock_guard<std::mutex> lk(subscribeMutex_);
-        auto iter =
-            std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto& pair) { return pair.first == id; });
+        auto iter = std::find_if(subscribers_.begin(), subscribers_.end(), [id](auto& pair) { return pair.first == id; });
 
         if (iter != subscribers_.end())
         {

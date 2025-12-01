@@ -19,6 +19,7 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
     , camera_(camera)
     , cameraStartPos_(camera_.GetPosition())
 {
+    startupTransform_ = gameObject.GetLocalTransform();
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
 
     mouseZcoord_ = CalculateMouseZCoord(gameObject_.GetWorldTransform().GetPosition());
@@ -83,5 +84,13 @@ void DragObject::KeyDirectionLock(vec3& newPosition)
         newPosition.x = position.x;
         newPosition.y = position.y;
     }
+}
+const common::Transform& DragObject::GetObjectStartupTransfrom() const
+{
+    return startupTransform_;
+}
+GameObject& DragObject::GetGameObject()
+{
+    return gameObject_;
 }
 }  // namespace GameEngine

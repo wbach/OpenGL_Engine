@@ -501,4 +501,9 @@ void GameObject::RemoveComponent(const Components::IComponent& component)
     if (vec.empty())
         components_.erase(typeId);
 }
+void GameObject::SetLocalTransform(const common::Transform& transfrom)
+{
+    localTransform_ = transfrom;
+    CalculateWorldTransform();
+}
 }  // namespace GameEngine

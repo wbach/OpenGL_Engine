@@ -30,6 +30,7 @@ public:
     Transform(const vec3& pos, const DegreesVec3& rotation);
     Transform(const vec3& pos, const DegreesVec3& rotation, const vec3& scale);
     Transform(const Transform& transform);
+    Transform& operator=(const Transform&);
 
     uint32 SubscribeOnChange(std::function<void(const Transform&)>);
     void UnsubscribeOnChange(uint32);

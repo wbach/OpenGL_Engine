@@ -1,6 +1,8 @@
 #pragma once
 #include <Types.h>
 
+#include "Common/Transform.h"
+
 namespace Input
 {
 class InputManager;
@@ -24,6 +26,8 @@ public:
     ~DragObject();
 
     void Update();
+    const common::Transform& GetObjectStartupTransfrom() const;
+    GameObject& GetGameObject();
 
 private:
     vec3 WorldToScreenPoint(const vec3& point);
@@ -35,6 +39,7 @@ private:
 private:
     Input::InputManager& input_;
     GameObject& gameObject_;
+    common::Transform startupTransform_;
     Components::Rigidbody* rigidbody_;
     const ICamera& camera_;
     vec3 offset_;
