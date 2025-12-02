@@ -13,6 +13,10 @@ const std::string CSTR_Z = "z";
 const std::string CSTR_W = "w";
 }  // namespace
 
+TreeNode::TreeNode()
+    : TreeNode("unknown")
+{
+}
 TreeNode::TreeNode(const std::string& name)
     : parent(nullptr)
     , type_{"unknown"}

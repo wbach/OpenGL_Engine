@@ -12,9 +12,12 @@
 #include <Logger/Log.h>
 #include <wx/dcclient.h>
 
+#include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <filesystem>
 #include <memory>
 
+#include "WxEditor/Commands/AddObjectCommand.h"
+#include "WxEditor/Commands/RemoveObjectCommand.h"
 #include "WxEditor/Commands/TransformCommand.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ProjectManager.h"
@@ -258,7 +261,7 @@ GameEngine::GameObject* GLCanvas::addPrimitive(GameEngine::PrimitiveType type, c
     obj->SetLocalPosition(pos);
     obj->SetLocalScale(scale);
     auto result = obj.get();
-    GetScene().AddGameObject(std::move(obj));
+    AddGameObject(std::move(obj));
 
     return result;
 }
@@ -436,32 +439,29 @@ std::string GLCanvas::getGlInfo() const
     return "GL version:" + ver + "\nGLSL: version" + glslver;
 }
 
-std::optional<IdType> GLCanvas::AddGameObject(const GameEngine::File& file, GameEngine::GameObject* parent)
+void GLCanvas::AddGameObject(std::unique_ptr<GameEngine::GameObject> go, GameEngine::GameObject* parent)
 {
-    if (engine)
+    if (auto scene = engine->GetSceneManager().GetActiveScene())
     {
-        auto scene                        = engine->GetSceneManager().GetActiveScene();
-        auto newGameObject                = scene->CreateGameObject(file.GetBaseName());
-        auto& rendererComponent           = newGameObject->AddComponent<Components::RendererComponent>();
-        auto& animator                    = newGameObject->AddComponent<Components::Animator>();
-        animator.startupAnimationClipName = "noname";
-        rendererComponent.AddModel(file.GetAbsolutePath().string());
+        auto ptr = std::make_unique<AddObjectCommand>(*scene, *go);
+        UndoManager::Get().Push(std::move(ptr));
 
-        newGameObject->SetLocalPosition(GetWorldPosFromCamera());
-
-        auto result = newGameObject->GetId();
-
-        if (not parent)
-        {
-            scene->AddGameObject(std::move(newGameObject));
-        }
-        else
-        {
-            scene->AddGameObject(*parent, std::move(newGameObject));
-        }
-        return result;
+        scene->AddGameObject(std::move(go), parent);
     }
-    return std::nullopt;
+}
+
+void GLCanvas::RemoveGameObject(IdType gameObjectId)
+{
+    if (auto scene = engine->GetSceneManager().GetActiveScene())
+    {
+        if (auto go = scene->GetGameObject(gameObjectId))
+        {
+            auto ptr = std::make_unique<RemoveObjectCommand>(*scene, *go);
+            UndoManager::Get().Push(std::move(ptr));
+        }
+
+        scene->RemoveGameObject(gameObjectId);
+    }
 }
 
 void GLCanvas::CreateNewScene()
@@ -498,6 +498,8 @@ void GLCanvas::CreateNewScene()
                         directionLightGo->SetWorldPosition(vec3(1000, 1500, 1000));
                         scene->AddGameObject(std::move(directionLightGo));
                     }
+
+                    UndoManager::Get().Clear();
                 }
             });
     }
@@ -512,6 +514,8 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
     {
         return false;
     }
+
+    UndoManager::Get().Clear();
     cameraEditorPtr = nullptr;
     const auto name = file.GetBaseName();
     wxSceneFactory->AddScene(name, file);

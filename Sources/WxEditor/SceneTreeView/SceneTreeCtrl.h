@@ -4,7 +4,9 @@
 #include <wx/treectrl.h>
 
 #include <functional>
+#include <unordered_map>
 #include "DisableHelper.h"
+#include "TreeNode.h"
 
 namespace GameEngine
 {

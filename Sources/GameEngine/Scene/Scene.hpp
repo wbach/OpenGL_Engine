@@ -78,8 +78,7 @@ public:
     std::unique_ptr<Prefab> CreatePrefabGameObject(const std::string&, const std::optional<IdType>& = std::nullopt);
 
     // Add Entities
-    void AddGameObject(std::unique_ptr<GameObject>);
-    void AddGameObject(GameObject&, std::unique_ptr<GameObject>);
+    void AddGameObject(std::unique_ptr<GameEngine::GameObject>, GameEngine::GameObject* = nullptr);
 
     void ChangeParent(IdType, IdType);
     void ChangeParent(GameObject&, GameObject&);

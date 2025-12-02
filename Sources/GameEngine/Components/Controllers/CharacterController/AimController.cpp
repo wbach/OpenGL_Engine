@@ -169,7 +169,7 @@ void AimController::createArrowObject()
     arrowObject->AddComponent<Components::RendererComponent>().AddModel(path);
     arrowObject->AddComponent<Components::ArrowController>().setCameraComponent(thridPersonCameraComponent);
     arrowGameObject = arrowObject.get();
-    scene.AddGameObject(gameObject, std::move(arrowObject));
+    scene.AddGameObject(std::move(arrowObject), &gameObject);
     arrowGameObject->SetWorldScale(vec3(0.75f));
     auto joint = animator->GetJoint("mixamorig:RightHand");
     if (joint)

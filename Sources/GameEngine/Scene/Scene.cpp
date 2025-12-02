@@ -442,26 +442,25 @@ void Scene::UnSubscribeForSceneEvent(IdType id)
     eventSubscribers.erase(id);
 }
 
-void Scene::AddGameObject(std::unique_ptr<GameObject> object)
-{
-    LOG_DEBUG << "AddGameObject to queue: " << object->GetName();
-    AddGameObjectEvent event{.parentGameObject = rootGameObject_->GetId(), .gameObject = std::move(object)};
-    SendEvent(std::move(event));
-}
-
-void Scene::AddGameObject(GameObject& parent, std::unique_ptr<GameObject> object)
+void Scene::AddGameObject(std::unique_ptr<GameObject> object, GameObject* parent)
 {
     LOG_DEBUG << "AddGameObject to queue: " << object->GetName();
 
-    if (GetGameObject(parent.GetId()) != nullptr)
+    if (parent and GetGameObject(parent->GetId()) != nullptr)
     {
-        AddGameObjectEvent event{.parentGameObject = parent.GetId(), .gameObject = std::move(object)};
+        // Parent already exist in scene
+        AddGameObjectEvent event{.parentGameObject = parent->GetId(), .gameObject = std::move(object)};
         SendEvent(std::move(event));
+    }
+    else if (parent)
+    {
+        LOG_DEBUG << "Parent object is not added to scene. AddChild directly.";
+        parent->AddChild(std::move(object));
     }
     else
     {
-        LOG_DEBUG << "Parent object is not added to scene. AddChild directly.";
-        parent.AddChild(std::move(object));
+        AddGameObjectEvent event{.parentGameObject = rootGameObject_->GetId(), .gameObject = std::move(object)};
+        SendEvent(std::move(event));
     }
 }
 

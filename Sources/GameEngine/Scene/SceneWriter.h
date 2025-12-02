@@ -9,4 +9,5 @@ class GameObject;
 
 TreeNode createTree(const Scene&);
 TreeNode createPrefab(const GameObject&);
+void Create(TreeNode&, const GameObject&);
 }  // namespace GameEngine

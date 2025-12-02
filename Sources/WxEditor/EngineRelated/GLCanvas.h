@@ -6,7 +6,6 @@
 #include <GameEngine/Engine/Engine.h>
 #include <GameEngine/Physics/Bullet/BulletAdapter.h>
 #include <GameEngine/Scene/SceneFactoryBase.h>
-#include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <GameEngine/Scene/Scene.hpp>
 #include <GameEngine/Scene/ISceneStorage.h>
 
@@ -20,6 +19,7 @@
 #include <string>
 
 #include "DebugTools/EditorInterface/CameraEditor.h"
+#include "Types.h"
 #include "WxOpenGLApiWrapper.h"
 
 namespace WxEditor
@@ -47,7 +47,10 @@ public:
     void CreateNewScene();
     bool OpenScene(const GameEngine::File&, std::function<void()>);
     std::string getGlInfo() const;
-    std::optional<IdType> AddGameObject(const GameEngine::File&, GameEngine::GameObject* = nullptr);
+
+    void AddGameObject(std::unique_ptr<GameEngine::GameObject>, GameEngine::GameObject* = nullptr);
+    void RemoveGameObject(IdType);
+
     void GameObjectSelectChange(GameEngine::GameObject&);
     void ResetDragObject();
     GameEngine::GameObject& GetRootObject();
@@ -94,8 +97,8 @@ private:
     WxEditor::WxWindowApi* wxWindowApi{nullptr};
     WxEditor::WxEditorSceneFactory* wxSceneFactory{nullptr};
     std::unique_ptr<GameEngine::Engine> engine;
-    std::unique_ptr<GameEngine::ISceneStorage> sceneCache;
-    std::optional<IdType> cameraId;
+    // std::unique_ptr<GameEngine::ISceneStorage> sceneCache;
+    // std::optional<IdType> cameraId;
     std::unique_ptr<GameEngine::DragObject> dragGameObject;
     std::unique_ptr<GameEngine::MousePicker> mousePicker;
 

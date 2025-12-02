@@ -1,5 +1,6 @@
 #include "MainFrame.h"
 
+#include <GameEngine/Components/Animation/Animator.h>
 #include <GameEngine/Components/Camera/CameraComponent.h>
 #include <GameEngine/Components/FunctionType.h>
 #include <GameEngine/Components/Lights/DirectionalLightComponent.h>
@@ -25,6 +26,7 @@
 #include <wx/statbmp.h>
 #include <wx/stdpaths.h>
 
+#include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 #include <magic_enum/magic_enum.hpp>
@@ -606,7 +608,7 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
         auto worldScale    = gameObject->GetWorldTransform().GetScale();
         LOG_DEBUG << "NewGameObj add: " << name;
 
-        scene.AddGameObject(*parentGameObject, std::move(gameObject));
+        canvas->AddGameObject(std::move(gameObject), parentGameObject);
         scene.SendEvent(
             GameEngine::ModifyGameObjectEvent{.gameObjectId   = go->GetId(),
                                               .worldTransform = GameEngine::ModifyGameObjectEvent::SetTransform{
@@ -615,7 +617,7 @@ GameEngine::GameObject* MainFrame::AddGameObject(const std::string& name, IdType
     else
     {
         LOG_DEBUG << ("NewGameObj add");
-        canvas->GetScene().AddGameObject(std::move(gameObject));
+        canvas->AddGameObject(std::move(gameObject));
     }
 
     gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(result->GetId());
@@ -655,7 +657,7 @@ void MainFrame::MenuEditCreateTerrain(wxCommandEvent&)
         canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "Terrain" : dlg->GetValue().ToStdString());
     auto& tc = newTerrainGo->AddComponent<GameEngine::Components::TerrainRendererComponent>();
     tc.createHeightMap();
-    canvas->GetScene().AddGameObject(std::move(newTerrainGo));
+    canvas->AddGameObject(std::move(newTerrainGo));
 }
 
 void MainFrame::MenuEditCreateMaterial(wxCommandEvent&)
@@ -1212,10 +1214,28 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
     if (is3dModelFile(file))
     {
         auto parentGameObject = GetSelectedGameObject();
-        if (auto id = canvas->AddGameObject(file, parentGameObject))
+
+        auto& scene                       = canvas->GetScene();
+        auto newGameObject                = scene.CreateGameObject(file.GetBaseName());
+        auto& rendererComponent           = newGameObject->AddComponent<GameEngine::Components::RendererComponent>();
+        auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
+        animator.startupAnimationClipName = "noname";
+        rendererComponent.AddModel(file.GetAbsolutePath().string());
+
+        newGameObject->SetLocalPosition(canvas->GetWorldPosFromCamera());
+
+        auto id = newGameObject->GetId();
+
+        if (not parentGameObject)
         {
-            gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(*id);
+            canvas->AddGameObject(std::move(newGameObject));
         }
+        else
+        {
+            canvas->AddGameObject(std::move(newGameObject), parentGameObject);
+        }
+
+        gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(id);
     }
     else if (isPrefab(file))
     {
@@ -1379,7 +1399,7 @@ void MainFrame::OnDeleteObject(wxCommandEvent& event)
             }
 
             LOG_DEBUG << "Remove gameObject";
-            canvas->GetScene().RemoveGameObject(*gameObjectId);
+            canvas->RemoveGameObject(*gameObjectId);
             RemoveAllComponentPanels();
         }
         else
@@ -1870,7 +1890,7 @@ void MainFrame::MenuEditCreateCamera(wxCommandEvent&)
     auto& cameraComponent = go->AddComponent<GameEngine::Components::CameraComponent>();
     cameraComponent.LookAt(vec3(0));
     go->SetWorldPosition(vec3(2, 2, 2));
-    canvas->GetScene().AddGameObject(std::move(go));
+    canvas->AddGameObject(std::move(go));
 }
 void MainFrame::MenuEditCreateDirectionLight(wxCommandEvent&)
 {
@@ -1883,7 +1903,7 @@ void MainFrame::MenuEditCreateDirectionLight(wxCommandEvent&)
     auto go = canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "Sun" : dlg->GetValue().ToStdString());
     go->AddComponent<GameEngine::Components::DirectionalLightComponent>();
     go->SetWorldPosition(vec3(1000, 1500, 1000));
-    canvas->GetScene().AddGameObject(std::move(go));
+    canvas->AddGameObject(std::move(go));
 }
 void MainFrame::MenuEditCreatePointLight(wxCommandEvent&)
 {
@@ -1897,7 +1917,7 @@ void MainFrame::MenuEditCreatePointLight(wxCommandEvent&)
     go->AddComponent<GameEngine::Components::PointLightComponent>();
 
     go->SetWorldPosition(canvas->GetWorldPosFromCamera());
-    canvas->GetScene().AddGameObject(std::move(go));
+    canvas->AddGameObject(std::move(go));
 }
 void MainFrame::MenuEditCreateSpotLight(wxCommandEvent&)
 {
@@ -1911,7 +1931,7 @@ void MainFrame::MenuEditCreateSpotLight(wxCommandEvent&)
     go->AddComponent<GameEngine::Components::SpotLightComponent>();
 
     go->SetWorldPosition(canvas->GetWorldPosFromCamera());
-    canvas->GetScene().AddGameObject(std::move(go));
+    canvas->AddGameObject(std::move(go));
 }
 void MainFrame::MenuEditCreateCube(wxCommandEvent&)
 {

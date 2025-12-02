@@ -5,6 +5,7 @@
 #include "Command.h"
 #include "Logger/Log.h"
 #include "SingleTon.h"
+#include "TreeNode.h"
 
 class UndoManagerImpl
 {
@@ -56,6 +57,8 @@ public:
 private:
     std::stack<CommandPtr> undoStack;
     std::stack<CommandPtr> redoStack;
+
+    std::unordered_map<IdType, TreeNode> objectCache;
 };
 
 using UndoManager = SingleTon<UndoManagerImpl>;

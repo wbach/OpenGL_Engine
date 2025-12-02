@@ -1,23 +1,25 @@
 #pragma once
 #include <algorithm>
+#include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
-#include <optional>
+
 #include "Types.h"
-#include <string_view>
-#include <filesystem>
 
 typedef std::unordered_map<std::string, std::string> Attributes;
 
 class TreeNode
 {
 public:
+    TreeNode();
     TreeNode(const std::string&);
     TreeNode(const std::string&, const std::string&);
     TreeNode(const TreeNode&);
-    TreeNode &operator=(const TreeNode&);
+    TreeNode& operator=(const TreeNode&);
 
     const std::string& name() const;
     const std::vector<std::unique_ptr<TreeNode>>& getChildren() const;

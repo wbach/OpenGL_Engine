@@ -5,8 +5,12 @@
 #include <wx/menu.h>
 
 #include <GameEngine/Scene/Scene.hpp>
+#include <memory>
 
 #include "DisableHelper.h"
+#include "WxEditor/Commands/AddObjectCommand.h"
+#include "WxEditor/Commands/RemoveObjectCommand.h"
+#include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ControlsIds.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 
@@ -71,6 +75,7 @@ wxTreeItemId SceneTreeCtrl::AppendItem(IdType parent, const wxString &text, IdTy
 
 void SceneTreeCtrl::DeleteAllItems()
 {
+    LOG_DEBUG << "";
     gameObjectsView->DeleteAllItems();
     itemIdToObjectId.Clear();
     CreateRootGameObject();
@@ -359,6 +364,8 @@ void SceneTreeCtrl::ProcessEvent(const GameEngine::AddGameObjectNotifEvent &even
     {
         SelectItem(item);
     }
+
+
 }
 void SceneTreeCtrl::ProcessEvent(const GameEngine::RemoveGameObjectEvent &event)
 {

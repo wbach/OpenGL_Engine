@@ -43,7 +43,7 @@ CharacterControllerTests::CharacterControllerTests()
     auto weaponPtr =
         std::make_unique<GameObject>("WeaponObjName", componentController_, componentFactory_, gameObjectIdPool, IdType(1));
     weaponPtr->AddComponent<BowPoseUpdater>();
-    scene.AddGameObject(*obj_, std::move(weaponPtr));
+    scene.AddGameObject(std::move(weaponPtr), obj_.get());
 
     sut_.ReqisterFunctions();
 

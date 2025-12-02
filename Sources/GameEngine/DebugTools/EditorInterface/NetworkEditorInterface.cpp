@@ -2157,7 +2157,7 @@ std::optional<uint32> NetworkEditorInterface::AddGameObject(const EntryParameter
             auto worldRotation    = transform.GetRotation();
             auto worldScale       = transform.GetScale();
 
-            scene_.AddGameObject(*parentGameObject, std::move(gameObject));
+            scene_.AddGameObject(std::move(gameObject), parentGameObject);
             go->SetWorldPositionRotationScale(worldPosition, worldRotation, worldScale);
         }
         else
