@@ -10,6 +10,7 @@
 #include <GameEngine/Components/Renderer/Entity/RendererComponent.hpp>
 
 #include "WxEditor/EngineRelated/GLCanvas.h"
+#include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 
@@ -24,8 +25,9 @@ MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& 
     {
         canvas->SetCameraStartupPosition(vec3(-3.0f, 0.0f, 0.0f), vec3(0, 0.0, 0));
 
-        auto lightGo                             = canvas->GetScene().CreateGameObject("Light");
-        auto& lightComponent                     = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+        auto lightGo         = canvas->GetScene().CreateGameObject("Light");
+        auto& lightComponent = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+        lightGo->SetWorldPosition(vec3(1000, 1500, 1000));
         lightComponent.isDayNightCycleControlled = false;
         canvas->GetScene().AddGameObject(std::move(lightGo));
 
@@ -38,7 +40,7 @@ MaterialEditorFrame::MaterialEditorFrame(const std::optional<GameEngine::File>& 
         }
     };
     auto selectItem = [](uint32, bool) {};
-    canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem, false);
+    canvas          = new GLCanvas(mainSplitter, onStartupDone, selectItem, WxEditor::EMPTY_SCENE);
 }
 
 void MaterialEditorFrame::Init()

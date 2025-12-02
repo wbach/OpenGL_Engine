@@ -49,6 +49,7 @@
 #include "TerrainTool/TerrainToolPanel.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
+#include "WxEditor/EngineRelated/WxScenesDef.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
 
@@ -248,11 +249,17 @@ void MainFrame::Init()
         }
     };
 
+    std::string sceneToLoad = WxEditor::NEW_SCENE;
+
+    const auto& path = ProjectManager::GetInstance().GetLastOpenedScene();
+    if (not path.empty() and std::filesystem::exists(path))
+    {
+        sceneToLoad = path.string();
+    }
+
     // === Prawy splitter: canvas + panel boczny ===
     rightSplitter = new wxSplitterWindow(topSplitter, wxID_ANY);
-
-    // GLCanvas -- UWAGA: parent to rightSplitter (nie topSplitter!)
-    canvas = new GLCanvas(rightSplitter, onStartupDone, selectItemInGameObjectTree);
+    canvas        = new GLCanvas(rightSplitter, onStartupDone, selectItemInGameObjectTree, sceneToLoad);
     canvas->SetDropTarget(new GLCanvasDropTarget([this](const auto& file) { OnFileActivated(file); }));
 
     // Panel boczny obok canvas dla terrain tools

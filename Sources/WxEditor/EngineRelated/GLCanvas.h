@@ -41,7 +41,7 @@ public:
     using SelectItemInGameObjectTree = std::function<void(uint32, bool)>;
     using OnStartupDone              = std::function<void()>;
     using PrentWindow                = wxWindow*;
-    GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree, bool addStartupObjects = true);
+    GLCanvas(PrentWindow, OnStartupDone, SelectItemInGameObjectTree, const std::string&);
     ~GLCanvas();
 
     void CreateNewScene();
@@ -89,8 +89,8 @@ private:
     DECLARE_EVENT_TABLE()
 
     bool useMousePicker{true};
-    bool addStartupObjects;
 
+    const std::string startupSceneName;
     GameEngine::CameraEditor* cameraEditorPtr{nullptr};
     OnStartupDone onStartupDone;
     SelectItemInGameObjectTree selectItemInGameObjectTree;

@@ -31,6 +31,7 @@
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
+#include "WxEditor/EngineRelated/WxScenesDef.h"
 
 AnimationViewerFrame::AnimationViewerFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
@@ -55,6 +56,7 @@ void AnimationViewerFrame::Init()
 
         auto lightGo                             = canvas->GetScene().CreateGameObject("Light");
         auto& lightComponent                     = lightGo->AddComponent<GameEngine::Components::DirectionalLightComponent>();
+        lightGo->SetWorldPosition(vec3(1000, 1500, 1000));
         lightComponent.isDayNightCycleControlled = false;
         canvas->GetScene().AddGameObject(std::move(lightGo));
 
@@ -66,7 +68,7 @@ void AnimationViewerFrame::Init()
     };
     auto selectItemInGameObjectTree = [](uint32, bool) {};
 
-    canvas = new GLCanvas(mainSplitter, onStartupDone, selectItemInGameObjectTree, false);
+    canvas = new GLCanvas(mainSplitter, onStartupDone, selectItemInGameObjectTree, WxEditor::EMPTY_SCENE);
     canvas->SetDropTarget(new AnimationFileDropTarget(this));
 
     wxPanel* rightPanel    = new wxPanel(mainSplitter);

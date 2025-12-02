@@ -20,11 +20,14 @@
 #include "WxEditor/Commands/RemoveObjectCommand.h"
 #include "WxEditor/Commands/TransformCommand.h"
 #include "WxEditor/Commands/UndoManager.h"
+#include "WxEditor/EngineRelated/NewScene.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
+#include "WxEditorSceneFactory.h"
 #include "WxInputManager.h"
 #include "WxKeyEventType.h"
+#include "WxScenesDef.h"
 #include "WxWindowApi.h"
 
 // clang-format off
@@ -47,44 +50,10 @@ END_EVENT_TABLE()
 using namespace GameEngine;
 using namespace GameEngine::Physics;
 
-namespace WxEditor
+namespace
 {
-class WxEditorScene : public GameEngine::Scene
-{
-public:
-    WxEditorScene()
-        : GameEngine::Scene("NewScene")
-    {
-    }
-    ~WxEditorScene() override = default;
-    int Initialize() override
-    {
-        return 0;
-    }
-    void PostInitialize() override
-    {
-    }
-    int Update(float) override
-    {
-        return 0;
-    }
-};
-
-class WxEditorSceneFactory : public GameEngine::SceneFactoryBase
-{
-public:
-    WxEditorSceneFactory()
-    {
-        GameEngine::SceneFactoryBase::AddScene("NewScene", []() { return std::make_unique<WxEditorScene>(); });
-    }
-    void AddScene(const std::string& sceneName, const File& file)
-    {
-        GameEngine::SceneFactoryBase::AddScene(sceneName, file);
-    }
-};
-
 // clang-format off
-const int glAttributes[] = {
+const int wxGlAttributes[] = {
                             WX_GL_RGBA,
                             WX_GL_DOUBLEBUFFER,
                             WX_GL_DEPTH_SIZE,24,
@@ -93,14 +62,15 @@ const int glAttributes[] = {
                             WX_GL_MINOR_VERSION,5,0
                         };
 // clang-format on
-}  // namespace WxEditor
+}  // namespace
 
-GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback, bool addStartupObjects)
-    : wxGLCanvas(parent, wxID_ANY, WxEditor::glAttributes, wxDefaultPosition, wxDefaultSize,
+GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback,
+                   const std::string& startupSceneName)
+    : wxGLCanvas(parent, wxID_ANY, wxGlAttributes, wxDefaultPosition, wxDefaultSize,
                  wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxTAB_TRAVERSAL)
     , context(nullptr)
     , renderTimer(this)
-    , addStartupObjects{addStartupObjects}
+    , startupSceneName{startupSceneName}
     , onStartupDone{onStartupDone}
     , selectItemInGameObjectTree(callback)
 {
@@ -217,23 +187,27 @@ void GLCanvas::OnPaint(wxPaintEvent&)
         engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
                                                       std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
         engine->Init();
-        const auto& path = ProjectManager::GetInstance().GetLastOpenedScene();
-        if (std::filesystem::exists(path))
+
+        auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + startupSceneName);
+        dlg->Show();
+        engine->GetSceneManager().SetOnSceneLoadDone(
+            [this, loadingDialog = dlg]()
+            {
+                SetupCamera();
+                onStartupDone();
+                loadingDialog->Close();
+            });
+
+        if (std::filesystem::exists(startupSceneName) && std::filesystem::is_regular_file(startupSceneName))
         {
-            LOG_DEBUG << "Last opened scene file exist: " << path;
-            auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + path.string());
-            OpenScene(path,
-                      [loadingDialog = dlg, this]
-                      {
-                          onStartupDone();
-                          loadingDialog->Close();
-                      });
-            dlg->Show();
+            GameEngine::File file{startupSceneName};
+            const auto name = file.GetBaseName();
+            wxSceneFactory->AddScene(name, file);
+            engine->GetSceneManager().SetActiveScene(name);
         }
         else
         {
-            LOG_DEBUG << "Create new scene. Last opened scene file not exist: " << path;
-            CreateNewScene();
+            engine->GetSceneManager().SetActiveScene(startupSceneName);
         }
     }
     if (engine)
@@ -468,39 +442,12 @@ void GLCanvas::CreateNewScene()
 {
     if (engine)
     {
-        engine->GetSceneManager().SetActiveScene("NewScene");
+        engine->GetSceneManager().SetActiveScene(WxEditor::NEW_SCENE);
         engine->GetSceneManager().SetOnSceneLoadDone(
             [this]()
             {
                 LOG_DEBUG << "Load scene callback";
-                onStartupDone();
                 SetupCamera();
-
-                if (addStartupObjects)
-                {
-                    addPrimitive(GameEngine::PrimitiveType::Plane, vec3(0.f, 0.f, 0.f), vec3(10.f, 1.f, 10.f));
-                    addPrimitive(GameEngine::PrimitiveType::Cube, vec3(0.f, 1.0f, 0.f));
-
-                    {
-                        auto scene                 = engine->GetSceneManager().GetActiveScene();
-                        auto defaultSceneCamera    = scene->CreateGameObject("DefaultCamera");
-                        auto& cameraComponent      = defaultSceneCamera->AddComponent<Components::CameraComponent>();
-                        cameraComponent.settings   = Components::CameraComponent::Settings::GlobalConfig;
-                        cameraComponent.mainCamera = true;
-                        defaultSceneCamera->SetWorldPosition(vec3(2, 2, 2));
-                        cameraComponent.LookAt(vec3(0));
-                        scene->AddGameObject(std::move(defaultSceneCamera));
-                    }
-                    {
-                        auto scene            = engine->GetSceneManager().GetActiveScene();
-                        auto directionLightGo = scene->CreateGameObject("DirectionLight");
-                        directionLightGo->AddComponent<Components::DirectionalLightComponent>();
-                        directionLightGo->SetWorldPosition(vec3(1000, 1500, 1000));
-                        scene->AddGameObject(std::move(directionLightGo));
-                    }
-
-                    UndoManager::Get().Clear();
-                }
             });
     }
 }
@@ -527,10 +474,7 @@ bool GLCanvas::OpenScene(const GameEngine::File& file, std::function<void()> cal
             SetupCamera();
         });
 
-    LOG_DEBUG << "SetActiveScene: " << name;
     engine->GetSceneManager().SetActiveScene(name);
-
-    LOG_DEBUG << "Return : " << (bool)(engine->GetSceneManager().GetActiveScene() != nullptr);
     return engine->GetSceneManager().GetActiveScene() != nullptr;
 }
 

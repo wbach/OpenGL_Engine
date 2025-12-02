@@ -3,9 +3,17 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ControlsIds.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxOpenGLApiWrapper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxInputManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxEditorSceneFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxKeyEventType.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/EmptyScene.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxWindowApi.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/NewScene.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/TransformCommand.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/UndoManager.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/Command.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/AddObjectCommand.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/Commands/RemoveObjectCommand.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/ProjectsCMakeTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TerrainTool/TerrainToolPanel.h

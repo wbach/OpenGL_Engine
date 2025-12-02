@@ -1,4 +1,6 @@
 set(WxEditorSources
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxEditorSceneFactory.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/NewScene.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxOpenGLApiWrapper.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxInputManager.cpp
