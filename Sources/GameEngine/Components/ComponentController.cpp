@@ -68,6 +68,10 @@ void ComponentController::UnRegisterComponent(ComponentTypeID type, ComponentId 
     if (iter != registredComponents_.end())
     {
         iter->second.erase(id);
+        if (iter->second.empty())
+        {
+            registredComponents_.erase(iter);
+        }
     }
     else
     {

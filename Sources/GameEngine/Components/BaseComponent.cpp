@@ -33,6 +33,7 @@ void BaseComponent::UnregisterFunctions()
     if (componentRegistredId_)
     {
         componentContext_.componentController_.UnRegisterComponent(type_.id, *componentRegistredId_);
+        componentRegistredId_.reset();
     }
     else
     {

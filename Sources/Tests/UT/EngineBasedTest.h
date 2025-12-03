@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "Camera/ICamera.h"
 #include "GameEngine/Components/ComponentContext.h"
 #include "GameEngine/Components/ComponentFactory.h"
 #include "GameEngine/Engine/EngineContext.h"
@@ -49,4 +50,5 @@ public:
     LoaderMock* modelLoaderMock;
     TextureLoaderMock* textureLoader;
     Scene* scene;
+    ICamera* camera;
 };

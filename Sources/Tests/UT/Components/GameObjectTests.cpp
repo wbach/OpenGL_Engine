@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "Components/Animation/Animator.h"
 #include "Components/ComponentsReadFunctions.h"
@@ -10,6 +12,7 @@
 #include "Scene/Scene.hpp"
 #include "Tests/UT/EngineBasedTest.h"
 #include "TreeNode.h"
+#include "Types.h"
 #include "magic_enum/magic_enum.hpp"
 
 using namespace GameEngine;
@@ -22,12 +25,18 @@ namespace
 constexpr char model[] = "testModel.obj";
 constexpr char clip[]  = "testClip";
 
+class TestComponent;
+std::set<IdType> cleanupCalledMap;
+
 class TestComponent : public BaseComponent
 {
 public:
     TestComponent(ComponentContext& componentContext, GameObject& gameObject)
         : BaseComponent(GetComponentType<TestComponent>(), componentContext, gameObject)
     {
+        static IdType sid = 0;
+
+        id = sid++;
     }
 
     // TO DO check register functon are properly invoked
@@ -43,13 +52,12 @@ public:
     }
     void CleanUp() override
     {
-        cleanUpCalled = true;
+        cleanupCalledMap.insert(id);
     }
     void Reload() override
     {
     }
 
-    bool cleanUpCalled{false};
     bool onAwakendCalled{false};
     bool onLateAwakeCalled{false};
     bool onStartCalled{false};
@@ -57,6 +65,8 @@ public:
     bool onUpdateCalled{false};
     bool onPostUpdateCalled{false};
     bool onAlwaysUpdateCalled{false};
+
+    uint32 id = 0;
 };
 }  // namespace
 
@@ -68,6 +78,7 @@ struct GameObjectTestSchould : public EngineBasedTest
     void SetUp() override
     {
         EngineBasedTest::SetUp();
+        cleanupCalledMap.clear();
     }
 
     void verifyComponents()
@@ -164,6 +175,11 @@ TEST_F(GameObjectTestSchould, CreateDeleteGameObjectStability)
     auto& componentController = scene->getComponentController();
     EXPECT_TRUE(componentController.getComponentFunctions().empty());
     EXPECT_TRUE(componentController.getComponentsContainer().empty());
+
+    for(auto& [typeId, components] : componentController.getComponentsContainer())
+    {
+        LOG_DEBUG << "TypeId: " << typeId << " has " << components.size() << " components.";
+    }
 }
 
 TEST_F(GameObjectTestSchould, AddComponentToAwaknedObject)
@@ -269,10 +285,11 @@ TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByType)
     CreateSut();
     scene->Start();
 
-    auto& test = sut_->AddComponent<TestComponent>();
+    auto& test  = sut_->AddComponent<TestComponent>();
+    auto testId = test.id;
     sut_->RemoveComponent<TestComponent>();
 
-    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId));
 }
 
 TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByPtr)
@@ -280,10 +297,11 @@ TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByPtr)
     CreateSut();
     scene->Start();
 
-    auto& test = sut_->AddComponent<TestComponent>();
+    auto& test  = sut_->AddComponent<TestComponent>();
+    auto testId = test.id;
     sut_->RemoveComponent(test);
 
-    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId));
 }
 
 TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByTyeId)
@@ -291,20 +309,22 @@ TEST_F(GameObjectTestSchould, CleanUpDuingRemovalByTyeId)
     CreateSut();
     scene->Start();
 
-    auto& test = sut_->AddComponent<TestComponent>();
+    auto& test  = sut_->AddComponent<TestComponent>();
+    auto testId = test.id;
     sut_->RemoveComponent(test.GetTypeId());
 
-    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId));
 }
 
 TEST_F(GameObjectTestSchould, CleanUpDuingAllComponentsRemoval)
 {
     CreateSut();
     scene->Start();
-    auto& test = sut_->AddComponent<TestComponent>();
+    auto& test  = sut_->AddComponent<TestComponent>();
+    auto testId = test.id;
     sut_->RemoveAllComponents();
 
-    EXPECT_TRUE(test.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId));
 }
 
 TEST_F(GameObjectTestSchould, CleanUpDuingMultipleTheSameComponentsAllRemoval)
@@ -315,11 +335,15 @@ TEST_F(GameObjectTestSchould, CleanUpDuingMultipleTheSameComponentsAllRemoval)
     auto& test2 = sut_->AddComponent<TestComponent>();
     auto& test3 = sut_->AddComponent<TestComponent>();
 
+    auto testId1 = test.id;
+    auto testId2 = test2.id;
+    auto testId3 = test3.id;
+
     sut_->RemoveAllComponents();
 
-    EXPECT_TRUE(test.cleanUpCalled);
-    EXPECT_TRUE(test2.cleanUpCalled);
-    EXPECT_TRUE(test3.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId1));
+    EXPECT_TRUE(cleanupCalledMap.contains(testId2));
+    EXPECT_TRUE(cleanupCalledMap.contains(testId3));
 }
 
 TEST_F(GameObjectTestSchould, CleanUpDuingMultipleTheSameComponentsRemoval)
@@ -330,25 +354,29 @@ TEST_F(GameObjectTestSchould, CleanUpDuingMultipleTheSameComponentsRemoval)
     auto& test2 = sut_->AddComponent<TestComponent>();
     auto& test3 = sut_->AddComponent<TestComponent>();
 
-    EXPECT_FALSE(test.cleanUpCalled);
-    EXPECT_FALSE(test2.cleanUpCalled);
-    EXPECT_FALSE(test3.cleanUpCalled);
+    auto testId1 = test.id;
+    auto testId2 = test2.id;
+    auto testId3 = test3.id;
+
+    EXPECT_FALSE(cleanupCalledMap.contains(testId1));
+    EXPECT_FALSE(cleanupCalledMap.contains(testId2));
+    EXPECT_FALSE(cleanupCalledMap.contains(testId3));
 
     sut_->RemoveComponent(test);
-    EXPECT_TRUE(test.cleanUpCalled);
-    EXPECT_FALSE(test2.cleanUpCalled);
-    EXPECT_FALSE(test3.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId1));
+    EXPECT_FALSE(cleanupCalledMap.contains(testId2));
+    EXPECT_FALSE(cleanupCalledMap.contains(testId3));
 
     sut_->RemoveComponent(test2);
 
-    EXPECT_TRUE(test.cleanUpCalled);
-    EXPECT_TRUE(test2.cleanUpCalled);
-    EXPECT_FALSE(test3.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId1));
+    EXPECT_TRUE(cleanupCalledMap.contains(testId2));
+    EXPECT_FALSE(cleanupCalledMap.contains(testId3));
     sut_->RemoveComponent(test3);
 
-    EXPECT_TRUE(test.cleanUpCalled);
-    EXPECT_TRUE(test2.cleanUpCalled);
-    EXPECT_TRUE(test3.cleanUpCalled);
+    EXPECT_TRUE(cleanupCalledMap.contains(testId1));
+    EXPECT_TRUE(cleanupCalledMap.contains(testId2));
+    EXPECT_TRUE(cleanupCalledMap.contains(testId3));
 
     EXPECT_TRUE(sut_->GetComponents().empty());
 }

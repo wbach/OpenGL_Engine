@@ -35,18 +35,17 @@ const float WORLD_RADIOUS{3.f};
 
 struct PlantPainterShould : public EngineBasedTest
 {
-    PlantPainterShould()
+    void SetUp() override
     {
+        EngineBasedTest::SetUp();
+
         Utils::Image image;
         image.width  = HEIGHTMAP_SIZE;
         image.height = HEIGHTMAP_SIZE;
         image.setChannels(1);
         image.allocateImage<float>();
         heightmap_ = std::make_unique<HeightMap>(*graphicsApi, GameEngine::TextureParameters(), "file", std::move(image));
-    }
-    void SetUp() override
-    {
-        EngineBasedTest::SetUp();
+
         PrepareTerrainComponent();
         LOG_DEBUG << "Setup done";
         CreatePainter(1.f);
@@ -78,8 +77,8 @@ struct PlantPainterShould : public EngineBasedTest
                                                                      GameEngine::WorldSpaceBrushRadius{WORLD_RADIOUS}, strength);
         brush_           = circleBrush.get();
         sut_             = std::make_unique<PlantPainter>(std::move(parameters), selectedPlantTexture, std::move(circleBrush),
-                                              PlantPainter::PaintMode::Terrain, baseColor, colorRandomness, sizeRandomness,
-                                              density, randomness);
+                                                          PlantPainter::PaintMode::Terrain, baseColor, colorRandomness, sizeRandomness,
+                                                          density, randomness);
 
         sut_->Start();
     }

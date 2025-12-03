@@ -21,11 +21,11 @@ struct CameraFrustrumShould : public ::testing::Test
 {
     void SetUp() override
     {
-        camera_ = std::make_unique<Camera>();
+        camera_     = std::make_unique<Camera>();
+        projection_ = dynamic_cast<const PerspectiveProjection*>(&camera_->GetProjection());
     }
     void CalculatePlanes(const vec3& cameraPosition, const vec3& cameraLookAt)
     {
-        projection_ = dynamic_cast<const PerspectiveProjection*>(&camera_->GetProjection());
         camera_->SetPosition(cameraPosition);
         camera_->LookAt(cameraLookAt);
         camera_->UpdateMatrix();

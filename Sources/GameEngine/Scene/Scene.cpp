@@ -49,6 +49,9 @@ Scene::~Scene()
 {
     LOG_DEBUG << "destructor";
     Stop();
+    componentController_.UnRegisterAll();
+
+    events.clear();
 
     if (rootGameObject_)
     {
@@ -56,7 +59,6 @@ Scene::~Scene()
         rootGameObject_->RemoveAllChildren();
         LOG_DEBUG << "All game objects removed";
     }
-    componentController_.UnRegisterAll();
 
     if (guiManager_)
     {

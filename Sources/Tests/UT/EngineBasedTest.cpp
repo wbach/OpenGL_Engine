@@ -3,6 +3,7 @@
 #include <future>
 #include <memory>
 
+#include "GameEngine/Components/Camera/CameraComponent.h"
 #include "GameEngine/Engine/EngineContext.h"
 #include "GameEngine/Resources/Models/WBLoader/IModelLoaderFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
@@ -57,13 +58,16 @@ void EngineBasedTest::SetUp()
     auto textureLoaderMock      = std::make_unique<TextureLoaderMock>();
     textureLoader               = textureLoaderMock.get();
 
-    EXPECT_CALL(*modelLoaderFactoryMock, createLoaders()).WillOnce(::testing::Invoke([&]() {
-        auto loader     = std::make_unique<LoaderMock>(*graphicsApi, *textureLoader);
-        modelLoaderMock = loader.get();
-        LoadersVector v;
-        v.push_back(std::move(loader));
-        return v;
-    }));
+    EXPECT_CALL(*modelLoaderFactoryMock, createLoaders())
+        .WillOnce(::testing::Invoke(
+            [&]()
+            {
+                auto loader     = std::make_unique<LoaderMock>(*graphicsApi, *textureLoader);
+                modelLoaderMock = loader.get();
+                LoadersVector v;
+                v.push_back(std::move(loader));
+                return v;
+            }));
     auto resourceManager = std::make_unique<GameEngine::ResourceManager>(
         *graphicsApi, engineContext->GetGpuResourceLoader(), std::move(textureLoaderMock), std::move(modelLoaderFactoryMock));
 
@@ -94,16 +98,32 @@ void EngineBasedTest::SetUp()
     EXPECT_NE(scene, nullptr);
 
     engineContext->GetSceneManager().StopThread();
+
+    auto cameraPtr             = scene->CreateGameObject("Camera");
+    auto& cameraComponent      = cameraPtr->AddComponent<Components::CameraComponent>();
+    cameraComponent.mainCamera = true;
+    camera                     = &cameraComponent;
+    scene->AddGameObject(std::move(cameraPtr));
+    scene->ProcessEvents();
     LOG_DEBUG << "EngineBasedTest::SetUp done";
 }
 
 EngineBasedTest::~EngineBasedTest()
 {
     LOG_DEBUG << "";
+    TearDown();
 }
 
 void EngineBasedTest::TearDown()
 {
+    LOG_DEBUG << "";
+    if (scene)
+    {
+        scene->ProcessEvents();
+        scene->ClearGameObjects();
+        scene->ProcessEvents();
+    }
+
     engineContext.reset();
     scene = nullptr;
 }

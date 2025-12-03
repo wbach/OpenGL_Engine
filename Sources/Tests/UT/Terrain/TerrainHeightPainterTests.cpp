@@ -1,4 +1,4 @@
- #include <GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h>
+#include <GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h>
 
 #include <functional>
 #include <limits>
@@ -32,16 +32,18 @@ struct TerrainHeightPainterShould : public EngineBasedTest
 {
     TerrainHeightPainterShould()
     {
+    }
+    void SetUp() override
+    {
+        EngineBasedTest::SetUp();
+
         Utils::Image image;
         image.width  = HEIGHTMAP_SIZE;
         image.height = HEIGHTMAP_SIZE;
         image.setChannels(1);
         image.allocateImage<float>();
         heightmap_ = std::make_unique<HeightMap>(*graphicsApi, GameEngine::TextureParameters(), "file", std::move(image));
-    }
-    void SetUp() override
-    {
-        EngineBasedTest::SetUp();
+
         PrepareTerrainComponent();
         LOG_DEBUG << "Setup done";
         CreatePainter(1.f);
@@ -142,8 +144,7 @@ void visualizeBrushInWorld(const CircleBrush& brush, const vec3& terrainPosition
 }
 
 void visualizeBrushWorldHeights(const CircleBrush& brush, const vec3& terrainCenter, const TerrainHeightGetter& getter,
-                                float worldRadius,
-                                float step = 0.5f)
+                                float worldRadius, float step = 0.5f)
 {
     LOG_DEBUG << "Visualizing brush (radius=" << worldRadius << ") around center: (" << terrainCenter.x << ", " << terrainCenter.y
               << ", " << terrainCenter.z << ")";

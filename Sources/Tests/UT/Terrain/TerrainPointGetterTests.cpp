@@ -56,6 +56,11 @@ struct TerrainPointGetterShould : public EngineBasedTest, public ::testing::With
 {
     TerrainPointGetterShould()
     {
+    }
+    void SetUp() override
+    {
+        EngineBasedTest::SetUp();
+
         uint32 heightMapSize = 100;
         Utils::Image image;
         image.width  = heightMapSize;
@@ -68,15 +73,8 @@ struct TerrainPointGetterShould : public EngineBasedTest, public ::testing::With
         heightmap_->SetHeight(vec2ui(0, heightMapSize - 1), 10.f);
         heightmap_->SetHeight(vec2ui(heightMapSize - 1, 0), 10.f);
         heightmap_->SetHeight(vec2ui(heightMapSize - 1, heightMapSize - 1), 10.f);
-    }
-    void SetUp() override
-    {
-        EngineBasedTest::SetUp();
-        sut_ = std::make_unique<TerrainPointGetter>(    *scene->GetCameraManager().GetMainCamera(),
-                                                    scene->getComponentController());
-    }
-    void TearDown() override
-    {
+
+        sut_ = std::make_unique<TerrainPointGetter>(*camera, scene->getComponentController());
     }
 
     void PrepareTerrainComponent()
@@ -103,10 +101,9 @@ struct TerrainPointGetterShould : public EngineBasedTest, public ::testing::With
 
 TEST_F(TerrainPointGetterShould, noTerrainExist)
 {
-    auto& camera =     *scene->GetCameraManager().GetMainCamera();
-    camera.SetPosition(vec3(0, 1, 0));
-    camera.LookAt(vec3(0, -1, 0));
-    camera.UpdateMatrix();
+    camera->SetPosition(vec3(0, 1, 0));
+    camera->LookAt(vec3(0, -1, 0));
+    camera->UpdateMatrix();
 
     auto maybePoint = sut_->GetMousePointOnTerrain(vec2(0, 0));
     EXPECT_FALSE(maybePoint.has_value());
@@ -118,10 +115,9 @@ TEST_F(TerrainPointGetterShould, oneTerrainExist)
 
     PrepareTerrainComponent();
 
-    auto& camera =     *scene->GetCameraManager().GetMainCamera();
-    camera.SetPosition(vec3(0, 1, 0));
-    camera.LookAt(vec3(0, -1, 0));
-    camera.UpdateMatrix();
+    camera->SetPosition(vec3(0, 1, 0));
+    camera->LookAt(vec3(0, -1, 0));
+    camera->UpdateMatrix();
 
     auto maybePoint = sut_->GetMousePointOnTerrain(vec2(0, 0));
     LOG_DEBUG << "maybePoint: " << maybePoint;
@@ -138,11 +134,9 @@ TEST_P(TerrainPointGetterShould, DetectTerrainPointCorrectly)
 
     PrepareTerrainComponent();
 
-    auto& camera =     *scene->GetCameraManager().GetMainCamera();
-
-    camera.SetPosition(param.cameraPos);
-    camera.LookAt(param.lookAt);
-    camera.UpdateMatrix();
+    camera->SetPosition(param.cameraPos);
+    camera->LookAt(param.lookAt);
+    camera->UpdateMatrix();
 
     auto maybePoint = sut_->GetMousePointOnTerrain(param.mousePos);
     LOG_DEBUG << "maybePoint: " << maybePoint;
