@@ -177,52 +177,58 @@ void TerrainMeshUpdater::updateModelBoundingBox(Model& model)
 {
     model.updateBoundingBox();
 }
-bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh, uint32 startX, uint32 startY, uint32 endX, uint32 endY)
+bool TerrainMeshUpdater::updatePart(TerrainHeightTools& tools, Mesh& mesh,
+                                    uint32 startX, uint32 startY, uint32 endX, uint32 endY)
 {
     auto& meshData = mesh.GetMeshDataRef();
+
+    uint32 factor = EngineConf.renderer.terrain.resolutionDivideFactor;
+    if (factor == 0) factor = 1;
 
     size_t meshVertexIndex = 0;
     bool isHeightChangedInTerrainPart{false};
 
-    // TO DO: resolutionDivideFactor like in loader // for (uint32 i = y_start; i < height; i += resolutionDivideFactor)
-    for (uint32 i = startY; i < endY; i++)
+    for (uint32 i = startY; i < endY; i += factor)
     {
-        for (uint32 j = startX; j < endX; j++)
+        for (uint32 j = startX; j < endX; j += factor)
         {
             auto hIndex = meshVertexIndex + 1;
+
             if (hIndex >= meshData.positions_.size())
             {
-                LOG_WARN << "Something goes wrong hIndex out of range. hIndex = " << hIndex
-                         << " pos size = " << meshData.positions_.size();
-                continue;
+                LOG_WARN << "updatePart: hIndex out of range: " << hIndex
+                         << " vs positions: " << meshData.positions_.size();
+                return isHeightChangedInTerrainPart;
             }
+
             auto& currentHeight = meshData.positions_[hIndex];
             auto newHeightValue = tools.GetHeight(j, i);
 
-            if (forceToUpdateMesh_ or not compare(currentHeight, newHeightValue))
+            if (forceToUpdateMesh_ || !compare(currentHeight, newHeightValue))
             {
-                currentHeight                           = newHeightValue;
-                isHeightChangedInTerrainPart            = true;
-                auto newNormal                          = tools.GetNormal(j, i);
-                auto newTangent                         = tools.GetTangent(newNormal);
-                meshData.normals_[meshVertexIndex]      = newNormal.x;
-                meshData.normals_[meshVertexIndex + 1]  = newNormal.y;
-                meshData.normals_[meshVertexIndex + 2]  = newNormal.z;
+                currentHeight = newHeightValue;
+                isHeightChangedInTerrainPart = true;
+
+                vec3 newNormal = tools.GetNormal(j, i);
+                vec3 newTangent = tools.GetTangent(newNormal);
+
+                meshData.normals_[meshVertexIndex]     = newNormal.x;
+                meshData.normals_[meshVertexIndex + 1] = newNormal.y;
+                meshData.normals_[meshVertexIndex + 2] = newNormal.z;
+
                 meshData.tangents_[meshVertexIndex]     = newTangent.x;
                 meshData.tangents_[meshVertexIndex + 1] = newTangent.y;
                 meshData.tangents_[meshVertexIndex + 2] = newTangent.z;
             }
-
             meshVertexIndex += 3;
         }
     }
 
     if (isHeightChangedInTerrainPart)
-    {
         mesh.updateBoundingBox();
-    }
 
     return isHeightChangedInTerrainPart;
 }
+
 }  // namespace Components
 }  // namespace GameEngine
