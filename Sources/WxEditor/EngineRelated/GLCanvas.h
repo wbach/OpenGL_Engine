@@ -14,11 +14,11 @@
 // clang-format on
 
 #include <GameEngine/Camera/ICamera.h>
+#include <GameEngine/DebugTools/EditorInterface/CameraEditor.h>
 
 #include <memory>
 #include <string>
 
-#include "DebugTools/EditorInterface/CameraEditor.h"
 #include "Types.h"
 #include "WxOpenGLApiWrapper.h"
 
@@ -62,6 +62,7 @@ public:
     vec3 GetWorldPosFromCamera();
     void SetCameraStartupPosition(const vec3&, const vec3&);
     GameEngine::CameraEditor* GetCameraEditor();
+    bool IsSceneReady() const;
 
 private:
     wxGLContext* context;

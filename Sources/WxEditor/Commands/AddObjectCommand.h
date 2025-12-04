@@ -2,14 +2,14 @@
 
 #include <Common/Transform.h>
 #include <GameEngine/Objects/GameObject.h>
+#include <GameEngine/Scene/SceneReader.h>
+#include <GameEngine/Scene/SceneWriter.h>
 #include <Logger/Log.h>
 #include <Types.h>
 
 #include <GameEngine/Scene/Scene.hpp>
-#include <GameEngine/Scene/SceneWriter.h>
 
 #include "Command.h"
-#include "Scene/SceneReader.h"
 #include "TreeNode.h"
 
 class AddObjectCommand : public Command
@@ -26,10 +26,10 @@ public:
 
     void redo() override
     {
-       GameEngine::SceneReader reader{scene};
-       auto restoredGameObject = scene.CreateGameObject(gameObjectNode.attributes_.at("name"), gameObjectId);
-       reader.Read(gameObjectNode, *restoredGameObject);
-       scene.AddGameObject(std::move(restoredGameObject));
+        GameEngine::SceneReader reader{scene};
+        auto restoredGameObject = scene.CreateGameObject(gameObjectNode.attributes_.at("name"), gameObjectId);
+        reader.Read(gameObjectNode, *restoredGameObject);
+        scene.AddGameObject(std::move(restoredGameObject));
     }
 
     void undo() override

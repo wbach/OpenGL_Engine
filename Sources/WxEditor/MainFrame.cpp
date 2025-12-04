@@ -1252,6 +1252,9 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
 void MainFrame::OnObjectTreeSelChange(wxTreeEvent& event)
 {
+    if (not canvas->IsSceneReady())
+        return;
+
     LOG_DEBUG << "";
     wxTreeItemId itemId = event.GetItem();
     if (not itemId.IsOk())

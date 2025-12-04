@@ -557,3 +557,8 @@ GameEngine::CameraEditor* GLCanvas::GetCameraEditor()
 {
     return cameraEditorPtr;
 }
+
+bool GLCanvas::IsSceneReady() const
+{
+    return cameraEditorPtr != nullptr;
+}
