@@ -49,7 +49,7 @@ const Utils::Image& HeightMap::GetImage() const
 {
     return image_;
 }
-void HeightMap::setImage(Utils::Image image)
+void HeightMap::setImage(Utils::Image&& image)
 {
     std::lock_guard<std::mutex> lk(mutex);
     image_       = std::move(image);
@@ -139,5 +139,10 @@ void HeightMap::SetScale(const vec3& s)
 const vec3& HeightMap::GetScale() const
 {
     return scale_;
+}
+void HeightMap::setImageData(Utils::ImageData&& data)
+{
+    std::lock_guard<std::mutex> lk(mutex);
+    image_.moveData(std::move(data));
 }
 }  // namespace GameEngine

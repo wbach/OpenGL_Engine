@@ -14,7 +14,8 @@ public:
     void GpuLoadingPass() override;
 
     //GraphicsApi::Image& GetImage();
-    void setImage(Utils::Image);
+    void setImage(Utils::Image&&);
+    void setImageData(Utils::ImageData&&);
     const Utils::Image& GetImage() const;
     float GetMaximumHeight() const;
     float GetMinimumHeight() const;

@@ -55,6 +55,10 @@ public:
     {
         data_ = std::move(input);
     }
+    void moveData(ImageData&& input)
+    {
+        data_ = std::move(input);
+    }
 
 private:
     uint8 channels_{4};

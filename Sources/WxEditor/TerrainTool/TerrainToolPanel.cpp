@@ -15,6 +15,7 @@
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/Primitive.h>
 #include <GameEngine/Resources/Textures/GeneralTexture.h>
+#include <GameEngine/Resources/Textures/HeightMap.h>
 #include <Logger/Log.h>
 #include <Types.h>
 #include <Utils/Variant.h>
@@ -40,9 +41,12 @@
 #include <string>
 #include <vector>
 
+#include "Input/KeyCodes.h"
 #include "TerrainSelectionDialog.h"
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
+#include "WxEditor/Commands/HeightPainterCommand.h"
+#include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -280,12 +284,10 @@ ColorPickerResult* CreateColorPickerWithRandomness(wxWindow* parent, wxSizer* si
 
     std::array<int, 3> rgb = {
 #if wxCHECK_VERSION(3, 1, 0)
-        static_cast<int>(defaultColor.GetRed()),
-        static_cast<int>(defaultColor.GetGreen()),
+        static_cast<int>(defaultColor.GetRed()), static_cast<int>(defaultColor.GetGreen()),
         static_cast<int>(defaultColor.GetBlue())
 #else
-        static_cast<int>((defaultColor.GetRGB() >> 16) & 0xFF),
-        static_cast<int>((defaultColor.GetRGB() >> 8) & 0xFF),
+        static_cast<int>((defaultColor.GetRGB() >> 16) & 0xFF), static_cast<int>((defaultColor.GetRGB() >> 8) & 0xFF),
         static_cast<int>(defaultColor.GetRGB() & 0xFF)
 #endif
     };
@@ -654,8 +656,7 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         {
             if (GameEngine::isPaintAbleTexture(type) and texture->GetFile())
             {
-                auto iter = std::find_if(textures.begin(), textures.end(),
-                                         [t = texture->GetFile()](const auto& info)
+                auto iter = std::find_if(textures.begin(), textures.end(), [t = texture->GetFile()](const auto& info)
                                          { return info.file.GetAbsolutePath() == t->GetAbsolutePath(); });
 
                 if (iter != textures.end())
@@ -922,10 +923,10 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
     // === Selected Texture ===
     {
-        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
-        auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::None,
-                                         [this](const GameEngine::File& file)
-                                         { painterFields.texturePainterFields.selectedTextureFile = file; });
+        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
+        auto* texBtn =
+            new TextureButton(panel, std::nullopt, TextureButton::MenuOption::None, [this](const GameEngine::File& file)
+                              { painterFields.texturePainterFields.selectedTextureFile = file; });
 
         texBtn->Bind(wxEVT_LEFT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
         texBtn->Bind(wxEVT_RIGHT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
@@ -1288,6 +1289,19 @@ void TerrainToolPanel::EnablePainter()
             }
             break;
         }
+
+        auto engineContext = scene.getEngineContext();
+        // engineContext->GetInputManager().SubscribeOnKeyDown(KeyCodes::ESCAPE,
+        //                                                    [this]()
+        //                                                    {
+        //                                                        DisablePainter();
+        //                                                    });
+
+        engineContext->GetInputManager().SubscribeOnKeyDown(KeyCodes::LMOUSE,
+                                                           [this]()
+                                                           {
+
+                                                           });
     }
     catch (const std::runtime_error& error)
     {
@@ -1355,6 +1369,7 @@ std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter
         visualizationObject = createPainterVisualizationObject();
 
     visualizationObject->SetWorldScale(vec3(radius.value, 0.1f, radius.value));
+
     heightPainter->SetOnPointChange(
         [this](const auto& terrainPoint)
         {
@@ -1362,6 +1377,20 @@ std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter
                 visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
             else
                 visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+
+            auto engineContext      = scene.getEngineContext();
+            auto lmouseKeyIsPressed = engineContext->GetInputManager().GetMouseKey(KeyCodes::LMOUSE);
+            if (not snapshot and lmouseKeyIsPressed)
+            {
+                snapshot = terrainPoint->terrainComponent->GetHeightMap()->GetImage().getImageData();
+            }
+            else if (snapshot and not lmouseKeyIsPressed)
+            {
+                auto heightPainterCommand =
+                    std::make_unique<HeightPainterCommand>(*terrainPoint->terrainComponent, std::move(snapshot.value()));
+                UndoManager::Get().Push(std::move(heightPainterCommand));
+                snapshot.reset();
+            }
         });
     return heightPainter;
 }

@@ -14,6 +14,7 @@
 #include <optional>
 #include <unordered_map>
 #include <vector>
+#include <Utils/Image/Image.h>
 
 namespace GameEngine
 {
@@ -142,6 +143,8 @@ private:
     std::optional<IdType> sceneEventSubId;
 
     GameEngine::GameObject* visualizationObject{nullptr};
+
+    std::optional<Utils::ImageData> snapshot;
 
     wxDECLARE_EVENT_TABLE();
 };
