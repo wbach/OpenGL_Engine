@@ -48,6 +48,7 @@
 #include "WxEditor/Commands/HeightPainterCommand.h"
 #include "WxEditor/Commands/MultipleBlendmapPainterCommand.h"
 #include "WxEditor/Commands/MultipleHeightPainterCommand.h"
+#include "WxEditor/Commands/PlantPainterCommand.h"
 #include "WxEditor/Commands/TextureCommandEntry.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ProjectManager.h"
@@ -1537,9 +1538,39 @@ std::unique_ptr<GameEngine::PlantPainter> TerrainToolPanel::CreatePlantPainter()
     LOG_DEBUG << " - baseColor: " << baseColor;
     LOG_DEBUG << " - colorRandomness: " << colorRandomness;
 
-    return std::make_unique<GameEngine::PlantPainter>(GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile,
-                                                      std::move(circleBrush), mode, baseColor, colorRandomness, sizeRandomness,
-                                                      density, randomness);
+    auto painter = std::make_unique<GameEngine::PlantPainter>(
+        GetPlantPainterDependencies(scene), *plantPainterFields.selectedTextureFile, std::move(circleBrush), mode, baseColor,
+        colorRandomness, sizeRandomness, density, randomness);
+
+    painter->SetOnPaintCallback(
+        [this](GameEngine::Components::GrassRendererComponent& plantComponent)
+        {
+            auto& snapshotsMap = painterFields.plantPainterFields.snapshotsMap;
+
+            auto iter = snapshotsMap.find(&plantComponent);
+            if (iter == snapshotsMap.end())
+            {
+                snapshotsMap.insert({&plantComponent, plantComponent.GetGrassMeshesData()});
+            }
+        });
+
+    painter->SetOnPaintEndCallback(
+        [this]()
+        {
+            auto& snapshotsMap = painterFields.plantPainterFields.snapshotsMap;
+            PlantPainterCommand::Entries entries;
+            for (auto& [component, snapshot] : snapshotsMap)
+            {
+                entries.push_back(
+                    PlantPainterCommand::Entry{.component = *component, .snapshot = std::move(snapshot)});
+            }
+            snapshotsMap.clear();
+
+            auto plantPainterCommand = std::make_unique<PlantPainterCommand>(std::move(entries));
+            UndoManager::Get().Push(std::move(plantPainterCommand));
+        });
+
+    return painter;
 }
 void TerrainToolPanel::GeneratePlantsBasedOnTerrainTexture()
 {

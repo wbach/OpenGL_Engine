@@ -99,7 +99,7 @@ void GrassRendererComponent::AddGrassMesh(const GrassMeshData& mesh)
     meshData_.colors.push_back(mesh.color.value.z);
 }
 
-GrassRendererComponent& GrassRendererComponent::SetMeshesData(GrassMeshes data)
+GrassRendererComponent& GrassRendererComponent::SetMeshesData(GrassMeshes&& data)
 {
     meshData_ = std::move(data);
     return *this;

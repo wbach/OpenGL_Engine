@@ -52,7 +52,7 @@ public:
 
     void AddGrassMesh(const GrassMeshData&);
 
-    GrassRendererComponent& SetMeshesData(GrassMeshes);
+    GrassRendererComponent& SetMeshesData(GrassMeshes&&);
     GrassRendererComponent& setTexture(const File&);
     GrassRendererComponent& setMeshDataFile(const File&);
 

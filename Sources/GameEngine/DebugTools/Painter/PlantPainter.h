@@ -57,6 +57,14 @@ public:
     void Generate(const File&);
     void Generate(const std::optional<IdType>&);
 
+    using GenereteCallbackType = std::function<void(std::vector<GameEngine::Components::GrassRendererComponent*>&)>;
+    using PaintCallbackType    = std::function<void(GameEngine::Components::GrassRendererComponent&)>;
+    using PaintEndCallbackType = std::function<void()>;
+
+    void SetOnGenerateCallback(GenereteCallbackType);
+    void SetOnPaintCallback(PaintCallbackType);
+    void SetOnPaintEndCallback(PaintEndCallbackType);
+
 private:
     void Paint(const vec2&);
     void Erase(const vec2&);
@@ -73,5 +81,10 @@ private:
     float sizeRandomness;
     float density;
     float randomness;
+
+    bool lastMouseState{false};
+    GenereteCallbackType onGenerateCallback_{nullptr};
+    PaintCallbackType onPaintCallback_{nullptr};
+    PaintEndCallbackType onPaintEndCallback_{nullptr};
 };
 }  // namespace GameEngine

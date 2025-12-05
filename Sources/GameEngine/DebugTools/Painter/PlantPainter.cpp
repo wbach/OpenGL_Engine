@@ -263,7 +263,19 @@ void PlantPainter::Paint(const DeltaTime&)
     auto lmouseKeyIsPressed = dependencies.inputManager.GetMouseKey(KeyCodes::LMOUSE);
 
     if (not lmouseKeyIsPressed)
+    {
+        if (lastMouseState)
+        {
+            if (onPaintEndCallback_)
+            {
+                onPaintEndCallback_();
+            }
+            lastMouseState = false;
+        }
         return;
+    }
+
+    lastMouseState = lmouseKeyIsPressed;
 
     if (mode == PaintMode::Terrain)
     {
@@ -288,7 +300,7 @@ void PlantPainter::Generate(const File& terrainTextureFile)
     std::vector<PaintTextureBasedContext> contexts;
     // TerrainSelectionDialog dialog(nullptr, dependencies.componentController, "Whole terrain mode selected. Select terrain
     // to generate plants"); auto selection = dialog.GetSelection();
-    auto terrains = dependencies.componentController.GetAllComponentsOfType<Components::TerrainRendererComponent>();
+    auto terrains = dependencies.componentController.GetAllActiveComponentsOfType<Components::TerrainRendererComponent>();
     for (const auto& terrainComponent : terrains)
     {
         auto textures = terrainComponent->GetTextures();
@@ -396,7 +408,7 @@ void PlantPainter::Generate(const std::optional<IdType>& maybeGameObjectId)
     LOG_DEBUG << "Generate terrain specyfic: " << maybeGameObjectId;
     if (not maybeGameObjectId)
     {
-        auto terrains = dependencies.componentController.GetAllComponentsOfType<Components::TerrainRendererComponent>();
+        auto terrains = dependencies.componentController.GetAllActiveComponentsOfType<Components::TerrainRendererComponent>();
         for (const auto& terrainComponent : terrains)
         {
             GenerateOnTerrain(terrainComponent);
@@ -555,11 +567,19 @@ void PlantPainter::Paint(const vec2& mousePosition)
             // Jesli teren nie ma zadnego komponentu to towrzymy nowy dla tej tekstury.
             auto plantComponent = getPaintedPlantComponent(currentTerrainPoint->terrainComponent->GetParentGameObject());
 
+            if (not plantComponent)
+                return;
+
             const auto& points = brush->getInfluence();
             if (points.empty())
             {
                 LOG_WARN << "Influance points empty";
                 return;
+            }
+
+            if (onPaintCallback_)
+            {
+                onPaintCallback_(*plantComponent);
             }
 
             Components::GrassRendererComponent::GrassMeshData pointMeshData;
@@ -609,5 +629,16 @@ void PlantPainter::Paint(const vec2& mousePosition)
             LOG_WARN << "Not implented : " << magic_enum::enum_name(mode);
     }
 }
-
+void PlantPainter::SetOnPaintCallback(PaintCallbackType callback)
+{
+    onPaintCallback_ = std::move(callback);
+}
+void PlantPainter::SetOnPaintEndCallback(PaintEndCallbackType callback)
+{
+    onPaintEndCallback_ = std::move(callback);
+}
+void PlantPainter::SetOnGenerateCallback(GenereteCallbackType callback)
+{
+    onGenerateCallback_ = std::move(callback);
+}
 }  // namespace GameEngine

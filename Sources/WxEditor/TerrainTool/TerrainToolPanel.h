@@ -16,7 +16,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Components/Renderer/Terrain/TerrainRendererComponent.h"
+// #include "Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "WxEditor/Commands/TextureCommandEntry.h"
 
 namespace GameEngine
@@ -131,6 +132,10 @@ private:
         ColorPickerResult* baseColor{nullptr};
 
         std::optional<GameEngine::File> selectedTextureFile;
+
+        std::unordered_map<GameEngine::Components::GrassRendererComponent*,
+                           GameEngine::Components::GrassRendererComponent::GrassMeshes>
+            snapshotsMap;
     };
 
     struct PainterFields
