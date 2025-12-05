@@ -4,6 +4,7 @@
 #include <GameEngine/Resources/File.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <Types.h>
+#include <Utils/Image/Image.h>
 #include <wx/button.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
@@ -14,7 +15,6 @@
 #include <optional>
 #include <unordered_map>
 #include <vector>
-#include <Utils/Image/Image.h>
 
 namespace GameEngine
 {
@@ -100,6 +100,7 @@ private:
         wxComboBox* brushType{nullptr};
         wxTextCtrl* brushSize{nullptr};
         wxTextCtrl* strength{nullptr};
+        std::optional<Utils::ImageData> snapshot;
     };
 
     struct TexturePainterFields
@@ -143,8 +144,6 @@ private:
     std::optional<IdType> sceneEventSubId;
 
     GameEngine::GameObject* visualizationObject{nullptr};
-
-    std::optional<Utils::ImageData> snapshot;
 
     wxDECLARE_EVENT_TABLE();
 };

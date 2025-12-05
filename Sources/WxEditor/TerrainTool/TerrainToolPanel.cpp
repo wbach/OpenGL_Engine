@@ -46,6 +46,7 @@
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
 #include "WxEditor/Commands/HeightPainterCommand.h"
+#include "WxEditor/Commands/MultipleHeightPainterCommand.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
@@ -1167,7 +1168,41 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional
                     generator.generateNoiseSeed();
                 }
 
+                std::vector<MultipleHeightPainterCommand::Entry> unoRedoCommandEntries;
+                if (gameObjectId)
+                {
+                    if (auto go = scene.GetGameObject(*gameObjectId))
+                    {
+                        if (auto component = go->GetComponent<GameEngine::Components::TerrainRendererComponent>())
+                        {
+                            if (auto heightMap = component->GetHeightMap())
+                            {
+                                MultipleHeightPainterCommand::Entry entry{.component = *component,
+                                                                          .snapshot  = heightMap->GetImage().getImageData()};
+                                unoRedoCommandEntries.push_back(std::move(entry));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    auto components = scene.getComponentController()
+                                          .GetAllActiveComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+                    for (auto& component : components)
+                    {
+                        if (auto heightMap = component->GetHeightMap())
+                        {
+                            MultipleHeightPainterCommand::Entry entry{.component = *component,
+                                                                      .snapshot  = heightMap->GetImage().getImageData()};
+                            unoRedoCommandEntries.push_back(std::move(entry));
+                        }
+                    }
+                }
+
                 generator.generateHeightMapsImage();
+
+                auto multiHeightPainterCommand = std::make_unique<MultipleHeightPainterCommand>(std::move(unoRedoCommandEntries));
+                UndoManager::Get().Push(std::move(multiHeightPainterCommand));
             }
             catch (...)
             {
@@ -1378,6 +1413,7 @@ std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter
             else
                 visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
 
+            auto& snapshot          = painterFields.heightPainterFields.snapshot;
             auto engineContext      = scene.getEngineContext();
             auto lmouseKeyIsPressed = engineContext->GetInputManager().GetMouseKey(KeyCodes::LMOUSE);
             if (not snapshot and lmouseKeyIsPressed)
