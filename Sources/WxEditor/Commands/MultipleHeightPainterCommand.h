@@ -1,40 +1,28 @@
 #pragma once
 #include <Types.h>
+#include <Utils/Image/Image.h>
 
 #include <vector>
 
 #include "Command.h"
-#include "Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "Image/Image.h"
-#include "Resources/Textures/HeightMap.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "TextureCommandData.h"
+#include "TextureCommandEntry.h"
 
 class MultipleHeightPainterCommand : public Command
 {
-private:
-    struct Data
-    {
-        GameEngine::Components::TerrainRendererComponent& component;
-        Utils::ImageData snapshot;
-        Utils::ImageData current;
-    };
-
 public:
-    struct Entry
-    {
-        GameEngine::Components::TerrainRendererComponent& component;
-        Utils::ImageData snapshot;
-    };
-
-    MultipleHeightPainterCommand(std::vector<Entry>&& input)
+    MultipleHeightPainterCommand(std::vector<TextureCommandEntry>&& input)
     {
         data.reserve(input.size());
         for (auto& entry : input)
         {
             if (auto heightMap = entry.component.GetHeightMap())
             {
-                Data item{.component = entry.component,
-                          .snapshot  = std::move(entry.snapshot),
-                          .current   = heightMap->GetImage().getImageData()};
+                TextureCommandData item{.component = entry.component,
+                                        .snapshot  = std::move(entry.snapshot),
+                                        .current   = heightMap->GetImage().getImageData()};
                 data.push_back(std::move(item));
             }
         }
@@ -67,5 +55,5 @@ public:
     }
 
 private:
-    std::vector<Data> data;
+    std::vector<TextureCommandData> data;
 };

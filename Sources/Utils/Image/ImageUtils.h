@@ -59,4 +59,5 @@ Image cloneImageAsUint8(const Image&);
 void ClearChannel(Image&, uint8);
 
 void FastCopyPixels(const Image&, Image&, const std::vector<vec2ui>&, size_t = 1000);
+void LogImageData(const Utils::ImageData&);
 }  // namespace Utils

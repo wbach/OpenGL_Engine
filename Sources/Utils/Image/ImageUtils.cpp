@@ -364,4 +364,25 @@ void FastCopyPixels(const Image& srcImg, Image& dstImg, const std::vector<vec2ui
     }
 }
 
+void LogImageData(const Utils::ImageData& data)
+{
+    std::visit(
+        [](auto&& arg)
+        {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<T, std::monostate>)
+            {
+                LOG_DEBUG << "ImageData jest puste (monostate)";
+            }
+            else if constexpr (std::is_same_v<T, std::vector<uint8_t>>)
+            {
+                LOG_DEBUG << "ImageData zawiera vector<uint8_t>, rozmiar = " << arg.size();
+            }
+            else if constexpr (std::is_same_v<T, std::vector<float>>)
+            {
+                LOG_DEBUG << "ImageData zawiera vector<float>, rozmiar = " << arg.size();
+            }
+        },
+        data);
+}
 }  // namespace Utils

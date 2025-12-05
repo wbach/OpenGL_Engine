@@ -1,10 +1,10 @@
 #pragma once
 #include <Types.h>
+#include <Utils/Image/Image.h>
 
 #include "Command.h"
-#include "Components/Renderer/Terrain/TerrainRendererComponent.h"
-#include "Image/Image.h"
-#include "Resources/Textures/HeightMap.h"
+#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 
 class HeightPainterCommand : public Command
 {

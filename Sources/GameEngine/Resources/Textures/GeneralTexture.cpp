@@ -53,8 +53,8 @@ void GeneralTexture::GpuLoadingPass()
 }
 void GeneralTexture::SetImage(Utils::Image&& image)
 {
-    size_        = vec2ui(image.width, image.height);
-    image_       = std::move(image);
+    size_  = vec2ui(image.width, image.height);
+    image_ = std::move(image);
 }
 const Utils::Image& GeneralTexture::GetImage() const
 {
@@ -74,5 +74,9 @@ Utils::Image GeneralTexture::MoveImage()
 void GeneralTexture::SetPixel(const vec2ui& position, const Color& color)
 {
     image_.setPixel(position, color);
+}
+void GeneralTexture::setImageData(Utils::ImageData&& data)
+{
+    image_.moveData(std::move(data));
 }
 }  // namespace GameEngine

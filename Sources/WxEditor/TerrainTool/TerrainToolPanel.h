@@ -16,6 +16,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "WxEditor/Commands/TextureCommandEntry.h"
+
 namespace GameEngine
 {
 class Scene;
@@ -114,6 +117,7 @@ private:
         std::optional<GameEngine::File> selectedTextureFile;
 
         std::vector<GameEngine::File> textures;
+        std::unordered_map<GameEngine::Components::TerrainRendererComponent*, TextureCommandEntry> textureCommandEntriesMap;
     };
 
     struct PlantPainterFields
@@ -142,6 +146,7 @@ private:
     PainterFields painterFields;
     GeneratorFields generatorFields;
     std::optional<IdType> sceneEventSubId;
+    std::optional<IdType> escapeSubId;
 
     GameEngine::GameObject* visualizationObject{nullptr};
 

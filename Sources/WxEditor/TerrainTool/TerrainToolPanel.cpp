@@ -46,7 +46,9 @@
 #include "TextureButton.h"
 #include "TexturePickerPopup.h"
 #include "WxEditor/Commands/HeightPainterCommand.h"
+#include "WxEditor/Commands/MultipleBlendmapPainterCommand.h"
 #include "WxEditor/Commands/MultipleHeightPainterCommand.h"
+#include "WxEditor/Commands/TextureCommandEntry.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
@@ -462,6 +464,17 @@ TerrainToolPanel::TerrainToolPanel(wxWindow* parent, GameEngine::Scene& scene, i
     sceneEventSubId = scene.SubscribeForSceneEvent(
         [this](const auto& event)
         { std::visit(visitor{[this](const auto& e) { this->CallAfter([this, e] { ProcessEvent(e); }); }}, event); });
+
+    auto engineContext = scene.getEngineContext();
+
+    escapeSubId = engineContext->GetInputManager().SubscribeOnKeyDown(KeyCodes::ESCAPE,
+                                                                      [this]()
+                                                                      {
+                                                                          if (painterFields.terrainPainter_)
+                                                                          {
+                                                                              DisablePainter();
+                                                                          }
+                                                                      });
 }
 
 TerrainToolPanel::~TerrainToolPanel()
@@ -469,6 +482,14 @@ TerrainToolPanel::~TerrainToolPanel()
     if (sceneEventSubId)
     {
         scene.UnSubscribeForSceneEvent(*sceneEventSubId);
+        sceneEventSubId.reset();
+    }
+
+    if (escapeSubId)
+    {
+        auto engineContext = scene.getEngineContext();
+        engineContext->GetInputManager().Unsubscribe(*escapeSubId);
+        escapeSubId.reset();
     }
 }
 
@@ -1168,7 +1189,7 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional
                     generator.generateNoiseSeed();
                 }
 
-                std::vector<MultipleHeightPainterCommand::Entry> unoRedoCommandEntries;
+                TextureCommandEntries unoRedoCommandEntries;
                 if (gameObjectId)
                 {
                     if (auto go = scene.GetGameObject(*gameObjectId))
@@ -1177,8 +1198,8 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional
                         {
                             if (auto heightMap = component->GetHeightMap())
                             {
-                                MultipleHeightPainterCommand::Entry entry{.component = *component,
-                                                                          .snapshot  = heightMap->GetImage().getImageData()};
+                                TextureCommandEntry entry{.component = *component,
+                                                          .snapshot  = heightMap->GetImage().getImageData()};
                                 unoRedoCommandEntries.push_back(std::move(entry));
                             }
                         }
@@ -1192,8 +1213,7 @@ void TerrainToolPanel::GenerateTerrain(bool updateNoiseSeed, const std::optional
                     {
                         if (auto heightMap = component->GetHeightMap())
                         {
-                            MultipleHeightPainterCommand::Entry entry{.component = *component,
-                                                                      .snapshot  = heightMap->GetImage().getImageData()};
+                            TextureCommandEntry entry{.component = *component, .snapshot = heightMap->GetImage().getImageData()};
                             unoRedoCommandEntries.push_back(std::move(entry));
                         }
                     }
@@ -1324,19 +1344,6 @@ void TerrainToolPanel::EnablePainter()
             }
             break;
         }
-
-        auto engineContext = scene.getEngineContext();
-        // engineContext->GetInputManager().SubscribeOnKeyDown(KeyCodes::ESCAPE,
-        //                                                    [this]()
-        //                                                    {
-        //                                                        DisablePainter();
-        //                                                    });
-
-        engineContext->GetInputManager().SubscribeOnKeyDown(KeyCodes::LMOUSE,
-                                                           [this]()
-                                                           {
-
-                                                           });
     }
     catch (const std::runtime_error& error)
     {
@@ -1381,9 +1388,49 @@ std::unique_ptr<GameEngine::TexturePainter> TerrainToolPanel::CreateTexturePaint
 
     auto circleBrush = std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius, strength);
 
-    return std::make_unique<GameEngine::TexturePainter>(GetPainterDependencies(scene),
-                                                        scene.GetResourceManager().GetTextureLoader(), std::move(circleBrush),
-                                                        *texturePainterFields.selectedTextureFile);
+    auto painter =
+        std::make_unique<GameEngine::TexturePainter>(GetPainterDependencies(scene), scene.GetResourceManager().GetTextureLoader(),
+                                                     std::move(circleBrush), *texturePainterFields.selectedTextureFile);
+
+    painter->SetOnPointChange(
+        [this](const auto& terrainPoint)
+        {
+            // if (terrainPoint)
+            //     visualizationObject->SetWorldPosition(terrainPoint->pointOnTerrain);
+            // else
+            //     visualizationObject->SetWorldPosition(vec3(std::numeric_limits<float>::max()));
+
+            auto engineContext      = scene.getEngineContext();
+            auto lmouseKeyIsPressed = engineContext->GetInputManager().GetMouseKey(KeyCodes::LMOUSE);
+
+            auto& map = painterFields.texturePainterFields.textureCommandEntriesMap;
+            auto iter = map.find(terrainPoint->terrainComponent);
+
+            if (iter == map.end() and lmouseKeyIsPressed)
+            {
+                if (auto texture = terrainPoint->terrainComponent->GetTexture(GameEngine::TerrainTextureType::blendMap))
+                {
+                    if (auto blendmap = dynamic_cast<GameEngine::GeneralTexture*>(texture))
+                    {
+                        LOG_DEBUG << "create TextureCommandEntry for blend map";
+                        TextureCommandEntry entry{.component = *terrainPoint->terrainComponent,
+                                                  .snapshot  = blendmap->GetImage().getImageData()};
+
+                        map.insert({terrainPoint->terrainComponent, std::move(entry)});
+                    }
+                }
+            }
+            else if (iter != map.end() and not lmouseKeyIsPressed)
+            {
+                TextureCommandEntries entries{std::move(iter->second)};
+                auto blendMapCommand = std::make_unique<MultipleBlendmapPainterCommand>(std::move(entries));
+                LOG_DEBUG << "Push blend command";
+                UndoManager::Get().Push(std::move(blendMapCommand));
+                map.erase(terrainPoint->terrainComponent);
+            }
+        });
+
+    return painter;
 }
 
 std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter()

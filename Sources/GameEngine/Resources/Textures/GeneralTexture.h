@@ -15,6 +15,7 @@ public:
     ~GeneralTexture();
     void GpuLoadingPass() override;
     void SetImage(Utils::Image&&);
+    void setImageData(Utils::ImageData&&);
     const Utils::Image& GetImage() const;
     Utils::Image& GetImage();
     void SetPixel(const vec2ui&, const Color&);
