@@ -30,7 +30,8 @@ public:
     {
         if (auto heightMap = component_.GetHeightMap())
         {
-            heightMap->setImageData(std::move(currentImage_));
+            auto copyImage = currentImage_;
+            heightMap->setImageData(std::move(copyImage));
             component_.HeightMapChanged();
         }
     }
@@ -39,7 +40,8 @@ public:
     {
         if (auto heightMap = component_.GetHeightMap())
         {
-            heightMap->setImageData(std::move(snapshot_));
+            auto copyImage = snapshot_;
+            heightMap->setImageData(std::move(copyImage));
             component_.HeightMapChanged();
         }
     }
