@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <memory>
 #include <stack>
 
@@ -52,6 +53,16 @@ public:
     {
         undoStack = {};
         redoStack = {};
+    }
+
+    size_t GetUndoStackSize()
+    {
+        return undoStack.size();
+    }
+
+    size_t GetRedoStackSize()
+    {
+        return redoStack.size();
     }
 
 private:

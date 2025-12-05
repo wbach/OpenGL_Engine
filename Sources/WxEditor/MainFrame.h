@@ -73,6 +73,8 @@ private:
     void MenuFileSaveSceneAs(wxCommandEvent&);
     void MenuFileExit(wxCommandEvent&);
 
+    void MenuEditUndo(wxCommandEvent&);
+    void MenuEditRedo(wxCommandEvent&);
     void MenuEditCreateObject(wxCommandEvent&);
     void MenuEditCreateTerrain(wxCommandEvent&);
     void MenuEditCreateMaterial(wxCommandEvent&);

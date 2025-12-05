@@ -130,6 +130,8 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_FILE_SAVE_SCENE, MainFrame::MenuFileSaveScene)
     EVT_MENU(ID_MENU_FILE_SAVEAS_SCENE, MainFrame::MenuFileSaveSceneAs)
     EVT_MENU(ID_MENU_FILE_EXIT, MainFrame::MenuFileExit)
+    EVT_MENU(ID_MENU_EDIT_UNDO, MainFrame::MenuEditUndo)
+    EVT_MENU(ID_MENU_EDIT_REDO, MainFrame::MenuEditRedo)
     EVT_MENU(ID_MENU_EDIT_CREATE_OBJECT, MainFrame::MenuEditCreateObject)
     EVT_MENU(ID_MENU_EDIT_CREATE_TERRAIN, MainFrame::MenuEditCreateTerrain)
     EVT_MENU(ID_MENU_EDIT_CREATE_CAMERA, MainFrame::MenuEditCreateCamera)
@@ -584,6 +586,33 @@ void MainFrame::MenuFileExit(wxCommandEvent&)
     Close(true);
 }
 
+void MainFrame::MenuEditUndo(wxCommandEvent&)
+{
+    auto& manager = UndoManager::Get();
+
+    if (manager.GetUndoStackSize() == 0)
+    {
+        wxLogMessage("Undo stack is empty");
+    }
+    else
+    {
+        manager.Undo();
+    }
+}
+void MainFrame::MenuEditRedo(wxCommandEvent&)
+{
+    auto& manager = UndoManager::Get();
+
+    if (manager.GetRedoStackSize() == 0)
+    {
+        wxLogMessage("Redo stack is empty");
+    }
+    else
+    {
+        manager.Redo();
+    }
+}
+
 void MainFrame::MenuEditCreateObject(wxCommandEvent&)
 {
     auto dlg = createEntryDialogWithSelectedText(this, "Enter object name:", "Crete new game object", "NewGameObject",
@@ -958,6 +987,8 @@ wxMenu* MainFrame::CreateFileMenu()
 wxMenu* MainFrame::CreateEditMenu()
 {
     wxMenu* menu = new wxMenu;
+    menu->Append(ID_MENU_EDIT_UNDO, "&Undo last changes\tCtrl-Z", "Revert last changes");
+    menu->Append(ID_MENU_EDIT_REDO, "&Redo last canges\tCtrl-Shift-Z", "Do again last change which was reverted");
 
     auto createSubMenu = new wxMenu;
     createSubMenu->Append(ID_MENU_EDIT_CREATE_OBJECT, "&New empty object", "Create empty new object");
@@ -991,6 +1022,20 @@ wxMenu* MainFrame::CreateEditMenu()
     menu->Append(ID_MENU_EDIT_LOAD_PREFAB, "&Load from prefab", "Create new object");
     menu->Append(ID_MENU_EDIT_CLEAR_SCENE, "&Clear", "Delete all object in scene");
     menu->Append(ID_MENU_EDIT_PREFERENCES, "&Preferences", "Change settings");
+
+    Bind(wxEVT_MENU_OPEN,
+         [menu](auto& event)
+         {
+             auto* opened = event.GetMenu();
+             if (opened == menu)
+             {
+                 auto& manager = UndoManager::Get();
+
+                 menu->Enable(ID_MENU_EDIT_UNDO, manager.GetUndoStackSize() > 0);
+                 menu->Enable(ID_MENU_EDIT_REDO, manager.GetRedoStackSize() > 0);
+             }
+         });
+
     return menu;
 }
 
