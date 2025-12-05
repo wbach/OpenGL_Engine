@@ -1,12 +1,5 @@
 #pragma once
-
-#include <Common/Transform.h>
-#include <GameEngine/Objects/GameObject.h>
-#include <GameEngine/Scene/SceneWriter.h>
-#include <Logger/Log.h>
 #include <Types.h>
-
-#include <GameEngine/Scene/Scene.hpp>
 
 #include "Command.h"
 #include "Components/Renderer/Terrain/TerrainRendererComponent.h"
