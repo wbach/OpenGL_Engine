@@ -1,11 +1,11 @@
 #pragma once
+#include <GameEngine/Components/Renderer/Grass/GrassRendererComponent.h>
 #include <Types.h>
 #include <Utils/Image/Image.h>
 
 #include <vector>
 
 #include "Command.h"
-#include "Components/Renderer/Grass/GrassRendererComponent.h"
 
 class PlantPainterCommand : public Command
 {
