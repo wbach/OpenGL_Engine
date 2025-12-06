@@ -74,6 +74,7 @@ SdlOpenGlApi::~SdlOpenGlApi()
 void SdlOpenGlApi::Init()
 {
     SDL_Init(SDL_INIT_VIDEO);
+    LOG_DEBUG << "SDL video driver: " << SDL_GetCurrentVideoDriver();
     FillDisplayModes();
 }
 

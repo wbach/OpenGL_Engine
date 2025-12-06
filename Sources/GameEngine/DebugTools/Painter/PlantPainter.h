@@ -5,6 +5,7 @@
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "PaintTextureBasedContext.h"
 #include "Painter.h"
 #include "Types.h"
 
@@ -65,11 +66,13 @@ public:
     void SetOnPaintCallback(PaintCallbackType);
     void SetOnPaintEndCallback(PaintEndCallbackType);
 
+    Components::GrassRendererComponent* getPaintedPlantComponent(GameObject&);
+    std::vector<PaintTextureBasedContext> getGenerateContextForTerrainsWithTexture(const File&);
+
 private:
     void Paint(const vec2&);
     void Erase(const vec2&);
     void GenerateOnTerrain(Components::TerrainRendererComponent*);
-    Components::GrassRendererComponent* getPaintedPlantComponent(GameObject&);
 
 private:
     File plantTexture;

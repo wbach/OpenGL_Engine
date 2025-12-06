@@ -288,10 +288,12 @@ ColorPickerResult* CreateColorPickerWithRandomness(wxWindow* parent, wxSizer* si
 
     std::array<int, 3> rgb = {
 #if wxCHECK_VERSION(3, 1, 0)
-        static_cast<int>(defaultColor.GetRed()), static_cast<int>(defaultColor.GetGreen()),
+        static_cast<int>(defaultColor.GetRed()),
+        static_cast<int>(defaultColor.GetGreen()),
         static_cast<int>(defaultColor.GetBlue())
 #else
-        static_cast<int>((defaultColor.GetRGB() >> 16) & 0xFF), static_cast<int>((defaultColor.GetRGB() >> 8) & 0xFF),
+        static_cast<int>((defaultColor.GetRGB() >> 16) & 0xFF),
+        static_cast<int>((defaultColor.GetRGB() >> 8) & 0xFF),
         static_cast<int>(defaultColor.GetRGB() & 0xFF)
 #endif
     };
@@ -679,7 +681,8 @@ void TerrainToolPanel::SelectedPainterTexture(wxMouseEvent& event)
         {
             if (GameEngine::isPaintAbleTexture(type) and texture->GetFile())
             {
-                auto iter = std::find_if(textures.begin(), textures.end(), [t = texture->GetFile()](const auto& info)
+                auto iter = std::find_if(textures.begin(), textures.end(),
+                                         [t = texture->GetFile()](const auto& info)
                                          { return info.file.GetAbsolutePath() == t->GetAbsolutePath(); });
 
                 if (iter != textures.end())
@@ -946,10 +949,10 @@ wxPanel* TerrainToolPanel::BuildTexturePainterPanel(wxWindow* parent)
 
     // === Selected Texture ===
     {
-        auto* box = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
-        auto* texBtn =
-            new TextureButton(panel, std::nullopt, TextureButton::MenuOption::None, [this](const GameEngine::File& file)
-                              { painterFields.texturePainterFields.selectedTextureFile = file; });
+        auto* box    = new wxStaticBoxSizer(wxVERTICAL, panel, "Selected Texture");
+        auto* texBtn = new TextureButton(panel, std::nullopt, TextureButton::MenuOption::None,
+                                         [this](const GameEngine::File& file)
+                                         { painterFields.texturePainterFields.selectedTextureFile = file; });
 
         texBtn->Bind(wxEVT_LEFT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
         texBtn->Bind(wxEVT_RIGHT_DOWN, &TerrainToolPanel::SelectedPainterTexture, this);
@@ -1561,8 +1564,7 @@ std::unique_ptr<GameEngine::PlantPainter> TerrainToolPanel::CreatePlantPainter()
             PlantPainterCommand::Entries entries;
             for (auto& [component, snapshot] : snapshotsMap)
             {
-                entries.push_back(
-                    PlantPainterCommand::Entry{.component = *component, .snapshot = std::move(snapshot)});
+                entries.push_back(PlantPainterCommand::Entry{.component = *component, .snapshot = std::move(snapshot)});
             }
             snapshotsMap.clear();
 
@@ -1583,7 +1585,22 @@ void TerrainToolPanel::GeneratePlantsBasedOnTerrainTexture()
             {
                 if (auto painter = CreatePlantPainter())
                 {
+                    PlantPainterCommand::Entries entries;
+                    auto contexts = painter->getGenerateContextForTerrainsWithTexture(file);
+                    for (auto& context : contexts)
+                    {
+                        if (auto plantComponent =
+                                painter->getPaintedPlantComponent(context.terrainComponent->GetParentGameObject()))
+                        {
+                            entries.push_back(PlantPainterCommand::Entry{.component = *plantComponent,
+                                                                         .snapshot  = plantComponent->GetGrassMeshesData()});
+                        }
+                    }
+
                     painter->Generate(file);
+
+                    auto plantPainterCommand = std::make_unique<PlantPainterCommand>(std::move(entries));
+                    UndoManager::Get().Push(std::move(plantPainterCommand));
                 }
                 this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
             })
@@ -1631,15 +1648,41 @@ void TerrainToolPanel::GeneratePlantsBasedOnTerrainSpecyfic()
                 std::thread(
                     [&, value, p = std::move(painter)]()
                     {
+                        PlantPainterCommand::Entries entries;
                         if (value == -1)
                         {
+                            auto terrains = scene.getComponentController()
+                                                .GetAllActiveComponentsOfType<GameEngine::Components::TerrainRendererComponent>();
+                            for (const auto& terrainComponent : terrains)
+                            {
+                                if (auto plantComponent = p->getPaintedPlantComponent(terrainComponent->GetParentGameObject()))
+                                {
+                                    entries.push_back(PlantPainterCommand::Entry{
+                                        .component = *plantComponent, .snapshot = plantComponent->GetGrassMeshesData()});
+                                }
+                            }
+
                             p->Generate(std::nullopt);
                         }
                         else
                         {
                             auto goId = static_cast<IdType>(value);
+
+                            if (auto go = scene.GetGameObject(goId))
+                            {
+                                if (auto plantComponent = p->getPaintedPlantComponent(*go))
+                                {
+                                    entries.push_back(PlantPainterCommand::Entry{
+                                        .component = *plantComponent, .snapshot = plantComponent->GetGrassMeshesData()});
+                                }
+                            }
+
                             p->Generate(goId);
                         }
+
+                        auto plantPainterCommand = std::make_unique<PlantPainterCommand>(std::move(entries));
+                        UndoManager::Get().Push(std::move(plantPainterCommand));
+
                         this->CallAfter([dlg]() { dlg->EndModal(wxID_OK); });
                     })
                     .detach();

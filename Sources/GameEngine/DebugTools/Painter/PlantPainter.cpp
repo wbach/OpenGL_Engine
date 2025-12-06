@@ -19,6 +19,7 @@
 #include "TerrainPoint.h"
 #include "TerrainPointGetter.h"
 #include "Types.h"
+
 namespace GameEngine
 {
 namespace
@@ -29,15 +30,6 @@ struct Ray
 {
     vec3 origin;
     vec3 direction;
-};
-
-struct PaintTextureBasedContext
-{
-    Components::TerrainRendererComponent* terrainComponent;
-    std::reference_wrapper<Utils::Image> blendmapImageData;
-    Color paintedColor;
-    vec3 terrainPosition;
-    vec3 terrainScale;
 };
 
 vec2 randomVec2(float randomness, float density)
@@ -287,19 +279,9 @@ void PlantPainter::Paint(const DeltaTime&)
     }
 }
 
-void PlantPainter::Generate(const File& terrainTextureFile)
+std::vector<PaintTextureBasedContext> PlantPainter::getGenerateContextForTerrainsWithTexture(const File& terrainTextureFile)
 {
-    LOG_DEBUG << "Generate";
-
-    if (not terrainTextureFile)
-    {
-        LOG_WARN << "No valid terrain texture file provided for generation.";
-        return;
-    }
-
     std::vector<PaintTextureBasedContext> contexts;
-    // TerrainSelectionDialog dialog(nullptr, dependencies.componentController, "Whole terrain mode selected. Select terrain
-    // to generate plants"); auto selection = dialog.GetSelection();
     auto terrains = dependencies.componentController.GetAllActiveComponentsOfType<Components::TerrainRendererComponent>();
     for (const auto& terrainComponent : terrains)
     {
@@ -345,6 +327,21 @@ void PlantPainter::Generate(const File& terrainTextureFile)
             }
         }
     }
+
+    return contexts;
+}
+
+void PlantPainter::Generate(const File& terrainTextureFile)
+{
+    LOG_DEBUG << "Generate";
+
+    if (not terrainTextureFile)
+    {
+        LOG_WARN << "No valid terrain texture file provided for generation.";
+        return;
+    }
+
+    std::vector<PaintTextureBasedContext> contexts = getGenerateContextForTerrainsWithTexture(terrainTextureFile);
 
     LOG_DEBUG << "Found contexts size: " << contexts.size();
 
