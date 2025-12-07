@@ -179,6 +179,7 @@ void TerrainMeshRendererComponent::CreateShaderBuffers(const GameEngine::Model &
 {
     perObjectUpdateBuffer_.reserve(model.GetMeshes().size());
 
+    LOG_DEBUG << "Creating TerrainMeshRendererComponent shader buffers for " << model.GetMeshes().size() << " meshes.";
     for (size_t i = 0; i < model.GetMeshes().size(); ++i)
     {
         auto &graphicsApi = componentContext_.resourceManager_.GetGraphicsApi();
@@ -219,6 +220,7 @@ void TerrainMeshRendererComponent::createBoundingBoxes()
 
 BufferObject<PerObjectUpdate> &TerrainMeshRendererComponent::CreatePerObjectBuffer(GraphicsApi::IGraphicsApi &graphicsApi)
 {
+    LOG_DEBUG << "Creating TerrainMeshRendererComponent PerObjectUpdate buffer";
     perObjectUpdateBuffer_.push_back(
         std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION));
     return *perObjectUpdateBuffer_.back();
@@ -237,12 +239,17 @@ void TerrainMeshRendererComponent::createModels()
 
 void TerrainMeshRendererComponent::ClearShaderBuffers()
 {
-    for (auto iter = perObjectUpdateBuffer_.begin(); iter != perObjectUpdateBuffer_.end();)
+    std::vector<std::unique_ptr<GpuObject>> objectsToRelease;
+    objectsToRelease.reserve(perObjectUpdateBuffer_.size());
+
+    for (auto& buffer : perObjectUpdateBuffer_)
     {
-        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(*iter));
-        iter = perObjectUpdateBuffer_.erase(iter);
+        objectsToRelease.push_back(std::move(buffer));
     }
+    perObjectUpdateBuffer_.clear();
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectsToRelease(std::move(objectsToRelease));
 }
+
 void TerrainMeshRendererComponent::subscribeForEngineConfChange()
 {
     resolutionDivideFactorSubscription_ = EngineConf.renderer.terrain.resolutionDivideFactor.subscribeForChange(

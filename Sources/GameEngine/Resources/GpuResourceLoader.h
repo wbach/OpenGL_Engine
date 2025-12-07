@@ -1,11 +1,19 @@
 #pragma once
 #include <Mutex.hpp>
 #include <deque>
+
 #include "GpuObject.h"
 #include "IGpuResourceLoader.h"
 
 namespace GameEngine
 {
+struct IGpuObjectWrapper
+{
+    virtual ~IGpuObjectWrapper() = default;
+    virtual void execute()       = 0;
+    virtual void resetObject()   = 0;
+};
+
 class GpuResourceLoader : public IGpuResourceLoader
 {
 public:
@@ -13,42 +21,21 @@ public:
     ~GpuResourceLoader();
 
     void AddFunctionToCall(std::function<void()>) override;
-    void CallFunctions() override;
 
     void AddObjectToGpuLoadingPass(GpuObject&) override;
-    GpuObject* GetObjectToGpuLoadingPass() override;
-
     void AddObjectToUpdateGpuPass(GpuObject&) override;
-    GpuObject* GetObjectToUpdateGpuPass() override;
-
     void AddObjectToRelease(std::unique_ptr<GpuObject>) override;
-    std::unique_ptr<GpuObject> GetObjectToRelease() override;
+    void AddObjectsToRelease(std::vector<std::unique_ptr<GpuObject>>&&) override;
 
     void RuntimeGpuTasks() override;
-    size_t CountObjectsToAdd() override;
-    size_t CountObjectsToUpdate() override;
-    size_t CountObjectsToRelease() override;
-    size_t CountOfProcessedTasks() override;
+    size_t CountObjectsInQueues() const override;
 
     void clear();
 
 private:
-    void RuntimeLoadObjectToGpu();
-    void RuntimeUpdateObjectGpu();
-    void RuntimeReleaseObjectGpu();
-    void RemoveObjectIfIsToUpdateState(GpuObject&);
-    void RemoveObjectIfIsToLoadState(GpuObject&);
+    std::vector<std::unique_ptr<IGpuObjectWrapper>> objectsToExecute;
 
 private:
-    std::deque<std::function<void()>> functions;
-    std::deque<GpuObject*> gpuPassLoad;
-    std::deque<GpuObject*> objectsToUpdate;
-    std::deque<std::unique_ptr<GpuObject>> objectsToRelease;
-
-private:
-    std::mutex gpuPassMutex;
-    std::mutex updateMutex;
-    std::mutex releaseMutex;
-    std::mutex functionMutex;
+    mutable std::mutex gpuPassMutex;
 };
 }  // namespace GameEngine

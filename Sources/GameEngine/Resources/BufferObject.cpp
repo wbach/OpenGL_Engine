@@ -7,6 +7,7 @@ BaseBufferObject::BaseBufferObject(GraphicsApi::IGraphicsApi& graphicsApi, uint3
     : graphicsApi_(graphicsApi)
     , bindLocation_(bindLocation)
 {
+     LOG_DEBUG << ": Create BaseBufferObject bindLocation_=" << bindLocation_;
 }
 
 BaseBufferObject::~BaseBufferObject()

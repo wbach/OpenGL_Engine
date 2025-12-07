@@ -442,6 +442,8 @@ void GLCanvas::CreateNewScene()
 {
     if (engine)
     {
+        LOG_DEBUG << "Creating new scene";
+        UndoManager::Get().Clear();
         engine->GetSceneManager().SetActiveScene(WxEditor::NEW_SCENE);
         engine->GetSceneManager().SetOnSceneLoadDone(
             [this]()

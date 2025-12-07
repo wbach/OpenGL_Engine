@@ -203,7 +203,7 @@ const IdMap& SceneManager::GetAvaiableScenes() const
 
 bool SceneManager::IsGpuLoading() const
 {
-    return engineContext_.GetGpuResourceLoader().CountOfProcessedTasks() > 0;
+    return engineContext_.GetGpuResourceLoader().CountObjectsInQueues() > 0;
 }
 
 }  // namespace GameEngine

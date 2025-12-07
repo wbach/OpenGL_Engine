@@ -157,7 +157,7 @@ struct EntityRendererShould : public EngineBasedTest
     {
         LOG_DEBUG << "LoadAllGpuTask";
         auto& gpuLoader = engineContext->GetGpuResourceLoader();
-        while (gpuLoader.CountObjectsToAdd() > 0 or gpuLoader.CountObjectsToUpdate() > 0 or gpuLoader.CountObjectsToRelease() > 0)
+        while (gpuLoader.CountObjectsInQueues() > 0)
         {
             LOG_DEBUG << "RuntimeGpuTasks";
             engineContext->GetGpuResourceLoader().RuntimeGpuTasks();
