@@ -9,6 +9,7 @@
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Physics/Rigidbody.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/DebugTools/Common/MouseUtils.h"
 
 namespace GameEngine
 {
@@ -47,15 +48,12 @@ void DragObject::Update()
 }
 vec3 DragObject::WorldToScreenPoint(const vec3& point)
 {
-    return Utils::Vec4ToVec3(camera_.GetProjectionViewMatrix() * vec4(point, 1.f));
+    return camera_.GetProjectionViewMatrix() * vec4(point, 1.f);
 }
 vec3 DragObject::ScreenToWorldPoint(const vec3& point)
 {
-    vec4 clipCoords(point.x, point.y, -1.0f, 1.0f);
-    auto eyeCoords   = glm::inverse(camera_.GetProjectionMatrix()) * clipCoords;
-    auto coords      = vec4(eyeCoords.x, eyeCoords.y, -1.f, 0.0f);
-    auto worldCoords = glm::inverse(camera_.GetViewMatrix()) * coords;
-    return Utils::Vec4ToVec3(worldCoords) * point.z;
+    Ray ray = CalculateMouseRay(camera_, vec2(point.x, point.y));
+    return ray.position + ray.direction * point.z;
 }
 float DragObject::CalculateMouseZCoord(const vec3& objectPosition)
 {

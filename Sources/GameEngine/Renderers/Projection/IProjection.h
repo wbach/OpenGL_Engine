@@ -3,6 +3,12 @@
 
 namespace GameEngine
 {
+enum class ProjectionType
+{
+    Perspective,
+    Orthographic
+};
+
 class IProjection
 {
 public:
@@ -18,5 +24,6 @@ public:
     virtual float GetAspectRatio() const           = 0;
     virtual vec4 GetBufferParams() const           = 0;
     virtual void SubscribeForGlobalConfigChange()  = 0;
+    virtual ProjectionType GetType() const         = 0;
 };
 }  // namespace GameEngine

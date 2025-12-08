@@ -10,7 +10,7 @@
 
 namespace GameEngine
 {
-std::optional<float> SphereIntersect(const MousePicker::Ray& ray, const vec3& objectPosition, float radius)
+std::optional<float> SphereIntersect(const Ray& ray, const vec3& objectPosition, float radius)
 {
     const auto& o = ray.position;
     const auto& d = glm::normalize(ray.direction);
@@ -35,7 +35,7 @@ std::optional<float> SphereIntersect(const MousePicker::Ray& ray, const vec3& ob
     return {};
 }
 
-std::optional<float> BoundingBoxIntersect(const MousePicker::Ray& ray, const BoundingBox& box)
+std::optional<float> BoundingBoxIntersect(const Ray& ray, const BoundingBox& box)
 {
     const auto& min = box.min();
     const auto& max = box.max();
@@ -83,11 +83,10 @@ MousePicker::MousePicker(const ICamera& camera)
 }
 GameObject* MousePicker::SelectObject(const vec2& mousePosition, const std::vector<std::unique_ptr<GameObject>>& objectList)
 {
-    Ray ray{camera_.GetPosition(), CalculateMouseRayDirection(camera_, mousePosition)};
-    return Intersect(objectList, ray);
+    return Intersect(objectList, CalculateMouseRay(camera_, mousePosition));
 }
 
-std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const GameObject* object, const MousePicker::Ray& ray)
+std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const GameObject* object, const Ray& ray)
 {
     std::optional<std::pair<GameObject*, float>> closest;
 
@@ -119,7 +118,7 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
     return closest;
 }
 
-GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList, const MousePicker::Ray& ray)
+GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>>& objectList, const Ray& ray)
 {
     GameObject* closestObject = nullptr;
     float closestT            = std::numeric_limits<float>::infinity();
@@ -139,7 +138,7 @@ GameObject* MousePicker::Intersect(const std::vector<std::unique_ptr<GameObject>
     return closestObject;
 }
 
-std::optional<float> MousePicker::Intersect(const GameObject& object, const MousePicker::Ray& ray)
+std::optional<float> MousePicker::Intersect(const GameObject& object, const Ray& ray)
 {
     auto radius = CalculateBoundingSphereRadius(object);
     return SphereIntersect(ray, object.GetWorldTransform().GetPosition(), radius);

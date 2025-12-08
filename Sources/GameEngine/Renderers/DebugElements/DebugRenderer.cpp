@@ -230,11 +230,11 @@ void DebugRenderer::init()
             {
                 return result;
             }
-            auto rayDir = CalculateMouseRayDirection(
+            auto ray = CalculateMouseRay(
                 *camera, rendererContext_.scene_->getEngineContext()->GetInputManager().GetMousePosition());
 
-            result = MakeRayLineMesh(camera->GetPosition(), rayDir, 100.f, 1);
-            LOG_DEBUG << "CamPos: " << camera->GetPosition() << " rayDir: " << rayDir;
+            result = MakeRayLineMesh(camera->GetPosition(), ray.direction, 100.f, 1);
+            LOG_DEBUG << "CamPos: " << camera->GetPosition() << " rayDir: " << ray.direction;
             return result;
         });
 

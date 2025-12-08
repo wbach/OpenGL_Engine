@@ -6,7 +6,7 @@ namespace GameEngine
 {
 void OrthographicProjection::UpdateMatrix()
 {
-    float halfHeight = zoom * 10.f; // np. 10 jednostek świata
+    float halfHeight = zoom * REFERENCE_ORTHO_DISTANCE;
     float halfWidth  = halfHeight * GetAspectRatio();
 
     matrix_ = glm::ortho(-halfWidth, halfWidth,
@@ -28,5 +28,9 @@ float OrthographicProjection::DecreaseZoom(float dz)
     zoom -= dz;
     zoom = std::max(0.01f, zoom);
     return zoom;
+}
+ProjectionType OrthographicProjection::GetType() const
+{
+    return ProjectionType::Orthographic;
 }
 }  // namespace GameEngine

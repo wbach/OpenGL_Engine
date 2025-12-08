@@ -3,6 +3,7 @@
 
 #include <optional>
 
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "Projection.h"
 
 namespace GameEngine
@@ -21,6 +22,8 @@ public:
 
     void UpdateMatrix() override;
     float GetFoV() const;
+
+    ProjectionType GetType() const override;
 
 private:
     float fov_;

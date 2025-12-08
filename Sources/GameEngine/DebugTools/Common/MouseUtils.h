@@ -5,5 +5,5 @@ namespace GameEngine
 {
 class ICamera;
 
-vec3 CalculateMouseRayDirection(const ICamera&, const vec2&);
+Ray CalculateMouseRay(const ICamera&, const vec2&);
 }  // namespace GameEngine

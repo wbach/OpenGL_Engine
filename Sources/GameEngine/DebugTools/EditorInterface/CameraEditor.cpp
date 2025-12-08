@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "GameEngine/Display/DisplayManager.hpp"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/Projection/OrthographicProjection.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
@@ -136,8 +137,8 @@ void CameraEditor::LookAtTop(const std::optional<vec3>& maybeTarget)
     ortho->UpdateMatrix();
     projection_ = std::move(ortho);
 
-    rotationEnabled_     = false;
-    lastTarget_          = target;
+    rotationEnabled_ = false;
+    lastTarget_      = target;
 }
 
 void CameraEditor::LookAtBottom(const std::optional<vec3>& maybeTarget)
@@ -155,8 +156,8 @@ void CameraEditor::LookAtBottom(const std::optional<vec3>& maybeTarget)
     ortho->UpdateMatrix();
     projection_ = std::move(ortho);
 
-    rotationEnabled_     = false;
-    lastTarget_          = target;
+    rotationEnabled_ = false;
+    lastTarget_      = target;
 }
 
 void CameraEditor::LookAtFront(const std::optional<vec3>& maybeTarget)
@@ -174,8 +175,8 @@ void CameraEditor::LookAtFront(const std::optional<vec3>& maybeTarget)
     ortho->UpdateMatrix();
     projection_ = std::move(ortho);
 
-    rotationEnabled_     = false;
-    lastTarget_          = target;
+    rotationEnabled_ = false;
+    lastTarget_      = target;
 }
 
 void CameraEditor::LookAtBack(const std::optional<vec3>& maybeTarget)
@@ -193,8 +194,8 @@ void CameraEditor::LookAtBack(const std::optional<vec3>& maybeTarget)
     ortho->UpdateMatrix();
     projection_ = std::move(ortho);
 
-    rotationEnabled_     = false;
-    lastTarget_          = target;
+    rotationEnabled_ = false;
+    lastTarget_      = target;
 }
 
 void CameraEditor::LookAtLeft(const std::optional<vec3>& maybeTarget)
@@ -212,8 +213,8 @@ void CameraEditor::LookAtLeft(const std::optional<vec3>& maybeTarget)
     ortho->UpdateMatrix();
     projection_ = std::move(ortho);
 
-    rotationEnabled_     = false;
-    lastTarget_          = target;
+    rotationEnabled_ = false;
+    lastTarget_      = target;
 }
 
 void CameraEditor::LookAtRight(const std::optional<vec3>& maybeTarget)
@@ -231,13 +232,13 @@ void CameraEditor::LookAtRight(const std::optional<vec3>& maybeTarget)
     ortho->UpdateMatrix();
     projection_ = std::move(ortho);
 
-    rotationEnabled_     = false;
-    lastTarget_          = target;
+    rotationEnabled_ = false;
+    lastTarget_      = target;
 }
 
 void CameraEditor::SetPerspectiveView(const std::optional<vec3>& maybeTarget)
 {
-    if (dynamic_cast<PerspectiveProjection*>(projection_.get()) != nullptr)
+    if (projection_->GetType() == ProjectionType::Perspective)
         return;
 
     projection_ = std::make_unique<PerspectiveProjection>();
@@ -268,10 +269,10 @@ void CameraEditor::ZoomOut()
 void CameraEditor::SetDistanceToFitBoundingBox(const BoundingBox& bbox)
 {
     const vec3& size = bbox.size();
-    float maxDim = glm::compMax(size);
-    float margin = 3.0f;
+    float maxDim     = glm::compMax(size);
+    float margin     = 3.0f;
 
-    float newZoom = (maxDim * 0.5f * margin) / 10.f; // 10.f = domyślny halfHeight w OrthographicProjection
+    float newZoom = (maxDim * 0.5f * margin) / REFERENCE_ORTHO_DISTANCE;
     if (auto ortho = dynamic_cast<OrthographicProjection*>(projection_.get()))
     {
         ortho->SetZoom(newZoom);
@@ -279,10 +280,6 @@ void CameraEditor::SetDistanceToFitBoundingBox(const BoundingBox& bbox)
         orthoZoom_ = newZoom;
     }
 
-    const vec3& target = bbox.center();
-    float distance = glm::length(position_ - lastTarget_);
-    position_ = target - glm::normalize(position_ - target) * distance;
-    LookAt(target);
-    lastTarget_ = target;
+    lastTarget_ = bbox.center();
 }
 }  // namespace GameEngine

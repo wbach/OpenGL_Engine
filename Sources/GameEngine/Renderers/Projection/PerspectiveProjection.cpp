@@ -57,4 +57,8 @@ float PerspectiveProjection::GetFoV() const
 {
     return fov_;
 }
+ProjectionType PerspectiveProjection::GetType() const
+{
+    return ProjectionType::Perspective;
+}
 }  // namespace GameEngine

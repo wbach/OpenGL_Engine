@@ -235,6 +235,12 @@ extern const vec3 VECTOR_FORWARD;
 extern const vec3 VECTOR_BACKWARD;
 extern const vec3 VECTOR_ONE;
 
+struct Ray
+{
+    vec3 position;
+    vec3 direction;
+};
+
 // ==================== Konwersje ====================
 template <class type>
 type ToRadians(type a)
