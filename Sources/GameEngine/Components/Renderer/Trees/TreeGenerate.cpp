@@ -3,6 +3,7 @@
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/random.hpp>
 #include <random>
 #include <vector>
 
@@ -406,32 +407,41 @@ std::vector<int> addCylinderSegmentTopOnly(const std::vector<glm::vec3>& bottomV
 }
 
 // Rekurencyjna funkcja budująca mesh dla gałęzi i jej dzieci
-void buildBranchRecursive(BranchNode* node, const std::vector<int>& parentTopIndices, float segmentRadius, int sides,
-                          GraphicsApi::MeshRawData& mesh)
+void buildBranchRecursive(BranchNode* node,
+                          const std::vector<int>& parentTopIndices,
+                          float segmentRadius,
+                          int sides,
+                          GraphicsApi::MeshRawData& mesh,
+                          float bendStrength = 0.1f) // maksymalne odchylenie segmentu
 {
     if (!node)
         return;
 
-    // dla root rodzica parentTopIndices może być pusty – wtedy tworzymy pełny segment
     std::vector<int> topIndices;
+
+    // dodajemy losowe odchylenie
+    glm::vec3 offset(0.0f);
+    offset.x = glm::linearRand(-bendStrength, bendStrength);
+    offset.z = glm::linearRand(-bendStrength, bendStrength);
+    glm::vec3 segmentPos = node->position + offset;
 
     if (parentTopIndices.empty())
     {
-        // root segment: tworzymy pełny cylinder
+        // root segment
         glm::vec3 a = node->parent ? node->parent->position : node->position;
-        glm::vec3 b = node->position;
-        topIndices  = addCylinderSegment(a, b, segmentRadius, segmentRadius, sides, mesh);
+        glm::vec3 b = segmentPos;
+        topIndices = addCylinderSegment(a, b, segmentRadius, segmentRadius, sides, mesh);
     }
     else
     {
-        // dzieci: dolne vertexy = parentTopIndices, tworzymy tylko górne
-        topIndices = addCylinderSegmentTopOnly(node->position, segmentRadius, parentTopIndices, sides, mesh);
+        // dzieci
+        topIndices = addCylinderSegmentTopOnly(segmentPos, segmentRadius, parentTopIndices, sides, mesh);
     }
 
     // rekurencyjnie dla dzieci
     for (auto child : node->children)
     {
-        buildBranchRecursive(child, topIndices, segmentRadius * 0.9f, sides, mesh);  // zmniejszamy radius np. o 10%
+        buildBranchRecursive(child, topIndices, segmentRadius * 0.9f, sides, mesh, bendStrength);
     }
 }
 
