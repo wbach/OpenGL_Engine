@@ -3,7 +3,6 @@
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <random>
 #include <vector>
 
@@ -160,8 +159,9 @@ std::vector<BranchNode*> generateTreeSkeleton(const std::vector<Attractor>& inpu
     return branches;
 }
 
-void addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, float radiusB, int sides,
-                        GraphicsApi::MeshRawData& mesh)
+// Dodaje pełny segment cylindra (root) i zwraca top indices
+std::vector<int> addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, float radiusB, int sides,
+                                    GraphicsApi::MeshRawData& mesh)
 {
     glm::vec3 dir = glm::normalize(b - a);
     glm::vec3 up  = glm::vec3(0, 1, 0);
@@ -171,6 +171,7 @@ void addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, f
     glm::vec3 right   = glm::normalize(glm::cross(dir, up));
     glm::vec3 forward = glm::normalize(glm::cross(right, dir));
 
+    std::vector<int> topIndices;
     int baseIndex = mesh.positions_.size() / 3;
 
     for (int i = 0; i <= sides; i++)
@@ -179,46 +180,185 @@ void addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, f
         float cs    = std::cos(angle);
         float sn    = std::sin(angle);
 
-        glm::vec3 normal = right * cs + forward * sn;
-        glm::vec3 p1     = a + normal * radiusA;
-        glm::vec3 p2     = b + normal * radiusB;
+        glm::vec3 normal  = right * cs + forward * sn;
+        glm::vec3 pBottom = a + normal * radiusA;
+        glm::vec3 pTop    = b + normal * radiusB;
 
-        // tangent wzdłuż obwodu (U)
-        glm::vec3 tangent = glm::normalize(glm::cross(dir, normal));
-        // bitangent wzdłuż wysokości (V)
-        glm::vec3 bitangent = glm::cross(normal, tangent);
-
-        // add top vertex
-        mesh.positions_.push_back(p1.x);
-        mesh.positions_.push_back(p1.y);
-        mesh.positions_.push_back(p1.z);
-
+        // --- bottom vertex ---
+        mesh.positions_.push_back(pBottom.x);
+        mesh.positions_.push_back(pBottom.y);
+        mesh.positions_.push_back(pBottom.z);
         mesh.normals_.push_back(normal.x);
         mesh.normals_.push_back(normal.y);
         mesh.normals_.push_back(normal.z);
-
+        glm::vec3 tangent   = glm::normalize(glm::cross(dir, normal));
+        glm::vec3 bitangent = glm::cross(normal, tangent);
         mesh.tangents_.push_back(tangent.x);
         mesh.tangents_.push_back(tangent.y);
         mesh.tangents_.push_back(tangent.z);
-
         mesh.bitangents_.push_back(bitangent.x);
         mesh.bitangents_.push_back(bitangent.y);
         mesh.bitangents_.push_back(bitangent.z);
-
         mesh.textCoords_.push_back((float)i / sides);
         mesh.textCoords_.push_back(0.0f);
-
         mesh.bonesWeights_.push_back(1.0f);
         mesh.joinIds_.push_back(0);
 
-        // add bottom vertex
-        mesh.positions_.push_back(p2.x);
-        mesh.positions_.push_back(p2.y);
-        mesh.positions_.push_back(p2.z);
-
+        // --- top vertex ---
+        mesh.positions_.push_back(pTop.x);
+        mesh.positions_.push_back(pTop.y);
+        mesh.positions_.push_back(pTop.z);
         mesh.normals_.push_back(normal.x);
         mesh.normals_.push_back(normal.y);
         mesh.normals_.push_back(normal.z);
+        mesh.tangents_.push_back(tangent.x);
+        mesh.tangents_.push_back(tangent.y);
+        mesh.tangents_.push_back(tangent.z);
+        mesh.bitangents_.push_back(bitangent.x);
+        mesh.bitangents_.push_back(bitangent.y);
+        mesh.bitangents_.push_back(bitangent.z);
+        mesh.textCoords_.push_back((float)i / sides);
+        mesh.textCoords_.push_back(1.0f);
+        mesh.bonesWeights_.push_back(1.0f);
+        mesh.joinIds_.push_back(0);
+
+        topIndices.push_back(baseIndex + i * 2 + 1);  // górny vertex
+    }
+
+    // indices między bottom a top
+    for (int i = 0; i < sides; i++)
+    {
+        int i0 = baseIndex + i * 2;      // bottom i
+        int i1 = baseIndex + i * 2 + 1;  // top i
+        int i2 = baseIndex + (i + 1) * 2;
+        int i3 = baseIndex + (i + 1) * 2 + 1;
+
+        mesh.indices_.push_back(i0);
+        mesh.indices_.push_back(i2);
+        mesh.indices_.push_back(i1);
+        mesh.indices_.push_back(i1);
+        mesh.indices_.push_back(i2);
+        mesh.indices_.push_back(i3);
+    }
+
+    return topIndices;
+}
+
+// Dodaje segment dla dziecka: dolne vertexy = previousTopIndices, tworzy tylko górne vertexy
+std::vector<int> addCylinderSegmentTopOnly(const glm::vec3& topCenter, float topRadius, const std::vector<int>& bottomIndices,
+                                           int sides, GraphicsApi::MeshRawData& mesh)
+{
+    std::vector<int> topIndices;
+    int baseIndex = mesh.positions_.size() / 3;
+
+    // obliczamy kierunek lokalny
+    glm::vec3 bottomCenter(0.0f);
+    for (int idx : bottomIndices)
+        bottomCenter += glm::vec3(mesh.positions_[idx * 3 + 0], mesh.positions_[idx * 3 + 1], mesh.positions_[idx * 3 + 2]);
+    bottomCenter /= (float)bottomIndices.size();
+    glm::vec3 dir = glm::normalize(topCenter - bottomCenter);
+
+    glm::vec3 up = dir;
+    if (std::abs(glm::dot(up, glm::vec3(0, 1, 0))) > 0.9f)
+        up = glm::vec3(1, 0, 0);
+    glm::vec3 right   = glm::normalize(glm::cross(up, glm::vec3(0, 1, 0)));
+    glm::vec3 forward = glm::normalize(glm::cross(right, up));
+
+    // generujemy top vertices
+    for (int i = 0; i <= sides; i++)
+    {
+        float angle = (float)i / sides * 2.f * M_PI;
+        float cs    = std::cos(angle);
+        float sn    = std::sin(angle);
+
+        glm::vec3 normal = right * cs + forward * sn;
+        glm::vec3 pTop   = topCenter + normal * topRadius;
+
+        mesh.positions_.push_back(pTop.x);
+        mesh.positions_.push_back(pTop.y);
+        mesh.positions_.push_back(pTop.z);
+        mesh.normals_.push_back(normal.x);
+        mesh.normals_.push_back(normal.y);
+        mesh.normals_.push_back(normal.z);
+        glm::vec3 tangent   = glm::normalize(glm::cross(dir, normal));
+        glm::vec3 bitangent = glm::cross(normal, tangent);
+        mesh.tangents_.push_back(tangent.x);
+        mesh.tangents_.push_back(tangent.y);
+        mesh.tangents_.push_back(tangent.z);
+        mesh.bitangents_.push_back(bitangent.x);
+        mesh.bitangents_.push_back(bitangent.y);
+        mesh.bitangents_.push_back(bitangent.z);
+        mesh.textCoords_.push_back((float)i / sides);
+        mesh.textCoords_.push_back(1.0f);
+        mesh.bonesWeights_.push_back(1.0f);
+        mesh.joinIds_.push_back(0);
+
+        topIndices.push_back(baseIndex + i);
+    }
+
+    // tworzymy indices między dolnymi a górnymi
+    for (int i = 0; i < sides; i++)
+    {
+        int i0 = bottomIndices[i];
+        int i1 = topIndices[i];
+        int i2 = bottomIndices[i + 1];
+        int i3 = topIndices[i + 1];
+
+        mesh.indices_.push_back(i0);
+        mesh.indices_.push_back(i2);
+        mesh.indices_.push_back(i1);
+        mesh.indices_.push_back(i1);
+        mesh.indices_.push_back(i2);
+        mesh.indices_.push_back(i3);
+    }
+
+    return topIndices;
+}
+
+// Tworzy segment cylindra, ale używa już istniejącej dolnej podstawy (bottomVerts).
+// Zwraca indeksy wierzchołków górnej podstawy, które można wykorzystać dla następnego segmentu.
+std::vector<int> addCylinderSegmentTopOnly(const std::vector<glm::vec3>& bottomVerts,  // istniejące vertexy dolnej podstawy
+                                           const glm::vec3& topCenter, float topRadius, int sides, GraphicsApi::MeshRawData& mesh)
+{
+    std::vector<int> topIndices;
+
+    if (bottomVerts.empty())
+    {
+        LOG_WARN << "addCylinderSegmentTopOnly called with empty bottomVerts! Skipping segment.";
+        return topIndices;
+    }
+
+    int baseIndex = mesh.positions_.size() / 3;
+
+    // oblicz kierunki lokalnego układu na podstawie pierwszego wierzchołka
+    glm::vec3 dir     = glm::normalize(topCenter - bottomVerts[0]);
+    glm::vec3 up      = dir;
+    glm::vec3 right   = glm::normalize(glm::cross(up, glm::vec3(0, 1, 0)));
+    glm::vec3 forward = glm::normalize(glm::cross(right, up));
+
+    // generowanie górnej podstawy
+    for (int i = 0; i <= sides; i++)
+    {
+        float angle = (float)i / sides * 2.f * M_PI;
+        float cs    = std::cos(angle);
+        float sn    = std::sin(angle);
+
+        glm::vec3 normal = right * cs + forward * sn;
+        glm::vec3 topPos = topCenter + normal * topRadius;
+
+        // dodanie pozycji wierzchołka
+        mesh.positions_.push_back(topPos.x);
+        mesh.positions_.push_back(topPos.y);
+        mesh.positions_.push_back(topPos.z);
+
+        // normal
+        mesh.normals_.push_back(normal.x);
+        mesh.normals_.push_back(normal.y);
+        mesh.normals_.push_back(normal.z);
+
+        // tangent i bitangent
+        glm::vec3 tangent   = glm::normalize(glm::cross(glm::vec3(0, 1, 0), normal));
+        glm::vec3 bitangent = glm::cross(normal, tangent);
 
         mesh.tangents_.push_back(tangent.x);
         mesh.tangents_.push_back(tangent.y);
@@ -228,20 +368,30 @@ void addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, f
         mesh.bitangents_.push_back(bitangent.y);
         mesh.bitangents_.push_back(bitangent.z);
 
+        // tex coords
         mesh.textCoords_.push_back((float)i / sides);
         mesh.textCoords_.push_back(1.0f);
 
+        // kości
         mesh.bonesWeights_.push_back(1.0f);
         mesh.joinIds_.push_back(0);
+
+        topIndices.push_back(baseIndex + i);
     }
 
-    // indices
+    // dodanie indeksów łączących bottomVerts z nową górną podstawą
     for (int i = 0; i < sides; i++)
     {
-        int i0 = baseIndex + i * 2;
-        int i1 = baseIndex + i * 2 + 1;
-        int i2 = baseIndex + (i + 1) * 2;
-        int i3 = baseIndex + (i + 1) * 2 + 1;
+        int i0 = i;
+        int i1 = i + 1;
+        int i2 = baseIndex + i;
+        int i3 = baseIndex + i + 1;
+
+        // bottomVerts są w mesh już wcześniej? Jeśli tak, musimy podać ich indeksy w mesh.positions_
+        // np. bottomIndexOffset = startIndexDolnejPodstawy w mesh.positions_
+        int bottomIndexOffset = mesh.positions_.size() / 3 - topIndices.size() * 2;  // jeśli dolna podstawa była dodana wcześniej
+        i0 += bottomIndexOffset;
+        i1 += bottomIndexOffset;
 
         mesh.indices_.push_back(i0);
         mesh.indices_.push_back(i2);
@@ -251,28 +401,54 @@ void addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, f
         mesh.indices_.push_back(i2);
         mesh.indices_.push_back(i3);
     }
+
+    return topIndices;
 }
 
-GraphicsApi::MeshRawData buildTreeMesh(std::vector<BranchNode*>& branches)
+// Rekurencyjna funkcja budująca mesh dla gałęzi i jej dzieci
+void buildBranchRecursive(BranchNode* node, const std::vector<int>& parentTopIndices, float segmentRadius, int sides,
+                          GraphicsApi::MeshRawData& mesh)
+{
+    if (!node)
+        return;
+
+    // dla root rodzica parentTopIndices może być pusty – wtedy tworzymy pełny segment
+    std::vector<int> topIndices;
+
+    if (parentTopIndices.empty())
+    {
+        // root segment: tworzymy pełny cylinder
+        glm::vec3 a = node->parent ? node->parent->position : node->position;
+        glm::vec3 b = node->position;
+        topIndices  = addCylinderSegment(a, b, segmentRadius, segmentRadius, sides, mesh);
+    }
+    else
+    {
+        // dzieci: dolne vertexy = parentTopIndices, tworzymy tylko górne
+        topIndices = addCylinderSegmentTopOnly(node->position, segmentRadius, parentTopIndices, sides, mesh);
+    }
+
+    // rekurencyjnie dla dzieci
+    for (auto child : node->children)
+    {
+        buildBranchRecursive(child, topIndices, segmentRadius * 0.9f, sides, mesh);  // zmniejszamy radius np. o 10%
+    }
+}
+
+// Buduje cały mesh drzewa
+GraphicsApi::MeshRawData buildTreeMesh(std::vector<BranchNode*>& skeleton, float segmentRadius = 0.2f, int sides = 6)
 {
     GraphicsApi::MeshRawData mesh;
 
-    const int sides        = 6;
-    const float baseRadius = 0.2f;
-    const float minRadius  = 0.01f;
+    if (skeleton.empty())
+        return mesh;
 
-    for (auto b : branches)
+    BranchNode* root = skeleton[0];
+
+    // Dla root segmentu parentTopIndices = empty
+    for (auto child : root->children)
     {
-        if (b->parent == nullptr)
-            continue;
-
-        float depth  = glm::length(b->position);
-        float radius = glm::mix(baseRadius, minRadius, depth / 10.0f);
-
-        float parentDepth  = glm::length(b->parent->position);
-        float radiusParent = glm::mix(baseRadius, minRadius, parentDepth / 10.0f);
-
-        addCylinderSegment(b->parent->position, b->position, radiusParent, radius, sides, mesh);
+        buildBranchRecursive(child, {}, segmentRadius, sides, mesh);
     }
 
     return mesh;
