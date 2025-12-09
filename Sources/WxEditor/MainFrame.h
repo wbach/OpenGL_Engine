@@ -91,6 +91,7 @@ private:
     void MenuEditCreatPyramid(wxCommandEvent&);
     void MenuEditCreateIcoSphere(wxCommandEvent&);
     void MenuEditCreateTriangle(wxCommandEvent&);
+    void MenuEditCreateTree(wxCommandEvent&);
 
     void MenuEditMaterialEditor(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);

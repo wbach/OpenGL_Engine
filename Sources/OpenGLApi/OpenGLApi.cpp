@@ -250,7 +250,6 @@ void OpenGLApi::PrintVersion()
         }
     }
 
-
     GetInfoAndPrint("GL_MAX_GEOMETRY_OUTPUT_VERTICES", GL_MAX_GEOMETRY_OUTPUT_VERTICES);
     GetInfoAndPrint("GL_MAX_GEOMETRY_UNIFORM_BLOCKS", GL_MAX_GEOMETRY_UNIFORM_BLOCKS);
     GetInfoAndPrint("GL_MAX_GEOMETRY_SHADER_INVOCATIONS", GL_MAX_GEOMETRY_SHADER_INVOCATIONS);
@@ -531,6 +530,11 @@ void OpenGLApi::DeleteFrameBuffer(OpenGLApi::IFrameBuffer& framebuffer)
 
 void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData& meshRawData)
 {
+    if (meshRawData.tangents_.empty())
+    {
+        LOG_WARN << "Tangent data is emepty for " << rid;
+    }
+
     if (not meshRawData.positions_.empty() and not meshRawData.normals_.empty())
     {
         if (not impl_->debugNormalsMesh_.count(rid))
@@ -552,21 +556,35 @@ void OpenGLApi::CreateDebugNormalMesh(uint32 rid, const GraphicsApi::MeshRawData
             auto p1 = meshRawData.positions_[i];
             auto p2 = meshRawData.positions_[i + 1];
             auto p3 = meshRawData.positions_[i + 2];
-            auto n1 = meshRawData.normals_[i];
-            auto n2 = meshRawData.normals_[i + 1];
-            auto n3 = meshRawData.normals_[i + 2];
-            auto t1 = meshRawData.tangents_[i];
-            auto t2 = meshRawData.tangents_[i + 1];
-            auto t3 = meshRawData.tangents_[i + 2];
+
             debugNormalMesh.position_.push_back(p1);
             debugNormalMesh.position_.push_back(p2);
             debugNormalMesh.position_.push_back(p3);
+
+            auto n1 = meshRawData.normals_[i];
+            auto n2 = meshRawData.normals_[i + 1];
+            auto n3 = meshRawData.normals_[i + 2];
+
             debugNormalMesh.normal_.push_back(n1);
             debugNormalMesh.normal_.push_back(n2);
             debugNormalMesh.normal_.push_back(n3);
-            debugNormalMesh.tangent_.push_back(t1);
-            debugNormalMesh.tangent_.push_back(t2);
-            debugNormalMesh.tangent_.push_back(t3);
+
+            if (not meshRawData.tangents_.empty())
+            {
+                auto t1 = meshRawData.tangents_[i];
+                auto t2 = meshRawData.tangents_[i + 1];
+                auto t3 = meshRawData.tangents_[i + 2];
+
+                debugNormalMesh.tangent_.push_back(t1);
+                debugNormalMesh.tangent_.push_back(t2);
+                debugNormalMesh.tangent_.push_back(t3);
+            }
+            else
+            {
+                debugNormalMesh.tangent_.push_back(0.f);
+                debugNormalMesh.tangent_.push_back(0.f);
+                debugNormalMesh.tangent_.push_back(0.f);
+            }
         }
 
         if (not debugNormalMesh.id_)

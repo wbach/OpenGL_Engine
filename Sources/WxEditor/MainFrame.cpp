@@ -41,6 +41,7 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
+#include "Components/Renderer/Trees/TreeGenerate.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -147,6 +148,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_EDIT_CREATE_PYRAMID, MainFrame::MenuEditCreatPyramid)
     EVT_MENU(ID_MENU_EDIT_CREATE_ICOSPHERE, MainFrame::MenuEditCreateIcoSphere)
     EVT_MENU(ID_MENU_EDIT_CREATE_TRIANGLE, MainFrame::MenuEditCreateTriangle)
+    EVT_MENU(ID_MENU_EDIT_CREATE_TREE, MainFrame::MenuEditCreateTree)
     EVT_MENU(ID_MENU_EDIT_MATERIAL_EDITOR, MainFrame::MenuEditMaterialEditor)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
@@ -1002,6 +1004,7 @@ wxMenu* MainFrame::CreateEditMenu()
     lightSubMenu->Append(ID_MENU_EDIT_CREATE_SPOT_LIGHT, "&Spot", "Create game object with spot light component");
 
     createSubMenu->AppendSubMenu(lightSubMenu, "&Light", "Create gameobject with light component");
+    createSubMenu->Append(ID_MENU_EDIT_CREATE_TREE, "&Tree", "Create game object with tree renderer component");
 
     auto primitiveSubMenu = new wxMenu;
     primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_CUBE, "&Cube", "Create game object with renderer component");
@@ -2023,4 +2026,27 @@ void MainFrame::MenuEditCreateIcoSphere(wxCommandEvent&)
 void MainFrame::MenuEditCreateTriangle(wxCommandEvent&)
 {
     canvas->addPrimitive(GameEngine::PrimitiveType::Triangle, canvas->GetWorldPosFromCamera());
+}
+
+void MainFrame::MenuEditCreateTree(wxCommandEvent&)
+{
+    LOG_DEBUG << "Create tree";
+    auto treeMesh       = GameEngine::generateTree();
+    auto& engineContext = canvas->GetEngine().GetEngineContext();
+
+    auto& resourceManager = canvas->GetScene().GetResourceManager();
+
+    auto model    = std::make_unique<GameEngine::Model>();
+    auto modelPtr = model.get();
+    GameEngine::Material material;
+    material.diffuse = vec3(0.8f, 0.8f, 0.8f);
+    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, material));
+    resourceManager.AddModel(std::move(model));
+
+    auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
+
+    // TO DO : Modify and use Tree renderer component?
+    obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(modelPtr);
+    obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
+    canvas->AddGameObject(std::move(obj));
 }
