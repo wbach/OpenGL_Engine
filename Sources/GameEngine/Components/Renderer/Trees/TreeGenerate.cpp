@@ -1,458 +1,430 @@
 #include "TreeGenerate.h"
 
-#include <cmath>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/random.hpp>
-#include <random>
+#include <Logger/Log.h>
+
+#include <algorithm>
+#include <cstddef>
+#include <limits>
+#include <list>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <unordered_map>
 #include <vector>
-#include <cfloat>
 
-#include "Logger/Log.h"
-
-namespace GameEngine
-{
-struct BranchNode
-{
-    glm::vec3 position;
-    glm::vec3 growDir  = glm::vec3(0);
-    BranchNode* parent = nullptr;
-    std::vector<BranchNode*> children;
-};
+#include "GraphicsApi/MeshRawData.h"
+#include "Types.h"
+#include "glm/ext/scalar_constants.hpp"
+#include "glm/geometric.hpp"
 
 struct Attractor
 {
-    glm::vec3 position;
-    bool consumed = false;
+    vec3 position;
+    bool reached{false};
 };
 
-float rand01()
+struct Branch
 {
-    static std::mt19937 rng(12345);
-    static std::uniform_real_distribution<float> dist(0.f, 1.f);
-    return dist(rng);
-}
+    vec3 position;
+    vec3 direction;
 
-std::vector<Attractor> generateAttractors(int count, float radius, float height, float trunkOffsetY = 1.0f)
+    Branch* parent{nullptr};
+};
+
+struct BranchDirCalculateTmp
 {
-    std::vector<Attractor> pts;
-    pts.reserve(count);
+    vec3 direction = vec3(0, 0, 0);
+    int count      = 0;
+};
 
-    for (int i = 0; i < count; i++)
-    {
-        float a = rand01() * 2.f * M_PI;
-        float r = radius * std::sqrt(rand01());
-        float h = rand01() * height;
-
-        glm::vec3 pos = glm::vec3(std::cos(a) * r, h, std::sin(a) * r) + glm::vec3(0, trunkOffsetY, 0);
-
-        pts.push_back({pos});
-    }
-    return pts;
-}
-
-std::vector<BranchNode*> generateTreeSkeleton(const std::vector<Attractor>& inputPts, float attractionDistance = 2.0f,
-                                              float killDistance = 0.8f, float segmentLength = 0.3f)
+class Tree
 {
-    std::vector<Attractor> pts = inputPts;  // kopia
-    std::vector<BranchNode*> branches;
-
-    // root
-    BranchNode* root = new BranchNode();
-    root->position   = glm::vec3(0, 0, 0);
-    branches.push_back(root);
-
-    // initial trunk
-    BranchNode* current      = root;
-    int trunkSegments        = 20;
-    float trunkSegmentLength = 0.5f;
-
-    for (int i = 0; i < trunkSegments; i++)
+public:
+    std::optional<std::string> build()
     {
-        BranchNode* next = new BranchNode();
-        next->position   = current->position + glm::vec3(0, trunkSegmentLength, 0);
-        next->parent     = current;
-        current->children.push_back(next);
-        branches.push_back(next);
-        current = next;
-    }
+        clear();
 
-    bool growing = true;
-
-    while (growing)
-    {
-        growing = false;
-
-        // reset grow directions
-        for (auto b : branches)
-            b->growDir = glm::vec3(0);
-
-        // process attractors
-        bool hasLivingPts = false;
-
-        for (auto& a : pts)
+        if (attractors.empty())
         {
-            if (a.consumed)
-                continue;
-            hasLivingPts = true;
+            return "Prepare attractors first.";
+        }
 
-            BranchNode* nearest = nullptr;
-            float nearestDist   = FLT_MAX;
+        try
+        {
+            validateParameters();
+            Branch root{.position = rootPosition, .direction = glm::normalize(rootDirection)};
+            branches.push_back(std::move(root));
+            searchBranches();
+            grow();
+        }
+        catch (const std::runtime_error& error)
+        {
+            return error.what();
+        }
 
-            for (auto b : branches)
+        if (zeroDirCount > 0)
+        {
+            return "Completed but zero lenngth direction vectors found : " + std::to_string(zeroDirCount);
+        }
+
+        return {};
+    }
+
+    void prepareAttractors(size_t count, float radius)
+    {
+        attractors.clear();
+        attractors.reserve(count);
+
+        float maxAttractorDist = 0.f;
+        for (size_t i = 0; i < count; i++)
+        {
+            attractors.push_back(Attractor{.position = randomPointInSphere(radius)});
+            maxAttractorDist = std::max(maxAttractorDist, glm::distance(rootPosition, attractors.back().position));
+        }
+
+        maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
+    }
+
+    void clear()
+    {
+        zeroDirCount = 0;
+        branches.clear();
+        branchesCalculationInfo.clear();
+    }
+
+    const std::list<Branch>& GetBranches() const
+    {
+        return branches;
+    }
+
+private:
+    void validateParameters() const
+    {
+        if (segmentLength <= 0.f)
+        {
+            throw std::runtime_error{"segmentLength must be > 0"};
+        }
+
+        if (minDistance <= 0.f)
+        {
+            throw std::runtime_error{"minDistance must be > 0"};
+        }
+
+        if (maxDistance <= minDistance)
+        {
+            throw std::runtime_error{"maxDistance must be > minDistance"};
+        }
+
+        if (glm::length2(rootDirection) < 1e-6f)
+        {
+            LOG_ERROR << "rootDirection must be non-zero";
+            throw std::runtime_error{"rootDirection must be non-zero"};
+        }
+    }
+
+    void searchBranches()
+    {
+        Branch* current = &branches.front();
+        bool found{false};
+        size_t steps = 0;
+
+        while (not found and steps++ < maxTrunkSteps)
+        {
+            for (const auto& attractor : attractors)
             {
-                float d = glm::distance(a.position, b->position);
-                if (d < killDistance)
+                auto distance = glm::distance(current->position, attractor.position);
+                if (distance < maxDistance)
                 {
-                    a.consumed = true;
-                    nearest    = nullptr;
+                    found = true;
                     break;
-                }
-                if (d < nearestDist && d < attractionDistance)
-                {
-                    nearestDist = d;
-                    nearest     = b;
                 }
             }
 
-            if (nearest)
+            if (not found)
             {
-                glm::vec3 dir = a.position - nearest->position;
-                nearest->growDir += dir;
+                Branch newBranch{.position  = current->position + (current->direction) * segmentLength,
+                                 .direction = glm::normalize(current->direction),
+                                 .parent    = current};
+                branches.push_back(newBranch);
+                current = &branches.back();
             }
         }
 
-        if (!hasLivingPts)
-            break;
+        if (not found)
+            throw std::runtime_error{"Trunk search failed: no attractor within maxDistance"};
+    }
 
-        // grow branches
-        std::vector<BranchNode*> newBranches;
-        for (auto b : branches)
+    void grow()
+    {
+        size_t iter = 0;
+        while (not attractors.empty())
         {
-            float len = glm::length(b->growDir);
-            if (len > 0.0001f)
+            if (++iter > maxIterations)
             {
-                growing       = true;
-                glm::vec3 dir = b->growDir / len;  // normalize safely
+                throw std::runtime_error{"SCA aborted: max iterations reached"};
+            }
 
-                if (b == nullptr)
+            influanceBranchesByClosestAttractors();
+            removeReachedAttractors();
+
+            auto prevBranchCount = branches.size();
+
+            recalculateAvarageBranchesDirctionsAndCreateNewBranches();
+
+            if (branches.size() == prevBranchCount)
+            {
+                throw std::runtime_error{"No new branches created — stopping growth"};
+            }
+
+            if (branches.size() > maxBranches)
+            {
+                throw std::runtime_error{"SCA aborted: max branches reached"};
+            }
+        }
+    }
+
+    Branch* closestBranch(Attractor& attractor)
+    {
+        auto minAcceptableDistance = std::numeric_limits<float>::max();
+        Branch* result{nullptr};
+        for (auto& branch : branches)
+        {
+            auto distance = glm::distance(attractor.position, branch.position);
+            if (distance < minDistance)
+            {
+                // branch is to close
+                attractor.reached = true;
+                return nullptr;
+            }
+            else if (distance < minAcceptableDistance)
+            {
+                result                = &branch;
+                minAcceptableDistance = distance;
+            }
+        }
+        return result;
+    }
+
+    vec3 randomPointInSphere(float radius = 1.f)
+    {
+        auto u     = getRandomFloat(0.f, 1.f);
+        auto v     = getRandomFloat(0.f, 1.f);
+        auto theta = u * 2.f * glm::pi<float>();
+        auto phi   = acosf(2.f * v - 1.f);
+        auto r     = radius * cbrtf(getRandomFloat(0.f, 1.f));
+
+        auto sinPhi = sinf(phi);
+        return vec3(r * sinPhi * cosf(theta), r * sinPhi * sinf(theta), r * cosf(phi));
+    }
+
+    void influanceBranchesByClosestAttractors()
+    {
+        for (auto& attractor : attractors)
+        {
+            if (auto closedBranch = closestBranch(attractor))
+            {
+                auto newDir = attractor.position - closedBranch->position;
+
+                auto iter = branchesCalculationInfo.find(closedBranch);
+                if (iter == branchesCalculationInfo.end())
                 {
-                    LOG_WARN << "Branch nullptr detected!";
+                    branchesCalculationInfo.insert(
+                        {closedBranch, BranchDirCalculateTmp{.direction = closedBranch->direction, .count = 0}});
+                }
+
+                auto& info = branchesCalculationInfo[closedBranch];
+                ++info.count;
+                info.direction += newDir;
+            }
+        }
+    }
+
+    void removeReachedAttractors()
+    {
+        std::erase_if(attractors, [](auto& attractor) { return attractor.reached; });
+    }
+
+    void recalculateAvarageBranchesDirctionsAndCreateNewBranches()
+    {
+        for (auto& [branch, info] : branchesCalculationInfo)
+        {
+            if (info.count > 0)
+            {
+                if (glm::length2(info.direction) < 1e-6f)
+                {
+                    ++zeroDirCount;
                     continue;
                 }
 
-                BranchNode* newNode = new BranchNode();
-                newNode->position   = b->position + dir * segmentLength;
-                newNode->parent     = b;
-                b->children.push_back(newNode);
-                newBranches.push_back(newNode);
-            }
-            else
-            {
-                LOG_WARN << "Branch with zero growDir detected, skipping growth. pos=" << b->position.x << "," << b->position.y
-                         << "," << b->position.z;
+                info.direction /= static_cast<float>(info.count + 1.f);
+                Branch newBranch{.position  = branch->position + (info.direction) * segmentLength,
+                                 .direction = glm::normalize(info.direction),
+                                 .parent    = branch};
+                branches.push_back(newBranch);
             }
         }
 
-        branches.insert(branches.end(), newBranches.begin(), newBranches.end());
+        branchesCalculationInfo.clear();
     }
 
-    LOG_DEBUG << "Tree skeleton generated: branches=" << branches.size();
-    return branches;
-}
+public:
+    vec3 rootPosition{0.f};
+    vec3 rootDirection{0.f, 1.f, 0.f};
+    float maxDistance{5.f};
+    float minDistance{1.f};
+    float segmentLength{0.3f};
 
-// -----------------------------------------------------------------------------
-// Helper utilities for stable frame and safe normalize
-// -----------------------------------------------------------------------------
-static glm::vec3 safeNormalize(const glm::vec3 &v, const glm::vec3 &fallback = glm::vec3(1,0,0)) {
-    float len = glm::length(v);
-    if (len < 1e-6f) return fallback;
-    return v / len;
-}
+private:
+    std::vector<Attractor> attractors;
+    std::list<Branch> branches;
 
-static void buildStableFrame(const glm::vec3 &dir, glm::vec3 &outRight, glm::vec3 &outForward) {
-    glm::vec3 upCandidate = glm::vec3(0.0f, 1.0f, 0.0f);
-    if (std::abs(glm::dot(dir, upCandidate)) > 0.99f)
-        upCandidate = glm::vec3(1.0f, 0.0f, 0.0f);
+    size_t zeroDirCount        = 0;
+    size_t maxTrunkSteps       = 0;
+    const size_t maxBranches   = 200000;
+    const size_t maxIterations = 10000;
 
-    outRight = glm::cross(upCandidate, dir);
-    outRight = safeNormalize(outRight);
-
-    outForward = glm::cross(dir, outRight);
-    outForward = safeNormalize(outForward);
-}
-
-struct OrthoFrame {
-    glm::vec3 dir;
-    glm::vec3 right;
-    glm::vec3 forward;
+    std::unordered_map<Branch*, BranchDirCalculateTmp> branchesCalculationInfo;
 };
 
-// Dodaje pełny segment cylindra (root) i zwraca top indices
-std::vector<int> addCylinderSegment(const glm::vec3& a, const glm::vec3& b, float radiusA, float radiusB, int sides,
-                                    GraphicsApi::MeshRawData& mesh)
+class TreeMeshBuilder
 {
-    glm::vec3 dir = b - a;
-    float dlen = glm::length(dir);
-    if (dlen < 1e-6f) {
-        // bardzo krótki segment - nic nie dodajemy
-        LOG_WARN << "addCylinderSegment: segment too short";
-        return {};
-    }
-    dir = dir / dlen; // normalize
-
-    glm::vec3 right, forward;
-    buildStableFrame(dir, right, forward);
-
-    std::vector<int> topIndices;
-    int baseIndex = static_cast<int>(mesh.positions_.size() / 3);
-
-    // dodajemy sides+1 punktów (zamknięcie)
-    for (int i = 0; i <= sides; ++i)
+public:
+    TreeMeshBuilder(const std::list<Branch>& branches)
+        : branches(branches)
     {
-        float angle = (float)i / (float)sides * 2.0f * M_PI;
-        float cs = cosf(angle);
-        float sn = sinf(angle);
-
-        glm::vec3 normal = safeNormalize(right * cs + forward * sn);
-        glm::vec3 pBottom = a + normal * radiusA;
-        glm::vec3 pTop    = b + normal * radiusB;
-
-        // --- bottom vertex ---
-        mesh.positions_.push_back(pBottom.x); mesh.positions_.push_back(pBottom.y); mesh.positions_.push_back(pBottom.z);
-        mesh.normals_.push_back(normal.x); mesh.normals_.push_back(normal.y); mesh.normals_.push_back(normal.z);
-
-        glm::vec3 tangent = safeNormalize(glm::cross(normal, dir));
-        glm::vec3 bitangent = glm::cross(normal, tangent);
-        mesh.tangents_.push_back(tangent.x); mesh.tangents_.push_back(tangent.y); mesh.tangents_.push_back(tangent.z);
-        mesh.bitangents_.push_back(bitangent.x); mesh.bitangents_.push_back(bitangent.y); mesh.bitangents_.push_back(bitangent.z);
-
-        mesh.textCoords_.push_back((float)i / (float)sides); mesh.textCoords_.push_back(0.0f);
-        mesh.bonesWeights_.push_back(1.0f);
-        mesh.joinIds_.push_back(0);
-
-        // --- top vertex ---
-        mesh.positions_.push_back(pTop.x); mesh.positions_.push_back(pTop.y); mesh.positions_.push_back(pTop.z);
-        mesh.normals_.push_back(normal.x); mesh.normals_.push_back(normal.y); mesh.normals_.push_back(normal.z);
-
-        mesh.tangents_.push_back(tangent.x); mesh.tangents_.push_back(tangent.y); mesh.tangents_.push_back(tangent.z);
-        mesh.bitangents_.push_back(bitangent.x); mesh.bitangents_.push_back(bitangent.y); mesh.bitangents_.push_back(bitangent.z);
-
-        mesh.textCoords_.push_back((float)i / (float)sides); mesh.textCoords_.push_back(1.0f);
-        mesh.bonesWeights_.push_back(1.0f);
-        mesh.joinIds_.push_back(0);
-
-        topIndices.push_back(baseIndex + i * 2 + 1);  // górny vertex
     }
 
-    // indices pomiędzy bottom a top
-    for (int i = 0; i < sides; ++i)
+    GraphicsApi::MeshRawData buildCylinderMesh(float radius = 0.05f, int radialSegments = 12)
     {
-        int i0 = baseIndex + i * 2;      // bottom i
-        int i1 = baseIndex + i * 2 + 1;  // top i
-        int i2 = baseIndex + (i + 1) * 2;
-        int i3 = baseIndex + (i + 1) * 2 + 1;
+        prepareMesh(radialSegments);
 
-        mesh.indices_.push_back(i0); mesh.indices_.push_back(i2); mesh.indices_.push_back(i1);
-        mesh.indices_.push_back(i1); mesh.indices_.push_back(i2); mesh.indices_.push_back(i3);
-    }
-
-    return topIndices;
-}
-
-std::vector<int> addCylinderSegmentTopOnly(const glm::vec3& topCenter, float topRadius, const std::vector<int>& bottomIndices,
-                                           int sides, GraphicsApi::MeshRawData& mesh, const glm::vec3& prevRight)
-{
-    std::vector<int> topIndices;
-    if (bottomIndices.empty()) return topIndices;
-
-    int baseIndex = static_cast<int>(mesh.positions_.size() / 3);
-
-    // oblicz approximate bottom center
-    glm::vec3 bottomCenter(0.0f);
-    for (int idx : bottomIndices) {
-        bottomCenter += glm::vec3(mesh.positions_[idx*3+0], mesh.positions_[idx*3+1], mesh.positions_[idx*3+2]);
-    }
-    bottomCenter /= static_cast<float>(bottomIndices.size());
-
-    glm::vec3 dir = topCenter - bottomCenter;
-    float dlen = glm::length(dir);
-    if (dlen < 1e-6f) {
-        LOG_WARN << "addCylinderSegmentTopOnly: dir too small";
-        return topIndices;
-    }
-    dir = dir / dlen;
-
-    glm::vec3 right, forward;
-    if (glm::length(prevRight) > 1e-4f) {
-        // orthonormalize prevRight against dir
-        right = prevRight - dir * glm::dot(dir, prevRight);
-        right = safeNormalize(right);
-        forward = safeNormalize(glm::cross(dir, right));
-    } else {
-        buildStableFrame(dir, right, forward);
-    }
-
-    // stwórz top ring
-    for (int i = 0; i <= sides; ++i)
-    {
-        float angle = (float)i / (float)sides * 2.0f * M_PI;
-        glm::vec3 normal = safeNormalize(right * cosf(angle) + forward * sinf(angle));
-        glm::vec3 pTop = topCenter + normal * topRadius;
-
-        mesh.positions_.push_back(pTop.x); mesh.positions_.push_back(pTop.y); mesh.positions_.push_back(pTop.z);
-        mesh.normals_.push_back(normal.x); mesh.normals_.push_back(normal.y); mesh.normals_.push_back(normal.z);
-
-        glm::vec3 tangent = safeNormalize(glm::cross(normal, dir));
-        glm::vec3 bitangent = glm::cross(normal, tangent);
-        mesh.tangents_.push_back(tangent.x); mesh.tangents_.push_back(tangent.y); mesh.tangents_.push_back(tangent.z);
-        mesh.bitangents_.push_back(bitangent.x); mesh.bitangents_.push_back(bitangent.y); mesh.bitangents_.push_back(bitangent.z);
-
-        mesh.textCoords_.push_back((float)i / (float)sides); mesh.textCoords_.push_back(1.0f);
-        mesh.bonesWeights_.push_back(1.0f);
-        mesh.joinIds_.push_back(0);
-
-        topIndices.push_back(baseIndex + i);
-    }
-
-    // indices łączące bottomIndices <-> topIndices
-    for (int i = 0; i < sides; ++i)
-    {
-        int iBottom0 = bottomIndices[i];
-        int iBottom1 = bottomIndices[i+1];
-        int iTop0 = topIndices[i];
-        int iTop1 = topIndices[i+1];
-
-        mesh.indices_.push_back(iBottom0); mesh.indices_.push_back(iBottom1); mesh.indices_.push_back(iTop0);
-        mesh.indices_.push_back(iTop0); mesh.indices_.push_back(iBottom1); mesh.indices_.push_back(iTop1);
-    }
-
-    return topIndices;
-}
-
-// Rekurencyjna funkcja budująca mesh dla gałęzi i jej dzieci
-void buildBranchRecursive(BranchNode* node,
-                          const std::vector<int>& parentTopIndices,
-                          float segmentRadius,
-                          int sides,
-                          GraphicsApi::MeshRawData& mesh,
-                          OrthoFrame frame,
-                          float bendStrength = 0.1f) // maksymalne odchylenie segmentu
-{
-    if (!node)
-        return;
-
-    std::vector<int> topIndices;
-
-    // dodajemy losowe odchylenie (ale małe)
-    glm::vec3 offset(0.0f);
-    offset.x = glm::linearRand(-bendStrength, bendStrength);
-    offset.z = glm::linearRand(-bendStrength, bendStrength);
-    glm::vec3 segmentPos = node->position + offset;
-
-    if (parentTopIndices.empty())
-    {
-        // root segment: łączymy z parentem (parent powinien istnieć dla childów root)
-        glm::vec3 a = node->parent ? node->parent->position : node->position;
-        glm::vec3 b = segmentPos;
-
-        // compute local frame based on this segment (override provided frame.dir)
-        glm::vec3 dir = b - a;
-        float dlen = glm::length(dir);
-        if (dlen < 1e-6f) {
-            // fallback to frame.dir
-            dir = frame.dir;
-        } else {
-            dir /= dlen;
-        }
-        // rebuild stable frame for this segment
-        buildStableFrame(dir, frame.right, frame.forward);
-        frame.dir = dir;
-
-        topIndices = addCylinderSegment(a, b, segmentRadius, segmentRadius, sides, mesh);
-    }
-    else
-    {
-        // dzieci: użyj frame.right jako prevRight żeby zachować orientację
-        topIndices = addCylinderSegmentTopOnly(segmentPos, segmentRadius, parentTopIndices, sides, mesh, frame.right);
-    }
-
-    // rekurencyjnie dla dzieci - dla każdego dziecka oblicz nowy frame (ortogonalizacja)
-    for (auto child : node->children)
-    {
-        if (!child) continue;
-
-        // compute child's segmentPos (we should mimic the same offset as above for stability)
-        glm::vec3 childOffset(0.0f);
-        childOffset.x = glm::linearRand(-bendStrength, bendStrength);
-        childOffset.z = glm::linearRand(-bendStrength, bendStrength);
-        glm::vec3 childPos = child->position + childOffset;
-
-        // compute newDir from current segmentPos to childPos
-        glm::vec3 newDir = childPos - segmentPos;
-        float ndlen = glm::length(newDir);
-        OrthoFrame childFrame = frame;
-        if (ndlen < 1e-6f) {
-            // jeśli zbyt mało - zachowaj dotychczasową kierunkowość
-            newDir = frame.dir;
-        } else {
-            newDir /= ndlen;
+        for (const auto& branch : branches)
+        {
+            if (branchHasParent(branch))
+                appendBranchCylinder(branch, radius);
         }
 
-        // Gram-Schmidt: ortogonalizuj right względem newDir (zapewnia to płynne obracanie)
-        glm::vec3 newRight = childFrame.right - newDir * glm::dot(newDir, childFrame.right);
-        newRight = safeNormalize(newRight);
-
-        glm::vec3 newForward = glm::cross(newDir, newRight);
-        newForward = safeNormalize(newForward);
-
-        childFrame.dir = newDir;
-        childFrame.right = newRight;
-        childFrame.forward = newForward;
-
-        buildBranchRecursive(child, topIndices, segmentRadius * 0.9f, sides, mesh, childFrame, bendStrength);
+        return std::move(mesh);
     }
-}
 
-// Buduje cały mesh drzewa
-GraphicsApi::MeshRawData buildTreeMesh(std::vector<BranchNode*>& skeleton, float segmentRadius = 0.2f, int sides = 6)
-{
+private:
+    void prepareMesh(int& radialSegments)
+    {
+        if (radialSegments < 3)
+            radialSegments = 3;
+
+        mesh                 = {};
+        indexOffset          = 0;
+        this->radialSegments = radialSegments;
+    }
+
+    void appendBranchCylinder(const Branch& branch, float radius)
+    {
+        if (!computeBranchAxis(branch))
+            return;
+
+        buildOrthonormalBasis();
+        appendCylinderVertices(radius);
+        appendCylinderIndices();
+    }
+
+    bool computeBranchAxis(const Branch& branch)
+    {
+        start = branch.parent->position;
+        end   = branch.position;
+
+        axis   = end - start;
+        length = glm::length(axis);
+
+        if (length < 1e-6f)
+            return false;
+
+        direction = axis / length;
+        return true;
+    }
+
+    void buildOrthonormalBasis()
+    {
+        vec3 up = (std::abs(direction.y) < 0.99f) ? vec3(0, 1, 0) : vec3(1, 0, 0);
+
+        tangent   = glm::normalize(glm::cross(up, direction));
+        bitangent = glm::cross(direction, tangent);
+    }
+
+    void appendCylinderVertices(float radius)
+    {
+        appendRing(start, radius);
+        appendRing(end, radius);
+    }
+
+    void appendRing(const vec3& center, float radius)
+    {
+        for (int i = 0; i < radialSegments; ++i)
+        {
+            float angle = (float)i / radialSegments * TWO_PI;
+            vec3 normal = std::cos(angle) * tangent + std::sin(angle) * bitangent;
+
+            vec3 pos = center + normal * radius;
+            writeVertex(pos, normal);
+        }
+    }
+
+    void appendCylinderIndices()
+    {
+        for (int i = 0; i < radialSegments; ++i)
+        {
+            int next = (i + 1) % radialSegments;
+
+            IndicesDataType i0 = indexOffset + i;
+            IndicesDataType i1 = indexOffset + next;
+            IndicesDataType i2 = indexOffset + i + radialSegments;
+            IndicesDataType i3 = indexOffset + next + radialSegments;
+
+            mesh.indices_.insert(mesh.indices_.end(), {i0, i2, i1});
+            mesh.indices_.insert(mesh.indices_.end(), {i1, i2, i3});
+        }
+
+        indexOffset += radialSegments * 2;
+    }
+
+    void writeVertex(const vec3& pos, const vec3& normal)
+    {
+        mesh.positions_.insert(mesh.positions_.end(), {pos.x, pos.y, pos.z});
+        mesh.normals_.insert(mesh.normals_.end(), {normal.x, normal.y, normal.z});
+    }
+
+    bool branchHasParent(const Branch& branch) const
+    {
+        return branch.parent != nullptr;
+    }
+
+private:
+    static constexpr float TWO_PI = glm::two_pi<float>();
+
+    const std::list<Branch>& branches;
     GraphicsApi::MeshRawData mesh;
 
-    if (skeleton.empty())
-        return mesh;
+    vec3 start;
+    vec3 end;
+    vec3 axis;
+    vec3 direction;
+    vec3 tangent;
+    vec3 bitangent;
+    float length = 0.f;
 
-    BranchNode* root = skeleton[0];
+    uint32_t indexOffset = 0;
+    int radialSegments   = 0;
+};
 
-    // przygotuj początkową ramkę (dla pnia kierunek w górę)
-    OrthoFrame initialFrame;
-    initialFrame.dir = glm::vec3(0, 1, 0);
-    buildStableFrame(initialFrame.dir, initialFrame.right, initialFrame.forward);
-
-    // Dla root segmentu parentTopIndices = empty, przekazujemy initialFrame
-    for (auto child : root->children)
-    {
-        buildBranchRecursive(child, {}, segmentRadius, sides, mesh, initialFrame);
-    }
-
-    return mesh;
-}
-
-GraphicsApi::MeshRawData generateTree(int attractorCount, float crownRadius, float crownHeight, float attractionDistance,
-                                      float killDistance, float segmentLength, float trunkOffsetY)
+GraphicsApi::MeshRawData GameEngine::generateTree(int attractorCount, float crownRadius, float crownHeight,
+                                                  float attractionDistance, float killDistance, float segmentLength,
+                                                  float trunkOffsetY)
 {
-    LOG_DEBUG << "Generating procedural tree:"
-              << " attractors=" << attractorCount << ", crownRadius=" << crownRadius << ", crownHeight=" << crownHeight
-              << ", attractionDistance=" << attractionDistance << ", killDistance=" << killDistance
-              << ", segmentLength=" << segmentLength;
-    auto attractors = generateAttractors(attractorCount, crownRadius, crownHeight, trunkOffsetY);
-    auto skeleton   = generateTreeSkeleton(attractors, attractionDistance, killDistance, segmentLength);
-    auto mesh       = buildTreeMesh(skeleton);
+    Tree tree{};
+    tree.rootPosition = vec3(0, -50.f, 0);
+    tree.prepareAttractors(attractorCount, crownRadius);
+    tree.build();
 
-    LOG_DEBUG << "Tree generated: "
-              << " skeletonNodes=" << skeleton.size() << ", meshVertices=" << mesh.positions_.size() / 3
-              << ", meshIndices=" << mesh.indices_.size();
-
-    return mesh;
+    TreeMeshBuilder builder(tree.GetBranches());
+    return builder.buildCylinderMesh();
 }
-}  // namespace GameEngine
