@@ -2031,7 +2031,13 @@ void MainFrame::MenuEditCreateTriangle(wxCommandEvent&)
 void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 {
     LOG_DEBUG << "Create tree";
-    auto treeMesh       = GameEngine::generateTree();
+    auto treeMesh = GameEngine::generateTree();
+    if (treeMesh.positions_.empty())
+    {
+        wxLogMessage("generateTree failed");
+        return;
+    }
+
     auto& engineContext = canvas->GetEngine().GetEngineContext();
 
     auto& resourceManager = canvas->GetScene().GetResourceManager();
