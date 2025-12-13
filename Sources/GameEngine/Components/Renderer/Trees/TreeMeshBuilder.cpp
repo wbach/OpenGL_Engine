@@ -1,5 +1,7 @@
 #include "TreeMeshBuilder.h"
 
+#include "glm/common.hpp"
+
 namespace GameEngine
 {
 namespace
@@ -45,10 +47,7 @@ void TreeMeshBuilder::appendBranchCylinder(const Branch& branch)
 
     buildOrthonormalBasis();
 
-    auto branchLvl = branchLvls.at(&branch);
-    auto radius    = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
-
-    appendCylinderVertices(radius);
+    appendCylinderVertices(branch);
     appendCylinderIndices();
 }
 bool TreeMeshBuilder::computeBranchAxis(const Branch& branch)
@@ -72,10 +71,14 @@ void TreeMeshBuilder::buildOrthonormalBasis()
     tangent   = glm::normalize(glm::cross(up, direction));
     bitangent = glm::normalize(glm::cross(direction, tangent));
 }
-void TreeMeshBuilder::appendCylinderVertices(float radius)
+void TreeMeshBuilder::appendCylinderVertices(const Branch& branch)
 {
-    appendRing(start, radius, 0.f);
-    appendRing(end, radius, 1.f);
+    auto branchLvl    = branchLvls.at(&branch);
+    auto radiusTop    = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
+    auto radiusBottom = calculateBranchRadius(std::max(branchLvl - 1, 1), maxBranchLvl, minBranchRadius, maxBranchRadius);
+
+    appendRing(start, radiusBottom, 0.f);
+    appendRing(end, radiusTop, 1.f);
 }
 void TreeMeshBuilder::appendRing(const vec3& center, float radius, float v)
 {
@@ -134,11 +137,11 @@ void TreeMeshBuilder::calculateBranchesLvls()
         branchLvls.insert({&branch, lvl});
     }
 }
-size_t TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
+int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
 {
     if (not branch.parent)
     {
-        return 1.f;
+        return 1;
     }
     return calcuateBranchLvl(*branch.parent) + 1;
 }

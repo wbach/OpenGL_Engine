@@ -20,20 +20,20 @@ private:
     void appendBranchCylinder(const Branch& branch);
     bool computeBranchAxis(const Branch& branch);
     void buildOrthonormalBasis();
-    void appendCylinderVertices(float radius);
+    void appendCylinderVertices(const Branch& branch);
     void appendRing(const vec3& center, float radius, float v);
     void appendCylinderIndices();
     void writeVertex(const vec3& pos, const vec3& normal, const vec3& tangent, const vec3& bitangent, const vec2& uv);
     bool branchHasParent(const Branch& branch) const;
     void calculateBranchesLvls();
-    size_t calcuateBranchLvl(const Branch& branch);
+    int calcuateBranchLvl(const Branch& branch);
 
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();
 
     const std::list<Branch>& branches;
-    std::unordered_map<const Branch*, size_t> branchLvls;
-    size_t maxBranchLvl = 1;
+    std::unordered_map<const Branch*, int> branchLvls;
+    int maxBranchLvl = 1;
 
     GraphicsApi::MeshRawData mesh;
 
