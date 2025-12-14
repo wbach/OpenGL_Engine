@@ -38,7 +38,7 @@ GraphicsApi::MeshRawData TreeMeshBuilder::buildCylinderMesh(int radialSegments)
         }
         if (!branch.hasChildren)
         {
-            appendBranchCap(branch);
+            appendBranchCap(branch); // appendBranchCapSphere
         }
     }
 
@@ -248,5 +248,54 @@ void TreeMeshBuilder::appendBranchCap(const Branch& branch)
     }
 
     indexOffset += radialSegments + 1;
+}
+void TreeMeshBuilder::appendBranchCapSphere(const Branch& branch)
+{
+    auto& context = branchContexts.at(&branch);
+    vec3 center   = branch.position;
+    float radius  = calculateBranchRadius(context.lvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
+
+    int latSegments  = radialSegments / 2;  // warstwy wzdłuż osi gałęzi
+    int longSegments = radialSegments;      // segmenty wokół osi
+
+    int baseIndex = indexOffset;
+
+    // Wierzchołki
+    for (int lat = 0; lat <= latSegments; ++lat)
+    {
+        float theta    = (float)lat / latSegments * (glm::pi<float>() / 2.0f);  // od 0 do 90 stopni
+        float sinTheta = sin(theta);
+        float cosTheta = cos(theta);
+
+        for (int lon = 0; lon < longSegments; ++lon)
+        {
+            float phi   = (float)lon / longSegments * TWO_PI;
+            vec3 offset = tangent * cosf(phi) * radius * sinTheta + bitangent * sinf(phi) * radius * sinTheta;
+            vec3 pos    = center + direction * radius * cosTheta + offset;
+            vec3 normal = glm::normalize(pos - center);
+
+            vec2 uv{(float)lon / longSegments, (float)lat / latSegments};
+            writeVertex(pos, normal, tangent, bitangent, uv);
+        }
+    }
+
+    // Indeksy
+    for (int lat = 0; lat < latSegments; ++lat)
+    {
+        for (int lon = 0; lon < longSegments; ++lon)
+        {
+            int nextLon   = (lon + 1) % longSegments;
+            int curr      = baseIndex + lat * longSegments + lon;
+            int next      = baseIndex + lat * longSegments + nextLon;
+            int currAbove = baseIndex + (lat + 1) * longSegments + lon;
+            int nextAbove = baseIndex + (lat + 1) * longSegments + nextLon;
+
+            // Trójkąty w pasmach
+            mesh.indices_.insert(mesh.indices_.end(), {curr, currAbove, next});
+            mesh.indices_.insert(mesh.indices_.end(), {next, currAbove, nextAbove});
+        }
+    }
+
+    indexOffset += (latSegments + 1) * longSegments;
 }
 }  // namespace GameEngine
