@@ -150,6 +150,7 @@ Branch* Tree::closestBranch(Attractor& attractor)
         {
             // branch is to close
             attractor.reached = true;
+            leafPositions.push_back(attractor.position);
             return nullptr;
         }
         else if (distance < minAcceptableDistance)
@@ -219,4 +220,9 @@ void Tree::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
 
     branchesCalculationInfo.clear();
 }
+const std::vector<vec3>& Tree::GetLeafsPositions() const
+{
+    return leafPositions;
+}
 }  // namespace GameEngine
+

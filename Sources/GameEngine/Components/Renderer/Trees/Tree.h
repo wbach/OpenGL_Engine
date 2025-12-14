@@ -3,6 +3,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <vector>
 
 #include "Attractor.h"
 #include "Branch.h"
@@ -23,6 +24,7 @@ public:
     void clear();
 
     const std::list<Branch>& GetBranches() const;
+    const std::vector<vec3>& GetLeafsPositions() const;
 
 private:
     void validateParameters() const;
@@ -44,6 +46,7 @@ public:
 private:
     std::vector<Attractor> attractors;
     std::list<Branch> branches;
+    std::vector<vec3> leafPositions;
 
     size_t zeroDirCount        = 0;
     size_t maxTrunkSteps       = 0;
