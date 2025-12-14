@@ -102,6 +102,7 @@ void Tree::searchBranches()
             Branch newBranch{.position  = current->position + (current->direction) * segmentLength,
                              .direction = glm::normalize(current->direction),
                              .parent    = current};
+            current->hasChildren = true;
             branches.push_back(newBranch);
             current = &branches.back();
         }
@@ -211,6 +212,7 @@ void Tree::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
             Branch newBranch{.position  = branch->position + (info.direction) * segmentLength,
                              .direction = glm::normalize(info.direction),
                              .parent    = branch};
+            branch->hasChildren = true;
             branches.push_back(newBranch);
         }
     }

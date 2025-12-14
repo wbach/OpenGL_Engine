@@ -1,5 +1,7 @@
 #include "TreeMeshBuilder.h"
 
+#include "GameEngine/Components/Renderer/Trees/Branch.h"
+#include "Types.h"
 #include "glm/common.hpp"
 
 namespace GameEngine
@@ -26,8 +28,12 @@ GraphicsApi::MeshRawData TreeMeshBuilder::buildCylinderMesh(int radialSegments)
     for (const auto& branch : branches)
     {
         if (branchHasParent(branch))
+        {
             appendBranchCylinder(branch);
+        }
     }
+
+    appendBranchesTransitions();
 
     return std::move(mesh);
 }
@@ -50,6 +56,52 @@ void TreeMeshBuilder::appendBranchCylinder(const Branch& branch)
     appendCylinderVertices(branch);
     appendCylinderIndices();
 }
+
+void TreeMeshBuilder::appendBranchesTransitions()
+{
+    for (const auto& branch : branches)
+    {
+        if (!branch.parent)
+            continue;
+
+        auto& parentContext = branchContexts[branch.parent];
+        auto& branchContext = branchContexts[&branch];
+
+        appendTransition(parentContext.topVertexes, branchContext.bottomVertexes);
+    }
+}
+
+void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, const std::vector<RingVertex>& ringB)
+{
+    int n    = ringA.size();
+    int base = indexOffset;
+
+    // ring A
+    for (int i = 0; i < n; ++i)
+    {
+        const auto& v = ringA[i];
+        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 0.f));
+    }
+
+    // ring B
+    for (int i = 0; i < n; ++i)
+    {
+        const auto& v = ringB[i];
+        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 1.f));
+    }
+
+    // indices (identyczne jak cylinder)
+    for (int i = 0; i < n; ++i)
+    {
+        int next = (i + 1) % n;
+
+        mesh.indices_.insert(mesh.indices_.end(),
+                             {base + i, base + next, base + i + n, base + next, base + next + n, base + i + n});
+    }
+
+    indexOffset += n * 2;
+}
+
 bool TreeMeshBuilder::computeBranchAxis(const Branch& branch)
 {
     start = branch.parent->position;
@@ -73,14 +125,15 @@ void TreeMeshBuilder::buildOrthonormalBasis()
 }
 void TreeMeshBuilder::appendCylinderVertices(const Branch& branch)
 {
-    auto branchLvl    = branchLvls.at(&branch);
+    auto& context     = branchContexts.at(&branch);
+    auto branchLvl    = context.lvl;
     auto radiusTop    = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
     auto radiusBottom = calculateBranchRadius(std::max(branchLvl - 1, 1), maxBranchLvl, minBranchRadius, maxBranchRadius);
 
-    appendRing(start, radiusBottom, 0.f);
-    appendRing(end, radiusTop, 1.f);
+    appendRing(context.bottomVertexes, start, radiusBottom, 0.f);
+    appendRing(context.topVertexes, end, radiusTop, 1.f);
 }
-void TreeMeshBuilder::appendRing(const vec3& center, float radius, float v)
+void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, const vec3& center, float radius, float v)
 {
     for (int i = 0; i < radialSegments; ++i)
     {
@@ -92,7 +145,9 @@ void TreeMeshBuilder::appendRing(const vec3& center, float radius, float v)
         vec3 pos = center + normal * radius;
 
         float u = float(i) / radialSegments;
-        writeVertex(pos, normal, tang, bitang, {u, v});
+        vec2 uv{u, v};
+        writeVertex(pos, normal, tang, bitang, uv);
+        vertices.push_back(RingVertex{.pos = pos, .normal = normal, .tangent = tang, .bitangent = bitang, .uv = uv});
     }
 }
 void TreeMeshBuilder::appendCylinderIndices()
@@ -134,7 +189,7 @@ void TreeMeshBuilder::calculateBranchesLvls()
             maxBranchLvl = lvl;
         }
 
-        branchLvls.insert({&branch, lvl});
+        branchContexts.insert({&branch, BranchContext{.lvl = lvl}});
     }
 }
 int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)

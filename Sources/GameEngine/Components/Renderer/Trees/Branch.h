@@ -9,5 +9,6 @@ struct Branch
     vec3 direction;
 
     Branch* parent{nullptr};
+    bool hasChildren{false};
 };
 }  // namespace GameEngine
