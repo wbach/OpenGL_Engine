@@ -40,6 +40,7 @@ private:
     void calculateBranchesLvls();
     int calcuateBranchLvl(const Branch& branch);
     void appendTransition(const std::vector<RingVertex>&, const std::vector<RingVertex>&);
+    void appendBranchCap(const Branch& branch);
 
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();

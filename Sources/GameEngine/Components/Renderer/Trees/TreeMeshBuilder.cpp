@@ -36,6 +36,10 @@ GraphicsApi::MeshRawData TreeMeshBuilder::buildCylinderMesh(int radialSegments)
         {
             appendBranchCylinder(branch);
         }
+        if (!branch.hasChildren)
+        {
+            appendBranchCap(branch);
+        }
     }
 
     appendBranchesTransitions();
@@ -216,5 +220,33 @@ int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
         return 1;
     }
     return calcuateBranchLvl(*branch.parent) + 1;
+}
+void TreeMeshBuilder::appendBranchCap(const Branch& branch)
+{
+    auto& context  = branchContexts.at(&branch);
+    vec3 center    = branch.position;
+    auto branchLvl = context.lvl;
+    float radius   = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
+
+    int baseIndex = indexOffset;
+    vec3 normal   = direction;
+
+    writeVertex(center, normal, tangent, bitangent, vec2(0.5f, 0.5f));
+
+    for (int i = 0; i < radialSegments; ++i)
+    {
+        float angle = (float)i / radialSegments * TWO_PI;
+        vec3 offset = tangent * cosf(angle) * radius + bitangent * sinf(angle) * radius;
+        vec3 pos    = center + offset;
+        writeVertex(pos, normal, tangent, bitangent, vec2(0.5f + 0.5f * cosf(angle), 0.5f + 0.5f * sinf(angle)));
+    }
+
+    for (int i = 0; i < radialSegments; ++i)
+    {
+        int next = (i + 1) % radialSegments;
+        mesh.indices_.insert(mesh.indices_.end(), {baseIndex, baseIndex + 1 + i, baseIndex + 1 + next});
+    }
+
+    indexOffset += radialSegments + 1;
 }
 }  // namespace GameEngine
