@@ -1,8 +1,13 @@
 #include "TreeMeshBuilder.h"
 
+#include <Logger/Log.h>
+
+#include <vector>
+
 #include "GameEngine/Components/Renderer/Trees/Branch.h"
 #include "Types.h"
 #include "glm/common.hpp"
+#include "glm/geometric.hpp"
 
 namespace GameEngine
 {
@@ -76,21 +81,18 @@ void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, con
     int n    = ringA.size();
     int base = indexOffset;
 
-    // ring A
     for (int i = 0; i < n; ++i)
     {
         const auto& v = ringA[i];
         writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 0.f));
     }
 
-    // ring B
     for (int i = 0; i < n; ++i)
     {
         const auto& v = ringB[i];
         writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 1.f));
     }
 
-    // indices (identyczne jak cylinder)
     for (int i = 0; i < n; ++i)
     {
         int next = (i + 1) % n;
@@ -98,7 +100,6 @@ void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, con
         mesh.indices_.insert(mesh.indices_.end(),
                              {base + i, base + next, base + i + n, base + next, base + next + n, base + i + n});
     }
-
     indexOffset += n * 2;
 }
 
@@ -130,19 +131,35 @@ void TreeMeshBuilder::appendCylinderVertices(const Branch& branch)
     auto radiusTop    = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
     auto radiusBottom = calculateBranchRadius(std::max(branchLvl - 1, 1), maxBranchLvl, minBranchRadius, maxBranchRadius);
 
-    appendRing(context.bottomVertexes, start, radiusBottom, 0.f);
-    appendRing(context.topVertexes, end, radiusTop, 1.f);
+    appendRing(context.bottomVertexes, branch.parent ? &branchContexts.at(branch.parent).topVertexes : nullptr, start,
+               radiusBottom, 0.f);
+    appendRing(context.topVertexes, nullptr, end, radiusTop, 1.f);
 }
-void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, const vec3& center, float radius, float v)
+void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<RingVertex>* parentVertexes, const vec3& center,
+                                 float radius, float v)
 {
     for (int i = 0; i < radialSegments; ++i)
     {
-        float angle = (float)i / radialSegments * TWO_PI;
-        vec3 normal = glm::normalize(std::cos(angle) * tangent + std::sin(angle) * bitangent);
-        vec3 tang   = glm::normalize(glm::cross(bitangent, normal));
-        vec3 bitang = glm::cross(normal, tang);
+        float angle     = (float)i / radialSegments * TWO_PI;
+        vec3 baseNormal = glm::normalize(std::cos(angle) * tangent + std::sin(angle) * bitangent);
+        vec3 normal     = baseNormal;
 
-        vec3 pos = center + normal * radius;
+        if (parentVertexes)
+        {
+            if (parentVertexes->size() == radialSegments)
+            {
+                const auto& parentNormal = (*parentVertexes)[i].normal;
+                normal                   = glm::normalize((normal + parentNormal) / 2.f);
+            }
+            else
+            {
+                LOG_DEBUG << "parentVertexes->size() " << parentVertexes->size();
+            }
+        }
+
+        vec3 tang   = glm::normalize(glm::cross(direction, normal));
+        vec3 bitang = glm::cross(normal, tang);
+        vec3 pos    = center + baseNormal * radius;
 
         float u = float(i) / radialSegments;
         vec2 uv{u, v};

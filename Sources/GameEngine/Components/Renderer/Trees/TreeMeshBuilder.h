@@ -33,7 +33,7 @@ private:
     void appendMainBranchCylinder(const Branch& branch);
     void appendBranchesTransitions();
     void appendCylinderVertices(const Branch& branch);
-    void appendRing(std::vector<RingVertex>&, const vec3& center, float radius, float v);
+    void appendRing(std::vector<RingVertex>&, std::vector<RingVertex>*, const vec3& center, float radius, float v);
     void appendCylinderIndices();
     void writeVertex(const vec3& pos, const vec3& normal, const vec3& tangent, const vec3& bitangent, const vec2& uv);
     bool branchHasParent(const Branch& branch) const;
