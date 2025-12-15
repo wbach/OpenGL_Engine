@@ -72,6 +72,7 @@ FieldInfo MakeEnumField(const char* name, Enum* value)
 #define FIELD_TEXTURE(member) fields.push_back({#member, FieldType::Texture, &(this->member)});
 #define FIELD_FILE(member) fields.push_back({#member, FieldType::File, &(this->member)});
 #define FIELD_ANIMATION_CLIP(member) fields.push_back({#member, FieldType::AnimationClip, &(this->member)});
+#define FIELD_MATERIAL(member) fields.push_back({#member, FieldType::Material, &(this->member)});
 #define FIELD_VECTOR2I(member) fields.push_back({#member, FieldType::Vector2i, &(this->member)});
 #define FIELD_VECTOR2F(member) fields.push_back({#member, FieldType::Vector2f, &(this->member)});
 #define FIELD_VECTOR3F(member) fields.push_back({#member, FieldType::Vector3f, &(this->member)});

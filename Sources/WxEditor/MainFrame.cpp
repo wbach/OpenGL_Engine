@@ -42,6 +42,7 @@
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
 #include "Components/Renderer/Trees/TreeGenerate.h"
+#include "Components/Renderer/Trees/TreeRendererComponent.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -2051,8 +2052,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 
     auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
 
-    // TO DO : Modify and use Tree renderer component?
-    obj->AddComponent<GameEngine::Components::RendererComponent>().AddModel(modelPtr);
+    obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetModel(modelPtr);
     obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
     canvas->AddGameObject(std::move(obj));
 }

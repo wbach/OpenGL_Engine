@@ -3,13 +3,18 @@
 #include <Utils/GLM/GLMUtils.h>
 #include <Utils/TreeNode.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/LoggingLvl.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -17,11 +22,9 @@ namespace Components
 {
 namespace
 {
-const std::string COMPONENT_STR         = "TreeRenderer";
-const std::string CSTR_TOP_FILENAMES    = "topFileNames";
-const std::string CSTR_BOTTOM_FILENAMES = "bottomFileNames";
-const std::string CSTR_SIZE_2D          = "size2d";
-const std::string CSTR_POSITIONS        = "positions";
+constexpr char CSTR_FILENAMES[]              = "modelFileNames";
+constexpr char CSTR_LEAFS_POSITON_FILENAME[] = "leafPositionFile";
+constexpr char CSTR_INSTANCES_POSITIONS[]    = "insatncesPositions";
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -46,50 +49,59 @@ void TreeRendererComponent::Reload()
     Subscribe();
 }
 
-TreeRendererComponent& TreeRendererComponent::SetPositions(const std::vector<vec3>& positions, const vec2ui& size2d)
+TreeRendererComponent& TreeRendererComponent::SetInstancesPositions(const std::vector<vec3>& positions)
 {
-    positions_ = positions;
-    if (size2d.x == 0 || size2d.y == 0)
-    {
-        auto s  = sqrt(positions.size());
-        size2d_ = vec2ui(static_cast<uint32>(std::floor(s)));
-    }
-    else
-    {
-        size2d_ = size2d;
-    }
-
+    instancesPositions_ = positions;
     return *this;
 }
-TreeRendererComponent& TreeRendererComponent::SetBottomModel(const std::string& filename, GameEngine::LevelOfDetail i)
+TreeRendererComponent& TreeRendererComponent::SetModel(const File& file, LevelOfDetail i)
 {
-    if (filename.empty())
+    if (file.empty())
         return *this;
 
-    bottomFilenames_.insert({filename, i});
+    switch (i)
+    {
+        case LevelOfDetail::L1:
+            modelLod1 = file;
+            break;
+        case LevelOfDetail::L2:
+            modelLod2 = file;
+            break;
+        case LevelOfDetail::L3:
+            modelLod3 = file;
+            break;
+    }
 
-    auto model = componentContext_.resourceManager_.LoadModel(filename);
+    auto modelPtr = componentContext_.resourceManager_.LoadModel(file);
     thisObject_.TakeWorldTransfromSnapshot();
-    bottom_.Add(model, i);
-
+    model.Add(modelPtr, i);
     return *this;
 }
-TreeRendererComponent& TreeRendererComponent::SetTopModel(const std::string& filename, GameEngine::LevelOfDetail i)
+
+TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    if (filename.empty())
-        return *this;
+    auto file = EngineConf.files.getGeneratedDirPath() / (Utils::CreateUniqueFilename() + ".mesh");
 
-    topFilenames_.insert({filename, i});
+    switch (i)
+    {
+        case LevelOfDetail::L1:
+            modelLod1 = file;
+            break;
+        case LevelOfDetail::L2:
+            modelLod2 = file;
+            break;
+        case LevelOfDetail::L3:
+            modelLod3 = file;
+            break;
+    }
 
-    auto model = componentContext_.resourceManager_.LoadModel(filename);
-    thisObject_.TakeWorldTransfromSnapshot();
-    top_.Add(model, i);
-
+    model.Add(modelPtr, i);
     return *this;
 }
+
 void TreeRendererComponent::Subscribe()
 {
-    if (not isSubsribed_ and not positions_.empty())
+    if (not isSubsribed_)
     {
         CreatePerObjectUpdateBuffer();
         CreatePerInstancesBuffer();
@@ -108,18 +120,11 @@ void TreeRendererComponent::UnSubscribe()
 }
 void TreeRendererComponent::CreatePerObjectUpdateBuffer()
 {
-    const auto& tmodel = top_.Get(L1);
-    const auto& bmodel = bottom_.Get(L1);
-
-    float factor = tmodel->getBoundingBox().maxScale() > bmodel->getBoundingBox().maxScale()
-                       ? bmodel->getBoundingBox().maxScale()
-                       : bmodel->getBoundingBox().maxScale();
-
     perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.resourceManager_.GetGraphicsApi(),
                                                                              PER_OBJECT_UPDATE_BIND_LOCATION);
 
-    auto normalizedMatrix = glm::scale(vec3(1.f / factor)) * thisObject_.GetWorldTransform().GetMatrix();
-    perObjectUpdateBuffer_->GetData().TransformationMatrix = normalizedMatrix;
+    perObjectUpdateBuffer_->GetData().TransformationMatrix =
+        componentContext_.graphicsApi_.PrepareMatrixToLoad(thisObject_.GetWorldTransform().GetMatrix());
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perObjectUpdateBuffer_);
 }
@@ -129,7 +134,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
                                                                  PER_INSTANCES_BIND_LOCATION);
 
     int index = 0;
-    for (const auto& pos : positions_)
+    for (const auto& pos : instancesPositions_)
     {
         perInstances_->GetData().transforms[index++] = Utils::CreateTransformationMatrix(pos, DegreesVec3(0.f), vec3(1.f));
     }
@@ -138,9 +143,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
 }
 void TreeRendererComponent::ReleaseModels()
 {
-    for (auto model : top_.PopModels())
-        componentContext_.resourceManager_.ReleaseModel(*model);
-    for (auto model : bottom_.PopModels())
+    for (auto model : model.PopModels())
         componentContext_.resourceManager_.ReleaseModel(*model);
 }
 void TreeRendererComponent::DeleteShaderBuffers()
@@ -156,9 +159,9 @@ void TreeRendererComponent::registerReadFunctions()
     {
         auto component = std::make_unique<TreeRendererComponent>(componentContext, gameObject);
 
-        if (auto bottomFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES))
+        if (auto filesNode = node.getChild(CSTR_FILENAMES))
         {
-            for (const auto& fileNode : bottomFilesNode->getChildren())
+            for (const auto& fileNode : filesNode->getChildren())
             {
                 auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
                 auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
@@ -167,34 +170,28 @@ void TreeRendererComponent::registerReadFunctions()
                 {
                     const auto& filename = fileNameNode->value_;
                     auto lod             = static_cast<LevelOfDetail>(std::stoi(lvlOfDetailNode->value_));
-                    component->SetBottomModel(filename, lod);
+                    component->SetModel(filename, lod);
                 }
             }
         }
 
-        if (auto topFilesNode = node.getChild(CSTR_BOTTOM_FILENAMES))
+        if (auto instancesNode = node.getChild(CSTR_INSTANCES_POSITIONS))
         {
-            for (const auto& fileNode : topFilesNode->getChildren())
-            {
-                auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
-                auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
+            component->instancesPositions_.clear();
+            component->instancesPositions_.reserve(instancesNode->getChildren().size());
 
-                if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
-                {
-                    const auto& filename = fileNameNode->value_;
-                    auto lod             = static_cast<LevelOfDetail>(std::stoi(lvlOfDetailNode->value_));
-                    component->SetTopModel(filename, lod);
-                }
+            for (auto& child : instancesNode->getChildren())
+            {
+                vec3 position(0);
+                ::Read(child.get(), position);
+                component->instancesPositions_.push_back(position);
             }
         }
 
-        vec2ui size2d(0);
-        std::vector<vec3> positions;
-
-        ::Read(node.getChild(CSTR_SIZE_2D), size2d);
-        ::Read(node.getChild(CSTR_POSITIONS), positions);
-
-        component->SetPositions(positions, size2d);
+        if (auto leafsFileNode = node.getChild(CSTR_LEAFS_POSITON_FILENAME))
+        {
+            component->leafPositionsFile = leafsFileNode->value_;
+        }
 
         return component;
     };
@@ -202,31 +199,41 @@ void TreeRendererComponent::registerReadFunctions()
     regsiterComponentReadFunction(GetComponentType<TreeRendererComponent>(), readFunc);
 }
 
-namespace
-{
-void write(TreeNode& node, const std::string& filename, LevelOfDetail lvl)
-{
-    node.addChild(CSTR_FILE_NAME, filename);
-    node.addChild(CSTR_MODEL_LVL_OF_DETAIL, std::to_string(static_cast<int>(lvl)));
-}
-
-void write(TreeNode& node, const std::unordered_map<std::string, LevelOfDetail>& files)
-{
-    for (const auto& files : files)
-    {
-        write(node.addChild(CSTR_MODEL_FILE_NAME), files.first, files.second);
-    }
-}
-}  // namespace
-
 void TreeRendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, COMPONENT_STR});
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
-    Components::write(node.addChild(CSTR_TOP_FILENAMES), topFilenames_);
-    Components::write(node.addChild(CSTR_BOTTOM_FILENAMES), bottomFilenames_);
-    ::write(node.addChild(CSTR_SIZE_2D), size2d_);
-    ::write(node.addChild(CSTR_POSITIONS), positions_);
+    auto& filenames = node.addChild(CSTR_FILENAMES);
+
+    auto addModelNode = [&filenames](const File& file, LevelOfDetail lvl)
+    {
+        auto& lvl1Node = filenames.addChild(CSTR_MODEL_FILE_NAME);
+        lvl1Node.addChild(CSTR_FILE_NAME, file.GetDataRelativePath());
+        lvl1Node.addChild(CSTR_MODEL_LVL_OF_DETAIL, magic_enum::enum_name(lvl));
+    };
+
+    addModelNode(modelLod1, LevelOfDetail::L1);
+    addModelNode(modelLod2, LevelOfDetail::L2);
+    addModelNode(modelLod3, LevelOfDetail::L3);
+
+    ::write(node.addChild(CSTR_LEAFS_POSITON_FILENAME), leafPositionsFile.GetDataRelativePath());
+
+    if (not instancesPositions_.empty())
+    {
+        auto& instancesNode = node.addChild(CSTR_INSTANCES_POSITIONS);
+        for (const auto& pos : instancesPositions_)
+        {
+            ::write(instancesNode.addChild(CSTR_POSITION), pos);
+        }
+    }
+}
+const ModelWrapper& TreeRendererComponent::GetModel() const
+{
+    return model;
+}
+const std::vector<vec3>& TreeRendererComponent::GetInstancesPositions() const
+{
+    return instancesPositions_;
 }
 }  // namespace Components
 }  // namespace GameEngine

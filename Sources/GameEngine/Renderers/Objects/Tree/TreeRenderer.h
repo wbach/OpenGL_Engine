@@ -1,6 +1,8 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 
+#include <vector>
+
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 
@@ -22,7 +24,7 @@ class TreeRendererComponent;
 struct TreeSubscriber
 {
     GameObject* gameObject_{nullptr};
-    Components::TreeRendererComponent* treeRendererComponent_{nullptr};
+    std::vector<Components::TreeRendererComponent*> treeRendererComponent_{nullptr};
 };
 
 class TreeRenderer : public IRenderer
@@ -40,16 +42,22 @@ public:
     void render() override;
 
 private:
-    void RenderModel(const Model&, const TreeSubscriber&) const;
+    void RenderSingleTree(const Components::TreeRendererComponent&);
+    void RenderInstancedTree(const Components::TreeRendererComponent&);
+
+    void RenderModel(const Model&) const;
+    void RenderModel(const Model&, uint32) const;
+    void RenderMesh(const Mesh&) const;
     void RenderMesh(const Mesh&, uint32) const;
-    void RenderTrees();
+    void RenderLeafs(const Components::TreeRendererComponent&) const;
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, GeneralTexture*, bool) const;
 
 private:
     RendererContext& context_;
-    ShaderProgram shader_;
+    ShaderProgram leafsShader_;
+    ShaderProgram trunkShader_;
 
     Subscribers subscribes_;
 };

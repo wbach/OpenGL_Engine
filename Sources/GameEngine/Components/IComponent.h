@@ -26,6 +26,7 @@ enum class FieldType
     Texture,
     File,
     AnimationClip,
+    Material,
     Vector2i,
     Vector2f,
     Vector3f,
