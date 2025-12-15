@@ -2032,27 +2032,39 @@ void MainFrame::MenuEditCreateTriangle(wxCommandEvent&)
 void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 {
     LOG_DEBUG << "Create tree";
-    auto treeMesh = GameEngine::generateTree();
-    if (treeMesh.positions_.empty())
-    {
-        wxLogMessage("generateTree failed");
-        return;
-    }
+    auto dlg = std::make_shared<LoadingDialog>(this, "Tree generator", "Generate tree...");
 
-    auto& engineContext = canvas->GetEngine().GetEngineContext();
+    std::thread(
+        [&]()
+        {
+            auto treeMesh = GameEngine::generateTree();
+            if (treeMesh.positions_.empty())
+            {
+                wxLogMessage("generateTree failed");
+                return;
+            }
 
-    auto& resourceManager = canvas->GetScene().GetResourceManager();
+            auto& engineContext = canvas->GetEngine().GetEngineContext();
 
-    auto model    = std::make_unique<GameEngine::Model>();
-    auto modelPtr = model.get();
-    GameEngine::Material material;
-    material.diffuse = vec3(0.8f, 0.8f, 0.8f);
-    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, material));
-    resourceManager.AddModel(std::move(model));
+            auto& resourceManager = canvas->GetScene().GetResourceManager();
 
-    auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
+            auto model    = std::make_unique<GameEngine::Model>();
+            auto modelPtr = model.get();
+            GameEngine::Material material;
+            material.diffuse = vec3(0.8f, 0.8f, 0.8f);
+            model->AddMesh(
+                GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, material));
+            resourceManager.AddModel(std::move(model));
 
-    obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetGeneratedModel(modelPtr);
-    obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
-    canvas->AddGameObject(std::move(obj));
+            auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
+
+            obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetGeneratedModel(modelPtr);
+            obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
+            canvas->AddGameObject(std::move(obj));
+
+            dlg->EndModal(wxID_OK);
+        })
+        .detach();
+
+    dlg->ShowModal();
 }
