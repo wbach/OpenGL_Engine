@@ -2052,7 +2052,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 
     auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
 
-    obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetModel(modelPtr);
+    obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetGeneratedModel(modelPtr);
     obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
     canvas->AddGameObject(std::move(obj));
 }

@@ -11,6 +11,7 @@
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/Models/WBLoader/Assimp/AssimpExporter.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Logger/LoggingLvl.h"
@@ -80,7 +81,7 @@ TreeRendererComponent& TreeRendererComponent::SetModel(const File& file, LevelOf
 
 TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    auto file = EngineConf.files.getGeneratedDirPath() / (Utils::CreateUniqueFilename() + ".mesh");
+    auto file = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".obj");
 
     switch (i)
     {
@@ -205,11 +206,17 @@ void TreeRendererComponent::write(TreeNode& node) const
 
     auto& filenames = node.addChild(CSTR_FILENAMES);
 
-    auto addModelNode = [&filenames](const File& file, LevelOfDetail lvl)
+    auto addModelNode = [this, &filenames](const File& file, LevelOfDetail lvl)
     {
         auto& lvl1Node = filenames.addChild(CSTR_MODEL_FILE_NAME);
         lvl1Node.addChild(CSTR_FILE_NAME, file.GetDataRelativePath());
         lvl1Node.addChild(CSTR_MODEL_LVL_OF_DETAIL, magic_enum::enum_name(lvl));
+
+        const Model* modelPtr = model.Get(lvl);
+        if (modelPtr and not file.exist())
+        {
+            ExportModel(*modelPtr, file);
+        }
     };
 
     addModelNode(modelLod1, LevelOfDetail::L1);
