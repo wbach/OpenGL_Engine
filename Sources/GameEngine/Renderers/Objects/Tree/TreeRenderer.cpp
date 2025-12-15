@@ -12,12 +12,13 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
 TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
-    , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Tree)
+    , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)
     , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
     , measurementValue_(context.measurmentHandler_.AddNewMeasurment("TreeRenderer", "0"))
 {
@@ -202,13 +203,19 @@ int TreeRenderer::RenderMesh(const Mesh& mesh, uint32 count) const
     context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(), count);
     return count;
 }
-void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent&) const
+void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent) const
 {
-    return;
+    const auto leafModel = treeRendererComponent.GetLeafModel().Get();
+
+    if (not leafModel)
+        return;
 
     leafsShader_.Start();
     context_.graphicsApi_.DisableCulling();
-    // RenderModel(*treeRendererComponent_->GetTopModelWrapper().Get(LevelOfDetail::L1), sub);
+    for (const auto& mesh : leafModel->GetMeshes())
+    {
+        context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
+    }
     context_.graphicsApi_.EnableCulling();
     leafsShader_.Stop();
 }

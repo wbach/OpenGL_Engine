@@ -14,6 +14,7 @@
 #include "GameEngine/Resources/Models/WBLoader/Assimp/AssimpExporter.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "GraphicsApi/MeshRawData.h"
 #include "Logger/Log.h"
 #include "Logger/LoggingLvl.h"
 #include "magic_enum/magic_enum.hpp"
@@ -42,13 +43,13 @@ void TreeRendererComponent::CleanUp()
 }
 void TreeRendererComponent::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&TreeRendererComponent::Subscribe, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&TreeRendererComponent::Awake, this));
 }
 
 void TreeRendererComponent::Reload()
 {
     CleanUp();
-    Subscribe();
+    Awake();
 }
 
 TreeRendererComponent& TreeRendererComponent::SetInstancesPositions(const std::vector<vec3>& positions)
@@ -103,7 +104,19 @@ TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr,
     return *this;
 }
 
-void TreeRendererComponent::Subscribe()
+TreeRendererComponent& TreeRendererComponent::SetLeafPosition(const std::vector<vec3>& positions)
+{
+    leafPositions     = positions;
+    leafPositionsFile = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".leafs");
+
+    if (isSubsribed_)
+    {
+        CreateLeafModel();
+    }
+    return *this;
+}
+
+void TreeRendererComponent::Awake()
 {
     if (not isSubsribed_)
     {
@@ -128,6 +141,8 @@ void TreeRendererComponent::Subscribe()
                 UpdateBoundingBox();
             });
     }
+
+    CreateLeafModel();
 }
 void TreeRendererComponent::UnSubscribe()
 {
@@ -169,6 +184,9 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
 void TreeRendererComponent::ReleaseModels()
 {
     for (auto model : model.PopModels())
+        componentContext_.resourceManager_.ReleaseModel(*model);
+
+    for (auto model : leafModel.PopModels())
         componentContext_.resourceManager_.ReleaseModel(*model);
 }
 void TreeRendererComponent::DeleteShaderBuffers()
@@ -294,6 +312,44 @@ const GraphicsApi::ID& TreeRendererComponent::GetPerObjectUpdateId() const
 const GraphicsApi::ID& TreeRendererComponent::GetPerInstancesBufferId() const
 {
     return perInstances_->GetGraphicsObjectId();
+}
+const ModelWrapper& TreeRendererComponent::GetLeafModel() const
+{
+    return leafModel;
+}
+void TreeRendererComponent::CreateLeafModel()
+{
+    if (not leafPositions.empty())
+    {
+        if (leafModel.Get())
+        {
+            LOG_DEBUG << "Leaf model will be overwritten.";
+
+            for (auto model : leafModel.PopModels())
+                componentContext_.resourceManager_.ReleaseModel(*model);
+        }
+
+        GraphicsApi::MeshRawData data;
+        data.positions_.reserve(leafPositions.size() * 3);
+        for (const auto& position : leafPositions)
+        {
+            data.positions_.push_back(position.x);
+            data.positions_.push_back(position.y);
+            data.positions_.push_back(position.z);
+        }
+
+        auto& resourceManager = componentContext_.resourceManager_;
+        auto model            = std::make_unique<GameEngine::Model>();
+        leafModel.Add(model.get(), LevelOfDetail::L1);
+        GameEngine::Material material;
+        material.diffuse = vec3(0.8f, 0.8f, 0.8f);
+        model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, data, material));
+        resourceManager.AddModel(std::move(model));
+    }
+    else
+    {
+        LOG_DEBUG << "Leaf position vector is empty";
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

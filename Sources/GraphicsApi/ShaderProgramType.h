@@ -23,7 +23,7 @@ enum class ShaderProgramType
     Terrain,
     TerrainMesh,
     SimpleForwardTerrainMesh,
-    Tree,
+    TreeLeafs,
     Water,
     SSAO,
     ColorFilper,

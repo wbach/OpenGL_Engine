@@ -44,11 +44,13 @@ public:
     TreeRendererComponent& SetGeneratedModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
+    TreeRendererComponent& SetLeafPosition(const std::vector<vec3>&);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
 
+    const ModelWrapper& GetLeafModel() const;
     const ModelWrapper& GetModel() const;
     uint32 GetInstancesSize() const;
     const std::vector<vec3>& GetInstancesPositions() const;
@@ -59,11 +61,12 @@ public:
     const BoundingBox& GetWorldBoundingBox() const;
 
 private:
-    void Subscribe();
+    void Awake();
     void UnSubscribe();
     void CreatePerObjectUpdateBuffer();
     void CreatePerInstancesBuffer();
     void UpdateBoundingBox();
+    void CreateLeafModel();
 
 private:
     void ReleaseModels();
@@ -72,6 +75,7 @@ private:
 private:
     std::vector<vec3> leafPositions;
     ModelWrapper model;
+    ModelWrapper leafModel;
 
     std::vector<vec3> instancesPositions_;
 

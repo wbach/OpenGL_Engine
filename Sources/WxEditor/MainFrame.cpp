@@ -7,6 +7,10 @@
 #include <GameEngine/Components/Lights/PointLightComponent.h>
 #include <GameEngine/Components/Lights/SpotLightComponent.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
+#include <GameEngine/Components/Renderer/Trees/Tree.h>
+#include <GameEngine/Components/Renderer/Trees/TreeGenerate.h>
+#include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
+#include <GameEngine/Components/Renderer/Trees/TreeRendererComponent.h>
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
@@ -41,8 +45,6 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
-#include "Components/Renderer/Trees/TreeGenerate.h"
-#include "Components/Renderer/Trees/TreeRendererComponent.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -2037,7 +2039,23 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
     std::thread(
         [&]()
         {
-            auto treeMesh = GameEngine::generateTree();
+            const int attractorCount = 400;
+            const float crownRadius  = 10.0f;
+            GameEngine::Tree tree{};
+            tree.rootPosition = vec3(0, -3.f, 0);
+            tree.prepareAttractors(attractorCount, crownRadius);
+
+            auto status = tree.build();
+
+            if (status and not status->empty())
+            {
+                LOG_WARN << status.value();
+            }
+
+            LOG_DEBUG << "Buildng tree mesh... ("
+                      << "Branches : " << tree.GetBranches().size() << ")";
+            GameEngine::TreeMeshBuilder builder(tree.GetBranches());
+            auto treeMesh = builder.buildCylinderMesh();
             if (treeMesh.positions_.empty())
             {
                 wxLogMessage("generateTree failed");
@@ -2045,7 +2063,6 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
             }
 
             auto& engineContext = canvas->GetEngine().GetEngineContext();
-
             auto& resourceManager = canvas->GetScene().GetResourceManager();
 
             auto model    = std::make_unique<GameEngine::Model>();
@@ -2058,7 +2075,8 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 
             auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
 
-            obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetGeneratedModel(modelPtr);
+            obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetGeneratedModel(modelPtr).SetLeafPosition(
+                tree.GetLeafsPositions());
             obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
             canvas->AddGameObject(std::move(obj));
 

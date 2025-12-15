@@ -120,7 +120,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Skydome/Forward/Skydome.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::ShaderProgramType::Terrain,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Tessllation/Forward/TerrainShader.vert"},
@@ -129,7 +129,7 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::TESS_EVALUATION_SHADER, "Terrain/Tessllation/Forward/TerrainShader.es"}
         }
     },
-    { 
+    {
         GraphicsApi::ShaderProgramType::TerrainMesh,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/Forward/TerrainShader.vert"},
@@ -137,28 +137,29 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Terrain/Mesh/Forward/TerrainShader.frag"}
         }
     },
-    { 
-        GraphicsApi::ShaderProgramType::Tree,
+    {
+        GraphicsApi::ShaderProgramType::TreeLeafs,
         {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/Forward/TreeShader.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/TreeShader.frag"}
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafShader.vert"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Tree/LeafShader.geom"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/LeafShader.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::ShaderProgramType::Water,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/simpleWater.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Water/simpleWater.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::ShaderProgramType::Blur,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Blur/Blur.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Blur/Blur.frag"}
         }
     },
-    { 
+    {
         GraphicsApi::ShaderProgramType::ColorFilper,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/ColorFliper/ColorFliper.vert"},
