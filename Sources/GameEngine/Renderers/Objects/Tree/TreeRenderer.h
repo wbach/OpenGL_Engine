@@ -42,13 +42,13 @@ public:
     void render() override;
 
 private:
-    void RenderSingleTree(const Components::TreeRendererComponent&);
-    void RenderInstancedTree(const Components::TreeRendererComponent&);
+    int RenderSingleTree(const Components::TreeRendererComponent&);
+    int RenderInstancedTree(const Components::TreeRendererComponent&);
 
-    void RenderModel(const Model&) const;
-    void RenderModel(const Model&, uint32) const;
-    void RenderMesh(const Mesh&) const;
-    void RenderMesh(const Mesh&, uint32) const;
+    int RenderModel(const Model&) const;
+    int RenderModel(const Model&, uint32) const;
+    int RenderMesh(const Mesh&) const;
+    int RenderMesh(const Mesh&, uint32) const;
     void RenderLeafs(const Components::TreeRendererComponent&) const;
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
@@ -60,5 +60,6 @@ private:
     ShaderProgram trunkShader_;
 
     Subscribers subscribes_;
+    MeasurementValue& measurementValue_;
 };
 }  // namespace GameEngine

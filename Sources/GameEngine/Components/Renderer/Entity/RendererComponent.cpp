@@ -368,7 +368,7 @@ void RendererComponent::UpdateBuffers()
                 auto& buffer                          = *iter->second;
                 const mat4 transformMatix             = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
                 buffer.GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-                buffer.UpdateGpuPass();
+                //buffer.UpdateGpuPass();
                 componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
                 calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
             }

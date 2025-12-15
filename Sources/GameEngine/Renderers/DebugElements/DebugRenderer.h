@@ -3,6 +3,7 @@
 #include <variant>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
+#include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Renderers/DebugElements/LineMeshVisualizator.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/BufferObject.h"
@@ -64,9 +65,11 @@ struct DebugObject
 
 struct DebugMeshInfo
 {
-    GameObject& gameObject;
-    ModelWrapper& modelWrapper;
-    std::variant<Components::RendererComponent*, Components::TerrainRendererComponent*> component;
+    const GameObject& gameObject;
+    const ModelWrapper& modelWrapper;
+    std::variant<const Components::RendererComponent*, const Components::TerrainRendererComponent*,
+                 const Components::TreeRendererComponent*>
+        component;
 };
 
 // typedef std::vector<DebugRendererSubscriber> DebugRendererSubscribers;

@@ -180,6 +180,17 @@ TerrainMeshRendererComponent* TerrainRendererComponent::GetMeshTerrain()
     return static_cast<TerrainMeshRendererComponent*>(terrainComponent_.get());
 }
 
+const TerrainMeshRendererComponent* TerrainRendererComponent::GetMeshTerrain() const
+{
+    if (rendererType_ != RendererType::Mesh)
+    {
+        LOG_ERROR << "Get tesselation comonent when rendererType_ != RendererType::Mesh";
+        return nullptr;
+    }
+
+    return static_cast<const TerrainMeshRendererComponent*>(terrainComponent_.get());
+}
+
 HeightMap* TerrainRendererComponent::createHeightMap(const vec2ui& size)
 {
     return terrainComponent_->createHeightMap(size);

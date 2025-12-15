@@ -1,9 +1,11 @@
 #include "TreeRenderer.h"
 
 #include <Common/Transform.h>
+#include <Utils/MeasurementHandler.h>
 
 #include <algorithm>
 
+#include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -17,6 +19,7 @@ TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
     , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Tree)
     , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
+    , measurementValue_(context.measurmentHandler_.AddNewMeasurment("TreeRenderer", "0"))
 {
 }
 
@@ -28,6 +31,8 @@ void TreeRenderer::init()
 
 void TreeRenderer::render()
 {
+    int rendererModels = 0;
+
     if (subscribes_.empty())
         return;
 
@@ -45,15 +50,17 @@ void TreeRenderer::render()
 
             if (treeRendererComponent_->GetInstancesSize() > 0)
             {
-                RenderInstancedTree(*treeRendererComponent_);
+                rendererModels += RenderInstancedTree(*treeRendererComponent_);
             }
             else
             {
-                RenderSingleTree(*treeRendererComponent_);
+                rendererModels += RenderSingleTree(*treeRendererComponent_);
             }
         }
     }
-}  // namespace GameEngine
+
+    measurementValue_ << rendererModels;
+}
 void TreeRenderer::subscribe(GameObject& gameObject)
 {
     auto component = gameObject.GetComponent<Components::TreeRendererComponent>();
@@ -115,18 +122,28 @@ void TreeRenderer::BindMaterialTexture(uint32 location, GeneralTexture* texture,
         context_.graphicsApi_.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
 }
-void TreeRenderer::RenderSingleTree(const Components::TreeRendererComponent& treeRendererComponent)
+int TreeRenderer::RenderSingleTree(const Components::TreeRendererComponent& treeRendererComponent)
 {
+    int renderedCount = 0;
+    auto isVisible    = context_.frustrum_.intersection(treeRendererComponent.GetWorldBoundingBox());
+    if (not isVisible)
+    {
+        return 0;
+    }
+
     if (auto model = treeRendererComponent.GetModel().Get(LevelOfDetail::L1))
     {
-        RenderModel(*model);
+        renderedCount += RenderModel(*model);
     }
 
     RenderLeafs(treeRendererComponent);
+
+    return renderedCount;
 }
-void TreeRenderer::RenderInstancedTree(const Components::TreeRendererComponent& treeRendererComponent)
+int TreeRenderer::RenderInstancedTree(const Components::TreeRendererComponent& treeRendererComponent)
 {
-    auto perInstance = treeRendererComponent.GetPerInstancesBufferId();
+    int renderedCount = 0;
+    auto perInstance  = treeRendererComponent.GetPerInstancesBufferId();
     if (perInstance)
     {
         context_.graphicsApi_.BindShaderBuffer(*perInstance);
@@ -134,12 +151,16 @@ void TreeRenderer::RenderInstancedTree(const Components::TreeRendererComponent& 
 
     if (auto model = treeRendererComponent.GetModel().Get(LevelOfDetail::L1))
     {
-        RenderModel(*model, treeRendererComponent.GetInstancesSize());
+        renderedCount += RenderModel(*model, treeRendererComponent.GetInstancesSize());
     }
+
+    return renderedCount;
 }
 
-void TreeRenderer::RenderModel(const Model& model) const
+int TreeRenderer::RenderModel(const Model& model) const
 {
+    int renderedCount = 0;
+
     trunkShader_.Start();
     for (const auto& mesh : model.GetMeshes())
     {
@@ -147,32 +168,39 @@ void TreeRenderer::RenderModel(const Model& model) const
         {
             const auto& buffer = mesh.GetMaterialShaderBufferId();
             context_.graphicsApi_.BindShaderBuffer(*buffer);
-            RenderMesh(mesh);
+            renderedCount += RenderMesh(mesh);
         }
     }
     trunkShader_.Stop();
+
+    return renderedCount;
 }
-void TreeRenderer::RenderModel(const Model& model, uint32 count) const
+int TreeRenderer::RenderModel(const Model& model, uint32 count) const
 {
+    int renderedCount = 0;
+
     for (const auto& mesh : model.GetMeshes())
     {
         if (mesh.GetGraphicsObjectId())
         {
             const auto& buffer = mesh.GetMaterialShaderBufferId();
             context_.graphicsApi_.BindShaderBuffer(*buffer);
-            RenderMesh(mesh, count);
+            renderedCount += RenderMesh(mesh, count);
         }
     }
+    return renderedCount;
 }
-void TreeRenderer::RenderMesh(const Mesh& mesh) const
+int TreeRenderer::RenderMesh(const Mesh& mesh) const
 {
     BindMaterial(mesh.GetMaterial());
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
+    return 1;
 }
-void TreeRenderer::RenderMesh(const Mesh& mesh, uint32 count) const
+int TreeRenderer::RenderMesh(const Mesh& mesh, uint32 count) const
 {
     BindMaterial(mesh.GetMaterial());
     context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(), count);
+    return count;
 }
 void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent&) const
 {

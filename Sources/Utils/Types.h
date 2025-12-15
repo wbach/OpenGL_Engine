@@ -10,6 +10,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -586,8 +587,20 @@ struct MeasurementValue
     {
         value = v;
     }
+
+    template <typename T>
+    MeasurementValue& operator<<(const T& v)
+    {
+        std::ostringstream oss;
+        oss << v;
+        value = oss.str();
+        return *this;
+    }
+
     std::string value;
 };
+
+std::ostream& operator<<(std::ostream& os, const MeasurementValue& mv);
 
 namespace glm
 {

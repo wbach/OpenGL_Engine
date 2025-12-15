@@ -71,6 +71,12 @@ float getRandomFloat(float min, float max)
     return dist(mt);
 }
 
+std::ostream& operator<<(std::ostream& os, const MeasurementValue& mv)
+{
+    os << mv.value;
+    return os;
+}
+
 namespace std
 {
 std::string to_string(const vec2& v)

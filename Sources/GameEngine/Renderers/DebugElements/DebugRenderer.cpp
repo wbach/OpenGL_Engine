@@ -12,6 +12,7 @@
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Terrain/TerrainMeshRendererComponent.h"
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
+#include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/RendererContext.h"
@@ -194,19 +195,24 @@ void DebugRenderer::init()
             {
                 static const vec3 color(1, 0, 0);
                 auto lineMesh = std::visit(
-                    visitor{[](Components::RendererComponent* rc)
+                    visitor{[](const Components::RendererComponent* rc)
                             {
                                 if (not rc)
                                     return GraphicsApi::LineMesh{};
                                 return CreateLineMeshFromBoundingBox(rc->getWorldSpaceBoundingBox(), color);
                             },
-                            [](Components::TerrainRendererComponent* tc)
+                            [](const Components::TreeRendererComponent* trc)
+                            {
+                                if (not trc)
+                                    return GraphicsApi::LineMesh{};
+                                return CreateLineMeshFromBoundingBox(trc->GetWorldBoundingBox(), color);
+                            },
+                            [](const Components::TerrainRendererComponent* tc)
                             {
                                 if (tc and tc->GetRendererType() != Components::TerrainRendererComponent::RendererType::Mesh)
                                     return GraphicsApi::LineMesh{};
 
                                 GraphicsApi::LineMesh result;
-
                                 for (const auto& bb : tc->GetMeshTerrain()->getMeshesBoundingBoxes())
                                 {
                                     result = appendLineMesh(result, CreateLineMeshFromBoundingBox(bb, color));
@@ -230,8 +236,8 @@ void DebugRenderer::init()
             {
                 return result;
             }
-            auto ray = CalculateMouseRay(
-                *camera, rendererContext_.scene_->getEngineContext()->GetInputManager().GetMousePosition());
+            auto ray =
+                CalculateMouseRay(*camera, rendererContext_.scene_->getEngineContext()->GetInputManager().GetMousePosition());
 
             result = MakeRayLineMesh(camera->GetPosition(), ray.direction, 100.f, 1);
             LOG_DEBUG << "CamPos: " << camera->GetPosition() << " rayDir: " << ray.direction;
@@ -364,6 +370,14 @@ void DebugRenderer::subscribe(GameObject& gameObject)
     {
         meshDebugInfoSubscribers_.insert(
             {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = rc->GetModelWrapper(), .component = rc}});
+    }
+
+    auto trc = gameObject.GetComponent<Components::TreeRendererComponent>();
+
+    if (trc)
+    {
+        meshDebugInfoSubscribers_.insert(
+            {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = trc->GetModel(), .component = trc}});
     }
 }
 

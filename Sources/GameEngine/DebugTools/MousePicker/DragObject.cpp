@@ -20,6 +20,8 @@ DragObject::DragObject(Input::InputManager& manager, GameObject& gameObject, con
     , camera_(camera)
     , cameraStartPos_(camera_.GetPosition())
 {
+    LOG_DEBUG << "Drag " << gameObject.GetName();
+
     startupTransform_ = gameObject.GetLocalTransform();
     rigidbody_ = gameObject.GetComponent<Components::Rigidbody>();
 

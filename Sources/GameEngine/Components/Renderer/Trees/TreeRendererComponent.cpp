@@ -14,6 +14,7 @@
 #include "GameEngine/Resources/Models/WBLoader/Assimp/AssimpExporter.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/Log.h"
 #include "Logger/LoggingLvl.h"
 #include "magic_enum/magic_enum.hpp"
 
@@ -97,6 +98,8 @@ TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr,
     }
 
     model.Add(modelPtr, i);
+
+    UpdateBoundingBox();
     return *this;
 }
 
@@ -110,6 +113,21 @@ void TreeRendererComponent::Subscribe()
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubsribed_ = true;
     }
+
+    if (not worldTransformSub_)
+    {
+        worldTransformSub_ = thisObject_.SubscribeOnWorldTransfomChange(
+            [this](const auto& transform) mutable
+            {
+                if (not perObjectUpdateBuffer_)
+                    return;
+
+                perObjectUpdateBuffer_->GetData().TransformationMatrix =
+                    componentContext_.graphicsApi_.PrepareMatrixToLoad(transform.CalculateCurrentMatrix());
+                componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*perObjectUpdateBuffer_);
+                UpdateBoundingBox();
+            });
+    }
 }
 void TreeRendererComponent::UnSubscribe()
 {
@@ -118,6 +136,12 @@ void TreeRendererComponent::UnSubscribe()
         componentContext_.renderersManager_.UnSubscribe(&thisObject_);
         isSubsribed_ = false;
     }
+
+    if (worldTransformSub_)
+    {
+        thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSub_);
+        worldTransformSub_.reset();
+    }
 }
 void TreeRendererComponent::CreatePerObjectUpdateBuffer()
 {
@@ -125,7 +149,7 @@ void TreeRendererComponent::CreatePerObjectUpdateBuffer()
                                                                              PER_OBJECT_UPDATE_BIND_LOCATION);
 
     perObjectUpdateBuffer_->GetData().TransformationMatrix =
-        componentContext_.graphicsApi_.PrepareMatrixToLoad(thisObject_.GetWorldTransform().GetMatrix());
+        componentContext_.graphicsApi_.PrepareMatrixToLoad(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
 
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToGpuLoadingPass(*perObjectUpdateBuffer_);
 }
@@ -241,6 +265,35 @@ const ModelWrapper& TreeRendererComponent::GetModel() const
 const std::vector<vec3>& TreeRendererComponent::GetInstancesPositions() const
 {
     return instancesPositions_;
+}
+void TreeRendererComponent::UpdateBoundingBox()
+{
+    auto modelPtr = model.Get();
+
+    if (not modelPtr)
+        return;
+
+    wolrdModelBoundingBox = modelPtr->getBoundingBox();
+    wolrdModelBoundingBox.scale(thisObject_.GetWorldTransform().GetScale());
+    wolrdModelBoundingBox.translate(thisObject_.GetWorldTransform().GetPosition());
+}
+const BoundingBox& TreeRendererComponent::GetWorldBoundingBox() const
+{
+    return wolrdModelBoundingBox;
+}
+
+uint32 TreeRendererComponent::GetInstancesSize() const
+{
+    return static_cast<uint32>(instancesPositions_.size());
+}
+
+const GraphicsApi::ID& TreeRendererComponent::GetPerObjectUpdateId() const
+{
+    return perObjectUpdateBuffer_->GetGraphicsObjectId();
+}
+const GraphicsApi::ID& TreeRendererComponent::GetPerInstancesBufferId() const
+{
+    return perInstances_->GetGraphicsObjectId();
 }
 }  // namespace Components
 }  // namespace GameEngine

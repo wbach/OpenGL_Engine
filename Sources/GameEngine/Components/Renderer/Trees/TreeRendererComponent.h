@@ -1,15 +1,18 @@
 #pragma once
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Resources/BufferObject.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerInstances.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -47,17 +50,20 @@ public:
     void Reload() override;
 
     const ModelWrapper& GetModel() const;
-    inline uint32 GetInstancesSize() const;
+    uint32 GetInstancesSize() const;
     const std::vector<vec3>& GetInstancesPositions() const;
 
-    inline const GraphicsApi::ID& GetPerObjectUpdateId() const;
-    inline const GraphicsApi::ID& GetPerInstancesBufferId() const;
+    const GraphicsApi::ID& GetPerObjectUpdateId() const;
+    const GraphicsApi::ID& GetPerInstancesBufferId() const;
+
+    const BoundingBox& GetWorldBoundingBox() const;
 
 private:
     void Subscribe();
     void UnSubscribe();
     void CreatePerObjectUpdateBuffer();
     void CreatePerInstancesBuffer();
+    void UpdateBoundingBox();
 
 private:
     void ReleaseModels();
@@ -73,23 +79,13 @@ private:
     std::unique_ptr<BufferObject<PerInstances>> perInstances_;
     bool isSubsribed_;
 
+    std::optional<IdType> worldTransformSub_;
+
+    BoundingBox wolrdModelBoundingBox;
+
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
 };
-
-uint32 TreeRendererComponent::GetInstancesSize() const
-{
-    return static_cast<uint32>(instancesPositions_.size());
-}
-
-inline const GraphicsApi::ID& TreeRendererComponent::GetPerObjectUpdateId() const
-{
-    return perObjectUpdateBuffer_->GetGraphicsObjectId();
-}
-inline const GraphicsApi::ID& TreeRendererComponent::GetPerInstancesBufferId() const
-{
-    return perInstances_->GetGraphicsObjectId();
-}
 }  // namespace Components
 }  // namespace GameEngine

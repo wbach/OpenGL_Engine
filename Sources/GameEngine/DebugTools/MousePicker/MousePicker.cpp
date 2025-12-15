@@ -5,6 +5,7 @@
 
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
+#include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
 
@@ -90,17 +91,30 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
 {
     std::optional<std::pair<GameObject*, float>> closest;
 
-    auto renderComponent = object->GetComponent<Components::RendererComponent>();
-    if (renderComponent)
+    auto renderComponent     = object->GetComponent<Components::RendererComponent>();
+    auto treeRenderComponent = object->GetComponent<Components::TreeRendererComponent>();
+    if (renderComponent or treeRenderComponent)
     {
-        auto model       = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
-        auto boundingBox = model->getBoundingBox();
-        boundingBox.scale(object->GetWorldTransform().GetScale());
-        boundingBox.translate(object->GetWorldTransform().GetPosition());
-
-        if (auto t = BoundingBoxIntersect(ray, boundingBox))
+        const Model* model{nullptr};
+        if (renderComponent)
         {
-            closest = std::make_pair(const_cast<GameObject*>(object), *t);
+            model = renderComponent->GetModelWrapper().Get(LevelOfDetail::L1);
+        }
+        else
+        {
+            model = treeRenderComponent->GetModel().Get(LevelOfDetail::L1);
+        }
+
+        if (model)
+        {
+            auto boundingBox = model->getBoundingBox();
+            boundingBox.scale(object->GetWorldTransform().GetScale());
+            boundingBox.translate(object->GetWorldTransform().GetPosition());
+
+            if (auto t = BoundingBoxIntersect(ray, boundingBox))
+            {
+                closest = std::make_pair(const_cast<GameObject*>(object), *t);
+            }
         }
     }
 
@@ -108,7 +122,7 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
     {
         if (auto childClosest = IntersectObject(child.get(), ray))
         {
-            if (!closest || childClosest->second < closest->second)
+            if (not closest or childClosest->second < closest->second)
             {
                 closest = childClosest;
             }

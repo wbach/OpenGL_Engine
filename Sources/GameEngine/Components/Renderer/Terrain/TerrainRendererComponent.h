@@ -64,6 +64,7 @@ public:
     RendererType GetRendererType() const;
     TerrainTessellationRendererComponent* GetTesselationTerrain();
     TerrainMeshRendererComponent* GetMeshTerrain();
+    const TerrainMeshRendererComponent* GetMeshTerrain() const;
 
 private:
     void SetRendererType(RendererType);
