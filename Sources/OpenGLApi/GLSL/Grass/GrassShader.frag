@@ -7,7 +7,6 @@ layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
 uniform sampler2D Texture0;
-uniform sampler2DShadow ShadowMap;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {

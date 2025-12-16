@@ -1,10 +1,12 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 
+#include <optional>
 #include <vector>
 
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -61,5 +63,7 @@ private:
 
     Subscribers subscribes_;
     MeasurementValue& measurementValue_;
+
+    std::optional<IdType> paramBufferId_;
 };
 }  // namespace GameEngine

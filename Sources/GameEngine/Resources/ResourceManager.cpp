@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include <filesystem>
 #include <magic_enum/magic_enum.hpp>
 
 #include "IGpuResourceLoader.h"
@@ -112,6 +113,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     if (not model->GetFile() or model->GetFile().empty())
     {
         filename = ("UnknowFileModel_" + std::to_string(unknowFileNameResourceId_++));
+        unknownModelsFilenames_.insert({model.get(), filename});
     }
     else
     {
@@ -122,8 +124,11 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
 
     if (iter != models_.end())
     {
-        LOG_DEBUG << "Model \"" << filename << "\" already exist";
-        return nullptr;
+        auto& modelInfo = iter->second;
+        ++modelInfo.instances_;
+        modelInfo.resourceGpuStatus_ = ResourceGpuStatus::Loaded;
+        LOG_DEBUG << filename << " model already loaded, instances count : " << modelInfo.instances_;
+        return modelInfo.resource_.get();
     }
 
     ResourceInfo<Model> modelInfo;
@@ -169,18 +174,37 @@ void ResourceManager::ReleaseModel(Model& model)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
 
-    auto absoultePath = model.GetFile().GetAbsolutePath();
-
-    if (not models_.count(absoultePath.string()))
+    if (releaseLockState_)
     {
-        LOG_WARN << "Model dosent exist! " << absoultePath;
+        LOG_DEBUG << "Release resources locked";
         return;
+    }
+
+    std::filesystem::path absoultePath;
+    if (model.GetFile().empty())
+    {
+        auto iter = unknownModelsFilenames_.find(&model);
+        if (iter != unknownModelsFilenames_.end())
+        {
+            absoultePath = iter->second;
+            unknownModelsFilenames_.erase(iter);
+        }
+    }
+    else
+    {
+        absoultePath = model.GetFile().GetAbsolutePath();
+
+        if (not models_.count(absoultePath.string()))
+        {
+            LOG_WARN << "Model dosent exist! " << absoultePath;
+            return;
+        }
     }
 
     auto& modelInfo = models_.at(absoultePath.string());
     --modelInfo.instances_;
 
-    if (modelInfo.instances_ > 0 or releaseLockState_)
+    if (modelInfo.instances_ > 0)
     {
         LOG_DEBUG << "Model " << absoultePath << " not released. Still using by others. Instances=" << modelInfo.instances_;
         return;

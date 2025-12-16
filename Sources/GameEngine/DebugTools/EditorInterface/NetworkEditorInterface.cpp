@@ -302,18 +302,21 @@ void NetworkEditorInterface::KeysSubscribtions()
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(OBJECT_CONTROL), [this]() { ObjectControlAction(-1.f); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(MOVE_OBJECT), [this]() {
-        UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); });
-    });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        editorActions.at(MOVE_OBJECT),
+        [this]() { UseSelectedGameObject([this](auto &gameobject) { CreateDragObject(gameobject); }); });
 
     keysSubscriptionsManager_ =
         scene_.inputManager_->SubscribeOnKeyUp(editorActions.at(MOVE_OBJECT), [this]() { ReleaseDragObject(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(SELECT_OBJECT), [this]() {
-        MousePicker mousePicker(*scene_.GetCameraManager().GetMainCamera());
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
+        editorActions.at(SELECT_OBJECT),
+        [this]()
+        {
+            MousePicker mousePicker(*scene_.GetCameraManager().GetMainCamera());
 
-        SetSelectedGameObject(mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
-    });
+            SetSelectedGameObject(mousePicker.SelectObject(scene_.inputManager_->GetMousePosition(), scene_.GetGameObjects()));
+        });
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(
         editorActions.at(EXIT), [this]() { scene_.engineContext->AddEngineEvent(QuitEvent::ASK_QUIT); });
@@ -326,12 +329,14 @@ void NetworkEditorInterface::KeysSubscribtions()
 
     keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(QUICK_SAVE), [this]() { QuickSave(); });
 
-    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT), [this]() {
-        if (selectedGameObject_)
-        {
-            DeleteGameObject(*selectedGameObject_);
-        }
-    });
+    keysSubscriptionsManager_ = scene_.inputManager_->SubscribeOnKeyDown(editorActions.at(DELETE_GAMEOBJECT),
+                                                                         [this]()
+                                                                         {
+                                                                             if (selectedGameObject_)
+                                                                             {
+                                                                                 DeleteGameObject(*selectedGameObject_);
+                                                                             }
+                                                                         });
 }
 
 void NetworkEditorInterface::KeysUnsubscribe()
@@ -596,13 +601,15 @@ void NetworkEditorInterface::TransformReq(const EntryParameters &param)
 
     gameObjectTransformChangeSubscription_ = gameObject;
     auto gameObjectId                      = gameObject->GetId();
-    transformChangeSubscriptionId_         = gameObject->SubscribeOnLocalTransfomChange([gameObjectId](const auto &) {
-        if (not transformChangedToSend_)
+    transformChangeSubscriptionId_         = gameObject->SubscribeOnLocalTransfomChange(
+        [gameObjectId](const auto &)
         {
-            std::lock_guard<std::mutex> lk(transformChangedMutex_);
-            transformChangedToSend_ = gameObjectId;
-        }
-    });
+            if (not transformChangedToSend_)
+            {
+                std::lock_guard<std::mutex> lk(transformChangedMutex_);
+                transformChangedToSend_ = gameObjectId;
+            }
+        });
 
     auto &transform = gameObject->GetLocalTransform();
     DebugNetworkInterface::Transform msg(gameObject->GetId(), transform.GetPosition(),
@@ -987,6 +994,8 @@ void NetworkEditorInterface::GetComponentParams(const EntryParameters &params)
             case GameEngine::Components::FieldType::File:
                 value = static_cast<File *>(field.ptr)->GetAbsolutePath().string();
                 break;
+            case GameEngine::Components::FieldType::Material:
+                break;
             case GameEngine::Components::FieldType::Enum:
                 break;
             case GameEngine::Components::FieldType::AnimationClip:
@@ -1162,10 +1171,12 @@ void NetworkEditorInterface::PaintTerrain()
 
 void NetworkEditorInterface::UpdateArrowsIndicatorPosition()
 {
-    UseSelectedGameObject([this](auto &gameObject) {
-        arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
-                                                         gameObject.GetWorldTransform().GetRotation());
-    });
+    UseSelectedGameObject(
+        [this](auto &gameObject)
+        {
+            arrowsIndicatorTransform_.SetPositionAndRotation(gameObject.GetWorldTransform().GetPosition(),
+                                                             gameObject.GetWorldTransform().GetRotation());
+        });
 }
 
 void NetworkEditorInterface::SendObjectCreatedNotf(const GameObject &gameObject)
@@ -1316,7 +1327,8 @@ void NetworkEditorInterface::SetPhysicsVisualizationAllObjcts(const EntryParamet
         else
         {
             UseSelectedGameObject(
-                [&](GameObject &go) {
+                [&](GameObject &go)
+                {
                     auto rigidBody = go.GetComponent<Components::Rigidbody>();
                     if (rigidBody)
                     {
@@ -1513,6 +1525,8 @@ void NetworkEditorInterface::ModifyComponentReq(const EntryParameters &params)
                         val       = value;
                     }
                     break;
+                    case GameEngine::Components::FieldType::Material:
+                        break;
                     case GameEngine::Components::FieldType::Enum:
                         break;
                     case GameEngine::Components::FieldType::AnimationClip:

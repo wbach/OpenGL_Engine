@@ -1,6 +1,7 @@
 #pragma once
 #include <Mutex.hpp>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -43,6 +44,7 @@ private:
     std::unordered_map<std::string, ResourceInfo<Model>> models_;
 
     uint32 unknowFileNameResourceId_;
+    std::unordered_map<Model*, std::string> unknownModelsFilenames_;
     std::mutex modelMutex_;
     bool releaseLockState_;
 };

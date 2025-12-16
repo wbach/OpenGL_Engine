@@ -10,12 +10,22 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "Logger/Log.h"
+#include "Types.h"
 
 namespace GameEngine
 {
+namespace
+{
+struct TreeParamBuffer
+{
+    AlignWrapper<vec4> fprams;
+    AlignWrapper<vec4i> atlasParams;
+};
+}  // namespace
 TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
     , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)
@@ -28,6 +38,11 @@ void TreeRenderer::init()
 {
     leafsShader_.Init();
     trunkShader_.Init();
+
+    if (not paramBufferId_)
+    {
+        paramBufferId_ = context_.graphicsApi_.CreateShaderBuffer(4, sizeof(TreeParamBuffer));
+    }
 }
 
 void TreeRenderer::render()
@@ -47,6 +62,17 @@ void TreeRenderer::render()
             if (perUpdate)
             {
                 context_.graphicsApi_.BindShaderBuffer(*perUpdate);
+            }
+
+            if (paramBufferId_)
+            {
+                TreeParamBuffer buffer;
+                buffer.fprams = vec4{treeRendererComponent_->leafScale, 0, 0, 0};
+                buffer.atlasParams =
+                    vec4i{treeRendererComponent_->leafTextureAtlasSize, treeRendererComponent_->leafTextureIndex, 0, 0};
+
+                context_.graphicsApi_.UpdateShaderBuffer(*paramBufferId_, &buffer);
+                context_.graphicsApi_.BindShaderBuffer(*paramBufferId_);
             }
 
             if (treeRendererComponent_->GetInstancesSize() > 0)
@@ -214,6 +240,15 @@ void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRend
     context_.graphicsApi_.DisableCulling();
     for (const auto& mesh : leafModel->GetMeshes())
     {
+        if (not mesh.GetGraphicsObjectId())
+        {
+            continue;
+        }
+
+        const auto& material = mesh.GetMaterial();
+        const auto& config   = EngineConf.renderer.textures;
+        BindMaterialTexture(0, material.diffuseTexture, config.useDiffuse);
+
         context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
     }
     context_.graphicsApi_.EnableCulling();

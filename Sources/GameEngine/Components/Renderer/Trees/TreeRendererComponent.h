@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
@@ -21,6 +22,9 @@ namespace Components
 class TreeRendererComponent : public BaseComponent
 {
 public:
+    float leafScale;
+    int leafTextureAtlasSize;
+    int leafTextureIndex;
     File leafMaterial;
     File trunkMaterial;
     File leafPositionsFile;
@@ -30,6 +34,9 @@ public:
 
     // clang-format off
     BEGIN_FIELDS()
+        FIELD_FLOAT(leafScale)
+        FIELD_INT(leafTextureAtlasSize)
+        FIELD_INT(leafTextureIndex)
         FIELD_MATERIAL(leafMaterial)
         FIELD_MATERIAL(trunkMaterial)
         FIELD_FILE(leafPositionsFile)
@@ -45,6 +52,7 @@ public:
     TreeRendererComponent& SetModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
     TreeRendererComponent& SetLeafPosition(const std::vector<vec3>&);
+    TreeRendererComponent& SetLeafMaterial(const Material&);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
@@ -86,6 +94,9 @@ private:
     std::optional<IdType> worldTransformSub_;
 
     BoundingBox wolrdModelBoundingBox;
+    std::optional<Material> leafMaterialTmp;
+
+    std::unordered_map<LevelOfDetail, Model*> generatedModels;
 
 public:
     static void registerReadFunctions();

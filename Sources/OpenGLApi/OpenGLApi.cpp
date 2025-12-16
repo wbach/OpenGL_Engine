@@ -18,6 +18,7 @@
 #include "OpenGLApi/DefaultFrameBuffer.h"
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
+#include "magic_enum/magic_enum.hpp"
 
 enum class ObjectType
 {
@@ -1092,6 +1093,7 @@ GraphicsApi::ID OpenGLApi::CreatePurePatchMeshInstanced(uint32 patch, uint32 cou
 
 GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawData, GraphicsApi::RenderType type)
 {
+    LOG_DEBUG << "Create mesh " << magic_enum::enum_name(type);
     auto rid = impl_->idPool_.ToUint(0);
     createdObjectIds.insert({rid, ObjectType::MESH});
 
@@ -1112,6 +1114,8 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
     mesh.renderType = type;
 
     allocatedBytes(vaoCreator.Get().sizeInBytes);
+
+    LOG_DEBUG << "Mesh created " <<  rid;
     return rid;
 }
 

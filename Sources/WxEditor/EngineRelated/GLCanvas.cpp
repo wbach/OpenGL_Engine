@@ -173,8 +173,8 @@ void GLCanvas::OnPaint(wxPaintEvent&)
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                            [&](int x, int y)
-                                                                            {
+                                                                    [&](int x, int y)
+                                                                    {
                                                                         if (GetHandle())
                                                                         {
                                                                             WarpPointer(x, y);
@@ -195,7 +195,7 @@ void GLCanvas::OnPaint(wxPaintEvent&)
             {
                 SetupCamera();
                 onStartupDone();
-                loadingDialog->Close();
+                this->CallAfter([loadingDialog]() { loadingDialog->Close(); });
             });
 
         if (std::filesystem::exists(startupSceneName) && std::filesystem::is_regular_file(startupSceneName))

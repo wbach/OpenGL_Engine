@@ -14,6 +14,7 @@
 #include <GameEngine/Engine/Configuration.h>
 #include <GameEngine/Renderers/GUI/GuiRenderer.h>
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
+#include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
@@ -2037,7 +2038,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
     auto dlg = std::make_shared<LoadingDialog>(this, "Tree generator", "Generate tree...");
 
     std::thread(
-        [&]()
+        [&, dlg]()
         {
             const int attractorCount = 400;
             const float crownRadius  = 10.0f;
@@ -2062,7 +2063,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
                 return;
             }
 
-            auto& engineContext = canvas->GetEngine().GetEngineContext();
+            auto& engineContext   = canvas->GetEngine().GetEngineContext();
             auto& resourceManager = canvas->GetScene().GetResourceManager();
 
             auto model    = std::make_unique<GameEngine::Model>();
@@ -2073,16 +2074,18 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
                 GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, material));
             resourceManager.AddModel(std::move(model));
 
-            auto obj = canvas->GetScene().CreateGameObject("GeneratedTree");
+            GameEngine::Material leafMaterial;
+            leafMaterial.diffuseTexture = resourceManager.GetTextureLoader().LoadTexture(
+                "Data/Textures/Tree/Leafs/LeafSet024.png", GameEngine::TextureParameters{});
 
-            obj->AddComponent<GameEngine::Components::TreeRendererComponent>().SetGeneratedModel(modelPtr).SetLeafPosition(
-                tree.GetLeafsPositions());
+            auto obj  = canvas->GetScene().CreateGameObject("GeneratedTree");
+            auto& trc = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();
+            trc.SetGeneratedModel(modelPtr).SetLeafPosition(tree.GetLeafsPositions()).SetLeafMaterial(leafMaterial);
             obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
             canvas->AddGameObject(std::move(obj));
-
-            dlg->EndModal(wxID_OK);
+            this->CallAfter([dlg]() { dlg->Close(); });
         })
         .detach();
 
-    dlg->ShowModal();
+    dlg->Show();
 }
