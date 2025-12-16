@@ -22,9 +22,12 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
     {
         AddEvent(gameObject->GetId(), std::make_unique<TransformDataEvent>(*rendererComponent));
 
-        gameObject->SubscribeOnWorldTransfomChange(
+        LOG_DEBUG << "SubscribeOnWorldTransfomChange " << *gameObject;
+        auto subId = gameObject->SubscribeOnWorldTransfomChange(
             [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable
             { AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent)); });
+
+        subscribers_.push_back(BufferDataUpdaterSubscriber{.transformSubscribtionId = subId, .gameObject = gameObject});
     }
 }
 void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
@@ -35,7 +38,7 @@ void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
     std::lock_guard<std::mutex> lk(subsribtionMutex_);
     for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
     {
-        if (iter->bufferDataUpdater_->GetId() == gameObject->GetId())
+        if (iter->gameObject and iter->gameObject->GetId() == gameObject->GetId())
         {
             gameObject->UnsubscribeOnWorldTransfromChange(iter->transformSubscribtionId);
             iter = subscribers_.erase(iter);
@@ -50,7 +53,7 @@ void BufferDataUpdater::UnSubscribe(GameObject* gameObject)
 
     if (not result)
     {
-         LOG_DEBUG << "not erase " << gameObject->GetName() << " size = " << subscribers_.size();
+        LOG_DEBUG << "not erase " << gameObject->GetName() << " size = " << subscribers_.size();
     }
 
     for (auto iter = events_.begin(); iter != events_.end();)
@@ -70,10 +73,6 @@ void BufferDataUpdater::Update()
 {
     std::lock_guard<std::mutex> lk(subsribtionMutex_);
     ProcessEvents();
-    for (auto& sub : subscribers_)
-    {
-        sub.bufferDataUpdater_->Update();
-    }
 }
 void BufferDataUpdater::UnSubscribeAll()
 {

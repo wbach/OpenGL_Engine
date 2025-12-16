@@ -166,6 +166,7 @@ Primitive* ResourceManager::GetPrimitives(PrimitiveType type)
     modelInfo.resource_ = std::move(model);
 
     models_.insert({name, std::move(modelInfo)});
+    unknownModelsFilenames_.insert({modelPtr, name});
     gpuResourceLoader_.AddObjectToGpuLoadingPass(*modelPtr);
     return modelPtr;
 }
@@ -193,15 +194,16 @@ void ResourceManager::ReleaseModel(Model& model)
     else
     {
         absoultePath = model.GetFile().GetAbsolutePath();
-
-        if (not models_.count(absoultePath.string()))
-        {
-            LOG_WARN << "Model dosent exist! " << absoultePath;
-            return;
-        }
     }
 
-    auto& modelInfo = models_.at(absoultePath.string());
+    auto i = models_.find(absoultePath.string());
+    if (i == models_.end())
+    {
+        LOG_WARN << "Modelinfo not found : " << absoultePath;
+        return;
+    }
+
+    auto& modelInfo = i->second;
     --modelInfo.instances_;
 
     if (modelInfo.instances_ > 0)
@@ -215,7 +217,7 @@ void ResourceManager::ReleaseModel(Model& model)
         DeleteMaterial(mesh.GetMaterial());
     }
 
-    LOG_DEBUG << "Release model :" << absoultePath.string();
+    LOG_DEBUG << "Release model: " << absoultePath.string();
     gpuResourceLoader_.AddObjectToRelease(std::move(modelInfo.resource_));
     models_.erase(absoultePath.string());
 }

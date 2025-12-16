@@ -1,6 +1,8 @@
 #pragma once
 #include <Mutex.hpp>
 #include <memory>
+
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IBufferDataUpdaterEvent.h"
@@ -16,7 +18,7 @@ class RendererComponent;
 struct BufferDataUpdaterSubscriber
 {
     uint32 transformSubscribtionId{0};
-    std::unique_ptr<IBufferDataUpdaterSubcriber> bufferDataUpdater_{nullptr};
+    GameObject* gameObject{nullptr};
 };
 
 typedef std::vector<BufferDataUpdaterSubscriber> BufferDataUpdaterSubcribers;
