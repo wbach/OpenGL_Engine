@@ -57,7 +57,8 @@ void TreeRendererComponent::Reload()
     // {
     // to do only if model material is changed then relase
     //     // clone texture, reouse texture isntace id increase, load texture return exising texutre
-    //     leafMaterialTmp->diffuseTexture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(*leafMaterialTmp->diffuseTexture->GetFile(),
+    //     leafMaterialTmp->diffuseTexture =
+    //     componentContext_.resourceManager_.GetTextureLoader().LoadTexture(*leafMaterialTmp->diffuseTexture->GetFile(),
     //                                                                       TextureParameters{});
 
     // }
@@ -164,6 +165,8 @@ void TreeRendererComponent::Awake()
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubsribed_ = true;
     }
+
+    UpdateBoundingBox();
 }
 void TreeRendererComponent::UnSubscribe()
 {
