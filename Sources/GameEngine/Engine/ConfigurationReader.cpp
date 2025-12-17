@@ -237,6 +237,10 @@ void Read(TreeNode& node, Params::Textures& textures)
     SetParamIfExist(textures.useDiffuse, node.attributes_, CSTR_TEXTURE_DIFFUSE);
     SetParamIfExist(textures.useNormal, node.attributes_, CSTR_TEXTURE_NORMAL);
     SetParamIfExist(textures.useSpecular, node.attributes_, CSTR_TEXTURE_SPECULAR);
+    SetParamIfExist(textures.useRoughness, node.attributes_, CSTR_TEXTURE_ROUGHNESS);
+    SetParamIfExist(textures.useMetallic, node.attributes_, CSTR_TEXTURE_METALLIC);
+    SetParamIfExist(textures.useAmientOcclusion, node.attributes_, CSTR_TEXTURE_AMBIENT_OCCLUSION);
+    SetParamIfExist(textures.useOpacity, node.attributes_, CSTR_TEXTURE_OPACITY);
 }
 
 void Read(TreeNode* node, Params::TerrainType& param)

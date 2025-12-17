@@ -60,6 +60,10 @@ extern const std::string CSTR_TEXTURE_DISPLACEMENT;
 extern const std::string CSTR_TEXTURE_DIFFUSE;
 extern const std::string CSTR_TEXTURE_NORMAL;
 extern const std::string CSTR_TEXTURE_SPECULAR;
+extern const std::string CSTR_TEXTURE_METALLIC;
+extern const std::string CSTR_TEXTURE_ROUGHNESS;
+extern const std::string CSTR_TEXTURE_AMBIENT_OCCLUSION;
+extern const std::string CSTR_TEXTURE_OPACITY;
 // Flora
 extern const std::string CSTR_FLORA;
 extern const std::string CSTR_FLORA_ENABLED;

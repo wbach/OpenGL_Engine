@@ -51,6 +51,7 @@
 #include "OptionsFrame/Theme.h"
 #include "ProjectManager.h"
 #include "ProjectPanel/ProjectPanel.h"
+#include "Resources/Models/MaterialPresets.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
@@ -2065,18 +2066,29 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 
             auto& engineContext   = canvas->GetEngine().GetEngineContext();
             auto& resourceManager = canvas->GetScene().GetResourceManager();
+            auto& tl              = resourceManager.GetTextureLoader();
 
             auto model    = std::make_unique<GameEngine::Model>();
             auto modelPtr = model.get();
-            GameEngine::Material material;
-            material.diffuse = vec3(0.8f, 0.8f, 0.8f);
+
+            auto trunkMaterial                    = GameEngine::MaterialPresets::Trunk();
+            trunkMaterial.baseColorTexture        = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_albedo.png");
+            trunkMaterial.ambientOcclusionTexture = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_ao.png");
+            trunkMaterial.displacementTexture     = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_albedo.png");
+            trunkMaterial.baseColorTexture        = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_albedo.png");
+            trunkMaterial.metallicTexture         = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_metallic.png");
+            trunkMaterial.normalTexture           = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_normal-ogl.png");
+            trunkMaterial.roughnessTexture        = tl.LoadTexture("Data/Textures/Tree/trunk/light-tree-bark_roughness.png");
+
             model->AddMesh(
-                GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, material));
+                GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
             resourceManager.AddModel(std::move(model));
 
-            GameEngine::Material leafMaterial;
-            leafMaterial.diffuseTexture = resourceManager.GetTextureLoader().LoadTexture(
-                "Data/Textures/Tree/Leafs/LeafSet024.png", GameEngine::TextureParameters{});
+            GameEngine::Material leafMaterial = GameEngine::MaterialPresets::Leaf();
+            leafMaterial.baseColorTexture     = tl.LoadTexture("Data/Textures/Tree/Leafs/LeafSet024_2K-PNG_Color.png");
+            leafMaterial.opacityTexture       = tl.LoadTexture("Data/Textures/Tree/Leafs/LeafSet024_2K-PNG_Opacity.png");
+            leafMaterial.roughnessTexture     = tl.LoadTexture("Data/Textures/Tree/Leafs/LeafSet024_2K-PNG_Roughness.png");
+            leafMaterial.normalTexture        = tl.LoadTexture("Data/Textures/Tree/Leafs/LeafSet024_2K-PNG_NormalGL.png");
 
             auto obj  = canvas->GetScene().CreateGameObject("GeneratedTree");
             auto& trc = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();

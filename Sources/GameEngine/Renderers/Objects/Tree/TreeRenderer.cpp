@@ -128,19 +128,31 @@ void TreeRenderer::reloadShaders()
 }
 void TreeRenderer::BindMaterial(const Material& material) const
 {
-    if (material.isTransparency)
+    // ===== Culling =====
+    if (material.flags & MAT_DOUBLE_SIDED || (material.flags & MAT_FOLIAGE))
+    {
         context_.graphicsApi_.DisableCulling();
+    }
+    else
+    {
+        context_.graphicsApi_.EnableCulling();
+    }
 
+    // ===== Bind textures =====
     const auto& config = EngineConf.renderer.textures;
-    BindMaterialTexture(1, material.diffuseTexture, config.useDiffuse);
-    BindMaterialTexture(2, material.ambientTexture, config.useAmbient);
-    BindMaterialTexture(3, material.normalTexture, config.useNormal);
-    BindMaterialTexture(4, material.specularTexture, config.useSpecular);
+
+    BindMaterialTexture(0, material.baseColorTexture, config.useDiffuse);
+    BindMaterialTexture(1, material.normalTexture, config.useNormal);
+    BindMaterialTexture(2, material.roughnessTexture, config.useRoughness);
+    BindMaterialTexture(3, material.metallicTexture, config.useMetallic);
+    BindMaterialTexture(4, material.ambientOcclusionTexture, config.useAmientOcclusion);
+    BindMaterialTexture(5, material.opacityTexture, config.useOpacity);
+    BindMaterialTexture(6, material.displacementTexture, config.useDisplacement);
 }
+
 void TreeRenderer::UnBindMaterial(const Material& material) const
 {
-    if (material.isTransparency)
-        context_.graphicsApi_.EnableCulling();
+    context_.graphicsApi_.EnableCulling();
 }
 void TreeRenderer::BindMaterialTexture(uint32 location, GeneralTexture* texture, bool enabled) const
 {
@@ -244,11 +256,7 @@ void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRend
         {
             continue;
         }
-
-        const auto& material = mesh.GetMaterial();
-        const auto& config   = EngineConf.renderer.textures;
-        BindMaterialTexture(0, material.diffuseTexture, config.useDiffuse);
-
+        BindMaterial(mesh.GetMaterial());
         context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
     }
     context_.graphicsApi_.EnableCulling();

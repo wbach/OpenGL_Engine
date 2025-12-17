@@ -426,6 +426,11 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
         }
 
+        case FieldType::Material:
+        {
+            break;
+        }
+
         case GameEngine::Components::FieldType::Vector2i:
         {
             auto* val = static_cast<vec2i*>(field.ptr);

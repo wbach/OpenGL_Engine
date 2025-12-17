@@ -59,6 +59,10 @@ const std::string CSTR_TEXTURE_DISPLACEMENT          = "displacement";
 const std::string CSTR_TEXTURE_DIFFUSE               = "diffuse";
 const std::string CSTR_TEXTURE_NORMAL                = "normal";
 const std::string CSTR_TEXTURE_SPECULAR              = "specular";
+const std::string CSTR_TEXTURE_METALLIC              = "useMetallic";
+const std::string CSTR_TEXTURE_ROUGHNESS             = "useRoughness";
+const std::string CSTR_TEXTURE_AMBIENT_OCCLUSION     = "useAmbientOcclusion";
+const std::string CSTR_TEXTURE_OPACITY               = "useOpacity";
 // Flora
 const std::string CSTR_FLORA               = "Flora";
 const std::string CSTR_FLORA_ENABLED       = "enabled";

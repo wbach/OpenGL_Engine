@@ -17,6 +17,10 @@ struct Textures
     ConfigurationParam<bool> useDiffuse;
     ConfigurationParam<bool> useNormal;
     ConfigurationParam<bool> useSpecular;
+    ConfigurationParam<bool> useRoughness;
+    ConfigurationParam<bool> useMetallic;
+    ConfigurationParam<bool> useAmientOcclusion;
+    ConfigurationParam<bool> useOpacity;
 };
 }  // namespace Params
 }  // namespace GameEngine

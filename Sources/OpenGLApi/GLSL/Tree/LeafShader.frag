@@ -6,7 +6,13 @@ layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
-uniform sampler2D Texture0;
+layout(binding = 0) uniform sampler2D BaseColorTexture;
+layout(binding = 1) uniform sampler2D NormalTexture;
+layout(binding = 2) uniform sampler2D RoughnessTexture;
+layout(binding = 3) uniform sampler2D MetallicTexture;
+layout(binding = 4) uniform sampler2D AmbientOcclusionTexture;
+layout(binding = 5) uniform sampler2D OpacityTexture;
+layout(binding = 6) uniform sampler2D DisplacementTexture;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
@@ -60,17 +66,48 @@ vec2 GetAtlasUV(vec2 uv, int idx)
 
 void main()
 {
-    vec4 diffTexture = vec4(1.f, 1.f, 1.f, 1.f);
+    vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
+    vec3 normal = fs_in.normal;
+    float roughness = 1.0;
+    float metallic = 0.0;
+    float ao = 1.0;
+    float displacement = 0.0;
 
     if (Is(perApp.useTextures.x))
     {
-        diffTexture  = texture(Texture0, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y));
-        if(diffTexture.a < .5f) discard;
+        baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y));
+        
+        // Opacity
+        vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y));
+        if(opacityTex.x < 0.5) discard;
+        baseColor.a = opacityTex.x;
     }
 
-    vec3 normal = fs_in.normal;
-    WorldPosOut      = fs_in.worldPos;
-    DiffuseOut       = diffTexture * vec4(fs_in.color, 0.5f);
-    NormalOut        = vec4(normal, 1.f);
-    MaterialSpecular = vec4(.0f);
+    if (Is(perApp.useTextures.y))
+    {
+        // Normal mapping
+        normal = texture(NormalTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).xyz * 2.0 - 1.0;
+        normal = normalize(normal);
+    }
+
+    if (Is(perApp.useTextures.z))
+    {
+        // Roughness & Metallic from specular textures
+        roughness = texture(RoughnessTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+        metallic  = texture(MetallicTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+    }
+
+    // // Ambient Occlusion
+    // ao = texture(AmbientOcclusionTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+
+    // Displacement
+    if (Is(perApp.useTextures.w))
+    {
+        displacement = texture(DisplacementTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+    }
+
+    WorldPosOut      = fs_in.worldPos + vec4(normal * displacement, 0.0);
+    DiffuseOut       = baseColor * vec4(fs_in.color * ao, baseColor.a);
+    NormalOut        = vec4(normal, 1.0);
+    MaterialSpecular = vec4(metallic, roughness, 0.0, 1.0);
 }

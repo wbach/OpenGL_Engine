@@ -43,6 +43,10 @@ void Create(TreeNode& node, const Params::Textures& param)
     node.attributes_[CSTR_TEXTURE_DIFFUSE]               = Utils::BoolToString(param.useDiffuse);
     node.attributes_[CSTR_TEXTURE_NORMAL]                = Utils::BoolToString(param.useNormal);
     node.attributes_[CSTR_TEXTURE_SPECULAR]              = Utils::BoolToString(param.useSpecular);
+    node.attributes_[CSTR_TEXTURE_ROUGHNESS]             = Utils::BoolToString(param.useRoughness);
+    node.attributes_[CSTR_TEXTURE_METALLIC]              = Utils::BoolToString(param.useMetallic);
+    node.attributes_[CSTR_TEXTURE_AMBIENT_OCCLUSION]     = Utils::BoolToString(param.useAmientOcclusion);
+    node.attributes_[CSTR_TEXTURE_OPACITY]               = Utils::BoolToString(param.useOpacity);
 }
 void Create(TreeNode& node, const Params::Particles& param)
 {
