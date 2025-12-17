@@ -49,6 +49,7 @@ out VS_OUT
     vec3 normal;
     vec4 worldPos;
     mat3 tbn;
+    float depth;
 } vs_out;
 
 struct VertexWorldData
@@ -98,9 +99,8 @@ mat3 CreateTBNMatrix(vec3 normal)
     return mat3(tangent, binormal, normal);
 }
 
-bool NormalMaping(vec3 worldPos)
+bool NormalMaping(float dist)
 {
-    float dist = length(perFrame.cameraPosition - worldPos);
     return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
 }
 
@@ -108,12 +108,17 @@ void main()
 {
     VertexWorldData worldData = caluclateWorldData();
 
+    float depth = length(perFrame.cameraPosition - worldData.worldPosition.xyz);
+    const float farPlane = perFrame.projection.y;
+    float linearDepth  = depth / farPlane;
+    
     vs_out.texCoord      = TexCoord;
-    vs_out.worldPos      = worldData.worldPosition;
+    vs_out.worldPos      = vec4(worldData.worldPosition.xyz, linearDepth);
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.normal        = normalize(worldData.worldNormal.xyz);
+    vs_out.depth         = depth;
 
-    if (NormalMaping(vs_out.worldPos.xyz))
+    if (NormalMaping(depth))
     {
         vs_out.tbn = CreateTBNMatrix(vs_out.normal);
     }

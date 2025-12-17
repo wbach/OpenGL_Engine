@@ -21,44 +21,52 @@ aiMaterial* CreateAiMaterialFromGameMaterial(const Material& mat)
 {
     aiMaterial* aiMat = new aiMaterial();
 
-    // Nazwa
     aiString name(mat.name.c_str());
     aiMat->AddProperty(&name, AI_MATKEY_NAME);
 
-    aiColor3D diffuse(mat.diffuse.value.x, mat.diffuse.value.y, mat.diffuse.value.z);
-    aiColor3D ambient(mat.ambient.value.x, mat.ambient.value.y, mat.ambient.value.z);
-    aiColor3D specular(mat.specular.value.x, mat.specular.value.y, mat.specular.value.z);
-
+    aiColor3D diffuse(mat.baseColor.x, mat.baseColor.y, mat.baseColor.z);
+    aiColor3D ambient(mat.baseColor.x, mat.baseColor.y, mat.baseColor.z);
     aiMat->AddProperty(&diffuse, 1, AI_MATKEY_COLOR_DIFFUSE);
     aiMat->AddProperty(&ambient, 1, AI_MATKEY_COLOR_AMBIENT);
-    aiMat->AddProperty(&specular, 1, AI_MATKEY_COLOR_SPECULAR);
 
-    // ShineDamper → glossiness
-    float shininess = mat.shineDamper;
+    float shininess = mat.roughnessFactor;
     aiMat->AddProperty(&shininess, 1, AI_MATKEY_SHININESS);
 
-    // Tekstury
-    if (mat.diffuseTexture && mat.diffuseTexture->GetFile().has_value())
+    if (mat.baseColorTexture && mat.baseColorTexture->GetFile().has_value())
     {
-        aiString texPath(mat.diffuseTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.baseColorTexture->GetFile()->GetAbsolutePath().c_str());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_DIFFUSE(0));
-    }
-    if (mat.specularTexture && mat.specularTexture->GetFile().has_value())
-    {
-        aiString texPath(mat.specularTexture->GetFile()->GetAbsolutePath().c_str());
-        aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SPECULAR(0));
     }
     if (mat.normalTexture && mat.normalTexture->GetFile().has_value())
     {
         aiString texPath(mat.normalTexture->GetFile()->GetAbsolutePath().c_str());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_NORMALS(0));
     }
+    if (mat.metallicTexture && mat.metallicTexture->GetFile().has_value())
+    {
+        aiString texPath(mat.metallicTexture->GetFile()->GetAbsolutePath().c_str());
+        aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SPECULAR(0));
+    }
+    if (mat.roughnessTexture && mat.roughnessTexture->GetFile().has_value())
+    {
+        aiString texPath(mat.roughnessTexture->GetFile()->GetAbsolutePath().c_str());
+        aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SHININESS(0));
+    }
+    if (mat.ambientOcclusionTexture && mat.ambientOcclusionTexture->GetFile().has_value())
+    {
+        aiString texPath(mat.ambientOcclusionTexture->GetFile()->GetAbsolutePath().c_str());
+        aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_AMBIENT(0));
+    }
+    if (mat.opacityTexture && mat.opacityTexture->GetFile().has_value())
+    {
+        aiString texPath(mat.opacityTexture->GetFile()->GetAbsolutePath().c_str());
+        aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_OPACITY(0));
+    }
     if (mat.displacementTexture && mat.displacementTexture->GetFile().has_value())
     {
         aiString texPath(mat.displacementTexture->GetFile()->GetAbsolutePath().c_str());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_HEIGHT(0));
     }
-
     return aiMat;
 }
 

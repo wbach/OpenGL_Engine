@@ -139,7 +139,7 @@ Model* ResourceManager::AddModel(std::unique_ptr<Model> model)
     return modelPtr;
 }
 
-Primitive* ResourceManager::GetPrimitives(PrimitiveType type)
+Primitive* ResourceManager::GetPrimitives(PrimitiveType type, const Material& material)
 {
     std::lock_guard<std::mutex> lk(modelMutex_);
 
@@ -158,8 +158,6 @@ Primitive* ResourceManager::GetPrimitives(PrimitiveType type)
 
     auto model    = std::make_unique<GameEngine::Primitive>(type);
     auto modelPtr = model.get();
-    GameEngine::Material material;
-    material.diffuse = vec3(0.8f, 0.8f, 0.8f);
     model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, primitiveData, material));
 
     ResourceInfo<Model> modelInfo;

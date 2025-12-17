@@ -8,40 +8,29 @@ namespace GameEngine
 PerMeshObject createPerMeshObject(const Material& material)
 {
     PerMeshObject perMeshObject;
-    perMeshObject.ambient         = material.ambient.value;
-    perMeshObject.diffuse         = material.diffuse.value;
-    perMeshObject.specular        = material.specular.value;
-    perMeshObject.shineDamper     = material.shineDamper;
-    perMeshObject.useFakeLighting = material.useFakeLighting;
 
-    if (material.diffuseTexture != nullptr)
-    {
-        perMeshObject.numberOfRows    = material.diffuseTexture->getNumberOfRows();
-        perMeshObject.haveDiffTexture = 1.f;
-    }
-    else
-    {
-        perMeshObject.numberOfRows    = 1;
-        perMeshObject.haveDiffTexture = 0.f;
-    }
+    perMeshObject.baseColor.value = material.baseColor;
+    perMeshObject.params.value.x = material.metallicFactor;
+    perMeshObject.params.value.y = material.roughnessFactor;
+    perMeshObject.params.value.z = material.ambientOcclusion;
+    perMeshObject.params.value.w = material.opacityCutoff;
 
-    if (material.normalTexture != nullptr)
-    {
-        perMeshObject.haveNormalMap = 1.f;
-    }
-    else
-    {
-        perMeshObject.haveNormalMap = 0.f;
-    }
+    perMeshObject.params2.value.x = material.normalScale;
+    perMeshObject.params2.value.y = material.useFakeLighting ? 1.f : 0.f;
+    perMeshObject.params2.value.z = material.reflectivity;
+    perMeshObject.params2.value.w = material.indexOfRefraction;
 
-    if (material.specularTexture != nullptr)
-    {
-        perMeshObject.haveSpecularMap = 1.f;
-    }
-    else
-    {
-        perMeshObject.haveSpecularMap = 0.f;
-    }
+    perMeshObject.hasTextures.value.x = material.baseColorTexture != nullptr ? 1.f : 0.f;
+    perMeshObject.hasTextures.value.y = material.normalTexture != nullptr ? 1.f : 0.f;
+    perMeshObject.hasTextures.value.z = material.roughnessTexture != nullptr ? 1.f : 0.f;
+    perMeshObject.hasTextures.value.w = material.metallicTexture != nullptr ? 1.f : 0.f;
+
+    perMeshObject.hasTextures2.value.x = material.ambientOcclusionTexture != nullptr ? 1.f : 0.f;
+    perMeshObject.hasTextures2.value.y = material.opacityTexture != nullptr ? 1.f : 0.f;
+    perMeshObject.hasTextures2.value.z = material.displacementTexture != nullptr ? 1.f : 0.f;
+    perMeshObject.hasTextures2.value.w = material.tiledScale;
+
     return perMeshObject;
 }
+
 }  // namespace GameEngine

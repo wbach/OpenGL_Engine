@@ -381,20 +381,31 @@ const std::pair<GraphicsApi::ID, const Material*> EntityRenderer::getMaterial(co
 
 void EntityRenderer::bindMaterial(const Material& material) const
 {
-    if (material.isTransparency)
+    // ===== Culling =====
+    if (material.flags & MAT_DOUBLE_SIDED || (material.flags & MAT_FOLIAGE))
+    {
         context_.graphicsApi_.DisableCulling();
+    }
+    else
+    {
+        context_.graphicsApi_.EnableCulling();
+    }
 
+    // ===== Bind textures =====
     const auto& config = EngineConf.renderer.textures;
-    bindMaterialTexture(0, material.diffuseTexture, config.useDiffuse);
-    bindMaterialTexture(1, material.ambientTexture, config.useAmbient);
-    bindMaterialTexture(2, material.normalTexture, config.useNormal);
-    bindMaterialTexture(3, material.specularTexture, config.useSpecular);
+
+    bindMaterialTexture(0, material.baseColorTexture, config.useDiffuse);
+    bindMaterialTexture(1, material.normalTexture, config.useNormal);
+    bindMaterialTexture(2, material.roughnessTexture, config.useRoughness);
+    bindMaterialTexture(3, material.metallicTexture, config.useMetallic);
+    bindMaterialTexture(4, material.ambientOcclusionTexture, config.useAmientOcclusion);
+    bindMaterialTexture(5, material.opacityTexture, config.useOpacity);
+    bindMaterialTexture(6, material.displacementTexture, config.useDisplacement);
 }
 
 void EntityRenderer::unBindMaterial(const Material& material) const
 {
-    if (material.isTransparency)
-        context_.graphicsApi_.EnableCulling();
+    context_.graphicsApi_.EnableCulling();
 }
 
 void EntityRenderer::bindMaterialTexture(uint32 location, GeneralTexture* texture, bool enabled) const

@@ -7,6 +7,7 @@
 
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ITextureLoader.h"
+#include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "Types.h"
 
@@ -22,29 +23,43 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
 
     if (auto root = reader.Get())
     {
-        auto loadTexture = [&](const char* key) -> GeneralTexture*
+        auto loadTexture = [&](const char* key, const TextureParameters& textParams = {}) -> GeneralTexture*
         {
             if (auto node = reader.Get(key, root))
             {
-                if (not node->value_.empty())
+                LOG_DEBUG << node->name();
+                if (!node->value_.empty())
                 {
                     File file(node->value_);
                     if (file.exist())
                     {
-                        TextureParameters parameters;
-                        return texLoader.LoadTexture(File(node->value_), parameters);
+                        return texLoader.LoadTexture(File(node->value_), textParams);
+                    }
+                    else
+                    {
+                        LOG_WARN << "Load texture error!  " << node->value_;
                     }
                 }
             }
-
             return nullptr;
         };
 
-        material.diffuseTexture      = loadTexture("diffuseTexture");
-        material.normalTexture       = loadTexture("normalTexture");
-        material.specularTexture     = loadTexture("specularTexture");
-        material.ambientTexture      = loadTexture("ambientTexture");
-        material.displacementTexture = loadTexture("displacementTexture");
+        TextureParameters textureParams;
+        textureParams.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+        // --- legacy Phong textures ---
+        material.diffuseTexture      = loadTexture("diffuseTexture", textureParams);
+        material.normalTexture       = loadTexture("normalTexture", textureParams);
+        material.specularTexture     = loadTexture("specularTexture", textureParams);
+        material.ambientTexture      = loadTexture("ambientTexture", textureParams);
+        material.displacementTexture = loadTexture("displacementTexture", textureParams);
+
+        // --- PBR textures ---
+        material.baseColorTexture        = loadTexture("baseColorTexture", textureParams);
+        material.metallicTexture         = loadTexture("metallicTexture", textureParams);
+        material.roughnessTexture        = loadTexture("roughnessTexture", textureParams);
+        material.ambientOcclusionTexture = loadTexture("ambientOcclusionTexture", textureParams);
+        material.opacityTexture          = loadTexture("opacityTexture", textureParams);
 
         // -------------------- KOLORY --------------------
         auto parseColor = [&](const TreeNode* node, Color& target)
@@ -59,10 +74,8 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
                     auto x  = std::stof(children[0]->value_);
                     auto y  = std::stof(children[1]->value_);
                     auto z  = std::stof(children[2]->value_);
-                    float w = 1.f;
-                    if (children.size() > 3)
-                        w = std::stof(children[3]->value_);
-                    target = Color(vec4(x, y, z, w));
+                    float w = (children.size() > 3) ? std::stof(children[3]->value_) : 1.f;
+                    target  = Color(vec4(x, y, z, w));
                 }
             }
             catch (...)
@@ -73,71 +86,85 @@ Material ParseMaterial(const File& file, ITextureLoader& texLoader)
 
         if (auto node = reader.Get("diffuseColor", root))
             parseColor(node, material.diffuse);
-
         if (auto node = reader.Get("ambientColor", root))
             parseColor(node, material.ambient);
-
         if (auto node = reader.Get("specularColor", root))
             parseColor(node, material.specular);
+        if (auto node = reader.Get("baseColor", root))
+        {
+            const auto& children = node->getChildren();
+            if (children.size() >= 3)
+            {
+                auto x             = std::stof(children[0]->value_);
+                auto y             = std::stof(children[1]->value_);
+                auto z             = std::stof(children[2]->value_);
+                float w            = (children.size() > 3) ? std::stof(children[3]->value_) : 1.f;
+                material.baseColor = vec4(x, y, z, w);
+            }
+        }
 
         // -------------------- FLOATY --------------------
-        if (auto node = reader.Get("shineDamper", root))
+        auto parseFloat = [&](const char* key, float& target)
         {
-            try
+            if (auto node = reader.Get(key, root))
             {
-                material.shineDamper = std::stof(node->value_);
+                try
+                {
+                    target = std::stof(node->value_);
+                }
+                catch (...)
+                {
+                    LOG_ERROR << "Parse float error for node: " << (node ? node->type_ : "null");
+                }
             }
-            catch (...)
-            {
-                LOG_ERROR << "Parse shineDamper error for node: " << (node ? node->type_ : "null");
-            }
-        }
-        if (auto node = reader.Get("reflectivity", root))
+        };
+
+        parseFloat("shineDamper", material.shineDamper);
+        parseFloat("reflectivity", material.reflectivity);
+        parseFloat("indexOfRefraction", material.indexOfRefraction);
+        parseFloat("metallicFactor", material.metallicFactor);
+        parseFloat("roughnessFactor", material.roughnessFactor);
+        parseFloat("ambientOcclusion", material.ambientOcclusion);
+        parseFloat("tiledScale", material.tiledScale);
+        parseFloat("normalScale", material.normalScale);
+        parseFloat("opacityCutoff", material.opacityCutoff);
+        parseFloat("subsurfaceStrength", material.subsurfaceStrength);
+
+        if (auto node = reader.Get("subsurfaceColor", root))
         {
-            try
+            const auto& children = node->getChildren();
+            if (children.size() >= 3)
             {
-                material.reflectivity = std::stof(node->value_);
-            }
-            catch (...)
-            {
-                LOG_ERROR << "Parse reflectivity error for node: " << (node ? node->type_ : "null");
-            }
-        }
-        if (auto node = reader.Get("indexOfRefraction", root))
-        {
-            try
-            {
-                material.indexOfRefraction = std::stof(node->value_);
-            }
-            catch (...)
-            {
-                LOG_ERROR << "Parse indexOfRefraction error for node: " << (node ? node->type_ : "null");
+                float x                  = std::stof(children[0]->value_);
+                float y                  = std::stof(children[1]->value_);
+                float z                  = std::stof(children[2]->value_);
+                material.subsurfaceColor = vec3(x, y, z);
             }
         }
 
         // -------------------- BOOLE --------------------
-        if (auto node = reader.Get("isTransparency", root))
+        auto parseBool = [&](const char* key, bool& target)
         {
-            material.isTransparency = Utils::StringToBool(node->value_);
-        }
-        if (auto node = reader.Get("useFakeLighting", root))
-        {
-            material.useFakeLighting = Utils::StringToBool(node->value_);
-        }
+            if (auto node = reader.Get(key, root))
+                target = Utils::StringToBool(node->value_);
+        };
+
+        parseBool("isTransparency", material.isTransparency);
+        parseBool("useFakeLighting", material.useFakeLighting);
 
         // -------------------- NAZWA --------------------
         if (auto node = reader.Get("name", root))
-        {
             material.name = node->value_;
-        }
     }
     else
     {
         LOG_ERROR << "Json root node not found in file: " << file;
     }
+
     LOG_DEBUG << "return material";
     return material;
 }
+
 void SaveMaterial(const Material& material, const File& requestedFile)
 {
     auto file = requestedFile.HasExtension() ? requestedFile : requestedFile.CreateFileWithExtension("material");
@@ -150,6 +177,25 @@ void SaveMaterial(const Material& material, const File& requestedFile)
         node->addChild("1", std::to_string(v.value.y));
         node->addChild("2", std::to_string(v.value.z));
         node->addChild("3", std::to_string(v.value.w));
+        return node;
+    };
+
+    auto vec4ToNode = [](const std::string& name, const glm::vec4& v) -> std::unique_ptr<TreeNode>
+    {
+        auto node = std::make_unique<TreeNode>(name);
+        node->addChild("0", std::to_string(v.x));
+        node->addChild("1", std::to_string(v.y));
+        node->addChild("2", std::to_string(v.z));
+        node->addChild("3", std::to_string(v.w));
+        return node;
+    };
+
+    auto vec3ToNode = [](const std::string& name, const glm::vec3& v) -> std::unique_ptr<TreeNode>
+    {
+        auto node = std::make_unique<TreeNode>(name);
+        node->addChild("0", std::to_string(v.x));
+        node->addChild("1", std::to_string(v.y));
+        node->addChild("2", std::to_string(v.z));
         return node;
     };
 
@@ -167,38 +213,45 @@ void SaveMaterial(const Material& material, const File& requestedFile)
     root->addChild(colorToNode("diffuseColor", material.diffuse));
     root->addChild(colorToNode("ambientColor", material.ambient));
     root->addChild(colorToNode("specularColor", material.specular));
+    root->addChild(vec4ToNode("baseColor", material.baseColor));
+    root->addChild(vec3ToNode("subsurfaceColor", material.subsurfaceColor));
 
     // -------------------- FLOATY --------------------
     root->addChild("shineDamper", std::to_string(material.shineDamper));
     root->addChild("reflectivity", std::to_string(material.reflectivity));
     root->addChild("indexOfRefraction", std::to_string(material.indexOfRefraction));
+    root->addChild("metallicFactor", std::to_string(material.metallicFactor));
+    root->addChild("roughnessFactor", std::to_string(material.roughnessFactor));
+    root->addChild("ambientOcclusion", std::to_string(material.ambientOcclusion));
+    root->addChild("tiledScale", std::to_string(material.tiledScale));
+    root->addChild("normalScale", std::to_string(material.normalScale));
+    root->addChild("opacityCutoff", std::to_string(material.opacityCutoff));
+    root->addChild("subsurfaceStrength", std::to_string(material.subsurfaceStrength));
 
     // -------------------- BOOLE --------------------
     root->addChild("isTransparency", Utils::BoolToString(material.isTransparency));
     root->addChild("useFakeLighting", Utils::BoolToString(material.useFakeLighting));
 
     // -------------------- TEKSTURY --------------------
-    if (auto node = textureToNode("diffuseTexture", material.diffuseTexture))
-        root->addChild(std::move(node));
-    else
-        root->addChild("diffuseTexture");
+    auto addTextureNode = [&](const char* name, GeneralTexture* tex)
+    {
+        if (auto node = textureToNode(name, tex))
+            root->addChild(std::move(node));
+        else
+            root->addChild(name);
+    };
 
-    if (auto node = textureToNode("normalTexture", material.normalTexture))
-        root->addChild(std::move(node));
-    else
-        root->addChild("normalTexture");
-    if (auto node = textureToNode("specularTexture", material.specularTexture))
-        root->addChild(std::move(node));
-    else
-        root->addChild("specularTexture");
-    if (auto node = textureToNode("ambientTexture", material.ambientTexture))
-        root->addChild(std::move(node));
-    else
-        root->addChild("ambientTexture");
-    if (auto node = textureToNode("displacementTexture", material.displacementTexture))
-        root->addChild(std::move(node));
-    else
-        root->addChild("displacementTexture");
+    addTextureNode("diffuseTexture", material.diffuseTexture);
+    addTextureNode("ambientTexture", material.ambientTexture);
+    addTextureNode("specularTexture", material.specularTexture);
+    addTextureNode("displacementTexture", material.displacementTexture);
+
+    addTextureNode("baseColorTexture", material.baseColorTexture);
+    addTextureNode("normalTexture", material.normalTexture);
+    addTextureNode("metallicTexture", material.metallicTexture);
+    addTextureNode("roughnessTexture", material.roughnessTexture);
+    addTextureNode("ambientOcclusionTexture", material.ambientOcclusionTexture);
+    addTextureNode("opacityTexture", material.opacityTexture);
 
     // -------------------- ZAPIS --------------------
     Utils::Json::Write(file.GetAbsolutePath().string(), *root);

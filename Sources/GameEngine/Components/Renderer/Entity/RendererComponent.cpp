@@ -325,6 +325,10 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
     calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
 }
+void RendererComponent::CreatePerMaterialBuffer(const Mesh& mesh)
+{
+
+}
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
     auto iter = perObjectConstantsBuffer_.find(mesh.GetGpuObjectId());

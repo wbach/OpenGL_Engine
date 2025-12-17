@@ -167,6 +167,7 @@ struct Material
     float roughnessFactor  = 0.7f;
     float ambientOcclusion = 1.0f;
 
+    float tiledScale         = 1.0f;
     float normalScale        = 1.0f;
     float opacityCutoff      = 0.5f;
     float subsurfaceStrength = 0.0f;

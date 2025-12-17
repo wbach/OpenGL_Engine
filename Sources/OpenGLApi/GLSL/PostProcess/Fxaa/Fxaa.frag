@@ -14,8 +14,6 @@ out vec4 FragColor;
 
 void main()
 {
-    // FragColor = texture(FilterTexture, textureCoords);
-    // return;
     float FxaaSpanMax   = fxaaInput.fxaaVariables.x;
     float FxaaReduceMin = fxaaInput.fxaaVariables.y;
     float FxaaReduceMul = fxaaInput.fxaaVariables.z;

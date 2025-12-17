@@ -23,7 +23,7 @@ public:
 
     Model* LoadModel(const File&, const LoadingParameters&) override;
     Model* AddModel(std::unique_ptr<Model>) override;
-    Primitive* GetPrimitives(PrimitiveType) override;
+    Primitive* GetPrimitives(PrimitiveType, const Material&) override;
     void ReleaseModel(Model&) override;
 
     inline ITextureLoader& GetTextureLoader() override;

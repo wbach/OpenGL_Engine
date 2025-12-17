@@ -9,10 +9,11 @@ const int MAX_SHADOW_MAP_CASADES = 4;
 
 struct SMaterial
 {
-    vec3 ambient_;
-    vec3 diffuse_;
-    vec3 specular_;
-    float shineDamper_;
+    vec3 baseColor;         // Albedo / Diffuse color
+    float metallic;         // 0 = dielektryk, 1 = metal
+    float roughness;        // 0 = idealnie gładki, 1 = bardzo chropowaty
+    float ambientOcclusion; // 0-1, modyfikuje wpływ światła ambient
+    float specularStrength;
 };
 
 struct Light
@@ -81,7 +82,7 @@ layout(std140, binding = 11) uniform SpotLights
 layout(binding = 0) uniform sampler2D PositionMap;
 layout(binding = 1) uniform sampler2D ColorMap;
 layout(binding = 2) uniform sampler2D NormalMap;
-layout(binding = 3) uniform sampler2D SpecularMap;
+layout(binding = 3) uniform sampler2D SurfaceParamsMap;
 layout(binding = 4) uniform sampler2D DepthTexture;
 layout(binding = 5) uniform sampler2D SkyTexture;
 layout(binding = 6) uniform sampler2DShadow shadowMap0;
@@ -112,29 +113,84 @@ bool Is(float v)
     return v > 0.5f;
 }
 
-vec4 CalculateBaseLight(SMaterial material, vec3 lightDirection, vec3 worldPosition, vec3 unitNormal, vec3 lightColor)
+float ToksvigFactor(vec3 N)
 {
-    // light_direction is the vector from fragment TO light (L)
-    float NdotL = max(dot(unitNormal, lightDirection), 0.0);
-
-    vec3 ambient_color   = material.ambient_;
-    vec3 diffuse_color   = lightColor * NdotL * material.diffuse_;
-    vec3 specular_color  = vec3(0.0);
-
-    if (length(material.specular_) > 0.001)
-    {
-        // view direction: from fragment TO camera
-        vec3 viewDir = normalize(perFrame.cameraPosition - worldPosition);
-        // Blinn-Phong halfway vector
-        vec3 H = normalize(viewDir + lightDirection);
-        float NdotH = max(dot(unitNormal, H), 0.0);
-
-        float specFactor = pow(NdotH, max(material.shineDamper_, 1.0));
-        specular_color = lightColor * material.specular_ * specFactor;
-    }
-
-    return vec4(ambient_color + diffuse_color + specular_color, 1.0);
+    float len = length(N);
+    return clamp(len, 0.0, 1.0);
 }
+
+vec4 CalculateBaseLight(
+    SMaterial material,
+    vec3 lightDirection,   // kierunek DO światła (normalized)
+    vec3 worldPosition,
+    vec3 unitNormal,
+    vec3 lightColor
+)
+{
+    vec3 N = normalize(unitNormal);
+    vec3 V = normalize(perFrame.cameraPosition - worldPosition);
+    vec3 L = normalize(lightDirection);
+    vec3 H = normalize(V + L);
+
+    float NdotL = max(dot(N, L), 0.0);
+    float NdotV = max(dot(N, V), 0.0);
+
+    vec3 baseColor = material.baseColor.rgb;
+    float roughness = clamp(material.roughness, 0.05, 1.0);
+    float metallic  = material.metallic;
+    float AO        = material.ambientOcclusion;
+
+    // ------------------------------------------------------------------
+    // Fresnel
+    vec3 F0 = mix(vec3(0.04), baseColor, metallic);
+    vec3 F  = F0 + (1.0 - F0) * pow(1.0 - max(dot(H, V), 0.0), 5.0);
+
+    // ------------------------------------------------------------------
+    // GGX Distribution
+    float a  = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float denomD = (NdotH2 * (a2 - 1.0) + 1.0);
+    float D = a2 / (M_PI * denomD * denomD);
+
+    // ------------------------------------------------------------------
+    // Geometry (Smith / Schlick-GGX)
+    float k = (roughness + 1.0);
+    k = (k * k) / 8.0;
+
+    float G_V = NdotV / (NdotV * (1.0 - k) + k);
+    float G_L = NdotL / (NdotL * (1.0 - k) + k);
+    float G = G_V * G_L;
+
+    // ------------------------------------------------------------------
+    // Specular BRDF
+    vec3 numerator   = D * G * F;
+    float denominator = max(4.0 * NdotV * NdotL, 0.001);
+    vec3 specular = numerator / denominator * material.specularStrength;
+
+    // ------------------------------------------------------------------
+    // Energy conservation
+    vec3 kS = F;
+    vec3 kD = (1.0 - kS) * (1.0 - metallic);
+
+    vec3 diffuse = kD * baseColor / M_PI;
+
+    // ------------------------------------------------------------------
+    // Direct light
+    vec3 directLight = (diffuse + specular) * lightColor * NdotL;
+
+    // ------------------------------------------------------------------
+    // FAKE INDIRECT (zamiast ambient = 0.1)
+    // tylko albedo, AO i brak speculara
+    vec3 fakeIndirect = baseColor * 0.03 * AO;
+
+    vec3 color = directLight + fakeIndirect;
+
+    return vec4(color, 1.0);
+}
+
 
 vec4 CalculatePointLight(SMaterial material, int idx, vec3 worldPosition, vec3 unitNormal)
 {
@@ -360,23 +416,22 @@ void main()
         return;
     }
 
-    vec4 normal4        = texture(NormalMap, vs_in.textureCoords);
-    vec4 specular       = texture(SpecularMap, vs_in.textureCoords);
-    vec3 worldPosition  = texture(PositionMap, vs_in.textureCoords).xyz;
-    vec3 color          = texture(ColorMap, vs_in.textureCoords).xyz;
-    vec3 normal         = normalize(normal4.xyz);
+    vec4 normal4            = texture(NormalMap, vs_in.textureCoords);
+    vec4 surfacePram        = texture(SurfaceParamsMap, vs_in.textureCoords);
+    vec3 worldPosition      = texture(PositionMap, vs_in.textureCoords).xyz;
+    vec4 colorMap           = texture(ColorMap, vs_in.textureCoords);
+    vec3 normal             = normalize(normal4.xyz);
 
     SMaterial material;
-    float maxValue = max3(color);
-    float ambientFactor = 0.2;
+    material.baseColor          = colorMap.rgb;
+    material.metallic           = surfacePram.x;
+    material.roughness          = surfacePram.y;        
+    material.specularStrength   = surfacePram.z;
+    material.ambientOcclusion   = colorMap.w; 
 
     float shadowFactor      = CalculateShadowFactor(worldPosition);
-    material.ambient_       = color * ambientFactor;
-    material.diffuse_       = max(color - material.ambient_, vec3(0.0)) * shadowFactor;
-    material.specular_      = specular.xyz;
-    material.shineDamper_   = clamp(specular.a * 255.0, 1.0, 2048.0);
 
-    vec4 finalColor = CalculateColor(material, worldPosition, normal);
+    vec4 finalColor = CalculateColor(material, worldPosition, normal) * shadowFactor;
     finalColor      = CreateFog(finalColor, normal4.a);
     FragColor       = vec4(finalColor.rgb, 1.0);
 }

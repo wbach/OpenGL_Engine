@@ -40,7 +40,7 @@ layout(binding = 20) uniform sampler2D rockTextureNormal;
 layout (location = 0) out vec4 WorldPosOut;
 layout (location = 1) out vec4 DiffuseOut;
 layout (location = 2) out vec4 NormalOut;
-layout (location = 3) out vec4 SpecularOut;
+layout (location = 3) out vec4 SurfaceParamsOut;
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
@@ -239,9 +239,12 @@ TerrainData GetTerrainData()
 void main()
 {
     TerrainData terrainData = GetTerrainData();
+    const float metallic = 0.f;
+    const float roughness = 0.9f;
+    const float ambientOcclusion = 1.f;
 
-    WorldPosOut     = fs_in.worldPos;
-    DiffuseOut      = terrainData.color;
-    NormalOut       = terrainData.normal;
-    SpecularOut     = vec4(0.f, 0.f, 0.f, 0.f);
+    WorldPosOut      = fs_in.worldPos;
+    DiffuseOut       = vec4(terrainData.color.xyz, ambientOcclusion);
+    NormalOut        = terrainData.normal;
+    SurfaceParamsOut = vec4(metallic, roughness, 0.f, 0.f); 
 }

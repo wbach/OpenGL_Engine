@@ -34,7 +34,7 @@ void Fxaa::Init()
                                              1.f / projection.GetRenderingSize().y);
             float fxaaSpanMax         = 8.f;
             float fxaaReduceMin       = 1.f / 128.f;
-            float fxaaReduceMul       = 0.f /*1.f / 8.f*/;
+            float fxaaReduceMul       = 1.f / 8.f;
             buffer.fxaaVariables      = vec4(fxaaSpanMax, fxaaReduceMin, fxaaReduceMul, 0.f);
             rendererContext_.graphicsApi_.UpdateShaderBuffer(*fxaaBufferId_, &buffer);
         }

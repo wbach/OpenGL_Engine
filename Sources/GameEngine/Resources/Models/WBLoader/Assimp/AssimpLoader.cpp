@@ -485,7 +485,7 @@ std::filesystem::path getTexturePath(const std::optional<File>& currentProcessin
 }
 
 GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessingFile, const aiMaterial& material,
-                               ITextureLoader& loader, aiTextureType type)
+                                      ITextureLoader& loader, aiTextureType type)
 {
     GeneralTexture* texture{nullptr};
     auto count = material.GetTextureCount(type);
@@ -500,62 +500,57 @@ GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessi
         material.GetTexture(type, i, &path);
         TextureParameters parameters;
         const auto& file = getTexturePath(currentProcessingFile, path.C_Str());
-        texture  = loader.LoadTexture(file, parameters);
+        texture          = loader.LoadTexture(file, parameters);
     }
     return texture;
 }
 
 Material AssimpLoader::processMaterial(const aiScene& scene, const aiMesh& mesh) const
 {
-    if (not scene.HasMaterials())
+    if (!scene.HasMaterials())
         return Material();
-
-    aiString name;
-    aiColor4D diff;
-    aiColor4D amb;
-    aiColor4D spec;
-    float shine_damper;
-    float transparent;
-    float reflectivity;
 
     aiMaterial* mat = scene.mMaterials[mesh.mMaterialIndex];
     Material material;
 
+    aiString name;
     if (AI_SUCCESS == mat->Get(AI_MATKEY_NAME, name))
     {
         material.name = std::string(name.C_Str());
     }
+
+    aiColor4D diff;
     if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_DIFFUSE, diff))
     {
-        material.diffuse = vec3(diff.r, diff.g, diff.b);
-    }
-    if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_AMBIENT, amb))
-    {
-        material.ambient = vec3(amb.r, amb.g, amb.b);
-    }
-    if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_SPECULAR, spec))
-    {
-        material.specular = vec3(spec.r, spec.g, spec.b);
-    }
-    if (AI_SUCCESS == mat->Get(AI_MATKEY_SHININESS, shine_damper))
-    {
-        material.shineDamper = shine_damper;
-    }
-    if (AI_SUCCESS == mat->Get(AI_MATKEY_REFLECTIVITY, reflectivity))
-    {
-        material.reflectivity = reflectivity;
-    }
-    if (AI_SUCCESS == mat->Get(AI_MATKEY_OPACITY, transparent))
-    {
-        material.isTransparency = transparent > 0.5f;
+        material.baseColor = glm::vec4(diff.r, diff.g, diff.b, 1.0f);
     }
 
-    material.diffuseTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_DIFFUSE);
-    material.normalTexture  = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_HEIGHT);
-    // material.normalTexture  = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_NORMALS);
-    material.specularTexture     = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_SPECULAR);
-    material.ambientTexture      = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_AMBIENT);
-    material.displacementTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_DISPLACEMENT);
+    float metal = 0.0f;
+    float rough = 0.7f;
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_SPECULAR, diff))
+    {
+        rough = 1.0f - glm::clamp(diff.r, 0.0f, 1.0f);
+    }
+    material.roughnessFactor = rough;
+    material.metallicFactor  = metal;
+
+    float opacity = 1.0f;
+    if (AI_SUCCESS == mat->Get(AI_MATKEY_OPACITY, opacity))
+    {
+        material.opacityCutoff = 0.5f;
+        if (opacity < 1.0f)
+        {
+            material.flags |= MAT_ALPHA_TEST;
+        }
+    }
+
+    material.baseColorTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_DIFFUSE);
+    material.normalTexture    = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_NORMALS);
+    material.metallicTexture  = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_SPECULAR);
+    material.roughnessTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_SHININESS);
+    material.ambientOcclusionTexture = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_AMBIENT);
+    material.opacityTexture          = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_OPACITY);
+    material.displacementTexture     = CreateMaterialTexture(currentProcessingFile_, *mat, textureLoader_, aiTextureType_HEIGHT);
 
     return material;
 }

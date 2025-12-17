@@ -1,5 +1,4 @@
 #version 440 core
-#define EPSILON 0.0002
 
 layout (std140, align=16, binding=0) uniform PerApp
 {
@@ -9,26 +8,26 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
-layout (std140,binding=1) uniform PerFrame
+layout (std140, align=16, binding=6) uniform PerMaterial
 {
-    mat4 projectionViewMatrix;
-    vec3 cameraPosition;
-    vec4 clipPlane;
-    vec4 projection;
-} perFrame;
+    vec4 baseColor;
+    vec4 params; // x - metallicFactor, y - roughnessFactor, z - ambientOcclusion, w - opacityCutoff
+    vec4 params2; // x - normalScale,  y - useFakeLighting, z - specularStrength, w - indexOfRefraction
+    vec4 hasTextures; // x - BaseColorTexture, y - NormalTexture, z -RoughnessTexture, w - MetallicTexture
+    vec4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
+} perMaterial;
 
-layout (std140, align=16, binding=6) uniform PerMeshObject
-{
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    uint numberOfRows;
-    float haveDiffTexture;
-    float haveNormalMap;
-    float haveSpecularMap;
-    float shineDamper;
-    float useFakeLighting;
-} perMeshObject;
+layout(location = 0) out vec4 WorldPosOut;
+layout(location = 1) out vec4 ColorMapOut;
+layout(location = 2) out vec4 NormalOut;
+layout(location = 3) out vec4 SurfaceParamsOut;
+
+layout(binding = 0) uniform sampler2D BaseColorTexture;
+layout(binding = 1) uniform sampler2D NormalTexture;
+layout(binding = 2) uniform sampler2D RoughnessTexture;
+layout(binding = 3) uniform sampler2D MetallicTexture;
+layout(binding = 4) uniform sampler2D AmbientOcclusionTexture;
+layout(binding = 5) uniform sampler2D OpacityTexture;
 
 in VS_OUT
 {
@@ -37,86 +36,103 @@ in VS_OUT
     vec3 normal;
     vec4 worldPos;
     mat3 tbn;
+    float depth;
 } fs_in;
-
-layout(binding = 0) uniform sampler2D DiffuseTexture;
-layout(binding = 1) uniform sampler2D AmbientTexture;
-layout(binding = 2) uniform sampler2D NormalMap;
-layout(binding = 3) uniform sampler2D SpecularMap;
-layout(binding = 4) uniform sampler2DShadow ShadowMap;
-layout(binding = 5) uniform sampler2DShadow ShadowMap1;
-layout(binding = 6) uniform sampler2DShadow ShadowMap2;
-layout(binding = 7) uniform sampler2DShadow ShadowMap3;
-
-layout (location = 0) out vec4 WorldPosOut;
-layout (location = 1) out vec4 DiffuseOut;
-layout (location = 2) out vec4 NormalOut;
-layout (location = 3) out vec4 MaterialSpecular;
 
 bool Is(float v)
 {
     return v > 0.5f;
 }
 
-vec4 CalcBumpedNormal(vec2 text_coords)
+bool IsTransparent(float opacity)
 {
-    vec3 bumpMapNormal = texture(NormalMap, text_coords).xyz;
-    bumpMapNormal = bumpMapNormal * 2.f - 1.f;
-    return vec4(normalize(fs_in.tbn * bumpMapNormal) , 1.f);
+    const float opacityCutoff = perMaterial.params.w;
+    return opacity < opacityCutoff;
 }
 
 bool NormalMaping()
 {
-    float dist = length(perFrame.cameraPosition - fs_in.worldPos.xyz);
-    return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
+    return Is(perApp.useTextures.y) && (fs_in.depth < perApp.viewDistance.y);
 }
 
-vec4 GetNormal(vec2 textCoord)
+vec3 CalcBumpedNormal(vec2 text_coords)
 {
-    if (Is(perMeshObject.useFakeLighting))
+    vec3 bumpMapNormal = texture(NormalTexture, text_coords).xyz;
+    bumpMapNormal = bumpMapNormal * 2.f - 1.f;
+    return normalize(fs_in.tbn * bumpMapNormal);
+}
+
+vec3 GetNormal(vec2 uv)
+{
+    const float useFakeLighting = perMaterial.params2.y;
+    if(Is(useFakeLighting))
     {
-        return vec4(0.0f, 1.0f, 0.0f, 1.f); // w use fog
+        return vec3(0.0, 1.0, 0.0);
+    }
+
+    vec3 n = vec3(0.0, 1.0, 0.0);
+    const bool hasNormalTexture = Is(perMaterial.hasTextures.y);
+    if(hasNormalTexture && NormalMaping())
+    {
+        n = CalcBumpedNormal(uv);
     }
     else
     {
-        return (Is(perMeshObject.haveNormalMap) && NormalMaping()) ? CalcBumpedNormal(textCoord) : vec4(normalize(fs_in.normal), 1.f);
+        n = normalize(fs_in.normal);
     }
-}
 
-vec4 GetSpecular(vec2 textCoord)
-{
-    if (Is(perMeshObject.haveSpecularMap) && Is(perApp.useTextures.z))
-    {
-        return vec4((texture(SpecularMap, textCoord) * perMeshObject.specular).xyz , perMeshObject.shineDamper);
+    const float normalScale = perMaterial.params2.x;
 
-    }
-    else
-    {
-       return vec4(perMeshObject.specular.xyz, perMeshObject.shineDamper / 255.f);
-    }
+    return normalize(n * normalScale);
 }
 
 void main()
 {
-    vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
-    vec2 textCoord = (fs_in.texCoord / perMeshObject.numberOfRows) + fs_in.textureOffset;
+    vec2 uv = fs_in.texCoord * perMaterial.hasTextures2.w;
 
-    if (Is(perMeshObject.haveDiffTexture) && Is(perApp.useTextures.x))
+    if(Is(perMaterial.hasTextures2.y))
     {
-        colorFromTexture = texture(DiffuseTexture, textCoord);
-        //if(colorFromTexture.a < 0.485f)
-        if(colorFromTexture.a < 0.1f)
-        {
-            discard;
-        }
-        else
-        {
-            colorFromTexture.a = 1.f;
-        }
+        const float opacity = texture(OpacityTexture, uv).r;
+        if(IsTransparent(opacity)) discard;
     }
 
-    WorldPosOut      = fs_in.worldPos;
-    NormalOut        = GetNormal(textCoord);
-    DiffuseOut       = colorFromTexture * perMeshObject.diffuse;
-    MaterialSpecular = GetSpecular(textCoord);
+    // --- BaseColor + Opacity ---
+    vec3 baseColor = perMaterial.baseColor.rgb;
+    const bool hasBaseColorTexture = perMaterial.hasTextures.x > 0.5f;
+    if(hasBaseColorTexture && perApp.useTextures.x > 0.5f)
+    {
+       baseColor = texture(BaseColorTexture, uv).rgb;
+    }
+
+    // --- Ambient Occlusion ---
+    float ambientOcclusion = perMaterial.params.z;
+    const bool hasAmbientOcclusionTexture = perMaterial.hasTextures2.x > 0.5f;
+    if(hasAmbientOcclusionTexture)
+    {
+       ambientOcclusion = texture(AmbientOcclusionTexture, uv).r;
+    }
+
+    // --- Normal ---
+    const vec3 normal = GetNormal(uv);
+
+    float roughness = perMaterial.params.y;
+    const bool hasRoughnessTexture = perMaterial.hasTextures.z > 0.5f;
+    if(hasRoughnessTexture)
+    {
+       roughness = texture(RoughnessTexture, uv).r;
+    }
+
+    float metallic = perMaterial.params.x;
+    const bool hasMetallicTexture = perMaterial.hasTextures.w > 0.5f;
+    if(hasMetallicTexture)
+    {
+       metallic = texture(MetallicTexture, uv).r;
+    }
+
+    // --- Output do G-Buffer ---
+    WorldPosOut         = fs_in.worldPos; // w - linear depth from vs
+    ColorMapOut         = vec4(baseColor, ambientOcclusion);                       
+    NormalOut           = vec4(normal, 1.0);                
+    //SurfaceParamsOut    = vec4(metallic, roughness, perMaterial.params2.z, perMaterial.params2.w); 
+    SurfaceParamsOut    = vec4(metallic, roughness, 1.f, perMaterial.params2.w); 
 }
