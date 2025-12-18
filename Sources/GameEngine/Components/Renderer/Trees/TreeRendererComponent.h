@@ -13,6 +13,7 @@
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerInstances.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
+#include "Leaf.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -51,7 +52,7 @@ public:
     TreeRendererComponent& SetGeneratedModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
-    TreeRendererComponent& SetLeafPosition(const std::vector<vec3>&);
+    TreeRendererComponent& SetLeafPosition(const std::vector<Leaf>&);
     TreeRendererComponent& SetLeafMaterial(const Material&);
 
     void CleanUp() override;
@@ -81,7 +82,7 @@ private:
     void DeleteShaderBuffers();
 
 private:
-    std::vector<vec3> leafPositions;
+    std::vector<Leaf> leafPositions;
     ModelWrapper model;
     ModelWrapper leafModel;
 

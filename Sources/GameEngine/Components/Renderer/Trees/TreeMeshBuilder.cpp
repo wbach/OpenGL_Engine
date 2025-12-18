@@ -175,10 +175,6 @@ void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<
                 const auto& parentNormal = (*parentVertexes)[i].normal;
                 normal                   = glm::normalize((normal + parentNormal) / 2.f);
             }
-            else
-            {
-                LOG_DEBUG << "parentVertexes->size() " << parentVertexes->size();
-            }
         }
 
         vec3 tang   = glm::normalize(glm::cross(direction, normal));

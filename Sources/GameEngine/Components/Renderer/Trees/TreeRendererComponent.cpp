@@ -126,7 +126,7 @@ TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr,
     return *this;
 }
 
-TreeRendererComponent& TreeRendererComponent::SetLeafPosition(const std::vector<vec3>& positions)
+TreeRendererComponent& TreeRendererComponent::SetLeafPosition(const std::vector<Leaf>& positions)
 {
     leafPositions     = positions;
     leafPositionsFile = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".leafs");
@@ -360,12 +360,21 @@ void TreeRendererComponent::CreateLeafModel()
         LOG_DEBUG << "Create leaf mesh";
         GraphicsApi::MeshRawData data;
         data.positions_.reserve(leafPositions.size() * 3);
-        for (const auto& position : leafPositions)
+        data.normals_.reserve(leafPositions.size() * 3);
+        for (const auto& leaf : leafPositions)
         {
-            data.positions_.push_back(position.x);
-            data.positions_.push_back(position.y);
-            data.positions_.push_back(position.z);
+            data.positions_.push_back(leaf.position.x);
+            data.positions_.push_back(leaf.position.y);
+            data.positions_.push_back(leaf.position.z);
+
+            data.normals_.push_back(leaf.direction.x);
+            data.normals_.push_back(leaf.direction.y);
+            data.normals_.push_back(leaf.direction.z);
         }
+
+
+        LOG_DEBUG << "Positons: " << data.positions_;
+        LOG_DEBUG << "Direction: " << data.normals_;
 
         auto& resourceManager = componentContext_.resourceManager_;
         auto model            = std::make_unique<GameEngine::Model>();
