@@ -34,7 +34,8 @@ void ToneMapping::Init()
 
     if (not toneMappingBufferId_)
     {
-        toneMappingBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(BIND_LOCATION, sizeof(ToneMappingBuffer));
+        toneMappingBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(BIND_LOCATION, sizeof(ToneMappingBuffer),
+                                                                                GraphicsApi::DrawFlag::Static);
     }
     UpdateBuffer();
 }

@@ -6,10 +6,10 @@
 #include <algorithm>
 
 #include "GameEngine/Components/Renderer/Terrain/TerrainTessellationRendererComponent.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/Texture.h"
-#include "GameEngine/Objects/GameObject.h"
 
 namespace GameEngine
 {
@@ -61,13 +61,14 @@ void TerrainRenderer::init()
 
     objectId = context_.graphicsApi_.CreatePatchMesh(patches);
 
-    perTerrainId = context_.graphicsApi_.CreateShaderBuffer(PER_TERRAIN_BIND_LOCATION, sizeof(PerTerrain));
+    perTerrainId =
+        context_.graphicsApi_.CreateShaderBuffer(PER_TERRAIN_BIND_LOCATION, sizeof(PerTerrain), GraphicsApi::DrawFlag::Dynamic);
     if (not perTerrainId)
     {
         return;
     }
 
-    perNodeId = context_.graphicsApi_.CreateShaderBuffer(PER_NODE_LOCATION, sizeof(PerNode));
+    perNodeId = context_.graphicsApi_.CreateShaderBuffer(PER_NODE_LOCATION, sizeof(PerNode), GraphicsApi::DrawFlag::Dynamic);
     if (not perNodeId)
     {
         return;
@@ -147,7 +148,7 @@ void TerrainRenderer::BindTexture(Texture& texture, uint32 id) const
 void TerrainRenderer::subscribe(GameObject& gameObject)
 {
     auto iter = std::find_if(subscribes_.begin(), subscribes_.end(),
-                     [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
+                             [&gameObject](const auto& obj) { return obj.first == gameObject.GetId(); });
 
     if (iter == subscribes_.end())
     {

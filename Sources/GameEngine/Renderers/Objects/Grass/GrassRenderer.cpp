@@ -105,7 +105,8 @@ void GrassRenderer::reloadShaders()
 
 void GrassRenderer::InitShaderBuffer()
 {
-    grassShaderBufferId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer));
+    grassShaderBufferId_ = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(GrassShaderBuffer),
+                                                                    GraphicsApi::DrawFlag::Dynamic);
 
     grassShaderBuffer_.variables.value.x = *EngineConf.renderer.flora.viewDistance;
     grassShaderBuffer_.variables.value.y = 0;

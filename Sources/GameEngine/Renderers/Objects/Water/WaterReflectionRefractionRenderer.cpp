@@ -106,7 +106,8 @@ void WaterReflectionRefractionRenderer::initResources()
 
     if (not reflectionPerFrameBuffer_)
     {
-        reflectionPerFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+        reflectionPerFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer),
+                                                                             GraphicsApi::DrawFlag::Dynamic);
 
         if (not reflectionPerFrameBuffer_)
         {
@@ -117,7 +118,8 @@ void WaterReflectionRefractionRenderer::initResources()
 
     if (not refractionPerFrameBuffer_)
     {
-        refractionPerFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+        refractionPerFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer),
+                                                                             GraphicsApi::DrawFlag::Dynamic);
 
         if (not refractionPerFrameBuffer_)
         {

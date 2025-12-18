@@ -44,7 +44,7 @@ void SkyPassRenderer::Init()
     if (not bufferId)
     {
         const uint32 BIND_LOCATION{6};
-        bufferId = context.graphicsApi_.CreateShaderBuffer(BIND_LOCATION, sizeof(SkyPassBuffer));
+        bufferId = context.graphicsApi_.CreateShaderBuffer(BIND_LOCATION, sizeof(SkyPassBuffer), GraphicsApi::DrawFlag::Dynamic);
     }
 
     if (not frameBuffer)
@@ -90,7 +90,7 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
     else
     {
         buffer.sunDirection = vec4(0.f);
-        buffer.sunColor = vec4(0.f);
+        buffer.sunColor     = vec4(0.f);
     }
 
     context.graphicsApi_.SetViewPort(0, 0, frameBufferSize->x, frameBufferSize->y);

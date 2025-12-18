@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <xnamath.h>
+
+#include "GraphicsApi/IGraphicsApi.h"
 #undef CreateFont
 #undef CreateWindow
 #include <Utils/Container.h>
@@ -584,7 +586,7 @@ void DirectXApi::UseShader(uint32 id)
     impl_->dxCondext_.devcon->PSSetShader(shader.pixel_, NULL, 0);
 }
 
-GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
+GraphicsApi::ID DirectXApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag)
 {
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
@@ -615,6 +617,18 @@ void DirectXApi::UpdateShaderBuffer(uint32 id, void const *data)
     }
     const auto &buffer = impl_->buffers_[id];
     impl_->dxCondext_.devcon->UpdateSubresource(buffer.ptr, 0, NULL, data, 0, 0);
+}
+void DirectXApi::UnmapShaderStorageBuffer(uint32 id)
+{
+}
+void *DirectXApi::MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags)
+{
+}
+void DirectXApi::UpdateShaderStorageBuffer(uint32 id, void const *buffer)
+{
+}
+GraphicsApi::ID DirectXApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag)
+{
 }
 uint32 DirectXApi::BindShaderBuffer(uint32 id)
 {

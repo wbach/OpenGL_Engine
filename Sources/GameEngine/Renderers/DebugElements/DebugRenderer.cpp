@@ -123,7 +123,8 @@ DebugObject::~DebugObject()
 void DebugObject::CreateBuffer()
 {
     LOG_DEBUG << "perObjectBufferId";
-    perObjectBufferId = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    perObjectBufferId =
+        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
 
     LOG_DEBUG << "perObjectBufferId";
     transform_.TakeSnapShoot();
@@ -244,8 +245,8 @@ void DebugRenderer::init()
             return result;
         });
 
-    gridPerObjectUpdateBufferId_ =
-        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    gridPerObjectUpdateBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+        PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
 
     if (gridPerObjectUpdateBufferId_)
     {
@@ -258,8 +259,8 @@ void DebugRenderer::init()
         LOG_ERROR << "gridPerObjectUpdateBufferId_ error!";
     }
 
-    texturePerObjectUpdateBufferId_ =
-        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    texturePerObjectUpdateBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+        PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
 
     if (texturePerObjectUpdateBufferId_)
     {
@@ -272,7 +273,8 @@ void DebugRenderer::init()
         LOG_ERROR << "texturePerObjectUpdateBufferId_ error!";
     }
 
-    textureColorBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
+    textureColorBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer),
+                                                                             GraphicsApi::DrawFlag::Dynamic);
     if (textureColorBufferId_)
     {
         ColorBuffer b;
@@ -280,8 +282,8 @@ void DebugRenderer::init()
         rendererContext_.graphicsApi_.UpdateShaderBuffer(*textureColorBufferId_, &b);
     }
 
-    meshDebugPerObjectBufferId_ =
-        rendererContext_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    meshDebugPerObjectBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+        PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
 
     showPhycicsVisualizationSubId = EngineConf.debugParams.showPhycicsVisualization.subscribeForChange(
         [this]()

@@ -22,26 +22,26 @@ void DefferedLighting::Init()
 
     if (not lightPassID_)
     {
-        lightPassID_ =
-            rendererContext_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(DefferedLighting::LightPass));
+        lightPassID_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+            PER_MESH_OBJECT_BIND_LOCATION, sizeof(DefferedLighting::LightPass), GraphicsApi::DrawFlag::Dynamic);
     }
 
     if (not directionalLightsId_)
     {
-        directionalLightsId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(DIRECTIONAL_LIGHTS_BIND_LOCATION,
-                                                                                sizeof(DefferedLighting::DirectionalLights));
+        directionalLightsId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+            DIRECTIONAL_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::DirectionalLights), GraphicsApi::DrawFlag::Dynamic);
     }
 
     if (not pointLightsId_)
     {
-        pointLightsId_ =
-            rendererContext_.graphicsApi_.CreateShaderBuffer(POINT_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::PointlLights));
+        pointLightsId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+            POINT_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::PointlLights), GraphicsApi::DrawFlag::Dynamic);
     }
 
     if (not spotLightsId_)
     {
-        spotLightsId_ =
-            rendererContext_.graphicsApi_.CreateShaderBuffer(SPOT_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::SpotLights));
+        spotLightsId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(
+            SPOT_LIGHTS_BIND_LOCATION, sizeof(DefferedLighting::SpotLights), GraphicsApi::DrawFlag::Dynamic);
     }
 }
 void DefferedLighting::CleanUp()

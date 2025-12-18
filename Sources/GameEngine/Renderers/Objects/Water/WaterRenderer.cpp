@@ -46,7 +46,8 @@ void WaterRenderer::init()
 
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(WATER_TILE_BIND_LOCATION, sizeof(WaterTileMeshBuffer));
+        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(WATER_TILE_BIND_LOCATION, sizeof(WaterTileMeshBuffer),
+                                                                    GraphicsApi::DrawFlag::Dynamic);
     }
 
     waterReflectionRefractionRenderer_.init();

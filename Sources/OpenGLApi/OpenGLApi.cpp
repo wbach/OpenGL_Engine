@@ -11,7 +11,9 @@
 #include <optional>
 
 #include "GlFrameBuffer.h"
+#include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/MeshRawData.h"
+#include "GraphicsApi/ShaderStorageFlags.h"
 #include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
 #include "Logger/Log.h"
@@ -690,13 +692,34 @@ void OpenGLApi::UseShader(uint32 id)
     impl_->shaderManager_.UseShader(id);
 }
 
-GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size)
+GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag flag)
 {
+    GLenum usage = GL_STATIC_DRAW;
+    if (flag == GraphicsApi::DrawFlag::Dynamic)
+        usage = GL_DYNAMIC_DRAW;
+
     uint32 buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
-    glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, size, nullptr, usage);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
+    auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
+    return id;
+}
+
+GraphicsApi::ID OpenGLApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag flag)
+{
+    GLenum usage = GL_STATIC_DRAW;
+    if (flag == GraphicsApi::DrawFlag::Dynamic)
+        usage = GL_DYNAMIC_DRAW;
+
+    uint32 buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, size, nullptr, usage);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
     impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
     auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
     return id;
@@ -709,6 +732,43 @@ void OpenGLApi::UpdateShaderBuffer(uint32 id, void const* buffer)
     glBindBuffer(GL_UNIFORM_BUFFER, b.glId);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, b.bufferSize, buffer);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void OpenGLApi::UpdateShaderStorageBuffer(uint32 id, void const* buffer)
+{
+    const auto& b = impl_->shaderBuffers_[id];
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, b.glId);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, b.bufferSize, buffer);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+void* OpenGLApi::MapShaderStorageBuffer(uint32 id, uint32 bufferSize, uint32 flags)
+{
+    const auto& b = impl_->shaderBuffers_[id];
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, b.glId);
+
+    GLbitfield glFlags = 0;
+    if (flags & GraphicsApi::WRITE)
+        glFlags |= GL_MAP_WRITE_BIT;
+    if (flags & GraphicsApi::READ)
+        glFlags |= GL_MAP_READ_BIT;
+    if (flags & GraphicsApi::INVALIDATE)
+        glFlags |= GL_MAP_INVALIDATE_BUFFER_BIT;
+    if (flags & GraphicsApi::PERSISTENT)
+        glFlags |= GL_MAP_PERSISTENT_BIT;
+    if (flags & GraphicsApi::COHERENT)
+        glFlags |= GL_MAP_COHERENT_BIT;
+
+    void* ptr = glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, bufferSize, glFlags);
+
+    return ptr;
+}
+void OpenGLApi::UnmapShaderStorageBuffer(uint32 id)
+{
+    const auto& b = impl_->shaderBuffers_[id];
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, b.glId);
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 uint32 OpenGLApi::BindShaderBuffer(uint32 id)
@@ -1115,7 +1175,7 @@ GraphicsApi::ID OpenGLApi::CreateMesh(const GraphicsApi::MeshRawData& meshRawDat
 
     allocatedBytes(vaoCreator.Get().sizeInBytes);
 
-    LOG_DEBUG << "Mesh created " <<  rid;
+    LOG_DEBUG << "Mesh created " << rid;
     return rid;
 }
 

@@ -26,7 +26,7 @@ void Outline::Init()
 
     if (not bufferId_)
     {
-        bufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(Buffer));
+        bufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(Buffer), GraphicsApi::DrawFlag::Static);
         if (bufferId_)
         {
             const auto& projection = rendererContext_.camera_->GetProjection();

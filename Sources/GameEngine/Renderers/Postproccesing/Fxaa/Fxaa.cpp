@@ -25,13 +25,12 @@ void Fxaa::Init()
 
     if (not fxaaBufferId_)
     {
-        fxaaBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(FxaaBuffer));
+        fxaaBufferId_ = rendererContext_.graphicsApi_.CreateShaderBuffer(6, sizeof(FxaaBuffer), GraphicsApi::DrawFlag::Static);
         if (fxaaBufferId_)
         {
-            const auto& projection  = rendererContext_.camera_->GetProjection();
+            const auto& projection = rendererContext_.camera_->GetProjection();
             FxaaBuffer buffer;
-            buffer.invertedScreenSize = vec2(1.f / projection.GetRenderingSize().x,
-                                             1.f / projection.GetRenderingSize().y);
+            buffer.invertedScreenSize = vec2(1.f / projection.GetRenderingSize().x, 1.f / projection.GetRenderingSize().y);
             float fxaaSpanMax         = 8.f;
             float fxaaReduceMin       = 1.f / 128.f;
             float fxaaReduceMul       = 1.f / 8.f;

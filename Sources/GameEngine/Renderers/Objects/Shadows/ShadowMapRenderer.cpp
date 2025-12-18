@@ -81,7 +81,8 @@ void ShadowMapRenderer::init()
     depthAttachment.filter      = GraphicsApi::FrameBuffer::Filter::Linear;
     depthAttachment.compareMode = GraphicsApi::FrameBuffer::CompareMode::RefToTexture;
 
-    perFrameBuffer_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+    perFrameBuffer_ =
+        context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer), GraphicsApi::DrawFlag::Dynamic);
 
     if (not perFrameBuffer_)
     {
@@ -96,7 +97,8 @@ void ShadowMapRenderer::init()
         shadowFrameBuffer       = &context_.graphicsApi_.CreateFrameBuffer({depthAttachment});
 
         if (not shadowsBufferId_)
-            shadowsBufferId_ = context_.graphicsApi_.CreateShaderBuffer(SHADOW_BUFFER_BIND_LOCATION, sizeof(ShadowsBuffer));
+            shadowsBufferId_ = context_.graphicsApi_.CreateShaderBuffer(SHADOW_BUFFER_BIND_LOCATION, sizeof(ShadowsBuffer),
+                                                                        GraphicsApi::DrawFlag::Dynamic);
         if (shadowsBufferId_)
             context_.graphicsApi_.BindShaderBuffer(*shadowsBufferId_);
 

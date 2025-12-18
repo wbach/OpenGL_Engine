@@ -141,7 +141,8 @@ void ParticlesRenderer::InitShaderBuffer()
 {
     particleInputBuffer.projectionMatrix          = glm::mat4(1.f);
     particleInputBuffer.textureNumberOfRows.value = 0;
-    particleInputBufferId = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ParticleInputBuffer));
+    particleInputBufferId = context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ParticleInputBuffer),
+                                                                     GraphicsApi::DrawFlag::Dynamic);
     context_.graphicsApi_.UpdateShaderBuffer(*particleInputBufferId, &particleInputBuffer);
 }
 void ParticlesRenderer::StartShader()

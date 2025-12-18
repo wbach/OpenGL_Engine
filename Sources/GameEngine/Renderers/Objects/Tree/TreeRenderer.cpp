@@ -41,7 +41,7 @@ void TreeRenderer::init()
 
     if (not paramBufferId_)
     {
-        paramBufferId_ = context_.graphicsApi_.CreateShaderBuffer(4, sizeof(TreeParamBuffer));
+        paramBufferId_ = context_.graphicsApi_.CreateShaderBuffer(4, sizeof(TreeParamBuffer), GraphicsApi::DrawFlag::Dynamic);
     }
 }
 

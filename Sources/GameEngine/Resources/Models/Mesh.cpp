@@ -167,7 +167,8 @@ void Mesh::SetMaterial(const Material& mat)
 
 void Mesh::CreateBufferObject()
 {
-    materialShaderBuffer_ = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject));
+    materialShaderBuffer_ =
+        graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(PerMeshObject), GraphicsApi::DrawFlag::Static);
     if (materialShaderBuffer_)
     {
         LOG_DEBUG << "CreateMesh perMeshObjectBuffer_ := " << materialShaderBuffer_;

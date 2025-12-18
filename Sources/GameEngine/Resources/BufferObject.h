@@ -72,7 +72,7 @@ public:
     {
         if (not graphicsObjectId_)
         {
-            graphicsObjectId_ = graphicsApi_.CreateShaderBuffer(bindLocation_, sizeof(T));
+            graphicsObjectId_ = graphicsApi_.CreateShaderBuffer(bindLocation_, sizeof(T), GraphicsApi::DrawFlag::Dynamic);
         }
 
         if (graphicsObjectId_)

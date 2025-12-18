@@ -33,6 +33,12 @@ struct MeshRawData;
 
 using CubemapImages = std::array<Utils::Image, 6>;
 
+enum class DrawFlag : uint32
+{
+    Static,
+    Dynamic,
+};
+
 class IGraphicsApi
 {
 public:
@@ -54,8 +60,12 @@ public:
     virtual void DisableDepthTest()                                                           = 0;
     virtual void PrepareFrame()                                                               = 0;
     virtual ID CreateShader(ShaderProgramType)                                                = 0;
-    virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size)                           = 0;
+    virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size, DrawFlag)                 = 0;
+    virtual ID CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, DrawFlag)          = 0;
     virtual void UpdateShaderBuffer(uint32 id, void const* buffer)                            = 0;
+    virtual void UpdateShaderStorageBuffer(uint32 id, void const* buffer)                     = 0;
+    virtual void* MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags)                = 0;
+    virtual void UnmapShaderStorageBuffer(uint32 id)                                          = 0;
     virtual uint32 BindShaderBuffer(uint32)                                                   = 0;
     virtual void UseShader(uint32)                                                            = 0;
     virtual ID CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)               = 0;

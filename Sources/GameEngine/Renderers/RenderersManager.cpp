@@ -336,7 +336,7 @@ bool RenderersManager::IsTesselationSupported() const
 void RenderersManager::CreatePerAppBuffer()
 {
     if (not perAppId_)
-        perAppId_ = graphicsApi_.CreateShaderBuffer(PER_APP_BIND_LOCATION, sizeof(PerAppBuffer));
+        perAppId_ = graphicsApi_.CreateShaderBuffer(PER_APP_BIND_LOCATION, sizeof(PerAppBuffer), GraphicsApi::DrawFlag::Static);
 
     UpdatePerAppBuffer();
 }
@@ -368,7 +368,8 @@ void RenderersManager::updatePerFrameBuffer(ICamera& camera)
 {
     if (not perFrameId_)
     {
-        perFrameId_ = graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+        perFrameId_ =
+            graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer), GraphicsApi::DrawFlag::Dynamic);
     }
 
     if (perFrameId_)

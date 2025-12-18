@@ -50,7 +50,8 @@ void PreviewRenderer::init()
 
     if (not perFrameBufferId_)
     {
-        perFrameBufferId_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer));
+        perFrameBufferId_ = context_.graphicsApi_.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer),
+                                                                     GraphicsApi::DrawFlag::Dynamic);
     }
 }
 void PreviewRenderer::subscribe(GameObject& gameObject)

@@ -35,7 +35,8 @@ GUIRenderer::~GUIRenderer()
 
 void GUIRenderer::Init()
 {
-    auto id = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    auto id =
+        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
     if (not id)
     {
         isInit_ = false;
@@ -43,7 +44,7 @@ void GUIRenderer::Init()
     }
     transformBuffer_ = *id;
 
-    id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer));
+    id = graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(ColorBuffer), GraphicsApi::DrawFlag::Dynamic);
     if (not id)
     {
         isInit_ = false;

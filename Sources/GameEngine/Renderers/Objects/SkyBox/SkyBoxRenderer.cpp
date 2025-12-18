@@ -35,12 +35,13 @@ void SkyBoxRenderer::init()
 {
     if (not perObjectUpdateId_)
     {
-        perObjectUpdateId_ = context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+        perObjectUpdateId_ = context_.graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate),
+                                                                      GraphicsApi::DrawFlag::Dynamic);
     }
     if (not perMeshObjectId_)
     {
-        perMeshObjectId_ =
-            context_.graphicsApi_.CreateShaderBuffer(PER_MESH_OBJECT_BIND_LOCATION, sizeof(SkyBoxRenderer::PerMeshObject));
+        perMeshObjectId_ = context_.graphicsApi_.CreateShaderBuffer(
+            PER_MESH_OBJECT_BIND_LOCATION, sizeof(SkyBoxRenderer::PerMeshObject), GraphicsApi::DrawFlag::Dynamic);
         perMeshObject_.blendFactor_ = 1.f;
     }
 }

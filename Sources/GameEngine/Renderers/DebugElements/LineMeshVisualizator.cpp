@@ -44,7 +44,8 @@ void LineMeshVisualizator::Init()
         worker_ = &threadSync_.AddWorker();
 
     PerObjectUpdate buffer;
-    defaultPerObjectUpdateId_ = graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate));
+    defaultPerObjectUpdateId_ =
+        graphicsApi_.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(PerObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
 
     if (defaultPerObjectUpdateId_)
         graphicsApi_.UpdateShaderBuffer(*defaultPerObjectUpdateId_, &buffer);
