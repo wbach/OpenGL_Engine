@@ -142,7 +142,7 @@ void TreeMeshBuilder::appendCylinderVertices(const Branch& branch)
 void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<RingVertex>* parentVertexes, const vec3& center,
                                  float radius, float v)
 {
-    for (int i = 0; i < radialSegments; ++i)
+    for (int i = 0; i <= radialSegments; ++i)
     {
         float angle     = (float)i / radialSegments * TWO_PI;
         vec3 baseNormal = glm::normalize(std::cos(angle) * tangent + std::sin(angle) * bitangent);
@@ -173,20 +173,20 @@ void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<
 }
 void TreeMeshBuilder::appendCylinderIndices()
 {
+    int ringStride = radialSegments + 1;
+
     for (int i = 0; i < radialSegments; ++i)
     {
-        int next = (i + 1) % radialSegments;
-
         IndicesDataType i0 = indexOffset + i;
-        IndicesDataType i1 = indexOffset + next;
-        IndicesDataType i2 = indexOffset + i + radialSegments;
-        IndicesDataType i3 = indexOffset + next + radialSegments;
+        IndicesDataType i1 = indexOffset + i + 1;
+        IndicesDataType i2 = indexOffset + i + ringStride;
+        IndicesDataType i3 = indexOffset + i + 1 + ringStride;
 
         mesh.indices_.insert(mesh.indices_.end(), {i0, i1, i2});
         mesh.indices_.insert(mesh.indices_.end(), {i1, i3, i2});
     }
 
-    indexOffset += radialSegments * 2;
+    indexOffset += ringStride * 2;
 }
 void TreeMeshBuilder::writeVertex(const vec3& pos, const vec3& normal, const vec3& tangent, const vec3& bitangent, const vec2& uv)
 {

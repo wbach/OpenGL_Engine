@@ -2079,6 +2079,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
             trunkMaterial.metallicTexture         = tl.LoadTexture("Textures/Tree/trunk/light-tree-bark_metallic.png");
             trunkMaterial.normalTexture           = tl.LoadTexture("Textures/Tree/trunk/light-tree-bark_normal-ogl.png");
             trunkMaterial.roughnessTexture        = tl.LoadTexture("Textures/Tree/trunk/light-tree-bark_roughness.png");
+            trunkMaterial.tiledScale              = 2.f;
 
             model->AddMesh(
                 GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
