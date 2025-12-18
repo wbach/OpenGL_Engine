@@ -38,7 +38,7 @@ GraphicsApi::MeshRawData TreeMeshBuilder::buildCylinderMesh(int radialSegments)
         }
         if (!branch.hasChildren)
         {
-            appendBranchCap(branch); // appendBranchCapSphere
+            appendBranchCap(branch);  // appendBranchCapSphere
         }
     }
 
@@ -76,35 +76,55 @@ void TreeMeshBuilder::appendBranchesTransitions()
         auto& parentContext = branchContexts[branch.parent];
         auto& branchContext = branchContexts[&branch];
 
-        appendTransition(parentContext.topVertexes, branchContext.bottomVertexes);
+        if (parentContext.topVertexes.empty() || branchContext.bottomVertexes.empty())
+            continue;
+
+        float branchLength = glm::length(branch.position - branch.parent->position);
+        appendTransition(parentContext.topVertexes, branchContext.bottomVertexes, branchLength);
     }
 }
 
-void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, const std::vector<RingVertex>& ringB)
+void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, const std::vector<RingVertex>& ringB,
+                                       float branchLength)
 {
-    int n    = ringA.size();
-    int base = indexOffset;
+    if (ringA.empty() || ringB.empty())
+        return;
 
-    for (int i = 0; i < n; ++i)
+    int ringStride = std::min(ringA.size(), ringB.size());
+    int base       = indexOffset;
+
+    // --- średnia długość transition ---
+    float transitionLength = 0.0f;
+    for (int i = 0; i < ringStride; ++i)
+        transitionLength += glm::length(ringB[i].pos - ringA[i].pos);
+    transitionLength /= ringStride;
+
+    // --- vertexy ---
+    for (int i = 0; i < ringStride; ++i)
     {
         const auto& v = ringA[i];
         writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 0.f));
     }
 
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < ringStride; ++i)
     {
         const auto& v = ringB[i];
-        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 1.f));
+        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, transitionLength / branchLength));
     }
 
-    for (int i = 0; i < n; ++i)
+    // --- indeksy ---
+    for (int i = 0; i < ringStride - 1; ++i)
     {
-        int next = (i + 1) % n;
+        IndicesDataType i0 = base + i;
+        IndicesDataType i1 = base + i + 1;
+        IndicesDataType i2 = base + i + ringStride;
+        IndicesDataType i3 = base + i + 1 + ringStride;
 
-        mesh.indices_.insert(mesh.indices_.end(),
-                             {base + i, base + next, base + i + n, base + next, base + next + n, base + i + n});
+        mesh.indices_.insert(mesh.indices_.end(), {i0, i1, i2});
+        mesh.indices_.insert(mesh.indices_.end(), {i1, i3, i2});
     }
-    indexOffset += n * 2;
+
+    indexOffset += ringStride * 2;
 }
 
 bool TreeMeshBuilder::computeBranchAxis(const Branch& branch)

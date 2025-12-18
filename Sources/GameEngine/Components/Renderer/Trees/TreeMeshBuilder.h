@@ -39,7 +39,7 @@ private:
     bool branchHasParent(const Branch& branch) const;
     void calculateBranchesLvls();
     int calcuateBranchLvl(const Branch& branch);
-    void appendTransition(const std::vector<RingVertex>&, const std::vector<RingVertex>&);
+    void appendTransition(const std::vector<RingVertex>&, const std::vector<RingVertex>&, float);
     void appendBranchCap(const Branch& branch);
     void appendBranchCapSphere(const Branch& branch);
 
