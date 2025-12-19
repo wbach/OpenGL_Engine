@@ -322,7 +322,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Water/W
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Grass/GrassRendererComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Tree.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeGenerate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Attractor.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Branch.h

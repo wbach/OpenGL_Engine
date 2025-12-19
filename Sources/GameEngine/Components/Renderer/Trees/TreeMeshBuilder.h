@@ -24,11 +24,23 @@ class TreeMeshBuilder
 
 public:
     TreeMeshBuilder(const std::list<Branch>& branches);
-    GraphicsApi::MeshRawData build(int radialSegments = 12);
+
+    struct EntryParameters
+    {
+        int radialSegments       = 12;
+        float leafheightTreshold = 5;
+        float leafRandomFactor   = 0.2f;  // randomFactor od 0.0 do 1.0
+        int leafsPerBranch       = 3;
+        float leafSpread         = 0.05f;
+        float minBranchRadius    = 0.0001f;
+        float maxBranchRadius    = 1.0f;
+    };
+
+    GraphicsApi::MeshRawData build(const EntryParameters&);
     const std::vector<Leaf>& GetLeafs() const;
 
 private:
-    void prepareMesh(int& radialSegments);
+    void prepareMesh();
     void appendBranchCylinder(const Branch& branch);
     bool computeBranchAxis(const Branch& branch);
     void buildOrthonormalBasis();
@@ -48,6 +60,7 @@ private:
 
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();
+    EntryParameters parameters;
 
     const std::list<Branch>& branches;
     std::list<Branch> lastTmpBranchesToAdd;
@@ -76,9 +89,5 @@ private:
     float length = 0.f;
 
     uint32_t indexOffset = 0;
-    int radialSegments   = 0;
-
-    float minBranchRadius = 0.0001f;
-    float maxBranchRadius = 1.0f;
 };
 }  // namespace GameEngine

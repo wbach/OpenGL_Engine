@@ -28,9 +28,11 @@ TreeMeshBuilder::TreeMeshBuilder(const std::list<Branch>& branches)
 {
     calculateBranchesLvls();
 }
-GraphicsApi::MeshRawData TreeMeshBuilder::build(int radialSegments)
+GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
 {
-    prepareMesh(radialSegments);
+    parameters = params;
+
+    prepareMesh();
 
     for (const auto& branch : branches)
     {
@@ -57,14 +59,16 @@ GraphicsApi::MeshRawData TreeMeshBuilder::build(int radialSegments)
 
     return std::move(mesh);
 }
-void TreeMeshBuilder::prepareMesh(int& radialSegments)
+void TreeMeshBuilder::prepareMesh()
 {
-    if (radialSegments < 3)
-        radialSegments = 3;
+    if (parameters.radialSegments < 3)
+    {
+        LOG_DEBUG << "Min radial segemnt of cylinder can not be lower than 3";
+        parameters.radialSegments = 3;
+    }
 
-    mesh                 = {};
-    indexOffset          = 0;
-    this->radialSegments = radialSegments;
+    mesh        = {};
+    indexOffset = 0;
 }
 void TreeMeshBuilder::appendBranchCylinder(const Branch& branch)
 {
@@ -184,15 +188,15 @@ void TreeMeshBuilder::appendCylinderVertices(const Branch& branch)
 void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<RingVertex>* parentVertexes, const vec3& center,
                                  float radius, float v)
 {
-    for (int i = 0; i <= radialSegments; ++i)
+    for (int i = 0; i <= parameters.radialSegments; ++i)
     {
-        float angle     = (float)i / radialSegments * TWO_PI;
+        float angle     = (float)i / parameters.radialSegments * TWO_PI;
         vec3 baseNormal = glm::normalize(std::cos(angle) * tangent + std::sin(angle) * bitangent);
         vec3 normal     = baseNormal;
 
         if (parentVertexes)
         {
-            if (parentVertexes->size() == radialSegments)
+            if (parentVertexes->size() == parameters.radialSegments)
             {
                 const auto& parentNormal = (*parentVertexes)[i].normal;
                 normal                   = glm::normalize((normal + parentNormal) / 2.f);
@@ -203,7 +207,7 @@ void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<
         vec3 bitang = glm::cross(normal, tang);
         vec3 pos    = center + baseNormal * radius;
 
-        float u = float(i) / radialSegments;
+        float u = float(i) / parameters.radialSegments;
         vec2 uv{u, v};
         writeVertex(pos, normal, tang, bitang, uv);
         vertices.push_back(RingVertex{.pos = pos, .normal = normal, .tangent = tang, .bitangent = bitang, .uv = uv});
@@ -211,9 +215,9 @@ void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<
 }
 void TreeMeshBuilder::appendCylinderIndices()
 {
-    int ringStride = radialSegments + 1;
+    int ringStride = parameters.radialSegments + 1;
 
-    for (int i = 0; i < radialSegments; ++i)
+    for (int i = 0; i < parameters.radialSegments; ++i)
     {
         IndicesDataType i0 = indexOffset + i;
         IndicesDataType i1 = indexOffset + i + 1;
@@ -269,8 +273,9 @@ void TreeMeshBuilder::calculateBranchesLvls()
     maxBranchLvl++;
     for (auto& [_, branch] : branchContexts)
     {
-        branch.radius       = calculateBranchRadius(branch.lvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
-        branch.parentRadius = calculateBranchRadius(std::max(branch.lvl - 1, 1), maxBranchLvl, minBranchRadius, maxBranchRadius);
+        branch.radius = calculateBranchRadius(branch.lvl, maxBranchLvl, parameters.minBranchRadius, parameters.maxBranchRadius);
+        branch.parentRadius = calculateBranchRadius(std::max(branch.lvl - 1, 1), maxBranchLvl, parameters.minBranchRadius,
+                                                    parameters.maxBranchRadius);
     }
 }
 int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
@@ -291,29 +296,29 @@ void TreeMeshBuilder::appendBranchCap(const Branch& branch)
 
     writeVertex(center, normal, tangent, bitangent, vec2(0.5f, 0.5f));
 
-    for (int i = 0; i < radialSegments; ++i)
+    for (int i = 0; i < parameters.radialSegments; ++i)
     {
-        float angle = (float)i / radialSegments * TWO_PI;
+        float angle = (float)i / parameters.radialSegments * TWO_PI;
         vec3 offset = tangent * cosf(angle) * context.radius + bitangent * sinf(angle) * context.radius;
         vec3 pos    = center + offset;
         writeVertex(pos, normal, tangent, bitangent, vec2(0.5f + 0.5f * cosf(angle), 0.5f + 0.5f * sinf(angle)));
     }
 
-    for (int i = 0; i < radialSegments; ++i)
+    for (int i = 0; i < parameters.radialSegments; ++i)
     {
-        int next = (i + 1) % radialSegments;
+        int next = (i + 1) % parameters.radialSegments;
         mesh.indices_.insert(mesh.indices_.end(), {baseIndex, baseIndex + 1 + i, baseIndex + 1 + next});
     }
 
-    indexOffset += radialSegments + 1;
+    indexOffset += parameters.radialSegments + 1;
 }
 void TreeMeshBuilder::appendBranchCapSphere(const Branch& branch)
 {
     auto& context = branchContexts.at(&branch);
     vec3 center   = branch.position;
 
-    int latSegments  = radialSegments / 2;
-    int longSegments = radialSegments;
+    int latSegments  = parameters.radialSegments / 2;
+    int longSegments = parameters.radialSegments;
 
     int baseIndex = indexOffset;
 
@@ -359,17 +364,14 @@ const std::vector<Leaf>& TreeMeshBuilder::GetLeafs() const
 }
 void TreeMeshBuilder::calculateLeafs()
 {
-    float randomFactor       = 0.2f;  // randomFactor od 0.0 do 1.0
-    const int leafsPerBranch = 3;
-    const float leafSpread   = 0.05f;
-    const float goldenAngle  = 2.39996f;
+    const float goldenAngle = 2.39996f;
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
 
     for (const auto& [branch, context] : branchContexts)
     {
-        if (context.lvl < 5)
+        if (context.lvl < parameters.leafheightTreshold)
             continue;
 
         const auto& pos    = branch->position;
@@ -380,28 +382,28 @@ void TreeMeshBuilder::calculateLeafs()
         vec3 tangent   = normalize(cross(dir, arbitrary));
         vec3 bitangent = cross(dir, tangent);
 
-        float branchRotationOffset = dis(gen) * 3.14f * randomFactor;
+        float branchRotationOffset = dis(gen) * 3.14f * parameters.leafRandomFactor;
 
-        for (int i = 0; i < leafsPerBranch; ++i)
+        for (int i = 0; i < parameters.leafsPerBranch; ++i)
         {
-            float tNoise = dis(gen) * 0.15f * randomFactor;
-            float t      = (float)i / (float)leafsPerBranch + tNoise;
+            float tNoise = dis(gen) * 0.15f * parameters.leafRandomFactor;
+            float t      = static_cast<float>(i) / static_cast<float>(parameters.leafsPerBranch) + tNoise;
             t            = std::clamp(t, 0.0f, 1.0f);
 
-            float angleNoise = dis(gen) * 0.8f * randomFactor;
+            float angleNoise = dis(gen) * 0.8f * parameters.leafRandomFactor;
             float angle      = i * goldenAngle + branchRotationOffset + angleNoise;
 
             float cosA = std::cos(angle);
             float sinA = std::sin(angle);
 
             Leaf leaf;
-            float radiusNoise = 1.0f + (dis(gen) * 0.3f * randomFactor);
+            float radiusNoise = 1.0f + (dis(gen) * 0.3f * parameters.leafRandomFactor);
             leaf.position     = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * (radius * radiusNoise);
 
             vec3 outward   = tangent * cosA + bitangent * sinA;
-            vec3 bendNoise = (tangent * dis(gen) + bitangent * dis(gen) + dir * dis(gen)) * (0.4f * randomFactor);
+            vec3 bendNoise = (tangent * dis(gen) + bitangent * dis(gen) + dir * dis(gen)) * (0.4f * parameters.leafRandomFactor);
 
-            leaf.direction = normalize(outward + dir * leafSpread + bendNoise);
+            leaf.direction = normalize(outward + dir * parameters.leafSpread + bendNoise);
 
             leafs.push_back(leaf);
         }

@@ -8,7 +8,6 @@
 #include <GameEngine/Components/Lights/SpotLightComponent.h>
 #include <GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h>
 #include <GameEngine/Components/Renderer/Trees/Tree.h>
-#include <GameEngine/Components/Renderer/Trees/TreeGenerate.h>
 #include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
 #include <GameEngine/Components/Renderer/Trees/TreeRendererComponent.h>
 #include <GameEngine/Engine/Configuration.h>
@@ -2057,7 +2056,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
             LOG_DEBUG << "Buildng tree mesh... ("
                       << "Branches : " << tree.GetBranches().size() << ")";
             GameEngine::TreeMeshBuilder builder(tree.GetBranches());
-            auto treeMesh = builder.build();
+            auto treeMesh = builder.build(GameEngine::TreeMeshBuilder::EntryParameters{});
             if (treeMesh.positions_.empty())
             {
                 wxLogMessage("generateTree failed");
