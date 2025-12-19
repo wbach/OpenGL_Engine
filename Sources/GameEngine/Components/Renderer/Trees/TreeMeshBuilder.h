@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Branch.h"
+#include "Leaf.h"
 
 namespace GameEngine
 {
@@ -23,7 +24,8 @@ class TreeMeshBuilder
 
 public:
     TreeMeshBuilder(const std::list<Branch>& branches);
-    GraphicsApi::MeshRawData buildCylinderMesh(int radialSegments = 12);
+    GraphicsApi::MeshRawData build(int radialSegments = 12);
+    const std::vector<Leaf>& GetLeafs() const;
 
 private:
     void prepareMesh(int& radialSegments);
@@ -42,19 +44,24 @@ private:
     void appendTransition(const std::vector<RingVertex>&, const std::vector<RingVertex>&, float);
     void appendBranchCap(const Branch& branch);
     void appendBranchCapSphere(const Branch& branch);
+    void calculateLeafs();
 
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();
 
     const std::list<Branch>& branches;
+    std::list<Branch> lastTmpBranchesToAdd;
 
     struct BranchContext
     {
         int lvl;
+        float radius;
+        float parentRadius;
         std::vector<RingVertex> bottomVertexes;
         std::vector<RingVertex> topVertexes;
     };
     std::unordered_map<const Branch*, BranchContext> branchContexts;
+    std::vector<Leaf> leafs;
 
     int maxBranchLvl = 1;
 

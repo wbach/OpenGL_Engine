@@ -1,6 +1,7 @@
 #include "Tree.h"
 
 #include <stdexcept>
+
 #include "Logger/Log.h"
 
 namespace GameEngine
@@ -151,8 +152,6 @@ Branch* Tree::closestBranch(Attractor& attractor)
         {
             // branch is to close
             attractor.reached = true;
-            leafPositions.push_back(
-                Leaf{.position = branch.position, .direction = glm::normalize(attractor.position - branch.position)});
             return nullptr;
         }
         else if (distance < minAcceptableDistance)
@@ -221,9 +220,5 @@ void Tree::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
     }
 
     branchesCalculationInfo.clear();
-}
-const std::vector<Leaf>& Tree::GetLeafsPositions() const
-{
-    return leafPositions;
 }
 }  // namespace GameEngine

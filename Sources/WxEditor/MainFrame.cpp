@@ -2057,7 +2057,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
             LOG_DEBUG << "Buildng tree mesh... ("
                       << "Branches : " << tree.GetBranches().size() << ")";
             GameEngine::TreeMeshBuilder builder(tree.GetBranches());
-            auto treeMesh = builder.buildCylinderMesh();
+            auto treeMesh = builder.build();
             if (treeMesh.positions_.empty())
             {
                 wxLogMessage("generateTree failed");
@@ -2096,7 +2096,7 @@ void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 
             auto obj  = canvas->GetScene().CreateGameObject("GeneratedTree");
             auto& trc = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();
-            trc.SetGeneratedModel(modelPtr).SetLeafPosition(tree.GetLeafsPositions()).SetLeafMaterial(leafMaterial);
+            trc.SetGeneratedModel(modelPtr).SetLeafPosition(builder.GetLeafs()).SetLeafMaterial(leafMaterial);
             obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
             canvas->AddGameObject(std::move(obj));
             this->CallAfter([dlg]() { dlg->Close(); });

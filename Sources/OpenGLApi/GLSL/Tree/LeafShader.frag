@@ -68,6 +68,7 @@ void main()
 {
     vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
     vec3 normal = fs_in.normal;
+    
     float roughness = 1.0;
     float metallic = 0.0;
     float ao = 1.0;

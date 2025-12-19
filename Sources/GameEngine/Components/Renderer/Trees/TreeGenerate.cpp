@@ -78,7 +78,7 @@ GraphicsApi::MeshRawData GameEngine::generateTree(int attractorCount, float crow
     LOG_DEBUG << "Buildng tree mesh... ("
               << "Branches : " << tree.GetBranches().size() << ")";
     TreeMeshBuilder builder(tree.GetBranches());
-    auto result = builder.buildCylinderMesh();
+    auto result = builder.build();
 
     // for (auto& pos : tree.GetLeafsPositions())
     // {

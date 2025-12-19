@@ -2,6 +2,7 @@
 
 #include <Logger/Log.h>
 
+#include <list>
 #include <vector>
 
 #include "GameEngine/Components/Renderer/Trees/Branch.h"
@@ -26,7 +27,7 @@ TreeMeshBuilder::TreeMeshBuilder(const std::list<Branch>& branches)
 {
     calculateBranchesLvls();
 }
-GraphicsApi::MeshRawData TreeMeshBuilder::buildCylinderMesh(int radialSegments)
+GraphicsApi::MeshRawData TreeMeshBuilder::build(int radialSegments)
 {
     prepareMesh(radialSegments);
 
@@ -36,13 +37,22 @@ GraphicsApi::MeshRawData TreeMeshBuilder::buildCylinderMesh(int radialSegments)
         {
             appendBranchCylinder(branch);
         }
-        if (!branch.hasChildren)
-        {
-            appendBranchCap(branch);  // appendBranchCapSphere
-        }
+    }
+    for (const auto& branch : lastTmpBranchesToAdd)
+    {
+        appendBranchCylinder(branch);
+        appendBranchCap(branch);  // appendBranchCapSphere
     }
 
     appendBranchesTransitions();
+
+    for (const auto& branch : lastTmpBranchesToAdd)
+    {
+        branchContexts.erase(&branch);
+    }
+    lastTmpBranchesToAdd.clear();
+
+    calculateLeafs();
 
     return std::move(mesh);
 }
@@ -82,6 +92,21 @@ void TreeMeshBuilder::appendBranchesTransitions()
         float branchLength = glm::length(branch.position - branch.parent->position);
         appendTransition(parentContext.topVertexes, branchContext.bottomVertexes, branchLength);
     }
+
+    for (const auto& branch : lastTmpBranchesToAdd)
+    {
+        if (!branch.parent)
+            continue;
+
+        auto& parentContext = branchContexts[branch.parent];
+        auto& branchContext = branchContexts[&branch];
+
+        if (parentContext.topVertexes.empty() || branchContext.bottomVertexes.empty())
+            continue;
+
+        float branchLength = glm::length(branch.position - branch.parent->position);
+        appendTransition(parentContext.topVertexes, branchContext.bottomVertexes, branchLength);
+    }
 }
 
 void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, const std::vector<RingVertex>& ringB,
@@ -93,13 +118,11 @@ void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, con
     int ringStride = std::min(ringA.size(), ringB.size());
     int base       = indexOffset;
 
-    // --- średnia długość transition ---
     float transitionLength = 0.0f;
     for (int i = 0; i < ringStride; ++i)
         transitionLength += glm::length(ringB[i].pos - ringA[i].pos);
     transitionLength /= ringStride;
 
-    // --- vertexy ---
     for (int i = 0; i < ringStride; ++i)
     {
         const auto& v = ringA[i];
@@ -112,7 +135,6 @@ void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, con
         writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, transitionLength / branchLength));
     }
 
-    // --- indeksy ---
     for (int i = 0; i < ringStride - 1; ++i)
     {
         IndicesDataType i0 = base + i;
@@ -150,10 +172,9 @@ void TreeMeshBuilder::buildOrthonormalBasis()
 }
 void TreeMeshBuilder::appendCylinderVertices(const Branch& branch)
 {
-    auto& context     = branchContexts.at(&branch);
-    auto branchLvl    = context.lvl;
-    auto radiusTop    = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
-    auto radiusBottom = calculateBranchRadius(std::max(branchLvl - 1, 1), maxBranchLvl, minBranchRadius, maxBranchRadius);
+    auto& context            = branchContexts.at(&branch);
+    const auto& radiusTop    = context.radius;
+    const auto& radiusBottom = context.parentRadius;
 
     appendRing(context.bottomVertexes, branch.parent ? &branchContexts.at(branch.parent).topVertexes : nullptr, start,
                radiusBottom, 0.f);
@@ -228,6 +249,28 @@ void TreeMeshBuilder::calculateBranchesLvls()
 
         branchContexts.insert({&branch, BranchContext{.lvl = lvl}});
     }
+
+    for (auto& branch : branches)
+    {
+        if (not branch.hasChildren)
+        {
+            Branch tempSegment;
+            tempSegment.parent    = const_cast<Branch*>(&branch);
+            float segmentLength   = branch.parent != nullptr ? glm::length(branch.position - branch.parent->position) : 0.3f;
+            tempSegment.position  = branch.position + branch.direction * segmentLength;
+            tempSegment.direction = branch.direction;
+            lastTmpBranchesToAdd.push_back(tempSegment);
+
+            branchContexts.insert({&lastTmpBranchesToAdd.back(), BranchContext{.lvl = branchContexts.at(&branch).lvl + 1}});
+        }
+    }
+
+    maxBranchLvl++;
+    for (auto& [_, branch] : branchContexts)
+    {
+        branch.radius       = calculateBranchRadius(branch.lvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
+        branch.parentRadius = calculateBranchRadius(std::max(branch.lvl - 1, 1), maxBranchLvl, minBranchRadius, maxBranchRadius);
+    }
 }
 int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
 {
@@ -239,10 +282,8 @@ int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
 }
 void TreeMeshBuilder::appendBranchCap(const Branch& branch)
 {
-    auto& context  = branchContexts.at(&branch);
-    vec3 center    = branch.position;
-    auto branchLvl = context.lvl;
-    float radius   = calculateBranchRadius(branchLvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
+    auto& context = branchContexts.at(&branch);
+    vec3 center   = branch.position;
 
     int baseIndex = indexOffset;
     vec3 normal   = direction;
@@ -252,7 +293,7 @@ void TreeMeshBuilder::appendBranchCap(const Branch& branch)
     for (int i = 0; i < radialSegments; ++i)
     {
         float angle = (float)i / radialSegments * TWO_PI;
-        vec3 offset = tangent * cosf(angle) * radius + bitangent * sinf(angle) * radius;
+        vec3 offset = tangent * cosf(angle) * context.radius + bitangent * sinf(angle) * context.radius;
         vec3 pos    = center + offset;
         writeVertex(pos, normal, tangent, bitangent, vec2(0.5f + 0.5f * cosf(angle), 0.5f + 0.5f * sinf(angle)));
     }
@@ -269,25 +310,24 @@ void TreeMeshBuilder::appendBranchCapSphere(const Branch& branch)
 {
     auto& context = branchContexts.at(&branch);
     vec3 center   = branch.position;
-    float radius  = calculateBranchRadius(context.lvl, maxBranchLvl, minBranchRadius, maxBranchRadius);
 
-    int latSegments  = radialSegments / 2;  // warstwy wzdłuż osi gałęzi
-    int longSegments = radialSegments;      // segmenty wokół osi
+    int latSegments  = radialSegments / 2;
+    int longSegments = radialSegments;
 
     int baseIndex = indexOffset;
 
     // Wierzchołki
     for (int lat = 0; lat <= latSegments; ++lat)
     {
-        float theta    = (float)lat / latSegments * (glm::pi<float>() / 2.0f);  // od 0 do 90 stopni
+        float theta    = (float)lat / latSegments * (glm::pi<float>() / 2.0f);
         float sinTheta = sin(theta);
         float cosTheta = cos(theta);
 
         for (int lon = 0; lon < longSegments; ++lon)
         {
             float phi   = (float)lon / longSegments * TWO_PI;
-            vec3 offset = tangent * cosf(phi) * radius * sinTheta + bitangent * sinf(phi) * radius * sinTheta;
-            vec3 pos    = center + direction * radius * cosTheta + offset;
+            vec3 offset = tangent * cosf(phi) * context.radius * sinTheta + bitangent * sinf(phi) * context.radius * sinTheta;
+            vec3 pos    = center + direction * context.radius * cosTheta + offset;
             vec3 normal = glm::normalize(pos - center);
 
             vec2 uv{(float)lon / longSegments, (float)lat / latSegments};
@@ -295,7 +335,6 @@ void TreeMeshBuilder::appendBranchCapSphere(const Branch& branch)
         }
     }
 
-    // Indeksy
     for (int lat = 0; lat < latSegments; ++lat)
     {
         for (int lon = 0; lon < longSegments; ++lon)
@@ -306,7 +345,6 @@ void TreeMeshBuilder::appendBranchCapSphere(const Branch& branch)
             int currAbove = baseIndex + (lat + 1) * longSegments + lon;
             int nextAbove = baseIndex + (lat + 1) * longSegments + nextLon;
 
-            // Trójkąty w pasmach
             mesh.indices_.insert(mesh.indices_.end(), {curr, currAbove, next});
             mesh.indices_.insert(mesh.indices_.end(), {next, currAbove, nextAbove});
         }
@@ -314,4 +352,53 @@ void TreeMeshBuilder::appendBranchCapSphere(const Branch& branch)
 
     indexOffset += (latSegments + 1) * longSegments;
 }
+const std::vector<Leaf>& TreeMeshBuilder::GetLeafs() const
+{
+    return leafs;
+}
+void TreeMeshBuilder::calculateLeafs()
+{
+    const int leafsPerBranch = 3;         // Liczba liści na jedną gałąź
+    const int leafTreshold   = 5;         // skip leafs on bottom
+    const float leafSpread   = 0.05f;      // Jak bardzo liście odstają od osi gałęzi
+    const float goldenAngle  = 2.39996f;  // Złoty kąt w radianach (~137.5 stopnia)
+
+    for (const auto& [branch, context] : branchContexts)
+    {
+        const auto& pos    = branch->position;
+        const auto& dir    = branch->direction;  // Zakładamy, że jest znormalizowany
+        const float radius = context.radius;
+
+        if (context.lvl < leafTreshold)
+            continue;
+
+        // Tworzymy bazę ortonormalną (TNB), aby obracać liście wokół gałęzi
+        vec3 arbitrary = (std::abs(dir.y) < 0.999f) ? vec3(0, 1, 0) : vec3(1, 0, 0);
+        vec3 tangent   = normalize(cross(dir, arbitrary));
+        vec3 bitangent = cross(dir, tangent);
+
+        for (int i = 0; i < leafsPerBranch; ++i)
+        {
+            // Algorytm Vogela / Spirala Fibonacciego
+            float t     = (float)i / (float)leafsPerBranch;
+            float angle = i * goldenAngle;
+
+            // Obliczamy przesunięcie wokół gałęzi
+            float cosA = std::cos(angle);
+            float sinA = std::sin(angle);
+
+            Leaf leaf;
+
+            // 1. Pozycja: rozmieść wzdłuż gałęzi z lekkim offsetem od jej promienia
+            leaf.position = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * radius;
+
+            // 2. Kierunek: Liść "wyrasta" na zewnątrz od środka gałęzi + lekko w górę
+            vec3 outward   = normalize(tangent * cosA + bitangent * sinA);
+            leaf.direction = normalize(outward + dir * leafSpread);
+
+            leafs.push_back(leaf);
+        }
+    }
+}
+
 }  // namespace GameEngine

@@ -7,7 +7,6 @@
 
 #include "Attractor.h"
 #include "Branch.h"
-#include "Leaf.h"
 
 namespace GameEngine
 {
@@ -25,7 +24,6 @@ public:
     void clear();
 
     const std::list<Branch>& GetBranches() const;
-    const std::vector<Leaf>& GetLeafsPositions() const;
 
 private:
     void validateParameters() const;
@@ -47,7 +45,6 @@ public:
 private:
     std::vector<Attractor> attractors;
     std::list<Branch> branches;
-    std::vector<Leaf> leafPositions;
 
     size_t zeroDirCount        = 0;
     size_t maxTrunkSteps       = 0;
