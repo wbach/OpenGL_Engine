@@ -326,6 +326,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/T
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Attractor.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Branch.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Leaf.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/PerTerrainTexturesBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h
@@ -409,6 +410,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/HeightMa
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Bone.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitives.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitive.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/MaterialPresets.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/ModelWrapper.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/BoundingBox.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Material.h

@@ -22,6 +22,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/RendererType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/Surface.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/TextureParamters.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/ShaderTypes.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/ShaderStorageFlags.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/DisplayMode.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GraphicsApi/WindowApi.hpp
 )

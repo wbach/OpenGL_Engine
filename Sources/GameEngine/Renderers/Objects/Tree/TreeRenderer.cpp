@@ -128,7 +128,6 @@ void TreeRenderer::reloadShaders()
 }
 void TreeRenderer::BindMaterial(const Material& material) const
 {
-    // ===== Culling =====
     if (material.flags & MAT_DOUBLE_SIDED || (material.flags & MAT_FOLIAGE))
     {
         context_.graphicsApi_.DisableCulling();
@@ -138,7 +137,6 @@ void TreeRenderer::BindMaterial(const Material& material) const
         context_.graphicsApi_.EnableCulling();
     }
 
-    // ===== Bind textures =====
     const auto& config = EngineConf.renderer.textures;
 
     BindMaterialTexture(0, material.baseColorTexture, config.useDiffuse);
@@ -249,7 +247,6 @@ void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRend
         return;
 
     leafsShader_.Start();
-    context_.graphicsApi_.DisableCulling();
     for (const auto& mesh : leafModel->GetMeshes())
     {
         if (not mesh.GetGraphicsObjectId())
@@ -259,7 +256,6 @@ void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRend
         BindMaterial(mesh.GetMaterial());
         context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
     }
-    context_.graphicsApi_.EnableCulling();
     leafsShader_.Stop();
 }
 }  // namespace GameEngine

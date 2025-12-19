@@ -326,6 +326,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/ModelWrapp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/BoundingBox.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Model.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitives.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/MaterialPresets.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Mesh.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/ModelLoaderFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/WBLoader/Assimp/AssimpExporter.cpp
