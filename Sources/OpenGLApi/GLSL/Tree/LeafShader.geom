@@ -20,7 +20,10 @@ layout(std140, align=16, binding = 4) uniform LeafParams
 in VS_OUT
 {
     vec3 worldPosition;
-    vec3 worldDirection; // kierunek liścia wygenerowany na CPU
+    vec3 worldDirection;
+    vec3 colorRandomness;
+    float sizeRanfomness;
+    int textureIndex;
 } gs_in[];
 
 out GS_OUT
@@ -28,23 +31,25 @@ out GS_OUT
     vec2 texCoord;
     vec4 worldPos;
     vec3 normal;
-    vec3 color;
+    vec3 colorRandomness;
+    flat int textureIndex;
 } gs_out;
 
 // Emituje jeden wierzchołek liścia
 void EmitLeafVertex(vec3 pos, vec3 normal, vec2 uv)
 {
     gl_Position = perFrame.projectionViewMatrix * vec4(pos, 1.0);
-    gs_out.texCoord = uv;
-    gs_out.worldPos  = vec4(pos,1.0);
-    gs_out.normal    = normalize(normal);
-    gs_out.color     = vec3(1.0);
+    gs_out.texCoord             = uv;
+    gs_out.worldPos             = vec4(pos,1.0);
+    gs_out.normal               = normalize(normal);
+    gs_out.colorRandomness      = gs_in[0].colorRandomness;
+    gs_out.textureIndex         = gs_in[0].textureIndex;
     EmitVertex();
 }
 
 void main()
 {
-    float scale      = leafParams.fparams.x;
+    float scale      = leafParams.fparams.x * gs_in[0].sizeRanfomness;
     float leafOffset = leafParams.fparams.y;
     float bendAmount = leafParams.fparams.z;
 

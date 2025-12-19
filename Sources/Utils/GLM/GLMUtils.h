@@ -62,4 +62,6 @@ Quaternion createQuaternionFromDirectionUp(const vec3& direction, const vec3& up
 
 std::tuple<vec3, Quaternion, vec3> decompose(const mat4&);
 std::tuple<vec3, Quaternion, vec3, vec3, vec4> fullDecompose(const mat4&);
+
+vec3 HSVtoRGB(float h, float s, float v);
 }  // namespace Utils

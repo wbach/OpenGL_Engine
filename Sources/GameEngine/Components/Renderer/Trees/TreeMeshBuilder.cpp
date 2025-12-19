@@ -1,15 +1,16 @@
 #include "TreeMeshBuilder.h"
 
 #include <Logger/Log.h>
+#include <Types.h>
+#include <Utils/GLM/GLMUtils.h>
 
+#include <glm/common.hpp>
+#include <glm/geometric.hpp>
 #include <list>
 #include <random>
 #include <vector>
 
 #include "GameEngine/Components/Renderer/Trees/Branch.h"
-#include "Types.h"
-#include "glm/common.hpp"
-#include "glm/geometric.hpp"
 
 namespace GameEngine
 {
@@ -22,6 +23,15 @@ float calculateBranchRadius(size_t branchLvl, size_t maxBranchLvl, float minBran
     t       = 1.0f - std::pow(1.0f - t, 5.f);
     return glm::mix(maxBranchRadius, minBranchRadius, t);
 }
+vec3 randomLeafColor()
+{
+    float hue        = getRandomFloat(0.22f, 0.36f);
+    float saturation = getRandomFloat(0.55f, 0.85f);
+    float value      = getRandomFloat(0.4f, 0.8f);
+
+    return Utils::HSVtoRGB(hue, saturation, value);
+}
+
 }  // namespace
 TreeMeshBuilder::TreeMeshBuilder(const std::list<Branch>& branches)
     : branches(branches)
@@ -368,6 +378,7 @@ void TreeMeshBuilder::calculateLeafs()
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
+    std::uniform_int_distribution<> distr(1, parameters.textureAtlasSize);
 
     for (const auto& [branch, context] : branchContexts)
     {
@@ -396,14 +407,18 @@ void TreeMeshBuilder::calculateLeafs()
             float cosA = std::cos(angle);
             float sinA = std::sin(angle);
 
-            Leaf leaf;
             float radiusNoise = 1.0f + (dis(gen) * 0.3f * parameters.leafRandomFactor);
-            leaf.position     = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * (radius * radiusNoise);
 
             vec3 outward   = tangent * cosA + bitangent * sinA;
             vec3 bendNoise = (tangent * dis(gen) + bitangent * dis(gen) + dir * dis(gen)) * (0.4f * parameters.leafRandomFactor);
 
-            leaf.direction = normalize(outward + dir * parameters.leafSpread + bendNoise);
+            int textureIndex = distr(gen);
+
+            Leaf leaf{.position        = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * (radius * radiusNoise),
+                      .direction       = normalize(outward + dir * parameters.leafSpread + bendNoise),
+                      .textureIndex    = textureIndex,
+                      .colorRandomness = randomLeafColor(),
+                      .sizeRandomness  = getRandomFloat(0.8f, 1.2f)};
 
             leafs.push_back(leaf);
         }

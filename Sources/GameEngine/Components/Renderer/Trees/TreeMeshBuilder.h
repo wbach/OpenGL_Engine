@@ -34,6 +34,7 @@ public:
         float leafSpread         = 0.05f;
         float minBranchRadius    = 0.0001f;
         float maxBranchRadius    = 1.0f;
+        int textureAtlasSize     = 1;
     };
 
     GraphicsApi::MeshRawData build(const EntryParameters&);

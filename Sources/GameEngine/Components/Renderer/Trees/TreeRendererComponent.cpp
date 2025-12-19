@@ -360,18 +360,28 @@ void TreeRendererComponent::CreateLeafModel()
         LOG_DEBUG << "Create leaf mesh";
         GraphicsApi::MeshRawData data;
         data.positions_.reserve(leafPositions.size() * 3);
+        data.textCoords_.reserve(leafPositions.size() * 2);
         data.normals_.reserve(leafPositions.size() * 3);
+        data.tangents_.reserve(leafPositions.size() * 3);
+
         for (const auto& leaf : leafPositions)
         {
             data.positions_.push_back(leaf.position.x);
             data.positions_.push_back(leaf.position.y);
             data.positions_.push_back(leaf.position.z);
 
+            data.textCoords_.push_back(leaf.sizeRandomness);
+            data.textCoords_.push_back(static_cast<float>(leaf.textureIndex));
+
             data.normals_.push_back(leaf.direction.x);
             data.normals_.push_back(leaf.direction.y);
             data.normals_.push_back(leaf.direction.z);
-        }
 
+            data.tangents_.push_back(leaf.colorRandomness.x);
+            data.tangents_.push_back(leaf.colorRandomness.y);
+            data.tangents_.push_back(leaf.colorRandomness.z);
+
+        }
 
         LOG_DEBUG << "Positons: " << data.positions_;
         LOG_DEBUG << "Direction: " << data.normals_;

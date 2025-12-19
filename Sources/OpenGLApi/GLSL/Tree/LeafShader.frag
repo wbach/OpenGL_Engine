@@ -33,7 +33,8 @@ in GS_OUT
     vec2 texCoord;
     vec4 worldPos;
     vec3 normal;
-    vec3 color;
+    vec3 colorRandomness;
+    flat int textureIndex;
 } fs_in;
 
 bool Is(float v)
@@ -73,13 +74,14 @@ void main()
     float metallic = 0.0;
     float ao = 1.0;
     float displacement = 0.0;
+    int textureIndex = fs_in.textureIndex; // leafParams.atlasParams.y
 
     if (Is(perApp.useTextures.x))
     {
-        baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y));
+        baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
         
         // Opacity
-        vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y));
+        vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
         if(opacityTex.x < 0.5) discard;
         baseColor.a = opacityTex.x;
     }
@@ -87,28 +89,31 @@ void main()
     if (Is(perApp.useTextures.y))
     {
         // Normal mapping
-        normal = texture(NormalTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).xyz * 2.0 - 1.0;
+        normal = texture(NormalTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).xyz * 2.0 - 1.0;
         normal = normalize(normal);
     }
 
     if (Is(perApp.useTextures.z))
     {
         // Roughness & Metallic from specular textures
-        roughness = texture(RoughnessTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
-        metallic  = texture(MetallicTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+        roughness = texture(RoughnessTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
+        metallic  = texture(MetallicTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
     }
 
     // // Ambient Occlusion
-    // ao = texture(AmbientOcclusionTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+    // ao = texture(AmbientOcclusionTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
 
     // Displacement
     if (Is(perApp.useTextures.w))
     {
-        displacement = texture(DisplacementTexture, GetAtlasUV(fs_in.texCoord, leafParams.atlasParams.y)).r;
+        displacement = texture(DisplacementTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
     }
 
+    vec3 albedo = baseColor.rgb * fs_in.colorRandomness;
+    albedo *= 0.9 + 0.1 * ao;
+
     WorldPosOut      = fs_in.worldPos + vec4(normal * displacement, 0.0);
-    DiffuseOut       = baseColor * vec4(fs_in.color * ao, baseColor.a);
+    DiffuseOut = vec4(albedo, baseColor.a);
     NormalOut        = vec4(normal, 1.0);
     MaterialSpecular = vec4(metallic, roughness, 0.0, 1.0);
 }

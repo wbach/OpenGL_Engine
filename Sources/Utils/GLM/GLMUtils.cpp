@@ -360,7 +360,7 @@ Quaternion createQuaternionFromDirectionUp(const vec3& direction, const vec3& up
     {
         u = glm::abs(f.y) > 0.9f ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
     }
-    glm::vec3 r = glm::normalize(glm::cross(u, f));
+    glm::vec3 r  = glm::normalize(glm::cross(u, f));
     glm::vec3 u2 = glm::cross(f, r);
 
     glm::mat3 rot;
@@ -369,5 +369,28 @@ Quaternion createQuaternionFromDirectionUp(const vec3& direction, const vec3& up
     rot[2] = -f;  // z – forward
 
     return glm::quat_cast(rot);
+}
+vec3 HSVtoRGB(float h, float s, float v)
+{
+    float c = v * s;
+    float x = c * (1.0f - std::abs(std::fmod(h * 6.0f, 2.0f) - 1.0f));
+    float m = v - c;
+
+    vec3 rgb;
+
+    if (h < 1.0f / 6.0f)
+        rgb = {c, x, 0};
+    else if (h < 2.0f / 6.0f)
+        rgb = {x, c, 0};
+    else if (h < 3.0f / 6.0f)
+        rgb = {0, c, x};
+    else if (h < 4.0f / 6.0f)
+        rgb = {0, x, c};
+    else if (h < 5.0f / 6.0f)
+        rgb = {x, 0, c};
+    else
+        rgb = {c, 0, x};
+
+    return rgb + vec3(m);
 }
 }  // namespace Utils
