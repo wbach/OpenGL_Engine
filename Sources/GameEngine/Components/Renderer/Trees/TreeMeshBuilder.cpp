@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include <list>
+#include <random>
 #include <vector>
 
 #include "GameEngine/Components/Renderer/Trees/Branch.h"
@@ -358,47 +359,52 @@ const std::vector<Leaf>& TreeMeshBuilder::GetLeafs() const
 }
 void TreeMeshBuilder::calculateLeafs()
 {
-    const int leafsPerBranch = 3;         // Liczba liści na jedną gałąź
-    const int leafTreshold   = 5;         // skip leafs on bottom
-    const float leafSpread   = 0.05f;      // Jak bardzo liście odstają od osi gałęzi
-    const float goldenAngle  = 2.39996f;  // Złoty kąt w radianach (~137.5 stopnia)
+    float randomFactor       = 0.2f;  // randomFactor od 0.0 do 1.0
+    const int leafsPerBranch = 3;
+    const float leafSpread   = 0.05f;
+    const float goldenAngle  = 2.39996f;
+
+    std::mt19937 gen(42);
+    std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
 
     for (const auto& [branch, context] : branchContexts)
     {
-        const auto& pos    = branch->position;
-        const auto& dir    = branch->direction;  // Zakładamy, że jest znormalizowany
-        const float radius = context.radius;
-
-        if (context.lvl < leafTreshold)
+        if (context.lvl < 5)
             continue;
 
-        // Tworzymy bazę ortonormalną (TNB), aby obracać liście wokół gałęzi
+        const auto& pos    = branch->position;
+        const auto& dir    = branch->direction;
+        const float radius = context.radius;
+
         vec3 arbitrary = (std::abs(dir.y) < 0.999f) ? vec3(0, 1, 0) : vec3(1, 0, 0);
         vec3 tangent   = normalize(cross(dir, arbitrary));
         vec3 bitangent = cross(dir, tangent);
 
+        float branchRotationOffset = dis(gen) * 3.14f * randomFactor;
+
         for (int i = 0; i < leafsPerBranch; ++i)
         {
-            // Algorytm Vogela / Spirala Fibonacciego
-            float t     = (float)i / (float)leafsPerBranch;
-            float angle = i * goldenAngle;
+            float tNoise = dis(gen) * 0.15f * randomFactor;
+            float t      = (float)i / (float)leafsPerBranch + tNoise;
+            t            = std::clamp(t, 0.0f, 1.0f);
 
-            // Obliczamy przesunięcie wokół gałęzi
+            float angleNoise = dis(gen) * 0.8f * randomFactor;
+            float angle      = i * goldenAngle + branchRotationOffset + angleNoise;
+
             float cosA = std::cos(angle);
             float sinA = std::sin(angle);
 
             Leaf leaf;
+            float radiusNoise = 1.0f + (dis(gen) * 0.3f * randomFactor);
+            leaf.position     = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * (radius * radiusNoise);
 
-            // 1. Pozycja: rozmieść wzdłuż gałęzi z lekkim offsetem od jej promienia
-            leaf.position = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * radius;
+            vec3 outward   = tangent * cosA + bitangent * sinA;
+            vec3 bendNoise = (tangent * dis(gen) + bitangent * dis(gen) + dir * dis(gen)) * (0.4f * randomFactor);
 
-            // 2. Kierunek: Liść "wyrasta" na zewnątrz od środka gałęzi + lekko w górę
-            vec3 outward   = normalize(tangent * cosA + bitangent * sinA);
-            leaf.direction = normalize(outward + dir * leafSpread);
+            leaf.direction = normalize(outward + dir * leafSpread + bendNoise);
 
             leafs.push_back(leaf);
         }
     }
 }
-
 }  // namespace GameEngine
