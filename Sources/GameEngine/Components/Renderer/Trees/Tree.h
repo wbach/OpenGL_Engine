@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <list>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -13,11 +14,6 @@ namespace GameEngine
 class Tree
 {
 public:
-    struct Status
-    {
-        bool isCompleted;
-        std::string string;
-    };
     std::optional<std::string> build();
 
     void prepareAttractors(size_t count, float radius);
