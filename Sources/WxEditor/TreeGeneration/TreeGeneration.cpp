@@ -42,7 +42,6 @@ struct TreeGenerationParams
 };
 
 TreeGenerationParams treeBuidlerParams;
-
 std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, const TreeGenerationParams& initial)
 {
     TreeGenerationParams defaults{};
@@ -52,13 +51,18 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
                  wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER);
 
     auto* mainSizer = new wxBoxSizer(wxVERTICAL);
-    auto* grid      = new wxFlexGridSizer(2, 8, 8);
-    grid->AddGrowableCol(1, 1);
 
+    // --- FlexGridSizer 3 kolumny: label + ctrl * 3 ---
+    auto* grid = new wxFlexGridSizer(0, 6, 8, 8);
+    grid->AddGrowableCol(1, 1);
+    grid->AddGrowableCol(3, 1);
+    grid->AddGrowableCol(5, 1);
+
+    // --- Helpery ---
     auto addFloat = [&](const wxString& label, float value)
     {
         grid->Add(new wxStaticText(&dlg, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL);
-        auto* ctrl = new wxTextCtrl(&dlg, wxID_ANY, wxString::Format("%.4f", value));
+        auto* ctrl = new wxTextCtrl(&dlg, wxID_ANY, wxString::Format("%.4f", value), wxDefaultPosition, wxSize(120, -1));
         grid->Add(ctrl, 1, wxEXPAND);
         return ctrl;
     };
@@ -69,6 +73,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         auto* ctrl = new wxSpinCtrl(&dlg, wxID_ANY);
         ctrl->SetRange(0, 1'000'000);
         ctrl->SetValue(static_cast<int>(value));
+        ctrl->SetSize(wxSize(120, -1));
         grid->Add(ctrl, 1, wxEXPAND);
         return ctrl;
     };
@@ -76,7 +81,6 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     auto addFile = [&](const wxString& label, const std::string& path)
     {
         grid->Add(new wxStaticText(&dlg, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL);
-
         auto* picker = new wxFilePickerCtrl(&dlg, wxID_ANY, "", "Select file", "*.*", wxDefaultPosition, wxDefaultSize,
                                             wxFLP_USE_TEXTCTRL | wxFLP_OPEN);
 
@@ -88,6 +92,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         grid->Add(picker, 1, wxEXPAND);
         return picker;
     };
+
     struct Vec3Controls
     {
         wxTextCtrl* x;
@@ -98,7 +103,6 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     auto addVec3 = [&](const wxString& label, const glm::vec3& value)
     {
         grid->Add(new wxStaticText(&dlg, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL);
-
         auto* row = new wxBoxSizer(wxHORIZONTAL);
 
         auto makeFloat = [&](float v)
@@ -113,7 +117,6 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         auto* z = makeFloat(value.z);
 
         grid->Add(row, 1, wxEXPAND);
-
         return Vec3Controls{x, y, z};
     };
 
@@ -126,9 +129,10 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     auto* segmentLength   = addFloat("Trunk segment scale", initial.segmentLength);
     auto* crownYOffset    = addFloat("Crown y offset", initial.crownYOffset);
 
-    auto rootPosition  = addVec3("Root poosition", initial.rootPosition);
+    auto rootPosition  = addVec3("Root position", initial.rootPosition);
     auto rootDirection = addVec3("Root direction", initial.rootDirection);
 
+    // --- EntryParameters ---
     struct EntryControls
     {
         wxSpinCtrl* radialSegments;
@@ -167,6 +171,8 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     auto* leafNormal    = addFile("Leaf Normal", initial.leafMaterialNormalTexture);
 
     mainSizer->Add(grid, 1, wxALL | wxEXPAND, 10);
+
+    // --- Buttons: Restore / OK / Cancel ---
     auto* btnSizer   = new wxBoxSizer(wxHORIZONTAL);
     auto* restoreBtn = new wxButton(&dlg, wxID_ANY, "Restore Defaults");
     auto* okBtn      = new wxButton(&dlg, wxID_OK);
@@ -181,11 +187,12 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     dlg.SetSizerAndFit(mainSizer);
     dlg.CentreOnParent();
 
+    // --- Restore Defaults ---
     restoreBtn->Bind(
         wxEVT_BUTTON,
         [&](wxCommandEvent&)
         {
-            // --- Basic floats / size_t ---
+            // Basic
             attractorsCount->SetValue(static_cast<int>(defaults.attractorsCount));
             crownRadius->SetValue(wxString::Format("%.4f", defaults.crownRadius));
             tileScale->SetValue(wxString::Format("%.4f", defaults.trunkMaterialTiledScale));
@@ -194,7 +201,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
             segmentLength->SetValue(wxString::Format("%.4f", defaults.segmentLength));
             crownYOffset->SetValue(wxString::Format("%.4f", defaults.crownYOffset));
 
-            // --- Vec3 ---
+            // Vec3
             rootPosition.x->SetValue(wxString::Format("%.4f", defaults.rootPosition.x));
             rootPosition.y->SetValue(wxString::Format("%.4f", defaults.rootPosition.y));
             rootPosition.z->SetValue(wxString::Format("%.4f", defaults.rootPosition.z));
@@ -203,7 +210,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
             rootDirection.y->SetValue(wxString::Format("%.4f", defaults.rootDirection.y));
             rootDirection.z->SetValue(wxString::Format("%.4f", defaults.rootDirection.z));
 
-            // --- Trunk textures ---
+            // Trunk textures
             trunkAlbedo->SetPath(wxString::FromUTF8(defaults.trunkMaterialBaseColorTexture.c_str()));
             trunkAO->SetPath(wxString::FromUTF8(defaults.trunkMaterialAmbientOcclusionTexture.c_str()));
             trunkDisp->SetPath(wxString::FromUTF8(defaults.trunkMaterialDisplacementTexture.c_str()));
@@ -211,13 +218,13 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
             trunkNormal->SetPath(wxString::FromUTF8(defaults.trunkMaterialNormalTexture.c_str()));
             trunkRoughness->SetPath(wxString::FromUTF8(defaults.trunkMaterialRoughnessTexture.c_str()));
 
-            // --- Leaf textures ---
+            // Leaf textures
             leafAlbedo->SetPath(wxString::FromUTF8(defaults.leafMaterialBaseColorTexture.c_str()));
             leafOpacity->SetPath(wxString::FromUTF8(defaults.leafMaterialOpacityTexture.c_str()));
             leafRoughness->SetPath(wxString::FromUTF8(defaults.leafMaterialRoughnessTexture.c_str()));
             leafNormal->SetPath(wxString::FromUTF8(defaults.leafMaterialNormalTexture.c_str()));
 
-            // --- MeshBuilder EntryParameters ---
+            // EntryParameters
             meshControls.radialSegments->SetValue(defaults.meshBuilderParams.radialSegments);
             meshControls.leafheightThreshold->SetValue(wxString::Format("%.4f", defaults.meshBuilderParams.leafheightTreshold));
             meshControls.leafRandomFactor->SetValue(wxString::Format("%.4f", defaults.meshBuilderParams.leafRandomFactor));
@@ -231,6 +238,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     if (dlg.ShowModal() != wxID_OK)
         return std::nullopt;
 
+    // --- Odczyt wyników ---
     TreeGenerationParams out = initial;
 
     out.attractorsCount         = attractorsCount->GetValue();
@@ -260,6 +268,15 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     out.leafMaterialOpacityTexture   = leafOpacity->GetPath().ToStdString();
     out.leafMaterialRoughnessTexture = leafRoughness->GetPath().ToStdString();
     out.leafMaterialNormalTexture    = leafNormal->GetPath().ToStdString();
+
+    out.meshBuilderParams.radialSegments     = meshControls.radialSegments->GetValue();
+    out.meshBuilderParams.leafheightTreshold = wxAtof(meshControls.leafheightThreshold->GetValue());
+    out.meshBuilderParams.leafRandomFactor   = wxAtof(meshControls.leafRandomFactor->GetValue());
+    out.meshBuilderParams.leafsPerBranch     = meshControls.leafsPerBranch->GetValue();
+    out.meshBuilderParams.leafSpread         = wxAtof(meshControls.leafSpread->GetValue());
+    out.meshBuilderParams.minBranchRadius    = wxAtof(meshControls.minBranchRadius->GetValue());
+    out.meshBuilderParams.maxBranchRadius    = wxAtof(meshControls.maxBranchRadius->GetValue());
+    out.meshBuilderParams.textureAtlasSize   = meshControls.textureAtlasSize->GetValue();
 
     return out;
 }
