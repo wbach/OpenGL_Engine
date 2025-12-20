@@ -37,6 +37,7 @@ public:
     float maxDistance{5.f};
     float minDistance{1.f};
     float segmentLength{0.3f};
+    float crownYOffset{0.f};
 
 private:
     std::vector<Attractor> attractors;

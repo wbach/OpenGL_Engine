@@ -43,7 +43,7 @@ void Tree::prepareAttractors(size_t count, float radius)
     float maxAttractorDist = 0.f;
     for (size_t i = 0; i < count; i++)
     {
-        attractors.push_back(Attractor{.position = randomPointInSphere(radius) + vec3(0, radius, 0)});
+        attractors.push_back(Attractor{.position = randomPointInSphere(radius) + vec3(0, radius + crownYOffset, 0)});
         maxAttractorDist = std::max(maxAttractorDist, glm::distance(rootPosition, attractors.back().position));
     }
 
