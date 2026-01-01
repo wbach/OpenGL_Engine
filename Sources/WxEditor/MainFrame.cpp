@@ -12,6 +12,7 @@
 #include <GameEngine/Renderers/GUI/Window/GuiWindow.h>
 #include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Models/Material.h>
+#include <GameEngine/Resources/Models/MaterialPresets.h>
 #include <GameEngine/Scene/SceneEvents.h>
 #include <GameEngine/Scene/SceneReader.h>
 #include <GameEngine/Scene/SceneUtils.h>
@@ -47,7 +48,6 @@
 #include "OptionsFrame/Theme.h"
 #include "ProjectManager.h"
 #include "ProjectPanel/ProjectPanel.h"
-#include "Resources/Models/MaterialPresets.h"
 #include "TerrainTool/TerrainToolPanel.h"
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"

@@ -623,12 +623,14 @@ void DirectXApi::UnmapShaderStorageBuffer(uint32 id)
 }
 void *DirectXApi::MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags)
 {
+    return nullptr;
 }
 void DirectXApi::UpdateShaderStorageBuffer(uint32 id, void const *buffer)
 {
 }
 GraphicsApi::ID DirectXApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag)
 {
+    return {};
 }
 uint32 DirectXApi::BindShaderBuffer(uint32 id)
 {

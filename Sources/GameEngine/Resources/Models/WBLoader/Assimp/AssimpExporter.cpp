@@ -34,37 +34,37 @@ aiMaterial* CreateAiMaterialFromGameMaterial(const Material& mat)
 
     if (mat.baseColorTexture && mat.baseColorTexture->GetFile().has_value())
     {
-        aiString texPath(mat.baseColorTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.baseColorTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_DIFFUSE(0));
     }
     if (mat.normalTexture && mat.normalTexture->GetFile().has_value())
     {
-        aiString texPath(mat.normalTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.normalTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_NORMALS(0));
     }
     if (mat.metallicTexture && mat.metallicTexture->GetFile().has_value())
     {
-        aiString texPath(mat.metallicTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.metallicTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SPECULAR(0));
     }
     if (mat.roughnessTexture && mat.roughnessTexture->GetFile().has_value())
     {
-        aiString texPath(mat.roughnessTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.roughnessTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SHININESS(0));
     }
     if (mat.ambientOcclusionTexture && mat.ambientOcclusionTexture->GetFile().has_value())
     {
-        aiString texPath(mat.ambientOcclusionTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.ambientOcclusionTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_AMBIENT(0));
     }
     if (mat.opacityTexture && mat.opacityTexture->GetFile().has_value())
     {
-        aiString texPath(mat.opacityTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.opacityTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_OPACITY(0));
     }
     if (mat.displacementTexture && mat.displacementTexture->GetFile().has_value())
     {
-        aiString texPath(mat.displacementTexture->GetFile()->GetAbsolutePath().c_str());
+        aiString texPath(mat.displacementTexture->GetFile()->GetAbsolutePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_HEIGHT(0));
     }
     return aiMat;
@@ -216,7 +216,7 @@ bool ExportModel(const Model& model, const File& file)
     aiScene* scene = CreateSceneFromModel(model);
 
     Assimp::Exporter exporter;
-    aiReturn result = exporter.Export(scene, format, file.GetAbsolutePath());
+    aiReturn result = exporter.Export(scene, format, file.GetAbsolutePath().string());
 
     delete scene;
 
