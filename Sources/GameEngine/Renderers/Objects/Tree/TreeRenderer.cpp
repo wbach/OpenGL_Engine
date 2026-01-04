@@ -6,15 +6,25 @@
 #include <algorithm>
 
 #include "GameEngine/Camera/Frustrum.h"
+#include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GraphicsApi/IFrameBuffer.h"
+#include "Image/Image.h"
 #include "Logger/Log.h"
 #include "Types.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/geometric.hpp"
 
 namespace GameEngine
 {
@@ -168,12 +178,21 @@ int TreeRenderer::RenderSingleTree(const Components::TreeRendererComponent& tree
         return 0;
     }
 
-    if (auto model = treeRendererComponent.GetModel().Get(LevelOfDetail::L1))
+    const auto& position       = treeRendererComponent.getParentGameObject().GetWorldTransform().GetPosition();
+    const auto& cameraPosition = context_.camera_->GetPosition();
+    auto disnaceToCamera       = glm::distance(position, cameraPosition);
+    auto lvl                   = LevelOfDetail::L1;
+    if (disnaceToCamera > EngineConf.renderer.lodDistance0)
+    {
+        lvl = LevelOfDetail::L2;
+    }
+
+    if (auto model = treeRendererComponent.GetModel().Get(lvl))
     {
         renderedCount += RenderModel(*model);
     }
 
-    RenderLeafs(treeRendererComponent);
+    RenderLeafs(treeRendererComponent, lvl);
 
     return renderedCount;
 }
@@ -239,9 +258,9 @@ int TreeRenderer::RenderMesh(const Mesh& mesh, uint32 count) const
     context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(), count);
     return count;
 }
-void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent) const
+void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent, LevelOfDetail lvl) const
 {
-    const auto leafModel = treeRendererComponent.GetLeafModel().Get();
+    const auto leafModel = treeRendererComponent.GetLeafModel().Get(lvl);
 
     if (not leafModel)
         return;

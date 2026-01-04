@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "Types.h"
 
@@ -51,7 +52,7 @@ private:
     int RenderModel(const Model&, uint32) const;
     int RenderMesh(const Mesh&) const;
     int RenderMesh(const Mesh&, uint32) const;
-    void RenderLeafs(const Components::TreeRendererComponent&) const;
+    void RenderLeafs(const Components::TreeRendererComponent&, LevelOfDetail) const;
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, GeneralTexture*, bool) const;

@@ -3,6 +3,7 @@
 #include <GameEngine/Components/Renderer/Trees/Tree.h>
 #include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
 #include <GameEngine/Components/Renderer/Trees/TreeRendererComponent.h>
+#include <GameEngine/Components/Renderer/Trees/TreeUtils.h>
 #include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/MaterialPresets.h>
@@ -10,8 +11,16 @@
 #include <wx/spinctrl.h>
 #include <wx/wx.h>
 
+#include <memory>
 #include <optional>
+#include <vector>
 
+#include "Components/Renderer/Trees/Leaf.h"
+#include "GraphicsApi/IGraphicsApi.h"
+#include "Resources/IResourceManager.hpp"
+#include "Resources/Models/ModelWrapper.h"
+#include "Resources/ShaderBuffers/PerFrameBuffer.h"
+#include "Shaders/ShaderProgram.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
 
 namespace
@@ -24,7 +33,7 @@ struct TreeGenerationParams
     float maxDistance{5.f};
     float minDistance{1.f};
     float segmentLength{0.3f};
-    float crownYOffset{0.f};
+    float crownYOffset{3.f};
     vec3 rootPosition{0.f};
     vec3 rootDirection{0.f, 1.f, 0.f};
     std::string trunkMaterialBaseColorTexture        = "Textures/Tree/trunk/light-tree-bark_albedo.png";
@@ -282,8 +291,284 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
 }
 
 }  // namespace
+
 namespace WxEditor
 {
+struct TreeModel
+{
+    GameEngine::Model* trunkModel;
+    GameEngine::Model* leafModel;
+};
+
+GameEngine::Tree GenerateTree(const TreeGenerationParams& params)
+{
+    GameEngine::Tree tree{};
+    tree.rootPosition  = params.rootPosition;
+    tree.rootDirection = params.rootDirection;
+    tree.maxDistance   = params.maxDistance;
+    tree.minDistance   = params.minDistance;
+    tree.segmentLength = params.segmentLength;
+    tree.crownYOffset  = params.crownYOffset;
+
+    tree.prepareAttractors(params.attractorsCount, params.crownRadius);
+
+    auto status = tree.build();
+
+    if (status and not status->empty())
+    {
+        LOG_WARN << status.value();
+    }
+
+    return tree;
+}
+
+std::pair<GameEngine::Material, GameEngine::Material> PrepareTreeMaterials(GameEngine::ITextureLoader& tl,
+                                                                           const TreeGenerationParams& params)
+{
+    GameEngine::TextureParameters tp;
+    tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
+
+    auto trunkMaterial                    = GameEngine::MaterialPresets::Trunk();
+    trunkMaterial.baseColorTexture        = tl.LoadTexture(params.trunkMaterialBaseColorTexture, tp);
+    trunkMaterial.ambientOcclusionTexture = tl.LoadTexture(params.trunkMaterialAmbientOcclusionTexture, tp);
+    trunkMaterial.displacementTexture     = tl.LoadTexture(params.trunkMaterialDisplacementTexture, tp);
+    trunkMaterial.metallicTexture         = tl.LoadTexture(params.trunkMaterialMetallicTexture, tp);
+    trunkMaterial.normalTexture           = tl.LoadTexture(params.trunkMaterialNormalTexture, tp);
+    trunkMaterial.roughnessTexture        = tl.LoadTexture(params.trunkMaterialRoughnessTexture, tp);
+    trunkMaterial.tiledScale              = params.trunkMaterialTiledScale;
+
+    GameEngine::Material leafMaterial = GameEngine::MaterialPresets::Leaf();
+    leafMaterial.baseColorTexture     = tl.LoadTexture(params.leafMaterialBaseColorTexture, tp);
+    leafMaterial.opacityTexture       = tl.LoadTexture(params.leafMaterialOpacityTexture, tp);
+    leafMaterial.roughnessTexture     = tl.LoadTexture(params.leafMaterialRoughnessTexture, tp);
+    leafMaterial.normalTexture        = tl.LoadTexture(params.leafMaterialNormalTexture, tp);
+
+    return {trunkMaterial, leafMaterial};
+}
+
+std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::Tree& tree, GLCanvas* canvas, const TreeGenerationParams& params)
+{
+    LOG_DEBUG << "Buildng tree mesh lod 1 ... ("
+              << "Branches : " << tree.GetBranches().size() << ")";
+    GameEngine::TreeMeshBuilder builder(tree.GetBranches());
+    auto treeMesh = builder.build(params.meshBuilderParams);
+    if (treeMesh.positions_.empty())
+    {
+        wxLogMessage("generateTree failed");
+        return std::nullopt;
+    }
+
+    auto& engineContext   = canvas->GetEngine().GetEngineContext();
+    auto& resourceManager = canvas->GetScene().GetResourceManager();
+
+    auto trunkModel = std::make_unique<GameEngine::Model>();
+
+    const auto [trunkMaterial, leafMaterial] = PrepareTreeMaterials(resourceManager.GetTextureLoader(), params);
+
+    trunkModel->AddMesh(
+        GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
+    auto trunkModelPtr = trunkModel.get();
+    resourceManager.AddModel(std::move(trunkModel));
+
+    auto leafModel =
+        GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), builder.GetLeafs(), leafMaterial);
+
+    return TreeModel{.trunkModel = trunkModelPtr, .leafModel = leafModel};
+}
+
+std::vector<GameEngine::LeafCluster> CreateLeafsClusters(const std::vector<GameEngine::Leaf>& leaves)
+{
+    using namespace GameEngine;
+
+    std::vector<LeafCluster> result;
+    if (leaves.empty())
+        return result;
+
+    const float CLUSTER_RADIUS         = 0.6f;  // world units
+    const uint32_t CLUMP_VARIANT_COUNT = 8;
+
+    struct TempCluster
+    {
+        std::vector<const Leaf*> leaves;
+        vec3 center = vec3(0.0f);
+    };
+
+    std::vector<TempCluster> tempClusters;
+
+    for (const Leaf& leaf : leaves)
+    {
+        bool assigned = false;
+
+        for (auto& cluster : tempClusters)
+        {
+            if (glm::distance(cluster.center, leaf.position) < CLUSTER_RADIUS)
+            {
+                cluster.leaves.push_back(&leaf);
+
+                cluster.center =
+                    (cluster.center * float(cluster.leaves.size() - 1) + leaf.position) / float(cluster.leaves.size());
+
+                assigned = true;
+                break;
+            }
+        }
+
+        if (!assigned)
+        {
+            TempCluster c;
+            c.center = leaf.position;
+            c.leaves.push_back(&leaf);
+            tempClusters.push_back(c);
+        }
+    }
+
+    result.reserve(tempClusters.size());
+
+    for (const TempCluster& tc : tempClusters)
+    {
+        vec3 center(0.0f);
+        vec3 normal(0.0f);
+        vec3 colorRnd(0.0f);
+        float sizeRnd = 0.0f;
+
+        for (const Leaf* l : tc.leaves)
+        {
+            center += l->position;
+            normal += l->direction;
+            colorRnd += l->colorRandomness;
+            sizeRnd += l->sizeRandomness;
+        }
+
+        const float invCount = 1.0f / float(tc.leaves.size());
+        center *= invCount;
+        normal = glm::normalize(normal * invCount);
+        colorRnd *= invCount;
+        sizeRnd *= invCount;
+
+        float radius = 0.0f;
+        for (const Leaf* l : tc.leaves)
+            radius = std::max(radius, glm::distance(center, l->position));
+
+        uint32_t seed = std::hash<float>()(center.x * 17.31f + center.y * 31.77f + center.z * 13.13f);
+
+        LeafCluster out;
+        out.position  = center;
+        out.direction = normal;
+        out.radius    = radius;
+
+        out.colorRandomness = colorRnd;
+        out.sizeRandomness  = sizeRnd;
+
+        out.seed    = seed;
+        out.variant = seed % CLUMP_VARIANT_COUNT;
+
+        result.push_back(out);
+    }
+
+    return result;
+}
+
+void BindMaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 location, GameEngine::GeneralTexture* texture,
+                         bool enabled)
+{
+    if (enabled and texture and texture->GetGraphicsObjectId())
+    {
+        graphicsApi.ActiveTexture(location, *texture->GetGraphicsObjectId());
+    }
+}
+
+void BindMaterial(GraphicsApi::IGraphicsApi& graphicsApi, const GameEngine::Material& material)
+{
+    if (material.flags & MAT_DOUBLE_SIDED || (material.flags & MAT_FOLIAGE))
+    {
+        graphicsApi.DisableCulling();
+    }
+    else
+    {
+        graphicsApi.EnableCulling();
+    }
+
+    const auto& config = EngineConf.renderer.textures;
+
+    BindMaterialTexture(graphicsApi, 0, material.baseColorTexture, config.useDiffuse);
+    BindMaterialTexture(graphicsApi, 1, material.normalTexture, config.useNormal);
+    BindMaterialTexture(graphicsApi, 2, material.roughnessTexture, config.useRoughness);
+    BindMaterialTexture(graphicsApi, 3, material.metallicTexture, config.useMetallic);
+    BindMaterialTexture(graphicsApi, 4, material.ambientOcclusionTexture, config.useAmientOcclusion);
+    BindMaterialTexture(graphicsApi, 5, material.opacityTexture, config.useOpacity);
+    BindMaterialTexture(graphicsApi, 6, material.displacementTexture, config.useDisplacement);
+}
+
+// void GenereateClusterAtlasTexture(GraphicsApi::IGraphicsApi& graphicsApi, const TreeModel& treeModel)
+// {
+//     GameEngine::ShaderProgram leafsShader(graphicsApi, GraphicsApi::ShaderProgramType::TreeLeafs);
+//     GameEngine::ShaderProgram trunkShader(graphicsApi, GraphicsApi::ShaderProgramType::Entity);
+
+//     leafsShader.Init();
+//     trunkShader.Init();
+
+//     GameEngine::PerFrameBuffer perFrameBuffer;
+//     auto paramBufferId_ = graphicsApi.CreateShaderBuffer(1, sizeof(GameEngine::PerFrameBuffer), GraphicsApi::DrawFlag::Dynamic);
+
+//     trunkShader.Start();
+//     for (const auto& mesh : treeModel.trunkModel->GetMeshes())
+//     {
+//         if (mesh.GetGraphicsObjectId())
+//         {
+//             const auto& buffer = mesh.GetMaterialShaderBufferId();
+//             graphicsApi.BindShaderBuffer(*buffer);
+
+//             BindMaterial(graphicsApi, mesh.GetMaterial());
+//             graphicsApi.RenderMesh(*mesh.GetGraphicsObjectId());
+//         }
+//     }
+
+//     leafsShader.Start();
+//     for (const auto& mesh : treeModel.leafModel->GetMeshes())
+//     {
+//         if (not mesh.GetGraphicsObjectId())
+//         {
+//             continue;
+//         }
+//         BindMaterial(graphicsApi, mesh.GetMaterial());
+//         graphicsApi.RenderPoints(*mesh.GetGraphicsObjectId());
+//     }
+//     leafsShader.Stop();
+// }
+
+std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas* canvas, const TreeGenerationParams& params)
+{
+    LOG_DEBUG << "Buildng tree mesh lod 2... ("
+              << "Branches : " << tree.GetBranches().size() << ")";
+    GameEngine::TreeMeshBuilder builder(tree.GetBranches());
+    auto lod2Params           = params.meshBuilderParams;
+    lod2Params.radialSegments = 3;
+
+    auto treeMesh = builder.build(lod2Params);
+    if (treeMesh.positions_.empty())
+    {
+        wxLogMessage("generateTree failed");
+        return std::nullopt;
+    }
+
+    auto& engineContext   = canvas->GetEngine().GetEngineContext();
+    auto& resourceManager = canvas->GetScene().GetResourceManager();
+
+    auto trunkModel = std::make_unique<GameEngine::Model>();
+
+    const auto [trunkMaterial, leafMaterial] = PrepareTreeMaterials(resourceManager.GetTextureLoader(), params);
+
+    trunkModel->AddMesh(
+        GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
+    auto trunkModelPtr = trunkModel.get();
+    resourceManager.AddModel(std::move(trunkModel));
+
+    auto clusters  = CreateLeafsClusters(builder.GetLeafs());
+    auto leafModel = GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), clusters, leafMaterial);
+
+    return TreeModel{.trunkModel = trunkModelPtr, .leafModel = leafModel};
+}
+
 void GenerateTree(wxFrame* parent, GLCanvas* canvas)
 {
     LOG_DEBUG << "Create tree";
@@ -296,66 +581,18 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
     std::thread(
         [dlg, parent, canvas, params]()
         {
-            GameEngine::Tree tree{};
-            tree.rootPosition  = vec3(0, -3.f, 0);
-            tree.rootPosition  = params->rootPosition;
-            tree.rootDirection = params->rootDirection;
-            tree.maxDistance   = params->maxDistance;
-            tree.minDistance   = params->minDistance;
-            tree.segmentLength = params->segmentLength;
-            tree.crownYOffset  = params->crownYOffset;
-
-            tree.prepareAttractors(params->attractorsCount, params->crownRadius);
-
-            auto status = tree.build();
-
-            if (status and not status->empty())
-            {
-                LOG_WARN << status.value();
-            }
-
-            LOG_DEBUG << "Buildng tree mesh... ("
-                      << "Branches : " << tree.GetBranches().size() << ")";
-            GameEngine::TreeMeshBuilder builder(tree.GetBranches());
-            auto treeMesh = builder.build(params->meshBuilderParams);
-            if (treeMesh.positions_.empty())
-            {
-                wxLogMessage("generateTree failed");
-                return;
-            }
-
-            auto& engineContext   = canvas->GetEngine().GetEngineContext();
-            auto& resourceManager = canvas->GetScene().GetResourceManager();
-            auto& tl              = resourceManager.GetTextureLoader();
-
-            auto model    = std::make_unique<GameEngine::Model>();
-            auto modelPtr = model.get();
-
-            GameEngine::TextureParameters tp;
-            tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
-
-            auto trunkMaterial                    = GameEngine::MaterialPresets::Trunk();
-            trunkMaterial.baseColorTexture        = tl.LoadTexture(params->trunkMaterialBaseColorTexture, tp);
-            trunkMaterial.ambientOcclusionTexture = tl.LoadTexture(params->trunkMaterialAmbientOcclusionTexture, tp);
-            trunkMaterial.displacementTexture     = tl.LoadTexture(params->trunkMaterialDisplacementTexture, tp);
-            trunkMaterial.metallicTexture         = tl.LoadTexture(params->trunkMaterialMetallicTexture, tp);
-            trunkMaterial.normalTexture           = tl.LoadTexture(params->trunkMaterialNormalTexture, tp);
-            trunkMaterial.roughnessTexture        = tl.LoadTexture(params->trunkMaterialRoughnessTexture, tp);
-            trunkMaterial.tiledScale              = params->trunkMaterialTiledScale;
-
-            model->AddMesh(
-                GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
-            resourceManager.AddModel(std::move(model));
-
-            GameEngine::Material leafMaterial = GameEngine::MaterialPresets::Leaf();
-            leafMaterial.baseColorTexture     = tl.LoadTexture(params->leafMaterialBaseColorTexture, tp);
-            leafMaterial.opacityTexture       = tl.LoadTexture(params->leafMaterialOpacityTexture, tp);
-            leafMaterial.roughnessTexture     = tl.LoadTexture(params->leafMaterialRoughnessTexture, tp);
-            leafMaterial.normalTexture        = tl.LoadTexture(params->leafMaterialNormalTexture, tp);
-
             auto obj  = canvas->GetScene().CreateGameObject("GeneratedTree");
             auto& trc = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();
-            trc.SetGeneratedModel(modelPtr).SetLeafPosition(builder.GetLeafs()).SetLeafMaterial(leafMaterial);
+
+            auto tree      = GenerateTree(*params);
+            auto treeModel = GenerateLoD1Tree(tree, canvas, *params);
+            trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
+            trc.SetGeneratedLeafModel(treeModel->leafModel, GameEngine::LevelOfDetail::L1);
+
+            auto treeModelLod2 = GenerateLoD2Tree(tree, canvas, *params);
+            trc.SetGeneratedTrunkModel(treeModelLod2->trunkModel, GameEngine::LevelOfDetail::L2);
+            trc.SetGeneratedLeafModel(treeModelLod2->leafModel, GameEngine::LevelOfDetail::L2);
+
             obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
             canvas->AddGameObject(std::move(obj));
             parent->CallAfter([dlg]() { dlg->Close(); });

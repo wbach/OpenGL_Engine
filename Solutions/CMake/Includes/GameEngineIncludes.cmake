@@ -178,6 +178,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RenderersManager.
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IRendererFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/TreeLeafClusterRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/SkyBox/ConcreteSkyBoxRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h
@@ -326,6 +327,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/A
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Branch.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Leaf.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeUtils.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/PerTerrainTexturesBuffer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainHeightTools.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Terrain/TerrainConfiguration.h

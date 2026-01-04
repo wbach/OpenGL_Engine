@@ -17,6 +17,8 @@ public:
     GraphicsApi::ID GetAttachmentTexture(GraphicsApi::FrameBuffer::Type) const override;
     void TakeSnapshot(const std::string&) override;
     const vec2ui& GetSize() const override;
+    std::optional<Utils::Image> GetImage(IdType) const;
+    std::optional<Utils::Image> GetImage(GraphicsApi::FrameBuffer::Type) const;
 
 private:
     vec2ui size;

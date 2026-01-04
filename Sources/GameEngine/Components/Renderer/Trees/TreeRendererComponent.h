@@ -49,7 +49,8 @@ public:
 
 public:
     TreeRendererComponent(ComponentContext&, GameObject&);
-    TreeRendererComponent& SetGeneratedModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    TreeRendererComponent& SetGeneratedTrunkModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    TreeRendererComponent& SetGeneratedLeafModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
     TreeRendererComponent& SetLeafPosition(const std::vector<Leaf>&);
@@ -58,6 +59,8 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+
+    void AddLeafClusterTexture(Material&, GraphicsApi::ID);
 
     const ModelWrapper& GetLeafModel() const;
     const ModelWrapper& GetModel() const;
@@ -75,7 +78,6 @@ private:
     void CreatePerObjectUpdateBuffer();
     void CreatePerInstancesBuffer();
     void UpdateBoundingBox();
-    void CreateLeafModel();
 
 private:
     void ReleaseModels();

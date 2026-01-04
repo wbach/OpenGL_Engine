@@ -6,6 +6,7 @@
 
 #include "GraphicsApiDef.h"
 #include "GraphicsObject.h"
+#include "Image/Image.h"
 
 namespace GraphicsApi
 {
@@ -22,5 +23,7 @@ public:
     virtual ID GetAttachmentTexture(FrameBuffer::Type) const                    = 0;
     virtual void TakeSnapshot(const std::string&)                               = 0;
     virtual const vec2ui& GetSize() const                                       = 0;
+    virtual std::optional<Utils::Image> GetImage(IdType) const                  = 0;
+    virtual std::optional<Utils::Image> GetImage(FrameBuffer::Type) const       = 0;
 };
 }  // namespace GraphicsApi

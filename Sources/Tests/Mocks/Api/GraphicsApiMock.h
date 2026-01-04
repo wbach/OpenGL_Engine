@@ -42,6 +42,7 @@ public:
     MOCK_METHOD(ID, CreateTexture, (const Utils::Image&, TextureFilter, TextureMipmap), (override));
     MOCK_METHOD(ID, CreateTextureStorage, (TextureType, TextureFilter, int32), (override));
     MOCK_METHOD(ID, CreateCubMapTexture, (const CubemapImages&), (override));
+    MOCK_METHOD(void, CopyTexture, (IdType, IdType, uint32, uint32), (override));
     MOCK_METHOD(void, UpdateTexture, (uint32, const vec2ui&, const Utils::Image&), (override));
     MOCK_METHOD(void, UpdateTexture, (uint32, const Utils::Image&), (override));
     MOCK_METHOD(void, ClearTexture, (uint32, const Color&), (override));
@@ -92,6 +93,7 @@ public:
     MOCK_METHOD(std::vector<uint8>, GetTextureData, (uint32), (const, override));
     MOCK_METHOD(const TextureInfo&, GetTextureInfo, (uint32), (const, override));
     MOCK_METHOD(void, TakeSnapshoot, (const std::string& path), (const, override));
+    MOCK_METHOD(std::optional<Utils::Image>, GetImage, (IdType), (const, override));
     MOCK_METHOD(IFrameBuffer&, GetDefaultFrameBuffer, (), (override));
     MOCK_METHOD(IFrameBuffer&, CreateFrameBuffer, (const std::vector<FrameBuffer::Attachment>&), (override));
     MOCK_METHOD(void, DeleteFrameBuffer, (IFrameBuffer&), (override));

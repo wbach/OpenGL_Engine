@@ -37,6 +37,7 @@ public:
         int textureAtlasSize     = 9;
     };
 
+    int GetMaxBranchLvl() const;
     GraphicsApi::MeshRawData build(const EntryParameters&);
     const std::vector<Leaf>& GetLeafs() const;
 

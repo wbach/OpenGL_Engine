@@ -11,11 +11,13 @@
 #include <optional>
 
 #include "GlFrameBuffer.h"
+#include "GraphicsApi/BufferParamters.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "GraphicsApi/MeshRawData.h"
 #include "GraphicsApi/ShaderStorageFlags.h"
 #include "GraphicsApi/TextureInfo.h"
 #include "IdPool.h"
+#include "Image/Image.h"
 #include "Logger/Log.h"
 #include "OpenGLApi/DefaultFrameBuffer.h"
 #include "OpenGLUtils.h"
@@ -1566,5 +1568,67 @@ void OpenGLApi::allocatedBytes(int64 bytes)
     allocatedBytes_ += bytes;
     // /* LOG TO FIX*/  LOG_ERROR << ("Textures + meshes, allocatedBytes = " + std::to_string(allocatedBytes_) + " (" +
     //         std::to_string(allocatedBytes_ / 1024 / 1024) + "MB)");
+}
+void OpenGLApi::CopyTexture(IdType src, IdType dst, uint32 width, uint32 height)
+{
+    auto srcIter = impl_->textureInfos_.find(src);
+    if (srcIter == impl_->textureInfos_.end())
+    {
+        return;
+    }
+    auto dstIter = impl_->textureInfos_.find(dst);
+    if (dstIter == impl_->textureInfos_.end())
+    {
+        return;
+    }
+
+    auto& srcTextureInfo = srcIter->second;
+    auto& dstTextureInfo = dstIter->second;
+
+    glCopyImageSubData(srcTextureInfo.id, GL_TEXTURE_2D, 0, 0, 0, 0, dstTextureInfo.id, GL_TEXTURE_2D, 0, 0, 0, 0, width, height,
+                       1);
+}
+
+std::optional<Utils::Image> OpenGLApi::GetImage(IdType id) const
+{
+    auto iter = createdObjectIds.find(id);
+    if (iter != createdObjectIds.end())
+    {
+        auto [objectId, type] = *iter;
+        if (type == ObjectType::TEXTURE_2D)
+        {
+            if (impl_->textureInfos_.count(objectId) == 0)
+            {
+                LOG_DEBUG << "Texture info not found. Id : " << objectId;
+            }
+            const auto& textureInfo = GetTextureInfo(id);
+            auto resultData         = GetTextureData(id);
+            Utils::Image image;
+            image.width  = textureInfo.size.x;
+            image.height = textureInfo.size.y;
+            image.moveData(std::move(resultData));
+            return image;
+        }
+    }
+
+    for (const auto& object : impl_->createdGraphicsObjects_)
+    {
+        switch (object.second)
+        {
+            case ObjectType::FRAME_BUFFER:
+            {
+                const auto& frameBuffer = impl_->frameBuffers_.at(object.first);
+                auto maybeImage         = frameBuffer->GetImage(id);
+                if (maybeImage)
+                    return maybeImage;
+            }
+            break;
+            default:
+                LOG_ERROR << "not imeplmented";
+                break;
+        }
+    }
+
+    return std::nullopt;
 }
 }  // namespace OpenGLApi

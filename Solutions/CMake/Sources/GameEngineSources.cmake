@@ -129,6 +129,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererFactory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowMapRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/TreeLeafClusterRenderer..cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/SkyBox/ConcreteSkyBoxRenderer.cpp
@@ -255,6 +256,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/ComponentType.cp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/SkyBox/SkyBoxComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Water/WaterRendererComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Grass/GrassRendererComponent.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Tree.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeMeshBuilder.cpp

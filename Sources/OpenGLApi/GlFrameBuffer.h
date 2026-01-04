@@ -3,6 +3,7 @@
 #include <GraphicsApi/IFrameBuffer.h>
 #include <Types.h>
 
+#include <variant>
 #include <vector>
 
 #include "IdPool.h"
@@ -41,10 +42,13 @@ public:
     GraphicsApi::ID GetAttachmentTexture(GraphicsApi::FrameBuffer::Type) const override;
     void TakeSnapshot(const std::string&) override;
     const vec2ui& GetSize() const override;
+    std::optional<Utils::Image> GetImage(IdType) const override;
+    std::optional<Utils::Image> GetImage(GraphicsApi::FrameBuffer::Type) const override;
 
 private:
     void CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer::Attachment>&);
     void CreateGlAttachment(GlAttachment&);
+    std::variant<std::monostate, std::vector<uint8>, std::vector<float>> GetAttachmentData(const GlAttachment&) const;
 
 private:
     IdPool& idPool_;

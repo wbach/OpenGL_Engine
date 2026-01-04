@@ -71,6 +71,7 @@ public:
     virtual ID CreateTexture(const Utils::Image&, TextureFilter, TextureMipmap)               = 0;
     virtual ID CreateTextureStorage(TextureType, TextureFilter, int32 N)                      = 0;
     virtual ID CreateCubMapTexture(const CubemapImages&)                                      = 0;
+    virtual void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height)             = 0;
     virtual void UpdateTexture(uint32, const vec2ui&, const Utils::Image&)                    = 0;
     virtual void UpdateTexture(uint32, const Utils::Image&)                                   = 0;
     virtual void ClearTexture(uint32, const Color&)                                           = 0;
@@ -121,6 +122,7 @@ public:
     virtual std::vector<uint8> GetTextureData(uint32) const                                   = 0;
     virtual const TextureInfo& GetTextureInfo(uint32) const                                   = 0;
     virtual void TakeSnapshoot(const std::string& path) const                                 = 0;
+    virtual std::optional<Utils::Image> GetImage(IdType) const                                = 0;
 
     virtual IFrameBuffer& GetDefaultFrameBuffer()                                        = 0;
     virtual IFrameBuffer& CreateFrameBuffer(const std::vector<FrameBuffer::Attachment>&) = 0;

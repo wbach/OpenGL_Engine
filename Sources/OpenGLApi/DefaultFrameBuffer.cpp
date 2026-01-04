@@ -91,4 +91,12 @@ const vec2ui& DefaultFrameBuffer::GetSize() const
     return size;
 }
 
+std::optional<Utils::Image> DefaultFrameBuffer::GetImage(IdType) const
+{
+    return {};
+}
+std::optional<Utils::Image> DefaultFrameBuffer::GetImage(GraphicsApi::FrameBuffer::Type) const
+{
+    return {};
+}
 }  // namespace OpenGLApi

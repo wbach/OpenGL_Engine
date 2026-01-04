@@ -2,11 +2,15 @@
 
 #include <Logger/Log.h>
 
+#include <algorithm>
+#include <cstddef>
 #include <magic_enum/magic_enum.hpp>
 #include <unordered_map>
+#include <variant>
 
 #include "OpenGLApi/OpenGLUtils.h"
 #include "Utils/Image/ImageUtils.h"
+#include "Variant.h"
 
 namespace OpenGLApi
 {
@@ -165,62 +169,19 @@ void FrameBuffer::TakeSnapshot(const std::string& path)
 {
     for (auto& attachment : attachments_)
     {
-        glBindTexture(GL_TEXTURE_2D, attachment.glId_);
-
-        size_t dataSize = static_cast<size_t>(attachment.textureChannels_ * attachment.width_ * attachment.height_);
-        std::vector<uint8> outputData;
-        outputData.resize(static_cast<size_t>(4 * attachment.width_ * attachment.height_));
-
-        GLenum format{GL_RGBA};
-
-        if (attachment.bufferType_ == GL_DEPTH)
-        {
-            format = GL_DEPTH_COMPONENT;
-        }
-        else
-        {
-            switch (attachment.textureChannels_)
-            {
-                case 1:
-                    format = GL_RED;
-                    break;
-                case 2:
-                    format = GL_RG;
-                    break;
-                case 3:
-                    format = GL_RGB;
-                    break;
-                case 4:
-                    format = GL_RGBA;
-                    break;
-                default:
-                    LOG_ERROR << "Undef format.";
-                    continue;
-            }
-        }
-
-        switch (attachment.dataType_)
-        {
-            case GL_UNSIGNED_BYTE:
-            {
-                std::vector<uint8> data;
-                data.resize(dataSize);
-                glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_BYTE, &data[0]);
-                Utils::ConvertImageData<uint8>(data, outputData, static_cast<size_t>(attachment.textureChannels_), 1);
-            }
-            break;
-            case GL_FLOAT:
-            {
-                std::vector<float> floatdata;
-                floatdata.resize(dataSize);
-                glGetTexImage(GL_TEXTURE_2D, 0, format, GL_FLOAT, &floatdata[0]);
-                Utils::ConvertImageData<float>(floatdata, outputData, static_cast<size_t>(attachment.textureChannels_), 255.f);
-            }
-            break;
-        }
-
-        Utils::SaveImage(outputData, vec2ui(attachment.width_, attachment.height_),
-                         path + "/" + std::to_string(*GetAttachmentTexture(attachment.attachmentType)));
+        std::visit(visitor{[&](const std::vector<uint8>& outputData)
+                           {
+                               Utils::SaveImage(outputData, vec2ui(attachment.width_, attachment.height_),
+                                                path + "/" + std::to_string(*GetAttachmentTexture(attachment.attachmentType)));
+                           },
+                           [&](const std::vector<float>& outputData)
+                           {
+                               Utils::SaveImage(outputData,
+                                                vec3ui(attachment.width_, attachment.height_, attachment.textureChannels_),
+                                                path + "/" + std::to_string(*GetAttachmentTexture(attachment.attachmentType)));
+                           },
+                           [](std::monostate) { LOG_WARN << "Data get error."; }},
+                   GetAttachmentData(attachment));
     }
 }
 
@@ -254,8 +215,9 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         glAttachment.wrapMode_        = WrapMode.at(attachment.wrapMode);
 
         CreateGlAttachment(glAttachment);
-        LOG_DEBUG << "CreateGlAttachment glId = " << glAttachment.glId_ << ", format: " << magic_enum::enum_name(attachment.format)
-                  << ", type " << magic_enum::enum_name(attachment.type);
+        LOG_DEBUG << "CreateGlAttachment glId = " << glAttachment.glId_
+                  << ", format: " << magic_enum::enum_name(attachment.format) << ", type "
+                  << magic_enum::enum_name(attachment.type);
 
         auto errorString = GetGlError();
         if (not errorString.empty())
@@ -299,5 +261,112 @@ void FrameBuffer::CreateGlAttachment(FrameBuffer::GlAttachment& attachment)
 const vec2ui& FrameBuffer::GetSize() const
 {
     return size;
+}
+std::optional<Utils::Image> FrameBuffer::GetImage(IdType id) const
+{
+    for (auto [type, attachmentTextureId] : texturesIds_)
+    {
+        if (attachmentTextureId == id)
+        {
+            auto iter = std::find_if(attachments_.begin(), attachments_.end(),
+                                     [attachmentType = type](const auto& glAttachment)
+                                     { return (glAttachment.attachmentType == attachmentType); });
+
+            if (iter != attachments_.end())
+            {
+                const auto& attachment = *iter;
+                Utils::Image image;
+                image.width  = attachment.width_;
+                image.height = attachment.height_;
+                image.setChannels(attachment.textureChannels_);
+                std::visit(visitor{[&](const auto& outputData) { image.moveData(std::move(outputData)); },
+                                   [](std::monostate) { LOG_WARN << "Data get error."; }},
+                           GetAttachmentData(attachment));
+
+                return image;
+            }
+        }
+    }
+    return {};
+}
+std::variant<std::monostate, std::vector<uint8>, std::vector<float>> FrameBuffer::GetAttachmentData(
+    const GlAttachment& attachment) const
+{
+    glBindTexture(GL_TEXTURE_2D, attachment.glId_);
+
+    size_t dataSize = static_cast<size_t>(attachment.textureChannels_ * attachment.width_ * attachment.height_);
+    std::vector<uint8> outputData;
+    outputData.resize(static_cast<size_t>(4 * attachment.width_ * attachment.height_));
+
+    GLenum format{GL_RGBA};
+
+    if (attachment.bufferType_ == GL_DEPTH)
+    {
+        format = GL_DEPTH_COMPONENT;
+    }
+    else
+    {
+        switch (attachment.textureChannels_)
+        {
+            case 1:
+                format = GL_RED;
+                break;
+            case 2:
+                format = GL_RG;
+                break;
+            case 3:
+                format = GL_RGB;
+                break;
+            case 4:
+                format = GL_RGBA;
+                break;
+            default:
+                LOG_ERROR << "Undef format.";
+                return std::monostate{};
+        }
+    }
+
+    switch (attachment.dataType_)
+    {
+        case GL_UNSIGNED_BYTE:
+        {
+            std::vector<uint8> data;
+            data.resize(dataSize);
+            glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_BYTE, &data[0]);
+            Utils::ConvertImageData<uint8>(data, outputData, static_cast<size_t>(attachment.textureChannels_), 1);
+            return data;
+        }
+        break;
+        case GL_FLOAT:
+        {
+            std::vector<float> floatdata;
+            floatdata.resize(dataSize);
+            glGetTexImage(GL_TEXTURE_2D, 0, format, GL_FLOAT, &floatdata[0]);
+            Utils::ConvertImageData<float>(floatdata, outputData, static_cast<size_t>(attachment.textureChannels_), 255.f);
+            return floatdata;
+        }
+        break;
+    }
+    return std::monostate{};
+}
+std::optional<Utils::Image> FrameBuffer::GetImage(GraphicsApi::FrameBuffer::Type type) const
+{
+    auto iter = std::find_if(attachments_.begin(), attachments_.end(),
+                             [attachmentType = type](const auto& glAttachment)
+                             { return (glAttachment.attachmentType == attachmentType); });
+
+    if (iter == attachments_.end())
+        return std::nullopt;
+
+    const auto& attachment = *iter;
+    Utils::Image image;
+    image.width  = attachment.width_;
+    image.height = attachment.height_;
+    image.setChannels(attachment.textureChannels_);
+    std::visit(visitor{[&](const auto& outputData) { image.moveData(std::move(outputData)); },
+                       [](std::monostate) { LOG_WARN << "Data get error."; }},
+               GetAttachmentData(attachment));
+
+    return image;
 }
 }  // namespace OpenGLApi

@@ -1,9 +1,11 @@
 #include "TreeRendererComponent.h"
 
+#include <Logger/Log.h>
 #include <Utils/GLM/GLMUtils.h>
 #include <Utils/TreeNode.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
@@ -16,9 +18,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GraphicsApi/MeshRawData.h"
-#include "Logger/Log.h"
-#include "Logger/LoggingLvl.h"
-#include "magic_enum/magic_enum.hpp"
+#include "TreeUtils.h"
 
 namespace GameEngine
 {
@@ -101,7 +101,7 @@ TreeRendererComponent& TreeRendererComponent::SetModel(const File& file, LevelOf
     return *this;
 }
 
-TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr, GameEngine::LevelOfDetail i)
+TreeRendererComponent& TreeRendererComponent::SetGeneratedTrunkModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
     auto file = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".obj");
 
@@ -126,22 +126,23 @@ TreeRendererComponent& TreeRendererComponent::SetGeneratedModel(Model* modelPtr,
     return *this;
 }
 
+TreeRendererComponent& TreeRendererComponent::SetGeneratedLeafModel(Model* modelPtr, GameEngine::LevelOfDetail i)
+{
+    auto file = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".obj");
+    generatedModels.insert({i, modelPtr});
+    leafModel.Add(modelPtr, i);
+    return *this;
+}
+
 TreeRendererComponent& TreeRendererComponent::SetLeafPosition(const std::vector<Leaf>& positions)
 {
     leafPositions     = positions;
     leafPositionsFile = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".leafs");
-
-    if (isSubsribed_)
-    {
-        CreateLeafModel();
-    }
     return *this;
 }
 
 void TreeRendererComponent::Awake()
 {
-    CreateLeafModel();
-
     if (not worldTransformSub_)
     {
         worldTransformSub_ = thisObject_.SubscribeOnWorldTransfomChange(
@@ -344,59 +345,6 @@ const GraphicsApi::ID& TreeRendererComponent::GetPerInstancesBufferId() const
 const ModelWrapper& TreeRendererComponent::GetLeafModel() const
 {
     return leafModel;
-}
-void TreeRendererComponent::CreateLeafModel()
-{
-    if (not leafPositions.empty())
-    {
-        if (leafModel.Get())
-        {
-            LOG_DEBUG << "Leaf model will be overwritten.";
-
-            for (auto model : leafModel.PopModels())
-                componentContext_.resourceManager_.ReleaseModel(*model);
-        }
-
-        LOG_DEBUG << "Create leaf mesh";
-        GraphicsApi::MeshRawData data;
-        data.positions_.reserve(leafPositions.size() * 3);
-        data.textCoords_.reserve(leafPositions.size() * 2);
-        data.normals_.reserve(leafPositions.size() * 3);
-        data.tangents_.reserve(leafPositions.size() * 3);
-
-        for (const auto& leaf : leafPositions)
-        {
-            data.positions_.push_back(leaf.position.x);
-            data.positions_.push_back(leaf.position.y);
-            data.positions_.push_back(leaf.position.z);
-
-            data.textCoords_.push_back(leaf.sizeRandomness);
-            data.textCoords_.push_back(static_cast<float>(leaf.textureIndex));
-
-            data.normals_.push_back(leaf.direction.x);
-            data.normals_.push_back(leaf.direction.y);
-            data.normals_.push_back(leaf.direction.z);
-
-            data.tangents_.push_back(leaf.colorRandomness.x);
-            data.tangents_.push_back(leaf.colorRandomness.y);
-            data.tangents_.push_back(leaf.colorRandomness.z);
-
-        }
-
-        LOG_DEBUG << "Positons: " << data.positions_;
-        LOG_DEBUG << "Direction: " << data.normals_;
-
-        auto& resourceManager = componentContext_.resourceManager_;
-        auto model            = std::make_unique<GameEngine::Model>();
-        auto material         = leafMaterialTmp.value_or(Material{.diffuse = {vec3(0.8f, 0.8f, 0.8f)}});
-        model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, data, material));
-        leafModel.Add(model.get(), LevelOfDetail::L1);
-        resourceManager.AddModel(std::move(model));
-    }
-    else
-    {
-        LOG_DEBUG << "Leaf position vector is empty";
-    }
 }
 TreeRendererComponent& TreeRendererComponent::SetLeafMaterial(const Material& material)
 {

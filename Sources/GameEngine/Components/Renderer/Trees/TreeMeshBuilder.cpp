@@ -423,5 +423,12 @@ void TreeMeshBuilder::calculateLeafs()
             leafs.push_back(leaf);
         }
     }
+
+
+    LOG_DEBUG << "Leafs count " << leafs.size();
+}
+int TreeMeshBuilder::GetMaxBranchLvl() const
+{
+    return maxBranchLvl;
 }
 }  // namespace GameEngine

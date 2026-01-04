@@ -51,6 +51,7 @@ public:
     GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32 N) override;
     GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
+    void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height) override;
 
     void UpdateTexture(uint32, const vec2ui&, const Utils::Image&) override;
     void UpdateTexture(uint32, const Utils::Image&) override;
@@ -114,6 +115,8 @@ public:
     IFrameBuffer& GetDefaultFrameBuffer() override;
     IFrameBuffer& CreateFrameBuffer(const std::vector<GraphicsApi::FrameBuffer::Attachment>&) override;
     void DeleteFrameBuffer(IFrameBuffer&) override;
+
+    std::optional<Utils::Image> GetImage(IdType) const override;
 
 private:
     void CreateDebugNormalMesh(uint32, const GraphicsApi::MeshRawData&);
