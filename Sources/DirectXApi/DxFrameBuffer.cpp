@@ -36,4 +36,12 @@ const vec2ui& DxFrameBuffer::GetSize() const
     static vec2ui dummySize(0);
     return dummySize;
 }
+std::optional<Utils::Image> DxFrameBuffer::GetImage(IdType) const
+{
+    return std::optional<Utils::Image>();
+}
+std::optional<Utils::Image> DxFrameBuffer::GetImage(GraphicsApi::FrameBuffer::Type) const
+{
+    return std::optional<Utils::Image>();
+}
 }  // namespace DirectX

@@ -16,6 +16,8 @@ CommonId='{5ADAA6FD-1BB7-4369-825D-7777126B7817}'
 GameId='{68764853-a2a7-4c1a-97f3-95302edac572}'
 WxEditorId='{666240cc-cdf0-45de-bfcb-d198125748fe}'
 
+
+mkdir -p ../Solutions/VisualStudio
 #ge='GameEngine:'$gameEngineId':'$utilsId
 #./prepareSolution.sh name:id:dependID...:dependId...:..
 echo "Generate VisualStudio solution"

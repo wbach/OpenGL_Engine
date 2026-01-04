@@ -1,5 +1,6 @@
 #include "TreeGeneration.h"
 
+#include <GameEngine/Components/Renderer/Trees/Leaf.h>
 #include <GameEngine/Components/Renderer/Trees/Tree.h>
 #include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
 #include <GameEngine/Components/Renderer/Trees/TreeRendererComponent.h>
@@ -7,20 +8,19 @@
 #include <GameEngine/Resources/ITextureLoader.h>
 #include <GameEngine/Resources/Models/Material.h>
 #include <GameEngine/Resources/Models/MaterialPresets.h>
+#include <GameEngine/Resources/Models/ModelWrapper.h>
+#include <GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h>
+#include <GameEngine/Shaders/ShaderProgram.h>
 #include <wx/filepicker.h>
 #include <wx/spinctrl.h>
 #include <wx/wx.h>
 
+#include <GameEngine/Resources/IResourceManager.hpp>
 #include <memory>
 #include <optional>
 #include <vector>
 
-#include "Components/Renderer/Trees/Leaf.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include "Resources/IResourceManager.hpp"
-#include "Resources/Models/ModelWrapper.h"
-#include "Resources/ShaderBuffers/PerFrameBuffer.h"
-#include "Shaders/ShaderProgram.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
 
 namespace
@@ -498,43 +498,6 @@ void BindMaterial(GraphicsApi::IGraphicsApi& graphicsApi, const GameEngine::Mate
     BindMaterialTexture(graphicsApi, 5, material.opacityTexture, config.useOpacity);
     BindMaterialTexture(graphicsApi, 6, material.displacementTexture, config.useDisplacement);
 }
-
-// void GenereateClusterAtlasTexture(GraphicsApi::IGraphicsApi& graphicsApi, const TreeModel& treeModel)
-// {
-//     GameEngine::ShaderProgram leafsShader(graphicsApi, GraphicsApi::ShaderProgramType::TreeLeafs);
-//     GameEngine::ShaderProgram trunkShader(graphicsApi, GraphicsApi::ShaderProgramType::Entity);
-
-//     leafsShader.Init();
-//     trunkShader.Init();
-
-//     GameEngine::PerFrameBuffer perFrameBuffer;
-//     auto paramBufferId_ = graphicsApi.CreateShaderBuffer(1, sizeof(GameEngine::PerFrameBuffer), GraphicsApi::DrawFlag::Dynamic);
-
-//     trunkShader.Start();
-//     for (const auto& mesh : treeModel.trunkModel->GetMeshes())
-//     {
-//         if (mesh.GetGraphicsObjectId())
-//         {
-//             const auto& buffer = mesh.GetMaterialShaderBufferId();
-//             graphicsApi.BindShaderBuffer(*buffer);
-
-//             BindMaterial(graphicsApi, mesh.GetMaterial());
-//             graphicsApi.RenderMesh(*mesh.GetGraphicsObjectId());
-//         }
-//     }
-
-//     leafsShader.Start();
-//     for (const auto& mesh : treeModel.leafModel->GetMeshes())
-//     {
-//         if (not mesh.GetGraphicsObjectId())
-//         {
-//             continue;
-//         }
-//         BindMaterial(graphicsApi, mesh.GetMaterial());
-//         graphicsApi.RenderPoints(*mesh.GetGraphicsObjectId());
-//     }
-//     leafsShader.Stop();
-// }
 
 std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas* canvas, const TreeGenerationParams& params)
 {

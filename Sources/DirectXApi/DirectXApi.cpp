@@ -821,6 +821,9 @@ GraphicsApi::ID DirectXApi::CreateCubMapTexture(const std::array<Utils::Image, 6
     auto samplerId = impl_->GetSamplerState({filter, mimap});
     return impl_->AddTexture(shaderResourceView, samplerId);
 }
+void DirectXApi::CopyTexture(IdType src, IdType dst, uint32 width, uint32 height)
+{
+}
 void DirectXApi::UpdateTexture(uint32, const vec2ui &, const Utils::Image &)
 {
 }
@@ -1109,5 +1112,9 @@ const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32) const
 }
 void DirectXApi::TakeSnapshoot(const std::string &path) const
 {
+}
+std::optional<Utils::Image> DirectXApi::GetImage(IdType) const
+{
+    return std::optional<Utils::Image>();
 }
 }  // namespace DirectX
