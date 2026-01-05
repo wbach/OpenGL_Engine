@@ -13,8 +13,10 @@ layout (std140, align=16, binding=1) uniform PerFrame
 
 layout(std140, align=16, binding = 4) uniform LeafParams
 {
+    vec4 wind; // xyz -dir, w - strength
     vec4 fparams; // x - leafScale, y - leafOffset, z - bendAmount
     ivec4 atlasParams; // x - atlasSize, y - atlasIndex
+    float time;
 } leafParams;
 
 in VS_OUT
@@ -47,8 +49,23 @@ void EmitLeafVertex(vec3 pos, vec3 normal, vec2 uv)
     EmitVertex();
 }
 
+vec3 ComputeWindBend(float time, float leafPhase, vec3 windDir, float windStrength, float t)
+{
+    vec3 outwardDir = normalize(gs_in[0].worldDirection);
+    vec3 sideDir = normalize(cross(windDir, outwardDir)); // prostopadle do wiatru
+    float flutter = sin(time * 8.0 + leafPhase * 3.0) * windStrength * 0.2;
+    return windDir * windStrength * (t * t) +
+           sideDir * flutter * t;
+}
+
 void main()
 {
+    float leafPhase = dot(gs_in[0].worldPosition, vec3(0.13, 0.27, 0.19));
+    vec3 windDir = normalize(leafParams.wind.xyz);
+    float windStrength = leafParams.wind.w;
+    float sway = sin(leafParams.time * 1.5 + leafPhase) * windStrength;
+    vec3 windOffset = windDir * sway;
+
     float scale      = leafParams.fparams.x * gs_in[0].sizeRanfomness;
     float leafOffset = leafParams.fparams.y;
     float bendAmount = leafParams.fparams.z;
@@ -58,6 +75,7 @@ void main()
     
     // 2. Punkt bazowy liścia na powierzchni gałęzi
     vec3 leafBase = gs_in[0].worldPosition + outwardDir * leafOffset;
+    leafBase += windOffset * 0.1;
 
     // 3. Budujemy płaszczyznę liścia. 
     // Skoro outwardDir to kierunek "od gałęzi", to 'right' powinien być 
@@ -84,11 +102,14 @@ void main()
     verts[0] = leafBase - right * 0.5; 
     verts[1] = leafBase + right * 0.5;
     // Górna krawędź (koniec liścia) + bend
-    verts[2] = leafBase - right * 0.5 + up + bend;
-    verts[3] = leafBase + right * 0.5 + up + bend;
+    vec3 windTop = ComputeWindBend(leafParams.time, leafPhase, windDir, windStrength, 1.0);
+    verts[2] = leafBase - right * 0.5 + up + bend + windTop;
+    verts[3] = leafBase + right * 0.5 + up + bend + windTop;
 
     // Normalna dla oświetlenia (płaszczyzna liścia)
-    vec3 normal = normalize(cross(right, up));
+    vec3 bentUp = up + windTop;
+    vec3 normal = normalize(cross(right, bentUp));
+    //vec3 normal = normalize(cross(right, up));
 
     vec2 uvs[4] = vec2[](vec2(0,0), vec2(1,0), vec2(0,1), vec2(1,1));
 

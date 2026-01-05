@@ -24,8 +24,10 @@ layout (std140, align=16, binding=0) uniform PerApp
 
 layout(std140, align=16, binding = 4) uniform LeafParams
 {
-    vec4 fparams; // x -leafScale
+    vec4 wind; // xyz -dir, w - strength
+    vec4 fparams; // x - leafScale, y - leafOffset, z - bendAmount
     ivec4 atlasParams; // x - atlasSize, y - atlasIndex
+    float time;
 } leafParams;
 
 in GS_OUT

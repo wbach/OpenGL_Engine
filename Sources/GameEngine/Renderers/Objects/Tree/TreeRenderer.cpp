@@ -32,8 +32,10 @@ namespace
 {
 struct TreeParamBuffer
 {
+    AlignWrapper<vec4> wind;
     AlignWrapper<vec4> fprams;
     AlignWrapper<vec4i> atlasParams;
+    AlignWrapper<float> time;
 };
 }  // namespace
 TreeRenderer::TreeRenderer(RendererContext& context)
@@ -77,6 +79,10 @@ void TreeRenderer::render()
             if (paramBufferId_)
             {
                 TreeParamBuffer buffer;
+                static float windTime = 0.0f;
+                windTime += context_.time_.deltaTime / 2.f;
+                buffer.time   = windTime;
+                buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)), 0.4);
                 buffer.fprams = vec4{treeRendererComponent_->leafScale, 0, 0, 0};
                 buffer.atlasParams =
                     vec4i{treeRendererComponent_->leafTextureAtlasSize, treeRendererComponent_->leafTextureIndex, 0, 0};
