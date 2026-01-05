@@ -49,6 +49,21 @@ void Tree::prepareAttractors(size_t count, float radius)
 
     maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
 }
+void Tree::prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength)
+{
+    attractors.clear();
+    attractors.reserve(attractorsCount);
+
+    float maxAttractorDist = 0.f;
+    for (size_t i = 0; i < attractorsCount; i++)
+    {
+        attractors.push_back(Attractor{.position = randomPointInEllipsoid(crownRadii) + ellipsoidNoise(noiseStrength) +
+                                                   vec3(0, crownRadii.y + crownYOffset, 0)});
+        maxAttractorDist = std::max(maxAttractorDist, glm::distance(rootPosition, attractors.back().position));
+    }
+
+    maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
+}
 void Tree::clear()
 {
     zeroDirCount = 0;
@@ -172,6 +187,15 @@ vec3 Tree::randomPointInSphere(float radius)
 
     auto sinPhi = sinf(phi);
     return vec3(r * sinPhi * cosf(theta), r * sinPhi * sinf(theta), r * cosf(phi));
+}
+vec3 Tree::randomPointInEllipsoid(const vec3& radii)
+{
+    vec3 p = randomPointInSphere(1.f);
+    return p * radii;
+}
+vec3 Tree::ellipsoidNoise(float strength)
+{
+    return randomPointInSphere(strength);
 }
 void Tree::influanceBranchesByClosestAttractors()
 {

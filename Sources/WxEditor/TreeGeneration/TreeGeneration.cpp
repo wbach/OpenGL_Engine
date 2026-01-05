@@ -28,7 +28,7 @@ namespace
 struct TreeGenerationParams
 {
     size_t attractorsCount        = 400;
-    float crownRadius             = 10.f;
+    vec3 crownSize                = vec3{10.f, 6.f, 8.f};
     float trunkMaterialTiledScale = 2.f;
     float maxDistance{5.f};
     float minDistance{1.f};
@@ -131,7 +131,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
 
     // --- Basic params ---
     auto* attractorsCount = addSizeT("Attractors Count", initial.attractorsCount);
-    auto* crownRadius     = addFloat("Crown Radius", initial.crownRadius);
+    auto crownSize        = addVec3("Crown size", initial.crownSize);
     auto* tileScale       = addFloat("Trunk Tiled Scale", initial.trunkMaterialTiledScale);
     auto* maxDistance     = addFloat("SCA Max distance", initial.maxDistance);
     auto* minDistance     = addFloat("SCA Min distance", initial.minDistance);
@@ -203,7 +203,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         {
             // Basic
             attractorsCount->SetValue(static_cast<int>(defaults.attractorsCount));
-            crownRadius->SetValue(wxString::Format("%.4f", defaults.crownRadius));
+
             tileScale->SetValue(wxString::Format("%.4f", defaults.trunkMaterialTiledScale));
             maxDistance->SetValue(wxString::Format("%.4f", defaults.maxDistance));
             minDistance->SetValue(wxString::Format("%.4f", defaults.minDistance));
@@ -211,6 +211,10 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
             crownYOffset->SetValue(wxString::Format("%.4f", defaults.crownYOffset));
 
             // Vec3
+            crownSize.x->SetValue(wxString::Format("%.4f", defaults.crownSize.x));
+            crownSize.y->SetValue(wxString::Format("%.4f", defaults.crownSize.y));
+            crownSize.z->SetValue(wxString::Format("%.4f", defaults.crownSize.z));
+
             rootPosition.x->SetValue(wxString::Format("%.4f", defaults.rootPosition.x));
             rootPosition.y->SetValue(wxString::Format("%.4f", defaults.rootPosition.y));
             rootPosition.z->SetValue(wxString::Format("%.4f", defaults.rootPosition.z));
@@ -250,8 +254,12 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     // --- Odczyt wyników ---
     TreeGenerationParams out = initial;
 
-    out.attractorsCount         = attractorsCount->GetValue();
-    out.crownRadius             = wxAtof(crownRadius->GetValue());
+    out.attractorsCount = attractorsCount->GetValue();
+
+    out.crownSize.x = wxAtof(crownSize.x->GetValue());
+    out.crownSize.y = wxAtof(crownSize.y->GetValue());
+    out.crownSize.z = wxAtof(crownSize.z->GetValue());
+
     out.trunkMaterialTiledScale = wxAtof(tileScale->GetValue());
     out.maxDistance             = wxAtof(maxDistance->GetValue());
     out.minDistance             = wxAtof(minDistance->GetValue());
@@ -310,7 +318,12 @@ GameEngine::Tree GenerateTree(const TreeGenerationParams& params)
     tree.segmentLength = params.segmentLength;
     tree.crownYOffset  = params.crownYOffset;
 
-    tree.prepareAttractors(params.attractorsCount, params.crownRadius);
+    // spehere
+    // tree.prepareAttractors(params.attractorsCount, params.crownRadius);
+
+    // elips
+    auto noiseStrength = 0.05f - 0.15f * params.crownSize.y;
+    tree.prepareAttractors(params.attractorsCount, params.crownSize, noiseStrength);
 
     auto status = tree.build();
 
@@ -526,8 +539,12 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas
     auto trunkModelPtr = trunkModel.get();
     resourceManager.AddModel(std::move(trunkModel));
 
-    auto clusters  = CreateLeafsClusters(builder.GetLeafs());
-    auto leafModel = GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), clusters, leafMaterial);
+    // TO DO:
+    // auto clusters  = CreateLeafsClusters(builder.GetLeafs());
+    // auto leafModel = GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), clusters, leafMaterial);
+
+    auto leafModel =
+        GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), builder.GetLeafs(), leafMaterial);
 
     return TreeModel{.trunkModel = trunkModelPtr, .leafModel = leafModel};
 }

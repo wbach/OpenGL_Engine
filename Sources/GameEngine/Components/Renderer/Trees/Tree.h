@@ -17,6 +17,7 @@ public:
     std::optional<std::string> build();
 
     void prepareAttractors(size_t count, float radius);
+    void prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength);
     void clear();
 
     const std::list<Branch>& GetBranches() const;
@@ -27,6 +28,8 @@ private:
     void grow();
     Branch* closestBranch(Attractor& attractor);
     vec3 randomPointInSphere(float radius = 1.f);
+    vec3 randomPointInEllipsoid(const vec3&);
+    vec3 ellipsoidNoise(float strength);
     void influanceBranchesByClosestAttractors();
     void removeReachedAttractors();
     void recalculateAvarageBranchesDirctionsAndCreateNewBranches();
