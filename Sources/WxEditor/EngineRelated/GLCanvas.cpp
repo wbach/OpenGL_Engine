@@ -81,8 +81,10 @@ GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGa
 
 void GLCanvas::OnIdle(wxIdleEvent& event)
 {
-    if (!IsShownOnScreen())
+    if (!IsShownOnScreen() or not context)
         return;
+
+    SetCurrent(*context);
 
     const GLubyte* renderer = glGetString(GL_RENDERER);
     if (!renderer)
@@ -96,8 +98,8 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                            [&](int x, int y)
-                                                                            {
+                                                                    [&](int x, int y)
+                                                                    {
                                                                         if (GetHandle())
                                                                         {
                                                                             WarpPointer(x, y);
