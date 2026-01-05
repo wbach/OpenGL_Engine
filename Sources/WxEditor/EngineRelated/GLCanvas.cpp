@@ -33,6 +33,7 @@
 // clang-format off
 BEGIN_EVENT_TABLE(GLCanvas, wxGLCanvas)
 EVT_PAINT(GLCanvas::OnPaint)
+EVT_IDLE(GLCanvas::OnIdle)
 EVT_SHOW(GLCanvas::OnShow)
 EVT_TIMER(wxID_ANY, GLCanvas::OnTimer)
 EVT_KEY_DOWN(GLCanvas::OnKeyDown)
@@ -69,7 +70,6 @@ GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGa
     : wxGLCanvas(parent, wxID_ANY, wxGlAttributes, wxDefaultPosition, wxDefaultSize,
                  wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxTAB_TRAVERSAL)
     , context(nullptr)
-    , renderTimer(this)
     , startupSceneName{startupSceneName}
     , onStartupDone{onStartupDone}
     , selectItemInGameObjectTree(callback)
@@ -77,12 +77,79 @@ GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGa
     context = new wxGLContext(this);
     Bind(wxEVT_SIZE, &GLCanvas::OnSize, this);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
-    renderTimer.Start(16);
+}
+
+void GLCanvas::OnIdle(wxIdleEvent& event)
+{
+    if (!IsShownOnScreen())
+        return;
+
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    if (!renderer)
+    {
+        wxLogError("OpenGL context failed!");
+        return;
+    }
+
+    wxSize size = GetClientSize();
+    //  Engine.
+    if (not engine)
+    {
+        auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
+                                                                            [&](int x, int y)
+                                                                            {
+                                                                        if (GetHandle())
+                                                                        {
+                                                                            WarpPointer(x, y);
+                                                                        }
+                                                                    });
+        wxWindowApi               = windowApiPtr.get();
+        auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
+        wxSceneFactory            = wxEditorSceneFactory.get();
+
+        engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
+                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
+        engine->Init();
+
+        auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + startupSceneName);
+        dlg->Show();
+        engine->GetSceneManager().SetOnSceneLoadDone(
+            [this, loadingDialog = dlg]()
+            {
+                SetupCamera();
+                onStartupDone();
+                this->CallAfter([loadingDialog]() { loadingDialog->Close(); });
+            });
+
+        if (std::filesystem::exists(startupSceneName) && std::filesystem::is_regular_file(startupSceneName))
+        {
+            GameEngine::File file{startupSceneName};
+            const auto name = file.GetBaseName();
+            wxSceneFactory->AddScene(name, file);
+            engine->GetSceneManager().SetActiveScene(name);
+        }
+        else
+        {
+            engine->GetSceneManager().SetActiveScene(startupSceneName);
+        }
+    }
+    if (engine)
+    {
+        engine->MainLoop();
+    }
+
+    if (dragGameObject)
+    {
+        dragGameObject->Update();
+    }
+
+    SwapBuffers();
+
+    event.RequestMore();
 }
 
 GLCanvas::~GLCanvas()
 {
-    renderTimer.Stop();
     delete context;
 }
 
@@ -160,67 +227,6 @@ void GLCanvas::OnPaint(wxPaintEvent&)
 {
     wxPaintDC dc(this);
     SetCurrent(*context);
-
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    if (!renderer)
-    {
-        wxLogError("OpenGL context failed!");
-        return;
-    }
-
-    wxSize size = GetClientSize();
-    //  Engine.
-    if (not engine)
-    {
-        auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
-                                                                    [&](int x, int y)
-                                                                    {
-                                                                        if (GetHandle())
-                                                                        {
-                                                                            WarpPointer(x, y);
-                                                                        }
-                                                                    });
-        wxWindowApi               = windowApiPtr.get();
-        auto wxEditorSceneFactory = std::make_unique<WxEditor::WxEditorSceneFactory>();
-        wxSceneFactory            = wxEditorSceneFactory.get();
-
-        engine = std::make_unique<GameEngine::Engine>(std::make_unique<Bullet::BulletAdapter>(), std::move(wxEditorSceneFactory),
-                                                      std::make_unique<WxEditor::WxOpenGLApiWrapper>(std::move(windowApiPtr)));
-        engine->Init();
-
-        auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + startupSceneName);
-        dlg->Show();
-        engine->GetSceneManager().SetOnSceneLoadDone(
-            [this, loadingDialog = dlg]()
-            {
-                SetupCamera();
-                onStartupDone();
-                this->CallAfter([loadingDialog]() { loadingDialog->Close(); });
-            });
-
-        if (std::filesystem::exists(startupSceneName) && std::filesystem::is_regular_file(startupSceneName))
-        {
-            GameEngine::File file{startupSceneName};
-            const auto name = file.GetBaseName();
-            wxSceneFactory->AddScene(name, file);
-            engine->GetSceneManager().SetActiveScene(name);
-        }
-        else
-        {
-            engine->GetSceneManager().SetActiveScene(startupSceneName);
-        }
-    }
-    if (engine)
-    {
-        engine->MainLoop();
-    }
-
-    if (dragGameObject)
-    {
-        dragGameObject->Update();
-    }
-
-    SwapBuffers();
 }
 
 GameEngine::GameObject* GLCanvas::addPrimitive(GameEngine::PrimitiveType type, const vec3& pos, const vec3& scale)

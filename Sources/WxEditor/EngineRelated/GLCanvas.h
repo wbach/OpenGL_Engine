@@ -63,10 +63,10 @@ public:
     void SetCameraStartupPosition(const vec3&, const vec3&);
     GameEngine::CameraEditor* GetCameraEditor();
     bool IsSceneReady() const;
+    void OnIdle(wxIdleEvent&);
 
 private:
     wxGLContext* context;
-    wxTimer renderTimer;
     void SetCursorToCenter();
 
     void addContextMenu(wxMouseEvent&);
