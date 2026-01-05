@@ -1,54 +1,64 @@
 #pragma once
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <vector>
-#include "Types.h"
 
 namespace Utils
 {
 namespace Time
 {
-typedef std::function<void()> Callback;
-typedef std::vector<Callback> Callbacks;
-
 class CTimeMeasurer
 {
 public:
+    using int64  = std::int64_t;
+    using uint32 = std::uint32_t;
+
+    using Clock     = std::chrono::steady_clock;
+    using Timepoint = Clock::time_point;
+    using Callback  = std::function<void()>;
+
     CTimeMeasurer();
     CTimeMeasurer(uint32 lockFps, uint32 frequency = 1000);
     ~CTimeMeasurer();
-    void AddOnTickCallback(Callback);
+
+    double GetDeltaTime() const;
+    void setLockFps(uint32 lockFps);
+
+    int64 GetFps() const;
+
     void StartFrame();
     void EndFrame();
-    int64 GetFps() const;
-    double GetDeltaTime() const;
-    void setLockFps(uint32);
+
+    void AddOnTickCallback(Callback c);
     void clearCallbacks();
 
 private:
-    int64 CalculateTime(const Timepoint&, const Timepoint&) const;
-    void RunCallbacks() const;
+    int64 CalculateTime(const Timepoint& t1, const Timepoint& t2) const;
     void CalculateFpsAndCallIfTimeElapsed();
+    void RunCallbacks() const;
     void Lock();
-    void Sleep(int64 time);
 
 private:
-    bool vsync;
-    uint32 lockFps_;
-    int64 frequency_;
-    Callbacks callbacks_;
+    // timing
+    Timepoint currentTime_{};
+    Timepoint previousTime_{};
+    Timepoint nextFrameTime_{};
 
-private:
-    Timepoint currentTime_;
-    Timepoint previousTime_;
+    uint32 lockFps_{0};
 
-    int64 deltaTime_;
-    int64 frameTime_;
-    int64 periodTime_;
-    int64 fps_;
-    uint32 frameCount_;
-    int64 lockframeTime_;
+    int64 frequency_{0};       // ns
+    int64 frameTime_{0};       // ns
+    int64 periodTime_{0};      // ns
+    int64 lockframeTime_{0};   // ns
+    int64 deltaTime_{0};       // ns
+
+    std::chrono::nanoseconds frameDuration_{};
+
+    int64 fps_{0};
+    int64 frameCount_{0};
+
+    std::vector<Callback> callbacks_;
 };
-
-}  // namespace Time
-}  // namespace Utils
+} // namespace Time
+} // namespace Utils

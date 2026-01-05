@@ -1,40 +1,47 @@
 #include "TimeMeasurer.h"
 
 #include <chrono>
-#include <iostream>
 #include <thread>
-
-#include "Thread.hpp"
 
 namespace Utils
 {
 namespace Time
 {
-#define GetTime() std::chrono::high_resolution_clock::now()
-const int64 E9 = 1000000000;
-const int64 E6 = 1000000;
+
+using Clock       = std::chrono::steady_clock;
+using Nanoseconds = std::chrono::nanoseconds;
+
+static constexpr CTimeMeasurer::int64 E9 = 1'000'000'000;
 
 CTimeMeasurer::CTimeMeasurer()
     : CTimeMeasurer(60u, 1000u)
 {
 }
 
-// frequency in ms
 CTimeMeasurer::CTimeMeasurer(uint32 lockFps, uint32 frequency)
-    : vsync(lockFps > 0)
-    , lockFps_(lockFps)
-    , frequency_(frequency * E6)
-    , currentTime_(GetTime())
+    : lockFps_(lockFps)
+    , frequency_(static_cast<int64>(frequency) * 1'000'000)  // ms → ns
     , frameTime_(0)
     , periodTime_(0)
     , fps_(0)
     , frameCount_(0)
-    , lockframeTime_(vsync ? E9 / lockFps_ : 0)
 {
+    currentTime_  = Clock::now();
+    previousTime_ = currentTime_;
+
+    if (lockFps_ > 0)
+    {
+        lockframeTime_ = E9 / lockFps_;
+        frameDuration_ = Nanoseconds(lockframeTime_);
+        nextFrameTime_ = Clock::now() + frameDuration_;
+    }
+    else
+    {
+        lockframeTime_ = 0;
+    }
 }
-CTimeMeasurer::~CTimeMeasurer()
-{
-}
+
+CTimeMeasurer::~CTimeMeasurer() = default;
 
 double CTimeMeasurer::GetDeltaTime() const
 {
@@ -43,9 +50,18 @@ double CTimeMeasurer::GetDeltaTime() const
 
 void CTimeMeasurer::setLockFps(uint32 lockFps)
 {
-    vsync          = lockFps > 0;
-    lockFps_       = lockFps;
-    lockframeTime_ = vsync ? E9 / lockFps_ : 0;
+    lockFps_ = lockFps;
+
+    if (lockFps > 0)
+    {
+        lockframeTime_ = E9 / lockFps_;
+        frameDuration_ = Nanoseconds(lockframeTime_);
+        nextFrameTime_ = Clock::now() + frameDuration_;
+    }
+    else
+    {
+        lockframeTime_ = 0;
+    }
 }
 
 void CTimeMeasurer::clearCallbacks()
@@ -53,9 +69,9 @@ void CTimeMeasurer::clearCallbacks()
     callbacks_.clear();
 }
 
-int64 CTimeMeasurer::CalculateTime(const Timepoint& t1, const Timepoint& t2) const
+CTimeMeasurer::int64 CTimeMeasurer::CalculateTime(const Timepoint& t1, const Timepoint& t2) const
 {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t2).count();
+    return std::chrono::duration_cast<Nanoseconds>(t1 - t2).count();
 }
 
 void CTimeMeasurer::AddOnTickCallback(Callback c)
@@ -66,18 +82,19 @@ void CTimeMeasurer::AddOnTickCallback(Callback c)
 void CTimeMeasurer::StartFrame()
 {
     previousTime_ = currentTime_;
-    currentTime_  = GetTime();
-    deltaTime_    = CalculateTime(currentTime_, previousTime_);
+    currentTime_  = Clock::now();
+
+    deltaTime_ = CalculateTime(currentTime_, previousTime_);
     CalculateFpsAndCallIfTimeElapsed();
 }
 
 void CTimeMeasurer::EndFrame()
 {
-    frameTime_ = CalculateTime(GetTime(), currentTime_);
+    frameTime_ = CalculateTime(Clock::now(), currentTime_);
     Lock();
 }
 
-int64 CTimeMeasurer::GetFps() const
+CTimeMeasurer::int64 CTimeMeasurer::GetFps() const
 {
     return fps_;
 }
@@ -96,40 +113,33 @@ void CTimeMeasurer::CalculateFpsAndCallIfTimeElapsed()
     if (periodTime_ < frequency_)
         return;
 
-    fps_        = frameCount_ * E9 / frequency_;
+    fps_ = frameCount_ * E9 / periodTime_;
+
     frameCount_ = 0;
     periodTime_ = 0;
+
     RunCallbacks();
-}
-
-void CTimeMeasurer::Sleep(int64 time)
-{
-    auto startTime = GetTime();
-
-    auto mili = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::nanoseconds(time - E6));
-
-    if (mili.count() > 0)
-    {
-        std::this_thread::sleep_for(mili);
-    }
-
-    while (true)
-    {
-        auto duration = CalculateTime(GetTime(), startTime);
-        if (duration > time)
-            return;
-    }
 }
 
 void CTimeMeasurer::Lock()
 {
-    if (not vsync)
-        return;
-
-    if (lockframeTime_ > frameTime_)
+    if (lockFps_ == 0)
     {
-        Sleep(lockframeTime_ - frameTime_);
+        return;
     }
+
+    auto now = Clock::now();
+
+    if (now < nextFrameTime_)
+    {
+        std::this_thread::sleep_until(nextFrameTime_);
+    }
+    else
+    {
+        nextFrameTime_ = now;
+    }
+
+    nextFrameTime_ += frameDuration_;
 }
 
 }  // namespace Time

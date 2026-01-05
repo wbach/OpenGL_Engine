@@ -6,6 +6,7 @@
 #include "GraphicsApi/WindowType.h"
 #include "Time/TimeMeasurer.h"
 #include "Utils.h"
+#include <Types.h>
 
 namespace Input
 {
