@@ -98,6 +98,7 @@ TreeRendererComponent& TreeRendererComponent::SetModel(const File& file, LevelOf
     auto modelPtr = componentContext_.resourceManager_.LoadModel(file);
     thisObject_.TakeWorldTransfromSnapshot();
     model.Add(modelPtr, i);
+    UpdateBoundingBox();
     return *this;
 }
 
@@ -241,8 +242,17 @@ void TreeRendererComponent::registerReadFunctions()
                 if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
                 {
                     const auto& filename = fileNameNode->value_;
-                    auto lod             = static_cast<LevelOfDetail>(std::stoi(lvlOfDetailNode->value_));
-                    component->SetModel(filename, lod);
+                    try
+                    {
+                        if (auto lod = magic_enum::enum_cast<LevelOfDetail>(lvlOfDetailNode->value_))
+                        {
+                            component->SetModel(filename, *lod);
+                        }
+                    }
+                    catch (...)
+                    {
+                        LOG_DEBUG << "lod read error. Lod str value = " << lvlOfDetailNode->value_;
+                    }
                 }
             }
         }

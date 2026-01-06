@@ -34,37 +34,37 @@ aiMaterial* CreateAiMaterialFromGameMaterial(const Material& mat)
 
     if (mat.baseColorTexture && mat.baseColorTexture->GetFile().has_value())
     {
-        aiString texPath(mat.baseColorTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.baseColorTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_DIFFUSE(0));
     }
     if (mat.normalTexture && mat.normalTexture->GetFile().has_value())
     {
-        aiString texPath(mat.normalTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.normalTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_NORMALS(0));
     }
     if (mat.metallicTexture && mat.metallicTexture->GetFile().has_value())
     {
-        aiString texPath(mat.metallicTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.metallicTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SPECULAR(0));
     }
     if (mat.roughnessTexture && mat.roughnessTexture->GetFile().has_value())
     {
-        aiString texPath(mat.roughnessTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.roughnessTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_SHININESS(0));
     }
     if (mat.ambientOcclusionTexture && mat.ambientOcclusionTexture->GetFile().has_value())
     {
-        aiString texPath(mat.ambientOcclusionTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.ambientOcclusionTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_AMBIENT(0));
     }
     if (mat.opacityTexture && mat.opacityTexture->GetFile().has_value())
     {
-        aiString texPath(mat.opacityTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.opacityTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_OPACITY(0));
     }
     if (mat.displacementTexture && mat.displacementTexture->GetFile().has_value())
     {
-        aiString texPath(mat.displacementTexture->GetFile()->GetAbsolutePath().string());
+        aiString texPath(mat.displacementTexture->GetFile()->GetDataRelativePath().string());
         aiMat->AddProperty(&texPath, AI_MATKEY_TEXTURE_HEIGHT(0));
     }
     return aiMat;
@@ -85,7 +85,7 @@ void AddBonesToMesh(aiMesh* mesh, const GraphicsApi::MeshRawData& src, size_t ma
         int boneId        = uniqueBoneIds[i];
         aiBone* bone      = new aiBone();
         bone->mName       = aiString("Bone_" + std::to_string(boneId));
-        bone->mNumWeights = static_cast<unsigned int>(vertexCount);  // wagi na wszystkich wierzchołkach
+        bone->mNumWeights = static_cast<unsigned int>(vertexCount);
         bone->mWeights    = new aiVertexWeight[vertexCount];
 
         for (size_t v = 0; v < vertexCount; ++v)
@@ -216,7 +216,7 @@ bool ExportModel(const Model& model, const File& file)
     aiScene* scene = CreateSceneFromModel(model);
 
     Assimp::Exporter exporter;
-    aiReturn result = exporter.Export(scene, format, file.GetAbsolutePath().string());
+    aiReturn result = exporter.Export(scene, format, file.GetDataRelativePath().string());
 
     delete scene;
 

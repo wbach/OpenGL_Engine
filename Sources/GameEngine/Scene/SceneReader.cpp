@@ -1,5 +1,7 @@
 #include "SceneReader.h"
 
+#include <Utils/TreeNode.h>
+
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Objects/Prefab.h"
@@ -10,7 +12,6 @@
 #include "Utils.h"
 #include "Utils/XML/XMLUtils.h"
 #include "Utils/XML/XmlReader.h"
-#include <Utils/TreeNode.h>
 
 using namespace Utils;
 
@@ -67,6 +68,11 @@ void SceneReader::readNode(const TreeNode& node)
     {
         for (const auto& gameObjectNode : maybeGameObjectsNode->getChildren())
         {
+            if (not gameObjectNode)
+            {
+                LOG_WARN << "Null child !";
+                continue;
+            }
             if (gameObjectNode->name() == CSTR_GAMEOBJECT)
             {
                 LOG_DEBUG << "read gameobject";
