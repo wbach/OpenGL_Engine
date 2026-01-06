@@ -193,7 +193,7 @@ int TreeRenderer::RenderSingleTree(const Components::TreeRendererComponent& tree
         lvl = LevelOfDetail::L2;
     }
 
-    if (auto model = treeRendererComponent.GetModel().Get(lvl))
+    if (auto model = treeRendererComponent.GetTrunkModel().Get(lvl))
     {
         renderedCount += RenderModel(*model);
     }
@@ -211,7 +211,7 @@ int TreeRenderer::RenderInstancedTree(const Components::TreeRendererComponent& t
         context_.graphicsApi_.BindShaderBuffer(*perInstance);
     }
 
-    if (auto model = treeRendererComponent.GetModel().Get(LevelOfDetail::L1))
+    if (auto model = treeRendererComponent.GetTrunkModel().Get(LevelOfDetail::L1))
     {
         renderedCount += RenderModel(*model, treeRendererComponent.GetInstancesSize());
     }

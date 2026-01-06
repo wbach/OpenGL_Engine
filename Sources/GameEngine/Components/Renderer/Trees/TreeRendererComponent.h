@@ -28,10 +28,12 @@ public:
     int leafTextureIndex;
     File leafMaterial;
     File trunkMaterial;
-    File leafPositionsFile;
-    File modelLod1;
-    File modelLod2;
-    File modelLod3;
+    File leafModelFileLod1;
+    File leafModelFileLod2;
+    File leafModelFileLod3;
+    File trunkModelLod1;
+    File trunkModelLod2;
+    File trunkModelLod3;
 
     // clang-format off
     BEGIN_FIELDS()
@@ -40,10 +42,12 @@ public:
         FIELD_INT(leafTextureIndex)
         FIELD_MATERIAL(leafMaterial)
         FIELD_MATERIAL(trunkMaterial)
-        FIELD_FILE(leafPositionsFile)
-        FIELD_FILE(modelLod1)
-        FIELD_FILE(modelLod2)
-        FIELD_FILE(modelLod3)
+        FIELD_FILE(leafModelFileLod1)
+        FIELD_FILE(leafModelFileLod2)
+        FIELD_FILE(leafModelFileLod3)
+        FIELD_FILE(trunkModelLod1)
+        FIELD_FILE(trunkModelLod2)
+        FIELD_FILE(trunkModelLod3)
     END_FIELDS()
     // clang-format on
 
@@ -51,9 +55,9 @@ public:
     TreeRendererComponent(ComponentContext&, GameObject&);
     TreeRendererComponent& SetGeneratedTrunkModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetGeneratedLeafModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
-    TreeRendererComponent& SetModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    TreeRendererComponent& SetTrunkModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    TreeRendererComponent& SetLeafModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
-    TreeRendererComponent& SetLeafPosition(const std::vector<Leaf>&);
     TreeRendererComponent& SetLeafMaterial(const Material&);
 
     void CleanUp() override;
@@ -63,7 +67,7 @@ public:
     void AddLeafClusterTexture(Material&, GraphicsApi::ID);
 
     const ModelWrapper& GetLeafModel() const;
-    const ModelWrapper& GetModel() const;
+    const ModelWrapper& GetTrunkModel() const;
     uint32 GetInstancesSize() const;
     const std::vector<vec3>& GetInstancesPositions() const;
 
@@ -84,8 +88,7 @@ private:
     void DeleteShaderBuffers();
 
 private:
-    std::vector<Leaf> leafPositions;
-    ModelWrapper model;
+    ModelWrapper trunkModel;
     ModelWrapper leafModel;
 
     std::vector<vec3> instancesPositions_;

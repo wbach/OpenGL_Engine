@@ -379,7 +379,7 @@ void DebugRenderer::subscribe(GameObject& gameObject)
     if (trc)
     {
         meshDebugInfoSubscribers_.insert(
-            {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = trc->GetModel(), .component = trc}});
+            {gameObject.GetId(), {.gameObject = gameObject, .modelWrapper = trc->GetTrunkModel(), .component = trc}});
     }
 }
 

@@ -102,7 +102,7 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
         }
         else
         {
-            model = treeRenderComponent->GetModel().Get(LevelOfDetail::L1);
+            model = treeRenderComponent->GetTrunkModel().Get(LevelOfDetail::L1);
         }
 
         if (model)

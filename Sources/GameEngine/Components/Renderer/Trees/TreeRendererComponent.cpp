@@ -26,9 +26,9 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_FILENAMES[]              = "modelFileNames";
-constexpr char CSTR_LEAFS_POSITON_FILENAME[] = "leafPositionFile";
-constexpr char CSTR_INSTANCES_POSITIONS[]    = "insatncesPositions";
+constexpr char CSTR_TRUNK_FILENAMES[]     = "trunkModelFileNames";
+constexpr char CSTR_LEAFS_FILENAMES[]     = "leafModelFileNames";
+constexpr char CSTR_INSTANCES_POSITIONS[] = "insatncesPositions";
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -77,7 +77,7 @@ TreeRendererComponent& TreeRendererComponent::SetInstancesPositions(const std::v
     instancesPositions_ = positions;
     return *this;
 }
-TreeRendererComponent& TreeRendererComponent::SetModel(const File& file, LevelOfDetail i)
+TreeRendererComponent& TreeRendererComponent::SetTrunkModel(const File& file, LevelOfDetail i)
 {
     if (file.empty())
         return *this;
@@ -85,60 +85,97 @@ TreeRendererComponent& TreeRendererComponent::SetModel(const File& file, LevelOf
     switch (i)
     {
         case LevelOfDetail::L1:
-            modelLod1 = file;
+            trunkModelLod1 = file;
             break;
         case LevelOfDetail::L2:
-            modelLod2 = file;
+            trunkModelLod2 = file;
             break;
         case LevelOfDetail::L3:
-            modelLod3 = file;
+            trunkModelLod3 = file;
             break;
     }
 
+    LOG_DEBUG << "SetTrunkModel " << magic_enum::enum_name(i) << ", file: " << file;
+
     auto modelPtr = componentContext_.resourceManager_.LoadModel(file);
+
+    LOG_DEBUG << "SetTrunkModel load done " << magic_enum::enum_name(i) << ", file: " << file;
     thisObject_.TakeWorldTransfromSnapshot();
-    model.Add(modelPtr, i);
+    trunkModel.Add(modelPtr, i);
     UpdateBoundingBox();
     return *this;
 }
 
 TreeRendererComponent& TreeRendererComponent::SetGeneratedTrunkModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    auto file = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".obj");
+    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeTrunk_" + Utils::CreateUniqueFilename() + ".obj");
 
     switch (i)
     {
         case LevelOfDetail::L1:
-            modelLod1 = file;
+            trunkModelLod1 = file;
             break;
         case LevelOfDetail::L2:
-            modelLod2 = file;
+            trunkModelLod2 = file;
             break;
         case LevelOfDetail::L3:
-            modelLod3 = file;
+            trunkModelLod3 = file;
             break;
     }
 
     generatedModels.insert({i, modelPtr});
 
-    model.Add(modelPtr, i);
+    trunkModel.Add(modelPtr, i);
     UpdateBoundingBox();
-
     return *this;
 }
 
 TreeRendererComponent& TreeRendererComponent::SetGeneratedLeafModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    auto file = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".obj");
+    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".obj");
+    switch (i)
+    {
+        case LevelOfDetail::L1:
+            leafModelFileLod1 = file;
+            break;
+        case LevelOfDetail::L2:
+            leafModelFileLod2 = file;
+            break;
+        case LevelOfDetail::L3:
+            leafModelFileLod3 = file;
+            break;
+    }
+
     generatedModels.insert({i, modelPtr});
     leafModel.Add(modelPtr, i);
     return *this;
 }
 
-TreeRendererComponent& TreeRendererComponent::SetLeafPosition(const std::vector<Leaf>& positions)
+TreeRendererComponent& TreeRendererComponent::SetLeafModel(const File& file, LevelOfDetail i)
 {
-    leafPositions     = positions;
-    leafPositionsFile = EngineConf.files.getGeneratedDirPath() / ("Tree_" + Utils::CreateUniqueFilename() + ".leafs");
+    if (file.empty())
+        return *this;
+
+    switch (i)
+    {
+        case LevelOfDetail::L1:
+            leafModelFileLod1 = file;
+            break;
+        case LevelOfDetail::L2:
+            leafModelFileLod2 = file;
+            break;
+        case LevelOfDetail::L3:
+            leafModelFileLod3 = file;
+            break;
+    }
+
+    LOG_DEBUG << "SetLeafModel " << magic_enum::enum_name(i) << ", file: " << file;
+
+    auto modelPtr = componentContext_.resourceManager_.LoadModel(file);
+
+    LOG_DEBUG << "SetLeafModel  load done" << magic_enum::enum_name(i) << ", file: " << file;
+    leafModel.Add(modelPtr, i);
+    UpdateBoundingBox();
     return *this;
 }
 
@@ -209,7 +246,7 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
 }
 void TreeRendererComponent::ReleaseModels()
 {
-    for (auto model : model.PopModels())
+    for (auto model : trunkModel.PopModels())
         componentContext_.resourceManager_.ReleaseModel(*model);
 
     LOG_DEBUG << "Release leafModels ";
@@ -232,30 +269,36 @@ void TreeRendererComponent::registerReadFunctions()
     {
         auto component = std::make_unique<TreeRendererComponent>(componentContext, gameObject);
 
-        if (auto filesNode = node.getChild(CSTR_FILENAMES))
+        auto setModelFiles = [&](const std::string& nodeName, std::function<void(const File& file, LevelOfDetail i)> setModel)
         {
-            for (const auto& fileNode : filesNode->getChildren())
+            if (auto filesNode = node.getChild(nodeName))
             {
-                auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
-                auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
-
-                if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
+                for (const auto& fileNode : filesNode->getChildren())
                 {
-                    const auto& filename = fileNameNode->value_;
-                    try
+                    auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
+                    auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
+
+                    if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
                     {
-                        if (auto lod = magic_enum::enum_cast<LevelOfDetail>(lvlOfDetailNode->value_))
+                        const auto& filename = fileNameNode->value_;
+                        try
                         {
-                            component->SetModel(filename, *lod);
+                            if (auto lod = magic_enum::enum_cast<LevelOfDetail>(lvlOfDetailNode->value_))
+                            {
+                                setModel(filename, *lod);
+                            }
                         }
-                    }
-                    catch (...)
-                    {
-                        LOG_DEBUG << "lod read error. Lod str value = " << lvlOfDetailNode->value_;
+                        catch (...)
+                        {
+                            LOG_DEBUG << "lod read error. Lod str value = " << lvlOfDetailNode->value_;
+                        }
                     }
                 }
             }
-        }
+        };
+
+        setModelFiles(CSTR_TRUNK_FILENAMES, [&](const File& file, LevelOfDetail i) { component->SetTrunkModel(file, i); });
+        setModelFiles(CSTR_LEAFS_FILENAMES, [&](const File& file, LevelOfDetail i) { component->SetLeafModel(file, i); });
 
         if (auto instancesNode = node.getChild(CSTR_INSTANCES_POSITIONS))
         {
@@ -269,12 +312,7 @@ void TreeRendererComponent::registerReadFunctions()
                 component->instancesPositions_.push_back(position);
             }
         }
-
-        if (auto leafsFileNode = node.getChild(CSTR_LEAFS_POSITON_FILENAME))
-        {
-            component->leafPositionsFile = leafsFileNode->value_;
-        }
-
+        LOG_DEBUG << "Read done";
         return component;
     };
 
@@ -285,11 +323,11 @@ void TreeRendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
-    auto& filenames = node.addChild(CSTR_FILENAMES);
+    auto& trunkFilenames = node.addChild(CSTR_TRUNK_FILENAMES);
 
-    auto addModelNode = [this, &filenames](const File& file, LevelOfDetail lvl)
+    auto addModelNode = [](TreeNode& node, const ModelWrapper& model, const File& file, LevelOfDetail lvl)
     {
-        auto& lvl1Node = filenames.addChild(CSTR_MODEL_FILE_NAME);
+        auto& lvl1Node = node.addChild(CSTR_MODEL_FILE_NAME);
         lvl1Node.addChild(CSTR_FILE_NAME, file.GetDataRelativePath());
         lvl1Node.addChild(CSTR_MODEL_LVL_OF_DETAIL, magic_enum::enum_name(lvl));
 
@@ -300,11 +338,14 @@ void TreeRendererComponent::write(TreeNode& node) const
         }
     };
 
-    addModelNode(modelLod1, LevelOfDetail::L1);
-    addModelNode(modelLod2, LevelOfDetail::L2);
-    addModelNode(modelLod3, LevelOfDetail::L3);
+    addModelNode(trunkFilenames, trunkModel, trunkModelLod1, LevelOfDetail::L1);
+    addModelNode(trunkFilenames, trunkModel, trunkModelLod2, LevelOfDetail::L2);
+    addModelNode(trunkFilenames, trunkModel, trunkModelLod3, LevelOfDetail::L3);
 
-    ::write(node.addChild(CSTR_LEAFS_POSITON_FILENAME), leafPositionsFile.GetDataRelativePath());
+    auto& leafsFilenames = node.addChild(CSTR_LEAFS_FILENAMES);
+    addModelNode(leafsFilenames, leafModel, leafModelFileLod1, LevelOfDetail::L1);
+    addModelNode(leafsFilenames, leafModel, leafModelFileLod2, LevelOfDetail::L2);
+    addModelNode(leafsFilenames, leafModel, leafModelFileLod3, LevelOfDetail::L3);
 
     if (not instancesPositions_.empty())
     {
@@ -315,9 +356,9 @@ void TreeRendererComponent::write(TreeNode& node) const
         }
     }
 }
-const ModelWrapper& TreeRendererComponent::GetModel() const
+const ModelWrapper& TreeRendererComponent::GetTrunkModel() const
 {
-    return model;
+    return trunkModel;
 }
 const std::vector<vec3>& TreeRendererComponent::GetInstancesPositions() const
 {
@@ -325,7 +366,8 @@ const std::vector<vec3>& TreeRendererComponent::GetInstancesPositions() const
 }
 void TreeRendererComponent::UpdateBoundingBox()
 {
-    auto modelPtr = model.Get();
+    // TO DO : calculate leafmodel +  trunkModel
+    auto modelPtr = trunkModel.Get();
 
     if (not modelPtr)
         return;
