@@ -95,10 +95,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/CharacterControlle
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/BaseComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Components/Particles/ParticleEffectComponentTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/AssimpLoaderTests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/ColladaLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/TextureLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/GpuResourceLoaderTest.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Resources/WaveFrontObjLoaderTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Gui/GuiManagerTests.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/FileTest.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Tests/UT/Physics/ShapeAndRigidbodyTests.cpp

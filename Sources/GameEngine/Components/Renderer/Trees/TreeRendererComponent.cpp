@@ -14,7 +14,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/WBLoader/Assimp/AssimpExporter.h"
+#include "GameEngine/Resources/Models/Loaders/Assimp/AssimpExporter.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GraphicsApi/MeshRawData.h"

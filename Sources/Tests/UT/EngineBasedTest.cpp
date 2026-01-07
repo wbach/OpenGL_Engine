@@ -5,7 +5,7 @@
 
 #include "GameEngine/Components/Camera/CameraComponent.h"
 #include "GameEngine/Engine/EngineContext.h"
-#include "GameEngine/Resources/Models/WBLoader/IModelLoaderFactory.h"
+#include "GameEngine/Resources/Models/IModelLoaderFactory.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "Logger/Log.h"
 #include "Tests/Mocks/Physics/PhysicsApiMock.h"

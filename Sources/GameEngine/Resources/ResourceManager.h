@@ -7,8 +7,8 @@
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "IResourceManager.hpp"
 #include "Models/Model.h"
-#include "Models/WBLoader/IModelLoaderFactory.h"
-#include "Models/WBLoader/LoaderManager.h"
+#include "Models/IModelLoaderFactory.h"
+#include "Models/LoaderManager.h"
 #include "ResourceInfo.h"
 
 namespace GameEngine

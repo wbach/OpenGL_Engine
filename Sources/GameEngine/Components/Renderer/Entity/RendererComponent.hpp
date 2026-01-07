@@ -9,7 +9,7 @@
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
+#include "GameEngine/Resources/Models/LoadingParameters.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "Types.h"

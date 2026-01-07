@@ -3,7 +3,7 @@
 
 #include "GameEngine/Resources/Models/Material.h"
 #include "Models/Primitives.h"
-#include "Models/WBLoader/LoadingParameters.h"
+#include "Models/LoadingParameters.h"
 
 namespace GraphicsApi
 {

@@ -1,4 +1,4 @@
-#include <GameEngine/Resources/Models/WBLoader/Assimp/AssimpLoader.h>
+#include <GameEngine/Resources/Models/Loaders/Assimp/AssimpLoader.h>
 #include <Logger/Log.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -107,7 +107,7 @@ struct AssimpLoaderShould : public ::testing::Test
     {
         EXPECT_CALL(textureLoaderMock_, GetGraphicsApi()).WillRepeatedly(ReturnRef(graphicsApiMock_));
 
-        sut_ = std::make_unique<WBLoader::AssimpLoader>(textureLoaderMock_);
+        sut_ = std::make_unique<AssimpLoader>(textureLoaderMock_);
     }
 
     void PrintJoints(const GameEngine::Animation::Joint& joint, const std::string& of = "")
@@ -134,7 +134,7 @@ struct AssimpLoaderShould : public ::testing::Test
 
     GraphicsApi::GraphicsApiMock graphicsApiMock_;
     TextureLoaderMock textureLoaderMock_;
-    std::unique_ptr<WBLoader::AssimpLoader> sut_;
+    std::unique_ptr<AssimpLoader> sut_;
 };
 TEST_F(AssimpLoaderShould, DISABLED_ReadSimpleCube)
 {

@@ -21,7 +21,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/WBLoader/LoadingParameters.h"
+#include "GameEngine/Resources/Models/LoadingParameters.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"

@@ -1,6 +1,6 @@
 #include "ResourceManagerFactory.h"
 
-#include "Models/WBLoader/ModelLoaderFactory.h"
+#include "Models/ModelLoaderFactory.h"
 #include "ResourceManager.h"
 #include "TextureLoader.h"
 

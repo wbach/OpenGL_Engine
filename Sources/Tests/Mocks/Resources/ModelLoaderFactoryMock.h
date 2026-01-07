@@ -1,6 +1,6 @@
 #pragma once
-#include <GameEngine/Resources/Models/WBLoader/AbstractLoader.h>
-#include <GameEngine/Resources/Models/WBLoader/IModelLoaderFactory.h>
+#include <GameEngine/Resources/Models/AbstractLoader.h>
+#include <GameEngine/Resources/Models/IModelLoaderFactory.h>
 #include <gmock/gmock.h>
 
 namespace GameEngine
@@ -11,10 +11,10 @@ public:
     MOCK_METHOD(LoadersVector, createLoaders, (), (const, override));
 };
 
-class LoaderMock : public WBLoader::AbstractLoader
+class LoaderMock : public AbstractLoader
 {
 public:
-    using WBLoader::AbstractLoader::AbstractLoader;
+    using AbstractLoader::AbstractLoader;
 
     MOCK_METHOD(bool, CheckExtension, (const File&), (override));
     MOCK_METHOD(bool, ParseFile, (const File&), (override));

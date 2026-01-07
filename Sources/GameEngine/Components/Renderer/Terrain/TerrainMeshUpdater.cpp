@@ -9,7 +9,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/WBLoader/Terrain/TerrainMeshLoader.h"
+#include "GameEngine/Resources/Models/Loaders/Terrain/TerrainMeshLoader.h"
 #include "GameEngine/Resources/Textures/HeightMap.h"
 
 namespace GameEngine
@@ -33,7 +33,7 @@ TerrainMeshUpdater::~TerrainMeshUpdater()
 void TerrainMeshUpdater::create()
 {
     LOG_DEBUG << "Create terrain mesh : " << heightMap_.GetFile();
-    WBLoader::TerrainMeshLoader loader(resourceManager_.GetTextureLoader());
+    TerrainMeshLoader loader(resourceManager_.GetTextureLoader());
     auto newModel = loader.createModel(heightMap_, EngineConf.renderer.terrain.meshPartsCount);
 
     if (heightMap_.GetFile())
