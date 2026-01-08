@@ -14,7 +14,7 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/Loaders/Assimp/AssimpExporter.h"
+#include "GameEngine/Resources/Models/Loaders/Binary/BinaryExporter.h"
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GraphicsApi/MeshRawData.h"
@@ -108,7 +108,7 @@ TreeRendererComponent& TreeRendererComponent::SetTrunkModel(const File& file, Le
 
 TreeRendererComponent& TreeRendererComponent::SetGeneratedTrunkModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeTrunk_" + Utils::CreateUniqueFilename() + ".obj");
+    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeTrunk_" + Utils::CreateUniqueFilename() + ".bin");
 
     switch (i)
     {
@@ -132,7 +132,7 @@ TreeRendererComponent& TreeRendererComponent::SetGeneratedTrunkModel(Model* mode
 
 TreeRendererComponent& TreeRendererComponent::SetGeneratedLeafModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".obj");
+    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".bin");
     switch (i)
     {
         case LevelOfDetail::L1:
@@ -334,7 +334,8 @@ void TreeRendererComponent::write(TreeNode& node) const
         const Model* modelPtr = model.Get(lvl);
         if (modelPtr and not file.exist())
         {
-            ExportModel(*modelPtr, file);
+            //ExportModel(*modelPtr, file);
+            ExportModelBinary(*modelPtr, file.GetAbsolutePath());
         }
     };
 

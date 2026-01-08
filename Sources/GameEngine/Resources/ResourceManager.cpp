@@ -158,7 +158,7 @@ Primitive* ResourceManager::GetPrimitives(PrimitiveType type, const Material& ma
 
     auto model    = std::make_unique<GameEngine::Primitive>(type);
     auto modelPtr = model.get();
-    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, primitiveData, material));
+    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, graphicsApi_, std::move(primitiveData), material));
 
     ResourceInfo<Model> modelInfo;
     modelInfo.resource_ = std::move(model);

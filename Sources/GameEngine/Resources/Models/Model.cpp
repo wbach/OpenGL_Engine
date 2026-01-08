@@ -22,11 +22,10 @@ void Model::SetFile(const File& file)
 }
 
 Model::Model(Model&& other) noexcept
-    : GpuObject(std::move(other))  // przeniesienie bazy
+    : GpuObject(std::move(other))
     , animationClips_(std::move(other.animationClips_))
     , file_(std::move(other.file_))
     , meshes_(std::move(other.meshes_))
-    , boneTransforms_(std::move(other.boneTransforms_))
     , boundingBox_(std::move(other.boundingBox_))
     , skeleton_(std::move(other.skeleton_))
     , normalizedFactor(other.normalizedFactor)
@@ -35,7 +34,6 @@ Model::Model(Model&& other) noexcept
 
     other.normalizedFactor = 1.0f;
     other.meshes_.clear();
-    other.boneTransforms_.clear();
     other.animationClips_.clear();
     other.skeleton_.reset();
     other.boundingBox_ = BoundingBox{};
@@ -51,7 +49,6 @@ Model& Model::operator=(Model&& other) noexcept
         animationClips_  = std::move(other.animationClips_);
         file_            = std::move(other.file_);
         meshes_          = std::move(other.meshes_);
-        boneTransforms_  = std::move(other.boneTransforms_);
         boundingBox_     = std::move(other.boundingBox_);
         skeleton_        = std::move(other.skeleton_);
         normalizedFactor = other.normalizedFactor;
@@ -60,7 +57,6 @@ Model& Model::operator=(Model&& other) noexcept
 
         other.normalizedFactor = 1.0f;
         other.meshes_.clear();
-        other.boneTransforms_.clear();
         other.animationClips_.clear();
         other.skeleton_.reset();
         other.boundingBox_ = BoundingBox{};

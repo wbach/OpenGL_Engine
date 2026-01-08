@@ -22,7 +22,6 @@ class Model : public GpuObject
 public:
     using Meshes = std::vector<Mesh>;
 
-    // Constructors & Destructor
     Model();
     explicit Model(const BoundingBox&);
     Model(const Model&) = delete;
@@ -32,12 +31,10 @@ public:
     bool operator==(const File& file) const;
     ~Model() override;
 
-    // GPU lifecycle
     void SetFile(const File&);
     void GpuLoadingPass() override;
     void ReleaseGpuPass() override;
 
-    // Mesh management
     Mesh& AddMesh(Mesh&&);
     template <typename... Args>
     Mesh& AddMesh(Args&&... args)
@@ -47,7 +44,7 @@ public:
     }
     void SetMeshes(Meshes&&);
 
-    // Queries
+
     bool IsAnyMeshUseTransform() const;
     const BoundingBox& getBoundingBox() const;
 
@@ -56,13 +53,11 @@ public:
     const Meshes& GetMeshes() const;
     Meshes& GetMeshes();
 
-    // Animation / skeleton
     void setRootJoint(Animation::Joint);
     const std::optional<Animation::Joint>& getRootJoint() const;
 
     std::optional<GraphicsApi::MeshRawData> getModelRawData() const;
 
-    // Normalization
     void setNormailizedFactor(float);
     float getNormalizedFactor() const;
 
@@ -76,13 +71,11 @@ public:
 protected:
     File file_;
     Meshes meshes_;
-    std::vector<mat4> boneTransforms_;
     BoundingBox boundingBox_;
     std::optional<Animation::Joint> skeleton_;
     float normalizedFactor{1.f};
 };
 
-// Inline definitions
 inline const Model::Meshes& Model::GetMeshes() const
 {
     return meshes_;

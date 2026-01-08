@@ -17,7 +17,7 @@ class Mesh : public GpuObject
 {
 public:
     Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&);
-    Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData, const Material&, const mat4& = mat4(1.f),
+    Mesh(GraphicsApi::RenderType, GraphicsApi::IGraphicsApi&, GraphicsApi::MeshRawData&&, const Material&, const mat4& = mat4(1.f),
          const vec3& = vec3(1.f));
     Mesh(const Mesh&) = delete;
     Mesh(Mesh&&) noexcept;
@@ -42,6 +42,7 @@ public:
     inline const vec3& GetNormalizedScale() const;
     inline GraphicsApi::MeshRawData& GetMeshDataRef();
     inline const GraphicsApi::MeshRawData& GetCMeshDataRef() const;
+    GraphicsApi::RenderType GetRenderType() const;
 
 private:
     void CreateBufferObject();

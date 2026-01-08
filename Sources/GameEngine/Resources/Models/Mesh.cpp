@@ -19,7 +19,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi)
 {
 }
 
-Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::MeshRawData data,
+Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi, GraphicsApi::MeshRawData&& data,
            const Material& material, const mat4& transformMatix, const vec3& normalizedScale)
     : graphicsApi_(graphicsApi)
     , meshRawData_(std::move(data))
@@ -190,5 +190,9 @@ void Mesh::ClearData()
 const BoundingBox& Mesh::getBoundingBox() const
 {
     return boundingBox_;
+}
+GraphicsApi::RenderType Mesh::GetRenderType() const
+{
+    return renderType_;
 }
 }  // namespace GameEngine

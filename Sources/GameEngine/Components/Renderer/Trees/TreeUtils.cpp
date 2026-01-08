@@ -44,7 +44,7 @@ Model* CreateLeafModel(IResourceManager& resourceManager, GraphicsApi::IGraphics
 
     auto model  = std::make_unique<GameEngine::Model>();
     auto result = model.get();
-    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::POINTS, graphicsApi, data, material));
+    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::POINTS, graphicsApi, std::move(data), material));
     resourceManager.AddModel(std::move(model));
     return result;
 }
@@ -88,7 +88,7 @@ Model* CreateLeafModel(IResourceManager& resourceManager, GraphicsApi::IGraphics
 
     auto model  = std::make_unique<GameEngine::Model>();
     auto result = model.get();
-    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::POINTS, graphicsApi, data, material));
+    model->AddMesh(GameEngine::Mesh(GraphicsApi::RenderType::POINTS, graphicsApi, std::move(data), material));
     resourceManager.AddModel(std::move(model));
     return result;
 }

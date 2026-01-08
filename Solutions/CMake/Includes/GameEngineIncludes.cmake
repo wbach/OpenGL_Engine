@@ -412,8 +412,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Bone.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitives.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Assimp/AssimpExporter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Assimp/AssimpLoader.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Binary/BinarySerializeHelpers.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Binary/BinaryLoader.h
-${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Binary/BInaryExporter.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Binary/BinaryImporter.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Binary/BinaryExporter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Loaders/Terrain/TerrainMeshLoader.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Primitive.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/MeshData.h

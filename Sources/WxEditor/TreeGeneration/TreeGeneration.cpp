@@ -379,7 +379,7 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::Tree& tree, GLCanvas
     const auto [trunkMaterial, leafMaterial] = PrepareTreeMaterials(resourceManager.GetTextureLoader(), params);
 
     trunkModel->AddMesh(
-        GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
+        GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), std::move(treeMesh), trunkMaterial));
     auto trunkModelPtr = trunkModel.get();
     resourceManager.AddModel(std::move(trunkModel));
 
@@ -535,7 +535,7 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas
     const auto [trunkMaterial, leafMaterial] = PrepareTreeMaterials(resourceManager.GetTextureLoader(), params);
 
     trunkModel->AddMesh(
-        GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), treeMesh, trunkMaterial));
+        GameEngine::Mesh(GraphicsApi::RenderType::TRIANGLES, engineContext.GetGraphicsApi(), std::move(treeMesh), trunkMaterial));
     auto trunkModelPtr = trunkModel.get();
     resourceManager.AddModel(std::move(trunkModel));
 
