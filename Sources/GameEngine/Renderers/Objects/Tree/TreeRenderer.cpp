@@ -59,6 +59,9 @@ void TreeRenderer::init()
 
 void TreeRenderer::render()
 {
+    static float windTime = 0.0f;
+    windTime += context_.time_.deltaTime / 2.f;
+
     int rendererModels = 0;
 
     if (subscribes_.empty())
@@ -79,8 +82,6 @@ void TreeRenderer::render()
             if (paramBufferId_)
             {
                 TreeParamBuffer buffer;
-                static float windTime = 0.0f;
-                windTime += context_.time_.deltaTime / 2.f;
                 buffer.time   = windTime;
                 buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)), 0.4);
                 buffer.fprams = vec4{treeRendererComponent_->leafScale, 0, 0, 0};
