@@ -5,6 +5,7 @@
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -41,6 +42,8 @@ Model* CreateLeafModel(IResourceManager& resourceManager, GraphicsApi::IGraphics
         data.tangents_.push_back(leaf.colorRandomness.y);
         data.tangents_.push_back(leaf.colorRandomness.z);
     }
+
+    LOG_DEBUG << "Leafs positions size: " << data.positions_.size();
 
     auto model  = std::make_unique<GameEngine::Model>();
     auto result = model.get();

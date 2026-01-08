@@ -22,12 +22,9 @@ namespace GraphicsApi
 template <typename S>
 void serialize(S& s, MeshRawData& m)
 {
-    uint16_t version = 1;
-    s.value2b(version);
-
-    constexpr size_t MAX_FLOAT_VEC = 1000000;
-    constexpr size_t MAX_INDICES   = 1000000;
-    constexpr size_t MAX_MATRICES  = 10000;
+    constexpr size_t MAX_FLOAT_VEC = std::numeric_limits<size_t>::max();
+    constexpr size_t MAX_INDICES   = std::numeric_limits<size_t>::max();
+    constexpr size_t MAX_MATRICES  = std::numeric_limits<size_t>::max();
 
     s.container4b(m.positions_, MAX_FLOAT_VEC);
     s.container4b(m.textCoords_, MAX_FLOAT_VEC);

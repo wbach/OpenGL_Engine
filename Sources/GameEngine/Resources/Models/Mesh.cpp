@@ -8,6 +8,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "Types.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -28,6 +29,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
     , transform_(transformMatix)
     , normalizedScale_(normalizedScale)
 {
+    LOG_DEBUG << "New mesh renderType = " << magic_enum::enum_name(type);
     updateBoundingBox();
 }
 

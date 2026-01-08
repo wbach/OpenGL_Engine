@@ -1,16 +1,19 @@
 #pragma once
 #include <GraphicsApi/MeshRawDataSerilizeHelpers.h>
+#include <Logger/Log.h>
 #include <bitsery/adapter/stream.h>
 #include <bitsery/bitsery.h>
 #include <bitsery/traits/string.h>
 #include <bitsery/traits/vector.h>
 
+#include <magic_enum/magic_enum.hpp>
 #include <optional>
 #include <vector>
 
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/Mesh.h"
 #include "GameEngine/Resources/Models/Model.h"
+#include "GameEngine/Resources/TextureParameters.h"
 
 namespace bitsery
 {
@@ -64,7 +67,7 @@ void serialize(S& s, Joint& joint)
     s.object(joint.invtransform);
     s.object(joint.animatedTransform);
 
-    constexpr size_t MaxChildren = 256;
+    constexpr size_t MaxChildren = 2048;
     s.container(joint.children, MaxChildren);
 }
 }  // namespace Animation
@@ -72,7 +75,12 @@ void serialize(S& s, Joint& joint)
 
 namespace GameEngine
 {
-struct MaterialTextureSerilizeData
+struct TextureSerilizeData
+{
+    TextureParameters paramters;
+    std::string path;
+};
+struct MaterialSerilizeData
 {
     std::string name{"noName"};
 
@@ -88,9 +96,9 @@ struct MaterialTextureSerilizeData
     bool isTransparency  = false;
     bool useFakeLighting = false;
 
-    std::string diffuseTexture;
-    std::string ambientTexture;
-    std::string specularTexture;
+    TextureSerilizeData diffuseTexture;
+    TextureSerilizeData ambientTexture;
+    TextureSerilizeData specularTexture;
 
     // PBR – Physically Based Rendering
     vec4 baseColor{1.f, 1.f, 1.f, 1.f};
@@ -104,20 +112,20 @@ struct MaterialTextureSerilizeData
     float subsurfaceStrength = 0.0f;
     vec3 subsurfaceColor{0.0f};
 
-    std::string baseColorTexture;
-    std::string normalTexture;
-    std::string metallicTexture;
-    std::string roughnessTexture;
-    std::string ambientOcclusionTexture;
-    std::string opacityTexture;
-    std::string displacementTexture;
+    TextureSerilizeData baseColorTexture;
+    TextureSerilizeData normalTexture;
+    TextureSerilizeData metallicTexture;
+    TextureSerilizeData roughnessTexture;
+    TextureSerilizeData ambientOcclusionTexture;
+    TextureSerilizeData opacityTexture;
+    TextureSerilizeData displacementTexture;
 };
 
 struct MeshSerializeData
 {
     GraphicsApi::RenderType renderType;
     GraphicsApi::MeshRawData meshRawData;
-    MaterialTextureSerilizeData material;
+    MaterialSerilizeData material;
     mat4 transform       = mat4(1.f);
     vec3 normalizedScale = vec3(1.f);
 };
@@ -130,9 +138,36 @@ struct ModelSerializeData
 };
 
 template <typename S>
-void serialize(S& s, MaterialTextureSerilizeData& m)
+void serialize(S& s, TextureParameters& parameters)
 {
-    constexpr size_t MaxStr = 256;
+    auto serialize_enum = [&s](auto& e)
+    {
+        using T      = std::decay_t<decltype(e)>;
+        uint32_t tmp = magic_enum::enum_integer(e);
+        s.value4b(tmp);
+        e = magic_enum::enum_cast<T>(tmp).value();
+    };
+
+    serialize_enum(parameters.flipMode);
+    serialize_enum(parameters.loadType);
+    serialize_enum(parameters.sizeLimitPolicy);
+    serialize_enum(parameters.dataStorePolicy);
+    serialize_enum(parameters.filter);
+    serialize_enum(parameters.mimap);
+}
+
+template <typename S>
+void serialize(S& s, TextureSerilizeData& m)
+{
+    constexpr size_t MaxStr = 2048;
+    s.text1b(m.path, MaxStr);
+    s.object(m.paramters);
+}
+
+template <typename S>
+void serialize(S& s, MaterialSerilizeData& m)
+{
+    constexpr size_t MaxStr = 2048;
 
     s.text1b(m.name, MaxStr);
 
@@ -147,9 +182,9 @@ void serialize(S& s, MaterialTextureSerilizeData& m)
     s.value1b(m.isTransparency);
     s.value1b(m.useFakeLighting);
 
-    s.text1b(m.diffuseTexture, MaxStr);
-    s.text1b(m.ambientTexture, MaxStr);
-    s.text1b(m.specularTexture, MaxStr);
+    s.object(m.diffuseTexture);
+    s.object(m.ambientTexture);
+    s.object(m.specularTexture);
 
     s.object(m.baseColor);
     s.value4b(m.metallicFactor);
@@ -162,13 +197,13 @@ void serialize(S& s, MaterialTextureSerilizeData& m)
     s.value4b(m.subsurfaceStrength);
     s.object(m.subsurfaceColor);
 
-    s.text1b(m.baseColorTexture, MaxStr);
-    s.text1b(m.normalTexture, MaxStr);
-    s.text1b(m.metallicTexture, MaxStr);
-    s.text1b(m.roughnessTexture, MaxStr);
-    s.text1b(m.ambientOcclusionTexture, MaxStr);
-    s.text1b(m.opacityTexture, MaxStr);
-    s.text1b(m.displacementTexture, MaxStr);
+    s.object(m.baseColorTexture);
+    s.object(m.normalTexture);
+    s.object(m.metallicTexture);
+    s.object(m.roughnessTexture);
+    s.object(m.ambientOcclusionTexture);
+    s.object(m.opacityTexture);
+    s.object(m.displacementTexture);
 }
 
 template <typename S>
@@ -183,7 +218,7 @@ void serialize(S& s, MeshSerializeData& meshData)
 template <typename S>
 void serialize(S& s, ModelSerializeData& modelData)
 {
-    constexpr size_t MaxMeshes = 1024;
+    constexpr size_t MaxMeshes = 4096;
     s.container(modelData.meshes_, MaxMeshes);
 
     // s.object(modelData.skeleton_);

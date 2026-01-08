@@ -10,19 +10,22 @@
 
 namespace GameEngine
 {
-std::string convert(GeneralTexture* texture)
+TextureSerilizeData convert(GeneralTexture* texture)
 {
     if (texture)
     {
-        return texture->GetFile()->GetDataRelativePath().string();
+        TextureSerilizeData result;
+        result.path      = texture->GetFile()->GetDataRelativePath().string();
+        result.paramters = texture->getTextureParameters();
+        return result;
     }
 
     return {};
 }
 
-MaterialTextureSerilizeData convert(const Material& input)
+MaterialSerilizeData convert(const Material& input)
 {
-    MaterialTextureSerilizeData material;
+    MaterialSerilizeData material;
     material.name        = input.name;
     material.ambient     = input.ambient.value;
     material.diffuse     = input.diffuse.value;

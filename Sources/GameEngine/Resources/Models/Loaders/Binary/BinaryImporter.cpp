@@ -15,16 +15,18 @@
 
 namespace GameEngine
 {
-GeneralTexture* createTexture(ITextureLoader& textureLoader, const std::string& path)
+GeneralTexture* createTexture(ITextureLoader& textureLoader, const TextureSerilizeData& data)
 {
-    if (path.empty())
+    if (data.path.empty())
         return nullptr;
 
-    // TO DO: parameters
-    return textureLoader.LoadTexture(path, TextureParameters{});
+    LOG_DEBUG << "createTexture: " << data.path;
+    return textureLoader.LoadTexture(data.path, data.paramters);
 }
-Material convert(ITextureLoader& textureLoader, const MaterialTextureSerilizeData& input)
+Material convert(ITextureLoader& textureLoader, const MaterialSerilizeData& input)
 {
+    LOG_DEBUG << "Convert material";
+
     Material material;
     material.name        = input.name;
     material.ambient     = input.ambient;
@@ -92,6 +94,8 @@ std::unique_ptr<Model> ImportModelBinary(GraphicsApi::IGraphicsApi& graphicsApi,
 
     for (auto& meshSerilized : modelSerializeData.meshes_)
     {
+        LOG_DEBUG << "Mesh positions size: " << meshSerilized.meshRawData.positions_.size();
+
         Mesh mesh(meshSerilized.renderType, graphicsApi, std::move(meshSerilized.meshRawData),
                   convert(textureLoader, meshSerilized.material), meshSerilized.transform, meshSerilized.normalizedScale);
         model->AddMesh(std::move(mesh));

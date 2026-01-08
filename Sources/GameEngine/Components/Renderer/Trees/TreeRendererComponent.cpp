@@ -334,7 +334,6 @@ void TreeRendererComponent::write(TreeNode& node) const
         const Model* modelPtr = model.Get(lvl);
         if (modelPtr and not file.exist())
         {
-            //ExportModel(*modelPtr, file);
             ExportModelBinary(*modelPtr, file.GetAbsolutePath());
         }
     };
