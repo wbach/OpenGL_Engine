@@ -53,10 +53,9 @@ void serialize(S& s, Joint::AdditionalUserMofiyTransform& t)
 template <typename S>
 void serialize(S& s, Joint& joint)
 {
-    // parent wskaźnik pomijamy
     s.value4b(joint.id);
     s.value4b(joint.size);
-    s.text1b(joint.name);  // string
+    s.text1b(joint.name);
 
     s.object(joint.additionalUserMofiyTransform);
 
@@ -119,6 +118,8 @@ struct MaterialSerilizeData
     TextureSerilizeData ambientOcclusionTexture;
     TextureSerilizeData opacityTexture;
     TextureSerilizeData displacementTexture;
+
+    uint32_t flags = 0;
 };
 
 struct MeshSerializeData
@@ -204,6 +205,8 @@ void serialize(S& s, MaterialSerilizeData& m)
     s.object(m.ambientOcclusionTexture);
     s.object(m.opacityTexture);
     s.object(m.displacementTexture);
+
+    s.value4b(m.flags);
 }
 
 template <typename S>

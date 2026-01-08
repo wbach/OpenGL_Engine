@@ -62,6 +62,8 @@ Material convert(ITextureLoader& textureLoader, const MaterialSerilizeData& inpu
     material.opacityTexture          = createTexture(textureLoader, input.opacityTexture);
     material.displacementTexture     = createTexture(textureLoader, input.displacementTexture);
 
+    material.flags = input.flags;
+
     return material;
 }
 

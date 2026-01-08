@@ -29,7 +29,7 @@ Mesh::Mesh(GraphicsApi::RenderType type, GraphicsApi::IGraphicsApi& graphicsApi,
     , transform_(transformMatix)
     , normalizedScale_(normalizedScale)
 {
-    LOG_DEBUG << "New mesh renderType = " << magic_enum::enum_name(type);
+    LOG_DEBUG << "New mesh renderType = " << magic_enum::enum_name(type) << " positions: " << meshRawData_.positions_.size();
     updateBoundingBox();
 }
 

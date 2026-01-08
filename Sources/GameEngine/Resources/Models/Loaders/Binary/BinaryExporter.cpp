@@ -60,6 +60,7 @@ MaterialSerilizeData convert(const Material& input)
     material.opacityTexture          = convert(input.opacityTexture);
     material.displacementTexture     = convert(input.displacementTexture);
 
+    material.flags = input.flags;
     return material;
 }
 

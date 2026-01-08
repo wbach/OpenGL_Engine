@@ -170,12 +170,9 @@ TreeRendererComponent& TreeRendererComponent::SetLeafModel(const File& file, Lev
     }
 
     LOG_DEBUG << "SetLeafModel " << magic_enum::enum_name(i) << ", file: " << file;
-
     auto modelPtr = componentContext_.resourceManager_.LoadModel(file);
-
     LOG_DEBUG << "SetLeafModel  load done" << magic_enum::enum_name(i) << ", file: " << file;
     leafModel.Add(modelPtr, i);
-    UpdateBoundingBox();
     return *this;
 }
 
