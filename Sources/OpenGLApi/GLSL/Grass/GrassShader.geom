@@ -139,7 +139,7 @@ vec3 ApplyWind(vec3 offset, float heightFactor)
     float hFactor = pow(clamp(heightFactor, 0.0, 1.0), 2.5);
 
     // --- obliczenie przesunięcia ---
-    vec3 windOffset = windDir * windWaves * bendAmount * hFactor * windStrength;
+    vec3 windOffset = windDir * windWaves * bendAmount * hFactor * windStrength * 2.f;
 
     // --- lekka torsja końcówek ---
     windOffset.xz += torsion * vec2(

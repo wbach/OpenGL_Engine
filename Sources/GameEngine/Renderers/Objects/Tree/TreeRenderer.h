@@ -7,6 +7,7 @@
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "GraphicsApi/ShaderProgramType.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -36,6 +37,7 @@ class TreeRenderer : public IRenderer
 
 public:
     TreeRenderer(RendererContext&);
+    TreeRenderer(RendererContext&, GraphicsApi::ShaderProgramType, GraphicsApi::ShaderProgramType);
 
     void init() override;
     void subscribe(GameObject&) override;
@@ -66,5 +68,7 @@ private:
     MeasurementValue& measurementValue_;
 
     std::optional<IdType> paramBufferId_;
+
+    bool simpleRendering{false};
 };
 }  // namespace GameEngine

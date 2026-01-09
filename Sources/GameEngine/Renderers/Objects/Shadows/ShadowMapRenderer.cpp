@@ -9,6 +9,7 @@
 
 #include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Objects/Tree/TreeRenderer.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
@@ -21,6 +22,7 @@ namespace GameEngine
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
     , entityRenderer_(context)
+    , treeRenderer_(context, GraphicsApi::ShaderProgramType::TreeLeafs, GraphicsApi::ShaderProgramType::Entity) // To do use simple tree shaders
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
     , instancedShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesShadows)
     , shadowBox_()
@@ -72,6 +74,7 @@ void ShadowMapRenderer::init()
         return;
 
     entityRenderer_.init();
+    treeRenderer_.init();
 
     GraphicsApi::FrameBuffer::Attachment depthAttachment(vec2ui(*EngineConf.renderer.shadows.mapSize),
                                                          GraphicsApi::FrameBuffer::Type::Depth,
@@ -130,6 +133,7 @@ void ShadowMapRenderer::cleanUp()
     shader_.Clear();
     instancedShader_.Clear();
     entityRenderer_.cleanUp();
+    treeRenderer_.cleanUp();
 
     if (perFrameBuffer_)
     {
@@ -157,7 +161,8 @@ void ShadowMapRenderer::renderScene()
     {
         shader_.Start();
         rendererdMeshesCounter_ += entityRenderer_.renderEntitiesWithoutGrouping();
-        shader_.Stop();
+        //shader_.Stop();
+        treeRenderer_.render();
     }
 }
 
@@ -204,22 +209,26 @@ void ShadowMapRenderer::prepare()
 void ShadowMapRenderer::subscribe(GameObject& gameObject)
 {
     entityRenderer_.subscribe(gameObject);
+    treeRenderer_.subscribe(gameObject);
 }
 
 void ShadowMapRenderer::unSubscribe(GameObject& gameObject)
 {
     entityRenderer_.unSubscribe(gameObject);
+    treeRenderer_.unSubscribe(gameObject);
 }
 
 void ShadowMapRenderer::unSubscribeAll()
 {
     entityRenderer_.unSubscribeAll();
+    treeRenderer_.unSubscribeAll();
 }
 
 void ShadowMapRenderer::reloadShaders()
 {
     shader_.Reload();
     instancedShader_.Reload();
+    treeRenderer_.reloadShaders();
 }
 
 bool ShadowMapRenderer::prepareFrameBuffer()

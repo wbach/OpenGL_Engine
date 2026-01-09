@@ -19,6 +19,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GameEngine/Scene/Scene.hpp"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "Image/Image.h"
 #include "Logger/Log.h"
@@ -43,6 +44,15 @@ TreeRenderer::TreeRenderer(RendererContext& context)
     , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)
     , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
     , measurementValue_(context.measurmentHandler_.AddNewMeasurment("TreeRenderer", "0"))
+{
+}
+
+TreeRenderer::TreeRenderer(RendererContext& context, GraphicsApi::ShaderProgramType leafsShader, GraphicsApi::ShaderProgramType trunkShader)
+    : context_(context)
+    , leafsShader_(context.graphicsApi_, leafsShader)
+    , trunkShader_(context.graphicsApi_, trunkShader)
+    , measurementValue_(context.measurmentHandler_.AddNewMeasurment("TreeRenderer", "0"))
+    , simpleRendering{true}
 {
 }
 
@@ -83,7 +93,8 @@ void TreeRenderer::render()
             {
                 TreeParamBuffer buffer;
                 buffer.time   = windTime;
-                buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)), 0.4);
+                buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
+                                   context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
                 buffer.fprams = vec4{treeRendererComponent_->leafScale, 0, 0, 0};
                 buffer.atlasParams =
                     vec4i{treeRendererComponent_->leafTextureAtlasSize, treeRendererComponent_->leafTextureIndex, 0, 0};
@@ -189,7 +200,7 @@ int TreeRenderer::RenderSingleTree(const Components::TreeRendererComponent& tree
     const auto& cameraPosition = context_.camera_->GetPosition();
     auto disnaceToCamera       = glm::distance(position, cameraPosition);
     auto lvl                   = LevelOfDetail::L1;
-    if (disnaceToCamera > EngineConf.renderer.lodDistance0)
+    if (disnaceToCamera > EngineConf.renderer.lodDistance0 or simpleRendering)
     {
         lvl = LevelOfDetail::L2;
     }
