@@ -90,7 +90,7 @@ void TreeRenderer::render()
             if (paramBufferId_)
             {
                 TreeParamBuffer buffer;
-                treeRendererComponent_->windTime += context_.time_.deltaTime / 2.f;
+                treeRendererComponent_->windTime += 0.1f * context_.time_.deltaTime;
                 buffer.time   = treeRendererComponent_->windTime;
                 buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
                                    context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
