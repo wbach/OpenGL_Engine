@@ -76,6 +76,8 @@ public:
 
     const BoundingBox& GetWorldBoundingBox() const;
 
+    float windTime = 0.0f;
+
 private:
     void Awake();
     void UnSubscribe();

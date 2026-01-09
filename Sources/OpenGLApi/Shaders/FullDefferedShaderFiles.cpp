@@ -168,6 +168,14 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/LeafShader.frag"}
         }
     },
+        {
+        GraphicsApi::ShaderProgramType::TreeLeafsShdaows,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafShader.vert"},
+            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Tree/LeafShader.geom"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/ShadowLeafShader.frag"}
+        }
+    },
     {
         GraphicsApi::ShaderProgramType::Water,
         {

@@ -9,18 +9,14 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
-layout (std140, align=16, binding=6) uniform PerMeshObject
+layout (std140, align=16, binding=6) uniform PerMaterial
 {
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
-    uint numberOfRows;
-    float haveDiffTexture;
-    float haveNormalMap;
-    float haveSpecularMap;
-    float shineDamper;
-    float useFakeLighting;
-} perMeshObject;
+    vec4 baseColor;
+    vec4 params; // x - metallicFactor, y - roughnessFactor, z - ambientOcclusion, w - opacityCutoff
+    vec4 params2; // x - normalScale,  y - useFakeLighting, z - specularStrength, w - indexOfRefraction
+    vec4 hasTextures; // x - BaseColorTexture, y - NormalTexture, z -RoughnessTexture, w - MetallicTexture
+    vec4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
+} perMaterial;
 
 in VS_OUT
 {
@@ -31,7 +27,7 @@ in VS_OUT
     float visibility;
 } vs_in;
 
-uniform sampler2D DiffuseTexture;
+layout(binding = 0) uniform sampler2D DiffuseTexture;
 
 out vec4 outputColor;
 
@@ -41,7 +37,7 @@ bool Is(float v)
 }
 
 const vec3 normalizedDummySunVector = vec3(0.5773502691896258, 0.5773502691896258, 0.5773502691896258);
-const float ambientFactor = 0.4f;
+const float ambientFactor = 0.1f;
 const vec2 defaultDiffRange = vec2(0.f, 1.f);
 const vec2 diffRange = vec2(0.f, 1.f - ambientFactor);
 
@@ -58,9 +54,10 @@ void main()
         discard;
 
     vec4 colorFromTexture = vec4(1.f, 1.f, 1.f, 1.f);
-    vec2 textCoord = (vs_in.texCoord / perMeshObject.numberOfRows) + vs_in.textureOffset;
+    // vec2 textCoord = (vs_in.texCoord / perMeshObject.numberOfRows) + vs_in.textureOffset;
+    vec2 textCoord = vs_in.texCoord * perMaterial.hasTextures2.w;
 
-    if (Is(perMeshObject.haveDiffTexture) && Is(perApp.useTextures.x))
+    if (Is(perMaterial.hasTextures.x) && Is(perApp.useTextures.x))
     {
         colorFromTexture = texture(DiffuseTexture, textCoord);
     }
@@ -75,10 +72,9 @@ void main()
     {
         dummyDiffuseFactor = ambientFactor;
     }
-    vec4 color = colorFromTexture * perMeshObject.diffuse;
+    vec4 color = colorFromTexture * perMaterial.baseColor;
     outputColor = vec4(color.rgb * dummyDiffuseFactor, color.a);
 
     const vec4 fogColor = vec4(perApp.fogData.xyz, 1.f);
     outputColor = mix(fogColor, outputColor, vs_in.visibility);
-
 }

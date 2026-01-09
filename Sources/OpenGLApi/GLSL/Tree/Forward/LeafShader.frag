@@ -1,10 +1,7 @@
 #version 440
 #define EPSILON 0.001
 
-layout (location = 0) out vec4 WorldPosOut;
-layout (location = 1) out vec4 DiffuseOut;
-layout (location = 2) out vec4 NormalOut;
-layout (location = 3) out vec4 MaterialSpecular;
+layout (location = 0) out vec4 outputColor;
 
 layout(binding = 0) uniform sampler2D BaseColorTexture;
 layout(binding = 1) uniform sampler2D NormalTexture;
@@ -29,15 +26,6 @@ layout(std140, align=16, binding = 4) uniform LeafParams
     ivec4 atlasParams; // x - atlasSize, y - atlasIndex
     float time;
 } leafParams;
-
-layout (std140, align=16, binding=6) uniform PerMaterial
-{
-    vec4 baseColor;
-    vec4 params; // x - metallicFactor, y - roughnessFactor, z - ambientOcclusion, w - opacityCutoff
-    vec4 params2; // x - normalScale,  y - useFakeLighting, z - specularStrength, w - indexOfRefraction
-    vec4 hasTextures; // x - BaseColorTexture, y - NormalTexture, z -RoughnessTexture, w - MetallicTexture
-    vec4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
-} perMaterial;
 
 in GS_OUT
 {
@@ -79,18 +67,13 @@ vec2 GetAtlasUV(vec2 uv, int idx)
 void main()
 {
     vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
-    vec3 normal = fs_in.normal;
-    
-    float roughness = 1.0;
-    float metallic = 0.0;
     float ao = 1.0;
-    float displacement = 0.0;
+
     int textureIndex = fs_in.textureIndex; // leafParams.atlasParams.y
 
     if (Is(perApp.useTextures.x))
     {
         baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
-        baseColor = baseColor * vec4(0.95f, 1.00f, 0.95f, 1.0f); //perMaterial.baseColor;
         
         // Opacity
         vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
@@ -98,34 +81,8 @@ void main()
         baseColor.a = opacityTex.x;
     }
 
-    if (Is(perApp.useTextures.y))
-    {
-        // Normal mapping
-        normal = texture(NormalTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).xyz * 2.0 - 1.0;
-        normal = normalize(normal);
-    }
-
-    if (Is(perApp.useTextures.z))
-    {
-        // Roughness & Metallic from specular textures
-        roughness = texture(RoughnessTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
-        metallic  = texture(MetallicTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
-    }
-
-    // // Ambient Occlusion
-    // ao = texture(AmbientOcclusionTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
-
-    // Displacement
-    if (Is(perApp.useTextures.w))
-    {
-        displacement = texture(DisplacementTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
-    }
-
     vec3 albedo = baseColor.rgb * fs_in.colorRandomness;
     albedo *= 0.9 + 0.1 * ao;
 
-    WorldPosOut      = fs_in.worldPos + vec4(normal * displacement, 0.0);
-    DiffuseOut = vec4(albedo, baseColor.a);
-    NormalOut        = vec4(normal, 1.0);
-    MaterialSpecular = vec4(metallic, roughness, 0.0, 1.0);
+    outputColor      = vec4(albedo, baseColor.a);
 }

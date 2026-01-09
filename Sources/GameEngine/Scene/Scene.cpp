@@ -39,7 +39,7 @@ Scene::Scene(const std::string& name)
     , name(name)
     , gloabalTime(0.f)
     , dayNightCycle()
-    , windParams(GetWindPreset(2))
+    , windParams(GetWindPreset(1))
     , simulatePhysics_(true)
     , start_(false)
 {

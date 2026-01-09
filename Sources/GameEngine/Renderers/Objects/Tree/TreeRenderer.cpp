@@ -47,7 +47,8 @@ TreeRenderer::TreeRenderer(RendererContext& context)
 {
 }
 
-TreeRenderer::TreeRenderer(RendererContext& context, GraphicsApi::ShaderProgramType leafsShader, GraphicsApi::ShaderProgramType trunkShader)
+TreeRenderer::TreeRenderer(RendererContext& context, GraphicsApi::ShaderProgramType leafsShader,
+                           GraphicsApi::ShaderProgramType trunkShader)
     : context_(context)
     , leafsShader_(context.graphicsApi_, leafsShader)
     , trunkShader_(context.graphicsApi_, trunkShader)
@@ -69,9 +70,6 @@ void TreeRenderer::init()
 
 void TreeRenderer::render()
 {
-    static float windTime = 0.0f;
-    windTime += context_.time_.deltaTime / 2.f;
-
     int rendererModels = 0;
 
     if (subscribes_.empty())
@@ -92,7 +90,8 @@ void TreeRenderer::render()
             if (paramBufferId_)
             {
                 TreeParamBuffer buffer;
-                buffer.time   = windTime;
+                treeRendererComponent_->windTime += context_.time_.deltaTime / 2.f;
+                buffer.time   = treeRendererComponent_->windTime;
                 buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
                                    context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
                 buffer.fprams = vec4{treeRendererComponent_->leafScale, 0, 0, 0};
