@@ -93,6 +93,7 @@ public:
     virtual void Compute(uint32, uint32, uint32)                                              = 0;
     virtual void RenderPurePatchedMeshInstances(uint32)                                       = 0;
     virtual void RenderMesh(uint32)                                                           = 0;
+    virtual void RenderProcedural(uint32)                                                     = 0;
     virtual void RenderDebugNormals(uint32)                                                   = 0;
     virtual void RenderTriangleStripMesh(uint32)                                              = 0;
     virtual void RenderMeshInstanced(uint32, uint32)                                          = 0;

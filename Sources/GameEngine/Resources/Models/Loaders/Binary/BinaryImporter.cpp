@@ -6,7 +6,6 @@
 
 #include <fstream>
 
-#include "BinarySerializeHelpers.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/TextureParameters.h"

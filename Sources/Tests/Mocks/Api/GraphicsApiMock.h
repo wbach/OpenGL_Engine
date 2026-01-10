@@ -64,6 +64,7 @@ public:
     MOCK_METHOD(void, Compute, (uint32, uint32, uint32), (override));
     MOCK_METHOD(void, RenderPurePatchedMeshInstances, (uint32), (override));
     MOCK_METHOD(void, RenderMesh, (uint32), (override));
+    MOCK_METHOD(void, RenderProcedural, (uint32), (override));
     MOCK_METHOD(void, RenderDebugNormals, (uint32), (override));
     MOCK_METHOD(void, RenderTriangleStripMesh, (uint32), (override));
     MOCK_METHOD(void, RenderMeshInstanced, (uint32, uint32), (override));

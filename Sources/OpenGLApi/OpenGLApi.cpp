@@ -108,6 +108,7 @@ struct ShaderBuffer
     bool isInGpu;
     uint32 bufferSize;
     uint32 bindLocation;
+    uint32 type;
 };
 
 struct DebugNormalMesh
@@ -705,7 +706,7 @@ GraphicsApi::ID OpenGLApi::CreateShaderBuffer(uint32 bindLocation, uint32 size, 
     glBindBuffer(GL_UNIFORM_BUFFER, buffer);
     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, usage);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
+    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation, GL_UNIFORM_BUFFER});
     auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
     return id;
 }
@@ -722,7 +723,7 @@ GraphicsApi::ID OpenGLApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32
     glBufferData(GL_SHADER_STORAGE_BUFFER, size, nullptr, usage);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation});
+    impl_->shaderBuffers_.push_back({buffer, true, size, bindLocation, GL_SHADER_STORAGE_BUFFER});
     auto id = static_cast<IdType>(impl_->shaderBuffers_.size() - 1);
     return id;
 }
@@ -779,7 +780,7 @@ uint32 OpenGLApi::BindShaderBuffer(uint32 id)
     uint32 result = bindedShaderBuffers_[b.bindLocation];
 
     bindedShaderBuffers_[b.bindLocation] = id;
-    glBindBufferBase(GL_UNIFORM_BUFFER, b.bindLocation, b.glId);
+    glBindBufferBase(b.type, b.bindLocation, b.glId);
 
     return result;
 }
@@ -1396,6 +1397,11 @@ void OpenGLApi::RenderMesh(uint32 id)
     {
         glDrawArrays(renderTypeMap_.at(mesh.renderType), 0, mesh.vertexCount);
     }
+}
+
+void OpenGLApi::RenderProcedural(uint32 count)
+{
+    glDrawArrays(GL_TRIANGLES, 0, count);
 }
 
 void OpenGLApi::RenderTriangleStripMesh(uint32 id)

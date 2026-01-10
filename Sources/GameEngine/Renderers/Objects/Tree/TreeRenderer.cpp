@@ -277,21 +277,17 @@ int TreeRenderer::RenderMesh(const Mesh& mesh, uint32 count) const
 }
 void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent, LevelOfDetail lvl) const
 {
-    const auto leafModel = treeRendererComponent.GetLeafModel().Get(lvl);
-
-    if (not leafModel)
-        return;
-
     leafsShader_.Start();
-    for (const auto& mesh : leafModel->GetMeshes())
+
+    auto id = treeRendererComponent.GetLeafsShaderBufferId();
+    if (not id)
     {
-        if (not mesh.GetGraphicsObjectId())
-        {
-            continue;
-        }
-        BindMaterial(mesh.GetMaterial());
-        context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
+        return;
     }
+
+    context_.graphicsApi_.BindShaderBuffer(*id);
+    BindMaterial(treeRendererComponent.GetLeafMaterial());
+    context_.graphicsApi_.RenderProcedural(treeRendererComponent.GetLeafsCount() * 6);
     leafsShader_.Stop();
 }
 }  // namespace GameEngine

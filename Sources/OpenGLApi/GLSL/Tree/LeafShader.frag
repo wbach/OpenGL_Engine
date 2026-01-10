@@ -39,7 +39,7 @@ layout (std140, align=16, binding=6) uniform PerMaterial
     vec4 hasTextures2; // x - AmbientOcclusionTexture, y - OpacityTexture, z -DisplacementTexture, w - tiledScale
 } perMaterial;
 
-in GS_OUT
+in VS_OUT
 {
     vec2 texCoord;
     vec4 worldPos;

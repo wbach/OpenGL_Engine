@@ -306,6 +306,9 @@ struct TreeModel
 {
     GameEngine::Model* trunkModel;
     GameEngine::Model* leafModel;
+
+    std::vector<GameEngine::Leaf> leafs;
+    GameEngine::Material leafMaterial;
 };
 
 GameEngine::Tree GenerateTree(const TreeGenerationParams& params)
@@ -386,7 +389,8 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::Tree& tree, GLCanvas
     auto leafModel =
         GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), builder.GetLeafs(), leafMaterial);
 
-    return TreeModel{.trunkModel = trunkModelPtr, .leafModel = leafModel};
+    return TreeModel{
+        .trunkModel = trunkModelPtr, .leafModel = leafModel, .leafs = builder.GetLeafs(), .leafMaterial = leafMaterial};
 }
 
 std::vector<GameEngine::LeafCluster> CreateLeafsClusters(const std::vector<GameEngine::Leaf>& leaves)
@@ -546,7 +550,8 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas
     auto leafModel =
         GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), builder.GetLeafs(), leafMaterial);
 
-    return TreeModel{.trunkModel = trunkModelPtr, .leafModel = leafModel};
+    return TreeModel{
+        .trunkModel = trunkModelPtr, .leafModel = leafModel, .leafs = builder.GetLeafs(), .leafMaterial = leafMaterial};
 }
 
 void GenerateTree(wxFrame* parent, GLCanvas* canvas)
@@ -567,11 +572,11 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
             auto tree      = GenerateTree(*params);
             auto treeModel = GenerateLoD1Tree(tree, canvas, *params);
             trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
-            trc.SetGeneratedLeafModel(treeModel->leafModel, GameEngine::LevelOfDetail::L1);
+            trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->leafs));
+            trc.SetLeafMaterial(treeModel->leafMaterial);
 
             auto treeModelLod2 = GenerateLoD2Tree(tree, canvas, *params);
             trc.SetGeneratedTrunkModel(treeModelLod2->trunkModel, GameEngine::LevelOfDetail::L2);
-            trc.SetGeneratedLeafModel(treeModelLod2->leafModel, GameEngine::LevelOfDetail::L2);
 
             obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
             canvas->AddGameObject(std::move(obj));

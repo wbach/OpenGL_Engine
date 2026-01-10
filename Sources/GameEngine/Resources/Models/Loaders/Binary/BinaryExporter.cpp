@@ -5,7 +5,6 @@
 
 #include <fstream>
 
-#include "BinarySerializeHelpers.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 
 namespace GameEngine

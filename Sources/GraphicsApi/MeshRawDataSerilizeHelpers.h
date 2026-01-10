@@ -1,21 +1,12 @@
 #pragma once
 
+#include <Utils/GLM/GLMUtils.h>
 #include <bitsery/adapter/stream.h>
 #include <bitsery/bitsery.h>
 #include <bitsery/traits/string.h>
 #include <bitsery/traits/vector.h>
-#include "MeshRawData.h"
 
-namespace bitsery
-{
-template <typename S>
-void serialize(S& s, glm::mat4& m)
-{
-    float* ptr = glm::value_ptr(m);
-    for (int i = 0; i < 16; ++i)
-        s.value4b(ptr[i]);
-}
-}  // namespace bitsery
+#include "MeshRawData.h"
 
 namespace GraphicsApi
 {
