@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerInstances.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 
@@ -72,8 +72,8 @@ private:
 private:
     RendererContext& context_;
 
-    std::unique_ptr<BufferObject<PerObjectUpdate>> perMeshBuffer_;
-    std::unique_ptr<BufferObject<PerInstances>> perInstanceBuffer_;
+    std::unique_ptr<ShaderBufferObject<PerObjectUpdate>> perMeshBuffer_;
+    std::unique_ptr<ShaderBufferObject<PerInstances>> perInstanceBuffer_;
 
     EnitySubscribers subscribes_;
     std::set<uint32> subscribesIds_;

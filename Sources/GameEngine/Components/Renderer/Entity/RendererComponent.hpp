@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
@@ -40,7 +40,7 @@ public:
 
 private:
     void CreateBufferObject(GraphicsApi::IGraphicsApi&);
-    std::unique_ptr<BufferObject<PerMeshObject>> perMeshBuffer;
+    std::unique_ptr<ShaderBufferObject<PerMeshObject>> perMeshBuffer;
 
     IGpuResourceLoader& loader;
 };
@@ -116,8 +116,8 @@ private:
     bool isSubscribed_;
     LoadingParameters loadingParameters_;
     std::optional<uint32> worldTransformSub_;
-    std::unordered_map<IdType, std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
-    std::unordered_map<IdType, std::unique_ptr<BufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
+    std::unordered_map<IdType, std::unique_ptr<ShaderBufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    std::unordered_map<IdType, std::unique_ptr<ShaderBufferObject<PerObjectConstants>>> perObjectConstantsBuffer_;
 
     std::unordered_map<IdType, CustomMaterialData> customMaterials;
     std::set<Model*> addedModels;

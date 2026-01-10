@@ -481,7 +481,7 @@ void Animator::createShaderJointBuffers()
     }
 
     jointData_.buffer =
-        std::make_unique<BufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_, PER_POSE_UPDATE_BIND_LOCATION);
+        std::make_unique<ShaderBufferObject<PerPoseUpdate>>(componentContext_.graphicsApi_, PER_POSE_UPDATE_BIND_LOCATION);
 
     LOG_DEBUG << "Created shader buffer: " << thisObject_.GetName() << ", buffer id: " << jointData_.buffer->GetGpuObjectId();
 

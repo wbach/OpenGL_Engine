@@ -1,5 +1,5 @@
 #pragma once
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 //#include "TerrainComponentBase.h"
 

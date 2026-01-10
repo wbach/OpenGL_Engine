@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/TextureParameters.h"
@@ -75,7 +75,7 @@ private:
 protected:
     ComponentContext& componentContext_;
     GameObject& thisObject_;
-    std::unique_ptr<BufferObject<PerTerrainTexturesBuffer>> perTerrainTexturesBuffer_;
+    std::unique_ptr<ShaderBufferObject<PerTerrainTexturesBuffer>> perTerrainTexturesBuffer_;
 
     TextureParameters heightMapParameters_;
     TerrainConfiguration config_;

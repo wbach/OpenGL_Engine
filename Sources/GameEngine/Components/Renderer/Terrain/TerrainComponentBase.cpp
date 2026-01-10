@@ -36,7 +36,7 @@ TerrainComponentBase::TerrainComponentBase(ComponentContext &componentContext, G
                                            std::vector<TerrainTexture> &inputData)
     : componentContext_(componentContext)
     , thisObject_(gameObject)
-    , perTerrainTexturesBuffer_(std::make_unique<BufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6))
+    , perTerrainTexturesBuffer_(std::make_unique<ShaderBufferObject<PerTerrainTexturesBuffer>>(componentContext_.graphicsApi_, 6))
     , heightMap_(nullptr)
     , isSubscribed_(false)
     , inputData_(inputData)

@@ -53,7 +53,7 @@ CustomMaterialData::~CustomMaterialData()
 void CustomMaterialData::CreateBufferObject(GraphicsApi::IGraphicsApi& graphicsApi)
 {
     perMeshBuffer =
-        std::make_unique<BufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi, PER_MESH_OBJECT_BIND_LOCATION);
+        std::make_unique<ShaderBufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi, PER_MESH_OBJECT_BIND_LOCATION);
     LOG_DEBUG << "Create custom material " << material.name;
     loader.AddObjectToGpuLoadingPass(*perMeshBuffer);
 }
@@ -315,7 +315,7 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 
     auto& graphicsApi = componentContext_.graphicsApi_;
 
-    auto bufferPtr = std::make_unique<BufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION);
+    auto bufferPtr = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(graphicsApi, PER_OBJECT_UPDATE_BIND_LOCATION);
     auto& buffer   = *bufferPtr.get();
     perObjectUpdateBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
@@ -339,7 +339,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     }
 
     auto bufferPtr =
-        std::make_unique<BufferObject<PerObjectConstants>>(componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION);
+        std::make_unique<ShaderBufferObject<PerObjectConstants>>(componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION);
     auto& buffer = *bufferPtr.get();
 
     perObjectConstantsBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});

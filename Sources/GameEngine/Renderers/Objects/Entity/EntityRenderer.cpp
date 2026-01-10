@@ -56,10 +56,10 @@ uint32 EntityRenderer::renderEntitiesWithoutGrouping()
 
 void EntityRenderer::init()
 {
-    perInstanceBuffer_ = std::make_unique<BufferObject<PerInstances>>(context_.graphicsApi_, PER_INSTANCES_BIND_LOCATION);
+    perInstanceBuffer_ = std::make_unique<ShaderBufferObject<PerInstances>>(context_.graphicsApi_, PER_INSTANCES_BIND_LOCATION);
     perInstanceBuffer_->GpuLoadingPass();
 
-    perMeshBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
+    perMeshBuffer_ = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(context_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
     perMeshBuffer_->GpuLoadingPass();
 }
 

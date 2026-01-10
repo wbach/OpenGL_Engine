@@ -6,7 +6,7 @@
 
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/IComponent.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/Material.h"
@@ -95,8 +95,8 @@ private:
 
     std::vector<vec3> instancesPositions_;
 
-    std::unique_ptr<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
-    std::unique_ptr<BufferObject<PerInstances>> perInstances_;
+    std::unique_ptr<ShaderBufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
+    std::unique_ptr<ShaderBufferObject<PerInstances>> perInstances_;
     bool isSubsribed_;
 
     std::optional<IdType> worldTransformSub_;

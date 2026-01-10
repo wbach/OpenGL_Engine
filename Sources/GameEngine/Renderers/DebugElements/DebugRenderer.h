@@ -6,7 +6,7 @@
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Renderers/DebugElements/LineMeshVisualizator.h"
 #include "GameEngine/Renderers/IRenderer.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "LineMeshVisualizator.h"

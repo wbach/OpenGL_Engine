@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "TerrainComponentBase.h"
@@ -38,7 +38,7 @@ private:
     void UpdateHeightMap(const File&) override;
     void CreateShaderBuffers(const GameEngine::Model&, const vec3&);
     void createBoundingBoxes();
-    BufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
+    ShaderBufferObject<PerObjectUpdate>& CreatePerObjectBuffer(GraphicsApi::IGraphicsApi&);
     void LoadObjectToGpu(GpuObject&);
     void createModels();
     void ReleaseModels();
@@ -50,7 +50,7 @@ private:
     std::vector<BoundingBox> boundingBoxes_;
     File heightMapFile_;
     ModelWrapper modelWrapper_;
-    std::vector<std::unique_ptr<BufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
+    std::vector<std::unique_ptr<ShaderBufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;
     vec2ui heightMapSizeUsedToTerrainCreation_;
     IdType resolutionDivideFactorSubscription_;
     IdType partsCountSubscription_;

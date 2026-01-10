@@ -220,7 +220,7 @@ void TreeRendererComponent::UnSubscribe()
 }
 void TreeRendererComponent::CreatePerObjectUpdateBuffer()
 {
-    perObjectUpdateBuffer_ = std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.resourceManager_.GetGraphicsApi(),
+    perObjectUpdateBuffer_ = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(componentContext_.resourceManager_.GetGraphicsApi(),
                                                                              PER_OBJECT_UPDATE_BIND_LOCATION);
 
     perObjectUpdateBuffer_->GetData().TransformationMatrix =
@@ -230,7 +230,7 @@ void TreeRendererComponent::CreatePerObjectUpdateBuffer()
 }
 void TreeRendererComponent::CreatePerInstancesBuffer()
 {
-    perInstances_ = std::make_unique<BufferObject<PerInstances>>(componentContext_.resourceManager_.GetGraphicsApi(),
+    perInstances_ = std::make_unique<ShaderBufferObject<PerInstances>>(componentContext_.resourceManager_.GetGraphicsApi(),
                                                                  PER_INSTANCES_BIND_LOCATION);
 
     int index = 0;

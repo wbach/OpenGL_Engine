@@ -3,7 +3,7 @@
 
 #include "Common.h"
 #include "GameEngine/Animations/Joint.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerPoseUpdate.h"
 
 namespace GameEngine
@@ -16,7 +16,7 @@ struct JointData
     Pose pose;
     bool rootMontion{false};
     Animation::Joint rootJoint;
-    std::unique_ptr<BufferObject<PerPoseUpdate>> buffer;
+    std::unique_ptr<ShaderBufferObject<PerPoseUpdate>> buffer;
 
     void updateBufferTransform();
     void updateBufferTransform(Animation::Joint&);

@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/BufferObject.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
@@ -87,7 +87,7 @@ private:
     void DeleteTextures();
 
 private:
-    std::unique_ptr<BufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
+    std::unique_ptr<ShaderBufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
     std::optional<uint32> onTransformChangeSubscribtion_;
 
     float moveFactor_;

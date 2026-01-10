@@ -24,4 +24,14 @@ struct LeafCluster
     uint32_t seed;
     uint32_t variant;
 };
+
+struct LeafSSBO
+{
+    AlignWrapper<vec4> positionAndSizeRandomness;
+    AlignWrapper<vec4> direction;// w not used
+    AlignWrapper<vec4> colorRandomnessAndTextureIndex;
+};
+
+LeafSSBO ConvertToSSBO(const Leaf&);
+std::vector<LeafSSBO> PrepareSSBOData(const std::vector<Leaf>&);
 }  // namespace GameEngine

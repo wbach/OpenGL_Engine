@@ -162,7 +162,7 @@ void WaterRendererComponent::OnAwake()
     if (not perObjectUpdateBuffer_)
     {
         perObjectUpdateBuffer_ =
-            std::make_unique<BufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
+            std::make_unique<ShaderBufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
         updatePerObjectUpdateBuffer(thisObject_.GetWorldTransform());
     }
 
