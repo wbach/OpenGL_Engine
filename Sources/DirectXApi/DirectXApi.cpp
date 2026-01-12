@@ -625,7 +625,7 @@ void *DirectXApi::MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags)
 {
     return nullptr;
 }
-void DirectXApi::UpdateShaderStorageBuffer(uint32 id, void const *buffer)
+void DirectXApi::UpdateShaderStorageBuffer(uint32 id, void const *buffer, uint32 size)
 {
 }
 GraphicsApi::ID DirectXApi::CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag)
@@ -993,6 +993,9 @@ void DirectXApi::RenderMesh(uint32 id)
 
     impl_->SetPrimitivTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     impl_->GetDxObject(id).Draw();
+}
+void DirectXApi::RenderProcedural(uint32)
+{
 }
 void DirectXApi::RenderDebugNormals(uint32)
 {

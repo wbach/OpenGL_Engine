@@ -162,7 +162,7 @@ struct Material
     GeneralTexture* specularTexture = nullptr;
 
     // PBR – Physically Based Rendering
-    glm::vec4 baseColor{1.f, 1.f, 1.f, 1.f};
+    vec4 baseColor{1.f, 1.f, 1.f, 1.f};
     float metallicFactor   = 0.0f;
     float roughnessFactor  = 0.7f;
     float ambientOcclusion = 1.0f;
@@ -171,7 +171,7 @@ struct Material
     float normalScale        = 1.0f;
     float opacityCutoff      = 0.5f;
     float subsurfaceStrength = 0.0f;
-    glm::vec3 subsurfaceColor{0.0f};
+    vec3 subsurfaceColor{0.0f};
 
     GeneralTexture* baseColorTexture        = nullptr;
     GeneralTexture* normalTexture           = nullptr;
