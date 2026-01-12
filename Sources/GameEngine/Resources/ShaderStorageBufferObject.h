@@ -46,7 +46,7 @@ public:
             for (auto& [_, onUpdate] : onUpdateCallbacks_)
                 onUpdate();
 
-            graphicsApi_.UpdateShaderStorageBuffer(*graphicsObjectId_, &data_);
+            graphicsApi_.UpdateShaderStorageBuffer(*graphicsObjectId_, &data_, sizeof(T));
         }
     }
 
@@ -59,7 +59,7 @@ public:
 
         if (graphicsObjectId_)
         {
-            graphicsApi_.UpdateShaderStorageBuffer(*graphicsObjectId_, &data_);
+            graphicsApi_.UpdateShaderStorageBuffer(*graphicsObjectId_, &data_, sizeof(T));
         }
     }
 

@@ -16,7 +16,7 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
-in GS_OUT
+in VS_OUT
 {
     vec2 texCoord;
     vec4 worldPos;

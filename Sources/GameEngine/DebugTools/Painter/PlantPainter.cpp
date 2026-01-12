@@ -6,6 +6,8 @@
 #include <functional>
 #include <magic_enum/magic_enum.hpp>
 #include <random>
+#include <unordered_map>
+#include <vector>
 
 #include "GameEngine/Components/Physics/Terrain/TerrainHeightGetter.h"
 #include "GameEngine/Components/Renderer/Grass/GrassRendererComponent.h"
@@ -13,6 +15,7 @@
 #include "GameEngine/DebugTools/Painter/Painter.h"
 #include "GameEngine/DebugTools/Painter/TexturePainter.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/Postproccesing/PostprocessingRenderer.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "IBrush.h"
 #include "Image/Image.h"
@@ -87,61 +90,18 @@ bool IsWorldPosInImageColorRange(const PaintTextureBasedContext& context, const 
     return colorValue > threshold;
 }
 
-// bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box, float& tMin, float& tMax)
-// {
-//     tMin = 0.0f;
-//     tMax = std::numeric_limits<float>::max();
-
-//     const glm::vec3& boxMin = box.min();
-//     const glm::vec3& boxMax = box.max();
-
-//     for (int i = 0; i < 3; ++i)
-//     {
-//         float invD = 1.0f / ray.direction[i];
-//         float t0   = (boxMin[i] - ray.origin[i]) * invD;
-//         float t1   = (boxMax[i] - ray.origin[i]) * invD;
-
-//         if (invD < 0.0f)
-//             std::swap(t0, t1);
-
-//         tMin = std::max(tMin, t0);
-//         tMax = std::min(tMax, t1);
-
-//         if (tMax <= tMin)
-//             return false;
-//     }
-
-//     return true;
-// }
-// bool IntersectRayWithBoundingBox(const Ray& ray, const BoundingBox& box)
-// {
-//     float tMin, tMax;
-//     return IntersectRayWithBoundingBox(ray, box, tMin, tMax);
-// }
-// std::optional<glm::vec3> RayHitPoint(const Ray& ray, const BoundingBox& box)
-// {
-//     float tMin, tMax;
-//     if (IntersectRayWithBoundingBox(ray, box, tMin, tMax))
-//         return ray.origin + ray.direction * tMin;
-//     return std::nullopt;
-// }
-// Globalny / thread_local RNG — seed raz, lepiej niż rand()
 static thread_local std::mt19937 rng{std::random_device{}()};
 static thread_local std::uniform_real_distribution<float> uni01(0.0f, 1.0f);
 
-// Helper zwracający los w [-1, 1]
 inline float randSigned()
 {
     return uni01(rng) * 2.0f - 1.0f;
 }
 
-// Funkcja aplikująca randomness
-void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshData& pointMeshData, const Color& baseColor,
-                                 const vec3& colorRnd,  // colorRandomness.r/g/b (0..1)
-                                 float sizeRandomness)  // (0..1) oznacza +- %
+vec4 GetColorAndSizeRandomness(const Color& baseColor, const vec3& colorRnd, float sizeRandomness)
 {
-    // 1) Kolor - mnożymy proporcjonalnie do wartości bazowej:
-    float rFactor = randSigned() * colorRnd[0];  // w [-colorRnd[0], +colorRnd[0]]
+    vec4 result;
+    float rFactor = randSigned() * colorRnd[0];
     float gFactor = randSigned() * colorRnd[1];
     float bFactor = randSigned() * colorRnd[2];
 
@@ -149,60 +109,39 @@ void ApplyColorAndSizeRandomness(Components::GrassRendererComponent::GrassMeshDa
     float newG = baseColor.value.y * (1.0f + gFactor);
     float newB = baseColor.value.z * (1.0f + bFactor);
 
-    // clamp do [0,1]
     newR = std::clamp(newR, 0.0f, 1.0f);
     newG = std::clamp(newG, 0.0f, 1.0f);
     newB = std::clamp(newB, 0.0f, 1.0f);
 
-    // zachowaj alfa (w niektórych strukturach alpha może być w .w)
-    pointMeshData.color.value.x = newR;
-    pointMeshData.color.value.y = newG;
-    pointMeshData.color.value.z = newB;
-    // jeżeli masz alpha w baseColor.w:
-    pointMeshData.color.value.w = baseColor.value.w;
+    result.x = newR;
+    result.y = newG;
+    result.z = newB;
 
-    // 2) Wielkość: chcesz scale = 1 ± sizeRandomness
-    float sizeFactor = randSigned() * sizeRandomness;  // [-sizeRandomness, +sizeRandomness]
-    float newScale   = 1.0f + sizeFactor;
-    // minimalny dopuszczalny scale, żeby nie dostać < 0
+    float sizeFactor = randSigned() * sizeRandomness;
+    result.w         = 1.0f + sizeFactor;
+
     const float MIN_SCALE = 0.0001f;
-    if (newScale < MIN_SCALE)
-        newScale = MIN_SCALE;
+    if (result.w < MIN_SCALE)
+        result.w = MIN_SCALE;
 
-    // Przykład: sizeAndRotation.x = scale, .y = rotation (0 tutaj)
-    pointMeshData.sizeAndRotation.x = newScale;
-    pointMeshData.sizeAndRotation.y = 0.0f;
+    return result;
 }
-bool RemovePointsWithinRadius(std::vector<float>& positions, const glm::vec3& center, float radius)
+std::vector<vec3> PointsToRemoveWithinRadius(std::vector<Components::GrassRendererComponent::Ssbo>& ssbos,
+                                             const glm::vec3& center, float radius)
 {
-    const size_t originalSize = positions.size();
-    if (originalSize % 3 != 0)
-    {
-        LOG_WARN << "Positions size is not a multiple of 3.";
-        return false;
-    }
-
+    std::vector<vec3> result;
     const float radiusSquared = radius * radius;
-    size_t writeIndex         = 0;
 
-    for (size_t i = 0; i < originalSize; i += 3)
+    for (const auto& ssbo : ssbos)
     {
-        glm::vec3 p(positions[i], positions[i + 1], positions[i + 2]);
+        auto p            = vec3(ssbo.position.value);
         const float dist2 = glm::distance2(p, center);
-
         if (dist2 > radiusSquared)
         {
-            positions[writeIndex]     = positions[i];
-            positions[writeIndex + 1] = positions[i + 1];
-            positions[writeIndex + 2] = positions[i + 2];
-            writeIndex += 3;
+            result.push_back(p);
         }
     }
-
-    if (writeIndex < originalSize)
-        positions.resize(writeIndex);
-
-    return writeIndex != originalSize;
+    return result;
 }
 float EstimateBrushRadiusFromInfluence(const std::vector<Influance>& points)
 {
@@ -360,16 +299,16 @@ void PlantPainter::Generate(const File& terrainTextureFile)
 
         TerrainHeightGetter heightGetter(context.terrainScale, *context.terrainComponent->GetHeightMap(),
                                          context.terrainPosition);
-        Components::GrassRendererComponent::GrassMeshData pointMeshData;
 
         auto plantComponent = getPaintedPlantComponent(context.terrainComponent->GetParentGameObject());
         if (not plantComponent)
             continue;
 
-        plantComponent->GetGrassMeshesData() = {};  // TO DO remove only for specyfic texture
-
         const float step{2.f / density};
         const auto halfScale = context.terrainScale / 2.f;
+
+        std::vector<Components::GrassRendererComponent::Ssbo> ssbos;
+
         for (float z = context.terrainPosition.z - halfScale.x; z < context.terrainPosition.z + halfScale.z; z += step)
         {
             for (float x = context.terrainPosition.x - halfScale.x; x < context.terrainPosition.x + halfScale.x; x += step)
@@ -387,16 +326,17 @@ void PlantPainter::Generate(const File& terrainTextureFile)
 
                 if (maybeHeight and maybeNormal)
                 {
-                    pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
-                    pointMeshData.normal   = *maybeNormal;
-                    pointMeshData.color    = baseColor;
-                    ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
-                    plantComponent->AddGrassMesh(pointMeshData);
+                    auto colorAndScaleRandomness = GetColorAndSizeRandomness(baseColor, colorRandomness, sizeRandomness);
+
+                    Components::GrassRendererComponent::Ssbo ssbo{.position = {vec4(worldpos.x, *maybeHeight, worldpos.y, 0.f)},
+                                                                  .rotation = {vec4{0}},
+                                                                  .normal   = {vec4(*maybeNormal, 0.f)},
+                                                                  .colorAndSizeRandomness = {colorAndScaleRandomness}};
+                    ssbos.push_back(ssbo);
                 }
             }
         }
-
-        plantComponent->UpdateModel();
+        plantComponent->UpdateSsbo(std::move(ssbos));
     }
 }
 
@@ -470,16 +410,15 @@ void PlantPainter::GenerateOnTerrain(Components::TerrainRendererComponent* terra
     const auto scale      = transform.GetScale();
 
     TerrainHeightGetter heightGetter(scale, *terrainComponent->GetHeightMap(), pos);
-    Components::GrassRendererComponent::GrassMeshData pointMeshData;
 
     auto plantComponent = getPaintedPlantComponent(gameObject);
     if (not plantComponent)
         return;
 
-    plantComponent->GetGrassMeshesData() = {};
-
     const float step{2.f / density};
     const auto halfScale = scale / 2.f;
+
+    std::vector<Components::GrassRendererComponent::Ssbo> ssbos;
     for (float z = pos.z - halfScale.x; z < pos.z + halfScale.z; z += step)
     {
         for (float x = pos.x - halfScale.x; x < pos.x + halfScale.x; x += step)
@@ -490,16 +429,18 @@ void PlantPainter::GenerateOnTerrain(Components::TerrainRendererComponent* terra
 
             if (maybeHeight and maybeNormal)
             {
-                pointMeshData.position = vec3(worldpos.x, *maybeHeight, worldpos.y);
-                pointMeshData.normal   = *maybeNormal;
-                pointMeshData.color    = baseColor;
-                ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
-                plantComponent->AddGrassMesh(pointMeshData);
+                auto colorAndScaleRandomness = GetColorAndSizeRandomness(baseColor, colorRandomness, sizeRandomness);
+
+                Components::GrassRendererComponent::Ssbo ssbo{.position = {vec4(worldpos.x, *maybeHeight, worldpos.y, 0.f)},
+                                                              .rotation = {vec4{0}},
+                                                              .normal   = {vec4(*maybeNormal, 0.f)},
+                                                              .colorAndSizeRandomness = {colorAndScaleRandomness}};
+                ssbos.push_back(ssbo);
             }
         }
     }
 
-    plantComponent->UpdateModel();
+    plantComponent->UpdateSsbo(std::move(ssbos));
 }
 void PlantPainter::Erase(const vec2& mousePosition)
 {
@@ -526,10 +467,9 @@ void PlantPainter::Erase(const vec2& mousePosition)
         return;
     }
 
-    std::unordered_set<Components::GrassRendererComponent*> modifiedComponents;
-
     const float radius = EstimateBrushRadiusFromInfluence(points) * PLANT_STEP;
 
+    std::unordered_map<Components::GrassRendererComponent*, std::vector<vec3>> modifiedComponents;
     for (const auto& point : points)
     {
         const auto convertedPoint = vec3(static_cast<float>(point.point.x), 0.f, static_cast<float>(point.point.y)) * PLANT_STEP;
@@ -537,14 +477,17 @@ void PlantPainter::Erase(const vec2& mousePosition)
 
         for (auto* plantComponent : plantComponents)
         {
-            auto& meshData = plantComponent->GetGrassMeshesData();
-            if (RemovePointsWithinRadius(meshData.positions, worldSpacePoint, radius))
-                modifiedComponents.insert(plantComponent);
+            auto toRemove = PointsToRemoveWithinRadius(plantComponent->GetSsbo()->GetData(), worldSpacePoint, radius);
+
+            auto& p = modifiedComponents[plantComponent];
+            p.insert(p.end(), toRemove.begin(), toRemove.end());
         }
     }
 
-    for (auto* plantComponent : modifiedComponents)
-        plantComponent->UpdateModel();
+    for (auto& [plantComponent, toRemove] : modifiedComponents)
+    {
+        plantComponent->RemoveInstances(toRemove);
+    }
 }
 
 void PlantPainter::Paint(const vec2& mousePosition)
@@ -579,12 +522,13 @@ void PlantPainter::Paint(const vec2& mousePosition)
                 onPaintCallback_(*plantComponent);
             }
 
-            Components::GrassRendererComponent::GrassMeshData pointMeshData;
-
             try
             {
+                std::vector<Components::GrassRendererComponent::Ssbo> ssbos;
+                ssbos.reserve(points.size());
+
                 TerrainHeightGetter heightGetter(*currentTerrainPoint->terrainComponent);
-                bool modelChanged{false};
+                bool modelHasChanged{false};
                 for (const auto& point : points)
                 {
                     auto randomOffset    = randomVec2(randomness, density);
@@ -596,19 +540,21 @@ void PlantPainter::Paint(const vec2& mousePosition)
                     auto maybeNormal = heightGetter.GetNormalOfTerrain(worldSpacePoint.x, worldSpacePoint.z);
                     if (maybeHeight and maybeNormal)
                     {
-                        pointMeshData.position = vec3(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z);
-                        LOG_DEBUG << "pointMeshData.position: " << pointMeshData.position;
-                        pointMeshData.normal = *maybeNormal;
-                        pointMeshData.color  = baseColor;
-                        ApplyColorAndSizeRandomness(pointMeshData, baseColor, colorRandomness, sizeRandomness);
-                        plantComponent->AddGrassMesh(pointMeshData);
-                        modelChanged = true;
+                        auto colorAndScaleRandomness = GetColorAndSizeRandomness(baseColor, colorRandomness, sizeRandomness);
+
+                        Components::GrassRendererComponent::Ssbo ssbo{
+                            .position               = {vec4(worldSpacePoint.x, *maybeHeight, worldSpacePoint.z, 0.f)},
+                            .rotation               = {vec4{0}},
+                            .normal                 = {vec4(*maybeNormal, 0.f)},
+                            .colorAndSizeRandomness = {colorAndScaleRandomness}};
+                        ssbos.push_back(ssbo);
+                        modelHasChanged = true;
                     }
                 }
 
-                if (modelChanged)
+                if (modelHasChanged)
                 {
-                    plantComponent->UpdateModel();
+                    plantComponent->AddInstances(std::move(ssbos));
                 }
             }
             catch (const std::runtime_error& err)

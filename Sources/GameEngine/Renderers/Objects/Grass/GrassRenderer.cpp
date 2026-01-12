@@ -127,40 +127,22 @@ void GrassRenderer::RenderSubscribes()
     {
         for (const auto& component : components)
         {
-            if (auto model = component->GetModel().Get())
+            if (auto ssboId = component->GetSsboId())
             {
-                RenderModel(*model);
+                auto diffTexture = component->GetMaterial().diffuseTexture;
+
+                if (diffTexture and diffTexture->GetGraphicsObjectId())
+                    context_.graphicsApi_.ActiveTexture(0, *diffTexture->GetGraphicsObjectId());
+
+                context_.graphicsApi_.BindShaderBuffer(*ssboId);
+                context_.graphicsApi_.RenderProcedural(component->GetCount() * 96);
+            }
+            else
+            {
+                LOG_DEBUG << "Ssbo not ready for gameObjectId = " << component->GetParentGameObject().GetId();
             }
         }
     }
-}
-
-void GrassRenderer::RenderModel(const Model& model)
-{
-    // int rendererdMeshes = 0;
-    for (const auto& mesh : model.GetMeshes())
-    {
-        if (mesh.GetGraphicsObjectId())
-        {
-            // auto isVisible = context_.frustrum_.intersection(mesh.getBoundingBox());
-            // if (isVisible)
-            {
-                RenderMesh(mesh);
-                //++rendererdMeshes;
-            }
-        }
-    }
-    // /* LOG TO FIX*/  LOG_ERROR << ("rendererdMeshes : " + std::to_string(rendererdMeshes));
-}
-
-void GrassRenderer::RenderMesh(const Mesh& mesh)
-{
-    auto diffTexture = mesh.GetMaterial().diffuseTexture;
-
-    if (diffTexture and diffTexture->GetGraphicsObjectId())
-        context_.graphicsApi_.ActiveTexture(0, *diffTexture->GetGraphicsObjectId());
-
-    context_.graphicsApi_.RenderPoints(*mesh.GetGraphicsObjectId());
 }
 
 void GrassRenderer::prepareShader()

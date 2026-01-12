@@ -67,8 +67,8 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         GraphicsApi::ShaderProgramType::Grass,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Grass/Forward/GrassShader.vert"},
+            //{GraphicsApi::ShaderType::GEOMETRY_SHADER, "Grass/Forward/GrassShader.geom"}
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Grass/Forward/GrassShader.frag"},
-            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Grass/Forward/GrassShader.geom"}
         }
     },
     {

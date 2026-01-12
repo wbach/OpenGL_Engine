@@ -1,5 +1,6 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
+#include <Types.h>
 
 #include <mutex>
 
@@ -8,7 +9,7 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
 #include "GrassShaderBuffer.h"
-#include "Types.h"
+
 namespace GameEngine
 {
 struct Time;
@@ -38,8 +39,6 @@ private:
     void InitShaderBuffer();
     void EndRender() const;
     void RenderSubscribes();
-    void RenderModel(const Model& model);
-    void RenderMesh(const Mesh& mesh);
     void prepareShader();
 
 private:

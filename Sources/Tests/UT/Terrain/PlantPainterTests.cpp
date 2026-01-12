@@ -77,8 +77,8 @@ struct PlantPainterShould : public EngineBasedTest
                                                                      GameEngine::WorldSpaceBrushRadius{WORLD_RADIOUS}, strength);
         brush_           = circleBrush.get();
         sut_             = std::make_unique<PlantPainter>(std::move(parameters), selectedPlantTexture, std::move(circleBrush),
-                                                          PlantPainter::PaintMode::Terrain, baseColor, colorRandomness, sizeRandomness,
-                                                          density, randomness);
+                                              PlantPainter::PaintMode::Terrain, baseColor, colorRandomness, sizeRandomness,
+                                              density, randomness);
 
         sut_->Start();
     }
@@ -147,13 +147,10 @@ TEST_F(PlantPainterShould, PaintInTheMiddle)
     EXPECT_EQ(plantComponent->textureFile, selectedPlantTexture);
     EXPECT_FALSE(plantComponent->dataFile.empty());
 
-    const auto& meshes = plantComponent->GetGrassMeshesData();
-
     bool centralPointFound = false;
-    for (size_t i = 0; i < meshes.positions.size(); i += 3)
+    for (auto& ssbo : plantComponent->GetSsbo()->GetData())
     {
-        auto& p = meshes.positions;
-        vec3 v(p[i], p[i + 1], p[i + 2]);
+        auto& v = ssbo.position.value;
         if (glm::abs(v.x - TERRAIN_POSITION.x) < randomness and glm::abs(v.y - TERRAIN_POSITION.y) < 0.01f and
             glm::abs(v.z - TERRAIN_POSITION.z) < randomness)
         {
@@ -163,7 +160,7 @@ TEST_F(PlantPainterShould, PaintInTheMiddle)
 
     EXPECT_TRUE(centralPointFound);
 
-    LOG_DEBUG << "meshes.positions.size() = " << meshes.positions.size();
+    LOG_DEBUG << "meshes.positions.size() = " << plantComponent->GetSsbo()->GetData().size();
 
     sut_.reset();
 }

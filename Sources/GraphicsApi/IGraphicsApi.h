@@ -63,7 +63,7 @@ public:
     virtual ID CreateShaderBuffer(uint32 bindLocation, uint32 size, DrawFlag)                 = 0;
     virtual ID CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, DrawFlag)          = 0;
     virtual void UpdateShaderBuffer(uint32 id, void const* buffer)                            = 0;
-    virtual void UpdateShaderStorageBuffer(uint32 id, void const* buffer)                     = 0;
+    virtual void UpdateShaderStorageBuffer(uint32 id, void const* buffer, uint32 size)        = 0;
     virtual void* MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags)                = 0;
     virtual void UnmapShaderStorageBuffer(uint32 id)                                          = 0;
     virtual uint32 BindShaderBuffer(uint32)                                                   = 0;

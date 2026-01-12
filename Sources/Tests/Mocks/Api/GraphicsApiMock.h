@@ -34,7 +34,7 @@ public:
     MOCK_METHOD(ID, CreateShaderBuffer, (uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag), (override));
     MOCK_METHOD(ID, CreateShaderStorageBuffer, (uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag), (override));
     MOCK_METHOD(void, UpdateShaderBuffer, (uint32 id, const void* buffer), (override));
-    MOCK_METHOD(void, UpdateShaderStorageBuffer, (uint32 id, const void* buffer), (override));
+    MOCK_METHOD(void, UpdateShaderStorageBuffer, (uint32 id, const void* buffer, uint32), (override));
     MOCK_METHOD(void*, MapShaderStorageBuffer, (uint32, uint32, uint32), (override));
     MOCK_METHOD(void, UnmapShaderStorageBuffer, (uint32), (override));
     MOCK_METHOD(uint32, BindShaderBuffer, (uint32), (override));

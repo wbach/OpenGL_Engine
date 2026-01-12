@@ -1,4 +1,6 @@
 #pragma once
+#include <cstddef>
+
 #include "BufferObject.h"
 
 namespace GameEngine
@@ -39,12 +41,17 @@ public:
             graphicsObjectId_ = graphicsApi_.CreateShaderStorageBuffer(bindLocation_, totalSize, GraphicsApi::DrawFlag::Dynamic);
         }
 
-        graphicsApi_.UpdateShaderStorageBuffer(*graphicsObjectId_, dataVector_.data());
+        graphicsApi_.UpdateShaderStorageBuffer(*graphicsObjectId_, dataVector_.data(), totalSize);
     }
 
     void UpdateGpuPass() override
     {
         GpuLoadingPass();
+    }
+
+    size_t GetCount() const
+    {
+        return dataVector_.size();
     }
 
 private:

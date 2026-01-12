@@ -134,7 +134,7 @@ private:
         std::optional<GameEngine::File> selectedTextureFile;
 
         std::unordered_map<GameEngine::Components::GrassRendererComponent*,
-                           GameEngine::Components::GrassRendererComponent::GrassMeshes>
+                           std::vector<GameEngine::Components::GrassRendererComponent::Ssbo>>
             snapshotsMap;
     };
 

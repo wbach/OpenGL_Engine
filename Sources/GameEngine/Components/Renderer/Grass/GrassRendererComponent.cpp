@@ -4,25 +4,83 @@
 #include <Utils/TreeNode.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <fstream>
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
-#include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
+#include "GameEngine/Resources/Models/Loaders/Binary/BinaryExporter.h"
+#include "GameEngine/Resources/Models/Loaders/Binary/BinaryImporter.h"
 #include "GameEngine/Resources/ResourceManager.h"
-#include "GameEngine/Resources/Textures/HeightMap.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 
 namespace GameEngine
 {
 namespace Components
 {
+template <typename S>
+void serialize(S& s, GrassRendererComponent::Ssbo& ssbo)
+{
+    s.object(ssbo.position.value);
+    s.object(ssbo.rotation.value);
+    s.object(ssbo.normal.value);
+    s.object(ssbo.colorAndSizeRandomness.value);
+}
+template <typename S>
+void serialize(S& s, std::vector<GrassRendererComponent::Ssbo>& ssbos)
+{
+    constexpr size_t MAX_SIZE = std::numeric_limits<size_t>::max();
+    s.container(ssbos, MAX_SIZE);
+}
 namespace
 {
-const int32 BOX_SIZE = 100;
-const bool DEVIDE_SPACE{false};
+void ExportSSBO(const std::vector<GrassRendererComponent::Ssbo>& ssbos, const std::filesystem::path& path)
+{
+    auto outputPath = path;
+    outputPath.replace_extension(".bin");
+
+    std::ofstream file(outputPath, std::ios::binary);
+    if (not file)
+    {
+        LOG_WARN << "Open file error: " << outputPath;
+        return;
+    }
+    bitsery::Serializer<bitsery::OutputStreamAdapter> ser{file};
+    ser.object(ssbos);
+
+    if (not file.good())
+    {
+        LOG_ERROR << "File write error: " << outputPath;
+        return;
+    }
+
+    LOG_DEBUG << "Export done: " << outputPath;
+}
+std::vector<GrassRendererComponent::Ssbo> ImportSSBO(const std::filesystem::path& path)
+{
+    std::vector<GrassRendererComponent::Ssbo> result;
+
+    std::ifstream file(path, std::ios::binary);
+    if (!file.is_open())
+    {
+        LOG_ERROR << "Failed to open binary model file: " << path;
+        return {};
+    }
+
+    bitsery::Deserializer<bitsery::InputStreamAdapter> des{file};
+    des.object(result);
+
+    if (not file.good())
+    {
+        LOG_ERROR << "Binary model import failed: " << path;
+        return {};
+    }
+
+    return result;
+}
 }  // namespace
 
 GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -34,77 +92,23 @@ GrassRendererComponent::GrassRendererComponent(ComponentContext& componentContex
 void GrassRendererComponent::CleanUp()
 {
     UnSubscribe();
-
-    for (auto model : model_.PopModels())
+    if (ssbo)
     {
-        componentContext_.resourceManager_.ReleaseModel(*model);
+        componentContext_.gpuResourceLoader_.AddObjectToRelease(std::move(ssbo));
     }
-    meshData_ = GrassMeshes();
+
+    CleanUpMaterial();
 }
 void GrassRendererComponent::ReqisterFunctions()
 {
-    RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::CreateModelAndSubscribe, this));
+    RegisterFunction(FunctionType::Awake, std::bind(&GrassRendererComponent::OnAwake, this));
 }
 void GrassRendererComponent::Reload()
 {
     CleanUp();
-    CreateModelAndSubscribe();
+    OnAwake();
 }
-void GrassRendererComponent::UpdateModel()
-{
-    auto model = model_.Get(LevelOfDetail::L1);
-
-    if (model and not model->GetMeshes().empty())
-    {
-        auto& mesh = model->GetMeshes().front();
-
-        if (mesh.GetGraphicsObjectId())
-        {
-            CopyDataToMesh(mesh);
-            auto& meshData = mesh.GetMeshDataRef();
-
-            componentContext_.gpuResourceLoader_.AddFunctionToCall(
-                [&graphicsApi = this->componentContext_.graphicsApi_, &mesh, &meshData]()
-                {
-                    graphicsApi.UpdateMesh(*mesh.GetGraphicsObjectId(), meshData,
-                                           {VertexBufferObjects::POSITION, VertexBufferObjects::TEXT_COORD,
-                                            VertexBufferObjects::NORMAL, VertexBufferObjects::TANGENT});
-                });
-        }
-    }
-    else
-    {
-        if (CreateGrassModel())
-        {
-            SubscribeToRenderer();
-        }
-    }
-}
-
-void GrassRendererComponent::AddGrassMesh(const GrassMeshData& mesh)
-{
-    meshData_.positions.push_back(mesh.position.x);
-    meshData_.positions.push_back(mesh.position.y);
-    meshData_.positions.push_back(mesh.position.z);
-
-    meshData_.sizesAndRotations.push_back(mesh.sizeAndRotation.x);
-    meshData_.sizesAndRotations.push_back(mesh.sizeAndRotation.y);
-
-    meshData_.normals.push_back(mesh.normal.x);
-    meshData_.normals.push_back(mesh.normal.y);
-    meshData_.normals.push_back(mesh.normal.z);
-
-    meshData_.colors.push_back(mesh.color.value.x);
-    meshData_.colors.push_back(mesh.color.value.y);
-    meshData_.colors.push_back(mesh.color.value.z);
-}
-
-GrassRendererComponent& GrassRendererComponent::SetMeshesData(GrassMeshes&& data)
-{
-    meshData_ = std::move(data);
-    return *this;
-}
-GrassRendererComponent& GrassRendererComponent::setMeshDataFile(const File& file)
+GrassRendererComponent& GrassRendererComponent::setDataFile(const File& file)
 {
     dataFile = file;
     return *this;
@@ -112,52 +116,12 @@ GrassRendererComponent& GrassRendererComponent::setMeshDataFile(const File& file
 GrassRendererComponent& GrassRendererComponent::setTexture(const File& filename)
 {
     textureFile = filename;
+    if (isSubscribed_)
+    {
+        CleanUpMaterial();
+        material = CreateMaterial();
+    }
     return *this;
-}
-void GrassRendererComponent::CreateModelAndSubscribe()
-{
-    LOG_DEBUG << "CreateModelAndSubscribe";
-    if (EngineConf.renderer.flora.isEnabled)
-    {
-        if (dataFile.exist())
-        {
-            auto succes = dataFile.openToRead();
-            LOG_DEBUG << "Read data file: " << dataFile;
-            if (succes)
-            {
-                dataFile.readVectorFromFile(meshData_.positions);
-                dataFile.readVectorFromFile(meshData_.normals);
-                dataFile.readVectorFromFile(meshData_.colors);
-                dataFile.readVectorFromFile(meshData_.sizesAndRotations);
-                dataFile.close();
-            }
-            else
-            {
-                LOG_DEBUG << "Read data file error: " << dataFile;
-            }
-        }
-        else
-        {
-            CreateDataFile();
-            return;
-        }
-
-        if (not isSubscribed_ and not model_.Get(LevelOfDetail::L1))
-        {
-            if (CreateGrassModel())
-            {
-                SubscribeToRenderer();
-            }
-            else
-            {
-                LOG_ERROR << "Model creation error.";
-            }
-        }
-    }
-    else
-    {
-        LOG_DEBUG << "Flora is disabled.";
-    }
 }
 void GrassRendererComponent::UnSubscribe()
 {
@@ -172,106 +136,20 @@ void GrassRendererComponent::CreateDataFile()
     dataFile = EngineConf.files.getGeneratedDirPath() / (Utils::CreateUniqueFilename() + ".plantData");
     LOG_DEBUG << "Generatefd data file name: " << dataFile;
 }
-std::vector<Mesh> GrassRendererComponent::CreateGrassMeshes(const Material& material) const
+Material GrassRendererComponent::CreateMaterial() const
 {
-    std::vector<Mesh> result;
-    if (DEVIDE_SPACE)
+    if (not textureFile.exist())
     {
-        result.reserve(meshData_.positions.size() / 3);
-        std::unordered_map<int32, std::unordered_map<int32, std::unordered_map<int32, Mesh>>> meshBoxes_;
-        size_t sizeAndRotationIndex = 0;
-        for (size_t i = 0; i < meshData_.positions.size(); i += 3)
-        {
-            vec3 position(meshData_.positions[i], meshData_.positions[i + 1], meshData_.positions[i + 2]);
-
-            auto xIndex = static_cast<int32>(position.x) / BOX_SIZE;
-            auto yIndex = static_cast<int32>(position.y) / BOX_SIZE;
-            auto zIndex = static_cast<int32>(position.z) / BOX_SIZE;
-
-            auto& yMeshBox = meshBoxes_[xIndex][yIndex];
-            auto iter      = yMeshBox.find(zIndex);
-
-            Mesh* mesh{nullptr};
-            if (iter == yMeshBox.end())
-            {
-                Mesh m(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
-                yMeshBox.insert({zIndex, std::move(m)});
-                mesh = &yMeshBox.at(zIndex);
-                vec3 bbMin(xIndex * BOX_SIZE, yIndex * BOX_SIZE, zIndex * BOX_SIZE);
-                vec3 bbMax((xIndex + 1) * BOX_SIZE, (yIndex + 1) * BOX_SIZE, (zIndex + 1) * BOX_SIZE);
-                BoundingBox boundingBox(bbMin * 1.1f, bbMax * 1.1f);
-                mesh->setBoundingBox(boundingBox);
-            }
-            else
-            {
-                mesh = &iter->second;
-            }
-
-            auto& meshData = mesh->GetMeshDataRef();
-            meshData.positions_.push_back(position.x);
-            meshData.positions_.push_back(position.y);
-            meshData.positions_.push_back(position.z);
-
-            meshData.textCoords_.push_back(meshData_.sizesAndRotations[sizeAndRotationIndex++]);
-            meshData.textCoords_.push_back(meshData_.sizesAndRotations[sizeAndRotationIndex++]);
-
-            meshData.normals_.push_back(meshData_.normals[i]);
-            meshData.normals_.push_back(meshData_.normals[i + 1]);
-            meshData.normals_.push_back(meshData_.normals[i + 2]);
-
-            meshData.tangents_.push_back(meshData_.colors[i]);
-            meshData.tangents_.push_back(meshData_.colors[i + 1]);
-            meshData.tangents_.push_back(meshData_.colors[i + 2]);
-        }
-
-        for (auto& [_, yIndexMap] : meshBoxes_)
-        {
-            for (auto& [_, zIndexMap] : yIndexMap)
-            {
-                for (auto& [_, mesh] : zIndexMap)
-                {
-                    result.push_back(std::move(mesh));
-                }
-            }
-        }
-    }
-    else
-    {
-        Mesh mesh(GraphicsApi::RenderType::POINTS, componentContext_.graphicsApi_, GraphicsApi::MeshRawData(), material);
-        CopyDataToMesh(mesh);
-        result.push_back(std::move(mesh));
+        LOG_WARN << "TextureFile not exist :" << textureFile;
+        return {};
     }
 
-    return result;
-}
-void GrassRendererComponent::CopyDataToMesh(Mesh& mesh) const
-{
-    auto& data       = mesh.GetMeshDataRef();
-    data.positions_  = meshData_.positions;
-    data.textCoords_ = meshData_.sizesAndRotations;
-    data.normals_    = meshData_.normals;
-    data.tangents_   = meshData_.colors;
-}
-bool GrassRendererComponent::CreateGrassModel()
-{
-    if (meshData_.positions.empty())
-        return false;
+    GameEngine::TextureParameters tp;
+    tp.mimap = GraphicsApi::TextureMipmap::LINEAR;
 
-    auto model    = std::make_unique<Model>();
-    auto material = CreateGrassMaterial();
-    model->SetMeshes(CreateGrassMeshes(material));
-
-    model_.Add(model.get(), LevelOfDetail::L1);
-    model->SetFile(dataFile);
-    auto addedModel = componentContext_.resourceManager_.AddModel(std::move(model));
-    return addedModel != nullptr;
-}
-Material GrassRendererComponent::CreateGrassMaterial() const
-{
-    Material grass_material;
-    grass_material.diffuseTexture =
-        componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, TextureParameters());
-    return grass_material;
+    Material material;
+    material.diffuseTexture = componentContext_.resourceManager_.GetTextureLoader().LoadTexture(textureFile, tp);
+    return material;
 }
 void GrassRendererComponent::registerReadFunctions()
 {
@@ -286,7 +164,7 @@ void GrassRendererComponent::registerReadFunctions()
 
         if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
         {
-            component->setMeshDataFile(filenameNode->value_);
+            component->setDataFile(filenameNode->value_);
         }
         return component;
     };
@@ -296,20 +174,12 @@ void GrassRendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
-    const auto& meshData = GetGrassMeshesData();
-
-    auto file   = getDataFile();
-    auto opened = file.openToWrite();
-    if (opened)
+    ::write(node.addChild(CSTR_FILE_NAME), dataFile.GetDataRelativePath());
+    if (not dataFile.empty() and ssbo)
     {
-        file.addVectorToFile(meshData.positions);
-        file.addVectorToFile(meshData.normals);
-        file.addVectorToFile(meshData.colors);
-        file.addVectorToFile(meshData.sizesAndRotations);
-        file.close();
+        ExportSSBO(ssbo->GetData(), dataFile.GetAbsolutePath());
     }
 
-    ::write(node.addChild(CSTR_FILE_NAME), file.GetDataRelativePath());
     ::write(node.addChild(CSTR_TEXTURE_FILENAME), getTextureFile().GetDataRelativePath());
 }
 void GrassRendererComponent::SubscribeToRenderer()
@@ -321,6 +191,129 @@ void GrassRendererComponent::SubscribeToRenderer()
     }
     componentContext_.renderersManager_.Subscribe(&thisObject_);
     isSubscribed_ = true;
+}
+void GrassRendererComponent::CreateSsbo()
+{
+    if (not ssbo)
+    {
+        if (dataFile.empty())
+        {
+            dataFile = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".bin");
+        }
+
+        LOG_DEBUG << "Create shaderStorageVectorBufferObject";
+        ssbo = std::make_unique<ShaderStorageVectorBufferObject<Ssbo>>(componentContext_.resourceManager_.GetGraphicsApi(),
+                                                                       PER_INSTANCES_BIND_LOCATION);
+    }
+}
+void GrassRendererComponent::UpdateSsbo(std::vector<Ssbo>&& v)
+{
+    if (dataFile.empty())
+    {
+        dataFile = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".bin");
+    }
+
+    if (not ssbo)
+    {
+        CreateSsbo();
+    }
+    ssbo->GetData() = std::move(v);
+    componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*ssbo);
+}
+const Material& GrassRendererComponent::GetMaterial() const
+{
+    return material;
+}
+size_t GrassRendererComponent::GetCount() const
+{
+    return ssbo ? ssbo->GetCount() : 0;
+}
+const GraphicsApi::ID& GrassRendererComponent::GetSsboId() const
+{
+    if (not ssbo)
+    {
+        static GraphicsApi::ID id;
+        return id;
+    }
+
+    return ssbo->GetGraphicsObjectId();
+}
+void GrassRendererComponent::AddInstance(const Ssbo& v)
+{
+    if (ssbo)
+    {
+        ssbo->GetData().push_back(v);
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*ssbo);
+    }
+    else
+    {
+        std::vector<Ssbo> newSsboVector{v};
+        UpdateSsbo(std::move(newSsboVector));
+    }
+}
+void GrassRendererComponent::AddInstances(std::vector<Ssbo>&& v)
+{
+    if (ssbo)
+    {
+        ssbo->GetData().insert(ssbo->GetData().end(), v.begin(), v.end());
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*ssbo);
+    }
+    else
+    {
+        UpdateSsbo(std::move(v));
+    }
+}
+const GrassRendererComponent::SsboType& GrassRendererComponent::GetSsbo() const
+{
+    return ssbo;
+}
+void GrassRendererComponent::RemoveInstances(const std::vector<vec3>& positionsToRemove)
+{
+    if (ssbo)
+    {
+        auto& dataVector = ssbo->GetData();
+
+        const float epsilon = 0.0001f;
+
+        dataVector.erase(std::remove_if(dataVector.begin(), dataVector.end(),
+                                        [&](const Ssbo& instance)
+                                        {
+                                            vec3 instancePos = vec3(instance.position.value);
+                                            for (const auto& targetPos : positionsToRemove)
+                                            {
+                                                if (glm::distance(instancePos, targetPos) < epsilon)
+                                                {
+                                                    return true;
+                                                }
+                                            }
+                                            return false;
+                                        }),
+                         dataVector.end());
+
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*ssbo);
+    }
+}
+void GrassRendererComponent::OnAwake()
+{
+    CreateSsbo();
+    if (textureFile)
+    {
+        material = CreateMaterial();
+    }
+    if (dataFile)
+    {
+        auto data = ImportSSBO(dataFile.GetAbsolutePath());
+        UpdateSsbo(std::move(data));
+    }
+    SubscribeToRenderer();
+}
+void GrassRendererComponent::CleanUpMaterial()
+{
+    if (material.diffuseTexture)
+    {
+        componentContext_.resourceManager_.GetTextureLoader().DeleteTexture(*material.diffuseTexture);
+        material.diffuseTexture = nullptr;
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

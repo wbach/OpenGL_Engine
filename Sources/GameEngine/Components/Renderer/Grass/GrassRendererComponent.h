@@ -1,6 +1,11 @@
 #pragma once
+#include <memory>
+#include <vector>
+
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/Models/Material.h"
+#include "GameEngine/Resources/ShaderStorageVectorBufferObject.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -21,75 +26,56 @@ public:
     // clang-format on
 
 public:
-    struct GrassMeshData
+    struct Ssbo
     {
-        vec3 position;
-        vec2 sizeAndRotation;
-        vec3 normal;
-        Color color;
+        AlignWrapper<vec4> position;
+        AlignWrapper<vec4> rotation;
+        AlignWrapper<vec4> normal;
+        AlignWrapper<vec4> colorAndSizeRandomness;  // xyz - pos, w size
     };
+    using SsboType = std::unique_ptr<ShaderStorageVectorBufferObject<Ssbo>>;
 
-    struct GrassMeshes
-    {
-        std::vector<float> positions;
-        std::vector<float> sizesAndRotations;
-        std::vector<float> normals;
-        std::vector<float> colors;
-    };
     GrassRendererComponent(ComponentContext&, GameObject&);
 
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
 
-    inline ModelWrapper& GetModel();
-    void UpdateModel();
-
-    inline const GrassMeshes& GetGrassMeshesData() const;
-    inline GrassMeshes& GetGrassMeshesData();
     inline const File& getTextureFile() const;
     inline const File& getDataFile() const;
 
-    void AddGrassMesh(const GrassMeshData&);
+    void AddInstance(const Ssbo&);
+    void AddInstances(std::vector<Ssbo>&&);
+    void UpdateSsbo(std::vector<Ssbo>&&);
+    void RemoveInstances(const std::vector<vec3>&);
 
-    GrassRendererComponent& SetMeshesData(GrassMeshes&&);
     GrassRendererComponent& setTexture(const File&);
-    GrassRendererComponent& setMeshDataFile(const File&);
+    GrassRendererComponent& setDataFile(const File&);
+
+    const GraphicsApi::ID& GetSsboId() const;
+    const Material& GetMaterial() const;
+    size_t GetCount() const;
+    const SsboType& GetSsbo() const;
 
 private:
-    void CreateModelAndSubscribe();
     void SubscribeToRenderer();
     void UnSubscribe();
-    Material CreateGrassMaterial() const;
-    std::vector<Mesh> CreateGrassMeshes(const Material& material) const;
-    void CopyDataToMesh(Mesh&) const;
-    bool CreateGrassModel();
+    Material CreateMaterial() const;
     void CreateDataFile();
+    void CreateSsbo();
+    void OnAwake();
+    void CleanUpMaterial();
 
 private:
-    ModelWrapper model_;
-    GrassMeshes meshData_;
     bool isSubscribed_;
+
+    Material material;
+    SsboType ssbo;
 
 public:
     static void registerReadFunctions();
     void write(TreeNode&) const override;
 };
-
-ModelWrapper& GrassRendererComponent::GetModel()
-{
-    return model_;
-}
-
-const GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshesData() const
-{
-    return meshData_;
-}
-
-GrassRendererComponent::GrassMeshes& GrassRendererComponent::GetGrassMeshesData()
-{
-    return meshData_;
-}
 
 const File& GrassRendererComponent::getTextureFile() const
 {

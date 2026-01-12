@@ -12,7 +12,7 @@ class PlantPainterCommand : public Command
 private:
 public:
     using GrassRendererComponent = GameEngine::Components::GrassRendererComponent;
-    using GrassMeshes            = GrassRendererComponent::GrassMeshes;
+    using GrassMeshes            = std::vector<GrassRendererComponent::Ssbo>;
 
     struct Entry
     {
@@ -34,9 +34,12 @@ public:
     {
         for (auto& entry : entries)
         {
-            currentDatas_.push_back(Data{.component = entry.component,
-                                         .snapshot  = std::move(entry.snapshot),
-                                         .current   = entry.component.GetGrassMeshesData()});
+            if (entry.component.GetSsbo())
+            {
+                currentDatas_.push_back(Data{.component = entry.component,
+                                             .snapshot  = std::move(entry.snapshot),
+                                             .current   = entry.component.GetSsbo()->GetData()});
+            }
         }
     }
 
@@ -45,8 +48,7 @@ public:
         for (const auto& data : currentDatas_)
         {
             auto copyData = data.current;
-            data.component.SetMeshesData(std::move(copyData));
-            data.component.UpdateModel();
+            data.component.UpdateSsbo(std::move(copyData));
         }
     }
 
@@ -55,8 +57,7 @@ public:
         for (const auto& data : currentDatas_)
         {
             auto copyData = data.snapshot;
-            data.component.SetMeshesData(std::move(copyData));
-            data.component.UpdateModel();
+            data.component.UpdateSsbo(std::move(copyData));
         }
     }
 

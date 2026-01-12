@@ -737,13 +737,20 @@ void OpenGLApi::UpdateShaderBuffer(uint32 id, void const* buffer)
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void OpenGLApi::UpdateShaderStorageBuffer(uint32 id, void const* buffer)
+void OpenGLApi::UpdateShaderStorageBuffer(uint32 id, const void* data, uint32 newSize)
 {
-    const auto& b = impl_->shaderBuffers_[id];
+    auto& bufferInfo = impl_->shaderBuffers_[id];
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, bufferInfo.glId);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, b.glId);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, b.bufferSize, buffer);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    if (newSize > bufferInfo.bufferSize)
+    {
+        glBufferData(GL_SHADER_STORAGE_BUFFER, newSize, data, GL_DYNAMIC_DRAW);
+        bufferInfo.bufferSize = newSize;
+    }
+    else
+    {
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, newSize, data);
+    }
 }
 void* OpenGLApi::MapShaderStorageBuffer(uint32 id, uint32 bufferSize, uint32 flags)
 {

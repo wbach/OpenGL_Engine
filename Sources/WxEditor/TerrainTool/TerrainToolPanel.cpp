@@ -1553,7 +1553,10 @@ std::unique_ptr<GameEngine::PlantPainter> TerrainToolPanel::CreatePlantPainter()
             auto iter = snapshotsMap.find(&plantComponent);
             if (iter == snapshotsMap.end())
             {
-                snapshotsMap.insert({&plantComponent, plantComponent.GetGrassMeshesData()});
+                if (plantComponent.GetSsbo())
+                {
+                    snapshotsMap.insert({&plantComponent, plantComponent.GetSsbo()->GetData()});
+                }
             }
         });
 
@@ -1592,8 +1595,11 @@ void TerrainToolPanel::GeneratePlantsBasedOnTerrainTexture()
                         if (auto plantComponent =
                                 painter->getPaintedPlantComponent(context.terrainComponent->GetParentGameObject()))
                         {
-                            entries.push_back(PlantPainterCommand::Entry{.component = *plantComponent,
-                                                                         .snapshot  = plantComponent->GetGrassMeshesData()});
+                            if (plantComponent->GetSsbo())
+                            {
+                                entries.push_back(PlantPainterCommand::Entry{.component = *plantComponent,
+                                                                             .snapshot  = plantComponent->GetSsbo()->GetData()});
+                            }
                         }
                     }
 
@@ -1657,8 +1663,11 @@ void TerrainToolPanel::GeneratePlantsBasedOnTerrainSpecyfic()
                             {
                                 if (auto plantComponent = p->getPaintedPlantComponent(terrainComponent->GetParentGameObject()))
                                 {
-                                    entries.push_back(PlantPainterCommand::Entry{
-                                        .component = *plantComponent, .snapshot = plantComponent->GetGrassMeshesData()});
+                                    if (plantComponent->GetSsbo())
+                                    {
+                                        entries.push_back(PlantPainterCommand::Entry{
+                                            .component = *plantComponent, .snapshot = plantComponent->GetSsbo()->GetData()});
+                                    }
                                 }
                             }
 
@@ -1672,8 +1681,11 @@ void TerrainToolPanel::GeneratePlantsBasedOnTerrainSpecyfic()
                             {
                                 if (auto plantComponent = p->getPaintedPlantComponent(*go))
                                 {
-                                    entries.push_back(PlantPainterCommand::Entry{
-                                        .component = *plantComponent, .snapshot = plantComponent->GetGrassMeshesData()});
+                                    if (plantComponent->GetSsbo())
+                                    {
+                                        entries.push_back(PlantPainterCommand::Entry{
+                                            .component = *plantComponent, .snapshot = plantComponent->GetSsbo()->GetData()});
+                                    }
                                 }
                             }
 

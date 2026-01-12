@@ -42,7 +42,7 @@ public:
     GraphicsApi::ID CreateShaderBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag) override;
     GraphicsApi::ID CreateShaderStorageBuffer(uint32 bindLocation, uint32 size, GraphicsApi::DrawFlag) override;
     void UpdateShaderBuffer(uint32 id, void const* buffer) override;
-    void UpdateShaderStorageBuffer(uint32 id, void const* buffer) override;
+    void UpdateShaderStorageBuffer(uint32 id, void const* buffer, uint32 size) override;
     void* MapShaderStorageBuffer(uint32 id, uint32 size, uint32 flags) override;
     void UnmapShaderStorageBuffer(uint32 id) override;
 
