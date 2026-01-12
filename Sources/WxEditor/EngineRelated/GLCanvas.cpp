@@ -81,6 +81,8 @@ GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGa
 
 void GLCanvas::OnIdle(wxIdleEvent& event)
 {
+    EmergencyKeyRelease();
+
     if (!IsShownOnScreen() or not context)
         return;
 
@@ -94,7 +96,6 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
     }
 
     wxSize size = GetClientSize();
-    //  Engine.
     if (not engine)
     {
         auto windowApiPtr         = std::make_unique<WxEditor::WxWindowApi>(vec2i{size.x, size.y},
@@ -114,6 +115,7 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
         engine->Init();
 
         auto dlg = std::make_shared<LoadingDialog>(this, "Open scene", "Loading " + startupSceneName);
+        dlg->CenterOnParent();
         dlg->Show();
         engine->GetSceneManager().SetOnSceneLoadDone(
             [this, loadingDialog = dlg]()
@@ -298,13 +300,37 @@ void GLCanvas::OnKeyUp(wxKeyEvent& event)
 {
     if (not engine)
         return;
+
+    auto keyCode = event.GetKeyCode();
+    if (wxGetKeyState((wxKeyCode)keyCode))
+    {
+        return;
+    }
+
+    if (pressedKeys.count(keyCode) == 0)
+    {
+        return;
+    }
+
+    pressedKeys.erase(keyCode);
+
     auto& inputManager = engine->GetEngineContext().GetInputManager();
-    inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, event.GetKeyCode());
-    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, false);
+    LOG_DEBUG << "Send key up event";
+
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_UP, keyCode);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{keyCode}, false);
 }
 
 void GLCanvas::OnKeyDown(wxKeyEvent& event)
 {
+    auto keyCode = event.GetKeyCode();
+
+    if (pressedKeys.contains(keyCode) > 0)
+    {
+        return;
+    }
+    pressedKeys.insert(keyCode);
+
     if (not engine)
         return;
 
@@ -312,9 +338,10 @@ void GLCanvas::OnKeyDown(wxKeyEvent& event)
     {
         GetParent()->SetFocus();
     }
-    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{event.GetKeyCode()}, true);
+    wxWindowApi->GetWxInputManager().SetKeyToBuffer(Input::KeyInteger{keyCode}, true);
+    LOG_DEBUG << "Send key down event";
     auto& inputManager = engine->GetEngineContext().GetInputManager();
-    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, event.GetKeyCode());
+    inputManager.AddKeyEvent(WxEditor::WX_KEY_DOWN, keyCode);
 }
 
 void GLCanvas::OnChar(wxKeyEvent& evt)
@@ -571,4 +598,27 @@ GameEngine::CameraEditor* GLCanvas::GetCameraEditor()
 bool GLCanvas::IsSceneReady() const
 {
     return cameraEditorPtr != nullptr;
+}
+void GLCanvas::EmergencyKeyRelease()
+{
+    if (not pressedKeys.empty())
+    {
+        auto it = pressedKeys.begin();
+        while (it != pressedKeys.end())
+        {
+            int code = *it;
+            if (not wxGetKeyState((wxKeyCode)code))
+            {
+                LOG_DEBUG << "OnIdle: Fixing lost key through artificial OnKeyUp: " << code;
+                wxKeyEvent dummyEvent(wxEVT_KEY_UP);
+                dummyEvent.m_keyCode = code;
+                this->OnKeyUp(dummyEvent);
+                it = pressedKeys.begin();
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
 }

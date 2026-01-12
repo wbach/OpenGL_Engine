@@ -7,6 +7,7 @@
 #include <Logger/Log.h>
 #include <Utils/Json/JsonReader.h>
 #include <wx/defs.h>
+#include <wx/display.h>
 #include <wx/log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
@@ -19,9 +20,10 @@
 StartupDialog::StartupDialog()
     : wxDialog(nullptr, wxID_ANY, "MyEngine Launcher", wxDefaultPosition, wxSize(700, 450))
 {
+    CenterOnPrimaryMonitor();
+
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // HEADER
     wxPanel* header = new wxPanel(this);
     header->SetBackgroundColour(wxColour(45, 45, 48));
     wxBoxSizer* headerSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -32,10 +34,7 @@ StartupDialog::StartupDialog()
     header->SetSizer(headerSizer);
     mainSizer->Add(header, 0, wxEXPAND);
 
-    // CONTENT
     wxBoxSizer* contentSizer = new wxBoxSizer(wxHORIZONTAL);
-
-    // Recent projects list
     recentList = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 250), wxLC_REPORT | wxLC_SINGLE_SEL);
     recentList->InsertColumn(0, "Name", wxLIST_FORMAT_LEFT, 200);
     recentList->InsertColumn(1, "Path", wxLIST_FORMAT_LEFT, 450);
@@ -43,7 +42,6 @@ StartupDialog::StartupDialog()
 
     contentSizer->Add(recentList, 1, wxALL | wxEXPAND, 10);
 
-    // Buttons panel
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxVERTICAL);
     wxButton* newBtn        = new wxButton(this, wxID_NEW, "New Project");
     wxButton* openBtn       = new wxButton(this, wxID_OPEN, "Open Project");
@@ -56,7 +54,6 @@ StartupDialog::StartupDialog()
     contentSizer->Add(buttonSizer, 0, wxALIGN_TOP | wxALL, 10);
     mainSizer->Add(contentSizer, 1, wxEXPAND);
 
-    // FOOTER
     wxBoxSizer* footerSizer = new wxBoxSizer(wxHORIZONTAL);
     wxButton* exitBtn       = new wxButton(this, wxID_EXIT, "Exit");
     footerSizer->AddStretchSpacer(1);
@@ -66,21 +63,30 @@ StartupDialog::StartupDialog()
     SetSizerAndFit(mainSizer);
     Centre();
 
-    // BIND EVENTS
     newBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnNewProject, this);
     openBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnOpenProject, this);
     exitBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnExit, this);
     recentList->Bind(wxEVT_LIST_ITEM_ACTIVATED, &StartupDialog::OnRecentActivated, this);
-
-    // Podpiecie zdarzenia
     removeBtn->Bind(wxEVT_BUTTON, &StartupDialog::OnRemoveSelected, this);
 
-    Bind(wxEVT_CLOSE_WINDOW,
-         [this](wxCloseEvent&)
-         {
-             EndModal(wxID_CANCEL);  // zwraca CANCEL -> App::OnInit() zakonczy program
-         });
+    Bind(wxEVT_CLOSE_WINDOW, [this](wxCloseEvent&) { EndModal(wxID_CANCEL); });
 }
+
+void StartupDialog::CenterOnPrimaryMonitor()
+{
+#if wxCHECK_VERSION(3, 1, 2)
+    int primaryIdx = wxDisplay::GetPrimary();
+#else
+    int primaryIdx = 0;
+#endif
+
+    wxDisplay primaryDisplay(primaryIdx);
+    wxRect screenRect = primaryDisplay.GetGeometry();
+    int x             = screenRect.x + (screenRect.width - GetSize().GetWidth()) / 2;
+    int y             = screenRect.y + (screenRect.height - GetSize().GetHeight()) / 2;
+    SetPosition(wxPoint(x, y));
+}
+
 std::string StartupDialog::GetSelectedProject() const
 {
     return selectedProject;
@@ -233,13 +239,7 @@ void StartupDialog::OnRemoveSelected(wxCommandEvent&)
         wxMessageBox("No project selected to remove.", "Info", wxOK | wxICON_INFORMATION);
         return;
     }
-
-    // Pobierz sciezke projektu
     std::string path = recentList->GetItemText(item, 1).ToStdString();
-
-    // Usun z ProjectManager / wxConfig
     ProjectManager::GetInstance().RemoveRecentProject(path);
-
-    // Usun z listy
     recentList->DeleteItem(item);
 }

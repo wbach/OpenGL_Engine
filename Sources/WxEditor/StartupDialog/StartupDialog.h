@@ -19,6 +19,7 @@ private:
     void OnExit(wxCommandEvent&);
     void OnRecentActivated(wxListEvent& event);
     void OnRemoveSelected(wxCommandEvent&);
+    void CenterOnPrimaryMonitor();
 
 private:
     wxListCtrl* recentList = nullptr;

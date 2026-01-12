@@ -20,6 +20,7 @@
 #include <Utils/XML/XMLUtils.h>
 #include <wx/artprov.h>
 #include <wx/defs.h>
+#include <wx/display.h>
 #include <wx/dnd.h>
 #include <wx/filedlg.h>
 #include <wx/gdicmn.h>
@@ -194,6 +195,7 @@ MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& si
     : wxFrame(nullptr, wxID_ANY, title, pos, size)
 // clang-format on
 {
+    CenterOnPrimaryMonitor();
 }
 
 MainFrame::~MainFrame()
@@ -2032,4 +2034,18 @@ void MainFrame::MenuEditCreateTriangle(wxCommandEvent&)
 void MainFrame::MenuEditCreateTree(wxCommandEvent&)
 {
     WxEditor::GenerateTree(this, canvas);
+}
+void MainFrame::CenterOnPrimaryMonitor()
+{
+#if wxCHECK_VERSION(3, 1, 2)
+    int primaryIdx = wxDisplay::GetPrimary();
+#else
+    int primaryIdx = 0;
+#endif
+
+    wxDisplay primaryDisplay(primaryIdx);
+    wxRect screenRect = primaryDisplay.GetGeometry();
+    int x             = screenRect.x + (screenRect.width - GetSize().GetWidth()) / 2;
+    int y             = screenRect.y + (screenRect.height - GetSize().GetHeight()) / 2;
+    SetPosition(wxPoint(x, y));
 }

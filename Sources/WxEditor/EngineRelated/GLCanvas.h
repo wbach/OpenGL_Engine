@@ -68,6 +68,7 @@ public:
 private:
     wxGLContext* context;
     void SetCursorToCenter();
+    void EmergencyKeyRelease();
 
     void addContextMenu(wxMouseEvent&);
     void OnShow(wxShowEvent&);
@@ -102,6 +103,8 @@ private:
     // std::optional<IdType> cameraId;
     std::unique_ptr<GameEngine::DragObject> dragGameObject;
     std::unique_ptr<GameEngine::MousePicker> mousePicker;
+
+    std::set<int> pressedKeys;
 
     vec3 cameraPositionStartup = vec3(2.f, 2.f, 2.f);
     vec3 cameraLookAtStartup   = vec3(0.f, 0.5f, 0.f);

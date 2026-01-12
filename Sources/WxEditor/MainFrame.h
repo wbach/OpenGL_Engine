@@ -174,6 +174,7 @@ private:
     void SaveSceneAs(const std::string&);
     void UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> = std::nullopt);
     void LoadPrefab(const std::string&);
+    void CenterOnPrimaryMonitor();
 
 private:
     std::mutex componentsViewMutex;
