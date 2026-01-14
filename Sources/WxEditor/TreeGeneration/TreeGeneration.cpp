@@ -315,7 +315,6 @@ namespace WxEditor
 struct TreeModel
 {
     GameEngine::Model* trunkModel;
-    GameEngine::Model* leafModel;
     GameEngine::Model* leafBilboardModel;
 
     std::vector<GameEngine::Leaf> leafs;
@@ -678,111 +677,15 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::Tree& tree, GLCanvas
     auto trunkModelPtr = trunkModel.get();
     resourceManager.AddModel(std::move(trunkModel));
 
-    auto leafModel =
-        GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), builder.GetLeafs(), leafMaterial);
-
     auto leafBilboardModel    = CreateBillboardVertices(engineContext.GetGraphicsApi(), resourceManager.GetTextureLoader(),
                                                         GenerateTreeBillboards(builder.GetLeafs(), 512));
     auto leafBilboardModelPtr = leafBilboardModel.get();
     resourceManager.AddModel(std::move(leafBilboardModel));
 
     return TreeModel{.trunkModel        = trunkModelPtr,
-                     .leafModel         = leafModel,
                      .leafBilboardModel = leafBilboardModelPtr,
                      .leafs             = builder.GetLeafs(),
                      .leafMaterial      = leafMaterial};
-}
-
-std::vector<GameEngine::LeafCluster> CreateLeafsClusters(const std::vector<GameEngine::Leaf>& leaves)
-{
-    using namespace GameEngine;
-
-    std::vector<LeafCluster> result;
-    if (leaves.empty())
-        return result;
-
-    const float CLUSTER_RADIUS         = 0.6f;  // world units
-    const uint32_t CLUMP_VARIANT_COUNT = 8;
-
-    struct TempCluster
-    {
-        std::vector<const Leaf*> leaves;
-        vec3 center = vec3(0.0f);
-    };
-
-    std::vector<TempCluster> tempClusters;
-
-    for (const Leaf& leaf : leaves)
-    {
-        bool assigned = false;
-
-        for (auto& cluster : tempClusters)
-        {
-            if (glm::distance(cluster.center, leaf.position) < CLUSTER_RADIUS)
-            {
-                cluster.leaves.push_back(&leaf);
-
-                cluster.center =
-                    (cluster.center * float(cluster.leaves.size() - 1) + leaf.position) / float(cluster.leaves.size());
-
-                assigned = true;
-                break;
-            }
-        }
-
-        if (!assigned)
-        {
-            TempCluster c;
-            c.center = leaf.position;
-            c.leaves.push_back(&leaf);
-            tempClusters.push_back(c);
-        }
-    }
-
-    result.reserve(tempClusters.size());
-
-    for (const TempCluster& tc : tempClusters)
-    {
-        vec3 center(0.0f);
-        vec3 normal(0.0f);
-        vec3 colorRnd(0.0f);
-        float sizeRnd = 0.0f;
-
-        for (const Leaf* l : tc.leaves)
-        {
-            center += l->position;
-            normal += l->direction;
-            colorRnd += l->colorRandomness;
-            sizeRnd += l->sizeRandomness;
-        }
-
-        const float invCount = 1.0f / float(tc.leaves.size());
-        center *= invCount;
-        normal = glm::normalize(normal * invCount);
-        colorRnd *= invCount;
-        sizeRnd *= invCount;
-
-        float radius = 0.0f;
-        for (const Leaf* l : tc.leaves)
-            radius = std::max(radius, glm::distance(center, l->position));
-
-        uint32_t seed = std::hash<float>()(center.x * 17.31f + center.y * 31.77f + center.z * 13.13f);
-
-        LeafCluster out;
-        out.position  = center;
-        out.direction = normal;
-        out.radius    = radius;
-
-        out.colorRandomness = colorRnd;
-        out.sizeRandomness  = sizeRnd;
-
-        out.seed    = seed;
-        out.variant = seed % CLUMP_VARIANT_COUNT;
-
-        result.push_back(out);
-    }
-
-    return result;
 }
 
 void BindMaterialTexture(GraphicsApi::IGraphicsApi& graphicsApi, uint32 location, GameEngine::GeneralTexture* texture,
@@ -843,15 +746,8 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas
     auto trunkModelPtr = trunkModel.get();
     resourceManager.AddModel(std::move(trunkModel));
 
-    // TO DO:
-    // auto clusters  = CreateLeafsClusters(builder.GetLeafs());
-    // auto leafModel = GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), clusters, leafMaterial);
-
-    auto leafModel =
-        GameEngine::CreateLeafModel(resourceManager, engineContext.GetGraphicsApi(), builder.GetLeafs(), leafMaterial);
-
     return TreeModel{
-        .trunkModel = trunkModelPtr, .leafModel = leafModel, .leafs = builder.GetLeafs(), .leafMaterial = leafMaterial};
+        .trunkModel = trunkModelPtr, .leafs = builder.GetLeafs(), .leafMaterial = leafMaterial};
 }
 
 void GenerateTree(wxFrame* parent, GLCanvas* canvas)

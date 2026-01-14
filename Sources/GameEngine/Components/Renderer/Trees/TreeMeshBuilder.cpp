@@ -4,6 +4,7 @@
 #include <Types.h>
 #include <Utils/GLM/GLMUtils.h>
 
+#include <cstddef>
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
 #include <list>
@@ -206,7 +207,7 @@ void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<
 
         if (parentVertexes)
         {
-            if (parentVertexes->size() == parameters.radialSegments)
+            if (parentVertexes->size() == static_cast<size_t>(parameters.radialSegments))
             {
                 const auto& parentNormal = (*parentVertexes)[i].normal;
                 normal                   = glm::normalize((normal + parentNormal) / 2.f);

@@ -17,19 +17,6 @@ struct Leaf
     float sizeRandomness;
 };
 
-struct LeafCluster
-{
-    vec3 position;
-    vec3 direction;
-    float radius;
-
-    vec3 colorRandomness;
-    float sizeRandomness;
-
-    uint32_t seed;
-    uint32_t variant;
-};
-
 struct Billboard
 {
     int resolution;
