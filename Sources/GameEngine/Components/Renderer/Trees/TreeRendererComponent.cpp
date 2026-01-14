@@ -12,6 +12,7 @@
 #include "GameEngine/Components/Renderer/Trees/Leaf.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/Models/Loaders/Binary/BinaryExporter.h"
 #include "GameEngine/Resources/Models/Material.h"
@@ -27,9 +28,10 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_TRUNK_FILENAMES[]     = "trunkModelFileNames";
-constexpr char CSTR_LEAFS_FILENAMES[]     = "leafModelFileNames";
-constexpr char CSTR_INSTANCES_POSITIONS[] = "insatncesPositions";
+constexpr char CSTR_TRUNK_FILENAMES[]          = "trunkModelFileNames";
+constexpr char CSTR_LEAFS_FILENAMES[]          = "leafModelFileNames";
+constexpr char CSTR_LEAFS_BILBOARDS_FILENAME[] = "leafBilboardsModelFileNames";
+constexpr char CSTR_INSTANCES_POSITIONS[]      = "insatncesPositions";
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -154,6 +156,12 @@ void TreeRendererComponent::Awake()
         CreatePerInstancesBuffer();
         CreateLeafsSsbo();
 
+        if (not leafBilboardsModel and leafsBilboards.exist())
+        {
+            LOG_DEBUG << "Loading bilboard model";
+            leafBilboardsModel = componentContext_.resourceManager_.LoadModel(leafsBilboards);
+        }
+
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubsribed_ = true;
     }
@@ -266,9 +274,9 @@ void TreeRendererComponent::registerReadFunctions()
                             {
                                 component->leafsFileLod1 = filename;
 
-                                auto [leafSsbo, material] =
-                                    ImportLeafSSBO(componentContext.resourceManager_.GetTextureLoader(), component->leafsFileLod1.GetAbsolutePath());
-                                component->leafMaterial  = material;
+                                auto [leafSsbo, material] = ImportLeafSSBO(componentContext.resourceManager_.GetTextureLoader(),
+                                                                           component->leafsFileLod1.GetAbsolutePath());
+                                component->leafMaterial   = material;
                                 component->UpdateLeafsSsbo(std::move(leafSsbo));
                             }
                         }
@@ -278,6 +286,14 @@ void TreeRendererComponent::registerReadFunctions()
                         LOG_DEBUG << "lod read error. Lod str value = " << lvlOfDetailNode->value_;
                     }
                 }
+            }
+        }
+
+        if (auto tmpNode = node.getChild(CSTR_LEAFS_BILBOARDS_FILENAME))
+        {
+            if (auto modelTmpNode = tmpNode->getChild(CSTR_MODEL_FILE_NAME))
+            {
+                component->leafsBilboards = modelTmpNode->value_;
             }
         }
 
@@ -331,6 +347,16 @@ void TreeRendererComponent::write(TreeNode& node) const
     if (leafsSsbo_)
     {
         ExportLeafSSBO(leafsSsbo_->GetData(), leafMaterial, leafsFileLod1.GetAbsolutePath());
+    }
+
+    auto& leafsBibloardsNode = node.addChild(CSTR_LEAFS_BILBOARDS_FILENAME);
+    leafsBibloardsNode.addChild(CSTR_MODEL_FILE_NAME, leafsBilboards.GetDataRelativePath());
+
+    if (leafBilboardsModel and not leafsBilboards.exist())
+    {
+        LOG_DEBUG << "ExportModelBinary " << leafsBilboards;
+        ExportModelBinary(*leafBilboardsModel, leafsBilboards.GetAbsolutePath());
+        LOG_DEBUG << "ExportModelBinary " << leafsBilboards << " done";
     }
 
     if (not instancesPositions_.empty())
@@ -430,6 +456,16 @@ void TreeRendererComponent::UpdateLeafsSsbo(std::vector<LeafSSBO>&& v)
 
     leafsSsbo_->GetData() = std::move(v);
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*leafsSsbo_);
+}
+TreeRendererComponent& TreeRendererComponent::SetLeafBilboardsModel(Model* model)
+{
+    leafsBilboards = EngineConf.files.getGeneratedDirPath() / ("TreeLeafsBilboards_" + Utils::CreateUniqueFilename() + ".bin");
+    leafBilboardsModel = model;
+    return *this;
+}
+const Model* TreeRendererComponent::GetLeafBilboardsModel() const
+{
+    return leafBilboardsModel;
 }
 }  // namespace Components
 }  // namespace GameEngine

@@ -8,7 +8,7 @@
 #include "Objects/Entity/PreviewRenderer.h"
 #include "Objects/SkyBox/ConcreteSkyBoxRenderer.h"
 #include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
-#include "Objects/Tree/TreeRenderer.h"
+#include "Objects/Tree/ConcreteTreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
 #include "Time/Timer.h"
 
@@ -95,7 +95,7 @@ void BaseRenderer::createBaseRenderers()
     //addRenderer<PreviewRenderer>();
     addRenderer<ConcreteSkyBoxRenderer>();
     addRenderer<ConcreteTerrainMeshRenderer>();
-    addRenderer<TreeRenderer>();
+    addRenderer<ConcreteTreeRenderer>();
     addRenderer<ConcreteEntityRenderer>();
     addRenderer<WaterRenderer>();
 }

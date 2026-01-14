@@ -22,7 +22,7 @@ namespace GameEngine
 ShadowMapRenderer::ShadowMapRenderer(RendererContext& context)
     : context_(context)
     , entityRenderer_(context)
-    , treeRenderer_(context, GraphicsApi::ShaderProgramType::TreeLeafsShdaows, GraphicsApi::ShaderProgramType::Shadows) // To do use simple tree shaders
+    , treeRenderer_(context)
     , shader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Shadows)
     , instancedShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesShadows)
     , shadowBox_()

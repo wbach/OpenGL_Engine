@@ -212,7 +212,24 @@ Image::Image(Image&& other) noexcept
     other.height    = 0;
     other.channels_ = 4;
 }
-
+Image::Image(const Image& other)
+    : width(other.width)
+    , height(other.height)
+    , channels_(other.channels_)
+    , data_(other.data_)
+{
+}
+Image& Image::operator=(const Image& other)
+{
+    if (this != &other)
+    {
+        width     = other.width;
+        height    = other.height;
+        channels_ = other.channels_;
+        data_     = other.data_;
+    }
+    return *this;
+}
 Image& Image::operator=(Image&& other) noexcept
 {
     if (this != &other)
@@ -322,5 +339,36 @@ void Image::applyFilter(const ImageFilter& imageFilter)
             setPixel(vec2ui(x, y), pixelColor);
         }
     }
+}
+std::ostream& operator<<(std::ostream& os, const Utils::Image& img)
+{
+    os << "Image Stats:\n"
+       << "  Resolution: " << img.width << "x" << img.height << "\n"
+       << "  Channels:   " << static_cast<int>(img.getChannelsCount()) << "\n";
+
+    std::visit(
+        [&os](auto&& arg)
+        {
+            using T = std::decay_t<decltype(arg)>;
+
+            if constexpr (std::is_same_v<T, std::monostate>)
+            {
+                os << "  Data Type:  None (Empty)\n"
+                   << "  Data Size:  0 bytes";
+            }
+            else if constexpr (std::is_same_v<T, std::vector<uint8>>)
+            {
+                os << "  Data Type:  uint8\n"
+                   << "  Data Size:  " << arg.size() * sizeof(uint8) << " bytes";
+            }
+            else if constexpr (std::is_same_v<T, std::vector<float>>)
+            {
+                os << "  Data Type:  float\n"
+                   << "  Data Size:  " << arg.size() * sizeof(float) << " bytes";
+            }
+        },
+        img.getImageData());
+
+    return os;
 }
 }  // namespace Utils

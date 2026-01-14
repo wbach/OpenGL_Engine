@@ -21,7 +21,8 @@ layout(std140, align=16, binding = 4) uniform LeafParams
     float time;
 } leafParams;
 
-struct Leaf {
+struct Leaf
+{
     vec4 posSize;    // xyz: worldPosition, w: sizeRandomness
     vec4 dirUnused;  // xyz: worldDirection, w: unused
     vec4 colorTex;   // xyz: colorRandomness, w: textureIndex (jako float)

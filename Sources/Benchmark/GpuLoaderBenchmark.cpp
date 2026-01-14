@@ -76,28 +76,28 @@ BENCHMARK(BM_RuntimeRelease)->Arg(256)->Arg(512)->Arg(1024)->Arg(2048);
 // --------------------------------------------
 
 
-static void BM_AddObjectsToReleaseVector(benchmark::State& state)
-{
-    const int count = state.range(0);
+// static void BM_AddObjectsToReleaseVector(benchmark::State& state)
+// {
+//     const int count = state.range(0);
 
-    for (auto _ : state)
-    {
-        // 1. Utworzenie loadera
-        GameEngine::GpuResourceLoader loader;
+//     for (auto _ : state)
+//     {
+//         // 1. Utworzenie loadera
+//         GameEngine::GpuResourceLoader loader;
 
-        // 2. Przygotowanie paczki obiektów
-        std::vector<std::unique_ptr<GameEngine::GpuObject>> objs;
-        objs.reserve(count);
+//         // 2. Przygotowanie paczki obiektów
+//         std::vector<std::unique_ptr<GameEngine::GpuObject>> objs;
+//         objs.reserve(count);
 
-        for (int i = 0; i < count; ++i)
-        {
-            objs.push_back(std::make_unique<FakeGpuObject>(i));
-        }
+//         for (int i = 0; i < count; ++i)
+//         {
+//             objs.push_back(std::make_unique<FakeGpuObject>(i));
+//         }
 
-        // 3. Benchmarkowana operacja
-        loader.AddObjectsToRelease(std::move(objs));
-    }
-}
+//         // 3. Benchmarkowana operacja
+//         loader.AddObjectsToRelease(std::move(objs));
+//     }
+// }
 
 BENCHMARK(BM_AddObjectsToRelease)
     ->Arg(256)

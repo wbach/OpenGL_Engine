@@ -2,6 +2,7 @@
 
 #include <GraphicsApi/MeshRawDataSerilizeHelpers.h>
 #include <Logger/Log.h>
+#include <Utils/Image/ImageSerializer.h>
 
 #include <fstream>
 
@@ -14,7 +15,15 @@ TextureSerilizeData convert(GeneralTexture* texture)
     if (texture)
     {
         TextureSerilizeData result;
-        result.path      = texture->GetFile()->GetDataRelativePath().string();
+        if (texture->GetFile())
+        {
+            result.path = texture->GetFile()->GetDataRelativePath().string();
+        }
+        else
+        {
+            result.image = texture->GetImage();
+        }
+
         result.paramters = texture->getTextureParameters();
         return result;
     }

@@ -30,6 +30,20 @@ struct LeafCluster
     uint32_t variant;
 };
 
+struct Billboard
+{
+    int resolution;
+    std::vector<float> alpha;
+
+    vec3 center;
+    vec3 normal;
+    vec3 tangent;
+    vec3 bitangent;
+
+    float extentU;
+    float extentV;
+};
+
 struct LeafSSBO
 {
     AlignWrapper<vec4> positionAndSizeRandomness;

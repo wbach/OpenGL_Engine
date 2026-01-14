@@ -18,7 +18,9 @@ public:
 
     ~Image();
 
+    Image& operator=(const Image& other);
     Image& operator=(Image&& other) noexcept;
+    Image(const Image& other);
 
     uint32 width{0};
     uint32 height{0};
@@ -60,8 +62,9 @@ public:
         data_ = std::move(input);
     }
 
-private:
     uint8 channels_{4};
     ImageData data_;
 };
+
+std::ostream& operator<<(std::ostream&, const Utils::Image&);
 }  // namespace Utils

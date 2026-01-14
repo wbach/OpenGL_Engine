@@ -25,6 +25,7 @@ enum class ShaderProgramType
     SimpleForwardTerrainMesh,
     TreeLeafs,
     TreeLeafsShdaows,
+    TreeLeafsShdaowsBilboards,
     TreeLeafsCluster,
     Water,
     SSAO,

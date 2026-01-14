@@ -41,27 +41,12 @@ struct TreeParamBuffer
 }  // namespace
 TreeRenderer::TreeRenderer(RendererContext& context)
     : context_(context)
-    , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)
-    , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
     , measurementValue_(context.measurmentHandler_.AddNewMeasurment("TreeRenderer", "0"))
-{
-}
-
-TreeRenderer::TreeRenderer(RendererContext& context, GraphicsApi::ShaderProgramType leafsShader,
-                           GraphicsApi::ShaderProgramType trunkShader)
-    : context_(context)
-    , leafsShader_(context.graphicsApi_, leafsShader)
-    , trunkShader_(context.graphicsApi_, trunkShader)
-    , measurementValue_(context.measurmentHandler_.AddNewMeasurment("TreeRenderer", "0"))
-    , simpleRendering{true}
 {
 }
 
 void TreeRenderer::init()
 {
-    leafsShader_.Init();
-    trunkShader_.Init();
-
     if (not paramBufferId_)
     {
         paramBufferId_ = context_.graphicsApi_.CreateShaderBuffer(4, sizeof(TreeParamBuffer), GraphicsApi::DrawFlag::Dynamic);
@@ -75,44 +60,27 @@ void TreeRenderer::render()
     if (subscribes_.empty())
         return;
 
-    trunkShader_.Start();
-
     for (auto& sub : subscribes_)
     {
-        for (auto* treeRendererComponent_ : sub.treeRendererComponent_)
+        for (auto* treeRendererComponent : sub.treeRendererComponent_)
         {
-            auto perUpdate = treeRendererComponent_->GetPerObjectUpdateId();
+            auto perUpdate = treeRendererComponent->GetPerObjectUpdateId();
             if (perUpdate)
             {
                 context_.graphicsApi_.BindShaderBuffer(*perUpdate);
             }
 
-            if (paramBufferId_)
-            {
-                TreeParamBuffer buffer;
-                treeRendererComponent_->windTime += 0.1f * context_.time_.deltaTime;
-                buffer.time   = treeRendererComponent_->windTime;
-                buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
-                                   context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
-                buffer.fprams = vec4{treeRendererComponent_->leafScale, 0, 0, 0};
-                buffer.atlasParams =
-                    vec4i{treeRendererComponent_->leafTextureAtlasSize, treeRendererComponent_->leafTextureIndex, 0, 0};
+            UpdateTreePramBuffer(*treeRendererComponent);
 
-                context_.graphicsApi_.UpdateShaderBuffer(*paramBufferId_, &buffer);
-                context_.graphicsApi_.BindShaderBuffer(*paramBufferId_);
-            }
-
-            if (treeRendererComponent_->GetInstancesSize() > 0)
+            auto isVisible = context_.frustrum_.intersection(treeRendererComponent->GetWorldBoundingBox());
+            if (isVisible)
             {
-                rendererModels += RenderInstancedTree(*treeRendererComponent_);
-            }
-            else
-            {
-                rendererModels += RenderSingleTree(*treeRendererComponent_);
+                auto distanceToCamera = getDistanceToCamera(*treeRendererComponent);
+                RenderTree(*treeRendererComponent, distanceToCamera);
+                ++rendererModels;
             }
         }
     }
-
     measurementValue_ << rendererModels;
 }
 void TreeRenderer::subscribe(GameObject& gameObject)
@@ -148,11 +116,6 @@ void TreeRenderer::unSubscribeAll()
 {
     subscribes_.clear();
 }
-void TreeRenderer::reloadShaders()
-{
-    leafsShader_.Reload();
-    trunkShader_.Reload();
-}
 void TreeRenderer::BindMaterial(const Material& material) const
 {
     if (material.flags & MAT_DOUBLE_SIDED || (material.flags & MAT_FOLIAGE))
@@ -186,108 +149,44 @@ void TreeRenderer::BindMaterialTexture(uint32 location, GeneralTexture* texture,
         context_.graphicsApi_.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
 }
-int TreeRenderer::RenderSingleTree(const Components::TreeRendererComponent& treeRendererComponent)
+void TreeRenderer::RenderModel(const Model& model) const
 {
-    int renderedCount = 0;
-    auto isVisible    = context_.frustrum_.intersection(treeRendererComponent.GetWorldBoundingBox());
-    if (not isVisible)
-    {
-        return 0;
-    }
-
-    const auto& position       = treeRendererComponent.getParentGameObject().GetWorldTransform().GetPosition();
-    const auto& cameraPosition = context_.camera_->GetPosition();
-    auto disnaceToCamera       = glm::distance(position, cameraPosition);
-    auto lvl                   = LevelOfDetail::L1;
-    if (disnaceToCamera > EngineConf.renderer.lodDistance0 or simpleRendering)
-    {
-        lvl = LevelOfDetail::L2;
-    }
-
-    if (auto model = treeRendererComponent.GetTrunkModel().Get(lvl))
-    {
-        renderedCount += RenderModel(*model);
-    }
-
-    RenderLeafs(treeRendererComponent, lvl);
-
-    return renderedCount;
-}
-int TreeRenderer::RenderInstancedTree(const Components::TreeRendererComponent& treeRendererComponent)
-{
-    int renderedCount = 0;
-    auto perInstance  = treeRendererComponent.GetPerInstancesBufferId();
-    if (perInstance)
-    {
-        context_.graphicsApi_.BindShaderBuffer(*perInstance);
-    }
-
-    if (auto model = treeRendererComponent.GetTrunkModel().Get(LevelOfDetail::L1))
-    {
-        renderedCount += RenderModel(*model, treeRendererComponent.GetInstancesSize());
-    }
-
-    return renderedCount;
-}
-
-int TreeRenderer::RenderModel(const Model& model) const
-{
-    int renderedCount = 0;
-
-    trunkShader_.Start();
     for (const auto& mesh : model.GetMeshes())
     {
         if (mesh.GetGraphicsObjectId())
         {
             const auto& buffer = mesh.GetMaterialShaderBufferId();
             context_.graphicsApi_.BindShaderBuffer(*buffer);
-            renderedCount += RenderMesh(mesh);
+            RenderMesh(mesh);
         }
     }
-    trunkShader_.Stop();
-
-    return renderedCount;
 }
-int TreeRenderer::RenderModel(const Model& model, uint32 count) const
-{
-    int renderedCount = 0;
-
-    for (const auto& mesh : model.GetMeshes())
-    {
-        if (mesh.GetGraphicsObjectId())
-        {
-            const auto& buffer = mesh.GetMaterialShaderBufferId();
-            context_.graphicsApi_.BindShaderBuffer(*buffer);
-            renderedCount += RenderMesh(mesh, count);
-        }
-    }
-    return renderedCount;
-}
-int TreeRenderer::RenderMesh(const Mesh& mesh) const
+void TreeRenderer::RenderMesh(const Mesh& mesh) const
 {
     BindMaterial(mesh.GetMaterial());
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
-    return 1;
 }
-int TreeRenderer::RenderMesh(const Mesh& mesh, uint32 count) const
+void TreeRenderer::UpdateTreePramBuffer(Components::TreeRendererComponent& treeRendererComponent)
 {
-    BindMaterial(mesh.GetMaterial());
-    context_.graphicsApi_.RenderMeshInstanced(*mesh.GetGraphicsObjectId(), count);
-    return count;
-}
-void TreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent, LevelOfDetail lvl) const
-{
-    leafsShader_.Start();
-
-    auto id = treeRendererComponent.GetLeafsShaderBufferId();
-    if (not id)
+    if (paramBufferId_)
     {
-        return;
-    }
+        TreeParamBuffer buffer;
+        treeRendererComponent.windTime += 0.1f * context_.time_.deltaTime;
+        buffer.time        = treeRendererComponent.windTime;
+        buffer.wind        = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
+                           context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
+        buffer.fprams      = vec4{treeRendererComponent.leafScale, 0, 0, 0};
+        buffer.atlasParams = vec4i{treeRendererComponent.leafTextureAtlasSize, treeRendererComponent.leafTextureIndex, 0, 0};
 
-    context_.graphicsApi_.BindShaderBuffer(*id);
-    BindMaterial(treeRendererComponent.GetLeafMaterial());
-    context_.graphicsApi_.RenderProcedural(treeRendererComponent.GetLeafsCount() * 6);
-    leafsShader_.Stop();
+        context_.graphicsApi_.UpdateShaderBuffer(*paramBufferId_, &buffer);
+        context_.graphicsApi_.BindShaderBuffer(*paramBufferId_);
+    }
+}
+float TreeRenderer::getDistanceToCamera(Components::IComponent& component) const
+{
+    const auto& position       = component.getParentGameObject().GetWorldTransform().GetPosition();
+    const auto& cameraPosition = context_.camera_->GetPosition();
+
+    return glm::distance(position, cameraPosition);
 }
 }  // namespace GameEngine

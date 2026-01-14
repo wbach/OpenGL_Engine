@@ -35,6 +35,7 @@ public:
     File leafsFileLod1;
     File leafsFileLod2;
     File leafsFileLod3;
+    File leafsBilboards;
     File trunkModelLod1;
     File trunkModelLod2;
     File trunkModelLod3;
@@ -47,8 +48,9 @@ public:
         FIELD_MATERIAL(leafMaterialFile)
         FIELD_MATERIAL(trunkMaterial)
         FIELD_FILE(leafsFileLod1)
-        FIELD_FILE(leafsFileLod2)
-        FIELD_FILE(leafsFileLod3)
+        // FIELD_FILE(leafsFileLod2)
+        // FIELD_FILE(leafsFileLod3)
+        FIELD_FILE(leafsBilboards)
         FIELD_FILE(trunkModelLod1)
         FIELD_FILE(trunkModelLod2)
         FIELD_FILE(trunkModelLod3)
@@ -58,6 +60,7 @@ public:
 public:
     TreeRendererComponent(ComponentContext&, GameObject&);
     TreeRendererComponent& SetGeneratedTrunkModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
+    TreeRendererComponent& SetLeafBilboardsModel(Model*);
     TreeRendererComponent& SetTrunkModel(const File&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     TreeRendererComponent& SetInstancesPositions(const std::vector<vec3>&);
     TreeRendererComponent& SetLeafMaterial(const Material&);
@@ -70,6 +73,7 @@ public:
 
     void AddLeafClusterTexture(Material&, GraphicsApi::ID);
 
+    const Model* GetLeafBilboardsModel() const;
     const ModelWrapper& GetTrunkModel() const;
     uint32 GetInstancesSize() const;
     const std::vector<vec3>& GetInstancesPositions() const;
@@ -98,6 +102,8 @@ private:
 
 private:
     ModelWrapper trunkModel;
+    Model* leafBilboardsModel{nullptr};
+
     std::vector<vec3> instancesPositions_;
 
     Material leafMaterial;

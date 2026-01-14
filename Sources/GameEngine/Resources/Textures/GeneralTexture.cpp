@@ -3,6 +3,8 @@
 #include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include "GameEngine/Resources/DataStorePolicy.h"
+#include "GameEngine/Resources/TextureParameters.h"
 
 namespace GameEngine
 {
@@ -12,6 +14,11 @@ GeneralTexture::GeneralTexture(GraphicsApi::IGraphicsApi& graphicsApi, Utils::Im
     , image_(std::move(image))
     , paramters_(paramters)
 {
+    if (file->empty() and textureParamters_.dataStorePolicy == DataStorePolicy::ToRelease)
+    {
+        LOG_DEBUG << "File not set in texture, data could be lost, override data store police to keep data.";
+        paramters_.dataStorePolicy = DataStorePolicy::Store;
+    }
 }
 
 GeneralTexture::~GeneralTexture()
@@ -42,12 +49,12 @@ void GeneralTexture::GpuLoadingPass()
     }
     else
     {
-        image_.clearData();
         LOG_ERROR << "Texutre not created. " << debugFileNamePrint;
     }
 
     if (paramters_.dataStorePolicy == DataStorePolicy::ToRelease)
     {
+        LOG_DEBUG << "["<< debugFileNamePrint <<"] Release data from texture. ";
         image_.clearData();
     }
 }

@@ -178,6 +178,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RenderersManager.
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/IRendererFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/RendererContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Shadows/ShadowBox.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/ShadowMapTreeRenderer.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/ConcreteTreeRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/TreeLeafClusterRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/Tree/TreeRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Objects/SkyBox/ConcreteSkyBoxRenderer.h

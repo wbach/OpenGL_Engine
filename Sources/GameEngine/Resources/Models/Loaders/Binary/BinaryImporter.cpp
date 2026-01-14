@@ -4,6 +4,7 @@
 #include <bitsery/adapter/stream.h>
 #include <bitsery/bitsery.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <fstream>
 
 #include "GameEngine/Resources/ITextureLoader.h"
@@ -11,16 +12,26 @@
 #include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GraphicsApi/IGraphicsApi.h"
+#include "Image/Image.h"
 
 namespace GameEngine
 {
 GeneralTexture* createTexture(ITextureLoader& textureLoader, const TextureSerilizeData& data)
 {
-    if (data.path.empty())
-        return nullptr;
+    if (not data.path.empty())
+    {
+        LOG_DEBUG << "createTexture: " << data.path;
+        return textureLoader.LoadTexture(data.path, data.paramters);
+    }
 
-    LOG_DEBUG << "createTexture: " << data.path;
-    return textureLoader.LoadTexture(data.path, data.paramters);
+    if (data.image.has_value())
+    {
+        LOG_DEBUG << "Binary Has Texture without file IAMGE: " << data.image.value();
+        Utils::Image copyImage = data.image.value();
+        return textureLoader.CreateTexture(Utils::CreateUniqueFilename(), data.paramters, std::move(copyImage));
+    }
+
+    return nullptr;
 }
 Material convert(ITextureLoader& textureLoader, const MaterialSerilizeData& input)
 {

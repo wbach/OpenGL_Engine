@@ -1,8 +1,10 @@
 #pragma once
 #include <GraphicsApi/MeshRawDataSerilizeHelpers.h>
 #include <Logger/Log.h>
+#include <Utils/Image/ImageSerializer.h>
 #include <bitsery/adapter/stream.h>
 #include <bitsery/bitsery.h>
+#include <bitsery/ext/std_optional.h>
 #include <bitsery/traits/string.h>
 #include <bitsery/traits/vector.h>
 
@@ -55,6 +57,7 @@ struct TextureSerilizeData
 {
     TextureParameters paramters;
     std::string path;
+    std::optional<Utils::Image> image;
 };
 struct MaterialSerilizeData
 {
@@ -140,6 +143,9 @@ void serialize(S& s, TextureSerilizeData& m)
     constexpr size_t MaxStr = 2048;
     s.text1b(m.path, MaxStr);
     s.object(m.paramters);
+    //s.object(m.image);
+    s.ext(m.image, bitsery::ext::StdOptional{});
+    //Utils::serialize(s, m.image);
 }
 
 template <typename S>

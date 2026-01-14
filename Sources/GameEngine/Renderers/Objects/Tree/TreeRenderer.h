@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 
+#include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
@@ -37,38 +38,30 @@ class TreeRenderer : public IRenderer
 
 public:
     TreeRenderer(RendererContext&);
-    TreeRenderer(RendererContext&, GraphicsApi::ShaderProgramType, GraphicsApi::ShaderProgramType);
+
+    virtual void RenderTree(const Components::TreeRendererComponent&, float) const = 0;
 
     void init() override;
     void subscribe(GameObject&) override;
     void unSubscribe(GameObject&) override;
     void unSubscribeAll() override;
-    void reloadShaders() override;
     void render() override;
 
-private:
-    int RenderSingleTree(const Components::TreeRendererComponent&);
-    int RenderInstancedTree(const Components::TreeRendererComponent&);
+protected:
+    float getDistanceToCamera(Components::IComponent&) const;
 
-    int RenderModel(const Model&) const;
-    int RenderModel(const Model&, uint32) const;
-    int RenderMesh(const Mesh&) const;
-    int RenderMesh(const Mesh&, uint32) const;
-    void RenderLeafs(const Components::TreeRendererComponent&, LevelOfDetail) const;
+    void RenderModel(const Model&) const;
+    void RenderMesh(const Mesh&) const;
+
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, GeneralTexture*, bool) const;
+    void UpdateTreePramBuffer(Components::TreeRendererComponent&);
 
-private:
+protected:
     RendererContext& context_;
-    ShaderProgram leafsShader_;
-    ShaderProgram trunkShader_;
-
     Subscribers subscribes_;
     MeasurementValue& measurementValue_;
-
     std::optional<IdType> paramBufferId_;
-
-    bool simpleRendering{false};
 };
 }  // namespace GameEngine

@@ -4,7 +4,7 @@
 
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
-#include "GameEngine/Renderers/Objects/Tree/TreeRenderer.h"
+#include "GameEngine/Renderers/Objects/Tree/ShadowMapTreeRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
@@ -48,10 +48,11 @@ private:
 private:
     RendererContext& context_;
     EntityRenderer entityRenderer_;
-    TreeRenderer treeRenderer_;
+    ShadowMapTreeRenderer treeRenderer_;
 
     ShaderProgram shader_;
     ShaderProgram instancedShader_;
+
     ShadowBox shadowBox_;
     mat4 projectionViewMatrix_;
     mat4 biasMatrix_;
