@@ -17,6 +17,8 @@ public:
 
     virtual bool Init()                                                         = 0;
     virtual void Bind(FrameBuffer::BindType = FrameBuffer::BindType::ReadWrite) = 0;
+    virtual void BindTexture(IdType, FrameBuffer::Type)                         = 0;
+    virtual void BindTextureLayer(IdType, FrameBuffer::Type, int)               = 0;
     virtual void UnBind()                                                       = 0;
     virtual void Clear()                                                        = 0;
     virtual void CleanUp()                                                      = 0;

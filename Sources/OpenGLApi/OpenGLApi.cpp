@@ -27,6 +27,7 @@
 enum class ObjectType
 {
     TEXTURE_2D,
+    TEXTURE_2D_ARRAY,
     TEXTURE_CUBE_MAP,
     FRAME_BUFFER,
     RENDER_BUFFER,
@@ -894,6 +895,111 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
     return rid;
 }
 
+GraphicsApi::ID OpenGLApi::CreateTexture(const std::vector<Utils::Image>& images, GraphicsApi::TextureFilter filter,
+                                         GraphicsApi::TextureMipmap mipmap)
+{
+    if (images.empty())
+        return {};
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+
+    const auto& firstImg = images[0];
+    auto size            = firstImg.size();
+    auto channels        = firstImg.getChannelsCount();
+    int layers           = static_cast<int>(images.size());
+
+    GraphicsApi::TextureType type{GraphicsApi::TextureType::U8_RGBA};
+    GLenum glInternalFormat = GL_RGBA8;
+    GLenum glFormat         = GL_RGBA;
+    GLenum glDataType       = GL_UNSIGNED_BYTE;
+    uint32 pixelSize        = 0;
+
+    std::visit(visitor{[&](const std::vector<uint8>&)
+                       {
+                           if (channels == 4)
+                           {
+                               type             = GraphicsApi::TextureType::U8_RGBA;
+                               glInternalFormat = GL_RGBA8;
+                               glFormat         = GL_RGBA;
+                               glDataType       = GL_UNSIGNED_BYTE;
+                               pixelSize        = sizeof(uint8) * 4;
+                           }
+                       },
+                       [&](const std::vector<float>&)
+                       {
+                           glDataType = GL_FLOAT;
+                           switch (channels)
+                           {
+                               case 1:
+                                   type             = GraphicsApi::TextureType::FLOAT_TEXTURE_1D;
+                                   glInternalFormat = GL_R32F;
+                                   glFormat         = GL_RED;
+                                   pixelSize        = sizeof(float) * 1;
+                                   break;
+                               case 2:
+                                   type             = GraphicsApi::TextureType::FLOAT_TEXTURE_2D;
+                                   glInternalFormat = GL_RG32F;
+                                   glFormat         = GL_RG;
+                                   pixelSize        = sizeof(float) * 2;
+                                   break;
+                               case 3:
+                                   type             = GraphicsApi::TextureType::FLOAT_TEXTURE_3D;
+                                   glInternalFormat = GL_RGB32F;
+                                   glFormat         = GL_RGB;
+                                   pixelSize        = sizeof(float) * 3;
+                                   break;
+                               case 4:
+                                   type             = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
+                                   glInternalFormat = GL_RGBA32F;
+                                   glFormat         = GL_RGBA;
+                                   pixelSize        = sizeof(float) * 4;
+                                   break;
+                               default:
+                                   LOG_ERROR << "Unsupported number of channels for float texture: " << channels;
+                                   break;
+                           }
+                       },
+                       [](std::monostate) { LOG_ERROR << "Image data not set!"; }},
+               firstImg.getImageData());
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, glInternalFormat, size.x, size.y, layers, 0, glFormat, glDataType, nullptr);
+
+    for (int i = 0; i < layers; ++i)
+    {
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, size.x, size.y, 1, glFormat, glDataType, images[i].getRawDataPtr());
+    }
+
+    ApplyTextureParameters(GL_TEXTURE_2D_ARRAY, filter, mipmap);
+
+    if (mipmap == GraphicsApi::TextureMipmap::LINEAR)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+    }
+
+    // Statystyki i zarządzanie zasobami
+    int64 totalBytes = static_cast<int64>(size.x) * size.y * layers * pixelSize;
+    allocatedBytes(totalBytes);
+
+    auto rid = impl_->idPool_.ToUint(texture);
+    createdObjectIds.insert({rid, ObjectType::TEXTURE_2D_ARRAY});
+    allocatedTextureBytes.insert({rid, totalBytes});
+
+    // Info o teksturze
+    GraphicsApi::TextureInfo texInfo;
+    texInfo.id            = rid;
+    texInfo.size          = size;  // Tutaj .x i .y, możesz rozważyć dodanie .z dla warstw w przyszłości
+    texInfo.textureFilter = filter;
+    texInfo.textureMipmap = mipmap;
+    texInfo.textureType   = type;
+
+    impl_->textureInfos_.insert({rid, texInfo});
+
+    return rid;
+}
+
 GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter filter, int32 N)
 {
     GLuint texture;
@@ -923,6 +1029,27 @@ GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, Graphi
     impl_->textureInfos_.insert({rid, texutreInfo});
 
     return rid;
+}
+
+void OpenGLApi::ApplyTextureParameters(GLenum target, GraphicsApi::TextureFilter filter, GraphicsApi::TextureMipmap mipmap)
+{
+    GLint glFilter = static_cast<GLint>(textureFilterMap_.at(filter));
+
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, glFilter);
+
+    if (mipmap == GraphicsApi::TextureMipmap::LINEAR)
+    {
+        glGenerateMipmap(target);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameterf(target, GL_TEXTURE_LOD_BIAS, 0.0f);
+    }
+    else
+    {
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, glFilter);
+    }
+
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<Utils::Image, 6>& images)
@@ -957,6 +1084,26 @@ GraphicsApi::ID OpenGLApi::CreateCubMapTexture(const std::array<Utils::Image, 6>
     createdObjectIds[rid] = ObjectType::TEXTURE_CUBE_MAP;
     allocatedTextureBytes.insert({rid, bytes});
     return rid;
+}
+
+void OpenGLApi::GenerateMipmaps(IdType textureId)
+{
+    auto objectIter = createdObjectIds.find(textureId);
+    if (objectIter == createdObjectIds.end())
+    {
+        LOG_ERROR << "Texture not found in objects.";
+        return;
+    }
+
+    GLuint tex    = impl_->idPool_.ToGL(textureId);
+    GLenum target = (objectIter->second == ObjectType::TEXTURE_2D_ARRAY) ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+
+    glBindTexture(target, tex);
+    glGenerateMipmap(target);
+
+    glBindTexture(target, 0);
+
+    LOG_DEBUG << "Mipmaps generated for texture ID: " << tex;
 }
 
 void OpenGLApi::UpdateTexture(uint32 id, const vec2ui& offset, const Utils::Image& image)

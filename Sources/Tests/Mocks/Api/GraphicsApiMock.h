@@ -40,8 +40,10 @@ public:
     MOCK_METHOD(uint32, BindShaderBuffer, (uint32), (override));
     MOCK_METHOD(void, UseShader, (uint32), (override));
     MOCK_METHOD(ID, CreateTexture, (const Utils::Image&, TextureFilter, TextureMipmap), (override));
+    MOCK_METHOD(ID, CreateTexture, (const std::vector<Utils::Image>&, TextureFilter, TextureMipmap), (override));
     MOCK_METHOD(ID, CreateTextureStorage, (TextureType, TextureFilter, int32), (override));
     MOCK_METHOD(ID, CreateCubMapTexture, (const CubemapImages&), (override));
+    MOCK_METHOD(void, GenerateMipmaps, (IdType), (override));
     MOCK_METHOD(void, CopyTexture, (IdType, IdType, uint32, uint32), (override));
     MOCK_METHOD(void, UpdateTexture, (uint32, const vec2ui&, const Utils::Image&), (override));
     MOCK_METHOD(void, UpdateTexture, (uint32, const Utils::Image&), (override));

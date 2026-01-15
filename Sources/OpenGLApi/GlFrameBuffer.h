@@ -36,6 +36,8 @@ public:
     ~FrameBuffer() override;
     bool Init() override;
     void Bind(GraphicsApi::FrameBuffer::BindType = GraphicsApi::FrameBuffer::BindType::ReadWrite) override;
+    void BindTexture(IdType, GraphicsApi::FrameBuffer::Type) override;
+    void BindTextureLayer(IdType, GraphicsApi::FrameBuffer::Type, int) override;
     void UnBind() override;
     void Clear() override;
     void CleanUp() override;

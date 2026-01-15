@@ -89,7 +89,16 @@ bool FrameBuffer::Init()
 
     LOG_DEBUG << "Create framebuffer glId = " << glId_;
     Bind();
-    CreateGlAttachments(input_);
+    if (not input_.empty())
+    {
+        CreateGlAttachments(input_);
+    }
+    else
+    {
+        glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_WIDTH, 256);
+        glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_HEIGHT, 256);
+        glFramebufferParameteri(GL_FRAMEBUFFER, GL_FRAMEBUFFER_DEFAULT_SAMPLES, 1);
+    }
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -368,5 +377,27 @@ std::optional<Utils::Image> FrameBuffer::GetImage(GraphicsApi::FrameBuffer::Type
                GetAttachmentData(attachment));
 
     return image;
+}
+void FrameBuffer::BindTexture(IdType textureId, GraphicsApi::FrameBuffer::Type type)
+{
+    GLuint tex = idPool_.ToGL(textureId);
+    glBindFramebuffer(GL_FRAMEBUFFER, glId_);
+    glFramebufferTexture(GL_FRAMEBUFFER, AttachmentType.at(type), tex, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        LOG_ERROR << "Framebuffer not complete!";
+    }
+}
+void FrameBuffer::BindTextureLayer(IdType textureId, GraphicsApi::FrameBuffer::Type type, int layerIndex)
+{
+    GLuint tex = idPool_.ToGL(textureId);
+    glBindFramebuffer(GL_FRAMEBUFFER, glId_);
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, AttachmentType.at(type), tex, 0, layerIndex);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        LOG_ERROR << "Framebuffer not complete!";
+    }
 }
 }  // namespace OpenGLApi

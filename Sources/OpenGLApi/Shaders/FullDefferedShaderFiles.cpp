@@ -74,7 +74,6 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         GraphicsApi::ShaderProgramType::Grass,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Grass/GrassShader.vert"},
-            // {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Grass/GrassShader.geom",}
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Grass/GrassShader.frag"},
         }
     },
@@ -174,11 +173,18 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/Forward/ShadowLeafShader.frag"}
         }
     },
-        {
+    {
         GraphicsApi::ShaderProgramType::TreeLeafsShdaowsBilboards,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafShadowBilboard.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/LeafShadowBilboard.frag"}
+        }
+    },
+    {
+        GraphicsApi::ShaderProgramType::TreeLeafsCluster,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafClusterShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/LeafClusterShader.frag"}
         }
     },
     {

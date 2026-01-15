@@ -57,22 +57,15 @@ vec2 GetAtlasUV(vec2 uv, int idx)
 {
     int cols = leafParams.atlasParams.x;
     int rows = leafParams.atlasParams.x;
-
-    // clamp idx
     idx = clamp(idx, 0, cols*rows - 1);
 
-    // oblicz kolumnę i wiersz
     int col = idx % cols;
     int row = idx / cols;
 
-    // rozmiar jednej subtekstury
     vec2 tileSize = vec2(1.0 / float(cols), 1.0 / float(rows));
-
-    // offset do odpowiedniej subtekstury
     vec2 offset = vec2(float(col) * tileSize.x,
                        float(row) * tileSize.y);
 
-    // finalne UV
     return offset + uv * tileSize;
 }
 

@@ -11,6 +11,8 @@ public:
     DefaultFrameBuffer(const vec2ui&);
     bool Init() override;
     void Bind(GraphicsApi::FrameBuffer::BindType) override;
+    void BindTexture(IdType, GraphicsApi::FrameBuffer::Type) override;
+    void BindTextureLayer(IdType, GraphicsApi::FrameBuffer::Type, int) override;
     void UnBind() override;
     void Clear() override;
     void CleanUp() override;

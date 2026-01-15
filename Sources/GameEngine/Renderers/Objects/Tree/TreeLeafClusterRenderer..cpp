@@ -4,9 +4,11 @@
 #include <Utils/MeasurementHandler.h>
 
 #include <algorithm>
+#include <cstddef>
 
 #include "GameEngine/Camera/Frustrum.h"
 #include "GameEngine/Camera/ICamera.h"
+#include "GameEngine/Components/Renderer/Trees/Leaf.h"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
@@ -14,13 +16,14 @@
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
 #include "GameEngine/Resources/File.h"
+#include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
-#include "GameEngine/Resources/ITextureLoader.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "Image/Image.h"
 #include "Logger/Log.h"
@@ -38,13 +41,162 @@ struct TreeParamBuffer
     AlignWrapper<vec4i> atlasParams;
 };
 }  // namespace
+
 TreeLeafClusterRenderer::TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IResourceManager& resourceManager)
     : graphicsApi(graphicsApi)
     , resourceManager(resourceManager)
     , leafsClusterShader(graphicsApi, GraphicsApi::ShaderProgramType::TreeLeafsCluster)
 {
 }
+void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::vector<Leaf>& allLeaves,
+                                     const Material& leafMaterial, ResultCallback resultCallback)
+{
+    PerObjectUpdate perObjectUpdate;
 
+    transformBuferId =
+        graphicsApi.CreateShaderBuffer(PER_OBJECT_UPDATE_BIND_LOCATION, sizeof(perObjectUpdate), GraphicsApi::DrawFlag::Dynamic);
+
+    if (not transformBuferId)
+    {
+        LOG_ERROR << "Create shaderbuffer error";
+        resultCallback(std::nullopt);
+        return;
+    }
+
+    {
+        auto leafsSSBOData = PrepareSSBOData(allLeaves);
+        LOG_DEBUG << "Create shaderStorageVectorBufferObject";
+        auto totalSize = static_cast<uint32>(leafsSSBOData.size() * sizeof(LeafSSBO));
+        leafsSsbo = graphicsApi.CreateShaderStorageBuffer(PER_INSTANCES_BIND_LOCATION, totalSize, GraphicsApi::DrawFlag::Dynamic);
+
+        if (not leafsSsbo)
+        {
+            LOG_ERROR << "Leafs ssbo for cluster creation error.";
+            resultCallback(std::nullopt);
+            return;
+        }
+        graphicsApi.UpdateShaderStorageBuffer(*leafsSsbo, leafsSSBOData.data(), totalSize);
+        graphicsApi.BindShaderBuffer(*leafsSsbo);
+    }
+
+    {
+        leafIndicesBufferId =
+            graphicsApi.CreateShaderStorageBuffer(PER_INSTANCES_BIND_LOCATION, 0, GraphicsApi::DrawFlag::Dynamic);
+    }
+
+    const vec2ui renderSize{256, 256};
+    GraphicsApi::FrameBuffer::Attachment depthAttachment(renderSize, GraphicsApi::FrameBuffer::Type::Depth,
+                                                         GraphicsApi::FrameBuffer::Format::Depth);
+
+    depthAttachment.wrapMode = GraphicsApi::FrameBuffer::WrapMode::ClampToEdge;
+    depthAttachment.filter   = GraphicsApi::FrameBuffer::Filter::Linear;
+
+    auto frameBuffer = &graphicsApi.CreateFrameBuffer({depthAttachment});
+
+    if (not frameBuffer)
+    {
+        LOG_ERROR << "Unexpected error";
+        resultCallback(std::nullopt);
+        return;
+    }
+
+    size_t totalLayers = clusters.clusters.size() * 2;
+    std::vector<Utils::Image> images;
+    images.resize(totalLayers);
+    for (auto& image : images)
+    {
+        image.width     = renderSize.x;
+        image.height    = renderSize.y;
+        image.channels_ = 4;
+        image.allocateImage<uint8>();
+    }
+
+    auto textureArrayId = graphicsApi.CreateTexture(images, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
+
+    if (not textureArrayId)
+    {
+        LOG_ERROR << "Create texture array error.";
+        resultCallback(std::nullopt);
+        return;
+    }
+
+    auto normalTextureArrayId =
+        graphicsApi.CreateTexture(images, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
+
+    if (not normalTextureArrayId)
+    {
+        LOG_ERROR << "Create texture array error.";
+        resultCallback(std::nullopt);
+        return;
+    }
+
+    frameBuffer->Bind();
+
+    RenderClusters(*textureArrayId, *normalTextureArrayId, *frameBuffer, clusters, allLeaves, leafMaterial, renderSize);
+
+    graphicsApi.DeleteShaderBuffer(*transformBuferId);
+    graphicsApi.DeleteShaderBuffer(*leafsSsbo);
+    graphicsApi.DeleteFrameBuffer(*frameBuffer);
+
+    graphicsApi.GenerateMipmaps(*textureArrayId);
+    graphicsApi.GenerateMipmaps(*normalTextureArrayId);
+
+    resultCallback(Result{.baseColorTextureArray = textureArrayId, .normalTextureArray = normalTextureArrayId});
+}
+void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,
+                                             const TreeClusters& treeData, const std::vector<Leaf>& allLeaves,
+                                             const Material& leafMaterial, const vec2ui& renderSize)
+{
+    leafsClusterShader.Start();
+    graphicsApi.SetViewPort(0, 0, renderSize.x, renderSize.y);
+
+    for (size_t i = 0; i < treeData.clusters.size(); ++i)
+    {
+        const auto& cluster = treeData.clusters[i];
+
+        vec3 center    = (cluster.minBound + cluster.maxBound) * 0.5f;
+        float halfSize = (cluster.maxBound.x - cluster.minBound.x) * 0.5f;
+
+        mat4 projection = glm::ortho(-halfSize, halfSize, -halfSize, halfSize, 0.0f, halfSize * 2.0f);
+
+        // --- RENDER WIDOKU 0 (FRONT - Oś Z) ---
+        fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2);
+        fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2);
+        fb.Clear();
+
+        mat4 viewFront = lookAt(center + vec3(0, 0, halfSize), center, vec3(0, 1, 0));
+        DrawClusterLeaves(cluster, allLeaves, leafMaterial, projection * viewFront);
+
+        // --- RENDER WIDOKU 1 (SIDE - Oś X) ---
+        fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2 + 1);
+        fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2 + 1);
+        fb.Clear();
+
+        mat4 viewSide = lookAt(center + vec3(halfSize, 0, 0), center, vec3(0, 1, 0));
+        DrawClusterLeaves(cluster, allLeaves, leafMaterial, projection * viewSide);
+    }
+}
+
+void TreeLeafClusterRenderer::DrawClusterLeaves(const Cluster& cluster, const std::vector<Leaf>& allLeaves,
+                                                const Material& leafMaterial, const mat4& mvp)
+{
+    if (not transformBuferId)
+    {
+        return;
+    }
+
+    PerObjectUpdate perObjectUpdate;
+    perObjectUpdate.TransformationMatrix = graphicsApi.PrepareMatrixToLoad(mvp);
+    graphicsApi.UpdateShaderBuffer(*transformBuferId, &perObjectUpdate);
+    graphicsApi.BindShaderBuffer(*transformBuferId);
+
+    graphicsApi.UpdateShaderStorageBuffer(*leafIndicesBufferId, cluster.leafIndices.data(),
+                                          cluster.leafIndices.size() * sizeof(uint32));
+    graphicsApi.BindShaderBuffer(*leafIndicesBufferId);
+
+    BindMaterial(leafMaterial);
+    graphicsApi.RenderProcedural(cluster.leafIndices.size() * 6);
+}
 void TreeLeafClusterRenderer::BindMaterial(const Material& material) const
 {
     if (material.flags & MAT_DOUBLE_SIDED || (material.flags & MAT_FOLIAGE))
@@ -77,110 +229,5 @@ void TreeLeafClusterRenderer::BindMaterialTexture(uint32 location, GeneralTextur
     {
         graphicsApi.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
-}
-
-void TreeLeafClusterRenderer::render(const Model& model, ResultCallback resultCallback)
-{
-    leafsClusterShader.Init();
-
-    const vec2ui renderSize{512, 512};
-    GraphicsApi::FrameBuffer::Attachment depthAttachment(renderSize, GraphicsApi::FrameBuffer::Type::Depth,
-                                                         GraphicsApi::FrameBuffer::Format::Depth);
-
-    depthAttachment.wrapMode = GraphicsApi::FrameBuffer::WrapMode::ClampToEdge;
-    depthAttachment.filter   = GraphicsApi::FrameBuffer::Filter::Linear;
-
-    GraphicsApi::FrameBuffer::Attachment colorAttachment(renderSize, GraphicsApi::FrameBuffer::Type::Color0,
-                                                         GraphicsApi::FrameBuffer::Format::Rgba8);
-
-    colorAttachment.filter = GraphicsApi::FrameBuffer::Filter::Linear;
-
-    auto frameBuffer = &graphicsApi.CreateFrameBuffer({depthAttachment, colorAttachment});
-
-    if (not frameBuffer)
-    {
-        LOG_ERROR << "Unexpected error";
-        return;
-    }
-
-    frameBuffer->Bind();
-
-    auto bufferId =
-        graphicsApi.CreateShaderBuffer(PER_FRAME_BIND_LOCATION, sizeof(PerFrameBuffer), GraphicsApi::DrawFlag::Static);
-    if (not bufferId)
-    {
-        LOG_ERROR << "Unexpected error";
-        return;
-    }
-
-    // --- parametry clustra ---
-    const float R         = 1.0f;  // promień wzorcowego clustra
-    const float margin    = 1.2f;
-    const float orthoSize = R * margin;
-
-    // --- kamera w local space ---
-    vec3 cameraPosition = vec3(0, 0, -2.0f * R);
-    auto viewMatrix     = glm::lookAt(cameraPosition,  // eye
-                                      vec3(0, 0, 0),   // center
-                                      vec3(0, 1, 0)    // up
-        );
-
-    auto projectionMatrix = glm::ortho(-orthoSize, orthoSize,  // left, right
-                                       -orthoSize, orthoSize,  // bottom, top
-                                       -orthoSize, orthoSize   // near, far
-    );
-
-    auto projectionViewMatrix = projectionMatrix * viewMatrix;
-
-    PerFrameBuffer perFrameBuffer;
-    perFrameBuffer.ProjectionViewMatrix = graphicsApi.PrepareMatrixToLoad(projectionViewMatrix);
-    perFrameBuffer.cameraPosition       = cameraPosition;
-    perFrameBuffer.clipPlane            = vec4(0.f, 1.f, 0.f, 0.f);  // opcjonalnie
-    perFrameBuffer.projection           = vec4(0);                   // camera.GetProjection().GetBufferParams();
-
-    graphicsApi.UpdateShaderBuffer(*bufferId, &perFrameBuffer);
-    graphicsApi.BindShaderBuffer(*bufferId);
-
-    GenerateClusterAtlasTexture(*frameBuffer, model);
-    frameBuffer->UnBind();
-
-    resultCallback(resultTextures);
-}
-void TreeLeafClusterRenderer::GenerateClusterAtlasTexture(GraphicsApi::IFrameBuffer& frameBuffer, const Model& model)
-{
-    for (auto& mesh : model.GetMeshes())
-    {
-        const vec2ui renderSize{512, 512};
-        graphicsApi.SetViewPort(0, 0, renderSize.x, renderSize.y);
-
-        if (mesh.GetGraphicsObjectId() && !mesh.GetMaterial().baseColorTexture)
-        {
-            leafsClusterShader.Start();
-            const auto& buffer = mesh.GetMaterialShaderBufferId();
-            graphicsApi.BindShaderBuffer(*buffer);
-
-            graphicsApi.RenderPoints(*mesh.GetGraphicsObjectId());
-
-            auto material = mesh.GetMaterial();
-            if (auto maybeNewNexture = cloneAttachmentTexture(frameBuffer))
-            {
-                resultTextures.push_back(maybeNewNexture);
-            }
-        }
-    }
-}
-GeneralTexture* TreeLeafClusterRenderer::cloneAttachmentTexture(const GraphicsApi::IFrameBuffer& frameBuffer)
-{
-    auto image = frameBuffer.GetImage(GraphicsApi::FrameBuffer::Type::Color0);
-    if (not image)
-    {
-        LOG_WARN << "GetImage error";
-        return {};
-    }
-
-    //auto newTextureId = graphicsApi.CreateTexture(*image, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::LINEAR);
-    TextureParameters textureParameters;
-    auto newTexture =  resourceManager.GetTextureLoader().CreateTexture("", textureParameters, std::move(*image));
-    return newTexture;
 }
 }  // namespace GameEngine

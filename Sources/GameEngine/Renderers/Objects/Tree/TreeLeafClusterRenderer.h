@@ -9,6 +9,7 @@
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
+#include "GraphicsApi/GraphicsApiDef.h"
 #include "Types.h"
 
 namespace GameEngine
@@ -20,6 +21,10 @@ struct RendererContext;
 class ModelWrapper;
 struct Time;
 class GeneralTexture;
+
+struct TreeClusters;
+struct Leaf;
+struct Cluster;
 
 namespace Components
 {
@@ -37,18 +42,28 @@ class TreeLeafClusterRenderer
 public:
     TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi&, IResourceManager&);
 
-    using ResultCallback = std::function<void(std::vector<GeneralTexture*>)>;
-    void render(const Model&, ResultCallback);
+    struct Result
+    {
+        GraphicsApi::ID baseColorTextureArray;
+        GraphicsApi::ID normalTextureArray;
+    };
+    using ResultCallback = std::function<void(std::optional<Result>)>;
+    void render(const TreeClusters&, const std::vector<Leaf>&, const Material&, ResultCallback);
 
 private:
     void BindMaterial(const Material&) const;
     void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, GeneralTexture*, bool) const;
-    void GenerateClusterAtlasTexture(GraphicsApi::IFrameBuffer&, const Model&);
-    GeneralTexture* cloneAttachmentTexture(const GraphicsApi::IFrameBuffer&);
+
+    void RenderClusters(IdType, IdType, GraphicsApi::IFrameBuffer&, const TreeClusters&, const std::vector<Leaf>&,  const Material&, const vec2ui&);
+    void DrawClusterLeaves(const Cluster&, const std::vector<Leaf>&, const Material&, const mat4&);
 
 private:
     GraphicsApi::IGraphicsApi& graphicsApi;
+    GraphicsApi::ID transformBuferId;
+    GraphicsApi::ID leafsSsbo;
+    GraphicsApi::ID leafIndicesBufferId;
+
     IResourceManager& resourceManager;
 
     ShaderProgram leafsClusterShader;

@@ -9,6 +9,8 @@ class FrameBufferMock : public IFrameBuffer
 public:
     MOCK_METHOD0(Init, bool());
     MOCK_METHOD1(Bind, void(FrameBuffer::BindType));
+    MOCK_METHOD(void, BindTexture, (IdType, FrameBuffer::Type), (override));
+    MOCK_METHOD(void, BindTextureLayer, (IdType, FrameBuffer::Type, int), (override));
     MOCK_METHOD0(UnBind, void());
     MOCK_METHOD0(Clear, void());
     MOCK_METHOD0(CleanUp, void());

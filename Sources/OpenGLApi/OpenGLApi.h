@@ -49,8 +49,11 @@ public:
     uint32 BindShaderBuffer(uint32) override;
 
     GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap) override;
+    GraphicsApi::ID CreateTexture(const std::vector<Utils::Image>&, GraphicsApi::TextureFilter,
+                                  GraphicsApi::TextureMipmap) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32 N) override;
     GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
+    void GenerateMipmaps(IdType) override;
     void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height) override;
 
     void UpdateTexture(uint32, const vec2ui&, const Utils::Image&) override;
@@ -126,6 +129,7 @@ private:
     void DeleteShader(uint32);
     void ClearRest();
     void allocatedBytes(int64);
+    void ApplyTextureParameters(GLenum, GraphicsApi::TextureFilter, GraphicsApi::TextureMipmap);
 
 private:
     struct Pimpl;

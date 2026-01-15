@@ -99,4 +99,10 @@ std::optional<Utils::Image> DefaultFrameBuffer::GetImage(GraphicsApi::FrameBuffe
 {
     return {};
 }
+void DefaultFrameBuffer::BindTextureLayer(IdType, GraphicsApi::FrameBuffer::Type, int)
+{
+}
+void DefaultFrameBuffer::BindTexture(IdType, GraphicsApi::FrameBuffer::Type)
+{
+}
 }  // namespace OpenGLApi

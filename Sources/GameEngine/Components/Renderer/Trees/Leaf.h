@@ -17,6 +17,21 @@ struct Leaf
     float sizeRandomness;
 };
 
+struct Cluster
+{
+    vec3 minBound;
+    vec3 maxBound;
+    std::vector<uint32> leafIndices;
+};
+
+struct TreeClusters
+{
+    vec3 gridOrigin;
+    vec3 voxelSize;
+    vec3i gridSize;
+    std::vector<Cluster> clusters;
+};
+
 struct Billboard
 {
     int resolution;
