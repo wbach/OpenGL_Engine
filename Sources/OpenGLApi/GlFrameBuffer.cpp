@@ -63,6 +63,43 @@ const std::unordered_map<GraphicsApi::FrameBuffer::Filter, GLint> Filter = {
 
 const std::unordered_map<GraphicsApi::FrameBuffer::WrapMode, GLint> WrapMode = {
     {GraphicsApi::FrameBuffer::WrapMode::Repeat, GL_REPEAT}, {GraphicsApi::FrameBuffer::WrapMode::ClampToEdge, GL_CLAMP_TO_EDGE}};
+
+std::string GlAttachmentToString(GLenum attachment)
+{
+    if (attachment >= GL_COLOR_ATTACHMENT0 && attachment <= GL_COLOR_ATTACHMENT15)
+    {
+        return "Color0" + std::to_string(attachment - GL_COLOR_ATTACHMENT0);
+    }
+
+    switch (attachment)
+    {
+        case GL_DEPTH_ATTACHMENT:
+            return "Depth";
+        case GL_STENCIL_ATTACHMENT:
+            return "Stencil";
+        case GL_DEPTH_STENCIL_ATTACHMENT:
+            return "DepthStencil";
+        case GL_NONE:
+            return "None";
+        case GL_BACK:
+            return "BackBuffer";
+        default:
+            return "Unknown(0x" + std::to_string(attachment) + ")";
+    }
+}
+
+void LogDrawBuffers(const std::vector<GLenum>& drawBuffers)
+{
+    std::string report = "DrawBuffers Configuration: [ ";
+    for (size_t i = 0; i < drawBuffers.size(); ++i)
+    {
+        report += "loc" + std::to_string(i) + " -> " + GlAttachmentToString(drawBuffers[i]);
+        if (i < drawBuffers.size() - 1)
+            report += ", ";
+    }
+    report += " ]";
+    LOG_DEBUG << report;
+}
 }  // namespace
 
 FrameBuffer::FrameBuffer(IdPool& idPool, const std::vector<GraphicsApi::FrameBuffer::Attachment>& attachments)
@@ -244,6 +281,7 @@ void FrameBuffer::CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer
         texturesIds_.insert({attachment.type, engineId});
         attachments_.push_back(std::move(glAttachment));
     }
+
     if (not drawBuffers.empty())
     {
         glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
@@ -380,24 +418,91 @@ std::optional<Utils::Image> FrameBuffer::GetImage(GraphicsApi::FrameBuffer::Type
 }
 void FrameBuffer::BindTexture(IdType textureId, GraphicsApi::FrameBuffer::Type type)
 {
+    auto attachmentType = AttachmentType.at(type);
+
     GLuint tex = idPool_.ToGL(textureId);
     glBindFramebuffer(GL_FRAMEBUFFER, glId_);
-    glFramebufferTexture(GL_FRAMEBUFFER, AttachmentType.at(type), tex, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, tex, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         LOG_ERROR << "Framebuffer not complete!";
     }
+
+    if (bindedTextures_.find(attachmentType) == bindedTextures_.end())
+    {
+        bindedTextures_.insert(attachmentType);
+        UpdateDrawBuffers();
+        return;
+    }
 }
 void FrameBuffer::BindTextureLayer(IdType textureId, GraphicsApi::FrameBuffer::Type type, int layerIndex)
 {
+    LOG_DEBUG << "BindTextureLayer start";
+    auto attachmentType = AttachmentType.at(type);
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        LOG_ERROR << "GL error" << err;
+    }
+
     GLuint tex = idPool_.ToGL(textureId);
+
+    LOG_DEBUG << "GL int : " << tex << ", graphicsApiId: " << textureId;
+
     glBindFramebuffer(GL_FRAMEBUFFER, glId_);
-    glFramebufferTextureLayer(GL_FRAMEBUFFER, AttachmentType.at(type), tex, 0, layerIndex);
+    glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentType, tex, 0, layerIndex);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         LOG_ERROR << "Framebuffer not complete!";
+    }
+
+    if (bindedTextures_.find(attachmentType) == bindedTextures_.end())
+    {
+        bindedTextures_.insert(attachmentType);
+    }
+
+    {
+        LOG_DEBUG << "BindTextureLayer end";
+        GLenum err;
+        while ((err = glGetError()) != GL_NO_ERROR)
+        {
+            LOG_ERROR << "GL error" << err;
+        }
+    }
+}
+void FrameBuffer::UpdateDrawBuffers()
+{
+    std::vector<GLenum> drawBuffers;
+    for (auto texture : bindedTextures_)
+    {
+        if (texture != GL_DEPTH_ATTACHMENT)
+        {
+            LOG_DEBUG << "Push " << GlAttachmentToString(texture);
+            drawBuffers.push_back(texture);
+        }
+    }
+    for (auto& attachment : attachments_)
+    {
+        if (attachment.type_ != GL_DEPTH_ATTACHMENT)
+        {
+            LOG_DEBUG << "Push " << GlAttachmentToString(attachment.type_);
+            drawBuffers.push_back(attachment.type_);
+        }
+    }
+
+    if (not drawBuffers.empty())
+    {
+        std::sort(drawBuffers.begin(), drawBuffers.end());
+
+        LogDrawBuffers(drawBuffers);
+
+        glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
+    }
+    else
+    {
+        glDrawBuffer(GL_NONE);
     }
 }
 }  // namespace OpenGLApi

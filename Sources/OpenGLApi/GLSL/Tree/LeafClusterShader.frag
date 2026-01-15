@@ -51,5 +51,6 @@ void main()
     vec3 worldNormal = normalize(fs_in.normal + detailNormal * 0.2); 
 
     outAlbedo = vec4(finalColor, texColor.a);
+    outAlbedo = vec4(1,0,0,1);
     outNormal = vec4(worldNormal * 0.5 + 0.5, 1.0);
 }

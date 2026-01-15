@@ -100,7 +100,36 @@ TextTypeParams GetTextureTypeParams(GraphicsApi::TextureType type)
     }
     return params;
 }
+size_t GetBytesPerPixel(GraphicsApi::TextureType type)
+{
+    switch (type)
+    {
+        case GraphicsApi::TextureType::U8_RGBA:
+            return 4;
+        case GraphicsApi::TextureType::FLOAT_TEXTURE_1D:
+            return 4;
 
+        case GraphicsApi::TextureType::FLOAT_TEXTURE_2D:
+            return 8;
+
+        case GraphicsApi::TextureType::FLOAT_TEXTURE_3D:
+            return 12;
+
+        case GraphicsApi::TextureType::FLOAT_TEXTURE_4D:
+            return 16;
+
+        case GraphicsApi::TextureType::FLOAT_BUFFER_2D:
+            return 16;
+
+        case GraphicsApi::TextureType::DEPTH_BUFFER_2D:
+        case GraphicsApi::TextureType::SHADOW_MAP:
+            return 4;
+
+        default:
+            LOG_ERROR << "Unknown texture type for size calculation: " << static_cast<int>(type);
+            return 4;
+    }
+}
 }  // namespace
 
 struct ShaderBuffer
@@ -391,58 +420,61 @@ std::vector<uint8> OpenGLApi::GetTextureData(uint32 id) const
     const auto& textureInfo = iter->second;
     auto params             = GetTextureTypeParams(textureInfo.textureType);
 
+    // 1. Kluczowa poprawka: Określenie targetu i całkowitej liczby pikseli (uwzględniając warstwy)
+    GLenum target      = (textureInfo.layers > 1) ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+    size_t totalPixels = static_cast<size_t>(textureInfo.size.x) * textureInfo.size.y * textureInfo.layers;
+
     std::vector<uint8> data;
     BindTexture(id);
 
-    if (params.dataType == GL_UNSIGNED_BYTE and params.format == GL_RGBA)
+    // 2. Obsługa formatu U8_RGBA
+    if (params.dataType == GL_UNSIGNED_BYTE && params.format == GL_RGBA)
     {
-        data.resize(4 * textureInfo.size.x * textureInfo.size.y);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+        data.resize(4 * totalPixels);
+        glGetTexImage(target, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
     }
-    else if (params.dataType == GL_FLOAT and params.format == GL_RGBA)
+    // 3. Obsługa formatu FLOAT_RGBA (4 kanały)
+    else if (params.dataType == GL_FLOAT && params.format == GL_RGBA)
     {
-        data.resize(4 * textureInfo.size.x * textureInfo.size.y);
-        std::vector<float> floatdata;
-        floatdata.resize(4 * textureInfo.size.x * textureInfo.size.y);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, &floatdata[0]);
+        data.resize(4 * totalPixels);
+        std::vector<float> floatdata(4 * totalPixels);
+        glGetTexImage(target, 0, GL_RGBA, GL_FLOAT, floatdata.data());
 
-        std::transform(floatdata.begin(), floatdata.end(), data.begin(), [](float f) { return static_cast<uint8>(255.f * f); });
+        std::transform(floatdata.begin(), floatdata.end(), data.begin(),
+                       [](float f) { return static_cast<uint8>(std::clamp(f * 255.f, 0.f, 255.f)); });
     }
-    else if (params.dataType == GL_FLOAT and params.format == GL_RGB)
+    // 4. Obsługa formatu FLOAT_RGB (3 kanały -> wymuszamy 4 dla zapisu obrazu)
+    else if (params.dataType == GL_FLOAT && params.format == GL_RGB)
     {
-        std::vector<float> floatdata;
-        data.reserve(4 * textureInfo.size.x * textureInfo.size.y);
-        floatdata.resize(3 * textureInfo.size.x * textureInfo.size.y);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, &floatdata[0]);
+        data.reserve(4 * totalPixels);
+        std::vector<float> floatdata(3 * totalPixels);
+        glGetTexImage(target, 0, GL_RGB, GL_FLOAT, floatdata.data());
 
         for (size_t i = 0; i < floatdata.size(); i += 3)
         {
-            auto x = static_cast<uint8>(255.f * floatdata[i]);
-            auto y = static_cast<uint8>(255.f * floatdata[i + 1]);
-            auto z = static_cast<uint8>(255.f * floatdata[i + 2]);
-
-            data.push_back(x);
-            data.push_back(y);
-            data.push_back(z);
-            data.push_back(255);
+            data.push_back(static_cast<uint8>(std::clamp(floatdata[i] * 255.f, 0.f, 255.f)));
+            data.push_back(static_cast<uint8>(std::clamp(floatdata[i + 1] * 255.f, 0.f, 255.f)));
+            data.push_back(static_cast<uint8>(std::clamp(floatdata[i + 2] * 255.f, 0.f, 255.f)));
+            data.push_back(255);  // Dodajemy pełną alfę dla zgodności z RGBA
         }
     }
-    else if (params.dataType == GL_FLOAT and params.format == GL_RED)
+    // 5. Obsługa formatu FLOAT_RED (1 kanał -> konwersja na Grayscale RGBA)
+    else if (params.dataType == GL_FLOAT && params.format == GL_RED)
     {
-        data.reserve(4 * textureInfo.size.x * textureInfo.size.y);
-        std::vector<float> floatdata;
-        floatdata.resize(textureInfo.size.x * textureInfo.size.y);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, &floatdata[0]);
+        data.reserve(4 * totalPixels);
+        std::vector<float> floatdata(totalPixels);
+        glGetTexImage(target, 0, GL_RED, GL_FLOAT, floatdata.data());
 
         for (auto& f : floatdata)
         {
-            auto value = static_cast<uint8>(255.f * f);
-            data.push_back(value);
-            data.push_back(value);
-            data.push_back(value);
-            data.push_back(255);
+            auto value = static_cast<uint8>(std::clamp(f * 255.f, 0.f, 255.f));
+            data.push_back(value);  // R
+            data.push_back(value);  // G
+            data.push_back(value);  // B
+            data.push_back(255);    // A
         }
     }
+
     return data;
 }
 
@@ -454,7 +486,6 @@ const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id) const
 
     return defaultTextureInfo;
 }
-
 void OpenGLApi::TakeSnapshoot(const std::string& path) const
 {
     for (const auto& object : createdObjectIds)
@@ -475,8 +506,36 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                 Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
             }
             break;
+            case ObjectType::TEXTURE_2D_ARRAY:
+            {
+                if (impl_->textureInfos_.count(object.first) == 0)
+                {
+                    LOG_DEBUG << "Texture array info not found. Id : " << object.first;
+                    break;
+                }
+
+                const auto& textureInfo = GetTextureInfo(object.first);
+                auto resultData         = GetTextureData(object.first);
+
+                const std::string fullPath = path + "/TextureArrays/" + std::to_string(object.first) + "/";
+                Utils::CreateDirectories(fullPath);
+
+                size_t layerSize = textureInfo.size.x * textureInfo.size.y * GetBytesPerPixel(textureInfo.textureType);
+                size_t numLayers = textureInfo.layers;
+
+                for (size_t layer = 0; layer < numLayers; ++layer)
+                {
+                    std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
+                                                 resultData.begin() + ((layer + 1) * layerSize));
+
+                    std::string fileName = "layer_" + std::to_string(layer) + ".png";
+                    Utils::SaveImage(layerData, textureInfo.size, fullPath + fileName);
+                }
+                LOG_DEBUG << "Saved " << numLayers << " layers for texture array " << object.first;
+            }
+            break;
             default:
-                LOG_ERROR << "not imeplmented";
+                LOG_ERROR << magic_enum::enum_name(object.second) << " not imeplmented.";
                 break;
         }
     }
@@ -990,7 +1049,8 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const std::vector<Utils::Image>& images
     // Info o teksturze
     GraphicsApi::TextureInfo texInfo;
     texInfo.id            = rid;
-    texInfo.size          = size;  // Tutaj .x i .y, możesz rozważyć dodanie .z dla warstw w przyszłości
+    texInfo.layers        = layers;
+    texInfo.size          = size;
     texInfo.textureFilter = filter;
     texInfo.textureMipmap = mipmap;
     texInfo.textureType   = type;

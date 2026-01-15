@@ -467,5 +467,9 @@ const Model* TreeRendererComponent::GetLeafBilboardsModel() const
 {
     return leafBilboardsModel;
 }
+void TreeRendererComponent::SetClusterTextures(const ClusterTextures& textures)
+{
+    clusterTextures = textures;
+}
 }  // namespace Components
 }  // namespace GameEngine

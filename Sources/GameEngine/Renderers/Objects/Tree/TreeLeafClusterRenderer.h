@@ -5,6 +5,7 @@
 #include <optional>
 #include <vector>
 
+#include "GameEngine/Components/Renderer/Trees/Leaf.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
@@ -42,12 +43,7 @@ class TreeLeafClusterRenderer
 public:
     TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi&, IResourceManager&);
 
-    struct Result
-    {
-        GraphicsApi::ID baseColorTextureArray;
-        GraphicsApi::ID normalTextureArray;
-    };
-    using ResultCallback = std::function<void(std::optional<Result>)>;
+    using ResultCallback = std::function<void(std::optional<ClusterTextures>)>;
     void render(const TreeClusters&, const std::vector<Leaf>&, const Material&, ResultCallback);
 
 private:
@@ -55,7 +51,8 @@ private:
     void UnBindMaterial(const Material&) const;
     void BindMaterialTexture(uint32, GeneralTexture*, bool) const;
 
-    void RenderClusters(IdType, IdType, GraphicsApi::IFrameBuffer&, const TreeClusters&, const std::vector<Leaf>&,  const Material&, const vec2ui&);
+    void RenderClusters(IdType, IdType, GraphicsApi::IFrameBuffer&, const TreeClusters&, const std::vector<Leaf>&,
+                        const Material&, const vec2ui&);
     void DrawClusterLeaves(const Cluster&, const std::vector<Leaf>&, const Material&, const mat4&);
 
 private:

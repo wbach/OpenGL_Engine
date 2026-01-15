@@ -2,6 +2,7 @@
 #include <Types.h>
 
 #include <filesystem>
+#include <GraphicsApi/IGraphicsApi.h>
 
 namespace GameEngine
 {
@@ -46,6 +47,12 @@ struct Billboard
     float extentV;
 };
 
+struct ClusterTextures
+{
+    GraphicsApi::ID baseColorTextureArray;
+    GraphicsApi::ID normalTextureArray;
+};
+
 struct LeafSSBO
 {
     AlignWrapper<vec4> positionAndSizeRandomness;
@@ -57,4 +64,7 @@ LeafSSBO ConvertToSSBO(const Leaf&);
 std::vector<LeafSSBO> PrepareSSBOData(const std::vector<Leaf>&);
 void ExportLeafSSBO(const std::vector<LeafSSBO>&, const Material&, const std::filesystem::path&);
 std::pair<std::vector<LeafSSBO>, Material> ImportLeafSSBO(ITextureLoader&, const std::filesystem::path&);
+
+std::ostream& operator<<(std::ostream&, const Cluster&);
+std::ostream& operator<<(std::ostream&, const TreeClusters&);
 }  // namespace GameEngine

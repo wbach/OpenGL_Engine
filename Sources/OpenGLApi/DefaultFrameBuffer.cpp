@@ -105,4 +105,7 @@ void DefaultFrameBuffer::BindTextureLayer(IdType, GraphicsApi::FrameBuffer::Type
 void DefaultFrameBuffer::BindTexture(IdType, GraphicsApi::FrameBuffer::Type)
 {
 }
+void DefaultFrameBuffer::UpdateDrawBuffers()
+{
+}
 }  // namespace OpenGLApi

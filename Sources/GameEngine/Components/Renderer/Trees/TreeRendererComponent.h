@@ -88,6 +88,8 @@ public:
 
     size_t GetLeafsCount() const;
 
+    void SetClusterTextures(const ClusterTextures&);
+
 private:
     void Awake();
     void UnSubscribe();
@@ -103,6 +105,7 @@ private:
 private:
     ModelWrapper trunkModel;
     Model* leafBilboardsModel{nullptr};
+    ClusterTextures clusterTextures;
 
     std::vector<vec3> instancesPositions_;
 

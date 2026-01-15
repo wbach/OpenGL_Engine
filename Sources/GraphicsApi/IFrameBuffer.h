@@ -22,6 +22,7 @@ public:
     virtual void UnBind()                                                       = 0;
     virtual void Clear()                                                        = 0;
     virtual void CleanUp()                                                      = 0;
+    virtual void UpdateDrawBuffers()                                            = 0;
     virtual ID GetAttachmentTexture(FrameBuffer::Type) const                    = 0;
     virtual void TakeSnapshot(const std::string&)                               = 0;
     virtual const vec2ui& GetSize() const                                       = 0;

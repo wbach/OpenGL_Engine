@@ -19,5 +19,6 @@ public:
     MOCK_METHOD(const vec2ui&, GetSize, (), (const, override));
     MOCK_METHOD(std::optional<Utils::Image>, GetImage, (IdType), (const, override));
     MOCK_METHOD(std::optional<Utils::Image>, GetImage, (FrameBuffer::Type), (const, override));
+    MOCK_METHOD(void, UpdateDrawBuffers, (), (override));
 };
 }  // namespace GraphicsApi

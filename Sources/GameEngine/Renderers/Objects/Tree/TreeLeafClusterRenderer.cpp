@@ -24,6 +24,7 @@
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
+#include "GraphicsApi/BufferParamters.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "Image/Image.h"
 #include "Logger/Log.h"
@@ -51,6 +52,9 @@ TreeLeafClusterRenderer::TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi& grap
 void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::vector<Leaf>& allLeaves,
                                      const Material& leafMaterial, ResultCallback resultCallback)
 {
+    leafsClusterShader.Init();
+    leafsClusterShader.Start();
+    LOG_DEBUG << "Render clusters for tree. TreeClusters :\n" << clusters << "\nLeafs count : " << allLeaves.size();
     PerObjectUpdate perObjectUpdate;
 
     transformBuferId =
@@ -81,7 +85,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
 
     {
         leafIndicesBufferId =
-            graphicsApi.CreateShaderStorageBuffer(PER_INSTANCES_BIND_LOCATION, 0, GraphicsApi::DrawFlag::Dynamic);
+            graphicsApi.CreateShaderStorageBuffer(PER_MESH_OBJECT_BIND_LOCATION, 100000 * sizeof(uint32), GraphicsApi::DrawFlag::Dynamic);
     }
 
     const vec2ui renderSize{256, 256};
@@ -96,6 +100,13 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     if (not frameBuffer)
     {
         LOG_ERROR << "Unexpected error";
+        resultCallback(std::nullopt);
+        return;
+    }
+
+    if (not frameBuffer->Init())
+    {
+        LOG_DEBUG << "frameBuffer init error";
         resultCallback(std::nullopt);
         return;
     }
@@ -131,6 +142,9 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     }
 
     frameBuffer->Bind();
+    frameBuffer->BindTextureLayer(*textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, 0);
+    frameBuffer->BindTextureLayer(*normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, 0);
+    frameBuffer->UpdateDrawBuffers();
 
     RenderClusters(*textureArrayId, *normalTextureArrayId, *frameBuffer, clusters, allLeaves, leafMaterial, renderSize);
 
@@ -141,13 +155,12 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     graphicsApi.GenerateMipmaps(*textureArrayId);
     graphicsApi.GenerateMipmaps(*normalTextureArrayId);
 
-    resultCallback(Result{.baseColorTextureArray = textureArrayId, .normalTextureArray = normalTextureArrayId});
+    resultCallback(ClusterTextures{.baseColorTextureArray = textureArrayId, .normalTextureArray = normalTextureArrayId});
 }
 void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,
                                              const TreeClusters& treeData, const std::vector<Leaf>& allLeaves,
                                              const Material& leafMaterial, const vec2ui& renderSize)
 {
-    leafsClusterShader.Start();
     graphicsApi.SetViewPort(0, 0, renderSize.x, renderSize.y);
 
     for (size_t i = 0; i < treeData.clusters.size(); ++i)

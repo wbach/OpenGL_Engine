@@ -95,4 +95,30 @@ std::pair<std::vector<LeafSSBO>, Material> ImportLeafSSBO(ITextureLoader& textur
 
     return {result, convert(textureLoader, materialSerilizeData)};
 }
+std::ostream& operator<<(std::ostream& os, const Cluster& cluster)
+{
+    os << "Cluster[Leaves: " << cluster.leafIndices.size() << ", Min: (" << cluster.minBound.x << ", " << cluster.minBound.y
+       << ", " << cluster.minBound.z << ")"
+       << ", Max: (" << cluster.maxBound.x << ", " << cluster.maxBound.y << ", " << cluster.maxBound.z << ")]";
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, const TreeClusters& tc)
+{
+    os << "=== TreeClusters Statistics ===\n"
+       << "Grid Origin:  (" << tc.gridOrigin.x << ", " << tc.gridOrigin.y << ", " << tc.gridOrigin.z << ")\n"
+       << "Voxel Size:   (" << tc.voxelSize.x << ", " << tc.voxelSize.y << ", " << tc.voxelSize.z << ")\n"
+       << "Grid Size:    [" << tc.gridSize.x << "x" << tc.gridSize.y << "x" << tc.gridSize.z << "]\n"
+       << "Total Clusters: " << tc.clusters.size() << "\n";
+
+    if (not tc.clusters.empty())
+    {
+        os << "Clusters Details:\n";
+        for (size_t i = 0; i < tc.clusters.size(); ++i)
+        {
+            os << "  [" << std::setw(3) << i << "] Leaf Count: " << tc.clusters[i].leafIndices.size() << "\n";
+        }
+    }
+    os << "================================";
+    return os;
+}
 }  // namespace GameEngine

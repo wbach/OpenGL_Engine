@@ -5,6 +5,7 @@
 
 #include <variant>
 #include <vector>
+#include <set>
 
 #include "IdPool.h"
 
@@ -46,6 +47,7 @@ public:
     const vec2ui& GetSize() const override;
     std::optional<Utils::Image> GetImage(IdType) const override;
     std::optional<Utils::Image> GetImage(GraphicsApi::FrameBuffer::Type) const override;
+    void UpdateDrawBuffers() override;
 
 private:
     void CreateGlAttachments(const std::vector<GraphicsApi::FrameBuffer::Attachment>&);
@@ -57,6 +59,7 @@ private:
     std::unordered_map<GraphicsApi::FrameBuffer::Type, uint32> texturesIds_;
     std::vector<GraphicsApi::FrameBuffer::Attachment> input_;
     std::vector<GlAttachment> attachments_;
+    std::set<GLenum> bindedTextures_;
     GLuint glId_;
     vec2ui size;
 };
