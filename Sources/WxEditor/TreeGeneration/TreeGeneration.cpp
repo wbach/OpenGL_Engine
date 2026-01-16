@@ -319,8 +319,6 @@ struct TreeModel
     GameEngine::TreeMeshBuilder meshBuilder;
     GameEngine::Model* trunkModel;
     GameEngine::Model* leafBilboardModel;
-
-    std::vector<GameEngine::Leaf> leafs;
     GameEngine::Material leafMaterial;
 };
 
@@ -772,7 +770,6 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::Tree& tree, GLCanvas
     return TreeModel{.meshBuilder       = std::move(builder),
                      .trunkModel        = trunkModelPtr,
                      .leafBilboardModel = leafBilboardModelPtr,
-                     .leafs             = builder.GetLeafs(),
                      .leafMaterial      = leafMaterial};
 }
 
@@ -836,7 +833,6 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas
 
     return TreeModel{.meshBuilder  = std::move(builder),
                      .trunkModel   = trunkModelPtr,
-                     .leafs        = builder.GetLeafs(),
                      .leafMaterial = leafMaterial};
 }
 
@@ -859,13 +855,13 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
             auto treeModel = GenerateLoD1Tree(tree, canvas, *params);
 
             trc.SetLeafBilboardsModel(treeModel->leafBilboardModel);
+            trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
+            trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->meshBuilder.GetLeafs()));
+            trc.SetLeafMaterial(treeModel->leafMaterial);
             auto& engineContext = canvas->GetEngine().GetEngineContext();
             generateLeafClusters(engineContext.GetGpuResourceLoader(), engineContext.GetGraphicsApi(),
                                  canvas->GetScene().GetResourceManager(), trc, treeModel->meshBuilder.GetLeafs(),
                                  treeModel->leafMaterial);
-            trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
-            trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->leafs));
-            trc.SetLeafMaterial(treeModel->leafMaterial);
 
             auto treeModelLod2 = GenerateLoD2Tree(tree, canvas, *params);
             trc.SetGeneratedTrunkModel(treeModelLod2->trunkModel, GameEngine::LevelOfDetail::L2);
