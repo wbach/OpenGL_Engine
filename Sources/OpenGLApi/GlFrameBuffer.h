@@ -43,7 +43,7 @@ public:
     void Clear() override;
     void CleanUp() override;
     GraphicsApi::ID GetAttachmentTexture(GraphicsApi::FrameBuffer::Type) const override;
-    void TakeSnapshot(const std::string&) override;
+    void TakeSnapshot(const std::filesystem::path&) override;
     const vec2ui& GetSize() const override;
     std::optional<Utils::Image> GetImage(IdType) const override;
     std::optional<Utils::Image> GetImage(GraphicsApi::FrameBuffer::Type) const override;

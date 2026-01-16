@@ -36,6 +36,10 @@ vec2 GetAtlasUV(vec2 uv, int idx)
 
 void main()
 {
+    outAlbedo = vec4(1,0,0,1);
+    outNormal = vec4(0,1,0,1);
+    return;
+
     int textureIndex = fs_in.textureIndex;
     vec2 uv = GetAtlasUV(fs_in.texCoord, textureIndex);
 
@@ -51,6 +55,6 @@ void main()
     vec3 worldNormal = normalize(fs_in.normal + detailNormal * 0.2); 
 
     outAlbedo = vec4(finalColor, texColor.a);
-    outAlbedo = vec4(1,0,0,1);
+
     outNormal = vec4(worldNormal * 0.5 + 0.5, 1.0);
 }

@@ -8,7 +8,7 @@ namespace GraphicsApi
 struct TextureInfo
 {
     uint32 id{0};
-    vec2ui size{0, 0};
+    vec3ui size{0, 0, 0};
     uint32 layers{1};
     TextureType textureType{TextureType::U8_RGBA};
     TextureFilter textureFilter{TextureFilter::LINEAR};

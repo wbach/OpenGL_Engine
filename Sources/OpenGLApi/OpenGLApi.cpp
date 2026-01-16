@@ -486,7 +486,7 @@ const GraphicsApi::TextureInfo& OpenGLApi::GetTextureInfo(uint32 id) const
 
     return defaultTextureInfo;
 }
-void OpenGLApi::TakeSnapshoot(const std::string& path) const
+void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
 {
     for (const auto& object : createdObjectIds)
     {
@@ -499,13 +499,17 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                     LOG_DEBUG << "Texture info not found. Id : " << object.first;
                     break;
                 }
-                const auto& textureInfo    = GetTextureInfo(object.first);
-                auto resultData            = GetTextureData(object.first);
-                const std::string fullPath = path + "/Textures2d/";
-                Utils::CreateDirectories(fullPath);
-                Utils::SaveImage(resultData, textureInfo.size, fullPath + std::to_string(object.first));
+                const auto& textureInfo = GetTextureInfo(object.first);
+                auto resultData         = GetTextureData(object.first);
+
+                const std::filesystem::path folderPath = path / "Textures2d";
+                Utils::CreateDirectories(folderPath);
+
+                std::string fileName = std::to_string(object.first) + ".png";
+                Utils::SaveImage(resultData, textureInfo.size, folderPath / fileName);
             }
             break;
+
             case ObjectType::TEXTURE_2D_ARRAY:
             {
                 if (impl_->textureInfos_.count(object.first) == 0)
@@ -517,7 +521,7 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
                 const auto& textureInfo = GetTextureInfo(object.first);
                 auto resultData         = GetTextureData(object.first);
 
-                const std::string fullPath = path + "/TextureArrays/" + std::to_string(object.first) + "/";
+                const std::filesystem::path fullPath = path / "TextureArrays" / std::to_string(object.first);
                 Utils::CreateDirectories(fullPath);
 
                 size_t layerSize = textureInfo.size.x * textureInfo.size.y * GetBytesPerPixel(textureInfo.textureType);
@@ -525,21 +529,22 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
 
                 for (size_t layer = 0; layer < numLayers; ++layer)
                 {
-                    std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
+                    std::vector<float> layerData(resultData.begin() + (layer * layerSize),
                                                  resultData.begin() + ((layer + 1) * layerSize));
 
                     std::string fileName = "layer_" + std::to_string(layer) + ".png";
-                    Utils::SaveImage(layerData, textureInfo.size, fullPath + fileName);
+                    Utils::SaveImage(layerData, textureInfo.size, fullPath / fileName);
                 }
                 LOG_DEBUG << "Saved " << numLayers << " layers for texture array " << object.first;
             }
             break;
+
             default:
-                LOG_ERROR << magic_enum::enum_name(object.second) << " not imeplmented.";
+                LOG_ERROR << magic_enum::enum_name(object.second) << " not implemented.";
                 break;
         }
     }
-    // moving to graphics objects
+
     for (const auto& object : impl_->createdGraphicsObjects_)
     {
         switch (object.second)
@@ -548,15 +553,16 @@ void OpenGLApi::TakeSnapshoot(const std::string& path) const
             {
                 const auto& frameBuffer = impl_->frameBuffers_.at(object.first);
 
-                const std::string fullPath =
-                    path + "/FrameBuffersTextures/FrameBuffer_" + std::to_string(frameBuffer->GetId()) + "/";
+                const std::filesystem::path fullPath =
+                    path / "FrameBuffersTextures" / ("FrameBuffer_" + std::to_string(frameBuffer->GetId()));
 
                 Utils::CreateDirectories(fullPath);
                 impl_->frameBuffers_.at(object.first)->TakeSnapshot(fullPath);
             }
             break;
+
             default:
-                LOG_ERROR << "not imeplmented";
+                LOG_ERROR << "not implemented";
                 break;
         }
     }
@@ -944,7 +950,7 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const Utils::Image& image, GraphicsApi:
 
     GraphicsApi::TextureInfo texutreInfo;
     texutreInfo.id            = rid;
-    texutreInfo.size          = image.size();
+    texutreInfo.size          = vec3(image.size(), channels);
     texutreInfo.textureFilter = filter;
     texutreInfo.textureMipmap = mipmap;
     texutreInfo.textureType   = type;
@@ -1050,12 +1056,14 @@ GraphicsApi::ID OpenGLApi::CreateTexture(const std::vector<Utils::Image>& images
     GraphicsApi::TextureInfo texInfo;
     texInfo.id            = rid;
     texInfo.layers        = layers;
-    texInfo.size          = size;
+    texInfo.size          = vec3ui(size, channels);
     texInfo.textureFilter = filter;
     texInfo.textureMipmap = mipmap;
     texInfo.textureType   = type;
 
     impl_->textureInfos_.insert({rid, texInfo});
+
+    LOG_DEBUG << "Array texture created rid: " << rid << ", glId : " << texture;
 
     return rid;
 }
@@ -1082,7 +1090,7 @@ GraphicsApi::ID OpenGLApi::CreateTextureStorage(GraphicsApi::TextureType, Graphi
 
     GraphicsApi::TextureInfo texutreInfo;
     texutreInfo.id            = rid;
-    texutreInfo.size          = vec2ui(static_cast<uint32>(N));
+    texutreInfo.size          = vec3ui(static_cast<uint32>(N), static_cast<uint32>(N), 4);
     texutreInfo.textureFilter = filter;
     texutreInfo.textureMipmap = GraphicsApi::TextureMipmap::NONE;
     texutreInfo.textureType   = GraphicsApi::TextureType::FLOAT_TEXTURE_4D;
@@ -1201,7 +1209,7 @@ void OpenGLApi::UpdateTexture(uint32 id, const Utils::Image& image)
 
     CreateGlTexture(glId, textureInfo.textureType, textureInfo.textureFilter, textureInfo.textureMipmap, image.size(),
                     image.getRawDataPtr());
-    textureInfo.size = image.size();
+    textureInfo.size = vec3ui(image.size(), image.getChannelsCount());
 }
 
 void OpenGLApi::ClearTexture(uint32 id, const Color& color)

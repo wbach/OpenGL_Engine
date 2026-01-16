@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <filesystem>
 #include <optional>
 #include <vector>
 
@@ -46,9 +47,9 @@ void ConvertImageData(const std::vector<T>& inputData, std::vector<uint8>& outpu
     }
 }
 
-void SaveImage(const std::vector<uint8>&, const vec2ui&, const std::string&, const std::optional<vec2>& = std::nullopt);
-void SaveImage(const std::vector<float>&, const vec3ui&, const std::string&, const std::optional<vec2>& = std::nullopt);
-void SaveImage(const Image&, const std::string&, const std::optional<vec2>& = std::nullopt);
+void SaveImage(const std::vector<uint8>&, const vec3ui&, const std::filesystem::path&, const std::optional<vec2>& = std::nullopt);
+void SaveImage(const std::vector<float>&, const vec3ui&, const std::filesystem::path&, const std::optional<vec2>& = std::nullopt);
+void SaveImage(const Image&, const std::filesystem::path&, const std::optional<vec2>& = std::nullopt);
 
 template <class T>
 Image cloneImageAs(const Image&);

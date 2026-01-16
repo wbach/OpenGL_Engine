@@ -45,7 +45,7 @@ GraphicsApi::ID DefaultFrameBuffer::GetAttachmentTexture(GraphicsApi::FrameBuffe
 {
     return {};
 }
-void DefaultFrameBuffer::TakeSnapshot(const std::string& path)
+void DefaultFrameBuffer::TakeSnapshot(const std::filesystem::path& path)
 {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -83,8 +83,8 @@ void DefaultFrameBuffer::TakeSnapshot(const std::string& path)
         }
     }
 
-    const std::string file = path + "/default.png";
-    Utils::SaveImage(outputData, vec2ui(width, height), file);
+    const auto file = path / "default.png";
+    Utils::SaveImage(outputData, vec3ui(width, height, 4), file);
 }
 const vec2ui& DefaultFrameBuffer::GetSize() const
 {

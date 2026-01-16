@@ -392,12 +392,12 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
 
     std::visit(visitor{[&](std::vector<uint8> data)
                        {
-                           Utils::SaveImage(data, heightMap.GetSize(), file.GetAbsolutePath().string(), vec2(4));
+                           Utils::SaveImage(data, vec3ui(heightMap.GetSize(), 4), file.GetAbsolutePath().string(), vec2(4));
                            for (size_t i = 3; i < data.size(); i += 4)
                                data[i] = 255;
 
-                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview");
-                           Utils::SaveImage(data, image.size(), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
+                           Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()), file.GetAbsolutePath().string() + "_alpha1_preview");
+                           Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
                                             vec2(4));
                        },
                        [&](const std::vector<float>&) { LOG_WARN << ("GenerateBlendMapImage for floats not implemented"); },

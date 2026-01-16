@@ -15,7 +15,7 @@ public:
     MOCK_METHOD0(Clear, void());
     MOCK_METHOD0(CleanUp, void());
     MOCK_CONST_METHOD1(GetAttachmentTexture, ID(FrameBuffer::Type));
-    MOCK_METHOD1(TakeSnapshot, void(const std::string&));
+    MOCK_METHOD1(TakeSnapshot, void(const std::filesystem::path&));
     MOCK_METHOD(const vec2ui&, GetSize, (), (const, override));
     MOCK_METHOD(std::optional<Utils::Image>, GetImage, (IdType), (const, override));
     MOCK_METHOD(std::optional<Utils::Image>, GetImage, (FrameBuffer::Type), (const, override));

@@ -111,6 +111,8 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
         return;
     }
 
+    LOG_DEBUG << "Fbo created: " << frameBuffer->GetId();
+
     size_t totalLayers = clusters.clusters.size() * 2;
     std::vector<Utils::Image> images;
     images.resize(totalLayers);
@@ -148,9 +150,9 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
 
     RenderClusters(*textureArrayId, *normalTextureArrayId, *frameBuffer, clusters, allLeaves, leafMaterial, renderSize);
 
-    graphicsApi.DeleteShaderBuffer(*transformBuferId);
-    graphicsApi.DeleteShaderBuffer(*leafsSsbo);
-    graphicsApi.DeleteFrameBuffer(*frameBuffer);
+    // graphicsApi.DeleteShaderBuffer(*transformBuferId);
+    // graphicsApi.DeleteShaderBuffer(*leafsSsbo);
+    // graphicsApi.DeleteFrameBuffer(*frameBuffer);
 
     graphicsApi.GenerateMipmaps(*textureArrayId);
     graphicsApi.GenerateMipmaps(*normalTextureArrayId);
@@ -175,7 +177,8 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
         // --- RENDER WIDOKU 0 (FRONT - Oś Z) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2);
         fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2);
-        fb.Clear();
+       // fb.Clear();
+        fb.Bind();
 
         mat4 viewFront = lookAt(center + vec3(0, 0, halfSize), center, vec3(0, 1, 0));
         DrawClusterLeaves(cluster, allLeaves, leafMaterial, projection * viewFront);
@@ -183,7 +186,8 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
         // --- RENDER WIDOKU 1 (SIDE - Oś X) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2 + 1);
         fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2 + 1);
-        fb.Clear();
+       // fb.Clear();
+        fb.Bind();
 
         mat4 viewSide = lookAt(center + vec3(halfSize, 0, 0), center, vec3(0, 1, 0));
         DrawClusterLeaves(cluster, allLeaves, leafMaterial, projection * viewSide);

@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <filesystem>
 #include <magic_enum/magic_enum.hpp>
 #include <unordered_map>
 #include <variant>
@@ -211,20 +212,15 @@ GraphicsApi::ID FrameBuffer::GetAttachmentTexture(GraphicsApi::FrameBuffer::Type
     return std::nullopt;
 }
 
-void FrameBuffer::TakeSnapshot(const std::string& path)
+void FrameBuffer::TakeSnapshot(const std::filesystem::path& path)
 {
     for (auto& attachment : attachments_)
     {
-        std::visit(visitor{[&](const std::vector<uint8>& outputData)
+        std::visit(visitor{[&](const auto& outputData)
                            {
-                               Utils::SaveImage(outputData, vec2ui(attachment.width_, attachment.height_),
-                                                path + "/" + std::to_string(*GetAttachmentTexture(attachment.attachmentType)));
-                           },
-                           [&](const std::vector<float>& outputData)
-                           {
-                               Utils::SaveImage(outputData,
-                                                vec3ui(attachment.width_, attachment.height_, attachment.textureChannels_),
-                                                path + "/" + std::to_string(*GetAttachmentTexture(attachment.attachmentType)));
+                               Utils::SaveImage(
+                                   outputData, vec3ui(attachment.width_, attachment.height_, attachment.textureChannels_),
+                                   path / (std::to_string(*GetAttachmentTexture(attachment.attachmentType)) + ".png"));
                            },
                            [](std::monostate) { LOG_WARN << "Data get error."; }},
                    GetAttachmentData(attachment));
@@ -438,7 +434,7 @@ void FrameBuffer::BindTexture(IdType textureId, GraphicsApi::FrameBuffer::Type t
 }
 void FrameBuffer::BindTextureLayer(IdType textureId, GraphicsApi::FrameBuffer::Type type, int layerIndex)
 {
-    LOG_DEBUG << "BindTextureLayer start";
+    LOG_DEBUG << "BindTextureLayer start glId_: " << glId_;
     auto attachmentType = AttachmentType.at(type);
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR)

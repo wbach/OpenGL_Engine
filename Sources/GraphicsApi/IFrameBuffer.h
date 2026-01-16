@@ -2,6 +2,7 @@
 #include <GraphicsApi/BufferParamters.h>
 #include <Types.h>
 
+#include <filesystem>
 #include <vector>
 
 #include "GraphicsApiDef.h"
@@ -24,7 +25,7 @@ public:
     virtual void CleanUp()                                                      = 0;
     virtual void UpdateDrawBuffers()                                            = 0;
     virtual ID GetAttachmentTexture(FrameBuffer::Type) const                    = 0;
-    virtual void TakeSnapshot(const std::string&)                               = 0;
+    virtual void TakeSnapshot(const std::filesystem::path&)                     = 0;
     virtual const vec2ui& GetSize() const                                       = 0;
     virtual std::optional<Utils::Image> GetImage(IdType) const                  = 0;
     virtual std::optional<Utils::Image> GetImage(FrameBuffer::Type) const       = 0;

@@ -124,7 +124,7 @@ public:
     virtual mat4 PrepareMatrixToLoad(const mat4&)                                                                      = 0;
     virtual std::vector<uint8> GetTextureData(uint32) const                                                            = 0;
     virtual const TextureInfo& GetTextureInfo(uint32) const                                                            = 0;
-    virtual void TakeSnapshoot(const std::string& path) const                                                          = 0;
+    virtual void TakeSnapshoot(const std::filesystem::path&) const                                                          = 0;
     virtual std::optional<Utils::Image> GetImage(IdType) const                                                         = 0;
 
     virtual IFrameBuffer& GetDefaultFrameBuffer()                                        = 0;

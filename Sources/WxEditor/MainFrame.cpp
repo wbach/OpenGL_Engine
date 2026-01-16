@@ -839,10 +839,19 @@ void MainFrame::MenuRendererReloadShaders(wxCommandEvent&)
 
 void MainFrame::MenuRendererTakeSnapshot(wxCommandEvent&)
 {
-    std::string path{"./snapshoot/"};
-    auto& resourceManager = canvas->GetScene().GetResourceManager();
-    auto takeSnapshoot    = [&, path]() { resourceManager.GetGraphicsApi().TakeSnapshoot(path); };
-    resourceManager.GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
+    try
+    {
+        std::filesystem::path path{"./snapshoot"};
+        std::filesystem::remove_all(path);
+
+        auto& resourceManager = canvas->GetScene().GetResourceManager();
+        auto takeSnapshoot    = [&, path]() { resourceManager.GetGraphicsApi().TakeSnapshoot(path); };
+        resourceManager.GetGpuResourceLoader().AddFunctionToCall(takeSnapshoot);
+    }
+    catch (...)
+    {
+        LOG_ERROR << "MenuRendererTakeSnapshot error";
+    }
 }
 
 void MainFrame::MenuRendererSwap(wxCommandEvent&)
