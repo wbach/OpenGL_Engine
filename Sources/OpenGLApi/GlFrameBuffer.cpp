@@ -439,7 +439,7 @@ void FrameBuffer::BindTextureLayer(IdType textureId, GraphicsApi::FrameBuffer::T
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR)
     {
-        LOG_ERROR << "GL error" << err;
+        LOG_ERROR << "GL error: " << err;
     }
 
     GLuint tex = idPool_.ToGL(textureId);
@@ -464,7 +464,7 @@ void FrameBuffer::BindTextureLayer(IdType textureId, GraphicsApi::FrameBuffer::T
         GLenum err;
         while ((err = glGetError()) != GL_NO_ERROR)
         {
-            LOG_ERROR << "GL error" << err;
+            LOG_ERROR << "GL error: " << err;
         }
     }
 }
@@ -475,7 +475,6 @@ void FrameBuffer::UpdateDrawBuffers()
     {
         if (texture != GL_DEPTH_ATTACHMENT)
         {
-            LOG_DEBUG << "Push " << GlAttachmentToString(texture);
             drawBuffers.push_back(texture);
         }
     }
@@ -483,7 +482,6 @@ void FrameBuffer::UpdateDrawBuffers()
     {
         if (attachment.type_ != GL_DEPTH_ATTACHMENT)
         {
-            LOG_DEBUG << "Push " << GlAttachmentToString(attachment.type_);
             drawBuffers.push_back(attachment.type_);
         }
     }

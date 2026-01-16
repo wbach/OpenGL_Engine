@@ -514,14 +514,13 @@ void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
             {
                 if (impl_->textureInfos_.count(object.first) == 0)
                 {
-                    LOG_DEBUG << "Texture array info not found. Id : " << object.first;
                     break;
                 }
 
                 const auto& textureInfo = GetTextureInfo(object.first);
                 auto resultData         = GetTextureData(object.first);
 
-                const std::filesystem::path fullPath = path / "TextureArrays" / std::to_string(object.first);
+                const auto fullPath = path / "TextureArrays" / std::to_string(object.first);
                 Utils::CreateDirectories(fullPath);
 
                 size_t layerSize = textureInfo.size.x * textureInfo.size.y * GetBytesPerPixel(textureInfo.textureType);
@@ -529,11 +528,11 @@ void OpenGLApi::TakeSnapshoot(const std::filesystem::path& path) const
 
                 for (size_t layer = 0; layer < numLayers; ++layer)
                 {
-                    std::vector<float> layerData(resultData.begin() + (layer * layerSize),
+                    std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
                                                  resultData.begin() + ((layer + 1) * layerSize));
 
-                    std::string fileName = "layer_" + std::to_string(layer) + ".png";
-                    Utils::SaveImage(layerData, textureInfo.size, fullPath / fileName);
+                    auto fileName = "layer_" + std::to_string(layer) + ".png";
+                    Utils::SaveImage(layerData, textureInfo.size, (fullPath / fileName).string());
                 }
                 LOG_DEBUG << "Saved " << numLayers << " layers for texture array " << object.first;
             }
@@ -1623,7 +1622,20 @@ void OpenGLApi::RenderMesh(uint32 id)
 
 void OpenGLApi::RenderProcedural(uint32 count)
 {
+    static GLuint dummyVao = 0;
+    if (dummyVao == 0)
+    {
+        glGenVertexArrays(1, &dummyVao);
+    }
+
+    glBindVertexArray(dummyVao);
     glDrawArrays(GL_TRIANGLES, 0, count);
+
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+        LOG_ERROR << "RenderProcedural error: " << err;
+    }
 }
 
 void OpenGLApi::RenderTriangleStripMesh(uint32 id)
@@ -1718,7 +1730,9 @@ void OpenGLApi::SetViewPort(uint32 x, uint32 y, uint32 width, uint32 height)
 
 void OpenGLApi::BindTexture(uint32 id) const
 {
-    glBindTexture(GL_TEXTURE_2D, impl_->idPool_.ToGL(id));
+    auto& info    = impl_->textureInfos_[id];
+    GLenum target = (info.layers > 1) ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+    glBindTexture(target, impl_->idPool_.ToGL(id));
 }
 
 void OpenGLApi::BindImageTexture(uint32 id, GraphicsApi::TextureAccess acces)

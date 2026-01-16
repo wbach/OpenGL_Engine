@@ -84,8 +84,8 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     }
 
     {
-        leafIndicesBufferId =
-            graphicsApi.CreateShaderStorageBuffer(PER_MESH_OBJECT_BIND_LOCATION, 100000 * sizeof(uint32), GraphicsApi::DrawFlag::Dynamic);
+        leafIndicesBufferId = graphicsApi.CreateShaderStorageBuffer(PER_MESH_OBJECT_BIND_LOCATION, 100000 * sizeof(uint32),
+                                                                    GraphicsApi::DrawFlag::Dynamic);
     }
 
     const vec2ui renderSize{256, 256};
@@ -177,7 +177,7 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
         // --- RENDER WIDOKU 0 (FRONT - Oś Z) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2);
         fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2);
-       // fb.Clear();
+        fb.Clear();
         fb.Bind();
 
         mat4 viewFront = lookAt(center + vec3(0, 0, halfSize), center, vec3(0, 1, 0));
@@ -186,7 +186,7 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
         // --- RENDER WIDOKU 1 (SIDE - Oś X) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2 + 1);
         fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2 + 1);
-       // fb.Clear();
+        fb.Clear();
         fb.Bind();
 
         mat4 viewSide = lookAt(center + vec3(halfSize, 0, 0), center, vec3(0, 1, 0));
@@ -212,6 +212,7 @@ void TreeLeafClusterRenderer::DrawClusterLeaves(const Cluster& cluster, const st
     graphicsApi.BindShaderBuffer(*leafIndicesBufferId);
 
     BindMaterial(leafMaterial);
+    LOG_DEBUG << "Render size : " << cluster.leafIndices.size() * 6;
     graphicsApi.RenderProcedural(cluster.leafIndices.size() * 6);
 }
 void TreeLeafClusterRenderer::BindMaterial(const Material& material) const
