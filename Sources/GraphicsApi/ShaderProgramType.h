@@ -27,6 +27,7 @@ enum class ShaderProgramType
     TreeLeafsShdaows,
     TreeLeafsShdaowsBilboards,
     TreeLeafsCluster,
+    TreeLeafsClusterCreation,
     Water,
     SSAO,
     ColorFilper,

@@ -39,7 +39,7 @@ class TreeRenderer : public IRenderer
 public:
     TreeRenderer(RendererContext&);
 
-    virtual void RenderTree(const Components::TreeRendererComponent&, float) const = 0;
+    virtual void RenderTree(const Components::TreeRendererComponent&, float) = 0;
 
     void init() override;
     void subscribe(GameObject&) override;

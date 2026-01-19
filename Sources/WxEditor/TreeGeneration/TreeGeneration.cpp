@@ -692,6 +692,8 @@ void generateLeafClusters(GameEngine::IGpuResourceLoader& loader, GraphicsApi::I
         return;
     }
 
+    trc.SetTreeClusters(clasters);
+
     loader.AddFunctionToCall(
         [&graphicsApi, &resourceManager, &trc, clasters, leafs, leafMaterial]()
         {

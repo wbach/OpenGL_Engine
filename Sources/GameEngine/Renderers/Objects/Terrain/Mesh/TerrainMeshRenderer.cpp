@@ -79,11 +79,31 @@ void TerrainMeshRenderer::renderTerrainMeshes(const Model& model, const Componen
 }
 void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextureType, Texture*>>& textures) const
 {
+    Texture* textureMap[21] = {nullptr};
+
     for (const auto& [type, texture] : textures)
     {
-        if (texture and texture->GetGraphicsObjectId())
+        uint32 index = static_cast<uint32>(type);
+        if (index < 21)
         {
-            bindTexture(texture, static_cast<uint32>(type));
+            textureMap[index] = texture;
+        }
+    }
+
+    auto allTypes = magic_enum::enum_values<TerrainTextureType>();
+
+    for (const auto& type : allTypes)
+    {
+        uint32 slot  = static_cast<uint32>(type);
+        Texture* tex = textureMap[slot];
+
+        if (tex && tex->GetGraphicsObjectId() != 0)
+        {
+            bindTexture(tex, slot);
+        }
+        else
+        {
+            context_.graphicsApi_.ActiveTexture(slot, 0);
         }
     }
 }

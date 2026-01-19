@@ -1,5 +1,7 @@
 #pragma once
+#include <GraphicsApi/GraphicsApiDef.h>
 #include <GraphicsApi/IGraphicsApi.h>
+#include <Types.h>
 
 #include <functional>
 #include <optional>
@@ -8,35 +10,16 @@
 #include "GameEngine/Components/Renderer/Trees/Leaf.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include "GraphicsApi/GraphicsApiDef.h"
-#include "Types.h"
 
 namespace GameEngine
 {
-class Mesh;
-class Model;
 struct Material;
-struct RendererContext;
-class ModelWrapper;
-struct Time;
 class GeneralTexture;
 
 struct TreeClusters;
 struct Leaf;
 struct Cluster;
-
-namespace Components
-{
-class TreeRendererComponent;
-}  // namespace Components
-
-struct TreeSubscriber
-{
-    GameObject* gameObject_{nullptr};
-    std::vector<Components::TreeRendererComponent*> treeRendererComponent_{nullptr};
-};
 
 class TreeLeafClusterRenderer
 {

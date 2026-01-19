@@ -1,5 +1,6 @@
 #include "OpenGLApi.h"
 
+#include <GL/gl.h>
 #include <GL/glew.h>
 #include <Utils/Image/ImageUtils.h>
 #include <Utils/Variant.h>
@@ -23,6 +24,12 @@
 #include "OpenGLUtils.h"
 #include "SDL2/SDLOpenGL.h"
 #include "magic_enum/magic_enum.hpp"
+
+#if defined(_WIN32)
+#define GL_APIENTRY __stdcall
+#else
+#define GL_APIENTRY
+#endif
 
 enum class ObjectType
 {
@@ -130,6 +137,73 @@ size_t GetBytesPerPixel(GraphicsApi::TextureType type)
             return 4;
     }
 }
+void GL_APIENTRY OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /*length*/,
+                                     const GLchar* message, const void* /*userParam*/)
+{
+    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+        return;
+
+    LOG_ERROR << "[OpenGL]";
+    LOG_ERROR << "Message: " << message;
+    LOG_ERROR << "ID: " << id;
+
+    LOG_ERROR << "Source: "
+              << [&]()
+    {
+        switch (source)
+        {
+            case GL_DEBUG_SOURCE_API:
+                return "API";
+            case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+                return "Window System";
+            case GL_DEBUG_SOURCE_SHADER_COMPILER:
+                return "Shader Compiler";
+            case GL_DEBUG_SOURCE_THIRD_PARTY:
+                return "Third Party";
+            case GL_DEBUG_SOURCE_APPLICATION:
+                return "Application";
+            default:
+                return "Other";
+        }
+    }();
+
+    LOG_ERROR << "Type: "
+              << [&]()
+    {
+        switch (type)
+        {
+            case GL_DEBUG_TYPE_ERROR:
+                return "Error";
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+                return "Deprecated Behaviour";
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+                return "Undefined Behaviour";
+            case GL_DEBUG_TYPE_PORTABILITY:
+                return "Portability";
+            case GL_DEBUG_TYPE_PERFORMANCE:
+                return "Performance";
+            default:
+                return "Other";
+        }
+    }();
+
+    LOG_ERROR << "Severity: "
+              << [&]()
+    {
+        switch (severity)
+        {
+            case GL_DEBUG_SEVERITY_HIGH:
+                return "HIGH";
+            case GL_DEBUG_SEVERITY_MEDIUM:
+                return "MEDIUM";
+            case GL_DEBUG_SEVERITY_LOW:
+                return "LOW";
+            default:
+                return "NOTIFICATION";
+        }
+    }();
+}
+
 }  // namespace
 
 struct ShaderBuffer
@@ -247,6 +321,13 @@ void OpenGLApi::Init()
     glPolygonOffset(1, 1);
 
     impl_->frameBuffers_.push_back(std::make_unique<DefaultFrameBuffer>(windowApi_->GetWindowSize()));
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(OpenGLDebugCallback, 0);
+
+    glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1,
+                         "Test: Callback dziala!");
 
     LOG_DEBUG << "Init done.";
 }
@@ -1238,25 +1319,36 @@ void OpenGLApi::DisableDepthMask()
 
 void OpenGLApi::ActiveTexture(uint32 nr)
 {
-    glActiveTexture(GL_TEXTURE0 + nr);
+    ActiveTexture(nr, 0);
 }
 
 void OpenGLApi::ActiveTexture(uint32 nr, uint32 id)
 {
-    // if (id == 0 or not createdObjectIds.count(id))
-    //{
-    //    /* LOG TO FIX*/  LOG_ERROR << ("Wrong image id : " + std::to_string(id));
-    //    return;
-    //}
-
     auto openGLId = impl_->idPool_.ToGL(id);
-
     glActiveTexture(GL_TEXTURE0 + nr);
 
-    if (createdObjectIds.count(id) and createdObjectIds.at(id) == ObjectType::TEXTURE_CUBE_MAP)
-        glBindTexture(GL_TEXTURE_CUBE_MAP, openGLId);
+    auto iter = createdObjectIds.find(id);
+
+    if (iter != createdObjectIds.end())
+    {
+        switch (iter->second)
+        {
+            case ObjectType::TEXTURE_CUBE_MAP:
+                glBindTexture(GL_TEXTURE_CUBE_MAP, openGLId);
+                break;
+            case ObjectType::TEXTURE_2D_ARRAY:
+                glBindTexture(GL_TEXTURE_2D_ARRAY, openGLId);
+                break;
+            case ObjectType::TEXTURE_2D:
+            default:
+                glBindTexture(GL_TEXTURE_2D, openGLId);
+                break;
+        }
+    }
     else
+    {
         glBindTexture(GL_TEXTURE_2D, openGLId);
+    }
 }
 
 void OpenGLApi::DeleteObject(uint32 id)
@@ -1622,19 +1714,26 @@ void OpenGLApi::RenderMesh(uint32 id)
 
 void OpenGLApi::RenderProcedural(uint32 count)
 {
-    static GLuint dummyVao = 0;
-    if (dummyVao == 0)
+    if (count > 0)
     {
-        glGenVertexArrays(1, &dummyVao);
+        static GLuint dummyVao = 0;
+        if (dummyVao == 0)
+        {
+            glGenVertexArrays(1, &dummyVao);
+        }
+
+        glBindVertexArray(dummyVao);
+        glDrawArrays(GL_TRIANGLES, 0, count);
+
+        GLenum err;
+        while ((err = glGetError()) != GL_NO_ERROR)
+        {
+            LOG_ERROR << "RenderProcedural error: " << err;
+        }
     }
-
-    glBindVertexArray(dummyVao);
-    glDrawArrays(GL_TRIANGLES, 0, count);
-
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR)
+    else
     {
-        LOG_ERROR << "RenderProcedural error: " << err;
+        LOG_WARN << "Count is 0";
     }
 }
 

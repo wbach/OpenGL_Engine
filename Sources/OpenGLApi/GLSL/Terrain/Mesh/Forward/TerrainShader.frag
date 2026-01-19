@@ -21,7 +21,6 @@ in GS_OUT
     float visibility;
 } fs_in;
 
-layout(binding = 0) uniform sampler2DShadow shadowMap;
 layout(binding = 2) uniform sampler2D blendMap;
 layout(binding = 3) uniform sampler2D normalmap;
 layout(binding = 4) uniform sampler2D backgroundTexture;

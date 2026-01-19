@@ -188,6 +188,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::TreeLeafsClusterCreation,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "Tree/LeafClusterCreationShader.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "Tree/LeafClusterCreationShader.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::Water,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Water/waterShader.vert"},

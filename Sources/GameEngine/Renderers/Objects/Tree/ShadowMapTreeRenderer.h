@@ -10,7 +10,7 @@ public:
 
     void init() override;
     void reloadShaders() override;
-    void RenderTree(const Components::TreeRendererComponent&, float) const override;
+    void RenderTree(const Components::TreeRendererComponent&, float) override;
 
 private:
     void RenderTrunk(const Components::TreeRendererComponent&, LevelOfDetail) const;

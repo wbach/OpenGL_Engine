@@ -6,28 +6,27 @@ namespace GameEngine
 {
 enum class TerrainTextureType
 {
-    heightmap                     = 1,
-    blendMap                      = 2,
-    normalmap                     = 3,
-    backgroundTexture             = 4,
-    backgroundTextureNormal       = 5,
-    backgroundTextureDisplacement = 6,
-    redTexture                    = 7,
-    redTextureNormal              = 8,
-    redTextureDisplacement        = 9,
-    greenTexture                  = 10,
-    greenTextureNormal            = 11,
-    greenTextureDisplacement      = 12,
-    blueTexture                   = 13,
-    blueTextureNormal             = 14,
-    blueTextureDisplacement       = 15,
-    alphaTexture                  = 16,
-    alphaTextureNormal            = 17,
-    alphaTextureDisplacement      = 18,
-    rockTexture                   = 19,
-    rockTextureNormal             = 20,
-    rockTextureDisplacement       = 21
-
+    blendMap                      = 0,
+    backgroundTexture             = 1,
+    backgroundTextureNormal       = 2,
+    backgroundTextureDisplacement = 3,
+    redTexture                    = 4,
+    redTextureNormal              = 5,
+    redTextureDisplacement        = 6,
+    greenTexture                  = 7,
+    greenTextureNormal            = 8,
+    greenTextureDisplacement      = 9,
+    blueTexture                   = 10,
+    blueTextureNormal             = 11,
+    blueTextureDisplacement       = 12,
+    alphaTexture                  = 13,
+    alphaTextureNormal            = 14,
+    alphaTextureDisplacement      = 15,
+    rockTexture                   = 16,
+    rockTextureNormal             = 17,
+    rockTextureDisplacement       = 18,
+    heightmap                     = 19,
+    normalmap                     = 20
 };
 class Texture;
 bool IsTerrainTextureType(const std::string&);

@@ -471,5 +471,17 @@ void TreeRendererComponent::SetClusterTextures(const ClusterTextures& textures)
 {
     clusterTextures = textures;
 }
+void TreeRendererComponent::SetTreeClusters(const TreeClusters& clusters)
+{
+    treeClusters = clusters;
+}
+const ClusterTextures& TreeRendererComponent::getClusterTextures() const
+{
+    return clusterTextures;
+}
+const TreeClusters& TreeRendererComponent::getTreeClusters() const
+{
+    return treeClusters;
+}
 }  // namespace Components
 }  // namespace GameEngine

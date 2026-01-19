@@ -30,7 +30,7 @@ void ShadowMapTreeRenderer::init()
     trunkShader_.Init();
 }
 void ShadowMapTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent,
-                                       float distanceToCamera) const
+                                       float distanceToCamera)
 {
     auto lvl = getLevelOfDetail(distanceToCamera);
     RenderTrunk(treeRendererComponent, lvl);

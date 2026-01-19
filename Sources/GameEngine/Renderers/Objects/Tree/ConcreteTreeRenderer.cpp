@@ -1,23 +1,56 @@
 #include "ConcreteTreeRenderer.h"
 
+#include <vector>
+
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Renderers/Objects/Tree/TreeLeafClusterRenderer.h"
 #include "GameEngine/Renderers/Objects/Tree/TreeRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
+#include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
+#include "Logger/Log.h"
+#include "Types.h"
 
 namespace GameEngine
 {
+namespace
+{
+struct ClusterData
+{
+    AlignWrapper<vec4> center;
+    AlignWrapper<vec4> size;
+};
+
+std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
+{
+    std::vector<ClusterData> gpuData;
+    gpuData.reserve(treeClusters.clusters.size());
+
+    for (const auto& cluster : treeClusters.clusters)
+    {
+        ClusterData data;
+        vec3 center     = (cluster.minBound + cluster.maxBound) * 0.5f;
+        data.center     = vec4(center, 1.0f);
+        vec3 dimensions = cluster.maxBound - cluster.minBound;
+        float maxDim    = std::max({dimensions.x, dimensions.y, dimensions.z});
+        data.size       = vec4(dimensions, maxDim);
+        gpuData.push_back(data);
+    }
+    return gpuData;
+}
+}  // namespace
 ConcreteTreeRenderer::ConcreteTreeRenderer(RendererContext& context)
     : TreeRenderer(context)
     , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)
+    , leafsClusterShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafsCluster)
     , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
 }
-void ConcreteTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent,
-                                      float distanceToCamera) const
+void ConcreteTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent, float distanceToCamera)
 {
     auto lvl = getLevelOfDetail(distanceToCamera);
     RenderTrunk(treeRendererComponent, lvl);
+    //RenderLeafsClusters(treeRendererComponent);
     RenderLeafs(treeRendererComponent, lvl);
 }
 LevelOfDetail ConcreteTreeRenderer::getLevelOfDetail(float distanceToCamera) const
@@ -53,10 +86,55 @@ void ConcreteTreeRenderer::init()
     TreeRenderer::init();
     leafsShader_.Init();
     trunkShader_.Init();
+    leafsClusterShader_.Init();
 }
 void ConcreteTreeRenderer::reloadShaders()
 {
     trunkShader_.Reload();
     leafsShader_.Reload();
+    leafsClusterShader_.Reload();
+}
+void ConcreteTreeRenderer::RenderLeafsClusters(const Components::TreeRendererComponent& component)
+{
+    if (component.getTreeClusters().clusters.empty())
+    {
+        return;
+    }
+    leafsClusterShader_.Start();
+
+    const auto& textures = component.getClusterTextures();
+    if (textures.baseColorTextureArray)
+    {
+        context_.graphicsApi_.ActiveTexture(0, *textures.baseColorTextureArray);
+    }
+    if (textures.normalTextureArray)
+    {
+        context_.graphicsApi_.ActiveTexture(1, *textures.normalTextureArray);
+    }
+
+    const auto& treeClusters = component.getTreeClusters();
+    UpdateClusterDataSssbo(treeClusters);
+    auto count = treeClusters.clusters.size() * 12;
+
+    context_.graphicsApi_.DisableCulling();
+    context_.graphicsApi_.RenderProcedural(count);
+}
+void ConcreteTreeRenderer::UpdateClusterDataSssbo(const TreeClusters& treeClusters)
+{
+    auto clusterData = getClusterData(treeClusters);
+    auto size        = static_cast<uint32>(clusterData.size() * sizeof(ClusterData));
+
+    if (not clusterDataSssbo_)
+    {
+        clusterDataSssbo_ =
+            context_.graphicsApi_.CreateShaderStorageBuffer(PER_INSTANCES_BIND_LOCATION, size, GraphicsApi::DrawFlag::Dynamic);
+
+        context_.graphicsApi_.UpdateShaderStorageBuffer(*clusterDataSssbo_, clusterData.data(), size);
+    }
+
+    if (clusterDataSssbo_)
+    {
+        context_.graphicsApi_.BindShaderBuffer(*clusterDataSssbo_);
+    }
 }
 }  // namespace GameEngine

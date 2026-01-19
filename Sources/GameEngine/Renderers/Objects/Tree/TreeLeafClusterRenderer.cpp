@@ -46,7 +46,7 @@ struct TreeParamBuffer
 TreeLeafClusterRenderer::TreeLeafClusterRenderer(GraphicsApi::IGraphicsApi& graphicsApi, IResourceManager& resourceManager)
     : graphicsApi(graphicsApi)
     , resourceManager(resourceManager)
-    , leafsClusterShader(graphicsApi, GraphicsApi::ShaderProgramType::TreeLeafsCluster)
+    , leafsClusterShader(graphicsApi, GraphicsApi::ShaderProgramType::TreeLeafsClusterCreation)
 {
 }
 void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::vector<Leaf>& allLeaves,
@@ -247,5 +247,7 @@ void TreeLeafClusterRenderer::BindMaterialTexture(uint32 location, GeneralTextur
     {
         graphicsApi.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
+
+    graphicsApi.DisableCulling();
 }
 }  // namespace GameEngine
