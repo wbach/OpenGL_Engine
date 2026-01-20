@@ -64,18 +64,17 @@ void TreeRenderer::render()
     {
         for (auto* treeRendererComponent : sub.treeRendererComponent_)
         {
-            auto perUpdate = treeRendererComponent->GetPerObjectUpdateId();
-            if (perUpdate)
-            {
-                context_.graphicsApi_.BindShaderBuffer(*perUpdate);
-            }
-
-            UpdateTreePramBuffer(*treeRendererComponent);
-
             auto isVisible = context_.frustrum_.intersection(treeRendererComponent->GetWorldBoundingBox());
             if (isVisible)
             {
+                auto perUpdate = treeRendererComponent->GetPerObjectUpdateId();
+                if (perUpdate)
+                {
+                    context_.graphicsApi_.BindShaderBuffer(*perUpdate);
+                }
+
                 auto distanceToCamera = getDistanceToCamera(*treeRendererComponent);
+                UpdateTreePramBuffer(*treeRendererComponent, distanceToCamera);
                 RenderTree(*treeRendererComponent, distanceToCamera);
                 ++rendererModels;
             }
@@ -166,7 +165,7 @@ void TreeRenderer::RenderMesh(const Mesh& mesh) const
     BindMaterial(mesh.GetMaterial());
     context_.graphicsApi_.RenderMesh(*mesh.GetGraphicsObjectId());
 }
-void TreeRenderer::UpdateTreePramBuffer(Components::TreeRendererComponent& treeRendererComponent)
+void TreeRenderer::UpdateTreePramBuffer(Components::TreeRendererComponent& treeRendererComponent, float distanceToCamera)
 {
     if (paramBufferId_)
     {
@@ -175,7 +174,7 @@ void TreeRenderer::UpdateTreePramBuffer(Components::TreeRendererComponent& treeR
         buffer.time        = treeRendererComponent.windTime;
         buffer.wind        = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
                            context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
-        buffer.fprams      = vec4{treeRendererComponent.leafScale, 0, 0, 0};
+        buffer.fprams      = vec4{treeRendererComponent.leafScale, 0, 0, CalculateFadeFactor(distanceToCamera)};
         buffer.atlasParams = vec4i{treeRendererComponent.leafTextureAtlasSize, treeRendererComponent.leafTextureIndex, 0, 0};
 
         context_.graphicsApi_.UpdateShaderBuffer(*paramBufferId_, &buffer);
@@ -188,5 +187,9 @@ float TreeRenderer::getDistanceToCamera(Components::IComponent& component) const
     const auto& cameraPosition = context_.camera_->GetPosition();
 
     return glm::distance(position, cameraPosition);
+}
+float TreeRenderer::CalculateFadeFactor(float distanceToCamera)
+{
+    return glm::clamp((distanceToCamera - startFade) / (endFade - startFade), 0.0f, 1.0f);
 }
 }  // namespace GameEngine

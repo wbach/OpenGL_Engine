@@ -25,6 +25,15 @@ layout (std140, align=16, binding=1) uniform PerFrame
     vec4 projection;
 } perFrame;
 
+layout(std140, align=16, binding = 4) uniform LeafParams
+{
+    vec4 wind; 
+    vec4 fparams; 
+    ivec4 atlasParams; 
+    float time;
+} leafParams;
+
+
 layout (std140, align=16, binding=6) uniform PerMaterial
 {
     vec4 baseColor;
@@ -46,8 +55,30 @@ bool Is(float v)
     return v > 0.5f;
 }
 
+float screenDoorAlpha(vec2 screenPos)
+{
+    const float bayer64[64] = float[](
+         0, 32,  8, 40,  2, 34, 10, 42,
+        48, 16, 56, 24, 50, 18, 58, 26,
+        12, 44,  4, 36, 14, 46,  6, 38,
+        60, 28, 52, 20, 62, 30, 54, 22,
+         3, 35, 11, 43,  1, 33,  9, 41,
+        51, 19, 59, 27, 49, 17, 57, 25,
+        15, 47,  7, 39, 13, 45,  5, 37,
+        63, 31, 55, 23, 61, 29, 53, 21
+    );
+    int x = int(screenPos.x) % 8;
+    int y = int(screenPos.y) % 8;
+    return bayer64[y * 8 + x] / 64.0;
+}
+
 void main()
 {
+    float t = leafParams.fparams.w;
+    float threshold = screenDoorAlpha(gl_FragCoord.xy);
+    if (t < threshold) discard;
+
+
     vec3 uvl = vec3(fs_in.texCoord , fs_in.layerIndex);
     
     vec4 baseColor = vec4(1.0);

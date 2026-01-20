@@ -51,14 +51,14 @@ void ConcreteTreeRenderer::RenderTree(const Components::TreeRendererComponent& t
     auto lvl = getLevelOfDetail(distanceToCamera);
     RenderTrunk(treeRendererComponent, lvl);
 
-    // if (distanceToCamera > 25.f)
-    if (LevelOfDetail::L2 == lvl)
-    {
-        RenderLeafsClusters(treeRendererComponent);
-    }
-    else
+    if (distanceToCamera < endFade)
     {
         RenderLeafs(treeRendererComponent, lvl);
+    }
+
+    if (distanceToCamera > startFade)
+    {
+        RenderLeafsClusters(treeRendererComponent);
     }
 }
 LevelOfDetail ConcreteTreeRenderer::getLevelOfDetail(float distanceToCamera) const
