@@ -602,28 +602,30 @@ void GenerateBibloardImage(const GameEngine::TreeMeshBuilder& tree)
     }
 }
 
-GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::Leaf>& leaves, float clusterSize)
+GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::Leaf>& leaves, float clusterSize,
+                                                 float baseLeafSize = 1.f)
 {
     if (leaves.empty())
         return {};
 
-    vec3 minBound = leaves[0].position;
-    vec3 maxBound = leaves[0].position;
+    vec3 treeMin = leaves[0].position;
+    vec3 treeMax = leaves[0].position;
 
     for (const auto& leaf : leaves)
     {
-        minBound = min(minBound, leaf.position);
-        maxBound = max(maxBound, leaf.position);
+        treeMin = min(treeMin, leaf.position);
+        treeMax = max(treeMax, leaf.position);
     }
 
-    minBound -= 0.01f;
-    maxBound += 0.01f;
+    treeMin -= 0.1f;
+    treeMax += 0.1f;
 
-    vec3 diagonal  = maxBound - minBound;
-    vec3i gridSize = vec3i(ceil(diagonal.x / clusterSize), ceil(diagonal.y / clusterSize), ceil(diagonal.z / clusterSize));
+    vec3 diagonal  = treeMax - treeMin;
+    vec3i gridSize = vec3i(static_cast<int>(ceil(diagonal.x / clusterSize)), static_cast<int>(ceil(diagonal.y / clusterSize)),
+                           static_cast<int>(ceil(diagonal.z / clusterSize)));
 
     GameEngine::TreeClusters result;
-    result.gridOrigin = minBound;
+    result.gridOrigin = treeMin;
     result.voxelSize  = vec3(clusterSize);
     result.gridSize   = gridSize;
 
@@ -631,18 +633,37 @@ GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::L
 
     for (size_t i = 0; i < leaves.size(); ++i)
     {
-        vec3i coord = vec3i((leaves[i].position - minBound) / clusterSize);
-        int key     = coord.x + coord.y * gridSize.x + coord.z * gridSize.x * gridSize.y;
+        float currentLeafRadius = (baseLeafSize * leaves[i].sizeRandomness) * 0.707f;
 
-        if (activeClusters.find(key) == activeClusters.end())
+        vec3 leafMin = leaves[i].position - vec3(currentLeafRadius);
+        vec3 leafMax = leaves[i].position + vec3(currentLeafRadius);
+
+        vec3i coordMin = vec3i((leafMin - treeMin) / clusterSize);
+        vec3i coordMax = vec3i((leafMax - treeMin) / clusterSize);
+
+        for (int x = coordMin.x; x <= coordMax.x; ++x)
         {
-            GameEngine::Cluster newCluster;
-            newCluster.minBound = minBound + vec3(coord) * clusterSize;
-            newCluster.maxBound = newCluster.minBound + vec3(clusterSize);
-            activeClusters[key] = newCluster;
-        }
+            for (int y = coordMin.y; y <= coordMax.y; ++y)
+            {
+                for (int z = coordMin.z; z <= coordMax.z; ++z)
+                {
+                    if (x < 0 || x >= gridSize.x || y < 0 || y >= gridSize.y || z < 0 || z >= gridSize.z)
+                        continue;
 
-        activeClusters[key].leafIndices.push_back(i);
+                    int key = x + y * gridSize.x + z * gridSize.x * gridSize.y;
+
+                    if (activeClusters.find(key) == activeClusters.end())
+                    {
+                        GameEngine::Cluster newCluster;
+                        newCluster.minBound = treeMin + vec3(x, y, z) * clusterSize;
+                        newCluster.maxBound = newCluster.minBound + vec3(clusterSize);
+                        activeClusters[key] = newCluster;
+                    }
+
+                    activeClusters[key].leafIndices.push_back(i);
+                }
+            }
+        }
     }
 
     for (auto const& [key, cluster] : activeClusters)
@@ -833,9 +854,7 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas
     auto trunkModelPtr = trunkModel.get();
     resourceManager.AddModel(std::move(trunkModel));
 
-    return TreeModel{.meshBuilder  = std::move(builder),
-                     .trunkModel   = trunkModelPtr,
-                     .leafMaterial = leafMaterial};
+    return TreeModel{.meshBuilder = std::move(builder), .trunkModel = trunkModelPtr, .leafMaterial = leafMaterial};
 }
 
 void GenerateTree(wxFrame* parent, GLCanvas* canvas)

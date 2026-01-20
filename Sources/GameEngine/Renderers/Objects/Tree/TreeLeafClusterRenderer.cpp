@@ -88,7 +88,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
                                                                     GraphicsApi::DrawFlag::Dynamic);
     }
 
-    const vec2ui renderSize{256, 256};
+    const vec2ui renderSize{1024, 1024};
     GraphicsApi::FrameBuffer::Attachment depthAttachment(renderSize, GraphicsApi::FrameBuffer::Type::Depth,
                                                          GraphicsApi::FrameBuffer::Format::Depth);
 
@@ -150,9 +150,9 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
 
     RenderClusters(*textureArrayId, *normalTextureArrayId, *frameBuffer, clusters, allLeaves, leafMaterial, renderSize);
 
-    // graphicsApi.DeleteShaderBuffer(*transformBuferId);
-    // graphicsApi.DeleteShaderBuffer(*leafsSsbo);
-    // graphicsApi.DeleteFrameBuffer(*frameBuffer);
+    graphicsApi.DeleteShaderBuffer(*transformBuferId);
+    graphicsApi.DeleteShaderBuffer(*leafsSsbo);
+    graphicsApi.DeleteFrameBuffer(*frameBuffer);
 
     graphicsApi.GenerateMipmaps(*textureArrayId);
     graphicsApi.GenerateMipmaps(*normalTextureArrayId);
@@ -212,7 +212,6 @@ void TreeLeafClusterRenderer::DrawClusterLeaves(const Cluster& cluster, const st
     graphicsApi.BindShaderBuffer(*leafIndicesBufferId);
 
     BindMaterial(leafMaterial);
-    LOG_DEBUG << "Render size : " << cluster.leafIndices.size() * 6;
     graphicsApi.RenderProcedural(cluster.leafIndices.size() * 6);
 }
 void TreeLeafClusterRenderer::BindMaterial(const Material& material) const
@@ -247,7 +246,5 @@ void TreeLeafClusterRenderer::BindMaterialTexture(uint32 location, GeneralTextur
     {
         graphicsApi.ActiveTexture(location, *texture->GetGraphicsObjectId());
     }
-
-    graphicsApi.DisableCulling();
 }
 }  // namespace GameEngine

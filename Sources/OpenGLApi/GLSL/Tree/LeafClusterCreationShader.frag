@@ -25,12 +25,17 @@ layout(std140, align=16, binding = 4) uniform LeafParams
 
 vec2 GetAtlasUV(vec2 uv, int idx)
 {
-    int cols = leafParams.atlasParams.x;
-    if (cols <= 0) return uv; 
+    int cols = 3;//leafParams.atlasParams.x;
+    int rows = 3;//leafParams.atlasParams.x;
+    idx = clamp(idx, 0, cols*rows - 1);
+
     int col = idx % cols;
     int row = idx / cols;
-    vec2 tileSize = vec2(1.0 / float(cols));
-    vec2 offset = vec2(float(col) * tileSize.x, float(row) * tileSize.y);
+
+    vec2 tileSize = vec2(1.0 / float(cols), 1.0 / float(rows));
+    vec2 offset = vec2(float(col) * tileSize.x,
+                       float(row) * tileSize.y);
+
     return offset + uv * tileSize;
 }
 
