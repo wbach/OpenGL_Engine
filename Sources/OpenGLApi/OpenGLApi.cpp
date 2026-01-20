@@ -1947,8 +1947,14 @@ std::optional<Utils::Image> OpenGLApi::GetImage(IdType id) const
             Utils::Image image;
             image.width  = textureInfo.size.x;
             image.height = textureInfo.size.y;
+            image.setChannels(textureInfo.size.z);
             image.moveData(std::move(resultData));
             return image;
+        }
+        else if (type == ObjectType::TEXTURE_2D_ARRAY)
+        {
+            LOG_WARN << "To get array texture, use GetImageArray";
+            return {};
         }
     }
 
@@ -1971,5 +1977,46 @@ std::optional<Utils::Image> OpenGLApi::GetImage(IdType id) const
     }
 
     return std::nullopt;
+}
+std::vector<Utils::Image> OpenGLApi::GetImageArray(IdType id) const
+{
+    auto iter = createdObjectIds.find(id);
+    if (iter != createdObjectIds.end())
+    {
+        auto [objectId, type] = *iter;
+
+        if (type == ObjectType::TEXTURE_2D_ARRAY)
+        {
+            if (impl_->textureInfos_.count(iter->first) == 0)
+            {
+                return {};
+            }
+
+            const auto& textureInfo = GetTextureInfo(iter->first);
+            auto resultData         = GetTextureData(iter->first);
+
+            size_t layerSize = textureInfo.size.x * textureInfo.size.y * GetBytesPerPixel(textureInfo.textureType);
+            size_t numLayers = textureInfo.layers;
+
+            std::vector<Utils::Image> result;
+            result.reserve(numLayers);
+
+            for (size_t layer = 0; layer < numLayers; ++layer)
+            {
+                std::vector<uint8> layerData(resultData.begin() + (layer * layerSize),
+                                             resultData.begin() + ((layer + 1) * layerSize));
+
+                Utils::Image image;
+                image.width  = textureInfo.size.x;
+                image.height = textureInfo.size.y;
+                image.setChannels(textureInfo.size.z);
+                image.moveData(std::move(layerData));
+                result.push_back(std::move(image));
+            }
+            return result;
+        }
+    }
+
+    return {};
 }
 }  // namespace OpenGLApi

@@ -27,6 +27,7 @@
 #include "GraphicsApi/BufferParamters.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "Image/Image.h"
+#include "Image/ImageUtils.h"
 #include "Logger/Log.h"
 #include "Types.h"
 #include "glm/ext/matrix_clip_space.hpp"
@@ -157,7 +158,13 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     graphicsApi.GenerateMipmaps(*textureArrayId);
     graphicsApi.GenerateMipmaps(*normalTextureArrayId);
 
-    resultCallback(ClusterTextures{.baseColorTextureArray = textureArrayId, .normalTextureArray = normalTextureArrayId});
+    auto baseColorImages = graphicsApi.GetImageArray(*textureArrayId);
+    auto normalsImages   = graphicsApi.GetImageArray(*normalTextureArrayId);
+
+    resultCallback(ClusterTextures{.baseColorTextureArray = textureArrayId,
+                                   .normalTextureArray    = normalTextureArrayId,
+                                   .baseColorImages       = std::move(baseColorImages),
+                                   .normalImages          = std::move(normalsImages)});
 }
 void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,
                                              const TreeClusters& treeData, const std::vector<Leaf>& allLeaves,

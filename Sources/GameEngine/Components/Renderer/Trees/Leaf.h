@@ -2,6 +2,8 @@
 #include <Types.h>
 
 #include <filesystem>
+#include <vector>
+#include "Image/Image.h"
 #include <GraphicsApi/IGraphicsApi.h>
 
 namespace GameEngine
@@ -51,6 +53,9 @@ struct ClusterTextures
 {
     GraphicsApi::ID baseColorTextureArray;
     GraphicsApi::ID normalTextureArray;
+
+    std::vector<Utils::Image> baseColorImages;
+    std::vector<Utils::Image> normalImages;
 };
 
 struct LeafSSBO

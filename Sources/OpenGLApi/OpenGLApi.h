@@ -121,6 +121,7 @@ public:
     void DeleteFrameBuffer(IFrameBuffer&) override;
 
     std::optional<Utils::Image> GetImage(IdType) const override;
+    std::vector<Utils::Image> GetImageArray(IdType) const override;
 
 private:
     void CreateDebugNormalMesh(uint32, const GraphicsApi::MeshRawData&);
