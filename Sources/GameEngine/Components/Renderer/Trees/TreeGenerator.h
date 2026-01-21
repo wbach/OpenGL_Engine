@@ -11,7 +11,7 @@
 
 namespace GameEngine
 {
-class Tree
+class TreeGenerator
 {
 public:
     std::optional<std::string> build();

@@ -1,4 +1,4 @@
-#include "Tree.h"
+#include "TreeGenerator.h"
 
 #include <stdexcept>
 
@@ -6,7 +6,7 @@
 
 namespace GameEngine
 {
-std::optional<std::string> Tree::build()
+std::optional<std::string> TreeGenerator::build()
 {
     clear();
 
@@ -35,7 +35,7 @@ std::optional<std::string> Tree::build()
 
     return {};
 }
-void Tree::prepareAttractors(size_t count, float radius)
+void TreeGenerator::prepareAttractors(size_t count, float radius)
 {
     attractors.clear();
     attractors.reserve(count);
@@ -49,7 +49,7 @@ void Tree::prepareAttractors(size_t count, float radius)
 
     maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
 }
-void Tree::prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength)
+void TreeGenerator::prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength)
 {
     attractors.clear();
     attractors.reserve(attractorsCount);
@@ -64,17 +64,17 @@ void Tree::prepareAttractors(size_t attractorsCount, const vec3& crownRadii, flo
 
     maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
 }
-void Tree::clear()
+void TreeGenerator::clear()
 {
     zeroDirCount = 0;
     branches.clear();
     branchesCalculationInfo.clear();
 }
-const std::list<Branch>& Tree::GetBranches() const
+const std::list<Branch>& TreeGenerator::GetBranches() const
 {
     return branches;
 }
-void Tree::validateParameters() const
+void TreeGenerator::validateParameters() const
 {
     if (segmentLength <= 0.f)
     {
@@ -96,7 +96,7 @@ void Tree::validateParameters() const
         throw std::runtime_error{"rootDirection must be non-zero"};
     }
 }
-void Tree::searchBranches()
+void TreeGenerator::searchBranches()
 {
     Branch* current = &branches.front();
     bool found{false};
@@ -128,7 +128,7 @@ void Tree::searchBranches()
     if (not found)
         throw std::runtime_error{"Trunk search failed: no attractor within maxDistance"};
 }
-void Tree::grow()
+void TreeGenerator::grow()
 {
     size_t iter = 0;
     while (not attractors.empty())
@@ -156,7 +156,7 @@ void Tree::grow()
         }
     }
 }
-Branch* Tree::closestBranch(Attractor& attractor)
+Branch* TreeGenerator::closestBranch(Attractor& attractor)
 {
     auto minAcceptableDistance = std::numeric_limits<float>::max();
     Branch* result{nullptr};
@@ -177,7 +177,7 @@ Branch* Tree::closestBranch(Attractor& attractor)
     }
     return result;
 }
-vec3 Tree::randomPointInSphere(float radius)
+vec3 TreeGenerator::randomPointInSphere(float radius)
 {
     auto u     = getRandomFloat(0.f, 1.f);
     auto v     = getRandomFloat(0.f, 1.f);
@@ -188,16 +188,16 @@ vec3 Tree::randomPointInSphere(float radius)
     auto sinPhi = sinf(phi);
     return vec3(r * sinPhi * cosf(theta), r * sinPhi * sinf(theta), r * cosf(phi));
 }
-vec3 Tree::randomPointInEllipsoid(const vec3& radii)
+vec3 TreeGenerator::randomPointInEllipsoid(const vec3& radii)
 {
     vec3 p = randomPointInSphere(1.f);
     return p * radii;
 }
-vec3 Tree::ellipsoidNoise(float strength)
+vec3 TreeGenerator::ellipsoidNoise(float strength)
 {
     return randomPointInSphere(strength);
 }
-void Tree::influanceBranchesByClosestAttractors()
+void TreeGenerator::influanceBranchesByClosestAttractors()
 {
     for (auto& attractor : attractors)
     {
@@ -218,11 +218,11 @@ void Tree::influanceBranchesByClosestAttractors()
         }
     }
 }
-void Tree::removeReachedAttractors()
+void TreeGenerator::removeReachedAttractors()
 {
     std::erase_if(attractors, [](auto& attractor) { return attractor.reached; });
 }
-void Tree::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
+void TreeGenerator::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
 {
     for (auto& [branch, info] : branchesCalculationInfo)
     {

@@ -1,7 +1,7 @@
 #include "TreeGeneration.h"
 
 #include <GameEngine/Components/Renderer/Trees/Leaf.h>
-#include <GameEngine/Components/Renderer/Trees/Tree.h>
+#include <GameEngine/Components/Renderer/Trees/TreeGenerator.h>
 #include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
 #include <GameEngine/Components/Renderer/Trees/TreeRendererComponent.h>
 #include <GameEngine/Components/Renderer/Trees/TreeUtils.h>
@@ -674,9 +674,9 @@ GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::L
     return result;
 }
 
-GameEngine::Tree GenerateTree(const TreeGenerationParams& params)
+GameEngine::TreeGenerator GenerateTree(const TreeGenerationParams& params)
 {
-    GameEngine::Tree tree{};
+    GameEngine::TreeGenerator tree{};
     tree.rootPosition  = params.rootPosition;
     tree.rootDirection = params.rootDirection;
     tree.maxDistance   = params.maxDistance;
@@ -760,7 +760,7 @@ std::pair<GameEngine::Material, GameEngine::Material> PrepareTreeMaterials(GameE
     return {trunkMaterial, leafMaterial};
 }
 
-std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::Tree& tree, GLCanvas* canvas, const TreeGenerationParams& params)
+std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::TreeGenerator& tree, GLCanvas* canvas, const TreeGenerationParams& params)
 {
     LOG_DEBUG << "Buildng tree mesh lod 1 ... ("
               << "Branches : " << tree.GetBranches().size() << ")";
@@ -827,7 +827,7 @@ void BindMaterial(GraphicsApi::IGraphicsApi& graphicsApi, const GameEngine::Mate
     BindMaterialTexture(graphicsApi, 6, material.displacementTexture, config.useDisplacement);
 }
 
-std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::Tree& tree, GLCanvas* canvas, const TreeGenerationParams& params)
+std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree, GLCanvas* canvas, const TreeGenerationParams& params)
 {
     LOG_DEBUG << "Buildng tree mesh lod 2... ("
               << "Branches : " << tree.GetBranches().size() << ")";
