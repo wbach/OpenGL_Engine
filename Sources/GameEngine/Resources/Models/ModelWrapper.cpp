@@ -8,6 +8,10 @@
 
 namespace GameEngine
 {
+ModelWrapper::ModelWrapper(ModelWrapper&& other)
+    : models_(std::move(other.models_))
+{
+}
 void ModelWrapper::Add(Model* model, LevelOfDetail lvl)
 {
     std::lock_guard<std::mutex> lk(mutex_);
@@ -88,5 +92,13 @@ void ModelWrapper::clear()
 void ModelWrapper::clear(LevelOfDetail lod)
 {
     models_.erase(lod);
+}
+ModelWrapper& ModelWrapper::operator=(const ModelWrapper& other)
+{
+    if (this != &other)
+    {
+        models_ = other.models_;
+    }
+    return *this;
 }
 }  // namespace GameEngine

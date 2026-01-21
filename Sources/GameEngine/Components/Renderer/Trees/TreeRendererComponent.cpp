@@ -20,6 +20,7 @@
 #include "GameEngine/Resources/ResourceManager.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GraphicsApi/MeshRawData.h"
+#include "TreeSerialization.h"
 #include "TreeUtils.h"
 
 namespace GameEngine
@@ -28,10 +29,7 @@ namespace Components
 {
 namespace
 {
-constexpr char CSTR_TRUNK_FILENAMES[]          = "trunkModelFileNames";
-constexpr char CSTR_LEAFS_FILENAMES[]          = "leafModelFileNames";
-constexpr char CSTR_LEAFS_BILBOARDS_FILENAME[] = "leafBilboardsModelFileNames";
-constexpr char CSTR_INSTANCES_POSITIONS[]      = "insatncesPositions";
+constexpr char CSTR_INSTANCES_POSITIONS[] = "insatncesPositions";
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -85,50 +83,24 @@ TreeRendererComponent& TreeRendererComponent::SetTrunkModel(const File& file, Le
     if (file.empty())
         return *this;
 
-    switch (i)
-    {
-        case LevelOfDetail::L1:
-            trunkModelLod1 = file;
-            break;
-        case LevelOfDetail::L2:
-            trunkModelLod2 = file;
-            break;
-        case LevelOfDetail::L3:
-            trunkModelLod3 = file;
-            break;
-    }
-
     LOG_DEBUG << "SetTrunkModel " << magic_enum::enum_name(i) << ", file: " << file;
 
     auto modelPtr = componentContext_.resourceManager_.LoadModel(file);
 
     LOG_DEBUG << "SetTrunkModel load done " << magic_enum::enum_name(i) << ", file: " << file;
     thisObject_.TakeWorldTransfromSnapshot();
-    trunkModel.Add(modelPtr, i);
+    tree.trunkModel.Add(modelPtr, i);
     UpdateBoundingBox();
     return *this;
 }
 
 TreeRendererComponent& TreeRendererComponent::SetGeneratedTrunkModel(Model* modelPtr, GameEngine::LevelOfDetail i)
 {
-    auto file = EngineConf.files.getGeneratedDirPath() / ("TreeTrunk_" + Utils::CreateUniqueFilename() + ".bin");
-
-    switch (i)
-    {
-        case LevelOfDetail::L1:
-            trunkModelLod1 = file;
-            break;
-        case LevelOfDetail::L2:
-            trunkModelLod2 = file;
-            break;
-        case LevelOfDetail::L3:
-            trunkModelLod3 = file;
-            break;
-    }
+    GenerateFileNameIfNeeded();
 
     generatedModels.insert({i, modelPtr});
 
-    trunkModel.Add(modelPtr, i);
+    tree.trunkModel.Add(modelPtr, i);
     UpdateBoundingBox();
     return *this;
 }
@@ -155,12 +127,6 @@ void TreeRendererComponent::Awake()
         CreatePerObjectUpdateBuffer();
         CreatePerInstancesBuffer();
         CreateLeafsSsbo();
-
-        if (not leafBilboardsModel and leafsBilboards.exist())
-        {
-            LOG_DEBUG << "Loading bilboard model";
-            leafBilboardsModel = componentContext_.resourceManager_.LoadModel(leafsBilboards);
-        }
 
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubsribed_ = true;
@@ -207,8 +173,14 @@ void TreeRendererComponent::CreatePerInstancesBuffer()
 }
 void TreeRendererComponent::ReleaseModels()
 {
-    for (auto model : trunkModel.PopModels())
+    for (auto model : tree.trunkModel.PopModels())
         componentContext_.resourceManager_.ReleaseModel(*model);
+
+    if (tree.leafBilboardsModel)
+    {
+        componentContext_.resourceManager_.ReleaseModel(*tree.leafBilboardsModel);
+        tree.leafBilboardsModel = nullptr;
+    }
 }
 void TreeRendererComponent::DeleteShaderBuffers()
 {
@@ -225,75 +197,13 @@ void TreeRendererComponent::registerReadFunctions()
     {
         auto component = std::make_unique<TreeRendererComponent>(componentContext, gameObject);
 
-        auto setModelFiles = [&](const std::string& nodeName, std::function<void(const File& file, LevelOfDetail i)> setModel)
+        if (auto filenameNode = node.getChild(CSTR_FILE_NAME))
         {
-            if (auto filesNode = node.getChild(nodeName))
+            if (not filenameNode->value_.empty())
             {
-                for (const auto& fileNode : filesNode->getChildren())
-                {
-                    auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
-                    auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
-
-                    if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
-                    {
-                        const auto& filename = fileNameNode->value_;
-                        try
-                        {
-                            if (auto lod = magic_enum::enum_cast<LevelOfDetail>(lvlOfDetailNode->value_))
-                            {
-                                setModel(filename, *lod);
-                            }
-                        }
-                        catch (...)
-                        {
-                            LOG_DEBUG << "lod read error. Lod str value = " << lvlOfDetailNode->value_;
-                        }
-                    }
-                }
-            }
-        };
-
-        setModelFiles(CSTR_TRUNK_FILENAMES, [&](const File& file, LevelOfDetail i) { component->SetTrunkModel(file, i); });
-
-        if (auto filesNode = node.getChild(CSTR_LEAFS_FILENAMES))
-        {
-            for (const auto& fileNode : filesNode->getChildren())
-            {
-                auto fileNameNode    = fileNode->getChild(CSTR_FILE_NAME);
-                auto lvlOfDetailNode = fileNode->getChild(CSTR_MODEL_LVL_OF_DETAIL);
-
-                if (fileNameNode and lvlOfDetailNode and not lvlOfDetailNode->value_.empty())
-                {
-                    const auto& filename = fileNameNode->value_;
-                    try
-                    {
-                        if (auto lod = magic_enum::enum_cast<LevelOfDetail>(lvlOfDetailNode->value_))
-                        {
-                            // TO DO
-                            if (lod == LevelOfDetail::L1)
-                            {
-                                component->leafsFileLod1 = filename;
-
-                                auto [leafSsbo, material] = ImportLeafSSBO(componentContext.resourceManager_.GetTextureLoader(),
-                                                                           component->leafsFileLod1.GetAbsolutePath());
-                                component->leafMaterial   = material;
-                                component->UpdateLeafsSsbo(std::move(leafSsbo));
-                            }
-                        }
-                    }
-                    catch (...)
-                    {
-                        LOG_DEBUG << "lod read error. Lod str value = " << lvlOfDetailNode->value_;
-                    }
-                }
-            }
-        }
-
-        if (auto tmpNode = node.getChild(CSTR_LEAFS_BILBOARDS_FILENAME))
-        {
-            if (auto modelTmpNode = tmpNode->getChild(CSTR_MODEL_FILE_NAME))
-            {
-                component->leafsBilboards = modelTmpNode->value_;
+                component->treeModel = filenameNode->value_;
+                component->tree      = Import(componentContext.graphicsApi_, componentContext.resourceManager_,
+                                              component->treeModel.GetAbsolutePath());
             }
         }
 
@@ -320,43 +230,11 @@ void TreeRendererComponent::write(TreeNode& node) const
 {
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
-    auto& trunkFilenames = node.addChild(CSTR_TRUNK_FILENAMES);
-
-    auto addModelNode = [](TreeNode& node, const ModelWrapper& model, const File& file, LevelOfDetail lvl)
+    node.addChild(CSTR_FILE_NAME, treeModel.GetDataRelativePath());
+    if (not treeModel.empty())
     {
-        auto& lvl1Node = node.addChild(CSTR_MODEL_FILE_NAME);
-        lvl1Node.addChild(CSTR_FILE_NAME, file.GetDataRelativePath());
-        lvl1Node.addChild(CSTR_MODEL_LVL_OF_DETAIL, magic_enum::enum_name(lvl));
-
-        const Model* modelPtr = model.Get(lvl);
-        if (modelPtr and not file.exist())
-        {
-            ExportModelBinary(*modelPtr, file.GetAbsolutePath());
-        }
-    };
-
-    addModelNode(trunkFilenames, trunkModel, trunkModelLod1, LevelOfDetail::L1);
-    addModelNode(trunkFilenames, trunkModel, trunkModelLod2, LevelOfDetail::L2);
-    addModelNode(trunkFilenames, trunkModel, trunkModelLod3, LevelOfDetail::L3);
-
-    auto& leafsFilenames = node.addChild(CSTR_LEAFS_FILENAMES);
-    auto& lvl1Node       = leafsFilenames.addChild(CSTR_MODEL_FILE_NAME);
-    lvl1Node.addChild(CSTR_FILE_NAME, leafsFileLod1.GetDataRelativePath());
-    lvl1Node.addChild(CSTR_MODEL_LVL_OF_DETAIL, magic_enum::enum_name(LevelOfDetail::L1));
-
-    if (leafsSsbo_)
-    {
-        ExportLeafSSBO(leafsSsbo_->GetData(), leafMaterial, leafsFileLod1.GetAbsolutePath());
-    }
-
-    auto& leafsBibloardsNode = node.addChild(CSTR_LEAFS_BILBOARDS_FILENAME);
-    leafsBibloardsNode.addChild(CSTR_MODEL_FILE_NAME, leafsBilboards.GetDataRelativePath());
-
-    if (leafBilboardsModel and not leafsBilboards.exist())
-    {
-        LOG_DEBUG << "ExportModelBinary " << leafsBilboards;
-        ExportModelBinary(*leafBilboardsModel, leafsBilboards.GetAbsolutePath());
-        LOG_DEBUG << "ExportModelBinary " << leafsBilboards << " done";
+        LOG_DEBUG << "Tree all leafs size: "  << tree.allLeafs.size();
+        Export(tree, treeModel.GetAbsolutePath());
     }
 
     if (not instancesPositions_.empty())
@@ -370,7 +248,7 @@ void TreeRendererComponent::write(TreeNode& node) const
 }
 const ModelWrapper& TreeRendererComponent::GetTrunkModel() const
 {
-    return trunkModel;
+    return tree.trunkModel;
 }
 const std::vector<vec3>& TreeRendererComponent::GetInstancesPositions() const
 {
@@ -379,7 +257,7 @@ const std::vector<vec3>& TreeRendererComponent::GetInstancesPositions() const
 void TreeRendererComponent::UpdateBoundingBox()
 {
     // TO DO : calculate leafmodel +  trunkModel
-    auto modelPtr = trunkModel.Get();
+    auto modelPtr = tree.trunkModel.Get();
 
     if (not modelPtr)
         return;
@@ -408,7 +286,7 @@ const GraphicsApi::ID& TreeRendererComponent::GetPerInstancesBufferId() const
 }
 TreeRendererComponent& TreeRendererComponent::SetLeafMaterial(const Material& material)
 {
-    leafMaterial = material;
+    tree.leafMaterial = material;
     return *this;
 }
 void TreeRendererComponent::CreateLeafsSsbo()
@@ -418,6 +296,12 @@ void TreeRendererComponent::CreateLeafsSsbo()
         LOG_DEBUG << "Create shaderStorageVectorBufferObject";
         leafsSsbo_ = std::make_unique<ShaderStorageVectorBufferObject<LeafSSBO>>(
             componentContext_.resourceManager_.GetGraphicsApi(), PER_INSTANCES_BIND_LOCATION);
+
+        if (leafsSsbo_ and not tree.allLeafs.empty())
+        {
+            leafsSsbo_->InsertData(tree.allLeafs);
+            componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*leafsSsbo_);
+        }
     }
 }
 const GraphicsApi::ID& TreeRendererComponent::GetLeafsShaderBufferId() const
@@ -432,7 +316,7 @@ const GraphicsApi::ID& TreeRendererComponent::GetLeafsShaderBufferId() const
 }
 const Material& TreeRendererComponent::GetLeafMaterial() const
 {
-    return leafMaterial;
+    return tree.leafMaterial;
 }
 size_t TreeRendererComponent::GetLeafsCount() const
 {
@@ -444,44 +328,50 @@ size_t TreeRendererComponent::GetLeafsCount() const
 }
 void TreeRendererComponent::UpdateLeafsSsbo(std::vector<LeafSSBO>&& v)
 {
-    if (leafsFileLod1.empty())
-    {
-        leafsFileLod1 = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".bin");
-    }
+    GenerateFileNameIfNeeded();
 
     if (not leafsSsbo_)
     {
         CreateLeafsSsbo();
     }
 
-    leafsSsbo_->GetData() = std::move(v);
+    tree.allLeafs = std::move(v);
+    leafsSsbo_->InsertData(tree.allLeafs);
     componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*leafsSsbo_);
 }
 TreeRendererComponent& TreeRendererComponent::SetLeafBilboardsModel(Model* model)
 {
-    leafsBilboards = EngineConf.files.getGeneratedDirPath() / ("TreeLeafsBilboards_" + Utils::CreateUniqueFilename() + ".bin");
-    leafBilboardsModel = model;
+    GenerateFileNameIfNeeded();
+
+    tree.leafBilboardsModel = model;
     return *this;
 }
 const Model* TreeRendererComponent::GetLeafBilboardsModel() const
 {
-    return leafBilboardsModel;
+    return tree.leafBilboardsModel;
 }
 void TreeRendererComponent::SetClusterTextures(const ClusterTextures& textures)
 {
-    clusterTextures = textures;
+    tree.clusters.clusterTextures = textures;
 }
 void TreeRendererComponent::SetTreeClusters(const TreeClusters& clusters)
 {
-    treeClusters = clusters;
+    tree.clusters.treeClusters = clusters;
 }
 const ClusterTextures& TreeRendererComponent::getClusterTextures() const
 {
-    return clusterTextures;
+    return tree.clusters.clusterTextures;
 }
 const TreeClusters& TreeRendererComponent::getTreeClusters() const
 {
-    return treeClusters;
+    return tree.clusters.treeClusters;
+}
+void TreeRendererComponent::GenerateFileNameIfNeeded()
+{
+    if (treeModel.empty())
+    {
+        treeModel = EngineConf.files.getGeneratedDirPath() / ("TreeAllInOne_" + Utils::CreateUniqueFilename() + ".bin");
+    }
 }
 }  // namespace Components
 }  // namespace GameEngine

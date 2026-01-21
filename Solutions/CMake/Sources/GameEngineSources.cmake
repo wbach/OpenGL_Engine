@@ -260,6 +260,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Water/W
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Grass/GrassRendererComponent.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeRendererComponent.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeSerialization.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeMeshBuilder.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/TreeGenerator.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Components/Renderer/Trees/Leaf.cpp
@@ -323,6 +324,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/Texture.
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/HeightMap.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/GeneralTexture.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/CubeMapTexture.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Textures/ArrayTexture.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/BufferObject.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/ResourceUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Resources/Models/Material.cpp

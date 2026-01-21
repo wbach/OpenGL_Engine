@@ -77,6 +77,32 @@ Material convert(ITextureLoader& textureLoader, const MaterialSerilizeData& inpu
     return material;
 }
 
+std::unique_ptr<Model> convert(ModelSerializeData&& modelSerializeData, GraphicsApi::IGraphicsApi& graphicsApi,
+                               ITextureLoader& textureLoader)
+{
+    if (modelSerializeData.meshes_.empty())
+    {
+        LOG_DEBUG << "No mesh in model";
+        return nullptr;
+    }
+    auto model = std::make_unique<Model>();
+    if (modelSerializeData.skeleton_)
+    {
+        model->setRootJoint(*modelSerializeData.skeleton_);
+    }
+    model->setNormailizedFactor(modelSerializeData.normalizedFactor);
+
+    for (auto& meshSerilized : modelSerializeData.meshes_)
+    {
+        LOG_DEBUG << "Mesh positions size: " << meshSerilized.meshRawData.positions_.size();
+
+        Mesh mesh(meshSerilized.renderType, graphicsApi, std::move(meshSerilized.meshRawData),
+                  convert(textureLoader, meshSerilized.material), meshSerilized.transform, meshSerilized.normalizedScale);
+        model->AddMesh(std::move(mesh));
+    }
+    return model;
+}
+
 std::unique_ptr<Model> ImportModelBinary(GraphicsApi::IGraphicsApi& graphicsApi, ITextureLoader& textureLoader,
                                          const std::filesystem::path& path)
 {
@@ -96,22 +122,6 @@ std::unique_ptr<Model> ImportModelBinary(GraphicsApi::IGraphicsApi& graphicsApi,
         LOG_ERROR << "Binary model import failed: " << path;
         return nullptr;
     }
-
-    auto model = std::make_unique<Model>();
-    if (modelSerializeData.skeleton_)
-    {
-        model->setRootJoint(*modelSerializeData.skeleton_);
-    }
-    model->setNormailizedFactor(modelSerializeData.normalizedFactor);
-
-    for (auto& meshSerilized : modelSerializeData.meshes_)
-    {
-        LOG_DEBUG << "Mesh positions size: " << meshSerilized.meshRawData.positions_.size();
-
-        Mesh mesh(meshSerilized.renderType, graphicsApi, std::move(meshSerilized.meshRawData),
-                  convert(textureLoader, meshSerilized.material), meshSerilized.transform, meshSerilized.normalizedScale);
-        model->AddMesh(std::move(mesh));
-    }
-    return model;
+    return convert(std::move(modelSerializeData), graphicsApi, textureLoader);
 }
 }  // namespace GameEngine

@@ -3,6 +3,7 @@
 #include <Common/Transform.h>
 #include <Utils/MeasurementHandler.h>
 
+#include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
 #include <cstddef>
 
@@ -15,6 +16,7 @@
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Renderers/RenderersManager.h"
+#include "GameEngine/Resources/DataStorePolicy.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/ITextureLoader.h"
 #include "GameEngine/Resources/Models/Model.h"
@@ -26,6 +28,7 @@
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GraphicsApi/BufferParamters.h"
 #include "GraphicsApi/IFrameBuffer.h"
+#include "GraphicsApi/TextureParamters.h"
 #include "Image/Image.h"
 #include "Image/ImageUtils.h"
 #include "Logger/Log.h"
@@ -125,7 +128,16 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
         image.allocateImage<uint8>();
     }
 
-    auto textureArrayId = graphicsApi.CreateTexture(images, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
+    TextureParameters paramters{.loadType        = TextureLoadType::Immediately,
+                                .dataStorePolicy = DataStorePolicy::Store,
+                                .filter          = GraphicsApi::TextureFilter::LINEAR,
+                                .mimap           = GraphicsApi::TextureMipmap::NONE};
+
+    auto& textureLoader = resourceManager.GetTextureLoader();
+
+    auto copyOfImages   = images;
+    auto textureArray   = textureLoader.CreateTexture(Utils::CreateUniqueFilename(), paramters, std::move(copyOfImages));
+    auto textureArrayId = textureArray->GetGraphicsObjectId();
 
     if (not textureArrayId)
     {
@@ -134,8 +146,8 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
         return;
     }
 
-    auto normalTextureArrayId =
-        graphicsApi.CreateTexture(images, GraphicsApi::TextureFilter::LINEAR, GraphicsApi::TextureMipmap::NONE);
+    auto normalTextureArray   = textureLoader.CreateTexture(Utils::CreateUniqueFilename(), paramters, std::move(images));
+    auto normalTextureArrayId = normalTextureArray->GetGraphicsObjectId();
 
     if (not normalTextureArrayId)
     {
@@ -157,14 +169,13 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
 
     graphicsApi.GenerateMipmaps(*textureArrayId);
     graphicsApi.GenerateMipmaps(*normalTextureArrayId);
+    textureArray->getTextureParameters().mimap       = GraphicsApi::TextureMipmap::LINEAR;
+    normalTextureArray->getTextureParameters().mimap = GraphicsApi::TextureMipmap::LINEAR;
 
-    auto baseColorImages = graphicsApi.GetImageArray(*textureArrayId);
-    auto normalsImages   = graphicsApi.GetImageArray(*normalTextureArrayId);
+    textureArray->UpdateDataFromGpu();
+    normalTextureArray->UpdateDataFromGpu();
 
-    resultCallback(ClusterTextures{.baseColorTextureArray = textureArrayId,
-                                   .normalTextureArray    = normalTextureArrayId,
-                                   .baseColorImages       = std::move(baseColorImages),
-                                   .normalImages          = std::move(normalsImages)});
+    resultCallback(ClusterTextures{.baseColorTexture = textureArray, .normalTexture = normalTextureArray});
 }
 void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,
                                              const TreeClusters& treeData, const std::vector<Leaf>& allLeaves,

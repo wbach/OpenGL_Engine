@@ -1,5 +1,6 @@
 #pragma once
 #include <cstddef>
+#include <vector>
 
 #include "BufferObject.h"
 
@@ -12,6 +13,11 @@ public:
     ShaderStorageVectorBufferObject(GraphicsApi::IGraphicsApi& graphicsApi, uint32 bindLocation)
         : BaseBufferObject(graphicsApi, bindLocation)
     {
+    }
+
+    void InsertData(const std::vector<T>& data)
+    {
+        dataVector_ = std::move(data);
     }
 
     uint32 PushBack(const T& element)

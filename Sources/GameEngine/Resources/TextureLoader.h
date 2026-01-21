@@ -20,6 +20,7 @@ public:
     ~TextureLoader() override;
 
     GeneralTexture* CreateTexture(const std::string&, const TextureParameters&, Utils::Image&&) override;
+    ArrayTexture* CreateTexture(const std::string&, const TextureParameters&, std::vector<Utils::Image>&&) override;
     void UpdateTexture(const GeneralTexture&) override;
     void UpdateTexture(GeneralTexture*&, const std::string&) override;
     GeneralTexture* LoadTexture(const File&, const TextureParameters&) override;

@@ -24,4 +24,11 @@ void serialize(S& s, Image& obj)
                                               [](S& s, std::vector<float>& v) { s.container4b(v, MAX_CONTAINERSIZE); }});
 }
 
+template <typename S>
+void serialize(S& s, std::vector<Image>& images)
+{
+    constexpr size_t MAX_SIZE = std::numeric_limits<size_t>::max();
+    s.container(images, MAX_SIZE);
+}
+
 }  // namespace Utils

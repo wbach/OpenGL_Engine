@@ -32,6 +32,14 @@ void serialize(S& s, glm::vec3& v)
 }
 
 template <typename S>
+void serialize(S& s, glm::ivec3& v)
+{
+    s.value4b(v.x);
+    s.value4b(v.y);
+    s.value4b(v.z);
+}
+
+template <typename S>
 void serialize(S& s, glm::mat4& m)
 {
     float* ptr = glm::value_ptr(m);

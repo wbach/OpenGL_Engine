@@ -72,18 +72,8 @@ MaterialSerilizeData convert(const Material& input)
     return material;
 }
 
-void ExportModelBinary(const Model& model, const std::filesystem::path& path)
+ModelSerializeData convert(const Model& model)
 {
-    auto outputPath = path;
-    outputPath.replace_extension(".bin");
-
-    std::ofstream file(outputPath, std::ios::binary);
-    if (not file)
-    {
-        LOG_WARN << "Open file error: " << outputPath;
-        return;
-    }
-
     ModelSerializeData modelSerializeData;
     modelSerializeData.normalizedFactor = model.getNormalizedFactor();
     modelSerializeData.skeleton_        = model.getRootJoint();
@@ -100,8 +90,23 @@ void ExportModelBinary(const Model& model, const std::filesystem::path& path)
         meshSerializedData.transform       = mesh.GetMeshTransform();
     }
 
+    return modelSerializeData;
+}
+
+void ExportModelBinary(const Model& model, const std::filesystem::path& path)
+{
+    auto outputPath = path;
+    outputPath.replace_extension(".bin");
+
+    std::ofstream file(outputPath, std::ios::binary);
+    if (not file)
+    {
+        LOG_WARN << "Open file error: " << outputPath;
+        return;
+    }
+
     bitsery::Serializer<bitsery::OutputStreamAdapter> ser{file};
-    ser.object(modelSerializeData);
+    ser.object(convert(model));
 
     if (not file.good())
     {

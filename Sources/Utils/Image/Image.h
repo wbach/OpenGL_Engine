@@ -14,7 +14,7 @@ class Image
 {
 public:
     Image() = default;
-    Image(Image&& other) noexcept;
+    Image(Image&&) noexcept;
 
     ~Image();
 

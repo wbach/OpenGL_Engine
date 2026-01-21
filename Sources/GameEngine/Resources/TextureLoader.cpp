@@ -1,6 +1,7 @@
 #include "TextureLoader.h"
 
 #include <FreeImage.h>
+#include <Utils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <algorithm>
@@ -14,6 +15,7 @@
 #include "DefaultFiles/whiteClear.h"
 #include "GLM/GLMUtils.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Resources/Textures/ArrayTexture.h"
 #include "GpuResourceLoader.h"
 #include "HeightMapHeader.h"
 #include "IGpuResourceLoader.h"
@@ -23,7 +25,6 @@
 #include "Textures/GeneralTexture.h"
 #include "Textures/HeightMap.h"
 #include "textureNotFound.h"
-#include <Utils.h>
 
 namespace GameEngine
 {
@@ -63,6 +64,19 @@ GeneralTexture* TextureLoader::CreateTexture(const std::string& name, const Text
         return static_cast<GeneralTexture*>(texture);
 
     auto texture    = std::make_unique<GeneralTexture>(graphicsApi_, std::move(image), params);
+    auto texturePtr = texture.get();
+    AddTexture(name, std::move(texture), params.loadType);
+    return texturePtr;
+}
+ArrayTexture* TextureLoader::CreateTexture(const std::string& name, const TextureParameters& params,
+                                           std::vector<Utils::Image>&& images)
+{
+    std::lock_guard<std::mutex> lk(textureMutex_);
+
+    if (auto texture = GetTextureIfLoaded(name, params))
+        return static_cast<ArrayTexture*>(texture);
+
+    auto texture    = std::make_unique<ArrayTexture>(graphicsApi_, std::move(images), params);
     auto texturePtr = texture.get();
     AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;

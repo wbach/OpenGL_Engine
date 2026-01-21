@@ -19,6 +19,7 @@
 #include "GraphicsApi/GraphicsApiDef.h"
 #include "Leaf.h"
 #include "Types.h"
+#include "Tree.h"
 
 namespace GameEngine
 {
@@ -30,30 +31,13 @@ public:
     float leafScale;
     int leafTextureAtlasSize;
     int leafTextureIndex;
-    File leafMaterialFile;
-    File trunkMaterial;
-    File leafsFileLod1;
-    File leafsFileLod2;
-    File leafsFileLod3;
-    File leafsBilboards;
-    File trunkModelLod1;
-    File trunkModelLod2;
-    File trunkModelLod3;
+
+    File treeModel;
 
     // clang-format off
     BEGIN_FIELDS()
-        FIELD_FLOAT(leafScale)
         FIELD_INT(leafTextureAtlasSize)
-        FIELD_INT(leafTextureIndex)
-        FIELD_MATERIAL(leafMaterialFile)
-        FIELD_MATERIAL(trunkMaterial)
-        FIELD_FILE(leafsFileLod1)
-        // FIELD_FILE(leafsFileLod2)
-        // FIELD_FILE(leafsFileLod3)
-        FIELD_FILE(leafsBilboards)
-        FIELD_FILE(trunkModelLod1)
-        FIELD_FILE(trunkModelLod2)
-        FIELD_FILE(trunkModelLod3)
+        FIELD_FILE(treeModel)
     END_FIELDS()
     // clang-format on
 
@@ -94,27 +78,25 @@ public:
     const ClusterTextures& getClusterTextures() const;
     const TreeClusters& getTreeClusters() const;
 
-private:
+
+    private:
     void Awake();
     void UnSubscribe();
     void CreatePerObjectUpdateBuffer();
     void CreatePerInstancesBuffer();
     void CreateLeafsSsbo();
     void UpdateBoundingBox();
+    void GenerateFileNameIfNeeded();
 
 private:
     void ReleaseModels();
     void DeleteShaderBuffers();
 
 private:
-    ModelWrapper trunkModel;
-    Model* leafBilboardsModel{nullptr};
-    ClusterTextures clusterTextures;
-    TreeClusters treeClusters;
+    Tree tree;
 
     std::vector<vec3> instancesPositions_;
 
-    Material leafMaterial;
     std::unique_ptr<ShaderStorageVectorBufferObject<LeafSSBO>> leafsSsbo_;
     std::unique_ptr<ShaderBufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
     std::unique_ptr<ShaderBufferObject<PerInstances>> perInstances_;

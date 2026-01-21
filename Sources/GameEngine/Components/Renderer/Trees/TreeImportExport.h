@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <vector>
 
-#include "GameEngine/Resources/Textures/ArrayTexture.h"
 #include "Image/Image.h"
 
 namespace GameEngine
@@ -53,8 +52,11 @@ struct Billboard
 
 struct ClusterTextures
 {
-    ArrayTexture* baseColorTexture;
-    ArrayTexture* normalTexture;
+    GraphicsApi::ID baseColorTextureArray;
+    GraphicsApi::ID normalTextureArray;
+
+    std::vector<Utils::Image> baseColorImages;
+    std::vector<Utils::Image> normalImages;
 };
 
 struct LeafSSBO
@@ -64,11 +66,35 @@ struct LeafSSBO
     AlignWrapper<vec4> colorRandomnessAndTextureIndex;
 };
 
-LeafSSBO ConvertToSSBO(const Leaf&);
-std::vector<LeafSSBO> PrepareSSBOData(const std::vector<Leaf>&);
-void ExportLeafSSBO(const std::vector<LeafSSBO>&, const Material&, const std::filesystem::path&);
-std::pair<std::vector<LeafSSBO>, Material> ImportLeafSSBO(ITextureLoader&, const std::filesystem::path&);
 
-std::ostream& operator<<(std::ostream&, const Cluster&);
-std::ostream& operator<<(std::ostream&, const TreeClusters&);
+struct ClustersData
+{
+    TreeClusters clusters;
+    std::vector<Utils::Image> baseColorTextures;
+    std::vector<Utils::Image> normalsTextures;
+};
+
+struct LeafsData
+{
+    std::vector<LeafSSBO> leafsSsbo;
+    Material material;
+    ClustersData clusters;
+
+};
+
+struct TrunkData
+{
+    ModelSerializeData modelData;
+    ModelSerializeData lodData;
+    Material material;
+};
+
+struct TreeData
+{
+    LeafsData leafsData;
+    TrunkData trunkData;
+};
+
+
+void ExportTree
 }  // namespace GameEngine

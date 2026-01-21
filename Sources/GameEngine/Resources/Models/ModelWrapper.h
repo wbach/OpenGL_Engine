@@ -1,7 +1,8 @@
 #pragma once
-#include <unordered_map>
-#include "Model.h"
 #include <Mutex.hpp>
+#include <unordered_map>
+
+#include "Model.h"
 
 namespace GameEngine
 {
@@ -15,11 +16,15 @@ enum LevelOfDetail
 class ModelWrapper
 {
 public:
+    ModelWrapper() = default;
+    ModelWrapper(ModelWrapper&&);
+    ModelWrapper& operator=(const ModelWrapper&);
+
     using DistanceToCamera = float;
     void Add(Model*, LevelOfDetail);
     void Update(Model*, LevelOfDetail);
-    Model* Get(LevelOfDetail lvl = LevelOfDetail::L1);
-    const Model* Get(LevelOfDetail lvl = LevelOfDetail::L1) const;
+    Model* Get(LevelOfDetail = LevelOfDetail::L1);
+    const Model* Get(LevelOfDetail = LevelOfDetail::L1) const;
     Model* get(DistanceToCamera);
     const std::unordered_map<LevelOfDetail, Model*>& GetAll() const;
     std::vector<Model*> PopModels();
@@ -30,4 +35,4 @@ private:
     mutable std::mutex mutex_;
     std::unordered_map<LevelOfDetail, Model*> models_;
 };
-}  // GameEngine
+}  // namespace GameEngine

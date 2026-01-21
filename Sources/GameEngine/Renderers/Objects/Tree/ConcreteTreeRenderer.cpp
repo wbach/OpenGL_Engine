@@ -111,13 +111,13 @@ void ConcreteTreeRenderer::RenderLeafsClusters(const Components::TreeRendererCom
     leafsClusterShader_.Start();
 
     const auto& textures = component.getClusterTextures();
-    if (textures.baseColorTextureArray)
+    if (textures.baseColorTexture and textures.baseColorTexture->GetGraphicsObjectId())
     {
-        context_.graphicsApi_.ActiveTexture(0, *textures.baseColorTextureArray);
+        context_.graphicsApi_.ActiveTexture(0, *textures.baseColorTexture->GetGraphicsObjectId());
     }
-    if (textures.normalTextureArray)
+    if (textures.normalTexture and textures.normalTexture->GetGraphicsObjectId())
     {
-        context_.graphicsApi_.ActiveTexture(1, *textures.normalTextureArray);
+        context_.graphicsApi_.ActiveTexture(1, *textures.normalTexture->GetGraphicsObjectId());
     }
 
     const auto& treeClusters = component.getTreeClusters();
