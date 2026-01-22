@@ -133,8 +133,11 @@ void GrassRendererComponent::UnSubscribe()
 }
 void GrassRendererComponent::CreateDataFile()
 {
-    dataFile = EngineConf.files.getGeneratedDirPath() / (Utils::CreateUniqueFilename() + ".plantData");
-    LOG_DEBUG << "Generatefd data file name: " << dataFile;
+    if (dataFile.empty())
+    {
+        dataFile = EngineConf.files.getGeneratedDirPath() / ("Grass_" + Utils::CreateUniqueFilename() + ".bin");
+        LOG_DEBUG << "Generatefd data file name: " << dataFile;
+    }
 }
 Material GrassRendererComponent::CreateMaterial() const
 {
@@ -196,10 +199,7 @@ void GrassRendererComponent::CreateSsbo()
 {
     if (not ssbo)
     {
-        if (dataFile.empty())
-        {
-            dataFile = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".bin");
-        }
+        CreateDataFile();
 
         LOG_DEBUG << "Create shaderStorageVectorBufferObject";
         ssbo = std::make_unique<ShaderStorageVectorBufferObject<Ssbo>>(componentContext_.resourceManager_.GetGraphicsApi(),
@@ -208,10 +208,7 @@ void GrassRendererComponent::CreateSsbo()
 }
 void GrassRendererComponent::UpdateSsbo(std::vector<Ssbo>&& v)
 {
-    if (dataFile.empty())
-    {
-        dataFile = EngineConf.files.getGeneratedDirPath() / ("TreeLeaf_" + Utils::CreateUniqueFilename() + ".bin");
-    }
+    CreateDataFile();
 
     if (not ssbo)
     {

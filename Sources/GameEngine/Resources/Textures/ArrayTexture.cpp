@@ -1,8 +1,10 @@
 #include "ArrayTexture.h"
 
 #include <Logger/Log.h>
+#include <Utils/Image/ImageUtils.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <algorithm>
 #include <cstddef>
 
 #include "GameEngine/Resources/DataStorePolicy.h"
@@ -133,5 +135,14 @@ void ArrayTexture::UpdateDataFromGpu()
     {
         images_ = graphicsApi_.GetImageArray(*graphicsObjectId_);
     }
+}
+void ArrayTexture::CompressData()
+{
+    Utils::CompressImagesParallel(images_);
+}
+
+void ArrayTexture::DecompressData()
+{
+    Utils::DecompressImagesParallel(images_);
 }
 }  // namespace GameEngine

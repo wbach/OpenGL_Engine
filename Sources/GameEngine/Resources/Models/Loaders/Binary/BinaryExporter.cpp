@@ -22,6 +22,7 @@ TextureSerilizeData convert(GeneralTexture* texture)
         else
         {
             result.image = texture->GetImage();
+            result.image->compressData();
         }
 
         result.paramters = texture->getTextureParameters();

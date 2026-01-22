@@ -20,6 +20,7 @@
 #include "GameEngine/Resources/Models/Loaders/Binary/BinarySerializeHelpers.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GraphicsApi/TextureParamters.h"
+#include "Image/ImageUtils.h"
 
 namespace GameEngine
 {
@@ -141,11 +142,13 @@ TreeClustersSerializationData convert(const Tree::Clusters& clusters)
     if (clusters.clusterTextures.baseColorTexture)
     {
         result.baseColorTextures = clusters.clusterTextures.baseColorTexture->GetImages();
+        Utils::CompressImagesParallel(result.baseColorTextures);
     }
 
     if (clusters.clusterTextures.normalTexture)
     {
         result.normalsTextures = clusters.clusterTextures.normalTexture->GetImages();
+        Utils::CompressImagesParallel(result.normalsTextures);
     }
 
     result.clusters = clusters.treeClusters;
@@ -193,6 +196,9 @@ Tree::Clusters convert(TreeClustersSerializationData&& data, ITextureLoader& tex
     TextureParameters paramters{.dataStorePolicy = DataStorePolicy::Store,
                                 .filter          = GraphicsApi::TextureFilter::LINEAR,
                                 .mimap           = GraphicsApi::TextureMipmap::LINEAR};
+
+    Utils::DecompressImagesParallel(data.baseColorTextures);
+    Utils::DecompressImagesParallel(data.normalsTextures);
 
     result.clusterTextures.baseColorTexture =
         textureLoader.CreateTexture(Utils::CreateUniqueFilename(), paramters, std::move(data.baseColorTextures));

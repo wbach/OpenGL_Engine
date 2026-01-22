@@ -22,6 +22,8 @@ public:
     std::vector<Utils::Image> MoveImages();
     TextureParameters& getTextureParameters();
     void UpdateDataFromGpu();
+    void CompressData();
+    void DecompressData();
 
 private:
     std::vector<Utils::Image> images_;

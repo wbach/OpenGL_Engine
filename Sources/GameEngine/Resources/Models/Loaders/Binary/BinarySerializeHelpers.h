@@ -75,9 +75,7 @@ void serialize(S& s, TextureSerilizeData& m)
     constexpr size_t MaxStr = 2048;
     s.text1b(m.path, MaxStr);
     s.object(m.paramters);
-    // s.object(m.image);
     s.ext(m.image, bitsery::ext::StdOptional{});
-    // Utils::serialize(s, m.image);
 }
 
 template <typename S>

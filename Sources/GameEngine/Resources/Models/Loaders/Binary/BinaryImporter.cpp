@@ -28,6 +28,10 @@ GeneralTexture* createTexture(ITextureLoader& textureLoader, const TextureSerili
     {
         LOG_DEBUG << "Binary Has Texture without file IAMGE: " << data.image.value();
         Utils::Image copyImage = data.image.value();
+        if (copyImage.isCompressed)
+        {
+            copyImage.decompressData();
+        }
         return textureLoader.CreateTexture(Utils::CreateUniqueFilename(), data.paramters, std::move(copyImage));
     }
 

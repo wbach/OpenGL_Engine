@@ -62,8 +62,12 @@ public:
         data_ = std::move(input);
     }
 
+    void compressData();
+    void decompressData();
+
     uint8 channels_{4};
     ImageData data_;
+    bool isCompressed{false};
 };
 
 std::ostream& operator<<(std::ostream&, const Utils::Image&);

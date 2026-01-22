@@ -4,12 +4,15 @@
 #include <Logger/Log.h>
 #include <Utils/Variant.h>
 
+#include <cstddef>
 #include <execution>
 #include <filesystem>
+#include <thread>
 
 namespace Utils
 {
-void SaveImage(const std::vector<uint8>& data, const vec3ui& size, const std::filesystem::path& filename, const std::optional<vec2>& scale)
+void SaveImage(const std::vector<uint8>& data, const vec3ui& size, const std::filesystem::path& filename,
+               const std::optional<vec2>& scale)
 {
     // auto channels = size.z;
     auto minSize = size.x * size.y * 4;
@@ -450,5 +453,148 @@ void LogImageData(const Utils::ImageData& data)
             }
         },
         data);
+}
+std::vector<uint8_t> compressWithFreeImagePNG(const std::vector<uint8_t>& rawRGBA, int width, int height)
+{
+    if (rawRGBA.size() != static_cast<size_t>(width * height * 4))
+        throw std::runtime_error("Invalid buffer size");
+
+    LOG_DEBUG << "Comporesing image. Raw data size: " << rawRGBA.size();
+
+    FIBITMAP* bitmap = FreeImage_ConvertFromRawBits(const_cast<BYTE*>(rawRGBA.data()), width, height, width * 4, 32,
+                                                    0xFF000000,  // R
+                                                    0x00FF0000,  // G
+                                                    0x0000FF00,  // B
+                                                    true         // top-down (OpenGL style)
+    );
+
+    if (!bitmap)
+        throw std::runtime_error("FreeImage bitmap creation failed");
+
+    FIMEMORY* mem = FreeImage_OpenMemory();
+    if (!mem)
+    {
+        FreeImage_Unload(bitmap);
+        throw std::runtime_error("FreeImage_OpenMemory failed");
+    }
+
+    FreeImage_SaveToMemory(FIF_PNG, bitmap, mem, PNG_Z_BEST_COMPRESSION);
+
+    BYTE* pngData = nullptr;
+    DWORD pngSize = 0;
+    FreeImage_AcquireMemory(mem, &pngData, &pngSize);
+
+    std::vector<uint8_t> compressed(pngData, pngData + pngSize);
+
+    FreeImage_CloseMemory(mem);
+    FreeImage_Unload(bitmap);
+
+    float reduction = 100.f - (static_cast<float>(compressed.size()) / rawRGBA.size() * 100.f);
+    LOG_DEBUG << "Image compressed. New size: " << compressed.size() << " (reduction: " << std::fixed << std::setprecision(2)
+              << reduction << "%)";
+    return compressed;
+}
+std::vector<uint8_t> decompressWithFreeImagePNG(const std::vector<uint8_t>& compressedPNG, int& outWidth, int& outHeight)
+{
+    FIMEMORY* mem = FreeImage_OpenMemory(const_cast<BYTE*>(compressedPNG.data()), compressedPNG.size());
+
+    if (!mem)
+        throw std::runtime_error("FreeImage_OpenMemory failed");
+
+    FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(mem);
+    if (fif == FIF_UNKNOWN)
+    {
+        FreeImage_CloseMemory(mem);
+        throw std::runtime_error("Unknown image format");
+    }
+
+    FIBITMAP* bitmap = FreeImage_LoadFromMemory(fif, mem);
+    if (!bitmap)
+    {
+        FreeImage_CloseMemory(mem);
+        throw std::runtime_error("FreeImage_LoadFromMemory failed");
+    }
+
+    outWidth  = FreeImage_GetWidth(bitmap);
+    outHeight = FreeImage_GetHeight(bitmap);
+
+    FIBITMAP* converted = FreeImage_ConvertTo32Bits(bitmap);
+    FreeImage_Unload(bitmap);
+
+    std::vector<uint8_t> raw(outWidth * outHeight * 4);
+
+    FreeImage_ConvertToRawBits(raw.data(), converted, outWidth * 4, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, true);
+
+    FreeImage_Unload(converted);
+    FreeImage_CloseMemory(mem);
+
+    float ratio = static_cast<float>(compressedPNG.size()) / static_cast<float>(raw.size()) * 100.f;
+
+    LOG_DEBUG << "Image decompressed. New size: " << compressedPNG.size() << " (Ratio of original size: " << std::fixed
+              << std::setprecision(2) << ratio << "%)";
+
+    return raw;
+}
+void CompressImagesParallel(std::vector<Image>& images)
+{
+    const size_t numThreads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    threads.reserve(numThreads);
+
+    size_t n         = images.size();
+    size_t chunkSize = (n + numThreads - 1) / numThreads;
+
+    for (size_t t = 0; t < numThreads; ++t)
+    {
+        size_t start = t * chunkSize;
+        size_t end   = std::min(start + chunkSize, n);
+
+        if (start >= end)
+            break;
+
+        threads.emplace_back(
+            [&images, start, end]
+            {
+                for (size_t i = start; i < end; ++i)
+                {
+                    if (not images[i].isCompressed)
+                        images[i].compressData();
+                }
+            });
+    }
+
+    for (auto& th : threads)
+        th.join();
+}
+void DecompressImagesParallel(std::vector<Image>& images)
+{
+    const size_t numThreads = std::thread::hardware_concurrency();
+    std::vector<std::thread> threads;
+    threads.reserve(numThreads);
+
+    size_t n         = images.size();
+    size_t chunkSize = (n + numThreads - 1) / numThreads;
+
+    for (size_t t = 0; t < numThreads; ++t)
+    {
+        size_t start = t * chunkSize;
+        size_t end   = std::min(start + chunkSize, n);
+
+        if (start >= end)
+            break;
+
+        threads.emplace_back(
+            [&images, start, end]
+            {
+                for (size_t i = start; i < end; ++i)
+                {
+                    if (images[i].isCompressed)
+                        images[i].decompressData();
+                }
+            });
+    }
+
+    for (auto& th : threads)
+        th.join();
 }
 }  // namespace Utils

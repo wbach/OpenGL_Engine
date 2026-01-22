@@ -2,6 +2,10 @@
 
 #include <Logger/Log.h>
 
+#include <variant>
+
+#include "ImageUtils.h"
+
 namespace Utils
 {
 struct ImageDataPtrVisitor
@@ -207,26 +211,30 @@ Image::Image(Image&& other) noexcept
     , height(other.height)
     , channels_(other.channels_)
     , data_(std::move(other.data_))
+    , isCompressed(other.isCompressed)
 {
-    other.width     = 0;
-    other.height    = 0;
-    other.channels_ = 4;
+    other.width        = 0;
+    other.height       = 0;
+    other.channels_    = 4;
+    other.isCompressed = false;
 }
 Image::Image(const Image& other)
     : width(other.width)
     , height(other.height)
     , channels_(other.channels_)
     , data_(other.data_)
+    , isCompressed(other.isCompressed)
 {
 }
 Image& Image::operator=(const Image& other)
 {
     if (this != &other)
     {
-        width     = other.width;
-        height    = other.height;
-        channels_ = other.channels_;
-        data_     = other.data_;
+        width        = other.width;
+        height       = other.height;
+        channels_    = other.channels_;
+        data_        = other.data_;
+        isCompressed = other.isCompressed;
     }
     return *this;
 }
@@ -234,15 +242,16 @@ Image& Image::operator=(Image&& other) noexcept
 {
     if (this != &other)
     {
-        width     = other.width;
-        height    = other.height;
-        channels_ = other.channels_;
-        data_     = std::move(other.data_);
+        width        = other.width;
+        height       = other.height;
+        channels_    = other.channels_;
+        data_        = std::move(other.data_);
+        isCompressed = other.isCompressed;
 
-        // reset źródła
-        other.width     = 0;
-        other.height    = 0;
-        other.channels_ = 4;
+        other.width        = 0;
+        other.height       = 0;
+        other.channels_    = 4;
+        other.isCompressed = false;
     }
     return *this;
 }
@@ -370,5 +379,77 @@ std::ostream& operator<<(std::ostream& os, const Utils::Image& img)
         img.getImageData());
 
     return os;
+}
+void Image::compressData()
+{
+    if (isCompressed)
+    {
+        LOG_DEBUG << "Image is already compressed";
+        return;
+    }
+
+    std::visit(
+        [&](auto&& data)
+        {
+            using T = std::decay_t<decltype(data)>;
+
+            if constexpr (std::is_same_v<T, std::monostate>)
+            {
+                LOG_WARN << "Data not set!";
+            }
+            else if constexpr (std::is_same_v<T, std::vector<uint8>>)
+            {
+                if (data.empty())
+                    return;
+
+                auto compressed = compressWithFreeImagePNG(data, width, height);
+
+                data         = std::move(compressed);
+                isCompressed = true;
+            }
+            else if constexpr (std::is_same_v<T, std::vector<float>>)
+            {
+                LOG_DEBUG << "Compresing floating image not supported";
+            }
+        },
+        data_);
+}
+void Image::decompressData()
+{
+    if (not isCompressed)
+    {
+        LOG_DEBUG << "Image is already decompressed";
+        return;
+    }
+
+    std::visit(
+        [&](auto&& data)
+        {
+            using T = std::decay_t<decltype(data)>;
+
+            if constexpr (std::is_same_v<T, std::monostate>)
+            {
+                LOG_WARN << "Data not set!";
+            }
+            else if constexpr (std::is_same_v<T, std::vector<uint8>>)
+            {
+                if (data.empty())
+                    return;
+
+                int w = 0, h = 0;
+                auto decompressed = decompressWithFreeImagePNG(data, w, h);
+                if (static_cast<uint32>(w) != width or static_cast<uint32>(h) != height)
+                {
+                    LOG_WARN << "Something goes wrong, size was changed";
+                }
+                data         = std::move(decompressed);
+                isCompressed = false;
+            }
+            else if constexpr (std::is_same_v<T, std::vector<float>>)
+            {
+                LOG_DEBUG << "Compresing floating image not supported";
+            }
+        },
+        data_);
 }
 }  // namespace Utils

@@ -18,6 +18,7 @@ void serialize(S& s, Image& obj)
     s.value4b(obj.width);
     s.value4b(obj.height);
     s.value1b(obj.channels_);
+    s.value1b(obj.isCompressed);
 
     s.ext(obj.data_, bitsery::ext::StdVariant{[](S& s, std::monostate&) {},
                                               [](S& s, std::vector<uint8_t>& v) { s.container1b(v, MAX_CONTAINERSIZE); },

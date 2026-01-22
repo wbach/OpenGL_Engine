@@ -175,6 +175,9 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
     textureArray->UpdateDataFromGpu();
     normalTextureArray->UpdateDataFromGpu();
 
+    textureArray->CompressData();
+    normalTextureArray->CompressData();
+
     resultCallback(ClusterTextures{.baseColorTexture = textureArray, .normalTexture = normalTextureArray});
 }
 void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,

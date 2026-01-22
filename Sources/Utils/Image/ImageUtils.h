@@ -61,4 +61,11 @@ void ClearChannel(Image&, uint8);
 
 void FastCopyPixels(const Image&, Image&, const std::vector<vec2ui>&, size_t = 1000);
 void LogImageData(const Utils::ImageData&);
+
+std::vector<uint8_t> compressWithFreeImagePNG(const std::vector<uint8_t>& rawRGBA, int width, int height);
+std::vector<uint8_t> decompressWithFreeImagePNG(const std::vector<uint8_t>& compressedPNG, int& outWidth, int& outHeight);
+
+void CompressImagesParallel(std::vector<Image>&);
+void DecompressImagesParallel(std::vector<Image>&);
+
 }  // namespace Utils
