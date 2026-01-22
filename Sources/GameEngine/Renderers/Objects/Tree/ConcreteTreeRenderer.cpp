@@ -53,6 +53,8 @@ ConcreteTreeRenderer::ConcreteTreeRenderer(RendererContext& context)
     , leafsClusterShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafsCluster)
     , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
+    startFade = EngineConf.renderer.lodDistance0;
+    endFade = EngineConf.renderer.lodDistance0 + 10;
 }
 void ConcreteTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent, float distanceToCamera)
 {
@@ -61,7 +63,7 @@ void ConcreteTreeRenderer::RenderTree(const Components::TreeRendererComponent& t
 
     if (distanceToCamera < endFade)
     {
-        RenderLeafs(treeRendererComponent, lvl);
+        RenderLeafs(treeRendererComponent);
     }
 
     if (distanceToCamera > startFade)
@@ -85,7 +87,7 @@ void ConcreteTreeRenderer::RenderTrunk(const Components::TreeRendererComponent& 
         RenderModel(*model);
     }
 }
-void ConcreteTreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent, LevelOfDetail) const
+void ConcreteTreeRenderer::RenderLeafs(const Components::TreeRendererComponent& treeRendererComponent) const
 {
     if (auto id = treeRendererComponent.GetLeafsShaderBufferId())
     {

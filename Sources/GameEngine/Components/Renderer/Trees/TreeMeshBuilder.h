@@ -27,14 +27,15 @@ public:
 
     struct EntryParameters
     {
-        int radialSegments       = 12;
-        float leafheightTreshold = 5;
-        float leafRandomFactor   = 0.2f;  // randomFactor od 0.0 do 1.0
-        int leafsPerBranch       = 3;
-        float leafSpread         = 0.05f;
-        float minBranchRadius    = 0.0001f;
-        float maxBranchRadius    = 1.0f;
-        int textureAtlasSize     = 9;
+        int radialSegments               = 6;
+        float leafheightTreshold         = 5;
+        float leafRandomFactor           = 0.2f;  // randomFactor od 0.0 do 1.0
+        int leafsPerBranch               = 3;
+        float leafSpread                 = 0.05f;
+        float minBranchRadius            = 0.0001f; // To calculate branch radius min - man
+        float maxBranchRadius            = 1.0f;
+        int textureAtlasSize             = 9;
+        float radiusSizeCreationTreshold = 0.001f;  // To skip small branches
     };
 
     int GetMaxBranchLvl() const;
@@ -91,5 +92,6 @@ private:
     float length = 0.f;
 
     uint32_t indexOffset = 0;
+    size_t smallBranchesSkipped = 0;
 };
 }  // namespace GameEngine

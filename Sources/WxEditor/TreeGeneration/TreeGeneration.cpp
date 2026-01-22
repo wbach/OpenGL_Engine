@@ -834,6 +834,7 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree,
               << "Branches : " << tree.GetBranches().size() << ")";
     GameEngine::TreeMeshBuilder builder(tree.GetBranches());
     auto lod2Params           = params.meshBuilderParams;
+    lod2Params.radiusSizeCreationTreshold = 0.075;
     lod2Params.radialSegments = 3;
 
     auto treeMesh = builder.build(lod2Params);

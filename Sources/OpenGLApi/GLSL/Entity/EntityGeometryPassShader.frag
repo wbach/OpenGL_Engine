@@ -8,6 +8,14 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
+layout (std140,binding=1) uniform PerFrame
+{
+    mat4 projectionViewMatrix;
+    vec3 cameraPosition;
+    vec4 clipPlane;
+    vec4 projection;
+} perFrame;
+
 layout (std140, align=16, binding=6) uniform PerMaterial
 {
     vec4 baseColor;
@@ -96,43 +104,44 @@ void main()
         if(IsTransparent(opacity)) discard;
     }
 
-    // --- BaseColor + Opacity ---
     vec3 baseColor = perMaterial.baseColor.rgb;
     const bool hasBaseColorTexture = perMaterial.hasTextures.x > 0.5f;
     if(hasBaseColorTexture && perApp.useTextures.x > 0.5f)
     {
        baseColor = texture(BaseColorTexture, uv).rgb;
     }
+    
+    float ambientOcclusion  = perMaterial.params.z;
+    float roughness         = perMaterial.params.y;
+    float metallic          = perMaterial.params.x;
+    vec3 normal             = vec3(0, 1, 0);
 
-    // --- Ambient Occlusion ---
-    float ambientOcclusion = perMaterial.params.z;
-    const bool hasAmbientOcclusionTexture = perMaterial.hasTextures2.x > 0.5f;
-    if(hasAmbientOcclusionTexture)
+    float dist = length(fs_in.worldPos.xyz - perFrame.cameraPosition);
+    if (dist < 100.f)
     {
-       ambientOcclusion = texture(AmbientOcclusionTexture, uv).r;
+        const bool hasAmbientOcclusionTexture = perMaterial.hasTextures2.x > 0.5f;
+        if(hasAmbientOcclusionTexture)
+        {
+           ambientOcclusion = texture(AmbientOcclusionTexture, uv).r;
+        }
+
+        // --- Normal ---
+        normal = GetNormal(uv);
+        const bool hasRoughnessTexture = perMaterial.hasTextures.z > 0.5f;
+        if(hasRoughnessTexture)
+        {
+           roughness = texture(RoughnessTexture, uv).r;
+        }
+
+        const bool hasMetallicTexture = perMaterial.hasTextures.w > 0.5f;
+        if(hasMetallicTexture)
+        {
+           metallic = texture(MetallicTexture, uv).r;
+        }
     }
-
-    // --- Normal ---
-    const vec3 normal = GetNormal(uv);
-
-    float roughness = perMaterial.params.y;
-    const bool hasRoughnessTexture = perMaterial.hasTextures.z > 0.5f;
-    if(hasRoughnessTexture)
-    {
-       roughness = texture(RoughnessTexture, uv).r;
-    }
-
-    float metallic = perMaterial.params.x;
-    const bool hasMetallicTexture = perMaterial.hasTextures.w > 0.5f;
-    if(hasMetallicTexture)
-    {
-       metallic = texture(MetallicTexture, uv).r;
-    }
-
-    // --- Output do G-Buffer ---
+   
     WorldPosOut         = fs_in.worldPos; // w - linear depth from vs
     ColorMapOut         = vec4(baseColor, ambientOcclusion);                       
     NormalOut           = vec4(normal, 1.0);                
-    //SurfaceParamsOut    = vec4(metallic, roughness, perMaterial.params2.z, perMaterial.params2.w); 
     SurfaceParamsOut    = vec4(metallic, roughness, 1.f, perMaterial.params2.w); 
 }

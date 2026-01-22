@@ -49,11 +49,25 @@ GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
     {
         if (branchHasParent(branch))
         {
+            auto context = branchContexts.at(&branch);
+            if (context.radius < params.radiusSizeCreationTreshold)
+            {
+                ++smallBranchesSkipped;
+                continue;
+            }
+
             appendBranchCylinder(branch);
         }
     }
     for (const auto& branch : lastTmpBranchesToAdd)
     {
+        auto context = branchContexts.at(&branch);
+        if (context.radius < params.radiusSizeCreationTreshold)
+        {
+            ++smallBranchesSkipped;
+            continue;
+        }
+
         appendBranchCylinder(branch);
         appendBranchCap(branch);  // appendBranchCapSphere
     }
@@ -67,6 +81,9 @@ GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
     lastTmpBranchesToAdd.clear();
 
     calculateLeafs();
+
+    LOG_DEBUG << "Tree trunk mesh created. Vertices: " << mesh.positions_.size() / 3
+              << ". Triangles : " << mesh.positions_.size() / 9 << ". Skiped small cylinders count: " << smallBranchesSkipped;
 
     return std::move(mesh);
 }
@@ -102,7 +119,8 @@ void TreeMeshBuilder::appendBranchesTransitions()
         auto& parentContext = branchContexts[branch.parent];
         auto& branchContext = branchContexts[&branch];
 
-        if (parentContext.topVertexes.empty() || branchContext.bottomVertexes.empty())
+        if (parentContext.topVertexes.empty() || branchContext.bottomVertexes.empty() or
+            branchContext.radius < parameters.radiusSizeCreationTreshold)
             continue;
 
         float branchLength = glm::length(branch.position - branch.parent->position);
@@ -117,7 +135,8 @@ void TreeMeshBuilder::appendBranchesTransitions()
         auto& parentContext = branchContexts[branch.parent];
         auto& branchContext = branchContexts[&branch];
 
-        if (parentContext.topVertexes.empty() || branchContext.bottomVertexes.empty())
+        if (parentContext.topVertexes.empty() || branchContext.bottomVertexes.empty() or
+            branchContext.radius < parameters.radiusSizeCreationTreshold)
             continue;
 
         float branchLength = glm::length(branch.position - branch.parent->position);
@@ -424,7 +443,6 @@ void TreeMeshBuilder::calculateLeafs()
             leafs.push_back(leaf);
         }
     }
-
 
     LOG_DEBUG << "Leafs count " << leafs.size();
 }
