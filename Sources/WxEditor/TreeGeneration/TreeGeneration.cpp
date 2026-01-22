@@ -63,6 +63,7 @@ struct TreeGenerationParams
 };
 
 TreeGenerationParams treeBuidlerParams;
+
 std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, const TreeGenerationParams& initial)
 {
     TreeGenerationParams defaults{};
@@ -307,6 +308,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     out.meshBuilderParams.maxBranchRadius    = wxAtof(meshControls.maxBranchRadius->GetValue());
     out.meshBuilderParams.textureAtlasSize   = meshControls.textureAtlasSize->GetValue();
 
+    treeBuidlerParams = out;
     return out;
 }
 
@@ -764,7 +766,7 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::TreeGenerator& tree,
 {
     LOG_DEBUG << "Buildng tree mesh lod 1 ... ("
               << "Branches : " << tree.GetBranches().size() << ")";
-    GameEngine::TreeMeshBuilder builder(tree.GetBranches());
+    GameEngine::TreeMeshBuilder builder(tree.GetBranches(), tree.crownYOffset, tree.segmentLength);
 
     auto treeMesh = builder.build(params.meshBuilderParams);
     if (treeMesh.positions_.empty())
@@ -832,10 +834,10 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree,
 {
     LOG_DEBUG << "Buildng tree mesh lod 2... ("
               << "Branches : " << tree.GetBranches().size() << ")";
-    GameEngine::TreeMeshBuilder builder(tree.GetBranches());
-    auto lod2Params           = params.meshBuilderParams;
+    GameEngine::TreeMeshBuilder builder(tree.GetBranches(), tree.crownYOffset, tree.segmentLength);
+    auto lod2Params                       = params.meshBuilderParams;
     lod2Params.radiusSizeCreationTreshold = 0.075;
-    lod2Params.radialSegments = 3;
+    lod2Params.radialSegments             = 3;
 
     auto treeMesh = builder.build(lod2Params);
     if (treeMesh.positions_.empty())

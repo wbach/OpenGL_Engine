@@ -23,16 +23,16 @@ class TreeMeshBuilder
     };
 
 public:
-    TreeMeshBuilder(const std::list<Branch>& branches);
+    TreeMeshBuilder(const std::list<Branch>& branches, float crownYOffset, float segmentLength);
 
     struct EntryParameters
     {
         int radialSegments               = 6;
-        float leafheightTreshold         = 5;
+        float leafheightTreshold         = 0;
         float leafRandomFactor           = 0.2f;  // randomFactor od 0.0 do 1.0
         int leafsPerBranch               = 3;
         float leafSpread                 = 0.05f;
-        float minBranchRadius            = 0.0001f; // To calculate branch radius min - man
+        float minBranchRadius            = 0.0001f;  // To calculate branch radius min - man
         float maxBranchRadius            = 1.0f;
         int textureAtlasSize             = 9;
         float radiusSizeCreationTreshold = 0.001f;  // To skip small branches
@@ -54,18 +54,23 @@ private:
     void appendCylinderIndices();
     void writeVertex(const vec3& pos, const vec3& normal, const vec3& tangent, const vec3& bitangent, const vec2& uv);
     bool branchHasParent(const Branch& branch) const;
-    void calculateBranchesLvls();
+    void calculateBranchesLvls(float crownYOffset, float segmentLength);
     int calcuateBranchLvl(const Branch& branch);
     void appendTransition(const std::vector<RingVertex>&, const std::vector<RingVertex>&, float);
     void appendBranchCap(const Branch& branch);
     void appendBranchCapSphere(const Branch& branch);
     void calculateLeafs();
+    size_t calculateTrunkSegmentsCount() const;
 
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();
+    const std::list<Branch>& branches;
+    float crownYOffset;
+    float segmentLength;
+    size_t trunkSegments;
+
     EntryParameters parameters;
 
-    const std::list<Branch>& branches;
     std::list<Branch> lastTmpBranchesToAdd;
 
     struct BranchContext
@@ -91,7 +96,9 @@ private:
     vec3 bitangent;
     float length = 0.f;
 
-    uint32_t indexOffset = 0;
+    uint32_t indexOffset        = 0;
     size_t smallBranchesSkipped = 0;
 };
+
+std::ostream& operator<<(std::ostream& os, const TreeMeshBuilder::EntryParameters&);
 }  // namespace GameEngine

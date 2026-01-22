@@ -17,13 +17,31 @@ namespace GameEngine
 {
 namespace
 {
-float calculateBranchRadius(size_t branchLvl, size_t maxBranchLvl, float minBranchRadius, float maxBranchRadius)
+float calculateBranchRadius(size_t branchLvl, size_t maxBranchLvl, float minBranchRadius, float maxBranchRadius,
+                            size_t trunkSegments)
 {
-    float t = float(branchLvl - 1) / float(maxBranchLvl - 1);
-    t       = glm::clamp(t, 0.0f, 1.0f);
-    t       = 1.0f - std::pow(1.0f - t, 5.f);
-    return glm::mix(maxBranchRadius, minBranchRadius, t);
+    if (maxBranchLvl <= 1)
+        return maxBranchRadius;
+
+    if (branchLvl < trunkSegments)
+    {
+        float t        = float(branchLvl) / float(trunkSegments);
+        float exponent = 0.9f;
+        t              = std::pow(t, exponent);
+        return maxBranchRadius * (1.0f - t) + (maxBranchRadius * 0.3f) * t;
+    }
+    else
+    {
+        // Korona – szybki spadek promienia
+        size_t crownLvl    = branchLvl - trunkSegments;
+        size_t crownMaxLvl = maxBranchLvl - trunkSegments;
+        float t            = float(crownLvl) / float(crownMaxLvl);
+        t                  = std::clamp(t, 0.0f, 1.0f);
+        float ratio        = minBranchRadius / (maxBranchRadius * 0.3f);
+        return (maxBranchRadius * 0.3f) * std::pow(ratio, t);
+    }
 }
+
 vec3 randomLeafColor()
 {
     float hue        = getRandomFloat(0.22f, 0.36f);
@@ -34,14 +52,29 @@ vec3 randomLeafColor()
 }
 
 }  // namespace
-TreeMeshBuilder::TreeMeshBuilder(const std::list<Branch>& branches)
+
+TreeMeshBuilder::TreeMeshBuilder(const std::list<Branch>& branches, float crownYOffset, float segmentLength)
     : branches(branches)
+    , crownYOffset{crownYOffset}
+    , segmentLength{segmentLength}
 {
-    calculateBranchesLvls();
+    LOG_DEBUG << "crownYOffset = " << crownYOffset;
+    LOG_DEBUG << "segmentLength = " << segmentLength;
+    trunkSegments = calculateTrunkSegmentsCount();
 }
 GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
 {
     parameters = params;
+
+    if (parameters.radiusSizeCreationTreshold > params.maxBranchRadius)
+    {
+        LOG_DEBUG << "Prevent skip whole mesh";
+        parameters.radiusSizeCreationTreshold = params.maxBranchRadius / 2.f;
+    }
+
+    LOG_DEBUG << parameters;
+
+    calculateBranchesLvls(crownYOffset, segmentLength);
 
     prepareMesh();
 
@@ -272,7 +305,7 @@ bool TreeMeshBuilder::branchHasParent(const Branch& branch) const
 {
     return branch.parent != nullptr;
 }
-void TreeMeshBuilder::calculateBranchesLvls()
+void TreeMeshBuilder::calculateBranchesLvls(float crownYOffset, float segmentLength)
 {
     for (const auto& branch : branches)
     {
@@ -303,9 +336,10 @@ void TreeMeshBuilder::calculateBranchesLvls()
     maxBranchLvl++;
     for (auto& [_, branch] : branchContexts)
     {
-        branch.radius = calculateBranchRadius(branch.lvl, maxBranchLvl, parameters.minBranchRadius, parameters.maxBranchRadius);
+        branch.radius = calculateBranchRadius(branch.lvl, maxBranchLvl, parameters.minBranchRadius, parameters.maxBranchRadius,
+                                              trunkSegments);
         branch.parentRadius = calculateBranchRadius(std::max(branch.lvl - 1, 1), maxBranchLvl, parameters.minBranchRadius,
-                                                    parameters.maxBranchRadius);
+                                                    parameters.maxBranchRadius, trunkSegments);
     }
 }
 int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
@@ -402,7 +436,7 @@ void TreeMeshBuilder::calculateLeafs()
 
     for (const auto& [branch, context] : branchContexts)
     {
-        if (context.lvl < parameters.leafheightTreshold)
+        if (context.lvl < parameters.leafheightTreshold + trunkSegments)
             continue;
 
         const auto& pos    = branch->position;
@@ -449,5 +483,19 @@ void TreeMeshBuilder::calculateLeafs()
 int TreeMeshBuilder::GetMaxBranchLvl() const
 {
     return maxBranchLvl;
+}
+std::ostream& operator<<(std::ostream& os, const TreeMeshBuilder::EntryParameters& params)
+{
+    os << "EntryParameters {"
+       << "\n  radialSegments = " << params.radialSegments << "\n  leafheightTreshold = " << params.leafheightTreshold
+       << "\n  leafRandomFactor = " << params.leafRandomFactor << "\n  leafsPerBranch = " << params.leafsPerBranch
+       << "\n  leafSpread = " << params.leafSpread << "\n  minBranchRadius = " << params.minBranchRadius
+       << "\n  maxBranchRadius = " << params.maxBranchRadius << "\n  textureAtlasSize = " << params.textureAtlasSize
+       << "\n  radiusSizeCreationTreshold = " << params.radiusSizeCreationTreshold << "\n}";
+    return os;
+}
+size_t TreeMeshBuilder::calculateTrunkSegmentsCount() const
+{
+    return std::max(size_t(crownYOffset / segmentLength), size_t(1));
 }
 }  // namespace GameEngine
