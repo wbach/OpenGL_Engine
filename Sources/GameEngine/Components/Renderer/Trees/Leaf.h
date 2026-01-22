@@ -53,8 +53,8 @@ struct Billboard
 
 struct ClusterTextures
 {
-    ArrayTexture* baseColorTexture;
-    ArrayTexture* normalTexture;
+    ArrayTexture* baseColorTexture{nullptr};
+    ArrayTexture* normalTexture{nullptr};
 };
 
 struct LeafSSBO

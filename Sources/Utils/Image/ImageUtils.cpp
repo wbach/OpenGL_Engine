@@ -537,6 +537,11 @@ std::vector<uint8_t> decompressWithFreeImagePNG(const std::vector<uint8_t>& comp
 }
 void CompressImagesParallel(std::vector<Image>& images)
 {
+    if (images.empty())
+    {
+        LOG_DEBUG << "Empty images vector";
+        return;
+    }
     const size_t numThreads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
     threads.reserve(numThreads);
@@ -568,6 +573,12 @@ void CompressImagesParallel(std::vector<Image>& images)
 }
 void DecompressImagesParallel(std::vector<Image>& images)
 {
+    if (images.empty())
+    {
+        LOG_DEBUG << "Empty images vector";
+        return;
+    }
+
     const size_t numThreads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
     threads.reserve(numThreads);
