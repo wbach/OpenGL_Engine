@@ -29,16 +29,24 @@ std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
     for (const auto& cluster : treeClusters.clusters)
     {
         ClusterData data;
-        vec3 center     = (cluster.minBound + cluster.maxBound) * 0.5f;
-        data.center     = vec4(center, 1.0f);
-        vec3 dimensions = cluster.maxBound - cluster.minBound;
+
+        vec3 voxelMin = cluster.minBound;
+        vec3 voxelMax = cluster.minBound + treeClusters.voxelSize;
+
+        vec3 center     = (voxelMin + voxelMax) * 0.5f;
+        vec3 dimensions = voxelMax - voxelMin;
         float maxDim    = std::max({dimensions.x, dimensions.y, dimensions.z});
-        data.size       = vec4(dimensions, maxDim);
+
+        data.center = vec4(center, 1.0f);
+        data.size   = vec4(dimensions, maxDim);
+
         gpuData.push_back(data);
     }
+
     return gpuData;
 }
 }  // namespace
+
 ConcreteTreeRenderer::ConcreteTreeRenderer(RendererContext& context)
     : TreeRenderer(context)
     , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)

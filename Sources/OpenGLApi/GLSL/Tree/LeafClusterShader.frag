@@ -78,7 +78,6 @@ void main()
     float threshold = screenDoorAlpha(gl_FragCoord.xy);
     if (t < threshold) discard;
 
-
     vec3 uvl = vec3(fs_in.texCoord , fs_in.layerIndex);
     
     vec4 baseColor = vec4(1.0);
@@ -89,18 +88,13 @@ void main()
         baseColor = texture(BaseColorTextureArray, uvl);
         
         if(baseColor.a < 0.5) discard; 
-        baseColor.rgb *= vec3(0.95, 1.0, 0.95);
+
+        baseColor.rgb *= vec3(0.95, 1.0, 0.95);    
     }
     if (Is(perApp.useTextures.y))
     {
         normal = texture(NormalTextureArray, uvl).xyz * 2.0 - 1.0;
 
-        vec3 viewDir = normalize(perFrame.cameraPosition - fs_in.worldPos.xyz);
-        if (dot(normal, viewDir) < 0.0)
-        {
-            discard;//normal = -normal;
-        }
-        
         vec3 sphereNormal = normalize(fs_in.worldPos.xyz - (fs_in.worldPos.xyz - vec3(0, 2, 0)));
         normal = normalize(mix(normal, sphereNormal, 0.6));
         normal = normalize(normal);

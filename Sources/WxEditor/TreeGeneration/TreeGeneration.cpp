@@ -602,44 +602,41 @@ void GenerateBibloardImage(const GameEngine::TreeMeshBuilder& tree)
     }
 }
 
-GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::Leaf>& leaves, float clusterSize,
+GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::Leaf>& leaves, int clustersPerAxis,
                                                  float baseLeafSize = 1.f)
 {
     if (leaves.empty())
         return {};
 
-    vec3 treeMin = leaves[0].position;
-    vec3 treeMax = leaves[0].position;
+    vec3 treeMin = leaves[0].position - vec3(leaves[0].sizeRandomness * baseLeafSize * 0.707f);
+    vec3 treeMax = leaves[0].position + vec3(leaves[0].sizeRandomness * baseLeafSize * 0.707f);
 
     for (const auto& leaf : leaves)
     {
-        treeMin = min(treeMin, leaf.position);
-        treeMax = max(treeMax, leaf.position);
+        float r = leaf.sizeRandomness * baseLeafSize * 0.707f;
+        treeMin = min(treeMin, leaf.position - vec3(r));
+        treeMax = max(treeMax, leaf.position + vec3(r));
     }
 
-    treeMin -= 0.1f;
-    treeMax += 0.1f;
-
     vec3 diagonal  = treeMax - treeMin;
-    vec3i gridSize = vec3i(static_cast<int>(ceil(diagonal.x / clusterSize)), static_cast<int>(ceil(diagonal.y / clusterSize)),
-                           static_cast<int>(ceil(diagonal.z / clusterSize)));
+    vec3 voxelSize = diagonal / float(clustersPerAxis);
+    vec3i gridSize(clustersPerAxis);
 
     GameEngine::TreeClusters result;
     result.gridOrigin = treeMin;
-    result.voxelSize  = vec3(clusterSize);
+    result.voxelSize  = voxelSize;
     result.gridSize   = gridSize;
 
     std::unordered_map<int, GameEngine::Cluster> activeClusters;
 
     for (size_t i = 0; i < leaves.size(); ++i)
     {
-        float currentLeafRadius = (baseLeafSize * leaves[i].sizeRandomness) * 0.707f;
+        float leafRadius = (baseLeafSize * leaves[i].sizeRandomness) * 0.707f;
+        vec3 leafMin     = leaves[i].position - vec3(leafRadius);
+        vec3 leafMax     = leaves[i].position + vec3(leafRadius);
 
-        vec3 leafMin = leaves[i].position - vec3(currentLeafRadius);
-        vec3 leafMax = leaves[i].position + vec3(currentLeafRadius);
-
-        vec3i coordMin = vec3i((leafMin - treeMin) / clusterSize);
-        vec3i coordMax = vec3i((leafMax - treeMin) / clusterSize);
+        vec3i coordMin = vec3i((leafMin - treeMin) / voxelSize);
+        vec3i coordMax = vec3i((leafMax - treeMin) / voxelSize);
 
         for (int x = coordMin.x; x <= coordMax.x; ++x)
         {
@@ -655,8 +652,8 @@ GameEngine::TreeClusters groupLeavesIntoClusters(const std::vector<GameEngine::L
                     if (activeClusters.find(key) == activeClusters.end())
                     {
                         GameEngine::Cluster newCluster;
-                        newCluster.minBound = treeMin + vec3(x, y, z) * clusterSize;
-                        newCluster.maxBound = newCluster.minBound + vec3(clusterSize);
+                        newCluster.minBound = treeMin + vec3(x, y, z) * voxelSize;
+                        newCluster.maxBound = newCluster.minBound + voxelSize;
                         activeClusters[key] = newCluster;
                     }
 
@@ -706,6 +703,8 @@ void generateLeafClusters(GameEngine::IGpuResourceLoader& loader, GraphicsApi::I
                           const std::vector<GameEngine::Leaf>& leafs, const GameEngine::Material& leafMaterial)
 {
     auto clasters = groupLeavesIntoClusters(leafs, 4);
+
+    LOG_DEBUG << "Cluster size : " << clasters.clusters.size();
 
     if (clasters.clusters.empty())
     {
@@ -760,7 +759,8 @@ std::pair<GameEngine::Material, GameEngine::Material> PrepareTreeMaterials(GameE
     return {trunkMaterial, leafMaterial};
 }
 
-std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::TreeGenerator& tree, GLCanvas* canvas, const TreeGenerationParams& params)
+std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::TreeGenerator& tree, GLCanvas* canvas,
+                                          const TreeGenerationParams& params)
 {
     LOG_DEBUG << "Buildng tree mesh lod 1 ... ("
               << "Branches : " << tree.GetBranches().size() << ")";
@@ -827,7 +827,8 @@ void BindMaterial(GraphicsApi::IGraphicsApi& graphicsApi, const GameEngine::Mate
     BindMaterialTexture(graphicsApi, 6, material.displacementTexture, config.useDisplacement);
 }
 
-std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree, GLCanvas* canvas, const TreeGenerationParams& params)
+std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree, GLCanvas* canvas,
+                                          const TreeGenerationParams& params)
 {
     LOG_DEBUG << "Buildng tree mesh lod 2... ("
               << "Branches : " << tree.GetBranches().size() << ")";

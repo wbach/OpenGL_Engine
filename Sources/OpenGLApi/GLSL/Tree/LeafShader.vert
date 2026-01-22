@@ -65,7 +65,8 @@ void main()
     float leafPhase = dot(localPosData, vec3(0.13, 0.27, 0.19));
     vec3 windDir = normalize(leafParams.wind.xyz);
     float windStrength = leafParams.wind.w;
-    float sway = sin(leafParams.time * 1.5 + leafPhase) * windStrength;
+    float time = leafParams.time;
+    float sway = sin(time * 1.5 + leafPhase) * windStrength;
     vec3 windOffset = windDir * sway;
 
     float scale = leafParams.fparams.x * sizeRandomness;
@@ -82,7 +83,7 @@ void main()
 
     vec3 up = outwardDir * scale;
     vec3 bend = vec3(0.0, -1.0, 0.0) * bendAmount; 
-    vec3 windTop = ComputeWindBend(leafParams.time, leafPhase, windDir, windStrength, 1.0, outwardDir);
+    vec3 windTop = ComputeWindBend(time, leafPhase, windDir, windStrength, 1.0, outwardDir);
 
     vec3 v0 = leafBase - right * 0.5;
     vec3 v1 = leafBase + right * 0.5;

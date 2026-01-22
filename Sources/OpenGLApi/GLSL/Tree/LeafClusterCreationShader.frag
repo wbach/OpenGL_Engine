@@ -41,10 +41,6 @@ vec2 GetAtlasUV(vec2 uv, int idx)
 
 void main()
 {
-    // outAlbedo = vec4(1,0,0,1);
-    // outNormal = vec4(0,0,1,1);
-    // return;
-
     int textureIndex = fs_in.textureIndex;
     vec2 uv = GetAtlasUV(fs_in.texCoord, textureIndex);
 

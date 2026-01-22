@@ -180,6 +180,7 @@ void TreeLeafClusterRenderer::render(const TreeClusters& clusters, const std::ve
 
     resultCallback(ClusterTextures{.baseColorTexture = textureArray, .normalTexture = normalTextureArray});
 }
+
 void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType normalTextureArrayId, GraphicsApi::IFrameBuffer& fb,
                                              const TreeClusters& treeData, const std::vector<Leaf>& allLeaves,
                                              const Material& leafMaterial, const vec2ui& renderSize)
@@ -191,29 +192,33 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
         const auto& cluster = treeData.clusters[i];
 
         vec3 center    = (cluster.minBound + cluster.maxBound) * 0.5f;
-        float halfSize = (cluster.maxBound.x - cluster.minBound.x) * 0.5f;
+        vec3 size      = cluster.maxBound - cluster.minBound;
+        float halfX    = size.x * 0.5f;
+        float halfY    = size.y * 0.5f;
+        float halfZ    = size.z * 0.5f;
 
-        mat4 projection = glm::ortho(-halfSize, halfSize, -halfSize, halfSize, 0.0f, halfSize * 2.0f);
-
-        // --- RENDER WIDOKU 0 (FRONT - Oś Z) ---
+        // --- RENDER FRONT (Oś Z) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2);
         fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2);
         fb.Clear();
         fb.Bind();
 
-        mat4 viewFront = lookAt(center + vec3(0, 0, halfSize), center, vec3(0, 1, 0));
-        DrawClusterLeaves(cluster, allLeaves, leafMaterial, projection * viewFront);
+        mat4 projectionFront = glm::ortho(-halfX, halfX, -halfY, halfY, -halfZ, halfZ);
+        mat4 viewFront       = glm::lookAt(center + vec3(0, 0, halfZ), center, vec3(0, 1, 0));
+        DrawClusterLeaves(cluster, allLeaves, leafMaterial, projectionFront * viewFront);
 
-        // --- RENDER WIDOKU 1 (SIDE - Oś X) ---
+        // --- RENDER SIDE (Oś X) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2 + 1);
         fb.BindTextureLayer(normalTextureArrayId, GraphicsApi::FrameBuffer::Type::Color1, i * 2 + 1);
         fb.Clear();
         fb.Bind();
 
-        mat4 viewSide = lookAt(center + vec3(halfSize, 0, 0), center, vec3(0, 1, 0));
-        DrawClusterLeaves(cluster, allLeaves, leafMaterial, projection * viewSide);
+        mat4 projectionSide = glm::ortho(-halfZ, halfZ, -halfY, halfY, -halfX, halfX);
+        mat4 viewSide       = glm::lookAt(center + vec3(halfX, 0, 0), center, vec3(0, 1, 0));
+        DrawClusterLeaves(cluster, allLeaves, leafMaterial, projectionSide * viewSide);
     }
 }
+
 
 void TreeLeafClusterRenderer::DrawClusterLeaves(const Cluster& cluster, const std::vector<Leaf>& allLeaves,
                                                 const Material& leafMaterial, const mat4& mvp)
