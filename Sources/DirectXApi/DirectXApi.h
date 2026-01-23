@@ -40,13 +40,15 @@ public:
 
     GraphicsApi::ID CreateTexture(const Utils::Image&, GraphicsApi::TextureFilter,
                                   GraphicsApi::TextureMipmap) override;
+    GraphicsApi::ID CreateTexture(const std::vector<Utils::Image>&, GraphicsApi::TextureFilter,
+                                  GraphicsApi::TextureMipmap) override;
     std::optional<uint32> CreateTextureStorage(GraphicsApi::TextureType, GraphicsApi::TextureFilter, int32) override;
     GraphicsApi::ID CreateCubMapTexture(const std::array<Utils::Image, 6>&) override;
-
+    void GenerateMipmaps(IdType) override;
     void CopyTexture(IdType src, IdType dst, uint32 width, uint32 height) override;
     void UpdateTexture(uint32, const vec2ui&, const Utils::Image&) override;
     void UpdateTexture(uint32, const Utils::Image&) override;
-
+    std::vector<Utils::Image> GetImageArray(IdType) const override;
     void ClearTexture(uint32, const Color&) override;
 
     void EnableBlend() override;
@@ -102,7 +104,7 @@ public:
     mat4 PrepareMatrixToLoad(const mat4& m) override;
     std::vector<uint8> GetTextureData(uint32) const override;
     const GraphicsApi::TextureInfo& GetTextureInfo(uint32) const override;
-    void TakeSnapshoot(const std::string& path) const override;
+    void TakeSnapshoot(const std::filesystem::path&) const override;
     std::optional<Utils::Image> GetImage(IdType) const override;
 
     GraphicsApi::IFrameBuffer& GetDefaultFrameBuffer() override;

@@ -1,6 +1,6 @@
 #include <D3D11Shader.h>
 #include <d3d11.h>
-//#include <d3dx10.h>
+// #include <d3dx10.h>
 #include <d3dx11.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -432,6 +432,21 @@ void DirectXApi::SetRasterState()
 void DirectXApi::SetRenderTargets()
 {
     impl_->dxCondext_.devcon->OMSetRenderTargets(1, &impl_->dxCondext_.renderTargetView, impl_->dxCondext_.depthStencilView);
+}
+
+GraphicsApi::ID DirectXApi::CreateTexture(const std::vector<Utils::Image> &, GraphicsApi::TextureFilter,
+                                          GraphicsApi::TextureMipmap)
+{
+    return GraphicsApi::ID();
+}
+
+void DirectXApi::GenerateMipmaps(IdType)
+{
+}
+
+std::vector<Utils::Image> DirectXApi::GetImageArray(IdType) const
+{
+    return std::vector<Utils::Image>();
 }
 
 void DirectXApi::SetShadersFilesLocations(const std::filesystem::path &path)
@@ -1113,7 +1128,7 @@ const GraphicsApi::TextureInfo &DirectXApi::GetTextureInfo(uint32) const
 {
     return defaultTextureInfo;
 }
-void DirectXApi::TakeSnapshoot(const std::string &path) const
+void DirectXApi::TakeSnapshoot(const std::filesystem::path &) const
 {
 }
 std::optional<Utils::Image> DirectXApi::GetImage(IdType) const

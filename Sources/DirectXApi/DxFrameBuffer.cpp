@@ -11,7 +11,19 @@ void DxFrameBuffer::Bind(GraphicsApi::FrameBuffer::BindType)
 {
 }
 
+void DxFrameBuffer::BindTexture(IdType, GraphicsApi::FrameBuffer::Type)
+{
+}
+
+void DxFrameBuffer::BindTextureLayer(IdType, GraphicsApi::FrameBuffer::Type, int)
+{
+}
+
 void DxFrameBuffer::UnBind()
+{
+}
+
+void DxFrameBuffer::UpdateDrawBuffers()
 {
 }
 
@@ -28,7 +40,7 @@ GraphicsApi::ID DxFrameBuffer::GetAttachmentTexture(GraphicsApi::FrameBuffer::Ty
     return std::nullopt;
 }
 
-void DxFrameBuffer::TakeSnapshot(const std::string&)
+void DxFrameBuffer::TakeSnapshot(const std::filesystem::path&)
 {
 }
 const vec2ui& DxFrameBuffer::GetSize() const

@@ -125,7 +125,7 @@ void SaveImage(const std::vector<float>& data, const vec3ui& size, const std::fi
 
     if (ext == "exr")
     {
-        SaveImage32FEXR(data, size, filename);
+        SaveImage32FEXR(data, size, filename.string());
     }
     else if (ext == "hdr" || ext == "tiff")
     {
@@ -178,8 +178,8 @@ void SaveImage(const std::vector<float>& data, const vec3ui& size, const std::fi
             }
         }
 
-        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.c_str());
-        if (!FreeImage_Save(fif, bitmap, filename.c_str()))
+        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.string().c_str());
+        if (!FreeImage_Save(fif, bitmap, filename.string().c_str()))
             LOG_ERROR << "Save failed: " << filename;
         else
             LOG_DEBUG << "Float image saved: " << filename;
@@ -191,7 +191,7 @@ void SaveImage(const std::vector<float>& data, const vec3ui& size, const std::fi
     {
         FreeImage_Initialise();
 
-        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.c_str());
+        FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.string().c_str());
         if (fif == FIF_UNKNOWN)
         {
             LOG_ERROR << "Nieznany format pliku: " << filename;
@@ -249,7 +249,7 @@ void SaveImage(const std::vector<float>& data, const vec3ui& size, const std::fi
             }
         }
 
-        if (!FreeImage_Save(fif, bitmap, filename.c_str()))
+        if (!FreeImage_Save(fif, bitmap, filename.string().c_str()))
             LOG_ERROR << "Save failed (8-bit): " << filename;
         else
             LOG_DEBUG << "8-bit image saved: " << filename;

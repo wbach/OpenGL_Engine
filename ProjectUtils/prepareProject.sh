@@ -13,8 +13,7 @@ sourceFilePath="../Solutions/CMake/Sources/"$1"Sources.cmake"
 
 sources=()
 while IFS= read -r line || [[ -n "$line" ]]; do
-    # Pomijamy linie zawierające 'set' lub zakończone ')'
-    if [[ $line == *"set"* ]]; then
+    if [[ $line == "set("* ]]; then
         continue
     fi
     if [[ $line == *\)* ]]; then
@@ -34,8 +33,7 @@ done < "$sourceFilePath"
 
 headers=()
 while IFS= read -r line || [[ -n "$line" ]]; do
-    # Pomijamy linie zawierające 'set' lub zakończone ')'
-    if [[ $line == *"set"* ]]; then
+    if [[ $line == "set("* ]]; then
         continue
     fi
     if [[ $line == *\)* ]]; then
@@ -239,7 +237,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalIncludeDirectories>'$additionalIncludesDir'%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING; _CRT_SECURE_NO_WARNINGS;_MBCS;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_DEBUG;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -263,8 +261,8 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING;_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING;_MBCS;WXUSINGDLL;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalOptions>/Zc:__cplusplus /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -288,7 +286,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -318,7 +316,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalOptions>/bigobj /Gw /GL %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /bigobj /Gw /GL %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -349,7 +347,7 @@ echo '<?xml version="1.0" encoding="utf-8"?>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ObjectFileName>$(IntDir)%(RelativeDir)%(Filename)%(Extension)</ObjectFileName>
       <BufferSecurityCheck>true</BufferSecurityCheck>
-      <AdditionalOptions>/bigobj /GL /GS /guard:cf %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /bigobj /GL /GS /guard:cf %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

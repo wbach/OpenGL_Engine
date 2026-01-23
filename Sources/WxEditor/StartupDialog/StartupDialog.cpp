@@ -74,11 +74,7 @@ StartupDialog::StartupDialog()
 
 void StartupDialog::CenterOnPrimaryMonitor()
 {
-#if wxCHECK_VERSION(3, 1, 2)
-    int primaryIdx = wxDisplay::GetPrimary();
-#else
     int primaryIdx = 0;
-#endif
 
     wxDisplay primaryDisplay(primaryIdx);
     wxRect screenRect = primaryDisplay.GetGeometry();
