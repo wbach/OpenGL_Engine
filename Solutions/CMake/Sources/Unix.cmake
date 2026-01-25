@@ -23,7 +23,7 @@ if(UNIX)
         pkg_check_modules(FREETYPE REQUIRED freetype2)
         pkg_check_modules(GLU REQUIRED glu)
 
-        set(UNIX_LINK_LIBS
+        set(LINK_LIBS
             SDL2main
             SDL2
             SDL2_net

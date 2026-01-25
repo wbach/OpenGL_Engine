@@ -35,7 +35,7 @@ if(BUILD_WX_EDITOR)
             UtilsLib
             ${wxWidgets_LIBRARIES}
             ${BULLET_LIBS}
-            ${UNIX_LINK_LIBS}
+            ${LINK_LIBS}
     )
 
 endif()

@@ -66,23 +66,28 @@ endif()
 # --- Domyślne flagi i linker ---
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
+
+if(UNIX AND NOT APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
+endif()
 
 set(ENGINE_COMPILE_FLAGS
     -std=c++20
     -Wall
     -pedantic
-    -Wuninitialized
+   # -Wuninitialized
     -Wtype-limits
     -Wdelete-incomplete
     -Wno-expansion-to-defined
     -Wno-deprecated
-    -Wno-class-memaccess
+  #  -Wno-class-memaccess
 
 )
 
 if(WIN32)
     add_compile_options(-O3 -Wa,-mbig-obj)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mconsole")
 endif()
 
 # --- Środowisko (USERROOT) ---
@@ -162,7 +167,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/UtilsNetwork/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/glm
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp-5.0.1/include/
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/assimp/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/bullet/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidxml-1.13/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidjson-1.1.0/include/
@@ -182,6 +187,27 @@ set(BULLET_LIBS
     BulletSoftBody
     LinearMath
 )
+
+
+function(copy_dll_to_build_dir lib_target)
+add_custom_command(TARGET ${lib_target} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:${lib_target}>
+        ${CMAKE_BINARY_DIR}
+)
+endfunction()
+
+function(copy_all_dlls_to_target dll_dir exe_target)
+    file(GLOB DLL_FILES "${dll_dir}/*.dll")
+
+    foreach(dll_file ${DLL_FILES})
+        add_custom_command(TARGET ${exe_target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${dll_file}"
+                ${CMAKE_BINARY_DIR}
+        )
+    endforeach()
+endfunction()
 
 # --- Includy plików cmake ---
 include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/WindowsSources.cmake)
@@ -214,3 +240,4 @@ endforeach()
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "CMAKE_CURRENT_LIST_DIR:  ${CMAKE_CURRENT_LIST_DIR}")
 message(STATUS "PROJECT_BINARY_DIR:      ${PROJECT_BINARY_DIR}")
+

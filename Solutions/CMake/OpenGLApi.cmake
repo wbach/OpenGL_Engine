@@ -20,10 +20,15 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     # Linkowanie (przykład: systemowe OpenGL + inne moduły)
     find_package(OpenGL REQUIRED)
     target_link_libraries(OpenGLApiLib
-        PRIVATE
+        PUBLIC
             OpenGL::GL
-            # UtilsLib
-            # GraphicsApiLib
+            InputLib
+            UtilsLib
+            GraphicsApiLib
     )
+
+    if(WIN32)
+        copy_dll_to_build_dir(OpenGLApiLib)
+    endif()
 
 endif()

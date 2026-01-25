@@ -28,6 +28,7 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <span>
 
 #include "GameEngine/Resources/ITextureLoader.h"
 
@@ -347,6 +348,16 @@ void AssimpLoader::loadBonesData(const aiScene& scene, const aiMesh& mesh, Loade
         return;
     }
 
+    if (not not mesh.mBones)
+    {
+        LOG_WARN << "Num of bonse  > 0 but no bones data. mNumBones = " << mesh.mNumBones;
+    }
+
+    if (not newMesh.meshRawData_)
+    {
+        LOG_ERROR << "Mesh data not set!";
+        return;
+    }
     auto& meshData = *newMesh.meshRawData_;
 
     std::vector<std::vector<JointInfo>> jointInfos;
@@ -355,30 +366,38 @@ void AssimpLoader::loadBonesData(const aiScene& scene, const aiMesh& mesh, Loade
     meshData.joinIds_.resize(vertexCount);
     meshData.bonesWeights_.resize(vertexCount);
 
-    for (uint32 i = 0; i < mesh.mNumBones; i++)
+    LOG_DEBUG << "mesh.mNumBones: " << mesh.mNumBones;
+    for (const auto& bone : std::span(mesh.mBones, mesh.mNumBones))
     {
-        std::string name(mesh.mBones[i]->mName.data);
-
+        std::string name(bone->mName.data);
         uint32 boneId = 0;
 
-        if (not bones_.count(name))
+        auto iter = bones_.find(name);
+        if (iter == bones_.end())
         {
             boneId = boneIdPool_.nextId();
 
             BoneInfo info;
             info.id     = boneId;
-            info.matrix = convert(mesh.mBones[i]->mOffsetMatrix);
+            info.matrix = convert(bone->mOffsetMatrix);
             bones_.insert({name, info});
         }
         else
         {
-            boneId                 = bones_.at(name).id;
-            bones_.at(name).matrix = convert(mesh.mBones[i]->mOffsetMatrix);
+            auto& boneInfo  = iter->second;
+            boneId          = boneInfo.id;
+            boneInfo.matrix = convert(bone->mOffsetMatrix);
         }
 
-        for (uint32 j = 0; j < mesh.mBones[i]->mNumWeights; j++)
+        if (bone->mNumWeights > 0 and not bone->mWeights)
         {
-            const auto& mWeights = mesh.mBones[i]->mWeights[j];
+            LOG_WARN << "bone.mWeights is nullptr, but mNumWeights > 0. mNumWeights: " << bone->mNumWeights;
+            continue;
+        }
+
+        for (uint32 j = 0; j < bone->mNumWeights; j++)
+        {
+            const auto& mWeights = bone->mWeights[j];
             auto vertexId        = mWeights.mVertexId;
             auto weight          = mWeights.mWeight;
             jointInfos[vertexId].push_back({boneId, weight});

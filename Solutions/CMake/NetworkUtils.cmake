@@ -18,6 +18,11 @@ if(BUILD_UTILS_NETWORK)
     )
 
     # Linkowanie z innymi bibliotekami (jeśli potrzebne)
-    # target_link_libraries(UtilsNetworkLib PRIVATE UtilsLib)
-
+    target_link_libraries(UtilsNetworkLib 
+        PRIVATE 
+            UtilsLib
+    )
+    if(WIN32)
+        copy_dll_to_build_dir(UtilsNetworkLib)
+    endif()
 endif()

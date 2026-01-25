@@ -1,6 +1,7 @@
 #include "BulletAdapter.h"
 
 #include <Logger/Log.h>
+#include <btBulletDynamicsCommon.h>
 
 #include <algorithm>
 #include <ranges>
@@ -8,8 +9,10 @@
 
 #include "BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
+#include "CollisionResultCallback.h"
 #include "Container.h"
 #include "Converter.h"
+#include "DebugDrawer.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Physics/Bullet/Rigidbody.h"
 #include "GameEngine/Physics/CollisionContactInfo.h"
@@ -18,6 +21,7 @@
 #include "Rigidbodies.h"
 #include "Utils.h"
 #include "Utils/Variant.h"
+
 
 namespace GameEngine
 {
@@ -674,7 +678,7 @@ void BulletAdapter::createWorld()
     btBroadPhase           = std::make_unique<btDbvtBroadphase>();
     btSolver               = std::make_unique<btSequentialImpulseConstraintSolver>();
     btDynamicWorld         = std::make_unique<btDiscreteDynamicsWorld>(btDispacher.get(), btBroadPhase.get(), btSolver.get(),
-                                                               collisionConfiguration.get());
+                                                                       collisionConfiguration.get());
     btDynamicWorld->setGravity(btVector3(0, -10, 0));
 
     bulletDebugDrawer_ = std::make_unique<BulletDebugDrawer>();

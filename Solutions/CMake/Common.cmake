@@ -18,6 +18,12 @@ if(BUILD_COMMON)
     )
 
     # Linkowanie (jeśli potrzebne)
-    # target_link_libraries(CommonLib PRIVATE UtilsLib)
-
+    target_link_libraries(CommonLib
+        PRIVATE
+        UtilsNetworkLib
+        UtilsLib
+    )
+    if(WIN32)
+        copy_dll_to_build_dir(CommonLib)
+    endif()
 endif()

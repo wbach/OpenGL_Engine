@@ -16,5 +16,7 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
         PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/Sources/GraphicsApi
     )
-
+    if(WIN32)
+        copy_dll_to_build_dir(GraphicsApiLib)
+    endif()
 endif()

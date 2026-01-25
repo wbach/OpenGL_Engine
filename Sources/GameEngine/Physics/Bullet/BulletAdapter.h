@@ -6,19 +6,20 @@
 #  pragma GCC diagnostic ignored "-Wstringop-overflow"
 #endif
 
-#include <btBulletDynamicsCommon.h>
-
 #ifdef __GNUC__
 #  pragma GCC diagnostic pop
 #endif
 
 #include <memory>
 
-#include "CollisionResultCallback.h"
-#include "DebugDrawer.h"
 #include "GameEngine/Physics/IPhysicsApi.h"
-#include "Shape.h"
 #include "Task.h"
+
+class btDynamicsWorld;
+class btBroadphaseInterface;
+class btConstraintSolver;
+class btCollisionConfiguration;
+class btDispatcher;
 
 namespace GraphicsApi
 {
@@ -29,10 +30,10 @@ namespace GameEngine
 {
 namespace Physics
 {
+class BulletDebugDrawer;
 namespace Bullet
 {
 struct Rigidbody;
-struct Task;
 
 class BulletAdapter : public IPhysicsApi
 {
