@@ -19,14 +19,19 @@ public:
     void prepareAttractors(size_t count, float radius);
     void prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength);
     void clear();
+    size_t getTrunkSteps() const
+    {
+        return trunkSteps;
+    }
 
-    const std::list<Branch>& GetBranches() const;
+    const std::vector<Branch>& GetBranches() const;
+    std::vector<Branch>&& MoveBranches();
 
 private:
     void validateParameters() const;
     void searchBranches();
     void grow();
-    Branch* closestBranch(Attractor& attractor);
+    std::optional<int> closestBranch(Attractor&);
     vec3 randomPointInSphere(float radius = 1.f);
     vec3 randomPointInEllipsoid(const vec3&);
     vec3 ellipsoidNoise(float strength);
@@ -44,8 +49,9 @@ public:
 
 private:
     std::vector<Attractor> attractors;
-    std::list<Branch> branches;
+    std::vector<Branch> branches;
 
+    size_t trunkSteps          = 0;
     size_t zeroDirCount        = 0;
     size_t maxTrunkSteps       = 0;
     const size_t maxBranches   = 200000;
@@ -57,7 +63,7 @@ private:
         int count      = 0;
     };
 
-    std::unordered_map<Branch*, BranchDirCalculateTmp> branchesCalculationInfo;
+    std::unordered_map<int, BranchDirCalculateTmp> branchesCalculationInfo;
 };
 
 }  // namespace GameEngine

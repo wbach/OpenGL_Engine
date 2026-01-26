@@ -1,6 +1,7 @@
 #include "TreeGenerator.h"
 
 #include <stdexcept>
+#include <vector>
 
 #include "Logger/Log.h"
 
@@ -70,7 +71,7 @@ void TreeGenerator::clear()
     branches.clear();
     branchesCalculationInfo.clear();
 }
-const std::list<Branch>& TreeGenerator::GetBranches() const
+const std::vector<Branch>& TreeGenerator::GetBranches() const
 {
     return branches;
 }
@@ -98,15 +99,16 @@ void TreeGenerator::validateParameters() const
 }
 void TreeGenerator::searchBranches()
 {
-    Branch* current = &branches.front();
     bool found{false};
-    size_t steps = 0;
+    trunkSteps = 0;
 
-    while (not found and steps++ < maxTrunkSteps)
+    int currentIndex = 0;
+    while (not found and trunkSteps++ < maxTrunkSteps)
     {
+        auto& current = branches[currentIndex];
         for (const auto& attractor : attractors)
         {
-            auto distance = glm::distance(current->position, attractor.position);
+            auto distance = glm::distance(current.position, attractor.position);
             if (distance < maxDistance)
             {
                 found = true;
@@ -116,12 +118,16 @@ void TreeGenerator::searchBranches()
 
         if (not found)
         {
-            Branch newBranch{.position  = current->position + (current->direction) * segmentLength,
-                             .direction = glm::normalize(current->direction),
-                             .parent    = current};
-            current->hasChildren = true;
+            const auto newPosition = current.position + (current.direction) * segmentLength;
+            Branch newBranch{.position       = newPosition,
+                             .direction      = glm::normalize(current.direction),
+                             .lengthFromRoot = current.lengthFromRoot + glm::distance(current.position, newPosition),
+                             .parentIndex    = currentIndex};
+
             branches.push_back(newBranch);
-            current = &branches.back();
+            int newIndex = branches.size() - 1;
+            current.children.push_back(newIndex);
+            currentIndex = newIndex;
         }
     }
 
@@ -156,10 +162,12 @@ void TreeGenerator::grow()
         }
     }
 }
-Branch* TreeGenerator::closestBranch(Attractor& attractor)
+std::optional<int> TreeGenerator::closestBranch(Attractor& attractor)
 {
     auto minAcceptableDistance = std::numeric_limits<float>::max();
-    Branch* result{nullptr};
+    std::optional<int> result;
+
+    int index = 0;
     for (auto& branch : branches)
     {
         auto distance = glm::distance(attractor.position, branch.position);
@@ -167,13 +175,14 @@ Branch* TreeGenerator::closestBranch(Attractor& attractor)
         {
             // branch is to close
             attractor.reached = true;
-            return nullptr;
+            return {};
         }
         else if (distance < minAcceptableDistance)
         {
-            result                = &branch;
+            result                = index;
             minAcceptableDistance = distance;
         }
+        ++index;
     }
     return result;
 }
@@ -201,18 +210,19 @@ void TreeGenerator::influanceBranchesByClosestAttractors()
 {
     for (auto& attractor : attractors)
     {
-        if (auto closedBranch = closestBranch(attractor))
+        if (auto closedBranchIndex = closestBranch(attractor))
         {
-            auto newDir = attractor.position - closedBranch->position;
+            const auto& closedBranch = branches[*closedBranchIndex];
+            auto newDir              = attractor.position - closedBranch.position;
 
-            auto iter = branchesCalculationInfo.find(closedBranch);
+            auto iter = branchesCalculationInfo.find(*closedBranchIndex);
             if (iter == branchesCalculationInfo.end())
             {
                 branchesCalculationInfo.insert(
-                    {closedBranch, BranchDirCalculateTmp{.direction = closedBranch->direction, .count = 0}});
+                    {*closedBranchIndex, BranchDirCalculateTmp{.direction = closedBranch.direction, .count = 0}});
             }
 
-            auto& info = branchesCalculationInfo[closedBranch];
+            auto& info = branchesCalculationInfo[*closedBranchIndex];
             ++info.count;
             info.direction += newDir;
         }
@@ -224,7 +234,7 @@ void TreeGenerator::removeReachedAttractors()
 }
 void TreeGenerator::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
 {
-    for (auto& [branch, info] : branchesCalculationInfo)
+    for (auto& [branchIndex, info] : branchesCalculationInfo)
     {
         if (info.count > 0)
         {
@@ -235,11 +245,16 @@ void TreeGenerator::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
             }
 
             info.direction /= static_cast<float>(info.count + 1.f);
-            Branch newBranch{.position  = branch->position + (info.direction) * segmentLength,
-                             .direction = glm::normalize(info.direction),
-                             .parent    = branch};
-            branch->hasChildren = true;
-            branches.push_back(newBranch);
+            auto& branch = branches[branchIndex];
+
+            float length = glm::length(info.direction) * segmentLength;
+            branches.push_back({.position       = branch.position + info.direction * segmentLength,
+                                .direction      = glm::normalize(info.direction),
+                                .lengthFromRoot = branch.lengthFromRoot + length,
+                                .parentIndex    = branchIndex});
+
+            int newIndex = branches.size() - 1;
+            branches[branchIndex].children.push_back(newIndex);
         }
     }
 

@@ -766,7 +766,9 @@ std::optional<TreeModel> GenerateLoD1Tree(const GameEngine::TreeGenerator& tree,
 {
     LOG_DEBUG << "Buildng tree mesh lod 1 ... ("
               << "Branches : " << tree.GetBranches().size() << ")";
-    GameEngine::TreeMeshBuilder builder(tree.GetBranches(), tree.crownYOffset, tree.segmentLength);
+
+    auto copyOfBranches = tree.GetBranches();
+    GameEngine::TreeMeshBuilder builder(std::move(copyOfBranches), tree.segmentLength, tree.getTrunkSteps());
 
     auto treeMesh = builder.build(params.meshBuilderParams);
     if (treeMesh.positions_.empty())
@@ -834,7 +836,9 @@ std::optional<TreeModel> GenerateLoD2Tree(const GameEngine::TreeGenerator& tree,
 {
     LOG_DEBUG << "Buildng tree mesh lod 2... ("
               << "Branches : " << tree.GetBranches().size() << ")";
-    GameEngine::TreeMeshBuilder builder(tree.GetBranches(), tree.crownYOffset, tree.segmentLength);
+
+    auto copyOfBranches = tree.GetBranches();
+    GameEngine::TreeMeshBuilder builder(std::move(copyOfBranches), tree.segmentLength, tree.getTrunkSteps());
     auto lod2Params                       = params.meshBuilderParams;
     lod2Params.radiusSizeCreationTreshold = 0.075;
     lod2Params.radialSegments             = 3;
