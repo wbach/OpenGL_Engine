@@ -4,7 +4,13 @@ if(BUILD_UTILS_NETWORK)
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/UtilsNetworkSources.cmake)
 
     # --- Biblioteka UtilsNetwork ---
-    add_library(UtilsNetworkLib SHARED ${UtilsNetworkSources})
+
+    if(MSVC)
+           add_library(UtilsNetworkLib STATIC ${UtilsNetworkSources})
+    else()
+            add_library(UtilsNetworkLib SHARED ${UtilsNetworkSources})
+    endif()
+
 
     set_target_properties(UtilsNetworkLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

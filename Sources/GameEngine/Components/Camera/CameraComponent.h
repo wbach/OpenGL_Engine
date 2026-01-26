@@ -11,9 +11,9 @@
 #include "Types.h"
 
 #ifndef USE_GNU
-#ifndef USE_MINGW 
+//#ifndef USE_MINGW 
 #include <Utils/UndifineWindows.h>
-#endif
+//#endif
 #endif
 
 

@@ -4,7 +4,11 @@ if(BUILD_COMMON)
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/CommonSources.cmake)
 
     # --- Biblioteka Common ---
-    add_library(CommonLib SHARED ${CommonSources})
+    if(MSVC)
+        add_library(CommonLib STATIC ${CommonSources})
+    else()
+        add_library(CommonLib SHARED ${CommonSources})
+    endif()
 
     set_target_properties(CommonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

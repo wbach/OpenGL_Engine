@@ -54,7 +54,7 @@ ConcreteTreeRenderer::ConcreteTreeRenderer(RendererContext& context)
     , trunkShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::Entity)
 {
     startFade = EngineConf.renderer.lodDistance0;
-    endFade = EngineConf.renderer.lodDistance0 + 10;
+    endFade   = EngineConf.renderer.lodDistance0 + 10;
 }
 void ConcreteTreeRenderer::RenderTree(const Components::TreeRendererComponent& treeRendererComponent, float distanceToCamera)
 {
@@ -94,10 +94,13 @@ void ConcreteTreeRenderer::RenderLeafs(const Components::TreeRendererComponent& 
         context_.graphicsApi_.BindShaderBuffer(*id);
     }
 
-    leafsShader_.Start();
-    BindMaterial(treeRendererComponent.GetLeafMaterial());
-    context_.graphicsApi_.RenderProcedural(treeRendererComponent.GetLeafsCount() * 6);
-    leafsShader_.Stop();
+    if (treeRendererComponent.GetLeafsCount() > 0)
+    {
+        leafsShader_.Start();
+        BindMaterial(treeRendererComponent.GetLeafMaterial());
+        context_.graphicsApi_.RenderProcedural(treeRendererComponent.GetLeafsCount() * 6);
+        leafsShader_.Stop();
+    }
 }
 void ConcreteTreeRenderer::init()
 {
@@ -134,8 +137,11 @@ void ConcreteTreeRenderer::RenderLeafsClusters(const Components::TreeRendererCom
     UpdateClusterDataSssbo(treeClusters);
     auto count = treeClusters.clusters.size() * 12;
 
-    context_.graphicsApi_.DisableCulling();
-    context_.graphicsApi_.RenderProcedural(count);
+    if (count > 0)
+    {
+        context_.graphicsApi_.DisableCulling();
+        context_.graphicsApi_.RenderProcedural(count);
+    }
 }
 void ConcreteTreeRenderer::UpdateClusterDataSssbo(const TreeClusters& treeClusters)
 {

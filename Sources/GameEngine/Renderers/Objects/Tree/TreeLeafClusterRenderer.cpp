@@ -191,11 +191,11 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
     {
         const auto& cluster = treeData.clusters[i];
 
-        vec3 center    = (cluster.minBound + cluster.maxBound) * 0.5f;
-        vec3 size      = cluster.maxBound - cluster.minBound;
-        float halfX    = size.x * 0.5f;
-        float halfY    = size.y * 0.5f;
-        float halfZ    = size.z * 0.5f;
+        vec3 center = (cluster.minBound + cluster.maxBound) * 0.5f;
+        vec3 size   = cluster.maxBound - cluster.minBound;
+        float halfX = size.x * 0.5f;
+        float halfY = size.y * 0.5f;
+        float halfZ = size.z * 0.5f;
 
         // --- RENDER FRONT (Oś Z) ---
         fb.BindTextureLayer(textureArrayId, GraphicsApi::FrameBuffer::Type::Color0, i * 2);
@@ -219,7 +219,6 @@ void TreeLeafClusterRenderer::RenderClusters(IdType textureArrayId, IdType norma
     }
 }
 
-
 void TreeLeafClusterRenderer::DrawClusterLeaves(const Cluster& cluster, const std::vector<Leaf>& allLeaves,
                                                 const Material& leafMaterial, const mat4& mvp)
 {
@@ -228,17 +227,20 @@ void TreeLeafClusterRenderer::DrawClusterLeaves(const Cluster& cluster, const st
         return;
     }
 
-    PerObjectUpdate perObjectUpdate;
-    perObjectUpdate.TransformationMatrix = graphicsApi.PrepareMatrixToLoad(mvp);
-    graphicsApi.UpdateShaderBuffer(*transformBuferId, &perObjectUpdate);
-    graphicsApi.BindShaderBuffer(*transformBuferId);
+    if (cluster.leafIndices.size() > 0)
+    {
+        PerObjectUpdate perObjectUpdate;
+        perObjectUpdate.TransformationMatrix = graphicsApi.PrepareMatrixToLoad(mvp);
+        graphicsApi.UpdateShaderBuffer(*transformBuferId, &perObjectUpdate);
+        graphicsApi.BindShaderBuffer(*transformBuferId);
 
-    graphicsApi.UpdateShaderStorageBuffer(*leafIndicesBufferId, cluster.leafIndices.data(),
-                                          cluster.leafIndices.size() * sizeof(uint32));
-    graphicsApi.BindShaderBuffer(*leafIndicesBufferId);
+        graphicsApi.UpdateShaderStorageBuffer(*leafIndicesBufferId, cluster.leafIndices.data(),
+                                              cluster.leafIndices.size() * sizeof(uint32));
+        graphicsApi.BindShaderBuffer(*leafIndicesBufferId);
 
-    BindMaterial(leafMaterial);
-    graphicsApi.RenderProcedural(cluster.leafIndices.size() * 6);
+        BindMaterial(leafMaterial);
+        graphicsApi.RenderProcedural(cluster.leafIndices.size() * 6);
+    }
 }
 void TreeLeafClusterRenderer::BindMaterial(const Material& material) const
 {

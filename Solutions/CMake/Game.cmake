@@ -1,5 +1,4 @@
 if(BUILD_GAME)
-
     # --- Opcje testów (jeśli używane) ---
     option(BUILD_UNIT_TESTS "" OFF)
 
@@ -15,10 +14,10 @@ if(BUILD_GAME)
 
     # --- Executable ---
     add_executable(GameExe ${GameSources})
-if(WIN32)
-    target_compile_definitions(GameExe PRIVATE SDL_MAIN_HANDLED)
-    set_target_properties(GameExe PROPERTIES WIN32_EXECUTABLE OFF)
-endif()
+    if(WIN32)
+        target_compile_definitions(GameExe PRIVATE SDL_MAIN_HANDLED)
+        set_target_properties(GameExe PROPERTIES WIN32_EXECUTABLE OFF)
+    endif()
 
 
     # Flagi kompilacji

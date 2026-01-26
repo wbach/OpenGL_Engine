@@ -109,7 +109,10 @@ void TerrainMeshRenderer::bindTextures(const std::vector<std::pair<TerrainTextur
 }
 void TerrainMeshRenderer::bindTexture(Texture* texture, uint32 id) const
 {
-    context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
+    if (texture and texture->GetGraphicsObjectId().has_value())
+    {
+        context_.graphicsApi_.ActiveTexture(id, *texture->GetGraphicsObjectId());
+    }
 }
 void TerrainMeshRenderer::subscribe(GameObject& gameObject)
 {

@@ -5,7 +5,7 @@
 
 namespace WxEditor
 {
-WxWindowApi::WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc func)
+WxWindowApi::WxWindowApi(const vec2i& renderSize, WxInputManager::WrapPointerFunc func)
     : inputManager{std::make_unique<WxInputManager>(renderSize, func)}
     , windowSize(renderSize.x, renderSize.y)
 {

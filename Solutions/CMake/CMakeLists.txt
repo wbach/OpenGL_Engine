@@ -50,7 +50,7 @@ elseif(MSVC)
 
     elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         message(STATUS "Release build (MSVC)")
-        add_compile_options(/O2 /DNDEBUG)
+       # add_compile_options(/O2 /DNDEBUG)
 
     elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
         message(STATUS "RelWithDebInfo build (MSVC)")
@@ -72,22 +72,30 @@ if(UNIX AND NOT APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
 endif()
 
-set(ENGINE_COMPILE_FLAGS
-    -std=c++20
-    -Wall
-    -pedantic
-   # -Wuninitialized
-    -Wtype-limits
-    -Wdelete-incomplete
-    -Wno-expansion-to-defined
-    -Wno-deprecated
-  #  -Wno-class-memaccess
+if(MSVC)
+    set(ENGINE_COMPILE_FLAGS
+        /std:c++20
+        /W3
+        /permissive    
+        /bigobj
+        /MP
+        /Zc:__cplusplus
+    )
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+else()
+    set(ENGINE_COMPILE_FLAGS
+        -std=c++20
+        -Wall
+        -pedantic
+        -Wdelete-incomplete
+        -Wno-expansion-to-defined
+        -Wno-deprecated
+    )
 
-)
-
-if(WIN32)
-    add_compile_options(-O3 -Wa,-mbig-obj)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mconsole")
+    if(WIN32)
+        add_compile_options(-O3 -Wa,-mbig-obj)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mconsole")
+    endif()
 endif()
 
 # --- Środowisko (USERROOT) ---
@@ -173,21 +181,6 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/rapidjson-1.1.0/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/magic_enum-v0.9.7/include/
 )
-
-# --- Biblioteki Bullet ---
-set(BULLET_LIBS
-    BulletDynamics
-    Bullet3Common
-    Bullet3Collision
-    Bullet3Dynamics
-    Bullet3Geometry
-    Bullet3OpenCL_clew
-    BulletCollision
-    BulletInverseDynamics
-    BulletSoftBody
-    LinearMath
-)
-
 
 function(copy_dll_to_build_dir lib_target)
 add_custom_command(TARGET ${lib_target} POST_BUILD

@@ -53,28 +53,27 @@ using namespace GameEngine::Physics;
 
 namespace
 {
-// clang-format off
-const int wxGlAttributes[] = {
-                            WX_GL_RGBA,
-                            WX_GL_DOUBLEBUFFER,
-                            WX_GL_DEPTH_SIZE,24,
-                            WX_GL_CORE_PROFILE,
-                            WX_GL_MAJOR_VERSION,4,
-                            WX_GL_MINOR_VERSION,5,0
-                        };
-// clang-format on
+wxGLAttributes GetWxGLAttributes()
+{
+    wxGLAttributes canvasAttrs;
+    canvasAttrs.PlatformDefaults().RGBA().DoubleBuffer().Depth(24).Stencil(8).EndList();
+    return canvasAttrs;
+}
 }  // namespace
 
 GLCanvas::GLCanvas(wxWindow* parent, OnStartupDone onStartupDone, SelectItemInGameObjectTree callback,
                    const std::string& startupSceneName)
-    : wxGLCanvas(parent, wxID_ANY, wxGlAttributes, wxDefaultPosition, wxDefaultSize,
-                 wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS | wxTAB_TRAVERSAL)
+    : wxGLCanvas(parent, GetWxGLAttributes(), wxID_ANY, wxDefaultPosition, wxDefaultSize,
+                 wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS)
     , context(nullptr)
     , startupSceneName{startupSceneName}
     , onStartupDone{onStartupDone}
     , selectItemInGameObjectTree(callback)
 {
-    context = new wxGLContext(this);
+    wxGLContextAttrs contextAttrs;
+    contextAttrs.CompatibilityProfile().MajorVersion(4).MinorVersion(5).EndList();
+    context = new wxGLContext(this, nullptr, &contextAttrs);
+
     Bind(wxEVT_SIZE, &GLCanvas::OnSize, this);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -83,17 +82,10 @@ void GLCanvas::OnIdle(wxIdleEvent& event)
 {
     EmergencyKeyRelease();
 
-    if (!IsShownOnScreen() or not context)
+    if (not IsShownOnScreen() or not context)
         return;
 
     SetCurrent(*context);
-
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    if (!renderer)
-    {
-        wxLogError("OpenGL context failed!");
-        return;
-    }
 
     wxSize size = GetClientSize();
     if (not engine)

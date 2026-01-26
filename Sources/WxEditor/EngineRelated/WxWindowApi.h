@@ -9,11 +9,10 @@ class wxMouseEvent;
 
 namespace WxEditor
 {
-
 class WxWindowApi : public GraphicsApi::IWindowApi
 {
 public:
-    WxWindowApi(const vec2i renderSize, WxInputManager::WrapPointerFunc);
+    WxWindowApi(const vec2i&, WxInputManager::WrapPointerFunc);
     ~WxWindowApi() override;
 
     void OnMouseMove(wxMouseEvent &);

@@ -127,6 +127,11 @@ void GrassRenderer::RenderSubscribes()
     {
         for (const auto& component : components)
         {
+            if (component->GetCount() == 0)
+            {
+                continue;
+            }
+            
             if (auto ssboId = component->GetSsboId())
             {
                 auto diffTexture = component->GetMaterial().diffuseTexture;

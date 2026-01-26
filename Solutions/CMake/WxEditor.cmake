@@ -1,29 +1,40 @@
 if(BUILD_WX_EDITOR)
-
-    # --- Opcje testów (jeśli używane) ---
     option(BUILD_UNIT_TESTS "" OFF)
 
-    # --- wxWidgets ---
-    find_package(wxWidgets REQUIRED gl core base)
-    include(${wxWidgets_USE_FILE})
+    set(wxUSE_GRAPHICS_DIRECT2D OFF CACHE BOOL "" FORCE)
+    set(wxUSE_DIRECT2D OFF CACHE BOOL "" FORCE)
+    set(wxUSE_MANIFEST ON CACHE BOOL "" FORCE)
 
-    # --- Źródła ---
+    #find_package(wxWidgets REQUIRED gl core base)
+    #include(${wxWidgets_USE_FILE})
+
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/WxEditorSources.cmake)
 
-    # --- Executable ---
+    set(WX_WIDGETS_DLL_DIR "${CMAKE_CURRENT_BINARY_DIR}/wxWidgets/lib/gcc_x64_dll")
+    add_subdirectory(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/wxWidgets/
+        ${CMAKE_CURRENT_BINARY_DIR}/wxWidgets
+    )
+
+    include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../Tools/common/wxWidgets/include
+         ${CMAKE_CURRENT_BINARY_DIR}/wxWidgets/lib/gcc_x64_dll/mswu
+    )
+
     add_executable(WxEditorExe ${WxEditorSources})
 
-    # Flagi kompilacji
+    if (WIN32 AND MINGW)
+        target_sources(WxEditorExe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/app.manifest)
+    endif()
+
     target_compile_options(WxEditorExe PRIVATE ${ENGINE_COMPILE_FLAGS})
 
-    # Include directories
     target_include_directories(WxEditorExe
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine
             ${CMAKE_CURRENT_SOURCE_DIR}/Sources/WxEditor
     )
 
-    # Linkowanie bibliotek i targetów
     target_link_libraries(WxEditorExe
         PUBLIC
             GameEngineLib
@@ -33,9 +44,17 @@ if(BUILD_WX_EDITOR)
             UtilsNetworkLib
             CommonLib
             UtilsLib
-            ${wxWidgets_LIBRARIES}
+            wx::base
+            wx::core
+            wx::gl
+            wx::aui
+            wx::propgrid
+           # ${wxWidgets_LIBRARIES}
             ${BULLET_LIBS}
             ${LINK_LIBS}
     )
 
+    if(WIN32)
+        copy_all_dlls_to_target("${WX_WIDGETS_DLL_DIR}" WxEditorExe)
+    endif()
 endif()

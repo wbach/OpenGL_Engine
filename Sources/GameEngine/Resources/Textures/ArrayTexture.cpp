@@ -31,7 +31,7 @@ ArrayTexture::ArrayTexture(GraphicsApi::IGraphicsApi& graphicsApi, std::vector<U
     , images_(std::move(images))
     , paramters_(paramters)
 {
-    if (file->empty() and textureParamters_.dataStorePolicy == DataStorePolicy::ToRelease)
+    if ((not file or file->empty()) and textureParamters_.dataStorePolicy == DataStorePolicy::ToRelease)
     {
         LOG_DEBUG << "File not set in texture, data could be lost, override data store police to keep data.";
         paramters_.dataStorePolicy = DataStorePolicy::Store;

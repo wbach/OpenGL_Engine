@@ -3,8 +3,12 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     # --- Źródła ---
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/GraphicsApiSources.cmake)
 
-    # --- Biblioteka GraphicsApi ---
-    add_library(GraphicsApiLib SHARED ${GraphicsApiSources})
+    
+    if(MSVC)
+        add_library(GraphicsApiLib STATIC ${GraphicsApiSources})
+    else()
+        add_library(GraphicsApiLib SHARED ${GraphicsApiSources})
+    endif()
 
     set_target_properties(GraphicsApiLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

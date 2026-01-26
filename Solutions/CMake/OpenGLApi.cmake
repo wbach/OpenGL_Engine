@@ -3,8 +3,12 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     # --- Źródła ---
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/OpenGLApiSources.cmake)
 
-    # --- Biblioteka OpenGLApi ---
-    add_library(OpenGLApiLib SHARED ${OpenGLApiSources})
+    # --- Biblioteka OpenGLApi --- 
+    if(MSVC)
+        add_library(OpenGLApiLib STATIC ${OpenGLApiSources})
+    else()
+        add_library(OpenGLApiLib SHARED ${OpenGLApiSources})
+    endif()
 
     set_target_properties(OpenGLApiLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

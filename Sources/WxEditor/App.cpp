@@ -3,6 +3,7 @@
 
 #include <Logger/Log.h>
 #include <Utils.h>
+#include <wx/version.h>
 
 #include "AnimationViewer/AnimationViewerFrame.h"
 #include "MainFrame.h"
@@ -17,6 +18,7 @@ bool App::OnInit()
     {
         CLogger::Instance().SetLogFilename("AnimationViewerLogs.txt");
         CLogger::Instance().EnableLogs();
+        LOG_DEBUG << "wxWidgets version: " << wxString(wxVERSION_STRING).ToStdString();
         LOG_DEBUG << args;
 
         auto* frame = new AnimationViewerFrame("AnimationViewer", wxPoint(100, 100), wxSize(800, 600));
@@ -33,6 +35,7 @@ bool App::OnInit()
     {
         CLogger::Instance().SetLogFilename("MaterialEditorLogs.txt");
         CLogger::Instance().EnableLogs();
+        LOG_DEBUG << "wxWidgets version: " << wxString(wxVERSION_STRING).ToStdString();
         LOG_DEBUG << args;
         std::optional<GameEngine::File> file;
         if (auto f = Utils::GetValue(args, "file"))
@@ -48,6 +51,8 @@ bool App::OnInit()
     }
 
     CLogger::Instance().SetLogFilename("WxEditorLogs.txt");
+    CLogger::Instance().EnableLogs();
+    LOG_DEBUG << "wxWidgets version: " << wxString(wxVERSION_STRING).ToStdString();
     auto* frame = new MainFrame("GameEngine", wxPoint(100, 100), wxSize(1920, 1080));
     SetTopWindow(frame);
     frame->Show(true);  // najpierw nie pokazujemy

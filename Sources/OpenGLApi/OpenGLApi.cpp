@@ -297,14 +297,25 @@ void OpenGLApi::Init()
 {
     LOG_DEBUG << "Init openGLApi";
 
+    const GLubyte* ver = glGetString(GL_VERSION);
+    if (!ver)
+    {
+        LOG_ERROR << "GL context not ready yet!";
+        return;
+    }
+    LOG_DEBUG << "GL context ready: " << ver;
+
+    glewExperimental      = GL_TRUE;
     auto glew_init_result = glewInit();
 
     if (glew_init_result != GLEW_OK)
     {
         std::string err(reinterpret_cast<char const*>(glewGetErrorString(glew_init_result)));
-        LOG_ERROR << "Glew init error : " << err;
-        return;
+        GLenum glErr = glGetError();
+        LOG_WARN << "Glew init error : " << err << " 0x" << std::hex << glErr;
     }
+
+    LOG_DEBUG << "GLEW version: " << glewGetString(GLEW_VERSION) << "\n";
 
     quad_.Init();
     quadTs_.Init();
@@ -325,10 +336,6 @@ void OpenGLApi::Init()
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(OpenGLDebugCallback, 0);
-
-    glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1,
-                         "Test: Callback dziala!");
-
     LOG_DEBUG << "Init done.";
 }
 void OpenGLApi::SetShadersFilesLocations(const std::filesystem::path& path)
@@ -1408,6 +1415,11 @@ void OpenGLApi::DeleteObject(uint32 id)
 
 void OpenGLApi::DeleteShaderBuffer(uint32 id)
 {
+    if (impl_->shaderBuffers_.size() <= id)
+    {
+        LOG_WARN << "Shader buffer id less than container size! id to del: " << id;
+        return;
+    }
     auto& bufferId   = impl_->shaderBuffers_[id];
     bufferId.isInGpu = false;
     glDeleteBuffers(1, &bufferId.glId);

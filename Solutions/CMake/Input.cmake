@@ -4,7 +4,11 @@ if(BUILD_GAME_ENGINE OR BUILD_GAME)
     include(${CMAKE_CURRENT_SOURCE_DIR}/Sources/InputSources.cmake)
 
     # --- Biblioteka Input ---
-    add_library(InputLib SHARED ${InputSources})
+    if(MSVC)
+        add_library(InputLib STATIC ${InputSources})
+    else()
+        add_library(InputLib SHARED ${InputSources})
+    endif()
 
     set_target_properties(InputLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

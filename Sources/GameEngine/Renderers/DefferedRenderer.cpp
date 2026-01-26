@@ -120,7 +120,8 @@ void DefferedRenderer::createFrameBuffer()
     defferedFrameBuffer_ = &context_.graphicsApi_.CreateFrameBuffer(
         {worldPositionAttachment, diffuseAttachment, normalAttachment, specularAttachment, depthAttachment});
     isReady_ = defferedFrameBuffer_->Init();
-    LOG_DEBUG << "DefferedRenderer Framebuffer created. Status : " << isReady_;
+
+    LOG_DEBUG << "DefferedRenderer Framebuffer created. Status : " << isReady_ << ", size : " << defferedFrameBufferSize_;
 }
 
 void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
