@@ -23,15 +23,8 @@ class TreeMeshBuilder
         vec2 uv;
     };
 
-    struct BranchSegment
-    {
-        std::vector<int> nodes;
-        float startRadius;
-        float endRadius;
-    };
-
 public:
-    TreeMeshBuilder(std::vector<Branch>&&, float, size_t);
+    TreeMeshBuilder(std::vector<Branch>&&, float);
 
     struct EntryParameters
     {
@@ -46,7 +39,6 @@ public:
         float radiusSizeCreationTreshold = 0.0f;  // To skip small branches
     };
 
-    int GetMaxBranchLvl() const;
     GraphicsApi::MeshRawData build(const EntryParameters&);
     const std::vector<Leaf>& GetLeafs() const;
 
@@ -71,7 +63,6 @@ private:
     void appendBranchCap(int);
     void appendBranchCapSphere(int);
     void calculateLeafs();
-    void buildBranchesSegements();
     void createBranchesContexts();
     void debugPrintTree(int branchIdx, int depth);
     void printFullDebug();
@@ -79,8 +70,6 @@ private:
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();
     std::vector<Branch> branches;
-    std::vector<BranchSegment> branchSegments;
-    size_t trunkSegments;
     float defaultSegmentLength;
 
     EntryParameters parameters;
@@ -95,9 +84,6 @@ private:
     };
     std::vector<BranchContext> branchContexts;
     std::vector<Leaf> leafs;
-
-    int maxBranchLvl              = 1;
-    float maxBranchLengthFromRoot = 0.f;
 
     GraphicsApi::MeshRawData mesh;
 

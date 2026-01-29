@@ -19,10 +19,6 @@ public:
     void prepareAttractors(size_t count, float radius);
     void prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength);
     void clear();
-    size_t getTrunkSteps() const
-    {
-        return trunkSteps;
-    }
 
     const std::vector<Branch>& GetBranches() const;
     std::vector<Branch>&& MoveBranches();
@@ -53,7 +49,6 @@ private:
     std::vector<Attractor> attractors;
     std::vector<Branch> branches;
 
-    size_t trunkSteps          = 0;
     size_t zeroDirCount        = 0;
     size_t maxTrunkSteps       = 0;
     const size_t maxBranches   = 200000;

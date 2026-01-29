@@ -18,9 +18,6 @@ namespace GameEngine
 {
 namespace
 {
-const float DA_VINCI_EXPONENT = 2.0f;  // n=2 to klasyczny Leonardo, n=3 to Murray's Law
-const float RADIUS_MODIFIER   = 0.02f;
-
 vec3 randomLeafColor()
 {
     float hue        = getRandomFloat(0.22f, 0.36f);
@@ -31,9 +28,8 @@ vec3 randomLeafColor()
 }
 }  // namespace
 
-TreeMeshBuilder::TreeMeshBuilder(std::vector<Branch>&& branches, float defaultSegmentLength, size_t trunkSteps)
+TreeMeshBuilder::TreeMeshBuilder(std::vector<Branch>&& branches, float defaultSegmentLength)
     : branches(std::move(branches))
-    , trunkSegments{trunkSteps}
     , defaultSegmentLength{defaultSegmentLength}
 {
 }
@@ -55,11 +51,9 @@ GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
 
     LOG_DEBUG << "Branches size : " << branches.size();
     LOG_DEBUG << parameters;
+
     // addMissingLastSegments();
     createBranchesContexts();
-
-    // buildBranchesSegements();
-
     computeLoad();
 
     calculateBranchesLvls();
@@ -111,7 +105,7 @@ void TreeMeshBuilder::prepareMesh()
 }
 void TreeMeshBuilder::appendBranchCylinder(int branchIndex)
 {
-    if (!computeBranchAxis(branches[branchIndex]))
+    if (not computeBranchAxis(branches[branchIndex]))
         return;
 
     buildOrthonormalBasis();
@@ -286,7 +280,6 @@ void TreeMeshBuilder::addMissingLastSegments()
             tempSegment.position       = branch.position + branch.direction * segmentLength;
             tempSegment.direction      = branch.direction;
             tempSegment.lengthFromRoot = branch.lengthFromRoot + segmentLength;
-            maxBranchLengthFromRoot    = std::max(maxBranchLengthFromRoot, tempSegment.lengthFromRoot);
         }
         ++index;
     }
@@ -297,8 +290,6 @@ void TreeMeshBuilder::calculateBranchesLvls()
     auto rootIndex = findRootIndex();
     if (not rootIndex)
         return;
-
-    maxBranchLvl = 0;
 
     struct StackFrame
     {
@@ -322,25 +313,19 @@ void TreeMeshBuilder::calculateBranchesLvls()
 
         if (isLeaf or isFork)
         {
-            if (frame.branchIdx != *rootIndex)
+            if (frame.branchIdx != static_cast<int>(*rootIndex))
             {
                 currentLvl++;
             }
         }
 
         branchContexts[frame.branchIdx].lvl = currentLvl;
-        if (currentLvl > maxBranchLvl)
-        {
-            maxBranchLvl = currentLvl;
-        }
 
         for (int childIdx : branch.children)
         {
             stack.push_back({childIdx, currentLvl});
         }
     }
-
-    LOG_DEBUG << "Max branch lvl = " << maxBranchLvl;
 }
 
 void TreeMeshBuilder::calculateBranchesRadius()
@@ -541,10 +526,6 @@ void TreeMeshBuilder::calculateLeafs()
 
     LOG_DEBUG << "Leafs count " << leafs.size();
 }
-int TreeMeshBuilder::GetMaxBranchLvl() const
-{
-    return maxBranchLvl;
-}
 std::ostream& operator<<(std::ostream& os, const TreeMeshBuilder::EntryParameters& params)
 {
     os << "EntryParameters {"
@@ -565,53 +546,24 @@ std::optional<size_t> TreeMeshBuilder::findRootIndex() const
 
     return {};
 }
-void TreeMeshBuilder::buildBranchesSegements()
-{
-    branchSegments.clear();
-
-    for (size_t i = 0; i < branches.size(); ++i)
-    {
-        if (branches[i].parentIndex.has_value() && branches[*branches[i].parentIndex].children.size() == 1)
-            continue;
-
-        BranchSegment branch;
-        int current = static_cast<int>(i);
-
-        while (true)
-        {
-            branch.nodes.push_back(current);
-
-            if (branches[current].children.empty() || branches[current].children.size() > 1)
-                break;  // liść lub rozwidlenie
-
-            current = branches[current].children[0];
-        }
-
-        branchSegments.push_back(branch);
-    }
-}
 void TreeMeshBuilder::createBranchesContexts()
 {
     branchContexts.resize(branches.size());
 }
 void TreeMeshBuilder::debugPrintTree(int branchIdx, int depth)
 {
-    // 1. Pobierz dane
     const auto& branch = branches[branchIdx];
     const auto& ctx    = branchContexts[branchIdx];
 
-    // 2. Stwórz wcięcie (prefix) dla czytelności
     std::string indent = "";
     for (int i = 0; i < depth; ++i)
     {
         indent += (i == depth - 1) ? "|-- " : "    ";
     }
 
-    // 3. Wypisz informacje o aktualnym branchu
     LOG_DEBUG_RAW << indent << "ID: " << branchIdx << " | Lvl: " << ctx.lvl << " | Rad: " << std::fixed << std::setprecision(4)
                   << ctx.radius << " | Children: " << branch.children.size();
 
-    // 4. Rekurencyjnie wypisz dzieci
     for (int childIdx : branch.children)
     {
         debugPrintTree(childIdx, depth + 1);

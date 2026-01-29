@@ -112,7 +112,7 @@ void TreeGenerator::validateParameters() const
 void TreeGenerator::searchBranches()
 {
     bool found{false};
-    trunkSteps = 0;
+    size_t trunkSteps = 0;
 
     int currentIndex = 0;
     while (not found and trunkSteps++ < maxTrunkSteps)
