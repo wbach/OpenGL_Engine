@@ -58,8 +58,9 @@ GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
     // addMissingLastSegments();
     createBranchesContexts();
 
-    buildBranchesSegements();
-    computeSubtreeWeight();
+    // buildBranchesSegements();
+
+    computeLoad();
 
     calculateBranchesLvls();
     calculateBranchesRadius();
@@ -344,50 +345,30 @@ void TreeMeshBuilder::calculateBranchesLvls()
 
 void TreeMeshBuilder::calculateBranchesRadius()
 {
-    const int fullRadiusLevels = 1;
+    // gruby pień	↑ k
+    // cienkie końcówki	↑ alpha
+    // krzew	↓ alpha (≈1.8)
+    // dąb	alpha ≈ 2.3
+    // sosna	alpha ≈ 2.0
+
+    // clang-format off
+    // | Gatunek / styl             | k (dla pnia)  | alpha     |
+    // | -------------------------- | ------------- | --------- |
+    // | Dąb (szeroki, ciężki pień) | 0.03 – 0.05   | 2.3       |
+    // | Sosna (wysoka, smukła)     | 0.015 – 0.025 | 2.0       |
+    // | Krzew (niski, rozłożysty)  | 0.02 – 0.04   | 1.8 – 2.0 |
+    // clang-format on
+
+    const float alpha{2.3f};
+    const float k{0.05f};
 
     for (auto& ctx : branchContexts)
     {
-        if (ctx.lvl <= fullRadiusLevels)
-        {
-            ctx.radius = parameters.maxBranchRadius;
-            continue;
-        }
-
-        float range = static_cast<float>(maxBranchLvl - fullRadiusLevels);
-        float t = (range > 0.0f) ? static_cast<float>(ctx.lvl - fullRadiusLevels) / range : 1.0f;
-        t = glm::clamp(t, 0.0f, 1.0f);
-        float t_curved = 1.0f - std::pow(1.0f - t, 5.0f);
-        ctx.radius = glm::mix(parameters.maxBranchRadius, parameters.minBranchRadius, t_curved);
-        LOG_DEBUG << "lvl " << ctx.lvl << " t " << t << " radius " << ctx.radius;
+        float effectiveLoad = std::max(ctx.load, 1.0f);
+        ctx.radius          = k * pow(effectiveLoad, 1.0f / alpha);
     }
 }
 
-float TreeMeshBuilder::computeSubtreeWeight(int i)
-{
-    const Branch& b = branches[i];
-
-    if (b.children.empty())
-    {
-        branchContexts[i].subtreeWeight = 1.f;
-        return 1.f;
-    }
-
-    float weight = 0.f;
-
-    if (b.children.size() == 1)
-    {
-        weight = computeSubtreeWeight(b.children[0]);
-    }
-    else
-    {
-        for (int child : b.children)
-            weight += computeSubtreeWeight(child);
-    }
-
-    branchContexts[i].subtreeWeight = weight;
-    return weight;
-}
 float TreeMeshBuilder::computeTreeHeight() const
 {
     if (branches.empty())
@@ -416,18 +397,6 @@ float TreeMeshBuilder::computeTreeHeight() const
     }
 
     return maxProj - minProj;
-}
-float TreeMeshBuilder::calculateBranchRadius(int branchIndex)
-{
-    float weight = branchContexts[branchIndex].subtreeWeight;
-
-    const float n         = 2.0f;
-    const float thickness = 0.05f;
-    float baseRadius      = thickness * std::pow(weight, 1.0f / n);
-
-    float distance = branches[branchIndex].lengthFromRoot;
-    float taper    = distance * 0.005f;
-    return std::max(0.01f, baseRadius - taper);
 }
 int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
 {
@@ -527,7 +496,7 @@ void TreeMeshBuilder::calculateLeafs()
     {
         const auto& context = branchContexts[branchIndex];
 
-        if (context.lvl < parameters.leafheightTreshold + trunkSegments + 1)
+        if (context.lvl < parameters.leafheightTreshold + 1)
             continue;
 
         const auto& branch = branches[branchIndex];
@@ -661,5 +630,16 @@ void TreeMeshBuilder::printFullDebug()
     {
         std::cout << "DEBUG: No root found to print tree!" << std::endl;
     }
+}
+float TreeMeshBuilder::computeLoad(int index)
+{
+    Branch& b = branches[index];
+    float sum = (float)b.assignedAttractors;
+
+    for (int c : b.children)
+        sum += computeLoad(c);
+
+    branchContexts[index].load = sum;
+    return sum;
 }
 }  // namespace GameEngine

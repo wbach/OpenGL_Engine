@@ -37,7 +37,7 @@ private:
     vec3 randomPointInEllipsoid(const vec3&);
     vec3 ellipsoidNoise(float strength);
     void influanceBranchesByClosestAttractors();
-    void removeReachedAttractors();
+    void consumeReachedAttractors();
     void recalculateAvarageBranchesDirctionsAndCreateNewBranches();
     std::vector<Branch> optimize(const std::vector<Branch>&, const std::optional<float>&) const;
 

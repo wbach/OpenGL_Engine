@@ -7,5 +7,7 @@ struct Attractor
 {
     vec3 position;
     bool reached{false};
+
+    std::optional<int> killerBranch;
 };
 }  // namespace GameEngine

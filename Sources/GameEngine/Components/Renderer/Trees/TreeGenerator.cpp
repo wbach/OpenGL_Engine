@@ -157,7 +157,7 @@ void TreeGenerator::grow()
         }
 
         influanceBranchesByClosestAttractors();
-        removeReachedAttractors();
+        consumeReachedAttractors();
 
         auto prevBranchCount = branches.size();
 
@@ -186,7 +186,8 @@ std::optional<int> TreeGenerator::closestBranch(Attractor& attractor)
         if (distance < minDistance)
         {
             // branch is to close
-            attractor.reached = true;
+            attractor.reached      = true;
+            attractor.killerBranch = index;
             return {};
         }
         else if (distance < minAcceptableDistance)
@@ -240,9 +241,21 @@ void TreeGenerator::influanceBranchesByClosestAttractors()
         }
     }
 }
-void TreeGenerator::removeReachedAttractors()
+void TreeGenerator::consumeReachedAttractors()
 {
-    std::erase_if(attractors, [](auto& attractor) { return attractor.reached; });
+    std::erase_if(attractors,
+                  [&](auto& attractor)
+                  {
+                      if (attractor.reached)
+                      {
+                          if (attractor.killerBranch)
+                          {
+                              branches[*attractor.killerBranch].assignedAttractors++;
+                          }
+                          return true;
+                      }
+                      return false;
+                  });
 }
 void TreeGenerator::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
 {

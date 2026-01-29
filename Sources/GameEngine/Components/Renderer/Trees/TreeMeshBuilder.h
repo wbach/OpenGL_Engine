@@ -53,11 +53,10 @@ public:
 private:
     void addMissingLastSegments();
     void calculateBranchesLvls();
-    float computeSubtreeWeight(int = 0);
     float computeTreeHeight() const;
+    float computeLoad(int index = 0);
     std::optional<size_t> findRootIndex() const;
     void calculateBranchesRadius();
-    float calculateBranchRadius(int branchIndex);
     void prepareMesh();
     void appendBranchCylinder(int);
     bool computeBranchAxis(const Branch&);
@@ -88,16 +87,16 @@ private:
 
     struct BranchContext
     {
-        int lvl             = 0;
-        float radius        = 0.3f;
-        float subtreeWeight = 1.0f;
+        int lvl      = 1;
+        float radius = 0.01f;
+        float load   = 0.0f;
         std::vector<RingVertex> bottomVertexes;
         std::vector<RingVertex> topVertexes;
     };
     std::vector<BranchContext> branchContexts;
     std::vector<Leaf> leafs;
 
-    int maxBranchLvl              = 0;
+    int maxBranchLvl              = 1;
     float maxBranchLengthFromRoot = 0.f;
 
     GraphicsApi::MeshRawData mesh;

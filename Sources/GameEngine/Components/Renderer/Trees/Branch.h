@@ -12,6 +12,7 @@ struct Branch
     vec3 position;
     vec3 direction;
     float lengthFromRoot;
+    int assignedAttractors = 0;
 
     std::optional<int> parentIndex;
     std::vector<int> children;
