@@ -26,6 +26,7 @@ public:
 
     const std::vector<Branch>& GetBranches() const;
     std::vector<Branch>&& MoveBranches();
+    std::vector<Branch> optimize(const std::optional<float>& = 0.999f) const;
 
 private:
     void validateParameters() const;
@@ -38,6 +39,7 @@ private:
     void influanceBranchesByClosestAttractors();
     void removeReachedAttractors();
     void recalculateAvarageBranchesDirctionsAndCreateNewBranches();
+    std::vector<Branch> optimize(const std::vector<Branch>&, const std::optional<float>&) const;
 
 public:
     vec3 rootPosition{0.f};

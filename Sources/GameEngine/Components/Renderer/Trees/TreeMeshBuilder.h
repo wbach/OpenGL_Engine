@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <list>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -22,6 +23,13 @@ class TreeMeshBuilder
         vec2 uv;
     };
 
+    struct BranchSegment
+    {
+        std::vector<int> nodes;
+        float startRadius;
+        float endRadius;
+    };
+
 public:
     TreeMeshBuilder(std::vector<Branch>&&, float, size_t);
 
@@ -35,7 +43,7 @@ public:
         float minBranchRadius            = 0.0001f;  // To calculate branch radius min - man
         float maxBranchRadius            = 1.0f;
         int textureAtlasSize             = 9;
-        float radiusSizeCreationTreshold = 0.001f;  // To skip small branches
+        float radiusSizeCreationTreshold = 0.0f;  // To skip small branches
     };
 
     int GetMaxBranchLvl() const;
@@ -46,6 +54,8 @@ private:
     void addMissingLastSegments();
     void calculateBranchesLvls();
     float computeSubtreeWeight(int = 0);
+    float computeTreeHeight() const;
+    std::optional<size_t> findRootIndex() const;
     void calculateBranchesRadius();
     float calculateBranchRadius(int branchIndex);
     void prepareMesh();
@@ -62,10 +72,15 @@ private:
     void appendBranchCap(int);
     void appendBranchCapSphere(int);
     void calculateLeafs();
+    void buildBranchesSegements();
+    void createBranchesContexts();
+    void debugPrintTree(int branchIdx, int depth);
+    void printFullDebug();
 
 private:
     static constexpr float TWO_PI = glm::two_pi<float>();
-    std::vector<Branch>&& branches;
+    std::vector<Branch> branches;
+    std::vector<BranchSegment> branchSegments;
     size_t trunkSegments;
     float defaultSegmentLength;
 
@@ -73,16 +88,16 @@ private:
 
     struct BranchContext
     {
-        int lvl             = 1;
-        float radius        = 1.f;
+        int lvl             = 0;
+        float radius        = 0.3f;
         float subtreeWeight = 1.0f;
         std::vector<RingVertex> bottomVertexes;
         std::vector<RingVertex> topVertexes;
     };
-    std::unordered_map<int, BranchContext> branchContexts;
+    std::vector<BranchContext> branchContexts;
     std::vector<Leaf> leafs;
 
-    int maxBranchLvl              = 1;
+    int maxBranchLvl              = 0;
     float maxBranchLengthFromRoot = 0.f;
 
     GraphicsApi::MeshRawData mesh;

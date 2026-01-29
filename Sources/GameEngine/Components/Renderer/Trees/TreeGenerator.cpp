@@ -3,10 +3,21 @@
 #include <stdexcept>
 #include <vector>
 
+#include "GameEngine/Components/Renderer/Trees/Branch.h"
 #include "Logger/Log.h"
 
 namespace GameEngine
 {
+namespace
+{
+bool directionChanged(const vec3& a, const vec3& b, float cosThreshold = 0.999f)
+{
+    vec3 na = glm::normalize(a);
+    vec3 nb = glm::normalize(b);
+    return glm::dot(na, nb) < cosThreshold;
+}
+}  // namespace
+
 std::optional<std::string> TreeGenerator::build()
 {
     clear();
@@ -16,6 +27,7 @@ std::optional<std::string> TreeGenerator::build()
         return "Prepare attractors first.";
     }
 
+    std::optional<std::string> result;
     try
     {
         validateParameters();
@@ -34,7 +46,7 @@ std::optional<std::string> TreeGenerator::build()
         return "Completed but zero lenngth direction vectors found : " + std::to_string(zeroDirCount);
     }
 
-    return {};
+    return result;
 }
 void TreeGenerator::prepareAttractors(size_t count, float radius)
 {
@@ -126,7 +138,7 @@ void TreeGenerator::searchBranches()
 
             branches.push_back(newBranch);
             int newIndex = branches.size() - 1;
-            current.children.push_back(newIndex);
+            branches[currentIndex].children.push_back(newIndex);
             currentIndex = newIndex;
         }
     }
@@ -259,5 +271,57 @@ void TreeGenerator::recalculateAvarageBranchesDirctionsAndCreateNewBranches()
     }
 
     branchesCalculationInfo.clear();
+}
+std::vector<Branch> TreeGenerator::optimize(const std::vector<Branch>& input, const std::optional<float>& dirChangeTreshold) const
+{
+    LOG_DEBUG << "Input size : " << input.size() << ", dir change treshold : " << dirChangeTreshold;
+    if (input.empty())
+        return {};
+
+    std::vector<Branch> out;
+    out.reserve(input.size());
+
+    auto recurse = [&](auto&& self, int newParent, int oldIndex) -> void
+    {
+        const Branch& branch = input[oldIndex];
+
+        bool isLeaf = branch.children.empty();
+        bool isFork = branch.children.size() > 1;
+
+        bool dirChanged   = dirChangeTreshold.has_value()
+                                ? branch.parentIndex and
+                                    directionChanged(branch.direction, input[*branch.parentIndex].direction, *dirChangeTreshold)
+                                : false;
+        int currentParent = newParent;
+
+        if (isLeaf || isFork || dirChanged)
+        {
+            Branch newBranch      = branch;
+            newBranch.parentIndex = newParent;
+            newBranch.children.clear();
+
+            out.push_back(newBranch);
+            int newIndex = (int)out.size() - 1;
+
+            out[newParent].children.push_back(newIndex);
+            currentParent = newIndex;
+        }
+
+        for (int child : branch.children)
+            self(self, currentParent, child);
+    };
+
+    out.push_back(input[0]);  // root
+    out[0].children.clear();
+
+    for (int child : input[0].children)
+        recurse(recurse, 0, child);
+
+    LOG_DEBUG << "Out size : " << out.size();
+    return out;
+}
+std::vector<Branch> TreeGenerator::optimize(const std::optional<float>& treshold) const
+{
+    return optimize(branches, treshold);
 }
 }  // namespace GameEngine

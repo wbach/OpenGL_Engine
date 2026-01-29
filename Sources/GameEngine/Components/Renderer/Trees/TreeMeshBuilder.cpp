@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
+#include <limits>
 #include <list>
 #include <random>
 #include <vector>
@@ -38,6 +39,12 @@ TreeMeshBuilder::TreeMeshBuilder(std::vector<Branch>&& branches, float defaultSe
 }
 GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
 {
+    if (branches.empty())
+    {
+        LOG_WARN << "Branches are empty.";
+        return {};
+    }
+
     parameters = params;
 
     if (parameters.radiusSizeCreationTreshold > params.maxBranchRadius)
@@ -46,12 +53,19 @@ GraphicsApi::MeshRawData TreeMeshBuilder::build(const EntryParameters& params)
         parameters.radiusSizeCreationTreshold = params.maxBranchRadius / 2.f;
     }
 
+    LOG_DEBUG << "Branches size : " << branches.size();
     LOG_DEBUG << parameters;
+    // addMissingLastSegments();
+    createBranchesContexts();
 
-    addMissingLastSegments();
-    calculateBranchesLvls();
+    buildBranchesSegements();
     computeSubtreeWeight();
+
+    calculateBranchesLvls();
     calculateBranchesRadius();
+
+    printFullDebug();
+
     prepareMesh();
 
     for (size_t branchIndex = 0; branchIndex < branches.size(); ++branchIndex)
@@ -279,59 +293,141 @@ void TreeMeshBuilder::addMissingLastSegments()
 
 void TreeMeshBuilder::calculateBranchesLvls()
 {
-    int branchIndex = 0;
-    for (const auto& branch : branches)
+    auto rootIndex = findRootIndex();
+    if (not rootIndex)
+        return;
+
+    maxBranchLvl = 0;
+
+    struct StackFrame
     {
-        auto lvl = calcuateBranchLvl(branch);
-        if (lvl > maxBranchLvl)
+        int branchIdx;
+        int parentLvl;
+    };
+
+    std::vector<StackFrame> stack;
+    stack.push_back({static_cast<int>(*rootIndex), 1});
+
+    while (not stack.empty())
+    {
+        StackFrame frame = stack.back();
+        stack.pop_back();
+
+        const Branch& branch = branches[frame.branchIdx];
+        int currentLvl       = frame.parentLvl;
+
+        bool isLeaf = branch.children.empty();
+        bool isFork = branch.children.size() > 1;
+
+        if (isLeaf or isFork)
         {
-            maxBranchLvl = lvl;
+            if (frame.branchIdx != *rootIndex)
+            {
+                currentLvl++;
+            }
         }
 
-        maxBranchLengthFromRoot = std::max(maxBranchLengthFromRoot, branch.lengthFromRoot);
-        branchContexts.insert({branchIndex++, BranchContext{.lvl = lvl}});
+        branchContexts[frame.branchIdx].lvl = currentLvl;
+        if (currentLvl > maxBranchLvl)
+        {
+            maxBranchLvl = currentLvl;
+        }
+
+        for (int childIdx : branch.children)
+        {
+            stack.push_back({childIdx, currentLvl});
+        }
     }
 
-    maxBranchLvl++;
-    LOG_DEBUG << "Max branch lvl = " << maxBranchLvl << ", trunk segments count = " << trunkSegments;
+    LOG_DEBUG << "Max branch lvl = " << maxBranchLvl;
 }
+
 void TreeMeshBuilder::calculateBranchesRadius()
 {
+    const int fullRadiusLevels = 1;
+
+    for (auto& ctx : branchContexts)
+    {
+        if (ctx.lvl <= fullRadiusLevels)
+        {
+            ctx.radius = parameters.maxBranchRadius;
+            continue;
+        }
+
+        float range = static_cast<float>(maxBranchLvl - fullRadiusLevels);
+        float t = (range > 0.0f) ? static_cast<float>(ctx.lvl - fullRadiusLevels) / range : 1.0f;
+        t = glm::clamp(t, 0.0f, 1.0f);
+        float t_curved = 1.0f - std::pow(1.0f - t, 5.0f);
+        ctx.radius = glm::mix(parameters.maxBranchRadius, parameters.minBranchRadius, t_curved);
+        LOG_DEBUG << "lvl " << ctx.lvl << " t " << t << " radius " << ctx.radius;
+    }
+}
+
+float TreeMeshBuilder::computeSubtreeWeight(int i)
+{
+    const Branch& b = branches[i];
+
+    if (b.children.empty())
+    {
+        branchContexts[i].subtreeWeight = 1.f;
+        return 1.f;
+    }
+
+    float weight = 0.f;
+
+    if (b.children.size() == 1)
+    {
+        weight = computeSubtreeWeight(b.children[0]);
+    }
+    else
+    {
+        for (int child : b.children)
+            weight += computeSubtreeWeight(child);
+    }
+
+    branchContexts[i].subtreeWeight = weight;
+    return weight;
+}
+float TreeMeshBuilder::computeTreeHeight() const
+{
+    if (branches.empty())
+        return 0.f;
+
+    const vec3 worldUp(0.f, 1.f, 0.f);
+
+    float minProj = std::numeric_limits<float>::max();
+    float maxProj = -minProj;
+
     for (size_t i = 0; i < branches.size(); ++i)
     {
-        auto& context  = branchContexts[i];
-        context.radius = calculateBranchRadius(i);
+        const Branch& b = branches[i];
+
+        float pEnd = dot(b.position, worldUp);
+        minProj    = std::min(minProj, pEnd);
+        maxProj    = std::max(maxProj, pEnd);
+
+        if (b.parentIndex.has_value())
+        {
+            const vec3& parentPos = branches[*b.parentIndex].position;
+            float pStart          = dot(parentPos, worldUp);
+            minProj               = std::min(minProj, pStart);
+            maxProj               = std::max(maxProj, pStart);
+        }
     }
+
+    return maxProj - minProj;
 }
 float TreeMeshBuilder::calculateBranchRadius(int branchIndex)
 {
     float weight = branchContexts[branchIndex].subtreeWeight;
 
-    const float n = 2.0f;
+    const float n         = 2.0f;
     const float thickness = 0.05f;
-    float baseRadius = thickness * std::pow(weight, 1.0f / n);
+    float baseRadius      = thickness * std::pow(weight, 1.0f / n);
 
     float distance = branches[branchIndex].lengthFromRoot;
-    float taper = distance * 0.005f;
+    float taper    = distance * 0.005f;
     return std::max(0.01f, baseRadius - taper);
-}
-float TreeMeshBuilder::computeSubtreeWeight(int branchIndex)
-{
-    float weight = 1.0f;
-    auto& branch = branches[branchIndex];
-
-    for (auto childIndex : branch.children)
-    {
-        weight += computeSubtreeWeight(childIndex);
-    }
-    branchContexts[branchIndex].subtreeWeight = weight;
-
-    // 3. Obliczenie promienia na podstawie zasady da Vinci
-    // R = w^(1/n) * modifier
-    float calculatedRadius             = std::pow(weight, 1.0f / DA_VINCI_EXPONENT) * RADIUS_MODIFIER;
-    branchContexts[branchIndex].radius = calculatedRadius;
-
-    return weight;
 }
 int TreeMeshBuilder::calcuateBranchLvl(const Branch& branch)
 {
@@ -427,8 +523,10 @@ void TreeMeshBuilder::calculateLeafs()
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
     std::uniform_int_distribution<> distr(1, parameters.textureAtlasSize);
 
-    for (const auto& [branchIndex, context] : branchContexts)
+    for (size_t branchIndex = 0; branchIndex < branchContexts.size(); ++branchIndex)
     {
+        const auto& context = branchContexts[branchIndex];
+
         if (context.lvl < parameters.leafheightTreshold + trunkSegments + 1)
             continue;
 
@@ -487,5 +585,81 @@ std::ostream& operator<<(std::ostream& os, const TreeMeshBuilder::EntryParameter
        << "\n  maxBranchRadius = " << params.maxBranchRadius << "\n  textureAtlasSize = " << params.textureAtlasSize
        << "\n  radiusSizeCreationTreshold = " << params.radiusSizeCreationTreshold << "\n}";
     return os;
+}
+std::optional<size_t> TreeMeshBuilder::findRootIndex() const
+{
+    for (size_t i = 0; i < branches.size(); ++i)
+    {
+        if (not branches[i].parentIndex.has_value())
+            return i;
+    }
+
+    return {};
+}
+void TreeMeshBuilder::buildBranchesSegements()
+{
+    branchSegments.clear();
+
+    for (size_t i = 0; i < branches.size(); ++i)
+    {
+        if (branches[i].parentIndex.has_value() && branches[*branches[i].parentIndex].children.size() == 1)
+            continue;
+
+        BranchSegment branch;
+        int current = static_cast<int>(i);
+
+        while (true)
+        {
+            branch.nodes.push_back(current);
+
+            if (branches[current].children.empty() || branches[current].children.size() > 1)
+                break;  // liść lub rozwidlenie
+
+            current = branches[current].children[0];
+        }
+
+        branchSegments.push_back(branch);
+    }
+}
+void TreeMeshBuilder::createBranchesContexts()
+{
+    branchContexts.resize(branches.size());
+}
+void TreeMeshBuilder::debugPrintTree(int branchIdx, int depth)
+{
+    // 1. Pobierz dane
+    const auto& branch = branches[branchIdx];
+    const auto& ctx    = branchContexts[branchIdx];
+
+    // 2. Stwórz wcięcie (prefix) dla czytelności
+    std::string indent = "";
+    for (int i = 0; i < depth; ++i)
+    {
+        indent += (i == depth - 1) ? "|-- " : "    ";
+    }
+
+    // 3. Wypisz informacje o aktualnym branchu
+    LOG_DEBUG_RAW << indent << "ID: " << branchIdx << " | Lvl: " << ctx.lvl << " | Rad: " << std::fixed << std::setprecision(4)
+                  << ctx.radius << " | Children: " << branch.children.size();
+
+    // 4. Rekurencyjnie wypisz dzieci
+    for (int childIdx : branch.children)
+    {
+        debugPrintTree(childIdx, depth + 1);
+    }
+}
+void TreeMeshBuilder::printFullDebug()
+{
+    auto rootIdx = findRootIndex();
+    if (rootIdx)
+    {
+        std::cout << "\n=== TREE GRAPH DEBUG ===\n";
+        debugPrintTree(*rootIdx, 0);
+        std::cout << "========================\n\n";
+    }
+    else
+    {
+        std::cout << "DEBUG: No root found to print tree!" << std::endl;
+    }
 }
 }  // namespace GameEngine
