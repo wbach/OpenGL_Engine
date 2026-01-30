@@ -1,24 +1,16 @@
 #version 450 core
 
-layout (std140, align=16, binding=1) uniform PerFrame
-{
-    mat4 projectionViewMatrix;
-    vec3 cameraPosition;
-    vec4 clipPlane;
-    vec4 projection;
-} perFrame;
-
-layout (std140, binding=3) uniform PerObjectUpdate
-{
-    mat4 transformationMatrix;
-} perObjectUpdate;
-
 struct Leaf
 {
     vec4 posSize;
     vec4 dirUnused;
     vec4 colorTex;
 };
+
+layout (std140, binding=3) uniform PerObjectUpdate
+{
+    mat4 mvp;
+} perObjectUpdate;
 
 layout(std430, binding = 5) buffer LeafData
 {
@@ -103,11 +95,11 @@ void main()
     vec2 uv3 = vec2(0,1);
     vec2 uvs[6] = vec2[](uv0, uv1, uv2, uv0, uv2, uv3);
 
-    vec4 worldPos = perObjectUpdate.transformationMatrix * vec4(verts[cornerID], 1.0);
+    vec4 worldPos = perObjectUpdate.mvp * vec4(verts[cornerID], 1.0);
 
     vec3 localNormal = normalize(cross(right, topOffset));
-    vs_out.normal = normalize(mat3(perObjectUpdate.transformationMatrix) * localNormal);
-    vs_out.texCoord = uvs[cornerID];
+    vs_out.normal    = normalize(mat3(perObjectUpdate.mvp) * localNormal);
+    vs_out.texCoord  = uvs[cornerID];
 
     gl_Position = worldPos;
 }

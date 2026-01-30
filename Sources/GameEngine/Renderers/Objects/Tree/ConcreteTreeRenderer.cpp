@@ -13,40 +13,6 @@
 
 namespace GameEngine
 {
-namespace
-{
-struct ClusterData
-{
-    AlignWrapper<vec4> center;
-    AlignWrapper<vec4> size;
-};
-
-std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
-{
-    std::vector<ClusterData> gpuData;
-    gpuData.reserve(treeClusters.clusters.size());
-
-    for (const auto& cluster : treeClusters.clusters)
-    {
-        ClusterData data;
-
-        vec3 voxelMin = cluster.minBound;
-        vec3 voxelMax = cluster.minBound + treeClusters.voxelSize;
-
-        vec3 center     = (voxelMin + voxelMax) * 0.5f;
-        vec3 dimensions = voxelMax - voxelMin;
-        float maxDim    = std::max({dimensions.x, dimensions.y, dimensions.z});
-
-        data.center = vec4(center, 1.0f);
-        data.size   = vec4(dimensions, maxDim);
-
-        gpuData.push_back(data);
-    }
-
-    return gpuData;
-}
-}  // namespace
-
 ConcreteTreeRenderer::ConcreteTreeRenderer(RendererContext& context)
     : TreeRenderer(context)
     , leafsShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::TreeLeafs)
@@ -133,32 +99,15 @@ void ConcreteTreeRenderer::RenderLeafsClusters(const Components::TreeRendererCom
         context_.graphicsApi_.ActiveTexture(1, *textures.normalTexture->GetGraphicsObjectId());
     }
 
-    const auto& treeClusters = component.getTreeClusters();
-    UpdateClusterDataSssbo(treeClusters);
-    auto count = treeClusters.clusters.size() * 12;
+    if (const auto& clusterDataSssbo_ = component.GetClusterShaderBufferId())
+        context_.graphicsApi_.BindShaderBuffer(*clusterDataSssbo_);
+
+    auto count = component.getTreeClusters().clusters.size() * 12;
 
     if (count > 0)
     {
         context_.graphicsApi_.DisableCulling();
         context_.graphicsApi_.RenderProcedural(count);
-    }
-}
-void ConcreteTreeRenderer::UpdateClusterDataSssbo(const TreeClusters& treeClusters)
-{
-    auto clusterData = getClusterData(treeClusters);
-    auto size        = static_cast<uint32>(clusterData.size() * sizeof(ClusterData));
-
-    if (not clusterDataSssbo_)
-    {
-        clusterDataSssbo_ =
-            context_.graphicsApi_.CreateShaderStorageBuffer(PER_INSTANCES_BIND_LOCATION, size, GraphicsApi::DrawFlag::Dynamic);
-
-        context_.graphicsApi_.UpdateShaderStorageBuffer(*clusterDataSssbo_, clusterData.data(), size);
-    }
-
-    if (clusterDataSssbo_)
-    {
-        context_.graphicsApi_.BindShaderBuffer(*clusterDataSssbo_);
     }
 }
 }  // namespace GameEngine

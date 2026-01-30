@@ -1,4 +1,6 @@
 #pragma once
+#include <Types.h>
+
 #include <cstddef>
 #include <memory>
 #include <optional>
@@ -6,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "ClusterData.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Resources/File.h"
@@ -18,7 +21,6 @@
 #include "GameEngine/Resources/ShaderStorageVectorBufferObject.h"
 #include "GraphicsApi/GraphicsApiDef.h"
 #include "Leaf.h"
-#include "Types.h"
 #include "Tree.h"
 
 namespace GameEngine
@@ -65,6 +67,7 @@ public:
     const GraphicsApi::ID& GetPerObjectUpdateId() const;
     const GraphicsApi::ID& GetPerInstancesBufferId() const;
     const GraphicsApi::ID& GetLeafsShaderBufferId() const;
+    const GraphicsApi::ID& GetClusterShaderBufferId() const;
     const BoundingBox& GetWorldBoundingBox() const;
 
     const Material& GetLeafMaterial() const;
@@ -78,13 +81,13 @@ public:
     const ClusterTextures& getClusterTextures() const;
     const TreeClusters& getTreeClusters() const;
 
-
-    private:
+private:
     void Awake();
     void UnSubscribe();
     void CreatePerObjectUpdateBuffer();
     void CreatePerInstancesBuffer();
     void CreateLeafsSsbo();
+    void CreateClusterSsbo();
     void UpdateBoundingBox();
     void GenerateFileNameIfNeeded();
 
@@ -98,6 +101,7 @@ private:
     std::vector<vec3> instancesPositions_;
 
     std::unique_ptr<ShaderStorageVectorBufferObject<LeafSSBO>> leafsSsbo_;
+    std::unique_ptr<ShaderStorageVectorBufferObject<ClusterData>> clustersSsbo_;
     std::unique_ptr<ShaderBufferObject<PerObjectUpdate>> perObjectUpdateBuffer_;
     std::unique_ptr<ShaderBufferObject<PerInstances>> perInstances_;
     bool isSubsribed_;

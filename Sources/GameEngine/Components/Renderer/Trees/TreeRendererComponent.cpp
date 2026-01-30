@@ -9,6 +9,7 @@
 
 #include "GameEngine/Components/CommonReadDef.h"
 #include "GameEngine/Components/ComponentsReadFunctions.h"
+#include "GameEngine/Components/Renderer/Trees/ClusterData.h"
 #include "GameEngine/Components/Renderer/Trees/Leaf.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/RenderersManager.h"
@@ -30,6 +31,31 @@ namespace Components
 namespace
 {
 constexpr char CSTR_INSTANCES_POSITIONS[] = "insatncesPositions";
+
+std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
+{
+    std::vector<ClusterData> gpuData;
+    gpuData.reserve(treeClusters.clusters.size());
+
+    for (const auto& cluster : treeClusters.clusters)
+    {
+        ClusterData data;
+
+        vec3 voxelMin = cluster.minBound;
+        vec3 voxelMax = cluster.minBound + treeClusters.voxelSize;
+
+        vec3 center     = (voxelMin + voxelMax) * 0.5f;
+        vec3 dimensions = voxelMax - voxelMin;
+        float maxDim    = std::max({dimensions.x, dimensions.y, dimensions.z});
+
+        data.center = vec4(center, 1.0f);
+        data.size   = vec4(dimensions, maxDim);
+
+        gpuData.push_back(data);
+    }
+
+    return gpuData;
+}
 }  // namespace
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
@@ -127,6 +153,7 @@ void TreeRendererComponent::Awake()
         CreatePerObjectUpdateBuffer();
         CreatePerInstancesBuffer();
         CreateLeafsSsbo();
+        CreateClusterSsbo();
 
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubsribed_ = true;
@@ -190,6 +217,8 @@ void TreeRendererComponent::DeleteShaderBuffers()
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(perInstances_));
     if (leafsSsbo_)
         componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(leafsSsbo_));
+    if (clustersSsbo_)
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToRelease(std::move(clustersSsbo_));
 }
 void TreeRendererComponent::registerReadFunctions()
 {
@@ -233,7 +262,7 @@ void TreeRendererComponent::write(TreeNode& node) const
     node.addChild(CSTR_FILE_NAME, treeModel.GetDataRelativePath());
     if (not treeModel.empty())
     {
-        LOG_DEBUG << "Tree all leafs size: "  << tree.allLeafs.size();
+        LOG_DEBUG << "Tree all leafs size: " << tree.allLeafs.size();
         Export(tree, treeModel.GetAbsolutePath());
     }
 
@@ -293,15 +322,15 @@ void TreeRendererComponent::CreateLeafsSsbo()
 {
     if (not leafsSsbo_)
     {
-        LOG_DEBUG << "Create shaderStorageVectorBufferObject";
+        LOG_DEBUG << "Create leafs shaderStorageVectorBufferObject";
         leafsSsbo_ = std::make_unique<ShaderStorageVectorBufferObject<LeafSSBO>>(
             componentContext_.resourceManager_.GetGraphicsApi(), PER_INSTANCES_BIND_LOCATION);
+    }
 
-        if (leafsSsbo_ and not tree.allLeafs.empty())
-        {
-            leafsSsbo_->InsertData(tree.allLeafs);
-            componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*leafsSsbo_);
-        }
+    if (leafsSsbo_ and not tree.allLeafs.empty())
+    {
+        leafsSsbo_->InsertData(tree.allLeafs);
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*leafsSsbo_);
     }
 }
 const GraphicsApi::ID& TreeRendererComponent::GetLeafsShaderBufferId() const
@@ -357,6 +386,7 @@ void TreeRendererComponent::SetClusterTextures(const ClusterTextures& textures)
 void TreeRendererComponent::SetTreeClusters(const TreeClusters& clusters)
 {
     tree.clusters.treeClusters = clusters;
+    CreateClusterSsbo();
 }
 const ClusterTextures& TreeRendererComponent::getClusterTextures() const
 {
@@ -371,6 +401,33 @@ void TreeRendererComponent::GenerateFileNameIfNeeded()
     if (treeModel.empty())
     {
         treeModel = EngineConf.files.getGeneratedDirPath() / ("TreeAllInOne_" + Utils::CreateUniqueFilename() + ".bin");
+    }
+}
+const GraphicsApi::ID& TreeRendererComponent::GetClusterShaderBufferId() const
+{
+    if (not clustersSsbo_)
+    {
+        static GraphicsApi::ID id;
+        return id;
+    }
+
+    return clustersSsbo_->GetGraphicsObjectId();
+}
+void TreeRendererComponent::CreateClusterSsbo()
+{
+    GenerateFileNameIfNeeded();
+
+    if (not clustersSsbo_)
+    {
+        LOG_DEBUG << "Create clusters shaderStorageVectorBufferObject";
+        clustersSsbo_ = std::make_unique<ShaderStorageVectorBufferObject<ClusterData>>(
+            componentContext_.resourceManager_.GetGraphicsApi(), PER_INSTANCES_BIND_LOCATION);
+    }
+
+    if (clustersSsbo_ and not tree.clusters.treeClusters.clusters.empty())
+    {
+        clustersSsbo_->InsertData(getClusterData(tree.clusters.treeClusters));
+        componentContext_.resourceManager_.GetGpuResourceLoader().AddObjectToUpdateGpuPass(*clustersSsbo_);
     }
 }
 }  // namespace Components

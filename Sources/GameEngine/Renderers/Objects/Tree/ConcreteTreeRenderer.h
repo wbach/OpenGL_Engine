@@ -18,13 +18,10 @@ private:
     void RenderLeafs(const Components::TreeRendererComponent&) const;
     void RenderLeafsClusters(const Components::TreeRendererComponent&);
     LevelOfDetail getLevelOfDetail(float) const;
-    void UpdateClusterDataSssbo(const TreeClusters&);
 
 private:
     ShaderProgram leafsShader_;
     ShaderProgram leafsClusterShader_;
     ShaderProgram trunkShader_;
-
-    GraphicsApi::ID clusterDataSssbo_;
 };
 }  // namespace GameEngine
