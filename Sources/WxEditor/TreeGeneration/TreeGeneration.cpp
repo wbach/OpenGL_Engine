@@ -885,6 +885,7 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
             trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
             trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->meshBuilder.GetLeafs()));
             trc.SetLeafMaterial(treeModel->leafMaterial);
+            trc.leafTextureAtlasSize = params->meshBuilderParams.textureAtlasSize;
             auto& engineContext = canvas->GetEngine().GetEngineContext();
             generateLeafClusters(engineContext.GetGpuResourceLoader(), engineContext.GetGraphicsApi(),
                                  canvas->GetScene().GetResourceManager(), trc, treeModel->meshBuilder.GetLeafs(),
