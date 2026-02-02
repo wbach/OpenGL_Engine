@@ -412,3 +412,41 @@ void PrintTree(const TreeNode& root)
 
     printRec(root, 0);
 }
+std::ostream& operator<<(std::ostream& os, const TreeNode& node)
+{
+    static int indent = 0;
+    auto printIndent  = [&]()
+    {
+        for (int i = 0; i < indent; ++i)
+            os << "  ";
+    };
+
+    printIndent();
+    os << "[" << node.name() << "]";
+
+    if (!node.value_.empty())
+    {
+        os << " value: \"" << node.value_ << "\"";
+    }
+
+    if (!node.attributes_.empty())
+    {
+        os << " (attrs: ";
+        for (auto it = node.attributes_.begin(); it != node.attributes_.end(); ++it)
+        {
+            os << it->first << "=" << it->second << (std::next(it) != node.attributes_.end() ? ", " : "");
+        }
+        os << ")";
+    }
+
+    os << "\n";
+
+    indent++;
+    for (const auto& child : node.getChildren())
+    {
+        os << *child;
+    }
+    indent--;
+
+    return os;
+}

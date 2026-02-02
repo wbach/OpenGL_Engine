@@ -46,6 +46,8 @@ private:
     void CopyTreeNode(const TreeNode&, TreeNode&);
 };
 
+std::ostream& operator<<(std::ostream&, const TreeNode&);
+
 extern const std::string CSTR_VEC3;
 
 void Read(const TreeNode&, float&);

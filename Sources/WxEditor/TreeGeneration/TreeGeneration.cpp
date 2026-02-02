@@ -18,6 +18,7 @@
 
 #include <GameEngine/Resources/IResourceManager.hpp>
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -33,40 +34,16 @@
 #include "Resources/GpuResourceLoader.h"
 #include "Resources/Models/Mesh.h"
 #include "Resources/Models/Model.h"
+#include "TreeGenerationParams.h"
+#include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
 
 namespace
 {
-struct TreeGenerationParams
-{
-    size_t attractorsCount        = 400;
-    vec3 crownSize                = vec3{10.f, 6.f, 8.f};
-    float trunkMaterialTiledScale = 2.f;
-    float maxDistance{5.f};
-    float minDistance{1.f};
-    float segmentLength{0.3f};
-    float crownYOffset{3.f};
-    vec3 rootPosition{0.f};
-    vec3 rootDirection{0.f, 1.f, 0.f};
-    std::string trunkMaterialBaseColorTexture        = "Textures/Tree/trunk/light-tree-bark_albedo.png";
-    std::string trunkMaterialAmbientOcclusionTexture = "Textures/Tree/trunk/light-tree-bark_ao.png";
-    std::string trunkMaterialDisplacementTexture     = "Textures/Tree/trunk/light-tree-bark_albedo.png";
-    std::string trunkMaterialMetallicTexture         = "Textures/Tree/trunk/light-tree-bark_metallic.png";
-    std::string trunkMaterialNormalTexture           = "Textures/Tree/trunk/light-tree-bark_normal-ogl.png";
-    std::string trunkMaterialRoughnessTexture        = "Textures/Tree/trunk/light-tree-bark_roughness.png";
-    std::string leafMaterialBaseColorTexture         = "Textures/Tree/Leafs/LeafSet024_2K-PNG_ColorWB.png";
-    std::string leafMaterialOpacityTexture           = "Textures/Tree/Leafs/LeafSet024_2K-PNG_Opacity.png";
-    std::string leafMaterialRoughnessTexture         = "Textures/Tree/Leafs/LeafSet024_2K-PNG_Roughness.png";
-    std::string leafMaterialNormalTexture            = "Textures/Tree/Leafs/LeafSet024_2K-PNG_NormalGL.png";
-
-    GameEngine::TreeMeshBuilder::EntryParameters meshBuilderParams;
-};
-
 TreeGenerationParams treeBuidlerParams;
 
 std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, const TreeGenerationParams& initial)
 {
-    TreeGenerationParams defaults{};
     wxString lastDirectory;
 
     wxDialog dlg(parent, wxID_ANY, "Tree Generation Parameters", wxDefaultPosition, wxDefaultSize,
@@ -197,10 +174,14 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     // --- Buttons: Restore / OK / Cancel ---
     auto* btnSizer   = new wxBoxSizer(wxHORIZONTAL);
     auto* restoreBtn = new wxButton(&dlg, wxID_ANY, "Restore Defaults");
+    auto* loadPreset = new wxButton(&dlg, wxID_ANY, "Load preset");
+    auto* savePreset = new wxButton(&dlg, wxID_ANY, "Save preset");
     auto* okBtn      = new wxButton(&dlg, wxID_OK);
     auto* cancelBtn  = new wxButton(&dlg, wxID_CANCEL);
 
     btnSizer->Add(restoreBtn, 0, wxRIGHT, 10);
+    btnSizer->Add(loadPreset, 0, wxRIGHT, 10);
+    btnSizer->Add(savePreset, 0, wxRIGHT, 10);
     btnSizer->AddStretchSpacer();
     btnSizer->Add(okBtn, 0, wxRIGHT, 5);
     btnSizer->Add(cancelBtn, 0);
@@ -209,107 +190,148 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     dlg.SetSizerAndFit(mainSizer);
     dlg.CentreOnParent();
 
+    auto applyParams = [&](const TreeGenerationParams& params)
+    {
+        // Basic
+        attractorsCount->SetValue(static_cast<int>(params.attractorsCount));
+
+        tileScale->SetValue(wxString::Format("%.4f", params.trunkMaterialTiledScale));
+        maxDistance->SetValue(wxString::Format("%.4f", params.maxDistance));
+        minDistance->SetValue(wxString::Format("%.4f", params.minDistance));
+        segmentLength->SetValue(wxString::Format("%.4f", params.segmentLength));
+        crownYOffset->SetValue(wxString::Format("%.4f", params.crownYOffset));
+        LOG_DEBUG << "params.crownYOffset " << params.crownYOffset;
+
+        // Vec3
+        crownSize.x->SetValue(wxString::Format("%.4f", params.crownSize.x));
+        crownSize.y->SetValue(wxString::Format("%.4f", params.crownSize.y));
+        crownSize.z->SetValue(wxString::Format("%.4f", params.crownSize.z));
+
+        rootPosition.x->SetValue(wxString::Format("%.4f", params.rootPosition.x));
+        rootPosition.y->SetValue(wxString::Format("%.4f", params.rootPosition.y));
+        rootPosition.z->SetValue(wxString::Format("%.4f", params.rootPosition.z));
+
+        rootDirection.x->SetValue(wxString::Format("%.4f", params.rootDirection.x));
+        rootDirection.y->SetValue(wxString::Format("%.4f", params.rootDirection.y));
+        rootDirection.z->SetValue(wxString::Format("%.4f", params.rootDirection.z));
+
+        // Trunk textures
+        trunkAlbedo->SetPath(wxString::FromUTF8(params.trunkMaterialBaseColorTexture.c_str()));
+        trunkAO->SetPath(wxString::FromUTF8(params.trunkMaterialAmbientOcclusionTexture.c_str()));
+        trunkDisp->SetPath(wxString::FromUTF8(params.trunkMaterialDisplacementTexture.c_str()));
+        trunkMetallic->SetPath(wxString::FromUTF8(params.trunkMaterialMetallicTexture.c_str()));
+        trunkNormal->SetPath(wxString::FromUTF8(params.trunkMaterialNormalTexture.c_str()));
+        trunkRoughness->SetPath(wxString::FromUTF8(params.trunkMaterialRoughnessTexture.c_str()));
+
+        // Leaf textures
+        leafAlbedo->SetPath(wxString::FromUTF8(params.leafMaterialBaseColorTexture.c_str()));
+        leafOpacity->SetPath(wxString::FromUTF8(params.leafMaterialOpacityTexture.c_str()));
+        leafRoughness->SetPath(wxString::FromUTF8(params.leafMaterialRoughnessTexture.c_str()));
+        leafNormal->SetPath(wxString::FromUTF8(params.leafMaterialNormalTexture.c_str()));
+
+        // EntryParameters
+        meshControls.radialSegments->SetValue(params.meshBuilderParams.radialSegments);
+        meshControls.leafheightThreshold->SetValue(wxString::Format("%.4f", params.meshBuilderParams.leafheightTreshold));
+        meshControls.leafRandomFactor->SetValue(wxString::Format("%.4f", params.meshBuilderParams.leafRandomFactor));
+        meshControls.leafsPerBranch->SetValue(params.meshBuilderParams.leafsPerBranch);
+        meshControls.leafSpread->SetValue(wxString::Format("%.4f", params.meshBuilderParams.leafSpread));
+        meshControls.minBranchRadius->SetValue(wxString::Format("%.6f", params.meshBuilderParams.minBranchRadius));
+        meshControls.maxBranchRadius->SetValue(wxString::Format("%.4f", params.meshBuilderParams.maxBranchRadius));
+        meshControls.textureAtlasSize->SetValue(params.meshBuilderParams.textureAtlasSize);
+    };
+
     // --- Restore Defaults ---
-    restoreBtn->Bind(
-        wxEVT_BUTTON,
-        [&](wxCommandEvent&)
-        {
-            // Basic
-            attractorsCount->SetValue(static_cast<int>(defaults.attractorsCount));
+    restoreBtn->Bind(wxEVT_BUTTON, [&](wxCommandEvent&) { applyParams(TreeGenerationParams{}); });
 
-            tileScale->SetValue(wxString::Format("%.4f", defaults.trunkMaterialTiledScale));
-            maxDistance->SetValue(wxString::Format("%.4f", defaults.maxDistance));
-            minDistance->SetValue(wxString::Format("%.4f", defaults.minDistance));
-            segmentLength->SetValue(wxString::Format("%.4f", defaults.segmentLength));
-            crownYOffset->SetValue(wxString::Format("%.4f", defaults.crownYOffset));
+    auto createActualResult = [&]()
+    {
+        TreeGenerationParams out = initial;
 
-            // Vec3
-            crownSize.x->SetValue(wxString::Format("%.4f", defaults.crownSize.x));
-            crownSize.y->SetValue(wxString::Format("%.4f", defaults.crownSize.y));
-            crownSize.z->SetValue(wxString::Format("%.4f", defaults.crownSize.z));
+        out.attractorsCount = attractorsCount->GetValue();
 
-            rootPosition.x->SetValue(wxString::Format("%.4f", defaults.rootPosition.x));
-            rootPosition.y->SetValue(wxString::Format("%.4f", defaults.rootPosition.y));
-            rootPosition.z->SetValue(wxString::Format("%.4f", defaults.rootPosition.z));
+        out.crownSize.x = wxAtof(crownSize.x->GetValue());
+        out.crownSize.y = wxAtof(crownSize.y->GetValue());
+        out.crownSize.z = wxAtof(crownSize.z->GetValue());
 
-            rootDirection.x->SetValue(wxString::Format("%.4f", defaults.rootDirection.x));
-            rootDirection.y->SetValue(wxString::Format("%.4f", defaults.rootDirection.y));
-            rootDirection.z->SetValue(wxString::Format("%.4f", defaults.rootDirection.z));
+        out.trunkMaterialTiledScale = wxAtof(tileScale->GetValue());
+        out.maxDistance             = wxAtof(maxDistance->GetValue());
+        out.minDistance             = wxAtof(minDistance->GetValue());
+        out.segmentLength           = wxAtof(segmentLength->GetValue());
+        out.crownYOffset            = wxAtof(crownYOffset->GetValue());
 
-            // Trunk textures
-            trunkAlbedo->SetPath(wxString::FromUTF8(defaults.trunkMaterialBaseColorTexture.c_str()));
-            trunkAO->SetPath(wxString::FromUTF8(defaults.trunkMaterialAmbientOcclusionTexture.c_str()));
-            trunkDisp->SetPath(wxString::FromUTF8(defaults.trunkMaterialDisplacementTexture.c_str()));
-            trunkMetallic->SetPath(wxString::FromUTF8(defaults.trunkMaterialMetallicTexture.c_str()));
-            trunkNormal->SetPath(wxString::FromUTF8(defaults.trunkMaterialNormalTexture.c_str()));
-            trunkRoughness->SetPath(wxString::FromUTF8(defaults.trunkMaterialRoughnessTexture.c_str()));
+        out.rootPosition.x = wxAtof(rootPosition.x->GetValue());
+        out.rootPosition.y = wxAtof(rootPosition.y->GetValue());
+        out.rootPosition.z = wxAtof(rootPosition.z->GetValue());
 
-            // Leaf textures
-            leafAlbedo->SetPath(wxString::FromUTF8(defaults.leafMaterialBaseColorTexture.c_str()));
-            leafOpacity->SetPath(wxString::FromUTF8(defaults.leafMaterialOpacityTexture.c_str()));
-            leafRoughness->SetPath(wxString::FromUTF8(defaults.leafMaterialRoughnessTexture.c_str()));
-            leafNormal->SetPath(wxString::FromUTF8(defaults.leafMaterialNormalTexture.c_str()));
+        out.rootDirection.x = wxAtof(rootDirection.x->GetValue());
+        out.rootDirection.y = wxAtof(rootDirection.y->GetValue());
+        out.rootDirection.z = wxAtof(rootDirection.z->GetValue());
 
-            // EntryParameters
-            meshControls.radialSegments->SetValue(defaults.meshBuilderParams.radialSegments);
-            meshControls.leafheightThreshold->SetValue(wxString::Format("%.4f", defaults.meshBuilderParams.leafheightTreshold));
-            meshControls.leafRandomFactor->SetValue(wxString::Format("%.4f", defaults.meshBuilderParams.leafRandomFactor));
-            meshControls.leafsPerBranch->SetValue(defaults.meshBuilderParams.leafsPerBranch);
-            meshControls.leafSpread->SetValue(wxString::Format("%.4f", defaults.meshBuilderParams.leafSpread));
-            meshControls.minBranchRadius->SetValue(wxString::Format("%.6f", defaults.meshBuilderParams.minBranchRadius));
-            meshControls.maxBranchRadius->SetValue(wxString::Format("%.4f", defaults.meshBuilderParams.maxBranchRadius));
-            meshControls.textureAtlasSize->SetValue(defaults.meshBuilderParams.textureAtlasSize);
-        });
+        out.trunkMaterialBaseColorTexture        = trunkAlbedo->GetPath().ToStdString();
+        out.trunkMaterialAmbientOcclusionTexture = trunkAO->GetPath().ToStdString();
+        out.trunkMaterialDisplacementTexture     = trunkDisp->GetPath().ToStdString();
+        out.trunkMaterialMetallicTexture         = trunkMetallic->GetPath().ToStdString();
+        out.trunkMaterialNormalTexture           = trunkNormal->GetPath().ToStdString();
+        out.trunkMaterialRoughnessTexture        = trunkRoughness->GetPath().ToStdString();
+
+        out.leafMaterialBaseColorTexture = leafAlbedo->GetPath().ToStdString();
+        out.leafMaterialOpacityTexture   = leafOpacity->GetPath().ToStdString();
+        out.leafMaterialRoughnessTexture = leafRoughness->GetPath().ToStdString();
+        out.leafMaterialNormalTexture    = leafNormal->GetPath().ToStdString();
+
+        out.meshBuilderParams.radialSegments     = meshControls.radialSegments->GetValue();
+        out.meshBuilderParams.leafheightTreshold = wxAtof(meshControls.leafheightThreshold->GetValue());
+        out.meshBuilderParams.leafRandomFactor   = wxAtof(meshControls.leafRandomFactor->GetValue());
+        out.meshBuilderParams.leafsPerBranch     = meshControls.leafsPerBranch->GetValue();
+        out.meshBuilderParams.leafSpread         = wxAtof(meshControls.leafSpread->GetValue());
+        out.meshBuilderParams.minBranchRadius    = wxAtof(meshControls.minBranchRadius->GetValue());
+        out.meshBuilderParams.maxBranchRadius    = wxAtof(meshControls.maxBranchRadius->GetValue());
+        out.meshBuilderParams.textureAtlasSize   = meshControls.textureAtlasSize->GetValue();
+
+        return out;
+    };
+
+    loadPreset->Bind(wxEVT_BUTTON,
+                     [&](wxCommandEvent&)
+                     {
+                         wxFileDialog openFileDialog(&dlg, "Wybierz plik", ProjectManager::GetInstance().GetDataDir().string(),
+                                                     "", "Preset (*.json)|*.json|Wszystkie pliki (*.*)|*.*",
+                                                     wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+                         if (openFileDialog.ShowModal() == wxID_CANCEL)
+                             return;
+
+                         wxString path = openFileDialog.GetPath();
+                         if (auto params = ReadTreeGenerationParams(std::filesystem::path(path.ToStdString())))
+                         {
+                             applyParams(*params);
+                         }
+                         else
+                         {
+                             wxLogMessage("Error.");
+                         }
+                     });
+
+    savePreset->Bind(wxEVT_BUTTON,
+                     [&](wxCommandEvent&)
+                     {
+                         wxFileDialog fileDialog(&dlg, "Wybierz plik", ProjectManager::GetInstance().GetDataDir().string(),
+                                                 "newTreePreset.json", "Preset (*.json)|*.json|Wszystkie pliki (*.*)|*.*",
+                                                 wxFD_SAVE);
+
+                         if (fileDialog.ShowModal() == wxID_CANCEL)
+                             return;
+
+                         wxString path = fileDialog.GetPath();
+                         SaveTreeGenerationParams(createActualResult(), path.ToStdString());
+                         wxLogMessage("Done.");
+                     });
 
     if (dlg.ShowModal() != wxID_OK)
         return std::nullopt;
 
-    // --- Odczyt wyników ---
-    TreeGenerationParams out = initial;
-
-    out.attractorsCount = attractorsCount->GetValue();
-
-    out.crownSize.x = wxAtof(crownSize.x->GetValue());
-    out.crownSize.y = wxAtof(crownSize.y->GetValue());
-    out.crownSize.z = wxAtof(crownSize.z->GetValue());
-
-    out.trunkMaterialTiledScale = wxAtof(tileScale->GetValue());
-    out.maxDistance             = wxAtof(maxDistance->GetValue());
-    out.minDistance             = wxAtof(minDistance->GetValue());
-    out.segmentLength           = wxAtof(segmentLength->GetValue());
-    out.crownYOffset            = wxAtof(crownYOffset->GetValue());
-
-    out.rootPosition.x = wxAtof(rootPosition.x->GetValue());
-    out.rootPosition.y = wxAtof(rootPosition.y->GetValue());
-    out.rootPosition.z = wxAtof(rootPosition.z->GetValue());
-
-    out.rootDirection.x = wxAtof(rootDirection.x->GetValue());
-    out.rootDirection.y = wxAtof(rootDirection.y->GetValue());
-    out.rootDirection.z = wxAtof(rootDirection.z->GetValue());
-
-    out.trunkMaterialBaseColorTexture        = trunkAlbedo->GetPath().ToStdString();
-    out.trunkMaterialAmbientOcclusionTexture = trunkAO->GetPath().ToStdString();
-    out.trunkMaterialDisplacementTexture     = trunkDisp->GetPath().ToStdString();
-    out.trunkMaterialMetallicTexture         = trunkMetallic->GetPath().ToStdString();
-    out.trunkMaterialNormalTexture           = trunkNormal->GetPath().ToStdString();
-    out.trunkMaterialRoughnessTexture        = trunkRoughness->GetPath().ToStdString();
-
-    out.leafMaterialBaseColorTexture = leafAlbedo->GetPath().ToStdString();
-    out.leafMaterialOpacityTexture   = leafOpacity->GetPath().ToStdString();
-    out.leafMaterialRoughnessTexture = leafRoughness->GetPath().ToStdString();
-    out.leafMaterialNormalTexture    = leafNormal->GetPath().ToStdString();
-
-    out.meshBuilderParams.radialSegments     = meshControls.radialSegments->GetValue();
-    out.meshBuilderParams.leafheightTreshold = wxAtof(meshControls.leafheightThreshold->GetValue());
-    out.meshBuilderParams.leafRandomFactor   = wxAtof(meshControls.leafRandomFactor->GetValue());
-    out.meshBuilderParams.leafsPerBranch     = meshControls.leafsPerBranch->GetValue();
-    out.meshBuilderParams.leafSpread         = wxAtof(meshControls.leafSpread->GetValue());
-    out.meshBuilderParams.minBranchRadius    = wxAtof(meshControls.minBranchRadius->GetValue());
-    out.meshBuilderParams.maxBranchRadius    = wxAtof(meshControls.maxBranchRadius->GetValue());
-    out.meshBuilderParams.textureAtlasSize   = meshControls.textureAtlasSize->GetValue();
-
-    treeBuidlerParams = out;
-    return out;
+    treeBuidlerParams = createActualResult();
+    return treeBuidlerParams;
 }
 
 }  // namespace
@@ -886,7 +908,7 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
             trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->meshBuilder.GetLeafs()));
             trc.SetLeafMaterial(treeModel->leafMaterial);
             trc.leafTextureAtlasSize = params->meshBuilderParams.textureAtlasSize;
-            auto& engineContext = canvas->GetEngine().GetEngineContext();
+            auto& engineContext      = canvas->GetEngine().GetEngineContext();
             generateLeafClusters(engineContext.GetGpuResourceLoader(), engineContext.GetGraphicsApi(),
                                  canvas->GetScene().GetResourceManager(), trc, treeModel->meshBuilder.GetLeafs(),
                                  treeModel->leafMaterial);

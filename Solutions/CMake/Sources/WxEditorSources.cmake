@@ -18,6 +18,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/OptionsFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/App.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGeneration.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGenerationParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/MainFrame.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/FileDropTarget.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/WxHelpers/ThumbnailCache.cpp
