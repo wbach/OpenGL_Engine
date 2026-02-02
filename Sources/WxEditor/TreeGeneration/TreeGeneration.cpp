@@ -12,6 +12,7 @@
 #include <GameEngine/Resources/Models/ModelWrapper.h>
 #include <GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h>
 #include <GameEngine/Shaders/ShaderProgram.h>
+#include <Utils/FileSystem/TextureSet.h>
 #include <wx/filepicker.h>
 #include <wx/spinctrl.h>
 #include <wx/wx.h>
@@ -37,6 +38,7 @@
 #include "TreeGenerationParams.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
+#include "wx/gtk/dirdlg.h"
 
 namespace
 {
@@ -172,14 +174,16 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     mainSizer->Add(grid, 1, wxALL | wxEXPAND, 10);
 
     // --- Buttons: Restore / OK / Cancel ---
-    auto* btnSizer   = new wxBoxSizer(wxHORIZONTAL);
-    auto* restoreBtn = new wxButton(&dlg, wxID_ANY, "Restore Defaults");
-    auto* loadPreset = new wxButton(&dlg, wxID_ANY, "Load preset");
-    auto* savePreset = new wxButton(&dlg, wxID_ANY, "Save preset");
-    auto* okBtn      = new wxButton(&dlg, wxID_OK);
-    auto* cancelBtn  = new wxButton(&dlg, wxID_CANCEL);
+    auto* btnSizer    = new wxBoxSizer(wxHORIZONTAL);
+    auto* restoreBtn  = new wxButton(&dlg, wxID_ANY, "Restore Defaults");
+    auto* texturePack = new wxButton(&dlg, wxID_ANY, "Choose texture pack");
+    auto* loadPreset  = new wxButton(&dlg, wxID_ANY, "Load preset");
+    auto* savePreset  = new wxButton(&dlg, wxID_ANY, "Save preset");
+    auto* okBtn       = new wxButton(&dlg, wxID_OK);
+    auto* cancelBtn   = new wxButton(&dlg, wxID_CANCEL);
 
     btnSizer->Add(restoreBtn, 0, wxRIGHT, 10);
+    btnSizer->Add(texturePack, 0, wxRIGHT, 10);
     btnSizer->Add(loadPreset, 0, wxRIGHT, 10);
     btnSizer->Add(savePreset, 0, wxRIGHT, 10);
     btnSizer->AddStretchSpacer();
@@ -326,6 +330,67 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
                          SaveTreeGenerationParams(createActualResult(), path.ToStdString());
                          wxLogMessage("Done.");
                      });
+
+    texturePack->Bind(
+        wxEVT_BUTTON,
+        [&](wxCommandEvent&)
+        {
+            wxDirDialog dlg(nullptr, "Select textures from directory", ProjectManager::GetInstance().GetDataDir().string(),
+                            wxDD_DIR_MUST_EXIST);
+
+            if (dlg.ShowModal() == wxID_OK)
+            {
+                wxString wxPath     = dlg.GetPath();
+                std::string stdPath = wxPath.ToStdString();
+
+                auto textures = Utils::findTexturesInDirectory(stdPath);
+
+                LOG_DEBUG << "Zmapowano pliki z katalogu: " << stdPath;
+                LOG_DEBUG << textures;
+
+                std::string lowerPath = stdPath;
+                std::transform(lowerPath.begin(), lowerPath.end(), lowerPath.begin(), ::tolower);
+
+                bool isTrunk = lowerPath.find("trunk") != std::string::npos || lowerPath.find("bark") != std::string::npos;
+                bool isLeaf  = lowerPath.find("leaf") != std::string::npos || lowerPath.find("leafs") != std::string::npos;
+
+                auto params = createActualResult();
+                if (isTrunk)
+                {
+                    LOG_DEBUG << "Rozpoznano zestaw tekstur: TRUNK";
+                    if (!textures.baseColor.empty())
+                        params.trunkMaterialBaseColorTexture = textures.baseColor.string();
+                    if (!textures.ambientOcclusion.empty())
+                        params.trunkMaterialAmbientOcclusionTexture = textures.ambientOcclusion.string();
+                    if (!textures.displacement.empty())
+                        params.trunkMaterialDisplacementTexture = textures.displacement.string();
+                    if (!textures.metallic.empty())
+                        params.trunkMaterialMetallicTexture = textures.metallic.string();
+                    if (!textures.normal.empty())
+                        params.trunkMaterialNormalTexture = textures.normal.string();
+                    if (!textures.roughness.empty())
+                        params.trunkMaterialRoughnessTexture = textures.roughness.string();
+                }
+                else if (isLeaf)
+                {
+                    LOG_DEBUG << "Rozpoznano zestaw tekstur: LEAF";
+                    if (!textures.baseColor.empty())
+                        params.leafMaterialBaseColorTexture = textures.baseColor.string();
+                    if (!textures.opacity.empty())
+                        params.leafMaterialOpacityTexture = textures.opacity.string();
+                    if (!textures.roughness.empty())
+                        params.leafMaterialRoughnessTexture = textures.roughness.string();
+                    if (!textures.normal.empty())
+                        params.leafMaterialNormalTexture = textures.normal.string();
+                }
+                else
+                {
+                    LOG_WARN << "Nie udało się jednoznacznie określić typu (Trunk/Leaf) na podstawie ścieżki: " << stdPath;
+                }
+
+                applyParams(params);
+            }
+        });
 
     if (dlg.ShowModal() != wxID_OK)
         return std::nullopt;
