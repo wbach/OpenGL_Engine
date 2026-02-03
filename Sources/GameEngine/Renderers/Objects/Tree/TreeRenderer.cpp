@@ -171,11 +171,12 @@ void TreeRenderer::UpdateTreePramBuffer(Components::TreeRendererComponent& treeR
     {
         TreeParamBuffer buffer;
         treeRendererComponent.windTime += 0.1f * context_.time_.deltaTime;
-        buffer.time        = treeRendererComponent.windTime;
-        buffer.wind        = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
+        buffer.time   = treeRendererComponent.windTime;
+        buffer.wind   = vec4(glm::normalize(glm::vec3(0.6f, 0.0f, 0.8f)),
                            context_.scene_ ? context_.scene_->getWindParams().windStrength : 0.4f);
-        buffer.fprams      = vec4{treeRendererComponent.leafScale, 0, 0, CalculateFadeFactor(distanceToCamera)};
-        buffer.atlasParams = vec4i{treeRendererComponent.leafTextureAtlasSize, treeRendererComponent.leafTextureIndex, 0, 0};
+        buffer.fprams = vec4{0, 0, 0, CalculateFadeFactor(distanceToCamera)};
+        buffer.atlasParams =
+            vec4i{treeRendererComponent.leafTextureAtlasSize.x, treeRendererComponent.leafTextureAtlasSize.y, 0, 0};
 
         context_.graphicsApi_.UpdateShaderBuffer(*paramBufferId_, &buffer);
         context_.graphicsApi_.BindShaderBuffer(*paramBufferId_);

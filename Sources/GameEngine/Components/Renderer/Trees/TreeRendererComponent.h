@@ -30,10 +30,7 @@ namespace Components
 class TreeRendererComponent : public BaseComponent
 {
 public:
-    float leafScale;
-    int leafTextureAtlasSize;
-    int leafTextureIndex;
-
+    vec2 leafTextureAtlasSize;
     File treeModel;
 
     // clang-format off

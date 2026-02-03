@@ -69,7 +69,7 @@ void main()
     float sway = sin(time * 1.5 + leafPhase) * windStrength;
     vec3 windOffset = windDir * sway;
 
-    float scale = leafParams.fparams.x * sizeRandomness;
+    float scale = sizeRandomness;
     float leafOffset = leafParams.fparams.y;
     float bendAmount = leafParams.fparams.z;
 

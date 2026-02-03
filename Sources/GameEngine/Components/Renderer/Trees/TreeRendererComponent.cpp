@@ -31,6 +31,7 @@ namespace Components
 namespace
 {
 constexpr char CSTR_INSTANCES_POSITIONS[] = "insatncesPositions";
+constexpr char CSTR_ATLAS_SIZE[]          = "atlasSize";
 
 std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
 {
@@ -60,9 +61,7 @@ std::vector<ClusterData> getClusterData(const TreeClusters& treeClusters)
 
 TreeRendererComponent::TreeRendererComponent(ComponentContext& componentContext, GameObject& gameObject)
     : BaseComponent(GetComponentType<TreeRendererComponent>(), componentContext, gameObject)
-    , leafScale{0.75f}
     , leafTextureAtlasSize{3}
-    , leafTextureIndex{0}
     , isSubsribed_(false)
 {
 }
@@ -236,6 +235,8 @@ void TreeRendererComponent::registerReadFunctions()
             }
         }
 
+        ::Read(node.getChild(CSTR_ATLAS_SIZE), component->leafTextureAtlasSize);
+
         if (auto instancesNode = node.getChild(CSTR_INSTANCES_POSITIONS))
         {
             component->instancesPositions_.clear();
@@ -265,6 +266,8 @@ void TreeRendererComponent::write(TreeNode& node) const
         LOG_DEBUG << "Tree all leafs size: " << tree.allLeafs.size();
         Export(tree, treeModel.GetAbsolutePath());
     }
+
+    ::write(node.addChild(CSTR_ATLAS_SIZE), leafTextureAtlasSize);
 
     if (not instancesPositions_.empty())
     {

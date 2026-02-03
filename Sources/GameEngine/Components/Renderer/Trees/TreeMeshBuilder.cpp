@@ -475,7 +475,7 @@ void TreeMeshBuilder::calculateLeafs()
 
     std::mt19937 gen(42);
     std::uniform_real_distribution<float> dis(-1.0f, 1.0f);
-    std::uniform_int_distribution<> distr(1, parameters.textureAtlasSize);
+    std::uniform_int_distribution<> distr(1, parameters.textureAtlasSize.x * parameters.textureAtlasSize.y);
 
     for (size_t branchIndex = 0; branchIndex < branchContexts.size(); ++branchIndex)
     {

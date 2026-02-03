@@ -56,7 +56,7 @@ bool Is(float v)
 vec2 GetAtlasUV(vec2 uv, int idx)
 {
     int cols = leafParams.atlasParams.x;
-    int rows = leafParams.atlasParams.x;
+    int rows = leafParams.atlasParams.y;
     idx = clamp(idx, 0, cols*rows - 1);
 
     int col = idx % cols;
@@ -99,7 +99,7 @@ void main()
     float metallic = 0.0;
     float ao = 1.0;
     float displacement = 0.0;
-    int textureIndex = fs_in.textureIndex; // leafParams.atlasParams.y
+    int textureIndex = fs_in.textureIndex;
 
     if (Is(perApp.useTextures.x))
     {

@@ -94,6 +94,31 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         return picker;
     };
 
+    struct Vec2Controls
+    {
+        wxTextCtrl* x;
+        wxTextCtrl* y;
+    };
+
+    auto addVec2 = [&](const wxString& label, const vec2& value)
+    {
+        grid->Add(new wxStaticText(&dlg, wxID_ANY, label), 0, wxALIGN_CENTER_VERTICAL);
+        auto* row = new wxBoxSizer(wxHORIZONTAL);
+
+        auto makeFloat = [&](float v)
+        {
+            auto* t = new wxTextCtrl(&dlg, wxID_ANY, wxString::Format("%.4f", v), wxDefaultPosition, wxSize(70, -1));
+            row->Add(t, 1, wxRIGHT, 4);
+            return t;
+        };
+
+        auto* x = makeFloat(value.x);
+        auto* y = makeFloat(value.y);
+
+        grid->Add(row, 1, wxEXPAND);
+        return Vec2Controls{x, y};
+    };
+
     struct Vec3Controls
     {
         wxTextCtrl* x;
@@ -143,7 +168,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         wxTextCtrl* leafSpread;
         wxTextCtrl* minBranchRadius;
         wxTextCtrl* maxBranchRadius;
-        wxSpinCtrl* textureAtlasSize;
+        Vec2Controls textureAtlasSize;
     };
 
     EntryControls meshControls;
@@ -155,7 +180,7 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     meshControls.leafSpread          = addFloat("Leaf Spread", initial.meshBuilderParams.leafSpread);
     meshControls.minBranchRadius     = addFloat("Min Branch Radius", initial.meshBuilderParams.minBranchRadius);
     meshControls.maxBranchRadius     = addFloat("Max Branch Radius", initial.meshBuilderParams.maxBranchRadius);
-    meshControls.textureAtlasSize    = addSizeT("Texture Atlas Size", initial.meshBuilderParams.textureAtlasSize);
+    meshControls.textureAtlasSize    = addVec2("Texture Atlas Size", initial.meshBuilderParams.textureAtlasSize);
 
     // --- Trunk textures ---
     auto* trunkAlbedo    = addFile("Trunk Albedo", initial.trunkMaterialBaseColorTexture);
@@ -241,7 +266,9 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         meshControls.leafSpread->SetValue(wxString::Format("%.4f", params.meshBuilderParams.leafSpread));
         meshControls.minBranchRadius->SetValue(wxString::Format("%.6f", params.meshBuilderParams.minBranchRadius));
         meshControls.maxBranchRadius->SetValue(wxString::Format("%.4f", params.meshBuilderParams.maxBranchRadius));
-        meshControls.textureAtlasSize->SetValue(params.meshBuilderParams.textureAtlasSize);
+
+        meshControls.textureAtlasSize.x->SetValue(wxString::Format("%.4f", params.meshBuilderParams.textureAtlasSize.x));
+        meshControls.textureAtlasSize.y->SetValue(wxString::Format("%.4f", params.meshBuilderParams.textureAtlasSize.y));
     };
 
     // --- Restore Defaults ---
@@ -290,8 +317,8 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         out.meshBuilderParams.leafSpread         = wxAtof(meshControls.leafSpread->GetValue());
         out.meshBuilderParams.minBranchRadius    = wxAtof(meshControls.minBranchRadius->GetValue());
         out.meshBuilderParams.maxBranchRadius    = wxAtof(meshControls.maxBranchRadius->GetValue());
-        out.meshBuilderParams.textureAtlasSize   = meshControls.textureAtlasSize->GetValue();
-
+        out.meshBuilderParams.textureAtlasSize.x = wxAtof(meshControls.textureAtlasSize.x->GetValue());
+        out.meshBuilderParams.textureAtlasSize.y = wxAtof(meshControls.textureAtlasSize.y->GetValue());
         return out;
     };
 
