@@ -10,6 +10,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxWindowApi.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxInputManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGeneration.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/ForsetGeneration.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGenerationParams.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/BuildProcess.cpp

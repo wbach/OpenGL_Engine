@@ -53,6 +53,7 @@
 #include "WxEditor/Commands/UndoManager.h"
 #include "WxEditor/EngineRelated/GLCanvas.h"
 #include "WxEditor/EngineRelated/WxScenesDef.h"
+#include "WxEditor/TreeGeneration/ForsetGeneration.h"
 #include "WxEditor/TreeGeneration/TreeGeneration.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
@@ -151,6 +152,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_EDIT_CREATE_ICOSPHERE, MainFrame::MenuEditCreateIcoSphere)
     EVT_MENU(ID_MENU_EDIT_CREATE_TRIANGLE, MainFrame::MenuEditCreateTriangle)
     EVT_MENU(ID_MENU_EDIT_CREATE_TREE, MainFrame::MenuEditCreateTree)
+    EVT_MENU(ID_MENU_EDIT_CREATE_FOREST, MainFrame::MenuEditCreateForest)
     EVT_MENU(ID_MENU_EDIT_MATERIAL_EDITOR, MainFrame::MenuEditMaterialEditor)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
@@ -1017,6 +1019,7 @@ wxMenu* MainFrame::CreateEditMenu()
 
     createSubMenu->AppendSubMenu(lightSubMenu, "&Light", "Create gameobject with light component");
     createSubMenu->Append(ID_MENU_EDIT_CREATE_TREE, "&Tree", "Create game object with tree renderer component");
+    createSubMenu->Append(ID_MENU_EDIT_CREATE_FOREST, "&Forest", "Create multiple game objects with tree renderer component");
 
     auto primitiveSubMenu = new wxMenu;
     primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_CUBE, "&Cube", "Create game object with renderer component");
@@ -2053,4 +2056,11 @@ void MainFrame::CenterOnPrimaryMonitor()
     int x             = screenRect.x + (screenRect.width - GetSize().GetWidth()) / 2;
     int y             = screenRect.y + (screenRect.height - GetSize().GetHeight()) / 2;
     SetPosition(wxPoint(x, y));
+}
+void MainFrame::MenuEditCreateForest(wxCommandEvent&)
+{
+    const vec2 min{-40, -40};
+    const vec2 max{40, 40};
+    const float density{0.05f};
+    WxEditor::GenerateForest(this, canvas, min, max, density);
 }

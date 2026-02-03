@@ -17,8 +17,12 @@ const vec3 VECTOR_ONE{1.f};
 
 namespace
 {
-std::random_device rd;
-std::mt19937 mt(rd());
+std::mt19937& get_engine()
+{
+    static std::random_device rd;
+    static std::mt19937 engine(rd());
+    return engine;
+}
 }  // namespace
 
 namespace wb
@@ -68,7 +72,7 @@ float getRandomFloat()
 float getRandomFloat(float min, float max)
 {
     std::uniform_real_distribution<float> dist(min, max);
-    return dist(mt);
+    return dist(get_engine());
 }
 
 std::ostream& operator<<(std::ostream& os, const MeasurementValue& mv)

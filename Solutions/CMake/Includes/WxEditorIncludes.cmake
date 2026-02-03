@@ -14,6 +14,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/WxWindowApi.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/EmptyScene.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/EngineRelated/GLCanvas.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGeneration.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/ForsetGeneration.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGenerationParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ProjectManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/ComponentPanel/ComponentPanel.h

@@ -810,7 +810,7 @@ GameEngine::TreeGenerator GenerateTree(const TreeGenerationParams& params)
     // elips
     auto noiseStrength = 0.05f - 0.15f * params.crownSize.y;
     tree.prepareAttractors(params.attractorsCount, params.crownSize, noiseStrength);
-    //tree.preparePineAttractors(params.attractorsCount, params.crownSize, noiseStrength);
+    // tree.preparePineAttractors(params.attractorsCount, params.crownSize, noiseStrength);
 
     auto status = tree.build();
 
@@ -826,7 +826,7 @@ void generateLeafClusters(GameEngine::IGpuResourceLoader& loader, GraphicsApi::I
                           GameEngine::IResourceManager& resourceManager, GameEngine::Components::TreeRendererComponent& trc,
                           const std::vector<GameEngine::Leaf>& leafs, const GameEngine::Material& leafMaterial)
 {
-    auto clasters = groupLeavesIntoClusters(leafs, 4);
+    auto clasters = groupLeavesIntoClusters(leafs, 1);
 
     LOG_DEBUG << "Cluster size : " << clasters.clusters.size();
 
@@ -997,31 +997,37 @@ void GenerateTree(wxFrame* parent, GLCanvas* canvas)
     std::thread(
         [dlg, parent, canvas, params]()
         {
-            auto obj  = canvas->GetScene().CreateGameObject("GeneratedTree");
-            auto& trc = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();
+            GenerateTree(parent, canvas, *params, canvas->GetWorldPosFromCamera());
 
-            auto tree      = GenerateTree(*params);
-            auto treeModel = GenerateLoD1Tree(tree, canvas, *params);
-
-            trc.SetLeafBilboardsModel(treeModel->leafBilboardModel);
-            trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
-            trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->meshBuilder.GetLeafs()));
-            trc.SetLeafMaterial(treeModel->leafMaterial);
-            trc.leafTextureAtlasSize = params->meshBuilderParams.textureAtlasSize;
-            auto& engineContext      = canvas->GetEngine().GetEngineContext();
-            generateLeafClusters(engineContext.GetGpuResourceLoader(), engineContext.GetGraphicsApi(),
-                                 canvas->GetScene().GetResourceManager(), trc, treeModel->meshBuilder.GetLeafs(),
-                                 treeModel->leafMaterial);
-
-            auto treeModelLod2 = GenerateLoD2Tree(tree, canvas, *params);
-            trc.SetGeneratedTrunkModel(treeModelLod2->trunkModel, GameEngine::LevelOfDetail::L2);
-
-            obj->SetWorldPosition(canvas->GetWorldPosFromCamera());
-            canvas->AddGameObject(std::move(obj));
             parent->CallAfter([dlg]() { dlg->Close(); });
         })
         .detach();
 
     dlg->Show();
+}
+void GenerateTree(wxFrame* parent, GLCanvas* canvas, const TreeGenerationParams& params, const vec3& worldPosition, GameEngine::GameObject* parentGameObject)
+{
+    static int id = 0;
+    auto obj      = canvas->GetScene().CreateGameObject("GeneratedTree_" + std::to_string(id++));
+    auto& trc     = obj->AddComponent<GameEngine::Components::TreeRendererComponent>();
+
+    auto tree      = GenerateTree(params);
+    auto treeModel = GenerateLoD1Tree(tree, canvas, params);
+
+    trc.SetLeafBilboardsModel(treeModel->leafBilboardModel);
+    trc.SetGeneratedTrunkModel(treeModel->trunkModel, GameEngine::LevelOfDetail::L1);
+    trc.UpdateLeafsSsbo(GameEngine::PrepareSSBOData(treeModel->meshBuilder.GetLeafs()));
+    trc.SetLeafMaterial(treeModel->leafMaterial);
+    trc.leafTextureAtlasSize = params.meshBuilderParams.textureAtlasSize;
+    auto& engineContext      = canvas->GetEngine().GetEngineContext();
+    generateLeafClusters(engineContext.GetGpuResourceLoader(), engineContext.GetGraphicsApi(),
+                         canvas->GetScene().GetResourceManager(), trc, treeModel->meshBuilder.GetLeafs(),
+                         treeModel->leafMaterial);
+
+    auto treeModelLod2 = GenerateLoD2Tree(tree, canvas, params);
+    trc.SetGeneratedTrunkModel(treeModelLod2->trunkModel, GameEngine::LevelOfDetail::L2);
+
+    obj->SetWorldPosition(worldPosition);
+    canvas->AddGameObject(std::move(obj), parentGameObject);
 }
 }  // namespace WxEditor

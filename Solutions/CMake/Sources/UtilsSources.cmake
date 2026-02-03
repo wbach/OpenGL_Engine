@@ -22,6 +22,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Time/TimeMeasurer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/GLM/GLMUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/md5.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Rotation.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/PoissonDiskSample.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Image/ImageUtils.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Image/ImageFilters.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/Utils/Image/Image.cpp
