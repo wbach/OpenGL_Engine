@@ -19,6 +19,48 @@ static float ToFloat(const std::string& s, float def = 0.f)
     }
 }
 
+static vec2 ToVec2(const std::string& s, vec2 def = vec2(0.f))
+{
+    try
+    {
+        size_t commaPos = s.find(',');
+        if (commaPos == std::string::npos)
+        {
+            return def;
+        }
+
+        float x = std::stof(s.substr(0, commaPos));
+        float y = std::stof(s.substr(commaPos + 1));
+
+        return vec2(x, y);
+    }
+    catch (...)
+    {
+        return def;
+    }
+}
+
+static vec3 ToVec3(const std::string& s, vec3 def = vec3(0.f))
+{
+    try
+    {
+        size_t firstComma  = s.find(',');
+        size_t secondComma = s.find(',', firstComma + 1);
+
+        if (firstComma == std::string::npos || secondComma == std::string::npos)
+            return def;
+
+        float x = std::stof(s.substr(0, firstComma));
+        float y = std::stof(s.substr(firstComma + 1, secondComma - firstComma - 1));
+        float z = std::stof(s.substr(secondComma + 1));
+        return vec3(x, y, z);
+    }
+    catch (...)
+    {
+        return def;
+    }
+}
+
 static int ToInt(const std::string& s, int def = 0)
 {
     try
@@ -109,6 +151,10 @@ T GetAttribute(const TreeNode& node, const std::string& key, T defaultValue)
     else if constexpr (std::is_same_v<T, size_t>)
     {
         return ToSizeT(it->second, defaultValue);
+    }
+    else if constexpr (std::is_same_v<T, vec2>)
+    {
+        return ToVec2(it->second, defaultValue);
     }
     else if constexpr (std::is_same_v<T, std::string>)
     {
