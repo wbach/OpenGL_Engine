@@ -153,13 +153,13 @@ void TreeMeshBuilder::appendTransition(const std::vector<RingVertex>& ringA, con
     for (int i = 0; i < ringStride; ++i)
     {
         const auto& v = ringA[i];
-        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, 0.f));
+        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, v.uv);
     }
 
     for (int i = 0; i < ringStride; ++i)
     {
         const auto& v = ringB[i];
-        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, vec2(v.uv.x, transitionLength / branchLength));
+        writeVertex(v.pos, v.normal, v.tangent, v.bitangent, v.uv);
     }
 
     for (int i = 0; i < ringStride - 1; ++i)
@@ -203,21 +203,32 @@ void TreeMeshBuilder::buildOrthonormalBasis()
 }
 void TreeMeshBuilder::appendCylinderVertices(int branchIndex)
 {
-    const auto& branch       = branches[branchIndex];
+    const auto& branch = branches[branchIndex];
+    const auto& parent = branches[branch.parentIndex.value()];
+
     auto& context            = branchContexts.at(branchIndex);
     const auto& radiusTop    = context.radius;
     const auto& radiusBottom = branch.parentIndex ? branchContexts.at(branch.parentIndex.value()).radius : context.radius;
 
+    const float uvScaleY = 1.0f;
+    float vBottom        = parent.lengthFromRoot * uvScaleY;
+    float vTop           = branch.lengthFromRoot * uvScaleY;
+
     appendRing(context.bottomVertexes, branch.parentIndex ? &branchContexts.at(branch.parentIndex.value()).topVertexes : nullptr,
-               start, radiusBottom, 0.f);
-    appendRing(context.topVertexes, nullptr, end, radiusTop, 1.f);
+               start, radiusBottom, vBottom);
+    appendRing(context.topVertexes, nullptr, end, radiusTop, vTop);
 }
 void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<RingVertex>* parentVertexes, const vec3& center,
                                  float radius, float v)
 {
+    const float uvScaleX = 1.0f;
+    float circumference  = TWO_PI * radius;
+
     for (int i = 0; i <= parameters.radialSegments; ++i)
     {
-        float angle     = (float)i / parameters.radialSegments * TWO_PI;
+        float fraction = (float)i / parameters.radialSegments;
+        float angle    = fraction * TWO_PI;
+
         vec3 baseNormal = glm::normalize(std::cos(angle) * tangent + std::sin(angle) * bitangent);
         vec3 normal     = baseNormal;
 
@@ -234,7 +245,7 @@ void TreeMeshBuilder::appendRing(std::vector<RingVertex>& vertices, std::vector<
         vec3 bitang = glm::cross(normal, tang);
         vec3 pos    = center + baseNormal * radius;
 
-        float u = float(i) / parameters.radialSegments;
+        float u = (fraction * circumference) * uvScaleX;
         vec2 uv{u, v};
         writeVertex(pos, normal, tang, bitang, uv);
         vertices.push_back(RingVertex{.pos = pos, .normal = normal, .tangent = tang, .bitangent = bitang, .uv = uv});
