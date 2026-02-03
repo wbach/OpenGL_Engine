@@ -351,6 +351,7 @@ void TreeMeshBuilder::calculateBranchesRadius()
     {
         float effectiveLoad = std::max(ctx.load, 1.0f);
         ctx.radius          = k * pow(effectiveLoad, 1.0f / alpha);
+        ctx.radius          = std::min(ctx.radius, parameters.maxBranchRadius);
     }
 }
 
@@ -516,9 +517,10 @@ void TreeMeshBuilder::calculateLeafs()
 
             Leaf leaf{.position        = pos + (dir * t) + (tangent * cosA + bitangent * sinA) * (radius * radiusNoise),
                       .direction       = normalize(outward + dir * parameters.leafSpread + bendNoise),
+                      .rotation        = parameters.leafTextureRotation,
                       .textureIndex    = textureIndex,
                       .colorRandomness = randomLeafColor(),
-                      .sizeRandomness  = getRandomFloat(0.8f, 1.2f)};
+                      .sizeRandomness  = parameters.leafSize * getRandomFloat(0.8f, 1.2f)};
 
             leafs.push_back(leaf);
         }

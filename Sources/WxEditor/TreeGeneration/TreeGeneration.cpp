@@ -154,9 +154,8 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     auto* minDistance     = addFloat("SCA Min distance", initial.minDistance);
     auto* segmentLength   = addFloat("Trunk segment scale", initial.segmentLength);
     auto* crownYOffset    = addFloat("Crown y offset", initial.crownYOffset);
-
-    auto rootPosition  = addVec3("Root position", initial.rootPosition);
-    auto rootDirection = addVec3("Root direction", initial.rootDirection);
+    auto rootPosition     = addVec3("Root position", initial.rootPosition);
+    auto rootDirection    = addVec3("Root direction", initial.rootDirection);
 
     // --- EntryParameters ---
     struct EntryControls
@@ -166,6 +165,8 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         wxTextCtrl* leafRandomFactor;
         wxSpinCtrl* leafsPerBranch;
         wxTextCtrl* leafSpread;
+        wxTextCtrl* leafSize;
+        wxTextCtrl* leafTextureRotation;
         wxTextCtrl* minBranchRadius;
         wxTextCtrl* maxBranchRadius;
         Vec2Controls textureAtlasSize;
@@ -181,6 +182,8 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
     meshControls.minBranchRadius     = addFloat("Min Branch Radius", initial.meshBuilderParams.minBranchRadius);
     meshControls.maxBranchRadius     = addFloat("Max Branch Radius", initial.meshBuilderParams.maxBranchRadius);
     meshControls.textureAtlasSize    = addVec2("Texture Atlas Size", initial.meshBuilderParams.textureAtlasSize);
+    meshControls.leafSize            = addFloat("Leaf size", initial.meshBuilderParams.leafSize);
+    meshControls.leafTextureRotation = addFloat("Leaf texture rotation", initial.meshBuilderParams.leafTextureRotation);
 
     // --- Trunk textures ---
     auto* trunkAlbedo    = addFile("Trunk Albedo", initial.trunkMaterialBaseColorTexture);
@@ -229,7 +232,6 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         minDistance->SetValue(wxString::Format("%.4f", params.minDistance));
         segmentLength->SetValue(wxString::Format("%.4f", params.segmentLength));
         crownYOffset->SetValue(wxString::Format("%.4f", params.crownYOffset));
-        LOG_DEBUG << "params.crownYOffset " << params.crownYOffset;
 
         // Vec3
         crownSize.x->SetValue(wxString::Format("%.4f", params.crownSize.x));
@@ -269,6 +271,9 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
 
         meshControls.textureAtlasSize.x->SetValue(wxString::Format("%.4f", params.meshBuilderParams.textureAtlasSize.x));
         meshControls.textureAtlasSize.y->SetValue(wxString::Format("%.4f", params.meshBuilderParams.textureAtlasSize.y));
+
+        meshControls.leafSize->SetValue(wxString::Format("%.4f", params.meshBuilderParams.leafSize));
+        meshControls.leafTextureRotation->SetValue(wxString::Format("%.4f", params.meshBuilderParams.leafTextureRotation));
     };
 
     // --- Restore Defaults ---
@@ -310,15 +315,17 @@ std::optional<TreeGenerationParams> EditTreeGenerationParams(wxWindow* parent, c
         out.leafMaterialRoughnessTexture = leafRoughness->GetPath().ToStdString();
         out.leafMaterialNormalTexture    = leafNormal->GetPath().ToStdString();
 
-        out.meshBuilderParams.radialSegments     = meshControls.radialSegments->GetValue();
-        out.meshBuilderParams.leafheightTreshold = wxAtof(meshControls.leafheightThreshold->GetValue());
-        out.meshBuilderParams.leafRandomFactor   = wxAtof(meshControls.leafRandomFactor->GetValue());
-        out.meshBuilderParams.leafsPerBranch     = meshControls.leafsPerBranch->GetValue();
-        out.meshBuilderParams.leafSpread         = wxAtof(meshControls.leafSpread->GetValue());
-        out.meshBuilderParams.minBranchRadius    = wxAtof(meshControls.minBranchRadius->GetValue());
-        out.meshBuilderParams.maxBranchRadius    = wxAtof(meshControls.maxBranchRadius->GetValue());
-        out.meshBuilderParams.textureAtlasSize.x = wxAtof(meshControls.textureAtlasSize.x->GetValue());
-        out.meshBuilderParams.textureAtlasSize.y = wxAtof(meshControls.textureAtlasSize.y->GetValue());
+        out.meshBuilderParams.radialSegments      = meshControls.radialSegments->GetValue();
+        out.meshBuilderParams.leafheightTreshold  = wxAtof(meshControls.leafheightThreshold->GetValue());
+        out.meshBuilderParams.leafRandomFactor    = wxAtof(meshControls.leafRandomFactor->GetValue());
+        out.meshBuilderParams.leafsPerBranch      = meshControls.leafsPerBranch->GetValue();
+        out.meshBuilderParams.leafSpread          = wxAtof(meshControls.leafSpread->GetValue());
+        out.meshBuilderParams.minBranchRadius     = wxAtof(meshControls.minBranchRadius->GetValue());
+        out.meshBuilderParams.maxBranchRadius     = wxAtof(meshControls.maxBranchRadius->GetValue());
+        out.meshBuilderParams.textureAtlasSize.x  = wxAtof(meshControls.textureAtlasSize.x->GetValue());
+        out.meshBuilderParams.textureAtlasSize.y  = wxAtof(meshControls.textureAtlasSize.y->GetValue());
+        out.meshBuilderParams.leafSize            = wxAtof(meshControls.leafSize->GetValue());
+        out.meshBuilderParams.leafTextureRotation = wxAtof(meshControls.leafTextureRotation->GetValue());
         return out;
     };
 
@@ -803,6 +810,7 @@ GameEngine::TreeGenerator GenerateTree(const TreeGenerationParams& params)
     // elips
     auto noiseStrength = 0.05f - 0.15f * params.crownSize.y;
     tree.prepareAttractors(params.attractorsCount, params.crownSize, noiseStrength);
+    //tree.preparePineAttractors(params.attractorsCount, params.crownSize, noiseStrength);
 
     auto status = tree.build();
 

@@ -33,9 +33,11 @@ public:
         float leafRandomFactor           = 0.2f;  // randomFactor od 0.0 do 1.0
         int leafsPerBranch               = 3;
         float leafSpread                 = 0.05f;
+        float leafSize                   = 1.f;
+        float leafTextureRotation        = 0.f;
         float minBranchRadius            = 0.0001f;  // To calculate branch radius min - man
         float maxBranchRadius            = 1.0f;
-        vec2 textureAtlasSize             = {3, 3};
+        vec2 textureAtlasSize            = {3, 3};
         float radiusSizeCreationTreshold = 0.0f;  // To skip small branches
     };
 

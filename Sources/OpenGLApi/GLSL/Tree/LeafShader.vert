@@ -24,7 +24,7 @@ layout(std140, align=16, binding = 4) uniform LeafParams
 struct Leaf
 {
     vec4 posSize;    // xyz: worldPosition, w: sizeRandomness
-    vec4 dirUnused;  // xyz: worldDirection, w: unused
+    vec4 dirUnused;  // xyz: worldDirection, w: rotation
     vec4 colorTex;   // xyz: colorRandomness, w: textureIndex (jako float)
 };
 
@@ -50,6 +50,18 @@ vec3 ComputeWindBend(float time, float leafPhase, vec3 windDir, float windStreng
     return windDir * windStrength * (t * t) + sideDir * flutter * t;
 }
 
+vec2 rotateUV(vec2 uv, float rotation)
+{
+    float mid = 0.5;
+    float rad = radians(rotation);
+    float cosAngle = cos(rad);
+    float sinAngle = sin(rad);
+    return vec2(
+        cosAngle * (uv.x - mid) + sinAngle * (uv.y - mid) + mid,
+        cosAngle * (uv.y - mid) - sinAngle * (uv.x - mid) + mid
+    );
+}
+
 void main() 
 {
     int leafID = gl_VertexID / 6;
@@ -57,7 +69,7 @@ void main()
 
     Leaf l = leaves[leafID];
     vec3 localPosData = l.posSize.xyz;
-    float sizeRandomness = l.posSize.w;
+    float scale = l.posSize.w;
     vec3 localDirection = l.dirUnused.xyz;
     vec3 colorRandomness = l.colorTex.xyz;
     int textureIndex = int(l.colorTex.w);
@@ -69,7 +81,6 @@ void main()
     float sway = sin(time * 1.5 + leafPhase) * windStrength;
     vec3 windOffset = windDir * sway;
 
-    float scale = sizeRandomness;
     float leafOffset = leafParams.fparams.y;
     float bendAmount = leafParams.fparams.z;
 
@@ -91,7 +102,8 @@ void main()
     vec3 v3 = leafBase - right * 0.5 + up + bend + windTop;
 
     vec3 verts[6] = vec3[]( v0, v1, v2, v0, v2, v3 );
-    
+    float rotation = l.dirUnused.w;
+
     vec2 uv0 = vec2(0,0); vec2 uv1 = vec2(1,0); vec2 uv2 = vec2(1,1); vec2 uv3 = vec2(0,1);
     vec2 uvs[6]   = vec2[]( uv0, uv1, uv2, uv0, uv2, uv3 );
 
@@ -102,7 +114,8 @@ void main()
     
     vs_out.normal = normalize(mat3(perObjectUpdate.transformationMatrix) * localNormal);
     
-    vs_out.texCoord = uvs[cornerID];
+    //vs_out.texCoord = uvs[cornerID];
+    vs_out.texCoord = rotateUV(uvs[cornerID], rotation);
     vs_out.worldPos = worldPos;
     vs_out.colorRandomness = colorRandomness;
     vs_out.textureIndex = textureIndex;

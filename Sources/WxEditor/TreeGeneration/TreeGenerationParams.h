@@ -2,6 +2,7 @@
 #include <GameEngine/Components/Renderer/Trees/TreeMeshBuilder.h>
 #include <Types.h>
 #include <Utils/TreeNode.h>
+
 #include <filesystem>
 
 struct TreeGenerationParams
@@ -30,4 +31,4 @@ struct TreeGenerationParams
 };
 
 void SaveTreeGenerationParams(const TreeGenerationParams&, const std::filesystem::path&);
-std::optional<TreeGenerationParams>  ReadTreeGenerationParams(const std::filesystem::path&);
+std::optional<TreeGenerationParams> ReadTreeGenerationParams(const std::filesystem::path&);

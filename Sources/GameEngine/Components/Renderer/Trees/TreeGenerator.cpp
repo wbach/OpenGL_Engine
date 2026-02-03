@@ -77,6 +77,25 @@ void TreeGenerator::prepareAttractors(size_t attractorsCount, const vec3& crownR
 
     maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
 }
+void TreeGenerator::preparePineAttractors(size_t attractorsCount, const vec3& crownSize, float noiseStrength)
+{
+    attractors.clear();
+    attractors.reserve(attractorsCount);
+
+    float maxAttractorDist = 0.f;
+
+    for (size_t i = 0; i < attractorsCount; i++)
+    {
+        vec3 local = generatePineAttractor(crownSize);
+        local += ellipsoidNoise(noiseStrength);
+        vec3 worldPos = local + rootPosition;
+        attractors.push_back(Attractor{.position = worldPos});
+        maxAttractorDist = std::max(maxAttractorDist, glm::distance(rootPosition, worldPos));
+    }
+
+    maxTrunkSteps = static_cast<size_t>(maxAttractorDist / segmentLength) + 5;
+}
+
 void TreeGenerator::clear()
 {
     zeroDirCount = 0;
@@ -336,5 +355,20 @@ std::vector<Branch> TreeGenerator::optimize(const std::vector<Branch>& input, co
 std::vector<Branch> TreeGenerator::optimize(const std::optional<float>& treshold) const
 {
     return optimize(branches, treshold);
+}
+vec3 TreeGenerator::generatePineAttractor(const vec3& crownSize)
+{
+    float h            = getRandomFloat();
+    h                  = pow(h, 0.55f);
+    float radiusFactor = 1.0f - h;
+    float angle        = getRandomFloat(0.f, 2.f * M_PI);
+    float radial       = sqrt(getRandomFloat()) * radiusFactor;
+    float rx           = radial * crownSize.x * 0.5f;
+    float rz           = radial * crownSize.z * 0.5f;
+    vec3 pos;
+    pos.x = cos(angle) * rx;
+    pos.z = sin(angle) * rz;
+    pos.y = + crownYOffset + h * crownSize.y;
+    return pos;
 }
 }  // namespace GameEngine

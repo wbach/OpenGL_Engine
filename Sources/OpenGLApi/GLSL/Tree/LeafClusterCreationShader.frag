@@ -50,7 +50,7 @@ void main()
     vec4 texColor = texture(BaseColorTexture, uv);
     if (texColor.a < 0.1) discard;
     
-    vec3 finalColor = texColor.rgb * fs_in.colorRandomness;
+    vec3 finalColor = texColor.rgb;// * fs_in.colorRandomness;
     finalColor *= vec3(0.95, 1.0, 0.95);
     vec3 detailNormal = texture(NormalTexture, uv).xyz * 2.0 - 1.0;
     vec3 worldNormal = normalize(fs_in.normal + detailNormal * 0.2); 

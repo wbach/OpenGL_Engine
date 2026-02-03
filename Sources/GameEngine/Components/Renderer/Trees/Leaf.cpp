@@ -31,7 +31,7 @@ LeafSSBO ConvertToSSBO(const Leaf& leaf)
 {
     LeafSSBO ssbo;
     ssbo.positionAndSizeRandomness      = glm::vec4(leaf.position, leaf.sizeRandomness);
-    ssbo.direction                      = glm::vec4(leaf.direction, 0.0f);
+    ssbo.direction                      = glm::vec4(leaf.direction, leaf.rotation);
     ssbo.colorRandomnessAndTextureIndex = glm::vec4(leaf.colorRandomness, static_cast<float>(leaf.textureIndex));
 
     return ssbo;

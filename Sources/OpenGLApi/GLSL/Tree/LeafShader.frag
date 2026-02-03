@@ -104,7 +104,7 @@ void main()
     if (Is(perApp.useTextures.x))
     {
         baseColor  = texture(BaseColorTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
-        baseColor = baseColor * vec4(0.95f, 1.00f, 0.95f, 1.0f); //perMaterial.baseColor;
+        //baseColor = baseColor * vec4(0.95f, 1.00f, 0.95f, 1.0f); //perMaterial.baseColor;
         
         // Opacity
         vec4 opacityTex = texture(OpacityTexture, GetAtlasUV(fs_in.texCoord, textureIndex));
@@ -135,7 +135,7 @@ void main()
         displacement = texture(DisplacementTexture, GetAtlasUV(fs_in.texCoord, textureIndex)).r;
     }
 
-    vec3 albedo = baseColor.rgb * fs_in.colorRandomness;
+    vec3 albedo = baseColor.rgb ;//* fs_in.colorRandomness;
     albedo *= 0.9 + 0.1 * ao;
 
     WorldPosOut      = fs_in.worldPos + vec4(normal * displacement, 0.0);

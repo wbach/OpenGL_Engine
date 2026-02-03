@@ -54,6 +54,8 @@ constexpr char MaxDistance[]             = "maxDistance";
 constexpr char MinDistance[]             = "minDistance";
 constexpr char SegmentLength[]           = "segmentLength";
 constexpr char CrownYOffset[]            = "crownYOffset";
+constexpr char LeafSize[]                = "leafSize";
+constexpr char LeafTextureRotation[]     = "leafTexture";
 
 // TEXTURES
 constexpr char TrunkBaseColor[]    = "trunkMaterialBaseColorTexture";
@@ -160,6 +162,8 @@ TreeNode BuildTree(const TreeGenerationParams& p)
     mesh.attributes_[TreeParams::MaxBranchRadius]         = std::to_string(p.meshBuilderParams.maxBranchRadius);
     mesh.attributes_[TreeParams::TextureAtlasSize]        = std::to_string(p.meshBuilderParams.textureAtlasSize);
     mesh.attributes_[TreeParams::RadiusCreationThreshold] = std::to_string(p.meshBuilderParams.radiusSizeCreationTreshold);
+    mesh.attributes_[TreeParams::LeafSize]                = std::to_string(p.meshBuilderParams.leafSize);
+    mesh.attributes_[TreeParams::LeafTextureRotation]     = std::to_string(p.meshBuilderParams.leafTextureRotation);
 
     return root;
 }
@@ -212,6 +216,9 @@ TreeGenerationParams LoadTreeParams(const TreeNode& root)
             GetAttribute(*mNode, TreeParams::TextureAtlasSize, p.meshBuilderParams.textureAtlasSize);
         p.meshBuilderParams.radiusSizeCreationTreshold =
             GetAttribute(*mNode, TreeParams::RadiusCreationThreshold, p.meshBuilderParams.radiusSizeCreationTreshold);
+        p.meshBuilderParams.leafSize = GetAttribute(*mNode, TreeParams::LeafSize, p.meshBuilderParams.leafSize);
+        p.meshBuilderParams.leafTextureRotation =
+            GetAttribute(*mNode, TreeParams::LeafTextureRotation, p.meshBuilderParams.leafTextureRotation);
     }
 
     return p;

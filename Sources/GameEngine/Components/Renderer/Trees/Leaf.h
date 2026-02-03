@@ -17,6 +17,7 @@ struct Leaf
 {
     vec3 position;
     vec3 direction;
+    float rotation;
     int textureIndex;
     vec3 colorRandomness;
     float sizeRandomness;

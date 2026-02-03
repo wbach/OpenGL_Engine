@@ -18,6 +18,7 @@ public:
 
     void prepareAttractors(size_t count, float radius);
     void prepareAttractors(size_t attractorsCount, const vec3& crownRadii, float noiseStrength);
+    void preparePineAttractors(size_t attractorsCount, const vec3& crownSize, float noiseStrength);
     void clear();
 
     const std::vector<Branch>& GetBranches() const;
@@ -31,6 +32,7 @@ private:
     std::optional<int> closestBranch(Attractor&);
     vec3 randomPointInSphere(float radius = 1.f);
     vec3 randomPointInEllipsoid(const vec3&);
+    vec3 generatePineAttractor(const vec3&);
     vec3 ellipsoidNoise(float strength);
     void influanceBranchesByClosestAttractors();
     void consumeReachedAttractors();
