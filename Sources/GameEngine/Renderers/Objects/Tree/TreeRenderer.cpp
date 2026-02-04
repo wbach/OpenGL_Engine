@@ -209,4 +209,18 @@ float TreeRenderer::CalculateFadeFactor(float distanceToCamera)
 {
     return glm::clamp((distanceToCamera - startFade) / (endFade - startFade), 0.0f, 1.0f);
 }
+void TreeRenderer::cleanUp()
+{
+    if (paramBufferId_)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*paramBufferId_);
+        paramBufferId_.reset();
+    }
+
+    if (perObjectConstantsBufferId)
+    {
+        context_.graphicsApi_.DeleteShaderBuffer(*perObjectConstantsBufferId);
+        perObjectConstantsBufferId.reset();
+    }
+}
 }  // namespace GameEngine

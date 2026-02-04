@@ -46,6 +46,7 @@ public:
     void unSubscribe(GameObject&) override;
     void unSubscribeAll() override;
     void render() override;
+    void cleanUp() override;
 
 protected:
     float getDistanceToCamera(Components::IComponent&) const;
