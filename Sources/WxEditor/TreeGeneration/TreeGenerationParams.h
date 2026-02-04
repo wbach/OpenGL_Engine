@@ -22,13 +22,14 @@ struct TreeGenerationParams
     std::string trunkMaterialMetallicTexture         = "Textures/Tree/trunk/light-tree-bark_metallic.png";
     std::string trunkMaterialNormalTexture           = "Textures/Tree/trunk/light-tree-bark_normal-ogl.png";
     std::string trunkMaterialRoughnessTexture        = "Textures/Tree/trunk/light-tree-bark_roughness.png";
-    std::string leafMaterialBaseColorTexture         = "Textures/Tree/Leafs/LeafSet024_2K-PNG_ColorWB.png";
-    std::string leafMaterialOpacityTexture           = "Textures/Tree/Leafs/LeafSet024_2K-PNG_Opacity.png";
-    std::string leafMaterialRoughnessTexture         = "Textures/Tree/Leafs/LeafSet024_2K-PNG_Roughness.png";
-    std::string leafMaterialNormalTexture            = "Textures/Tree/Leafs/LeafSet024_2K-PNG_NormalGL.png";
+    std::string leafMaterialBaseColorTexture         = "Textures/Tree/Leafs/LeafSet024_2K-PNG/LeafSet024_2K-PNG_Color.png";
+    std::string leafMaterialOpacityTexture           = "Textures/Tree/Leafs/LeafSet024_2K-PNG/LeafSet024_2K-PNG_Opacity.png";
+    std::string leafMaterialRoughnessTexture         = "Textures/Tree/Leafs/LeafSet024_2K-PNG/LeafSet024_2K-PNG_Roughness.png";
+    std::string leafMaterialNormalTexture            = "Textures/Tree/Leafs/LeafSet024_2K-PNG/LeafSet024_2K-PNG_NormalGL.png";
 
     GameEngine::TreeMeshBuilder::EntryParameters meshBuilderParams;
 };
 
 void SaveTreeGenerationParams(const TreeGenerationParams&, const std::filesystem::path&);
 std::optional<TreeGenerationParams> ReadTreeGenerationParams(const std::filesystem::path&);
+void applyTextureSetToParams(TreeGenerationParams&, const std::filesystem::path&);

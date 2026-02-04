@@ -64,6 +64,8 @@ bool compare(float, float, float);
 
 float getRandomFloat();
 float getRandomFloat(float, float);
+int getRandomInt();
+int getRandomInt(int, int);
 
 template <class T>
 struct alignas(16) AlignWrapper

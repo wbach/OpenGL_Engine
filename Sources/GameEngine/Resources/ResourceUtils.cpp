@@ -141,8 +141,7 @@ std::optional<Utils::Image> ReadFile(const File& file, const TextureParameters& 
                              Color(pixeles[j * 4 + 2], pixeles[j * 4 + 1], pixeles[j * 4 + 0], pixeles[j * 4 + 3]));
     }
     FreeImage_Unload(image);
-    /* LOG TO FIX*/ LOG_ERROR << ("File: " + file.GetBaseName() + " is loaded. Size: " + std::to_string(resultImage.width) + "x" +
-                                  std::to_string(resultImage.height));
+    LOG_DEBUG << "File: " << file.GetBaseName() << " is loaded. Size: " << resultImage.width << "x" << resultImage.height;
     return std::move(resultImage);
 }
 
@@ -396,9 +395,10 @@ void GenerateBlendMap(const vec3& terrainScale, const HeightMap& heightMap, cons
                            for (size_t i = 3; i < data.size(); i += 4)
                                data[i] = 255;
 
-                           Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()), file.GetAbsolutePath().string() + "_alpha1_preview");
-                           Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()), file.GetAbsolutePath().string() + "_alpha1_preview_scaled",
-                                            vec2(4));
+                           Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()),
+                                            file.GetAbsolutePath().string() + "_alpha1_preview");
+                           Utils::SaveImage(data, vec3ui(image.size(), image.getChannelsCount()),
+                                            file.GetAbsolutePath().string() + "_alpha1_preview_scaled", vec2(4));
                        },
                        [&](const std::vector<float>&) { LOG_WARN << ("GenerateBlendMapImage for floats not implemented"); },
                        [](std::monostate) { LOG_ERROR << ("Data not set!"); }},

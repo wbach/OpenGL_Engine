@@ -2061,6 +2061,7 @@ void MainFrame::MenuEditCreateForest(wxCommandEvent&)
 {
     const vec2 min{-40, -40};
     const vec2 max{40, 40};
-    const float density{0.05f};
-    WxEditor::GenerateForest(this, canvas, min, max, density);
+    const float radius{15.f};
+    const int treeTypesCount{10};
+    WxEditor::GenerateForest(this, canvas, min, max, radius, treeTypesCount);
 }

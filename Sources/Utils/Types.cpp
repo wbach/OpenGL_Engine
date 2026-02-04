@@ -65,7 +65,6 @@ bool compare(float x, float y, float epsilon)
 
 float getRandomFloat()
 {
-    // return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
     return getRandomFloat(0.f, 1.f);
 }
 
@@ -73,6 +72,17 @@ float getRandomFloat(float min, float max)
 {
     std::uniform_real_distribution<float> dist(min, max);
     return dist(get_engine());
+}
+
+int getRandomInt(int min, int max)
+{
+    std::uniform_int_distribution<int> dist(min, max);
+    return dist(get_engine());
+}
+
+int getRandomInt()
+{
+    return getRandomInt(0, 1);
 }
 
 std::ostream& operator<<(std::ostream& os, const MeasurementValue& mv)
@@ -142,5 +152,4 @@ string to_string(const std::vector<string>& values)
     }
     return result;
 }
-
 }  // namespace std
