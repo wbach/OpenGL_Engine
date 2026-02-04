@@ -641,4 +641,20 @@ bool CreateDirectories(const std::filesystem::path& path)
         return false;
     }
 }
+std::filesystem::path getDataPath(const std::filesystem::path& inputPath)
+{
+    std::filesystem::path resultPath;
+
+    for (const auto& part : inputPath)
+    {
+        resultPath /= part;
+
+        if (part == "Data")
+        {
+            return resultPath;
+        }
+    }
+
+    return {};
+}
 }  // namespace Utils

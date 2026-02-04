@@ -12,8 +12,10 @@
 #include <filesystem>
 #include <string>
 
+#include "Scene/SceneDef.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
+#include "XML/XmlReader.h"
 #include "model3d_icon.h"
 
 namespace
@@ -422,6 +424,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
     menu.AppendSeparator();
     menu.Append(ID_PROPERTIES, "Properties");
 
+    LOG_DEBUG << "Menu enable if contorls";
     GameEngine::File file(fileName.GetFullPath().ToStdString());
     menu.Enable(ID_MATERIAL_EDITOR, isMaterial(file));
     menu.Enable(ID_ANIMATION_VIWER, is3dModelFile(file) or isPrefab(file));
@@ -525,22 +528,24 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
         wxEVT_COMMAND_MENU_SELECTED,
         [=](wxCommandEvent&)
         {
-            wxString destFolder = GetCurrentFolderPath();  // zakladam, ze masz taka funkcje w ProjectPanel
+            LOG_DEBUG << "Import selected";
+            wxString destFolder = GetCurrentFolderPath();
 
             wxFileDialog fileDialog(this, "Select files to import", "", "", "All files (*.*)|*.*",
                                     wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE);
 
             if (fileDialog.ShowModal() == wxID_OK)
             {
+                LOG_DEBUG << "wxID_OK";
                 wxArrayString files;
                 fileDialog.GetPaths(files);
 
                 for (auto& srcPath : files)
                 {
                     wxFileName src(srcPath);
+                    LOG_DEBUG << src.GetFullPath().ToStdString();
                     wxFileName dst(destFolder, src.GetFullName());
 
-                    // Obsluga konfliktow nazw
                     if (wxFileExists(dst.GetFullPath()))
                     {
                         wxString base = dst.GetName();
@@ -557,10 +562,75 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                     if (!wxCopyFile(src.GetFullPath(), dst.GetFullPath()))
                     {
                         wxLogError("Copy failed. From %s to %s", src.GetFullPath(), dst.GetFullPath());
+                        continue;
+                    }
+
+                    // if (isPrefab(src.GetFullPath().ToStdString()))
+                    auto ext = std::filesystem::path(src.GetFullPath().ToStdString()).extension();
+                    LOG_DEBUG << ext;
+                    if (ext == ".prefab" or ext == ".xml")
+                    {
+                        LOG_DEBUG << "Create reader.";
+                        Utils::XmlReader reader;
+                        LOG_DEBUG << src.GetFullPath().ToStdString();
+                        reader.Read(src.GetFullPath().ToStdString());
+
+                        auto node = reader.Get("prefab");
+                        if (node and wxMessageBox("Import prefab file : " + src.GetFullPath() + " with whole content?", "Confirm",
+                                                  wxYES_NO | wxICON_WARNING) == wxYES)
+                        {
+                            auto sourceDataPath = Utils::getDataPath(src.GetFullPath().ToStdString());
+
+                            if (not std::filesystem::exists(sourceDataPath))
+                            {
+                                LOG_DEBUG << "Source data path not found : " << sourceDataPath;
+                                continue;
+                            }
+
+                            auto copyFiles = [&](auto&& self, const TreeNode* node) -> void
+                            {
+                                for (const auto& child : node->getChildren(CSTR_FILE_NAME))
+                                {
+                                    auto source = sourceDataPath / child->value_;
+                                    auto dest   = GameEngine::File{child->value_}.GetAbsolutePath();
+                                    LOG_DEBUG << "Try to copy file : " << source << " => " << dest;
+
+                                    std::filesystem::create_directories(dest.parent_path());
+
+                                    if (std::filesystem::exists(source))
+                                    {
+                                        LOG_DEBUG << "Copy file : " << source << " => " << dest;
+                                        std::filesystem::copy(source, dest);
+                                    }
+                                    else
+                                    {
+                                        LOG_DEBUG << "Orginal path not found. Searching file in source data folder: "
+                                                  << sourceDataPath;
+                                        auto maybePath = Utils::FindFile(sourceDataPath, source.filename());
+                                        if (std::filesystem::exists(maybePath))
+                                        {
+                                            LOG_DEBUG << "Copy file : " << source << " => " << dest;
+                                            std::filesystem::copy_file(maybePath, dest);
+                                        }
+                                        else
+                                        {
+                                            LOG_WARN << "File not found. " << child->value_;
+                                        }
+                                    }
+                                }
+
+                                for (const auto& child : node->getChildren())
+                                {
+                                    self(self, child.get());
+                                }
+                            };
+
+                            LOG_DEBUG << "Copy files : " << *node;
+                            copyFiles(copyFiles, node);
+                        }
                     }
                 }
 
-                // Odswiez liste po dodaniu plikow
                 RefreshCurrent(destFolder);
             }
         },

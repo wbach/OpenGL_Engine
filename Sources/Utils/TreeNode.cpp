@@ -450,3 +450,16 @@ std::ostream& operator<<(std::ostream& os, const TreeNode& node)
 
     return os;
 }
+std::vector<const TreeNode*> TreeNode::getChildren(const std::string& name) const
+{
+    std::vector<const TreeNode*> result;
+
+    for (const auto& child : children_)
+    {
+        if (child->name() == name)
+        {
+            result.push_back(child.get());
+        }
+    }
+    return result;
+}
