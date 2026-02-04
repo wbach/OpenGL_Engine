@@ -64,6 +64,7 @@ protected:
     Subscribers subscribes_;
     MeasurementValue& measurementValue_;
     std::optional<IdType> paramBufferId_;
+    std::optional<IdType> perObjectConstantsBufferId;
 
     float startFade = 20.0;
     float endFade   = 30.0;

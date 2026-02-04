@@ -17,6 +17,7 @@
 #include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "GameEngine/Resources/ShaderBuffers/PerMeshObject.h"
+#include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/ShaderBuffersBindLocations.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
 #include "GameEngine/Scene/Scene.hpp"
@@ -50,6 +51,16 @@ void TreeRenderer::init()
     if (not paramBufferId_)
     {
         paramBufferId_ = context_.graphicsApi_.CreateShaderBuffer(4, sizeof(TreeParamBuffer), GraphicsApi::DrawFlag::Dynamic);
+        perObjectConstantsBufferId = context_.graphicsApi_.CreateShaderBuffer(
+            PER_OBJECT_CONSTANTS_BIND_LOCATION, sizeof(PerObjectConstants), GraphicsApi::DrawFlag::Dynamic);
+
+        if (perObjectConstantsBufferId)
+        {
+            PerObjectConstants perObjectConstants;
+            perObjectConstants.UseBoneTransform = 0.f;
+            perObjectConstants.textureOffset    = vec2{0.f};
+            context_.graphicsApi_.UpdateShaderBuffer(*perObjectConstantsBufferId, &perObjectConstants);
+        }
     }
 }
 
@@ -59,6 +70,11 @@ void TreeRenderer::render()
 
     if (subscribes_.empty())
         return;
+
+    if (perObjectConstantsBufferId)
+    {
+        context_.graphicsApi_.BindShaderBuffer(*perObjectConstantsBufferId);
+    }
 
     for (auto& sub : subscribes_)
     {
