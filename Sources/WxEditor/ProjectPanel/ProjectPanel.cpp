@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <string>
 
+#include "Resources/Models/Loaders/Assimp/AssimpLoader.h"
 #include "Scene/SceneDef.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
@@ -587,34 +588,45 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
                                 continue;
                             }
 
+                            auto copyFile = [&](const std::filesystem::path& sourceFile)
+                            {
+                                auto source = sourceDataPath / sourceFile;
+                                auto dest   = GameEngine::File{sourceFile}.GetAbsolutePath();
+                                // LOG_DEBUG << "Try to copy file : " << source << " => " << dest;
+
+                                if (not std::filesystem::exists(source))
+                                {
+                                    LOG_DEBUG << "Orginal path not found. Searching file in source data folder: "
+                                              << sourceDataPath;
+
+                                    source = Utils::FindFile(source.filename(), sourceDataPath);
+                                    dest   = std::filesystem::path(destFolder.ToStdString()) / sourceFile.filename();
+                                }
+
+                                if (std::filesystem::exists(source))
+                                {
+                                    LOG_DEBUG << "Copy file : " << source << " => " << dest;
+                                    std::filesystem::create_directories(dest.parent_path());
+                                    std::filesystem::copy(source, dest);
+                                }
+                                else
+                                {
+                                    LOG_WARN << "File not found. " << sourceFile;
+                                }
+                            };
                             auto copyFiles = [&](auto&& self, const TreeNode* node) -> void
                             {
                                 for (const auto& child : node->getChildren(CSTR_FILE_NAME))
                                 {
-                                    auto source = sourceDataPath / child->value_;
-                                    auto dest   = GameEngine::File{child->value_}.GetAbsolutePath();
-                                    LOG_DEBUG << "Try to copy file : " << source << " => " << dest;
+                                    copyFile(child->value_);
 
-                                    std::filesystem::create_directories(dest.parent_path());
-
-                                    if (std::filesystem::exists(source))
+                                    auto filePath = sourceDataPath / child->value_;
+                                    if (is3dModelFile(filePath))
                                     {
-                                        LOG_DEBUG << "Copy file : " << source << " => " << dest;
-                                        std::filesystem::copy(source, dest);
-                                    }
-                                    else
-                                    {
-                                        LOG_DEBUG << "Orginal path not found. Searching file in source data folder: "
-                                                  << sourceDataPath;
-                                        auto maybePath = Utils::FindFile(sourceDataPath, source.filename());
-                                        if (std::filesystem::exists(maybePath))
+                                        auto texturesFromModel = GameEngine::AssimpLoader::getAllTexturesFilesFromModel(filePath);
+                                        for (const auto& textureFile : texturesFromModel)
                                         {
-                                            LOG_DEBUG << "Copy file : " << source << " => " << dest;
-                                            std::filesystem::copy_file(maybePath, dest);
-                                        }
-                                        else
-                                        {
-                                            LOG_WARN << "File not found. " << child->value_;
+                                            copyFile(textureFile);
                                         }
                                     }
                                 }

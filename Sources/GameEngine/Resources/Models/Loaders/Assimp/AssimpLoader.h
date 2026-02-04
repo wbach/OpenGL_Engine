@@ -48,6 +48,8 @@ public:
     bool ParseFile(const File&) override;
     bool CheckExtension(const File&) override;
 
+    static std::vector<std::filesystem::path> getAllTexturesFilesFromModel(const std::filesystem::path&);
+
 private:
     void recursiveProcess(const aiScene&, const aiNode&);
     void processMesh(const aiScene&, const aiMesh&);

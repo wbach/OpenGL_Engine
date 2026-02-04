@@ -701,4 +701,59 @@ const aiNode* AssimpLoader::findArmatureRootNode(const aiNode& node)
 
     return nullptr;
 }
+std::vector<std::filesystem::path> AssimpLoader::getAllTexturesFilesFromModel(const std::filesystem::path& modelPath)
+{
+    std::set<std::filesystem::path> uniquePaths;
+    Assimp::Importer importer;
+
+    const aiScene* scene = importer.ReadFile(modelPath.string(), 0);
+
+    if (!scene || !scene->HasMaterials())
+    {
+        return {};
+    }
+
+    const aiTextureType types[] = {aiTextureType_DIFFUSE,
+                                   aiTextureType_SPECULAR,
+                                   aiTextureType_AMBIENT,
+                                   aiTextureType_EMISSIVE,
+                                   aiTextureType_HEIGHT,
+                                   aiTextureType_NORMALS,
+                                   aiTextureType_SHININESS,
+                                   aiTextureType_OPACITY,
+                                   aiTextureType_DISPLACEMENT,
+                                   aiTextureType_LIGHTMAP,
+                                   aiTextureType_REFLECTION,
+                                   aiTextureType_BASE_COLOR,
+                                   aiTextureType_NORMAL_CAMERA,
+                                   aiTextureType_EMISSION_COLOR,
+                                   aiTextureType_METALNESS,
+                                   aiTextureType_DIFFUSE_ROUGHNESS,
+                                   aiTextureType_AMBIENT_OCCLUSION,
+                                   aiTextureType_UNKNOWN};
+
+    for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
+    {
+        aiMaterial* material = scene->mMaterials[i];
+
+        for (aiTextureType type : types)
+        {
+            unsigned int texCount = material->GetTextureCount(type);
+            for (unsigned int j = 0; j < texCount; ++j)
+            {
+                aiString str;
+                if (material->GetTexture(type, j, &str) == AI_SUCCESS)
+                {
+                    std::string pathStr = str.C_Str();
+                    if (!pathStr.empty() && pathStr[0] != '*')
+                    {
+                        uniquePaths.insert(std::filesystem::path(pathStr));
+                    }
+                }
+            }
+        }
+    }
+
+    return {uniquePaths.begin(), uniquePaths.end()};
+}
 }  // namespace GameEngine
