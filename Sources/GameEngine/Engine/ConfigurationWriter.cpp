@@ -91,7 +91,7 @@ void Create(TreeNode& node, const Params::Terrain& param)
 void Create(TreeNode& node, const Params::Renderer& param)
 {
     node.attributes_[CSTR_GRAPHICS_API]                    = param.graphicsApi;
-    node.attributes_[CSTR_RENDERER_TYPE]                   = std::to_string(static_cast<uint32>(*param.type));
+    node.attributes_[CSTR_RENDERER_TYPE]                   = param.type.toString();
     node.attributes_[CSTR_PRESET]                          = std::to_string(static_cast<uint32>(*param.preset));
     node.attributes_[CSTR_EXPOSURE]                        = std::to_string(param.exposure);
     node.attributes_[CSTR_GAMMA]                           = std::to_string(param.gamma);

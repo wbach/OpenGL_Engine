@@ -10,6 +10,7 @@
 
 #include "IConfigurationParam.h"
 #include "ParamToString.h"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -63,6 +64,46 @@ public:
         return defaultValueIndex_;
     }
 
+    void fromString(const std::string& strValue)
+    {
+        if (strValue.empty())
+        {
+            return;
+        }
+
+        try
+        {
+            if constexpr (std::is_same_v<T, bool>)
+            {
+                value_ = Utils::StringToBool(strValue);
+            }
+            else if constexpr (std::is_integral_v<T>)
+            {
+                if constexpr (std::is_unsigned_v<T>)
+                {
+                    value_ = static_cast<T>(std::stoull(strValue));
+                }
+                else
+                {
+                    value_ = static_cast<T>(std::stoll(strValue));
+                }
+            }
+            else if constexpr (std::is_floating_point_v<T>)
+            {
+                value_ = static_cast<T>(std::stod(strValue));
+            }
+            else if constexpr (std::is_same_v<T, std::string>)
+            {
+                value_ = strValue;
+            }
+
+            updatetValueIndex();
+        }
+        catch (const std::exception& e)
+        {
+            LOG_WARN << "Parse param error";
+        }
+    }
     std::string toString() const override
     {
         return paramToString(value_);

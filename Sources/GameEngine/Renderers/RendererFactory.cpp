@@ -4,6 +4,7 @@
 
 #include "DefferedRenderer.h"
 #include "GameEngine/Engine/Configuration.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -15,6 +16,8 @@ std::unique_ptr<BaseRenderer> RendererFactory::create(RendererContext& rendererC
 {
     const auto rendererType = EngineConf.renderer.type.get();
     auto supportedRenderers = graphicsApi.GetSupportedRenderers();
+
+    LOG_DEBUG << "Renderer type : " << magic_enum::enum_name(rendererType);
 
     if (supportedRenderers.empty())
     {

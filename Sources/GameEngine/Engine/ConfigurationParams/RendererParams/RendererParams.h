@@ -3,6 +3,7 @@
 #include <Types.h>
 
 #include "../ConfigurationParam.h"
+#include "../ConfigurationEnumParam.h"
 #include "FloraParams/FloraParams.h"
 #include "ParticlesParams/ParticlesParams.h"
 #include "ShadowsParams/ShadowsParams.h"
@@ -29,7 +30,7 @@ struct Renderer
 {
     Renderer();
     ConfigurationParam<std::string> graphicsApi;
-    ConfigurationParam<GraphicsApi::RendererType> type;
+    ConfigurationEnumParam<GraphicsApi::RendererType> type;
 
     ConfigurationParam<PresetSettings> preset;
     ConfigurationParam<float> gamma;

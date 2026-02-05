@@ -38,7 +38,7 @@ std::vector<std::string> avaiablesApis()
 }  // namespace
 Renderer::Renderer()
     : graphicsApi{{"OpenGL"}, avaiablesApis()}
-    , type{GraphicsApi::RendererType::FULL, {GraphicsApi::RendererType::SIMPLE, GraphicsApi::RendererType::FULL}}
+    , type{GraphicsApi::RendererType::FULL}
     , preset{PresetSettings::Ultra,
              {PresetSettings::UltraLow, PresetSettings::Low, PresetSettings::Medium, PresetSettings::High, PresetSettings::Ultra}}
     , gamma{1.6f, {1.0f, 1.2f, 1.4f, 1.6f, 1.8f, 2.0f, 2.2f, 2.4f, 2.6f, 2.8f, 3.0f}}

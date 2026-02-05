@@ -49,6 +49,25 @@ public:
     {
         return std::string(magic_enum::enum_name(value_));
     }
+
+    void fromString(const std::string& value)
+    {
+        if (value.empty())
+        {
+            LOG_DEBUG << "Input is empty";
+            return;
+        }
+
+        if (auto maybeValue = magic_enum::enum_cast<T>(value))
+        {
+            //set(*maybeValue);
+            value_ = *maybeValue;
+        }
+        else
+        {
+            LOG_WARN << "Enum cast error : " << value;
+        }
+    }
     std::string next() override
     {
         if (isLocked_)
@@ -109,6 +128,7 @@ public:
     }
     void set(const T& value)
     {
+        LOG_DEBUG << magic_enum::enum_name(value);
         if (isLocked_)
             return;
 

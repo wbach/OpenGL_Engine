@@ -65,7 +65,8 @@ std::filesystem::path getConfigFile()
     return getGlobalConfigDirPath() / "Conf.xml";
 }
 
-void SetParamIfExist(Params::ConfigurationEnumParam<Params::Shadows::CascadeDistanceFunc>& param, const Attributes& attributes, const std::string& paramName)
+void SetParamIfExist(Params::ConfigurationEnumParam<Params::Shadows::CascadeDistanceFunc>& param, const Attributes& attributes,
+                     const std::string& paramName)
 {
     auto attIter = attributes.find(paramName);
 
@@ -271,14 +272,11 @@ void Read(TreeNode* node, Params::Terrain& param)
 
 void Read(TreeNode& node, Params::Renderer& renderer)
 {
-    auto rendererTypeStr = node.getAttributeValue(CSTR_RENDERER_TYPE);
-    if (not rendererTypeStr.empty())
-        renderer.type = static_cast<GraphicsApi::RendererType>(Utils::StringToInt(rendererTypeStr));
-
     auto presetStr = node.getAttributeValue(CSTR_PRESET);
     if (not presetStr.empty())
         renderer.preset = static_cast<Params::PresetSettings>(Utils::StringToInt(presetStr));
 
+    renderer.type.fromString(node.getAttributeValue(CSTR_RENDERER_TYPE));
     SetParamIfExist(renderer.useInstanceRendering, node.attributes_, CSTR_USE_ENTITY_INSTANCED_GROUPING);
     SetParamIfExist(renderer.graphicsApi, node.attributes_, CSTR_GRAPHICS_API);
     SetParamIfExist(renderer.viewDistance, node.attributes_, CSTR_RENDERER_VIEW_DISTANCE);
