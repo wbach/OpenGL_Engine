@@ -504,6 +504,9 @@ void MainFrame::MenuFileNewScene(wxCommandEvent&)
         }
     }
 
+    auto& manager = ProjectManager::GetInstance();
+    manager.SetLastOpenedSceneFile("");
+
     ClearScene();
     canvas->CreateNewScene();
     SetTitle("New scene: not saved");
@@ -555,7 +558,6 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                                       loadingDialog->Close();
                                       auto& manager = ProjectManager::GetInstance();
                                       manager.SetLastOpenedSceneFile(path.GetAbsolutePath());
-                                      manager.SaveEditorConfig();
                                   });
                           }
                       });

@@ -3,6 +3,8 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
+#include "Logger/Log.h"
+
 ProjectManager& ProjectManager::GetInstance()
 {
     static ProjectManager instance;
@@ -14,6 +16,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     projectPath                  = path;
     lastOpenedPath               = path;
     projectEditorConfigFilePath  = GameEngine::getGlobalConfigDirPath() / "editorConfig.json";
+    projectEditorFilePath        = projectPath / "editor.json";
     projectConfigPath            = path / "config.xml";
     projectScenesFactoryFilePath = path / "scenes.json";
     projectScenesDirPath         = path / "Scenes";
@@ -23,6 +26,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     CreateDirectories();
 
     LOG_DEBUG << "projectEditorConfigFilePath : " << projectEditorConfigFilePath;
+    LOG_DEBUG << "projectEditorFilePath : " << projectEditorFilePath;
 
     GameEngine::ConfigurationReader reader(projectConfigPath);
 
@@ -52,7 +56,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
         if (dirDlg.ShowModal() == wxID_OK)
         {
             engineIncludesDir = dirDlg.GetPath().ToStdString();
-            auto path = engineIncludesDir / "Sources";
+            auto path         = engineIncludesDir / "Sources";
             EngineConf.files.setShaderPath(path);
             LOG_DEBUG << "Path :" << path;
         }
@@ -65,6 +69,15 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
         }
 
         SaveEditorConfig();
+    }
+
+    if (std::filesystem::exists(projectEditorFilePath))
+    {
+        ReadEditorFile();
+    }
+    else
+    {
+        SaveEditor();
     }
 }
 
@@ -172,19 +185,18 @@ void ProjectManager::SaveSceneFiles()
 }
 void ProjectManager::SaveEditorConfig()
 {
-    try 
+    try
     {
         TreeNode node("editorConfig");
         node.addChild("engineIncludesDir", engineIncludesDir);
-        node.addChild("lastOpenedSceneFile", lastOpenedSceneFile.empty() ? "" : std::filesystem::absolute(lastOpenedSceneFile).lexically_normal());
         Utils::Json::Write(projectEditorConfigFilePath.string(), node);
         LOG_DEBUG << "projectEditorConfigFilePath saved";
-
-    } catch (...) 
-    {
-        LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile << ". projectEditorConfigFilePath= " << projectEditorConfigFilePath;
     }
-    
+    catch (...)
+    {
+        LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile
+                  << ". projectEditorConfigFilePath= " << projectEditorConfigFilePath;
+    }
 }
 void ProjectManager::ReadEditorConfig()
 {
@@ -193,10 +205,6 @@ void ProjectManager::ReadEditorConfig()
     if (auto engineIncludesDirNode = json.Get("engineIncludesDir"))
     {
         engineIncludesDir = engineIncludesDirNode->value_;
-    }
-    if (auto lastOpenedSceneFileNode = json.Get("lastOpenedSceneFile"))
-    {
-        lastOpenedSceneFile = lastOpenedSceneFileNode->value_;
     }
 }
 std::vector<ProjectManager::RecentProject> ProjectManager::GetRecentProjects()
@@ -267,4 +275,31 @@ const std::filesystem::path& ProjectManager::GetLastOpenedScene() const
 void ProjectManager::SetLastOpenedSceneFile(const std::filesystem::path& file)
 {
     lastOpenedSceneFile = file;
+    SaveEditor();
+}
+void ProjectManager::ReadEditorFile()
+{
+    LOG_DEBUG << "ReadEditorFile : " << projectEditorFilePath;
+    Utils::JsonReader json;
+    json.Read(projectEditorFilePath.string());
+    if (auto lastOpenedSceneFileNode = json.Get("lastOpenedSceneFile"))
+    {
+        lastOpenedSceneFile = lastOpenedSceneFileNode->value_;
+    }
+}
+void ProjectManager::SaveEditor()
+{
+    try
+    {
+        TreeNode node("editorConfig");
+        node.addChild("lastOpenedSceneFile",
+                      lastOpenedSceneFile.empty() ? "" : std::filesystem::absolute(lastOpenedSceneFile).lexically_normal());
+        Utils::Json::Write(projectEditorFilePath.string(), node);
+        LOG_DEBUG << "projectEditorFilePath saved";
+    }
+    catch (...)
+    {
+        LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile
+                  << ". projectEditorFilePath= " << projectEditorFilePath;
+    }
 }

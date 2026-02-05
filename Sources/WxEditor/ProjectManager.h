@@ -60,6 +60,8 @@ public:
     void SaveSceneFiles();
     void SaveEditorConfig();
     void ReadEditorConfig();
+    void ReadEditorFile();
+    void SaveEditor();
     void SetLastOpenedSceneFile(const std::filesystem::path&);
 
 private:
@@ -77,6 +79,7 @@ private:
     std::filesystem::path projectDataDirPath;
     std::filesystem::path projectComponentsDirPath;
     std::filesystem::path projectEditorConfigFilePath;
+    std::filesystem::path projectEditorFilePath;
     std::filesystem::path lastOpenedPath;
     std::string projectName;
     std::string startupscene;
