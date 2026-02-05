@@ -149,9 +149,9 @@ void ShadowBox::caclulateCascadeDistances()
     }
 
     LOG_DEBUG << "Calculate shadow distance by function: "
-              << magic_enum::enum_name(EngineConf.renderer.shadows.cascadeDistanceFunc);
+              << magic_enum::enum_name(EngineConf.renderer.shadows.cascadeDistanceFunc.get());
 
-    switch (EngineConf.renderer.shadows.cascadeDistanceFunc)
+    switch (EngineConf.renderer.shadows.cascadeDistanceFunc.get())
     {
         case Params::Shadows::CascadeDistanceFunc::linear:
             linearDistances(cascadeDistances_);
@@ -162,11 +162,6 @@ void ShadowBox::caclulateCascadeDistances()
         case Params::Shadows::CascadeDistanceFunc::exp:
             expDistances(cascadeDistances_);
             break;
-    }
-
-    for (auto& distance : cascadeDistances_)
-    {
-        LOG_DEBUG << "Cascade distance: " << distance;
     }
 }
 

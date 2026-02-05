@@ -1,7 +1,8 @@
 #pragma once
 #include <Types.h>
 
-#include "../../ConfigurationParam.h"
+#include "GameEngine/Engine/ConfigurationParams/ConfigurationEnumParam.h"
+#include "GameEngine/Engine/ConfigurationParams/ConfigurationParam.h"
 
 namespace GameEngine
 {
@@ -24,7 +25,7 @@ struct Shadows
     ConfigurationParam<uint32> mapSize;
     ConfigurationParam<float> firstCascadeDistance;
     ConfigurationParam<uint32> cascadesSize;
-    CascadeDistanceFunc cascadeDistanceFunc;
+    ConfigurationEnumParam<CascadeDistanceFunc> cascadeDistanceFunc;
 };
 }  // namespace Params
 }  // namespace GameEngine

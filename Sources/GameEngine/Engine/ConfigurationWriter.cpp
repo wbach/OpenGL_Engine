@@ -59,7 +59,7 @@ void Create(TreeNode& node, const Params::Shadows& param)
     node.attributes_[CSTR_SHADOWS_MAP_SIZE]          = std::to_string(param.mapSize);
     node.attributes_[CSTR_CASCADE_SIZE]              = std::to_string(param.cascadesSize);
     node.attributes_[CSTR_CASCADE_FIRST_DISTANCE]    = std::to_string(param.firstCascadeDistance);
-    node.attributes_[CSTR_CASCADE_DISTANCE_FUNCTION] = std::to_string(param.cascadeDistanceFunc);
+    node.attributes_[CSTR_CASCADE_DISTANCE_FUNCTION] = param.cascadeDistanceFunc.toString();
 }
 void Create(TreeNode& node, const Params::Flora& param)
 {

@@ -8,6 +8,7 @@
 
 #include "Configuration.h"
 #include "EngineDef.h"
+#include "GameEngine/Engine/ConfigurationParams/ConfigurationEnumParam.h"
 
 #ifdef USE_GNU
 #include <pwd.h>
@@ -64,7 +65,7 @@ std::filesystem::path getConfigFile()
     return getGlobalConfigDirPath() / "Conf.xml";
 }
 
-void SetParamIfExist(Params::Shadows::CascadeDistanceFunc& param, const Attributes& attributes, const std::string& paramName)
+void SetParamIfExist(Params::ConfigurationEnumParam<Params::Shadows::CascadeDistanceFunc>& param, const Attributes& attributes, const std::string& paramName)
 {
     auto attIter = attributes.find(paramName);
 

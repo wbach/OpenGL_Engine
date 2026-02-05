@@ -54,6 +54,7 @@ ConfigurationExplorer::ConfigurationExplorer()
              {"Shadows distance", EngineConf.renderer.shadows.distance, ApplyPolicy::RestartRequired},
              {"Shadow map size", EngineConf.renderer.shadows.mapSize, ApplyPolicy::RestartRequired},
              {"Shadows cascades size", EngineConf.renderer.shadows.cascadesSize, ApplyPolicy::RestartRequired},
+             {"Shadows cascades distance func", EngineConf.renderer.shadows.cascadeDistanceFunc, ApplyPolicy::RestartRequired},
              {"Terrain mesh resolution divide factor", EngineConf.renderer.terrain.resolutionDivideFactor, ApplyPolicy::RestartNotNeeded},
              {"Terrain mesh parts count", EngineConf.renderer.terrain.meshPartsCount, ApplyPolicy::RestartNotNeeded}
           }
@@ -82,8 +83,8 @@ const ConfigurationExplorer::Categories& ConfigurationExplorer::getParamsByCateg
 }
 const ConfigurationExplorer::Params& ConfigurationExplorer::getParamsFromCategoryConst(const std::string& name) const
 {
-    auto iter = std::find_if(categories.begin(), categories.end(),
-                             [&name](const auto& category) { return category.name == name; });
+    auto iter =
+        std::find_if(categories.begin(), categories.end(), [&name](const auto& category) { return category.name == name; });
 
     if (iter != categories.end())
         return iter->params;
@@ -91,10 +92,10 @@ const ConfigurationExplorer::Params& ConfigurationExplorer::getParamsFromCategor
     return emptyParams;
 }
 
-ConfigurationExplorer::Params &ConfigurationExplorer::getParamsFromCategory(const std::string & name)
+ConfigurationExplorer::Params& ConfigurationExplorer::getParamsFromCategory(const std::string& name)
 {
-    auto iter = std::find_if(categories.begin(), categories.end(),
-                             [&name](const auto& category) { return category.name == name; });
+    auto iter =
+        std::find_if(categories.begin(), categories.end(), [&name](const auto& category) { return category.name == name; });
 
     if (iter != categories.end())
         return iter->params;
