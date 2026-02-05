@@ -121,7 +121,7 @@ GeneralTexture* TextureLoader::LoadTexture(const File& inputFileName, const Text
     File inputFile = inputFileName;
     if (not inputFileName)
     {
-        auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineConf.files.getDataPath());
+        auto filepath = Utils::FindFile(inputFileName.GetFilename(), EngineLocalConf.files.getDataPath());
         if (not filepath.empty())
         {
             inputFile = File(filepath);

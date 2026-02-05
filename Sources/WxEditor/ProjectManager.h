@@ -42,7 +42,7 @@ public:
     const std::filesystem::path& GetProjectPath() const;
     const std::filesystem::path& GetComponentsDirPath() const;
     const std::filesystem::path& GetLastOpenedPath() const;
-    const std::filesystem::path& GetConfigFile() const;
+    const std::filesystem::path& GetLocalConfigFile() const;
     const std::filesystem::path& GetScenesFactoryFile() const;
     const std::filesystem::path& GetScenesDir() const;
     const std::filesystem::path& GetDataDir() const;
@@ -62,6 +62,7 @@ public:
     void ReadEditorConfig();
     void ReadEditorFile();
     void SaveEditor();
+    void SaveLocalConfigFile();
     void SetLastOpenedSceneFile(const std::filesystem::path&);
 
 private:
@@ -73,7 +74,7 @@ private:
 
 private:
     std::filesystem::path projectPath;
-    std::filesystem::path projectConfigPath;
+    std::filesystem::path projectLocalConfigPath;
     std::filesystem::path projectScenesFactoryFilePath;
     std::filesystem::path projectScenesDirPath;
     std::filesystem::path projectDataDirPath;

@@ -838,7 +838,7 @@ void NetworkEditorInterface::CreateGameObjectWithModel(const NetworkEditorInterf
         try
         {
             gameObject->AddComponent<Components::RendererComponent>().AddModel(
-                Utils::GetRelativePath(params.at("filename"), EngineConf.files.getDataPath()));
+                Utils::GetRelativePath(params.at("filename"), EngineLocalConf.files.getDataPath()));
             gameObject->SetLocalPositionRotation(position, DegreesVec3(rotationEulerDegrees));
             gameObject->AddComponent<Components::MeshShape>();
             gameObject->AddComponent<Components::Rigidbody>().SetMass(0);
@@ -874,7 +874,7 @@ void NetworkEditorInterface::LoadPrefab(const NetworkEditorInterface::EntryParam
         }
 
         auto gameObject = GameEngine::SceneReader(scene_).loadPrefab(
-            Utils::GetRelativePath(params.at("filename"), EngineConf.files.getDataPath()), goName);
+            Utils::GetRelativePath(params.at("filename"), EngineLocalConf.files.getDataPath()), goName);
 
         if (gameObject)
         {

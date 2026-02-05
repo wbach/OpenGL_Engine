@@ -151,7 +151,7 @@ void AimController::createArrowObject()
     if (arrowGameObject)
         return;
 
-    auto path = Utils::GetAbsolutePath(EngineConf.files.getDataPath()) / "mixamo.com" / "arrow2.obj";
+    auto path = Utils::GetAbsolutePath(EngineLocalConf.files.getDataPath()) / "mixamo.com" / "arrow2.obj";
     if (not Utils::CheckFileExist(path))
     {
         LOG_WARN << "arrow model path not found. Path: \"" << path << "\"";

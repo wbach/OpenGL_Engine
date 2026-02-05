@@ -1,6 +1,8 @@
 #pragma once
 #include <SingleTon.h>
+
 #include <filesystem>
+
 #include "ConfigurationParams/ConfigurationParam.h"
 #include "ConfigurationParams/DebugParams/LineMeshVisualizatorParams.h"
 #include "ConfigurationParams/RendererParams/RendererParams.h"
@@ -15,6 +17,7 @@ namespace Params
 class Files
 {
 public:
+    const std::filesystem::path& getProjectPath() const;
     const std::filesystem::path& getDataPath() const;
     const std::filesystem::path& getShaderPath() const;
     const std::filesystem::path& getGeneratedDirPath() const;
@@ -22,12 +25,19 @@ public:
     const std::filesystem::path& getLoadingCirclePath() const;
     const std::filesystem::path& getLoadingBackgroundPath() const;
 
+    void setProjectPath(const std::filesystem::path&);
     void setDataPath(const std::filesystem::path&);
     void setShaderPath(const std::filesystem::path&);
     void setLoadingCirclePath(const std::filesystem::path&);
     void setLoadingBackgroundPath(const std::filesystem::path&);
 
+    std::filesystem::path getRelativeIfCan(const std::filesystem::path&) const;
+
 private:
+    void makeAbolutePath(std::filesystem::path&);
+
+private:
+    std::filesystem::path projectPath;
     std::filesystem::path data{"../Data/"};
     std::filesystem::path shaders{"../Sources/"};
     std::filesystem::path loadingScreenCircleTexture{std::filesystem::path("GUI") / "aLoadingCircle.png"};
@@ -47,16 +57,23 @@ struct DebugParams
 };
 }  // namespace Params
 
-struct Configuration
+struct GlobalConfiguration
 {
     std::string filename;
-    Params::Files files;
     Params::Sound sound;
     Params::Window window;
     Params::Renderer renderer;
     Params::DebugParams debugParams;
     bool useBinaryLoading = false;
 };
+
+struct LocalConfiguration
+{
+    std::string filename;
+    Params::Files files;
+};
+
 }  // namespace GameEngine
 
-#define EngineConf SingleTon<GameEngine::Configuration>::Get()
+#define EngineConf SingleTon<GameEngine::GlobalConfiguration>::Get()
+#define EngineLocalConf SingleTon<GameEngine::LocalConfiguration>::Get()

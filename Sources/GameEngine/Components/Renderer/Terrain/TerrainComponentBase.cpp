@@ -385,7 +385,7 @@ const TerrainConfiguration &TerrainComponentBase::GetConfiguration() const
 
 HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
 {
-    auto filename = EngineConf.files.getGeneratedDirPath() / ("heightmap_" + Utils::CreateUniqueFilename() + ".terrain");
+    auto filename = EngineLocalConf.files.getGeneratedDirPath() / ("heightmap_" + Utils::CreateUniqueFilename() + ".terrain");
 
     Utils::CreateEmptyFile(filename);
     File file(filename);

@@ -11,7 +11,7 @@ using namespace GameEngine;
 
 TEST(FileTests, DataRelativeCreation)
 {
-    EngineConf.files.setDataPath("/home/baszek/Projects/RPG/Data/");
+    EngineLocalConf.files.setDataPath("/home/baszek/Projects/RPG/Data/");
     GameEngine::File file("Assets/a/Monk.md5mesh");
     std::string expected{"/home/baszek/Projects/RPG/Data/Assets/a/Monk.md5mesh"};
 
@@ -20,7 +20,7 @@ TEST(FileTests, DataRelativeCreation)
 
 TEST(FileTests, AbsolutePathCreation)
 {
-    EngineConf.files.setDataPath("/home/baszek/Projects/RPG/Data/");
+    EngineLocalConf.files.setDataPath("/home/baszek/Projects/RPG/Data/");
     GameEngine::File file("/home/baszek/Projects/RPG/Data/Assets/a/Monk.md5mesh");
     std::string expected{"Assets/a/Monk.md5mesh"};
 
@@ -38,21 +38,21 @@ TEST(FileTests, Empty)
 
 TEST(FileTests, DataPathEmpty)
 {
-    EngineConf.files.setDataPath("");
+    EngineLocalConf.files.setDataPath("");
     GameEngine::File file("Folder/Blabla/dummy.obj");
     EXPECT_EQ(file.GetAbsolutePath(), std::filesystem::current_path() / "Folder/Blabla/dummy.obj");
 }
 
 TEST(FileTests, DataPathIsRelative)
 {
-    EngineConf.files.setDataPath("../Data");
+    EngineLocalConf.files.setDataPath("../Data");
     GameEngine::File file("Folder/Blabla/dummy.obj");
     EXPECT_EQ(file.GetAbsolutePath(), std::filesystem::current_path().parent_path() / "Data/Folder/Blabla/dummy.obj");
 }
 
 TEST(FileTests, DataPathIsRelativeEndingWithSlash)
 {
-    EngineConf.files.setDataPath("../Data");
+    EngineLocalConf.files.setDataPath("../Data");
     GameEngine::File file("Folder/Blabla/dummy.obj");
     EXPECT_EQ(file.GetAbsolutePath(), std::filesystem::current_path().parent_path() / "Data/Folder/Blabla/dummy.obj");
 }

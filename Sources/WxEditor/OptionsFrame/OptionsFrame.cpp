@@ -9,6 +9,7 @@
 
 #include <functional>
 
+#include "Logger/Log.h"
 #include "Theme.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/EditorUitls.h"
@@ -245,13 +246,14 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
         std::function<void()> saveConfig;
     };
 
-    auto saveConfig       = []() { WriteConfigurationToFile(EngineConf); };
+    auto saveConfig       = []() { ProjectManager::GetInstance().SaveLocalConfigFile(); };
     auto saveEditorConfig = []() { ProjectManager::GetInstance().SaveEditorConfig(); };
 
     std::vector<PathOption> paths = {
-        {"Data path:", EngineConf.files.getDataPath(), [&](const auto& path) { EngineConf.files.setDataPath(path); }, saveConfig},
-        {"Shader path:", EngineConf.files.getShaderPath(), [&](const auto& path) { EngineConf.files.setShaderPath(path); },
+        {"Data path:", EngineLocalConf.files.getDataPath(), [&](const auto& path) { EngineLocalConf.files.setDataPath(path); },
          saveConfig},
+        {"Shader path:", EngineLocalConf.files.getShaderPath(),
+         [&](const auto& path) { EngineLocalConf.files.setShaderPath(path); }, saveConfig},
         {"Engine includes path:", ProjectManager::GetInstance().GetEngineIncludesDir(),
          [](const auto& path) { ProjectManager::GetInstance().SetEngineIncludesDir(path); }, saveEditorConfig}};
 
@@ -289,55 +291,52 @@ void OptionsFrame::CreateProjectTab(wxNotebook* notebook)
         std::function<void(const std::filesystem::path&)> setValue;
     };
 
-    std::vector<TextureOption> textures = {{"Loading screen background:", EngineConf.files.getLoadingBackgroundPath(),
-                                            [&](const auto& path) { EngineConf.files.setLoadingBackgroundPath(path); }},
-                                           {"Loading circle texture:", EngineConf.files.getLoadingCirclePath(),
-                                            [&](const auto& path) { EngineConf.files.setLoadingCirclePath(path); }}};
+    std::vector<TextureOption> textures = {{"Loading screen background:", EngineLocalConf.files.getLoadingBackgroundPath(),
+                                            [&](const auto& path) { EngineLocalConf.files.setLoadingBackgroundPath(path); }},
+                                           {"Loading circle texture:", EngineLocalConf.files.getLoadingCirclePath(),
+                                            [&](const auto& path) { EngineLocalConf.files.setLoadingCirclePath(path); }}};
 
     for (auto& texOpt : textures)
     {
         wxBoxSizer* rowSizer = new wxBoxSizer(wxHORIZONTAL);
 
-        // pole tekstowe do wyswietlania sciezki
+        wxImage img;
+        if (!texOpt.path.empty())
+            img.LoadFile((EngineLocalConf.files.getProjectPath() / texOpt.path).string(), wxBITMAP_TYPE_ANY);
+        wxStaticBitmap* thumbnail = new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(50, 50)) : wxNullBitmap);
+
+        rowSizer->Add(thumbnail, 0, wxALL, 5);
+
         wxTextCtrl* pathCtrl =
             new wxTextCtrl(panel, wxID_ANY, texOpt.path.string(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
         rowSizer->Add(pathCtrl, 1, wxEXPAND | wxALL, 5);
 
-        // przycisk "Browse"
         wxButton* browseBtn = new wxButton(panel, wxID_ANY, "Browse");
         rowSizer->Add(browseBtn, 0, wxALL, 5);
 
         textureSizer->Add(rowSizer, 0, wxEXPAND | wxALL, 5);
 
-        // Miniatura
-        wxImage img;
-        if (!texOpt.path.empty())
-            img.LoadFile((EngineConf.files.getDataPath() / texOpt.path).string(), wxBITMAP_TYPE_ANY);
-        wxStaticBitmap* thumbnail =
-            new wxStaticBitmap(panel, wxID_ANY, img.IsOk() ? wxBitmap(img.Scale(100, 100)) : wxNullBitmap);
-        textureSizer->Add(thumbnail, 0, wxALL, 5);
+        browseBtn->Bind(
+            wxEVT_BUTTON,
+            [=, text = texOpt](wxCommandEvent&) mutable
+            {
+                wxString startDir = EngineLocalConf.files.getDataPath().string();
+                wxFileDialog dlg(panel, "Select texture", startDir, "", "*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
-        // obsluga klikniecia "Browse"
-        browseBtn->Bind(wxEVT_BUTTON,
-                        [=, text = texOpt](wxCommandEvent&)
-                        {
-                            wxString startDir = EngineConf.files.getDataPath().string();
-                            wxFileDialog dlg(panel, "Select texture", startDir, "", "*.png;*.jpg;*.bmp",
-                                             wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-                            if (dlg.ShowModal() == wxID_OK)
-                            {
-                                text.setValue(dlg.GetPath().ToStdString());
-                                pathCtrl->SetValue(dlg.GetPath());
-                                wxImage newImg;
-                                if (newImg.LoadFile((EngineConf.files.getDataPath() / text.path).string(), wxBITMAP_TYPE_ANY))
-                                {
-                                    thumbnail->SetBitmap(wxBitmap(newImg.Scale(100, 100)));
-                                    thumbnail->Refresh();
-                                }
-                                WriteConfigurationToFile(EngineConf);
-                            }
-                        });
+                if (dlg.ShowModal() == wxID_OK)
+                {
+                    text.setValue(dlg.GetPath().ToStdString());
+                    text.path = dlg.GetPath().ToStdString();
+                    pathCtrl->SetValue(dlg.GetPath());
+                    wxImage newImg;
+                    if (newImg.LoadFile((EngineLocalConf.files.getProjectPath() / text.path).string(), wxBITMAP_TYPE_ANY))
+                    {
+                        thumbnail->SetBitmap(wxBitmap(newImg.Scale(50, 50)));
+                        thumbnail->Refresh();
+                    }
+                    ProjectManager::GetInstance().SaveLocalConfigFile();
+                }
+            });
     }
 
     mainSizer->Add(textureSizer, 0, wxEXPAND | wxALL, 10);  // margines na dole sekcji

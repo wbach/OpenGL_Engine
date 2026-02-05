@@ -382,7 +382,7 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                 [this, &component, txt = row.textCtrl, prev = row.preview, pane, val,
                                  warningIcon = row.warningIcon](wxCommandEvent&)
                                 {
-                                    wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.getDataPath().string(),
+                                    wxFileDialog openFileDialog(pane, "Choose texture", EngineLocalConf.files.getDataPath().string(),
                                                                 "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                                     if (openFileDialog.ShowModal() == wxID_OK)
@@ -980,7 +980,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
                         [this, &component, tr = row.textCtrl, prev = row.preview, pane, &editedFile, textCtrl = row.textCtrl,
                          warningIcon = row.warningIcon](wxCommandEvent&)
                         {
-                            wxFileDialog openFileDialog(pane, "Choose texture", EngineConf.files.getDataPath().string(), "",
+                            wxFileDialog openFileDialog(pane, "Choose texture", EngineLocalConf.files.getDataPath().string(), "",
                                                         "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                             if (openFileDialog.ShowModal() == wxID_OK)
@@ -1044,7 +1044,7 @@ wxBoxSizer* ComponentPanel::CreateTextureItem(GameEngine::Components::IComponent
 void ComponentPanel::browseFileControlAction(wxCommandEvent&, GameEngine::Components::IComponent& component, wxTextCtrl* fileCtrl,
                                              wxWindow* pane, GameEngine::File* val)
 {
-    wxFileDialog openFileDialog(pane, "Choose file", EngineConf.files.getDataPath().string(), "", "*.*",
+    wxFileDialog openFileDialog(pane, "Choose file", EngineLocalConf.files.getDataPath().string(), "", "*.*",
                                 wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     if (openFileDialog.ShowModal() == wxID_OK)
     {
@@ -1324,7 +1324,7 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
                            [this, &component, parent, &terrainTex, txt = texRow.textCtrl, prev = texRow.preview,
                             warn = texRow.warningIcon](wxCommandEvent&)
                            {
-                               wxFileDialog openFileDialog(parent, "Choose texture", EngineConf.files.getDataPath().string(), "",
+                               wxFileDialog openFileDialog(parent, "Choose texture", EngineLocalConf.files.getDataPath().string(), "",
                                                            "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                                            wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                                if (openFileDialog.ShowModal() == wxID_OK)

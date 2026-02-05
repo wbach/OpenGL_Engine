@@ -3,10 +3,11 @@
 
 namespace GameEngine
 {
-struct ConfigurationReader
-{
-    ConfigurationReader();
-    ConfigurationReader(const std::filesystem::path&);
-};
+struct GlobalConfiguration;
+struct LocalConfiguration;
+
+void ReadConfigFromFile(GlobalConfiguration&);
+void ReadConfigFromFile(LocalConfiguration&, const std::filesystem::path&);
+
 std::filesystem::path getGlobalConfigDirPath();
 }  // namespace GameEngine

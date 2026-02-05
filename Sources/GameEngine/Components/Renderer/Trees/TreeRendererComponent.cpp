@@ -403,7 +403,7 @@ void TreeRendererComponent::GenerateFileNameIfNeeded()
 {
     if (treeModel.empty())
     {
-        treeModel = EngineConf.files.getGeneratedDirPath() / ("TreeAllInOne_" + Utils::CreateUniqueFilename() + ".bin");
+        treeModel = EngineLocalConf.files.getGeneratedDirPath() / ("TreeAllInOne_" + Utils::CreateUniqueFilename() + ".bin");
     }
 }
 const GraphicsApi::ID& TreeRendererComponent::GetClusterShaderBufferId() const

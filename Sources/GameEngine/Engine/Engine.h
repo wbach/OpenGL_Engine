@@ -1,8 +1,8 @@
 #pragma once
-#include "EngineContext.h"
-#include "IntroRenderer.h"
 #include "ConfigurationReader.h"
+#include "EngineContext.h"
 #include "ExternalComponentsReader.h"
+#include "IntroRenderer.h"
 
 namespace GraphicsApi
 {
@@ -16,6 +16,11 @@ class LoadingScreenRenderer;
 
 class Engine
 {
+    struct ConfigurationReader
+    {
+        ConfigurationReader();
+    };
+
 public:
     Engine(std::unique_ptr<Physics::IPhysicsApi>, std::unique_ptr<ISceneFactory>,
            std::unique_ptr<GraphicsApi::IGraphicsApi> = nullptr);

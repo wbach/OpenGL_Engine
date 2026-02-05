@@ -133,7 +133,7 @@ void ExternalComponentsReader::LoadSingle(const std::filesystem::path& inputFile
         return;
     }
 
-    auto file = EngineConf.files.getCacheDirPath() /
+    auto file = EngineLocalConf.files.getProjectPath() / EngineLocalConf.files.getCacheDirPath() /
                 (Utils::CreateUniqueFilename() + "_" + std::filesystem::path(inputFile).filename().string());
     std::filesystem::copy(inputFile, file, std::filesystem::copy_options::overwrite_existing);
     LOG_DEBUG << "LoadLib cached: " << file;
@@ -259,7 +259,7 @@ std::vector<std::filesystem::path> ExternalComponentsReader::getAllComponentFile
 {
     LOG_DEBUG << "Check for ExternalComponents";
     std::string libExtension{".so"};
-    const auto componentsDir = EngineConf.files.getDataPath() / "Components";
+    const auto componentsDir = EngineLocalConf.files.getDataPath() / "Components";
     if (not Utils::DirectoryExist(componentsDir))
     {
         LOG_DEBUG << "Components dir not exist : " << componentsDir;

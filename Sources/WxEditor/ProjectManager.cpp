@@ -3,6 +3,8 @@
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
 
+#include "Engine/Configuration.h"
+#include "Engine/ConfigurationReader.h"
 #include "Logger/Log.h"
 
 ProjectManager& ProjectManager::GetInstance()
@@ -17,7 +19,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     lastOpenedPath               = path;
     projectEditorConfigFilePath  = GameEngine::getGlobalConfigDirPath() / "editorConfig.json";
     projectEditorFilePath        = projectPath / "editor.json";
-    projectConfigPath            = path / "config.xml";
+    projectLocalConfigPath       = projectPath / "config.xml";
     projectScenesFactoryFilePath = path / "scenes.json";
     projectScenesDirPath         = path / "Scenes";
     projectDataDirPath           = path / "Data";
@@ -28,13 +30,14 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     LOG_DEBUG << "projectEditorConfigFilePath : " << projectEditorConfigFilePath;
     LOG_DEBUG << "projectEditorFilePath : " << projectEditorFilePath;
 
-    GameEngine::ConfigurationReader reader(projectConfigPath);
+    GameEngine::ReadConfigFromFile(EngineLocalConf, projectLocalConfigPath);
+    EngineLocalConf.files.setProjectPath(projectPath);
 
     bool needUpdate{false};
 
-    if (EngineConf.files.getDataPath() != projectDataDirPath)
+    if (EngineLocalConf.files.getDataPath() != projectDataDirPath)
     {
-        EngineConf.files.setDataPath(projectDataDirPath);
+        EngineLocalConf.files.setDataPath(projectDataDirPath);
         needUpdate = true;
     }
 
@@ -46,7 +49,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     if (std::filesystem::exists(projectEditorConfigFilePath))
     {
         ReadEditorConfig();
-        EngineConf.files.setShaderPath(engineIncludesDir / "Sources");
+        EngineLocalConf.files.setShaderPath(engineIncludesDir / "Sources");
     }
     else
     {
@@ -57,7 +60,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
         {
             engineIncludesDir = dirDlg.GetPath().ToStdString();
             auto path         = engineIncludesDir / "Sources";
-            EngineConf.files.setShaderPath(path);
+            EngineLocalConf.files.setShaderPath(path);
             LOG_DEBUG << "Path :" << path;
         }
         else
@@ -142,9 +145,9 @@ void ProjectManager::Clear()
     scenes.clear();
 }
 
-const std::filesystem::path& ProjectManager::GetConfigFile() const
+const std::filesystem::path& ProjectManager::GetLocalConfigFile() const
 {
-    return projectConfigPath;
+    return projectLocalConfigPath;
 }
 const std::filesystem::path& ProjectManager::GetScenesFactoryFile() const
 {
@@ -302,4 +305,8 @@ void ProjectManager::SaveEditor()
         LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile
                   << ". projectEditorFilePath= " << projectEditorFilePath;
     }
+}
+void ProjectManager::SaveLocalConfigFile()
+{
+    GameEngine::WriteConfigurationToFile(EngineLocalConf, projectLocalConfigPath);
 }

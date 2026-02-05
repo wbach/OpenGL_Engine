@@ -128,7 +128,7 @@ void StartupDialog::OnNewProject(wxCommandEvent&)
     projectManager.SetProjectName(name);
     projectManager.SaveRecentProject(projectPath);
 
-    GameEngine::WriteConfigurationToFile(EngineConf, projectManager.GetConfigFile().string());
+    projectManager.SaveLocalConfigFile();
     GameEngine::createScenesFile(projectManager.GetScenesFactoryFile());
 
     {

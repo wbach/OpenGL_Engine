@@ -367,7 +367,7 @@ void Read(TreeNode* node, Params::DebugParams& params)
     }
 }
 
-void ReadConfiguration(Configuration& configuration, const std::filesystem::path& filename)
+void ReadConfiguration(GlobalConfiguration& configuration, const std::filesystem::path& filename)
 {
     Utils::XmlReader xmlReader;
     if (!xmlReader.Read(filename))
@@ -377,8 +377,6 @@ void ReadConfiguration(Configuration& configuration, const std::filesystem::path
         Read(*xmlReader.Get(CSTR_WINDOW), configuration.window);
     if (xmlReader.Get(CSTR_SOUND))
         Read(*xmlReader.Get(CSTR_SOUND), configuration.sound);
-    if (xmlReader.Get(CSTR_FILES))
-        Read(*xmlReader.Get(CSTR_FILES), configuration.files);
     if (xmlReader.Get(CSTR_RENDERER))
         Read(*xmlReader.Get(CSTR_RENDERER), configuration.renderer);
     if (xmlReader.Get(CSTR_DEBUG_PARAMS))
@@ -388,39 +386,62 @@ void ReadConfiguration(Configuration& configuration, const std::filesystem::path
         configuration.useBinaryLoading = Utils::StringToBool(xmlReader.Get(CSTR_ENABLE_BINARY_LOADING)->value_);
 }
 
-void ReadFromFile(const std::filesystem::path& filename)
+void ReadConfiguration(LocalConfiguration& configuration, const std::filesystem::path& filename)
 {
-    if (not EngineConf.filename.empty())
+    Utils::XmlReader xmlReader;
+    if (not xmlReader.Read(filename))
+        return;
+
+    if (xmlReader.Get(CSTR_FILES))
+        Read(*xmlReader.Get(CSTR_FILES), configuration.files);
+}
+
+void ReadConfigFromFile(GlobalConfiguration& config)
+{
+    if (not config.filename.empty())
     {
-        LOG_DEBUG << "Configuration already read. Skip";
+        LOG_DEBUG << "GlobalConfiguration already read. Skip";
         return;
     }
+
+    auto filename = getConfigFile();
+
     if (Utils::CheckFileExist(filename))
     {
-        ReadConfiguration(EngineConf, filename);
+        ReadConfiguration(config, filename);
     }
     else
     {
-        WriteConfigurationToFile(EngineConf);
+        WriteConfigurationToFile(config);
     }
 
-    EngineConf.filename = filename.string();
-}
+    config.filename = filename.string();
 
-ConfigurationReader::ConfigurationReader()
-    : ConfigurationReader(getConfigFile().string())
-{
-}
-ConfigurationReader::ConfigurationReader(const std::filesystem::path& filename)
-{
-    LOG_DEBUG << "Read config file: " << filename;
-    ReadFromFile(filename);
-
-    if (EngineConf.debugParams.logLvl != LoggingLvl::None)
+    if (config.debugParams.logLvl != LoggingLvl::None)
     {
         CLogger::Instance().EnableLogs(EngineConf.debugParams.logLvl);
         CLogger::Instance().UseAsyncLogging(false);
         std::cout << "LoggingLvl: " << magic_enum::enum_name(EngineConf.debugParams.logLvl.get()) << std::endl;
     }
+}
+
+void ReadConfigFromFile(LocalConfiguration& config, const std::filesystem::path& filename)
+{
+    if (not config.filename.empty())
+    {
+        LOG_DEBUG << "LocalConfiguration already read. Skip";
+        return;
+    }
+
+    if (Utils::CheckFileExist(filename))
+    {
+        ReadConfiguration(config, filename);
+    }
+    else
+    {
+        WriteConfigurationToFile(config, filename);
+    }
+
+    config.filename = filename.string();
 }
 }  // namespace GameEngine

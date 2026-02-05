@@ -121,10 +121,10 @@ void Create(TreeNode& node, const Params::Window& param)
 }
 void Create(TreeNode& node, const Params::Files& param)
 {
-    node.addChild(CSTR_DATA_LOCATION, param.getDataPath());
-    node.addChild(CSTR_SHADER_LOCATION, param.getShaderPath());
-    node.addChild(CSTR_LOADING_SCREEN_BACKGROUND, param.getLoadingBackgroundPath());
-    node.addChild(CSTR_LOADING_SCREEN_CIRCLE, param.getLoadingCirclePath());
+    node.addChild(CSTR_DATA_LOCATION, param.getRelativeIfCan(param.getDataPath()));
+    node.addChild(CSTR_SHADER_LOCATION, param.getRelativeIfCan(param.getShaderPath()));
+    node.addChild(CSTR_LOADING_SCREEN_BACKGROUND, param.getRelativeIfCan(param.getLoadingBackgroundPath()));
+    node.addChild(CSTR_LOADING_SCREEN_CIRCLE, param.getRelativeIfCan(param.getLoadingCirclePath()));
 }
 void Create(TreeNode& node, const Params::Sound& param)
 {
@@ -151,21 +151,26 @@ void CreateBinary(TreeNode& node, bool param)
 {
     node.value_ = Utils::BoolToString(param);
 }
-void WriteConfigurationToFile(const Configuration& configuration)
+void WriteConfigurationToFile(const GlobalConfiguration& configuration)
 {
     WriteConfigurationToFile(configuration, configuration.filename);
 }
-void WriteConfigurationToFile(const Configuration& configuration, const std::filesystem::path& filename)
+void WriteConfigurationToFile(const GlobalConfiguration& configuration, const std::filesystem::path& filename)
 {
     TreeNode config(CSTR_CONFIG);
 
     Create(config.addChild(CSTR_WINDOW), configuration.window);
-    Create(config.addChild(CSTR_FILES), configuration.files);
     Create(config.addChild(CSTR_SOUND), configuration.sound);
     Create(config.addChild(CSTR_RENDERER), configuration.renderer);
     Create(config.addChild(CSTR_DEBUG_PARAMS), configuration.debugParams);
     CreateBinary(config.addChild(CSTR_ENABLE_BINARY_LOADING), configuration.useBinaryLoading);
 
+    Xml::Write(filename, config);
+}
+void WriteConfigurationToFile(const LocalConfiguration& configuration, const std::filesystem::path& filename)
+{
+    TreeNode config(CSTR_CONFIG);
+    Create(config.addChild(CSTR_FILES), configuration.files);
     Xml::Write(filename, config);
 }
 }  // namespace GameEngine

@@ -3,9 +3,9 @@
 #include <GraphicsApi/IGraphicsApi.h>
 #include <Input/InputManager.h>
 #include <Logger/Log.h>
-#include <Utils/Variant.h>
 #include <Utils/IThreadSync.h>
 #include <Utils/ThreadSubscriber.h>
+#include <Utils/Variant.h>
 
 #include <memory>
 
@@ -127,6 +127,11 @@ std::unique_ptr<GraphicsApi::IGraphicsApi> createGraphicsApi()
 }
 }  // namespace
 
+Engine::ConfigurationReader::ConfigurationReader()
+{
+    ReadConfigFromFile(EngineConf);
+}
+
 Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr<ISceneFactory> sceneFactory,
                std::unique_ptr<GraphicsApi::IGraphicsApi> graphicsApi)
     : readConfiguration_()
@@ -164,7 +169,7 @@ Engine::Engine(std::unique_ptr<Physics::IPhysicsApi> physicsApi, std::unique_ptr
                 physicsSubscriber->SetFpsLimit(EngineConf.renderer.fpsLimt);
         });
 
-    engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineConf.files.getShaderPath());
+    engineContext_.GetGraphicsApi().SetShadersFilesLocations(EngineLocalConf.files.getShaderPath());
     introRenderer_.Render();
 
     engineContext_.GetPhysicsApi().DisableSimulation();

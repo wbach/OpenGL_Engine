@@ -135,7 +135,7 @@ void GrassRendererComponent::CreateDataFile()
 {
     if (dataFile.empty())
     {
-        dataFile = EngineConf.files.getGeneratedDirPath() / ("Grass_" + Utils::CreateUniqueFilename() + ".bin");
+        dataFile = EngineLocalConf.files.getGeneratedDirPath() / ("Grass_" + Utils::CreateUniqueFilename() + ".bin");
         LOG_DEBUG << "Generatefd data file name: " << dataFile;
     }
 }
