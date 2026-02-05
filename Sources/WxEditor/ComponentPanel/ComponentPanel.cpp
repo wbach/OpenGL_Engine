@@ -102,7 +102,6 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
                           [&component](auto& e)
                           {
                               component.SetActive(e.IsChecked());
-                              component.Reload();
                           });
     }
 

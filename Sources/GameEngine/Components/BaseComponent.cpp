@@ -1,9 +1,13 @@
 #include "BaseComponent.h"
 
 #include <Logger/Log.h>
+#include <Utils/TreeNode.h>
 
+#include "GameEngine/Components/CommonReadDef.h"
+#include "GameEngine/Components/ComponentsReadFunctions.h"
 #include "GameEngine/Components/IComponent.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Utils.h"
 
 namespace GameEngine
 {
@@ -56,8 +60,7 @@ void BaseComponent::Deactivate()
 }
 void BaseComponent::SetActive(bool is)
 {
-    isActive_ = is;
-    changeActivateStateRegisteredFunctions();
+    is ? Activate() : Deactivate();
 }
 GameObject& BaseComponent::GetParentGameObject()
 {
@@ -67,8 +70,18 @@ const GameObject& BaseComponent::getParentGameObject() const
 {
     return thisObject_;
 }
-void BaseComponent::write(TreeNode&) const
+void BaseComponent::read(const TreeNode& node)
 {
+    auto activeStr = node.getAttributeValue(CSTR_ACTIVE);
+    if (not activeStr.empty())
+    {
+        SetActive(Utils::StringToBool(activeStr));
+    }
+}
+void BaseComponent::write(TreeNode& node) const
+{
+    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
+    node.attributes_.insert({CSTR_ACTIVE, Utils::BoolToString(IsActive())});
 }
 std::optional<IdType> BaseComponent::getRegisteredFunctionId(FunctionType functionType) const
 {
@@ -106,6 +119,5 @@ void BaseComponent::changeActivateStateRegisteredFunctions()
         componentContext_.componentController_.setActivateStateOfComponentFunction(thisObject_.GetId(), type, id, isActive_);
     }
 }
-
 }  // namespace Components
 }  // namespace GameEngine

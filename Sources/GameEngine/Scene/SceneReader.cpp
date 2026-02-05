@@ -75,7 +75,7 @@ void SceneReader::readNode(const TreeNode& node)
             }
             if (gameObjectNode->name() == CSTR_GAMEOBJECT)
             {
-                LOG_DEBUG << "read gameobject";
+                LOG_DEBUG << "read gameobject name : " << gameObjectNode->getAttributeValue(CSTR_NAME);
                 auto gameObject = createGameObject(*gameObjectNode);
                 auto ptr        = gameObject.get();
                 Read(*gameObjectNode, *ptr);

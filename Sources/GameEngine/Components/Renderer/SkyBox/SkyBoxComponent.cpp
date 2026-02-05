@@ -217,7 +217,8 @@ void SkyBoxComponent::registerReadFunctions()
     auto func = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<SkyBoxComponent>(componentContext, gameObject);
-        read(node, *component);
+        component->read(node);
+        GameEngine::Components::read(node, *component);
         return component;
     };
     regsiterComponentReadFunction(GetComponentType<SkyBoxComponent>(), func);

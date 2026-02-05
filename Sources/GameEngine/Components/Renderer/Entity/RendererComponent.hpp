@@ -5,11 +5,11 @@
 #include <vector>
 
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
+#include "GameEngine/Resources/Models/LoadingParameters.h"
 #include "GameEngine/Resources/Models/Material.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
-#include "GameEngine/Resources/Models/LoadingParameters.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectConstants.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 #include "Types.h"
@@ -75,6 +75,8 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+    void Activate() override;
+    void Deactivate() override;
 
     RendererComponent& AddModel(Model*, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
     RendererComponent& AddModel(const std::filesystem::path&, GameEngine::LevelOfDetail i = GameEngine::LevelOfDetail::L1);
@@ -114,6 +116,7 @@ private:
 private:
     ModelWrapper model_;
     bool isSubscribed_;
+    bool isInit_;
     LoadingParameters loadingParameters_;
     std::optional<uint32> worldTransformSub_;
     std::unordered_map<IdType, std::unique_ptr<ShaderBufferObject<PerObjectUpdate>>> perObjectUpdateBuffer_;

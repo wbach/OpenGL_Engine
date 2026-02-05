@@ -52,8 +52,8 @@ CustomMaterialData::~CustomMaterialData()
 
 void CustomMaterialData::CreateBufferObject(GraphicsApi::IGraphicsApi& graphicsApi)
 {
-    perMeshBuffer =
-        std::make_unique<ShaderBufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi, PER_MESH_OBJECT_BIND_LOCATION);
+    perMeshBuffer = std::make_unique<ShaderBufferObject<PerMeshObject>>(createPerMeshObject(material), graphicsApi,
+                                                                        PER_MESH_OBJECT_BIND_LOCATION);
     LOG_DEBUG << "Create custom material " << material.name;
     loader.AddObjectToGpuLoadingPass(*perMeshBuffer);
 }
@@ -67,6 +67,7 @@ RendererComponent::RendererComponent(ComponentContext& componentContext, GameObj
     : BaseComponent(GetComponentType<RendererComponent>(), componentContext, gameObject)
     , textureIndex(0)
     , isSubscribed_(false)
+    , isInit_{false}
     , loadingParameters_{DEFAULT_LOADING_PARAMETERS}
 {
     modelNormalization = loadingParameters_.modelNormalization == ModelNormalization::normalized ? true : false;
@@ -110,6 +111,8 @@ void RendererComponent::CleanUpWithRestrictions(const std::set<Model*>& restrict
         thisObject_.UnsubscribeOnWorldTransfromChange(*worldTransformSub_);
         worldTransformSub_ = std::nullopt;
     }
+
+    isInit_ = false;
 }
 
 void RendererComponent::ReqisterFunctions()
@@ -156,6 +159,12 @@ RendererComponent& RendererComponent::SetTextureIndex(uint32_t index)
 }
 void RendererComponent::init()
 {
+    if (isInit_)
+    {
+        LOG_DEBUG << "Component already init";
+        return;
+    }
+
     loadingParameters_.modelNormalization = modelNormalization ? ModelNormalization::normalized : ModelNormalization::none;
     loadingParameters_.meshOptimize       = meshOptimize ? MeshOptimize::optimized : MeshOptimize::none;
 
@@ -205,6 +214,8 @@ void RendererComponent::init()
     {
         Subscribe();
     }
+
+    isInit_ = true;
 }
 
 void RendererComponent::PrepareCustomMaterials(const Model& model)
@@ -276,7 +287,7 @@ void RendererComponent::DeleteShaderBuffer(std::unique_ptr<GpuObject> obj)
 }
 void RendererComponent::Subscribe()
 {
-    if (not isSubscribed_)
+    if (IsActive() and not isSubscribed_)
     {
         componentContext_.renderersManager_.Subscribe(&thisObject_);
         isSubscribed_ = true;
@@ -327,7 +338,6 @@ void RendererComponent::CreatePerObjectUpdateBuffer(const Mesh& mesh)
 }
 void RendererComponent::CreatePerMaterialBuffer(const Mesh& mesh)
 {
-
 }
 void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
 {
@@ -338,9 +348,9 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
         return;
     }
 
-    auto bufferPtr =
-        std::make_unique<ShaderBufferObject<PerObjectConstants>>(componentContext_.graphicsApi_, PER_OBJECT_CONSTANTS_BIND_LOCATION);
-    auto& buffer = *bufferPtr.get();
+    auto bufferPtr = std::make_unique<ShaderBufferObject<PerObjectConstants>>(componentContext_.graphicsApi_,
+                                                                              PER_OBJECT_CONSTANTS_BIND_LOCATION);
+    auto& buffer   = *bufferPtr.get();
 
     perObjectConstantsBuffer_.insert({mesh.GetGpuObjectId(), std::move(bufferPtr)});
 
@@ -372,7 +382,7 @@ void RendererComponent::UpdateBuffers()
                 auto& buffer                          = *iter->second;
                 const mat4 transformMatix             = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
                 buffer.GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-                //buffer.UpdateGpuPass();
+                // buffer.UpdateGpuPass();
                 componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
                 calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
             }
@@ -426,6 +436,7 @@ void RendererComponent::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<RendererComponent>(componentContext, gameObject);
+        component->read(node);
 
         auto textureIndexNode = node.getChild(CSTR_TEXTURE_INDEX);
         if (textureIndexNode)
@@ -565,7 +576,8 @@ void create(TreeNode& materialsNode, const MaterialsMap& customMaterials)
 
 void RendererComponent::write(TreeNode& node) const
 {
-    node.attributes_.insert({CSTR_TYPE, GetTypeName()});
+    BaseComponent::write(node);
+
     node.addChild(CSTR_TEXTURE_INDEX, std::to_string(textureIndex));
     node.addChild(MODEL_NORMALIZATION, Utils::BoolToString(modelNormalization));
     node.addChild(MESH_OPTIMIZE, Utils::BoolToString(meshOptimize));
@@ -623,6 +635,26 @@ void RendererComponent::calculateWorldSpaceBoundingBox(const mat4& worldMatrix)
 const BoundingBox& RendererComponent::getWorldSpaceBoundingBox() const
 {
     return boundingBox;
+}
+void RendererComponent::Deactivate()
+{
+    if (not IsActive())
+        return;
+
+    BaseComponent::Deactivate();
+
+    if (isInit_)
+        UnSubscribe();
+}
+void RendererComponent::Activate()
+{
+    if (IsActive())
+        return;
+
+    BaseComponent::Activate();
+
+    if (isInit_)
+        Subscribe();
 }
 }  // namespace Components
 }  // namespace GameEngine

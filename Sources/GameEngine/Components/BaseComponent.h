@@ -120,6 +120,7 @@ public:
     const std::string& GetTypeName() const override;
     ComponentTypeID GetTypeId() const override;
 
+    void read(const TreeNode&);
     void write(TreeNode&) const override;
 
 protected:
