@@ -270,7 +270,9 @@ void ShadowMapRenderer::renderCascades()
         perFrame.projection           = context_.camera_->GetProjection().GetBufferParams();
         context_.graphicsApi_.UpdateShaderBuffer(*perFrameBuffer_, &perFrame);
 
+        context_.frustrum_.push(lightMatrixes[cascadeIndex]);
         renderScene();
+        context_.frustrum_.pop();
         shadowFrameBuffer_[cascadeIndex]->UnBind();
     }
 }
