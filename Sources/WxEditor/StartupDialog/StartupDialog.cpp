@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <fstream>
 
+#include "CleanupGeneratedFilesTemplate.h"
 #include "ProjectsCMakeTemplate.h"
 #include "WxEditor/ProjectManager.h"
 
@@ -35,7 +36,7 @@ StartupDialog::StartupDialog()
     mainSizer->Add(header, 0, wxEXPAND);
 
     wxBoxSizer* contentSizer = new wxBoxSizer(wxHORIZONTAL);
-    recentList = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 250), wxLC_REPORT | wxLC_SINGLE_SEL);
+    recentList               = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 250), wxLC_REPORT | wxLC_SINGLE_SEL);
     recentList->InsertColumn(0, "Name", wxLIST_FORMAT_LEFT, 200);
     recentList->InsertColumn(1, "Path", wxLIST_FORMAT_LEFT, 450);
     PopulateRecentProjects();
@@ -130,10 +131,28 @@ void StartupDialog::OnNewProject(wxCommandEvent&)
     GameEngine::WriteConfigurationToFile(EngineConf, projectManager.GetConfigFile().string());
     GameEngine::createScenesFile(projectManager.GetScenesFactoryFile());
 
-    std::ofstream out(projectManager.GetProjectPath() / "CMakeLists.txt");
-    if (out)
     {
-        out << projectCMakeTemplate;
+        std::ofstream out(projectManager.GetProjectPath() / "CMakeLists.txt");
+        if (out)
+        {
+            out << projectCMakeTemplate;
+            out.close();
+        }
+    }
+    {
+        auto filename = projectManager.GetProjectPath() / "removeUnusedGeneratedFiles.sh";
+        std::ofstream out(filename);
+        if (out)
+        {
+            out << CLEANUP_FILES_SH;
+            out.close();
+
+            namespace fs = std::filesystem;
+            fs::permissions(filename,
+                            fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec | fs::perms::others_read |
+                                fs::perms::others_exec,
+                            fs::perm_options::replace);
+        }
     }
 
     selectedProject = projectPath;
