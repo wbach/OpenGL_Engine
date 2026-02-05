@@ -17,9 +17,9 @@ class ShadowBox
 {
 public:
     ShadowBox();
-    void update(const ICamera&, const Components::DirectionalLightComponent&);
-    const mat4* getLightProjectionViewMatrices() const;
-    const float* getLightCascadeDistances() const;
+    void update(const ICamera&, const vec3&);
+    const std::vector<mat4>& getLightProjectionViewMatrices() const;
+    const std::vector<float>& getLightCascadeDistances() const;
 
 private:
     void caclulateCascadeDistances();
@@ -27,12 +27,12 @@ private:
     void checkMinMax(const vec4& point, vec3& min, vec3& max);
     void checkMinMax(float& min, float& max, float point);
     std::vector<vec4> calculateFrustumPoints(const ICamera&, float near, float far);
-    mat4 createLightViewMatrix(const Components::DirectionalLightComponent&, const ICamera&);
+    mat4 createLightViewMatrix(const vec3&, const ICamera&);
     mat4 createOrthoProjTransform(const vec3& min, const vec3& max) const;
 
 private:
-    mat4 lightProjectionViewMatrices_[Params::MAX_SHADOW_MAP_CASADES];
-    float cascadeDistances_[Params::MAX_SHADOW_MAP_CASADES];
+    std::vector<mat4> lightProjectionViewMatrices_;
+    std::vector<float> cascadeDistances_;
     float shadowDistance_;
 };
 }  // namespace GameEngine

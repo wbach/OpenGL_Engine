@@ -161,7 +161,7 @@ void ShadowMapRenderer::renderScene()
     {
         shader_.Start();
         rendererdMeshesCounter_ += entityRenderer_.renderEntitiesWithoutGrouping();
-        //shader_.Stop();
+        // shader_.Stop();
         treeRenderer_.render();
     }
 }
@@ -242,7 +242,8 @@ bool ShadowMapRenderer::prepareFrameBuffer()
     }
 
     const auto& directionalLight = directionalLights.front();
-    shadowBox_.update(*context_.camera_, *directionalLight);
+    vec3 lightDir                = normalize(directionalLight->getParentGameObject().GetWorldTransform().GetPosition());
+    shadowBox_.update(*context_.camera_, lightDir);
 
     const auto& shadowMatrices = shadowBox_.getLightProjectionViewMatrices();
 
@@ -257,7 +258,7 @@ bool ShadowMapRenderer::prepareFrameBuffer()
 
 void ShadowMapRenderer::renderCascades()
 {
-    auto lightMatrixes = shadowBox_.getLightProjectionViewMatrices();
+    const auto& lightMatrixes = shadowBox_.getLightProjectionViewMatrices();
     for (uint32 cascadeIndex = 0; cascadeIndex < Params::MAX_SHADOW_MAP_CASADES; ++cascadeIndex)
     {
         shadowFrameBuffer_[cascadeIndex]->Clear();

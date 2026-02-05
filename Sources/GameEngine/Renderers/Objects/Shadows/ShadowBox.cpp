@@ -6,11 +6,12 @@
 #include <Utils.h>
 
 #include "GameEngine/Camera/ICamera.h"
-#include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Components/Lights/DirectionalLightComponent.h"
+#include "GameEngine/Engine/Configuration.h"
+#include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
-#include "GameEngine/Objects/GameObject.h"
+#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -18,6 +19,9 @@ ShadowBox::ShadowBox()
     : shadowDistance_(EngineConf.renderer.shadows.distance.get() /
                       static_cast<float>(EngineConf.renderer.shadows.cascadesSize.get()))
 {
+    lightProjectionViewMatrices_.resize(Params::MAX_SHADOW_MAP_CASADES);
+    cascadeDistances_.resize(Params::MAX_SHADOW_MAP_CASADES);
+
     caclulateCascadeDistances();
 }
 
@@ -51,16 +55,9 @@ std::vector<vec4> ShadowBox::calculateFrustumPoints(const ICamera& camera, float
     // clang-format on
 }
 
-// mat4 ShadowBox::createLightViewMatrix(const Light& directionalLight)
-// {
-//     return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
-// }
-
-mat4 ShadowBox::createLightViewMatrix(const Components::DirectionalLightComponent& directionalLight, const ICamera& camera)
+mat4 ShadowBox::createLightViewMatrix(const vec3& lightDir, const ICamera& camera)
 {
-    // return glm::lookAt(vec3(0), directionalLight.GetPosition(), VECTOR_UP);
-    vec3 lightDir  = normalize(directionalLight.getParentGameObject().GetWorldTransform().GetPosition());  // lub GetDirection()
-    vec3 cameraPos = camera.GetPosition();
+    const vec3& cameraPos = camera.GetPosition();
     return glm::lookAt(cameraPos - lightDir * shadowDistance_ * 0.5f, cameraPos, VECTOR_UP);
 }
 
@@ -88,17 +85,17 @@ mat4 ShadowBox::createOrthoProjTransform(const vec3& min, const vec3& max) const
     return m;
 }
 
-const mat4* ShadowBox::getLightProjectionViewMatrices() const
+const std::vector<mat4>& ShadowBox::getLightProjectionViewMatrices() const
 {
     return lightProjectionViewMatrices_;
 }
 
-const float* ShadowBox::getLightCascadeDistances() const
+const std::vector<float>& ShadowBox::getLightCascadeDistances() const
 {
     return cascadeDistances_;
 }
 
-void expDistances(float* cascadeDistances)
+void expDistances(std::vector<float>& cascadeDistances)
 {
     float a = pow(EngineConf.renderer.shadows.distance.get(),
                   1.f / (static_cast<float>(EngineConf.renderer.shadows.cascadesSize.get()) - 1.f));
@@ -110,7 +107,7 @@ void expDistances(float* cascadeDistances)
     }
 }
 
-void quadraticDistances(float* cascadeDistances)
+void quadraticDistances(std::vector<float>& cascadeDistances)
 {
     float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
     float a  = (*EngineConf.renderer.shadows.distance - s0) /
@@ -123,7 +120,7 @@ void quadraticDistances(float* cascadeDistances)
     }
 }
 
-void linearDistances(float* cascadeDistances)
+void linearDistances(std::vector<float>& cascadeDistances)
 {
     float s0 = *EngineConf.renderer.shadows.firstCascadeDistance;
     float a =
@@ -138,7 +135,10 @@ void linearDistances(float* cascadeDistances)
 
 void ShadowBox::caclulateCascadeDistances()
 {
-    if (EngineConf.renderer.shadows.cascadesSize.get() == 1)
+    auto cascaedsSize = EngineConf.renderer.shadows.cascadesSize.get();
+    LOG_DEBUG << "CaclulateCascadeDistances : " << cascaedsSize;
+
+    if (cascaedsSize == 1)
     {
         for (uint32 i = 0; i < Params::MAX_SHADOW_MAP_CASADES; ++i)
         {
@@ -147,6 +147,9 @@ void ShadowBox::caclulateCascadeDistances()
         }
         return;
     }
+
+    LOG_DEBUG << "Calculate shadow distance by function: "
+              << magic_enum::enum_name(EngineConf.renderer.shadows.cascadeDistanceFunc);
 
     switch (EngineConf.renderer.shadows.cascadeDistanceFunc)
     {
@@ -159,6 +162,11 @@ void ShadowBox::caclulateCascadeDistances()
         case Params::Shadows::CascadeDistanceFunc::exp:
             expDistances(cascadeDistances_);
             break;
+    }
+
+    for (auto& distance : cascadeDistances_)
+    {
+        LOG_DEBUG << "Cascade distance: " << distance;
     }
 }
 
@@ -196,10 +204,10 @@ void ShadowBox::checkMinMax(float& min, float& max, float point)
     }
 }
 
-void ShadowBox::update(const ICamera& camera, const Components::DirectionalLightComponent& directionalLight)
+void ShadowBox::update(const ICamera& camera, const vec3& lightDir)
 {
     auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
-    auto lightViewMatrix = createLightViewMatrix(directionalLight, camera);
+    auto lightViewMatrix = createLightViewMatrix(lightDir, camera);
 
     for (uint32 cascadeIndex = 0; cascadeIndex < *EngineConf.renderer.shadows.cascadesSize; ++cascadeIndex)
     {
