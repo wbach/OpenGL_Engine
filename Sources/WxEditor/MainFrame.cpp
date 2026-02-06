@@ -349,13 +349,6 @@ void MainFrame::Init()
     CreateStatusBar();
     SetStatusText("Welcome to game editor!");
 
-    wxAcceleratorEntry entries[1];
-    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE);
-    wxAcceleratorTable accel(1, entries);
-    SetAcceleratorTable(accel);
-
-    // Powiazanie zdarzenia z ID_SAVE
-    Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
     SaveOsTheme(*this);
 
     Bind(wxEVT_RELOAD_COMPONENT_LIB_EVENT,
@@ -367,16 +360,17 @@ void MainFrame::Init()
              AddGameObjectComponentsToView(event.GetGameObject());
          });
 
-    {
-        wxAcceleratorEntry entries[3];
-        entries[0].Set(wxACCEL_CTRL, (int)'Z', ID_UNDO);
-        entries[1].Set(wxACCEL_CTRL, (int)'Y', ID_REDO);
-        entries[2].Set(wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO);
-        wxAcceleratorTable accel(3, entries);
-        SetAcceleratorTable(accel);
-        Bind(wxEVT_MENU, &MainFrame::OnUndo, this, ID_UNDO);
-        Bind(wxEVT_MENU, &MainFrame::OnRedo, this, ID_REDO);
-    }
+    wxAcceleratorEntry entries[4];
+    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE);
+    entries[1].Set(wxACCEL_CTRL, (int)'Z', ID_UNDO);
+    entries[2].Set(wxACCEL_CTRL, (int)'Y', ID_REDO);
+    entries[3].Set(wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO);
+    wxAcceleratorTable accel(4, entries);
+    SetAcceleratorTable(accel);
+
+    Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
+    Bind(wxEVT_MENU, &MainFrame::OnUndo, this, ID_UNDO);
+    Bind(wxEVT_MENU, &MainFrame::OnRedo, this, ID_REDO);
 }
 
 void MainFrame::OnUndo(wxCommandEvent& event)
