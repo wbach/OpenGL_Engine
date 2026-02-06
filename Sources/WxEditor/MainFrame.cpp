@@ -360,12 +360,12 @@ void MainFrame::Init()
              AddGameObjectComponentsToView(event.GetGameObject());
          });
 
-    wxAcceleratorEntry entries[4];
-    entries[0].Set(wxACCEL_CTRL, (int)'S', ID_SAVE);
-    entries[1].Set(wxACCEL_CTRL, (int)'Z', ID_UNDO);
-    entries[2].Set(wxACCEL_CTRL, (int)'Y', ID_REDO);
-    entries[3].Set(wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO);
-    wxAcceleratorTable accel(4, entries);
+    wxAcceleratorEntry entries[] = {{wxACCEL_CTRL, (int)'S', ID_SAVE},
+                                    {wxACCEL_CTRL, (int)'Z', ID_UNDO},
+                                    {wxACCEL_CTRL, (int)'Y', ID_REDO},
+                                    {wxACCEL_CTRL | wxACCEL_SHIFT, (int)'Z', ID_REDO},
+                                    {wxACCEL_NORMAL, WXK_DELETE, ID_TREE_MENU_REMOVE}};
+    wxAcceleratorTable accel(std::size(entries), entries);
     SetAcceleratorTable(accel);
 
     Bind(wxEVT_MENU, &MainFrame::MenuFileSaveScene, this, ID_SAVE);
