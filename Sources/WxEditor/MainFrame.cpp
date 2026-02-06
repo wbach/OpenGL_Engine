@@ -248,6 +248,12 @@ void MainFrame::Init()
         gameObjectsView->SubscribeForSceneEvent(scene);
         UpdateMainMenuRendererOptionsCheckBoxes();
         SetStatusText(std::filesystem::path(EngineLocalConf.files.getDataPath()).make_preferred().string());
+
+        const auto& lastContext = ProjectManager::GetInstance().GetLastSessionContext();
+        LOG_DEBUG << "lastContext.cameraPosition " << lastContext.cameraPosition;
+        LOG_DEBUG << "lastContext.cameraDir " << lastContext.cameraRotation;
+        canvas->GetCameraEditor()->SetPosition(lastContext.cameraPosition);
+        canvas->GetCameraEditor()->SetRotation(lastContext.cameraRotation);
     };
     auto selectItemInGameObjectTree = [this](uint32 gameObjectId, bool select)
     {
@@ -260,7 +266,7 @@ void MainFrame::Init()
 
     std::string sceneToLoad = WxEditor::NEW_SCENE;
 
-    const auto& path = ProjectManager::GetInstance().GetLastOpenedScene();
+    const auto& path = ProjectManager::GetInstance().GetLastSessionContext().sceneFile;
     if (not path.empty() and std::filesystem::exists(path))
     {
         sceneToLoad = path.string();
@@ -505,7 +511,7 @@ void MainFrame::MenuFileNewScene(wxCommandEvent&)
     }
 
     auto& manager = ProjectManager::GetInstance();
-    manager.SetLastOpenedSceneFile("");
+    manager.SetLastSessionContext({});
 
     ClearScene();
     canvas->CreateNewScene();
@@ -556,8 +562,8 @@ void MainFrame::MenuFileOpenScene(wxCommandEvent&)
                                       gameObjectsView->SubscribeForSceneEvent(scene);
                                       // loadingDialog->EndModal(wxID_OK);
                                       loadingDialog->Close();
-                                      auto& manager = ProjectManager::GetInstance();
-                                      manager.SetLastOpenedSceneFile(path.GetAbsolutePath());
+
+                                      SetLastSessionContext();
                                   });
                           }
                       });
@@ -579,6 +585,7 @@ void MainFrame::MenuFileSaveScene(wxCommandEvent&)
     if (not canvas->GetScene().GetFile().empty())
     {
         GameEngine::saveSceneToFile(canvas->GetScene());
+        SetLastSessionContext();
         return;
     }
 
@@ -1808,7 +1815,8 @@ void MainFrame::SaveSceneAs(const std::string& path)
     canvas->GetScene().ChangeName(file.GetBaseName());
     SetTitle("Active scene : " + canvas->GetScene().GetName());
     GameEngine::saveSceneToFile(canvas->GetScene(), GameEngine::File{file});
-    ProjectManager::GetInstance().SetLastOpenedSceneFile(GameEngine::File{path}.GetAbsolutePath());
+
+    SetLastSessionContext();
 }
 
 void MainFrame::UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> maybeId)
@@ -2066,4 +2074,11 @@ void MainFrame::MenuEditCreateForest(wxCommandEvent&)
     const float radius{15.f};
     const int treeTypesCount{10};
     WxEditor::GenerateForest(this, canvas, min, max, radius, treeTypesCount);
+}
+void MainFrame::SetLastSessionContext()
+{
+    auto& manager = ProjectManager::GetInstance();
+    manager.SetLastSessionContext(ProjectManager::SessionContext{.sceneFile      = canvas->GetScene().GetFile().GetAbsolutePath(),
+                                                                 .cameraPosition = canvas->GetCameraEditor()->GetPosition(),
+                                                                 .cameraRotation = canvas->GetCameraEditor()->GetRotation()});
 }

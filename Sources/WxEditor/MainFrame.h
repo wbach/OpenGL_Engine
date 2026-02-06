@@ -176,6 +176,7 @@ private:
     void UpdateGameObjectIdOnTransfromLabel(std::optional<IdType> = std::nullopt);
     void LoadPrefab(const std::string&);
     void CenterOnPrimaryMonitor();
+    void SetLastSessionContext();
 
 private:
     std::mutex componentsViewMutex;

@@ -1,12 +1,13 @@
 #include "Rotation.h"
 
+#include <iomanip>
 namespace
 {
 vec3 EulerAngles(const Quaternion &quaternion)
 {
-    auto euler = glm::eulerAngles(quaternion); // <-90, 90>
+    auto euler = glm::eulerAngles(quaternion);  // <-90, 90>
 
-    if (std::fabs(euler.z) >= glm::pi<float>() / 2.f)
+    if (std::fabs(euler.z) >= glm::half_pi<float>())
     {
         euler.x += glm::pi<float>();
         euler.y = glm::pi<float>() - euler.y;
@@ -19,7 +20,6 @@ vec3 EulerAngles(const Quaternion &quaternion)
 Rotation::Rotation()
     : value_(RadiansVec3(0).value)
 {
-
 }
 
 Rotation::Rotation(const DegreesVec3 &v)
@@ -30,10 +30,6 @@ Rotation::Rotation(const DegreesVec3 &v)
 Rotation::Rotation(const RadiansVec3 &v)
     : value_(v.value)
 {
-    //Quaternion QuatAroundX = glm::angleAxis(v.value.x, vec3(1.0, 0.0, 0.0));
-    //Quaternion QuatAroundY = glm::angleAxis(v.value.y, vec3(0.0, 1.0, 0.0));
-    //Quaternion QuatAroundZ = glm::angleAxis(v.value.z, vec3(0.0, 0.0, 1.0));
-    //value_ = QuatAroundX * QuatAroundY * QuatAroundZ;
 }
 
 Rotation::Rotation(const Quaternion &v)
@@ -49,4 +45,37 @@ DegreesVec3 Rotation::GetEulerDegrees() const
 RadiansVec3 Rotation::GetEulerRadians() const
 {
     return RadiansVec3(EulerAngles(value_));
+}
+Rotation &Rotation::operator=(const Quaternion &v)
+{
+    value_ = v;
+    return *this;
+}
+
+namespace std
+{
+std::string to_string(const Rotation &v)
+{
+    return std::to_string(v.value_);
+}
+void from_string(const std::string &s, Rotation &q)
+{
+    from_string(s, q.value_);
+}
+}  // namespace std
+
+std::ostream &operator<<(std::ostream &os, const Rotation &r)
+{
+    auto degrees  = r.GetEulerDegrees();
+    auto radians  = r.GetEulerRadians();
+    const auto &q = r.value_;
+
+    os << "--- Rotation Info ---\n";
+    os << std::fixed << std::setprecision(3);
+    os << "Quaternion: [" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << "]\n";
+    os << "Degrees:    [" << degrees->x << "°, " << degrees->y << "°, " << degrees->z << "°]\n";
+    os << "Radians:    [" << radians->x << "rad, " << radians->y << "rad, " << radians->z << "rad]\n";
+    os << "---------------------";
+
+    return os;
 }

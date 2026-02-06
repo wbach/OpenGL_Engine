@@ -54,6 +54,8 @@ public:
     void SetPitch(float pitch) override;
     void SetRotation(const Rotation&) override;
     void SetPosition(const vec3&) override;
+    void SetDirection(const vec3&) override;
+
     IdType SubscribeOnChange(std::function<void(const ICamera&)>) override;
     void UnsubscribeOnChange(IdType) override;
 

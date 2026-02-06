@@ -46,6 +46,7 @@ public:
     virtual void SetPitch(float pitch)        = 0;
     virtual void SetRotation(const Rotation&) = 0;
     virtual void SetPosition(const vec3&)     = 0;
+    virtual void SetDirection(const vec3&)    = 0;
 
     virtual IdType SubscribeOnChange(std::function<void(const ICamera&)>) = 0;
     virtual void UnsubscribeOnChange(IdType)                              = 0;

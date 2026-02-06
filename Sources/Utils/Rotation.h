@@ -1,5 +1,5 @@
 #pragma once
-#include <Types.h>
+#include "Types.h"
 
 struct Rotation
 {
@@ -7,6 +7,7 @@ struct Rotation
     Rotation(const DegreesVec3& v);
     Rotation(const RadiansVec3& v);
     Rotation(const Quaternion& v);
+    Rotation& operator=(const Quaternion&);
 
     DegreesVec3 GetEulerDegrees() const;
     RadiansVec3 GetEulerRadians() const;
@@ -22,3 +23,11 @@ struct Rotation
 
     Quaternion value_;
 };
+
+namespace std
+{
+std::string to_string(const Rotation&);
+void from_string(const std::string&, Rotation&);
+}
+
+std::ostream& operator<<(std::ostream&, const Rotation&);

@@ -245,4 +245,8 @@ glm::vec3 Camera::GetForward() const
 {
     return rotation_.value_ * glm::vec3(0, 0, -1);
 }
+void Camera::SetDirection(const vec3& inputDir)
+{
+    rotation_ = Utils::lookAtDirection(-inputDir);
+}
 }  // namespace GameEngine

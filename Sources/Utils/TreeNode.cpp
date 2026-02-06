@@ -3,6 +3,8 @@
 #include <sstream>
 
 #include "Logger/Log.h"
+#include "Rotation.h"
+#include "Types.h"
 #include "Utils/Utils.h"
 
 namespace
@@ -123,13 +125,16 @@ void Read(const TreeNode& node, int32& v)
     v = std::stoi(node.value_);
 }
 
-void setIfExist(const TreeNode& node, const std::string& attributeName, float& v)
+bool setIfExist(const TreeNode& node, const std::string& attributeName, float& v)
 {
     auto attributeValueStr = node.getAttributeValue(attributeName);
     if (not attributeValueStr.empty())
     {
         v = std::stof(attributeValueStr);
+        return true;
     }
+
+    return false;
 }
 
 void setIfExist(const TreeNode& node, const std::string& attributeName, uint32& v)
@@ -145,9 +150,11 @@ void Read(const TreeNode& node, vec3& v)
 {
     try
     {
-        setIfExist(node, CSTR_X, v.x);
-        setIfExist(node, CSTR_Y, v.y);
-        setIfExist(node, CSTR_Z, v.z);
+        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y) and setIfExist(node, CSTR_Z, v.z);
+        if (not is)
+        {
+            std::from_string(node.value_, v);
+        }
     }
     catch (...)
     {
@@ -158,10 +165,13 @@ void Read(const TreeNode& node, vec4& v)
 {
     try
     {
-        setIfExist(node, CSTR_X, v.x);
-        setIfExist(node, CSTR_Y, v.y);
-        setIfExist(node, CSTR_Z, v.z);
-        setIfExist(node, CSTR_W, v.w);
+        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y) and setIfExist(node, CSTR_Z, v.z) and
+                  setIfExist(node, CSTR_W, v.w);
+
+        if (not is)
+        {
+            std::from_string(node.value_, v);
+        }
     }
     catch (...)
     {
@@ -178,10 +188,13 @@ void Read(const TreeNode& node, Quaternion& v)
 {
     try
     {
-        setIfExist(node, CSTR_X, v.x);
-        setIfExist(node, CSTR_Y, v.y);
-        setIfExist(node, CSTR_Z, v.z);
-        setIfExist(node, CSTR_W, v.w);
+        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y) and setIfExist(node, CSTR_Z, v.z) and
+                  setIfExist(node, CSTR_W, v.w);
+
+        if (not is)
+        {
+            std::from_string(node.value_, v);
+        }
     }
     catch (...)
     {
@@ -189,11 +202,19 @@ void Read(const TreeNode& node, Quaternion& v)
     }
 }
 
+void Read(const TreeNode& node, Rotation& v)
+{
+    Read(node, v.value_);
+}
+
 void Read(const TreeNode& node, std::string& v)
 {
     v = node.value_;
 }
-
+void Read(const TreeNode& node, std::filesystem::path& v)
+{
+    v = node.value_;
+}
 void Read(const TreeNode& node, std::vector<vec2>& result)
 {
     for (const auto& node : node.getChildren())
@@ -227,8 +248,19 @@ void Read(const TreeNode& node, uint32& v)
 
 void Read(const TreeNode& node, vec2& v)
 {
-    setIfExist(node, CSTR_X, v.x);
-    setIfExist(node, CSTR_Y, v.y);
+    try
+    {
+        bool is = setIfExist(node, CSTR_X, v.x) and setIfExist(node, CSTR_Y, v.y);
+
+        if (not is)
+        {
+            std::from_string(node.value_, v);
+        }
+    }
+    catch (...)
+    {
+        LOG_ERROR << "Read error";
+    }
 }
 
 std::unique_ptr<TreeNode> Convert(const std::string& v)

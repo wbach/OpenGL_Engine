@@ -11,7 +11,7 @@
 #include "Types.h"
 
 #ifndef USE_GNU
-//#ifndef USE_MINGW 
+//#ifndef USE_MINGW
 #include <Utils/UndifineWindows.h>
 //#endif
 #endif
@@ -98,6 +98,7 @@ public:
     void SetPitch(float) override;
     void SetRotation(const Rotation&) override;
     void SetPosition(const vec3&) override;
+    void SetDirection(const vec3&) override;
 
     void SetDirectionAndUp(const vec3& dir, const vec3& up) override;
 

@@ -374,5 +374,9 @@ void CameraComponent::SetActive(bool v)
         Deactivate();
     }
 }
+void CameraComponent::SetDirection(const vec3& direction)
+{
+    SetRotation(Utils::lookAtDirection(-direction));
+}
 }  // namespace Components
 }  // namespace GameEngine

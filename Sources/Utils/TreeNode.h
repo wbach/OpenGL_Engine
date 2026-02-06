@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Rotation.h"
 #include "Types.h"
 
 typedef std::unordered_map<std::string, std::string> Attributes;
@@ -61,7 +62,9 @@ void Read(const TreeNode&, vec3&);
 void Read(const TreeNode&, vec4&);
 void Read(const TreeNode&, Color&);
 void Read(const TreeNode&, Quaternion&);
+void Read(const TreeNode&, Rotation&);
 void Read(const TreeNode&, std::string&);
+void Read(const TreeNode&, std::filesystem::path&);
 void Read(const TreeNode&, std::vector<vec2>&);
 void Read(const TreeNode&, std::vector<vec3>&);
 

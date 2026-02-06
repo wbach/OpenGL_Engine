@@ -2,6 +2,7 @@
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
 #include <filesystem>
+#include <string>
 
 #include "Engine/Configuration.h"
 #include "Engine/ConfigurationReader.h"
@@ -18,7 +19,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     projectPath                  = path;
     lastOpenedPath               = path;
     projectEditorConfigFilePath  = GameEngine::getGlobalConfigDirPath() / "editorConfig.json";
-    projectEditorFilePath        = projectPath / "editor.json";
+    projectLastSessionFilePath   = projectPath / "lastSessionContext.json";
     projectLocalConfigPath       = projectPath / "config.xml";
     projectScenesFactoryFilePath = path / "scenes.json";
     projectScenesDirPath         = path / "Scenes";
@@ -28,7 +29,7 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
     CreateDirectories();
 
     LOG_DEBUG << "projectEditorConfigFilePath : " << projectEditorConfigFilePath;
-    LOG_DEBUG << "projectEditorFilePath : " << projectEditorFilePath;
+    LOG_DEBUG << "projectLastSessionFilePath : " << projectLastSessionFilePath;
 
     GameEngine::ReadConfigFromFile(EngineLocalConf, projectLocalConfigPath);
     EngineLocalConf.files.setProjectPath(projectPath);
@@ -74,13 +75,13 @@ void ProjectManager::SetProjectPath(const std::filesystem::path& path)
         SaveEditorConfig();
     }
 
-    if (std::filesystem::exists(projectEditorFilePath))
+    if (std::filesystem::exists(projectLastSessionFilePath))
     {
-        ReadEditorFile();
+        ReadLastSessionContextFile();
     }
     else
     {
-        SaveEditor();
+        SaveLastSessionContextFile();
     }
 }
 
@@ -197,7 +198,7 @@ void ProjectManager::SaveEditorConfig()
     }
     catch (...)
     {
-        LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile
+        LOG_DEBUG << "SaveEditorConfig error."
                   << ". projectEditorConfigFilePath= " << projectEditorConfigFilePath;
     }
 }
@@ -271,42 +272,48 @@ void ProjectManager::RemoveRecentProject(const std::string& path)
     }
     config.Flush();
 }
-const std::filesystem::path& ProjectManager::GetLastOpenedScene() const
+const ProjectManager::SessionContext& ProjectManager::GetLastSessionContext() const
 {
-    return lastOpenedSceneFile;
+    return lastSessionContext;
 }
-void ProjectManager::SetLastOpenedSceneFile(const std::filesystem::path& file)
+void ProjectManager::ReadLastSessionContextFile()
 {
-    lastOpenedSceneFile = file;
-    SaveEditor();
-}
-void ProjectManager::ReadEditorFile()
-{
-    LOG_DEBUG << "ReadEditorFile : " << projectEditorFilePath;
+    LOG_DEBUG << "ReadEditorFile : " << projectLastSessionFilePath;
     Utils::JsonReader json;
-    json.Read(projectEditorFilePath.string());
-    if (auto lastOpenedSceneFileNode = json.Get("lastOpenedSceneFile"))
-    {
-        lastOpenedSceneFile = lastOpenedSceneFileNode->value_;
-    }
+    json.Read(projectLastSessionFilePath);
+
+    LOG_DEBUG << "root : " << *json.Get();
+    ::Read(json.Get("sceneFile"), lastSessionContext.sceneFile);
+    ::Read(json.Get("cameraPosition"), lastSessionContext.cameraPosition);
+    ::Read(json.Get("cameraRotation"), lastSessionContext.cameraRotation);
+
+    LOG_DEBUG << "lastSessionContext.cameraPosition : " << lastSessionContext.cameraPosition << " " << json.Get("cameraPosition")->value_;
 }
-void ProjectManager::SaveEditor()
+void ProjectManager::SaveLastSessionContextFile()
 {
     try
     {
-        TreeNode node("editorConfig");
-        node.addChild("lastOpenedSceneFile",
-                      lastOpenedSceneFile.empty() ? "" : std::filesystem::absolute(lastOpenedSceneFile).lexically_normal());
-        Utils::Json::Write(projectEditorFilePath.string(), node);
+        TreeNode node("LastSessionContext");
+        node.addChild("cameraPosition", std::to_string(lastSessionContext.cameraPosition));
+        node.addChild("cameraRotation", std::to_string(lastSessionContext.cameraRotation));
+        node.addChild("sceneFile", lastSessionContext.sceneFile.empty()
+                                       ? ""
+                                       : std::filesystem::absolute(lastSessionContext.sceneFile).lexically_normal());
+        Utils::Json::Write(projectLastSessionFilePath, node);
         LOG_DEBUG << "projectEditorFilePath saved";
     }
     catch (...)
     {
-        LOG_DEBUG << "SaveEditorConfig error. lastOpenedSceneFile =" << lastOpenedSceneFile
-                  << ". projectEditorFilePath= " << projectEditorFilePath;
+        LOG_DEBUG << "SaveEditorConfig error. sceneFile =" << lastSessionContext.sceneFile
+                  << ". projectEditorFilePath= " << projectLastSessionFilePath;
     }
 }
 void ProjectManager::SaveLocalConfigFile()
 {
     GameEngine::WriteConfigurationToFile(EngineLocalConf, projectLocalConfigPath);
+}
+void ProjectManager::SetLastSessionContext(const SessionContext& context)
+{
+    lastSessionContext = context;
+    SaveLastSessionContextFile();
 }

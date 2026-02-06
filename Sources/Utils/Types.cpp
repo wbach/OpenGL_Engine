@@ -152,4 +152,92 @@ string to_string(const std::vector<string>& values)
     }
     return result;
 }
+
+static void parse_next(std::stringstream& ss, float& val)
+{
+    ss >> val;
+    if (ss.peek() == ',' || ss.peek() == ' ')
+        ss.ignore();
+}
+
+static void parse_next(std::stringstream& ss, int& val)
+{
+    ss >> val;
+    if (ss.peek() == ',' || ss.peek() == ' ')
+        ss.ignore();
+}
+
+static void parse_next(std::stringstream& ss, unsigned int& val)
+{
+    ss >> val;
+    if (ss.peek() == ',' || ss.peek() == ' ')
+        ss.ignore();
+}
+
+void from_string(const std::string& s, vec2& v)
+{
+    std::stringstream ss(s);
+    parse_next(ss, v.x);
+    parse_next(ss, v.y);
+}
+
+void from_string(const std::string& s, vec2i& v)
+{
+    std::stringstream ss(s);
+    parse_next(ss, v.x);
+    parse_next(ss, v.y);
+}
+
+void from_string(const std::string& s, vec2ui& v)
+{
+    std::stringstream ss(s);
+    parse_next(ss, v.x);
+    parse_next(ss, v.y);
+}
+
+void from_string(const std::string& s, vec3& v)
+{
+    std::stringstream ss(s);
+    parse_next(ss, v.x);
+    parse_next(ss, v.y);
+    parse_next(ss, v.z);
+}
+
+void from_string(const std::string& s, vec3i& v)
+{
+    std::stringstream ss(s);
+    parse_next(ss, v.x);
+    parse_next(ss, v.y);
+    parse_next(ss, v.z);
+}
+
+void from_string(const std::string& s, vec4& v)
+{
+    std::stringstream ss(s);
+    parse_next(ss, v.x);
+    parse_next(ss, v.y);
+    parse_next(ss, v.z);
+    parse_next(ss, v.w);
+}
+
+void from_string(const std::string& s, Quaternion& q)
+{
+    std::stringstream ss(s);
+    parse_next(ss, q.x);
+    parse_next(ss, q.y);
+    parse_next(ss, q.z);
+    parse_next(ss, q.w);
+}
+
+void from_string(const std::string& s, mat4& m)
+{
+    std::stringstream ss(s);
+    for (int y = 0; y < 4; y++)
+    {
+        for (int x = 0; x < 4; x++)
+        {
+            ss >> m[y][x];
+        }
+    }
+}
 }  // namespace std

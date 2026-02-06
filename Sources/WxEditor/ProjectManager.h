@@ -6,6 +6,7 @@
 #include <GameEngine/Scene/SceneUtils.h>
 #include <Utils/Json/JsonReader.h>
 #include <Utils/Json/JsonWriter.h>
+#include <Utils/Rotation.h>
 #include <Utils/TreeNode.h>
 #include <wx/config.h>
 #include <wx/wx.h>
@@ -15,6 +16,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Rotation.h"
+
 class ProjectManager
 {
 public:
@@ -22,6 +25,13 @@ public:
     {
         std::string name;
         std::string path;
+    };
+
+    struct SessionContext
+    {
+        std::filesystem::path sceneFile;
+        vec3 cameraPosition;
+        Rotation cameraRotation;
     };
 
     static ProjectManager& GetInstance();
@@ -55,15 +65,16 @@ public:
 
     void SetStartupScene(const std::string& name);
     const std::string& GetStartupScene() const;
-    const std::filesystem::path& GetLastOpenedScene() const;
+    const SessionContext& GetLastSessionContext() const;
 
     void SaveSceneFiles();
     void SaveEditorConfig();
     void ReadEditorConfig();
-    void ReadEditorFile();
-    void SaveEditor();
     void SaveLocalConfigFile();
-    void SetLastOpenedSceneFile(const std::filesystem::path&);
+    void ReadLastSessionContextFile();
+    void SaveLastSessionContextFile();
+
+    void SetLastSessionContext(const SessionContext&);
 
 private:
     ProjectManager()  = default;
@@ -80,11 +91,12 @@ private:
     std::filesystem::path projectDataDirPath;
     std::filesystem::path projectComponentsDirPath;
     std::filesystem::path projectEditorConfigFilePath;
-    std::filesystem::path projectEditorFilePath;
+    std::filesystem::path projectLastSessionFilePath;
     std::filesystem::path lastOpenedPath;
     std::string projectName;
     std::string startupscene;
-    std::filesystem::path lastOpenedSceneFile;
     std::filesystem::path engineIncludesDir;
     std::unordered_map<std::string, std::filesystem::path> scenes;
+
+    SessionContext lastSessionContext;
 };

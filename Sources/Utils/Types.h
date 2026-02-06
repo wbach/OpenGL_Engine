@@ -965,8 +965,13 @@ std::string to_string(const std::vector<T>& values)
     }
     return result;
 }
-template <>
-std::string to_string(const std::optional<std::string>&);
-template <>
-std::string to_string(const std::vector<std::string>&);
+
+void from_string(const std::string& s, vec2& v);
+void from_string(const std::string& s, vec2i& v);
+void from_string(const std::string& s, vec2ui& v);
+void from_string(const std::string& s, vec3i& v);
+void from_string(const std::string& s, vec3& v);
+void from_string(const std::string& s, vec4& v);
+void from_string(const std::string& s, Quaternion& q);
+void from_string(const std::string& s, mat4& m);
 }  // namespace std

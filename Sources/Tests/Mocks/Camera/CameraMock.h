@@ -43,6 +43,7 @@ public:
     MOCK_METHOD(void, SetPitch, (float pitch), (override));
     MOCK_METHOD(void, SetRotation, (const Rotation&), (override));
     MOCK_METHOD(void, SetPosition, (const vec3&), (override));
+    MOCK_METHOD(void, SetDirection, (const vec3&), (override));
 
     MOCK_METHOD(IdType, SubscribeOnChange, (std::function<void(const ICamera&)>), (override));
     MOCK_METHOD(void, UnsubscribeOnChange, (IdType), (override));

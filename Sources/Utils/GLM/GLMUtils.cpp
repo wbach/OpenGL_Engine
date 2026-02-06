@@ -219,10 +219,16 @@ mat4 createViewMatrix(const Quaternion& rotation, const vec3& cameraPosition)
 Quaternion lookAt(const vec3& lookAtPosition, const vec3& position)
 {
     auto direction   = position - lookAtPosition;
-    auto yaw         = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
-    auto pitch       = atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z));
-    glm::quat qPitch = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
-    glm::quat qYaw   = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
+    return lookAtDirection(direction);
+}
+
+Quaternion lookAtDirection(const vec3& inputDir)
+{
+    auto direction = glm::normalize(inputDir);
+    auto yaw       = atan2f(direction.z, direction.x) - static_cast<float>(M_PI) / 2.f;
+    auto pitch     = atan2f(direction.y, sqrtf(direction.x * direction.x + direction.z * direction.z));
+    auto qPitch    = glm::angleAxis(pitch, glm::vec3(1, 0, 0));
+    auto qYaw      = glm::angleAxis(yaw, glm::vec3(0, 1, 0));
     return glm::normalize(qPitch * qYaw);
 }
 
