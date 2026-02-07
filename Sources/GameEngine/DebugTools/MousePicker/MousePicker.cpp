@@ -75,6 +75,14 @@ std::optional<float> BoundingBoxIntersect(const Ray& ray, const BoundingBox& box
     if (!checkAxis(ray.position.z, ray.direction.z, min.z, max.z))
         return std::nullopt;
 
+    // 1. Jeśli tmax < 0, cały box jest za kamerą
+    if (tmax < 0)
+        return std::nullopt;
+
+    // 2. Jeśli tmin < 0, kamera jest wewnątrz boxa.
+    if (tmin < 0)
+        return std::nullopt;
+
     return tmin;
 }
 
