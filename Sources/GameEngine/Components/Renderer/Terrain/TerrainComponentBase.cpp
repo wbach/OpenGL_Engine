@@ -20,8 +20,8 @@
 #include "GameEngine/Resources/GpuResourceLoader.h"
 #include "GameEngine/Resources/IResourceManager.hpp"
 #include "GameEngine/Resources/ITextureLoader.h"
-#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/Models/LoadingParameters.h"
+#include "GameEngine/Resources/Models/ModelWrapper.h"
 #include "GameEngine/Resources/ResourceUtils.h"
 #include "GameEngine/Resources/TextureParameters.h"
 #include "GameEngine/Resources/Textures/GeneralTexture.h"
@@ -122,7 +122,6 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
     {
         outputFile.ChangeExtension("terrain");
     }
-
     auto heightMap = componentContext_.resourceManager_.GetTextureLoader().CreateHeightMap(
         outputFile, vec2ui(heightmapResultuion), heightMapParameters_);
 
@@ -168,10 +167,10 @@ std::optional<File> TerrainComponentBase::ConvertObjectToHeightMap(const File &o
             heightMap->SetHeight(vec2ui{x, y}, heights[y][x]);
         }
     }
-    auto correctedWorldScale = currentWorldTransform.GetScale();
-    thisObject_.SetWorldScale(correctedWorldScale);
+    thisObject_.SetWorldScale(vec3(1.f / model->getNormalizedFactor()));
     thisObject_.SetWorldPosition(currentWorldTransform.GetPosition());
-    heightMap->SetScale(vec3(1.f / model->getNormalizedFactor()));
+    thisObject_.SetWorldRotation(currentWorldTransform.GetRotation());
+
     componentContext_.physicsApi_.RemoveShape(*collisionShapeId);
     componentContext_.physicsApi_.RemoveRigidBody(*rigidBodyId_);
     LOG_DEBUG << "Conversion done. Output file: " << outputFile.GetAbsolutePath();
@@ -394,6 +393,7 @@ HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
 
     if (texture)
     {
+        LOG_DEBUG << texture->GetImage();
         SetTexture(TerrainTextureType::heightmap, texture);
         heightMap_ = static_cast<HeightMap *>(texture);
         inputData_.push_back({file, 1.f, TerrainTextureType ::heightmap});
@@ -404,6 +404,23 @@ HeightMap *TerrainComponentBase::createHeightMap(const vec2ui &size)
     }
 
     return heightMap_;
+}
+
+void TerrainComponentBase::LoadHeightMap(const File &file)
+{
+    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, heightMapParameters_);
+
+    if (texture)
+    {
+        LOG_DEBUG << texture->GetImage();
+        ;
+        SetTexture(TerrainTextureType::heightmap, texture);
+        heightMap_ = static_cast<HeightMap *>(texture);
+    }
+    else
+    {
+        LOG_ERROR << "load error";
+    }
 }
 
 HeightMap *TerrainComponentBase::GetHeightMap()
@@ -440,21 +457,6 @@ GraphicsApi::ID TerrainComponentBase::getPerTerrainTexturesBufferId() const
     if (perTerrainTexturesBuffer_)
         return perTerrainTexturesBuffer_->GetGraphicsObjectId();
     return std::nullopt;
-}
-
-void TerrainComponentBase::LoadHeightMap(const File &file)
-{
-    auto texture = componentContext_.resourceManager_.GetTextureLoader().LoadHeightMap(file, heightMapParameters_);
-
-    if (texture)
-    {
-        SetTexture(TerrainTextureType::heightmap, texture);
-        heightMap_ = static_cast<HeightMap *>(texture);
-    }
-    else
-    {
-        LOG_ERROR << "load error";
-    }
 }
 
 void TerrainComponentBase::LoadTerrainConfiguration(const File &terrainConfigFile)

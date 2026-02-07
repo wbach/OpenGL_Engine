@@ -1,8 +1,10 @@
 #pragma once
 #include <Rotation.h>
+
 #include <Mutex.hpp>
 #include <functional>
 #include <utility>
+
 #include "Types.h"
 
 namespace common
@@ -86,4 +88,6 @@ private:
     std::mutex subscribeMutex_;
     std::vector<std::pair<uint32, std::function<void(const Transform&)>>> subscribers_;
 };
+
+std::ostream& operator<<(std::ostream&, const Transform&);
 }  // namespace common

@@ -812,6 +812,10 @@ void MainFrame::LoadPrefab(const std::string& path)
     if (auto go = GameEngine::SceneReader(canvas->GetScene()).loadPrefab(path))
     {
         gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(go->GetId());
+        if (auto cameraEditor = canvas->GetCameraEditor())
+        {
+            go->SetWorldPosition(cameraEditor->GetPosition() + cameraEditor->GetForward());
+        }
     }
 }
 
@@ -1289,6 +1293,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
         auto& scene                       = canvas->GetScene();
         auto newGameObject                = scene.CreateGameObject(file.GetBaseName());
+        auto newGameObjectPtr = newGameObject.get();
         auto& rendererComponent           = newGameObject->AddComponent<GameEngine::Components::RendererComponent>();
         auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
         animator.startupAnimationClipName = "noname";
@@ -1308,6 +1313,11 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
         }
 
         gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(id);
+
+        if (auto cameraEditor = canvas->GetCameraEditor())
+        {
+            newGameObjectPtr->SetWorldPosition(cameraEditor->GetPosition() + cameraEditor->GetForward());
+        }
     }
     else if (isPrefab(file))
     {
@@ -2085,6 +2095,13 @@ void MainFrame::SetValuesFromCameraEditor(wxCommandEvent&)
             {
                 cameraComponent->SetPosition(cameraEditor->GetPosition());
                 cameraComponent->SetRotation(cameraEditor->GetRotation());
+            }
+        }
+        else
+        {
+            if (auto cameraEditor = canvas->GetCameraEditor())
+            {
+                maybeGo->SetWorldPosition(cameraEditor->GetPosition() + cameraEditor->GetForward());
             }
         }
     }

@@ -76,6 +76,21 @@ HeightMap *TerrainMeshRendererComponent::createHeightMap(const vec2ui &size)
     init();
     return result;
 }
+
+
+void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
+{
+    heightMapFile_ = file;
+
+    heightMapParameters_.loadType        = TextureLoadType::None;
+    heightMapParameters_.flipMode        = TextureFlip::NONE;
+    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
+    heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
+
+    TerrainComponentBase::LoadHeightMap(file);
+    init();
+}
+
 void TerrainMeshRendererComponent::CleanUp()
 {
     TerrainComponentBase::CleanUp();
@@ -155,19 +170,6 @@ void TerrainMeshRendererComponent::init()
                 }
             });
     }
-}
-
-void TerrainMeshRendererComponent::LoadHeightMap(const File &file)
-{
-    heightMapFile_ = file;
-
-    heightMapParameters_.loadType        = TextureLoadType::None;
-    heightMapParameters_.flipMode        = TextureFlip::NONE;
-    heightMapParameters_.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
-    heightMapParameters_.dataStorePolicy = DataStorePolicy::Store;
-
-    TerrainComponentBase::LoadHeightMap(file);
-    init();
 }
 
 void TerrainMeshRendererComponent::UpdateHeightMap(const File &)

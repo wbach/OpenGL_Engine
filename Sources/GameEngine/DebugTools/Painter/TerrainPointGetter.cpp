@@ -8,6 +8,7 @@
 #include "GameEngine/Components/Renderer/Terrain/TerrainRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Resources/Textures/HeightMap.h"
 #include "TerrainPoint.h"
 
 namespace GameEngine
@@ -143,8 +144,8 @@ std::optional<TerrainPoint> TerrainPointGetter::BinarySearch(uint32 count, doubl
 
 vec2d TerrainPointGetter::CastToTerrainSpace(Terrain& terrain, const vec3d& worldPointOnTerrain)
 {
-    const auto& scale = terrain.GetParentGameObject().GetWorldTransform().GetScale();
-    auto terrainPos   = terrain.GetParentGameObject().GetWorldTransform().GetPosition();
+    const auto scale = terrain.GetParentGameObject().GetWorldTransform().GetScale() * terrain.GetHeightMap()->GetScale();
+    auto terrainPos  = terrain.GetParentGameObject().GetWorldTransform().GetPosition();
 
     vec2 result;
     result.x = (worldPointOnTerrain.x - terrainPos.x) / scale.x + 0.5;

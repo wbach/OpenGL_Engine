@@ -171,9 +171,6 @@ void SceneTreeCtrl::OnTreeItemRightClick(wxTreeEvent &event)
     menu.Append(ID_TREE_MENU_MAKE_PREFAB, "Create prefab");
     menu.Append(ID_TREE_MENU_UNMARK_PREFAB, "Unmark prefab");
     menu.AppendSeparator();
-    menu.Append(ID_TREE_MENU_RENAME, "Rename");
-    menu.AppendSeparator();
-    menu.Append(ID_TREE_MENU_REMOVE, "Remove");
 
     if (auto maybeId = itemIdToObjectId.Get(itemId))
     {
@@ -185,9 +182,18 @@ void SceneTreeCtrl::OnTreeItemRightClick(wxTreeEvent &event)
                 {
                     menu.Append(ID_TREE_SET_VALUES_FROM_CAMERA_EDITOR, "Set values from editor camera");
                 }
+                else
+                {
+                    menu.Append(ID_TREE_SET_VALUES_FROM_CAMERA_EDITOR, "Set position from editor camera");
+                }
             }
         }
     }
+
+    menu.AppendSeparator();
+    menu.Append(ID_TREE_MENU_RENAME, "Rename");
+    menu.AppendSeparator();
+    menu.Append(ID_TREE_MENU_REMOVE, "Remove");
 
     if (disableHelper.IsDisabled(itemId))
     {

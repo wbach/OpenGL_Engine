@@ -13,7 +13,12 @@ class ICamera;
 class MousePicker
 {
 public:
-    MousePicker(const ICamera&);
+    enum class IntersectMode
+    {
+        All,
+        FrontOnly
+    };
+    MousePicker(const ICamera&, IntersectMode = IntersectMode::All);
     GameObject* SelectObject(const vec2&, const std::vector<std::unique_ptr<GameObject>>&);
 
 private:
@@ -24,5 +29,6 @@ private:
 
 private:
     const ICamera& camera_;
+    IntersectMode mode;
 };
 }  // namespace GameEngine

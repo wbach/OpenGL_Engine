@@ -364,7 +364,8 @@ void GLCanvas::OnMouseLeftDown(wxMouseEvent& event)
 
     if (useMousePicker and engine->GetSceneManager().GetActiveScene() and not mousePicker)
     {
-        mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera());
+        mousePicker          = std::make_unique<GameEngine::MousePicker>(*GetScene().GetCameraManager().GetMainCamera(),
+                                                                GameEngine::MousePicker::IntersectMode::FrontOnly);
         auto maybeGameObject = mousePicker->SelectObject(engine->GetEngineContext().GetInputManager().GetMousePosition(),
                                                          GetScene().GetGameObjects());
         if (maybeGameObject)

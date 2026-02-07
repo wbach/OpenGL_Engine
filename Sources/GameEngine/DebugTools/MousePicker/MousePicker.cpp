@@ -36,7 +36,7 @@ std::optional<float> SphereIntersect(const Ray& ray, const vec3& objectPosition,
     return {};
 }
 
-std::optional<float> BoundingBoxIntersect(const Ray& ray, const BoundingBox& box)
+std::optional<float> BoundingBoxIntersect(const Ray& ray, const BoundingBox& box, MousePicker::IntersectMode mode)
 {
     const auto& min = box.min();
     const auto& max = box.max();
@@ -80,14 +80,15 @@ std::optional<float> BoundingBoxIntersect(const Ray& ray, const BoundingBox& box
         return std::nullopt;
 
     // 2. Jeśli tmin < 0, kamera jest wewnątrz boxa.
-    if (tmin < 0)
+    if (MousePicker::IntersectMode::FrontOnly == mode and tmin < 0)
         return std::nullopt;
 
     return tmin;
 }
 
-MousePicker::MousePicker(const ICamera& camera)
+MousePicker::MousePicker(const ICamera& camera, IntersectMode mode)
     : camera_(camera)
+    , mode{mode}
 {
 }
 GameObject* MousePicker::SelectObject(const vec2& mousePosition, const std::vector<std::unique_ptr<GameObject>>& objectList)
@@ -119,7 +120,7 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
             boundingBox.scale(object->GetWorldTransform().GetScale());
             boundingBox.translate(object->GetWorldTransform().GetPosition());
 
-            if (auto t = BoundingBoxIntersect(ray, boundingBox))
+            if (auto t = BoundingBoxIntersect(ray, boundingBox, mode))
             {
                 closest = std::make_pair(const_cast<GameObject*>(object), *t);
             }

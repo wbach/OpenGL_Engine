@@ -291,4 +291,17 @@ void Transform::SetMatrix(const mat4& matrix)
     NotifySubscribers();
 }
 
+std::ostream& operator<<(std::ostream& os, const Transform& transform)
+{
+    const vec3& pos     = transform.GetPosition();
+    const Rotation& rot = transform.GetRotation();
+    const vec3& scale   = transform.GetScale();
+
+    os << "Transform(\n"
+       << "Pos: [" << pos.x << ", " << pos.y << ", " << pos.z << "], \n"
+       << "Rot: " << rot << ",\n"
+       << "Scale: [" << scale.x << ", " << scale.y << ", " << scale.z << "])";
+
+    return os;
+}
 }  // namespace common
