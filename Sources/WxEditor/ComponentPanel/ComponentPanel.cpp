@@ -8,6 +8,7 @@
 #include <Logger/Log.h>
 #include <wx/artprov.h>
 #include <wx/dnd.h>
+#include <wx/propgrid/propgrid.h>
 #include <wx/wx.h>
 
 #include <magic_enum/magic_enum.hpp>
@@ -15,6 +16,7 @@
 #include <utility>
 
 #include "ReloadComponentLibEvent.h"
+#include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/FileDropTarget.h"
 #include "WxEditor/WxHelpers/ThumbnailCache.h"
 
@@ -23,8 +25,39 @@ namespace GameEngine
 namespace Components
 {
 extern const std::string CSTR_TYPE;
-}
+}  // namespace Components
 }  // namespace GameEngine
+
+namespace
+{
+class PropertyGridDropTarget : public wxFileDropTarget
+{
+    wxPropertyGrid* m_grid;
+
+public:
+    PropertyGridDropTarget(wxPropertyGrid* grid)
+        : m_grid(grid)
+    {
+    }
+
+    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override
+    {
+        wxPropertyGridHitTestResult hit = m_grid->HitTest(wxPoint(x, y));
+        wxPGProperty* prop              = hit.GetProperty();
+
+        if (prop && filenames.GetCount() > 0)
+        {
+            prop->SetValueFromString(filenames[0]);
+            wxPropertyGridEvent event(wxEVT_PG_CHANGED, m_grid->GetId());
+            event.SetProperty(prop);
+            m_grid->GetEventHandler()->ProcessEvent(event);
+
+            return true;
+        }
+        return false;
+    }
+};
+}  // namespace
 
 ComponentPanel::ComponentPanel(wxFrame* mainFrame, wxWindow* parent, GameEngine::ExternalComponentsReader& reader,
                                GameEngine::GameObject& gameObject)
@@ -98,11 +131,7 @@ void ComponentPanel::AddComponent(GameEngine::Components::IComponent& component,
         activeCheck->SetValue(component.IsActive());
         headerSizer->Add(activeCheck, 0, wxALL, 5);
 
-        activeCheck->Bind(wxEVT_CHECKBOX,
-                          [&component](auto& e)
-                          {
-                              component.SetActive(e.IsChecked());
-                          });
+        activeCheck->Bind(wxEVT_CHECKBOX, [&component](auto& e) { component.SetActive(e.IsChecked()); });
     }
 
     auto externalLoadedLibs = externalComponentsReader.GetLoadedLibs();
@@ -258,7 +287,8 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
         break;
         case GameEngine::Components::FieldType::VectorOfAnimationClips:
             CreateUIForVector<GameEngine::Components::ReadAnimationInfo>(
-                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r, auto del)
                 { return this->CreateAnimationClipItem(component, p, v, i, r, del); });
             break;
         case FieldType::UInt:
@@ -382,9 +412,9 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                                 [this, &component, txt = row.textCtrl, prev = row.preview, pane, val,
                                  warningIcon = row.warningIcon](wxCommandEvent&)
                                 {
-                                    wxFileDialog openFileDialog(pane, "Choose texture", EngineLocalConf.files.getDataPath().string(),
-                                                                "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
-                                                                wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+                                    wxFileDialog openFileDialog(
+                                        pane, "Choose texture", EngineLocalConf.files.getDataPath().string(), "",
+                                        "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                                     if (openFileDialog.ShowModal() == wxID_OK)
                                     {
                                         wxString path = openFileDialog.GetPath();
@@ -530,8 +560,9 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
                     ctrl->SetIncrement(0.01);
                     ctrl->SetValue(v);
                 },
-                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); }, [](wxSpinCtrlDouble* ctrl, auto handler)
-                { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); }, {"R:", "G:", "B:", "A:"});
+                [](wxSpinDoubleEvent& e) { return static_cast<float>(e.GetValue()); },
+                [](wxSpinCtrlDouble* ctrl, auto handler) { ctrl->Bind(wxEVT_SPINCTRLDOUBLE, handler); },
+                {"R:", "G:", "B:", "A:"});
             break;
         }
         // == Wektory ==
@@ -542,12 +573,14 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
             break;
 
         case FieldType::VectorOfInt:
-            CreateUIForVector<int>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<int>(component, pane, sizer, field,
+                                   [this, &component](auto p, auto v, auto i, auto r, auto del)
                                    { return this->CreateIntItem(component, p, v, i, r, del); });
             break;
 
         case FieldType::VectorOfFloat:
-            CreateUIForVector<float>(component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
+            CreateUIForVector<float>(component, pane, sizer, field,
+                                     [this, &component](auto p, auto v, auto i, auto r, auto del)
                                      { return this->CreateFloatItem(component, p, v, i, r, del); });
             break;
 
@@ -565,8 +598,10 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 
         case FieldType::ConstVectorOfTextures:
             CreateUIForVector<GameEngine::File>(
-                component, pane, sizer, field, [this, &component](auto p, auto v, auto i, auto r, auto del)
-                { return this->CreateTextureItem(component, p, v, i, r, del); }, false);
+                component, pane, sizer, field,
+                [this, &component](auto p, auto v, auto i, auto r, auto del)
+                { return this->CreateTextureItem(component, p, v, i, r, del); },
+                false);
             break;
 
         case FieldType::ConstMapOfMaterials:
@@ -579,74 +614,36 @@ void ComponentPanel::CreateUIForField(GameEngine::Components::IComponent& compon
 void ComponentPanel::CreateUIForMaterialsMap(GameEngine::Components::IComponent& component, wxWindow* pane, wxBoxSizer* sizer,
                                              GameEngine::MaterialsMap& materials)
 {
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    wxPropertyGrid* pg =
+        new wxPropertyGrid(pane, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_SPLITTER_AUTO_CENTER | wxPG_BOLD_MODIFIED);
+    pg->SetMinSize(wxSize(-1, 300));
+    pg->Append(new wxPropertyCategory("Materials"));
 
-    // ---- Label sekcji ----
-    wxStaticText* sectionLabel = new wxStaticText(pane, wxID_ANY, "Materials");
-    sectionLabel->SetFont(sectionLabel->GetFont().MakeBold());  // pogrubienie
-    mainSizer->Add(sectionLabel, 0, wxBOTTOM | wxEXPAND, 5);
-
-    pane->Freeze();
-    // ---- Elementy mapy ----
     for (auto it = materials.begin(); it != materials.end(); ++it)
     {
-        auto row = CreateMaterialMapItem(component, pane, it, []() {});
-        mainSizer->Add(row, 0, wxEXPAND | wxBOTTOM, 3);
+        auto initialValue        = it->second.empty() ? "" : it->second.GetDataRelativePath().string();
+        wxFileProperty* fileProp = new wxFileProperty(it->first, wxPG_LABEL, initialValue);
+        fileProp->SetAttribute(wxPG_FILE_WILDCARD,
+                               "Material files (*.material)|*.material|Material files (*.json)|*.json|All files (*.*)|*.*");
+        fileProp->SetAttribute(wxPG_FILE_INITIAL_PATH, ProjectManager::GetInstance().GetProjectPath().string());
+        pg->Append(fileProp);
     }
-    pane->Thaw();
-    sizer->Add(mainSizer, 0, wxEXPAND | wxALL, 5);
-}
 
-wxBoxSizer* ComponentPanel::CreateMaterialMapItem(GameEngine::Components::IComponent& component, wxWindow* pane,
-                                                  GameEngine::MaterialsMap::iterator it, std::function<void()> rebuildUI)
-{
-    wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+    pg->Bind(wxEVT_PG_CHANGED,
+             [&materials, &component](wxPropertyGridEvent& event)
+             {
+                 wxPGProperty* prop = event.GetProperty();
+                 if (prop)
+                 {
+                     wxString key   = prop->GetName();
+                     wxString value = prop->GetValue().GetString();
 
-    // Klucz - nazwa materialu (readonly)
-    wxTextCtrl* nameCtrl =
-        new wxTextCtrl(pane, wxID_ANY, wxString::FromUTF8(it->first.c_str()), wxDefaultPosition, wxSize(150, -1), wxTE_READONLY);
-    nameCtrl->Enable(false);  // wyszarzone
-    row->Add(nameCtrl, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
-
-    // Wartosc - File
-    auto initialValue = it->second.empty() ? "default" : it->second.GetDataRelativePath().string();
-    auto rowFile      = CreateBrowseFileRow(pane, "File", initialValue);
-    row->Add(rowFile.row, 1, wxEXPAND | wxALL, 0);
-    rowFile.textCtrl->SetToolTip(rowFile.textCtrl->GetValue());
-
-    // Browse button
-    rowFile.browseBtn->Bind(
-        wxEVT_BUTTON,
-        [this, &component, txt = rowFile.textCtrl, val = &it->second, pane, warningIcon = rowFile.warningIcon](auto& evt)
-        {
-            this->browseFileControlAction(evt, component, txt, pane, val);
-            UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-        });
-
-    // Text enter
-    rowFile.textCtrl->Bind(
-        wxEVT_TEXT_ENTER,
-        [this, &component, val = &it->second, txt = rowFile.textCtrl, warningIcon = rowFile.warningIcon](auto& evt)
-        {
-            val->Init(evt.GetString().ToStdString());
-            component.Reload();
-            txt->SetToolTip(txt->GetValue());
-            UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-        });
-
-    // Drag & drop
-    rowFile.textCtrl->SetDropTarget(new FileDropTarget(
-        [this, &component, val = &it->second, warningIcon = rowFile.warningIcon, ctrl = rowFile.textCtrl](const std::string& path)
-        {
-            ctrl->ChangeValue(GameEngine::File(path).GetDataRelativePath().string());
-            ctrl->SetToolTip(path);
-
-            val->Init(path);
-            component.Reload();
-            UpdateFileWarning(warningIcon, val->GetAbsolutePath());
-        }));
-
-    return row;
+                     materials[key.ToStdString()] = value.ToStdString();
+                     component.Reload();
+                 }
+             });
+    pg->SetDropTarget(new PropertyGridDropTarget(pg));
+    sizer->Add(pg, 1, wxEXPAND | wxALL, 5);
 }
 
 template <typename VecT, typename CtrlT, typename BindEvt, typename SetVal, typename GetVal>
@@ -1325,8 +1322,8 @@ wxBoxSizer* ComponentPanel::CreateTerrainTextureItem(GameEngine::Components::ICo
                            [this, &component, parent, &terrainTex, txt = texRow.textCtrl, prev = texRow.preview,
                             warn = texRow.warningIcon](wxCommandEvent&)
                            {
-                               wxFileDialog openFileDialog(parent, "Choose texture", EngineLocalConf.files.getDataPath().string(), "",
-                                                           "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
+                               wxFileDialog openFileDialog(parent, "Choose texture", EngineLocalConf.files.getDataPath().string(),
+                                                           "", "Image files (*.png;*.jpg;*.bmp)|*.png;*.jpg;*.bmp",
                                                            wxFD_OPEN | wxFD_FILE_MUST_EXIST);
                                if (openFileDialog.ShowModal() == wxID_OK)
                                {

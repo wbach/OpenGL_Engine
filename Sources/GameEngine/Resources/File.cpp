@@ -287,8 +287,8 @@ void File::ClearSpecialCharacters()
                                       if (result)
                                       {
                                           changeNeeded = true;
-                                          /* LOG TO FIX*/ LOG_ERROR << (std::string("Remove notAllowed character \"") + c +
-                                                                        "\" from file : " + GetFilename());
+                                        //   /* LOG TO FIX*/ LOG_ERROR << (std::string("Remove notAllowed character \"") + c +
+                                        //                                 "\" from file : " + GetFilename());
                                       }
                                       return result;
                                   });

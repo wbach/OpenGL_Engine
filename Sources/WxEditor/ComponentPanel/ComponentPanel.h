@@ -95,8 +95,6 @@ private:
     void UpdateFileWarning(wxStaticBitmap* warningIcon, const GameEngine::File& file);
 
     void CreateUIForMaterialsMap(GameEngine::Components::IComponent&, wxWindow*, wxBoxSizer*, GameEngine::MaterialsMap&);
-    wxBoxSizer* CreateMaterialMapItem(GameEngine::Components::IComponent&, wxWindow*, GameEngine::MaterialsMap::iterator it,
-                                      std::function<void()>);
 
     wxBoxSizer* CreateTerrainTextureItem(GameEngine::Components::IComponent& component, wxWindow* parent,
                                          std::vector<GameEngine::Components::TerrainTexture>* vec, size_t index,
