@@ -586,13 +586,14 @@ void ComponentPanel::CreateUIForMaterialsMap(GameEngine::Components::IComponent&
     sectionLabel->SetFont(sectionLabel->GetFont().MakeBold());  // pogrubienie
     mainSizer->Add(sectionLabel, 0, wxBOTTOM | wxEXPAND, 5);
 
+    pane->Freeze();
     // ---- Elementy mapy ----
     for (auto it = materials.begin(); it != materials.end(); ++it)
     {
         auto row = CreateMaterialMapItem(component, pane, it, []() {});
         mainSizer->Add(row, 0, wxEXPAND | wxBOTTOM, 3);
     }
-
+    pane->Thaw();
     sizer->Add(mainSizer, 0, wxEXPAND | wxALL, 5);
 }
 
