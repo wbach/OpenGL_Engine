@@ -126,6 +126,8 @@ private:
     void OnMakePrefab(wxCommandEvent&);
     void OnRename(wxCommandEvent&);
     void CloneGameObject(wxCommandEvent&);
+    void SetValuesFromCameraEditor(wxCommandEvent&);
+
     void OnPageChanged(wxNotebookEvent&);
 
     void OnClose(wxCloseEvent&);

@@ -191,6 +191,13 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_TOOL_LOOK_AT_LEFT,       MainFrame::OnLookAtLeft)
     EVT_MENU(ID_TOOL_LOOK_AT_RIGHT,      MainFrame::OnLookAtRight)
     EVT_MENU(ID_TOOL_LOOK_AT_PERSPECTIVE, MainFrame::OnLookAtPerspective)
+    EVT_MENU(ID_TREE_MENU_CREATE_CHILD, MainFrame::OnAddObject)
+    EVT_MENU(ID_TREE_MENU_UNMARK_PREFAB, MainFrame::OnUnmarkPrefab)
+    EVT_MENU(ID_TREE_MENU_MAKE_PREFAB, MainFrame::OnMakePrefab)
+    EVT_MENU(ID_TREE_MENU_REMOVE, MainFrame::OnDeleteObject)
+    EVT_MENU(ID_TREE_MENU_RENAME, MainFrame::OnRename)
+    EVT_MENU(ID_TREE_MENU_CLONE, MainFrame::CloneGameObject)
+    EVT_MENU(ID_TREE_SET_VALUES_FROM_CAMERA_EDITOR, MainFrame::SetValuesFromCameraEditor)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
@@ -218,9 +225,9 @@ void MainFrame::Init()
     wxSplitterWindow* topSplitter = new wxSplitterWindow(leftSplitter, wxID_ANY);
 
     // === Tree ===
-    auto treeCtrl   = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
-                                     wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
-    gameObjectsView = std::make_unique<SceneTreeCtrl>(treeCtrl,
+    auto treeCtrl      = new wxTreeCtrl(topSplitter, ID_OBJECT_TREE, wxPoint(0, 0), wxSize(160, 250),
+                                        wxTR_DEFAULT_STYLE | wxNO_BORDER | wxTR_EDIT_LABELS);
+    gameObjectsView    = std::make_unique<SceneTreeCtrl>(treeCtrl,
                                                       [this](IdType item, IdType newParent)
                                                       {
                                                           auto& scene      = canvas->GetScene();
@@ -231,14 +238,6 @@ void MainFrame::Init()
                                                               ChangeGameObjectParent(*go, *newParentGo);
                                                           }
                                                       });
-
-    Bind(wxEVT_MENU, &MainFrame::OnAddObject, this, ID_TREE_MENU_CREATE_CHILD);
-    Bind(wxEVT_MENU, &MainFrame::OnUnmarkPrefab, this, ID_TREE_MENU_UNMARK_PREFAB);
-    Bind(wxEVT_MENU, &MainFrame::OnMakePrefab, this, ID_TREE_MENU_MAKE_PREFAB);
-    Bind(wxEVT_MENU, &MainFrame::OnDeleteObject, this, ID_TREE_MENU_REMOVE);
-    Bind(wxEVT_MENU, &MainFrame::OnRename, this, ID_TREE_MENU_RENAME);
-    Bind(wxEVT_MENU, &MainFrame::CloneGameObject, this, ID_TREE_MENU_CLONE);
-
     auto onStartupDone = [this]()
     {
         auto& scene = canvas->GetScene();
@@ -2075,4 +2074,18 @@ void MainFrame::SetLastSessionContext()
     manager.SetLastSessionContext(ProjectManager::SessionContext{.sceneFile      = canvas->GetScene().GetFile().GetAbsolutePath(),
                                                                  .cameraPosition = canvas->GetCameraEditor()->GetPosition(),
                                                                  .cameraRotation = canvas->GetCameraEditor()->GetRotation()});
+}
+void MainFrame::SetValuesFromCameraEditor(wxCommandEvent&)
+{
+    if (auto maybeGo = GetSelectedGameObject())
+    {
+        if (auto cameraComponent = maybeGo->GetComponent<GameEngine::Components::CameraComponent>())
+        {
+            if (auto cameraEditor = canvas->GetCameraEditor())
+            {
+                cameraComponent->SetPosition(cameraEditor->GetPosition());
+                cameraComponent->SetRotation(cameraEditor->GetRotation());
+            }
+        }
+    }
 }

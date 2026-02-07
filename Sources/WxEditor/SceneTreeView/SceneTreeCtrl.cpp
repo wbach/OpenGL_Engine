@@ -7,6 +7,7 @@
 #include <GameEngine/Scene/Scene.hpp>
 #include <memory>
 
+#include "Components/Camera/CameraComponent.h"
 #include "DisableHelper.h"
 #include "WxEditor/Commands/AddObjectCommand.h"
 #include "WxEditor/Commands/RemoveObjectCommand.h"
@@ -173,6 +174,20 @@ void SceneTreeCtrl::OnTreeItemRightClick(wxTreeEvent &event)
     menu.Append(ID_TREE_MENU_RENAME, "Rename");
     menu.AppendSeparator();
     menu.Append(ID_TREE_MENU_REMOVE, "Remove");
+
+    if (auto maybeId = itemIdToObjectId.Get(itemId))
+    {
+        if (subscribedScene)
+        {
+            if (auto maybeGo = subscribedScene->GetGameObject(*maybeId))
+            {
+                if (maybeGo->GetComponent<GameEngine::Components::CameraComponent>())
+                {
+                    menu.Append(ID_TREE_SET_VALUES_FROM_CAMERA_EDITOR, "Set values from editor camera");
+                }
+            }
+        }
+    }
 
     if (disableHelper.IsDisabled(itemId))
     {
@@ -364,8 +379,6 @@ void SceneTreeCtrl::ProcessEvent(const GameEngine::AddGameObjectNotifEvent &even
     {
         SelectItem(item);
     }
-
-
 }
 void SceneTreeCtrl::ProcessEvent(const GameEngine::RemoveGameObjectEvent &event)
 {
