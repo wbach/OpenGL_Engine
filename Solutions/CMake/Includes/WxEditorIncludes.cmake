@@ -19,6 +19,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/Theme.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/OptionsFrame/OptionsFrame.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/StartupDialog.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/ProjectsCMakeTemplate.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/StartupDialog/CleanupGeneratedFilesTemplate.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGenerationParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/TreeGeneration.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/WxEditor/TreeGeneration/ForsetGeneration.h

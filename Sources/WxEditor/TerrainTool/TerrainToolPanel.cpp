@@ -41,6 +41,7 @@
 #include <string>
 #include <vector>
 
+#include "DebugTools/Painter/FlattenHeightPainter.h"
 #include "Input/KeyCodes.h"
 #include "TerrainSelectionDialog.h"
 #include "TextureButton.h"
@@ -1449,7 +1450,17 @@ std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter
 
     auto circleBrush =
         std::make_unique<GameEngine::CircleBrush>(GameEngine::makeInterpolation(interpolation), radius, strength / 1000.f);
-    auto heightPainter = std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+
+    std::unique_ptr<GameEngine::HeightPainter> heightPainter;
+
+    if (interpolation == GameEngine::InterpolationType::Flatten)
+    {
+         heightPainter = std::make_unique<GameEngine::FlattenHeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+    }
+    else
+    {
+        heightPainter = std::make_unique<GameEngine::HeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+    }
 
     if (not visualizationObject)
         visualizationObject = createPainterVisualizationObject();

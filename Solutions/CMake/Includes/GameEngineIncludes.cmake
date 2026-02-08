@@ -7,6 +7,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/PainterU
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Painter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/HeightPainter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/LocalBrushSize.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/FlattenHeightPainter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/PlantPainter.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/PaintTextureBasedContext.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TexturePainter.h
@@ -522,6 +523,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/ParticlesParams/ParticlesParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/WaterParams/WaterType.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/RendererParams/WaterParams/WaterParams.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/ConfigurationEnumParam.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/ParamToString.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/WindowParams/WindowParams.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Engine/ConfigurationParams/IConfigurationParam.h

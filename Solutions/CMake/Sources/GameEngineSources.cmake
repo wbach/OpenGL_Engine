@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Interpol
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/HeightPainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TerrainPainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TerrainHeightGenerator.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/FlattenHeightPainter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/Painter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/TerrainPointGetter.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/DebugTools/Painter/CircleBrush.cpp
