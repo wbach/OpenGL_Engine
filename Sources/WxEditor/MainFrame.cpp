@@ -44,6 +44,7 @@
 #include "ComponentPanel/ComponentPanel.h"
 #include "ComponentPanel/ComponentPickerPopup.h"
 #include "ComponentPanel/TransformPanel.h"
+#include "Components/Renderer/Water/WaterRendererComponent.h"
 #include "ControlsIds.h"
 #include "OptionsFrame/OptionsFrame.h"
 #include "OptionsFrame/Theme.h"
@@ -153,6 +154,7 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_MENU_EDIT_CREATE_TRIANGLE, MainFrame::MenuEditCreateTriangle)
     EVT_MENU(ID_MENU_EDIT_CREATE_TREE, MainFrame::MenuEditCreateTree)
     EVT_MENU(ID_MENU_EDIT_CREATE_FOREST, MainFrame::MenuEditCreateForest)
+    EVT_MENU(ID_MENU_EDIT_CREATE_WATER_TILE, MainFrame::MenuEditCreateWaterTile)
     EVT_MENU(ID_MENU_EDIT_MATERIAL_EDITOR, MainFrame::MenuEditMaterialEditor)
     EVT_MENU(ID_MENU_EDIT_LOAD_PREFAB, MainFrame::MenuEditLoadPrefab)
     EVT_MENU(ID_MENU_EDIT_CLEAR_SCENE, MainFrame::MenuEditClearScene)
@@ -1026,6 +1028,7 @@ wxMenu* MainFrame::CreateEditMenu()
     createSubMenu->AppendSubMenu(lightSubMenu, "&Light", "Create gameobject with light component");
     createSubMenu->Append(ID_MENU_EDIT_CREATE_TREE, "&Tree", "Create game object with tree renderer component");
     createSubMenu->Append(ID_MENU_EDIT_CREATE_FOREST, "&Forest", "Create multiple game objects with tree renderer component");
+    createSubMenu->Append(ID_MENU_EDIT_CREATE_WATER_TILE, "&WaterTile", "Create game objects with water renderer component");
 
     auto primitiveSubMenu = new wxMenu;
     primitiveSubMenu->Append(ID_MENU_EDIT_CREATE_CUBE, "&Cube", "Create game object with renderer component");
@@ -1293,7 +1296,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
         auto& scene                       = canvas->GetScene();
         auto newGameObject                = scene.CreateGameObject(file.GetBaseName());
-        auto newGameObjectPtr = newGameObject.get();
+        auto newGameObjectPtr             = newGameObject.get();
         auto& rendererComponent           = newGameObject->AddComponent<GameEngine::Components::RendererComponent>();
         auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
         animator.startupAnimationClipName = "noname";
@@ -2078,6 +2081,31 @@ void MainFrame::MenuEditCreateForest(wxCommandEvent&)
     const int treeTypesCount{10};
     WxEditor::GenerateForest(this, canvas, min, max, radius, treeTypesCount);
 }
+
+void MainFrame::MenuEditCreateWaterTile(wxCommandEvent&)
+{
+    auto dlg = createEntryDialogWithSelectedText(this, "Enter water tile name:", "Crete new water tile object", "WaterTile",
+                                                 wxOK | wxCANCEL | wxCENTRE);
+
+    if (dlg->ShowModal() == wxID_CANCEL)
+        return;
+
+    auto newGameObject = canvas->GetScene().CreateGameObject(dlg->GetValue().IsEmpty() ? "Water" : dlg->GetValue().ToStdString());
+    auto& wc           = newGameObject->AddComponent<GameEngine::Components::WaterRendererComponent>();
+    wc.dudvMap         = "Textures/Water/wdudv.jpg";
+    wc.normalMap       = "Textures/Water/wnormal.jpg";
+    wc.tiledValue      = 1;
+    wc.meshResolution  = 128;
+    wc.waveSpeed       = 1;
+    wc.waveFrequency   = 0.12f;
+    wc.waveAmplitude   = 0.5f;
+    wc.onPlaneWaveSpeed   = 0.1f;
+    wc.maxDepthVisibility = 1.f;
+    wc.depthBlendScale    = 1.f;
+    newGameObject->SetWorldPosition(canvas->GetWorldPosFromCamera());
+    canvas->AddGameObject(std::move(newGameObject));
+}
+
 void MainFrame::SetLastSessionContext()
 {
     auto& manager = ProjectManager::GetInstance();

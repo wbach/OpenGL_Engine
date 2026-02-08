@@ -93,6 +93,7 @@ private:
     void MenuEditCreateTriangle(wxCommandEvent&);
     void MenuEditCreateTree(wxCommandEvent&);
     void MenuEditCreateForest(wxCommandEvent&);
+    void MenuEditCreateWaterTile(wxCommandEvent&);
 
     void MenuEditMaterialEditor(wxCommandEvent&);
     void MenuEditLoadPrefab(wxCommandEvent&);
