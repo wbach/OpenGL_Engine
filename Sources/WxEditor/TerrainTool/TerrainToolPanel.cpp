@@ -42,6 +42,7 @@
 #include <vector>
 
 #include "DebugTools/Painter/FlattenHeightPainter.h"
+#include "DebugTools/Painter/SlopeHeightPainter.h"
 #include "Input/KeyCodes.h"
 #include "TerrainSelectionDialog.h"
 #include "TextureButton.h"
@@ -1455,7 +1456,11 @@ std::unique_ptr<GameEngine::HeightPainter> TerrainToolPanel::CreateHeightPainter
 
     if (interpolation == GameEngine::InterpolationType::Flatten)
     {
-         heightPainter = std::make_unique<GameEngine::FlattenHeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+        heightPainter = std::make_unique<GameEngine::FlattenHeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
+    }
+    else if (interpolation == GameEngine::InterpolationType::Slope)
+    {
+        heightPainter = std::make_unique<GameEngine::SlopeHeightPainter>(GetPainterDependencies(scene), std::move(circleBrush));
     }
     else
     {

@@ -12,7 +12,8 @@ enum class InterpolationType
     Smooth,
     Gaussian,
     ConstValue,
-    Flatten
+    Flatten,
+    Slope
 };
 
 Interpolation makeInterpolation(InterpolationType);

@@ -6,6 +6,7 @@
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Renderer/Entity/RendererComponent.hpp"
 #include "GameEngine/Components/Renderer/Trees/TreeRendererComponent.h"
+#include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/DebugTools/Common/MouseUtils.h"
 #include "GameEngine/Objects/GameObject.h"
 
@@ -102,7 +103,8 @@ std::optional<std::pair<GameObject*, float>> MousePicker::IntersectObject(const 
 
     auto renderComponent     = object->GetComponent<Components::RendererComponent>();
     auto treeRenderComponent = object->GetComponent<Components::TreeRendererComponent>();
-    if (renderComponent or treeRenderComponent)
+    auto waterRendererComponent = object->GetComponent<Components::WaterRendererComponent>();
+    if ((renderComponent and renderComponent->IsActive()) or (treeRenderComponent and treeRenderComponent->IsActive()) or waterRendererComponent)
     {
         const Model* model{nullptr};
         if (renderComponent)

@@ -11,7 +11,6 @@
 
 namespace GameEngine
 {
-
 FlattenHeightPainter::FlattenHeightPainter(TerrainPainter::Dependencies&& dependencies, std::unique_ptr<IBrush> brush)
     : HeightPainter(std::move(dependencies), std::move(brush))
 {
@@ -30,8 +29,6 @@ FlattenHeightPainter::FlattenHeightPainter(TerrainPainter::Dependencies&& depend
                                                         }
                                                     }
                                                 });
-
-    //  keySubId = inputManager_.SubscribeOnKeyUp(KeyCodes::LMOUSE,[&](){ firstHeight.reset()});
 }
 
 FlattenHeightPainter::~FlattenHeightPainter()
