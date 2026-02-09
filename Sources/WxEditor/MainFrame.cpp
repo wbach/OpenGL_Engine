@@ -1292,8 +1292,6 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
     if (is3dModelFile(file))
     {
-        auto parentGameObject = GetSelectedGameObject();
-
         auto& scene                       = canvas->GetScene();
         auto newGameObject                = scene.CreateGameObject(file.GetBaseName());
         auto newGameObjectPtr             = newGameObject.get();
@@ -1306,15 +1304,7 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
 
         auto id = newGameObject->GetId();
 
-        if (not parentGameObject)
-        {
-            canvas->AddGameObject(std::move(newGameObject));
-        }
-        else
-        {
-            canvas->AddGameObject(std::move(newGameObject), parentGameObject);
-        }
-
+        canvas->AddGameObject(std::move(newGameObject));
         gameObjectsView->SelectItemWhenGameObjectBecomeAvaiable(id);
 
         if (auto cameraEditor = canvas->GetCameraEditor())

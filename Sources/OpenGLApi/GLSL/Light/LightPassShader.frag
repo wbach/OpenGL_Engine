@@ -184,7 +184,7 @@ vec4 CalculateBaseLight(
     // ------------------------------------------------------------------
     // FAKE INDIRECT (zamiast ambient = 0.1)
     // tylko albedo, AO i brak speculara
-    vec3 fakeIndirect = baseColor * 0.03 * AO;
+    vec3 fakeIndirect = baseColor * 0.15* AO;
 
     vec3 color = directLight + fakeIndirect;
 

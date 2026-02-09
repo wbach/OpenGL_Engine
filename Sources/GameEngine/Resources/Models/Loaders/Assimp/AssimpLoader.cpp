@@ -517,6 +517,8 @@ GeneralTexture* CreateMaterialTexture(const std::optional<File>& currentProcessi
         aiString path;
         material.GetTexture(type, i, &path);
         TextureParameters parameters;
+        parameters.filter = GraphicsApi::TextureFilter::LINEAR;
+        parameters.mimap = GraphicsApi::TextureMipmap::LINEAR;
         const auto& file = getTexturePath(currentProcessingFile, path.C_Str());
         texture          = loader.LoadTexture(file, parameters);
     }
