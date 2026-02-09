@@ -72,6 +72,8 @@ void WaterRendererComponent::CleanUp()
     }
 
     DeleteTextures();
+
+    isInit_ = false;
 }
 void WaterRendererComponent::ReqisterFunctions()
 {

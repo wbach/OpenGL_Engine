@@ -21,20 +21,39 @@ in GS_OUT
     float visibility;
 } fs_in;
 
-layout(binding = 2) uniform sampler2D blendMap;
-layout(binding = 3) uniform sampler2D normalmap;
-layout(binding = 4) uniform sampler2D backgroundTexture;
-layout(binding = 5) uniform sampler2D backgroundTextureNormal;
-layout(binding = 7) uniform sampler2D redTexture;
-layout(binding = 8) uniform sampler2D redTextureNormal;
-layout(binding = 10) uniform sampler2D greenTexture;
-layout(binding = 11) uniform sampler2D greenTextureNormal;
-layout(binding = 13) uniform sampler2D blueTexture;
-layout(binding = 14) uniform sampler2D blueTextureNormal;
-layout(binding = 16) uniform sampler2D alphaTexture;
-layout(binding = 17) uniform sampler2D alphaTextureNormal;
-layout(binding = 19) uniform sampler2D rockTexture;
-layout(binding = 20) uniform sampler2D rockTextureNormal;
+layout(binding = 0) uniform sampler2D blendMap;
+// --- Background (Warstwa bazowa) ---
+layout(binding = 1) uniform sampler2D backgroundTexture;
+layout(binding = 2) uniform sampler2D backgroundTextureNormal;
+layout(binding = 3) uniform sampler2D backgroundTextureDisplacement;
+
+// --- Kanał Czerwony (R) ---
+layout(binding = 4) uniform sampler2D redTexture;
+layout(binding = 5) uniform sampler2D redTextureNormal;
+layout(binding = 6) uniform sampler2D redTextureDisplacement;
+
+// --- Kanał Zielony (G) ---
+layout(binding = 7) uniform sampler2D greenTexture;
+layout(binding = 8) uniform sampler2D greenTextureNormal;
+layout(binding = 9) uniform sampler2D greenTextureDisplacement;
+
+// --- Kanał Niebieski (B) ---
+layout(binding = 10) uniform sampler2D blueTexture;
+layout(binding = 11) uniform sampler2D blueTextureNormal;
+layout(binding = 12) uniform sampler2D blueTextureDisplacement;
+
+// --- Kanał Alfa (A) ---
+layout(binding = 13) uniform sampler2D alphaTexture;
+layout(binding = 14) uniform sampler2D alphaTextureNormal;
+layout(binding = 15) uniform sampler2D alphaTextureDisplacement;
+
+// --- Warstwa Skał (Slope/Rock) ---
+layout(binding = 16) uniform sampler2D rockTexture;
+layout(binding = 17) uniform sampler2D rockTextureNormal;
+layout(binding = 18) uniform sampler2D rockTextureDisplacement;
+
+layout(binding = 19) uniform sampler2D heightmap;
+layout(binding = 20) uniform sampler2D normalmap;
 
 out vec4 outputColor;
 

@@ -2095,7 +2095,7 @@ void MainFrame::MenuEditCreateWaterTile(wxCommandEvent&)
     wc.dudvMap         = "Textures/Water/wdudv.jpg";
     wc.normalMap       = "Textures/Water/wnormal.jpg";
     wc.tiledValue      = 1;
-    wc.meshResolution  = 128;
+    wc.meshResolution  = 16;
     wc.waveSpeed       = 1;
     wc.waveFrequency   = 0.12f;
     wc.waveAmplitude   = 0.5f;
