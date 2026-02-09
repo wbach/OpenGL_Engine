@@ -579,28 +579,28 @@ void TerrainComponentBase::updateTerrainTextureBufferData()
 
             case TerrainTextureType::backgroundTexture:
                 bufferData.haveTextureBackground.value.x   = 1.f;
-                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::backgroundTextureNormal:
                 bufferData.haveTextureBackground.value.y   = 1.f;
-                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::backgroundTextureDisplacement:
                 bufferData.haveTextureBackground.value.z   = 1.f;
-                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale;
+                bufferData.backgroundTextureScales.value.x = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
 
             case TerrainTextureType::rockTexture:
                 bufferData.haveTextureRock.value.x         = 1.f;
-                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::rockTextureNormal:
                 bufferData.haveTextureRock.value.y         = 1.f;
-                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
             case TerrainTextureType::rockTextureDisplacement:
                 bufferData.haveTextureRock.value.z         = 1.f;
-                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale;
+                bufferData.backgroundTextureScales.value.y = terrainTexture.tiledScale / thisObject_.GetWorldTransform().GetScale().x;
                 break;
 
             default:
