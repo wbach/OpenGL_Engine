@@ -146,23 +146,24 @@ void WaterRendererComponent::SetWaterColor(const vec4& color)
 }
 void WaterRendererComponent::OnAwake()
 {
+    if (isInit_)
+    {
+        LOG_DEBUG << "Component already init";
+        return;
+    }
+
     LOG_DEBUG << "OnAwake";
     if (not dudvMap.empty() and not normalMap.empty())
     {
         LoadTextures(dudvMap, normalMap);
     }
 
-    if (not isSubscribed_)
-    {
-        LOG_DEBUG << "Subscribe";
-        componentContext_.renderersManager_.Subscribe(&thisObject_);
-        isSubscribed_ = true;
-    }
+    Subscribe();
 
     if (not perObjectUpdateBuffer_)
     {
-        perObjectUpdateBuffer_ =
-            std::make_unique<ShaderBufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_, PER_OBJECT_UPDATE_BIND_LOCATION);
+        perObjectUpdateBuffer_ = std::make_unique<ShaderBufferObject<PerObjectUpdate>>(componentContext_.graphicsApi_,
+                                                                                       PER_OBJECT_UPDATE_BIND_LOCATION);
         updatePerObjectUpdateBuffer(thisObject_.GetWorldTransform());
     }
 
@@ -184,6 +185,8 @@ void WaterRendererComponent::OnAwake()
     {
         LOG_DEBUG << "Model already created. or meshResolution <= 0";
     }
+
+    isInit_ = true;
 }
 
 void WaterRendererComponent::createModel()
@@ -194,6 +197,15 @@ void WaterRendererComponent::createModel()
     componentContext_.resourceManager_.AddModel(std::move(model));
     modelWrapper_.Add(modelPtr, LevelOfDetail::L1);
     createBoundingBoxes();
+}
+void WaterRendererComponent::Subscribe()
+{
+    if (IsActive() and not isSubscribed_)
+    {
+        LOG_DEBUG << "Subscribe";
+        componentContext_.renderersManager_.Subscribe(&thisObject_);
+        isSubscribed_ = true;
+    }
 }
 
 void WaterRendererComponent::UnSubscribe()
@@ -239,6 +251,7 @@ void WaterRendererComponent::registerReadFunctions()
     auto readFunc = [](ComponentContext& componentContext, const TreeNode& node, GameObject& gameObject)
     {
         auto component = std::make_unique<WaterRendererComponent>(componentContext, gameObject);
+        component->read(node);
 
         std::string dudvMap, normalMap;
         ::Read(node.getChild(CSTR_COLOR), component->waterColor);
@@ -263,6 +276,8 @@ void WaterRendererComponent::registerReadFunctions()
 }
 void WaterRendererComponent::write(TreeNode& node) const
 {
+    BaseComponent::write(node);
+
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
@@ -317,6 +332,26 @@ const BoundingBox& WaterRendererComponent::getMeshBoundingBox(const Mesh& mesh) 
 const BoundingBox& WaterRendererComponent::getModelBoundingBox() const
 {
     return modelBoundingBox_;
+}
+void WaterRendererComponent::Activate()
+{
+    if (IsActive())
+        return;
+
+    BaseComponent::Activate();
+
+    if (isInit_)
+        Subscribe();
+}
+void WaterRendererComponent::Deactivate()
+{
+    if (not IsActive())
+        return;
+
+    BaseComponent::Deactivate();
+
+    if (isInit_)
+        UnSubscribe();
 }
 }  // namespace Components
 }  // namespace GameEngine

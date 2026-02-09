@@ -1,10 +1,11 @@
 #pragma once
 #include <unordered_map>
+
 #include "GameEngine/Components/BaseComponent.h"
-#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/File.h"
 #include "GameEngine/Resources/Models/BoundingBox.h"
 #include "GameEngine/Resources/Models/ModelWrapper.h"
+#include "GameEngine/Resources/ShaderBufferObject.h"
 #include "GameEngine/Resources/ShaderBuffers/PerObjectUpdate.h"
 
 namespace common
@@ -56,6 +57,8 @@ public:
     void CleanUp() override;
     void ReqisterFunctions() override;
     void Reload() override;
+    void Activate() override;
+    void Deactivate() override;
 
     float waveMoveFactor() const;
     float moveFactor() const;
@@ -78,6 +81,7 @@ public:
 
 private:
     void OnAwake();
+    void Subscribe();
     void UnSubscribe();
     void updatePerObjectUpdateBuffer(const common::Transform&);
     void createModel();
@@ -96,6 +100,7 @@ private:
     Texture* dudvMap_;
 
     bool isSubscribed_;
+    bool isInit_{false};
 
     ModelWrapper modelWrapper_;
     BoundingBox modelBoundingBox_;
