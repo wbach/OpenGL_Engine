@@ -27,6 +27,7 @@ void BufferDataUpdater::Subscribe(GameObject* gameObject)
             [id = gameObject->GetId(), this, rendererComponent](const auto&) mutable
             { AddEvent(id, std::make_unique<TransformDataEvent>(*rendererComponent)); });
 
+        std::lock_guard<std::mutex> lk(subsribtionMutex_);
         subscribers_.push_back(BufferDataUpdaterSubscriber{.transformSubscribtionId = subId, .gameObject = gameObject});
     }
 }
@@ -76,14 +77,34 @@ void BufferDataUpdater::Update()
 }
 void BufferDataUpdater::UnSubscribeAll()
 {
-    subscribers_.clear();
+    {
+        std::lock_guard<std::mutex> lk(subsribtionMutex_);
+        for (auto iter = subscribers_.begin(); iter != subscribers_.end();)
+        {
+            if (iter->gameObject)
+            {
+                iter->gameObject->UnsubscribeOnWorldTransfromChange(iter->transformSubscribtionId);
+            }
+
+            iter = subscribers_.erase(iter);
+        }
+    }
+
+    std::lock_guard<std::mutex> eventLk(eventMutex_);
+    events_.clear();
 }
 void BufferDataUpdater::ProcessEvents()
 {
-    std::lock_guard<std::mutex> lk(eventMutex_);
-    for (auto& e : events_)
-        e.second->Execute();
-    events_.clear();
+    BufferDataUpdaterEvents tmpEvents;
+    {
+        std::lock_guard<std::mutex> lk(eventMutex_);
+        tmpEvents = std::move(events_);
+    }
+
+    for (auto& [_, event] : tmpEvents)
+    {
+        event->Execute();
+    }
 }
 void BufferDataUpdater::AddEvent(uint32 gameobjectId, std::unique_ptr<IBufferDataUpdaterEvent> event)
 {
