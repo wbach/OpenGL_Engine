@@ -506,4 +506,12 @@ void GameObject::SetLocalTransform(const common::Transform& transfrom)
     localTransform_ = transfrom;
     CalculateWorldTransform();
 }
+uint32 GameObject::SubscribeOnWorldTransfomSnapshot(std::function<void(const common::TransformContext&)> callback)
+{
+    return worldTransform_.SubscribeOnSnapshot(callback);
+}
+void GameObject::UnsubscribeOnWorldTransfromSnapsot(uint32 id)
+{
+    worldTransform_.UnsubscribeOnSnapshot(id);
+}
 }  // namespace GameEngine

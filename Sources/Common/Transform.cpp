@@ -60,6 +60,14 @@ uint32 Transform::SubscribeOnChange(std::function<void(const Transform&)> callba
     return idPool_ - 1;
 }
 
+uint32 Transform::SubscribeOnSnapshot(std::function<void(const TransformContext&)> callback)
+{
+    std::lock_guard<std::mutex> lk(subscribeSnapshotMutex_);
+    subscribeOnSnapshot_.push_back({idPool_, callback});
+    ++idPool_;
+    return idPool_ - 1;
+}
+
 void Transform::UnsubscribeOnChange(uint32 id)
 {
     if (not subscribers_.empty())
@@ -70,6 +78,29 @@ void Transform::UnsubscribeOnChange(uint32 id)
         if (iter != subscribers_.end())
         {
             subscribers_.erase(iter);
+        }
+        else
+        {
+            LOG_DEBUG << "Subsribtion not found";
+        }
+    }
+    else
+    {
+        LOG_DEBUG << "Subsribtion not found";
+    }
+}
+
+void Transform::UnsubscribeOnSnapshot(uint32 id)
+{
+    if (not subscribeOnSnapshot_.empty())
+    {
+        std::lock_guard<std::mutex> lk(subscribeSnapshotMutex_);
+        auto iter =
+            std::find_if(subscribeOnSnapshot_.begin(), subscribeOnSnapshot_.end(), [id](auto& pair) { return pair.first == id; });
+
+        if (iter != subscribeOnSnapshot_.end())
+        {
+            subscribeOnSnapshot_.erase(iter);
         }
         else
         {
@@ -246,8 +277,15 @@ const vec3& Transform::GetScale() const
 
 void Transform::TakeSnapShoot()
 {
+    std::lock_guard<std::mutex> lk(subscribeSnapshotMutex_);
     snapshoot_ = context_;
+
     UpdateMatrix();
+
+    for (auto& [_, subscriber] : subscribeOnSnapshot_)
+    {
+        subscriber(snapshoot_);
+    }
 }
 
 mat4 Transform::CalculateCurrentMatrix() const

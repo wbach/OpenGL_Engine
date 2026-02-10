@@ -104,8 +104,12 @@ public:
     void SetWorldPositionRotationScale(const vec3&, const Rotation&, const vec3&);
 
     void TakeWorldTransfromSnapshot();
+
     uint32 SubscribeOnWorldTransfomChange(std::function<void(const common::Transform&)>);
     void UnsubscribeOnWorldTransfromChange(uint32);
+
+    uint32 SubscribeOnWorldTransfomSnapshot(std::function<void(const common::TransformContext&)>);
+    void UnsubscribeOnWorldTransfromSnapsot(uint32);
 
 private:
     GameObject& getRootGameObject();

@@ -1,9 +1,5 @@
 if(BUILD_BENCHMARK)
-
-    # --- Definicje kompilatora ---
-    add_definitions(-DNOREALTIME_LOG_ENABLED)
-
-    # --- Include directories ---
+   # --- Include directories ---
     set(BENCHMARK_INCLUDE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine
         ${CMAKE_CURRENT_SOURCE_DIR}/Sources/Benchmark

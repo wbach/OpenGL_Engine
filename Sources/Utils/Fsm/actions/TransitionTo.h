@@ -15,17 +15,17 @@ public:
     {
         if (not transitionCondition(prevState, event))
         {
-//#ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
              LOG_DEBUG << "transitionConditions from " << typeName<State>() + " to " << typeName<TargetState>() +
                       " are not met, return";
-//#endif
+#endif
             return;
         }
 
-//#ifdef NOREALTIME_LOG_ENABLED
+#ifdef NOREALTIME_LOG_ENABLED
         LOG_DEBUG << "PrevState : " << typeName<State>();
         LOG_DEBUG << "Entering : " << typeName<TargetState>();
-//#endif
+#endif
 
         leave(prevState);
         leave(prevState, event);

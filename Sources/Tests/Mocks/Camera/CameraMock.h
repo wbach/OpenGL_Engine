@@ -48,5 +48,8 @@ public:
     MOCK_METHOD(IdType, SubscribeOnChange, (std::function<void(const ICamera&)>), (override));
     MOCK_METHOD(void, UnsubscribeOnChange, (IdType), (override));
     MOCK_METHOD(void, SetDirectionAndUp, (const vec3&, const vec3&), (override));
+
+    MOCK_METHOD(void, UpdatePerFrameBuffer, (), (override));
+    MOCK_METHOD(const PerFrameBuffer&, GetPerFrameBuffer, (), (const override));
 };
 }  // namespace GameEngine

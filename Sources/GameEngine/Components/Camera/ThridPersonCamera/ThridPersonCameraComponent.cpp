@@ -34,6 +34,11 @@ void ThridPersonCameraComponent::CleanUp()
 
     fsm.reset();
     fsmContext.reset();
+
+    if (subscribtionOnTransformSnapshot)
+    {
+        thisObject_.UnsubscribeOnWorldTransfromSnapsot(*subscribtionOnTransformSnapshot);
+    }
 }
 
 void ThridPersonCameraComponent::ReqisterFunctions()
@@ -86,39 +91,49 @@ void ThridPersonCameraComponent::awake()
 
     // TO DO: capture existing camera instead creating new one
     auto camera = std::make_unique<CustomCamera>();
-    fsmContext.reset(new Context{componentContext_.inputManager_,
-                                 *componentContext_.scene_.getDisplayManager(),
-                                 thisObject_,
-                                 *camera,
-                                 {},
-                                 {vec3{-0.5f, 1.0f, -1.5f}, vec3{-0.25f, 1.f, -0.75f}}});
+
+    fsmContext.reset(new Context{.inputManager    = componentContext_.inputManager_,
+                                 .displayManager  = *componentContext_.scene_.getDisplayManager(),
+                                 .gameObject      = thisObject_,
+                                 .camera          = *camera,
+                                 .cameraPositions = {.run = vec3{-0.5f, 1.0f, -1.5f}, .aim = vec3{-0.25f, 1.f, -0.75f}}});
 
     auto& cameraManager = componentContext_.scene_.GetCameraManager();
-    auto id             = cameraManager.AddCamera(std::move(camera));
+    cameraId            = cameraManager.AddCamera(std::move(camera));
     fsm                 = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
-                                                                 AimState(*fsmContext), TransitionState(*fsmContext));
+                                                 AimState(*fsmContext), TransitionState(*fsmContext));
 
     // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
     fsm->handle(InitEvent{});
-    cameraManager.ActivateCamera(id);
 }
 
 void ThridPersonCameraComponent::init()
 {
-    if (not fsmContext)
+    if (not fsmContext or not cameraId)
     {
         return;
     }
 
     auto& cameraManager = componentContext_.scene_.GetCameraManager();
+    cameraManager.ActivateCamera(*cameraId);
     cameraManager.SetCameraAsMain(&fsmContext->camera);
 
     fsm = std::make_unique<ThridPersonCameraFsm>(FollowingState(*fsmContext), RotateableRunState(*fsmContext),
                                                  AimState(*fsmContext), TransitionState(*fsmContext));
 
-    // std::apply([](auto&&... state) {((state.init()), ...);}, fsm->states);
     fsm->handle(InitEvent{});
     componentContext_.inputManager_.SetReleativeMouseMode(true);
+
+    subscribtionOnTransformSnapshot = thisObject_.SubscribeOnWorldTransfomSnapshot(
+        [&](const auto& transformContext)
+        {
+            if (fsmContext)
+            {
+                fsmContext->lookAtTransformContext = transformContext;
+                fsmContext->camera.Update();
+                //std::apply([](auto&&... state) { ((state.update()), ...); }, fsm->states);
+            }
+        });
 }
 
 void ThridPersonCameraComponent::processEvent()

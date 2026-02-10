@@ -368,6 +368,7 @@ void RendererComponent::CreatePerObjectConstantsBuffer(const Mesh& mesh)
     LOG_DEBUG << "bufferId=" << buffer.GetGpuObjectId();
     componentContext_.gpuResourceLoader_.AddObjectToGpuLoadingPass(buffer);
 }
+// BufferDataUpdater calling this on gpu thread
 void RendererComponent::UpdateBuffers()
 {
     thisObject_.TakeWorldTransfromSnapshot();
@@ -382,8 +383,7 @@ void RendererComponent::UpdateBuffers()
                 auto& buffer                          = *iter->second;
                 const mat4 transformMatix             = thisObject_.GetWorldTransform().GetMatrix() * mesh.GetMeshTransform();
                 buffer.GetData().TransformationMatrix = componentContext_.graphicsApi_.PrepareMatrixToLoad(transformMatix);
-                // buffer.UpdateGpuPass();
-                componentContext_.gpuResourceLoader_.AddObjectToUpdateGpuPass(buffer);
+                buffer.GpuLoadingPass();
                 calculateWorldSpaceBoundingBox(thisObject_.GetWorldTransform().CalculateCurrentMatrix());
             }
             else

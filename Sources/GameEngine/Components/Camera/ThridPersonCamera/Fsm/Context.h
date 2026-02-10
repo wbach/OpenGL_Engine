@@ -1,6 +1,8 @@
 #pragma once
 #include <Types.h>
 
+#include "Common/Transform.h"
+
 namespace Input
 {
 class InputManager;
@@ -18,6 +20,7 @@ namespace Camera
 {
 struct Context
 {
+    common::TransformContext lookAtTransformContext;
     Input::InputManager& inputManager;
     DisplayManager& displayManager;
     GameObject& gameObject;
@@ -34,6 +37,7 @@ struct Context
 
     float pitch{0};
     float yaw{0};
+
 };
 }  // namespace Camera
 }  // namespace Components

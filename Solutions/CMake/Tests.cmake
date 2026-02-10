@@ -1,7 +1,7 @@
 if(BUILD_TESTS)
 
     # --- Definicje kompilatora ---
-    add_definitions(-DNOREALTIME_LOG_ENABLED)
+    #add_definitions(-DNOREALTIME_LOG_ENABLED)
 
     # --- Include directories ---
     set(TEST_INCLUDE_DIRS

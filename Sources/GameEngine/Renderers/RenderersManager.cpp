@@ -11,6 +11,7 @@
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/BaseRenderer.h"
+#include "GameEngine/Renderers/CameraBufferUpdateEvent.h"
 #include "GameEngine/Renderers/DefferedRenderer.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Resources/IGpuResourceLoader.h"
@@ -122,11 +123,15 @@ void RenderersManager::InitGuiRenderer()
 void RenderersManager::renderScene(Scene& scene)
 {
     ReloadShadersExecution();
-    bufferDataUpdater_.Update();
 
     cleanupCamerasRenderersIfCameraNotExist(scene);
+    auto& cameras = scene.GetCameraManager().GetActiveCameras();
+    for (auto& [_, camera] : cameras)
+    {
+        bufferDataUpdater_.AddEvent(CameraBufferUpdateEvent(*camera));
+    }
 
-    auto& cameras           = scene.GetCameraManager().GetActiveCameras();
+    bufferDataUpdater_.Update();
     rendererContext_.scene_ = &scene;
 
     uint64 frustrumCheckInFrame = 0;
@@ -382,12 +387,10 @@ void RenderersManager::updatePerFrameBuffer(ICamera& camera)
 
     if (perFrameId_)
     {
-        PerFrameBuffer buffer;
-        buffer.ProjectionViewMatrix = graphicsApi_.PrepareMatrixToLoad(camera.GetProjectionViewMatrix());
-        buffer.cameraPosition       = camera.GetPosition();
-        buffer.clipPlane            = vec4{0.f, 1.f, 0.f, 100000.f};
-        buffer.projection           = camera.GetProjection().GetBufferParams();
-        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &buffer);
+        // const auto& buffer = camera.GetPerFrameBuffer();
+        auto bufferCopy                 = camera.GetPerFrameBuffer();
+        bufferCopy.ProjectionViewMatrix = rendererContext_.graphicsApi_.PrepareMatrixToLoad(bufferCopy.ProjectionViewMatrix);
+        graphicsApi_.UpdateShaderBuffer(*perFrameId_, &bufferCopy);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
     }
 }
@@ -427,10 +430,6 @@ RenderersManager::CameraRendererContext* RenderersManager::createPerCameraRender
 uint64 RenderersManager::renderPerCamera(BaseRenderer& renderer, ICamera* cameraPtr, GraphicsApi::IFrameBuffer* renderTarget)
 {
     rendererContext_.camera_ = cameraPtr;
-
-    cameraPtr->Update();
-    cameraPtr->UpdateImpl();
-    cameraPtr->UpdateMatrix();
 
     frustrum_.prepareFrame(cameraPtr->GetProjectionViewMatrix());
     updatePerFrameBuffer(*cameraPtr);

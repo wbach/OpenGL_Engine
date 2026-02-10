@@ -1,11 +1,13 @@
 #pragma once
 #include <Input/KeysSubscriptionsManager.h>
+#include <optional>
 
 #include "Fsm/Context.h"
 #include "Fsm/ThridPersonCameraEvents.h"
 #include "Fsm/ThridPersonCameraFsm.h"
 #include "GameEngine/Components/BaseComponent.h"
 #include "Logger/Log.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -37,7 +39,6 @@ public:
 
     void pushEventToQueue(const Camera::Event& event)
     {
-        LOG_DEBUG << "pushEventToQueue";
         eventQueue.push_back(event);
     }
 
@@ -55,6 +56,8 @@ public:
 
 private:
     std::vector<Camera::Event> eventQueue;
+    std::optional<IdType> subscribtionOnTransformSnapshot;
+    std::optional<IdType> cameraId;
 
 public:
     static void registerReadFunctions();

@@ -1,4 +1,5 @@
 #pragma once
+#include <Types.h>
 #include <Utils/IdPool.h>
 #include <Utils/Rotation.h>
 
@@ -8,14 +9,13 @@
 #include "GameEngine/Components/BaseComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
-#include "Types.h"
+#include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 
 #ifndef USE_GNU
 //#ifndef USE_MINGW
 #include <Utils/UndifineWindows.h>
 //#endif
 #endif
-
 
 namespace GameEngine
 {
@@ -105,6 +105,9 @@ public:
     IdType SubscribeOnChange(std::function<void(const ICamera&)>) override;
     void UnsubscribeOnChange(IdType) override;
 
+    void UpdatePerFrameBuffer() override;
+    const PerFrameBuffer& GetPerFrameBuffer() const override;
+
 private:
     void awake();
     void init();
@@ -128,6 +131,8 @@ private:
     bool lock_;
 
     std::optional<IdType> cameraId;
+
+    PerFrameBuffer perFrameBuffer;
 
 public:
     static void registerReadFunctions();

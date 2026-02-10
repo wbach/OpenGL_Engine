@@ -7,6 +7,7 @@ struct Rotation;
 namespace GameEngine
 {
 class IProjection;
+class PerFrameBuffer;
 class ICamera
 {
 public:
@@ -52,5 +53,8 @@ public:
     virtual void UnsubscribeOnChange(IdType)                              = 0;
 
     virtual void SetDirectionAndUp(const vec3& dir, const vec3& up) = 0;
+
+    virtual void UpdatePerFrameBuffer()                     = 0;
+    virtual const PerFrameBuffer& GetPerFrameBuffer() const = 0;
 };
 }  // namespace GameEngine

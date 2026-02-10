@@ -378,5 +378,16 @@ void CameraComponent::SetDirection(const vec3& direction)
 {
     SetRotation(Utils::lookAtDirection(-direction));
 }
+void CameraComponent::UpdatePerFrameBuffer()
+{
+    UpdateMatrix();
+    perFrameBuffer.ProjectionViewMatrix = projectionViewMatrix_;
+    perFrameBuffer.cameraPosition       = thisObject_.GetWorldTransform().GetPosition();
+    perFrameBuffer.projection           = projection_ ? projection_->GetBufferParams() : vec4(0);
+}
+const PerFrameBuffer& CameraComponent::GetPerFrameBuffer() const
+{
+    return perFrameBuffer;
+}
 }  // namespace Components
 }  // namespace GameEngine

@@ -35,7 +35,9 @@ public:
     Transform& operator=(const Transform&);
 
     uint32 SubscribeOnChange(std::function<void(const Transform&)>);
+    uint32 SubscribeOnSnapshot(std::function<void(const TransformContext&)>);
     void UnsubscribeOnChange(uint32);
+    void UnsubscribeOnSnapshot(uint32);
 
     void SetYPosition(float);
     void SetPosition(const vec3& pos);
@@ -86,7 +88,9 @@ private:
 
     uint32 idPool_;
     std::mutex subscribeMutex_;
+    std::mutex subscribeSnapshotMutex_;
     std::vector<std::pair<uint32, std::function<void(const Transform&)>>> subscribers_;
+    std::vector<std::pair<uint32, std::function<void(const TransformContext&)>>> subscribeOnSnapshot_;
 };
 
 std::ostream& operator<<(std::ostream&, const Transform&);

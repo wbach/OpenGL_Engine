@@ -6,7 +6,9 @@
 #include <memory>
 
 #include "GameEngine/Renderers/Projection/IProjection.h"
+#include "GameEngine/Resources/ShaderBuffers/PerFrameBuffer.h"
 #include "ICamera.h"
+#include "Types.h"
 
 namespace GameEngine
 {
@@ -65,6 +67,9 @@ public:
 
     glm::vec3 GetForward() const;
 
+    void UpdatePerFrameBuffer() override;
+    const PerFrameBuffer& GetPerFrameBuffer() const override;
+
 protected:
     void CalculateDirection();
     void UpdateViewMatrix();
@@ -86,6 +91,8 @@ protected:
 
     mat4 translationMatrix_;
     mat4 rotationMatrix_;
+
+    PerFrameBuffer perFrameBuffer;
 
 private:
     vec3 lastNotifiedPosition_;

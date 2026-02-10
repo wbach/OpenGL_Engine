@@ -23,9 +23,9 @@ public:
     void setUpdateFunc();
     virtual void update() = 0;
     void pushEventToQueue(const Camera::Event&) const;
+    void cameraUpdate();
 
 protected:
-    void cameraUpdate();
     std::tuple<vec4, vec4, mat4> calculateLocalPosition() const;
     void updatePitchYaw(const MouseMoveEvent&);
 

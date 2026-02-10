@@ -199,7 +199,6 @@ void MoveStateBase::setAnim(const std::string &clipName)
     auto iter              = std::find(currentAnimations.begin(), currentAnimations.end(), clipName);
     if (iter != currentAnimations.end())
     {
-        LOG_WARN << "current is playing";
         return;
     }
 

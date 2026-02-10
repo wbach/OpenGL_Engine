@@ -38,6 +38,7 @@ int main(int argc, char* argv[])
         if (file.exist())
         {
             CLogger::Instance().SetLogFilename("WxEdtiorGameRunnerLogs.txt");
+            CLogger::Instance().EnableLogs();
             std::cout << "Starting game engine with scene: " << file << "\n";
             Engine engine(std::make_unique<Bullet::BulletAdapter>(), std::make_unique<SceneFactory>(file));
             engine.Init();

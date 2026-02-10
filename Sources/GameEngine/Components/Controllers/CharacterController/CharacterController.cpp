@@ -341,16 +341,16 @@ void CharacterController::PostStart()
                                             {
                                                 if (rigidbody_->GetId() == collisionInfo.rigidbodyId1)
                                                 {
-                                                    LOG_DEBUG << "GroundDetectionEvent collisionWith: "
-                                                              << collisionInfo.rigidbodyId2;
+                                                    // LOG_DEBUG << "GroundDetectionEvent collisionWith: "
+                                                    //           << collisionInfo.rigidbodyId2;
                                                     pushEventToFrontQueue(GroundDetectionEvent{});
                                                     impl->fsmContext->isOnAir = false;
                                                     break;
                                                 }
                                                 else
                                                 {
-                                                    LOG_DEBUG << "GroundDetectionEvent collisionWith: "
-                                                              << collisionInfo.rigidbodyId1;
+                                                    // LOG_DEBUG << "GroundDetectionEvent collisionWith: "
+                                                    //           << collisionInfo.rigidbodyId1;
                                                     pushEventToFrontQueue(GroundDetectionEvent{});
                                                     impl->fsmContext->isOnAir = false;
                                                     break;

@@ -4,10 +4,10 @@
 #include <unordered_map>
 
 #include "GameEngine/Objects/GameObject.h"
+#include "GameEngine/Renderers/CameraBufferUpdateEvent.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/TransformDataEvent.h"
 #include "GraphicsApi/IGraphicsApi.h"
-#include "IBufferDataUpdaterEvent.h"
 #include "IBufferDataUpdaterSubcriber.h"
 
 namespace GameEngine
@@ -23,8 +23,9 @@ struct BufferDataUpdaterSubscriber
     GameObject* gameObject{nullptr};
 };
 
-typedef std::vector<BufferDataUpdaterSubscriber> BufferDataUpdaterSubcribers;
-typedef std::unordered_map<uint32, TransformDataEvent> BufferDataUpdaterEvents;
+using BufferDataUpdaterSubcribers = std::vector<BufferDataUpdaterSubscriber>;
+using BufferDataUpdaterEvents     = std::unordered_map<uint32, TransformDataEvent>;
+using CameraBufferUpdateEvents = std::vector<CameraBufferUpdateEvent>;
 
 class BufferDataUpdater
 {
@@ -35,10 +36,13 @@ public:
     void UnSubscribeAll();
     void ProcessEvents();
     void AddEvent(uint32, TransformDataEvent&&);
+    void AddEvent(CameraBufferUpdateEvent&&);
 
 private:
     BufferDataUpdaterSubcribers subscribers_;
     BufferDataUpdaterEvents events_;
+    CameraBufferUpdateEvents cameraUpdateEvents_;
+
     std::mutex eventMutex_;
     std::mutex subsribtionMutex_;
 };

@@ -95,10 +95,20 @@ void BufferDataUpdater::ProcessEvents()
     {
         event.Execute();
     }
+
+    for(auto& event : cameraUpdateEvents_)
+    {
+        event.Execute();
+    }
+    cameraUpdateEvents_.clear();
 }
 void BufferDataUpdater::AddEvent(uint32 gameobjectId, TransformDataEvent&& event)
 {
     std::lock_guard<std::mutex> lk(eventMutex_);
     events_.insert_or_assign(gameobjectId, std::move(event));
+}
+void BufferDataUpdater::AddEvent(CameraBufferUpdateEvent&& event)
+{
+    cameraUpdateEvents_.push_back(std::move(event));
 }
 }  // namespace GameEngine

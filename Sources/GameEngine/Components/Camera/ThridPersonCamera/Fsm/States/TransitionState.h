@@ -36,8 +36,6 @@ public:
 
     bool transitionCondition(const StopAimEvent&);
     bool transitionCondition(const StartAimEvent&);
-
-private:
     void update() override;
 
 private:

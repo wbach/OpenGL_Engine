@@ -1,4 +1,5 @@
 #include "JsonReader.h"
+
 #include <string>
 
 #ifdef __GNUC__  // GCC i Clang
@@ -154,8 +155,6 @@ TreeNode* JsonReader::Get(const std::string& name, TreeNode* node)
 
     if (node->name() == name)
         return node;
-
-            LOG_DEBUG << "name : " << name << " | " << *node;
 
     auto childIter = std::find_if(node->getChildren().begin(), node->getChildren().end(),
                                   [&name](const auto& child) { return (child->name() == name); });

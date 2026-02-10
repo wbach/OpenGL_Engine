@@ -249,4 +249,15 @@ void Camera::SetDirection(const vec3& inputDir)
 {
     rotation_ = Utils::lookAtDirection(-inputDir);
 }
+void Camera::UpdatePerFrameBuffer()
+{
+    UpdateMatrix();
+    perFrameBuffer.ProjectionViewMatrix = projectionViewMatrix_;
+    perFrameBuffer.cameraPosition       = position_;
+    perFrameBuffer.projection           = projection_ ? projection_->GetBufferParams() : vec4(0);
+}
+const PerFrameBuffer& Camera::GetPerFrameBuffer() const
+{
+    return perFrameBuffer;
+}
 }  // namespace GameEngine

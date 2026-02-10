@@ -4,6 +4,7 @@
 #include "GameEngine/Components/Camera/ThridPersonCamera/Fsm/ThridPersonCameraEvents.h"
 #include "GameEngine/Components/Camera/ThridPersonCamera/ThridPersonCameraComponent.h"
 #include "GameEngine/Objects/GameObject.h"
+#include "Logger/Log.h"
 
 namespace GameEngine
 {
@@ -46,10 +47,8 @@ void StateBase::pushEventToQueue(const Event& event) const
 
 void StateBase::cameraUpdate()
 {
-    auto parentWorldTransform = glm::translate(context.gameObject.GetWorldTransform().GetPosition()) *
-                                glm::scale(context.gameObject.GetWorldTransform().GetScale());
-
-    // auto parentWorldTransform = context.gameObject.GetWorldTransform().GetMatrix();
+    const auto& lookAtGameObjectParent = context.lookAtTransformContext;
+    auto parentWorldTransform = glm::translate(lookAtGameObjectParent.position) * glm::scale(lookAtGameObjectParent.scale);
 
     auto [relativeCamerePosition, lookAtLocalPosition, yTranslation] = calculateLocalPosition();
 
