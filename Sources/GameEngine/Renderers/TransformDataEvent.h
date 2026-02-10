@@ -1,6 +1,6 @@
 #pragma once
 #include <Types.h>
-#include "IBufferDataUpdaterEvent.h"
+#include <functional>
 
 namespace common
 {
@@ -15,13 +15,13 @@ class RendererComponent;
 
 }  // namespace Components
 
-class TransformDataEvent : public IBufferDataUpdaterEvent
+class TransformDataEvent
 {
 public:
     TransformDataEvent(Components::RendererComponent&);
-    virtual void Execute() override;
+    void Execute();
 
 private:
-    Components::RendererComponent& renderComponent_;
+    std::reference_wrapper<Components::RendererComponent> renderComponent_;
 };
 }  // namespace GameEngine

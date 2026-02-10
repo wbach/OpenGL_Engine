@@ -13,6 +13,6 @@ TransformDataEvent::TransformDataEvent(Components::RendererComponent& renderComp
 }
 void TransformDataEvent::Execute()
 {
-    renderComponent_.UpdateBuffers();
+    renderComponent_.get().UpdateBuffers();
 }
 }  // namespace GameEngine

@@ -1,9 +1,11 @@
 #pragma once
 #include <Mutex.hpp>
 #include <memory>
+#include <unordered_map>
 
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/IRenderer.h"
+#include "GameEngine/Renderers/TransformDataEvent.h"
 #include "GraphicsApi/IGraphicsApi.h"
 #include "IBufferDataUpdaterEvent.h"
 #include "IBufferDataUpdaterSubcriber.h"
@@ -22,7 +24,7 @@ struct BufferDataUpdaterSubscriber
 };
 
 typedef std::vector<BufferDataUpdaterSubscriber> BufferDataUpdaterSubcribers;
-typedef std::vector<std::pair<uint32, std::unique_ptr<IBufferDataUpdaterEvent>>> BufferDataUpdaterEvents;
+typedef std::unordered_map<uint32, TransformDataEvent> BufferDataUpdaterEvents;
 
 class BufferDataUpdater
 {
@@ -32,7 +34,7 @@ public:
     void Update();
     void UnSubscribeAll();
     void ProcessEvents();
-    void AddEvent(uint32, std::unique_ptr<IBufferDataUpdaterEvent>);
+    void AddEvent(uint32, TransformDataEvent&&);
 
 private:
     BufferDataUpdaterSubcribers subscribers_;
