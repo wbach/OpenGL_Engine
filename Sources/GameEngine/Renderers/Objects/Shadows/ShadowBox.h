@@ -23,12 +23,6 @@ public:
 
 private:
     void caclulateCascadeDistances();
-    vec2 calculateTangentHalfFov(const ICamera&);
-    void checkMinMax(const vec4& point, vec3& min, vec3& max);
-    void checkMinMax(float& min, float& max, float point);
-    std::vector<vec4> calculateFrustumPoints(const ICamera&, float near, float far);
-    mat4 createLightViewMatrix(const vec3&, const ICamera&);
-    mat4 createOrthoProjTransform(const vec3& min, const vec3& max) const;
 
 private:
     std::vector<mat4> lightProjectionViewMatrices_;

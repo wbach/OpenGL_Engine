@@ -403,7 +403,7 @@ void DebugRenderer::unSubscribeAll()
 
 void DebugRenderer::renderTextures(const std::vector<GraphicsApi::ID>& textures)
 {
-    if (texturePerObjectUpdateBufferId_)
+    if (texturePerObjectUpdateBufferId_ and not textures.empty())
     {
         textureShader_.Start();
         rendererContext_.graphicsApi_.BindShaderBuffer(*texturePerObjectUpdateBufferId_);

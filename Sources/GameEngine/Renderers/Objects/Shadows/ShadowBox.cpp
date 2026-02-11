@@ -5,13 +5,14 @@
 #include <Logger/Log.h>
 #include <Utils.h>
 
+#include <magic_enum/magic_enum.hpp>
+
 #include "GameEngine/Camera/ICamera.h"
 #include "GameEngine/Components/Lights/DirectionalLightComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Objects/GameObject.h"
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/Projection/PerspectiveProjection.h"
-#include "magic_enum/magic_enum.hpp"
 
 namespace GameEngine
 {
@@ -25,64 +26,23 @@ ShadowBox::ShadowBox()
     caclulateCascadeDistances();
 }
 
-std::vector<vec4> ShadowBox::calculateFrustumPoints(const ICamera& camera, float near, float far)
+std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view)
 {
-    auto tanHalfFov = calculateTangentHalfFov(camera);
-    float xn        = near * tanHalfFov.x;
-    float xf        = far * tanHalfFov.x;
+    const auto inv = glm::inverse(proj * view);
 
-    float yn = near * tanHalfFov.y;
-    float yf = far * tanHalfFov.y;
-
-    near *= VECTOR_BACKWARD.z;
-    far *= VECTOR_BACKWARD.z;
-
-    // clang-format off
-    return
+    std::vector<glm::vec4> frustumCorners;
+    for (unsigned int x = 0; x < 2; ++x)
     {
-        // near face forward is z -1
-        vec4(xn, yn, near, 1.0),
-        vec4(-xn, yn, near, 1.0),
-        vec4(xn, -yn, near, 1.0),
-        vec4(-xn, -yn, near, 1.0),
-
-        // far face
-        vec4(xf, yf, far, 1.0),
-        vec4(-xf, yf, far, 1.0),
-        vec4(xf, -yf, far, 1.0),
-        vec4(-xf, -yf, far, 1.0)
-    };
-    // clang-format on
-}
-
-mat4 ShadowBox::createLightViewMatrix(const vec3& lightDir, const ICamera& camera)
-{
-    const vec3& cameraPos = camera.GetPosition();
-    return glm::lookAt(cameraPos - lightDir * shadowDistance_ * 0.5f, cameraPos, VECTOR_UP);
-}
-
-mat4 ShadowBox::createOrthoProjTransform(const vec3& min, const vec3& max) const
-{
-    // auto m1 = glm::ortho(min.x, max.x, min.y, max.y, min.z, max.z);
-    // m1[2][2] *= -1.f; ???
-    // return m1;
-
-    float l = min.x;
-    float r = max.x;
-    float b = min.y;
-    float t = max.y;
-    float n = min.z;
-    float f = max.z;
-
-    mat4 m(1.f);
-
-    // clang-format off
-    m[0][0] = 2.0f / (r - l); m[0][1] = 0.0f;           m[0][2] = 0.0f;           m[0][3] = 0.0f;
-    m[1][0] = 0.0f;           m[1][1] = 2.0f / (t - b); m[1][2] = 0.0f;           m[1][3] = 0.0f;
-    m[2][0] = 0.0f;           m[2][1] = 0.0f;           m[2][2] = 2.0f / (f - n); m[2][3] = 0.0f;
-    m[3][0] = -(r + l) / (r - l); m[3][1] = -(t + b) / (t - b);  m[3][2] = -(f + n) / (f - n);  m[3][3] = 1.0;
-    // clang-format on
-    return m;
+        for (unsigned int y = 0; y < 2; ++y)
+        {
+            for (unsigned int z = 0; z < 2; ++z)
+            {
+                const glm::vec4 pt = inv * glm::vec4(2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f, 1.0f);
+                frustumCorners.push_back(pt / pt.w);
+            }
+        }
+    }
+    return frustumCorners;
 }
 
 const std::vector<mat4>& ShadowBox::getLightProjectionViewMatrices() const
@@ -165,63 +125,66 @@ void ShadowBox::caclulateCascadeDistances()
     }
 }
 
-vec2 ShadowBox::calculateTangentHalfFov(const ICamera& camera)
+mat4 calculateLightSpaceMatrix(const std::vector<vec4>& corners, const vec3& lightDir)
 {
-    if (const auto perspective = dynamic_cast<const PerspectiveProjection*>(&camera.GetProjection()))
+    vec3 center = vec3(0.0f);
+    for (const auto& v : corners)
     {
-        auto halfFov = perspective->GetFoV() / 2.0f;
+        center += vec3(v);
+    }
+    center /= static_cast<float>(corners.size());
 
-        return {tanf(glm::radians(halfFov)), tanf(glm::radians(halfFov * camera.GetProjection().GetAspectRatio()))};
+    float radius = 0.0f;
+    for (const auto& v : corners)
+    {
+        float distance = glm::length(vec3(v) - center);
+        radius         = std::max(radius, distance);
     }
 
-    LOG_WARN << "Camara should have perspective projection";
+    // Zaokrąglamy promień do góry, aby uniknąć mikro-skoków przy zmianie precyzji
+    radius = std::ceil(radius * 16.0f) / 16.0f;
 
-    return {0.f, 0.f};
-}
+    const auto lightView = glm::lookAt(center + lightDir, center, glm::vec3(0.0f, 1.0f, 0.0f));
 
-void ShadowBox::checkMinMax(const vec4& point, vec3& min, vec3& max)
-{
-    checkMinMax(min.x, max.x, point.x);
-    checkMinMax(min.y, max.y, point.y);
-    checkMinMax(min.z, max.z, point.z);
-}
+    float minX = -radius;
+    float maxX = radius;
+    float minY = -radius;
+    float maxY = radius;
 
-void ShadowBox::checkMinMax(float& min, float& max, float point)
-{
-    if (point > max)
-    {
-        max = point;
-    }
+    // Stabilizacja (Texel Snapping)
+    float worldUnitsPerTexel = (maxX - minX) / EngineConf.renderer.shadows.mapSize;
 
-    if (point < min)
-    {
-        min = point;
-    }
+    minX = std::floor(minX / worldUnitsPerTexel) * worldUnitsPerTexel;
+    maxX = std::floor(maxX / worldUnitsPerTexel) * worldUnitsPerTexel;
+    minY = std::floor(minY / worldUnitsPerTexel) * worldUnitsPerTexel;
+    maxY = std::floor(maxY / worldUnitsPerTexel) * worldUnitsPerTexel;
+
+    // Near plane to light source
+    float nearMargin = 150.0f;
+    float minZ       = -radius - nearMargin;
+    float maxZ       = radius;
+
+    const glm::mat4 lightOrtho = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    return lightOrtho * lightView;
 }
 
 void ShadowBox::update(const ICamera& camera, const vec3& lightDir)
 {
-    auto invViewMatrix   = glm::inverse(camera.GetViewMatrix());
-    auto lightViewMatrix = createLightViewMatrix(lightDir, camera);
+    const auto perspective = dynamic_cast<const PerspectiveProjection*>(&camera.GetProjection());
+    if (not perspective)
+    {
+        return;
+    }
 
     for (uint32 cascadeIndex = 0; cascadeIndex < *EngineConf.renderer.shadows.cascadesSize; ++cascadeIndex)
     {
-        vec3 min(std::numeric_limits<float>::max());
-        vec3 max(-std::numeric_limits<float>::max());
+        float near = cascadeIndex == 0 ? camera.GetProjection().GetNear() : cascadeDistances_[cascadeIndex - 1];
+        float far  = cascadeDistances_[cascadeIndex];
 
-        float near  = cascadeIndex == 0 ? camera.GetProjection().GetNear() : cascadeDistances_[cascadeIndex - 1];
-        float far   = cascadeDistances_[cascadeIndex];
-        auto points = calculateFrustumPoints(camera, near, far);
+        glm::mat4 cascadeProj = glm::perspective(glm::radians(perspective->GetFoV()), perspective->GetAspectRatio(), near, far);
 
-        for (const vec4& point : points)
-        {
-            auto pointInWorldSpace = invViewMatrix * point;
-            auto pointInLightSpace = lightViewMatrix * pointInWorldSpace;
-
-            checkMinMax(pointInLightSpace, min, max);
-        }
-        auto bias                                  = .1f * (max - min);
-        lightProjectionViewMatrices_[cascadeIndex] = createOrthoProjTransform(min - bias, max + bias) * lightViewMatrix;
+        auto corners                               = getFrustumCornersWorldSpace(cascadeProj, camera.GetViewMatrix());
+        lightProjectionViewMatrices_[cascadeIndex] = calculateLightSpaceMatrix(corners, lightDir);
     }
 }
 }  // namespace GameEngine
