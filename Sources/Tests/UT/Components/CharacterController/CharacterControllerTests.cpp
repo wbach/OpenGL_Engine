@@ -282,7 +282,7 @@ void CharacterControllerTests::createDummySkeleton()
         }
     }
 
-    model_.setRootJoint(rootJoint);
+    model_.setRootJoint(std::move(rootJoint));
 }
 
 void CharacterControllerTests::addDummyClip(const std::string& name)

@@ -1296,8 +1296,8 @@ void MainFrame::OnFileActivated(const wxString& fullpath)
         auto newGameObject                = scene.CreateGameObject(file.GetBaseName());
         auto newGameObjectPtr             = newGameObject.get();
         auto& rendererComponent           = newGameObject->AddComponent<GameEngine::Components::RendererComponent>();
-        auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
-        animator.startupAnimationClipName = "noname";
+        //auto& animator                    = newGameObject->AddComponent<GameEngine::Components::Animator>();
+        //animator.startupAnimationClipName = "noname";
         rendererComponent.AddModel(file.GetAbsolutePath().string());
 
         newGameObject->SetLocalPosition(canvas->GetWorldPosFromCamera());

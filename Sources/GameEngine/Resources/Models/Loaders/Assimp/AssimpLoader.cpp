@@ -439,7 +439,8 @@ void AssimpLoader::processSkeleton(const aiScene& scene)
         if (armatureNode)
         {
             LOG_DEBUG << "Root node found : " << armatureNode->mName.data;
-            createSkeleton(*armatureNode, object_->skeleton_);
+            object_->skeleton_ = Animation::Joint{};
+            createSkeleton(*armatureNode, *object_->skeleton_);
         }
     }
 }
@@ -583,7 +584,7 @@ Animation::AnimationClip AssimpLoader::processAnimation(const aiAnimation& aiAni
     {
         const auto& animChannel = *aiAnim.mChannels[i];
         std::string jointName   = animChannel.mNodeName.data;
-        auto joint              = object_->skeleton_.getJoint(jointName);
+        auto joint              = object_->skeleton_->getJoint(jointName);
 
         if (not joint)
         {
