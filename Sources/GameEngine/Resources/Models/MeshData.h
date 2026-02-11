@@ -57,7 +57,7 @@ struct Object
     std::string name;
     std::vector<LoaderMesh> meshes;
     mat4 transformMatrix{1.f};
-    Animation::Joint skeleton_;
+    std::optional<Animation::Joint> skeleton_;
     std::unordered_map<std::string, Animation::AnimationClip> animationClips_;
 };
 }  // namespace GameEngine

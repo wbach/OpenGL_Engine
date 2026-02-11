@@ -63,9 +63,13 @@ std::unique_ptr<Model> AbstractLoader::CreateModel()
 
         NormalizeMatrix(obj.transformMatrix, normalizeFactor);
 
-        Animation::CalcInverseBindTransform(obj.skeleton_);
-        newModel->setRootJoint(std::move(obj.skeleton_));
-        newModel->animationClips_ = std::move(obj.animationClips_);
+        if (obj.skeleton_)
+        {
+            Animation::CalcInverseBindTransform(*obj.skeleton_);
+            newModel->setRootJoint(std::move(*obj.skeleton_));
+            newModel->animationClips_ = std::move(obj.animationClips_);
+            obj.skeleton_.reset();
+        }
 
         for (auto& mesh : obj.meshes)
         {

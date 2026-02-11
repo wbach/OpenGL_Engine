@@ -53,7 +53,7 @@ public:
     const Meshes& GetMeshes() const;
     Meshes& GetMeshes();
 
-    void setRootJoint(Animation::Joint);
+    void setRootJoint(Animation::Joint&&);
     const std::optional<Animation::Joint>& getRootJoint() const;
 
     std::optional<GraphicsApi::MeshRawData> getModelRawData() const;

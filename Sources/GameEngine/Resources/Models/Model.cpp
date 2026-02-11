@@ -152,7 +152,7 @@ const File& Model::GetFile() const
 {
     return file_;
 }
-void Model::setRootJoint(Animation::Joint joint)
+void Model::setRootJoint(Animation::Joint&& joint)
 {
     skeleton_ = std::move(joint);
 }

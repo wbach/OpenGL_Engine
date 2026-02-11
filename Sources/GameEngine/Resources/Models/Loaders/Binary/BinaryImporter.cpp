@@ -92,7 +92,8 @@ std::unique_ptr<Model> convert(ModelSerializeData&& modelSerializeData, Graphics
     auto model = std::make_unique<Model>();
     if (modelSerializeData.skeleton_)
     {
-        model->setRootJoint(*modelSerializeData.skeleton_);
+        model->setRootJoint(std::move(*modelSerializeData.skeleton_));
+        modelSerializeData.skeleton_.reset();
     }
     model->setNormailizedFactor(modelSerializeData.normalizedFactor);
 
