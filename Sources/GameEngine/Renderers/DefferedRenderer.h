@@ -2,6 +2,7 @@
 #include <optional>
 
 #include "BaseRenderer.h"
+#include "GameEngine/Renderers/Postproccesing/LightShafts/LightShaftOclusionRenderer.h"
 #include "GraphicsApi/IFrameBuffer.h"
 #include "SkyPassRenderer/SkyPassRenderer.h"
 #include "Types.h"
@@ -33,6 +34,7 @@ private:
     PostProcessingManager postprocessingRenderersManager_;
 
     SkyPassRenderer skyPassRenderer;
+    LightShaftOclusionRenderer lightShaftRenderer_;
     bool isReady_;
 };
 }  // namespace GameEngine

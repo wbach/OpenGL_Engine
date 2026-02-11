@@ -23,6 +23,7 @@ class ICamera;
 enum class SharedTextures
 {
     skyTexture,
+    lightShafts,
     shadowCascade0,
     shadowCascade1,
     shadowCascade2,

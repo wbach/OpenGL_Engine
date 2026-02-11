@@ -237,7 +237,21 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/Sky.frag"}
         }
     },
+    {
+        GraphicsApi::ShaderProgramType::LightShaftOclusion,
         {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/LightShafts/LightShaftsOclusion.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/LightShafts/LightShaftsOclusion.frag"}
+        }
+    },
+    {
+        GraphicsApi::ShaderProgramType::LightShaftBlure,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/LightShafts/LightShaftsRadialBlur.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/LightShafts/LightShaftsRadialBlur.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::ACESFilmicToneMapping,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/ToneMapping/ToneMapping.vert"},

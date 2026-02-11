@@ -28,6 +28,8 @@ enum class ShaderProgramType
     TreeLeafsShdaowsBilboards,
     TreeLeafsCluster,
     TreeLeafsClusterCreation,
+    LightShaftOclusion,
+    LightShaftBlure,
     Water,
     SSAO,
     ColorFilper,

@@ -20,6 +20,7 @@ DefferedRenderer::DefferedRenderer(RendererContext& context)
     , defferedFrameBuffer_(nullptr)
     , postprocessingRenderersManager_(context)
     , skyPassRenderer(context)
+    , lightShaftRenderer_(context)
     , isReady_(false)
 {
 }
@@ -77,6 +78,7 @@ void DefferedRenderer::cleanUp()
     }
 
     skyPassRenderer.CleanUp();
+    lightShaftRenderer_.CleanUp();
     postprocessingRenderersManager_.CleanUp();
 }
 
@@ -88,6 +90,7 @@ void DefferedRenderer::reloadShaders()
 
     postprocessingRenderersManager_.ReloadShaders();
     skyPassRenderer.ReloadShaders();
+    lightShaftRenderer_.ReloadShaders();
 }
 void DefferedRenderer::setViewPort()
 {
@@ -102,7 +105,10 @@ void DefferedRenderer::bindDefferedFbo()
 void DefferedRenderer::unbindDefferedFbo()
 {
     if (auto depthTextureId = defferedFrameBuffer_->GetAttachmentTexture(GraphicsApi::FrameBuffer::Type::Depth))
+    {
         skyPassRenderer.Render(*depthTextureId);
+        lightShaftRenderer_.Render(*depthTextureId);
+    }
 
     postprocessingRenderersManager_.Render(*defferedFrameBuffer_, renderTarget, *context_.scene_);
 }
@@ -131,6 +137,7 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
         context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
         createFrameBuffer();
         skyPassRenderer.Init();
+        lightShaftRenderer_.Init();
         postprocessingRenderersManager_.Init();
         context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
         return;
@@ -150,6 +157,8 @@ void DefferedRenderer::createOrUpdateDefferedFrameBufferIfNeeded()
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::FullDefferedRendering);
     skyPassRenderer.CleanUp();
     skyPassRenderer.Init();
+    lightShaftRenderer_.CleanUp();
+    lightShaftRenderer_.Init();
     postprocessingRenderersManager_.OnSizeChanged();
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
 }

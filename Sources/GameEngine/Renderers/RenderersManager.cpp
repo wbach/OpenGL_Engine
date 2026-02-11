@@ -191,7 +191,6 @@ void RenderersManager::renderScene(Scene& scene)
 
     if (not camerasRenderers.empty())
     {
-        rendererContext_.graphicsApi_.DisableDepthTest();
         std::vector<GraphicsApi::ID> textures;
         textures.reserve(camerasRenderers.size());
 
@@ -211,12 +210,6 @@ void RenderersManager::renderScene(Scene& scene)
         }
         debugRenderer_.renderTextures(textures);
     }
-
-    debugRenderer_.renderTextures(
-        {rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::shadowCascade0).value()],
-         rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::shadowCascade1).value()],
-         rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::shadowCascade2).value()],
-         rendererContext_.sharedTextures[magic_enum::enum_index(SharedTextures::shadowCascade3).value()]});
 
     *frustrumCheckCount_ = std::to_string(frustrumCheckInFrame);
 

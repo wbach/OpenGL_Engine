@@ -153,6 +153,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/EditText/GuiE
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/IGuiRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/IPostprocessingRenderersFactory.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Fxaa/Fxaa.h
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/LightShafts/LightShaftOclusionRenderer.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/PostprocessingRendererTypes.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/FrameBuffersManager.h
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Outline/Outline.h

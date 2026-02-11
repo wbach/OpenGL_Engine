@@ -85,10 +85,11 @@ layout(binding = 2) uniform sampler2D NormalMap;
 layout(binding = 3) uniform sampler2D SurfaceParamsMap;
 layout(binding = 4) uniform sampler2D DepthTexture;
 layout(binding = 5) uniform sampler2D SkyTexture;
-layout(binding = 6) uniform sampler2DShadow shadowMap0;
-layout(binding = 7) uniform sampler2DShadow shadowMap1;
-layout(binding = 8) uniform sampler2DShadow shadowMap2;
-layout(binding = 9) uniform sampler2DShadow shadowMap3;
+layout(binding = 6) uniform sampler2D LightshaftTexture;
+layout(binding = 7) uniform sampler2DShadow shadowMap0;
+layout(binding = 8) uniform sampler2DShadow shadowMap1;
+layout(binding = 9) uniform sampler2DShadow shadowMap2;
+layout(binding = 10) uniform sampler2DShadow shadowMap3;
 
 in VS_OUT
 {
@@ -433,5 +434,7 @@ void main()
 
     vec4 finalColor = CalculateColor(material, worldPosition, normal) * shadowFactor;
     finalColor      = CreateFog(finalColor, normal4.a);
-    FragColor       = vec4(finalColor.rgb, 1.0);
+
+    vec3 rays = texture(LightshaftTexture, vs_in.textureCoords).rgb;
+    FragColor = vec4(finalColor.rgb + rays, 1.0);
 }

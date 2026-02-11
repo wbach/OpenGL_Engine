@@ -109,6 +109,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/GuiElementFac
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/Menu/Menu.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/GUI/EditText/GuiEditText.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Fxaa/Fxaa.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/LightShafts/LightShaftOclusionRenderer.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/Outline/Outline.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/DefferedLighting/DefferedLighting.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/../../Sources/GameEngine/Renderers/Postproccesing/SSAO/SSAO.cpp

@@ -106,6 +106,11 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
     context.graphicsApi_.RenderQuad();
     shader.Stop();
     frameBuffer->UnBind();
+
+    // context.graphicsApi_.RestoreViewPort();
+    //     const auto& camera = *context.camera_;
+    // context.graphicsApi_.SetViewPort(0, 0, camera.GetProjection().GetRenderingSize().x,
+    //                                  camera.GetProjection().GetRenderingSize().y);
 }
 void SkyPassRenderer::ReloadShaders()
 {

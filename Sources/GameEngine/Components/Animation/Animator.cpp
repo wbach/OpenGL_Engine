@@ -321,9 +321,6 @@ void Animator::GetSkeletonAndAnimations()
     if (model)
     {
         auto maybeRootJoint = model->getRootJoint();
-
-        LOG_DEBUG << "maybeRootJoint: " << maybeRootJoint;
-
         if (maybeRootJoint)
         {
             jointData_.rootJoint = *maybeRootJoint;
