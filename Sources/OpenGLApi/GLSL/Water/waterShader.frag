@@ -130,7 +130,7 @@ float CalculateRefractionWithWaterColorBlendFactor(float waterDepth)
         colorInte = waterDepth / maxDepth / scaleDepth;
     }
 
-    return colorInte;
+    return max(waterTileMeshBuffer.waterDepthVisibility.z, colorInte);
 }
 
 void main(void)
