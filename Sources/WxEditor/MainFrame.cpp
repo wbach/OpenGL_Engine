@@ -917,12 +917,14 @@ void MainFrame::MenuRendererTextureAmbient(wxCommandEvent&)
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
 
     rendererMenu->Check(ID_MENU_RENDERER_TEXTURE_AMBIENT, textConf.useAmbient);
+    GameEngine::WriteConfigurationToFile(EngineConf);
 }
 
 void MainFrame::MenuRendererTextureDiffuse(wxCommandEvent&)
 {
     auto& textConf      = EngineConf.renderer.textures;
     textConf.useDiffuse = !textConf.useDiffuse;
+    GameEngine::WriteConfigurationToFile(EngineConf);
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
@@ -934,6 +936,7 @@ void MainFrame::MenuRendererTextureNormals(wxCommandEvent&)
 {
     auto& textConf     = EngineConf.renderer.textures;
     textConf.useNormal = !textConf.useNormal;
+    GameEngine::WriteConfigurationToFile(EngineConf);
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
@@ -945,6 +948,7 @@ void MainFrame::MenuRendererTextureSpecular(wxCommandEvent&)
 {
     auto& textConf       = EngineConf.renderer.textures;
     textConf.useSpecular = !textConf.useSpecular;
+    GameEngine::WriteConfigurationToFile(EngineConf);
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
@@ -956,6 +960,7 @@ void MainFrame::MenuRendererTextureDisplacement(wxCommandEvent&)
 {
     auto& textConf           = EngineConf.renderer.textures;
     textConf.useDisplacement = !textConf.useDisplacement;
+    GameEngine::WriteConfigurationToFile(EngineConf);
 
     canvas->GetScene().GetResourceManager().GetGpuResourceLoader().AddFunctionToCall(
         [&]() { canvas->GetEngine().GetEngineContext().GetRenderersManager().UpdatePerAppBuffer(); });
