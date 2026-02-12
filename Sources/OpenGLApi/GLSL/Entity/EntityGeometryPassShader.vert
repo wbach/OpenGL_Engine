@@ -116,9 +116,9 @@ void main()
     vs_out.worldPos      = vec4(worldData.worldPosition.xyz, linearDepth);
     vs_out.textureOffset = perObjectConstants.textureOffset;
     vs_out.normal        = normalize(worldData.worldNormal.xyz);
-    vs_out.depth         = depth;
+    vs_out.depth         = linearDepth;
 
-    if (NormalMaping(depth))
+    if (NormalMaping(linearDepth))
     {
         vs_out.tbn = CreateTBNMatrix(vs_out.normal);
     }
