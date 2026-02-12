@@ -54,6 +54,7 @@ void SkyPassRenderer::Init()
         const auto& camera          = *context.camera_;
         frameBufferSize             = camera.GetProjection().GetRenderingSize() / renderingScale;
         Attachment color(*frameBufferSize, Type::Color0, Format::Rgba32f);
+        color.filter =  GraphicsApi::FrameBuffer::Filter::Linear;
 
         frameBuffer      = &context.graphicsApi_.CreateFrameBuffer({color});
         isReady          = frameBuffer->Init();
