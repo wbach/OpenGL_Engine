@@ -427,6 +427,7 @@ void ProjectPanel::contextMenuTriggerAction(wxMouseEvent& event, wxWindow* targe
 
     LOG_DEBUG << "Menu enable if contorls";
     GameEngine::File file(fileName.GetFullPath().ToStdString());
+
     menu.Enable(ID_MATERIAL_EDITOR, isMaterial(file));
     menu.Enable(ID_ANIMATION_VIWER, is3dModelFile(file) or isPrefab(file));
 

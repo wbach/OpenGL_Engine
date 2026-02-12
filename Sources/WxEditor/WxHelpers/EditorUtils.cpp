@@ -73,7 +73,8 @@ bool is3dModelFile(const GameEngine::File& file)
 
 bool isPrefab(const GameEngine::File& file)
 {
-    return file.IsFormat("prefab") or Utils::CheckXmlObjectType(file.GetAbsolutePath().string(), "prefab");
+    return file.IsFormat("prefab") or
+           (file.IsFormat("xml") and Utils::CheckXmlObjectType(file.GetAbsolutePath().string(), "prefab"));
 }
 
 bool isMaterial(const GameEngine::File& file)

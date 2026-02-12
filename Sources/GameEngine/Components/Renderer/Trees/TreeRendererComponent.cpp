@@ -5,6 +5,7 @@
 #include <Utils/TreeNode.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+#include <filesystem>
 #include <magic_enum/magic_enum.hpp>
 
 #include "GameEngine/Components/CommonReadDef.h"
@@ -264,7 +265,8 @@ void TreeRendererComponent::write(TreeNode& node) const
     if (not treeModel.empty())
     {
         LOG_DEBUG << "Tree all leafs size: " << tree.allLeafs.size();
-        Export(tree, treeModel.GetAbsolutePath());
+        if (not std::filesystem::exists(treeModel.GetAbsolutePath()))
+            Export(tree, treeModel.GetAbsolutePath());
     }
 
     ::write(node.addChild(CSTR_ATLAS_SIZE), leafTextureAtlasSize);
