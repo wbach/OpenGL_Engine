@@ -25,7 +25,7 @@ public:
 
     virtual GeneralTexture* CreateTexture(const std::string&, const TextureParameters&, Utils::Image&&)                   = 0;
     virtual ArrayTexture* CreateTexture(const std::string&, const TextureParameters&, std::vector<Utils::Image>&&)        = 0;
-    virtual void UpdateTexture(const GeneralTexture&)                                                                     = 0;
+    virtual void UpdateTexture(GeneralTexture&)                                                                           = 0;
     virtual void UpdateTexture(GeneralTexture*&, const std::string&)                                                      = 0;
     virtual GeneralTexture* LoadTexture(const std::string&, const unsigned char*, unsigned int, const TextureParameters&) = 0;
     virtual GeneralTexture* LoadTexture(const File&, const TextureParameters& = GameEngine::TextureParameters{})          = 0;

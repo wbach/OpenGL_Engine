@@ -14,6 +14,7 @@ public:
                    const std::optional<File>& = std::nullopt);
     ~GeneralTexture();
     void GpuLoadingPass() override;
+    void UpdateGpuPass() override;
     void SetImage(Utils::Image&&);
     void setImageData(Utils::ImageData&&);
     const Utils::Image& GetImage() const;
@@ -21,8 +22,12 @@ public:
     void SetPixel(const vec2ui&, const Color&);
     Utils::Image MoveImage();
 
+    void MarkAsNotActualGpuStatus();
+    bool IsGpuAtual() const;
+
 private:
     Utils::Image image_;
     TextureParameters paramters_;
+    bool isGpuAtual{false};
 };
 }  // namespace GameEngine

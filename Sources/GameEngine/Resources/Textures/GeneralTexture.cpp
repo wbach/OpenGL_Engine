@@ -3,6 +3,7 @@
 #include <Logger/Log.h>
 
 #include <Utils/FileSystem/FileSystemUtils.hpp>
+
 #include "GameEngine/Resources/DataStorePolicy.h"
 #include "GameEngine/Resources/TextureParameters.h"
 
@@ -45,6 +46,7 @@ void GeneralTexture::GpuLoadingPass()
     if (graphicsObjectId)
     {
         graphicsObjectId_ = *graphicsObjectId;
+        isGpuAtual        = true;
         LOG_DEBUG << "Texture " << debugFileNamePrint << " is in GPU. GraphicsObjectId :" << *graphicsObjectId;
     }
     else
@@ -54,8 +56,16 @@ void GeneralTexture::GpuLoadingPass()
 
     if (paramters_.dataStorePolicy == DataStorePolicy::ToRelease)
     {
-        LOG_DEBUG << "["<< debugFileNamePrint <<"] Release data from texture. ";
+        LOG_DEBUG << "[" << debugFileNamePrint << "] Release data from texture. ";
         image_.clearData();
+    }
+}
+void GeneralTexture::UpdateGpuPass()
+{
+    if (graphicsObjectId_)
+    {
+        graphicsApi_.UpdateTexture(*graphicsObjectId_, image_);
+        isGpuAtual = true;
     }
 }
 void GeneralTexture::SetImage(Utils::Image&& image)
@@ -85,5 +95,13 @@ void GeneralTexture::SetPixel(const vec2ui& position, const Color& color)
 void GeneralTexture::setImageData(Utils::ImageData&& data)
 {
     image_.moveData(std::move(data));
+}
+bool GeneralTexture::IsGpuAtual() const
+{
+    return isGpuAtual;
+}
+void GeneralTexture::MarkAsNotActualGpuStatus()
+{
+    isGpuAtual = false;
 }
 }  // namespace GameEngine

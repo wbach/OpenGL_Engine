@@ -81,12 +81,12 @@ ArrayTexture* TextureLoader::CreateTexture(const std::string& name, const Textur
     AddTexture(name, std::move(texture), params.loadType);
     return texturePtr;
 }
-void TextureLoader::UpdateTexture(const GeneralTexture& texture)
+void TextureLoader::UpdateTexture(GeneralTexture& texture)
 {
     if (texture.GetGraphicsObjectId())
     {
-        gpuResourceLoader_.AddFunctionToCall(
-            [texture = &texture, this]() { graphicsApi_.UpdateTexture(*texture->GetGraphicsObjectId(), texture->GetImage()); });
+        texture.MarkAsNotActualGpuStatus();
+        gpuResourceLoader_.AddObjectToUpdateGpuPass(texture);
     }
 }
 void TextureLoader::UpdateTexture(GeneralTexture*& texture, const std::string& newName)
