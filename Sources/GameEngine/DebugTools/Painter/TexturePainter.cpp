@@ -113,20 +113,19 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
 
     if (auto iter = paintedComponents.find(tc); iter != paintedComponents.end())
     {
-        if (iter->second.has_value())
-        {
-            iter->second->paintedPoints.clear();
-            return true;
-        }
-        return false;
+        LOG_DEBUG << "Current context found, clear points...";
+        currentPaintingContext = &iter->second;
+        currentPaintingContext->paintedPoints.clear();
+        return true;
     }
+
+    currentPaintingContext = nullptr;
 
     if (not requestedFileTexture.exist())
     {
         LOG_WARN << "File not exist! requestedFileTexture : " << requestedFileTexture;
         return false;
     }
-    currentPaintingContext.reset();
 
     // Creates a new empty blend map texture if it doesn't exist yet.
     CreateBlendMapIfNeeded(*tc);
@@ -152,13 +151,13 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
         }
 
         auto blendmapImage = &blendmap->GetImage();
-
-        currentPaintingContext = PaintedContext{.paintedColor    = *paintedColor,
-                                                .blendmap        = blendmapImage,
-                                                .imageDataAccess = PaintedContext::ImageRawAccess{
-                                                    .imageData = &std::get<std::vector<float>>(paintedImage->getImageData()),
-                                                    .width     = paintedImage->width,
-                                                    .channels  = paintedImage->getChannelsCount()}};
+        paintedComponents.insert({tc, PaintedContext{.paintedColor    = *paintedColor,
+                                                     .blendmap        = blendmapImage,
+                                                     .imageDataAccess = PaintedContext::ImageRawAccess{
+                                                         .imageData = &std::get<std::vector<float>>(paintedImage->getImageData()),
+                                                         .width     = paintedImage->width,
+                                                         .channels  = paintedImage->getChannelsCount()}}});
+        currentPaintingContext = &paintedComponents.at(tc);
     }
     else if (not paintedColor and messageBox)
     {
@@ -168,18 +167,19 @@ bool TexturePainter::PreparePaint(TerrainPoint& point)
                    "rockTexture ");
     }
 
-    paintedComponents.insert({tc, currentPaintingContext});
-
-    if (not currentPaintingContext.has_value())
+    if (not currentPaintingContext)
     {
         LOG_DEBUG << "Paint not available requestedFileTexture : " << requestedFileTexture;
     }
 
-    return currentPaintingContext.has_value();
+    return currentPaintingContext != nullptr;
 }
 
 void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance& influancePoint, DeltaTime deltaTime)
 {
+    if (not currentPaintingContext)
+        return;
+
     auto& access = currentPaintingContext->imageDataAccess;
 
     if (paintedPoint.x >= access.width || paintedPoint.y >= access.width)
@@ -200,6 +200,9 @@ void TexturePainter::Apply(Texture&, const vec2ui& paintedPoint, const Influance
 
 void TexturePainter::UpdateTexture(Components::TerrainRendererComponent& tc)
 {
+    if (not currentPaintingContext)
+        return;
+
     auto iter = tmpfloatingImages.find(&tc);
     if (iter != tmpfloatingImages.end())
     {
@@ -214,10 +217,12 @@ void TexturePainter::CreateBlendMapIfNeeded(Components::TerrainRendererComponent
 {
     if (not tc.GetTexture(TerrainTextureType::blendMap))
     {
+        LOG_DEBUG << "Create new blend map for terrain. " << tc.GetParentGameObject().GetName();
+
         auto image       = CreateZerosImage<uint8>(vec2ui(8192, 8192), 4);
         auto textureName = "blendmap_" + Utils::CreateUniqueFilename();
         TextureParameters params;
-        params.filter =  GraphicsApi::TextureFilter::LINEAR;
+        params.filter          = GraphicsApi::TextureFilter::LINEAR;
         params.sizeLimitPolicy = SizeLimitPolicy::NoLimited;
         auto blendmapTexture   = textureLoader.CreateTexture(textureName, params, std::move(image));
         blendmapTexture->SetFile(EngineLocalConf.files.getGeneratedDirPath() / (textureName + ".png"));

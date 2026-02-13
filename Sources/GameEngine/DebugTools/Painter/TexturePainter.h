@@ -47,9 +47,9 @@ private:
         ImageRawAccess imageDataAccess;
     };
 
-    std::optional<PaintedContext> currentPaintingContext;
+    PaintedContext* currentPaintingContext{nullptr};
 
-    std::unordered_map<Components::TerrainRendererComponent*, std::optional<PaintedContext>> paintedComponents;
+    std::unordered_map<Components::TerrainRendererComponent*, PaintedContext> paintedComponents;
     std::unordered_map<Components::TerrainRendererComponent*, std::unique_ptr<Utils::Image>> tmpfloatingImages;
 };
 
