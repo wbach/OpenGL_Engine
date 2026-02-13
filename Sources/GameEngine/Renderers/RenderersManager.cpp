@@ -357,7 +357,7 @@ void RenderersManager::UpdatePerAppBuffer()
         const auto& rendererConfig = EngineConf.renderer;
 
         perApp_.useTextures     = vec4(F(textureConfig.useDiffuse), F(textureConfig.useNormal), F(textureConfig.useSpecular),
-                                       F(textureConfig.useDisplacement));
+                                       F(textureConfig.useAmbient));
         perApp_.shadowVariables = vec4(F(*shadowsConfig.isEnabled), *shadowsConfig.distance, *shadowsConfig.mapSize, 0.f);
         perApp_.viewDistance    = vec4(*rendererConfig.viewDistance, *rendererConfig.normalMappingDistance,
                                        *floraConfig.viewDistance, *rendererConfig.viewDistance);
@@ -381,8 +381,11 @@ void RenderersManager::updatePerFrameBuffer(ICamera& camera)
     if (perFrameId_)
     {
         // const auto& buffer = camera.GetPerFrameBuffer();
+        time +=  rendererContext_.time_.deltaTime;
+
         auto bufferCopy                 = camera.GetPerFrameBuffer();
         bufferCopy.ProjectionViewMatrix = rendererContext_.graphicsApi_.PrepareMatrixToLoad(bufferCopy.ProjectionViewMatrix);
+        bufferCopy.time.value.x = time;
         graphicsApi_.UpdateShaderBuffer(*perFrameId_, &bufferCopy);
         graphicsApi_.BindShaderBuffer(*perFrameId_);
     }

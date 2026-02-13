@@ -24,6 +24,7 @@ layout (std140,binding=1) uniform PerFrame
     vec3 cameraPosition;
     vec4 clipPlane;
     vec4 projection;
+    vec4 time;
 } perFrame;
 
 out VS_OUT

@@ -15,12 +15,13 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
-layout (std140, binding = 1) uniform PerFrame
+layout (std140, align=16, binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
     vec3 cameraPosition;
     vec4 clipPlane;
     vec4 projection;
+    vec4 time;
 } perFrame;
 
 layout(binding = 0) uniform sampler2DShadow shadowMap;

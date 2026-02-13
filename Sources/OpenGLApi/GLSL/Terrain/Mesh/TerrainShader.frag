@@ -1,4 +1,5 @@
 #version 440 core
+#extension GL_GOOGLE_include_directive : enable
 #include "../PerTerrainTexturesBuffer.glsl"
 
 const float EPSILON              = 0.00001f;
@@ -69,12 +70,13 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
-layout (std140, binding = 1) uniform PerFrame
+layout (std140, align=16, binding=1) uniform PerFrame
 {
     mat4 projectionViewMatrix;
     vec3 cameraPosition;
     vec4 clipPlane;
     vec4 projection;
+    vec4 time;
 } perFrame;
 
 vec3 CalcBumpedNormal(vec4 normalMapColor)
@@ -94,14 +96,20 @@ bool NormalMaping()
     return Is(perApp.useTextures.y) && (dist < perApp.viewDistance.y);
 }
 
-vec4 textureColor(sampler2D inputTexture, vec2 coords, float useThatTexture)
+vec4 textureColor(sampler2D baseTexture, sampler2D ambientOcclusionTexture, vec2 coords, vec2 useThatTexture)
 {
-    if (Is(useThatTexture))
+    vec4 result = DEFAULT_COLOR;
+    if (Is(useThatTexture.x))
     {
-        return texture(inputTexture, coords);
+        result = texture(baseTexture, coords);
     }
 
-    return DEFAULT_COLOR;
+    if (Is(useThatTexture.y))
+    {
+       result.w = texture(ambientOcclusionTexture, coords).r;
+    }
+
+    return result;
 }
 
 vec4 normalColor(sampler2D inputTexture, vec2 coords, float useThatTexture)
@@ -146,11 +154,14 @@ vec3 getTriPlanarTextureBlendingFactor()
 
 vec4 getTriPlanarMappingColor(sampler2D terrainTexture, vec3 worldCoordinates, float scale)
 {
+    vec3 blending = pow(abs(fs_in.faceNormal), vec3(8.0));
+    blending /= (blending.x + blending.y + blending.z);
+
+    //vec3 blending = getTriPlanarTextureBlendingFactor();
+
     vec4 xaxis = texture(terrainTexture, worldCoordinates.yz * scale);
     vec4 yaxis = texture(terrainTexture, worldCoordinates.xz * scale);
     vec4 zaxis = texture(terrainTexture, worldCoordinates.xy * scale);
-
-    vec3 blending = getTriPlanarTextureBlendingFactor();
 
     return xaxis * blending.x + yaxis * blending.y + zaxis * blending.z;
 }
@@ -167,14 +178,24 @@ vec4 calculateBackgroundColor(float backTextureAmount)
     vec4 rockTextureColor       = DEFAULT_COLOR;
     vec4 backgroundTextureColor = DEFAULT_COLOR;
 
-    if (Is(perTerrainTextures.haveTextureBackground.x))
+    if (Is(perApp.useTextures.x) && Is(perTerrainTextures.haveTextureBackground.x))
     {
         backgroundTextureColor = getTriPlanarMappingColor(backgroundTexture, fs_in.worldPos.xyz, perTerrainTextures.backgroundTextureScales.x);
     }
 
-    if (Is(perTerrainTextures.haveTextureRock.x))
+    if (Is(perApp.useTextures.w) && Is(perTerrainTextures.haveTextureBackground.z))
+    {
+        backgroundTextureColor.w = getTriPlanarMappingColor(backgroundTextureDisplacement, fs_in.worldPos.xyz, perTerrainTextures.backgroundTextureScales.x).r;
+    }
+
+    if (Is(perApp.useTextures.x) &&  Is(perTerrainTextures.haveTextureRock.x))
     {
         rockTextureColor = getTriPlanarMappingColor(rockTexture, fs_in.worldPos.xyz, perTerrainTextures.backgroundTextureScales.y);
+    }
+
+    if (Is(perApp.useTextures.w) && Is(perTerrainTextures.haveTextureRock.z))
+    {
+        rockTextureColor.w = getTriPlanarMappingColor(rockTextureDisplacement, fs_in.worldPos.xyz, perTerrainTextures.backgroundTextureScales.y).r;
     }
 
     return ((backgroundTextureColor * (1.f - blendFactor)) + (rockTextureColor * blendFactor)) * backTextureAmount;
@@ -182,16 +203,16 @@ vec4 calculateBackgroundColor(float backTextureAmount)
 
 vec4 CalculateTerrainColor(vec2 textureCoords, vec4 blendMapColor, float backTextureAmount)
 {
-    if (!Is(perApp.useTextures.x))
+    if (!Is(perApp.useTextures.x) && !Is(perApp.useTextures.w))
     {
         return DEFAULT_COLOR;
     }
 
     vec4 backgroundTextureColour = calculateBackgroundColor(backTextureAmount);
-    vec4 redTextureColor         = textureColor(redTexture, textureCoords * perTerrainTextures.rgbaTextureScales.x, perTerrainTextures.haveTextureR.x) * blendMapColor.r;
-    vec4 greenTextureColor       = textureColor(greenTexture, textureCoords * perTerrainTextures.rgbaTextureScales.y, perTerrainTextures.haveTextureG.x) * blendMapColor.g;
-    vec4 blueTextureColor        = textureColor(blueTexture, textureCoords * perTerrainTextures.rgbaTextureScales.z, perTerrainTextures.haveTextureB.x) * blendMapColor.b;
-    vec4 alphaTextureColor       = textureColor(alphaTexture, textureCoords * perTerrainTextures.rgbaTextureScales.w, perTerrainTextures.haveTextureA.x) * blendMapColor.a;
+    vec4 redTextureColor         = textureColor(redTexture, redTextureDisplacement, textureCoords * perTerrainTextures.rgbaTextureScales.x, perTerrainTextures.haveTextureR.xz) * blendMapColor.r;
+    vec4 greenTextureColor       = textureColor(greenTexture, greenTextureDisplacement, textureCoords * perTerrainTextures.rgbaTextureScales.y, perTerrainTextures.haveTextureG.xz) * blendMapColor.g;
+    vec4 blueTextureColor        = textureColor(blueTexture, blueTextureDisplacement, textureCoords * perTerrainTextures.rgbaTextureScales.z, perTerrainTextures.haveTextureB.xz) * blendMapColor.b;
+    vec4 alphaTextureColor       = textureColor(alphaTexture, alphaTextureDisplacement, textureCoords * perTerrainTextures.rgbaTextureScales.w, perTerrainTextures.haveTextureA.xz) * blendMapColor.a;
 
     return backgroundTextureColour + redTextureColor + greenTextureColor + blueTextureColor + alphaTextureColor;
 }
@@ -260,10 +281,9 @@ void main()
     TerrainData terrainData = GetTerrainData();
     const float metallic = 0.f;
     const float roughness = 0.9f;
-    const float ambientOcclusion = 1.f;
 
     WorldPosOut      = fs_in.worldPos;
-    DiffuseOut       = vec4(terrainData.color.xyz, ambientOcclusion);
+    DiffuseOut       = terrainData.color;
     NormalOut        = terrainData.normal;
-    SurfaceParamsOut = vec4(metallic, roughness, 0.f, 0.f); 
+    SurfaceParamsOut = vec4(metallic, roughness, 0.f, 0.f);
 }

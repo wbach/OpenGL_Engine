@@ -1,4 +1,7 @@
 #version 440 core
+#extension GL_GOOGLE_include_directive : enable
+#include "../Common/PerFrameBuffer.glsl"
+
 const int MAX_BONES = 512;
 const int MAX_WEIGHTS = 4;
 
@@ -17,14 +20,6 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 shadowVariables;
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
-
-layout (std140,binding=1) uniform PerFrame
-{
-    mat4 projectionViewMatrix;
-    vec3 cameraPosition;
-    vec4 clipPlane;
-    vec4 projection;
-} perFrame;
 
 layout (std140, align=16, binding=2) uniform PerObjectConstants
 {
@@ -111,7 +106,7 @@ void main()
     float depth = length(perFrame.cameraPosition - worldData.worldPosition.xyz);
     const float farPlane = perFrame.projection.y;
     float linearDepth  = depth / farPlane;
-    
+
     vs_out.texCoord      = TexCoord;
     vs_out.worldPos      = vec4(worldData.worldPosition.xyz, linearDepth);
     vs_out.textureOffset = perObjectConstants.textureOffset;
