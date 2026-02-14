@@ -39,7 +39,6 @@
 #include "Types.h"
 #include "WxEditor/ProjectManager.h"
 #include "WxEditor/WxHelpers/LoadingDialog.h"
-#include "wx/gtk/dirdlg.h"
 
 namespace
 {

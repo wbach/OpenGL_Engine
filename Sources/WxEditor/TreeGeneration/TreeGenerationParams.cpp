@@ -292,7 +292,7 @@ void applyTextureSetToParams(TreeGenerationParams& params, const std::filesystem
     LOG_DEBUG << "Zmapowano pliki z katalogu: " << stdPath;
     LOG_DEBUG << textures;
 
-    std::string lowerPath = stdPath;
+    auto lowerPath = stdPath.string();
     std::transform(lowerPath.begin(), lowerPath.end(), lowerPath.begin(), ::tolower);
 
     bool isTrunk = lowerPath.find("trunk") != std::string::npos || lowerPath.find("bark") != std::string::npos;
