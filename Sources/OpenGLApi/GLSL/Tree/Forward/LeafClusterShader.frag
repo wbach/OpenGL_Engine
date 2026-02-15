@@ -46,6 +46,7 @@ in VS_OUT
     vec2 texCoord;
     float layerIndex;
     vec4 worldPos;
+    float visibility;
 } fs_in;
 
 bool Is(float v)
@@ -89,5 +90,5 @@ void main()
         baseColor.rgb *= vec3(0.95, 1.0, 0.95);
     }
 
-    outputColor      = baseColor;
+    outputColor      = vec4(baseColor.xyz, fs_in.visibility);
 }

@@ -2,9 +2,17 @@
 
 struct ClusterData
 {
-    vec4 center;     
-    vec4 size;       
+    vec4 center;
+    vec4 size;
 };
+
+layout (std140, align=16, binding=0) uniform PerApp
+{
+    vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
+    vec4 viewDistance; // x - objectView, y - normalMapping, z - plants, w - trees
+    vec4 shadowVariables;
+    vec4 fogData; // xyz - color, w - gradient
+} perApp;
 
 layout (std140, align=16, binding=1) uniform PerFrame
 {
@@ -22,9 +30,9 @@ layout (std140, binding = 3) uniform PerObjectUpdate
 
 layout(std140, align=16, binding = 4) uniform LeafParams
 {
-    vec4 wind; 
-    vec4 fparams; 
-    ivec4 atlasParams; 
+    vec4 wind;
+    vec4 fparams;
+    ivec4 atlasParams;
     float time;
 } leafParams;
 
@@ -38,6 +46,7 @@ out VS_OUT
     vec2 texCoord;
     float layerIndex;
     vec4 worldPos;
+    float visibility;
 } vs_out;
 
 void main()
@@ -82,5 +91,12 @@ void main()
     else
         vs_out.layerIndex = float(clusterIdx * 2 + 1);
 
-    gl_Position = perFrame.projectionViewMatrix * perObjectUpdate.transformationMatrix * vec4(worldPos, 1.0);
+
+    vec4 worldPosition = perObjectUpdate.transformationMatrix * vec4(worldPos, 1.0);
+
+    float distance = length(perFrame.cameraPosition - worldPosition.xyz);
+    float visibility = exp(-pow((distance*( ( 3.0f / perApp.viewDistance.x))), perApp.fogData.w));
+    vs_out.visibility = clamp(visibility, 0.f, 1.f);
+
+    gl_Position = perFrame.projectionViewMatrix * worldPosition;
 }

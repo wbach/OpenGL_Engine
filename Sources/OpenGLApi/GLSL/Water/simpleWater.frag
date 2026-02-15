@@ -62,6 +62,7 @@ void main(void)
 {
     outputColor  = vec4(waterTileMeshBuffer.waterColor.xyz, 0.5f);
 
+    outputColor      = vec4(outputColor.xyz, vs_out.visibility * 0.5f);
     // const vec4 fogColor = vec4(0.8, 0.8, 0.8, 1.f);
     // outputColor = mix(fogColor, outputColor, vs_out.visibility);
 }

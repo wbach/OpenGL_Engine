@@ -95,5 +95,10 @@ void main()
     }
 
     vec4 color = CalculateTerrainColor();
+
     outputColor = vec4(color.rgb * dummyDiffuseFactor, color.a);
+
+    outputColor = vec4(outputColor.xyz, fs_in.visibility);
+    // const vec4 fogColor = vec4(perApp.fogData.xyz, 1.f);
+    // outputColor = mix(fogColor, outputColor, fs_in.visibility);
 }

@@ -31,6 +31,8 @@ void BaseRenderer::init()
 
     createBaseRenderers();
     initRenderers();
+
+    isSimpleRender = true;
 }
 void BaseRenderer::prepare()
 {
@@ -105,6 +107,9 @@ void BaseRenderer::createBaseRenderers()
 }
 void BaseRenderer::renderImpl()
 {
+    if (isSimpleRender)
+        context_.graphicsApi_.EnableBlend();
+
     for (auto& renderer : renderers)
     {
         Utils::Timer timer;

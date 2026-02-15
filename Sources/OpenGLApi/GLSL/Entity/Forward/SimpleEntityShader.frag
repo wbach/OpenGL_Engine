@@ -75,6 +75,6 @@ void main()
     vec4 color = colorFromTexture * perMaterial.baseColor;
     outputColor = vec4(color.rgb * dummyDiffuseFactor, color.a);
 
-    const vec4 fogColor = vec4(perApp.fogData.xyz, 1.f);
-    outputColor = mix(fogColor, outputColor, vs_in.visibility);
+
+    outputColor      = vec4(outputColor.xyz, vs_in.visibility * color.a);
 }

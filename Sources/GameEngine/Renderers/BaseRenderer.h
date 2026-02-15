@@ -72,5 +72,8 @@ protected:
     RendererContext& context_;
     GraphicsApi::IFrameBuffer* renderTarget;
     Renderers renderers;
+
+private:
+    bool isSimpleRender = false;
 };
 }  // namespace GameEngine

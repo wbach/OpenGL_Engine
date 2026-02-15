@@ -12,9 +12,9 @@ layout(binding = 1) uniform sampler2DArray NormalTextureArray;
 layout (std140, align=16, binding=0) uniform PerApp
 {
     vec4 useTextures; // x - diffuse, y - normalMap, z - specular, w - displacement
-    vec4 viewDistance; 
+    vec4 viewDistance;
     vec4 shadowVariables;
-    vec4 fogData; 
+    vec4 fogData;
 } perApp;
 
 layout (std140, align=16, binding=1) uniform PerFrame
@@ -28,9 +28,9 @@ layout (std140, align=16, binding=1) uniform PerFrame
 
 layout(std140, align=16, binding = 4) uniform LeafParams
 {
-    vec4 wind; 
-    vec4 fparams; 
-    ivec4 atlasParams; 
+    vec4 wind;
+    vec4 fparams;
+    ivec4 atlasParams;
     float time;
 } leafParams;
 
@@ -40,8 +40,8 @@ layout (std140, align=16, binding=6) uniform PerMaterial
     vec4 baseColor;
     vec4 params; // x - metallicFactor, y - roughnessFactor, z - ambientOcclusion, w - opacityCutoff
     vec4 params2; // x - normalScale,  y - useFakeLighting, z - specularStrength, w - indexOfRefraction
-    vec4 hasTextures; 
-    vec4 hasTextures2; 
+    vec4 hasTextures;
+    vec4 hasTextures2;
 } perMaterial;
 
 in VS_OUT
@@ -49,6 +49,7 @@ in VS_OUT
     vec2 texCoord;
     float layerIndex;
     vec4 worldPos;
+    float visibility;
 } fs_in;
 
 bool Is(float v)
@@ -80,17 +81,17 @@ void main()
     if (t < threshold) discard;
 
     vec3 uvl = vec3(fs_in.texCoord , fs_in.layerIndex);
-    
+
     vec4 baseColor = vec4(1.0);
-    vec3 normal = vec3(0.0, 1.0, 0.0); 
-    
+    vec3 normal = vec3(0.0, 1.0, 0.0);
+
     if (Is(perApp.useTextures.x))
     {
         baseColor = texture(BaseColorTextureArray, uvl);
-        
-        if(baseColor.a < 0.5) discard; 
 
-        baseColor.rgb *= vec3(0.95, 1.0, 0.95);    
+        if(baseColor.a < 0.5) discard;
+
+        baseColor.rgb *= vec3(0.95, 1.0, 0.95);
     }
     if (Is(perApp.useTextures.y))
     {
