@@ -7,6 +7,7 @@
 #include "Objects/Entity/ConcreteEntityRenderer.h"
 #include "Objects/Entity/PreviewRenderer.h"
 #include "Objects/SkyBox/ConcreteSkyBoxRenderer.h"
+#include "Objects/SkyBox/ForwadSkyRenderer.h"
 #include "Objects/Terrain/Mesh/ConcreteTerrainMeshRenderer.h"
 #include "Objects/Tree/ConcreteTreeRenderer.h"
 #include "Objects/Water/WaterRenderer.h"
@@ -25,6 +26,9 @@ BaseRenderer::~BaseRenderer()
 void BaseRenderer::init()
 {
     context_.graphicsApi_.SetShaderQuaility(GraphicsApi::ShaderQuaility::SimpleForwardRendering);
+
+    addRenderer<ForwadSkyRenderer>();
+
     createBaseRenderers();
     initRenderers();
 }

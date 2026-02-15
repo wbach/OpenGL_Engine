@@ -134,6 +134,13 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::SimpleSky,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Sky/SimpleSky.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/SimpleSky.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::Terrain,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Tessllation/Forward/TerrainShader.vert"},

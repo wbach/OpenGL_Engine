@@ -12,21 +12,10 @@
 #include "GameEngine/Renderers/Projection/IProjection.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Scene/Scene.hpp"
+#include "SkyPassBuffer.h"
 
 namespace GameEngine
 {
-namespace
-{
-struct SkyPassBuffer
-{
-    mat4 invProj;
-    mat4 invViewRot;
-    AlignWrapper<vec4> screenSize;
-    AlignWrapper<vec4> sunDirection;
-    AlignWrapper<vec4> sunColor;  // w is night
-};
-
-}  // namespace
 SkyPassRenderer::SkyPassRenderer(RendererContext& context)
     : context(context)
     , shader(context.graphicsApi_, GraphicsApi::ShaderProgramType::Sky)
@@ -104,7 +93,7 @@ void SkyPassRenderer::Render(uint32 depthTextureId)
     context.graphicsApi_.BindShaderBuffer(*bufferId);
 
     context.graphicsApi_.ActiveTexture(0, depthTextureId);
-    context.graphicsApi_.RenderQuad();
+    context.graphicsApi_.RenderProcedural(3);
     shader.Stop();
     frameBuffer->UnBind();
 

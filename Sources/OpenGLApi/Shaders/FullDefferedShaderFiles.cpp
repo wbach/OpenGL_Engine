@@ -127,6 +127,20 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         }
     },
     {
+        GraphicsApi::ShaderProgramType::Sky,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Sky/Sky.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/Sky.frag"}
+        }
+    },
+    {
+        GraphicsApi::ShaderProgramType::SimpleSky,
+        {
+            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Sky/SimpleSky.vert"},
+            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/SimpleSky.frag"}
+        }
+    },
+    {
         GraphicsApi::ShaderProgramType::Skydome,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Skydome/Skydome.vert"},
@@ -226,13 +240,6 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/SSAO/SSAOShader.vert"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/SSAO/SSAOShader.frag"}
-        }
-    },
-    {
-        GraphicsApi::ShaderProgramType::Sky,
-        {
-            {GraphicsApi::ShaderType::VERTEX_SHADER, "PostProcess/Sky/Sky.vert"},
-            {GraphicsApi::ShaderType::FRAGMENT_SHADER, "PostProcess/Sky/Sky.frag"}
         }
     },
     {

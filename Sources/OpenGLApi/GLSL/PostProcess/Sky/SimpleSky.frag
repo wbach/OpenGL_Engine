@@ -10,8 +10,6 @@ layout (std140, align=16, binding=6) uniform SkyBuffer
     vec4 sunColor;     // rgb = sun/moon color, a = isNight (0 day, 1 night)
 } skyBuffer;
 
-uniform sampler2D gDepth;
-
 out vec4 outSkyColor;
 
 // --- CONFIG ---
@@ -54,13 +52,6 @@ float starField(vec3 worldRay)
 void main()
 {
     vec2 uv = gl_FragCoord.xy / skyBuffer.screenSize.xy;
-
-    //float depth = texture(gDepth, uv).r;
-    // if (depth < 1.0) // potrzebujemy niebo nawet dla zaslonietych pikseli zeby liczyc mgle w lightpassie
-    // {
-    //     outSkyColor = vec4(0.0);
-    //     return;
-    // }
 
     // --- RECONSTRUCT WORLD RAY ---
     vec4 ndc = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
@@ -146,11 +137,11 @@ void main()
     elevation = sunDir.y;
 
     // --- gwiazdy ---
-    float starBlend = smoothstep(0.0, 1.2, 1.f - skyBuffer.sunColor.a);
-    float horizonFactor = clamp(worldRay.y, 0.0, 1.0);
-    horizonFactor = pow(horizonFactor, 1.1);
-    vec3 starsColor = vec3(starField(worldRay)) * horizonFactor * starBlend;
-    finalSky = finalSky + starsColor;
+    // float starBlend = smoothstep(0.0, 1.2, 1.f - skyBuffer.sunColor.a);
+    // float horizonFactor = clamp(worldRay.y, 0.0, 1.0);
+    // horizonFactor = pow(horizonFactor, 1.1);
+    // vec3 starsColor = vec3(starField(worldRay)) * horizonFactor * starBlend;
+    // finalSky = finalSky + starsColor;
 
 
     outSkyColor = vec4(finalSky, 1.0);
