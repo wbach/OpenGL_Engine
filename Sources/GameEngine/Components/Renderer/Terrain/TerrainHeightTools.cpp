@@ -33,11 +33,11 @@ float TerrainHeightTools::GetHeight(uint32 x, uint32 y) const
 
     if (heightMapImage_.getChannelsCount() == 1)
     {
-        return (maybeColor->value.x);// * terrainScale_.y;
+        return (maybeColor->value.x);  // * terrainScale_.y;
     }
     else
     {
-        return (maybeColor->value.x);// * terrainScale_.y;
+        return (maybeColor->value.x);  // * terrainScale_.y;
     }
 
     return 0.f;
@@ -49,96 +49,103 @@ vec2 TerrainHeightTools::GetTexCoord(uint32 x, uint32 y) const
     result.y = static_cast<float>(y) / static_cast<float>(heightMapImage_.height - 1);
     return result;
 }
+// vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
+// {
+//     // z0 -- z1 -- z2
+//     // |     |     |
+//     // z3 -- h  -- z4
+//     // |     |     |
+//     // z5 -- z6 -- z7
+
+//     float heightLeft      = GetHeight(Left(x), z);
+//     float heightRight     = GetHeight(Right(x), z);
+//     float heightDown      = GetHeight(x, Down(z));
+//     float heightUp        = GetHeight(x, Up(z));
+//     float heightUpLeft    = GetHeight(Left(x), Up(z));
+//     float heightUpRight   = GetHeight(Right(x), Up(z));
+//     float heightDownLeft  = GetHeight(Left(x), Down(z));
+//     float heightDownRight = GetHeight(Right(x), Down(z));
+
+//     auto gridSquereSize = Utils::xz(terrainScale_) / (static_cast<float>(heightMapImage_.width) - 1.f);
+
+//     auto vh = vec3(0, GetHeight(x, z), 0);
+
+//     auto v0 = vec3(-gridSquereSize.x, heightUpLeft, -gridSquereSize.y);
+//     auto v1 = vec3(0, heightUp, -gridSquereSize.y);
+//     auto v2 = vec3(gridSquereSize.x, heightUpRight, -gridSquereSize.y);
+
+//     auto v3 = vec3(-gridSquereSize.x, heightLeft, 0);
+//     auto v4 = vec3(gridSquereSize.x, heightRight, 0);
+
+//     auto v5 = vec3(-gridSquereSize.x, heightDownLeft, gridSquereSize.y);
+//     auto v6 = vec3(0, heightDown, gridSquereSize.y);
+//     auto v7 = vec3(gridSquereSize.x, heightDownRight, gridSquereSize.y);
+
+//     auto v0vh = v0 - vh;
+//     auto v3vh = v3 - vh;
+//     auto vn1  = glm::normalize(glm::cross(v0vh, v3vh));
+//     // return vn1;
+
+//     auto v1vh = v1 - vh;
+//     // auto v0vh = v0 - vh;
+//     auto vn2 = glm::normalize(glm::cross(v1vh, v0vh));
+
+//     auto v2vh = v2 - vh;
+//     // auto v1vh = v1 - vh;
+//     auto vn3 = glm::normalize(glm::cross(v2vh, v1vh));
+
+//     auto v4vh = v4 - vh;
+//     //  auto v2vh = v2 - vh;
+//     auto vn4 = glm::normalize(glm::cross(v4vh, v2vh));
+
+//     auto v7vh = v7 - vh;
+//     //  auto v4vh = v4 - vh;
+//     auto vn5 = glm::normalize(glm::cross(v7vh, v4vh));
+
+//     auto v6vh = v6 - vh;
+//     // auto v7vh = v7 - vh;
+//     auto vn6 = glm::normalize(glm::cross(v6vh, v7vh));
+
+//     auto v5vh = v5 - vh;
+//     // auto v6vh = v6 - vh;
+//     auto vn7 = glm::normalize(glm::cross(v5vh, v6vh));
+
+//     // auto v3vh = v3 - vh;
+//     // auto v5vh = v5 - vh;
+//     auto vn8 = glm::normalize(glm::cross(v3vh, v5vh));
+
+//     return glm::normalize((vn1 + vn2 + vn3 + vn4 + vn5 + vn6 + vn7 + vn8) / 8.f);
+// }
+
 vec3 TerrainHeightTools::GetNormal(uint32 x, uint32 z) const
 {
-    // z0 -- z1 -- z2
-    // |     |     |
-    // z3 -- h  -- z4
-    // |     |     |
-    // z5 -- z6 -- z7
+    float hL = GetHeight(Left(x), z);
+    float hR = GetHeight(Right(x), z);
+    float hD = GetHeight(x, Down(z));
+    float hU = GetHeight(x, Up(z));
 
-    float heightLeft      = GetHeight(Left(x), z);
-    float heightRight     = GetHeight(Right(x), z);
-    float heightDown      = GetHeight(x, Down(z));
-    float heightUp        = GetHeight(x, Up(z));
-    float heightUpLeft    = GetHeight(Left(x), Up(z));
-    float heightUpRight   = GetHeight(Right(x), Up(z));
-    float heightDownLeft  = GetHeight(Left(x), Down(z));
-    float heightDownRight = GetHeight(Right(x), Down(z));
+    auto gridSize = Utils::xz(terrainScale_) / (static_cast<float>(heightMapImage_.width) - 1.f);
 
-    auto gridSquereSize = Utils::xz(terrainScale_) / (static_cast<float>(heightMapImage_.width) - 1.f);
+    vec3 dx(2.0f * gridSize.x, hR - hL, 0.0f);
+    vec3 dz(0.0f, hD - hU, 2.0f * gridSize.y);
 
-    auto vh = vec3(0, GetHeight(x, z), 0);
-
-    auto v0 = vec3(-gridSquereSize.x, heightUpLeft, -gridSquereSize.y);
-    auto v1 = vec3(0, heightUp, -gridSquereSize.y);
-    auto v2 = vec3(gridSquereSize.x, heightUpRight, -gridSquereSize.y);
-
-    auto v3 = vec3(-gridSquereSize.x, heightLeft, 0);
-    auto v4 = vec3(gridSquereSize.x, heightRight, 0);
-
-    auto v5 = vec3(-gridSquereSize.x, heightDownLeft, gridSquereSize.y);
-    auto v6 = vec3(0, heightDown, gridSquereSize.y);
-    auto v7 = vec3(gridSquereSize.x, heightDownRight, gridSquereSize.y);
-
-    auto v0vh = v0 - vh;
-    auto v3vh = v3 - vh;
-    auto vn1  = glm::normalize(glm::cross(v0vh, v3vh));
-    // return vn1;
-
-    auto v1vh = v1 - vh;
-    // auto v0vh = v0 - vh;
-    auto vn2 = glm::normalize(glm::cross(v1vh, v0vh));
-
-    auto v2vh = v2 - vh;
-    // auto v1vh = v1 - vh;
-    auto vn3 = glm::normalize(glm::cross(v2vh, v1vh));
-
-    auto v4vh = v4 - vh;
-    //  auto v2vh = v2 - vh;
-    auto vn4 = glm::normalize(glm::cross(v4vh, v2vh));
-
-    auto v7vh = v7 - vh;
-    //  auto v4vh = v4 - vh;
-    auto vn5 = glm::normalize(glm::cross(v7vh, v4vh));
-
-    auto v6vh = v6 - vh;
-    // auto v7vh = v7 - vh;
-    auto vn6 = glm::normalize(glm::cross(v6vh, v7vh));
-
-    auto v5vh = v5 - vh;
-    // auto v6vh = v6 - vh;
-    auto vn7 = glm::normalize(glm::cross(v5vh, v6vh));
-
-    // auto v3vh = v3 - vh;
-    // auto v5vh = v5 - vh;
-    auto vn8 = glm::normalize(glm::cross(v3vh, v5vh));
-
-    return glm::normalize((vn1 + vn2 + vn3 + vn4 + vn5 + vn6 + vn7 + vn8) / 8.f);
+    return glm::normalize(glm::cross(dz, dx));
 }
+
 vec3 TerrainHeightTools::GetTangent(uint32 x, uint32 z) const
 {
-    return GetTangent(GetNormal(x, z));
+    float hL = GetHeight(Left(x), z);
+    float hR = GetHeight(Right(x), z);
+
+    auto gridSize = Utils::xz(terrainScale_) / (static_cast<float>(heightMapImage_.width) - 1.f);
+
+    return glm::normalize(vec3(2.0f * gridSize.x, hR - hL, 0.0f));
 }
 vec3 TerrainHeightTools::GetTangent(const vec3& normal) const
 {
-    vec3 up(0, 1, 0);
-    vec3 tangent(1, 0, 0);  // flat terrain is regular grid
-
-    if (glm::dot(normal, up) > 0.999999f and glm::dot(normal, up) < -0.999999f)
-    {
-        return tangent;
-    }
-
-    Quaternion q;
-    vec3 a = glm::cross(up, normal);
-    q.x    = a.x;
-    q.y    = a.y;
-    q.z    = a.z;
-    q.w    = sqrtf((glm::length(normal) * glm::length(normal)) * (glm::length(up) * glm::length(up))) + glm::dot(up, normal);
-
-    tangent = glm::normalize(q) * tangent;
-    return glm::normalize(tangent);
+    vec3 worldX(1, 0, 0);
+    vec3 binormal = glm::normalize(glm::cross(normal, worldX));
+    return glm::normalize(glm::cross(binormal, normal));
 }
 uint32 TerrainHeightTools::Left(uint32 x) const
 {

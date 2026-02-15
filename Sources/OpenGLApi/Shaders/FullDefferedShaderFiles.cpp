@@ -147,7 +147,6 @@ const std::unordered_map<GraphicsApi::ShaderProgramType, GraphicsApi::ShadersFil
         GraphicsApi::ShaderProgramType::TerrainMesh,
         {
             {GraphicsApi::ShaderType::VERTEX_SHADER, "Terrain/Mesh/TerrainShader.vert"},
-            {GraphicsApi::ShaderType::GEOMETRY_SHADER, "Terrain/Mesh/TerrainShader.geom"},
             {GraphicsApi::ShaderType::FRAGMENT_SHADER,"Terrain/Mesh/TerrainShader.frag"}
         }
     },

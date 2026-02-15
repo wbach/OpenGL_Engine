@@ -12,12 +12,11 @@ layout (std140, align=16, binding=0) uniform PerApp
     vec4 fogData; // xyz - color, w - gradient
 } perApp;
 
-in GS_OUT
+in VS_OUT
 {
     vec4 worldPosition;
     vec2 texCoord;
     vec3 normal;
-    vec3 faceNormal;
     float visibility;
 } fs_in;
 
@@ -96,7 +95,7 @@ vec4 textureColor(sampler2D inputTexture, vec2 coords, float useThatTexture)
 
 vec3 getTriPlanarTextureBlendingFactor()
 {
-    vec3 normal = fs_in.faceNormal;
+    vec3 normal = fs_in.normal;
     vec3 blending = abs(normal);
     blending = normalize(max(blending, EPSILON));
     float b = (blending.x + blending.y + blending.z);
