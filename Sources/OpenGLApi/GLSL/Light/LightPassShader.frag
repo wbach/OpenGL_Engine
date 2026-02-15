@@ -186,7 +186,7 @@ vec4 CalculateBaseLight(
     // ------------------------------------------------------------------
     // FAKE INDIRECT (zamiast ambient = 0.1)
     // tylko albedo, AO i brak speculara
-    vec3 fakeIndirect = baseColor * 0.15* AO;
+    vec3 fakeIndirect = baseColor * 0.15 * AO;
 
     vec3 color = directLight + fakeIndirect;
 
@@ -427,9 +427,9 @@ void main()
     SMaterial material;
     material.baseColor          = colorMap.rgb;
     material.metallic           = surfacePram.x;
-    material.roughness          = surfacePram.y;        
+    material.roughness          = surfacePram.y;
     material.specularStrength   = surfacePram.z;
-    material.ambientOcclusion   = colorMap.w; 
+    material.ambientOcclusion   = colorMap.w;
 
     float shadowFactor      = CalculateShadowFactor(worldPosition);
 

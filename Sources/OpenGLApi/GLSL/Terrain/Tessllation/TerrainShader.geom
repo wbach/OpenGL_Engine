@@ -1,4 +1,4 @@
-#version 440 core
+#version 450 core
 #define TEXTURE_TILED_FACTOR 800.f
 
 layout(triangles) in;

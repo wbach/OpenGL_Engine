@@ -1,4 +1,4 @@
-#version 420 core
+#version 450 core
 
 layout (vertices = 4) out;
 
@@ -34,7 +34,7 @@ void main(void)
         p1 /= p1.w;
         p2 /= p2.w;
         p3 /= p3.w;
-      
+
         float distanceToCamera_p0 = length(gl_in[0].gl_Position.xz);
         float distanceToCamera_p1 = length(gl_in[1].gl_Position.xz);
         float distanceToCamera_p2 = length(gl_in[2].gl_Position.xz);

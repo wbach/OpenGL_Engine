@@ -111,7 +111,7 @@ void main()
     {
        baseColor = texture(BaseColorTexture, uv).rgb;
     }
-    
+
     float ambientOcclusion  = perMaterial.params.z;
     float roughness         = perMaterial.params.y;
     float metallic          = perMaterial.params.x;
@@ -140,9 +140,9 @@ void main()
            metallic = texture(MetallicTexture, uv).r;
         }
     }
-   
+
     WorldPosOut         = fs_in.worldPos; // w - linear depth from vs
-    ColorMapOut         = vec4(baseColor, ambientOcclusion);                       
-    NormalOut           = vec4(normal, 1.0);                
-    SurfaceParamsOut    = vec4(metallic, roughness, 1.f, perMaterial.params2.w); 
+    ColorMapOut         = vec4(baseColor, ambientOcclusion);
+    NormalOut           = vec4(normal, 1.0);
+    SurfaceParamsOut    = vec4(metallic, roughness, 1.f, perMaterial.params2.w);
 }

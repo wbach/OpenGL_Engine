@@ -1,4 +1,4 @@
-#version 430
+#version 450 core
 #define MORPH_AREAS 8
 
 layout(quads, fractional_odd_spacing, cw) in;

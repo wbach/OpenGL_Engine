@@ -1,4 +1,4 @@
-#version 440 core
+#version 450
 const float TRANSITION_DISTANCE = 2.f;
 
 layout (location = 0) in vec3 POSITION;
