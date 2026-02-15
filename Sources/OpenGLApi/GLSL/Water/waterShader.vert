@@ -37,7 +37,7 @@ void main(void)
  {
     vec4 worldSpace       = perObjectUpdate.transformationMatrix * vec4(Position, 1.0);
     vs_out.texCoord       = TexCoord * tiling;
-    vs_out.normal         = (perObjectUpdate.transformationMatrix * vec4(Normal, 0.0)).xyz;
+    vs_out.normal         = normalize(perObjectUpdate.transformationMatrix * vec4(Normal, 0.0)).xyz;
     vs_out.worldPos       = worldSpace;
     vs_out.clipSpace      = perFrame.projectionViewMatrix * worldSpace;
 

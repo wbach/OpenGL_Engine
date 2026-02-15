@@ -43,7 +43,7 @@ out VS_OUT
 void main(void)
 {
     vs_out.texCoord       = TexCoord * tiling;
-    vs_out.normal         = (perObjectUpdate.transformationMatrix * vec4(Normal, 0.0)).xyz;
+    vs_out.normal         = normalize(perObjectUpdate.transformationMatrix * vec4(Normal, 0.0)).xyz;
     vs_out.worldPos       = (perObjectUpdate.transformationMatrix * vec4(Position, 1.0)).xyz;
     vs_out.toCameraVector = perFrame.cameraPosition - vs_out.worldPos;
 

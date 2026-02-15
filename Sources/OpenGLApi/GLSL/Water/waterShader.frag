@@ -45,9 +45,10 @@ layout (location = 2) out vec4 NormalOut;
 layout (location = 3) out vec4 MaterialSpecular;
 
 
-const float EDGE_DEPTH_SCALE = 50.0; 
-const float EDGE_MIN_FACTOR  = 0.01;  
-const float EDGE_MAX_FACTOR  = 0.09;  
+const float EDGE_DEPTH_SCALE = 50.0;
+const float EDGE_MIN_FACTOR  = 0.01;
+const float EDGE_MAX_FACTOR  = 0.09;
+
 bool Is(float v)
 {
     return v > .5f;
@@ -143,7 +144,7 @@ void main(void)
     vec4 normalMapValue = texture(normalMap, distortedTexCoords);
     //vec3 normal = gs_out.normal;//calculateNormal(normalMapValue);
     vec3 normal = calculateWorldNormal(normalMapValue);
-    vec3 normalGS = normalize(gs_out.normal);  
+    vec3 normalGS = normalize(gs_out.normal);
 
     DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 1.0f);
     NormalOut        = vec4(normal, 1.f);
@@ -160,8 +161,11 @@ void main(void)
     vec2 refractTexCoords = vec2(ndc.x, ndc.y);
     vec2 reflectTexCoords = vec2(ndc.x, -ndc.y);
 
-    float waterDepth = calculateWaterDepth(refractTexCoords);
+    const float far          = waterTileMeshBuffer.projParams.y;
+    float waterDepth = calculateWaterDepth(refractTexCoords)  / far;
+
     float edgesFactor    = calculateEdgesFactor(waterDepth);
+
     vec2 totalDistortion =  (texture(dudvMap, distortedTexCoords).rg * 2.f - 1.f) * waveStrength * edgesFactor;
 
     reflectTexCoords   = reflectTexCoords + totalDistortion;
@@ -172,24 +176,21 @@ void main(void)
     refractTexCoords = clamp(refractTexCoords, 0.001f, 0.999f);
 
     vec3 toCameraVector = normalize(perFrame.cameraPosition - gs_out.worldPos.xyz);
-
-    float refractiveFactor  = dot(toCameraVector, gs_out.normal);
-    refractiveFactor        = pow(refractiveFactor, 0.2);
-    refractiveFactor        = clamp(refractiveFactor, 0.0f, 1.0f);
+    //float cosTheta = dot(toCameraVector, normalGS);
+    float cosTheta = dot(toCameraVector, normal);
+    const float R0 = 0.02;
+    float fresnel = R0 + (1.0 - R0) * pow(1.0 - max(cosTheta, 0.0), 4.0);
 
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
 
-    const float far          = waterTileMeshBuffer.projParams.y;
-    float depth = calculateWaterDepth(refractTexCoords) / far;
-    bool isUnderwater = depth < 0.5f;
+    bool isUnderwater = waterDepth < 0.5f;
     if (!isUnderwater)
     {
        refractColor = vec4(0, 0 ,0, 1);
     }
-    DiffuseOut.a = 1.f;
 
     refractColor    = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), CalculateRefractionWithWaterColorBlendFactor(waterDepth));
-    DiffuseOut      = mix(reflectColor, refractColor, refractiveFactor);
+    DiffuseOut      = mix(refractColor, reflectColor, fresnel);
     DiffuseOut.a    = 1.0;
 }

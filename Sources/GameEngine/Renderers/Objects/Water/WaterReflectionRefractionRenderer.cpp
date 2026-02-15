@@ -20,6 +20,7 @@ WaterReflectionRefractionRenderer::WaterReflectionRefractionRenderer(RendererCon
     , entityRenderer_(context)
     , terrainMeshRenderer_(context)
     , skyBoxRenderer_(context)
+    , forwadSkyRenderer_(context)
     , entityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwadEntity)
     , instancedEntityShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::InstancesSimpleForwadEntity)
     , terrainShader_(context.graphicsApi_, GraphicsApi::ShaderProgramType::SimpleForwardTerrainMesh)
@@ -102,6 +103,8 @@ void WaterReflectionRefractionRenderer::initResources()
         return;
     }
 
+    forwadSkyRenderer_.init();
+
     entityRenderer_.init();
 
     if (not reflectionPerFrameBuffer_)
@@ -140,6 +143,7 @@ void WaterReflectionRefractionRenderer::cleanUp()
     skyBoxRenderer_.cleanUp();
 
     entityRenderer_.cleanUp();
+    forwadSkyRenderer_.cleanUp();
 
     if (reflectionPerFrameBuffer_)
     {
@@ -255,6 +259,7 @@ void WaterReflectionRefractionRenderer::unSubscribeAll()
 }
 void WaterReflectionRefractionRenderer::reloadShaders()
 {
+    forwadSkyRenderer_.reloadShaders();
     skyBoxShader_.Reload();
     entityShader_.Reload();
     instancedEntityShader_.Reload();
@@ -296,6 +301,7 @@ GraphicsApi::IFrameBuffer* WaterReflectionRefractionRenderer::createWaterFbo(con
 
 void WaterReflectionRefractionRenderer::renderScene()
 {
+    forwadSkyRenderer_.render();
     skyBoxShader_.Start();
     skyBoxRenderer_.render();
     ++waterTexturesRendererdMeshesCounter_;  // Skybox is also counted as rendered mesh

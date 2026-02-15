@@ -119,10 +119,10 @@ void main()
         vec4 worldPosition = gs_in[i].worldPos;
         worldPosition.y += waveHeight(worldPosition.xz, waterTileMeshBuffer.params.y, waterTileMeshBuffer.waveParams.x);
 
-        gs_out.worldPos  = worldPosition;
+        gs_out.worldPos  =  worldPosition;
         gs_out.texCoord  = gs_in[i].texCoord;
         gs_out.normal = calculateVertexNormal(worldPosition.xyz, waterTileMeshBuffer.params.y, waterTileMeshBuffer.waveParams.x);
-        
+
         vec3 tangent, bitangent;
         calculateTangentBitangentPerVertex(
             worldPosition.xyz,
@@ -136,7 +136,7 @@ void main()
         gs_out.tangent = tangent;
         gs_out.bitangent = bitangent;
 
-        gs_out.clipSpace = perFrame.projectionViewMatrix * worldPosition; 
+        gs_out.clipSpace = perFrame.projectionViewMatrix * worldPosition;
         gl_Position = perFrame.projectionViewMatrix * worldPosition;
 
         EmitVertex();

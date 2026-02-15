@@ -1,17 +1,19 @@
 #pragma once
 #include <GraphicsApi/IGraphicsApi.h>
 
+#include <set>
+
 #include "GameEngine/Components/Renderer/Water/WaterRendererComponent.h"
 #include "GameEngine/Engine/Configuration.h"
 #include "GameEngine/Renderers/IRenderer.h"
 #include "GameEngine/Renderers/Objects/Entity/EntityRenderer.h"
+#include "GameEngine/Renderers/Objects/SkyBox/ForwadSkyRenderer.h"
 #include "GameEngine/Renderers/Objects/SkyBox/SkyBoxRenderer.h"
 #include "GameEngine/Renderers/Objects/Terrain/Mesh/TerrainMeshRenderer.h"
 #include "GameEngine/Renderers/RendererContext.h"
 #include "GameEngine/Resources/ShaderBuffers/ShadowsBuffer.h"
 #include "GameEngine/Scene/Scene.hpp"
 #include "GameEngine/Shaders/ShaderProgram.h"
-#include <set>
 
 namespace GameEngine
 {
@@ -85,6 +87,7 @@ private:
     EntityRenderer entityRenderer_;
     TerrainMeshRenderer terrainMeshRenderer_;
     SkyBoxRenderer skyBoxRenderer_;
+    ForwadSkyRenderer forwadSkyRenderer_;
 
     ShaderProgram entityShader_;
     ShaderProgram instancedEntityShader_;
