@@ -87,9 +87,8 @@ mat3 getTBN()
     vec3 B = normalize(gs_out.bitangent);
     vec3 N = normalize(gs_out.normal);
 
-    // Gram-Schmidt orthonormalization — poprawia błędy numeryczne
     T = normalize(T - dot(T, N) * N);
-    B = normalize(cross(N, T)); // zawsze prostopadły
+    B = normalize(cross(N, T));
 
     return mat3(T, B, N);
 }
@@ -170,6 +169,8 @@ void main(void)
     //vec3 normal = gs_out.normal;//calculateNormal(normalMapValue);
     vec3 normal = calculateWorldNormal(normalMapValue);
     vec3 normalGS = normalize(gs_out.normal);
+    const float normalStrength =  waterTileMeshBuffer.waveParams.w;
+    normal = normalize(mix(normalGS, normal, normalStrength));
 
     DiffuseOut       = vec4(waterTileMeshBuffer.waterColor.xyz, 1.0f);
     NormalOut        = vec4(normal, 1.f);
@@ -198,7 +199,7 @@ void main(void)
         discard;
     }
 
-    vec2 totalDistortion =  (texture(dudvMap, distortedTexCoords).rg * 2.f - 1.f) * waveStrength * edgesFactor;
+    vec2 totalDistortion = vec2(0);//  (texture(dudvMap, distortedTexCoords).rg * 2.f - 1.f) * waveStrength * edgesFactor;
 
     reflectTexCoords   = reflectTexCoords + totalDistortion;
     reflectTexCoords.x = clamp(reflectTexCoords.x, 0.001f, 0.999f);
@@ -215,12 +216,12 @@ void main(void)
     vec4 refractColor = texture(refractionTexture, refractTexCoords);
     vec4 reflectColor = texture(reflectionTexture, reflectTexCoords);
 
-    const float far = waterTileMeshBuffer.projParams.y;
-    bool isUnderwater = waterDepth / far < 0.5f;
-    if (!isUnderwater)
-    {
-       refractColor = vec4(0, 0 ,0, 1);
-    }
+    // const float far = waterTileMeshBuffer.projParams.y;
+    // bool isUnderwater = waterDepth / far < 0.5f;
+    // if (!isUnderwater)
+    // {
+    //    refractColor = vec4(0, 0 ,0, 1);
+    // }
 
     refractColor    = mix(refractColor, vec4(waterTileMeshBuffer.waterColor.xyz, 1.f), CalculateRefractionWithWaterColorBlendFactor(waterDepth));
     DiffuseOut      = mix(refractColor, reflectColor, fresnel);

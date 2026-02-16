@@ -23,6 +23,7 @@ namespace
 {
 constexpr char CSTR_COLOR[]                = "color";
 constexpr char CSTR_COLOR_BLEND_FACTOR[]   = "waterColorBlendFactor";
+constexpr char CSTR_NORMAL_STRENGHT[]      = "normalStrength";
 constexpr char CSTR_SOFT_EDGE_DISTANCE[]   = "softEdgeDistance";
 constexpr char CSTR_TILED_VALUE[]          = "tiledValue";
 constexpr char CSTR_PLANE_WAVE_SPEED[]     = "planeWaveSpeed";
@@ -259,6 +260,7 @@ void WaterRendererComponent::registerReadFunctions()
 
         std::string dudvMap, normalMap;
         ::Read(node.getChild(CSTR_COLOR), component->waterColor);
+        ::Read(node.getChild(CSTR_NORMAL_STRENGHT), component->normalStrength);
         ::Read(node.getChild(CSTR_SOFT_EDGE_DISTANCE), component->softEdgeDistance);
         ::Read(node.getChild(CSTR_COLOR_BLEND_FACTOR), component->waterColorBlendFactor);
         ::Read(node.getChild(CSTR_DUDV_MAP), dudvMap);
@@ -287,6 +289,7 @@ void WaterRendererComponent::write(TreeNode& node) const
     node.attributes_.insert({CSTR_TYPE, GetTypeName()});
 
     ::write(node.addChild(CSTR_COLOR), GetWaterColor());
+    ::write(node.addChild(CSTR_NORMAL_STRENGHT), normalStrength);
     ::write(node.addChild(CSTR_SOFT_EDGE_DISTANCE), softEdgeDistance);
     ::write(node.addChild(CSTR_COLOR_BLEND_FACTOR), waterColorBlendFactor);
     ::write(node.addChild(CSTR_DUDV_MAP), dudvMap.GetDataRelativePath());

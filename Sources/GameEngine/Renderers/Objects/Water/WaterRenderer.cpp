@@ -133,6 +133,7 @@ void WaterRenderer::render()
         waterTileMeshBuffer.waveParams.value.x      = component.waveAmplitude;
         waterTileMeshBuffer.waveParams.value.y      = component.waveFrequency;
         waterTileMeshBuffer.waveParams.value.z      = component.meshResolution;
+        waterTileMeshBuffer.waveParams.value.w      = component.normalStrength;
         waterTileMeshBuffer.tilePosAndScale.value.x = position.x;
         waterTileMeshBuffer.tilePosAndScale.value.y = position.y;
         waterTileMeshBuffer.tilePosAndScale.value.z = scale.x;
